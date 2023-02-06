@@ -271,7 +271,18 @@ dhp:
 # Settings for modules/appeals_api
 modules_appeals_api:
   token_validation:
-    api_key: ''
+    appeals_status:
+      api_key: ''
+    contestable_issues:
+      api_key: ''
+    higher_level_reviews:
+      api_key: ''
+    legacy_appeals:
+      api_key: ''
+    notice_of_disagreements:
+      api_key: ''
+    supplemental_claims:
+      api_key: ''
   slack:
     api_token: ''
     appeals_channel_id: ''

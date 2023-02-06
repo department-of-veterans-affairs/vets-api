@@ -13,6 +13,8 @@ module AppealsApi::LegacyAppeals::V0
       )
     )['definitions']['legacyAppealsIndexParameters']['properties'].keys
 
+    OAUTH_SCOPES = { GET: %w[appeals/LegacyAppeals.read] }.freeze
+
     def schema
       render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
         AppealsApi::FormSchemas.new(
@@ -20,6 +22,12 @@ module AppealsApi::LegacyAppeals::V0
           schema_version: 'v2'
         ).schema(self.class::FORM_NUMBER)
       )
+    end
+
+    private
+
+    def token_validation_api_key
+      Settings.dig(:modules_appeals_api, :token_validation, :legacy_appeals, :api_key)
     end
   end
 end

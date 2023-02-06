@@ -7,12 +7,27 @@ module AppealsApi
     extend ActiveSupport::Concern
     TOKEN_REGEX = /^Bearer (\S+)$/.freeze
 
+    # These appeals_api-wide scopes should be allowed for any route using OAuth anywhere in the appeals APIs.
+    DEFAULT_OAUTH_SCOPES = {
+      GET: %w[appeals.read],
+      PUT: %w[appeals.write],
+      POST: %w[appeals.write]
+    }.freeze
+
+    # Controllers using this concern can override this constant to specify their own scopes.
+    # Scopes defined this way will be allowed in addition to (not instead of) the default scopes above.
+    OAUTH_SCOPES = {
+      GET: %w[],
+      PUT: %w[],
+      POST: %w[]
+    }.freeze
+
     included do
       before_action :validate_auth_token!
     end
 
     def audience_url
-      "#{request.base_url == 'https://api.va.gov' ? 'https://api.va.gov' : 'https://sandbox-api.va.gov'}/services/claims"
+      "#{request.base_url == 'https://api.va.gov' ? 'https://api.va.gov' : 'https://sandbox-api.va.gov'}/services/appeals"
     end
 
     def find_auth_token!
@@ -27,28 +42,22 @@ module AppealsApi
     end
 
     def token_validation_client
-      @client ||= AppealsApi::TokenValidationClient.new(api_key: Settings.modules_appeals_api.token_validation.api_key)
-    end
-
-    # If needed, override this in individual controllers to return a list of required OAuth
-    # scopes based on the context.
-    # FIXME: replace these with actual scopes
-    #
-    # @return [Array<String>] OAuth scopes required for a successful current request
-    def oauth_scopes
-      {
-        GET: %w[claim.read],
-        PUT: %w[claim.write],
-        POST: %w[claim.write]
-      }[request.method.to_sym]
+      @client ||= AppealsApi::TokenValidationClient.new(api_key: token_validation_api_key)
     end
 
     def validate_auth_token!
       token_validation_client.validate_token!(
         audience: audience_url,
-        scopes: oauth_scopes,
+        scopes: DEFAULT_OAUTH_SCOPES[request.method.to_sym].concat(self.class::OAUTH_SCOPES[request.method.to_sym]),
         token: auth_token
       )
+    end
+
+    private
+
+    # Override this in individual controllers
+    def token_validation_api_key
+      raise 'Missing token validation API key'
     end
   end
 end

@@ -6,10 +6,10 @@ shared_examples 'appeals status endpoints' do |opts|
   describe '#index' do
     include SchemaMatchers
     let(:endpoint) { opts[:appeals_endpoint] }
+    let(:oauth_scopes) { opts[:oauth_scopes] || [] }
 
     context 'with the X-VA-SSN and X-VA-User header supplied ' do
       let(:user) { FactoryBot.create(:user, :loa3) }
-      let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
       let(:user_headers) do
         {
           'X-VA-SSN' => '111223333',
@@ -24,7 +24,9 @@ shared_examples 'appeals status endpoints' do |opts|
 
       it 'returns a successful response' do
         VCR.use_cassette('caseflow/appeals') do
-          get endpoint, params: nil, headers: user_headers
+          with_openid_auth(oauth_scopes) do |auth_header|
+            get endpoint, params: nil, headers: auth_header.merge(user_headers)
+          end
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('appeals')
@@ -35,7 +37,9 @@ shared_examples 'appeals status endpoints' do |opts|
         VCR.use_cassette('caseflow/appeals') do
           allow(Rails.logger).to receive(:info)
           expect do
-            get endpoint, params: nil, headers: user_headers
+            with_openid_auth(oauth_scopes) do |auth_header|
+              get endpoint, params: nil, headers: auth_header.merge(user_headers)
+            end
           end.to trigger_statsd_increment('api.external_http_request.CaseflowStatus.success',
                                           times: 1,
                                           value: 1,
@@ -57,7 +61,6 @@ shared_examples 'appeals status endpoints' do |opts|
 
     context 'with an empty response' do
       let(:user) { FactoryBot.create(:user, :loa3) }
-      let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
       let(:user_headers) do
         {
           'X-VA-SSN' => '111223333',
@@ -68,7 +71,9 @@ shared_examples 'appeals status endpoints' do |opts|
 
       it 'returns a successful response' do
         VCR.use_cassette('caseflow/appeals_empty') do
-          get endpoint, params: nil, headers: user_headers
+          with_openid_auth(oauth_scopes) do |auth_header|
+            get endpoint, params: nil, headers: auth_header.merge(user_headers)
+          end
 
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
@@ -79,7 +84,9 @@ shared_examples 'appeals status endpoints' do |opts|
       it 'logs appropriately' do
         VCR.use_cassette('caseflow/appeals_empty') do
           allow(Rails.logger).to receive(:info)
-          get endpoint, params: nil, headers: user_headers
+          with_openid_auth(oauth_scopes) do |auth_header|
+            get endpoint, params: nil, headers: auth_header.merge(user_headers)
+          end
 
           hash = Digest::SHA2.hexdigest '111223333'
           expect(Rails.logger).to have_received(:info).with('Caseflow Request',
@@ -96,10 +103,16 @@ shared_examples 'appeals status endpoints' do |opts|
     context 'without the X-VA-User header supplied' do
       it 'returns a successful response' do
         VCR.use_cassette('caseflow/appeals') do
-          get endpoint,
-              params: nil,
-              headers: { 'X-VA-SSN' => '111223333',
-                         'X-Consumer-Username' => 'TestConsumer' }
+          with_openid_auth(oauth_scopes) do |auth_header|
+            get endpoint,
+                params: nil,
+                headers: auth_header.merge(
+                  {
+                    'X-VA-SSN' => '111223333',
+                    'X-Consumer-Username' => 'TestConsumer'
+                  }
+                )
+          end
           expect(response).to have_http_status(:bad_request)
         end
       end
@@ -108,11 +121,17 @@ shared_examples 'appeals status endpoints' do |opts|
     context 'without the X-VA-SSN header supplied' do
       it 'returns a successful response' do
         VCR.use_cassette('caseflow/appeals') do
-          get endpoint,
-              params: nil,
-              headers: { 'X-Consumer-Username' => 'TestConsumer',
-                         'X-VA-User' => 'adhoc.test.user' }
-          expect(response).to have_http_status(:bad_request)
+          with_openid_auth(oauth_scopes) do |auth_header|
+            get endpoint,
+                params: nil,
+                headers: auth_header.merge(
+                  {
+                    'X-Consumer-Username' => 'TestConsumer',
+                    'X-VA-User' => 'adhoc.test.user'
+                  }
+                )
+            expect(response).to have_http_status(:bad_request)
+          end
         end
       end
     end
@@ -120,13 +139,33 @@ shared_examples 'appeals status endpoints' do |opts|
     context 'with a not found response' do
       it 'returns a 404 and logs an info level message' do
         VCR.use_cassette('caseflow/not_found') do
-          get endpoint,
-              params: nil,
-              headers: { 'X-VA-SSN' => '111223333',
-                         'X-Consumer-Username' => 'TestConsumer',
-                         'X-VA-User' => 'adhoc.test.user' }
-          expect(response).to have_http_status(:not_found)
-          expect(response).to match_response_schema('errors')
+          with_openid_auth(oauth_scopes) do |auth_header|
+            get endpoint,
+                params: nil,
+                headers: auth_header.merge(
+                  {
+                    'X-VA-SSN' => '111223333',
+                    'X-Consumer-Username' => 'TestConsumer',
+                    'X-VA-User' => 'adhoc.test.user'
+                  }
+                )
+            expect(response).to have_http_status(:not_found)
+            expect(response).to match_response_schema('errors')
+          end
+        end
+      end
+    end
+
+    if opts[:oauth_scopes].present?
+      context 'with oauth' do
+        it_behaves_like 'an endpoint with OpenID auth', opts[:oauth_scopes] do
+          def make_request(auth_header)
+            VCR.use_cassette('caseflow/appeals') do
+              get('/services/appeals/v1/appeals', headers: auth_header.merge(
+                { 'X-VA-SSN' => '111223333', 'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => 'adhoc.test.user' }
+              ))
+            end
+          end
         end
       end
     end

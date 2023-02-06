@@ -100,7 +100,11 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
         stub_upload_location
       end
 
-      it_behaves_like('an endpoint with OpenID auth', %w[claim.write], :accepted) do
+      it_behaves_like(
+        'an endpoint with OpenID auth',
+        AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmissionsController::OAUTH_SCOPES[:POST],
+        :accepted
+      ) do
         def make_request(auth_header)
           post(oauth_path, params: params, headers: headers.merge(auth_header))
         end
@@ -112,7 +116,9 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
           orig_body = JSON.parse(response.body)
           orig_body['data']['id'] = 'ignored'
 
-          with_openid_auth(%w[claim.write]) do |auth_header|
+          with_openid_auth(
+            AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmissionsController::OAUTH_SCOPES[:POST]
+          ) do |auth_header|
             post(oauth_path, params: params, headers: headers.merge(auth_header))
           end
           oauth_body = JSON.parse(response.body)
@@ -166,7 +172,10 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
         stub_upload_location
       end
 
-      it_behaves_like('an endpoint with OpenID auth', %w[claim.read]) do
+      it_behaves_like(
+        'an endpoint with OpenID auth',
+        AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmissionsController::OAUTH_SCOPES[:GET]
+      ) do
         def make_request(auth_header)
           get("#{oauth_path}#{evidence_submissions.sample.guid}", headers: auth_header)
         end

@@ -13,6 +13,12 @@ module AppealsApi::NoticeOfDisagreements::V0
       )
     )['definitions']['nodCreateParameters']['properties'].keys
 
+    OAUTH_SCOPES = {
+      GET: %w[appeals/NoticeOfDisagreements.read],
+      PUT: %w[appeals/NoticeOfDisagreements.write],
+      POST: %w[appeals/NoticeOfDisagreements.write]
+    }.freeze
+
     def schema
       response = AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
         AppealsApi::FormSchemas.new(
@@ -22,6 +28,12 @@ module AppealsApi::NoticeOfDisagreements::V0
       )
 
       render json: response
+    end
+
+    private
+
+    def token_validation_api_key
+      Settings.dig(:modules_appeals_api, :token_validation, :notice_of_disagreements, :api_key)
     end
   end
 end

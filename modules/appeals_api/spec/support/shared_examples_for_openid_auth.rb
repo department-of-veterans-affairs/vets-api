@@ -9,7 +9,7 @@ def with_openid_auth(scopes = %w[], valid: true, &block)
     .to receive(:permitted_scopes).and_return scopes
 
   VCR.use_cassette("token_validation/v2/indicates_token_is_#{valid ? '' : 'in'}valid") do
-    block.call({ 'Authorization' => "Bearer #{auth_token}" })
+    block.call(scopes.empty? ? {} : { 'Authorization' => "Bearer #{auth_token}" })
   end
 end
 
@@ -46,8 +46,16 @@ shared_examples 'an endpoint with OpenID auth' do |required_scopes, success_stat
     end
   end
 
-  it 'succeeds given a valid token with correct scopes' do
+  it 'succeeds given a valid token with expected scopes' do
     with_openid_auth(required_scopes) do |auth_header|
+      make_request(auth_header)
+      expect(response).to have_http_status(success_status)
+    end
+  end
+
+  it 'succeeds given a valid token with the default appeals_api-wide scopes' do
+    default_scopes = AppealsApi::OpenidAuth::DEFAULT_OAUTH_SCOPES.values.flatten.uniq
+    with_openid_auth(default_scopes) do |auth_header|
       make_request(auth_header)
       expect(response).to have_http_status(success_status)
     end

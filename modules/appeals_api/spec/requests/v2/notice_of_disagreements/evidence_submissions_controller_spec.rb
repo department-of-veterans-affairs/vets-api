@@ -104,6 +104,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
       expect(record.source).to eq headers['X-Consumer-Username']
     end
 
+    # rubocop:disable Layout/LineLength
     context 'with oauth' do
       let(:params) { { nod_uuid: notice_of_disagreement.id } }
 
@@ -112,7 +113,11 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         notice_of_disagreement.update(board_review_option: 'evidence_submission')
       end
 
-      it_behaves_like('an endpoint with OpenID auth', %w[claim.write], :accepted) do
+      it_behaves_like(
+        'an endpoint with OpenID auth',
+        AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceSubmissionsController::OAUTH_SCOPES[:POST],
+        :accepted
+      ) do
         def make_request(auth_header)
           post(oauth_path, params: params, headers: headers.merge(auth_header))
         end
@@ -124,7 +129,9 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           orig_body = JSON.parse(response.body)
           orig_body['data']['id'] = 'ignored'
 
-          with_openid_auth(%w[claim.write]) do |auth_header|
+          with_openid_auth(
+            AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceSubmissionsController::OAUTH_SCOPES[:POST]
+          ) do |auth_header|
             post(oauth_path, params: params, headers: headers.merge(auth_header))
           end
           oauth_body = JSON.parse(response.body)
@@ -134,6 +141,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         end
       end
     end
+    # rubocop:enable Layout/LineLength
   end
 
   describe '#show' do
@@ -178,7 +186,10 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         stub_upload_location
       end
 
-      it_behaves_like('an endpoint with OpenID auth', %w[claim.read]) do
+      it_behaves_like(
+        'an endpoint with OpenID auth',
+        AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceSubmissionsController::OAUTH_SCOPES[:GET]
+      ) do
         def make_request(auth_header)
           get("#{oauth_path}#{evidence_submissions.sample.guid}", headers: auth_header)
         end

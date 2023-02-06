@@ -162,7 +162,9 @@ RSpec.shared_examples 'contestable issues index requests' do |options|
     path = get_path(options)
 
     if options[:use_versioned_namespace_route]
-      with_openid_auth(%w[claim.read]) do |auth_header|
+      scopes = AppealsApi::ContestableIssues::V0::ContestableIssuesController::OAUTH_SCOPES[:GET]
+
+      with_openid_auth(scopes) do |auth_header|
         get(path, headers: headers.merge(auth_header))
       end
     else

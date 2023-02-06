@@ -8,7 +8,7 @@ describe AppealsApi::ContestableIssues::V0::ContestableIssuesController, type: :
     let(:path) { '/services/appeals/contestable_issues/v0/schemas/headers' }
 
     it 'renders the json schema for request headers with shared refs' do
-      with_openid_auth(%w[claim.read]) do |auth_header|
+      with_openid_auth(described_class::OAUTH_SCOPES[:GET]) do |auth_header|
         get(path, headers: auth_header)
       end
 
@@ -19,7 +19,7 @@ describe AppealsApi::ContestableIssues::V0::ContestableIssuesController, type: :
       expect(response.body).to include('{"$ref":"non_blank_string.json"}')
     end
 
-    it_behaves_like('an endpoint with OpenID auth', %w[claim.read]) do
+    it_behaves_like('an endpoint with OpenID auth', described_class::OAUTH_SCOPES[:GET]) do
       def make_request(auth_header)
         get(path, headers: auth_header)
       end
