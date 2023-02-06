@@ -47,7 +47,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: docker/login-action@v1
+      - uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
@@ -62,7 +62,7 @@ jobs:
           cp /etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem config/ca-trust/
 
       - name: Build Docker Image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
           build-args: |
             sidekiq_license=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
@@ -161,7 +161,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         if: always()
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
