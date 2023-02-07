@@ -21,7 +21,7 @@ require 'clamav/commands/command'
 
 module ClamAV
   module Commands
-    class ScanCommand < Command
+    class PatchScanCommand < Command
 
       def initialize(path, path_finder = Util)
         @path, @path_finder = path, path_finder
