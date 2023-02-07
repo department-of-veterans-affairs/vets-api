@@ -22,7 +22,7 @@ require "clamav/commands/instream_command"
 require "clamav/util"
 require "clamav/wrappers/new_line_wrapper"
 require "clamav/wrappers/null_termination_wrapper"
-require 'clamav/commands/patch_scan_command'
+require_relative 'commands/patch_scan_command'
 
 module ClamAV
   class PatchClient
