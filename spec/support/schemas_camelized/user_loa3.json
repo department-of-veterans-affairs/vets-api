@@ -183,6 +183,7 @@
                   "type": "object",
                   "properties": {
                     "ch33BankAccounts": { "type": "boolean" },
+                    "coe": { "type": "boolean" },
                     "communicationPreferences": { "type": "boolean" },
                     "connectedApps": { "type": "boolean" },
                     "militaryHistory": { "type": "boolean" },

@@ -86,16 +86,17 @@ module Users
     def claims
       if Flipper.enabled?(:profile_user_claims, user)
         {
+          appeals: AppealsPolicy.new(user).access?,
           ch33_bank_accounts: Ch33DdPolicy.new(user).access?,
+          coe: CoePolicy.new(user).access?,
           communication_preferences: (Vet360Policy.new(user).access? &&
                                       CommunicationPreferencesPolicy.new(user).access?),
           connected_apps: true,
+          medical_copays: MedicalCopaysPolicy.new(user).access?,
           military_history: Vet360Policy.new(user).military_access?,
           payment_history: BGSPolicy.new(user).access?(log_stats: false),
           personal_information: MPIPolicy.new(user).queryable?,
-          rating_info: EVSSPolicy.new(user).access?,
-          appeals: AppealsPolicy.new(user).access?,
-          medical_copays: MedicalCopaysPolicy.new(user).access?
+          rating_info: EVSSPolicy.new(user).access?
         }
       end
     end
