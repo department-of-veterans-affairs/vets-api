@@ -12,7 +12,6 @@ on:
 
 jobs:
   deploy:
-    needs: [build_and_push]
     uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@k8s #change to master after testing is successful
     with:
       ecr_repository: "vets-api"
