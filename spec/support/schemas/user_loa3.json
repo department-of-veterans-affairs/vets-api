@@ -92,6 +92,7 @@
                   "type": "object",
                   "properties":  {
                     "ch33_bank_accounts": { "type": "boolean" },
+                    "coe": { "type": "boolean" },
                     "communication_preferences": { "type": "boolean" },
                     "connected_apps": { "type": "boolean" },                    
                     "military_history": { "type": "boolean" },
