@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'claims_api/bgs_claim_status_mapper'
-
 module ClaimsApi
   module V2
     module Blueprints
@@ -25,7 +23,7 @@ module ClaimsApi
               end_product_code: claim[:end_product_code],
               evidence_waiver_submitted_5103: claim[:evidence_waiver_submitted_5103],
               lighthouse_id: claim[:lighthouse_id],
-              status: ClaimsApi::BGSClaimStatusMapper.new(claim).name
+              status: claim[:status]
             }
           end
           transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
@@ -50,7 +48,7 @@ module ClaimsApi
               lighthouse_id: claim[:lighthouse_id],
               max_est_claim_date: claim[:max_est_claim_date],
               min_est_claim_date: claim[:min_est_claim_date],
-              status: ClaimsApi::BGSClaimStatusMapper.new(claim).name,
+              status: claim[:status],
               submitter_application_code: claim[:submitter_application_code],
               submitter_role_code: claim[:submitter_role_code],
               supporting_documents: claim[:supporting_documents],
