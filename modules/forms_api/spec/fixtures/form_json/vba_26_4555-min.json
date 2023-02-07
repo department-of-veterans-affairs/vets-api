@@ -1,0 +1,28 @@
+
+{
+  "form_number": "vba_26_4555",
+  "veteran": {
+    "full_name": {
+      "first": "Veteran",
+      "last": "Surname"
+    },
+    "address": {
+      "country": "USA",
+      "street": "1 First Ln",
+      "city": "Place",
+      "state": "AL",
+      "postal_code": "12345"
+    },
+    "ssn": "222554444",
+    "home_phone": "9876543213"
+  },
+  "previousSahApplication": {
+    "hasPreviousSahApplication": false
+  },
+  "previousHiApplication": {
+    "hasPreviousHiApplication": false
+  },
+  "livingSituation": {
+    "isInCareFacility": false
+  }
+}

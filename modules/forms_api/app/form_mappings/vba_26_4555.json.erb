@@ -1,0 +1,25 @@
+{
+  "F[0].Page_1[0].JF01[0]":          "<%= data.dig('veteran', 'full_name', 'first') %> - <%= data.dig('veteran', 'full_name', 'middle') %> - <%= data.dig('veteran', 'full_name', 'last') %>",
+  "F[0].Page_1[0].SSN[0]":           "<%= data.dig('veteran', 'ssn') %>",
+  "F[0].Page_1[0].JF02[0]":          "<%= data.dig('veteran', 'va_claim_number') %>",
+  "F[0].Page_1[0].Date_Of_Birth[0]": "<%= data.dig('veteran', 'date_of_birth') %>",
+  "F[0].Page_1[0].JF03[0]":          "<%= data.dig('veteran', 'email') %>",
+  "F[0].Page_1[0].JF04[0]":          "<%= data.dig('veteran', 'address', 'street') %> <%= data.dig('veteran', 'address', 'city') %>, <%= data.dig('veteran', 'address', 'state') %> <%= data.dig('veteran', 'address', 'postal_code') %>",
+  "F[0].Page_1[0].JF05[0]":          "<%= data.dig('previousSahApplication', 'previousSahApplicationAddress', 'street') %> <%= data.dig('previousSahApplication', 'previousSahApplicationAddress', 'city') %>, <%= data.dig('previousSahApplication', 'previousSahApplicationAddress', 'state') %> <%= data.dig('previousSahApplication', 'previousSahApplicationAddress', 'postal_code') %>",
+  "F[0].Page_1[0].JF06[0]":          "<%= data.dig('previousHiApplication', 'previousHiApplicationAddress', 'street') %> <%= data.dig('previousHiApplication', 'previousHiApplicationAddress', 'city') %>, <%= data.dig('previousHiApplication', 'previousHiApplicationAddress', 'state') %> <%= data.dig('previousHiApplication', 'previousHiApplicationAddress', 'postal_code') %>",
+  "F[0].Page_1[0].JF07[0]":          "<%= data.dig('livingSituation', 'careFacilityName') %> <%= data.dig('livingSituation', 'careFacilityAddress', 'street') %> <%= data.dig('livingSituation', 'careFacilityAddress', 'city') %>, <%= data.dig('livingSituation', 'careFacilityAddress', 'state') %> <%= data.dig('livingSituation', 'careFacilityAddress', 'postal_code') %>",
+  "F[0].Page_1[0].JF08[0]":          "<%= data.dig('remarks') %>",
+
+  "F[0].Page_1[0].TELEPHONE01[0]": "<%= data.dig('veteran', 'home_phone') %>",
+  "F[0].Page_1[0].TELEPHONE02[0]": "<%= data.dig('veteran', 'home_phone') %>",
+  "F[0].Page_1[0].TELEPHONE03[0]": "<%= data.dig('veteran', 'mobile_phone') %>",
+
+  "F[0].Page_1[0].RadioButtonList[0]": "<%= data.dig('previousSahApplication', 'hasPreviousSahApplication') == true ? 1 : 2 %>",
+  "F[0].Page_1[0].RadioButtonList[1]": "<%= data.dig('previousHiApplication', 'hasPreviousHiApplication') == true ? 1 : 2 %>",
+  "F[0].Page_1[0].RadioButtonList[2]": "<%= data.dig('livingSituation', 'isInCareFacility') == true ? 1 : 2 %>",
+
+  "F[0].Page_1[0].Date02[0]": "<%= data.dig('previousSahApplication', 'previousSahApplicationDate') %>",
+  "F[0].Page_1[0].Date03[0]": "<%= data.dig('previousHiApplication', 'previousHiApplicationDate') %>",
+  "F[0].Page_1[0].Date05[0]": "<%= 'todaysdate' %>",
+  "F[0].Page_1[0].Signature[0]": "<%= data.dig('veteran', 'full_name', 'first') %> <%= data.dig('veteran', 'full_name', 'middle') %>. <%= data.dig('veteran', 'full_name', 'last') %>"
+}
