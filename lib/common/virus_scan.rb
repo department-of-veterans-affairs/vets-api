@@ -9,7 +9,7 @@ module Common
       File.chmod(0o640, file_path)
 
       client = ClamAV::Client.new
-      client.execute(ClamAV::Commands::ScanCommand.new(file_path))
+      client.execute(ClamAV::Commands::PatchScanCommand.new(file_path))
     end
   end
 end
