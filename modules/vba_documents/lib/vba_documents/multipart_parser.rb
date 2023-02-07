@@ -18,11 +18,7 @@ module VBADocuments
 
     # rubocop:disable Metrics/MethodLength
     def self.parse_file(infile)
-      parts = {
-        'boundaries' => {},
-        'headers' => {},
-        'contents' => {}
-      }
+      parts = {}
       begin
         input = if infile.is_a? String
                   File.open(infile, 'rb')
@@ -32,16 +28,13 @@ module VBADocuments
         validate_size(input)
         lines = input.each_line(LINE_BREAK).lazy.each_with_index
         separator = lines.next[0].chomp(LINE_BREAK)
-        parts['boundaries']['multipart_boundary'] = separator
         loop do
           headers = consume_headers(lines, separator)
           partname = get_partname(headers)
-          parts['headers'][partname] = headers.join(LINE_BREAK)
           content_type = get_content_type(headers)
-          body, closing_boundary = consume_body(lines, separator, content_type)
-          parts['contents'][partname] = body
-          parts['boundaries']['closing_boundary'] = closing_boundary
-          break unless closing_boundary.nil?
+          body, moreparts = consume_body(lines, separator, content_type)
+          parts[partname] = body
+          break unless moreparts
         end
       ensure
         input.close
@@ -151,11 +144,12 @@ module VBADocuments
             raise VBADocuments::UploadError.new(code: 'DOC101',
                                                 detail: 'Unexpected end of payload')
           end
-          case line
-          when /^#{separator}--/
-            return tf.string, line
-          when /^#{separator}/
-            return tf.string, nil
+          linechomp = line.chomp(LINE_BREAK)
+          case linechomp
+          when "#{separator}--", "#{separator}--#{CARRIAGE_RETURN}"
+            return tf.string, false
+          when separator
+            return tf.string, true
           else
             tf.write(line)
           end
@@ -171,14 +165,14 @@ module VBADocuments
         rescue StopIteration
           raise VBADocuments::UploadError.new(code: 'DOC101', detail: 'Unexpected end of payload')
         end
-
-        case line
-        when /^#{separator}--/
+        linechomp = line.chomp(LINE_BREAK)
+        case linechomp
+        when "#{separator}--", "#{separator}--#{CARRIAGE_RETURN}"
           tf.rewind
-          return tf, line
-        when /^#{separator}/
+          return tf, false
+        when separator
           tf.rewind
-          return tf, nil
+          return tf, true
         else
           tf.write(line)
         end

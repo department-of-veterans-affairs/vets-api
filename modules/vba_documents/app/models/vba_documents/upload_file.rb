@@ -45,7 +45,7 @@ module VBADocuments
     # Calling parses and uploads the PDFs / metadata.
     def parse_and_upload!
       parsed = multipart.open do |file|
-        VBADocuments::MultipartParser.parse(file.path)['contents']
+        VBADocuments::MultipartParser.parse(file.path)
       end
       parsed_files.attach(io: StringIO.new(parsed['metadata'].to_s), filename: "#{guid}_metadata.json")
       pdf_keys = parsed.keys - ['metadata']

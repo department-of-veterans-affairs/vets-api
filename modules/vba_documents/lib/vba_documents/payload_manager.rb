@@ -10,7 +10,7 @@ module VBADocuments
       raw_file, = download_raw_file(submission.guid)
 
       begin
-        parsed = VBADocuments::MultipartParser.parse(raw_file.path)['contents']
+        parsed = VBADocuments::MultipartParser.parse(raw_file.path)
         files = [
           { name: 'content.pdf', path: parsed['content'].path },
           { name: 'metadata.json', path: write_json(submission.guid, parsed).path }
