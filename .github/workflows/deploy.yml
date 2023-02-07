@@ -3,7 +3,7 @@ name: Release and Update Manifests
 on:
   push:
     branches:
-      - deploy-k8s
+      - k8s
   workflow_dispatch:
   workflow_run:
     workflows: [Build & Push to ECR]

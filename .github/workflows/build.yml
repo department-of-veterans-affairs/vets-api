@@ -17,9 +17,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-        with:
-          persist-credentials: false # otherwise, the token used is the GITHUB_TOKEN, instead of your personal access token.
-          fetch-depth: 0
+
       - name: Setup Environment
         run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
 
@@ -47,20 +45,3 @@ jobs:
             ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
           cache-from: type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY
           cache-to: type=inline
-
-      - name: Get bot token from Parameter Store
-        uses: marvinpinto/action-inject-ssm-secrets@latest
-        with:
-          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
-          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
-
-      - name: Merge k8s -> deploy-k8s
-        uses: everlytic/branch-merge@1.1.2
-        with:
-          github_token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
-          source_ref: 'k8s'
-          target_branch: 'deploy-k8s'
-          commit_message_template: 'Deploy to k8s'
-
-
-
