@@ -24,6 +24,7 @@ require 'rails/test_unit/railtie'
 Bundler.require(*Rails.groups)
 
 require_relative '../lib/olive_branch_patch'
+require_relative '../lib/clamav/commands/patch_scan_command'
 
 module VetsAPI
   class Application < Rails::Application
