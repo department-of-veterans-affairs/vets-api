@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 ## Monkey Patch for the clamav SCAN COMMAND
 ## file path needs to be vets-api/ because of shared volumes
 
@@ -22,9 +24,9 @@ require 'clamav/commands/command'
 module ClamAV
   module Commands
     class PatchScanCommand < Command
-
       def initialize(path, path_finder = Util)
-        @path, @path_finder = path, path_finder
+        @path = path
+        @path_finder = path_finder
       end
 
       def call(conn)
@@ -32,7 +34,7 @@ module ClamAV
       end
 
       def scan_file(conn, file)
-        stripped_filename = file.gsub(%r{^tmp/}, '') #need to send the file
+        stripped_filename = file.gsub(%r{^tmp/}, '') # need to send the file
         get_status_from_response(conn.send_request("SCAN /vets-api/#{stripped_filename}"))
       end
     end

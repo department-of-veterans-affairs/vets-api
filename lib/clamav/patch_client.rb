@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # clamav-client - ClamAV client
 # Copyright (C) 2014 Franck Verrot <franck@verrot.fr>
 
@@ -14,14 +16,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-require "clamav/connection"
-require "clamav/commands/ping_command"
-require "clamav/commands/quit_command"
-require "clamav/commands/scan_command"
-require "clamav/commands/instream_command"
-require "clamav/util"
-require "clamav/wrappers/new_line_wrapper"
-require "clamav/wrappers/null_termination_wrapper"
+require 'clamav/connection'
+require 'clamav/commands/ping_command'
+require 'clamav/commands/quit_command'
+require 'clamav/commands/scan_command'
+require 'clamav/commands/instream_command'
+require 'clamav/util'
+require 'clamav/wrappers/new_line_wrapper'
+require 'clamav/wrappers/null_termination_wrapper'
 require_relative 'commands/patch_scan_command'
 
 module ClamAV
@@ -57,6 +59,7 @@ module ClamAV
 
     def safe?(target)
       return instream(target).virus_name.nil? if target.is_a?(StringIO)
+
       scan(target).all? { |file| file.virus_name.nil? }
     end
 
