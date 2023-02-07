@@ -12,19 +12,9 @@
 |----|----|-----|
 |Patrick Bateman|Product Owner/Office of the CTO|patrick.bateman@va.gov|
 |Stephen Barrs|Architect/Lead|stephen.barrs@va.gov|
-|Corey Parker|Sr. Product Manager|corey.parker@gcio.com|
-|Julie Adair|Product Manager|julie.adair@agile6.com|
-|Kristen McConnell|Managing Senior UX Designer HCE|Kristen.McConnell@adhocteam.us|
-|Nira Datta|UX/Content/Research|nira.datta@civicactions.com|
-|Ya-ching Tsao|Product Designer HCE|yaching.tsao@civicactions.com|
-|Zach Park|UX/UI Designer HCE|zach.park@agile6.com|
-|Adrian Rollett|Software Engineer HCE|adrian.rollett@agile6.com|
-|Mark Dewey|Senior Front End Engineer HCE|mark.dewey@gcio.com|
-|Brian Seek|Front End Engineer HCE|brian.seek@civicactions.com|
-|Dan Goodwin|Front End Engineer HCE|dan.goodwin@civicactions.com|
+|Lori Pusey|Product Manager|lori.pusey@agile6.com|
 |Gaurav Gupta|Senior Engineer HCE|ggupta@kindsys.us|
 |Kanchana Suriyamoorthy|Senior Engineer HCE|ksuriyamoorthy@kindsys.us|
-|Dillo Raju|Senior Back End Engineer HCE|dillo.raju@gcio.com|
 
 ## Related Documents
 * [Sketch - Editing wireframes](https://www.sketch.com/s/5331b114-280d-4ff5-8d36-ec49b1696b9e)
@@ -34,10 +24,6 @@
 * [Research Documents](https://github.com/department-of-veterans-affairs/va.gov-team/tree/master/products/health-care/checkin/research)
 * [Engineering Documents](https://github.com/department-of-veterans-affairs/va.gov-team/tree/master/products/health-care/checkin/engineering)
 * [VA.gov Profile](https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/identity-personalization/profile/README.md)
-
-## Pilot Sites
-- Martinsburg, WV
-- St. Louis
 
 ## Table of Contents
 - [Overview](#overview)
