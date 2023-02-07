@@ -11,6 +11,9 @@ on:
     branches: [k8s]
 
 jobs:
+  wait-for-build:
+    uses: department-of-veterans-affairs/vets-api/.github/workflows/build.yml@k8s
+
   deploy:
     uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@k8s #change to master after testing is successful
     with:
