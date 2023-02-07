@@ -170,10 +170,13 @@ RSpec.describe 'Claims', type: :request do
         end
 
         it 'are listed' do
-          lighthouse_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
-                                                             evss_id: '600098193')
+          lighthouse_claim = build(:auto_established_claim, status: 'PEND', veteran_icn: veteran_id,
+                                                            evss_id: '600098193')
+          lighthouse_claim_two = build(:auto_established_claim, status: 'CAN', veteran_icn: veteran_id,
+                                                                evss_id: '600098194')
           lh_claims = []
-          lh_claims.append(lighthouse_claim)
+          lh_claims << lighthouse_claim
+          lh_claims << lighthouse_claim_two
 
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
@@ -187,6 +190,9 @@ RSpec.describe 'Claims', type: :request do
               json_response = JSON.parse(response.body)
               expect(response.status).to eq(200)
               claim = json_response['data'].first
+              claim_two = json_response['data'][1]
+              expect(claim['attributes']['status']).to eq('COMPLETE')
+              expect(claim_two['attributes']['status']).to eq('CANCELLED')
               expect(claim['attributes']['claimPhaseDates']['phaseChangeDate']).to eq('2017-10-18')
             end
           end
@@ -201,7 +207,8 @@ RSpec.describe 'Claims', type: :request do
                 benefit_claims_dto: {
                   benefit_claim: [
                     {
-                      benefit_claim_id: '111111111'
+                      benefit_claim_id: '111111111',
+                      claim_status: 'Preparation for notification'
                     }
                   ]
                 }
@@ -212,7 +219,7 @@ RSpec.describe 'Claims', type: :request do
                 OpenStruct.new(
                   id: '0958d973-36fb-43ef-8801-2718bd33c825',
                   evss_id: '111111111',
-                  status: 'Pending'
+                  status: 'Preparation for notification'
                 )
               ]
             end
@@ -228,10 +235,12 @@ RSpec.describe 'Claims', type: :request do
                   get all_claims_path, headers: auth_header
 
                   json_response = JSON.parse(response.body)
+
                   expect(response.status).to eq(200)
                   expect(json_response['data']).to be_an_instance_of(Array)
                   expect(json_response.count).to eq(1)
                   claim = json_response['data'].first
+                  expect(claim['attributes']['status']).to eq('PREPARATION_FOR_NOTIFICATION')
                   expect(claim['id']).to eq('111111111')
                   expect(claim['attributes']['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
                 end
@@ -245,7 +254,8 @@ RSpec.describe 'Claims', type: :request do
                 benefit_claims_dto: {
                   benefit_claim: [
                     {
-                      benefit_claim_id: '111111111'
+                      benefit_claim_id: '111111111',
+                      phase_type: 'claim received'
                     }
                   ]
                 }
@@ -268,6 +278,7 @@ RSpec.describe 'Claims', type: :request do
                   expect(json_response['data']).to be_an_instance_of(Array)
                   expect(json_response.count).to eq(1)
                   claim = json_response['data'].first
+                  expect(claim['attributes']['status']).to eq('CLAIM_RECEIVED')
                   expect(claim['id']).to eq('111111111')
                   expect(claim['attributes']['lighthouseId']).to be nil
                 end
@@ -288,7 +299,7 @@ RSpec.describe 'Claims', type: :request do
                 OpenStruct.new(
                   id: '0958d973-36fb-43ef-8801-2718bd33c825',
                   evss_id: '111111111',
-                  status: 'pending'
+                  status: 'pend'
                 )
               ]
             end
@@ -309,8 +320,9 @@ RSpec.describe 'Claims', type: :request do
                   expect(json_response['data']).to be_an_instance_of(Array)
                   expect(json_response.count).to eq(1)
                   claim = json_response['data'].first
+                  expect(claim['attributes']['status']).to eq('PENDING')
                   expect(claim['attributes']['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
-                  expect(claim['attributes']['claimId']).to be nil
+                  expect(claim['id']).to be nil
                 end
               end
             end
@@ -389,7 +401,6 @@ RSpec.describe 'Claims', type: :request do
                 get claim_by_id_path, headers: auth_header
 
                 json_response = JSON.parse(response.body)
-
                 expect(response.status).to eq(200)
                 expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to eq(true)
                 expect(json_response['data']['attributes']['claimPhaseDates']['latestPhaseType'])
@@ -665,7 +676,7 @@ RSpec.describe 'Claims', type: :request do
                   json_response = JSON.parse(response.body)
                   expect(response.status).to eq(200)
                   expect(json_response).to be_an_instance_of(Hash)
-                  expect(json_response['data']['attributes']['status']).to eq('CLAIM_RECEIVED')
+                  expect(json_response['data']['attributes']['status']).to eq('EVIDENCE_GATHERING_REVIEW_DECISION')
                 end
               end
             end
@@ -713,7 +724,7 @@ RSpec.describe 'Claims', type: :request do
                   json_response = JSON.parse(response.body)
                   expect(response.status).to eq(200)
                   expect(json_response).to be_an_instance_of(Hash)
-                  expect(json_response['data']['attributes']['status']).to eq('CLAIM_RECEIVED')
+                  expect(json_response['data']['attributes']['status']).to eq('EVIDENCE_GATHERING_REVIEW_DECISION')
                 end
               end
             end
@@ -747,7 +758,7 @@ RSpec.describe 'Claims', type: :request do
                   json_response = JSON.parse(response.body)
                   expect(response.status).to eq(200)
                   expect(json_response).to be_an_instance_of(Hash)
-                  expect(json_response['data']['attributes']['status']).to eq('CLAIM_RECEIVED')
+                  expect(json_response['data']['attributes']['status']).to eq('EVIDENCE_GATHERING_REVIEW_DECISION')
                 end
               end
             end
@@ -794,7 +805,7 @@ RSpec.describe 'Claims', type: :request do
                   expect(response.status).to eq(200)
                   expect(json_response).to be_an_instance_of(Hash)
                   expect(json_response['data']['attributes']['claimType']).to eq('Compensation')
-                  expect(json_response['data']['attributes']['status']).to eq('CLAIM_RECEIVED')
+                  expect(json_response['data']['attributes']['status']).to eq('EVIDENCE_GATHERING_REVIEW_DECISION')
                 end
               end
             end

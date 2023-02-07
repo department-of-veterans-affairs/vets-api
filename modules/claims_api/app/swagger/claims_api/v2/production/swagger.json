@@ -424,7 +424,7 @@
                         "endProductCode": "404",
                         "evidenceWaiverSubmitted5103": false,
                         "lighthouseId": null,
-                        "status": "PENDING"
+                        "status": "COMPLETE"
                       }
                     }
                   ]
@@ -542,7 +542,8 @@
                                   "EVIDENCE_GATHERING_REVIEW_DECISION",
                                   "PREPARATION_FOR_NOTIFICATION",
                                   "COMPLETE",
-                                  "ERRORED"
+                                  "ERRORED",
+                                  "CANCELLED"
                                 ]
                               }
                             }
@@ -1038,7 +1039,8 @@
                                 "EVIDENCE_GATHERING_REVIEW_DECISION",
                                 "PREPARATION_FOR_NOTIFICATION",
                                 "COMPLETE",
-                                "ERRORED"
+                                "ERRORED",
+                                "CANCELLED"
                               ]
                             },
                             "submitterApplicationCode": {
@@ -1076,8 +1078,8 @@
                                   "uploadDate": {
                                     "format": "date",
                                     "type": "string",
-                                    "nullable": true,
-                                    "description": "Date and time document was uploaded"
+                                    "description": "Date and time document was uploaded",
+                                    "nullable": true
                                   }
                                 }
                               }

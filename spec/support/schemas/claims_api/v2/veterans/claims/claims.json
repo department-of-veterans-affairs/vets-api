@@ -93,7 +93,8 @@
                   "EVIDENCE_GATHERING_REVIEW_DECISION",
                   "PREPARATION_FOR_NOTIFICATION",
                   "COMPLETE",
-                  "ERRORED"
+                  "ERRORED",
+                  "CANCELLED"
                 ]
               }
             }
