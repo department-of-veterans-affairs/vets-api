@@ -9,6 +9,12 @@ on:
     workflows: [Build & Push to ECR]
     types: [completed]
     branches: [k8s]
+  workflow_call:
+    secrets:
+      aws_access_key_id: #${{ secrets.AWS_ACCESS_KEY_ID }}
+        required: true
+      aws_secret_access_key: #${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        required: true
 
 jobs:
   wait-for-build:
