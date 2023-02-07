@@ -5,6 +5,8 @@ module Mobile
     module Adapters
       class Immunizations
         def parse(immunizations)
+          return [] unless immunizations[:entry]
+
           vaccine_map = immunizations[:entry].map do |i|
             immunization = i[:resource]
             group_name = group_name(immunization[:vaccine_code])

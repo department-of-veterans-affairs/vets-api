@@ -450,6 +450,19 @@ RSpec.describe 'immunizations', type: :request do
       end
     end
 
+    context 'when entry is missing' do
+      before do
+        VCR.use_cassette('lighthouse_health/get_immunizations_no_entry', match_requests_on: %i[method uri]) do
+          get '/mobile/v0/health/immunizations', headers: iam_headers, params: nil
+        end
+      end
+
+      it 'returns empty array' do
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body['data']).to eq([])
+      end
+    end
+
     context 'when the note is null or an empty array' do
       before do
         VCR.use_cassette('lighthouse_health/get_immunizations_blank_note', match_requests_on: %i[method uri]) do
