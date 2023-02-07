@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'clamav/commands/patch_scan_command'
-# Fake comment
+
 module Common
   module VirusScan
     module_function
