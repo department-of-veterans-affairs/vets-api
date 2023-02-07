@@ -32,6 +32,7 @@ module ClamAV
       end
 
       def scan_file(conn, file)
+        puts "IN Monkey Patch"
         stripped_filename = file.gsub(%r{^tmp/}, '') #need to send the file
         get_status_from_response(conn.send_request("SCAN /vets-api/#{stripped_filename}"))
       end
