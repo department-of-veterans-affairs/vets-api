@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'clamav/commands/patch_scan_command'
+require 'clamav/patch_client'
 
 module Common
   module VirusScan
@@ -10,8 +11,7 @@ module Common
       # `clamd` runs within service group, needs group read
       File.chmod(0o640, file_path)
 
-      client = ClamAV::Client.new
-      client.execute(ClamAV::Commands::PatchScanCommand.new(file_path))
+      ClamAV::PatchClient.new.safe?(file_path)
     end
   end
 end
