@@ -28,11 +28,8 @@ class SavedClaim::EducationBenefits < SavedClaim
 
   private
 
-  def parsed_form_data
-    @parsed_form_data ||= JSON.parse(form)
-  end
-
   def send_5490_confirmation_email
+    parsed_form_data ||= JSON.parse(form)
     email = parsed_form_data['email']
     return if email.blank?
 
