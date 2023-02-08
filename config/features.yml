@@ -106,6 +106,10 @@ features:
     actor_type: user
     description: Enables telephone appointments for check-in
     enable_in_development: false
+  check_in_experience_pre_check_in_action_link_top_placement:
+    actor_type: cookie_id
+    description: Changes pre-check-in action link placement to the top of the page
+    enable_in_development: true
   check_in_experience_travel_reimbursement:
     actor_type: user
     description: Enables travel reimbursement workflow for day-of check-in application.
