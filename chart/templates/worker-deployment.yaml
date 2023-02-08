@@ -98,14 +98,10 @@ spec:
 {{ toYaml $root.Values.clamav.probes | indent 10 }}
           resources:
 {{ toYaml $root.Values.clamav.resources | indent 12 }}
-        {{- end }}
           volumeMounts:
 {{ toYaml $root.Values.clamav.volumeMounts | indent 12 }}
         {{- if $root.Values.web.socatProxyEnabled }}
 {{ toYaml $root.Values.common.socatProxy | indent 8 }}
-        {{- end }}
-        {{- if .Values.worker.socatProxyEnabled }}
-{{ toYaml .Values.common.socatProxy | indent 8 }}
         {{- end }}
       terminationGracePeriodSeconds: {{ .Values.worker.terminationGracePeriodSeconds }} # put your longest Job time here plus security time.
       serviceAccountName: {{ .Values.serviceAccount.name }}
