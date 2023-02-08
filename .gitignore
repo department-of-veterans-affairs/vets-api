@@ -82,3 +82,6 @@ Brewfile.lock.json
 
 # Ignore Test User Dashboard csv
 test_users.csv
+
+# Ignore Redis Dumps
+**/*.rdb

@@ -8,6 +8,11 @@ class UserVerification < ApplicationRecord
   validate :single_credential_identifier
   validate :backing_uuid_credentials
 
+  scope :idme, -> { where.not(idme_uuid: nil) }
+  scope :logingov, -> { where.not(logingov_uuid: nil) }
+  scope :mhv, -> { where.not(mhv_uuid: nil) }
+  scope :dslogon, -> { where.not(dslogon_uuid: nil) }
+
   def verified?
     verified_at.present? && user_account.verified?
   end
