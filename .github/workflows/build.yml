@@ -1,5 +1,6 @@
 name: Build & Push to ECR
 on:
+  workflow_call:
   push:
     branches:
       - k8s
