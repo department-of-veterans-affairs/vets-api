@@ -5,6 +5,7 @@ on:
     branches:
       - k8s
   workflow_dispatch:
+  workflow_call:
   workflow_run:
     workflows: [Build & Push to ECR]
     types: [completed]
