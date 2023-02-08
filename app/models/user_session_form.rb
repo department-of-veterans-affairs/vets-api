@@ -85,8 +85,8 @@ class UserSessionForm
     user_account = UserAccount.find_by(icn: identifier)
     return unless user_account
 
-    idme_uuid_array = user_account.user_verification.map(&:idme_uuid) +
-                      user_account.user_verification.map(&:backing_idme_uuid)
+    idme_uuid_array = user_account.user_verifications.map(&:idme_uuid) +
+                      user_account.user_verifications.map(&:backing_idme_uuid)
 
     idme_uuid_array.compact.first
   end

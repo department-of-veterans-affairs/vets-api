@@ -251,6 +251,11 @@ TransactionalEmailAnalyticsJob:
   cron: "0 1 * * * America/New_York"
   description: "posts Transactional email (HCA Failure and Direct Deposit Update) sends and failures to Google Analytics"
 
+UserAcceptableVerifiedCredentialCounts:
+  cron: "30 2 * * * America/New_York"
+  class: Identity::UserAcceptableVerifiedCredentialCountsJob
+  description: "Log UserAcceptableVerifiedCredential counts for Datadog consumption."
+
 VAForms::FetchLatest:
   cron: "0 2 * * * America/New_York"
   class: VAForms::FormReloader

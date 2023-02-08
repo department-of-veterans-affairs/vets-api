@@ -30,15 +30,15 @@ module Login
     end
 
     def idme_credential
-      @idme_credential ||= user_verification_array.where.not(idme_uuid: nil).first
+      @idme_credential ||= user_verifications_array.where.not(idme_uuid: nil).first
     end
 
     def logingov_credential
-      @logingov_credential ||= user_verification_array.where.not(logingov_uuid: nil).first
+      @logingov_credential ||= user_verifications_array.where.not(logingov_uuid: nil).first
     end
 
-    def user_verification_array
-      @user_verification_array ||= user_account.user_verification
+    def user_verifications_array
+      @user_verifications_array ||= user_account.user_verifications
     end
   end
 end

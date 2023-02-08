@@ -63,6 +63,10 @@ spec/models/inherited_proof_verified_user_account_spec.rb @department-of-veteran
 lib/inherited_proofing/ @department-of-veterans-affairs/vsp-identity
 spec/lib/inherited_proofing/ @department-of-veterans-affairs/vsp-identity
 
+# identity workers
+app/workers/identity/ @department-of-veterans-affairs/vsp-identity
+spec/jobs/identity/ @department-of-veterans-affairs/vsp-identity
+
 # covid_vaccine product
 modules/covid_vaccine @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
 spec/support/*/covid_vaccine @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
