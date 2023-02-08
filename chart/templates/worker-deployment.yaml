@@ -104,7 +104,18 @@ spec:
         {{- if $root.Values.web.socatProxyEnabled }}
 {{ toYaml $root.Values.common.socatProxy | indent 8 }}
         {{- end }}
-
+        {{- if $root.Values.clamav.enabled  }}
+        - name: clamav
+          image: "{{ $root.Values.clamav.image.value }}:{{ $root.Values.clamav.image.tag }}"
+          imagePullPolicy: {{ $root.Values.image.pullPolicy }}
+          ports:
+{{ toYaml $root.Values.clamav.ports | indent 12 }}
+{{ toYaml $root.Values.clamav.probes | indent 10 }}
+          resources:
+{{ toYaml $root.Values.clamav.resources | indent 12 }}
+          volumeMounts:
+{{ toYaml $root.Values.clamav.volumeMounts | indent 12 }}
+        {{- end }}
         {{- if .Values.worker.socatProxyEnabled }}
 {{ toYaml .Values.common.socatProxy | indent 8 }}
         {{- end }}
