@@ -192,7 +192,7 @@ class SavedClaim::CoeClaim < SavedClaim
           # notification letters, on the COE status page. For more context, see
           # https://github.com/department-of-veterans-affairs/vets-api/pull/11335.
           # We are doing the same thing in CoeController#document_data.
-          'description' => ['[ATTACHMENT]', claim_file_data['attachmentDescription']].compact.join(' '),
+          'description' => claim_file_data['attachmentDescription'],
           'contentsBase64' => Base64.encode64(File.read(file_path)),
           'fileName' => attachment.file.metadata['filename']
         }

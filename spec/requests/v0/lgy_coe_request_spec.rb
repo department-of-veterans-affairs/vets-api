@@ -98,10 +98,7 @@ describe 'LGY API' do
         }
         expected_payload = {
           'documentType' => 'pdf',
-          # We add an "[ATTACHMENT]" prefix to help us distinguish between
-          # vet-uploaded supporting documents and notification letters, on the
-          # COE status page.
-          'description' => '[ATTACHMENT] VA home loan documents',
+          'description' => 'VA home loan documents',
           'contentsBase64' => Base64.encode64(File.read('spec/fixtures/files/lgy_file.pdf')),
           'fileName' => 'lgy_file.pdf'
         }
@@ -155,8 +152,8 @@ describe 'LGY API' do
             'id' => 23_929_115,
             'document_type' => '252',
             'create_date' => 1_670_530_715_000,
-            'description' => '[ATTACHMENT]',
-            'mime_type' => '[ATTACHMENT] example.png'
+            'description' => '',
+            'mime_type' => 'example.png'
           }, {
             'id' => 10_101_010,
             'document_type' => '705',
@@ -182,13 +179,13 @@ describe 'LGY API' do
       it 'returns notification letters only' do
         lgy_documents_response_body = [{
           'id' => 23_929_115,
-          'document_type' => '252',
+          'document_type' => 'Veteran Correspondence',
           'create_date' => 1_670_530_715_000,
-          'description' => '[ATTACHMENT]',
-          'mime_type' => '[ATTACHMENT] example.png'
+          'description' => '',
+          'mime_type' => 'example.png'
         }, {
           'id' => 10_101_010,
-          'document_type' => '705',
+          'document_type' => 'COE Application First Returned',
           'create_date' => 1_670_530_714_000,
           'description' => nil,
           'mime_type' => 'COE Application First Returned.pdf'
@@ -200,7 +197,7 @@ describe 'LGY API' do
           'data' => {
             'attributes' => [{
               'id' => 10_101_010,
-              'document_type' => '705',
+              'document_type' => 'COE Application First Returned',
               'create_date' => 1_670_530_714_000,
               'description' => nil,
               'mime_type' => 'COE Application First Returned.pdf'
