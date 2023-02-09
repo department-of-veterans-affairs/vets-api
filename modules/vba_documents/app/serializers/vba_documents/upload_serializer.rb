@@ -17,6 +17,12 @@ module VBADocuments
         pdf_hash.delete(DOC_TYPE_KEY.to_s)
         pdf_hash.delete(SOURCE_KEY.to_s)
         pdf_hash.delete('submitted_line_of_business')
+
+        if pdf_hash['content'].present?
+          pdf_hash['content'].delete('sha256_checksum')
+          pdf_hash['content']['attachments']&.each { |attach_hash| attach_hash.delete('sha256_checksum') }
+        end
+
         pdf_hash
       end
     end

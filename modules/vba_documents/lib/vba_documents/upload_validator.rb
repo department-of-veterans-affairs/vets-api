@@ -75,12 +75,12 @@ module VBADocuments
       metadata['source'] = "#{model.consumer_name} via VA API"
       metadata['receiveDt'] = timestamp.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
       metadata['uuid'] = model.guid
-      metadata['hashV'] = Digest::SHA256.file(parts[DOC_PART_NAME]).hexdigest
+      metadata['hashV'] = model.uploaded_pdf.dig('content', 'sha256_checksum')
       metadata['numberPages'] = model.uploaded_pdf.dig('content', 'page_count')
       attachment_names = parts.keys.select { |k| k.match(/attachment\d+/) }
       metadata['numberAttachments'] = attachment_names.size
-      attachment_names.each_with_index do |att, i|
-        metadata["ahash#{i + 1}"] = Digest::SHA256.file(parts[att]).hexdigest
+      attachment_names.each_index do |i|
+        metadata["ahash#{i + 1}"] = model.uploaded_pdf.dig('content', 'attachments', i, 'sha256_checksum')
         metadata["numberPages#{i + 1}"] = model.uploaded_pdf.dig('content', 'attachments', i, 'page_count')
       end
       if metadata.key? 'businessLine'

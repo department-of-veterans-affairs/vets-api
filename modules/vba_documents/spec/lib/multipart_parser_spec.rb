@@ -136,44 +136,4 @@ RSpec.describe VBADocuments::MultipartParser do
       end
     end
   end
-
-  it 'the inspector can parse a valid multipart payload with attachments and return metadata' do
-    valid_doc = get_fixture('valid_multipart_pdf_attachments.blob').path
-    inspector = VBADocuments::PDFInspector.new(pdf: valid_doc, add_file_key: true)
-    data = inspector.pdf_data
-    expect(data).to be_a(Hash)
-    expect(data.keys[0]).to eq(valid_doc)
-    doc_hash = data[valid_doc]
-
-    check_keys = {
-      pdf_keys: [%i[source doc_type total_documents total_pages content], doc_hash],
-      content_keys: [%i[page_count dimensions attachments], doc_hash[:content]],
-      dimension_keys: [%i[height width oversized_pdf], doc_hash[:content][:dimensions]]
-    }
-
-    check_keys.each_key do |key|
-      has_all_keys = check_keys[key][0].all? { |s| check_keys[key][1].key? s }
-      msg = "Key Check error on:  #{key}"
-      expect(has_all_keys).to eq(true), msg
-    end
-
-    # validate content data
-    content_hash = doc_hash[:content]
-    expect(content_hash[:dimensions]).to be_a(Hash)
-    expect(content_hash[:dimensions][:height]).to eq(8.5)
-    expect(content_hash[:dimensions][:width]).to eq(11.0)
-    expect(content_hash[:dimensions][:oversized_pdf]).to eq(false)
-    expect(content_hash[:page_count]).to eq(1)
-    expect(content_hash[:attachments]).to be_a(Array)
-    expect(content_hash[:attachments].count).to eq(1)
-
-    # validate total pages and documents
-    expect(doc_hash[:total_pages]).to eq(2)
-    expect(doc_hash[:total_documents]).to eq(2)
-
-    # Load the inspector without adding the file key. This is used to save the data to the database
-    inspector = VBADocuments::PDFInspector.new(pdf: valid_doc, add_file_key: false)
-    data = inspector.pdf_data
-    expect(data).not_to have_key(valid_doc)
-  end
 end

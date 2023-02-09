@@ -92,7 +92,8 @@ module VBADocuments
       {
         'size' => tempfile.size,
         'base64_encoded' => VBADocuments::MultipartParser.base64_encoded?(tempfile.path),
-        'original_checksum' => Digest::SHA256.file(tempfile).hexdigest
+        'sha256_checksum' => Digest::SHA256.file(tempfile).hexdigest,
+        'md5_checksum' => Digest::MD5.file(tempfile).hexdigest
       }
     end
 
