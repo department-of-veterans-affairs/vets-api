@@ -1,0 +1,7 @@
+type: object
+required:
+  - ids
+properties:
+  ids:
+    type: array
+    example: ["7417954", "6970769", "8398465"]
