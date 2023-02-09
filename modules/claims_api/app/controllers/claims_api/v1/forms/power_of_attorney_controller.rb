@@ -239,7 +239,7 @@ module ClaimsApi
 
           begin
             ClaimsApi::Logger.log('poa', detail: 'Starting bgs-ext service build')
-            response = bgs_service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
+            response = local_bgs_service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
             ClaimsApi::Logger.log('poa', detail: 'bgs-ext ssn located')
             unless response && response[:file_nbr].present?
               error_message = "Unable to locate Veteran's File Number in Master Person Index (MPI)." \
