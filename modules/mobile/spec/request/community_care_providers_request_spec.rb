@@ -39,7 +39,7 @@ RSpec.describe 'community care providers', type: :request do
       end
     end
 
-    it 'forms meta links' do
+    it 'forms meta data' do
       VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
         VCR.use_cassette('facilities/ppms/community_clinics_near_facility', match_requests_on: %i[method uri]) do
           params = { serviceType: 'podiatry', facilityId: '442' }
@@ -47,15 +47,6 @@ RSpec.describe 'community care providers', type: :request do
 
           expect(response.parsed_body['meta']).to eq(
             { 'pagination' => { 'currentPage' => 1, 'perPage' => 10, 'totalPages' => 1, 'totalEntries' => 10 } }
-          )
-          expect(response.parsed_body['links']).to eq(
-            {
-              'self' => 'http://www.example.com/mobile/v0/community-care-providers?page[size]=10&page[number]=1&facilityId=442&serviceType=podiatry',
-              'first' => 'http://www.example.com/mobile/v0/community-care-providers?page[size]=10&page[number]=1&facilityId=442&serviceType=podiatry',
-              'prev' => nil,
-              'next' => nil,
-              'last' => 'http://www.example.com/mobile/v0/community-care-providers?page[size]=10&page[number]=1&facilityId=442&serviceType=podiatry'
-            }
           )
         end
       end

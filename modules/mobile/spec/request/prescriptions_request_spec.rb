@@ -203,7 +203,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
     end
 
     describe 'pagination parameters' do
-      it 'forms meta links' do
+      it 'forms meta data' do
         params = { page: { number: 2, size: 3 } }
 
         VCR.use_cassette('rx_refill/prescriptions/gets_a_list_of_all_prescriptions') do
@@ -216,18 +216,6 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
                                                          'perPage' => 3,
                                                          'totalPages' => 20,
                                                          'totalEntries' => 59 } })
-        expect(response.parsed_body['links']).to eq(
-          { 'self' =>
-              'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=2',
-            'first' =>
-              'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=1',
-            'prev' =>
-              'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=1',
-            'next' =>
-              'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=3',
-            'last' =>
-              'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=20' }
-        )
       end
     end
 
@@ -384,20 +372,6 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
                                                          'perPage' => 3,
                                                          'totalPages' => 12,
                                                          'totalEntries' => 36 } })
-        expect(response.parsed_body['links']).to eq(
-          {
-            'self' =>
-              'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=2&filter[[refill_status][eq]]=refillinprocess&sort=-refill_date',
-            'first' =>
-              'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=1&filter[[refill_status][eq]]=refillinprocess&sort=-refill_date',
-            'prev' =>
-              'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=1&filter[[refill_status][eq]]=refillinprocess&sort=-refill_date',
-            'next' =>
-              'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=3&filter[[refill_status][eq]]=refillinprocess&sort=-refill_date',
-            'last' =>
-              'http://www.example.com/mobile/v0/health/rx/prescriptions?page[size]=3&page[number]=12&filter[[refill_status][eq]]=refillinprocess&sort=-refill_date'
-          }
-        )
 
         statuses = response.parsed_body['data'].map { |d| d.dig('attributes', 'refillStatus') }.uniq
         expect(statuses).to eq(['refillinprocess'])

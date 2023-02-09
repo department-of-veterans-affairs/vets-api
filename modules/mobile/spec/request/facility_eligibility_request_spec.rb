@@ -47,19 +47,10 @@ RSpec.describe 'Facility Eligibility', type: :request do
           expect(parsed_response.map { |x| x.dig('attributes', 'facilityId') }).to eq(%w[102 103])
         end
 
-        it 'forms expected meta links' do
+        it 'forms expected meta data' do
           expect(response.parsed_body['meta']).to eq(
             { 'pagination' => { 'currentPage' => 2, 'perPage' => 2,
                                 'totalPages' => 2, 'totalEntries' => 4 } }
-          )
-          expect(response.parsed_body['links']).to eq(
-            {
-              'self' => 'http://www.example.com/mobile/v0/appointments/facility/eligibility?page[size]=2&page[number]=2&serviceType=primaryCare&facilityIds[]=100&facilityIds[]=101&facilityIds[]=102&facilityIds[]=103&type=request',
-              'first' => 'http://www.example.com/mobile/v0/appointments/facility/eligibility?page[size]=2&page[number]=1&serviceType=primaryCare&facilityIds[]=100&facilityIds[]=101&facilityIds[]=102&facilityIds[]=103&type=request',
-              'prev' => 'http://www.example.com/mobile/v0/appointments/facility/eligibility?page[size]=2&page[number]=1&serviceType=primaryCare&facilityIds[]=100&facilityIds[]=101&facilityIds[]=102&facilityIds[]=103&type=request',
-              'next' => nil,
-              'last' => 'http://www.example.com/mobile/v0/appointments/facility/eligibility?page[size]=2&page[number]=2&serviceType=primaryCare&facilityIds[]=100&facilityIds[]=101&facilityIds[]=102&facilityIds[]=103&type=request'
-            }
           )
         end
       end
@@ -90,19 +81,10 @@ RSpec.describe 'Facility Eligibility', type: :request do
           expect(response.body).to match_json_schema('facility_eligibility')
         end
 
-        it 'forms expected meta links with default pagination values' do
+        it 'forms expected meta data with default pagination values' do
           expect(response.parsed_body['meta']).to eq(
             { 'pagination' => { 'currentPage' => 1, 'perPage' => 3,
                                 'totalPages' => 2, 'totalEntries' => 4 } }
-          )
-          expect(response.parsed_body['links']).to eq(
-            {
-              'self' => 'http://www.example.com/mobile/v0/appointments/facility/eligibility?page[size]=3&page[number]=1&serviceType=primaryCare&facilityIds[]=100&facilityIds[]=101&facilityIds[]=102&facilityIds[]=103&type=request',
-              'first' => 'http://www.example.com/mobile/v0/appointments/facility/eligibility?page[size]=3&page[number]=1&serviceType=primaryCare&facilityIds[]=100&facilityIds[]=101&facilityIds[]=102&facilityIds[]=103&type=request',
-              'prev' => nil,
-              'next' => 'http://www.example.com/mobile/v0/appointments/facility/eligibility?page[size]=3&page[number]=2&serviceType=primaryCare&facilityIds[]=100&facilityIds[]=101&facilityIds[]=102&facilityIds[]=103&type=request',
-              'last' => 'http://www.example.com/mobile/v0/appointments/facility/eligibility?page[size]=3&page[number]=2&serviceType=primaryCare&facilityIds[]=100&facilityIds[]=101&facilityIds[]=102&facilityIds[]=103&type=request'
-            }
           )
         end
       end

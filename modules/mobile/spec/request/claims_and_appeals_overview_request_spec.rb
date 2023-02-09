@@ -79,7 +79,6 @@ RSpec.describe 'claims and appeals overview', type: :request do
             expect(response).to have_http_status(:ok)
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body['data']
-            expect(response.parsed_body.dig('links', 'next')).to be(nil)
             expect(parsed_response_contents.length).to eq(10)
             expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
           end

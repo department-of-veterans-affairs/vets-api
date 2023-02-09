@@ -6,10 +6,8 @@ module Mobile
   module V1
     class ImmunizationsController < ApplicationController
       def index
-        url = request.base_url + request.path
         paginated_immunizations, meta = Mobile::PaginationHelper.paginate(list: immunizations,
-                                                                          validated_params: pagination_params,
-                                                                          url: url)
+                                                                          validated_params: pagination_params)
 
         render json: Mobile::V0::ImmunizationSerializer.new(paginated_immunizations, meta)
       end

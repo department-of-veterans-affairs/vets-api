@@ -48,9 +48,3 @@ data:
       friendly_location_name: 'CHYSHR-Cheyenne VA Medical Center'
 meta:
   errors: null
-links:
-  self: 'http://www.example.com/mobile/v0/appointments?startDate=2020-08-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=100&page[number]=1&included[]=pending'
-  first: 'http://www.example.com/mobile/v0/appointments?startDate=2020-08-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=100&page[number]=1&included[]=pending'
-  prev: null
-  next: null
-  last: 'http://www.example.com/mobile/v0/appointments?startDate=2020-08-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[size]=100&page[number]=1&included[]=pending'

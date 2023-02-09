@@ -250,18 +250,6 @@ RSpec.describe 'appointments', type: :request do
             expect(response.parsed_body['data'].size).to eq(5)
           end
 
-          it 'has the correct links with no prev' do
-            expect(response.parsed_body['links']).to eq(
-              {
-                'self' => 'http://www.example.com/mobile/v0/appointments?page[size]=5&page[number]=1&startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false',
-                'first' => 'http://www.example.com/mobile/v0/appointments?page[size]=5&page[number]=1&startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false',
-                'prev' => nil,
-                'next' => 'http://www.example.com/mobile/v0/appointments?page[size]=5&page[number]=2&startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false',
-                'last' => 'http://www.example.com/mobile/v0/appointments?page[size]=5&page[number]=5&startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false'
-              }
-            )
-          end
-
           it 'has the corrent pagination meta data' do
             expect(response.parsed_body['meta']['pagination']).to eq(
               {
@@ -281,18 +269,6 @@ RSpec.describe 'appointments', type: :request do
 
           it 'has 10 items' do
             expect(response.parsed_body['data'].size).to eq(5)
-          end
-
-          it 'has the correct links both prev and next' do
-            expect(response.parsed_body['links']).to eq(
-              {
-                'self' => 'http://www.example.com/mobile/v0/appointments?page[size]=5&page[number]=2&startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false',
-                'first' => 'http://www.example.com/mobile/v0/appointments?page[size]=5&page[number]=1&startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false',
-                'prev' => 'http://www.example.com/mobile/v0/appointments?page[size]=5&page[number]=1&startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false',
-                'next' => 'http://www.example.com/mobile/v0/appointments?page[size]=5&page[number]=3&startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false',
-                'last' => 'http://www.example.com/mobile/v0/appointments?page[size]=5&page[number]=5&startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false'
-              }
-            )
           end
 
           it 'has the correct pagination meta data' do
@@ -316,18 +292,6 @@ RSpec.describe 'appointments', type: :request do
             expect(response.parsed_body['data'].size).to eq(5)
           end
 
-          it 'has the correct links with no next' do
-            expect(response.parsed_body['links']).to eq(
-              {
-                'self' => 'http://www.example.com/mobile/v0/appointments?page[size]=5&page[number]=5&startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false',
-                'first' => 'http://www.example.com/mobile/v0/appointments?page[size]=5&page[number]=1&startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false',
-                'prev' => 'http://www.example.com/mobile/v0/appointments?page[size]=5&page[number]=4&startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false',
-                'next' => nil,
-                'last' => 'http://www.example.com/mobile/v0/appointments?page[size]=5&page[number]=5&startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false'
-              }
-            )
-          end
-
           it 'has the correct pagination meta data' do
             expect(response.parsed_body['meta']['pagination']).to eq(
               {
@@ -349,18 +313,6 @@ RSpec.describe 'appointments', type: :request do
 
           it 'returns a blank array' do
             expect(response.parsed_body['data']).to eq([])
-          end
-
-          it 'has the correct links with no next' do
-            expect(response.parsed_body['links']).to eq(
-              {
-                'self' => 'http://www.example.com/mobile/v0/appointments?page[size]=5&page[number]=99&startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false',
-                'first' => 'http://www.example.com/mobile/v0/appointments?page[size]=5&page[number]=1&startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false',
-                'prev' => 'http://www.example.com/mobile/v0/appointments?page[size]=5&page[number]=5&startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false',
-                'next' => nil,
-                'last' => 'http://www.example.com/mobile/v0/appointments?page[size]=5&page[number]=5&startDate=2019-01-01T00:00:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false'
-              }
-            )
           end
         end
       end
@@ -1310,19 +1262,6 @@ RSpec.describe 'appointments', type: :request do
             expect(order_times).to include(first_proposed_time_in_future, first_proposed_time_in_past)
             sorted = order_times.map(&:to_datetime).sort { |a, b| a <=> b }
             expect(order_times.map(&:to_datetime)).to eq(sorted)
-          end
-
-          it 'forms navigation links with query params' do
-            get_appointments
-            expect(response.parsed_body['links']).to eq(
-              {
-                'self' => 'http://www.example.com/mobile/v0/appointments?page[size]=100&page[number]=1&startDate=2020-08-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false&include[]=pending',
-                'first' => 'http://www.example.com/mobile/v0/appointments?page[size]=100&page[number]=1&startDate=2020-08-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false&include[]=pending',
-                'prev' => nil,
-                'next' => nil,
-                'last' => 'http://www.example.com/mobile/v0/appointments?page[size]=100&page[number]=1&startDate=2020-08-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&reverseSort=false&include[]=pending'
-              }
-            )
           end
 
           context 'if the param is named included' do

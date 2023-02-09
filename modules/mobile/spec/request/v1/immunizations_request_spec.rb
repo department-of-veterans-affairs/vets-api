@@ -65,15 +65,7 @@ RSpec.describe 'immunizations', type: :request do
             }
           }],
           'meta' => { 'pagination' =>
-                        { 'currentPage' => 1, 'perPage' => 1, 'totalPages' => 15, 'totalEntries' => 15 } },
-          'links' =>
-            {
-              'self' => 'http://www.example.com/mobile/v1/health/immunizations?page[size]=1&page[number]=1&useCache=true',
-              'first' => 'http://www.example.com/mobile/v1/health/immunizations?page[size]=1&page[number]=1&useCache=true',
-              'prev' => nil,
-              'next' => 'http://www.example.com/mobile/v1/health/immunizations?page[size]=1&page[number]=2&useCache=true',
-              'last' => 'http://www.example.com/mobile/v1/health/immunizations?page[size]=1&page[number]=15&useCache=true'
-            }
+                        { 'currentPage' => 1, 'perPage' => 1, 'totalPages' => 15, 'totalEntries' => 15 } }
         }
 
         expect(response.parsed_body).to eq(expected_response)
@@ -304,26 +296,6 @@ RSpec.describe 'immunizations', type: :request do
 
         # these are the fifth and sixth from last records in the vcr cassette
         expect(ids).to eq(%w[I2-JYYSRLCG3BN646ZPICW25IEOFQ000000 I2-7PQYOMZCN4FG2Z545JOOLAVCBA000000])
-      end
-
-      it 'creates navigation links for the client' do
-        size = 2
-        number = 3
-
-        VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
-          get '/mobile/v1/health/immunizations', headers: iam_headers, params: { page: { size: size, number: number } }
-        end
-
-        base_url = 'http://www.example.com/mobile/v1/health/immunizations'
-        expected_links = {
-          'self' => "#{base_url}?page[size]=#{size}&page[number]=#{number}&useCache=true",
-          'first' => "#{base_url}?page[size]=#{size}&page[number]=1&useCache=true",
-          'prev' => "#{base_url}?page[size]=#{size}&page[number]=#{number - 1}&useCache=true",
-          'next' => "#{base_url}?page[size]=#{size}&page[number]=#{number + 1}&useCache=true",
-          'last' => "#{base_url}?page[size]=#{size}&page[number]=8&useCache=true"
-        }
-
-        expect(response.parsed_body['links']).to eq(expected_links)
       end
     end
 

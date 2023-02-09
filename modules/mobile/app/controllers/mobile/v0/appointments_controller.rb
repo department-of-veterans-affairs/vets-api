@@ -104,8 +104,7 @@ module Mobile
       end
 
       def paginate(appointments, validated_params)
-        url = request.base_url + request.path
-        Mobile::PaginationHelper.paginate(list: appointments, validated_params: validated_params, url: url)
+        Mobile::PaginationHelper.paginate(list: appointments, validated_params: validated_params)
       end
 
       def include_pending?(params)
