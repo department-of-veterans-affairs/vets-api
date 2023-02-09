@@ -813,6 +813,34 @@ RSpec.describe 'Claims', type: :request do
         end
       end
 
+      describe 'when handling a BGS claim' do
+        context 'it retrieves the contentions list' do
+          it 'lists the contentions without leading spaces' do
+            lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
+                                                       evss_id: '111111111')
+            claim_contentions = bgs_claim_response
+            claim_contentions[:benefit_claim_details_dto][:contentions] = ' c1,  c2, c3'
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+                VCR.use_cassette('evss/documents/get_claim_documents') do
+                  expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                    .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(claim_contentions)
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:get_by_id_and_icn).and_return(lh_claim)
+
+                  get claim_by_id_path, headers: auth_header
+
+                  json_response = JSON.parse(response.body)
+                  expect(response.status).to eq(200)
+                  claim_contentions_res = json_response['data']['attributes']['contentionList']
+                  expect(claim_contentions_res).to eq(%w[c1 c2 c3])
+                end
+              end
+            end
+          end
+        end
+      end
+
       describe "handling the 'supporting_documents'" do
         context 'it has documents' do
           it "returns a claim with 'supporting_documents'" do
