@@ -70,8 +70,7 @@ module Mobile
       end
 
       def paginate(payments, validated_params)
-        url = request.base_url + request.path
-        Mobile::PaginationHelper.paginate(list: payments, validated_params: validated_params, url: url)
+        Mobile::PaginationHelper.paginate(list: payments, validated_params: validated_params)
       end
     end
   end

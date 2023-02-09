@@ -78,38 +78,6 @@
           }
         }
       }
-    },
-    "links": {
-      "required": [
-        "self",
-        "first",
-        "prev",
-        "next",
-        "last"
-      ],
-      "properties": {
-        "self": {
-          "type": "string"
-        },
-        "first": {
-          "type": "string"
-        },
-        "prev": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "next": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "last": {
-          "type": "string"
-        }
-      }
     }
   }
 }

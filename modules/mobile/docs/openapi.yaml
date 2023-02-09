@@ -199,13 +199,8 @@ paths:
         and Express Care appointments. If start and end date ranges are not passed
         in then it defaults to - 1 year and + 1 year from the beginning of today's
         UTC date. The endpoint is paginated and call with no pagination params defaults
-        to page 1 with a page size of 10. Details on links for the other pages in
-        the set are included in the "links" object. The current page is the "self"
-        link. "prev" and "next" are the previous and next links (these will be null
-        if you are on the first or last page respectively). Finally "first" and "last"
-        are the links for the first and last page. Requesting a page out of bounds
-        will return an empty list, however if will still include "links" details for
-        the pages that are in bounds.
+        to page 1 with a page size of 10. Requesting a page out of bounds
+        will return an empty list.
       operationId: getAppointments
       parameters:
         - description: The start date for the range of appointments in ISO 8601 UTC

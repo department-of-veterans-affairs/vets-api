@@ -70,9 +70,8 @@ module Mobile
       end
 
       def paginate(records)
-        url = request.base_url + request.path
         Mobile::PaginationHelper.paginate(
-          list: records, validated_params: pagination_params, url: url
+          list: records, validated_params: pagination_params
         )
       end
     end

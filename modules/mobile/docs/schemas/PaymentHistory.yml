@@ -76,27 +76,3 @@ properties:
       availableYears:
         type: [ array, null ]
         example: [2019, 2018, 2017, 2016, 2015]
-  links:
-    type: object
-    required:
-      - self
-      - first
-      - prev
-      - next
-      - last
-    properties:
-      self:
-        type: string
-        example: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=3&page[size]=10"
-      first:
-        type: string
-        example: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=1&page[size]=10"
-      prev:
-        type: [ string, null ]
-        example: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=2&page[size]=10"
-      next:
-        type: [ string, null ]
-        example: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=4&page[size]=10"
-      last:
-        type: string
-        example: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=7&page[size]=10"
