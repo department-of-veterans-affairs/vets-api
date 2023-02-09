@@ -23,7 +23,9 @@ spec:
         - name: {{ $name }}
           port:  {{ .port | default $root.Values.web.ingress.default.port }}
       middlewares:
+        {{- if $root.Values.web.ingress.headers.enabled }}
         - name: traefik-real-ip-headers
+        {{- end }}
         - name: traefik-real-ip
     {{- end }}
     {{- end }}
@@ -39,6 +41,7 @@ spec:
       excludednets:
         - "1.1.1.1/24"
 
+{{- if .Values.web.ingress.headers.enabled }}
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
@@ -46,8 +49,7 @@ metadata:
   name: traefik-real-ip-headers
   namespace: {{ .Release.Namespace }}
 spec:
-  {{- if .Values.web.ingress.headers.enabled }}
   headers:
 {{ toYaml .Values.web.ingress.headers.properties | indent 4 }}
-  {{- end }}
+{{- end }}
 {{- end }}
