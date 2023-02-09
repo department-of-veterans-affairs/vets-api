@@ -479,12 +479,20 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       end
     end
 
-    it 'saves the original checksum to the submission metadata' do
+    it 'saves the SHA-256 checksum to the submission metadata' do
       sha256_char_length = 64
       described_class.new.perform(upload.guid, test_caller)
       upload.reload
-      expect(upload.metadata['original_checksum']).to be_a(String)
-      expect(upload.metadata['original_checksum'].length).to eq(sha256_char_length)
+      expect(upload.metadata['sha256_checksum']).to be_a(String)
+      expect(upload.metadata['sha256_checksum'].length).to eq(sha256_char_length)
+    end
+
+    it 'saves the MD5 checksum to the submission metadata' do
+      md5_char_length = 32
+      described_class.new.perform(upload.guid, test_caller)
+      upload.reload
+      expect(upload.metadata['md5_checksum']).to be_a(String)
+      expect(upload.metadata['md5_checksum'].length).to eq(md5_char_length)
     end
 
     context 'with invalid sizes' do

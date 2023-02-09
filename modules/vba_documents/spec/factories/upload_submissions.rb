@@ -3,8 +3,18 @@
 FactoryBot.define do
   UPLOADED_PDF_PROPS = {
     source: nil, doc_type: 'Unknown', total_documents: 2, total_pages: 2,
-    content: { page_count: 1, dimensions: { height: 8.5, width: 11.0, oversized_pdf: false },
-               attachments: [{ page_count: 1, dimensions: { height: 8.5, width: 11.0, oversized_pdf: false } }] }
+    content: {
+      page_count: 1,
+      dimensions: { height: 8.5, width: 11.0, oversized_pdf: false },
+      sha256_checksum: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+      attachments: [
+        {
+          page_count: 1,
+          dimensions: { height: 8.5, width: 11.0, oversized_pdf: false },
+          sha256_checksum: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+        }
+      ]
+    }
   }.freeze
 
   factory :upload_submission, class: 'VBADocuments::UploadSubmission' do

@@ -90,7 +90,8 @@ module VBADocuments
           height: dimensions[:height].round(2),
           width: dimensions[:width].round(2),
           oversized_pdf: dimensions[:height] > 21 || dimensions[:width] > 21
-        }
+        },
+        sha256_checksum: Digest::SHA256.file(pdf).hexdigest
       }
     end
   end
