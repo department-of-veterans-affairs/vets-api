@@ -736,13 +736,13 @@
                       "closeDate": "2017-10-18",
                       "contentionList": [
                         "abnormal heart (New)",
-                        " abscess kidney (New)",
-                        " encephalitis lethargica residuals (New)",
-                        " dracunculiasis (New)",
-                        " gingivitis (New)",
-                        " abnormal weight loss (New)",
-                        " groin condition (New)",
-                        " metritis (New)"
+                        "abscess kidney (New)",
+                        "encephalitis lethargica residuals (New)",
+                        "dracunculiasis (New)",
+                        "gingivitis (New)",
+                        "abnormal weight loss (New)",
+                        "groin condition (New)",
+                        "metritis (New)"
                       ],
                       "decisionLetterSent": false,
                       "developmentLetterSent": false,
