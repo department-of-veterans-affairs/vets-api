@@ -48,7 +48,7 @@ RSpec.describe Identity::UserAcceptableVerifiedCredentialCountsJob do
   describe '#perform' do
     subject { described_class.new }
 
-    context 'when there are no uavc' do
+    context 'when there are no avc and no ivc' do
       it 'sets data to expected counts' do
         expected_hash =
           {
@@ -77,6 +77,14 @@ RSpec.describe Identity::UserAcceptableVerifiedCredentialCountsJob do
                 mhv: { added: 1,  total: 1 }
               },
             no_ivc:
+              {
+                all: { added: 4, total: 4 },
+                idme: { added: 1,  total: 1 },
+                logingov: { added: 1, total: 1 },
+                dslogon: { added: 1, total: 1 },
+                mhv: { added: 1,  total: 1 }
+              },
+            no_avc_and_no_ivc:
               {
                 all: { added: 4, total: 4 },
                 idme: { added: 1,  total: 1 },
@@ -130,6 +138,14 @@ RSpec.describe Identity::UserAcceptableVerifiedCredentialCountsJob do
                 dslogon: { added: 1, total: 1 },
                 mhv: { added: 1,  total: 1 }
               },
+            no_avc_and_no_ivc:
+              {
+                all: { added: 0, total: 0 },
+                idme: { added: 0,  total: 0 },
+                logingov: { added: 0, total: 0 },
+                dslogon: { added: 0, total: 0 },
+                mhv: { added: 0,  total: 0 }
+              },
             timestamp: Time.zone.yesterday.as_json
           }
         expect(Rails.logger).to receive(:info).with('[UserAcceptableVerifiedCredentialCountsJob] - Ran', expected_hash)
@@ -168,6 +184,14 @@ RSpec.describe Identity::UserAcceptableVerifiedCredentialCountsJob do
                 mhv: { added: 1,  total: 1 }
               },
             no_ivc:
+              {
+                all: { added: 0, total: 0 },
+                idme: { added: 0,  total: 0 },
+                logingov: { added: 0, total: 0 },
+                dslogon: { added: 0, total: 0 },
+                mhv: { added: 0,  total: 0 }
+              },
+            no_avc_and_no_ivc:
               {
                 all: { added: 0, total: 0 },
                 idme: { added: 0,  total: 0 },
@@ -214,6 +238,14 @@ RSpec.describe Identity::UserAcceptableVerifiedCredentialCountsJob do
                 mhv: { added: 0,  total: 0 }
               },
             no_ivc:
+              {
+                all: { added: 0, total: 0 },
+                idme: { added: 0,  total: 0 },
+                logingov: { added: 0, total: 0 },
+                dslogon: { added: 0, total: 0 },
+                mhv: { added: 0,  total: 0 }
+              },
+            no_avc_and_no_ivc:
               {
                 all: { added: 0, total: 0 },
                 idme: { added: 0,  total: 0 },
@@ -268,6 +300,70 @@ RSpec.describe Identity::UserAcceptableVerifiedCredentialCountsJob do
                 logingov: { added: 0, total: 0 },
                 dslogon: { added: 1, total: 1 },
                 mhv: { added: 1,  total: 1 }
+              },
+            no_avc_and_no_ivc:
+              {
+                all: { added: 0, total: 0 },
+                idme: { added: 0,  total: 0 },
+                logingov: { added: 0, total: 0 },
+                dslogon: { added: 0, total: 0 },
+                mhv: { added: 0,  total: 0 }
+              },
+            timestamp: Time.zone.yesterday.as_json
+          }
+        expect(Rails.logger).to receive(:info).with('[UserAcceptableVerifiedCredentialCountsJob] - Ran', expected_hash)
+        subject.perform
+      end
+    end
+
+    context 'when there are multiple of the same type of UserVerification record' do
+      let(:all_ivc_timestamp) { 1.day.ago }
+      let!(:idme_user_verification2) do
+        create(:idme_user_verification, user_account: idme_user_verification.user_account)
+      end
+
+      it 'will count count distinct UserAcceptableVerifiedCredentail' do
+        expected_hash =
+          {
+            avc:
+              {
+                all: { added: 0, total: 0 },
+                idme: { added: 0,  total: 0 },
+                logingov: { added: 0, total: 0 },
+                dslogon: { added: 0, total: 0 },
+                mhv: { added: 0,  total: 0 }
+              },
+            ivc:
+              {
+                all: { added: 4, total: 4 },
+                idme: { added: 1,  total: 1 },
+                logingov: { added: 1, total: 1 },
+                dslogon: { added: 1, total: 1 },
+                mhv: { added: 1,  total: 1 }
+              },
+            no_avc:
+              {
+                all: { added: 4, total: 4 },
+                idme: { added: 1,  total: 1 },
+                logingov: { added: 1, total: 1 },
+                dslogon: { added: 1, total: 1 },
+                mhv: { added: 1,  total: 1 }
+              },
+            no_ivc:
+              {
+                all: { added: 0, total: 0 },
+                idme: { added: 0,  total: 0 },
+                logingov: { added: 0, total: 0 },
+                dslogon: { added: 0, total: 0 },
+                mhv: { added: 0,  total: 0 }
+              },
+            no_avc_and_no_ivc:
+              {
+                all: { added: 0, total: 0 },
+                idme: { added: 0,  total: 0 },
+                logingov: { added: 0, total: 0 },
+                dslogon: { added: 0, total: 0 },
+                mhv: { added: 0,  total: 0 }
               },
             timestamp: Time.zone.yesterday.as_json
           }
