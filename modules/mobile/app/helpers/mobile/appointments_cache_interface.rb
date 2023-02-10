@@ -39,15 +39,11 @@ module Mobile
     private
 
     def fetch_from_external_service(user, start_date, end_date)
-      if Flipper.enabled?(:mobile_appointment_use_VAOS_v2, user)
-        v2_appointments_proxy(user).get_appointments(
-          start_date: start_date,
-          end_date: end_date,
-          include_pending: true
-        )
-      else
-        v0_appointments_proxy(user).get_appointments(start_date: start_date, end_date: end_date)
-      end
+      appointments_proxy(user).get_appointments(
+        start_date: start_date,
+        end_date: end_date,
+        include_pending: true
+      )
     end
 
     # must break the cache if user is requesting dates beyond default range to ensure the integrity of the cache.
@@ -73,11 +69,7 @@ module Mobile
       within_range
     end
 
-    def v0_appointments_proxy(user)
-      Mobile::V0::Appointments::Proxy.new(user)
-    end
-
-    def v2_appointments_proxy(user)
+    def appointments_proxy(user)
       Mobile::V2::Appointments::Proxy.new(user)
     end
   end

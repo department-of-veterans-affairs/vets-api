@@ -34,13 +34,10 @@ RSpec.describe 'facilities info', type: :request do
   after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
 
   describe 'GET /mobile/v0/facilities-info' do
-    context 'when the MFS flag is enabled' do
+    context 'when there are appointments' do
       before do
-        Flipper.enable(:mobile_appointment_use_VAOS_MFS)
         Mobile::V0::Appointment.set_cached(user, appointments)
       end
-
-      after { Flipper.disable(:mobile_appointment_use_VAOS_MFS) }
 
       it 'returns facility details sorted by closest to home' do
         VCR.use_cassette('appointments/get_multiple_mfs_facilities_200', match_requests_on: %i[method uri]) do
@@ -88,7 +85,8 @@ RSpec.describe 'facilities info', type: :request do
 
       context 'when current location params are missing and sort by current is selected' do
         it 'returns an error' do
-          VCR.use_cassette('appointments/get_multiple_mfs_facilities_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_multiple_mfs_facilities_200',
+                           match_requests_on: %i[method uri]) do
             get '/mobile/v0/facilities-info/current', headers: iam_headers, params: nil
             expect(response).to have_http_status(:bad_request)
             expect(response.body).to match_json_schema('errors')
@@ -110,78 +108,8 @@ RSpec.describe 'facilities info', type: :request do
       end
     end
 
-    context 'when the MFS flag is disabled' do
-      before do
-        Flipper.disable(:mobile_appointment_use_VAOS_MFS)
-        Mobile::V0::Appointment.set_cached(user, appointments)
-      end
-
-      it 'returns facility details sorted by closest to home' do
-        VCR.use_cassette('appointments/legacy_get_facilities_for_facilities_info',
-                         match_requests_on: %i[method uri]) do
-          get '/mobile/v0/facilities-info/home', headers: iam_headers, params: params
-          facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
-          expect(response).to have_http_status(:ok)
-          expect(facilities[0]['id']).to eq('757')
-          expect(facilities[1]['id']).to eq('358')
-          expect(response.body).to match_json_schema('facilities_info')
-        end
-      end
-
-      it 'returns facility details sorted by closest to current location' do
-        VCR.use_cassette('appointments/legacy_get_facilities_for_facilities_info',
-                         match_requests_on: %i[method uri]) do
-          get '/mobile/v0/facilities-info/current', headers: iam_headers, params: params
-
-          facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
-          expect(response).to have_http_status(:ok)
-          expect(facilities[0]['id']).to eq('757')
-          expect(facilities[1]['id']).to eq('358')
-          expect(response.body).to match_json_schema('facilities_info')
-        end
-      end
-
-      it 'returns facility details sorted alphabetically' do
-        VCR.use_cassette('appointments/legacy_get_facilities_for_facilities_info',
-                         match_requests_on: %i[method uri]) do
-          get '/mobile/v0/facilities-info/alphabetical', headers: iam_headers, params: params
-          facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
-          expect(response).to have_http_status(:ok)
-          expect(facilities[0]['id']).to eq('358')
-          expect(facilities[1]['id']).to eq('757')
-          expect(response.body).to match_json_schema('facilities_info')
-        end
-      end
-
-      it 'returns facility details sorted by most recent appointment' do
-        VCR.use_cassette('appointments/legacy_get_facilities_for_facilities_info',
-                         match_requests_on: %i[method uri]) do
-          get '/mobile/v0/facilities-info/appointments', headers: iam_headers, params: params
-          facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
-          expect(response).to have_http_status(:ok)
-          expect(facilities[0]['id']).to eq('358')
-          expect(facilities[1]['id']).to eq('757')
-          expect(response.body).to match_json_schema('facilities_info')
-        end
-      end
-
-      it 'raises error when sorting by unknown sorting method' do
-        expected_error_message = [{ 'title' => 'Invalid field value',
-                                    'detail' => '"test" is not a valid value for "sort"',
-                                    'code' => '103',
-                                    'status' => '400' }]
-
-        VCR.use_cassette('appointments/legacy_get_facilities_for_facilities_info',
-                         match_requests_on: %i[method uri]) do
-          get '/mobile/v0/facilities-info/test', headers: iam_headers, params: params
-          expect(response.parsed_body['errors']).to eq(expected_error_message)
-        end
-      end
-    end
-
     context 'when there are no appointments' do
       before do
-        Flipper.enable(:mobile_appointment_use_VAOS_MFS)
         Mobile::V0::Appointment.set_cached(user, [])
       end
 
@@ -200,7 +128,6 @@ RSpec.describe 'facilities info', type: :request do
 
     context 'when appointments cache is nil' do
       before do
-        Flipper.enable(:mobile_appointment_use_VAOS_MFS)
         allow(Rails.logger).to receive(:info)
       end
 
@@ -221,7 +148,6 @@ RSpec.describe 'facilities info', type: :request do
 
     context 'when there is one appointment' do
       before do
-        Flipper.enable(:mobile_appointment_use_VAOS_MFS)
         matching_appointments = appointments.select { |appointment| appointment.facility_id == '358' }
         Mobile::V0::Appointment.set_cached(user, matching_appointments)
       end

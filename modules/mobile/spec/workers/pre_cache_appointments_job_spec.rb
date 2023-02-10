@@ -43,16 +43,10 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
       after { Flipper.enable(:mobile_precache_appointments) }
 
       it 'does nothing' do
-        VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
-          VCR.use_cassette('appointments/get_cc_appointments_default', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('appointments/get_appointments_default', match_requests_on: %i[method uri]) do
-              expect do
-                subject.perform(user.uuid)
-              end.not_to raise_error
-              expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
-            end
-          end
-        end
+        expect do
+          subject.perform(user.uuid)
+        end.not_to raise_error
+        expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
       end
     end
 

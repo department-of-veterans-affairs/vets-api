@@ -1,8 +1,21 @@
 # frozen_string_literal: true
 
+require 'lighthouse/facilities/client'
+
 module Mobile
   module FacilitiesHelper
     module_function
+
+    def fetch_facilities_from_ids(user, facility_ids, include_children)
+      ids = facility_ids.join(',')
+
+      facility_ids.each do |facility_id|
+        Rails.logger.info('metric.mobile.appointment.facility', facility_id: facility_id)
+      end
+      vaos_facilities = VAOS::V2::MobileFacilityService.new(user).get_facilities(ids: ids, children: include_children,
+                                                                                 type: nil)
+      vaos_facilities[:data]
+    end
 
     def get_facilities(facility_ids)
       facilities_service.get_facilities(ids: facility_ids.to_a.map { |id| "vha_#{id}" }.join(','))
