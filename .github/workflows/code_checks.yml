@@ -25,7 +25,7 @@ jobs:
       - name: Run Brakeman
         run:  bundle exec brakeman --ensure-latest --confidence-level=2 -o brakeman.json
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: Linting and Security Results
