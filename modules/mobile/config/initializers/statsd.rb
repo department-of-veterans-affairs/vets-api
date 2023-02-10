@@ -3,7 +3,6 @@
 # add metrics via statsd metaprogramming methods https://github.com/Shopify/statsd-instrument#metaprogramming-methods
 # and set initial values for increments to 0 (does not reset values, ensures counts carry over server instances)
 # statsd_count_success automatically appends .success or .failure
-# rubocop: disable Metrics/BlockLength
 
 StatsD.logger = Logger.new 'log/statsd.log' if Rails.env.development?
 
@@ -21,30 +20,6 @@ Rails.application.reloader.to_prepare do
   # capture IAM attempts and successes
   StatsD.increment('iam_ssoe_oauth.auth.total', 0)
   StatsD.increment('iam_ssoe_oauth.auth.success', 0)
-
-  # Appointments #---------------------------------------------------------------
-
-  # meta binding
-  Mobile::V0::Appointments::Proxy.extend StatsD::Instrument
-  Mobile::V0::Appointments::Proxy.statsd_count_success :get_appointments,
-                                                       'mobile.appointments.get_appointments'
-  Mobile::V0::Appointments::Proxy.statsd_measure :get_appointments,
-                                                 'mobile.appointments.get_appointments.measure'
-  Mobile::V0::Appointments::Proxy.statsd_count_success :put_cancel_appointment,
-                                                       'mobile.appointments.put_cancel_appointment'
-
-  # service failure rate for the appointments list
-  StatsD.increment('mobile.appointments.get_appointments.success', 0)
-  StatsD.increment('mobile.appointments.get_appointments.failure', 0)
-
-  # service failure rate for cancelling appointments
-  StatsD.increment('mobile.appointments.put_cancel_appointment.success', 0)
-  StatsD.increment('mobile.appointments.put_cancel_appointment.failure', 0)
-
-  # which facilities most often appear in the list (tags:["facility_id:#{facility_id}"])
-  StatsD.increment('mobile.appointments.facilities', 0)
-  # which appointment types most often appear in the list (tags:["type:#{type}"])
-  StatsD.increment('mobile.appointments.type', 0)
 
   # Letters #--------------------------------------------------------------------
 
@@ -139,5 +114,4 @@ Rails.application.reloader.to_prepare do
   # Schedule Appointments #-------------------------------------------------------
   StatsD.increment('mobile.schedule_appointment.policy.success', 0)
   StatsD.increment('mobile.schedule_appointment.policy.failure', 0)
-  # rubocop: enable Metrics/BlockLength
 end

@@ -13,7 +13,7 @@ module Mobile
         raise_invalid_sort_method_error unless SORT_METHODS.include?(params[:sort])
 
         facility_ids = @current_user.va_treatment_facility_ids + @current_user.cerner_facility_ids
-        facilities = appointments_proxy.fetch_facilities_from_ids(facility_ids, true)
+        facilities = Mobile::FacilitiesHelper.fetch_facilities_from_ids(@current_user, facility_ids, true)
         adapted_facilities = facilities.map do |facility|
           Mobile::V0::Adapters::FacilityInfo.new.parse(facility, @current_user, params)
         end
@@ -22,10 +22,6 @@ module Mobile
       end
 
       private
-
-      def appointments_proxy
-        Mobile::V0::Appointments::Proxy.new(@current_user)
-      end
 
       def sort(facilities, sort_method)
         case sort_method

@@ -68,103 +68,48 @@ describe Mobile::AppointmentsCacheInterface do
       end
     end
 
-    context 'when mobile_appointment_use_VAOS_v2 flag is enabled' do
-      before { Flipper.enable(:mobile_appointment_use_VAOS_v2) }
-
-      it 'returns data found in the cache when cache is set and fetch_cache is true' do
-        set_cache
-        expect(
-          subject.fetch_appointments(user: user, fetch_cache: true)
-        ).to eq(cached_data)
-      end
-
-      it 'returns appointments from the V2 server when cache is not set' do
-        expect_any_instance_of(Mobile::V2::Appointments::Proxy).to \
-          receive(:get_appointments).and_return(mocked_appointments)
-        expect(subject.fetch_appointments(user: user)).to eq(mocked_appointments)
-      end
-
-      it 'uses default start and end dates when not provided' do
-        expect_any_instance_of(Mobile::V2::Appointments::Proxy).to receive(:get_appointments).with(
-          start_date: subject.latest_allowable_cache_start_date,
-          end_date: subject.earliest_allowable_cache_end_date,
-          include_pending: true
-        )
-        subject.fetch_appointments(user: user)
-      end
-
-      it 'uses provided start and end dates when they are further from the current date than the defaults' do
-        query_start_date = DateTime.now.utc - 2.years
-        query_end_date = DateTime.now.utc + 2.years
-
-        expect_any_instance_of(Mobile::V2::Appointments::Proxy).to receive(:get_appointments).with(
-          start_date: query_start_date, end_date: query_end_date, include_pending: true
-        )
-        subject.fetch_appointments(user: user, start_date: query_start_date, end_date: query_end_date)
-      end
-
-      it 'uses default start and end dates provided dates are too close to current date' do
-        query_start_date = DateTime.now.utc - 1.day
-        query_end_date = DateTime.now.utc + 1.day
-
-        expect_any_instance_of(Mobile::V2::Appointments::Proxy).to receive(:get_appointments).with(
-          start_date: subject.latest_allowable_cache_start_date,
-          end_date: subject.earliest_allowable_cache_end_date,
-          include_pending: true
-        )
-        subject.fetch_appointments(user: user, start_date: query_start_date, end_date: query_end_date)
-      end
+    it 'returns data found in the cache when cache is set and fetch_cache is true' do
+      set_cache
+      expect(
+        subject.fetch_appointments(user: user, fetch_cache: true)
+      ).to eq(cached_data)
     end
 
-    context 'when mobile_appointment_use_VAOS_v2 flag is disabled' do
-      let(:klass_double) { double('Mobile::V0::Appointments::Proxy') }
+    it 'returns appointments from the V2 server when cache is not set' do
+      expect_any_instance_of(Mobile::V2::Appointments::Proxy).to \
+        receive(:get_appointments).and_return(mocked_appointments)
+      expect(subject.fetch_appointments(user: user)).to eq(mocked_appointments)
+    end
 
-      before do
-        Flipper.disable(:mobile_appointment_use_VAOS_v2)
-        # can't stub this with any_instance_of because the class is extended in the statsd initializer
-        allow(Mobile::V0::Appointments::Proxy).to receive(:new).and_return(klass_double)
-      end
+    it 'uses default start and end dates when not provided' do
+      expect_any_instance_of(Mobile::V2::Appointments::Proxy).to receive(:get_appointments).with(
+        start_date: subject.latest_allowable_cache_start_date,
+        end_date: subject.earliest_allowable_cache_end_date,
+        include_pending: true
+      )
+      subject.fetch_appointments(user: user)
+    end
 
-      after { Flipper.enable(:mobile_appointment_use_VAOS_v2) }
+    it 'uses provided start and end dates when they are further from the current date than the defaults' do
+      query_start_date = DateTime.now.utc - 2.years
+      query_end_date = DateTime.now.utc + 2.years
 
-      it 'returns data found in the cache when cache is set and fetch_cache is true' do
-        set_cache
-        expect(
-          subject.fetch_appointments(user: user, fetch_cache: true)
-        ).to eq(cached_data)
-      end
+      expect_any_instance_of(Mobile::V2::Appointments::Proxy).to receive(:get_appointments).with(
+        start_date: query_start_date, end_date: query_end_date, include_pending: true
+      )
+      subject.fetch_appointments(user: user, start_date: query_start_date, end_date: query_end_date)
+    end
 
-      it 'returns appointments from the V0 server' do
-        expect(klass_double).to receive(:get_appointments).and_return(mocked_appointments)
-        expect(subject.fetch_appointments(user: user)).to eq(mocked_appointments)
-      end
+    it 'uses default start and end dates provided dates are too close to current date' do
+      query_start_date = DateTime.now.utc - 1.day
+      query_end_date = DateTime.now.utc + 1.day
 
-      it 'uses default start and end dates when not provided' do
-        expect(klass_double).to receive(:get_appointments).with(
-          start_date: subject.latest_allowable_cache_start_date,
-          end_date: subject.earliest_allowable_cache_end_date
-        )
-        subject.fetch_appointments(user: user)
-      end
-
-      it 'uses provided start and end dates when they are further from the current date than the defaults' do
-        query_start_date = DateTime.now.utc - 2.years
-        query_end_date = DateTime.now.utc + 2.years
-
-        expect(klass_double).to receive(:get_appointments).with(start_date: query_start_date, end_date: query_end_date)
-        subject.fetch_appointments(user: user, start_date: query_start_date, end_date: query_end_date)
-      end
-
-      it 'uses default start and end dates provided dates are too close to current date' do
-        query_start_date = DateTime.now.utc - 1.day
-        query_end_date = DateTime.now.utc + 1.day
-
-        expect(klass_double).to receive(:get_appointments).with(
-          start_date: subject.latest_allowable_cache_start_date,
-          end_date: subject.earliest_allowable_cache_end_date
-        )
-        subject.fetch_appointments(user: user, start_date: query_start_date, end_date: query_end_date)
-      end
+      expect_any_instance_of(Mobile::V2::Appointments::Proxy).to receive(:get_appointments).with(
+        start_date: subject.latest_allowable_cache_start_date,
+        end_date: subject.earliest_allowable_cache_end_date,
+        include_pending: true
+      )
+      subject.fetch_appointments(user: user, start_date: query_start_date, end_date: query_end_date)
     end
   end
 

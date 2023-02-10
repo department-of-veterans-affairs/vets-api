@@ -55,7 +55,8 @@ RSpec.describe 'clinics', type: :request do
       let(:params) { { service_type: 'badservice' } }
 
       it 'returns bad request' do
-        VCR.use_cassette('appointments/get_facility_clinics_bad_service_400', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('appointments/get_facility_clinics_bad_service_400',
+                         match_requests_on: %i[method uri]) do
           get "/mobile/v0/appointments/facilities/#{facility_id}/clinics", params: params, headers: iam_headers
 
           expect(response).to have_http_status(:bad_request)
@@ -97,7 +98,8 @@ RSpec.describe 'clinics', type: :request do
       end
 
       it 'defaults time from now to 2 months from now' do
-        VCR.use_cassette('appointments/get_available_slots_200_no_start_end_date', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('appointments/get_available_slots_200_no_start_end_date',
+                         match_requests_on: %i[method uri]) do
           get "/mobile/v0/appointments/facilities/#{facility_id}/clinics/#{clinic_id}/slots", headers: iam_headers
 
           expect(response).to have_http_status(:ok)
