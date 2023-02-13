@@ -64,7 +64,7 @@ class SavedClaim::CoeClaim < SavedClaim
         'contactEmail' => parsed_form['contactEmail'],
         'vaLoanIndicator' => parsed_form['vaLoanIndicator'],
         'vaHomeOwnIndicator' => (parsed_form['relevantPriorLoans'] || []).any? { |obj| obj['propertyOwned'] },
-        # 'identity' => 'VETERAN' # enum: ['VETERAN', 'ADSM', 'NADNA', 'DNANA', 'DRNA']
+        # parsed_form['identity'] can be: 'VETERAN', 'ADSM', 'NADNA', 'DNANA', or 'DRNA'.
         'activeDutyIndicator' => parsed_form['identity'] == 'ADSM',
         'disabilityIndicator' => false
       },
@@ -187,11 +187,7 @@ class SavedClaim::CoeClaim < SavedClaim
           # separation papers (DD214)"
           'documentType' => claim_file_data['attachmentType'],
           # This is the vet's own description of a document, after selecting
-          # "other" as the `attachmentType`. We add an "[ATTACHMENT]" prefix to
-          # help us distinguish between vet-uploaded supporting documents and
-          # notification letters, on the COE status page. For more context, see
-          # https://github.com/department-of-veterans-affairs/vets-api/pull/11335.
-          # We are doing the same thing in CoeController#document_data.
+          # "other" as the `attachmentType`.
           'description' => claim_file_data['attachmentDescription'],
           'contentsBase64' => Base64.encode64(File.read(file_path)),
           'fileName' => attachment.file.metadata['filename']
