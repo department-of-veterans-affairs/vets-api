@@ -15,6 +15,7 @@ RSpec.describe 'supported_sites', type: :request do
     let(:user) { FactoryBot.create(:user, :loa1) }
 
     it 'returns a forbidden error' do
+      skip 'VAOS V0 routes disabled'
       get '/vaos/v0/community_care/supported_sites'
       expect(response).to have_http_status(:forbidden)
       expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -27,6 +28,7 @@ RSpec.describe 'supported_sites', type: :request do
 
     context 'with a valid GET supported_sites request' do
       it 'returns a 200 with the correct schema' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/cc_supported_sites/get_one_site', match_requests_on: %i[method path query]) do
           get '/vaos/v0/community_care/supported_sites', params: { site_codes: [983, 984] }
           expect(response).to have_http_status(:ok)
@@ -36,6 +38,7 @@ RSpec.describe 'supported_sites', type: :request do
       end
 
       it 'returns a 200 with the correct schema when camel-inflected' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/cc_supported_sites/get_one_site', match_requests_on: %i[method path query]) do
           get '/vaos/v0/community_care/supported_sites',
               params: { site_codes: [983, 984] },
@@ -49,6 +52,7 @@ RSpec.describe 'supported_sites', type: :request do
 
     context 'with a invalid GET supported_sites request' do
       it 'returns an exception' do
+        skip 'VAOS V0 routes disabled'
         get '/vaos/v0/community_care/supported_sites'
         expect(response).to have_http_status(:bad_request)
         expect(JSON.parse(response.body)['errors'].first['detail'])

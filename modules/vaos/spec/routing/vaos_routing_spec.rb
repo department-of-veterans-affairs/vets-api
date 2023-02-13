@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'VAOS routing configuration', type: :routing do
   it 'routes to the appointments index' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/appointments')).to route_to(
       format: :json,
       controller: 'vaos/v0/appointments',
@@ -12,6 +13,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the appointments create' do
+    skip 'VAOS V0 routes disabled'
     expect(post('/vaos/v0/appointments')).to route_to(
       format: :json,
       controller: 'vaos/v0/appointments',
@@ -20,6 +22,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the appointments cancel' do
+    skip 'VAOS V0 routes disabled'
     expect(put('/vaos/v0/appointments/cancel')).to route_to(
       format: :json,
       controller: 'vaos/v0/appointments',
@@ -28,6 +31,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the appointments show' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/appointments/va/12345')).to route_to(
       format: :json,
       controller: 'vaos/v0/appointments',
@@ -38,6 +42,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the appointments show fails when not va' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/appointments/xx/12345')).to route_to(
       controller: 'application',
       action: 'routing_error',
@@ -46,6 +51,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the appointment requests index' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/appointment_requests')).to route_to(
       format: :json,
       controller: 'vaos/v0/appointment_requests',
@@ -54,6 +60,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the appointment requests create' do
+    skip 'VAOS V0 routes disabled'
     expect(post('/vaos/v0/appointment_requests')).to route_to(
       format: :json,
       controller: 'vaos/v0/appointment_requests',
@@ -62,6 +69,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the appointment requests update (cancel)' do
+    skip 'VAOS V0 routes disabled'
     expect(put('/vaos/v0/appointment_requests/123')).to route_to(
       format: :json,
       controller: 'vaos/v0/appointment_requests',
@@ -71,6 +79,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the appointment requests messages index' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/appointment_requests/123/messages')).to route_to(
       format: :json,
       controller: 'vaos/v0/messages',
@@ -80,6 +89,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the appointment requests messages create' do
+    skip 'VAOS V0 routes disabled'
     expect(post('/vaos/v0/appointment_requests/123/messages')).to route_to(
       format: :json,
       controller: 'vaos/v0/messages',
@@ -89,6 +99,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the community care eligibilty endpoint' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/community_care/eligibility/PrimaryCare')).to route_to(
       format: :json,
       controller: 'vaos/v0/cc_eligibility',
@@ -98,6 +109,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the community care supported_sites endpoint' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/community_care/supported_sites')).to route_to(
       format: :json,
       controller: 'vaos/v0/cc_supported_sites',
@@ -106,6 +118,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the systems index' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/systems')).to route_to(
       format: :json,
       controller: 'vaos/v0/systems',
@@ -114,6 +127,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the systems direct_scheduling_facilities index' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/systems/983/direct_scheduling_facilities')).to route_to(
       format: :json,
       controller: 'vaos/v0/direct_scheduling_facilities',
@@ -123,6 +137,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the systems pact index' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/systems/983/pact')).to route_to(
       format: :json,
       controller: 'vaos/v0/pact',
@@ -132,6 +147,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the systems clinic_institutions index' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/systems/983/clinic_institutions')).to route_to(
       format: :json,
       controller: 'vaos/v0/clinic_institutions',
@@ -141,6 +157,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the facilities index action' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/facilities')).to route_to(
       format: :json,
       controller: 'vaos/v0/facilities',
@@ -149,6 +166,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the facility clinics index' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/facilities/123/clinics')).to route_to(
       format: :json,
       controller: 'vaos/v0/clinics',
@@ -158,6 +176,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the facility cancel_reasons index' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/facilities/123/cancel_reasons')).to route_to(
       format: :json,
       controller: 'vaos/v0/cancel_reasons',
@@ -167,6 +186,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the facility available appointments index' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/facilities/123/available_appointments')).to route_to(
       format: :json,
       controller: 'vaos/v0/available_appointments',
@@ -176,6 +196,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the facility limits index' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/facilities/123/limits')).to route_to(
       format: :json,
       controller: 'vaos/v0/limits',
@@ -185,6 +206,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the facility visits (pact) index' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/facilities/688/visits/direct')).to route_to(
       format: :json,
       controller: 'vaos/v0/visits',
@@ -195,6 +217,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the preferences show action' do
+    skip 'VAOS V0 routes disabled'
     expect(get('/vaos/v0/preferences')).to route_to(
       format: :json,
       controller: 'vaos/v0/preferences',
@@ -203,6 +226,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
   end
 
   it 'routes to the preferences update action' do
+    skip 'VAOS V0 routes disabled'
     expect(put('/vaos/v0/preferences')).to route_to(
       format: :json,
       controller: 'vaos/v0/preferences',

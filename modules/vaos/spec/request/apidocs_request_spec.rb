@@ -4,6 +4,7 @@ require 'rails_helper'
 RSpec.describe 'vaos appointment requests', type: :request do
   describe 'GET /vaos/v0/apidocs' do
     it 'renders the apidocs as json' do
+      skip 'VAOS V0 routes disabled/removed'
       get '/vaos/v0/apidocs'
 
       expect(response).to have_http_status(:ok)

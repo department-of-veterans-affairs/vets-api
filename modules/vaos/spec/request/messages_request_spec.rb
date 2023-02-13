@@ -17,6 +17,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
       let(:current_user) { build(:user, :loa1) }
 
       it 'does not have access' do
+        skip 'VAOS V0 routes disabled'
         get "/vaos/v0/appointment_requests/#{request_id}/messages"
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -29,6 +30,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
 
       context 'with flipper disabled' do
         it 'does not have access' do
+          skip 'VAOS V0 routes disabled'
           Flipper.disable('va_online_scheduling')
           get "/vaos/v0/appointment_requests/#{request_id}/messages"
           expect(response).to have_http_status(:forbidden)
@@ -38,6 +40,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
       end
 
       it 'has access and returns messages', :skip_mvi do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/messages/get_messages', match_requests_on: %i[method path query]) do
           get "/vaos/v0/appointment_requests/#{request_id}/messages"
 
@@ -48,6 +51,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
       end
 
       it 'has access and returns messages when camel-inflected', :skip_mvi do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/messages/get_messages', match_requests_on: %i[method path query]) do
           get "/vaos/v0/appointment_requests/#{request_id}/messages", headers: { 'X-Key-Inflection' => 'camel' }
 
@@ -67,6 +71,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
       let(:current_user) { build(:user, :loa1) }
 
       it 'does not have access' do
+        skip 'VAOS V0 routes disabled'
         post "/vaos/v0/appointment_requests/#{request_id}/messages", params: request_body
 
         expect(response).to have_http_status(:forbidden)
@@ -80,6 +85,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
 
       context 'with flipper disabled' do
         it 'does not have access' do
+          skip 'VAOS V0 routes disabled'
           Flipper.disable('va_online_scheduling')
           post "/vaos/v0/appointment_requests/#{request_id}/messages", params: request_body
 
@@ -91,6 +97,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
 
       context 'with access and valid message' do
         it 'posts a message', :skip_mvi do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/messages/post_message', match_requests_on: %i[method path query]) do
             post "/vaos/v0/appointment_requests/#{request_id}/messages", params: request_body
 
@@ -105,6 +112,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
         let(:request_body) { { message_text: '' } }
 
         it 'returns a validation error', :skip_mvi do
+          skip 'VAOS V0 routes disabled'
           post "/vaos/v0/appointment_requests/#{request_id}/messages", params: request_body
 
           expect(response).to have_http_status(:bad_request)
@@ -118,6 +126,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
         let(:request_id) { '8a4886886e4c8e22016eebd3b8820347' }
 
         it 'returns bad request', :skip_mvi do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/messages/post_message_error', match_requests_on: %i[method path query]) do
             post "/vaos/v0/appointment_requests/#{request_id}/messages", params: request_body
 
@@ -131,6 +140,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
 
       context 'with access and too many messages for appointment request' do
         it 'returns bad request', :skip_mvi do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/messages/post_message_error_400', match_requests_on: %i[method path query]) do
             post "/vaos/v0/appointment_requests/#{request_id}/messages", params: request_body
 

@@ -18,6 +18,7 @@ RSpec.describe 'facilities', type: :request do
       let(:user) { FactoryBot.create(:user, :loa1) }
 
       it 'returns a forbidden error' do
+        skip 'VAOS V0 routes disabled'
         get '/vaos/v0/facilities'
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -30,6 +31,7 @@ RSpec.describe 'facilities', type: :request do
 
       context 'with a single valid facility code' do
         it 'returns a 200 with the correct schema' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_facilities', match_requests_on: %i[method path query]) do
             get '/vaos/v0/facilities', params: { facility_codes: 688 }
 
@@ -39,6 +41,7 @@ RSpec.describe 'facilities', type: :request do
         end
 
         it 'returns a 200 with the correct camel-inflected schema' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_facilities', match_requests_on: %i[method path query]) do
             get '/vaos/v0/facilities', params: { facility_codes: 688 }, headers: inflection_header
 
@@ -50,6 +53,7 @@ RSpec.describe 'facilities', type: :request do
 
       context 'with a multiple valid facility codes' do
         it 'returns a 200 with the correct schema' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_facilities_multiple') do
             get '/vaos/v0/facilities', params: { facility_codes: [983, 984] }
 
@@ -59,6 +63,7 @@ RSpec.describe 'facilities', type: :request do
         end
 
         it 'returns a 200 with the correct camel-inflected schema' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_facilities_multiple') do
             get '/vaos/v0/facilities', params: { facility_codes: [983, 984] }, headers: inflection_header
 
@@ -72,6 +77,7 @@ RSpec.describe 'facilities', type: :request do
         let(:json) { JSON.parse(response.body) }
 
         it 'returns a 400 with missing param info' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_facilities', match_requests_on: %i[method path query]) do
             get '/vaos/v0/facilities'
 
@@ -88,6 +94,7 @@ RSpec.describe 'facilities', type: :request do
       let(:user) { FactoryBot.create(:user, :loa1) }
 
       it 'returns a forbidden error' do
+        skip 'VAOS V0 routes disabled'
         get '/vaos/v0/facilities/984/clinics', params: { type_of_care_id: '323', system_id: '984GA' }
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -100,6 +107,7 @@ RSpec.describe 'facilities', type: :request do
 
       context 'with a valid GET response' do
         it 'returns a 200 with the correct schema' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method path query]) do
             allow(Rails.logger).to receive(:info).at_least(:once)
             get '/vaos/v0/facilities/983/clinics', params: { type_of_care_id: '323', system_id: '983' }
@@ -114,6 +122,7 @@ RSpec.describe 'facilities', type: :request do
         end
 
         it 'returns a 200 with the correct camel-inflected schema' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method path query]) do
             get '/vaos/v0/facilities/983/clinics',
                 params: { type_of_care_id: '323', system_id: '983' },
@@ -129,6 +138,7 @@ RSpec.describe 'facilities', type: :request do
         let(:json) { JSON.parse(response.body) }
 
         it 'returns a 400 with missing param type_of_care_id' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method path query]) do
             get '/vaos/v0/facilities/984/clinics', params: { system_id: '984GA' }
 
@@ -138,6 +148,7 @@ RSpec.describe 'facilities', type: :request do
         end
 
         it 'returns a 400 with missing param system_id' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method path query]) do
             get '/vaos/v0/facilities/984/clinics', params: { type_of_care_id: '323' }
 
@@ -154,6 +165,7 @@ RSpec.describe 'facilities', type: :request do
       let(:user) { FactoryBot.create(:user, :loa1) }
 
       it 'returns a forbidden error' do
+        skip 'VAOS V0 routes disabled'
         get '/vaos/v0/facilities/984/cancel_reasons'
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -166,6 +178,7 @@ RSpec.describe 'facilities', type: :request do
 
       context 'with a valid GET response' do
         it 'returns a 200 with the correct schema' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_cancel_reasons', match_requests_on: %i[method path query]) do
             get '/vaos/v0/facilities/984/cancel_reasons'
 
@@ -175,6 +188,7 @@ RSpec.describe 'facilities', type: :request do
         end
 
         it 'returns a 200 with the correct camel-inflected schema' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_cancel_reasons', match_requests_on: %i[method path query]) do
             get '/vaos/v0/facilities/984/cancel_reasons', headers: inflection_header
 
@@ -198,6 +212,7 @@ RSpec.describe 'facilities', type: :request do
       let(:user) { FactoryBot.create(:user, :loa1) }
 
       it 'returns a forbidden error' do
+        skip 'VAOS V0 routes disabled'
         get "/vaos/v0/facilities/#{facility_id}/cancel_reasons", params: {
           start_date: start_date,
           end_date: end_date,
@@ -215,6 +230,7 @@ RSpec.describe 'facilities', type: :request do
 
       context 'with a valid GET response' do
         it 'returns a 200 with the correct schema' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_facility_available_appointments',
                            match_requests_on: %i[method path query]) do
             get "/vaos/v0/facilities/#{facility_id}/available_appointments", params: {
@@ -229,6 +245,7 @@ RSpec.describe 'facilities', type: :request do
         end
 
         it 'returns a 200 with the correct camel-inflected schema' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_facility_available_appointments',
                            match_requests_on: %i[method path query]) do
             get "/vaos/v0/facilities/#{facility_id}/available_appointments",
@@ -247,6 +264,7 @@ RSpec.describe 'facilities', type: :request do
 
       context 'when start_date is missing' do
         it 'returns a 400 with missing param start_date' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method path query]) do
             get "/vaos/v0/facilities/#{facility_id}/available_appointments", params: {
               end_date: end_date,
@@ -261,6 +279,7 @@ RSpec.describe 'facilities', type: :request do
 
       context 'when end_date is missing' do
         it 'returns a 400 with missing param end_date' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method path query]) do
             get "/vaos/v0/facilities/#{facility_id}/available_appointments", params: {
               start_date: start_date,
@@ -275,6 +294,7 @@ RSpec.describe 'facilities', type: :request do
 
       context 'when clinic_ids is missing' do
         it 'returns a 400 with missing param clinic_ids' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method path query]) do
             get "/vaos/v0/facilities/#{facility_id}/available_appointments", params: {
               start_date: start_date,
@@ -291,6 +311,7 @@ RSpec.describe 'facilities', type: :request do
         let(:start_date) { '2019-22-11T00:00:00+00:00' }
 
         it 'returns a 400 with invalid date format' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method path query]) do
             get "/vaos/v0/facilities/#{facility_id}/available_appointments", params: {
               start_date: start_date,
@@ -310,6 +331,7 @@ RSpec.describe 'facilities', type: :request do
         let(:end_date) { '2019-35-11T00:00:00+00:00' }
 
         it 'returns a 400 with invalid date format' do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method path query]) do
             get "/vaos/v0/facilities/#{facility_id}/available_appointments", params: {
               start_date: start_date,
@@ -332,6 +354,7 @@ RSpec.describe 'facilities', type: :request do
 
     context 'with a valid GET facility limits response' do
       it 'returns a 200 with the correct schema' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_facility_limits', match_requests_on: %i[method path query]) do
           get '/vaos/v0/facilities/688/limits', params: { type_of_care_id: '323' }
 
@@ -342,6 +365,7 @@ RSpec.describe 'facilities', type: :request do
       end
 
       it 'returns a 200 with the correct camel-inflected schema' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_facility_limits', match_requests_on: %i[method path query]) do
           get '/vaos/v0/facilities/688/limits', params: { type_of_care_id: '323' }, headers: inflection_header
 
@@ -354,6 +378,7 @@ RSpec.describe 'facilities', type: :request do
 
     context 'when type_of_care_id is missing' do
       it 'returns an error message with the missing param' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_facility_limits', match_requests_on: %i[method path query]) do
           get '/vaos/v0/facilities/688/limits'
 
@@ -370,6 +395,7 @@ RSpec.describe 'facilities', type: :request do
 
     context 'with a valid GET facility limits response' do
       it 'returns a 200 with the correct schema' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple', match_requests_on: %i[method path]) do
           get '/vaos/v0/facilities/limits', params: { type_of_care_id: '323', facility_ids: %w[688 442] }
 
@@ -387,6 +413,7 @@ RSpec.describe 'facilities', type: :request do
 
     context 'when type_of_care_id parameter is missing' do
       it 'returns an error message with the missing param, type_of_care_id' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple', match_requests_on: %i[method path]) do
           get '/vaos/v0/facilities/limits', params: { facility_ids: %w[688 442] }
 
@@ -399,6 +426,7 @@ RSpec.describe 'facilities', type: :request do
 
     context 'when facility_ids parameter is missing' do
       it 'returns an error message with the missing param, facility_ids' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple', match_requests_on: %i[method path]) do
           get '/vaos/v0/facilities/limits', params: { type_of_care_id: '323' }
 
@@ -411,6 +439,7 @@ RSpec.describe 'facilities', type: :request do
 
     context 'when no parameters are present' do
       it 'returns an error message with the missing param, facility_ids' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple', match_requests_on: %i[method path]) do
           get '/vaos/v0/facilities/limits', params: {}
 
@@ -427,6 +456,7 @@ RSpec.describe 'facilities', type: :request do
 
     context 'with a valid GET facility visits response' do
       it 'returns a 200 with the correct schema' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method path query]) do
           get '/vaos/v0/facilities/688/visits/direct', params: { system_id: '688', type_of_care_id: '323' }
 
@@ -437,6 +467,7 @@ RSpec.describe 'facilities', type: :request do
       end
 
       it 'returns a 200 with the correct camel-inflected schema' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method path query]) do
           get '/vaos/v0/facilities/688/visits/direct',
               params: { system_id: '688', type_of_care_id: '323' },
@@ -451,6 +482,7 @@ RSpec.describe 'facilities', type: :request do
 
     context 'when schedule_type is invalid' do
       it 'returns an error message with the invalid param' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method path query]) do
           get '/vaos/v0/facilities/688/visits/foo', params: { system_id: '688', type_of_care_id: '323' }
 
@@ -463,6 +495,7 @@ RSpec.describe 'facilities', type: :request do
 
     context 'when system_id is missing' do
       it 'returns an error message with the missing param' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method path query]) do
           get '/vaos/v0/facilities/688/visits/foo', params: { type_of_care_id: '323' }
 
@@ -475,6 +508,7 @@ RSpec.describe 'facilities', type: :request do
 
     context 'when type_of_care_id is missing' do
       it 'returns an error message with the missing param' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method path query]) do
           get '/vaos/v0/facilities/688/visits/foo', params: { system_id: '688' }
 

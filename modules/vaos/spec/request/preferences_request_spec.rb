@@ -17,6 +17,7 @@ RSpec.describe 'preferences', type: :request do
     let(:user) { FactoryBot.create(:user, :loa1) }
 
     it 'returns a forbidden error' do
+      skip 'VAOS V0 routes disabled'
       get '/vaos/v0/preferences'
       expect(response).to have_http_status(:forbidden)
       expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -29,6 +30,7 @@ RSpec.describe 'preferences', type: :request do
 
     context 'with a valid GET preferences request' do
       it 'returns a 200 with the correct schema' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/preferences/get_preferences', match_requests_on: %i[method path query]) do
           get '/vaos/v0/preferences'
 
@@ -39,6 +41,7 @@ RSpec.describe 'preferences', type: :request do
       end
 
       it 'returns a 200 with the correct schema when camel-inflected' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/preferences/get_preferences', match_requests_on: %i[method path query]) do
           get '/vaos/v0/preferences', headers: inflection_header
 
@@ -62,6 +65,7 @@ RSpec.describe 'preferences', type: :request do
       end
 
       it 'returns a 200 with correct schema' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/preferences/put_preferences', match_requests_on: %i[method path query]) do
           put '/vaos/v0/preferences', params: request_body
 
@@ -72,6 +76,7 @@ RSpec.describe 'preferences', type: :request do
       end
 
       it 'returns a 200 with correct camel-inflected schema' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/preferences/put_preferences', match_requests_on: %i[method path query]) do
           put '/vaos/v0/preferences', params: request_body, headers: inflection_header
 

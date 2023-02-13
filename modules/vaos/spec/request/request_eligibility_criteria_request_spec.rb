@@ -17,6 +17,7 @@ RSpec.describe 'request eligibility criteria', type: :request do
     let(:user) { FactoryBot.create(:user, :loa1) }
 
     it 'returns a forbidden error' do
+      skip 'VAOS V0 routes disabled'
       get '/vaos/v0/request_eligibility_criteria'
       expect(response).to have_http_status(:forbidden)
       expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -30,6 +31,7 @@ RSpec.describe 'request eligibility criteria', type: :request do
 
     context 'with one id' do
       it 'returns a 200 with the correct schema' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_id',
                          match_requests_on: %i[method path query]) do
           get '/vaos/v0/request_eligibility_criteria', params: { site_codes: '688' }
@@ -40,6 +42,7 @@ RSpec.describe 'request eligibility criteria', type: :request do
       end
 
       it 'returns a 200 with the correct camel-inflected schema' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_id',
                          match_requests_on: %i[method path query]) do
           get '/vaos/v0/request_eligibility_criteria', params: { site_codes: '688' }, headers: inflection_header
@@ -52,6 +55,7 @@ RSpec.describe 'request eligibility criteria', type: :request do
 
     context 'with multiple site_codes' do
       it 'returns a 200 with the correct schema' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_site_codes',
                          match_requests_on: %i[method path query]) do
           get '/vaos/v0/request_eligibility_criteria', params: { site_codes: %w[442 534] }
@@ -62,6 +66,7 @@ RSpec.describe 'request eligibility criteria', type: :request do
       end
 
       it 'returns a 200 with the correct camel-inflected schema' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_site_codes',
                          match_requests_on: %i[method path query]) do
           get '/vaos/v0/request_eligibility_criteria', params: { site_codes: %w[442 534] }, headers: inflection_header
@@ -74,6 +79,7 @@ RSpec.describe 'request eligibility criteria', type: :request do
 
     context 'with multiple parent_sites' do
       it 'returns a 200 with the correct schema' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_parent_sites',
                          match_requests_on: %i[method path query]) do
           get '/vaos/v0/request_eligibility_criteria', params: { parent_sites: %w[983 984] }
@@ -84,6 +90,7 @@ RSpec.describe 'request eligibility criteria', type: :request do
       end
 
       it 'returns a 200 with the correct camel-inflected schema' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_parent_sites',
                          match_requests_on: %i[method path query]) do
           get '/vaos/v0/request_eligibility_criteria',\
