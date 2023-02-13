@@ -51,7 +51,7 @@ module V0
         file_extension = attachment['file_type']
 
         if %w[jpg jpeg png pdf].include? file_extension.downcase
-          document_data = document_data(attachment)
+          document_data = build_document_data(attachment)
 
           response = lgy_service.post_document(payload: document_data)
           unless response.status == 201
@@ -86,7 +86,7 @@ module V0
       'api.lgy_coe'
     end
 
-    def document_data(attachment)
+    def build_document_data(attachment)
       file_data = attachment['file']
       index = file_data.index(';base64,') || 0
       file_data = file_data[index + 8..] if index.positive?

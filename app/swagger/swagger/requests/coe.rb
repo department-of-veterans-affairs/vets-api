@@ -62,15 +62,15 @@ module Swagger
       swagger_path '/v0/coe/documents' do
         operation :get do
           key :description, %(Retrieves a list of supporting documents that the
-            vet attached to their COE application. The data returned by this
-            endpoint is pretty wonky. We will address that when appropriate.
-            See https://github.com/department-of-veterans-affairs/va.gov-team/issues/47693.
-            The important parts are the `id`, `mime_type`, and `description`.
-            The `id` is used to fetch documents via the `/vo/coe/document_download/{id}`
-            endpoint below. The `mime_type` is, unfortunately, the filename from
-            which the front end pulls the file extension. The `description` contains
-            a description of the file; however, it is sometimes null. Again, we
-            will address these issues when appropriate.
+            vet attached to their COE application. The `id` is used to fetch documents
+            via the `/vo/coe/document_download/{id}` endpoint below. The `mimeType`
+            is, unfortunately, the filename from which the front end pulls the file
+            extension. The `documentType` will either be "Veteran Correspondence"
+            (meaning, a document uploaded by the veteran during the COE form) or
+            the "kind" of notification letter (e.g. "COE Application First Returned").
+            By the time you read this, the `description` will probably be a description
+            of any "Veteran Correspondence." Notification letters should not have a
+            `description`.
           ).gsub("\n", ' ')
           key :operationId, 'coeDocuments'
           key :tags, %w[coe]
@@ -87,9 +87,9 @@ module Swagger
                   items do
                     key :type, :object
                     property :id, type: :integer, example: 23_924_541
-                    property :documentType, type: :string, example: 'Statement of service'
+                    property :documentType, type: :string, example: 'COE Application First Returned'
                     property :description, type: [:string, 'null'], example: 'null'
-                    property :mimeType, type: :string, example: 'example.pdf'
+                    property :mimeType, type: :string, example: 'COE Application First Returned.pdf'
                     property :createDate, type: :integer, example: 1_664_222_568_000
                   end
                 end
@@ -166,9 +166,8 @@ module Swagger
                     },
                     'vaLoanNumber' => '111222333444',
                     'propertyOwned' => true,
-                    'willRefinance' => true
+                    'intent' => 'ONETIMERESTORATION'
                   }],
-                  'intent' => 'ONETIMERESTORATION',
                   'vaLoanIndicator' => true,
                   'periodsOfService' => [{
                     'serviceBranch' => 'Air National Guard',

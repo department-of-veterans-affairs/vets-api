@@ -20,11 +20,7 @@ module LGY
     def coe_status
       if get_determination.body['status'] == 'ELIGIBLE' && get_application.status == 404
         { status: 'ELIGIBLE', reference_number: get_determination.body['reference_number'] }
-      # Kelli asked us to temporarily comment out the requirement that an application
-      # record exist if the determination status is `UNABLE_TO_DETERMINE_AUTOMATICALLY`.
-      # If there are no unintended consequences of this, then we will make this change
-      # permanent.
-      elsif get_determination.body['status'] == 'UNABLE_TO_DETERMINE_AUTOMATICALLY' # && get_application.status == 404
+      elsif get_determination.body['status'] == 'UNABLE_TO_DETERMINE_AUTOMATICALLY'
         { status: 'UNABLE_TO_DETERMINE_AUTOMATICALLY', reference_number: get_determination.body['reference_number'] }
       elsif get_determination.body['status'] == 'ELIGIBLE' && get_application.status == 200
         { status: 'AVAILABLE', application_create_date: get_application.body['create_date'],
@@ -96,9 +92,6 @@ module LGY
         response.body
       end
     rescue Common::Client::Errors::ClientError => e
-      # LGY recently started returning error messages to us. We are logging
-      # those errors in sentry to debug the issues described here:
-      # https://github.com/department-of-veterans-affairs/va.gov-team/issues/47435#issuecomment-1268916462
       log_message_to_sentry(
         "COE application submission failed with http status: #{e.status}",
         :error,
