@@ -12,14 +12,12 @@ module ClaimsApi
         #
         # @return [JSON] ITF record
         def type
-          type = params[:type].downcase
-          unless itf_types.keys.include?(type)
-            message = "Invalid type parameter: '#{type}'"
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: message)
-          end
+          validate_request!(ClaimsApi::V2::ParamsValidation::IntentToFile)
+
+          type = itf_types[params[:type].downcase]
           response = bgs_service.intent_to_file.find_intent_to_file_by_ptcpnt_id_itf_type_cd(
             target_veteran.participant_id,
-            itf_types[type]
+            type
           )
 
           response = [response] unless response.is_a?(Array)
@@ -40,17 +38,10 @@ module ClaimsApi
         def submit
           validate_request!(ClaimsApi::V2::ParamsValidation::IntentToFile)
 
-          type = ClaimsApi::IntentToFile::ITF_TYPES_TO_BGS_TYPES[params[:type].downcase]
-          participant_claimant_id = params[:participant_claimant_id] || target_veteran.participant_id
-          participant_vet_id = params[:participant_vet_id] || target_veteran.participant_id
-
-          bgs_response = bgs_service.intent_to_file.insert_intent_to_file(
-            intent_to_file_type_code: type,
-            participant_claimant_id: participant_claimant_id,
-            participant_vet_id: participant_vet_id,
-            received_date: Time.zone.now.strftime('%Y-%m-%dT%H:%M:%S%:z'),
-            submitter_application_icn_type_code: ClaimsApi::IntentToFile::SUBMITTER_CODE
-          )
+          type = itf_types[params[:type].downcase]
+          options = intent_to_file_options(type)
+          check_for_invalid_survivor_submission(options) if type == 'S'
+          bgs_response = bgs_service.intent_to_file.insert_intent_to_file(options)
 
           lighthouse_itf = bgs_itf_to_lighthouse_itf(bgs_itf: bgs_response)
 
@@ -70,6 +61,49 @@ module ClaimsApi
         end
 
         private
+
+        def intent_to_file_options(type)
+          options = {
+            intent_to_file_type_code: type,
+            participant_vet_id: target_veteran.participant_id,
+            received_date: Time.zone.now.strftime('%Y-%m-%dT%H:%M:%S%:z'),
+            submitter_application_icn_type_code: ClaimsApi::IntentToFile::SUBMITTER_CODE,
+            ssn: target_veteran.ssn
+          }
+          handle_claimant_fields(options: options, params: params, target_veteran: target_veteran)
+        end
+
+        # BGS requires at least 1 of 'participant_claimant_id' or 'claimant_ssn'
+        def handle_claimant_fields(options:, params:, target_veteran:)
+          claimant_ssn = params[:claimantSsn]
+          participant_claimant_id = params[:participantClaimantId]
+
+          options[:claimant_ssn] = claimant_ssn if claimant_ssn
+          options[:participant_claimant_id] = participant_claimant_id if participant_claimant_id
+
+          # if neither field was provided, then default to sending 'participant_claimant_id'
+          if options[:claimant_ssn].blank? && options[:participant_claimant_id].blank?
+            options[:participant_claimant_id] = target_veteran.participant_id
+          end
+
+          options
+        end
+
+        def check_for_invalid_survivor_submission(options)
+          error_detail = "Veteran cannot file for type 'survivor'"
+          raise ::Common::Exceptions::Forbidden, detail: error_detail if claimant_id_equals_vet_id?(options)
+
+          error_detail = 'unknown claimant id'
+          raise ::Common::Exceptions::Forbidden, detail: error_detail unless options_include_claimant_id?(options)
+        end
+
+        def claimant_id_equals_vet_id?(options)
+          options[:participant_claimant_id] == options[:participant_vet_id]
+        end
+
+        def options_include_claimant_id?(options)
+          options[:participant_claimant_id].present? || options[:claimant_ssn].present?
+        end
 
         def itf_types
           ClaimsApi::V2::IntentToFile::ITF_TYPES_TO_BGS_TYPES
