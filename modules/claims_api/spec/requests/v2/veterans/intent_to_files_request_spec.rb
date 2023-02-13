@@ -63,10 +63,10 @@ RSpec.describe 'IntentToFiles', type: :request do
         context "when given an invalid 'type' path param" do
           let(:type) { 'some-invalid-value' }
 
-          it 'returns a 404' do
+          it 'returns a 400' do
             with_okta_user(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
-              expect(response.status).to eq(404)
+              expect(response.status).to eq(400)
             end
           end
         end
@@ -405,12 +405,12 @@ RSpec.describe 'IntentToFiles', type: :request do
             end
           end
 
-          context "when optional 'participant_claimant_id' is invalid" do
-            context "when optional 'participant_claimant_id' is blank" do
+          context "when optional 'participantClaimantId' is invalid" do
+            context "when optional 'participantClaimantId' is blank" do
               it 'returns a 400' do
                 with_okta_user(scopes) do |auth_header|
                   invalid_data = data
-                  invalid_data[:participant_claimant_id] = ''
+                  invalid_data[:participantClaimantId] = ''
 
                   post itf_submit_path, params: invalid_data, headers: auth_header
                   expect(response.status).to eq(400)
@@ -419,15 +419,26 @@ RSpec.describe 'IntentToFiles', type: :request do
             end
           end
 
-          context "when optional 'participant_vet_id' is invalid" do
-            context "when optional 'participant_vet_id' is blank" do
-              it 'returns a 400' do
+          context "when ITF type is 'survivor'" do
+            context "when optional 'claimantSsn' is provided instead of 'participantClaimantId'" do
+              it 'returns a 200' do
                 with_okta_user(scopes) do |auth_header|
-                  invalid_data = data
-                  invalid_data[:participant_vet_id] = ''
+                  survivor_data = data
+                  survivor_data[:type] = 'survivor'
+                  survivor_data[:claimantSsn] = '123456'
+                  post itf_submit_path, params: survivor_data, headers: auth_header
+                  expect(response.status).to eq(200)
+                end
+              end
+            end
 
-                  post itf_submit_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(400)
+            context 'when no optional parameters are provided' do
+              it 'returns a 403' do
+                with_okta_user(scopes) do |auth_header|
+                  survivor_data = data
+                  survivor_data[:type] = 'survivor'
+                  post itf_submit_path, params: survivor_data, headers: auth_header
+                  expect(response.status).to eq(403)
                 end
               end
             end
@@ -571,26 +582,12 @@ RSpec.describe 'IntentToFiles', type: :request do
             end
           end
 
-          context "when optional 'participant_claimant_id' is invalid" do
-            context "when optional 'participant_claimant_id' is blank" do
+          context "when optional 'participantClaimantId' is invalid" do
+            context "when optional 'participantClaimantId' is blank" do
               it 'returns a 400' do
                 with_okta_user(scopes) do |auth_header|
                   invalid_data = data
-                  invalid_data[:participant_claimant_id] = ''
-
-                  post itf_validate_path, params: invalid_data, headers: auth_header
-                  expect(response.status).to eq(400)
-                end
-              end
-            end
-          end
-
-          context "when optional 'participant_vet_id' is invalid" do
-            context "when optional 'participant_vet_id' is blank" do
-              it 'returns a 400' do
-                with_okta_user(scopes) do |auth_header|
-                  invalid_data = data
-                  invalid_data[:participant_vet_id] = ''
+                  invalid_data[:participantClaimantId] = ''
 
                   post itf_validate_path, params: invalid_data, headers: auth_header
                   expect(response.status).to eq(400)
