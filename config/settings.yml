@@ -1479,4 +1479,4 @@ coverband:
 
 
 dogstatsd:
-  enabled: false
+  enabled: true
