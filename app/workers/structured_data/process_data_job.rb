@@ -37,7 +37,6 @@ module StructuredData
     end
 
     def send_confirmation_email
-      return unless Flipper.enabled?(:burial_claim_confirmation_email)
       return if @claim.parsed_form['claimantEmail'].blank?
 
       facility_name, street_address, city_state_zip = @claim.regional_office
