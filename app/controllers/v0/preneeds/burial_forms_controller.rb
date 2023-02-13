@@ -26,8 +26,6 @@ module V0
       end
 
       def send_confirmation_email
-        return unless Flipper.enabled?(:preneeds_burial_form_confirmation_email)
-
         email = @form.claimant.email
         claimant = @form.applicant.name.first
         first_name = @form.applicant.name.first

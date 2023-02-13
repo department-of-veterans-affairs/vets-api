@@ -18,7 +18,6 @@ class SavedClaim::Pension < CentralMailClaim
   end
 
   def send_confirmation_email
-    return unless Flipper.enabled?(:form527ez_confirmation_email)
     return if email.blank?
 
     VANotify::EmailJob.perform_async(
