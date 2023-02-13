@@ -3,6 +3,9 @@
 ClaimsApi::Engine.routes.draw do
   get '/metadata', to: 'metadata#index'
   get '/:version/upstream_healthcheck', to: 'upstream_healthcheck#index', defaults: { format: 'json' }
+  get '/:version/upstream_healthcheck/faraday/corporate', to: 'upstream_faraday_healthcheck#corporate'
+  get '/:version/upstream_healthcheck/faraday/claimant', to: 'upstream_faraday_healthcheck#claimant'
+  get '/:version/upstream_healthcheck/faraday/itf', to: 'upstream_faraday_healthcheck#itf'
   match '/v1/*path', to: 'application#cors_preflight', via: [:options]
 
   namespace :v1, defaults: { format: 'json' } do
