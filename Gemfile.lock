@@ -716,7 +716,7 @@ GEM
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     rchardet (1.8.0)
-    redis (4.8.0)
+    redis (4.8.1)
     redis-namespace (1.10.0)
       redis (>= 4)
     regexp_parser (2.6.2)
