@@ -13,11 +13,6 @@ require 'datadog/statsd' # gem 'dogstatsd-ruby'
 Rails.application.reloader.to_prepare do
   Sidekiq::Enterprise.unique! if Rails.env.production?
 
-  if Settings.dogstatsd.enabled == true
-    Sidekiq::Pro.dogstatsd = lambda {
-      Datadog::Statsd.new('localhost', 8125, namespace: 'sidekiq')
-    }
-  end
   Sidekiq.configure_server do |config|
     config.redis = REDIS_CONFIG[:sidekiq]
     # super_fetch! is only available in sidekiq-pro and will cause
@@ -38,9 +33,11 @@ Rails.application.reloader.to_prepare do
       chain.add SidekiqStatsInstrumentation::ServerMiddleware
       chain.add Sidekiq::RetryMonitoring
       chain.add Sidekiq::ErrorTag
-      if Settings.dogstatsd.enabled == true
+
+      if Settings.vsp_environment == 'development' && Settings.dogstatsd.enabled == true
         require 'sidekiq/middleware/server/statsd'
         chain.add Sidekiq::Middleware::Server::Statsd
+        config.dogstatsd = -> { Datadog::Statsd.new('localhost', 8125, namespace: 'sidekiq') }
       end
     end
 
