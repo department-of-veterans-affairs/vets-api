@@ -17,6 +17,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
       let(:current_user) { build(:user, :loa1) }
 
       it 'does not have access' do
+        skip 'VAOS V0 routes disabled'
         get '/vaos/v0/appointment_requests'
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -32,6 +33,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
 
       context 'with flipper disabled' do
         it 'does not have access' do
+          skip 'VAOS V0 routes disabled'
           Flipper.disable('va_online_scheduling')
           get '/vaos/v0/appointment_requests'
           expect(response).to have_http_status(:forbidden)
@@ -42,6 +44,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
 
       context 'without a start_date' do
         it 'has a parameter missing exception' do
+          skip 'VAOS V0 routes disabled'
           get '/vaos/v0/appointment_requests', params: params.except(:start_date)
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to be_a(String)
@@ -52,6 +55,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
 
       context 'without an end_date' do
         it 'has a parameter missing exception' do
+          skip 'VAOS V0 routes disabled'
           get '/vaos/v0/appointment_requests', params: params.except(:end_date)
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to be_a(String)
@@ -62,6 +66,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
 
       context 'with an invalid start_date' do
         it 'has an invalid field type exception' do
+          skip 'VAOS V0 routes disabled'
           get '/vaos/v0/appointment_requests', params: params.merge(start_date: 'invalid')
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to be_a(String)
@@ -72,6 +77,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
 
       context 'with an invalid end_date' do
         it 'has an invalid field type exception' do
+          skip 'VAOS V0 routes disabled'
           get '/vaos/v0/appointment_requests', params: params.merge(end_date: 'invalid')
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to be_a(String)
@@ -81,6 +87,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
       end
 
       it 'has access and returns va appointments' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/appointment_requests/get_requests_with_params',
                          match_requests_on: %i[method path query]) do
           get '/vaos/v0/appointment_requests', params: params
@@ -91,6 +98,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
       end
 
       it 'has access and returns va appointments when camel-inflected' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/appointment_requests/get_requests_with_params',
                          match_requests_on: %i[method path query]) do
           get '/vaos/v0/appointment_requests', params: params, headers: inflection_header
@@ -107,6 +115,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
     let(:params) { build(:appointment_request_form, :creation, user: current_user).params }
 
     it 'creates a new appointment request' do
+      skip 'VAOS V0 routes disabled'
       VCR.use_cassette('vaos/appointment_requests/post_request', match_requests_on: %i[method path query]) do
         post '/vaos/v0/appointment_requests', params: params
         expect(response).to have_http_status(:created)
@@ -119,6 +128,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
       let(:params) { build(:cc_appointment_request_form, :creation, user: current_user).params.merge(type: 'cc') }
 
       it 'creates a new appointment request' do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/appointment_requests/post_request_CC', match_requests_on: %i[method path query]) do
           allow(Rails.logger).to receive(:info)
           post '/vaos/v0/appointment_requests', params: params
@@ -161,6 +171,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
     let(:post_params) { params.merge(appointment_request_detail_code: ['DETCODE8']) }
 
     it 'cancels an appointment request' do
+      skip 'VAOS V0 routes disabled'
       VCR.use_cassette('vaos/appointment_requests/put_request', match_requests_on: %i[method path query]) do
         allow(Rails.logger).to receive(:info)
         put "/vaos/v0/appointment_requests/#{id}", params: params
@@ -183,6 +194,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
     let(:id) { '8a4829dc7281184e017285000ab700cf' }
 
     it 'gets an appointment request by id' do
+      skip 'VAOS V0 routes disabled'
       VCR.use_cassette('vaos/appointment_requests/get_request_with_id', match_requests_on: %i[method path query]) do
         allow(Rails.logger).to receive(:info)
         get "/vaos/v0/appointment_requests/#{id}"
@@ -194,6 +206,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
     end
 
     it 'gets an appointment request by id when camel-inflected' do
+      skip 'VAOS V0 routes disabled'
       VCR.use_cassette('vaos/appointment_requests/get_request_with_id', match_requests_on: %i[method path query]) do
         allow(Rails.logger).to receive(:info)
         get "/vaos/v0/appointment_requests/#{id}", params: {}, headers: inflection_header

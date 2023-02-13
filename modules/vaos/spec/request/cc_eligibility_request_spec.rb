@@ -17,6 +17,7 @@ RSpec.describe 'vaos community care eligibility', type: :request do
       let(:current_user) { build(:user, :loa1) }
 
       it 'does not have access' do
+        skip 'VAOS V0 routes disabled'
         get "/vaos/v0/community_care/eligibility/#{service_type}"
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
@@ -29,6 +30,7 @@ RSpec.describe 'vaos community care eligibility', type: :request do
 
       context 'with flipper disabled' do
         it 'does not have access' do
+          skip 'VAOS V0 routes disabled'
           Flipper.disable('va_online_scheduling')
           get "/vaos/v0/community_care/eligibility/#{service_type}"
           expect(response).to have_http_status(:forbidden)
@@ -38,6 +40,7 @@ RSpec.describe 'vaos community care eligibility', type: :request do
       end
 
       it 'has access and returns eligibility true', :skip_mvi do
+        skip 'VAOS V0 routes disabled'
         VCR.use_cassette('vaos/cc_eligibility/get_eligibility_true', match_requests_on: %i[method path query]) do
           get "/vaos/v0/community_care/eligibility/#{service_type}"
 
@@ -51,6 +54,7 @@ RSpec.describe 'vaos community care eligibility', type: :request do
         let(:service_type) { 'NotAType' }
 
         it 'returns a validation error', :skip_mvi do
+          skip 'VAOS V0 routes disabled'
           VCR.use_cassette('vaos/cc_eligibility/get_eligibility_400', match_requests_on: %i[method path query]) do
             get "/vaos/v0/community_care/eligibility/#{service_type}"
 
