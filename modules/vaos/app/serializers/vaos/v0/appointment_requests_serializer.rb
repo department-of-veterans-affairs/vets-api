@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# VAOS V0 routes and controllers no longer in use
+# :nocov:
 module VAOS
   module V0
     class AppointmentRequestsSerializer
@@ -60,3 +62,4 @@ module VAOS
     end
   end
 end
+# :nocov:

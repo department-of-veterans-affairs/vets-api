@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# VAOS V0 routes and controllers no longer in use
+# :nocov:
 require 'common/exceptions'
 
 module VAOS
@@ -27,7 +29,7 @@ module VAOS
         if appt.to_h.count.positive?
           render json: VAOS::V0::VAAppointmentsSerializer.new(appt)
         else
-          render status: :not_found    # edge case for the few times where the service does not return content
+          render status: :not_found # edge case for the few times where the service does not return content
         end
       end
 
@@ -102,3 +104,4 @@ module VAOS
     end
   end
 end
+# :nocov:

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# VAOS V0 routes and controllers no longer in use
+# :nocov:
 require 'fast_jsonapi'
 
 module VAOS
@@ -25,3 +27,4 @@ module VAOS
     end
   end
 end
+# :nocov:
