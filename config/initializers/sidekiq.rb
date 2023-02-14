@@ -40,7 +40,7 @@ Rails.application.reloader.to_prepare do
         config.dogstatsd = -> { Datadog::Statsd.new('localhost', 8125, namespace: 'sidekiq') }
 
         # history is captured every 30 seconds by default
-        config.retain_history(30)
+        # config.retain_history(30)
       end
     end
 
