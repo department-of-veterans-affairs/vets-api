@@ -1,0 +1,102 @@
+type: object
+required:
+  - data
+  - meta
+properties:
+  data:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "600117255"
+          description: Appeal Id
+        type:
+          type: string
+          example: "appeal"
+          enum:
+            - appeal
+        attributes:
+          type: object
+          required:
+            - subtype
+            - completed
+            - dateFiled
+            - updatedAt
+            - displayTitle
+          properties:
+            subtype:
+              type: string
+              example: "legacyAppeal"
+              description: Human readable string for appeal subtype
+            completed:
+              type: boolean
+            dateFiled:
+              type: string
+              format: date
+              example: "2020-01-01"
+            updatedAt:
+              type: string
+              format: date
+              example: "2020-01-01"
+            displayTitle:
+              type: string
+              description: Formatted title for display in mobile overview list
+              example: "disability compensation appeal"
+  meta:
+    type: object
+    properties:
+      errors:
+        type: array
+        description: Array of objects of failing upstream services. Used for debugging only.
+        items:
+          type: object
+          required:
+            - service
+            - errorDetails
+          properties:
+            service:
+              type: string
+              example: "claims"
+              enum:
+                - claims
+            errorDetails:
+              type: array
+              items:
+                type: object
+                description: error details object from failing upstream service. Used for debugging only.
+                required:
+                  - key
+                  - severity
+                  - text
+                properties:
+                  key:
+                    type: string
+                    example: "EVSS_7022"
+                  severity:
+                    type: string
+                    example: "ERROR"
+                  text:
+                    type: string
+                    example: "Please define your custom text for this error in claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
+      pagination:
+        type: object
+        required:
+          - currentPage
+          - perPage
+          - totalPages
+          - totalEntries
+        properties:
+          currentPage:
+            type: number
+            example: 1
+          perPage:
+            type: number
+            example: 10
+          totalPages:
+            type: number
+            example: 2
+          totalEntries:
+            type: number
+            example: 15

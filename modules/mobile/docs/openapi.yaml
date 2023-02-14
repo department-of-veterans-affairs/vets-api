@@ -1339,7 +1339,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/ClaimsAndAppealsOverview.yml
+                oneOf:
+                  - $ref: ./schemas/ClaimsAndAppealsOverviewClaimsError.yml
+                  - $ref: ./schemas/ClaimsAndAppealsOverviewAppealsError.yml
           description: One of the two upstream services failed
         '401':
           content:

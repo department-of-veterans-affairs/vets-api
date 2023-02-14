@@ -6,12 +6,52 @@ properties:
   data:
     type: array
   meta:
+    type: object
     properties:
       errors:
         type: array
+        description: Array of objects of failing upstream services. Used for debugging only.
         items:
-          type: array
-          items:
-            type: object
-            $ref: "./ClaimsAndAppealsOverviewErrors.yml"
-            description: Array info about failing upstream services
+          type: object
+          properties:
+            service:
+              type: string
+              description: Name of service that is down
+            errorDetails:
+              type: array
+              description: Error details object from failing upstream service. Used for debugging only.
+              items:
+                type: object
+        example:
+          - service: "claims"
+            errorDetails:
+              - key: "EVSS_7022"
+                severity: "ERROR"
+                text: "Please define your custom text for this error in claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
+          - service: "appeals"
+            errorDetails:
+              - title: "Bad Gateway"
+                detail: "Received a 500 response from the upstream server"
+                code: "CASEFLOWSTATUS500"
+                source: "No method error"
+                status: "502"
+      pagination:
+        type: object
+        required:
+          - currentPage
+          - perPage
+          - totalPages
+          - totalEntries
+        properties:
+          currentPage:
+            type: number
+            example: 1
+          perPage:
+            type: number
+            example: 10
+          totalPages:
+            type: number
+            example: 2
+          totalEntries:
+            type: number
+            example: 15
