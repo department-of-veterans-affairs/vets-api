@@ -1,0 +1,110 @@
+type: object
+required:
+  - data
+  - meta
+properties:
+  data:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "600117255"
+          description: Claim Id
+        type:
+          type: string
+          example: "claim"
+          enum:
+            - claim
+        attributes:
+          type: object
+          required:
+            - subtype
+            - completed
+            - dateFiled
+            - updatedAt
+            - displayTitle
+          properties:
+            subtype:
+              type: string
+              example: "Compensation"
+              description: Human readable string for claim or appeal subtype
+            completed:
+              type: boolean
+            dateFiled:
+              type: string
+              format: date
+              example: "2020-01-01"
+            updatedAt:
+              type: string
+              format: date
+              example: "2020-01-01"
+            displayTitle:
+              type: string
+              description: Formatted title for display in mobile overview list
+              example: "disability compensation appeal"
+  meta:
+    type: object
+    properties:
+      errors:
+        type: array
+        description: Array of objects of failing upstream services. Used for debugging only.
+        items:
+          type: object
+          required:
+            - service
+            - errorDetails
+          properties:
+            service:
+              type: string
+              example: "appeals"
+              enum:
+                - appeals
+            errorDetails:
+              type: array
+              items:
+                type: object
+                description: error details object from failing upstream service. Used for debugging only.
+                required:
+                  - title
+                  - detail
+                  - code
+                  - source
+                  - status
+                properties:
+                  title:
+                    type: string
+                    example: "Bad Gateway"
+                  detail:
+                    type: string
+                    example: "Received a 500 response from the upstream server"
+                  code:
+                    type: string
+                    example: "CASEFLOWSTATUS500"
+                  source:
+                    type: string
+                    example: "No method error"
+                  status:
+                    type: string
+                    example: "502"
+      pagination:
+        type: object
+        required:
+          - currentPage
+          - perPage
+          - totalPages
+          - totalEntries
+        properties:
+          currentPage:
+            type: number
+            example: 1
+          perPage:
+            type: number
+            example: 10
+          totalPages:
+            type: number
+            example: 2
+          totalEntries:
+            type: number
+            example: 15
