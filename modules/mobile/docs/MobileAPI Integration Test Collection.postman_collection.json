@@ -562,56 +562,6 @@
 					"response": []
 				},
 				{
-					"name": "/v0/appointment_requests/{appointment_request_id}/messages",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "https://staging-api.va.gov/mobile/v0/appointment_requests/:appointment_request_id/messages",
-							"protocol": "https",
-							"host": [
-								"staging-api",
-								"va",
-								"gov"
-							],
-							"path": [
-								"mobile",
-								"v0",
-								"appointment_requests",
-								":appointment_request_id",
-								"messages"
-							],
-							"variable": [
-								{
-									"key": "appointment_request_id",
-									"value": "{{appointment_request_id}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "/v0/claims-and-appeals-overview",
 					"event": [
 						{
