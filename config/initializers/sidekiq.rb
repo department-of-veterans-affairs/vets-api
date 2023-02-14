@@ -38,6 +38,9 @@ Rails.application.reloader.to_prepare do
         require 'sidekiq/middleware/server/statsd'
         chain.add Sidekiq::Middleware::Server::Statsd
         config.dogstatsd = -> { Datadog::Statsd.new('localhost', 8125, namespace: 'sidekiq') }
+
+        # history is captured every 30 seconds by default
+        config.retain_history(30)
       end
     end
 
