@@ -10,7 +10,7 @@ module ClaimsApi
       connection.options.timeout = 5
 
       begin
-        response = connection.get("#{Settings.bgs.url}/CorporateUpdateServiceBean/CorporateUpdateWebServic?WSDL")
+        response = connection.get("#{Settings.bgs.url}/CorporateUpdateServiceBean/CorporateUpdateWebService?WSDL")
       rescue
         et = DateTime.now
         render json: { st: st, et: et, dur: (et.to_f - st.to_f),
@@ -28,7 +28,7 @@ module ClaimsApi
       connection.options.timeout = 5
 
       begin
-        response = connection.get("#{Settings.bgs.url}/ClaimantServiceBean/ClaimantWebServic?WSDL")
+        response = connection.get("#{Settings.bgs.url}/ClaimantServiceBean/ClaimantWebService?WSDL")
       rescue
         et = DateTime.now
         render json: { st: st, et: et, dur: (et.to_f - st.to_f),
@@ -46,7 +46,7 @@ module ClaimsApi
       connection.options.timeout = 5
 
       begin
-        response = connection.get("#{Settings.bgs.url}/IntentToFileWebServiceBean/IntentToFileWebServic?WSDL")
+        response = connection.get("#{Settings.bgs.url}/IntentToFileWebServiceBean/IntentToFileWebService?WSDL")
       rescue
         et = DateTime.now
         render json: { st: st, et: et, dur: (et.to_f - st.to_f),
