@@ -159,9 +159,7 @@ RSpec.describe MedicalCopays::ZeroBalanceStatements do
       end
 
       let(:statements) { [] }
-      # rubocop:disable Lint/DuplicateHashKey
-      let(:facility_hash) { { '358' => ['123456'], '358' => ['654321'] } }
-      # rubocop:enable Lint/DuplicateHashKey
+      let(:facility_hash) { { '358' => ['123456'], '359' => ['654321'] } }
 
       let(:listed_zero_balances) do
         [

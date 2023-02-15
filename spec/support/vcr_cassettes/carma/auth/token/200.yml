@@ -8,7 +8,7 @@ http_interactions:
       string: assertion=<GENERATED_JWT_TOKEN>&grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer
     headers:
       User-Agent:
-      - Faraday v0.17.5
+      - Faraday v0.17.6
       Content-Type:
       - application/x-www-form-urlencoded
       Accept-Encoding:

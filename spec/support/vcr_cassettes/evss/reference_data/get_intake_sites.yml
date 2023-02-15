@@ -8,7 +8,7 @@ http_interactions:
       string: ''
     headers:
       User-Agent:
-      - Faraday v0.17.5
+      - Faraday v0.17.6
       va-eauth-csid:
       - DSLogon
       va-eauth-authenticationmethod:

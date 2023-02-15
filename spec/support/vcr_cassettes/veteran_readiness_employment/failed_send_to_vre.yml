@@ -10,7 +10,7 @@ http_interactions:
       Authorization:
       - Basic fake_auth
       User-Agent:
-      - Faraday v0.17.5
+      - Faraday v0.17.6
       Content-Length:
       - '0'
       Accept-Encoding:

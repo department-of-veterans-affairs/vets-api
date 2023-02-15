@@ -38,7 +38,7 @@ http_interactions:
       va_eauth_service_transaction_id:
       - vagov-142e9206-23fb-478f-84b0-47b878a4edfd
       User-Agent:
-      - Faraday v0.17.5
+      - Faraday v0.17.6
       Content-Type:
       - application/json
   response:

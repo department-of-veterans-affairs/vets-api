@@ -366,7 +366,7 @@ GEM
       i18n (>= 1.8.11, < 2)
     fakeredis (0.8.0)
       redis (~> 4.1)
-    faraday (0.17.5)
+    faraday (0.17.6)
       multipart-post (>= 1.2, < 3)
     faraday-http-cache (2.2.0)
       faraday (>= 0.8)
@@ -451,10 +451,10 @@ GEM
       webrick
     google-apis-discovery_v1 (0.13.0)
       google-apis-core (>= 0.9.1, < 2.a)
-    google-apis-generator (0.11.1)
+    google-apis-generator (0.12.0)
       activesupport (>= 5.0)
       gems (~> 1.2)
-      google-apis-core (>= 0.9.1, < 2.a)
+      google-apis-core (>= 0.11.0, < 2.a)
       google-apis-discovery_v1 (~> 0.5)
       thor (>= 0.20, < 2.a)
     google-cloud-bigquery (1.42.0)
@@ -952,7 +952,7 @@ GEM
       nokogiri (~> 1.11)
     yard (0.9.28)
       webrick (~> 1.7.0)
-    zeitwerk (2.6.6)
+    zeitwerk (2.6.7)
 
 PLATFORMS
   ruby

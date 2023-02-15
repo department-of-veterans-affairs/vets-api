@@ -8,7 +8,7 @@ http_interactions:
       string: '{"records":[{"attributes":{"type":"ContentVersion","referenceId":"1010CG"},"Title":"10-10CG_Jane_Doe_06-29-2020","PathOnClient":"10-10CG_c41b7fe0-f1f3-4611-9c56-a97fb3884cf8.pdf","CARMA_Document_Type__c":"10-10CG","CARMA_Document_Date__c":"2020-06-29","FirstPublishLocationId":"aB935000000F3VnCAK","VersionData":"<PDF_AS_BASE64>"}]}'
     headers:
       User-Agent:
-      - Faraday v0.17.5
+      - Faraday v0.17.6
       Content-Type:
       - application/json
       Authorization:
