@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_01_12_221719) do
+ActiveRecord::Schema.define(version: 2023_02_14_001703) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -134,6 +134,7 @@ ActiveRecord::Schema.define(version: 2023_01_12_221719) do
     t.text "encrypted_kms_key"
     t.date "verified_decryptable_at"
     t.string "veteran_icn"
+    t.jsonb "metadata", default: {}
     t.index ["veteran_icn"], name: "index_appeals_api_higher_level_reviews_on_veteran_icn"
   end
 
@@ -152,6 +153,7 @@ ActiveRecord::Schema.define(version: 2023_01_12_221719) do
     t.text "encrypted_kms_key"
     t.date "verified_decryptable_at"
     t.string "veteran_icn"
+    t.jsonb "metadata", default: {}
     t.index ["veteran_icn"], name: "index_appeals_api_notice_of_disagreements_on_veteran_icn"
   end
 
@@ -183,6 +185,7 @@ ActiveRecord::Schema.define(version: 2023_01_12_221719) do
     t.boolean "evidence_submission_indicated"
     t.date "verified_decryptable_at"
     t.string "veteran_icn"
+    t.jsonb "metadata", default: {}
     t.index ["veteran_icn"], name: "index_appeals_api_supplemental_claims_on_veteran_icn"
   end
 
