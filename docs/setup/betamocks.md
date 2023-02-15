@@ -14,12 +14,12 @@ git clone git@github.com:department-of-veterans-affairs/vets-api-mockdata.git
 
 2. If you're using Docker there is no step 2 run `make up` to start vets-api. If you're 
 not on Docker set the cache dir to the relative path of the mock data repo in 
-config/development.yml file, you may need to run `bin/spring stop` for the change to take effect.
+config/development.yml file.
 ```yaml
 betamocks:
   enabled: true
   recording: false
-  # the cache dir depends on how you run the api, run `bin/spring stop` after switching this setting
+  # the cache dir depends on how you run the api
   cache_dir: ../vets-api-mockdata # via rails; e.g. bundle exec rails s or bundle exec rails c
   #cache_dir: /cache # via docker; e.g. make up or make console
   services_config: config/betamocks/services_config.yml
