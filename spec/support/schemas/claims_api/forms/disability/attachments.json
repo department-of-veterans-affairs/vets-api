@@ -114,7 +114,8 @@
             "status": {
               "type": "string",
               "enum": [
-                "pending"
+                "pending",
+                "established"
               ],
               "description": "Current status of the claim"
             },
