@@ -873,9 +873,6 @@ GEM
       faraday (>= 0.9)
       json (>= 1.8)
     socksify (1.7.1)
-    spring (4.1.1)
-    spring-commands-rspec (1.0.4)
-      spring (>= 0.9.1)
     sprockets (4.2.0)
       concurrent-ruby (~> 1.0)
       rack (>= 2.2.4, < 4)
@@ -1119,8 +1116,6 @@ DEPENDENCIES
   sidekiq_alive
   simplecov
   slack-notify
-  spring
-  spring-commands-rspec
   staccato
   statsd-instrument
   strong_migrations

@@ -153,8 +153,6 @@ gem 'with_advisory_lock'
 group :development do
   gem 'guard-rubocop'
   gem 'seedbank'
-  gem 'spring', platforms: :ruby # Spring speeds up development by keeping your application running in the background
-  gem 'spring-commands-rspec'
 
   # Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
   # POSIX systems should have this already, so we're not going to bring it in on other platforms
