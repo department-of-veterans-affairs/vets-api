@@ -8,7 +8,7 @@ http_interactions:
       string: token=<CENTRAL_MAIL_TOKEN>&uuid=%5B%22a8c29dbc-a0a6-4177-ae57-fc6143ec7edb%22%5D
     headers:
       User-Agent:
-      - Faraday v0.17.5
+      - Faraday v0.17.6
       Content-Type:
       - application/x-www-form-urlencoded
       Accept-Encoding:

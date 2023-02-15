@@ -9,7 +9,7 @@ http_interactions:
         Bank Name","accountNumber":"1234","financialInstitutionRoutingNumber":"3456456"}}]}'
     headers:
       User-Agent:
-      - Faraday v0.17.5
+      - Faraday v0.17.6
       va-eauth-csid:
       - DSLogon
       va-eauth-authenticationmethod:
