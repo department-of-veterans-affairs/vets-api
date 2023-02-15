@@ -1,0 +1,60 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_HOST>/mhv-sm-api/patient/v1/message/7065799/movethreadmessages/tofolder/0"
+    body:
+      encoding: UTF-8
+      string: "{}"
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 14 Feb 2023 22:28:57 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '27'
+      X-Amzn-Requestid:
+      - 9d03b48a-1e6f-4923-a7b3-95ec6c149688
+      X-Xss-Protection:
+      - 1; mode=block
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      X-Frame-Options:
+      - DENY
+      X-Amzn-Remapped-Content-Length:
+      - '7'
+      X-Amzn-Remapped-Connection:
+      - close
+      X-Amz-Apigw-Id:
+      - AWaueHO_vHMFjPw=
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      X-Content-Type-Options:
+      - nosniff
+      Expires:
+      - '0'
+      X-Amzn-Trace-Id:
+      - Root=1-63ec0b29-08f3b71c6525185b43b7c91b;Sampled=0
+      Pragma:
+      - no-cache
+      X-Amzn-Remapped-Date:
+      - Tue, 14 Feb 2023 22:28:57 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: Success
+  recorded_at: Tue, 14 Feb 2023 22:28:57 GMT
+recorded_with: VCR 6.1.0

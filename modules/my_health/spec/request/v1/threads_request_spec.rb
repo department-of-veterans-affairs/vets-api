@@ -79,5 +79,19 @@ RSpec.describe 'Threads Integration', type: :request do
         end
       end
     end
+
+    describe '#move' do
+      let(:thread_id) { 7_065_799 }
+
+      it 'responds to PATCH threads/move' do
+        VCR.use_cassette('sm_client/threads/moves_a_thread_with_id') do
+          patch "/my_health/v1/messaging/threads/#{thread_id}/move?folder_id=0"
+        end
+
+        puts response
+        expect(response).to be_successful
+        expect(response).to have_http_status(:no_content)
+      end
+    end
   end
 end
