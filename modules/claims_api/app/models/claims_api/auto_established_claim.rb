@@ -176,8 +176,7 @@ module ClaimsApi
 
       form_data['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] = mapper.code_from_name(name)
 
-      if mapper.code_from_name(name) == 'OTHER' &&
-         form_data['veteran']['homelessness']['currentlyHomeless']['otherLivingSituation'].blank?
+      if form_data['veteran']['homelessness']['currentlyHomeless']['otherLivingSituation'].blank?
         # Transform to meet EVSS requirements of minLength 1
         form_data['veteran']['homelessness']['currentlyHomeless']['otherLivingSituation'] = ' '
       end
