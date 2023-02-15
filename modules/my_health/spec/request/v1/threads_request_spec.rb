@@ -10,7 +10,8 @@ RSpec.describe 'Threads Integration', type: :request do
 
   let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
-  let(:message_id) { 573_059 }
+  let(:message_id) { 660_516 }
+  let(:thread_id) { 660_515 }
   let(:va_patient) { true }
   let(:current_user) { build(:user, :mhv, va_patient: va_patient, mhv_account_type: mhv_account_type) }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
@@ -36,5 +37,47 @@ RSpec.describe 'Threads Integration', type: :request do
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
     include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
+  end
+
+  context 'Premium User' do
+    let(:mhv_account_type) { 'Premium' }
+
+    context 'not a va patient' do
+      before { get "/my_health/v1/messaging/folders/#{inbox_id}/threads" }
+
+      let(:va_patient) { false }
+      let(:current_user) do
+        build(:user, :mhv, :no_vha_facilities, va_patient: va_patient, mhv_account_type: mhv_account_type)
+      end
+
+      include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
+    end
+
+    describe '#index' do
+      context 'with valid params' do
+        it 'responds to GET #index' do
+          VCR.use_cassette('sm_client/threads/gets_threads_in_a_folder') do
+            get "/my_health/v1/messaging/folders/#{inbox_id}/threads",
+                params: { page_start: '1', page_end: '5', sort_field: 'SENDER_NAME', sort_order: 'ASC' }
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('message_threads')
+        end
+
+        it 'responds to GET #index when camel-inflected' do
+          VCR.use_cassette('sm_client/threads/gets_threads_in_a_folder_camel') do
+            get "/my_health/v1/messaging/folders/#{inbox_id}/threads",
+                params: { page_start: '1', page_end: '5', sort_field: 'SENDER_NAME', sort_order: 'ASC' },
+                headers: { 'X-Key-Inflection' => 'camel' }
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_camelized_response_schema('message_threads')
+        end
+      end
+    end
   end
 end
