@@ -161,6 +161,27 @@ module SM
     end
 
     ##
+    # Get a collection of Threads
+    #
+    # @param folder_id [Fixnum] id of the user’s folder (0 Inbox, -1 Sent, -2 Drafts, -3 Deleted, > 0 for custom folder)
+    # @param page_start [Fixnum] Pagination start numbering
+    # @param page_end [Fixnum] Pagination end numbering (max: 100)
+    # @param sort_field [String] field to sort results by (SENDER_NAME or RECIPIENT_NAME or SENT_DATE or DRAFT_DATE)
+    # @param sort_order [String] order to sort results by (ASC for Ascending or DESC for Descending)
+    #
+    # @return [Common::Collection]
+    #
+    def get_folder_threads(folder_id, page_start, page_end, sort_field, sort_order)
+      path = "folder/threadlistview/#{folder_id}"
+
+      params = "/pageStart/#{page_start}/pageEnd/#{page_end}/sortField/#{sort_field}/sortOrder/#{sort_order}"
+
+      json = perform(:get, path + params, nil, token_headers).body
+
+      Common::Collection.new(MessageThread, json)
+    end
+
+    ##
     # Run a search of messages in the given folder
     #
     # @param folder_id [Fixnum] id of the folder to search
