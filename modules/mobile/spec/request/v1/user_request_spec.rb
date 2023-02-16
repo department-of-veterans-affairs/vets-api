@@ -501,6 +501,70 @@ RSpec.describe 'user', type: :request do
       end
     end
 
+    context 'when the ppiu service throws a 500' do
+      let(:authorized_services) { response.parsed_body.dig('data', 'attributes', 'authorizedServices') }
+
+      it 'returns an ok response with no directDepositBenefitsUpdate permission' do
+        VCR.use_cassette('payment_information/service_error_500') do
+          expect(Rails.logger).to receive(:error)
+            .with('Error fetching user data from EVSS',
+                  { details: [{ 'key' => 'ppiu.paymenthistory.partner.service.exception',
+                                'severity' => 'FATAL',
+                                'text' => 'PaymentHistory partner service exception' }],
+                    user_uuid: '3097e489-ad75-5746-ab1a-e0aabc1b426a' })
+          VCR.use_cassette('user/get_facilities') do
+            VCR.use_cassette('va_profile/demographics/demographics') do
+              get '/mobile/v1/user', headers: iam_headers
+            end
+          end
+        end
+
+        expect(response).to have_http_status(:ok)
+        expect(authorized_services).to eq(%w[appeals
+                                             appointments
+                                             claims
+                                             directDepositBenefits
+                                             disabilityRating
+                                             lettersAndDocuments
+                                             militaryServiceHistory
+                                             paymentHistory
+                                             userProfileUpdate
+                                             scheduleAppointments])
+      end
+    end
+
+    context 'when the ppiu service throws a 502' do
+      before do
+        VCR.use_cassette('payment_information/service_error_502') do
+          expect(Rails.logger).to receive(:error)
+            .with('Error fetching user data from EVSS',
+                  { details: 'BackendServiceException: {:source=>"EVSS::PPIU::Service", :code=>"EVSS502"}',
+                    user_uuid: '3097e489-ad75-5746-ab1a-e0aabc1b426a' })
+          VCR.use_cassette('user/get_facilities') do
+            VCR.use_cassette('va_profile/demographics/demographics') do
+              get '/mobile/v1/user', headers: iam_headers
+            end
+          end
+        end
+      end
+
+      let(:authorized_services) { response.parsed_body.dig('data', 'attributes', 'authorizedServices') }
+
+      it 'returns an ok response with no directDepositBenefitsUpdate permission' do
+        expect(response).to have_http_status(:ok)
+        expect(authorized_services).to eq(%w[appeals
+                                             appointments
+                                             claims
+                                             directDepositBenefits
+                                             disabilityRating
+                                             lettersAndDocuments
+                                             militaryServiceHistory
+                                             paymentHistory
+                                             userProfileUpdate
+                                             scheduleAppointments])
+      end
+    end
+
     describe 'appointments precaching' do
       context 'with mobile_precache_appointments flag on' do
         before { Flipper.enable(:mobile_precache_appointments) }

@@ -120,8 +120,9 @@ module Mobile
 
       def direct_deposit_update_access?
         user.authorize(:ppiu, :access_update?)
-      rescue EVSS::PPIU::ServiceException => e
-        Rails.logger.error('Error fetching user data from EVSS', user_uuid: user.uuid, details: e.messages)
+      rescue => e
+        message = e.respond_to?(:messages) ? e.messages : e.message
+        Rails.logger.error('Error fetching user data from EVSS', user_uuid: user.uuid, details: message)
         false
       end
 
