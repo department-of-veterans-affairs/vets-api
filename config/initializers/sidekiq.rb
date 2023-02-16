@@ -34,8 +34,7 @@ Rails.application.reloader.to_prepare do
       chain.add Sidekiq::RetryMonitoring
       chain.add Sidekiq::ErrorTag
 
-      if (Settings.vsp_environment == 'staging' || Settings.vsp_environment == 'development') &&
-         Settings.dogstatsd.enabled == true
+      if Settings.vsp_environment == 'production' && Settings.dogstatsd.enabled == true
         require 'sidekiq/middleware/server/statsd'
         chain.add Sidekiq::Middleware::Server::Statsd
         config.dogstatsd = -> { Datadog::Statsd.new('localhost', 8125, namespace: 'sidekiq') }
