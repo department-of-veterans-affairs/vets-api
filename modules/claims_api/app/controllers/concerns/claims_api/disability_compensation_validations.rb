@@ -444,6 +444,7 @@ module ClaimsApi
       validate_treatment_start_dates!
       validate_treatment_end_dates!
       validate_treated_disability_names!
+      validate_treatment_center_names!
     end
 
     def validate_treatment_start_dates!
@@ -495,6 +496,21 @@ module ClaimsApi
           'treatments.treatedDisabilityNames',
           treatment['treatedDisabilityNames']
         )
+      end
+    end
+
+    def validate_treatment_center_names!
+      treatments = form_attributes['treatments']
+      invalid_characters = %r{[^a-zA-Z0-9\\\-'.,/() ]}
+
+      treatments.map do |treatment|
+        name = treatment['center']['name']
+        name = name.truncate(100, omission: '') if name.length > 100
+        name = name.gsub(invalid_characters, '') if name.match?(invalid_characters)
+        name = name.strip
+        treatment['center']['name'] = name
+
+        treatment
       end
     end
   end

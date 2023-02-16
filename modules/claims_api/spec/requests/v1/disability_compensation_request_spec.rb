@@ -224,7 +224,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           [
             {
               center: {
-                name: 'Some Treatment Center, with commas and  double spaces',
+                name: 'Some Treatment Center, with: commas and  double spaces',
                 country: 'United States of America'
               },
               treatedDisabilityNames: treated_disability_names,
@@ -296,7 +296,9 @@ RSpec.describe 'Disability Claims ', type: :request do
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['treatments'] = treatments
+
                   post path, params: params.to_json, headers: headers.merge(auth_header)
+
                   expect(response.status).to eq(200)
                 end
               end
