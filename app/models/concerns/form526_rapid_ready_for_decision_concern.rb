@@ -80,36 +80,12 @@ module Form526RapidReadyForDecisionConcern
   def prepare_for_evss!
     return if pending_eps? || disabilities_not_service_connected?
 
-    save_metadata(forward_to_mas_all_claims: true) if Flipper.enabled?(:rrd_mas_all_claims_tracking) &&
-                                                      !single_issue_hypertension_cfi?
+    save_metadata(forward_to_mas_all_claims: true)
   end
 
   def send_post_evss_notifications!
     send_completed_notification if rrd_job_selector.rrd_applicable?
     conditionally_notify_mas
-  end
-
-  def single_issue?
-    disabilities.size == 1
-  end
-
-  def single_issue_hypertension_cfi?
-    single_issue? &&
-      increase_only? &&
-      RapidReadyForDecision::Constants.extract_disability_symbol_list(self).first == :hypertension
-  end
-
-  def increase_only?
-    disabilities.all? { |disability| disability['disabilityActionType']&.upcase == 'INCREASE' }
-  end
-
-  # Return whether this Form 526 has a single disability that is eligible to be forwarded to MAS
-  def single_disability_eligible_for_mas?
-    return false unless single_issue?
-
-    return true if Flipper.enabled?(:rrd_hypertension_mas_notification) && single_issue_hypertension_cfi?
-
-    RapidReadyForDecision::Constants::MAS_DISABILITIES.include?(diagnostic_codes.first) && increase_only?
   end
 
   # return whether all disabilities on this form are rated as not service-connected
@@ -150,17 +126,16 @@ module Form526RapidReadyForDecisionConcern
   end
 
   def conditionally_notify_mas
-    notify_mas_all_claims_tracking if read_metadata(:forward_to_mas_all_claims)
+    return unless read_metadata(:forward_to_mas_all_claims)
 
-    if Flipper.enabled?(:rrd_mas_all_claims_notification) && read_metadata(:forward_to_mas_all_claims)
-      client = MailAutomation::Client.new({
-                                            file_number: birls_id,
-                                            claim_id: submitted_claim_id,
-                                            form526: form
-                                          })
-      response = client.initiate_apcas_processing
-      save_metadata(mas_packetId: response.dig('body', 'packetId'))
-    end
+    notify_mas_all_claims_tracking
+    client = MailAutomation::Client.new({
+                                          file_number: birls_id,
+                                          claim_id: submitted_claim_id,
+                                          form526: form
+                                        })
+    response = client.initiate_apcas_processing
+    save_metadata(mas_packetId: response.dig('body', 'packetId'))
   rescue => e
     send_rrd_alert_email("Failure: MA claim - #{submitted_claim_id}", e.to_s, nil,
                          Settings.rrd.mas_tracking.recipients)

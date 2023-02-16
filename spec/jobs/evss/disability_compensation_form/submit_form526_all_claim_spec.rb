@@ -135,34 +135,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                  saved_claim_id: saved_claim.id)
         end
 
-        context 'when tracking but not APCAS notification is enabled for all claims' do
-          it 'sends only one email' do
-            Flipper.enable(:rrd_mas_all_claims_tracking)
-            Flipper.disable(:rrd_mas_all_claims_notification)
-            subject.perform_async(submission.id)
-            described_class.drain
-            expect(ActionMailer::Base.deliveries.length).to eq 1
-          end
-        end
-
         context 'when tracking and APCAS notification are enabled for all claims' do
           it 'calls APCAS and sends two emails' do
-            Flipper.enable(:rrd_mas_all_claims_tracking)
-            Flipper.enable(:rrd_mas_all_claims_notification)
             VCR.use_cassette('mail_automation/mas_initiate_apcas_request') do
               subject.perform_async(submission.id)
             end
             described_class.drain
             expect(ActionMailer::Base.deliveries.length).to eq 2
-          end
-        end
-
-        context 'when all claims tracking is disabled' do
-          it 'does not send an email' do
-            Flipper.disable(:rrd_mas_all_claims_tracking)
-            subject.perform_async(submission.id)
-            described_class.drain
-            expect(ActionMailer::Base.deliveries.length).to eq 0
           end
         end
       end
