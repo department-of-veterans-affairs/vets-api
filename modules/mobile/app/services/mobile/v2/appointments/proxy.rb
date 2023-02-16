@@ -19,6 +19,13 @@ module Mobile
           # or the upstream serice does not use them.
           response = vaos_v2_appointments_service.get_appointments(start_date, end_date, statuses.join(','),
                                                                    pagination_params)
+          # Temporary logging for bug found only in production
+          ids = response[:data].pluck(:id)
+
+          if ids.include?('16668268')
+            Rails.logger.info('Mobile VAOS response', user: @user.uuid, appointments: response)
+          end
+
           appointments = response[:data]
           filterer = PresentationFilter.new(include_pending: include_pending)
           appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
@@ -28,6 +35,10 @@ module Mobile
           appointments = merge_provider_names(appointments)
 
           appointments = vaos_v2_to_v0_appointment_adapter.parse(appointments)
+
+          if ids.include?('16668268')
+            Rails.logger.info('Mobile appointment response', user: @user.uuid, appointments: appointments)
+          end
 
           appointments.sort_by(&:start_date_utc)
         end
