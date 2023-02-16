@@ -30,5 +30,36 @@ Datadog.configure do |c|
     # Enable ASM
     c.appsec.enabled = true
     c.appsec.instrument :rails
+
+    # Add dogstatsd_mapper_profiles field
+    c.dogstatsd_mapper_profiles = [
+      {
+        name: 'sidekiq',
+        prefix: 'vets_api.',
+        mappings: [
+          {
+            match: 'sidekiq.sidekiq.*',
+            match_type: 'regex',
+            name: 'sidekiq.$1'
+          },
+          {
+            match: 'sidekiq.jobs.*perform',
+            match_type: 'regex',
+            name: 'sidekiq.jobs.perform',
+            tags: {
+              worker: '$1'
+            }
+          },
+          {
+            match: 'sidekiq.jobs.*',
+            match_type: 'regex',
+            name: 'sidekiq.jobs.worker.$2',
+            tags: {
+              worker: '$1'
+            }
+          }
+        ]
+      }
+    ]
   end
 end
