@@ -1,0 +1,43 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/oauth2/api/system/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIxMjM0NTY3ODkwIiwic3ViIjoiMTIzNDU2Nzg5MCIsImF1ZCI6WyJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi8xMjM0NTY3ODkwL3YxL3Rva2VuIiwiIl0sImlhdCI6MTY0MzU1NDgwMCwiZXhwIjoxNjQzNTU1MTAwfQ.bPvyzLcBpGyyqJ1M_LJzQfoRE9x96Cuj_rRKitzTShwyWNy4mNPb-EHmIPAWD1uQvCsHPCEtLK0PWhh0WkGuTs-2kniDxUBJ7Y-FuH4zmaYLG6eo1u-ZefGMd7YEw-5gsVWXcizwI3nh05-qVGEJZVmyXuLB-CGAjDUp53NR6nK-fvbRVWMAFACsmxbBAh6MhXWLHHXGgVhtuRESo_AT7oZ-gmfG0h-kDVG8vZvRPwKCbNCONmHsF3-Tk9pnOXMCc6Urz0SX8YBE_zHoCnO3jFpBE1bzqk3vzSZXlc3p3gdsWAI7RD150VXCliG7zBVNRkBzYqgKbbZZ-Hx5aRxPuQ&scope=api.read+api.write
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      date:
+      - Tue, 31 Jan 2023 15:08:55 GMT
+      content-type:
+      - application/json; charset=utf-8
+      connection:
+      - keep-alive
+      vary:
+      - Origin
+      etag:
+      - W/"3f7-iURF49Jg9fsAzuaQPq6Fi8mK4d0"
+      cache-control:
+      - ''
+      transfer-encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"access_token":"eyJraWQiOiJFODRkd0pwZlAzbS1sdnE5SC1ialU1VHR4UVY1bC1wMlZPMGR4X2xrT2RFIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULi1aU1hGcmlZV1JGNUYtUUljZER4cm1LUUYwTGU0ZDlMbXZxN3pZbDJkcXMiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXNpMGUyMWhidjVpRWxFaDJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2RpcmVjdC1kZXBvc2l0LW1hbmFnZW1lbnQiLCJpYXQiOjE2NzUxNzc3MzUsImV4cCI6MTY3NTE3ODMzNSwiY2lkIjoiMG9hazlwbm5weTZuR2FTVFoycDciLCJzY3AiOlsiZGlyZWN0LmRlcG9zaXQud3JpdGUiLCJkaXJlY3QuZGVwb3NpdC5yZWFkIl0sInN1YiI6IjBvYWs5cG5ucHk2bkdhU1RaMnA3In0.jcnotS6Ivv4kbCZlYLpTnYYuJ5HmNK4hY7M1BrM0i_Gf63n7bl961q9iv7pgcCzlS8nyKxWglr_ZmkkZIA15XV_b762bz0MepbICo91CYnU4Am2mLAMcvBdzsYq7_eRRVQL_X1DYvMYLfpK8txtv6Cm8Qx3_ECPzxZXGIAr3V6pmssXg1s1WCx018hN2U03hLST9Xaizbu2zu9tntaT4qc6hLzwxLWUCdW2ChS9yxNTqmWp-51l7yd2yxyV76ZFncvrXfgVZyRNAo6AFn4wm79MOiYSxu923CdPGAelOJXOg_-e8OzlaJv0PnZSGSE7lHVFptdqT_sYxISgpDBdLSw","token_type":"Bearer","scope":"direct.deposit.write
+        direct.deposit.read","expires_in":600,"state":null}'
+  recorded_at: Tue, 31 Jan 2023 15:08:55 GMT
+recorded_with: VCR 6.1.0
+
