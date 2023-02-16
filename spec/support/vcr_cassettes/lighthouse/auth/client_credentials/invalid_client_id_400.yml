@@ -1,0 +1,40 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/oauth2/api/system/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIiLCJzdWIiOiIiLCJhdWQiOlsiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvMTIzNDU2Nzg5MC92MS90b2tlbiIsIiJdLCJpYXQiOjE2NDM1NTQ4MDAsImV4cCI6MTY0MzU1NTEwMH0.t8hvWflFl1KPMnJB0uoI4HLXLq3fGCziL-J0Q-MoBItxsX8m6-trlsXYG6yzEouPqJvtnN74GBDmMScseog84ojgVyRSENcNrYoczs5snAalQstiaAj8w_WUOnQ1p1hroo9anZTYvcu2Np_dsOo9bwrR0Je9BeygUpwDXFVxm1KxW3J09t7u2AgQTRbFYC-OrRTL3KfrdnD5PhCK4rD-7FftHRgFKLl9UupaX2_KaPnVYqcoUo8B9X4dpzqDtzqDmIAJJAkgvAUfeeBEHS-d8JFVmCuFdq8G5GXZGsNcz3jo4XBTbEVbpyOntNWJPloru6L0lTGRyLyLjbKJz9z0Xg&scope=api.read+api.write
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      date:
+      - Tue, 31 Jan 2023 18:37:31 GMT
+      content-type:
+      - application/json; charset=utf-8
+      content-length:
+      - '93'
+      connection:
+      - keep-alive
+      vary:
+      - Origin
+      etag:
+      - W/"5d-K6QRGAJnKM+qy5D8ZFHnjsfG8AE"
+      cache-control:
+      - ''
+    body:
+      encoding: UTF-8
+      string: '{"error":"invalid_client","error_description":"A client_id must be
+        provided in the request."}'
+  recorded_at: Tue, 31 Jan 2023 18:37:31 GMT
+recorded_with: VCR 6.1.0

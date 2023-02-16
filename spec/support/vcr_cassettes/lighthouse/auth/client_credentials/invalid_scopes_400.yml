@@ -1,0 +1,40 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/oauth2/api/system/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIxMjM0NTY3ODkwIiwic3ViIjoiMTIzNDU2Nzg5MCIsImF1ZCI6Imh0dHBzOi8vZGVwdHZhLWV2YWwub2t0YS5jb20vb2F1dGgyLzEyMzQ1Njc4OTAvdjEvdG9rZW4iLCJpYXQiOjE2NDM1MzY4MDAsImV4cCI6MTY0MzUzNzEwMH0.ZBgLSztRtBZYcWfSYzB61wMeC3sHlhXNcAoYn3Dj6sMKybbXq5pNJVuDk9txM4dD7VX6a2EBGLul8vqMuMJt9HIev3XnQOsqPqHxFzQ3IWE32_LGmfM-2dj-nHCrBPMQtX3B6NVGoniuhXVwhCsqKcNDJnw0BqpSp5Q2N63_Tx0X5g6QeMVFuPmK0o7fXPohfv0F89hh_lfax9fGBAH_qml82tLZS36jN7_d3h8tq1tp0uiPpFQPmhc5iQDO4lxuG_fr3GoR8diwbLvBhWqkxUyfF4NQhoZDi3Bzey6lKB4dTiWOIQrZCvnZillJfp1uA79pmrJykP5qqc3mBhG8VQ&scope=direct.deposit.fake+direct.deposit.write
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      date:
+      - Tue, 14 Feb 2023 20:18:30 GMT
+      content-type:
+      - application/json; charset=utf-8
+      content-length:
+      - '124'
+      connection:
+      - keep-alive
+      vary:
+      - Origin
+      etag:
+      - W/"7c-/gQopYgOcAf/Q+2WCHJbcJXBKQE"
+      cache-control:
+      - ''
+    body:
+      encoding: UTF-8
+      string: '{"error":"invalid_scope","error_description":"One or more scopes are
+        not configured for the authorization server resource."}'
+  recorded_at: Tue, 14 Feb 2023 20:18:30 GMT
+recorded_with: VCR 6.1.0

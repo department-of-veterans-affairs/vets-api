@@ -1,0 +1,40 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/oauth2/api/system/v1/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIxMjM0NTY3ODkwIiwic3ViIjoiMTIzNDU2Nzg5MCIsImF1ZCI6IiIsImlhdCI6MTY0MzUzNjgwMCwiZXhwIjoxNjQzNTM3MTAwfQ.CNU1J28KMeUUOuKQ759my9dNZlegp_4v9tUDTCRIKNrUmEoS6lCD3Xh-Nnd0QS2n64hWryvEJGDog__mzhy1nWXNnbZgQxfUzqwgMQ-jBj9J4QC06eXVOl0tRvV4FD0Aj7lgZJbxZXy80lujzyq9ZT92mLOaXyySpoiLPY4_yVtS7UX7sze3C4IEvcicUD5Ghd309_X0SdfIcKiRX5VUpEIn8wsk6GY8hBesp2nsi920eegN14MuUXy8fNrwHPJEPeWTUWmhcCJfStrFrQpPa4WVrIAqOil5jGfqUaw8t9377eS1ce0QRi-BOFjeaOQnwZ6BMVNv8MePZ1PEN2wnrQ&scope=api.read+api.write
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      date:
+      - Tue, 14 Feb 2023 19:47:54 GMT
+      content-type:
+      - application/json; charset=utf-8
+      content-length:
+      - '134'
+      connection:
+      - keep-alive
+      vary:
+      - Origin
+      etag:
+      - W/"86-vMsZ4f6DDvqSQnlswSRliljr7yw"
+      cache-control:
+      - ''
+    body:
+      encoding: UTF-8
+      string: '{"error":"invalid_client","error_description":"The audience claim for
+        client_assertion must be the endpoint invoked for the request."}'
+  recorded_at: Tue, 14 Feb 2023 19:47:54 GMT
+recorded_with: VCR 6.1.0
