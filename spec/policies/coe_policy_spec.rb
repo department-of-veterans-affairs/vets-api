@@ -17,7 +17,7 @@ describe CoePolicy do
     context 'user is not loa3' do
       let(:user) { build(:user, :loa1) }
 
-      it 'grants access' do
+      it 'denies access' do
         expect(subject).not_to permit(user, :coe)
       end
     end
@@ -27,7 +27,7 @@ describe CoePolicy do
 
       before { allow(user).to receive(:edipi).and_return(nil) }
 
-      it 'grants access' do
+      it 'denies access' do
         expect(subject).not_to permit(user, :coe)
       end
     end

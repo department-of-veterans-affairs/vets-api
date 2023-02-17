@@ -16,6 +16,7 @@ RSpec.describe Users::Services do
           hca
           edu-benefits
           evss-claims
+          lighthouse-claims
           form526
           user-profile
           appeals-status
