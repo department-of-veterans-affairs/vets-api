@@ -323,9 +323,18 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
-  - :method: :post
+  - :method: :get
     :path: "/wss-lettergenerator-services-web/rest/letters/v1/*"
-    :file_path: "evss/letters/download"
+    :file_path: "evss/letters/download_pdf"
+    :cache_multiple_responses:
+      :uid_location: "url"
+      :uid_locator: "\/wss-lettergenerator-services-web/rest/letters/v1\/(.+)"
+  - :method: :post
+    :path: "/wss-lettergenerator-services-web/rest/letters/v1/*/generate"
+    :file_path: "evss/letters/download_pdf"
+    :cache_multiple_responses:
+      :uid_location: "url"
+      :uid_locator: "\/wss-lettergenerator-services-web/rest/letters/v1\/(.+)\/generate"
 
   # GIBS
   - :method: :get

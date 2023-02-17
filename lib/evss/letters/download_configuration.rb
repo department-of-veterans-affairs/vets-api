@@ -17,6 +17,8 @@ module EVSS
           faraday.use :breakers
           faraday.use EVSS::ErrorMiddleware
           faraday.use :immutable_headers
+
+          faraday.response :betamocks if mock_enabled?
           faraday.adapter Faraday.default_adapter
         end
       end
