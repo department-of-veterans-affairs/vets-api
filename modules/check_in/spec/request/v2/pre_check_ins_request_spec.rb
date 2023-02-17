@@ -238,6 +238,49 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
       end
     end
 
+    context 'when CHIP pre_check_in returns a 404' do
+      let(:session_params) do
+        {
+          params: {
+            session: {
+              uuid: id,
+              dob: '1940-12-27',
+              last_name: 'Johnson'
+            }
+          }
+        }
+      end
+
+      let(:error_body) do
+        {
+          'errors' => [
+            {
+              'title' => 'Not Found',
+              'detail' => 'Not Found',
+              'code' => 'CHIP-API_404',
+              'status' => '404'
+            }
+          ]
+        }
+      end
+      let(:error_resp) { Faraday::Response.new(body: error_body, status: 404) }
+
+      it 'returns 404 error response' do
+        VCR.use_cassette 'check_in/lorota/token/token_200' do
+          post '/check_in/v2/sessions', session_params
+          expect(response.status).to eq(200)
+        end
+
+        VCR.use_cassette('check_in/chip/pre_check_in/pre_check_in_404', match_requests_on: [:host]) do
+          VCR.use_cassette 'check_in/chip/token/token_200' do
+            post '/check_in/v2/pre_check_ins', params: post_params
+          end
+        end
+        expect(response.status).to eq(error_resp.status)
+        expect(response.body).to eq(error_resp.body.to_json)
+      end
+    end
+
     context 'when CHIP pre_check_in throws exception with 500 status code' do
       let(:session_params) do
         {

@@ -38,6 +38,12 @@ en:
         code: 'CIE-VETS-API_410'
         detail: 'Retry Attempt Exceeded'
         status: 410
+      CHIP-API_404:
+        <<: *external_defaults
+        title: 'Not Found'
+        code: 'CHIP-API_404'
+        detail: 'Not Found'
+        status: 404
       CHIP-API_500:
         <<: *external_defaults
         title: 'Internal Server Error'

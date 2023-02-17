@@ -112,6 +112,32 @@ RSpec.describe 'V2::SessionsController', type: :request do
         end
       end
 
+      context 'refresh_precheckin returns 404' do
+        let(:error_resp) do
+          {
+            'errors' => [
+              {
+                'title' => 'Not Found',
+                'detail' => 'Not Found',
+                'code' => 'CHIP-API_404',
+                'status' => '404'
+              }
+            ]
+          }
+        end
+
+        it 'throws a 404 error' do
+          VCR.use_cassette('check_in/chip/refresh_pre_check_in/refresh_pre_check_in_404', erb: { uuid: uuid }) do
+            VCR.use_cassette 'check_in/chip/token/token_200' do
+              get "/check_in/v2/sessions/#{uuid}?checkInType=preCheckIn"
+
+              expect(response.status).to eq(404)
+              expect(JSON.parse(response.body)).to eq(error_resp)
+            end
+          end
+        end
+      end
+
       context 'refresh_precheckin returns 500' do
         let(:error_resp) do
           {
@@ -404,7 +430,23 @@ RSpec.describe 'V2::SessionsController', type: :request do
         end
       end
 
-      context 'when CHIP returns error for precheckin started call' do
+      context 'when CHIP returns 404 for precheckin started' do
+        it 'returns a success response' do
+          VCR.use_cassette('check_in/chip/set_precheckin_started/set_precheckin_started_404',
+                           erb: { uuid: uuid }) do
+            VCR.use_cassette 'check_in/chip/token/token_200' do
+              VCR.use_cassette 'check_in/lorota/token/token_200' do
+                post '/check_in/v2/sessions', session_params
+
+                expect(response.status).to eq(200)
+                expect(JSON.parse(response.body)).to eq(resp)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when CHIP returns 500 error for precheckin started call' do
         it 'returns a success response' do
           VCR.use_cassette('check_in/chip/set_precheckin_started/set_precheckin_started_500',
                            erb: { uuid: uuid }) do
