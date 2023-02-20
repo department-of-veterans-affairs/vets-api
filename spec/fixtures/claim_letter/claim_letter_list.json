@@ -73,5 +73,20 @@
     "alt_doc_types": "",
     "restricted": false,
     "upload_date": "2020-05-08"
+  },
+  {
+    "document_id": "{B686D3C3-8720-41B5-8640-4F5CECD1A1BC}",
+    "series_id": "{BDE11169-689C-4614-A55C-E6E3E4A8B3F5}",
+    "version": "1",
+    "type_description": "Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)",
+    "type_id": "184",
+    "doc_type": "339",
+    "subject": null,
+    "received_at": "2009-05-12",
+    "source": "VBMS",
+    "mime_type": "application/pdf",
+    "alt_doc_types": "",
+    "restricted": false,
+    "upload_date": "2020-05-08"
   }
 ]

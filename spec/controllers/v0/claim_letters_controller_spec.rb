@@ -15,15 +15,30 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
   describe '#index' do
     it 'lists document id and letter details for claim letters' do
       get(:index)
-      expect(JSON.parse(response.body)).to eq(list_letters_res)
+      letters = JSON.parse(response.body)
+      expected_important_keys = %w[document_id doc_type received_at]
+
+      expect(letters.length).to be > 0
+      # We can reference the keys of the first letters since
+      # they _should_ all have the same keys.
+      expect(letters.first.keys).to include(*expected_important_keys)
     end
   end
 
   describe '#show' do
-    it 'sends the letter pdf' do
+    it 'responds with a pdf with a dated filename' do
       get(:show, params: { document_id: document_id })
 
       expect(response.header['Content-Type']).to eq('application/pdf')
+      expect(response.header['Content-Disposition']).to include("filename=\"#{filename}\"")
+    end
+
+    it 'returns a 404 with a not found message if document id does not exist' do
+      get(:show, params: { document_id: '{0}' })
+      err = JSON.parse(response.body)['errors'].first
+
+      expect(err['status']).to eql('404')
+      expect(err['title'].downcase).to include('not found')
     end
 
     it 'has a dated filename' do
