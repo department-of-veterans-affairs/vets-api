@@ -69,11 +69,6 @@ pipeline {
           stringParam(name: 'ref', value: commit),
         ], wait: false
 
-        build job: 'deploys/vets-api-worker-vagov-staging', parameters: [
-          booleanParam(name: 'notify_slack', value: true),
-          booleanParam(name: 'migration_status', value: false),
-          stringParam(name: 'ref', value: commit),
-        ], wait: false
       }
     }
   }
