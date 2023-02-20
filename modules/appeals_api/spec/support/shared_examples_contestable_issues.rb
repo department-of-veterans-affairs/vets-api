@@ -66,6 +66,30 @@ RSpec.shared_examples 'contestable issues index requests' do |options|
       end
     end
 
+    context 'when X-VA-ICN has an invalid format and ICN feature flag is enabled' do
+      before { Flipper.enable(:decision_review_ci_icn_support) }
+
+      it 'returns a 422' do
+        get_issues(icn: '3939s31', options: options)
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_an Array
+      end
+    end
+
+    context 'when X-VA-ICN has an invalid format and ICN feature flag is disabled' do
+      before { Flipper.disable(:decision_review_ci_icn_support) }
+
+      it 'GETs contestable_issues from Caseflow successfully' do
+        VCR.use_cassette("caseflow/#{options[:decision_review_type]}/contestable_issues-by-file-number") do
+          get_issues(file_number: '123456789', ssn: nil, options: options)
+          expect(response).to have_http_status(:ok)
+          json = JSON.parse(response.body)
+          expect(json['data']).not_to be nil
+        end
+      end
+    end
+
     context 'unusable response' do
       before do
         allow_any_instance_of(Caseflow::Service).to(
@@ -129,10 +153,11 @@ RSpec.shared_examples 'contestable issues index requests' do |options|
 
   private
 
-  def get_headers(ssn: '872958715', file_number: nil, receipt_date: '2019-12-01')
+  def get_headers(ssn: '872958715', file_number: nil, receipt_date: '2019-12-01', icn: '1234567890V012345')
     headers = {}
 
     headers['X-VA-Receipt-Date'] = receipt_date if receipt_date.present?
+    headers['X-VA-ICN'] = icn if icn.present?
     if file_number.present?
       headers['X-VA-File-Number'] = file_number
     elsif ssn.present?

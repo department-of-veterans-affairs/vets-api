@@ -28,6 +28,13 @@
         "X-VA-Receipt-Date": {
           "description": "(yyyy-mm-dd) Date to limit the contestable issues",
           "type": "string", "format": "date"
+        },
+        "X-VA-ICN": {
+          "type": "string",
+          "description": "Veteran's ICN",
+          "pattern": "^[0-9]{10}V[0-9]{6}$",
+          "minLength": 17,
+          "maxLength": 17
         }
       },
       "oneOf": [
