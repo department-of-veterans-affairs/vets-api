@@ -41,7 +41,16 @@ class AppealsApi::V2::DecisionReviews::LegacyAppealsController < AppealsApi::App
   attr_reader :caseflow_response, :caseflow_exception_response
 
   def request_headers
-    HEADERS.index_with { |key| request.headers[key] }.compact
+    # TODO: Remove feature flag and conditional once ICN support fully tested
+    if Flipper.enabled?(:decision_review_la_icn_support)
+      HEADERS.index_with { |key| request.headers[key] }.compact
+    else
+      HEADERS.reject { |header| header == 'X-VA-ICN' }.index_with { |key| request.headers[key] }.compact
+    end
+  end
+
+  def caseflow_request_headers
+    request_headers.except('X-VA-ICN')
   end
 
   def validate_json_schema
@@ -56,7 +65,7 @@ class AppealsApi::V2::DecisionReviews::LegacyAppealsController < AppealsApi::App
   end
 
   def get_legacy_appeals_from_caseflow
-    @caseflow_response = Caseflow::Service.new.get_legacy_appeals headers: request_headers
+    @caseflow_response = Caseflow::Service.new.get_legacy_appeals headers: caseflow_request_headers
   rescue Common::Exceptions::BackendServiceException => @caseflow_exception_response # rubocop:disable Naming/RescuedExceptionsVariableName
     raise unless caseflow_returned_a_4xx?
 

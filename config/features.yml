@@ -254,6 +254,9 @@ features:
   decision_review_ci_icn_support:
     actor_type: user
     description: Enables the X-VA-ICN header for Contestable Issues endpoints
+  decision_review_la_icn_support:
+    actor_type: user
+    description: Enables the X-VA-ICN header for the Legacy Appeals endpoint
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.

@@ -18,11 +18,18 @@
             { "$ref": "non_blank_string.json" },
             { "description": "Veteran's file number", "minLength": 1, "maxLength": 9 }
           ]
+        },
+        "X-VA-ICN": {
+          "type": "string",
+          "description": "Veteran's ICN",
+          "pattern": "^[0-9]{10}V[0-9]{6}$",
+          "minLength": 17,
+          "maxLength": 17
         }
       },
       "oneOf": [
-        { "required": ["X-VA-SSN"] },
-        { "required": ["X-VA-File-Number"] }
+        { "required": ["X-VA-SSN", "X-VA-ICN"] },
+        { "required": ["X-VA-File-Number", "X-VA-ICN"] }
       ]
     }
   }
