@@ -13,21 +13,12 @@ RUN groupadd --gid $USER_ID nonroot \
 
 WORKDIR /app
 
-ARG userid=993
-SHELL ["/bin/bash", "-c"]
-RUN groupadd -g $userid -r vets-api && \
-    useradd -u $userid -r -m -d /srv/vets-api -g vets-api vets-api
-RUN echo 'APT::Default-Release "stable";' >> /etc/apt/apt.conf.d/99defaultrelease
-RUN mv /etc/apt/sources.list /etc/apt/sources.list.d/stable.list
-RUN echo "deb http://ftp.debian.org/debian testing main contrib non-free" >> /etc/apt/sources.list.d/testing.list
-RUN echo "deb http://deb.debian.org/debian unstable main" >> /etc/apt/sources.list.d/unstable.list
+RUN echo "deb http://ftp.debian.org/debian testing main contrib non-free" >> /etc/apt/sources.list
 RUN apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -t stable \
-    dumb-init imagemagick pdftk poppler-utils curl libpq5 vim libboost-all-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -t unstable \
-    clamav clamdscan clamav-daemon
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -t testing \
-    poppler-utils
+RUN apt-get install -y -t testing poppler-utils
+RUN apt-get install -y build-essential libpq-dev git imagemagick curl wget pdftk file \
+  && apt-get clean \
+  && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Relax ImageMagick PDF security. See https://stackoverflow.com/a/59193253.
 RUN sed -i '/rights="none" pattern="PDF"/d' /etc/ImageMagick-6/policy.xml
