@@ -14,7 +14,9 @@ module Swagger
               attrs = v['properties']['data']['properties']['attributes']
               attrs['properties']['evidenceSubmission'].delete('if')
               attrs['properties']['evidenceSubmission'].delete('then')
-
+              attrs['properties']['evidenceSubmission']['properties']['evidenceType'].delete('if')
+              attrs['properties']['evidenceSubmission']['properties']['evidenceType'].delete('then')
+              attrs['properties']['evidenceSubmission']['properties']['evidenceType'].delete('else')
               attrs.delete('allOf')
             end
             swagger_schema k, v
