@@ -110,6 +110,16 @@
             "schema": {
               "$ref": "#/components/schemas/X-VA-File-Number"
             }
+          },
+          {
+            "in": "header",
+            "name": "X-VA-ICN",
+            "required": true,
+            "description": "Veteran's ICN",
+            "example": "1013062086V794840",
+            "schema": {
+              "$ref": "#/components/schemas/X-VA-ICN"
+            }
           }
         ],
         "responses": {
@@ -577,6 +587,13 @@
         "maxLength": 9,
         "pattern": "^[0-9]{9}$"
       }
+    },
+    "X-VA-ICN": {
+      "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
+      "type": "string",
+      "minLength": 17,
+      "maxLength": 17,
+      "pattern": "^[0-9]{10}V[0-9]{6}$"
     }
   },
   "servers": [

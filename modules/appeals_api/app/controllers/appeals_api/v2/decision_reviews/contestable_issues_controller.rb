@@ -17,8 +17,6 @@ module AppealsApi::V2
       before_action :validate_json_schema, only: %i[index]
       before_action :validate_params, only: %i[index]
 
-      EXPECTED_HEADERS = %w[X-VA-SSN X-VA-Receipt-Date X-VA-File-Number].freeze
-
       VALID_DECISION_REVIEW_TYPES = %w[higher_level_reviews notice_of_disagreements supplemental_claims].freeze
 
       UNUSABLE_RESPONSE_ERROR = {
@@ -47,7 +45,7 @@ module AppealsApi::V2
       attr_reader :caseflow_response, :backend_service_exception
 
       def get_contestable_issues_from_caseflow(filter: true)
-        caseflow_response = Caseflow::Service.new.get_contestable_issues headers: request_headers,
+        caseflow_response = Caseflow::Service.new.get_contestable_issues headers: caseflow_request_headers,
                                                                          benefit_type: benefit_type,
                                                                          decision_review_type: decision_review_type
 
@@ -160,7 +158,16 @@ module AppealsApi::V2
       end
 
       def request_headers
-        EXPECTED_HEADERS.index_with { |key| request.headers[key] }.compact
+        # TODO: Remove feature flag and conditional once ICN support fully tested
+        if Flipper.enabled?(:decision_review_ci_icn_support)
+          HEADERS.index_with { |key| request.headers[key] }.compact
+        else
+          HEADERS.reject { |header| header == 'X-VA-ICN' }.index_with { |key| request.headers[key] }.compact
+        end
+      end
+
+      def caseflow_request_headers
+        request_headers.except('X-VA-ICN')
       end
 
       def validate_json_schema

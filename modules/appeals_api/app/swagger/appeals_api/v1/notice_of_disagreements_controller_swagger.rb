@@ -158,6 +158,11 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         schema type: :string, format: :date
       end
 
+      parameter name: 'X-VA-ICN', in: 'header', description: 'veteran\'s icn' do
+        key :description, 'Veteran\'s ICN'
+        schema type: :string
+      end
+
       key :responses, read_json_from_same_dir['responses_contestable_issues.json']
       security do
         key :apikey, []

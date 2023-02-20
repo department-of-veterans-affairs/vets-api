@@ -5,11 +5,17 @@ require 'common/exceptions'
 
 class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < AppealsApi::ApplicationController
   SSN_REGEX = /^[0-9]{9}$/.freeze
+  ICN_REGEX = /^[0-9]{10}V[0-9]{6}$/.freeze
 
   skip_before_action(:authenticate)
   before_action :validate_headers, only: %i[index]
 
-  EXPECTED_HEADERS = %w[X-VA-SSN X-VA-Receipt-Date X-VA-File-Number].freeze
+  # TODO: Remove feature flag and conditional once ICN support fully tested
+  EXPECTED_HEADERS = if Flipper.enabled?(:decision_review_ci_icn_support)
+                       %w[X-VA-SSN X-VA-Receipt-Date X-VA-File-Number X-VA-ICN].freeze
+                     else
+                       %w[X-VA-SSN X-VA-Receipt-Date X-VA-File-Number].freeze
+                     end
 
   UNUSABLE_RESPONSE_ERROR = {
     errors: [
@@ -39,8 +45,12 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
     EXPECTED_HEADERS.index_with { |key| request.headers[key] }.compact
   end
 
+  def caseflow_request_headers
+    request_headers.except('X-VA-ICN')
+  end
+
   def get_contestable_issues_from_caseflow(filter: true)
-    caseflow_response = Caseflow::Service.new.get_contestable_issues headers: request_headers,
+    caseflow_response = Caseflow::Service.new.get_contestable_issues headers: caseflow_request_headers,
                                                                      benefit_type: benefit_type,
                                                                      decision_review_type: decision_review_type
 
@@ -110,6 +120,7 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
   def validate_headers
     validation_errors = []
     ssn = request.headers['X-VA-SSN']
+    icn = request.headers['X-VA-ICN']
 
     if request.headers['X-VA-Receipt-Date'].nil?
       validation_errors << { status: 422, detail: 'X-VA-Receipt-Date is required' }
@@ -119,6 +130,10 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
     end
     if ssn.present? && !SSN_REGEX.match?(ssn)
       validation_errors << { status: 422, detail: "X-VA-SSN has an invalid format. Pattern: #{SSN_REGEX.inspect}" }
+    end
+    # TODO: Remove feature flag once ICN support fully tested
+    if Flipper.enabled?(:decision_review_ci_icn_support) && icn.present? && !ICN_REGEX.match?(icn)
+      validation_errors << { status: 422, detail: "X-VA-ICN has an invalid format. Pattern: #{ICN_REGEX.inspect}" }
     end
 
     render_validation_errors(validation_errors)

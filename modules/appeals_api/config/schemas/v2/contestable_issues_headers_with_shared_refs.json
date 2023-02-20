@@ -21,12 +21,20 @@
         },
         "X-VA-Receipt-Date": {
           "description": "(yyyy-mm-dd) Date to limit the contestable issues",
-          "type": "string", "format": "date"
+          "type": "string",
+          "format": "date"
+        },
+        "X-VA-ICN": {
+          "type": "string",
+          "description": "Veteran's ICN",
+          "pattern": "^[0-9]{10}V[0-9]{6}$",
+          "minLength": 17,
+          "maxLength": 17
         }
       },
       "oneOf": [
-        { "required": ["X-VA-Receipt-Date", "X-VA-SSN"] },
-        { "required": ["X-VA-Receipt-Date", "X-VA-File-Number"] }
+        { "required": ["X-VA-Receipt-Date", "X-VA-ICN", "X-VA-SSN"] },
+        { "required": ["X-VA-Receipt-Date", "X-VA-ICN", "X-VA-File-Number"] }
       ]
     }
   }
