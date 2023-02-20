@@ -7,6 +7,7 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
   let(:headers) { {} }
   let(:ssn) { nil }
   let(:file_number) { nil }
+  let(:icn) { nil }
 
   describe '#index' do
     context 'when only ssn provided' do
@@ -45,6 +46,71 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
             expect(response).to have_http_status :unprocessable_entity
             expect(error['detail']).to include "'24-2921hw' did not match the defined pattern"
             expect(error['source']['pointer']).to eq '/X-VA-SSN'
+          end
+        end
+      end
+
+      context 'when valid icn provided and ICN feature flag enabled' do
+        let(:ssn) { '502628285' }
+        let(:icn) { '1234567890V012345' }
+
+        before { Flipper.enable(:decision_review_la_icn_support) }
+
+        it 'GETs legacy appeals from Caseflow successfully' do
+          VCR.use_cassette('caseflow/legacy_appeals_get_by_ssn') do
+            get_legacy_appeals
+            expect(response).to have_http_status(:ok)
+            json = JSON.parse(response.body)
+            expect(json['data']).not_to be_nil
+            expect(json['data'][0]['attributes']).to include('latestSocSsocDate')
+          end
+        end
+      end
+
+      context 'when valid icn provided and ICN feature flag disabled' do
+        let(:ssn) { '502628285' }
+        let(:icn) { '1234567890V012345' }
+
+        before { Flipper.disable(:decision_review_la_icn_support) }
+
+        it 'GETs legacy appeals from Caseflow successfully' do
+          VCR.use_cassette('caseflow/legacy_appeals_get_by_ssn') do
+            get_legacy_appeals
+            expect(response).to have_http_status(:ok)
+            json = JSON.parse(response.body)
+            expect(json['data']).not_to be_nil
+            expect(json['data'][0]['attributes']).to include('latestSocSsocDate')
+          end
+        end
+      end
+
+      context 'when icn formatted incorrectly and ICN feature flag enabled' do
+        let(:ssn) { '502628285' }
+        let(:icn) { '338487' }
+
+        before { Flipper.enable(:decision_review_la_icn_support) }
+
+        it 'returns a 422 error with details' do
+          get_legacy_appeals
+          expect(response).to have_http_status(:unprocessable_entity)
+          json = JSON.parse(response.body)
+          expect(json['errors']).to be_an(Array)
+        end
+      end
+
+      context 'when icn formatted incorrectly and ICN feature flag disabled' do
+        let(:ssn) { '502628285' }
+        let(:icn) { '338487' }
+
+        before { Flipper.disable(:decision_review_la_icn_support) }
+
+        it 'GETs legacy appeals from Caseflow successfully' do
+          VCR.use_cassette('caseflow/legacy_appeals_get_by_ssn') do
+            get_legacy_appeals
+            expect(response).to have_http_status(:ok)
+            json = JSON.parse(response.body)
+            expect(json['data']).not_to be_nil
+            expect(json['data'][0]['attributes']).to include('latestSocSsocDate')
           end
         end
       end
@@ -134,6 +200,7 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
 
     context 'using the versioned namespace route' do
       let(:ssn) { '502628285' }
+      let(:icn) { '1013062086V794840' }
       let(:oauth_path) { '/services/appeals/legacy_appeals/v0/legacy_appeals/' }
 
       it 'behaves the same as when using the original route' do
@@ -179,6 +246,7 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
     elsif ssn.present?
       headers['X-VA-SSN'] = ssn
     end
+    headers['X-VA-ICN'] = icn if icn.present?
 
     get(path, headers: headers)
   end
