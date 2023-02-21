@@ -11,7 +11,7 @@ metadata:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/sync-wave: "-1"
 spec:
-  query: {{ .Values.web.autoscaling.query }}
+  query: {{ $root.Values.web.autoscaling.query }}
 {{- end }}
 {{- end }}
 
@@ -28,3 +28,5 @@ metadata:
 spec:
   query: {{ .Values.worker.autoscaling.query }}
 {{- end }}
+
+
