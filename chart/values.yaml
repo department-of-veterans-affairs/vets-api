@@ -68,6 +68,7 @@ web:
     minReplicas: ""
     maxReplicas: ""
     targetAverageValue: ""
+    query: ""
   service:
     enabled: false
     annotations:
@@ -99,7 +100,6 @@ worker:
     minReplicas: ""
     maxReplicas: ""
     targetAverageValue: ""
-    targetCPUUtilizationPercentage: ''
     query: ""
   healthCheck:
     requestPath: ""
