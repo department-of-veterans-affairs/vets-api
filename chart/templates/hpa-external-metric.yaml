@@ -15,6 +15,7 @@ spec:
 {{- end }}
 {{- end }}
 
+{{- if .Values.web.autoscaling.enabled }}
 ---
 apiVersion: datadoghq.com/v1alpha1
 kind: DatadogMetric
@@ -25,5 +26,5 @@ metadata:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/sync-wave: "-1"
 spec:
-  query: avg:sidekiq.enqueued{env:eks-{{ $root.Values.target_env }}}.rollup(avg, 600)
-
+  query: count:sidekiq.enqueued{env:eks-{{ $root.Values.target_env }}}.rollup(avg, 600)
+{{- end }}
