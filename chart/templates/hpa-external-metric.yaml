@@ -15,7 +15,6 @@ spec:
 {{- end }}
 {{- end }}
 
-{{- if .Values.worker.autoscaling.enabled }}
 ---
 apiVersion: datadoghq.com/v1alpha1
 kind: DatadogMetric
@@ -27,4 +26,4 @@ metadata:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
   query: {{ .Values.worker.autoscaling.query }}
-{{- end }}
+
