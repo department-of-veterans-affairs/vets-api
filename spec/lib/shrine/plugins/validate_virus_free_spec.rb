@@ -25,14 +25,19 @@ describe Shrine::Plugins::ValidateVirusFree do
         .and_return(instance_double('Shrine::UploadedFile', download: instance_double('File', path: 'foo/bar.jpg')))
 
       allow(File).to receive(:chmod).with(0o640, 'foo/bar.jpg').and_return(1)
-      allow(Common::VirusScan).to receive(:scan).and_return(false)
     end
 
     context 'with errors' do
+      before do
+        allow(Common::VirusScan).to receive(:scan).and_return(false)
+      end
+
       context 'while in development' do
         it 'logs an error message if clamd is not running' do
-          result = instance.validate_virus_free
-          expect(result).to be(false)
+          expect(Rails.env).to receive(:development?).and_return(true)
+          expect(Shrine.logger).to receive(:error).with(/PLEASE START CLAMD/)
+          result = instance.validate_virus_free(message: "nodename nor servname provided")
+          expect(result).to be(true)
         end
       end
 
