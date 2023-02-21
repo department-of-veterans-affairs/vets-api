@@ -404,6 +404,9 @@ features:
     actor_type: user
     description: Enable new list loop pattern
     enable_in_development: true
+  show_mbs_preneed_change_va_4010007:
+    actor_type: user
+    description: Updates to text in form VA 40-10007
   medical_copays_six_mo_window:
     actor_type: user
     description: This will filter to only show medical copays within the last 6 months
