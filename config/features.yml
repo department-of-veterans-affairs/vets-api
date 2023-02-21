@@ -19,7 +19,6 @@ features:
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
-    enable_in_development: false
   career_counseling_confirmation_email:
     actor_type: user
     description: Enables Career Counseling claim email confirmation upon submission
@@ -31,19 +30,16 @@ features:
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
-    enable_in_development: false
-  hca_short_form_enabled:
-    actor_type: user
-    description: Enables Short Form for users with or self discloser of high disability.
-    enable_in_development: true
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
-    enable_in_development: false
+  hca_household_v2_enabled:
+    actor_type: user
+    description: Enables the optimized household section flow.
+    enable_in_development: true
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
-    enable_in_development: false
   cerner_allow_partial_facilities:
     actor_type: user
     description: This will allow cerner facilities to be set to partially cerner or all cerner.
