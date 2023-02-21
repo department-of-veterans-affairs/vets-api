@@ -21,7 +21,7 @@ type: application
 # 0.9.11 broken
 # 0.9.14 remove cors
 # 0.10.0 sidekiq datadog hpa
-version: 0.10.12
+version: 0.10.13
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
