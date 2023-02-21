@@ -423,6 +423,10 @@ features:
     actor_type: user
     description: Separates mobile mega menu from desktop mega menu
     enable_in_development: true
+  mhv_landing_page_enabled:
+    actor_type: user
+    description: Enables the new MHV landing page on VA.gov
+    enable_in_development: true
   mhv_secure_messaging_to_va_gov_release:
     actor_type: user
     description: Enables/disbales Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
