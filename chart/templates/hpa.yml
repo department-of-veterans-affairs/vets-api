@@ -22,13 +22,13 @@ spec:
 {{- end }}
 {{- end }}
 
-
----
 {{- if .Values.worker.autoscaling.enabled }}
+---
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ .Values.appName }}-sidekiq
+  namespace: {{ $root.Release.Namespace }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -36,5 +36,9 @@ spec:
     name: {{ .Values.appName }}-sidekiq
   minReplicas: {{ .Values.worker.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.worker.autoscaling.maxReplicas }}
-  targetCPUUtilizationPercentage: {{ .Values.worker.autoscaling.targetAverageUtilization }}
+  metrics:
+  - type: External
+    external:
+      metricName: "datadogmetric@{{ $root.Release.Namespace }}:sidekiq-enqueued-jobs"
+      targetAverageValue: {{ .Values.worker.autoscaling.targetAverageValue }}
 {{- end }}

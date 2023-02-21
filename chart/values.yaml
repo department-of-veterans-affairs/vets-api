@@ -98,7 +98,8 @@ worker:
     enabled: false
     minReplicas: ""
     maxReplicas: ""
-    targetAverageUtilization: ""
+    targetAverageValue: ""
+    query: ""
   healthCheck:
     requestPath: ""
     port: ""
