@@ -25,5 +25,5 @@ metadata:
     argocd.argoproj.io/hook: PreSync
     argocd.argoproj.io/sync-wave: "-1"
 spec:
-  query: {{ toYaml .Values.worker.autoscaling.query }}
+  query: avg:sidekiq.enqueued{env:{{ $root.Values.target_env }}}.rollup(avg, 600)
 
