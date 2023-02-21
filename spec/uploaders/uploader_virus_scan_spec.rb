@@ -24,19 +24,15 @@ describe UploaderVirusScan, uploader_helpers: true do
     end
 
     context 'with a virus' do
-      let(:result) do
-        {
-          safe?: false,
-          body: 'virus found'
-        }
-      end
+      let(:result) { false }
 
       it 'raises an error' do
+        allow(Common::VirusScan).to receive(:scan).and_return(false)
         expect(Rails.env).to receive(:production?).and_return(true)
         expect(file).to receive(:delete)
 
         expect { store_image }.to raise_error(
-          UploaderVirusScan::VirusFoundError, 'virus found'
+          UploaderVirusScan::VirusFoundError
         )
       end
     end
