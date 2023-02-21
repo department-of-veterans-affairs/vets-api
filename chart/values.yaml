@@ -99,6 +99,7 @@ worker:
     minReplicas: ""
     maxReplicas: ""
     targetAverageValue: ""
+    targetCPUUtilizationPercentage: ''
     query: ""
   healthCheck:
     requestPath: ""
