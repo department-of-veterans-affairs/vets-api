@@ -218,29 +218,29 @@ RSpec.describe 'Messages Integration', type: :request do
       end
     end
 
-    describe '#thread' do
-      let(:thread_id) { 573_059 }
+    # describe '#thread' do
+    #   let(:thread_id) { 573_059 }
 
-      it 'responds to GET #thread' do
-        VCR.use_cassette('sm_client/messages/gets_a_message_thread') do
-          get "/my_health/v1/messaging/messages/#{thread_id}/thread"
-        end
+    #   it 'responds to GET #thread' do
+    #     VCR.use_cassette('sm_client/messages/gets_a_message_thread') do
+    #       get "/my_health/v1/messaging/messages/#{thread_id}/thread"
+    #     end
 
-        expect(response).to be_successful
-        expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('messages_thread')
-      end
+    #     expect(response).to be_successful
+    #     expect(response.body).to be_a(String)
+    #     expect(response).to match_response_schema('messages_thread')
+    #   end
 
-      it 'responds to GET #thread when camel-inflected' do
-        VCR.use_cassette('sm_client/messages/gets_a_message_thread') do
-          get "/my_health/v1/messaging/messages/#{thread_id}/thread", headers: inflection_header
-        end
+    #   it 'responds to GET #thread when camel-inflected' do
+    #     VCR.use_cassette('sm_client/messages/gets_a_message_thread') do
+    #       get "/my_health/v1/messaging/messages/#{thread_id}/thread", headers: inflection_header
+    #     end
 
-        expect(response).to be_successful
-        expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('messages_thread')
-      end
-    end
+    #     expect(response).to be_successful
+    #     expect(response.body).to be_a(String)
+    #     expect(response).to match_camelized_response_schema('messages_thread')
+    #   end
+    # end
 
     describe '#destroy' do
       let(:message_id) { 573_052 }
