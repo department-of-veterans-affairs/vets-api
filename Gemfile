@@ -19,6 +19,7 @@ path 'modules' do
   gem 'health_quest'
   gem 'meb_api'
   gem 'mobile'
+  gem 'mocked_authentication'
   gem 'my_health'
   gem 'openid_auth'
   gem 'test_user_dashboard'

@@ -431,6 +431,10 @@ Rails.application.routes.draw do
 
   mount TestUserDashboard::Engine, at: '/test_user_dashboard' if Settings.test_user_dashboard.env == 'staging'
 
+  if Rails.env.development? || Settings.vsp_environment == 'development'
+    mount MockedAuthentication::Engine, at: '/mocked_authentication'
+  end
+
   mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint.new
 
   mount Coverband::Reporters::Web.new, at: '/coverband', constraints: GithubAuthentication::CoverbandReportersWeb.new
