@@ -88,6 +88,8 @@ PATH
     meb_api (0.1.0)
     mobile (0.1.0)
       dry-validation
+    mocked_authentication (0.1.0)
+      rails (~> 6.1.4, >= 6.1.4.7)
     my_health (0.1.0)
       rails (~> 6.1.4, >= 6.1.4.7)
     openid_auth (0.0.1)
@@ -1049,6 +1051,7 @@ DEPENDENCIES
   mimemagic
   mini_magick
   mobile!
+  mocked_authentication!
   my_health!
   net-sftp
   nokogiri

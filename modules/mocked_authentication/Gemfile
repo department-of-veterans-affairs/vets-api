@@ -1,0 +1,4 @@
+# frozen_string_literal: true
+
+# Specify your gem's dependencies in mocked_authentication.gemspec.
+gemspec
