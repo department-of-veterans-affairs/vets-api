@@ -88,8 +88,8 @@ RSpec.describe ApplicationController, type: :controller do
       end
     end
 
-    it 'does log exceptions to sentry if Pundit::NotAuthorizedError' do
-      expect(Raven).to receive(:capture_exception).with(Pundit::NotAuthorizedError, { level: 'info' })
+    it 'does not log exceptions to sentry if Pundit::NotAuthorizedError' do
+      expect(Raven).not_to receive(:capture_exception).with(Pundit::NotAuthorizedError, { level: 'info' })
       expect(Raven).not_to receive(:capture_message)
       get :not_authorized
     end
@@ -318,12 +318,12 @@ RSpec.describe ApplicationController, type: :controller do
           expect(subject.keys).to eq(keys_for_all_env)
         end
 
-        it 'logs info level and extra context to Sentry' do
-          expect(Raven).to receive(:capture_exception).once.with(
+        it 'does not log info level and extra context to Sentry' do
+          expect(Raven).not_to receive(:capture_exception).with(
             Pundit::NotAuthorizedError,
             level: 'info'
           )
-          expect(Raven).to receive(:extra_context).once.with(
+          expect(Raven).not_to receive(:extra_context).with(
             va_exception_errors: [{
               title: 'Forbidden',
               detail: 'User does not have access to the requested resource',
