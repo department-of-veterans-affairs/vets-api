@@ -746,14 +746,13 @@ paths:
     get:
       description: |
         Gets a list of message summaries that are related to the message of the passed id.
-        Does <strong>not</strong> include the message of the passed id itself.
-      operationId: get_message_history
+      operationId: get_messages_for_thread
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: ./schemas/SecureMessageList.yml
+                $ref: ./schemas/SecureMessageListInThread.yml
           description: OK
         "401":
           content:

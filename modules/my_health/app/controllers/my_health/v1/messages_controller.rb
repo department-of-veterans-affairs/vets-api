@@ -59,12 +59,13 @@ module MyHealth
 
       def thread
         message_id = params[:id].try(:to_i)
-        resource = client.get_message_history(message_id)
+        # resource = client.get_message_history(message_id)
+        resource = client.get_messages_for_thread(message_id)
         raise Common::Exceptions::RecordNotFound, message_id if resource.blank?
 
-        render json: resource.data,
+        render json: resource,
                serializer: CollectionSerializer,
-               each_serializer: MessagesSerializer,
+               each_serializer: MessageDetailsSerializer,
                meta: resource.metadata
       end
 

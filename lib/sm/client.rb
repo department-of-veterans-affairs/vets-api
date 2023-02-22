@@ -269,7 +269,7 @@ module SM
     end
 
     ##
-    # Get a message thread
+    # Get a message thread old api
     #
     # @param id [Fixnum] message id
     # @return [Common::Collection[Message]]
@@ -278,6 +278,18 @@ module SM
       path = "message/#{id}/history"
       json = perform(:get, path, nil, token_headers).body
       Common::Collection.new(Message, json)
+    end
+
+    ##
+    # Get a message thread
+    #
+    # @param id [Fixnum] message id
+    # @return [Common::Collection[MessageThread]]
+    #
+    def get_messages_for_thread(id)
+      path = "message/#{id}/messagesforthread"
+      json = perform(:get, path, nil, token_headers).body
+      Common::Collection.new(MessageThreadDetails, json)
     end
 
     ##
