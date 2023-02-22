@@ -671,10 +671,6 @@ features:
   va_home_preview_modal:
     actor_type: user
     description: Allows user testing for Homepage redesign soft launch modal
-  va_online_filter36_vats:
-    actor_type: user
-    description: Update the filtering logic from 24 months to 36 months for a given clinic in the direct appointment schedule flow
-    enable_in_development: true
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
@@ -690,10 +686,6 @@ features:
   va_online_scheduling_direct:
     actor_type: user
     description: Allows veterans to directly schedule VA appointments
-    enable_in_development: true
-  va_online_scheduling_facility_selection_v2_2:
-    actor_type: user
-    description: Set up toggle in anticipation of the next iteration of facility selection, version 2.2.
     enable_in_development: true
   va_online_scheduling_requests:
     actor_type: user
@@ -719,14 +711,6 @@ features:
     actor_type: user
     description: Toggle for new mobile facility service v2 endpoints
     enable_in_development: true
-  va_online_scheduling_variant_testing:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for VAOS variant testing.
-  va_online_scheduling_poc_health_apt:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for health apartment proof of concept
   va_online_scheduling_clinic_location:
     actor_type: user
     enable_in_development: true
