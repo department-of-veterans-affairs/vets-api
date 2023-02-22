@@ -22,10 +22,8 @@ module Login
       user_avc.acceptable_verified_credential_at ||= Time.zone.now if logingov_credential.present?
       if user_avc.changed?
         user_avc.save!
-        Rails.logger.info('[UserAcceptableVerifiedCredentialUpdater] - User AVC Updated',
-                          { user_account_id: user_account.id,
-                            idme_uuid: idme_credential&.idme_uuid,
-                            logingov_uuid: logingov_credential&.logingov_uuid })
+
+        Login::UserAcceptableVerifiedCredentialUpdaterLogger.new(user_acceptable_verified_credential: user_avc).perform
       end
     end
 
