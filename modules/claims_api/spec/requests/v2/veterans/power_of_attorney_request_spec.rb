@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'token_validation/v2/client'
+require 'bgs_service/local_bgs'
 
 RSpec.describe 'Power Of Attorney', type: :request do
   let(:veteran_id) { '1013062086V794840' }
@@ -14,6 +15,13 @@ RSpec.describe 'Power Of Attorney', type: :request do
   let(:individual_poa_code) { 'A1H' }
   let(:organization_poa_code) { '083' }
   let(:bgs_poa) { { person_org_name: "#{individual_poa_code} name-here" } }
+  let(:cws) do
+    if Flipper.enabled? :bgs_via_faraday
+      ClaimsApi::LocalBGS
+    else
+      BGS::ClaimantWebService
+    end
+  end
 
   describe 'PowerOfAttorney' do
     before do
@@ -78,7 +86,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
         context 'when provided' do
           it 'returns a 200' do
             with_okta_user(scopes) do |auth_header|
-              expect_any_instance_of(BGS::ClaimantWebService).to receive(:find_poa_by_participant_id)
+              expect_any_instance_of(cws).to receive(:find_poa_by_participant_id)
                 .and_return(bgs_poa)
               allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
@@ -175,7 +183,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               allow(JWT).to receive(:decode).and_return(nil)
               allow(Token).to receive(:new).and_return(ccg_token)
               allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
-              expect_any_instance_of(BGS::ClaimantWebService).to receive(:find_poa_by_participant_id)
+              expect_any_instance_of(cws).to receive(:find_poa_by_participant_id)
                 .and_return(bgs_poa)
               allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
@@ -219,7 +227,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
         context 'when provided' do
           it 'returns a 200' do
             with_okta_user(scopes) do |auth_header|
-              expect_any_instance_of(BGS::ClaimantWebService).to receive(:find_poa_by_participant_id)
+              expect_any_instance_of(cws).to receive(:find_poa_by_participant_id)
                 .and_return(bgs_poa)
               allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
@@ -260,7 +268,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               allow(JWT).to receive(:decode).and_return(nil)
               allow(Token).to receive(:new).and_return(ccg_token)
               allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
-              expect_any_instance_of(BGS::ClaimantWebService).to receive(:find_poa_by_participant_id)
+              expect_any_instance_of(cws).to receive(:find_poa_by_participant_id)
                 .and_return(bgs_poa)
               allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })

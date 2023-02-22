@@ -5,7 +5,16 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require_relative '../../support/swagger_shared_components/v1'
 
-describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do  # rubocop:disable RSpec/DescribeClass
+describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
+  let(:pws) do
+    # Uncomment this once find_by_ssn is implemented
+    # if Flipper.enabled? :bgs_via_faraday
+    #   ClaimsApi::LocalBGS
+    # else
+    BGS::PersonWebService
+    # end
+  end
+
   path '/forms/2122' do
     get 'Gets schema for POA form.' do
       deprecated true
@@ -92,7 +101,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
               .to receive(:validate_poa_code_for_current_user!).and_return(true)
             stub_poa_verification
             stub_mpi
-            allow_any_instance_of(ClaimsApi::LocalBGS::PersonWebService)
+            allow_any_instance_of(pws)
               .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
 
             with_okta_user(scopes) do
@@ -256,7 +265,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
             stub_mpi
 
             with_okta_user(scopes) do
-              allow_any_instance_of(ClaimsApi::LocalBGS::PersonWebService)
+              allow_any_instance_of(pws)
                 .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
               allow_any_instance_of(ClaimsApi::PowerOfAttorneyUploader).to receive(:store!)
               submit_request(example.metadata)
@@ -369,7 +378,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
             stub_mpi
 
             with_okta_user(scopes) do
-              allow_any_instance_of(ClaimsApi::LocalBGS::PersonWebService)
+              allow_any_instance_of(pws)
                 .to receive(:find_by_ssn).and_return(nil)
               submit_request(example.metadata)
             end
@@ -407,7 +416,7 @@ describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claim
             stub_mpi
 
             with_okta_user(scopes) do
-              allow_any_instance_of(ClaimsApi::LocalBGS::PersonWebService)
+              allow_any_instance_of(pws)
                 .to receive(:find_by_ssn).and_raise(BGS::ShareError.new('HelloWorld'))
               submit_request(example.metadata)
             end
