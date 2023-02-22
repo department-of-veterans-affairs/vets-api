@@ -36,10 +36,14 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdater do
         let(:expected_verified_credential_at) { '2023-1-1' }
         let(:expected_log_message) { '[UserAcceptableVerifiedCredentialUpdater] - User AVC Updated' }
         let(:expected_log_context) do
-          { user_account_id: user_account.id,
+          { added_type: expected_added_type,
+            added_from: expected_added_from,
+            user_account_id: user_account.id,
             idme_uuid: user_verification&.idme_uuid,
             logingov_uuid: user_verification&.logingov_uuid }
         end
+        let(:expected_added_type) { 'avc' }
+        let(:expected_added_from) { 'logingov' }
 
         before { Timecop.freeze(expected_verified_credential_at) }
 
@@ -90,6 +94,8 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdater do
           let!(:user_verification) { create(:idme_user_verification, user_account: user_account) }
           let(:expected_avc_at) { nil }
           let(:expected_ivc_at) { expected_verified_credential_at }
+          let(:expected_added_type) { 'ivc' }
+          let(:expected_added_from) { 'idme' }
 
           it 'updates acceptable verified credential at value' do
             subject
