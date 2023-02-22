@@ -11,7 +11,8 @@ module ExceptionHandling
   # will also be skipped.
   SKIP_SENTRY_EXCEPTION_TYPES = [
     Breakers::OutageException,
-    JsonSchema::JsonApiMissingAttribute
+    JsonSchema::JsonApiMissingAttribute,
+    Pundit::NotAuthorizedError
   ].freeze
 
   private
