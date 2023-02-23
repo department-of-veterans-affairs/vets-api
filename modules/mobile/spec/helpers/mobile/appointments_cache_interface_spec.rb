@@ -128,8 +128,8 @@ describe Mobile::AppointmentsCacheInterface do
 
     after { Timecop.return }
 
-    it 'is set to one year from today' do
-      expect(subject.earliest_allowable_cache_end_date).to eq(today.to_datetime.utc.end_of_day + 1.year)
+    it 'is set to 390 days from today' do
+      expect(subject.earliest_allowable_cache_end_date).to eq(today.to_datetime.utc.end_of_day + 390.days)
     end
   end
 end

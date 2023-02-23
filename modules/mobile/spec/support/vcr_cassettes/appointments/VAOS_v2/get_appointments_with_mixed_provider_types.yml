@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://veteran.apps.va.gov/vaos/v1/patients/1012846043V576341/appointments?end=2023-01-01T23:59:59Z&pageSize=0&start=2021-01-01T00:00:00Z&statuses=proposed,cancelled,booked,fulfilled,arrived
+      uri: https://veteran.apps.va.gov/vaos/v1/patients/1012846043V576341/appointments?end=2023-01-26T23:59:59Z&pageSize=0&start=2021-01-01T00:00:00Z&statuses=proposed,cancelled,booked,fulfilled,arrived
       body:
         encoding: US-ASCII
         string: ''
