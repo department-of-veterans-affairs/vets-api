@@ -91,18 +91,22 @@ module ClaimsApi
 
         def check_for_invalid_survivor_submission(options)
           error_detail = "Veteran cannot file for type 'survivor'"
-          raise ::Common::Exceptions::Forbidden, detail: error_detail if claimant_id_equals_vet_id?(options)
+          if claimant_id_equals_vet_id?(options)
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail)
+          end
 
-          error_detail = 'unknown claimant id'
-          raise ::Common::Exceptions::Forbidden, detail: error_detail unless options_include_claimant_id?(options)
+          error_detail = "Claimant SSN cannot be the same as veteran SSN for type 'survivor'"
+          if claimant_ssn_equals_vet_ssn?(options)
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail)
+          end
         end
 
         def claimant_id_equals_vet_id?(options)
           options[:participant_claimant_id] == options[:participant_vet_id]
         end
 
-        def options_include_claimant_id?(options)
-          options[:participant_claimant_id].present? || options[:claimant_ssn].present?
+        def claimant_ssn_equals_vet_ssn?(options)
+          options[:claimant_ssn] == options[:ssn]
         end
 
         def itf_types

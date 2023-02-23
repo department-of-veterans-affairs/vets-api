@@ -337,6 +337,37 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs,
           end
         end
       end
+
+      describe 'Getting a 422 response' do
+        response '422', 'Unprocessable entity' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                                      'default.json')))
+
+          let(:scopes) { %w[claim.write] }
+          let(:data) { { type: 'survivor' } }
+
+          before do |example|
+            stub_poa_verification
+            stub_mpi
+
+            with_okta_user(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 422 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
     end
   end
 
