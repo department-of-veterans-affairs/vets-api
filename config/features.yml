@@ -247,9 +247,6 @@ features:
   decision_review_monthly_stats_report_enabled:
     actor_type: user
     description: Enables the monthly decision review stats report email
-  decision_review_ci_icn_support:
-    actor_type: user
-    description: Enables the X-VA-ICN header for Contestable Issues endpoints
   decision_review_la_icn_support:
     actor_type: user
     description: Enables the X-VA-ICN header for the Legacy Appeals endpoint

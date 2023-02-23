@@ -224,6 +224,7 @@ describe 'Higher-Level Reviews', swagger_doc: DocHelpers.output_json_path, type:
         file_num_override = { description: 'Either X-VA-SSN or X-VA-File-Number is required' }
         parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header].merge(file_num_override)
         parameter AppealsApi::SwaggerSharedComponents.header_params[:va_receipt_date]
+        parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header]
 
         response '200', 'JSON:API response returning all contestable issues for a specific veteran.' do
           schema '$ref' => '#/components/schemas/contestableIssues'

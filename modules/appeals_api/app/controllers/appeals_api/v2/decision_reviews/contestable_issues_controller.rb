@@ -158,12 +158,7 @@ module AppealsApi::V2
       end
 
       def request_headers
-        # TODO: Remove feature flag and conditional once ICN support fully tested
-        if Flipper.enabled?(:decision_review_ci_icn_support)
-          HEADERS.index_with { |key| request.headers[key] }.compact
-        else
-          HEADERS.reject { |header| header == 'X-VA-ICN' }.index_with { |key| request.headers[key] }.compact
-        end
+        HEADERS.index_with { |key| request.headers[key] }.compact
       end
 
       def caseflow_request_headers
