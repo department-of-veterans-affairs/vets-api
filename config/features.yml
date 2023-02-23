@@ -222,9 +222,9 @@ features:
     description: Enables the supplemental claim PII expunge job
     enable_in_development: true
   decision_review_hlr_status_updater_enabled:
-      actor_type: user
-      description: Enables the Higher Level Review status update batch job
-      enable_in_development: true
+    actor_type: user
+    description: Enables the Higher Level Review status update batch job
+    enable_in_development: true
   decision_review_nod_status_updater_enabled:
     actor_type: user
     description: Enables the Notice of Disagreement status update batch job
@@ -501,9 +501,13 @@ features:
   profile_show_pronouns_and_sexual_orientation:
     actor_type: user
     description: Show/hide Pronouns and Sexual Orientation fields on profile page
+  profile_use_info_card:
+    description: "Use an accessible component for Profile application information card sections"
+    enable_in_development: true
+    actor_type: user
   profile_use_security_process_list:
     actor_type: user
-    descriptions: For Account Security page, use a new process list component for account setup information
+    description: For Account Security page, use a new process list component for account setup information
     enable_in_development: true
   profile_use_vaos_v2_api:
     description: "Use the new VAOS v2 API endpoints"
