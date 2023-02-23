@@ -75,17 +75,23 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Install gems
+        run: |
+             docker-compose -f docker-compose.test.yml -f docker-compose.gha.yml \
+             run vets-api bash \
+             -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true rails --version"
+
       - name: Setup Database
         run: |
              docker-compose -f docker-compose.test.yml -f docker-compose.gha.yml \
              run vets-api bash \
-             -c "RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -n 8 -e 'bin/rails db:reset'"
+             -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -n 8 -e 'bin/rails db:reset'"
 
       - name: Run Specs
         run: |
              docker-compose -f docker-compose.test.yml -f docker-compose.gha.yml \
              run vets-api bash \
-             -c "DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 8 -o '--color --tty'"
+             -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 8 -o '--color --tty'"
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v2
