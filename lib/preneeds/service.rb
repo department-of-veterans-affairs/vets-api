@@ -28,7 +28,7 @@ module Preneeds
       soap = savon_client.build_request(:get_cemeteries, message: {})
       json = with_monitoring { perform(:post, '', soap.body).body }
 
-      Common::Collection.new(Cemetery, json)
+      Common::Collection.new(Cemetery, **json)
     end
 
     # POST to submit a {Preneeds::BurialForm}

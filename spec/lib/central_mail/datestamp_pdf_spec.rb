@@ -15,7 +15,7 @@ RSpec.describe CentralMail::DatestampPdf do
     end
 
     let(:instance) do
-      described_class.new(@file_path, opt)
+      described_class.new(@file_path, **opt)
     end
 
     after do

@@ -97,7 +97,7 @@ RSpec.describe Form1010cg::Auditor do
           attachments_job_id: 'abc123'
         }
 
-        expect { subject.record_submission_success(expected_context) }
+        expect { subject.record_submission_success(**expected_context) }
           .to trigger_statsd_increment('api.form1010cg.submission.success')
       end
     end
@@ -174,7 +174,7 @@ RSpec.describe Form1010cg::Auditor do
         }
 
         expect(Rails.logger).to receive(:info).with(expected_message, logged_context)
-        subject.record_submission_success(provided_context)
+        subject.record_submission_success(**provided_context)
       end
     end
   end
@@ -202,7 +202,7 @@ RSpec.describe Form1010cg::Auditor do
       it 'api.form1010cg.submission.failure.client.data' do
         expected_context = { errors: %w[error1 error2], claim_guid: 'uuid-123' }
 
-        expect { subject.record_submission_failure_client_data(expected_context) }
+        expect { subject.record_submission_failure_client_data(**expected_context) }
           .to trigger_statsd_increment('api.form1010cg.submission.failure.client.data')
       end
     end
@@ -214,7 +214,7 @@ RSpec.describe Form1010cg::Auditor do
 
         expect(Rails.logger).to receive(:info).with(expected_message, expected_context)
 
-        subject.record_submission_failure_client_data(expected_context)
+        subject.record_submission_failure_client_data(**expected_context)
       end
     end
   end
@@ -232,7 +232,7 @@ RSpec.describe Form1010cg::Auditor do
       it 'api.form1010cg.submission.failure.client.data' do
         expected_context = { claim_guid: 'uuid-123' }
 
-        expect { subject.record_submission_failure_client_qualification(expected_context) }
+        expect { subject.record_submission_failure_client_qualification(**expected_context) }
           .to trigger_statsd_increment('api.form1010cg.submission.failure.client.qualification')
       end
     end
@@ -244,7 +244,7 @@ RSpec.describe Form1010cg::Auditor do
 
         expect(Rails.logger).to receive(:info).with(expected_message, expected_context)
 
-        subject.record_submission_failure_client_qualification(expected_context)
+        subject.record_submission_failure_client_qualification(**expected_context)
       end
     end
   end
@@ -276,7 +276,7 @@ RSpec.describe Form1010cg::Auditor do
         expected_context = { claim_guid: 'uuid-123', carma_case_id: 'CASE_123', attachments: :ATTACHMENTS_HASH }
 
         expect(Sidekiq.logger).to receive(:info).with(expected_message, expected_context)
-        subject.record_attachments_delivered(expected_context)
+        subject.record_attachments_delivered(**expected_context)
       end
     end
   end
@@ -338,7 +338,7 @@ RSpec.describe Form1010cg::Auditor do
           }
         ].each do |input:, expectation:|
           expect(Rails.logger).to receive(:info).with(expectation, claim_guid: input[:claim_guid])
-          subject.log_mpi_search_result(input)
+          subject.log_mpi_search_result(**input)
         end
       end
     end
@@ -364,7 +364,7 @@ RSpec.describe Form1010cg::Auditor do
           }
 
           expect(subject).to receive(:record_submission_success).with(context)
-          subject.record(:submission_success, context)
+          subject.record(:submission_success, **context)
         end
       end
 
@@ -373,7 +373,7 @@ RSpec.describe Form1010cg::Auditor do
           context = { claim_guid: 'uuid-123', errors: %w[error1 error2] }
 
           expect(subject).to receive(:record_submission_failure_client_data).with(context)
-          subject.record(:submission_failure_client_data, context)
+          subject.record(:submission_failure_client_data, **context)
         end
       end
 
@@ -382,7 +382,7 @@ RSpec.describe Form1010cg::Auditor do
           context = { claim_guid: 'uuid-123' }
 
           expect(subject).to receive(:record_submission_failure_client_qualification).with(context)
-          subject.record(:submission_failure_client_qualification, context)
+          subject.record(:submission_failure_client_qualification, **context)
         end
       end
 
@@ -402,7 +402,7 @@ RSpec.describe Form1010cg::Auditor do
           }
 
           expect(subject).to receive(:record_attachments_delivered).with(context)
-          subject.record(:attachments_delivered, context)
+          subject.record(:attachments_delivered, **context)
         end
       end
     end

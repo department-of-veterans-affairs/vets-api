@@ -265,7 +265,7 @@ describe Common::Collection do
 
   describe 'caching' do
     let(:api_call) { { data: klass_array, metadata: { nobel_winner: 'Bob Dylan' }, errors: {} } }
-    let(:loaded_data) { described_class.new(Author, api_call) }
+    let(:loaded_data) { described_class.new(Author, **api_call) }
 
     it 'can cache based on passed block' do
       expect(Common::Collection).to receive(:cache).once.and_call_original

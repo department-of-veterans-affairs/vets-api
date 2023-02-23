@@ -44,7 +44,7 @@ module FormDurations
     # @return [FormDurations::Worker] an instance of this class
     #
     def self.build(opts = {})
-      new(opts)
+      new(**opts)
     end
 
     def initialize(form_id: nil, days_till_expires: nil)

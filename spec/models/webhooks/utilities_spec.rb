@@ -65,7 +65,7 @@ describe Webhooks::Utilities, type: :model do
 
     Testing::EVENTS.each do |e|
       params = { consumer_id: consumer_id, consumer_name: consumer_name, event: e, api_guid: api_guid, msg: msg }
-      notifications = Webhooks::Utilities.record_notifications(params)
+      notifications = Webhooks::Utilities.record_notifications(**params)
       validate_common_columns(subscription, notifications)
       urls = notifications.map(&:callback_url)
 

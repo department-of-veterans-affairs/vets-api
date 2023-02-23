@@ -34,7 +34,7 @@ module EMIS
             response_type: "EMIS::Responses::#{operation.camelize}Response#{version.upcase}".constantize
           }
           parameters[:version] = version unless version.empty?
-          make_request(parameters)
+          make_request(**parameters)
         end
       end
     end
