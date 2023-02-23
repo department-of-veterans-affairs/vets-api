@@ -232,21 +232,6 @@ TestUserDashboard::DailyMaintenance:
   class: TestUserDashboard::DailyMaintenance
   description: "Checks in TUD users that weren't properly checked in."
 
-TestUserDashboard::MirrorAccountAvailabilityLogsInBigQuery:
-  cron: "0 */2 * * * America/New_York"
-  class: TestUserDashboard::MirrorAccountAvailabilityLogsInBigQuery
-  description: "Mirrors the test_user_dashboard_tud_account_availability_logs table in BigQuery."
-
-TestUserDashboard::MirrorAccountsInBigQuery:
-  cron: "0 * * * * America/New_York"
-  class: TestUserDashboard::MirrorAccountsInBigQuery
-  description: "Mirrors TUD accounts in BigQuery."
-
-TestUserDashboard::TrackAccountStatusesInBigQuery:
-  cron: "0 * * * * America/New_York"
-  class: TestUserDashboard::TrackAccountStatusesInBigQuery
-  description: "Posts the checked_out status of each TUD account to BigQuery."
-
 TransactionalEmailAnalyticsJob:
   cron: "0 1 * * * America/New_York"
   description: "posts Transactional email (HCA Failure and Direct Deposit Update) sends and failures to Google Analytics"
