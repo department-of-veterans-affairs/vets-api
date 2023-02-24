@@ -44,7 +44,6 @@ module BGS
     end
 
     def send_confirmation_email(user)
-      return unless Flipper.enabled?(:form674_confirmation_email)
       return if user.va_profile_email.blank?
 
       VANotify::ConfirmationEmail.send(

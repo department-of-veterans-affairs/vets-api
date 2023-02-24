@@ -13,8 +13,6 @@ module CentralMail
     end
 
     def send_confirmation_email(user_uuid)
-      return unless Flipper.enabled?(:career_counseling_confirmation_email)
-
       email = if user_uuid.present? && (found_email = User.find(user_uuid)&.va_profile_email)
                 found_email
               else

@@ -19,10 +19,6 @@ features:
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
-  career_counseling_confirmation_email:
-    actor_type: user
-    description: Enables Career Counseling claim email confirmation upon submission
-    enable_in_development: true
   hca_american_indian_enabled:
     actor_type: user
     description: Enables American Indian SIGI question page.
@@ -113,14 +109,6 @@ features:
   check_in_experience_updated_appt_presentation:
     actor_type: user
     description: Enables updated appointment details presentation.
-    enable_in_development: true
-  ch31_vbms_form_confirmation_email:
-    actor_type: user
-    description: Enables Ch31 form email submission confirmation after central mail
-    enable_in_development: true
-  ch31_central_mail_form_confirmation_email:
-    actor_type: user
-    description: Enables Ch31 form email submission confirmation after vbms
     enable_in_development: true
   claim_letters_access:
     actor_type: user
@@ -357,10 +345,6 @@ features:
   form5490_confirmation_email:
     actor_type: user
     description: Enables form 5490 email submission confirmation (VaNotify)
-    enable_in_development: true
-  form674_confirmation_email:
-    actor_type: user
-    description: Form 674 - Email submission confirmation
     enable_in_development: true
   fsr_confirmation_email:
     actor_type: user
