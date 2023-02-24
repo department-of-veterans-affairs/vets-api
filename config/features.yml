@@ -797,6 +797,14 @@ features:
     actor_type: user
     description: Enables the UI integration with the meb dgi
     enable_in_development: true
+  show_meb_dgi42_features:
+    actor_type: user
+    description: Enables UI updates for meb dgi 42
+    enable_in_development: true
+  show_meb_ch33_self_form:
+    actor_type: user
+    description: Enables the redirect of Ch33 form.
+    enable_in_development: true
   move_form_back_button:
     actor_type: user
     description: Test moving form back button to the top of the page
