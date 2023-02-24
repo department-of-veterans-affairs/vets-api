@@ -57,7 +57,7 @@ http_interactions:
       - max-age=63072000; includeSubDomains; preload
     body:
       encoding: UTF-8
-      string: '{"id":"139064","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/vista/983/appointment/id","value":"999;20221130.134500"}],"kind":"clinic","status":"booked","serviceType":"optometry","reasonCode":{"text":"Routine
+      string: '{"id":"139064","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/vista/983/appointment/id","value":"999;20221130.134500"}],"kind":"clinic","status":"booked","serviceType":"optometry","serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"REGULAR","display":"REGULAR"}],"text":"REGULAR"}],"reasonCode":{"text":"Routine
         Follow-up: testing"},"patientIcn":"1012846043V576341","locationId":"983","clinic":"999","start":"2022-11-30T20:45:00Z","end":"2022-11-30T21:00:00Z","minutesDuration":15,"slot":{"id":"3230323231313330323034353A323032323131333032313030","start":"2022-11-30T20:45:00Z","end":"2022-11-30T21:00:00Z"},"comment":"Routine
         Follow-up: testing","cancellable":true,"extension":{"ccLocation":{"address":{}}}}'
   recorded_at: Thu, 20 Oct 2022 22:21:59 GMT
