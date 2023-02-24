@@ -83,8 +83,6 @@ jobs:
               bundle exec parallel_test -n 8 -e 'bin/rails db:reset' \
               && bundle exec parallel_rspec spec/ modules/ -n 8 -o '--color --tty'"
 
-      - name: Run Specs
-
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v3
         if: always()
