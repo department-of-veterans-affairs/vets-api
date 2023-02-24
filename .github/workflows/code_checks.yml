@@ -8,7 +8,7 @@ jobs:
     name: Linting and Security
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-8-cores-latest
     steps:
       - uses: actions/checkout@v3
 
@@ -20,19 +20,10 @@ jobs:
         run:  bundle exec bundle-audit check --update  --ignore CVE-2022-46648
 
       - name: Run Rubocop
-        run: bundle exec rubocop --parallel --format progress --format json --out rubocop.json
+        run: bundle exec rubocop --parallel --format github
 
       - name: Run Brakeman
-        run:  bundle exec brakeman --ensure-latest --confidence-level=2 -o brakeman.json
-
-      - uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: Linting and Security Results
-          path: |
-            rubocop.json
-            brakeman.json
-          if-no-files-found: ignore
+        run:  bundle exec brakeman --ensure-latest --confidence-level=2 --format github
 
   tests:
     name: Test
@@ -109,32 +100,13 @@ jobs:
           if-no-files-found: ignore
 
   publish_results:
-    name: Publish Results
-    env:
-      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+    name: Publish Test Results and Coverage
     if: always()
-    needs: [linting_and_security, tests]
-    runs-on: ubuntu-20.04 # Doesn't run on self-hosted runners as there are SSL issues within the TIC
+    needs: [tests]
+    runs-on: ubuntu-8-cores-latest
 
     steps:
-      - uses: actions/checkout@v3
-
-      - uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-
       - uses: actions/download-artifact@v3
-
-      - uses: duderman/rubocop-annotate-action@v0.1.0
-        with:
-          path: Linting and Security Results/rubocop.json
-        if: hashFiles('Linting and Security Results/rubocop.json') != ''
-
-      - uses: devmasx/brakeman-linter-action@v1.0.0
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          REPORT_PATH: Linting and Security Results/brakeman.json
-        if: hashFiles('Linting and Security/brakeman.json') != ''
 
       - name: Publish Test Results to GitHub
         uses: EnricoMi/publish-unit-test-result-action@v2
