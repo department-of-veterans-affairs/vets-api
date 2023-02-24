@@ -10,6 +10,8 @@ describe VAOS::V2::AppointmentsService do
   let(:end_date) { Time.zone.parse('2022-07-03T04:00:00.000Z') }
   let(:start_date2) { Time.zone.parse('2022-01-01T19:25:00Z') }
   let(:end_date2) { Time.zone.parse('2022-12-01T19:45:00Z') }
+  let(:start_date3) { Time.zone.parse('2022-04-01T19:25:00Z') }
+  let(:end_date3) { Time.zone.parse('2023-03-01T19:45:00Z') }
   let(:id) { '202006031600983000030800000000000000' }
   let(:appointment_id) { 123 }
 
@@ -38,8 +40,11 @@ describe VAOS::V2::AppointmentsService do
       it 'returns the created appointment - va - booked' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M',
                          match_requests_on: %i[method path query]) do
+          allow(Rails.logger).to receive(:info).at_least(:once)
           response = subject.post_appointment(va_booked_request_body)
           expect(response[:id]).to be_a(String)
+          expect(Rails.logger).to have_received(:info).with('VAOS appointment service category',
+                                                            any_args).at_least(:once)
         end
       end
 
@@ -52,7 +57,6 @@ describe VAOS::V2::AppointmentsService do
       end
     end
 
-    # TODO: Verify CC request details
     context 'when cc appointment create request is valid' do
       it 'returns the created appointment - cc - proposed' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200_2222022',
@@ -104,6 +108,17 @@ describe VAOS::V2::AppointmentsService do
                                                                                tag: :force_utf8) do
           response = subject.get_appointments(start_date2, end_date2)
           expect(response[:data].size).to eq(395)
+        end
+      end
+
+      it 'logs the service categories of the returned appointments' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_and_log_service_category',
+                         match_requests_on: %i[method path query], tag: :force_utf8) do
+          allow(Rails.logger).to receive(:info).at_least(:once)
+          response = subject.get_appointments(start_date3, end_date3)
+          expect(response[:data].size).to eq(163)
+          expect(Rails.logger).to have_received(:info).with('VAOS appointment service category',
+                                                            any_args).at_least(:once)
         end
       end
     end
