@@ -1,3 +1,11 @@
+Capybara/NegationMatcher: # new in 2.14
+  Enabled: true
+Capybara/SpecificActions: # new in 2.14
+  Enabled: true
+Capybara/SpecificFinders: # new in 2.13
+  Enabled: true
+Capybara/SpecificMatcher: # new in 2.12
+  Enabled: true
 Gemspec/DeprecatedAttributeAssignment: # new in 1.30
   Enabled: true
 Gemspec/RequireMFA: # new in 1.23
@@ -269,14 +277,6 @@ RSpec/SortMetadata: # new in 2.14
 RSpec/SubjectDeclaration: # new in 2.5
   Enabled: true
 RSpec/VerifiedDoubleReference: # new in 2.10.0
-  Enabled: true
-RSpec/Capybara/NegationMatcher: # new in 2.14
-  Enabled: true
-RSpec/Capybara/SpecificActions: # new in 2.14
-  Enabled: true
-RSpec/Capybara/SpecificFinders: # new in 2.13
-  Enabled: true
-RSpec/Capybara/SpecificMatcher: # new in 2.12
   Enabled: true
 RSpec/FactoryBot/ConsistentParenthesesStyle: # new in 2.14
   Enabled: true
