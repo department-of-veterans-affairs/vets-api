@@ -171,10 +171,10 @@ module SM
     #
     # @return [Common::Collection]
     #
-    def get_folder_threads(folder_id, page_start, page_end, sort_field, sort_order)
+    def get_folder_threads(folder_id, page_size, page_number, sort_field, sort_order)
       path = "folder/threadlistview/#{folder_id}"
 
-      params = "/pageStart/#{page_start}/pageEnd/#{page_end}/sortField/#{sort_field}/sortOrder/#{sort_order}"
+      params = "?pageSize=#{page_size}&pageNumber=#{page_number}&sortField=#{sort_field}&sortOrder=#{sort_order}"
 
       json = perform(:get, path + params, nil, token_headers).body
 

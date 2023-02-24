@@ -134,15 +134,15 @@ paths:
           required: true
           schema:
             type: string
-        - description: Pagination start numbering
+        - description: The size of the pagination you want
           in: query
-          name: pageStart,
+          name: pageSize,
           required: true
           schema:
             type: string
-        - description: Pagination end numbering (max 100)
+        - description: The page number to get based on your page size
           in: query
-          name: pageEnd,
+          name: pageNumber,
           required: true
           schema:
             type: string
@@ -1200,11 +1200,11 @@ components:
         category:
           type: string
           enum:
-            - OTHER
+            - OTHERS
             - COVID
             - APPOINTMENTS
             - MEDICATIONS
-            - TEST_RESULTS
+            - TEST_RESULT
             - EDUCATION
           example: MEDICATIONS
         subject:

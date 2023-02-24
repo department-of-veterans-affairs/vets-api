@@ -43,7 +43,10 @@ RSpec.describe 'Threads Integration', type: :request do
     let(:mhv_account_type) { 'Premium' }
 
     context 'not a va patient' do
-      before { get "/my_health/v1/messaging/folders/#{inbox_id}/threads" }
+      before do
+        get "/my_health/v1/messaging/folders/#{inbox_id}/threads",
+            params: { page_size: '5', page_number: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC' }
+      end
 
       let(:va_patient) { false }
       let(:current_user) do
@@ -58,7 +61,7 @@ RSpec.describe 'Threads Integration', type: :request do
         it 'responds to GET #index' do
           VCR.use_cassette('sm_client/threads/gets_threads_in_a_folder') do
             get "/my_health/v1/messaging/folders/#{inbox_id}/threads",
-                params: { page_start: '1', page_end: '5', sort_field: 'SENDER_NAME', sort_order: 'ASC' }
+                params: { page_size: '5', page_number: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC' }
           end
 
           expect(response).to be_successful
@@ -69,7 +72,7 @@ RSpec.describe 'Threads Integration', type: :request do
         it 'responds to GET #index when camel-inflected' do
           VCR.use_cassette('sm_client/threads/gets_threads_in_a_folder_camel') do
             get "/my_health/v1/messaging/folders/#{inbox_id}/threads",
-                params: { page_start: '1', page_end: '5', sort_field: 'SENDER_NAME', sort_order: 'ASC' },
+                params: { page_size: '5', page_number: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC' },
                 headers: { 'X-Key-Inflection' => 'camel' }
           end
 

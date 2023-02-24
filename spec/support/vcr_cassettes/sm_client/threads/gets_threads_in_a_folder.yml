@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-sm-api/patient/v1/folder/threadlistview/0/pageStart/1/pageEnd/5/sortField/SENDER_NAME/sortOrder/ASC"
+    uri: "<MHV_HOST>/mhv-sm-api/patient/v1/folder/threadlistview/0?pageNumber=1&pageSize=5&sortField=SENDER_NAME&sortOrder=ASC"
     body:
       encoding: US-ASCII
       string: ''
@@ -22,13 +22,13 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 14 Feb 2023 20:01:34 GMT
+      - Fri, 24 Feb 2023 17:13:11 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '634'
+      - '872'
       X-Amzn-Requestid:
-      - 38c684ff-57e6-4beb-9987-f366f1c26f3c
+      - 99a70b0b-6b64-4c19-bfbc-22f47a387d1b
       X-Xss-Protection:
       - 1; mode=block
       Strict-Transport-Security:
@@ -38,7 +38,7 @@ http_interactions:
       X-Amzn-Remapped-Connection:
       - close
       X-Amz-Apigw-Id:
-      - AWFI0FWTPHMFQrA=
+      - A2p2KEKiPHMFntQ=
       Cache-Control:
       - no-cache, no-store, max-age=0, must-revalidate
       X-Content-Type-Options:
@@ -46,22 +46,34 @@ http_interactions:
       Expires:
       - '0'
       X-Amzn-Trace-Id:
-      - Root=1-63ebe89e-2c461b0e3b9718fe4033222e;Sampled=0
+      - Root=1-63f8f027-459a6d4102917ab27a98d429;Sampled=0
       Pragma:
       - no-cache
       X-Amzn-Remapped-Date:
-      - Tue, 14 Feb 2023 20:01:34 GMT
+      - Fri, 24 Feb 2023 17:13:11 GMT
     body:
       encoding: ASCII-8BIT
-      string: '[{"threadId":7065799,"folderId":0,"messageId":7066101,"threadPageSize":454,"messageCount":3,"category":"APPOINTMENTS","subject":"test","triageGroupName":"TIU
-        Call Back Test T&G 001*****Mohammad_SLC4","sentDate":"2021-11-18T15:29:49.000+00:00","draftDate":null,"senderId":6897060,"senderName":"AARDAL,
-        JONATHAN  M","recipientName":"ECSTEN, THOMAS ","recipientId":6820911,"proxySenderName":null,"hasAttachment":false,"unsentDrafts":false,"unreadMessages":true},{"threadId":7065496,"folderId":0,"messageId":7066097,"threadPageSize":454,"messageCount":3,"category":"APPOINTMENTS","subject":"Appointment","triageGroupName":"David_PatientPreferencesTest1","sentDate":"2021-11-18T14:54:16.000+00:00","draftDate":null,"senderId":6865806,"senderName":"GARY,
-        KENNETH  E","recipientName":"ECSTEN, THOMAS ","recipientId":6820911,"proxySenderName":null,"hasAttachment":false,"unsentDrafts":false,"unreadMessages":true},{"threadId":7065567,"folderId":0,"messageId":7066088,"threadPageSize":454,"messageCount":3,"category":"OTHERS","subject":"General","triageGroupName":"adfasfasfasdsd","sentDate":"2021-11-18T14:46:49.000+00:00","draftDate":null,"senderId":6865806,"senderName":"GARY,
-        KENNETH  E","recipientName":"ECSTEN, THOMAS ","recipientId":6820911,"proxySenderName":null,"hasAttachment":false,"unsentDrafts":false,"unreadMessages":true},{"threadId":7268557,"folderId":0,"messageId":7297917,"threadPageSize":454,"messageCount":2,"category":"APPOINTMENTS","subject":"foo","triageGroupName":"***Mohammad_Fort
+      string: '[{"threadId":7298505,"folderId":0,"messageId":7298506,"threadPageSize":454,"messageCount":1,"category":"EDUCATION","subject":"Education
+        Inquiry","triageGroupName":"WORKLOAD CAPTURE_SLC 4_Mohammad","sentDate":"2023-02-15T17:01:55.000+00:00","draftDate":null,"senderId":20029,"senderName":"ISLAM,
+        MOHAMMAD  RAFIQ","recipientName":"ECSTEN, THOMAS ","recipientId":6820911,"proxySenderName":null,"hasAttachment":false,"unsentDrafts":false,"unreadMessages":false},{"threadId":7268557,"folderId":0,"messageId":7297917,"threadPageSize":454,"messageCount":2,"category":"APPOINTMENTS","subject":"foo","triageGroupName":"***Mohammad_Fort
         Belovoir TG 100_SLC4%","sentDate":"2023-02-13T16:56:58.000+00:00","draftDate":null,"senderId":20029,"senderName":"ISLAM,
         MOHAMMAD  RAFIQ","recipientName":"ECSTEN, THOMAS ","recipientId":6820911,"proxySenderName":null,"hasAttachment":false,"unsentDrafts":false,"unreadMessages":true},{"threadId":7292354,"folderId":0,"messageId":7292355,"threadPageSize":454,"messageCount":1,"category":"OTHERS","subject":"DG
         MESSAGE || NO ATTACHMENT","triageGroupName":"****ABCUS***HIBERNET***TG ||
         SLC4","sentDate":"2023-02-02T16:55:48.000+00:00","draftDate":null,"senderId":20029,"senderName":"ISLAM,
-        MOHAMMAD  RAFIQ","recipientName":"BNP!!! TEST DG_SLC4","recipientId":7218891,"proxySenderName":null,"hasAttachment":false,"unsentDrafts":false,"unreadMessages":false}]'
-  recorded_at: Tue, 14 Feb 2023 20:01:34 GMT
+        MOHAMMAD  RAFIQ","recipientName":"BNP!!! TEST DG_SLC4","recipientId":7218891,"proxySenderName":null,"hasAttachment":false,"unsentDrafts":false,"unreadMessages":false},{"threadId":7232798,"folderId":0,"messageId":7232799,"threadPageSize":454,"messageCount":1,"category":"OTHERS","subject":"DG
+        MESSAGE","triageGroupName":"***Mohammad_Fort Belovoir TG 200_APPT_SLC4%","sentDate":"2022-12-06T21:21:31.000+00:00","draftDate":null,"senderId":20029,"senderName":"ISLAM,
+        MOHAMMAD  RAFIQ","recipientName":"BNP!!! TEST DG_SLC4","recipientId":7218891,"proxySenderName":null,"hasAttachment":true,"unsentDrafts":false,"unreadMessages":false},{"threadId":7231443,"folderId":0,"messageId":7231444,"threadPageSize":454,"messageCount":1,"category":"OTHERS","subject":"DG
+        MESSAGE 009","triageGroupName":"***Mohammad_Fort Belovoir TG 100_SLC4%","sentDate":"2022-12-02T21:45:18.000+00:00","draftDate":null,"senderId":20029,"senderName":"ISLAM,
+        MOHAMMAD  RAFIQ","recipientName":"BNP!!! TEST DG_SLC4","recipientId":7218891,"proxySenderName":null,"hasAttachment":true,"unsentDrafts":false,"unreadMessages":false},{"threadId":7231389,"folderId":0,"messageId":7231390,"threadPageSize":454,"messageCount":1,"category":"OTHERS","subject":"DXP:
+        DG MESSAGE","triageGroupName":"EXTRA_LONG_TRIAGE GROUP_NAME_0045678_FACILITY_SLC4","sentDate":"2022-12-02T18:44:40.000+00:00","draftDate":null,"senderId":20029,"senderName":"ISLAM,
+        MOHAMMAD  RAFIQ","recipientName":"BNP!!! TEST DG_SLC4","recipientId":7218891,"proxySenderName":null,"hasAttachment":true,"unsentDrafts":false,"unreadMessages":false},{"threadId":7230620,"folderId":0,"messageId":7230621,"threadPageSize":454,"messageCount":1,"category":"TEST_RESULT","subject":"Test
+        Inquiry","triageGroupName":"TIU Call Back Test T&G 001*****Mohammad_SLC4","sentDate":"2022-11-22T21:34:38.000+00:00","draftDate":null,"senderId":20029,"senderName":"ISLAM,
+        MOHAMMAD  RAFIQ","recipientName":"BNP!!! TEST DG_SLC4","recipientId":7218891,"proxySenderName":null,"hasAttachment":true,"unsentDrafts":false,"unreadMessages":false},{"threadId":7073605,"folderId":0,"messageId":7227114,"threadPageSize":454,"messageCount":4,"category":"MEDICATIONS","subject":"Medication
+        Inquiry","triageGroupName":"***Jeasmitha-Cardio-Clinic***","sentDate":"2022-11-16T21:43:53.000+00:00","draftDate":null,"senderId":6874030,"senderName":"JONNALAGADDA,
+        GEETHA ","recipientName":"ECSTEN, THOMAS ","recipientId":6820911,"proxySenderName":null,"hasAttachment":false,"unsentDrafts":false,"unreadMessages":false},{"threadId":7217443,"folderId":0,"messageId":7227081,"threadPageSize":454,"messageCount":2,"category":"OTHERS","subject":"THOMAS
+        1","triageGroupName":"***Mohammad_Fort Belovoir TG 200_APPT_SLC4%","sentDate":"2022-11-16T21:05:46.000+00:00","draftDate":null,"senderId":20029,"senderName":"ISLAM,
+        MOHAMMAD  RAFIQ","recipientName":"ECSTEN, THOMAS ","recipientId":6820911,"proxySenderName":null,"hasAttachment":true,"unsentDrafts":false,"unreadMessages":false},{"threadId":7218923,"folderId":0,"messageId":7218924,"threadPageSize":454,"messageCount":1,"category":"OTHERS","subject":"DG
+        MESSAGE &quot;BNP&quot;","triageGroupName":"***Mohammad_Fort Belovoir TG 100_SLC4%","sentDate":"2022-11-04T14:23:26.000+00:00","draftDate":null,"senderId":20029,"senderName":"ISLAM,
+        MOHAMMAD  RAFIQ","recipientName":"BNP!!! TEST DG_SLC4","recipientId":7218891,"proxySenderName":null,"hasAttachment":true,"unsentDrafts":false,"unreadMessages":false}]'
+  recorded_at: Fri, 24 Feb 2023 17:13:11 GMT
 recorded_with: VCR 6.1.0
