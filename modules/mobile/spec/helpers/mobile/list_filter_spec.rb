@@ -83,11 +83,39 @@ describe Mobile::ListFilter, aggregate_failures: true do
       expect(error).to be_nil
     end
 
+    it 'returns the list when filters are nil' do
+      result, error = Mobile::ListFilter.matches(list, nil)
+      expect(result).to eq(list)
+      expect(error).to be_nil
+    end
+
     it 'returns the list when empty filters are provided' do
       params = paramiterize({})
 
       results, error = Mobile::ListFilter.matches(list, params)
       expect(results).to eq(list)
+      expect(error).to be_nil
+    end
+
+    it 'filters an array of Common::Resource objects' do
+      filters = { species: { eq: 'cat' } }
+      params = paramiterize(filters)
+
+      results, error = Mobile::ListFilter.matches(list, params)
+      expect(results).to eq([cat])
+      expect(error).to be_nil
+    end
+
+    it 'filters an array of Common::Base objects' do
+      filters = { species: { eq: 'dog' } }
+      params = paramiterize(filters)
+      base_pup = PetBase.new(species: 'dog', age: 1, fully_vaccinated: false)
+      base_dog = PetBase.new(species: 'dog', age: 5, fully_vaccinated: true)
+      base_cat = PetBase.new(species: 'cat', age: 12, fully_vaccinated: nil)
+      base_list = [base_pup, base_dog, base_cat]
+
+      results, error = Mobile::ListFilter.matches(base_list, params)
+      expect(results).to eq([base_pup, base_dog])
       expect(error).to be_nil
     end
 
@@ -98,28 +126,6 @@ describe Mobile::ListFilter, aggregate_failures: true do
 
       after do
         Settings.sentry.dsn = nil
-      end
-
-      it 'works with an array of Common::Resource objects' do
-        filters = { species: { eq: 'dog' } }
-        params = paramiterize(filters)
-
-        results, error = Mobile::ListFilter.matches(list, params)
-        expect(results).to eq([dog, puppy])
-        expect(error).to be_nil
-      end
-
-      it 'works with an array of Common::Base objects' do
-        filters = { species: { eq: 'dog' } }
-        params = paramiterize(filters)
-        base_pup = PetBase.new(species: 'dog', age: 1, fully_vaccinated: false)
-        base_dog = PetBase.new(species: 'dog', age: 5, fully_vaccinated: true)
-        base_cat = PetBase.new(species: 'cat', age: 12, fully_vaccinated: nil)
-        base_list = [base_pup, base_dog, base_cat]
-
-        results, error = Mobile::ListFilter.matches(base_list, params)
-        expect(results).to eq([base_pup, base_dog])
-        expect(error).to be_nil
       end
 
       it 'logs an error and returns original list when list is not an array' do

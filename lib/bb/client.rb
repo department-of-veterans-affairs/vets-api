@@ -31,7 +31,7 @@ module BB
     def get_extract_status
       json = perform(:get, 'bluebutton/extractstatus', nil, token_headers).body
       log_refresh_errors(json[:data]) if refresh_final?(json[:data])
-      Common::Collection.new(ExtractStatus, json)
+      Common::Collection.new(ExtractStatus, **json)
     end
 
     ##

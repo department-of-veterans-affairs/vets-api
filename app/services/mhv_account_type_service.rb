@@ -64,7 +64,7 @@ class MHVAccountTypeService
   def fetch_eligible_data_classes
     if cached_eligible_data_class
       json = Oj.load(cached_eligible_data_class)
-      Common::Collection.new(::EligibleDataClass, json.symbolize_keys).members.map(&:name)
+      Common::Collection.new(::EligibleDataClass, **json.symbolize_keys).members.map(&:name)
     else
       bb_client = BB::Client.new(session: { user_id: @user.mhv_correlation_id })
       bb_client.authenticate

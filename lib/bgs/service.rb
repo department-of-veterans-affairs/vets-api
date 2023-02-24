@@ -131,7 +131,7 @@ module BGS
 
       increment_params.merge!(user_ssn) if Settings.bgs.mock_response == true
       with_multiple_attempts_enabled do
-        service.share_data.find_benefit_claim_type_increment(increment_params)
+        service.share_data.find_benefit_claim_type_increment(**increment_params)
       end
     end
 

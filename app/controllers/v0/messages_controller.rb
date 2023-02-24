@@ -10,7 +10,7 @@ module V0
 
       resource = params[:filter].present? ? resource.find_by(filter_params) : resource
       resource = resource.sort(params[:sort])
-      resource = resource.paginate(pagination_params)
+      resource = resource.paginate(**pagination_params)
 
       render json: resource.data,
              serializer: CollectionSerializer,

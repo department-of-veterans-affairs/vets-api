@@ -450,7 +450,7 @@
                           "id": {
                             "type": "string",
                             "nullable": true,
-                            "description": "Claim ID in VBMS",
+                            "description": "Claim ID in VBMS. If a claim was submitted with Lighthouse and not successfully established upstream, it could have a null claimId.",
                             "example": "600131328"
                           },
                           "type": {
@@ -822,7 +822,7 @@
                         "id": {
                           "type": "string",
                           "nullable": true,
-                          "description": "Claim ID in VBMS",
+                          "description": "Claim ID in VBMS. If a claim was submitted with Lighthouse and not successfully established upstream, it could have a null claimId.",
                           "example": "600131328"
                         },
                         "type": {

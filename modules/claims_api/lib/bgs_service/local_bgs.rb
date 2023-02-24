@@ -80,7 +80,7 @@ module ClaimsApi
       response = connection.post("#{Settings.bgs.url}/#{endpoint}", full_body(action: action, body: body),
                                  {
                                    'Content-Type' => 'text/xml;charset=UTF-8',
-                                   'Host' => 'linktest.vba.va.gov', # TODO: is this needed (in prod)?
+                                   'Host' => "#{@env}.vba.va.gov",
                                    'Soapaction' => "\"#{action}\""
                                  })
 

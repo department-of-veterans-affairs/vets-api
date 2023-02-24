@@ -247,12 +247,6 @@ features:
   decision_review_monthly_stats_report_enabled:
     actor_type: user
     description: Enables the monthly decision review stats report email
-  decision_review_ci_icn_support:
-    actor_type: user
-    description: Enables the X-VA-ICN header for Contestable Issues endpoints
-  decision_review_la_icn_support:
-    actor_type: user
-    description: Enables the X-VA-ICN header for the Legacy Appeals endpoint
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -809,9 +803,6 @@ features:
   mobile_lighthouse_letters:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our letters endpoints upstream service
-  myva_cerner_from_drupal:
-    actor_type: user
-    description: Enables cerner updates from drupal
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry

@@ -433,12 +433,12 @@ RSpec.describe 'IntentToFiles', type: :request do
             end
 
             context 'when no optional parameters are provided' do
-              it 'returns a 403' do
+              it 'returns a 422' do
                 with_okta_user(scopes) do |auth_header|
                   survivor_data = data
                   survivor_data[:type] = 'survivor'
                   post itf_submit_path, params: survivor_data, headers: auth_header
-                  expect(response.status).to eq(403)
+                  expect(response.status).to eq(422)
                 end
               end
             end

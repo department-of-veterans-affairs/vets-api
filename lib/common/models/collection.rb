@@ -59,15 +59,15 @@ module Common
       if cache_key
         json_string = redis_namespace.get(cache_key)
         if json_string.nil?
-          collection = new(klass, yield.merge(cache_key: cache_key))
+          collection = new(klass, **yield.merge(cache_key: cache_key))
           cache(collection.serialize, cache_key, ttl)
           collection
         else
           json_hash = Oj.load(json_string)
-          new(klass, json_hash.merge('cache_key' => cache_key).symbolize_keys)
+          new(klass, **json_hash.merge('cache_key' => cache_key).symbolize_keys)
         end
       else
-        new(klass, yield)
+        new(klass, **yield)
       end
     end
 

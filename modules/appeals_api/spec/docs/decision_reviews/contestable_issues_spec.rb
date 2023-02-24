@@ -46,6 +46,7 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
       parameter AppealsApi::SwaggerSharedComponents.header_params[:va_receipt_date]
       let(:'X-VA-Receipt-Date') { '1981-01-01' }
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header]
 
       response '200', 'JSON:API response returning all contestable issues for a specific veteran.' do
         schema '$ref' => '#/components/schemas/contestableIssues'

@@ -84,7 +84,7 @@ module SM
       cache_key = "#{user_uuid}-folders"
       get_cached_or_fetch_data(use_cache, cache_key, Folder) do
         json = perform(:get, 'folder', nil, token_headers).body
-        data = Common::Collection.new(Folder, json)
+        data = Common::Collection.new(Folder, **json)
         Folder.set_cached(cache_key, data)
         data
       end
@@ -154,7 +154,7 @@ module SM
 
           page += 1
         end
-        messages = Common::Collection.new(Message, json)
+        messages = Common::Collection.new(Message, **json)
         Message.set_cached(cache_key, messages)
         messages
       end
@@ -277,7 +277,7 @@ module SM
     def get_message_history(id)
       path = "message/#{id}/history"
       json = perform(:get, path, nil, token_headers).body
-      Common::Collection.new(Message, json)
+      Common::Collection.new(Message, **json)
     end
 
     ##
@@ -418,7 +418,7 @@ module SM
       cache_key = "#{user_uuid}-triage-teams"
       get_cached_or_fetch_data(use_cache, cache_key, TriageTeam) do
         json = perform(:get, 'triageteam', nil, token_headers).body
-        data = Common::Collection.new(TriageTeam, json)
+        data = Common::Collection.new(TriageTeam, **json)
         TriageTeam.set_cached(cache_key, data)
         data
       end

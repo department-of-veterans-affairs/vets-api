@@ -66,27 +66,12 @@ RSpec.shared_examples 'contestable issues index requests' do |options|
       end
     end
 
-    context 'when X-VA-ICN has an invalid format and ICN feature flag is enabled' do
-      before { Flipper.enable(:decision_review_ci_icn_support) }
-
+    context 'when X-VA-ICN has an invalid format' do
       it 'returns a 422' do
         get_issues(icn: '3939s31', options: options)
         expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
         expect(json['errors']).to be_an Array
-      end
-    end
-
-    context 'when X-VA-ICN has an invalid format and ICN feature flag is disabled' do
-      before { Flipper.disable(:decision_review_ci_icn_support) }
-
-      it 'GETs contestable_issues from Caseflow successfully' do
-        VCR.use_cassette("caseflow/#{options[:decision_review_type]}/contestable_issues-by-file-number") do
-          get_issues(file_number: '123456789', ssn: nil, options: options)
-          expect(response).to have_http_status(:ok)
-          json = JSON.parse(response.body)
-          expect(json['data']).not_to be nil
-        end
       end
     end
 

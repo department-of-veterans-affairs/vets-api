@@ -11,7 +11,7 @@ module V0
     def index
       resource = client.get_tracking_history_rx(params[:prescription_id])
       resource = resource.sort(params[:sort])
-      resource = resource.paginate(pagination_params)
+      resource = resource.paginate(**pagination_params)
       render json: resource.data,
              serializer: CollectionSerializer,
              each_serializer: TrackingSerializer,

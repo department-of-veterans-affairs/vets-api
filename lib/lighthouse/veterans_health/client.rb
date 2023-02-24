@@ -44,7 +44,7 @@ module Lighthouse
           _count: 100
         }
 
-        first_response = perform_get('services/fhir/v0/r4/Condition', params)
+        first_response = perform_get('services/fhir/v0/r4/Condition', **params)
         get_list(first_response)
       end
 
@@ -54,7 +54,7 @@ module Lighthouse
           _count: 100
         }.merge(params_override)
 
-        first_response = perform_get('services/fhir/v0/r4/Observation', params)
+        first_response = perform_get('services/fhir/v0/r4/Observation', **params)
         get_list(first_response)
       end
 
@@ -63,7 +63,7 @@ module Lighthouse
           patient: @icn,
           _count: 100
         }
-        first_response = perform_get('services/fhir/v0/r4/MedicationRequest', params)
+        first_response = perform_get('services/fhir/v0/r4/MedicationRequest', **params)
         get_list(first_response)
       end
 

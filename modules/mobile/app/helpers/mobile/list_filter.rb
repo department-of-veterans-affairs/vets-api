@@ -27,6 +27,8 @@ module Mobile
     end
 
     def result
+      return [@list, nil] if @filter_params.nil?
+
       validate!
       [matches, nil]
     rescue => e

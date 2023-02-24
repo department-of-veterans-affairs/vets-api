@@ -31,9 +31,9 @@ module Mobile
       (@now.beginning_of_year - 1.year).to_datetime
     end
 
-    # when requesting future appointments, the mobile client requests (DateTime.local + 1.year).end_of_day
+    # when requesting future appointments, the mobile client requests (DateTime.local + 390.days).end_of_day
     def earliest_allowable_cache_end_date
-      (@now.end_of_day + 1.year).to_datetime
+      (@now.end_of_day + 390.days).to_datetime
     end
 
     private
@@ -48,7 +48,7 @@ module Mobile
 
     # must break the cache if user is requesting dates beyond default range to ensure the integrity of the cache.
     # at this time, it's not possible for the user to fetch beyond this range because the interface doesn't allow it,
-    # so the cache will effectively always be from beginning of last year until one year from today
+    # so the cache will effectively always be from beginning of last year until 390 days from today
     def fetch_cache?(start_date, end_date, fetch_cache)
       fetch_cache && dates_within_cache_range?(start_date, end_date)
     end

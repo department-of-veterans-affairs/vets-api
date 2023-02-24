@@ -170,6 +170,6 @@ class Form1095B < ApplicationRecord
   def proper_form_data_schema
     JSON::Validator.validate!(form_data_schema, form_data)
   rescue JSON::Schema::ValidationError => e
-    errors.add(:form_data, e)
+    errors.add(:form_data, **e)
   end
 end
