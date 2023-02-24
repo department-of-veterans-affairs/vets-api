@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'va_profile/models/gender_identity'
 
 describe VAProfile::Models::GenderIdentity do
-  let(:model) { VAProfile::Models::GenderIdentity.new(code: 'F', name: 'Female') }
+  let(:model) { VAProfile::Models::GenderIdentity.new(code: 'F', name: 'Woman') }
 
   context 'is valid' do
     it 'when code is valid' do
@@ -15,7 +15,7 @@ describe VAProfile::Models::GenderIdentity do
     it 'name is set from code' do
       model.code = 'M'
       model.valid?
-      expect(model.name).to eq('Male')
+      expect(model.name).to eq('Man')
     end
   end
 
