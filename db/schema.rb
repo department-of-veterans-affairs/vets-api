@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_02_14_001703) do
+ActiveRecord::Schema.define(version: 2023_02_22_214919) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -320,6 +320,19 @@ ActiveRecord::Schema.define(version: 2023_02_14_001703) do
     t.text "file_data_ciphertext"
     t.text "encrypted_kms_key"
     t.date "verified_decryptable_at"
+  end
+
+  create_table "client_configs", force: :cascade do |t|
+    t.string "client_id", null: false
+    t.string "authentication", null: false
+    t.boolean "anti_csrf", null: false
+    t.text "redirect_uri", null: false
+    t.interval "access_token_duration", null: false
+    t.string "access_token_audience", null: false
+    t.interval "refresh_token_duration", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
   end
 
   create_table "covid_vaccine_expanded_registration_submissions", id: :serial, force: :cascade do |t|
