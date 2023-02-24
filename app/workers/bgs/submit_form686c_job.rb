@@ -42,23 +42,12 @@ module BGS
     def send_confirmation_email(user)
       return if user.va_profile_email.blank?
 
-      if Flipper.enabled?(:form674_confirmation_email)
-        VANotify::ConfirmationEmail.send(
-          email_address: user.va_profile_email,
-          template_id: Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email,
-          first_name: user&.first_name&.upcase,
-          user_uuid_and_form_id: "#{user.uuid}_#{FORM_ID}"
-        )
-      else
-        VANotify::EmailJob.perform_async(
-          user.va_profile_email,
-          Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email,
-          {
-            'first_name' => user&.first_name&.upcase,
-            'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y')
-          }
-        )
-      end
+      VANotify::ConfirmationEmail.send(
+        email_address: user.va_profile_email,
+        template_id: Settings.vanotify.services.va_gov.template_id.form686c_confirmation_email,
+        first_name: user&.first_name&.upcase,
+        user_uuid_and_form_id: "#{user.uuid}_#{FORM_ID}"
+      )
     end
   end
 end

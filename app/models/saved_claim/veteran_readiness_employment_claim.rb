@@ -174,7 +174,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_vbms_confirmation_email(user)
-    return unless Flipper.enabled?(:ch31_vbms_form_confirmation_email)
     return if user.va_profile_email.blank?
 
     VANotify::EmailJob.perform_async(
@@ -188,7 +187,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_central_mail_confirmation_email(user)
-    return unless Flipper.enabled?(:ch31_central_mail_form_confirmation_email)
     return if user.va_profile_email.blank?
 
     VANotify::EmailJob.perform_async(
