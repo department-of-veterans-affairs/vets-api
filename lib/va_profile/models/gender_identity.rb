@@ -11,13 +11,13 @@ module VAProfile
 
       CODES = %w[M F TM TF B N O].freeze
       OPTIONS = {
-        'M' => 'Male',
-        'F' => 'Female',
+        'M' => 'Man',
+        'F' => 'Woman',
         'TM' => 'Transgender Man',
-        'TF' => 'Transgender Female',
+        'TF' => 'Transgender Woman',
         'B' => 'Non-Binary',
-        'N' => 'Does not wish to disclose',
-        'O' => 'Other'
+        'N' => 'Prefer not to answer',
+        'O' => 'A gender not listed here'
       }.freeze
 
       attribute :code, String

@@ -19,10 +19,10 @@ properties:
           options:
             type: object
             example:
-              m: "Male"
-              f: "Female"
+              m: "Man"
+              f: "Woman"
               tm: "Transgender Man"
-              tf: "Transgender Female"
+              tf: "Transgender Woman"
               b: "Non-Binary"
-              n: "Does not wish to disclose"
-              o: "Other"
+              n: "Prefer not to answer"
+              o: "A gender not listed here"
