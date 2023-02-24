@@ -6,8 +6,8 @@ module MyHealth
       def index
         resource = client.get_folder_threads(
           params[:folder_id].to_s,
-          params[:page_start],
-          params[:page_end],
+          params[:page_size],
+          params[:page_number],
           params[:sort_field],
           params[:sort_order]
         )

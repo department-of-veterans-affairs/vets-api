@@ -36,7 +36,7 @@ properties:
     example: 123
   category:
     type: string
-    enum: [OTHER, COVID, APPOINTMENTS, MEDICATIONS, TEST_RESULTS, EDUCATION]
+    enum: [OTHERS, COVID, APPOINTMENTS, MEDICATIONS, TEST_RESULT, EDUCATION]
     example: MEDICATIONS
   subject:
     type: string
