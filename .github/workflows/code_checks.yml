@@ -70,12 +70,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Install gems
-        run: |
-             docker-compose -f docker-compose.test.yml -f docker-compose.gha.yml \
-             run vets-api bash \
-             -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true rails --version"
-
       - name: Setup Database and Run Specs
         run: |
           docker-compose run web bash \
