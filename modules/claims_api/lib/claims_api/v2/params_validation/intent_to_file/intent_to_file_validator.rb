@@ -7,7 +7,6 @@ module ClaimsApi
         class IntentToFileValidator < ActiveModel::Validator
           def validate(record)
             validate_type(record)
-            validate_participant_claimant_id(record)
           end
 
           private
@@ -19,14 +18,6 @@ module ClaimsApi
             unless ClaimsApi::V2::IntentToFile::ITF_TYPES_TO_BGS_TYPES.keys.include?(value.downcase)
               record.errors.add :type, value
             end
-          end
-
-          # 'participant_claimant_id' isn't required, but if it's defined, then it needs a non-blank value
-          def validate_participant_claimant_id(record)
-            return unless record.data.key?(:participantClaimantId)
-
-            value = record.data[:participantClaimantId]
-            (record.errors.add :participantClaimantId, 'blank') && return if value.blank?
           end
         end
       end

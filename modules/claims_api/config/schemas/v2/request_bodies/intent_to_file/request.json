@@ -7,13 +7,8 @@
     "type": {
       "type": "string",
       "example": "compensation",
-      "description": "Type of Intent To File being submitted. For type \"survivor\", the request must include claimantSsn or participantClaimantId and be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
+      "description": "Type of Intent To File being submitted. For type \"survivor\", the request must include claimantSsn and be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
       "enum": ["compensation", "pension", "survivor"]
-    },
-    "participantClaimantId": {
-      "type": "string",
-      "example": "123456789",
-      "description": "Participant ID of the Claimant."
     },
     "claimantSsn": {
       "type": "string",
