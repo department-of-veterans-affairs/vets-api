@@ -17,7 +17,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs,
         { bearer_token: [] }
       ]
       produces 'application/json'
-      description "Returns Veteran's last active Intent to File submission for given 'type'."
+      description "Returns Veteran's last active Intent to File submission for given benefit type."
 
       parameter name: 'veteranId',
                 in: :path,
@@ -29,7 +29,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs,
                 in: :path,
                 required: true,
                 type: :string,
-                description: 'Type of Intent to File to return. Available values - compensation, pension, burial'
+                description: 'Type of Intent to File to return. Available values - compensation, pension, survivor.'
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:type) { 'compensation' }
       let(:Authorization) { 'Bearer token' }
@@ -181,7 +181,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs,
       ]
       consumes 'application/json'
       produces 'application/json'
-      description 'Establishes an intent to file for disability compensation and pension claims.'
+      description 'Establishes an Intent to File for disability compensation, pension, and survivor claims.'
 
       parameter name: 'veteranId',
                 in: :path,
@@ -384,7 +384,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs,
       ]
       consumes 'application/json'
       produces 'application/json'
-      description 'Validates an intent to file for disability compensation and pension claims.'
+      description 'Validates an Intent to File for disability compensation, pension, and survivor claims.'
 
       parameter name: 'veteranId',
                 in: :path,
