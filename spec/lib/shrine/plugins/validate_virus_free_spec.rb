@@ -45,7 +45,7 @@ describe Shrine::Plugins::ValidateVirusFree do
         it 'adds an error if clam scan returns not safe' do
           result = instance.validate_virus_free
           expect(result).to be(false)
-          expect(instance.errors).to eq(['Virus Found'])
+          expect(instance.errors).to include(match(/Virus Found/))
         end
       end
 

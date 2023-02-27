@@ -13,7 +13,7 @@ class Shrine
             temp_file_path = Common::FileHelpers.generate_temp_file(file_to_scan)
             result = Common::VirusScan.scan(temp_file_path)
             File.delete(temp_file_path)
-            result || add_error_msg(message || 'Virus Found')
+            result || add_error_msg(message || "Virus Found + #{temp_file_path}")
           end
         end
 
