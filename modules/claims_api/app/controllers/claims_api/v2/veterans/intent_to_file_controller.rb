@@ -76,15 +76,11 @@ module ClaimsApi
         # BGS requires at least 1 of 'participant_claimant_id' or 'claimant_ssn'
         def handle_claimant_fields(options:, params:, target_veteran:)
           claimant_ssn = params[:claimantSsn]
-          participant_claimant_id = params[:participantClaimantId]
 
           options[:claimant_ssn] = claimant_ssn if claimant_ssn
-          options[:participant_claimant_id] = participant_claimant_id if participant_claimant_id
 
-          # if neither field was provided, then default to sending 'participant_claimant_id'
-          if options[:claimant_ssn].blank? && options[:participant_claimant_id].blank?
-            options[:participant_claimant_id] = target_veteran.participant_id
-          end
+          # if claimant_ssn field was not provided, then default to sending 'participant_claimant_id'
+          options[:participant_claimant_id] = target_veteran.participant_id if options[:claimant_ssn].blank?
 
           options
         end
