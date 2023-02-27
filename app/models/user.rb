@@ -138,7 +138,7 @@ class User < Common::RedisStore
   end
 
   def mhv_correlation_id
-    identity.mhv_correlation_id || mpi.mhv_correlation_id
+    identity.mhv_correlation_id || mpi_mhv_correlation_id
   end
 
   def middle_name
@@ -171,6 +171,7 @@ class User < Common::RedisStore
   delegate :icn, to: :mpi, prefix: true
   delegate :icn_with_aaid, to: :mpi
   delegate :id_theft_flag, to: :mpi
+  delegate :mhv_correlation_id, to: :mpi, prefix: true
   delegate :mhv_ien, to: :mpi
   delegate :mhv_iens, to: :mpi, prefix: true
   delegate :participant_id, to: :mpi
