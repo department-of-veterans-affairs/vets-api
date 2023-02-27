@@ -23,6 +23,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs,
                 in: :path,
                 required: true,
                 type: :string,
+                example: '1012667145V762142',
                 description: 'ID of Veteran'
       parameter name: 'type',
                 in: :path,
@@ -186,6 +187,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs,
                 in: :path,
                 required: true,
                 type: :string,
+                example: '1012667145V762142',
                 description: 'ID of Veteran'
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:type) { 'compensation' }
@@ -388,6 +390,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs,
                 in: :path,
                 required: true,
                 type: :string,
+                example: '1012667145V762142',
                 description: 'ID of Veteran'
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:type) { 'compensation' }

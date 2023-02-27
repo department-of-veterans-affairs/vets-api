@@ -1557,6 +1557,7 @@
             "name": "veteranId",
             "in": "path",
             "required": true,
+            "example": "1012667145V762142",
             "description": "ID of Veteran",
             "schema": {
               "type": "string"
@@ -1834,6 +1835,7 @@
             "name": "veteranId",
             "in": "path",
             "required": true,
+            "example": "1012667145V762142",
             "description": "ID of Veteran",
             "schema": {
               "type": "string"
@@ -1849,8 +1851,8 @@
                   "id": "1",
                   "type": "intent_to_file",
                   "attributes": {
-                    "creationDate": "2023-02-22",
-                    "expirationDate": "2024-02-22",
+                    "creationDate": "2023-02-24",
+                    "expirationDate": "2024-02-24",
                     "type": "compensation",
                     "status": "active"
                   }
@@ -2188,6 +2190,7 @@
             "name": "veteranId",
             "in": "path",
             "required": true,
+            "example": "1012667145V762142",
             "description": "ID of Veteran",
             "schema": {
               "type": "string"
