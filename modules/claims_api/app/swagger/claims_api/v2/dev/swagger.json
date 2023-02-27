@@ -1551,7 +1551,7 @@
             ]
           }
         ],
-        "description": "Returns Veteran's last active Intent to File submission for given 'type'.",
+        "description": "Returns Veteran's last active Intent to File submission for given benefit type.",
         "parameters": [
           {
             "name": "veteranId",
@@ -1567,7 +1567,7 @@
             "name": "type",
             "in": "path",
             "required": true,
-            "description": "Type of Intent to File to return. Available values - compensation, pension, burial",
+            "description": "Type of Intent to File to return. Available values - compensation, pension, survivor.",
             "schema": {
               "type": "string"
             }
@@ -1829,7 +1829,7 @@
             ]
           }
         ],
-        "description": "Establishes an intent to file for disability compensation and pension claims.",
+        "description": "Establishes an Intent to File for disability compensation, pension, and survivor claims.",
         "parameters": [
           {
             "name": "veteranId",
@@ -2184,7 +2184,7 @@
             ]
           }
         ],
-        "description": "Validates an intent to file for disability compensation and pension claims.",
+        "description": "Validates an Intent to File for disability compensation, pension, and survivor claims.",
         "parameters": [
           {
             "name": "veteranId",
