@@ -18,14 +18,14 @@ module LogMetrics
       file.size
     ]
 
+    kw_args = {}
+
     file.content_type.tap do |content_type|
       next if content_type.blank?
 
-      args << {
-        tags: ["content_type:#{content_type.split('/')[1]}"]
-      }
+      kw_args[:tags] = ["content_type:#{content_type.split('/')[1]}"]
     end
 
-    StatsD.measure(*args)
+    StatsD.measure(*args, **kw_args)
   end
 end
