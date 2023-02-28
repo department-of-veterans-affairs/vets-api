@@ -4,7 +4,7 @@ module V0
   class MHVOptInFlagsController < ApplicationController
     def show
       opt_in_flag = MHVOptInFlag.find_by(user_account_id: current_user.user_account, feature: params[:feature])
-      raise Common::Exceptions::RecordNotFound, message: 'Record not found' if opt_in_flag.nil?
+      raise Common::Exceptions::RecordNotFound.new message: 'Record not found' if opt_in_flag.nil?
 
       render json: { mhv_opt_in_flag: { user_account_id: opt_in_flag.user_account_id, feature: opt_in_flag.feature } }
     rescue => e
@@ -14,8 +14,7 @@ module V0
     def create
       feature = params[:feature]
       unless MHVOptInFlag::FEATURES.include?(feature)
-        raise MHVOptInFlagFeatureNotValid,
-              message: 'Feature param is not valid'
+        raise MHVOptInFlagFeatureNotValid.new message: 'Feature param is not valid'
       end
 
       status = :ok

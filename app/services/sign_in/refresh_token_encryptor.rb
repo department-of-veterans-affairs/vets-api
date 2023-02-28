@@ -20,7 +20,7 @@ module SignIn
 
     def validate_input
       unless refresh_token.version && refresh_token.nonce
-        raise Errors::RefreshTokenMalformedError, message: 'Refresh token is malformed'
+        raise Errors::RefreshTokenMalformedError.new message: 'Refresh token is malformed'
       end
     end
 

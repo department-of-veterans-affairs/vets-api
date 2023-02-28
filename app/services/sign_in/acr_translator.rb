@@ -27,7 +27,7 @@ module SignIn
       when Constants::Auth::MHV
         translate_mhv_values
       else
-        raise Errors::InvalidTypeError, message: 'Invalid Type value'
+        raise Errors::InvalidTypeError.new message: 'Invalid Type value'
       end
     end
 
@@ -40,7 +40,7 @@ module SignIn
       when 'min'
         uplevel ? LOA::IDME_LOA3 : LOA::IDME_LOA1_VETS
       else
-        raise Errors::InvalidAcrError, message: 'Invalid ACR for idme'
+        raise Errors::InvalidAcrError.new message: 'Invalid ACR for idme'
       end
     end
 
@@ -49,7 +49,7 @@ module SignIn
       when 'loa1', 'loa3', 'min'
         LOA::IDME_DSLOGON_LOA1
       else
-        raise Errors::InvalidAcrError, message: 'Invalid ACR for dslogon'
+        raise Errors::InvalidAcrError.new message: 'Invalid ACR for dslogon'
       end
     end
 
@@ -58,7 +58,7 @@ module SignIn
       when 'loa1', 'loa3', 'min'
         LOA::IDME_MHV_LOA1
       else
-        raise Errors::InvalidAcrError, message: 'Invalid ACR for mhv'
+        raise Errors::InvalidAcrError.new message: 'Invalid ACR for mhv'
       end
     end
 
@@ -71,7 +71,7 @@ module SignIn
       when 'min'
         uplevel ? IAL::LOGIN_GOV_IAL2 : IAL::LOGIN_GOV_IAL1
       else
-        raise Errors::InvalidAcrError, message: 'Invalid ACR for logingov'
+        raise Errors::InvalidAcrError.new message: 'Invalid ACR for logingov'
       end
     end
   end

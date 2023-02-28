@@ -173,7 +173,7 @@ module SignIn
       sign_in_logger.info('attribute validator error', { errors: error_message,
                                                          credential_uuid: credential_uuid,
                                                          type: service_name })
-      raise error, message: error_message, code: error_code if error
+      raise error.new message: error_message, code: error_code if error
     end
 
     def mpi_response_profile

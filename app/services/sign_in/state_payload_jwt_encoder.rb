@@ -26,14 +26,14 @@ module SignIn
 
     def check_code_challenge_method
       if code_challenge_method != Constants::Auth::CODE_CHALLENGE_METHOD
-        raise Errors::CodeChallengeMethodMismatchError, message: 'Code Challenge Method is not valid'
+        raise Errors::CodeChallengeMethodMismatchError.new message: 'Code Challenge Method is not valid'
       end
     end
 
     def validate_state_payload
       state_payload
     rescue ActiveModel::ValidationError
-      raise Errors::StatePayloadError, message: 'Attributes are not valid'
+      raise Errors::StatePayloadError.new message: 'Attributes are not valid'
     end
 
     def jwt_encode_state_payload
@@ -71,7 +71,7 @@ module SignIn
     def remove_base64_padding(data)
       Base64.urlsafe_encode64(Base64.urlsafe_decode64(data.to_s), padding: false)
     rescue ArgumentError
-      raise Errors::CodeChallengeMalformedError, message: 'Code Challenge is not valid'
+      raise Errors::CodeChallengeMalformedError.new message: 'Code Challenge is not valid'
     end
 
     def private_key
