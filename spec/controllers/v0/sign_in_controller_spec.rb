@@ -1821,7 +1821,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:rendered_error) { { errors: expected_error.to_s } }
 
         before do
-          allow(SignIn::IntrospectSerializer).to receive(:new).and_raise(expected_error, message: expected_error)
+          allow(SignIn::IntrospectSerializer).to receive(:new).and_raise(expected_error.new(message: expected_error))
         end
 
         it 'renders error' do
@@ -1950,7 +1950,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expected_error_message) { expected_error.to_s }
 
         before do
-          allow(SignIn::SessionRevoker).to receive(:new).and_raise(expected_error, message: expected_error)
+          allow(SignIn::SessionRevoker).to receive(:new).and_raise(expected_error.new(message: expected_error))
         end
 
         it_behaves_like 'error response'
@@ -2023,7 +2023,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expected_error_context) { { errors: expected_error.to_s } }
 
         before do
-          allow(SignIn::RevokeSessionsForUser).to receive(:new).and_raise(expected_error, message: expected_error)
+          allow(SignIn::RevokeSessionsForUser).to receive(:new).and_raise(expected_error.new(message: expected_error))
           allow(Rails.logger).to receive(:info)
         end
 

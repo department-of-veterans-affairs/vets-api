@@ -39,9 +39,9 @@ module SignIn
         OpenStruct.new(decoded_jwt)
       end
     rescue JWT::VerificationError
-      raise Errors::StatePayloadSignatureMismatchError, message: 'State JWT body does not match signature'
+      raise Errors::StatePayloadSignatureMismatchError.new message: 'State JWT body does not match signature'
     rescue JWT::DecodeError
-      raise Errors::StatePayloadMalformedJWTError, message: 'State JWT is malformed'
+      raise Errors::StatePayloadMalformedJWTError.new message: 'State JWT is malformed'
     end
 
     def private_key

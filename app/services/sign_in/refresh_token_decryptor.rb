@@ -27,10 +27,10 @@ module SignIn
 
     def validate_token!(decrypted_component)
       if decrypted_component.version != version_from_split_token
-        raise Errors::RefreshVersionMismatchError, message: 'Refresh token version is invalid'
+        raise Errors::RefreshVersionMismatchError.new message: 'Refresh token version is invalid'
       end
       if decrypted_component.nonce != nonce_from_split_token
-        raise Errors::RefreshNonceMismatchError, message: 'Refresh nonce is invalid'
+        raise Errors::RefreshNonceMismatchError.new message: 'Refresh nonce is invalid'
       end
     end
 
@@ -51,7 +51,7 @@ module SignIn
       message_encryptor.decrypt(encrypted_part)
     rescue KmsEncrypted::DecryptionError
       Rails.logger.info("[RefreshTokenDecryptor] Token cannot be decrypted, refresh_token: #{encrypted_refresh_token}")
-      raise Errors::RefreshTokenDecryptionError, message: 'Refresh token cannot be decrypted'
+      raise Errors::RefreshTokenDecryptionError.new message: 'Refresh token cannot be decrypted'
     end
 
     def deserialize_token(decrypted_string)

@@ -19,7 +19,7 @@ module SignIn
     end
 
     def validate_state_code
-      raise Errors::StateCodeInvalidError, message: 'Code in state is not valid' unless state_code
+      raise Errors::StateCodeInvalidError.new message: 'Code in state is not valid' unless state_code
     ensure
       state_code&.destroy
     end

@@ -31,7 +31,7 @@ module SignIn
     end
 
     def validate_account_and_session
-      raise Errors::SessionNotFoundError, message: 'Invalid Session Handle' unless session
+      raise Errors::SessionNotFoundError.new message: 'Invalid Session Handle' unless session
     end
 
     def user_attributes

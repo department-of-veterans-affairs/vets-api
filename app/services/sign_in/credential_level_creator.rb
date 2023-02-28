@@ -55,7 +55,7 @@ module SignIn
                           max_ial: max_ial,
                           auto_uplevel: auto_uplevel)
     rescue ActiveModel::ValidationError
-      raise Errors::InvalidCredentialLevelError, message: 'Unsupported credential authorization levels'
+      raise Errors::InvalidCredentialLevelError.new message: 'Unsupported credential authorization levels'
     end
 
     def max_ial
