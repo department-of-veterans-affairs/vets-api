@@ -50,7 +50,8 @@ RSpec.describe SignIn::StatePayloadJwtEncoder do
           Base64.urlsafe_encode64(Base64.urlsafe_decode64(code_challenge.to_s), padding: false)
         end
         let(:code) { 'some-state-code-value' }
-        let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
+        let(:client_id) { client_config.client_id }
+        let(:client_config) { create(:client_config) }
         let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
         let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
         let(:client_state) { SecureRandom.alphanumeric(client_state_minimum_length + 1) }
@@ -75,7 +76,7 @@ RSpec.describe SignIn::StatePayloadJwtEncoder do
           end
         end
 
-        context 'and given client_id is not within accepted client ids list' do
+        context 'and given client_id does not map to a configured client' do
           let(:client_id) { 'some-arbitrary-client-id' }
           let(:expected_error) { SignIn::Errors::StatePayloadError }
           let(:expected_error_message) { 'Attributes are not valid' }
@@ -85,8 +86,8 @@ RSpec.describe SignIn::StatePayloadJwtEncoder do
           end
         end
 
-        context 'and given client_id is within accepted client ids list' do
-          let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
+        context 'and given client_id maps to a configured client' do
+          let(:client_id) { client_config.client_id }
 
           it_behaves_like 'properly encoded state payload jwt'
         end

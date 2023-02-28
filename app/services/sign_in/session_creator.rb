@@ -114,8 +114,12 @@ module SignIn
       @handle ||= SecureRandom.uuid
     end
 
+    def client_config
+      @client_config ||= SignIn::ClientConfig.find_by(client_id: client_id)
+    end
+
     def validity_length
-      SignIn::ClientConfig.new(client_id: client_id).refresh_token_duration
+      client_config.refresh_token_duration
     end
   end
 end

@@ -11,8 +11,8 @@ RSpec.describe SignIn::AccessTokenJwtDecoder do
     let(:access_token_jwt) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token).perform }
     let(:access_token) { create(:access_token) }
     let(:with_validation) { true }
-    let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
-    let(:client_config) { SignIn::ClientConfig.new(client_id: client_id) }
+    let(:client_config) { create(:client_config) }
+    let(:client_id) { client_config.client_id }
 
     context 'when access token jwt is expired' do
       let(:access_token_jwt) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token).perform }

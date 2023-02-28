@@ -9,7 +9,8 @@ module SignIn
     validates :hashed_refresh_token, uniqueness: true, presence: true
     validates :refresh_expiration, presence: true
     validates :refresh_creation, presence: true
-    validates :client_id, inclusion: { in: Constants::Auth::CLIENT_IDS, allow_nil: false }
+
+    validate :confirm_client_id
 
     def active?
       refresh_valid? && session_max_valid?
@@ -22,7 +23,13 @@ module SignIn
     end
 
     def session_max_valid?
-      Time.zone.now < refresh_creation + Constants::RefreshToken::SESSION_MAX_VALIDITY_LENGTH_DAYS.days
+      Time.zone.now < refresh_creation + Constants::RefreshToken::SESSION_MAX_VALIDITY_LENGTH_DAYS
+    end
+
+    def confirm_client_id
+      unless ClientConfig.valid_client_id?(client_id: client_id)
+        errors.add(:base, 'Client id must map to a configuration')
+      end
     end
   end
 end

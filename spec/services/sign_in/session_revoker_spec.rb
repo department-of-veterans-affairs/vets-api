@@ -37,7 +37,9 @@ RSpec.describe SignIn::SessionRevoker do
                user_account: user_account,
                client_id: client_id)
       end
-      let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
+      let(:client_id) { client_config.client_id }
+      let(:client_config) { create(:client_config, anti_csrf: anti_csrf) }
+      let(:anti_csrf) { false }
       let(:session_expiration) { Time.zone.now + 5.minutes }
 
       before do
@@ -46,8 +48,8 @@ RSpec.describe SignIn::SessionRevoker do
 
       after { Timecop.return }
 
-      context 'when client id is in list of anti csrf enabled clients' do
-        let(:client_id) { SignIn::Constants::Auth::WEB_CLIENT }
+      context 'when client is configured to check for anti csrf' do
+        let(:anti_csrf) { true }
 
         context 'and anti csrf token does not match value in refresh token' do
           let(:input_anti_csrf_token) { 'some-arbitrary-csrf-token-value' }
@@ -134,7 +136,9 @@ RSpec.describe SignIn::SessionRevoker do
                user_account: user_account,
                client_id: client_id)
       end
-      let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
+      let(:client_id) { client_config.client_id }
+      let(:client_config) { create(:client_config, anti_csrf: anti_csrf) }
+      let(:anti_csrf) { false }
       let(:session_expiration) { Time.zone.now + 5.minutes }
 
       before do
@@ -143,8 +147,8 @@ RSpec.describe SignIn::SessionRevoker do
 
       after { Timecop.return }
 
-      context 'when client id is in list of anti csrf enabled clients' do
-        let(:client_id) { SignIn::Constants::Auth::WEB_CLIENT }
+      context 'when client is configured to check for anti csrf' do
+        let(:anti_csrf) { true }
 
         context 'and anti csrf token does not match value in access token' do
           let(:input_anti_csrf_token) { 'some-arbitrary-csrf-token-value' }

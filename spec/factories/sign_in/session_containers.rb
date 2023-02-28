@@ -8,7 +8,7 @@ FactoryBot.define do
     refresh_token { create(:refresh_token) }
     access_token { create(:access_token) }
     anti_csrf_token { SecureRandom.hex }
-    client_id { SignIn::Constants::Auth::MOBILE_CLIENT }
+    client_id { create(:client_config).client_id }
 
     initialize_with do
       new(session: session,

@@ -3,17 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe V0::SignInController, type: :controller do
-  let(:request_id) { SecureRandom.uuid }
-
-  before do
-    allow_any_instance_of(ActionController::TestRequest).to receive(:request_id).and_return(request_id)
-  end
-
   describe 'GET authorize' do
     subject do
       get(:authorize, params: authorize_params)
     end
 
+    let!(:client_config) { create(:client_config, authentication: authentication) }
     let(:authorize_params) do
       {}.merge(type).merge(code_challenge).merge(code_challenge_method).merge(client_state).merge(client_id).merge(acr)
     end
@@ -22,7 +17,8 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:code_challenge) { { code_challenge: 'some-code-challenge' } }
     let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
     let(:client_id) { { client_id: client_id_value } }
-    let(:client_id_value) { SignIn::Constants::Auth::WEB_CLIENT }
+    let(:client_id_value) { client_config.client_id }
+    let(:authentication) { SignIn::Constants::Auth::COOKIE }
     let(:client_state) { {} }
     let(:client_state_minimum_length) { SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }
     let(:type) { { type: type_value } }
@@ -67,8 +63,8 @@ RSpec.describe V0::SignInController, type: :controller do
         { errors: expected_error, client_id: client_id_value, type: type_value, acr: acr_value }
       end
 
-      context 'and client_id is a web based setting' do
-        let(:client_id_value) { SignIn::Constants::Auth::WEB_CLIENT }
+      context 'and client_id maps to a web based configuration' do
+        let(:authentication) { SignIn::Constants::Auth::COOKIE }
         let(:expected_error_status) { :redirect }
         let(:expected_redirect_params) do
           { auth: 'fail', code: SignIn::Constants::ErrorCode::INVALID_REQUEST, request_id: request_id }.to_query
@@ -77,6 +73,11 @@ RSpec.describe V0::SignInController, type: :controller do
           uri = URI.parse(Settings.sign_in.client_redirect_uris.web)
           uri.query = expected_redirect_params
           uri.to_s
+        end
+        let(:request_id) { SecureRandom.uuid }
+
+        before do
+          allow_any_instance_of(ActionController::TestRequest).to receive(:request_id).and_return(request_id)
         end
 
         it 'redirects to frontend failure page' do
@@ -97,8 +98,8 @@ RSpec.describe V0::SignInController, type: :controller do
         end
       end
 
-      context 'and client_id is an api based setting' do
-        let(:client_id_value) { SignIn::Constants::Auth::MOBILE_CLIENT }
+      context 'and client_id maps to an api based configuration' do
+        let(:authentication) { SignIn::Constants::Auth::API }
 
         it_behaves_like 'api based error response'
       end
@@ -125,8 +126,8 @@ RSpec.describe V0::SignInController, type: :controller do
       it_behaves_like 'api based error response'
     end
 
-    context 'when client_id is in CLIENT_IDS' do
-      let(:client_id_value) { SignIn::Constants::Auth::MOBILE_CLIENT }
+    context 'when client_id maps to a client configuration' do
+      let(:client_id_value) { client_config.client_id }
 
       context 'when type param is not given' do
         let(:type) { {} }
@@ -432,12 +433,14 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:statsd_tags) { ["type:#{type}", "client_id:#{client_id}", "ial:#{ial}", "acr:#{acr}"] }
     let(:type) {}
     let(:acr) { nil }
-    let(:client_id) { nil }
     let(:mpi_update_profile_response) { create(:add_person_response) }
     let(:mpi_add_person_response) { create(:add_person_response, parsed_codes: { icn: add_person_icn }) }
     let(:add_person_icn) { nil }
     let(:find_profile) { create(:find_profile_response, profile: mpi_profile) }
     let(:mpi_profile) { nil }
+    let(:client_id) { client_config.client_id }
+    let(:authentication) { SignIn::Constants::Auth::API }
+    let!(:client_config) { create(:client_config, authentication: authentication) }
 
     before do
       allow(Rails.logger).to receive(:info)
@@ -479,8 +482,8 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:expected_error_status) { :bad_request }
       let(:statsd_callback_failure) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE }
 
-      context 'and client_id is a web based setting' do
-        let(:client_id) { SignIn::Constants::Auth::WEB_CLIENT }
+      context 'and client_id maps to a web based configuration' do
+        let(:authentication) { SignIn::Constants::Auth::COOKIE }
         let(:expected_error_status) { :redirect }
         let(:expected_redirect_params) do
           { auth: 'fail', code: error_code, request_id: request_id }.to_query
@@ -493,6 +496,11 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expected_error_log) { '[SignInService] [V0::SignInController] callback error' }
         let(:expected_error_message) do
           { errors: expected_error, client_id: client_id, type: type, acr: acr }
+        end
+        let(:request_id) { SecureRandom.uuid }
+
+        before do
+          allow_any_instance_of(ActionController::TestRequest).to receive(:request_id).and_return(request_id)
         end
 
         it 'redirects to frontend failure page' do
@@ -513,8 +521,8 @@ RSpec.describe V0::SignInController, type: :controller do
         end
       end
 
-      context 'and client_id is an api based setting' do
-        let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
+      context 'and client_id maps to an api based configuration' do
+        let(:authentication) { SignIn::Constants::Auth::API }
 
         it_behaves_like 'api based error response'
       end
@@ -526,6 +534,7 @@ RSpec.describe V0::SignInController, type: :controller do
       context 'when code is not given' do
         let(:code) { {} }
         let(:expected_error) { 'Code is not defined' }
+        let(:client_id) { nil }
 
         it_behaves_like 'api based error response'
       end
@@ -533,6 +542,7 @@ RSpec.describe V0::SignInController, type: :controller do
       context 'when state is not given' do
         let(:state) { {} }
         let(:expected_error) { 'State is not defined' }
+        let(:client_id) { nil }
 
         it_behaves_like 'api based error response'
       end
@@ -540,6 +550,7 @@ RSpec.describe V0::SignInController, type: :controller do
       context 'when state is arbitrary' do
         let(:state_value) { 'some-state' }
         let(:expected_error) { 'State JWT is malformed' }
+        let(:client_id) { nil }
 
         it_behaves_like 'api based error response'
       end
@@ -549,6 +560,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:private_key) { OpenSSL::PKey::RSA.new(2048) }
         let(:encode_algorithm) { SignIn::Constants::Auth::JWT_ENCODE_ALGORITHM }
         let(:expected_error) { 'State JWT body does not match signature' }
+        let(:client_id) { nil }
 
         it_behaves_like 'api based error response'
       end
@@ -573,7 +585,6 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:code_challenge) { Base64.urlsafe_encode64('some-code-challenge') }
         let(:code_challenge_method) { SignIn::Constants::Auth::CODE_CHALLENGE_METHOD }
         let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
-        let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
         let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
         let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
 
@@ -649,7 +660,7 @@ RSpec.describe V0::SignInController, type: :controller do
                 let(:acr) { 'ial2' }
                 let(:ial) { 2 }
                 let(:client_code) { 'some-client-code' }
-                let(:client_redirect_uri) { Settings.sign_in.client_redirect_uris.mobile }
+                let(:client_redirect_uri) { client_config.redirect_uri }
                 let(:expected_url) do
                   "#{client_redirect_uri}?code=#{client_code}&state=#{client_state}&type=#{type}"
                 end
@@ -794,7 +805,7 @@ RSpec.describe V0::SignInController, type: :controller do
                 let(:ial) { 2 }
                 let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
                 let(:client_code) { 'some-client-code' }
-                let(:client_redirect_uri) { Settings.sign_in.client_redirect_uris.mobile }
+                let(:client_redirect_uri) { client_config.redirect_uri }
                 let(:expected_url) do
                   "#{client_redirect_uri}?code=#{client_code}&state=#{client_state}&type=#{type}"
                 end
@@ -899,8 +910,9 @@ RSpec.describe V0::SignInController, type: :controller do
               let(:ial) { 2 }
               let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
               let(:client_code) { 'some-client-code' }
+              let(:client_redirect_uri) { client_config.redirect_uri }
               let(:expected_url) do
-                "#{Settings.sign_in.client_redirect_uris.mobile}?code=#{client_code}&state=#{client_state}&type=#{type}"
+                "#{client_redirect_uri}?code=#{client_code}&state=#{client_state}&type=#{type}"
               end
               let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
               let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
@@ -1023,9 +1035,9 @@ RSpec.describe V0::SignInController, type: :controller do
               let(:ial) { IAL::TWO }
               let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
               let(:client_code) { 'some-client-code' }
-              let(:mobile_redirect_uris) { Settings.sign_in.client_redirect_uris.mobile }
+              let(:client_redirect_uri) { client_config.redirect_uri }
               let(:expected_url) do
-                "#{mobile_redirect_uris}?code=#{client_code}&state=#{client_state}&type=#{type}"
+                "#{client_redirect_uri}?code=#{client_code}&state=#{client_state}&type=#{type}"
               end
               let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
               let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
@@ -1118,7 +1130,6 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:code_challenge) { Base64.urlsafe_encode64('some-code-challenge') }
       let(:code_challenge_method) { SignIn::Constants::Auth::CODE_CHALLENGE_METHOD }
       let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
-      let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
       let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
       let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
 
@@ -1165,7 +1176,10 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:code_verifier_value) { 'some-code-verifier' }
     let(:grant_type_value) { 'some-grant-type' }
     let(:type) { nil }
-    let(:client_id_value) { nil }
+    let(:client_id) { client_config.client_id }
+    let(:authentication) { SignIn::Constants::Auth::API }
+    let!(:client_config) { create(:client_config, authentication: authentication, anti_csrf: anti_csrf) }
+    let(:anti_csrf) { false }
     let(:loa) { nil }
 
     before { allow(Rails.logger).to receive(:info) }
@@ -1234,7 +1248,6 @@ RSpec.describe V0::SignInController, type: :controller do
                  client_id: client_id,
                  user_verification_id: user_verification_id)
         end
-        let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
         let(:code_challenge) { 'some-code-challenge' }
 
         context 'and code_verifier does not match expected code_challenge value' do
@@ -1260,92 +1273,87 @@ RSpec.describe V0::SignInController, type: :controller do
 
           context 'and grant_type does match supported grant type value' do
             let(:grant_type_value) { SignIn::Constants::Auth::GRANT_TYPE }
+            let(:user_verification_id) { user_verification.id }
+            let(:user_verification) { create(:user_verification) }
+            let(:statsd_token_success) { SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS }
+            let(:expected_log) { '[SignInService] [V0::SignInController] token' }
 
-            context 'and code_container matched with code does match a user account' do
-              let(:type) { user.identity.sign_in[:service_name] }
-              let(:client_id) { SignIn::Constants::Auth::WEB_CLIENT }
-              let(:client_id_value) { client_id }
-              let(:loa) { user.identity.loa[:current] }
-              let(:user_verification_id) { user_verification.id }
-              let(:user_verification) { create(:user_verification) }
-              let(:statsd_token_success) { SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS }
-              let(:expected_log) { '[SignInService] [V0::SignInController] token' }
+            before { allow(Rails.logger).to receive(:info) }
 
-              before { allow(Rails.logger).to receive(:info) }
+            it 'creates an OAuthSession' do
+              expect { subject }.to change(SignIn::OAuthSession, :count).by(1)
+            end
 
-              it 'creates an OAuthSession' do
-                expect { subject }.to change(SignIn::OAuthSession, :count).by(1)
+            it 'returns ok status' do
+              expect(subject).to have_http_status(:ok)
+            end
+
+            context 'and authentication is for a session that is configured as api auth' do
+              let!(:user) { create(:user, :api_auth, uuid: user_uuid) }
+              let(:authentication) { SignIn::Constants::Auth::API }
+
+              it 'returns expected body with access token' do
+                expect(JSON.parse(subject.body)['data']).to have_key('access_token')
               end
 
-              it 'returns ok status' do
-                expect(subject).to have_http_status(:ok)
+              it 'returns expected body with refresh token' do
+                expect(JSON.parse(subject.body)['data']).to have_key('refresh_token')
               end
 
-              context 'and authentication is for a session with client id that is api auth' do
-                let!(:user) { create(:user, :api_auth, uuid: user_uuid) }
-                let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
+              it 'logs the successful token request' do
+                access_token = JWT.decode(JSON.parse(subject.body)['data']['access_token'], nil, false).first
+                logger_context = {
+                  user_uuid: user_uuid,
+                  session_id: access_token['session_handle'],
+                  token_uuid: access_token['jti']
+                }
+                expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
+              end
 
-                it 'returns expected body with access token' do
-                  expect(JSON.parse(subject.body)['data']).to have_key('access_token')
-                end
+              it 'updates StatsD with a token request success' do
+                expect { subject }.to trigger_statsd_increment(statsd_token_success)
+              end
+            end
+
+            context 'and authentication is for a session that is configured as cookie auth' do
+              let(:authentication) { SignIn::Constants::Auth::COOKIE }
+              let(:access_token_cookie_name) { SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME }
+              let(:refresh_token_cookie_name) { SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME }
+
+              it 'returns empty hash for body' do
+                expect(JSON.parse(subject.body)).to eq({})
+              end
+
+              it 'sets access token cookie' do
+                expect(subject.cookies).to have_key(access_token_cookie_name)
+              end
+
+              it 'sets refresh token cookie' do
+                expect(subject.cookies).to have_key(refresh_token_cookie_name)
+              end
+
+              context 'and session is configured as anti csrf enabled' do
+                let(:anti_csrf) { true }
+                let(:anti_csrf_token_cookie_name) { SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME }
 
                 it 'returns expected body with refresh token' do
-                  expect(JSON.parse(subject.body)['data']).to have_key('refresh_token')
-                end
-
-                it 'logs the successful token request' do
-                  access_token = JWT.decode(JSON.parse(subject.body)['data']['access_token'], nil, false).first
-                  logger_context = {
-                    user_uuid: user_uuid,
-                    session_id: access_token['session_handle'],
-                    token_uuid: access_token['jti']
-                  }
-                  expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
-                end
-
-                it 'updates StatsD with a token request success' do
-                  expect { subject }.to trigger_statsd_increment(statsd_token_success)
+                  expect(subject.cookies).to have_key(anti_csrf_token_cookie_name)
                 end
               end
 
-              context 'and authentication is for a session with client id that is cookie auth' do
-                let(:access_token_cookie_name) { SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME }
-                let(:refresh_token_cookie_name) { SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME }
+              it 'logs the successful token request' do
+                access_token_cookie = subject.cookies[access_token_cookie_name]
+                access_token = JWT.decode(access_token_cookie, nil, false).first
+                logger_context = {
+                  user_uuid: user_uuid,
+                  session_id: access_token['session_handle'],
+                  token_uuid: access_token['jti']
+                }
+                expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
+              end
 
-                it 'returns empty hash for body' do
-                  expect(JSON.parse(subject.body)).to eq({})
-                end
-
-                it 'sets access token cookie' do
-                  expect(subject.cookies).to have_key(access_token_cookie_name)
-                end
-
-                it 'sets refresh token cookie' do
-                  expect(subject.cookies).to have_key(refresh_token_cookie_name)
-                end
-
-                context 'and session has client id that is anti csrf enabled' do
-                  let(:anti_csrf_token_cookie_name) { SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME }
-
-                  it 'returns expected body with refresh token' do
-                    expect(subject.cookies).to have_key(anti_csrf_token_cookie_name)
-                  end
-                end
-
-                it 'logs the successful token request' do
-                  access_token_cookie = subject.cookies[access_token_cookie_name]
-                  access_token = JWT.decode(access_token_cookie, nil, false).first
-                  logger_context = {
-                    user_uuid: user_uuid,
-                    session_id: access_token['session_handle'],
-                    token_uuid: access_token['jti']
-                  }
-                  expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
-                end
-
-                it 'updates StatsD with a token request success' do
-                  expect { subject }.to trigger_statsd_increment(statsd_token_success)
-                end
+              it 'updates StatsD with a token request success' do
+                expect { subject }.to trigger_statsd_increment(statsd_token_success)
               end
             end
           end
@@ -1359,9 +1367,6 @@ RSpec.describe V0::SignInController, type: :controller do
 
     let!(:user) { create(:user, uuid: user_uuid) }
     let(:user_uuid) { user_verification.credential_identifier }
-    let(:type) { nil }
-    let(:client_id_value) { nil }
-    let(:loa) { nil }
     let(:refresh_token_param) { { refresh_token: refresh_token } }
     let(:anti_csrf_token_param) { { anti_csrf_token: anti_csrf_token } }
     let(:refresh_token) { 'some-refresh-token' }
@@ -1371,7 +1376,10 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:validated_credential) do
       create(:validated_credential, user_verification: user_verification, client_id: client_id)
     end
-    let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
+    let(:client_id) { client_config.client_id }
+    let(:authentication) { SignIn::Constants::Auth::API }
+    let!(:client_config) { create(:client_config, authentication: authentication, anti_csrf: anti_csrf) }
+    let(:anti_csrf) { false }
 
     before { allow(Rails.logger).to receive(:info) }
 
@@ -1399,8 +1407,8 @@ RSpec.describe V0::SignInController, type: :controller do
       end
     end
 
-    context 'when session has been created with a client id that is anti csrf enabled' do
-      let(:client_id) { SignIn::Constants::Auth::WEB_CLIENT }
+    context 'when session has been configured with anti csrf enabled' do
+      let(:anti_csrf) { true }
       let(:session_container) do
         SignIn::SessionCreator.new(validated_credential: validated_credential).perform
       end
@@ -1534,18 +1542,14 @@ RSpec.describe V0::SignInController, type: :controller do
       end
 
       context 'and refresh token is unmodified and valid' do
-        let(:type) { user.identity.sign_in[:service_name] }
-        let(:client_id_value) { user.identity.sign_in[:client_id] }
-        let(:loa) { user.identity.loa[:current] }
-
         before { allow(Rails.logger).to receive(:info) }
 
         it 'returns ok status' do
           expect(subject).to have_http_status(:ok)
         end
 
-        context 'and refresh token is for a session with client id that is api auth' do
-          let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
+        context 'and refresh token is for a session that has been configured with api auth' do
+          let(:authentication) { SignIn::Constants::Auth::API }
           let!(:user) { create(:user, :api_auth, uuid: user_uuid) }
 
           it 'returns expected body with access token' do
@@ -1571,8 +1575,8 @@ RSpec.describe V0::SignInController, type: :controller do
           end
         end
 
-        context 'and refresh token is for a session with client id that is cookie auth' do
-          let(:client_id) { SignIn::Constants::Auth::WEB_CLIENT }
+        context 'and refresh token is for a session that has been configured with cookie auth' do
+          let(:authentication) { SignIn::Constants::Auth::COOKIE }
           let(:access_token_cookie_name) { SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME }
           let(:refresh_token_cookie_name) { SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME }
 
@@ -1588,7 +1592,8 @@ RSpec.describe V0::SignInController, type: :controller do
             expect(subject.cookies).to have_key(refresh_token_cookie_name)
           end
 
-          context 'and session has client id that is anti csrf enabled' do
+          context 'and session has been configured with anti_csrf enabled' do
+            let(:anti_csrf) { true }
             let(:anti_csrf_token_cookie_name) { SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME }
 
             it 'returns expected body with refresh token' do
@@ -1630,9 +1635,6 @@ RSpec.describe V0::SignInController, type: :controller do
 
     let!(:user) { create(:user, uuid: user_uuid) }
     let(:user_uuid) { user_verification.credential_identifier }
-    let(:type) { nil }
-    let(:client_id_value) { nil }
-    let(:loa) { nil }
     let(:refresh_token_param) { { refresh_token: refresh_token } }
     let(:refresh_token) { 'example-refresh-token' }
     let(:anti_csrf_token_param) { { anti_csrf_token: anti_csrf_token } }
@@ -1643,7 +1645,10 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:validated_credential) do
       create(:validated_credential, user_verification: user_verification, client_id: client_id)
     end
-    let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
+    let(:client_id) { client_config.client_id }
+    let(:authentication) { SignIn::Constants::Auth::API }
+    let!(:client_config) { create(:client_config, authentication: authentication, anti_csrf: anti_csrf) }
+    let(:anti_csrf) { false }
 
     shared_examples 'error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
@@ -1671,11 +1676,8 @@ RSpec.describe V0::SignInController, type: :controller do
       end
     end
 
-    context 'when session has been created with a client id that is anti csrf enabled' do
-      let(:type) { user.identity.sign_in[:service_name] }
-      let(:client_id_value) { user.identity.sign_in[:client_id] }
-      let(:loa) { user.identity.loa[:current] }
-      let(:client_id) { SignIn::Constants::Auth::WEB_CLIENT }
+    context 'when session has been configured with anti csrf enabled' do
+      let(:anti_csrf) { true }
       let(:session_container) do
         SignIn::SessionCreator.new(validated_credential: validated_credential).perform
       end
@@ -1708,9 +1710,6 @@ RSpec.describe V0::SignInController, type: :controller do
     end
 
     context 'when refresh_token is encrypted correctly' do
-      let(:type) { user.identity.sign_in[:service_name] }
-      let(:client_id_value) { user.identity.sign_in[:client_id] }
-      let(:loa) { user.identity.loa[:current] }
       let(:session_container) do
         SignIn::SessionCreator.new(validated_credential: validated_credential).perform
       end
@@ -1783,24 +1782,9 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
       let(:authorization) { "Bearer #{access_token}" }
       let(:access_token_object) { create(:access_token) }
-      let(:statsd_success) { SignIn::Constants::Statsd::STATSD_SIS_INTROSPECT_SUCCESS }
       let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
       let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
-      let(:type) { user.identity.sign_in[:service_name] }
-      let(:client_id_value) { user.identity.sign_in[:client_id] }
-      let(:loa) { user.identity.loa[:current] }
       let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
-      let(:expected_log) { '[SignInService] [V0::SignInController] introspect' }
-      let(:expected_log_params) do
-        {
-          user_uuid: user.uuid,
-          type: type,
-          client_id: client_id_value,
-          loa: loa,
-          session_id: access_token_object.session_handle,
-          token_uuid: access_token_object.uuid
-        }
-      end
       let(:expected_status) { :ok }
 
       before do
@@ -1879,9 +1863,6 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:statsd_success) { SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS }
       let(:logingov_uuid) { 'some-logingov-uuid' }
       let(:expected_log) { '[SignInService] [V0::SignInController] logout' }
-      let(:type) { user.identity.sign_in[:service_name] }
-      let(:client_id_value) { user.identity.sign_in[:client_id] }
-      let(:loa) { user.identity.loa[:current] }
       let(:expected_log_params) do
         {
           user_uuid: access_token_object.user_uuid,
@@ -1974,9 +1955,6 @@ RSpec.describe V0::SignInController, type: :controller do
       let!(:user_account) { Login::UserVerifier.new(user.identity).perform.user_account }
       let(:user) { create(:user, :loa3, :api_auth) }
       let(:user_uuid) { user.uuid }
-      let(:type) { user.identity.sign_in[:service_name] }
-      let(:client_id_value) { user.identity.sign_in[:client_id] }
-      let(:loa) { user.identity.loa[:current] }
       let(:oauth_session) { create(:oauth_session, user_account: user_account) }
       let(:access_token_object) do
         create(:access_token, session_handle: oauth_session.handle, user_uuid: user_uuid)

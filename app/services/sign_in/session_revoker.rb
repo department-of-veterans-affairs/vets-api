@@ -61,8 +61,12 @@ module SignIn
       @revoking_token ||= access_token || refresh_token
     end
 
+    def client_config
+      @client_config ||= SignIn::ClientConfig.find_by(client_id: session.client_id)
+    end
+
     def anti_csrf_enabled_client?
-      SignIn::ClientConfig.new(client_id: session.client_id).anti_csrf?
+      client_config.anti_csrf
     end
 
     def get_hash(object)

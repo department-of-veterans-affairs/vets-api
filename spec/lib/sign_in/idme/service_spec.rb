@@ -224,7 +224,6 @@ describe SignIn::Idme::Service do
   describe '#normalized_attributes' do
     before { subject.type = type }
 
-    let(:client_id) { SignIn::Constants::Auth::WEB_CLIENT }
     let(:expected_standard_attributes) do
       {
         idme_uuid: user_uuid,

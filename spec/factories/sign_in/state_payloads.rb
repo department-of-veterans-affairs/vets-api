@@ -5,7 +5,7 @@ FactoryBot.define do
     skip_create
 
     acr { SignIn::Constants::Auth::ACR_VALUES.first }
-    client_id { SignIn::Constants::Auth::MOBILE_CLIENT }
+    client_id { create(:client_config).client_id }
     type { SignIn::Constants::Auth::CSP_TYPES.first }
     code_challenge { Base64.urlsafe_encode64(SecureRandom.hex) }
     client_state { SecureRandom.hex }

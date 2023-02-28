@@ -21,7 +21,9 @@ RSpec.describe SignIn::StatePayloadJwtDecoder do
     let(:client_state) { SecureRandom.alphanumeric(client_state_minimum_length + 1) }
     let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
     let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
-    let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
+    let(:client_id) { client_config.client_id }
+    let(:client_config) { create(:client_config) }
+
     let(:client_state_minimum_length) { SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }
 
     context 'when state payload jwt is encoded with a different signature than expected' do

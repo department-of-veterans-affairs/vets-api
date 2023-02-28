@@ -97,11 +97,11 @@ module SignIn
     end
 
     def anti_csrf_enabled_client?
-      client_config.anti_csrf?
+      client_config.anti_csrf
     end
 
     def client_config
-      @client_config ||= SignIn::ClientConfig.new(client_id: session.client_id)
+      @client_config ||= SignIn::ClientConfig.find_by(client_id: session.client_id)
     end
 
     def get_hash(object)
