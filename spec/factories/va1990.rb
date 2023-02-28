@@ -95,6 +95,39 @@ FactoryBot.define do
       }.to_json
     end
 
+    factory :va1990_chapter33, class: 'SavedClaim::EducationBenefits::VA1990', parent: :education_benefits do
+      form {
+        {
+          email: 'email@example.com',
+          chapter33: true,
+          veteranSocialSecurityNumber: '111223333',
+          veteranFullName: {
+            first: 'Mark',
+            last: 'Olson'
+          },
+          privacyAgreementAccepted: true
+        }.to_json
+      }
+    end
+
+    factory :va1990_with_relinquished, class: 'SavedClaim::EducationBenefits::VA1990', parent: :education_benefits do
+      form {
+        {
+          email: 'email@example.com',
+          chapter33: true,
+          chapter1606: true,
+          chapter32: true,
+          benefitsRelinquished: 'chapter30',
+          veteranSocialSecurityNumber: '111223333',
+          veteranFullName: {
+            first: 'Mark',
+            last: 'Olson'
+          },
+          privacyAgreementAccepted: true
+        }.to_json
+      }
+    end
+
     factory :va1990_with_custom_form do
       transient do
         custom_form {}
