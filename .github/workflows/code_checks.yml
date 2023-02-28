@@ -79,6 +79,7 @@ jobs:
              -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -n 8 -e 'bin/rails db:reset'"
 
       - name: Run Specs
+        timeout-minutes: 20
         run: |
              docker-compose -f docker-compose.test.yml -f docker-compose.gha.yml \
              run vets-api bash \
