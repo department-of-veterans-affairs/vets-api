@@ -1,16 +1,15 @@
 name: Release and Update Manifests
 
 on:
-  # push:
-  #   branches:
-  #     - k8s
-  workflow_run:
-    workflows: ["Build & Push to ECR"]
-    branches: [k8s]
-    types:
-      - completed
+  push:
+    branches:
+      - k8s
   workflow_dispatch:
   workflow_call:
+  workflow_run:
+    workflows: [Build & Push to ECR]
+    types: [completed]
+    branches: [k8s]
 
 jobs:
   deploy:
