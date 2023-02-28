@@ -1164,7 +1164,14 @@
                                     "type": "string",
                                     "nullable": true,
                                     "description": "Enum with the status of the tracked item",
-                                    "example": "NO_LONGER_REQUIRED"
+                                    "example": "NO_LONGER_REQUIRED",
+                                    "enum": [
+                                      "ACCEPTED",
+                                      "INITIAL_REVIEW_COMPLETE",
+                                      "NEEDED",
+                                      "NO_LONGER_REQUIRED",
+                                      "SUBMITTED_AWAITING_REVIEW"
+                                    ]
                                   },
                                   "uploaded": {
                                     "type": "boolean",
@@ -1851,8 +1858,8 @@
                   "id": "1",
                   "type": "intent_to_file",
                   "attributes": {
-                    "creationDate": "2023-02-24",
-                    "expirationDate": "2024-02-24",
+                    "creationDate": "2023-02-27",
+                    "expirationDate": "2024-02-27",
                     "type": "compensation",
                     "status": "active"
                   }

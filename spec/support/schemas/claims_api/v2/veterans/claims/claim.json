@@ -325,7 +325,14 @@
                     "type": "string",
                     "nullable": true,
                     "description": "Enum with the status of the tracked item",
-                    "example": "NO_LONGER_REQUIRED"
+                    "example": "NO_LONGER_REQUIRED",
+                    "enum": [
+                      "ACCEPTED",
+                      "INITIAL_REVIEW_COMPLETE",
+                      "NEEDED",
+                      "NO_LONGER_REQUIRED",
+                      "SUBMITTED_AWAITING_REVIEW"
+                    ]
                   },
                   "uploaded": {
                     "type": "boolean",
