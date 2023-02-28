@@ -21,7 +21,6 @@ module SignIn
     private
 
     def get_client_id_mapped_redirect_uri
-      client_config = SignIn::ClientConfig.new(client_id: client_id)
       URI.parse(client_config.redirect_uri)
     end
 
@@ -31,6 +30,10 @@ module SignIn
       params[:type] = type
       params[:state] = client_state if client_state.present?
       params
+    end
+
+    def client_config
+      @client_config ||= SignIn::ClientConfig.find_by(client_id: client_id)
     end
   end
 end

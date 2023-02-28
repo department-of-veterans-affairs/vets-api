@@ -30,17 +30,22 @@ RSpec.describe SignIn::UserLoader do
       end
 
       context 'and associated session exists' do
-        let(:session) { create(:oauth_session, user_account: user_account, user_verification: user_verification) }
+        let(:session) do
+          create(:oauth_session, client_id: client_id, user_account: user_account, user_verification: user_verification)
+        end
         let(:edipi) { 'some-mpi-edipi' }
         let(:idme_uuid) { user_verification.idme_uuid }
         let(:email) { session.credential_email }
         let(:authn_context) { LOA::IDME_LOA3 }
-        let(:credential_service_name) { user_verification.credential_type }
+        let(:service_name) { user_verification.credential_type }
         let(:multifactor) { true }
+        let(:client_config) { create(:client_config) }
+        let(:client_id) { client_config.client_id }
+        let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }
         let(:sign_in) do
-          { service_name: credential_service_name,
-            auth_broker: SignIn::Constants::Auth::BROKER_CODE,
-            client_id: SignIn::Constants::Auth::MOBILE_CLIENT }
+          { service_name: service_name,
+            auth_broker: auth_broker,
+            client_id: client_id }
         end
 
         before do

@@ -22,6 +22,8 @@ module SAML
     LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
     LOGOUT_REDIRECT_PARTIAL = '/logout/'
     BROKER_CODE = 'iam'
+    WEB_CLIENT_ID = 'web'
+    MOBILE_CLIENT_ID = 'mobile'
     UNIFIED_SIGN_IN_CLIENTS = %w[vaweb mhv myvahealth ebenefits vamobile vaoccmobile].freeze
 
     attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params, :tracker

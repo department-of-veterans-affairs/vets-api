@@ -17,7 +17,8 @@ RSpec.describe SignIn::StatePayload, type: :model do
   let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
   let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
   let(:code) { SecureRandom.hex }
-  let(:client_id) { SignIn::Constants::Auth::MOBILE_CLIENT }
+  let(:client_config) { create(:client_config) }
+  let(:client_id) { client_config.client_id }
   let(:client_state) { SecureRandom.hex }
 
   describe 'validations' do
@@ -79,7 +80,7 @@ RSpec.describe SignIn::StatePayload, type: :model do
       context 'when client_id is nil' do
         let(:client_id) { nil }
         let(:expected_error) { ActiveModel::ValidationError }
-        let(:expected_error_message) { 'Validation failed: Client is not included in the list' }
+        let(:expected_error_message) { 'Validation failed: Client id must map to a configuration' }
 
         it 'raises validation error' do
           expect { subject }.to raise_error(expected_error, expected_error_message)
@@ -89,7 +90,7 @@ RSpec.describe SignIn::StatePayload, type: :model do
       context 'when client_id is an arbitrary value' do
         let(:client_id) { 'some-client-id' }
         let(:expected_error) { ActiveModel::ValidationError }
-        let(:expected_error_message) { 'Validation failed: Client is not included in the list' }
+        let(:expected_error_message) { 'Validation failed: Client id must map to a configuration' }
 
         it 'raises validation error' do
           expect { subject }.to raise_error(expected_error, expected_error_message)

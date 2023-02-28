@@ -41,7 +41,7 @@ module SignIn
     end
 
     def audience
-      SignIn::ClientConfig.new(client_id: access_token.client_id).access_token_audience
+      SignIn::ClientConfig.find_by(client_id: access_token.client_id).access_token_audience
     end
   end
 end
