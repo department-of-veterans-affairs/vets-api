@@ -63,7 +63,7 @@ module Form526BackupSubmission
         # We COULD download more fonts if we needed more char/unicode support.
         # But for now sending through with non-'Windows-1252' encoded chars stripped should work.
         # Can expand later if needed.
-        content = File.read(@original_file).encode('Windows-1252', { invalid: :replace, undef: :replace, replace: '' })
+        content = File.read(@original_file).encode('Windows-1252', invalid: :replace, undef: :replace, replace: '')
         Prawn::Document.generate(@converted_filename) do |pdf|
           pdf.text generate_pdf_title_page
           pdf.start_new_page
