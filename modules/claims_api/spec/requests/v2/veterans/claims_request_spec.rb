@@ -192,7 +192,7 @@ RSpec.describe 'Claims', type: :request do
               claim = json_response['data'].first
               claim_two = json_response['data'][1]
               expect(claim['attributes']['status']).to eq('COMPLETE')
-              expect(claim_two['attributes']['status']).to eq('CANCELLED')
+              expect(claim_two['attributes']['status']).to eq('CANCELED')
               expect(claim['attributes']['claimPhaseDates']['phaseChangeDate']).to eq('2017-10-18')
             end
           end

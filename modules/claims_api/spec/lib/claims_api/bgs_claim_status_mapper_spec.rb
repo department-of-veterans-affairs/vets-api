@@ -40,7 +40,7 @@ Rspec.describe ClaimsApi::BGSClaimStatusMapper do
 
         expect(claim_one[:status]).to eq('PENDING')
         expect(claim_three[:status]).to eq('PENDING')
-        expect(claim_two[:status]).to eq('CANCELLED')
+        expect(claim_two[:status]).to eq('CANCELED')
         expect(claim_four[:status]).to eq('INITIAL_REVIEW')
         expect(claim_five[:status]).to eq('COMPLETE')
         expect(claim_six[:status]).to eq('EVIDENCE_GATHERING_REVIEW_DECISION')
