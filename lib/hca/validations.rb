@@ -54,8 +54,8 @@ module HCA
       validated_string
     end
 
-    def validate_name(*args)
-      formatted_name = validate_string(*args)
+    def validate_name(*args, **kw_args)
+      formatted_name = validate_string(*args, **kw_args)
       return '' if formatted_name.blank?
 
       formatted_name.upcase
