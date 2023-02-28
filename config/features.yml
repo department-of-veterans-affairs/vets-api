@@ -811,3 +811,6 @@ features:
   bgs_via_faraday:
     actor_type: user
     description: If enabled uses the faraday connection to BGS as opposed to bgs-ext
+  bgs_via_faraday_file_number:
+    actor_type: user
+    description: If enabled uses the faraday connection to BGS to locate file_number
