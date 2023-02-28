@@ -204,7 +204,7 @@
                 "PREPARATION_FOR_NOTIFICATION",
                 "COMPLETE",
                 "ERRORED",
-                "CANCELLED"
+                "CANCELED"
               ]
             },
             "submitterApplicationCode": {

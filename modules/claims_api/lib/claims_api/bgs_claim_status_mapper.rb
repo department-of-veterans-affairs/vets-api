@@ -3,7 +3,7 @@
 module ClaimsApi
   class BGSClaimStatusMapper
     PHASE_STATUS_DICTIONARY = {
-      CANCELLED: %w[0 cancelled can],
+      CANCELED: %w[0 cancelled can canceled],
       CLAIM_RECEIVED: ['1', 'claim received', 'received', 'open'],
       INITIAL_REVIEW: ['2', 'initial review', 'review', 'under review'],
       PENDING: %w[pending pend],
