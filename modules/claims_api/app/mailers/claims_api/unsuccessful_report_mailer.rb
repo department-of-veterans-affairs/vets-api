@@ -11,6 +11,7 @@ module ClaimsApi
       jennica.stiehl@oddball.io
       kayla.watanabe@adhocteam.us
       matt.king@adhocteam.us
+      matthew.christianson@adhocteam.us
       premal.shah@va.gov
       robert.perea-martinez@adhocteam.us
       stone_christopher@bah.com
