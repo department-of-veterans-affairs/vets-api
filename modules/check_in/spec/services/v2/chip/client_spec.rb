@@ -249,6 +249,31 @@ describe V2::Chip::Client do
     end
   end
 
+  describe '#initiate_check_in' do
+    let(:resp) { Faraday::Response.new(body: { 'uuid' => uuid }.to_json, status: 200) }
+    let(:token) { 'abc123' }
+
+    context 'when CHIP returns success' do
+      let(:resp) { Faraday::Response.new(body: { 'uuid' => uuid }.to_json, status: 200) }
+      let(:token) { 'abc123' }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(resp)
+      end
+
+      it 'yields to block' do
+        expect_any_instance_of(Faraday::Connection).to receive(:post).with("/dev/actions/initiate-check-in/#{uuid}")
+                                                                     .and_yield(Faraday::Request.new)
+
+        subject.initiate_check_in(token: token)
+      end
+
+      it 'returns success response' do
+        expect(subject.initiate_check_in(token: token)).to eq(resp)
+      end
+    end
+  end
+
   describe '#delete' do
     context 'when CHIP returns successfully' do
       let(:response) { Faraday::Response.new(body: 'Delete successful', status: 200) }
