@@ -486,6 +486,10 @@ features:
   profile_show_pronouns_and_sexual_orientation:
     actor_type: user
     description: Show/hide Pronouns and Sexual Orientation fields on profile page
+  profile_use_field_editing_page:
+    description: "Use a single page route in Profile for editing or adding a field value"
+    enable_in_development: true
+    actor_type: user
   profile_use_info_card:
     description: "Use an accessible component for Profile application information card sections"
     enable_in_development: true
