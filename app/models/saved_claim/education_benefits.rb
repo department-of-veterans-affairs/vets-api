@@ -75,7 +75,7 @@ class SavedClaim::EducationBenefits < SavedClaim
 
   def send_1990_confirmation_email(parsed_form_data, email)
     benefit_relinquished = if parsed_form_data['benefitsRelinquished'].present?
-                             "^__Benefits Relinquished:__\n^" \
+                             "__Benefits Relinquished:__\n^" \
                                "#{BENEFIT_RELINQUISHED_TITLE_FOR_1990[parsed_form_data['benefitsRelinquished']]}"
                            else
                              ''
