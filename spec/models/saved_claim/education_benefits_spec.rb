@@ -59,7 +59,7 @@ RSpec.describe SavedClaim::EducationBenefits do
           'form1990_confirmation_email_template_id',
           {
             'first_name' => 'MARK',
-            'benefit_relinquished' => "^__Benefits Relinquished:__\n^Montgomery GI Bill (MGIB-AD, Chapter 30)",
+            'benefit_relinquished' => "__Benefits Relinquished:__\n^Montgomery GI Bill (MGIB-AD, Chapter 30)",
             'benefits' => "Post-9/11 GI Bill (Chapter 33)\n\n^Montgomery GI Bill Selected Reserve " \
                           "(MGIB-SR or Chapter 1606) Educational Assistance Program\n\n^Post-Vietnam " \
                           'Era Veterans’ Educational Assistance Program (VEAP or chapter 32)',
