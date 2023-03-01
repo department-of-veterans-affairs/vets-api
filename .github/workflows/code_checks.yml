@@ -22,8 +22,9 @@ jobs:
       - name: Run Rubocop
         run: bundle exec rubocop --parallel --format github
 
+      # Remove no-exit-on-warn when we upgrade to Ruby 3
       - name: Run Brakeman
-        run:  bundle exec brakeman --ensure-latest --confidence-level=2 --format github
+        run:  bundle exec brakeman --ensure-latest --confidence-level=2 --format github --no-exit-on-warn
 
   tests:
     name: Test
