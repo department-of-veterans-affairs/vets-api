@@ -153,6 +153,17 @@ module V2
       end
 
       ##
+      # HTTP POST call to the CHIP API to initiate check-in
+      #
+      # @return [Faraday::Response]
+      #
+      def initiate_check_in(token:)
+        connection.post("/#{base_path}/actions/initiate-check-in/#{check_in_session.uuid}") do |req|
+          req.headers = default_headers.merge('Authorization' => "Bearer #{token}")
+        end
+      end
+
+      ##
       # HTTP DELETE call to the CHIP API to delete check-in/pre check-in data
       #
       # @param token [String] CHIP token to call the endpoint
