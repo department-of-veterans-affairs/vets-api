@@ -227,24 +227,28 @@ RSpec.describe ApplicationController, type: :controller do
       allow_any_instance_of(Rx::Client)
         .to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
       expect(Raven).to receive(:extra_context).once.with(
-        request_uuid: nil
+        { request_uuid: nil }
       )
       expect(Raven).to receive(:extra_context).once.with(
-        va_exception_errors: [{
-          title: 'Service unavailable',
-          detail: 'Backend Service Outage',
-          code: '503',
-          status: '503'
-        }]
+        {
+          va_exception_errors: [{
+            title: 'Service unavailable',
+            detail: 'Backend Service Outage',
+            code: '503',
+            status: '503'
+          }]
+        }
       )
       # if current user is nil it means user is not signed in.
       expect(Raven).to receive(:tags_context).once.with(
-        controller_name: 'anonymous',
-        sign_in_method: 'not-signed-in',
-        source: 'my_testing'
+        {
+          controller_name: 'anonymous',
+          sign_in_method: 'not-signed-in',
+          source: 'my_testing'
+        }
       )
       expect(Raven).to receive(:tags_context).once.with(
-        error: 'mhv_session'
+        { error: 'mhv_session' }
       )
       # since user is not signed in this shouldnt get called.
       expect(Raven).not_to receive(:user_context)
@@ -268,30 +272,34 @@ RSpec.describe ApplicationController, type: :controller do
         allow_any_instance_of(Rx::Client)
           .to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
         expect(Raven).to receive(:extra_context).once.with(
-          request_uuid: nil
+          { request_uuid: nil }
         )
         expect(Raven).to receive(:extra_context).once.with(
-          va_exception_errors: [{
-            title: 'Service unavailable',
-            detail: 'Backend Service Outage',
-            code: '503',
-            status: '503'
-          }]
+          {
+            va_exception_errors: [{
+              title: 'Service unavailable',
+              detail: 'Backend Service Outage',
+              code: '503',
+              status: '503'
+            }]
+          }
         )
         # if authn_context is nil on current_user it means idme
-        expect(Raven).to receive(:tags_context).once.with(controller_name: 'anonymous',
-                                                          sign_in_method: SignIn::Constants::Auth::IDME,
-                                                          sign_in_acct_type: nil)
+        expect(Raven).to receive(:tags_context).once.with(
+          { controller_name: 'anonymous', sign_in_method: SignIn::Constants::Auth::IDME, sign_in_acct_type: nil }
+        )
 
         expect(Raven).to receive(:tags_context).once.with(
-          error: 'mhv_session'
+          { error: 'mhv_session' }
         )
         # since user IS signed in, this SHOULD get called
         expect(Raven).to receive(:user_context).with(
-          id: user.uuid,
-          authn_context: user.authn_context,
-          loa: user.loa,
-          mhv_icn: user.mhv_icn
+          {
+            id: user.uuid,
+            authn_context: user.authn_context,
+            loa: user.loa,
+            mhv_icn: user.mhv_icn
+          }
         )
         expect(Raven).to receive(:capture_exception).once.with(
           Faraday::ConnectionFailed,

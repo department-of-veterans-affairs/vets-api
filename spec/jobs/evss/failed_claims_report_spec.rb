@@ -99,9 +99,11 @@ RSpec.describe EVSS::FailedClaimsReport, type: :job do
       end
 
       expect(Aws::S3::Resource).to receive(:new).once.with(
-        access_key_id: 'EVSS_S3_AWS_ACCESS_KEY_ID_XYZ',
-        secret_access_key: 'EVSS_S3_AWS_SECRET_ACCESS_KEY_XYZ',
-        region: 'evss_s3_region'
+        {
+          access_key_id: 'EVSS_S3_AWS_ACCESS_KEY_ID_XYZ',
+          secret_access_key: 'EVSS_S3_AWS_SECRET_ACCESS_KEY_XYZ',
+          region: 'evss_s3_region'
+        }
       ).and_return(s3)
       allow(s3).to receive(:bucket).twice.and_return(bucket)
       allow(bucket).to receive(:objects).and_return(objects)
