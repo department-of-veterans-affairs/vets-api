@@ -1,0 +1,65 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/direct-deposit-management/v1/direct-deposit?icn=1012666073V986297
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - sandbox-api.va.gov
+      Authorization:
+      - Bearer eyJraWQiOiJFODRkd0pwZlAzbS1sdnE5SC1ialU1VHR4UVY1bC1wMlZPMGR4X2xrT2RFIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULmNEcDlqREZFazVxTEl1d1hMOFh3b0s0R3hhbkNMOTZVWkZ3OWZZU0xGVE0iLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXNpMGUyMWhidjVpRWxFaDJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2RpcmVjdC1kZXBvc2l0LW1hbmFnZW1lbnQiLCJpYXQiOjE2NzY5MTM2MDIsImV4cCI6MTY3NjkxNDIwMiwiY2lkIjoiMG9hazlwbm5weTZuR2FTVFoycDciLCJzY3AiOlsiZGlyZWN0LmRlcG9zaXQud3JpdGUiLCJkaXJlY3QuZGVwb3NpdC5yZWFkIl0sInN1YiI6IjBvYWs5cG5ucHk2bkdhU1RaMnA3In0.kBeQ6gsFrtg9IWGJnm3WdNsz5lgRAFYahkrXRmA4PXZ6XXU4pDmr993ea0F0e8U3BV2e2BFbBxWLMp7XBr3v7jLJWhJ87dOBZ0Y6tyy_92Z8L8MpLoXhhK8ryDOoD02I-n-xNmLc9RHOsnKwOO0etEzlJNMCp3ylbiNez1U9g8hXWYiV8FeWKqmxuccLhX6da8QqWJ5BwhztIxG8UUFO1RH29Kv8RbVNw-MjtHBF8yevRx99LQPjymflCJCWYw2NbwMzYdNvjyHfouj5HTVOz0A7-C4jz8n2u-4HdAwBk9WYuaC97rwRYbogSjGx-YK8idWz76g6_g5-aSDYw6Ks-Q
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Mon, 20 Feb 2023 17:20:04 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Connection:
+      - keep-alive
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Reset:
+      - '58'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Content-Language:
+      - en-US
+      X-Kong-Upstream-Latency:
+      - '1820'
+      X-Kong-Proxy-Latency:
+      - '1'
+      Via:
+      - kong/3.0.2
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"paymentAccount":{"accountType":"SAVINGS","accountNumber":"12000100012345786","financialInstitutionRoutingNumber":"214634453","financialInstitutionName":"GRINGOTTS
+        BANK"},"controlInformation":{"canUpdateDirectDeposit":true,"isCorpAvailable":true,"isCorpRecFound":true,"hasNoBdnPayments":true,"hasIndentity":true,"hasIndex":true,"isCompetent":true,"hasMailingAddress":true,"hasNoFiduciaryAssigned":true,"isNotDeceased":true,"hasPaymentAddress":true}}'
+  recorded_at: Mon, 20 Feb 2023 17:20:04 GMT
+recorded_with: VCR 6.1.0

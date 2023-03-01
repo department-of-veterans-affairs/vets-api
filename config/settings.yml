@@ -1090,8 +1090,9 @@ lighthouse:
     version: v1
   direct_deposit:
     host: https://sandbox-api.va.gov
+    path: services/direct-deposit-management/v1/direct-deposit
     access_token:
-      aud_claim_url: https://deptva-eval.okta.com/oauth2/1234567890/v1/token
+      aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi0e21hbv5iElEh2p7/v1/token
       client_id: ~
       rsa_key: ~
     use_mocks: false

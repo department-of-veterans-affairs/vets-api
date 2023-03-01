@@ -1,0 +1,63 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/direct-deposit-management/v1/direct-deposit?icn=ABC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer eyJraWQiOiJFODRkd0pwZlAzbS1sdnE5SC1ialU1VHR4UVY1bC1wMlZPMGR4X2xrT2RFIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULms5WE54NG9ReGhwZXpYZHVmZ2htSXczMHJybzBVMllYMi13Y0VRc2w5ODQiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXNpMGUyMWhidjVpRWxFaDJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2RpcmVjdC1kZXBvc2l0LW1hbmFnZW1lbnQiLCJpYXQiOjE2NzY5MTg3MTMsImV4cCI6MTY3NjkxOTMxMywiY2lkIjoiMG9hazlwbm5weTZuR2FTVFoycDciLCJzY3AiOlsiZGlyZWN0LmRlcG9zaXQud3JpdGUiLCJkaXJlY3QuZGVwb3NpdC5yZWFkIl0sInN1YiI6IjBvYWs5cG5ucHk2bkdhU1RaMnA3In0.N-leBfvTUaJMWRrQ7GiVrbBwqFSH5M4f5Cju43GyM9jrp7EdLZdV1qY4fGaFHMe-mst3Pz7ky9PkVHgIDZnY0CjkWb3Coqg_dNM2a11XpCICvtKwi9WwlCb1QcgONVOMYc1_Kl6oTa_WuTsj7ciZ7ueXAX047oF0t-ro-WA2GHSGtLEL8OSWSPAyQ0ZhF34JWYlm8vmJ4kSd_om1S98jeTIoGSm11JizutrnMCu9AilDWwq0klzLdrbfY4Rd6QQgVY362REIqj-29v0i3yqX8puUr_HI13a1ZUiE82-WZkaPXoPucG6bpw6_HuJlTx8_QNMsJjOttRUdSMVGhRQDNg
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: ''
+    headers:
+      Date:
+      - Mon, 20 Feb 2023 18:45:14 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '47'
+      Content-Language:
+      - en-US
+      X-Kong-Upstream-Latency:
+      - '735'
+      X-Kong-Proxy-Latency:
+      - '0'
+      Via:
+      - kong/3.0.2
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"type":"https://api.va.gov/services/direct-deposit-management/v1/api-schema/errors/constraint-violation","title":"Invalid
+        field value","status":400,"detail":"getDirectDeposit.icn size must be between
+        17 and 17, getDirectDeposit.icn must match \"^\\d{10}V\\d{6}$\"","instance":"98943542-d84e-48d4-abe7-873070c6a0fd","errorCodes":[]}'
+  recorded_at: Mon, 20 Feb 2023 18:45:14 GMT
+recorded_with: VCR 6.1.0
