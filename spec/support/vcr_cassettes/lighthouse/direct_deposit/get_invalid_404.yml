@@ -1,0 +1,62 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/direct-deposit-management/v1/direct-deposit?icn=1012829910V765229
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - sandbox-api.va.gov
+      Authorization:
+      - Bearer eyJraWQiOiJobHhBdy1rNy01Qkc1VnE3LU1FcEc4UjBxSnRkcHNyZjh2N0NnY3hVREFVIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULjA4QjdEcTNuakR6U2ZRSHk1MGNyY2k2blBsSDl3R1AxOTJ6cXVEVUY4SEUiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXNpMGUyMWhidjVpRWxFaDJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2RpcmVjdC1kZXBvc2l0LW1hbmFnZW1lbnQiLCJpYXQiOjE2NzcyNTQyMDcsImV4cCI6MTY3NzI1NDgwNywiY2lkIjoiMG9hazlwbm5weTZuR2FTVFoycDciLCJzY3AiOlsiZGlyZWN0LmRlcG9zaXQud3JpdGUiLCJkaXJlY3QuZGVwb3NpdC5yZWFkIl0sInN1YiI6IjBvYWs5cG5ucHk2bkdhU1RaMnA3In0.bRpcscGBZR2udSguh7XQUakKmFcScX_oMI_vf05hfwLYMb5xj7rk9V6QszCwisN8yEw8b1hsXvB6DnJUCHYbqi3MA4scwZ8MZzPLzwYKXZlSItT6W4_4Gn_ELvseCvT-v7o-J7LKDeinA9VbVMBmt7CAqT90nYuG1MA-Df_YV4uOvFFkMV1OmCP5vFCUyhbpTKOA9ciHPw8ZrIOBJxGNaU7LJnCgQ63oesDWc9tb9vMfxJt0osA8WxaPoP_QRB0484ZZipaGGiCwa0og_WLRGwcTeMEjVFoovnCIEe2PymBEIXyoEkDpbmKQi3rWRRdobpXvAHhpNpDHZ91rQ4eX7A
+  response:
+    status:
+      code: 404
+      message: ''
+    headers:
+      Date:
+      - Fri, 24 Feb 2023 15:56:49 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Reset:
+      - '12'
+      Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Content-Language:
+      - en-US
+      X-Kong-Upstream-Latency:
+      - '765'
+      X-Kong-Proxy-Latency:
+      - '18'
+      Via:
+      - kong/3.0.2
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"type":"https://api.va.gov/services/direct-deposit-management/errors/generic/not-found","title":"Person
+        for ICN not found","status":404,"detail":"No data found for ICN","instance":"d85cfe9b-b45b-11ed-b321-67bbb4ad9331"}'
+  recorded_at: Fri, 24 Feb 2023 15:56:49 GMT
+recorded_with: VCR 6.1.0
