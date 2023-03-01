@@ -76,11 +76,11 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdaterLogger do
       end
 
       let(:expected_single_statsd_key) do
-        "user_avc_updater.#{expected_added_from_type}.#{expected_added_type}.added"
+        "api.user_avc_updater.#{expected_added_from_type}.#{expected_added_type}.added"
       end
 
       let(:expected_combined_statsd_key) do
-        "user_avc_updater.mhv_dslogon.#{expected_added_type}.added"
+        "api.user_avc_updater.mhv_dslogon.#{expected_added_type}.added"
       end
 
       before do

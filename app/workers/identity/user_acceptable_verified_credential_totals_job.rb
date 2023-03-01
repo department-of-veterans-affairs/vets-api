@@ -4,7 +4,7 @@ module Identity
   class UserAcceptableVerifiedCredentialTotalsJob
     include Sidekiq::Worker
 
-    STATSD_KEY_PREFIX = 'user_avc_totals'
+    STATSD_KEY_PREFIX = 'worker.user_avc_totals'
 
     SCOPES = [WITH_AVC = :with_avc,
               WITH_IVC = :with_ivc,
