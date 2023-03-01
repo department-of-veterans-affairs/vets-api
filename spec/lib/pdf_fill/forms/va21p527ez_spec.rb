@@ -500,14 +500,16 @@ describe PdfFill::Forms::Va21p527ez do
       expect(
         JSON.parse(
           basic_class.combine_name_addr(
-            'name' => 'name',
-            'address' => {
-              'city' => 'Baltimore',
-              'country' => 'USA',
-              'postalCode' => '21231',
-              'street' => 'street',
-              'street2' => 'street2',
-              'state' => 'MD'
+            {
+              'name' => 'name',
+              'address' => {
+                'city' => 'Baltimore',
+                'country' => 'USA',
+                'postalCode' => '21231',
+                'street' => 'street',
+                'street2' => 'street2',
+                'state' => 'MD'
+              }
             }
           ).to_json
         )
