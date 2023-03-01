@@ -45,7 +45,7 @@ module EMISRedis
 
         options = {}
         @user.edipi ? options[:edipi] = @user.edipi : options[:icn] = @user.icn
-        service.public_send(method, options)
+        service.public_send(method, **options)
       end
     end
 

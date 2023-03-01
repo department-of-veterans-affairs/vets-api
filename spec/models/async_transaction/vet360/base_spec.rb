@@ -109,8 +109,13 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
 
   describe '.fetch_transaction' do
     it 'raises an error if passed unrecognized transaction' do
+      # Instead of simply calling Struct.new('Surprise'), we need to check that it hasn't been defined already
+      # in order to prevent the following warning:
+      # warning: redefining constant Struct::Surprise
+      surprise_struct = Struct.const_defined?('Surprise') ? Struct::Surprise : Struct.new('Surprise')
+
       expect do
-        AsyncTransaction::Vet360::Base.fetch_transaction(Struct.new('Surprise'), nil)
+        AsyncTransaction::Vet360::Base.fetch_transaction(surprise_struct, nil)
       end.to raise_exception(RuntimeError)
     end
   end
