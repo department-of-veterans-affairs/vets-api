@@ -382,8 +382,8 @@ Rails.application.reloader.to_prepare do
   # init user_avc_updater_logger
   Login::UserAcceptableVerifiedCredentialUpdaterLogger::ADDED_TYPES.each do |added_type|
     Login::UserAcceptableVerifiedCredentialUpdaterLogger::FROM_TYPES.each do |from_type|
-      StatsD.increment("user_avc_updater.#{from_type}.#{added_type}.added", 0)
+      StatsD.increment("api.user_avc_updater.#{from_type}.#{added_type}.added", 0)
     end
-    StatsD.increment("user_avc_updater.mhv_dslogon.#{added_type}.added", 0)
+    StatsD.increment("api.user_avc_updater.mhv_dslogon.#{added_type}.added", 0)
   end
 end

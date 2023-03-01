@@ -2,7 +2,7 @@
 
 module Login
   class UserAcceptableVerifiedCredentialUpdaterLogger
-    STATSD_KEY_PREFIX = 'user_avc_updater'
+    STATSD_KEY_PREFIX = 'api.user_avc_updater'
     LOG_MESSAGE = '[UserAcceptableVerifiedCredentialUpdater] - User AVC Updated'
     FROM_TYPES = [MHV_TYPE = 'mhv', DSLOGON_TYPE = 'dslogon', IDME_TYPE = 'idme', LOGINGOV_TYPE = 'logingov'].freeze
     ADDED_TYPES = [AVC_TYPE = 'avc', IVC_TYPE = 'ivc'].freeze

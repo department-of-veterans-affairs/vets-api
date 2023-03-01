@@ -46,7 +46,7 @@ RSpec.describe Identity::UserAcceptableVerifiedCredentialTotalsJob do
 
   let(:expected_provider) { nil }
   let(:expected_scope) { nil }
-  let(:expected_statsd_key) { "user_avc_totals.#{expected_provider}.#{expected_scope}.total" }
+  let(:expected_statsd_key) { "worker.user_avc_totals.#{expected_provider}.#{expected_scope}.total" }
   let(:expected_statsd_count) { expected_count }
   let(:expected_count) { UserAcceptableVerifiedCredential.all.count }
 
@@ -102,7 +102,7 @@ RSpec.describe Identity::UserAcceptableVerifiedCredentialTotalsJob do
                     :dslogon_verified_account,
                     :"#{expected_scope}")
       end
-      let(:expected_statsd_key) { "user_avc_totals.mhv_dslogon.#{expected_scope}.total" }
+      let(:expected_statsd_key) { "worker.user_avc_totals.mhv_dslogon.#{expected_scope}.total" }
       let(:expected_statsd_count) { UserAcceptableVerifiedCredential.all.count }
 
       include_context 'when there are avc'
