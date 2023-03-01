@@ -52,10 +52,10 @@ module ClaimsApi
       header.to_s
     end
 
-    def full_body(action:, body:)
+    def full_body(action:, body:, namespace:)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <?xml version="1.0" encoding="UTF-8"?>
-          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://services.share.benefits.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
+          <env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="#{namespace}" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/">
           #{header}
           <env:Body>
             <tns:#{action}>
@@ -67,24 +67,27 @@ module ClaimsApi
       body.to_s
     end
 
-    def parsed_response(res)
+    def parsed_response(res, action, key)
       parsed = Hash.from_xml(res.body)
-      parsed.dig('Envelope', 'Body', 'findPOAByPtcpntIdResponse', 'return')
+      parsed.dig('Envelope', 'Body', "#{action}Response", key)
             &.deep_transform_keys(&:underscore)
             &.deep_symbolize_keys || {}
     end
 
-    def make_request(endpoint:, action:, body:)
+    def make_request(endpoint:, action:, body:, key:)
       connection = Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode })
       connection.options.timeout = @timeout
-      response = connection.post("#{Settings.bgs.url}/#{endpoint}", full_body(action: action, body: body),
+      wsdl = connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
+      target_namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace')
+      response = connection.post("#{Settings.bgs.url}/#{endpoint}", full_body(action: action,
+                                                                              body: body,
+                                                                              namespace: target_namespace),
                                  {
                                    'Content-Type' => 'text/xml;charset=UTF-8',
                                    'Host' => "#{@env}.vba.va.gov",
                                    'Soapaction' => "\"#{action}\""
                                  })
-
-      parsed_response(response)
+      parsed_response(response, action, key)
     end
 
     def find_poa_by_participant_id(id)
@@ -96,7 +99,21 @@ module ClaimsApi
         body.xpath("./*[local-name()='#{k}']")[0].content = v
       end
 
-      make_request(endpoint: 'ClaimantServiceBean/ClaimantWebService', action: 'findPOAByPtcpntId', body: body)
+      make_request(endpoint: 'ClaimantServiceBean/ClaimantWebService', action: 'findPOAByPtcpntId', body: body,
+                   key: 'return')
+    end
+
+    def find_by_ssn(ssn)
+      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
+        <ssn />
+      EOXML
+
+      { ssn: ssn }.each do |k, v|
+        body.xpath("./*[local-name()='#{k}']")[0].content = v
+      end
+
+      make_request(endpoint: 'PersonWebServiceBean/PersonWebService', action: 'findPersonBySSN', body: body,
+                   key: 'PersonDTO')
     end
   end
 end

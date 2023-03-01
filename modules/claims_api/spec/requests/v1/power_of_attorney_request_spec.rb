@@ -15,12 +15,11 @@ RSpec.describe 'Power of Attorney ', type: :request do
   end
   let(:scopes) { %w[claim.read claim.write] }
   let(:pws) do
-    # Uncomment this once find_by_ssn is implemented
-    # if Flipper.enabled? :bgs_via_faraday
-    #   ClaimsApi::LocalBGS
-    # else
-    BGS::PersonWebService
-    # end
+    if Flipper.enabled? :bgs_via_faraday
+      ClaimsApi::LocalBGS
+    else
+      BGS::PersonWebService
+    end
   end
 
   before do
