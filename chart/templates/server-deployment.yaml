@@ -16,8 +16,8 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge:  {{ $service.rollingUpdate.maxSurge | default $root.Values.web.maxSurge }}
-      maxUnavailable: {{ $service.rollingUpdate.maxUnavailable | $root.Values.web.maxUnavailable }}
+      maxSurge: {{ $root.Values.web.maxSurge }}
+      maxUnavailable: {{ $root.Values.web.maxUnavailable }}
   template:
     metadata:
       labels:
