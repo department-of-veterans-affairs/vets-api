@@ -90,7 +90,6 @@ spec:
           imagePullPolicy: {{ $root.Values.image.pullPolicy }}
           ports:
 {{ toYaml $root.Values.clamav.ports | indent 12 }}
-{{ toYaml $root.Values.clamav.probes | indent 10 }}
           resources:
 {{ toYaml $root.Values.clamav.resources | indent 12 }}
           volumeMounts:
