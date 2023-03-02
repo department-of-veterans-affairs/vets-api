@@ -1,0 +1,79 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/1008709396V637156/claims/600383363
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer abcdefghijklmnop
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Date:
+      - Tue, 28 Feb 2023 21:09:30 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '73'
+      Connection:
+      - keep-alive
+      Ratelimit-Reset:
+      - '30'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Git-Sha:
+      - b20885293917fd081d24899644d2718d2ab4ccf9
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 2f4b9f4c-95d6-4030-b65e-b0a0fe9eb669
+      X-Runtime:
+      - '0.223491'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Kong-Upstream-Latency:
+      - '227'
+      X-Kong-Proxy-Latency:
+      - '1'
+      Via:
+      - kong/3.0.2
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"title":"Token Validation Error","detail":"Invalid token."}]}'
+  recorded_at: Tue, 28 Feb 2023 21:09:30 GMT
+recorded_with: VCR 6.1.0
