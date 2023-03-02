@@ -530,6 +530,20 @@ RSpec.describe 'IntentToFiles', type: :request do
         end
 
         context 'when payload is invalid' do
+          context "when 'type' is survivor" do
+            context "when 'claimantSsn' is blank" do
+              it 'returns a 422' do
+                with_okta_user(scopes) do |auth_header|
+                  invalid_data = data
+                  invalid_data[:type] = 'survivor'
+                  invalid_data[:claimantSsn] = ''
+                  post itf_validate_path, params: invalid_data, headers: auth_header
+                  expect(response.status).to eq(422)
+                end
+              end
+            end
+          end
+
           context "when 'type' is invalid" do
             context "when 'type' is blank" do
               it 'returns a 400' do
