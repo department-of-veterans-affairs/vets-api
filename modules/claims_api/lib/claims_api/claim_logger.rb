@@ -47,6 +47,10 @@ module ClaimsApi
         msg.append("has ptcpnt_id: #{params[:ptcpnt_id]}") if params[:ptcpnt_id].present?
         msg.append("has birls_id: #{params[:birls_id]}") if params[:birls_id].present?
         msg.append("MPI Response OK: #{params[:mpi_res_ok]}") if params[:mpi_res_ok].present?
+      when 'local_bgs'
+        params.each do |k, v|
+          msg.append "#{k}: #{v}"
+        end
       else
         msg.append(params.to_json)
       end
