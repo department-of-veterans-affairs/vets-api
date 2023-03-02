@@ -130,7 +130,7 @@ module AppealsApi
     end
 
     def domestic_phone?
-      phone_country_code == '1'
+      phone_country_code.blank? || phone_country_code == '1'
     end
 
     private
