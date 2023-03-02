@@ -37,7 +37,8 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
       source: request_headers['X-Consumer-Username'].presence&.strip,
       evidence_submission_indicated: evidence_submission_indicated?,
       api_version: 'V2',
-      veteran_icn: request_headers['X-VA-ICN'].presence&.strip
+      veteran_icn: request_headers['X-VA-ICN'].presence&.strip,
+      metadata: { evidenceType: @json_body.dig(*%w[data attributes evidenceSubmission evidenceType]) }
     )
 
     render_model_errors(sc) and return unless sc.validate
