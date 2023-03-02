@@ -202,8 +202,11 @@ module VAOS
             'VAOS Type of care and provider',
             kind: appt[:kind],
             status: appt[:status],
-            type_of_care: appt[:service_type],
-            provider: appt[:practitioners]
+            type_of_care: appt.dig(:service_types, 0, :coding, 0, :code),
+            treatment_specialty: appt.dig(:extension, :ccTreatingSpecialty),
+            provider_name: "#{appt.dig(:practitioners, 0, :name, :given,
+                                       0)}  #{appt.dig(:practitioners, 0, :name, :family)}",
+            practice_name: appt.dig(:practitioners, 0, :practice_name)
           )
           logged_toc_providers.add(logged_key)
         end
