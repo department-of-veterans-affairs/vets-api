@@ -25,7 +25,9 @@ module EMIS
     def self.create_endpoints(endpoints)
       endpoints.each do |endpoint|
         operation, request_name, version = get_endpoint_attributes(endpoint)
-        define_method(operation) do |edipi: nil, icn: nil|
+        define_method(operation) do |options|
+          edipi, icn = options.values_at(:edipi, :icn)
+
           parameters = {
             edipi: edipi,
             icn: icn,
