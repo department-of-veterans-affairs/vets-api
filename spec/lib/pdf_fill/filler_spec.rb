@@ -75,7 +75,9 @@ describe PdfFill::Filler, type: :model do
         form_id: '686C-674',
         factory: :dependency_claim
       }
-    ].each do |form_id:, factory:, **options|
+    ].each do |options|
+      form_id, factory = options.values_at(:form_id, :factory)
+
       context "form #{form_id}" do
         %w[simple kitchen_sink overflow].each do |type|
           context "with #{type} test data" do
