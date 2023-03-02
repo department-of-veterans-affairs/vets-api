@@ -21,18 +21,31 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
     end
 
     it 'calls PdfFill::Filler#fill_form' do
-      expect(PdfFill::Filler).to receive(:fill_form).with(claim, claim.guid, {}).once.and_return(:expected_file_paths)
+      if RUBY_VERSION =~ /2.7/
+        expect(PdfFill::Filler).to receive(:fill_form).with(claim, claim.guid, {}).once.and_return(:expected_file_paths)
+      else
+        expect(PdfFill::Filler).to receive(:fill_form).with(claim, claim.guid).once.and_return(:expected_file_paths)
+      end
       expect(claim.to_pdf).to eq(:expected_file_paths)
     end
 
     it 'passes arguments to PdfFill::Filler#fill_form' do
-      expect(PdfFill::Filler).to receive(
-        :fill_form
-      ).with(
-        claim,
-        'my_other_filename',
-        {}
-      ).once.and_return(:expected_file_paths)
+      if RUBY_VERSION =~ /2.7/
+        expect(PdfFill::Filler).to receive(
+          :fill_form
+        ).with(
+          claim,
+          'my_other_filename',
+          {}
+        ).once.and_return(:expected_file_paths)
+      else
+        expect(PdfFill::Filler).to receive(
+          :fill_form
+        ).with(
+          claim,
+          'my_other_filename'
+        ).once.and_return(:expected_file_paths)
+      end
 
       # Calling with only filename
       claim.to_pdf('my_other_filename')
