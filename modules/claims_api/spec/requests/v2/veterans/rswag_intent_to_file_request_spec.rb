@@ -346,14 +346,17 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs,
                                                       'default.json')))
 
           let(:scopes) { %w[claim.write] }
-          let(:data) { { type: 'survivor' } }
+          let(:data) { { type: 'survivor', claimantSsn: '796111863' } }
+          let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
 
           before do |example|
             stub_poa_verification
             stub_mpi
 
             with_okta_user(scopes) do
-              submit_request(example.metadata)
+              VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+                submit_request(example.metadata)
+              end
             end
           end
 
