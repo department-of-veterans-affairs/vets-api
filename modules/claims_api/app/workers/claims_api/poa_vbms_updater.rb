@@ -26,7 +26,7 @@ module ClaimsApi
         participant_id: poa_form.auth_headers['va_eauth_pid'],
         poa_code: poa_form.form_data.dig('serviceOrganization', 'poaCode'),
         allow_poa_access: 'y',
-        allow_poa_c_add: allow_address_change?(poa_form) ? 'y' : 'n'
+        allow_poa_c_add: allow_address_change?(poa_form, power_of_attorney_id) ? 'y' : 'n'
       )
 
       if response[:return_code] == 'GUIE50000'
@@ -46,7 +46,8 @@ module ClaimsApi
       poa_form.save
     end
 
-    def allow_address_change?(poa_form)
+    def allow_address_change?(poa_form, power_of_attorney_id)
+      ClaimsApi::Logger.log('poa', poa_id: power_of_attorney_id, detail: 'consent to change address has changed')
       poa_form.form_data['consentAddressChange']
     end
   end
