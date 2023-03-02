@@ -6,6 +6,8 @@
 # Additionally, we waive copyright and related rights in the work
 # worldwide through the CC0 1.0 Universal public domain dedication.
 
+require 'claims_api/claim_logger'
+
 module ClaimsApi
   class LocalBGS
     attr_accessor :external_uid, :external_key
@@ -74,20 +76,29 @@ module ClaimsApi
             &.deep_symbolize_keys || {}
     end
 
-    def make_request(endpoint:, action:, body:, key:)
-      connection = Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode })
+    def make_request(endpoint:, action:, body:, key:) # rubocop:disable Metrics/MethodLength
+      connection = log_duration event: 'establish_ssl_connection' do
+        Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode })
+      end
       connection.options.timeout = @timeout
-      wsdl = connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
+
+      wsdl = log_duration event: 'connection_wsdl_get', endpoint: endpoint do
+        connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
+      end
       target_namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace')
-      response = connection.post("#{Settings.bgs.url}/#{endpoint}", full_body(action: action,
-                                                                              body: body,
-                                                                              namespace: target_namespace),
-                                 {
-                                   'Content-Type' => 'text/xml;charset=UTF-8',
-                                   'Host' => "#{@env}.vba.va.gov",
-                                   'Soapaction' => "\"#{action}\""
-                                 })
-      parsed_response(response, action, key)
+      response = log_duration event: 'connection_post', endpoint: endpoint, action: action do
+        connection.post("#{Settings.bgs.url}/#{endpoint}", full_body(action: action,
+                                                                     body: body,
+                                                                     namespace: target_namespace),
+                        {
+                          'Content-Type' => 'text/xml;charset=UTF-8',
+                          'Host' => "#{@env}.vba.va.gov",
+                          'Soapaction' => "\"#{action}\""
+                        })
+      end
+      log_duration event: 'parsed_response', key: key do
+        parsed_response(response, action, key)
+      end
     end
 
     def find_poa_by_participant_id(id)
@@ -114,6 +125,21 @@ module ClaimsApi
 
       make_request(endpoint: 'PersonWebServiceBean/PersonWebService', action: 'findPersonBySSN', body: body,
                    key: 'PersonDTO')
+    end
+
+    private
+
+    def log_duration(event: 'default', **extra_params)
+      # Who are we to question sidekiq's use of CLOCK_MONOTONIC to avoid negative durations?
+      # https://github.com/sidekiq/sidekiq/issues/3999
+      start_time = ::Process.clock_gettime(::Process::CLOCK_MONOTONIC)
+      result = yield
+      duration = (::Process.clock_gettime(::Process::CLOCK_MONOTONIC) - start_time).round(4)
+
+      # event should be first key in log, duration last
+      ClaimsApi::Logger.log 'local_bgs', { event: event }.merge(extra_params).merge({ duration: duration })
+      StatsD.measure("api.claims_api.local_bgs.#{event}.duration", duration, tags: {})
+      result
     end
   end
 end
