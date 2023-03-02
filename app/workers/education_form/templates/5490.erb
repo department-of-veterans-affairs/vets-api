@@ -143,13 +143,14 @@ Hours: <%= hours_and_type(@applicant.highSchool) %>
 Degree/Diploma/Certificate: <%= @applicant.highSchool&.degreeReceived %>
 
 <%= parse_with_template_path('post_high_school_trainings') %>
+<% if Rails.env.production? -%>
           ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
           ----------------------------------------------------------
 
 <%= parse_with_template_path('civilian_benefits_assistance') %>
 
 Source of educational assistance for government employee: <%= @applicant.civilianBenefitsSource %>
-
+<% end -%>
 <%= parse_with_template_path('signatures') %>
 
 <%= parse_with_template_path('footer') %>
