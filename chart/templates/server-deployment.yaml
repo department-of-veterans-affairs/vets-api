@@ -16,7 +16,7 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: {{ $root.Values.web.maxSurge }}
+      maxSurge:  {{ $root.Values.web.maxSurge }}
       maxUnavailable: {{ $root.Values.web.maxUnavailable }}
   template:
     metadata:
@@ -54,16 +54,21 @@ spec:
             - containerPort: {{ $key.containerPort }}
               name: {{ $key.name }}
             {{- end }}
+          {{- if $root.Values.web.healthCheck.livenessProbe.enabled  }}
           livenessProbe: #ensure app is serving requests properly and know when to restart a container
             httpGet:
               path: {{ $root.Values.web.healthCheck.requestPath }}
               port: {{ $root.Values.web.healthCheck.port }}
             initialDelaySeconds: {{ $root.Values.web.healthCheck.initialDelaySeconds }}
             periodSeconds: {{ $root.Values.web.healthCheck.periodSeconds }}
+          {{- end }}
           readinessProbe: #ensure container is ready to start accepting traffic
             httpGet:
               path: {{ $root.Values.web.healthCheck.readinessPath }}
               port: {{ $root.Values.web.healthCheck.readinessPort }}
+              httpHeaders:
+                - name: Host
+                  value: {{ $service.healthCheck.host | default $root.Values.web.healthCheck.host }}
             initialDelaySeconds: {{ $root.Values.web.healthCheck.initialDelaySeconds }}
             periodSeconds: {{ $root.Values.web.healthCheck.periodSeconds }}
             successThreshold: {{ $root.Values.web.healthCheck.successThreshold }}

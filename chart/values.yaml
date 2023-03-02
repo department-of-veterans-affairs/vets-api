@@ -38,6 +38,9 @@ web:
     readinessPath: ""
     readinessPort: ""
     successThreshold: ""
+    host: ""
+    livenessProbe:
+      enabled: true
   socatProxyEnabled: false
   envSecrets:
     - name: DD_APM_ENABLED
