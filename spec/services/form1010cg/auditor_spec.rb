@@ -336,9 +336,9 @@ RSpec.describe Form1010cg::Auditor do
             input: { claim_guid: 'uuid-123', form_subject: 'secondaryCaregiverOne', result: :skipped },
             expectation: '[Form 10-10CG] MPI Profile search was skipped for Secondary Caregiver One'
           }
-        ].each do |input:, expectation:|
-          expect(Rails.logger).to receive(:info).with(expectation, claim_guid: input[:claim_guid])
-          subject.log_mpi_search_result(**input)
+        ].each do |options|
+          expect(Rails.logger).to receive(:info).with(options[:expectation], claim_guid: options[:input][:claim_guid])
+          subject.log_mpi_search_result(**options[:input])
         end
       end
     end
