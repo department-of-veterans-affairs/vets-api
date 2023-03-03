@@ -46,7 +46,7 @@ module Mobile
         directDepositBenefits: %i[evss ppiu],
         disabilityRating: :evss,
         lettersAndDocuments: :evss,
-        militaryServiceHistory: :emis,
+        militaryServiceHistory: :vet360,
         paymentHistory: :bgs,
         userProfileUpdate: :vet360,
         secureMessaging: :mhv_messaging,

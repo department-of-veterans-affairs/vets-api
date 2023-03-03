@@ -15,7 +15,7 @@ module Mobile
         %i[bgs payment_history],
         %i[arcgis facility_locator],
         %i[caseflow appeals],
-        %i[emis military_service_history],
+        %i[vet360 military_service_history],
         %i[evss claims],
         %i[evss direct_deposit_benefits],
         %i[evss disability_rating],

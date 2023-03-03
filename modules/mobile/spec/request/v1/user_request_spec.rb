@@ -250,11 +250,12 @@ RSpec.describe 'user', type: :request do
           end
         end
 
-        it 'does not include edipi services (claims, direct deposit, letters, military history)' do
+        it 'does not include edipi services (claims, direct deposit, letters)' do
           expect(attributes['authorizedServices']).to eq(
             %w[
               appeals
               appointments
+              militaryServiceHistory
               paymentHistory
               userProfileUpdate
             ]
