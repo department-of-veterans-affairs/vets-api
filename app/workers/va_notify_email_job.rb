@@ -9,7 +9,7 @@ class VANotifyEmailJob
     notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
 
     notify_client.send_email(
-      {
+      **{
         email_address: email,
         template_id: template_id,
         personalisation: personalisation
