@@ -5,6 +5,8 @@ require 'sidekiq'
 module AppealsApi
   class AppealReceivedJob
     include Sidekiq::Worker
+    STATSD_KEY_PREFIX = 'api.appeals.received'
+    STATSD_CLAIMANT_EMAIL_SENT = "#{STATSD_KEY_PREFIX}.claimant.email.sent"
 
     # @param [Hash] opts
     # @option opts [String] :receipt_event The callback indicating which appeal was received. Required.
@@ -38,6 +40,7 @@ module AppealsApi
       return Rails.logger.error "AppealReceived: could not find template id for #{template_name}" if template_id.blank?
 
       vanotify_service.send_email(params({ template_id: template_id }))
+      StatsD.increment(STATSD_CLAIMANT_EMAIL_SENT, tags: { appeal_type: 'hlr', claimant_type: claimant_type })
     end
 
     def nod_received
@@ -51,6 +54,7 @@ module AppealsApi
       return Rails.logger.error "AppealReceived: could not find template id for #{template_name}" if template_id.blank?
 
       vanotify_service.send_email(params({ template_id: template_id }))
+      StatsD.increment(STATSD_CLAIMANT_EMAIL_SENT, tags: { appeal_type: 'nod', claimant_type: claimant_type })
     end
 
     def sc_received
@@ -64,6 +68,7 @@ module AppealsApi
       return Rails.logger.error "AppealReceived: could not find template id for #{template_name}" if template_id.blank?
 
       vanotify_service.send_email(params({ template_id: template_id }))
+      StatsD.increment(STATSD_CLAIMANT_EMAIL_SENT, tags: { appeal_type: 'sc', claimant_type: claimant_type })
     end
 
     private
@@ -133,6 +138,10 @@ module AppealsApi
 
     def claimant?
       opts['claimant_first_name'].present? || opts['claimant_email'].present?
+    end
+
+    def claimant_type
+      claimant? ? 'non-veteran' : 'veteran'
     end
 
     def required_email_identifier_keys

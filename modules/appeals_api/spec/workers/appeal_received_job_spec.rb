@@ -28,7 +28,9 @@ module AppealsApi
         with_settings(Settings.vanotify.services.lighthouse.template_id,
                       higher_level_review_received: 'hlr_veteran_template') do
           opts.merge!('receipt_event' => 'hlr_received')
-          job.perform(opts)
+          expect { job.perform(opts) }
+            .to trigger_statsd_increment(AppealReceivedJob::STATSD_CLAIMANT_EMAIL_SENT,
+                                         tags: ['appeal_type:hlr', 'claimant_type:veteran'], times: 1)
           expect(client).to have_received(:send_email).with(hash_including(template_id: 'hlr_veteran_template'))
         end
       end
@@ -37,7 +39,9 @@ module AppealsApi
         with_settings(Settings.vanotify.services.lighthouse.template_id,
                       notice_of_disagreement_received: 'nod_veteran_template') do
           opts.merge!('receipt_event' => 'nod_received')
-          job.perform(opts)
+          expect { job.perform(opts) }
+            .to trigger_statsd_increment('api.appeals.received.claimant.email.sent',
+                                         tags: ['appeal_type:nod', 'claimant_type:veteran'], times: 1)
           expect(client).to have_received(:send_email).with(hash_including(template_id: 'nod_veteran_template'))
         end
       end
@@ -46,7 +50,9 @@ module AppealsApi
         with_settings(Settings.vanotify.services.lighthouse.template_id,
                       supplemental_claim_received: 'sc_veteran_template') do
           opts.merge!('receipt_event' => 'sc_received')
-          job.perform(opts)
+          expect { job.perform(opts) }
+            .to trigger_statsd_increment('api.appeals.received.claimant.email.sent',
+                                         tags: ['appeal_type:sc', 'claimant_type:veteran'], times: 1)
           expect(client).to have_received(:send_email).with(hash_including(template_id: 'sc_veteran_template'))
         end
       end
@@ -69,7 +75,9 @@ module AppealsApi
         with_settings(Settings.vanotify.services.lighthouse.template_id,
                       higher_level_review_received_claimant: 'hlr_claimant_template') do
           opts.merge!('receipt_event' => 'hlr_received')
-          job.perform(opts)
+          expect { job.perform(opts) }
+            .to trigger_statsd_increment(AppealReceivedJob::STATSD_CLAIMANT_EMAIL_SENT,
+                                         tags: ['appeal_type:hlr', 'claimant_type:non-veteran'], times: 1)
           expect(client).to have_received(:send_email).with(hash_including(template_id: 'hlr_claimant_template'))
         end
       end
@@ -78,7 +86,9 @@ module AppealsApi
         with_settings(Settings.vanotify.services.lighthouse.template_id,
                       notice_of_disagreement_received_claimant: 'nod_claimant_template') do
           opts.merge!('receipt_event' => 'nod_received')
-          job.perform(opts)
+          expect { job.perform(opts) }
+            .to trigger_statsd_increment(AppealReceivedJob::STATSD_CLAIMANT_EMAIL_SENT,
+                                         tags: ['appeal_type:nod', 'claimant_type:non-veteran'], times: 1)
           expect(client).to have_received(:send_email).with(hash_including(template_id: 'nod_claimant_template'))
         end
       end
@@ -87,7 +97,9 @@ module AppealsApi
         with_settings(Settings.vanotify.services.lighthouse.template_id,
                       supplemental_claim_received_claimant: 'sc_claimant_template') do
           opts.merge!('receipt_event' => 'sc_received')
-          job.perform(opts)
+          expect { job.perform(opts) }
+            .to trigger_statsd_increment(AppealReceivedJob::STATSD_CLAIMANT_EMAIL_SENT,
+                                         tags: ['appeal_type:sc', 'claimant_type:non-veteran'], times: 1)
           expect(client).to have_received(:send_email).with(hash_including(template_id: 'sc_claimant_template'))
         end
       end
