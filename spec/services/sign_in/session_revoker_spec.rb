@@ -48,23 +48,37 @@ RSpec.describe SignIn::SessionRevoker do
 
       after { Timecop.return }
 
-      context 'when client is configured to check for anti csrf' do
-        let(:anti_csrf) { true }
-
-        context 'and anti csrf token does not match value in refresh token' do
-          let(:input_anti_csrf_token) { 'some-arbitrary-csrf-token-value' }
-          let(:expected_error) { SignIn::Errors::AntiCSRFMismatchError }
-          let(:expected_error_message) { 'Anti CSRF token is not valid' }
-
-          it 'raises an AntiCSRFMismatch Error' do
-            expect { subject }.to raise_error(expected_error, expected_error_message)
-          end
-        end
-      end
-
       context 'when session handle in refresh token matches an existing oauth session' do
-        context 'when session is not expired' do
-          context 'when token hash in session specifically matches stored parent of input refresh token' do
+        context 'and session is not expired' do
+          context 'and client is configured to check for anti csrf' do
+            let(:anti_csrf) { true }
+
+            context 'and anti csrf token does not match value in refresh token' do
+              let(:input_anti_csrf_token) { 'some-arbitrary-csrf-token-value' }
+              let(:expected_error) { SignIn::Errors::AntiCSRFMismatchError }
+              let(:expected_error_message) { 'Anti CSRF token is not valid' }
+
+              it 'raises an AntiCSRFMismatch Error' do
+                expect { subject }.to raise_error(expected_error, expected_error_message)
+              end
+            end
+          end
+
+          context 'and client in session does not match an existing client configuration' do
+            let(:expected_error) { ActiveRecord::RecordNotFound }
+            let(:expected_error_message) { "Couldn't find SignIn::ClientConfig" }
+            let(:arbitrary_client_id) { 'some-client-id' }
+
+            before do
+              allow_any_instance_of(SignIn::OAuthSession).to receive(:client_id).and_return(arbitrary_client_id)
+            end
+
+            it 'raises a record not found Error' do
+              expect { subject }.to raise_error(expected_error, expected_error_message)
+            end
+          end
+
+          context 'and token hash in session specifically matches stored parent of input refresh token' do
             let(:double_hashed_refresh_token) do
               Digest::SHA256.hexdigest(Digest::SHA256.hexdigest(refresh_token.to_json))
             end
@@ -75,7 +89,7 @@ RSpec.describe SignIn::SessionRevoker do
             end
           end
 
-          context 'when token hash in session does not match input refresh token or its stored parent' do
+          context 'and token hash in session does not match input refresh token or its stored parent' do
             let(:session_hashed_refresh_token) { 'some-arbitrary-refresh-token-hash' }
             let(:expected_error) { SignIn::Errors::TokenTheftDetectedError }
             let(:expected_error_message) { 'Token theft detected' }
@@ -91,7 +105,7 @@ RSpec.describe SignIn::SessionRevoker do
           end
         end
 
-        context 'when session is expired' do
+        context 'and session is expired' do
           let(:session_expiration) { Time.zone.now - 30.minutes }
           let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError }
           let(:expected_error_message) { 'No valid Session found' }
@@ -147,29 +161,43 @@ RSpec.describe SignIn::SessionRevoker do
 
       after { Timecop.return }
 
-      context 'when client is configured to check for anti csrf' do
-        let(:anti_csrf) { true }
-
-        context 'and anti csrf token does not match value in access token' do
-          let(:input_anti_csrf_token) { 'some-arbitrary-csrf-token-value' }
-          let(:expected_error) { SignIn::Errors::AntiCSRFMismatchError }
-          let(:expected_error_message) { 'Anti CSRF token is not valid' }
-
-          it 'raises an AntiCSRFMismatch Error' do
-            expect { subject }.to raise_error(expected_error, expected_error_message)
-          end
-        end
-      end
-
       context 'when session handle in access token matches an existing oauth session' do
-        context 'when session is not expired' do
+        context 'and session is not expired' do
+          context 'and client is configured to check for anti csrf' do
+            let(:anti_csrf) { true }
+
+            context 'and anti csrf token does not match value in refresh token' do
+              let(:input_anti_csrf_token) { 'some-arbitrary-csrf-token-value' }
+              let(:expected_error) { SignIn::Errors::AntiCSRFMismatchError }
+              let(:expected_error_message) { 'Anti CSRF token is not valid' }
+
+              it 'raises an AntiCSRFMismatch Error' do
+                expect { subject }.to raise_error(expected_error, expected_error_message)
+              end
+            end
+          end
+
+          context 'and client in session does not match an existing client configuration' do
+            let(:expected_error) { ActiveRecord::RecordNotFound }
+            let(:expected_error_message) { "Couldn't find SignIn::ClientConfig" }
+            let(:arbitrary_client_id) { 'some-client-id' }
+
+            before do
+              allow_any_instance_of(SignIn::OAuthSession).to receive(:client_id).and_return(arbitrary_client_id)
+            end
+
+            it 'raises a record not found Error' do
+              expect { subject }.to raise_error(expected_error, expected_error_message)
+            end
+          end
+
           it 'destroys the session' do
             session_revoker.perform
             expect { session.reload }.to raise_error(ActiveRecord::RecordNotFound)
           end
         end
 
-        context 'when session is expired' do
+        context 'and session is expired' do
           let(:session_expiration) { Time.zone.now - 30.minutes }
           let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError }
           let(:expected_error_message) { 'No valid Session found' }

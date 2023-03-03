@@ -2,12 +2,12 @@
 
 module SignIn
   class StatePayloadJwtEncoder
-    attr_reader :acr, :client_id, :type, :code_challenge, :code_challenge_method, :client_state
+    attr_reader :acr, :client_config, :type, :code_challenge, :code_challenge_method, :client_state
 
     # rubocop:disable Metrics/ParameterLists
-    def initialize(code_challenge:, code_challenge_method:, acr:, client_id:, type:, client_state: nil)
+    def initialize(code_challenge:, code_challenge_method:, acr:, client_config:, type:, client_state: nil)
       @acr = acr
-      @client_id = client_id
+      @client_config = client_config
       @type = type
       @code_challenge = code_challenge
       @code_challenge_method = code_challenge_method
@@ -58,7 +58,7 @@ module SignIn
     def state_payload
       @state_payload ||= StatePayload.new(acr: acr,
                                           type: type,
-                                          client_id: client_id,
+                                          client_id: client_config.client_id,
                                           code_challenge: remove_base64_padding(code_challenge),
                                           code: state_code,
                                           client_state: client_state)

@@ -9,7 +9,7 @@ RSpec.describe SignIn::SessionContainer, type: :model do
            refresh_token: refresh_token,
            access_token: access_token,
            anti_csrf_token: anti_csrf_token,
-           client_id: client_id)
+           client_config: client_config)
   end
 
   let(:session) { create(:oauth_session) }
@@ -17,7 +17,6 @@ RSpec.describe SignIn::SessionContainer, type: :model do
   let(:access_token) { create(:access_token) }
   let(:anti_csrf_token) { SecureRandom.hex }
   let(:client_config) { create(:client_config) }
-  let(:client_id) { client_config.client_id }
 
   describe 'validations' do
     describe '#session' do
@@ -76,12 +75,12 @@ RSpec.describe SignIn::SessionContainer, type: :model do
       end
     end
 
-    describe '#client_id' do
-      subject { session_container.client_id }
+    describe '#client_config' do
+      subject { session_container.client_config }
 
-      context 'when client_id is nil' do
-        let(:client_id) { nil }
-        let(:expected_error_message) { "Validation failed: Client can't be blank" }
+      context 'when client_config is nil' do
+        let(:client_config) { nil }
+        let(:expected_error_message) { "Validation failed: Client config can't be blank" }
         let(:expected_error) { ActiveModel::ValidationError }
 
         it 'raises validation error' do

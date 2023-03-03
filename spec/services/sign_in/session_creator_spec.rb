@@ -11,7 +11,7 @@ RSpec.describe SignIn::SessionCreator do
     subject { session_creator.perform }
 
     context 'when input object is a ValidatedCredential' do
-      let(:validated_credential) { create(:validated_credential, client_id: client_id) }
+      let(:validated_credential) { create(:validated_credential, client_config: client_config) }
       let(:user_uuid) { validated_credential.user_verification.backing_credential_identifier }
       let(:client_id) { client_config.client_id }
       let(:client_config) { create(:client_config, refresh_token_duration: refresh_token_duration) }

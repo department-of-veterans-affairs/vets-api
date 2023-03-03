@@ -15,6 +15,7 @@ module SignIn
         session_handle: decoded_token.session_handle,
         client_id: decoded_token.client_id,
         user_uuid: decoded_token.sub,
+        audience: decoded_token.aud,
         refresh_token_hash: decoded_token.refresh_token_hash,
         anti_csrf_token: decoded_token.anti_csrf_token,
         last_regeneration_time: Time.zone.at(decoded_token.last_regeneration_time),

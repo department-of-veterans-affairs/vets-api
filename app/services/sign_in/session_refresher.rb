@@ -49,7 +49,7 @@ module SignIn
       SessionContainer.new(session: session,
                            refresh_token: child_refresh_token,
                            access_token: access_token,
-                           client_id: session.client_id,
+                           client_config: client_config,
                            anti_csrf_token: updated_anti_csrf_token)
     end
 
@@ -73,6 +73,7 @@ module SignIn
         session_handle: session.handle,
         client_id: session.client_id,
         user_uuid: refresh_token.user_uuid,
+        audience: audience,
         refresh_token_hash: get_hash(child_refresh_token.to_json),
         parent_refresh_token_hash: refresh_token_hash,
         anti_csrf_token: updated_anti_csrf_token,
@@ -100,8 +101,12 @@ module SignIn
       client_config.anti_csrf
     end
 
+    def audience
+      @audience ||= client_config.access_token_audience
+    end
+
     def client_config
-      @client_config ||= SignIn::ClientConfig.find_by(client_id: session.client_id)
+      @client_config ||= SignIn::ClientConfig.find_by!(client_id: session.client_id)
     end
 
     def get_hash(object)

@@ -23,13 +23,15 @@ module V0
       acr_for_type = SignIn::AcrTranslator.new(acr: acr, type: type).perform
       state = SignIn::StatePayloadJwtEncoder.new(code_challenge: code_challenge,
                                                  code_challenge_method: code_challenge_method,
-                                                 acr: acr, client_id: client_id,
-                                                 type: type, client_state: client_state).perform
+                                                 acr: acr,
+                                                 client_config: client_config(client_id),
+                                                 type: type,
+                                                 client_state: client_state).perform
       context = { type: type, client_id: client_id, acr: acr }
 
       sign_in_logger.info('authorize', context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SUCCESS,
-                       tags: ["type:#{context[:type]}", "client_id:#{context[:client_id]}", "acr:#{context[:acr]}"])
+                       tags: ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}"])
 
       render body: auth_service(type).render_auth(state: state, acr: acr_for_type), content_type: 'text/html'
     rescue SignIn::Errors::StandardError => e
@@ -196,7 +198,7 @@ module V0
     private
 
     def validate_authorize_params(type, client_id, code_challenge, code_challenge_method, acr)
-      unless SignIn::ClientConfig.valid_client_id?(client_id: client_id)
+      if client_config(client_id).blank?
         raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
       end
       unless SignIn::Constants::Auth::CSP_TYPES.include?(type)
@@ -266,7 +268,8 @@ module V0
       acr_for_type = SignIn::AcrTranslator.new(acr: state_payload.acr, type: state_payload.type, uplevel: true).perform
       state = SignIn::StatePayloadJwtEncoder.new(code_challenge: state_payload.code_challenge,
                                                  code_challenge_method: SignIn::Constants::Auth::CODE_CHALLENGE_METHOD,
-                                                 acr: state_payload.acr, client_id: state_payload.client_id,
+                                                 acr: state_payload.acr,
+                                                 client_config: client_config(state_payload.client_id),
                                                  type: state_payload.type,
                                                  client_state: state_payload.client_state).perform
       render body: auth_service(state_payload.type).render_auth(state: state, acr: acr_for_type),
@@ -288,10 +291,10 @@ module V0
       }
       sign_in_logger.info('callback', context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS,
-                       tags: ["type:#{context[:type]}",
-                              "client_id:#{context[:client_id]}",
-                              "ial:#{context[:ial]}",
-                              "acr:#{context[:acr]}"])
+                       tags: ["type:#{state_payload.type}",
+                              "client_id:#{state_payload.client_id}",
+                              "ial:#{credential_level.current_ial}",
+                              "acr:#{state_payload.acr}"])
 
       redirect_to SignIn::LoginRedirectUrlGenerator.new(user_code_map: user_code_map).perform
     end
@@ -325,7 +328,11 @@ module V0
     end
 
     def cookie_authentication?(client_id)
-      SignIn::ClientConfig.find_by(client_id: client_id)&.cookie_auth?
+      client_config(client_id)&.cookie_auth?
+    end
+
+    def client_config(client_id)
+      @client_config ||= SignIn::ClientConfig.find_by(client_id: client_id)
     end
 
     def idme_auth_service(type)

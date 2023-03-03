@@ -23,7 +23,7 @@ RSpec.describe SignIn::AccessTokenJwtEncoder do
       let(:expected_last_regeneration_time) { access_token.last_regeneration_time.to_i }
       let(:expected_version) { access_token.version }
       let(:expected_jti) { access_token.uuid }
-      let(:expected_aud) { client_config.access_token_audience }
+      let(:expected_aud) { access_token.audience }
 
       before do
         allow(SecureRandom).to receive(:hex).and_return(expected_jti)

@@ -570,7 +570,7 @@ RSpec.describe V0::SignInController, type: :controller do
           SignIn::StatePayloadJwtEncoder.new(code_challenge: code_challenge,
                                              code_challenge_method: code_challenge_method,
                                              acr: acr,
-                                             client_id: client_id,
+                                             client_config: client_config,
                                              type: type,
                                              client_state: client_state).perform
         end
@@ -578,7 +578,7 @@ RSpec.describe V0::SignInController, type: :controller do
           SignIn::StatePayloadJwtEncoder.new(code_challenge: code_challenge,
                                              code_challenge_method: code_challenge_method,
                                              acr: acr,
-                                             client_id: client_id,
+                                             client_config: client_config,
                                              type: type,
                                              client_state: client_state).perform
         end
@@ -1123,7 +1123,7 @@ RSpec.describe V0::SignInController, type: :controller do
         SignIn::StatePayloadJwtEncoder.new(code_challenge: code_challenge,
                                            code_challenge_method: code_challenge_method,
                                            acr: acr,
-                                           client_id: client_id,
+                                           client_config: client_config,
                                            type: type,
                                            client_state: client_state).perform
       end
@@ -1374,9 +1374,8 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:user_verification) { create(:user_verification) }
     let(:user_account) { user_verification.user_account }
     let(:validated_credential) do
-      create(:validated_credential, user_verification: user_verification, client_id: client_id)
+      create(:validated_credential, user_verification: user_verification, client_config: client_config)
     end
-    let(:client_id) { client_config.client_id }
     let(:authentication) { SignIn::Constants::Auth::API }
     let!(:client_config) { create(:client_config, authentication: authentication, anti_csrf: anti_csrf) }
     let(:anti_csrf) { false }
@@ -1643,9 +1642,8 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:user_verification) { create(:user_verification) }
     let(:user_account) { user_verification.user_account }
     let(:validated_credential) do
-      create(:validated_credential, user_verification: user_verification, client_id: client_id)
+      create(:validated_credential, user_verification: user_verification, client_config: client_config)
     end
-    let(:client_id) { client_config.client_id }
     let(:authentication) { SignIn::Constants::Auth::API }
     let!(:client_config) { create(:client_config, authentication: authentication, anti_csrf: anti_csrf) }
     let(:anti_csrf) { false }
