@@ -50,7 +50,7 @@ RSpec.describe TokenStorageService, type: :service do
 
     context 'while developing locally' do
       before do
-        allow(Settings).to receive(:vsp_environment).and_return(nil)
+        allow(Settings).to receive(:vsp_environment).and_return('localhost')
         allow_any_instance_of(File).to receive(:write).with(any_args).and_return(@token_json)
         allow_any_instance_of(File).to receive(:read).with(any_args).and_return(@token_json)
       end
@@ -154,7 +154,7 @@ RSpec.describe TokenStorageService, type: :service do
 
     context 'while developing locally' do
       before do
-        allow(Settings).to receive(:vsp_environment).and_return(nil)
+        allow(Settings).to receive(:vsp_environment).and_return('localhost')
       end
 
       it 'returns token when token file is present in tmp folder' do
@@ -190,7 +190,7 @@ RSpec.describe TokenStorageService, type: :service do
 
     context 'while developing locally' do
       before do
-        allow(Settings).to receive(:vsp_environment).and_return(nil)
+        allow(Settings).to receive(:vsp_environment).and_return('localhost')
       end
 
       it 'deletes token locally when token file is present' do

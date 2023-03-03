@@ -10,7 +10,8 @@ class WebsiteHostService
   private
 
   WEBSITE_HOSTS = {
-    nil => 'http://localhost:3001',
+    'localhost' => 'http://localhost:3001',
+    'test' => 'http://localhost:3001',
     'development' => 'https://dev.va.gov',
     'sandbox' => 'https://dev.va.gov',
     'staging' => 'https://staging.va.gov',
