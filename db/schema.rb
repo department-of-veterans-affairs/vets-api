@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_02_28_223626) do
+ActiveRecord::Schema.define(version: 2023_03_03_003828) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -332,6 +332,7 @@ ActiveRecord::Schema.define(version: 2023_02_28_223626) do
     t.interval "refresh_token_duration", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "logout_redirect_uri"
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
   end
 
