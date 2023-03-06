@@ -345,6 +345,9 @@ vre_readiness:
 coe:
   prefill: true
 
+adapted_housing:
+  prefill: true
+
 # Settings for EVSS
 evss:
   prefill: true

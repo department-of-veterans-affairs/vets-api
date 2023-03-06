@@ -827,6 +827,30 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v26_4555_expected) do
+    {
+      'veteran' => {
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '796111863',
+        'dateOfBirth' => '1809-02-12',
+        'homePhone' => '14445551212',
+        'email' => user.pciu_email,
+        'address' => {
+          'street' => street_check[:street],
+          'street2' => street_check[:street2],
+          'city' => user.address[:city],
+          'state' => user.address[:state],
+          'country' => user.address[:country],
+          'postal_code' => user.address[:postal_code][0..4]
+        }
+      }
+    }
+  end
+
   describe '#pciu_us_phone' do
     def self.test_pciu_us_phone(primary, expected)
       it "returns #{expected}" do
@@ -1157,6 +1181,7 @@ RSpec.describe FormProfile, type: :model do
           28-8832
           28-1900
           26-1880
+          26-4555
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)
