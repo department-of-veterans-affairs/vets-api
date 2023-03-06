@@ -26,6 +26,5 @@ VAOS::Engine.routes.draw do
     get '/facilities', to: 'facilities#index'
     get '/facilities/:facility_id', to: 'facilities#show'
     post '/appointments', to: 'appointments#create'
-    get '/providers/:id', to: 'providers#show'
   end
 end

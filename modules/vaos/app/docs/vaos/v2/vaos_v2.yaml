@@ -630,48 +630,6 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
-  "/providers/{id}":
-    get:
-      tags:
-        - provider
-      summary: Search for provider by identifier
-      operationId: findProviderById
-      parameters:
-        - name: id
-          in: path
-          description: The provider's identifier (NPI)
-          required: true
-          style: simple
-          explode: false
-          schema:
-            type: integer
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Provider'
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "422":
-          $ref: "#/components/responses/Unprocessable"
-        "500":
-          $ref: "#/components/responses/InternalServerError"
-        "501":
-          $ref: "#/components/responses/NotImplemented"
-        "502":
-          $ref: "#/components/responses/BadGateway"
-        "503":
-          $ref: "#/components/responses/ServiceUnavailable"
-        "504":
-          $ref: "#/components/responses/GatewayTimeout"
   "/scheduling/configurations":
     get:
       tags:
@@ -1176,27 +1134,6 @@ components:
           maxLength: 32
           type: string
       description: The location that the veteran requested the appointment to be scheduled in. This value is only relevant for community care appointment requests.
-    Provider:
-      type: object
-      properties:
-        providerIdentifier:
-          type: string
-        providerIdentifierType:
-          type: string
-        name:
-          type: string
-        providerType:
-          type: string
-        address:
-          type: string
-        addressStreet:
-          type: string
-        addressCity:
-          type: string
-        addressStateProvince:
-          type: string
-        addressCounty:
-          type: string
     UpdateAppointmentRequest:
       description: A request to create a new appointment.
       type: object
