@@ -10,8 +10,6 @@ module FormsApi
 
     TEMPLATE_BASE = Rails.root.join('modules', 'forms_api', 'templates')
 
-    FORM_REQUIRES_STAMP = ['vba_26_4555'].freeze
-
     attr_accessor :data, :form_number
 
     def initialize(form_number:, data:)
@@ -24,7 +22,7 @@ module FormsApi
       generated_form_path = "tmp/#{form_number}-tmp.pdf"
       pdftk = PdfForms.new(Settings.binaries.pdftk)
       pdftk.fill_form(template_form_path, generated_form_path, mapped_data)
-      PdfStamper.stamp_pdf(generated_form_path, data) if FORM_REQUIRES_STAMP.include? form_number
+      PdfStamper.stamp_pdf(generated_form_path, data)
       generated_form_path
     end
 

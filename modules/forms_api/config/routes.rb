@@ -2,6 +2,6 @@
 
 FormsApi::Engine.routes.draw do
   namespace :v1, defaults: { format: 'json' } do
-    post '/submit', to: 'uploads#submit'
+    post '/simple_forms', to: 'uploads#submit'
   end
 end
