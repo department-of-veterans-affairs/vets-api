@@ -68,6 +68,7 @@ describe DecisionReviewV1::Service do
         SC-GET-CONTESTABLE-ISSUES-REQUEST-BENEFIT-TYPE_V1
         SC-CREATE-REQUEST-BODY_V1
         SC-CREATE-RESPONSE-200_V1
+        SC-CREATE-REQUEST-BODY-FOR-VA-GOV
         SC-SHOW-RESPONSE-200_V1
       ].each do |schema_name|
         it("#{schema_name} schema is present") { expect(VetsJsonSchema::SCHEMAS).to have_key schema_name }
