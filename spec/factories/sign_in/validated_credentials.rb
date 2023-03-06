@@ -6,11 +6,11 @@ FactoryBot.define do
 
     user_verification { create(:user_verification) }
     credential_email { Faker::Internet.email }
-    client_id { create(:client_config).client_id }
+    client_config { create(:client_config) }
 
     initialize_with do
       new(user_verification: user_verification,
-          client_id: client_id,
+          client_config: client_config,
           credential_email: credential_email)
     end
   end

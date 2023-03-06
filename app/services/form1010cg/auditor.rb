@@ -116,8 +116,7 @@ module Form1010cg
     def log_mpi_search_result(claim_guid:, form_subject:, result:)
       labels = { found: 'found', not_found: 'NOT FOUND', skipped: 'search was skipped' }
       result_label = labels[result]
-
-      log "MPI Profile #{result_label} for #{form_subject.titleize}", claim_guid: claim_guid
+      log("MPI Profile #{result_label} for #{form_subject.titleize}", { claim_guid: claim_guid })
     end
 
     private
@@ -127,7 +126,7 @@ module Form1010cg
     end
 
     def log(message, context_hash = {})
-      logger.send :info, "[#{LOGGER_PREFIX}] #{message}", deep_apply_filter(context_hash)
+      logger.send(:info, "[#{LOGGER_PREFIX}] #{message}", **deep_apply_filter(context_hash))
     end
 
     def deep_apply_filter(value)

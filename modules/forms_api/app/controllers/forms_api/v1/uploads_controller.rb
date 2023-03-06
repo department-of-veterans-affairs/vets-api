@@ -12,15 +12,21 @@ module FormsApi
       skip_before_action :verify_authenticity_token
       skip_after_action :set_csrf_header
 
+      FORM_NUMBER_MAP = {
+        '26-4555' => 'vba_26_4555',
+        '10-10D' => 'vha_10_10d'
+      }.freeze
+
       def submit
-        filler = FormsApi::PdfFiller.new(form_number: params[:form_number], data: JSON.parse(params.to_json))
+        form_id = FORM_NUMBER_MAP[params[:form_number]]
+        filler = FormsApi::PdfFiller.new(form_number: form_id, data: JSON.parse(params.to_json))
 
         file_path = filler.generate
 
         central_mail_service = CentralMail::Service.new
         filled_form = {
           'metadata' => filler.metadata,
-          'document' => filler.to_faraday_upload(file_path, params[:form_number])
+          'document' => filler.to_faraday_upload(file_path, form_id)
         }
         response = central_mail_service.upload(filled_form)
 

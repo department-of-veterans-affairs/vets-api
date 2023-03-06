@@ -12,7 +12,7 @@ RSpec.describe SignIn::TokenSerializer do
 
     let(:session_container) do
       create(:session_container,
-             client_id: client_id,
+             client_config: client_config,
              refresh_token: refresh_token,
              access_token: access_token,
              anti_csrf_token: anti_csrf_token)
@@ -21,7 +21,6 @@ RSpec.describe SignIn::TokenSerializer do
     let(:refresh_token) { create(:refresh_token) }
     let(:access_token) { create(:access_token) }
     let(:anti_csrf_token) { 'some-anti-csrf-token' }
-    let(:client_id) { client_config.client_id }
     let(:client_config) { create(:client_config, authentication: authentication, anti_csrf: anti_csrf) }
     let(:anti_csrf) { false }
     let(:authentication) { SignIn::Constants::Auth::API }
@@ -157,16 +156,6 @@ RSpec.describe SignIn::TokenSerializer do
         it 'returns expected json payload with anti csrf token' do
           expect(subject).to eq(expected_json_payload)
         end
-      end
-    end
-
-    context 'when client id is arbitrary' do
-      let(:client_id) { 'some-client-id' }
-      let(:expected_error) { ActiveRecord::RecordNotFound }
-      let(:expected_error_message) { "Couldn't find SignIn::ClientConfig" }
-
-      it 'raises client id is not valid error' do
-        expect { subject }.to raise_error(expected_error, expected_error_message)
       end
     end
   end

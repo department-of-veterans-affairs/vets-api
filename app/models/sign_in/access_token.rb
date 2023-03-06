@@ -9,6 +9,7 @@ module SignIn
       :session_handle,
       :client_id,
       :user_uuid,
+      :audience,
       :refresh_token_hash,
       :anti_csrf_token,
       :last_regeneration_time,
@@ -23,6 +24,7 @@ module SignIn
       :session_handle,
       :client_id,
       :user_uuid,
+      :audience,
       :refresh_token_hash,
       :anti_csrf_token,
       :last_regeneration_time,
@@ -38,6 +40,7 @@ module SignIn
     def initialize(session_handle:,
                    client_id:,
                    user_uuid:,
+                   audience:,
                    refresh_token_hash:,
                    anti_csrf_token:,
                    last_regeneration_time:,
@@ -50,6 +53,7 @@ module SignIn
       @session_handle = session_handle
       @client_id = client_id
       @user_uuid = user_uuid
+      @audience = audience
       @refresh_token_hash = refresh_token_hash
       @anti_csrf_token = anti_csrf_token
       @last_regeneration_time = last_regeneration_time

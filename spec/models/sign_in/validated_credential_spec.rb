@@ -7,12 +7,12 @@ RSpec.describe SignIn::ValidatedCredential, type: :model do
     create(:validated_credential,
            user_verification: user_verification,
            credential_email: credential_email,
-           client_id: client_id)
+           client_config: client_config)
   end
 
   let(:user_verification) { create(:user_verification) }
   let(:credential_email) { 'some-credential-email' }
-  let(:client_id) { 'some-client-id' }
+  let(:client_config) { create(:client_config) }
 
   describe 'validations' do
     describe '#user_verification' do
@@ -28,9 +28,9 @@ RSpec.describe SignIn::ValidatedCredential, type: :model do
         end
       end
 
-      context 'when client_id is nil' do
-        let(:client_id) { nil }
-        let(:expected_error_message) { "Validation failed: Client can't be blank" }
+      context 'when client_config is nil' do
+        let(:client_config) { nil }
+        let(:expected_error_message) { "Validation failed: Client config can't be blank" }
         let(:expected_error) { ActiveModel::ValidationError }
 
         it 'raises validation error' do

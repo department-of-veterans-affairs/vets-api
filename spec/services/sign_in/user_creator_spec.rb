@@ -92,7 +92,7 @@ RSpec.describe SignIn::UserCreator do
       expect(user_code_map.login_code).to eq(login_code)
       expect(user_code_map.type).to eq(type)
       expect(user_code_map.client_state).to eq(client_state)
-      expect(user_code_map.client_id).to eq(client_id)
+      expect(user_code_map.client_config).to eq(client_config)
     end
 
     it 'creates a code container mapped to expected login code' do

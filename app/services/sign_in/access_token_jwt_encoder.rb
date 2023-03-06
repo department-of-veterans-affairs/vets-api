@@ -17,7 +17,7 @@ module SignIn
     def payload
       {
         iss: Constants::AccessToken::ISSUER,
-        aud: audience,
+        aud: access_token.audience,
         client_id: access_token.client_id,
         jti: access_token.uuid,
         sub: access_token.user_uuid,
@@ -38,10 +38,6 @@ module SignIn
 
     def private_key
       OpenSSL::PKey::RSA.new(File.read(Settings.sign_in.jwt_encode_key))
-    end
-
-    def audience
-      SignIn::ClientConfig.find_by(client_id: access_token.client_id).access_token_audience
     end
   end
 end

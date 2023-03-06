@@ -9,11 +9,14 @@ RSpec.describe SignIn::LoginRedirectUrlGenerator do
     end
 
     let(:user_code_map) do
-      create(:user_code_map, login_code: login_code, type: type, client_id: client_id, client_state: client_state)
+      create(:user_code_map,
+             login_code: login_code,
+             type: type,
+             client_config: client_config,
+             client_state: client_state)
     end
     let(:login_code) { 'some-login-code' }
     let(:type) { 'some-type' }
-    let(:client_id) { 'some-client-id' }
     let(:client_state) { 'some-client-state' }
     let(:expected_redirect_uri) { "#{redirect_uri}?#{code_param}#{state_param}#{type_param}" }
     let(:code_param) { "code=#{login_code}" }

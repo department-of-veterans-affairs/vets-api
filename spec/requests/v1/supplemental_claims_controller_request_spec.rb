@@ -59,7 +59,7 @@ RSpec.describe V1::SupplementalClaimsController do
 
     subject do
       post '/v1/supplemental_claims',
-           params: VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-WITH-4142_V1').to_json,
+           params: VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json,
            headers: headers
     end
 
@@ -88,7 +88,7 @@ RSpec.describe V1::SupplementalClaimsController do
            headers: headers
     end
 
-    let(:example_payload) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-WITH-UPLOADS_V1') }
+    let(:example_payload) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV') }
 
     def personal_information_logs
       PersonalInformationLog.where 'error_class like ?',

@@ -79,7 +79,7 @@ RSpec.describe SignIn::CodeValidator do
             let(:user_verification) { create(:user_verification) }
             let(:user_verification_id) { user_verification.id }
             let(:expected_email) { code_container.credential_email }
-            let(:expected_client_id) { code_container.client_id }
+            let(:expected_client_config) { SignIn::ClientConfig.find_by(client_id: code_container.client_id) }
             let(:expected_validated_credential) do
               SignIn::ValidatedCredential.new(user_verification: user_verification,
                                               credential_email: expected_email,
@@ -88,7 +88,7 @@ RSpec.describe SignIn::CodeValidator do
 
             it 'returns a validated credential object with expected attributes' do
               expect(subject).to have_attributes(credential_email: expected_email,
-                                                 client_id: expected_client_id,
+                                                 client_config: expected_client_config,
                                                  user_verification: user_verification)
             end
 
@@ -96,8 +96,8 @@ RSpec.describe SignIn::CodeValidator do
               expect(subject.credential_email).to eq(expected_email)
             end
 
-            it 'returns a validated credential object with expected client_id' do
-              expect(subject.client_id).to eq(expected_client_id)
+            it 'returns a validated credential object with expected client_config' do
+              expect(subject.client_config).to eq(expected_client_config)
             end
           end
         end

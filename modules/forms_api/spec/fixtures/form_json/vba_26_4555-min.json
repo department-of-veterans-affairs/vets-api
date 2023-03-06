@@ -1,6 +1,6 @@
 
 {
-  "form_number": "vba_26_4555",
+  "form_number": "26-4555",
   "veteran": {
     "full_name": {
       "first": "Veteran",
@@ -16,13 +16,13 @@
     "ssn": "222554444",
     "home_phone": "9876543213"
   },
-  "previousSahApplication": {
-    "hasPreviousSahApplication": false
+  "previous_sah_application": {
+    "has_previous_sah_application": false
   },
-  "previousHiApplication": {
-    "hasPreviousHiApplication": false
+  "previous_hi_application": {
+    "has_previous_hi_application": false
   },
-  "livingSituation": {
-    "isInCareFacility": false
+  "living_situation": {
+    "is_in_care_facility": false
   }
 }

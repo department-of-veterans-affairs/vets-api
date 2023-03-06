@@ -8,6 +8,7 @@ RSpec.describe SignIn::AccessToken, type: :model do
            session_handle: session_handle,
            client_id: client_id,
            user_uuid: user_uuid,
+           audience: audience,
            refresh_token_hash: refresh_token_hash,
            parent_refresh_token_hash: parent_refresh_token_hash,
            anti_csrf_token: anti_csrf_token,
@@ -24,6 +25,7 @@ RSpec.describe SignIn::AccessToken, type: :model do
   end
   let(:access_token_duration) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
   let(:client_id) { client_config.client_id }
+  let(:audience) { 'some-audience' }
   let(:authentication) { SignIn::Constants::Auth::API }
   let(:refresh_token_hash) { SecureRandom.hex }
   let(:parent_refresh_token_hash) { SecureRandom.hex }
@@ -54,8 +56,21 @@ RSpec.describe SignIn::AccessToken, type: :model do
 
       context 'when client_id is nil' do
         let(:client_id) { nil }
-        let(:validity_length) { 5.minutes }
         let(:expected_error_message) { "Validation failed: Client can't be blank" }
+        let(:expected_error) { ActiveModel::ValidationError }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+    end
+
+    describe '#audience' do
+      subject { access_token.audience }
+
+      context 'when audience is nil' do
+        let(:audience) { nil }
+        let(:expected_error_message) { "Validation failed: Audience can't be blank" }
         let(:expected_error) { ActiveModel::ValidationError }
 
         it 'raises validation error' do

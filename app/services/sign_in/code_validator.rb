@@ -50,7 +50,11 @@ module SignIn
     def validated_credential
       @validated_credential ||= ValidatedCredential.new(user_verification: user_verification,
                                                         credential_email: code_container.credential_email,
-                                                        client_id: code_container.client_id)
+                                                        client_config: client_config)
+    end
+
+    def client_config
+      @client_config ||= SignIn::ClientConfig.find_by(client_id: code_container.client_id)
     end
   end
 end

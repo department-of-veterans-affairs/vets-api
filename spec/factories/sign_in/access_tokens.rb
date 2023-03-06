@@ -7,6 +7,7 @@ FactoryBot.define do
     session_handle { create(:oauth_session).handle }
     client_id { create(:client_config).client_id }
     user_uuid { create(:user_account).id }
+    audience { 'some-audience' }
     refresh_token_hash { SecureRandom.hex }
     parent_refresh_token_hash { SecureRandom.hex }
     anti_csrf_token { SecureRandom.hex }
@@ -19,6 +20,7 @@ FactoryBot.define do
       new(session_handle: session_handle,
           user_uuid: user_uuid,
           client_id: client_id,
+          audience: audience,
           refresh_token_hash: refresh_token_hash,
           parent_refresh_token_hash: parent_refresh_token_hash,
           anti_csrf_token: anti_csrf_token,

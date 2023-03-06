@@ -820,3 +820,27 @@
       :cache_multiple_responses:
         :uid_location: 'query'
         :uid_locator: 'edipi'
+
+# Lighthouse Benefits Claims API
+- :name: "Lighthouse Benefits Claims"
+  :base_uri: <%= "#{URI(Settings.lighthouse.benefits_claims.host).host}:#{URI(Settings.lighthouse.benefits_claims.host).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/services/claims/v2/veterans/*/claims"
+      :file_path: "/lighthouse/benefits_claims/index"
+      :cache_multiple_responses:
+        :uid_location: "url"
+        :uid_locator: "\/services/claims/v2/veterans\/(.+)\/claims"
+    - :method: :get
+      :path: "/services/claims/v2/veterans/*/claims/*"
+      :file_path: "/lighthouse/benefits_claims/show"
+      :cache_multiple_responses:
+        :uid_location: "url"
+        :uid_locator: "\/services/claims/v2/veterans\/(?:.+)\/claims\/(.+)"
+    - :method: :post
+      :path: "/services/claims/v2/veterans/*/claims/*/5103"
+      :file_path: "/lighthouse/benefits_claims/submit_5103"
+      :cache_multiple_responses:
+        :uid_location: "url"
+        :uid_locator: "\/services/claims/v2/veterans\/(?:.+)\/claims\/(?:.+)/5103"
+

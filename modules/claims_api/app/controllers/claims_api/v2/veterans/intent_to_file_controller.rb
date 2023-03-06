@@ -60,6 +60,14 @@ module ClaimsApi
           }
         end
 
+        def validate_ssn(ssn)
+          regex = /^(\d{9})$/
+          if !regex.match?(ssn) || ssn.size != 9
+            error_detail = 'Invalid claimantSsn parameter'
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail)
+          end
+        end
+
         private
 
         def intent_to_file_options(type)
@@ -76,7 +84,10 @@ module ClaimsApi
         # BGS requires at least 1 of 'participant_claimant_id' or 'claimant_ssn'
         def handle_claimant_fields(options:, params:, target_veteran:)
           claimant_ssn = params[:claimantSsn]
-
+          if claimant_ssn.present?
+            claimant_ssn = claimant_ssn.gsub('-', '')
+            validate_ssn(claimant_ssn)
+          end
           options[:claimant_ssn] = claimant_ssn if claimant_ssn
 
           # if claimant_ssn field was not provided, then default to sending 'participant_claimant_id'

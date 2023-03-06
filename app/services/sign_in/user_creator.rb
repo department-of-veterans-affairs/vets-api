@@ -91,7 +91,7 @@ module SignIn
       @user_code_map ||= UserCodeMap.new(login_code: login_code,
                                          type: state_payload.type,
                                          client_state: state_payload.client_state,
-                                         client_id: state_payload.client_id)
+                                         client_config: client_config)
     end
 
     def user_verification
@@ -116,6 +116,10 @@ module SignIn
 
     def user_uuid
       @user_uuid ||= user_verification.backing_credential_identifier
+    end
+
+    def client_config
+      @client_config ||= SignIn::ClientConfig.find_by!(client_id: state_payload.client_id)
     end
 
     def login_code

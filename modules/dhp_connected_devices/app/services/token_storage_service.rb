@@ -15,7 +15,7 @@ class TokenStorageService
   # @raise TokenStorageError
   def store_tokens(current_user, device_key, tokens_hash)
     payload_json = unpack_payload(tokens_hash)
-    return store_locally(current_user, device_key, payload_json) unless vsp_env_exists
+    return store_locally(current_user, device_key, payload_json) if vsp_env_local || vsp_env_test
 
     resp = s3_client.put_object(
       bucket: Settings.dhp.s3.bucket,
@@ -33,7 +33,7 @@ class TokenStorageService
   # @return [Hash]
   # @raise TokenRetrievalError
   def get_token(current_user, device_key)
-    return get_locally(current_user, device_key) unless vsp_env_exists
+    return get_locally(current_user, device_key) if vsp_env_local || vsp_env_test
 
     files_resp = lists_files_in_bucket(generate_prefix(current_user, device_key))
     token_file_name = select_token_file(files_resp.contents).key
@@ -49,7 +49,7 @@ class TokenStorageService
   # @return [boolean]
   # @raise TokenDeletionError
   def delete_token(current_user, device_key)
-    return delete_locally(current_user, device_key) unless vsp_env_exists
+    return delete_locally(current_user, device_key) if vsp_env_local || vsp_env_test
 
     delete_device_token_files(current_user, device_key)
     delete_icn_folder(current_user)
@@ -87,8 +87,12 @@ class TokenStorageService
     @s3_resource ||= Aws::S3::Resource.new(client: s3_client)
   end
 
-  def vsp_env_exists
-    !Settings.vsp_environment.nil?
+  def vsp_env_local
+    Settings.vsp_environment == 'localhost'
+  end
+
+  def vsp_env_test
+    Settings.vsp_environment == 'test'
   end
 
   def generate_prefix(current_user, device_key)

@@ -8,7 +8,7 @@ jobs:
     name: Linting and Security
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-    runs-on: ubuntu-8-cores-latest
+    runs-on: ubuntu-16-cores-latest
     steps:
       - uses: actions/checkout@v3
 
@@ -33,7 +33,7 @@ jobs:
       CI: true
       RAILS_ENV: test
       TERM: xterm-256color
-    runs-on: ubuntu-8-cores-latest
+    runs-on: ubuntu-16-cores-latest
     steps:
       - uses: actions/checkout@v3
 
@@ -66,7 +66,7 @@ jobs:
         run: |
           docker-compose run web bash \
           -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true; \
-              bundle exec parallel_test -n 8 -e 'bin/rails db:reset' \
+              bundle exec parallel_test -n 16 -e 'bin/rails db:reset' \
               && bundle exec parallel_rspec spec/ modules/ -n 8 -o '--color --tty'"
 
       - name: Upload Coverage Report
@@ -88,7 +88,7 @@ jobs:
     name: Publish Results
     if: always()
     needs: [tests]
-    runs-on: ubuntu-8-cores-latest
+    runs-on: ubuntu-16-cores-latest
 
     steps:
       - uses: actions/download-artifact@v3

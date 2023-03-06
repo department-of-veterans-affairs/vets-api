@@ -9,7 +9,7 @@ module SignIn
       :refresh_token,
       :access_token,
       :anti_csrf_token,
-      :client_id
+      :client_config
     )
 
     validates(
@@ -17,7 +17,7 @@ module SignIn
       :refresh_token,
       :access_token,
       :anti_csrf_token,
-      :client_id,
+      :client_config,
       presence: true
     )
 
@@ -25,12 +25,12 @@ module SignIn
                    refresh_token:,
                    access_token:,
                    anti_csrf_token:,
-                   client_id:)
+                   client_config:)
       @session = session
       @refresh_token = refresh_token
       @access_token = access_token
       @anti_csrf_token = anti_csrf_token
-      @client_id = client_id
+      @client_config = client_config
 
       validate!
     end

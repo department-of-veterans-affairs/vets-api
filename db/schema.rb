@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_02_22_214919) do
+ActiveRecord::Schema.define(version: 2023_02_28_223626) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -1050,19 +1050,6 @@ ActiveRecord::Schema.define(version: 2023_02_22_214919) do
     t.uuid "guid", null: false
     t.json "response"
     t.index ["guid"], name: "index_vic_submissions_on_guid", unique: true
-  end
-
-  create_table "virtual_agent_user_access_records", force: :cascade do |t|
-    t.string "action_type", null: false
-    t.string "first_name"
-    t.string "last_name"
-    t.string "ssn", null: false
-    t.string "icn", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["action_type"], name: "index_virtual_agent_user_access_records_on_action_type"
-    t.index ["icn"], name: "index_virtual_agent_user_access_records_on_icn"
-    t.index ["ssn"], name: "index_virtual_agent_user_access_records_on_ssn"
   end
 
   create_table "webhooks_notification_attempt_assocs", id: false, force: :cascade do |t|

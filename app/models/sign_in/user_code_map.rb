@@ -8,18 +8,18 @@ module SignIn
       :login_code,
       :type,
       :client_state,
-      :client_id
+      :client_config
     )
 
-    validates(:login_code, :type, :client_id, presence: true)
+    validates(:login_code, :type, :client_config, presence: true)
 
     def initialize(login_code:,
                    type:,
-                   client_id:,
+                   client_config:,
                    client_state:)
       @login_code = login_code
       @type = type
-      @client_id = client_id
+      @client_config = client_config
       @client_state = client_state
 
       validate!

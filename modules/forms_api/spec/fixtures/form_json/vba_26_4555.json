@@ -1,6 +1,6 @@
 
 {
-  "form_number": "vba_26_4555",
+  "form_number": "26-4555",
   "veteran": {
     "full_name": {
       "first": "Veteran",
@@ -21,10 +21,10 @@
     "mobile_phone": "9876543213",
     "email": "veteran.surname@address.com"
   },
-  "previousSahApplication": {
-    "hasPreviousSahApplication": true,
-    "previousSahApplicationDate": "2010-05-05",
-    "previousSahApplicationAddress": {
+  "previous_sah_application": {
+    "has_previous_sah_application": true,
+    "previous_sah_application_date": "2010-05-05",
+    "previous_sah_application_address": {
       "country": "USA",
       "street": "2 Second St",
       "city": "Town",
@@ -32,10 +32,10 @@
       "postal_code": "34251"
     }
   },
-  "previousHiApplication": {
-    "hasPreviousHiApplication": true,
-    "previousHiApplicationDate": "2013-06-06",
-    "previousHiApplicationAddress": {
+  "previous_hi_application": {
+    "has_previous_hi_application": true,
+    "previous_hi_application_date": "2013-06-06",
+    "previous_hi_application_address": {
       "country": "USA",
       "street": "3 Third Ave",
       "city": "City",
@@ -43,10 +43,10 @@
       "postal_code": "08712"
     }
   },
-  "livingSituation": {
-    "isInCareFacility": true,
-    "careFacilityName": "Top Care",
-    "careFacilityAddress": {
+  "living_situation": {
+    "is_in_care_facility": true,
+    "care_facility_name": "Top Care",
+    "care_facility_address": {
       "country": "USA",
       "street": "4 Final Rd",
       "city": "Ville",

@@ -13,7 +13,7 @@ module SignIn
                            refresh_token: refresh_token,
                            access_token: access_token,
                            anti_csrf_token: anti_csrf_token,
-                           client_id: client_id)
+                           client_config: client_config)
     end
 
     private
@@ -51,6 +51,7 @@ module SignIn
         session_handle: handle,
         client_id: client_id,
         user_uuid: user_uuid,
+        audience: audience,
         refresh_token_hash: refresh_token_hash,
         parent_refresh_token_hash: parent_refresh_token_hash,
         anti_csrf_token: anti_csrf_token,
@@ -91,7 +92,7 @@ module SignIn
     end
 
     def client_id
-      @client_id ||= validated_credential.client_id
+      @client_id ||= client_config.client_id
     end
 
     def user_verification
@@ -114,8 +115,12 @@ module SignIn
       @handle ||= SecureRandom.uuid
     end
 
+    def audience
+      @audience ||= client_config.access_token_audience
+    end
+
     def client_config
-      @client_config ||= SignIn::ClientConfig.find_by(client_id: client_id)
+      @client_config ||= validated_credential.client_config
     end
 
     def validity_length

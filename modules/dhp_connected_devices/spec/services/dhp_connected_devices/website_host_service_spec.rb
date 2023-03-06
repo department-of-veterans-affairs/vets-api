@@ -13,8 +13,8 @@ RSpec.describe WebsiteHostService, type: :service do # written as a class
       allow(Settings).to receive(:vsp_environment).and_return(environment)
     end
 
-    context 'when environment is not defined' do
-      let(:environment) { nil }
+    context 'when environment is localhost' do
+      let(:environment) { 'localhost' }
 
       it 'redirects to localhost:3001' do
         redirect_url = subject.get_redirect_url({ status: 'status', vendor: vendor })

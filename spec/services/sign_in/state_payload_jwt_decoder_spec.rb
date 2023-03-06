@@ -10,7 +10,7 @@ RSpec.describe SignIn::StatePayloadJwtDecoder do
 
     let(:state_payload_jwt) do
       SignIn::StatePayloadJwtEncoder.new(acr: acr,
-                                         client_id: client_id,
+                                         client_config: client_config,
                                          code_challenge_method: code_challenge_method,
                                          type: type,
                                          code_challenge: code_challenge,

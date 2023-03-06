@@ -8,7 +8,7 @@ module Swagger
         class SupplementalClaims
           include Swagger::Blocks
 
-          VetsJsonSchema::SCHEMAS.fetch('SC-CREATE-REQUEST-BODY_V1')['definitions'].each do |k, v|
+          VetsJsonSchema::SCHEMAS.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV')['definitions'].each do |k, v|
             if k == 'scCreate'
               # remove draft-07 specific schema items, they won't validate with swagger
               attrs = v['properties']['data']['properties']['attributes']
@@ -23,7 +23,7 @@ module Swagger
           end
 
           swagger_schema 'scCreate' do
-            example VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY_V1')
+            example VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV')
           end
 
           VetsJsonSchema::SCHEMAS.fetch('SC-SHOW-RESPONSE-200_V1')['definitions'].each do |k, v|
