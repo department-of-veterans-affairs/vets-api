@@ -24,7 +24,8 @@ type: application
 # 0.10.14 - only for dev
 # 0.10.17 - web services maxReplicas and maxSurge
 # 0.10.22 - Use readiness http host and allow disabling the livenessProbe
-version: 0.10.22
+# 0.11.00 - Enabled cron jobs
+version: 0.11.00
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to

@@ -129,6 +129,8 @@ worker:
   service:
     enabled: false
 
+cronJobs: {}
+
 clamav:
   enabled: false
   command: ""

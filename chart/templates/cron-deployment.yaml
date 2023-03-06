@@ -1,0 +1,40 @@
+{{- $root := . -}}
+{{- range $name, $cronJob := $root.Values.cronJobs }}
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ $name }}
+spec:
+  schedule: "{{ $cronJob.schedule }}"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      parallelism: 1
+      completions: 1
+      backoffLimit: 1
+      template:
+        spec:
+          serviceAccountName: {{ $root.Values.serviceAccount.name }}
+          containers:
+            - name: {{ $name }}
+              image: "{{ $root.Values.image.value }}:{{ $root.Values.image.tag }}"
+              command:
+{{ toYaml $cronJob.command | indent 16 }}
+              args:
+{{ toYaml $cronJob.args | indent 16 }}
+              env:
+                - name: GIT_REVISION
+                  value: {{ $root.Values.image.tag}}
+{{ toYaml $root.Values.web.envSecrets | indent 16 }}
+              {{- range $keys, $key := $root.Values.common.secrets }}
+              {{- range $secrets, $secret := $key }}
+                - name: {{ $secret.env_var }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ $keys }}
+                      key:  {{ $secret.name }}
+              {{- end }}
+              {{- end }}
+          restartPolicy: Never
+{{- end }}
