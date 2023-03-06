@@ -9,7 +9,6 @@ module FormsApi
     class UploadsController < ApplicationController
       include CentralMail::Utilities
       skip_before_action :authenticate
-      skip_before_action :verify_authenticity_token
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
