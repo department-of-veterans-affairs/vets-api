@@ -209,7 +209,7 @@ module SAML
         multiple_id_validations
         if should_raise_missing_uuid_error
           data = SAML::UserAttributeError::ERRORS[:uuid_missing].merge({ identifier: mhv_icn })
-          raise SAML::UserAttributeError, data
+          raise SAML::UserAttributeError.new(**data)
         end
       end
 
