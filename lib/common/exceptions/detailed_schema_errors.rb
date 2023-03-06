@@ -21,8 +21,7 @@ module Common
                   else
                     I18n.t('common.exceptions.validation_errors')
                   end
-          error.merge! source: { pointer: pointer }
-          SerializableError.new error
+          SerializableError.new error.merge source: { pointer: pointer }
         end
       end
 
