@@ -641,9 +641,9 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    pg (1.4.5)
-    pg (1.4.5-x64-mingw32)
-    pg (1.4.5-x86-mingw32)
+    pg (1.4.6)
+    pg (1.4.6-x64-mingw32)
+    pg (1.4.6-x86-mingw32)
     pg_query (4.2.0)
       google-protobuf (>= 3.19.2)
     pg_search (2.3.6)
