@@ -218,85 +218,109 @@ describe AppealsApi::PdfConstruction::Generator do
     end
 
     context 'Supplemental Claim' do
-      context 'pdf verification' do
-        let(:supplemental_claim) { create(:supplemental_claim, evidence_submission_indicated: true, created_at: '2021-02-03T14:15:16Z') }
+      shared_examples 'shared SC v2 and v3 generator examples' do |pdf_version, max_content_form_data|
+        let(:created_at) { '2021-02-03T14:15:16Z' }
+        let(:generated_pdf) { described_class.new(sc, pdf_version: pdf_version).generate }
+        let(:expected_pdf) { fixture_filepath(fixture_name, version: pdf_version) }
+        let(:fixture_name) { 'expected_200995.pdf' }
+        let(:sc) { create(:supplemental_claim, evidence_submission_indicated: true, created_at: created_at) }
+
+        after { File.delete(generated_pdf) if File.exist?(generated_pdf) }
 
         it 'generates the expected pdf' do
-          generated_pdf = described_class.new(supplemental_claim, pdf_version: 'v2').generate
-          expected_pdf = fixture_filepath('expected_200995.pdf', version: 'v2')
           expect(generated_pdf).to match_pdf(expected_pdf)
-          File.delete(generated_pdf) if File.exist?(generated_pdf)
+        end
+
+        describe 'with alternate signer' do
+          let(:fixture_name) { 'expected_200995_alternate_signer.pdf' }
+          let(:sc) do
+            create(:supplemental_claim, evidence_submission_indicated: true, created_at: created_at) do |appeal|
+              appeal.auth_headers.merge!(
+                {
+                  'X-Alternate-Signer-First-Name' => ' Wwwwwwww ',
+                  'X-Alternate-Signer-Middle-Initial' => 'W',
+                  'X-Alternate-Signer-Last-Name' => 'Wwwwwwwwww'
+                }
+              )
+            end
+          end
+
+          it 'generates the expected pdf' do
+            expect(generated_pdf).to match_pdf(expected_pdf)
+          end
+        end
+
+        describe 'with alternate signer signature overflow' do
+          let(:fixture_name) { 'expected_200995_alternate_signer_overflow.pdf' }
+          let(:sc) do
+            create(:supplemental_claim, evidence_submission_indicated: true, created_at: created_at) do |appeal|
+              appeal.auth_headers.merge!(
+                {
+                  'X-Alternate-Signer-First-Name' => 'W' * 30,
+                  'X-Alternate-Signer-Middle-Initial' => 'W',
+                  'X-Alternate-Signer-Last-Name' => 'W' * 40
+                }
+              )
+            end
+          end
+
+          it 'generates the expected pdf' do
+            expect(generated_pdf).to match_pdf(expected_pdf)
+          end
+        end
+
+        describe 'extra content' do
+          let(:sc) { create(:extra_supplemental_claim, created_at: created_at) }
+          let(:fixture_name) { 'expected_200995_extra.pdf' }
+
+          it 'generates the expected pdf' do
+            expect(generated_pdf).to match_pdf(expected_pdf)
+          end
+        end
+
+        describe 'max content' do
+          let(:sc) do
+            {
+              signing_appellant_zip_code: 'W' * 16,
+              signing_appellant_number_and_street: "#{'W' * 60} #{'W' * 30} #{'W' * 10}",
+              signing_appellant_city: 'W' * 60,
+              signing_appellant_email: 'W' * 255
+            }.merge(max_content_form_data).each do |name, value|
+              allow_any_instance_of(
+                "AppealsApi::PdfConstruction::SupplementalClaim::#{pdf_version.upcase}::FormData".constantize
+              ).to receive(name).and_return(value)
+            end
+
+            create(:extra_supplemental_claim, created_at: created_at) do |appeal|
+              appeal.form_data = override_max_lengths(appeal, read_schema('200995.json', 'v2'))
+              appeal.auth_headers.merge!(
+                'X-VA-First-Name' => 'W' * 30,
+                'X-VA-Last-Name' => 'W' * 40,
+                'X-VA-NonVeteranClaimant-First-Name' => 'W' * 30,
+                'X-VA-NonVeteranClaimant-Last-Name' => 'W' * 40,
+                'X-Consumer-Username' => 'W' * 255,
+                'X-Consumer-ID' => 'W' * 255
+              )
+            end
+          end
+          let(:fixture_name) { 'expected_200995_maxlength.pdf' }
+
+          it 'generates the expected pdf' do
+            expect(generated_pdf).to match_pdf(expected_pdf)
+          end
         end
       end
 
-      context 'pdf verification alternate signer' do
-        let(:supplemental_claim) { create(:supplemental_claim, evidence_submission_indicated: true, created_at: '2021-02-03T14:15:16Z') }
-
-        it 'generates the expected pdf' do
-          supplemental_claim.auth_headers['X-Alternate-Signer-First-Name'] = ' Wwwwwwww '
-          supplemental_claim.auth_headers['X-Alternate-Signer-Middle-Initial'] = 'W'
-          supplemental_claim.auth_headers['X-Alternate-Signer-Last-Name'] = 'Wwwwwwwwww'
-
-          generated_pdf = described_class.new(supplemental_claim, pdf_version: 'v2').generate
-          expected_pdf = fixture_filepath('expected_200995_alternate_signer.pdf', version: 'v2')
-          expect(generated_pdf).to match_pdf(expected_pdf)
-          File.delete(generated_pdf) if File.exist?(generated_pdf)
-        end
+      context 'v2' do
+        include_examples 'shared SC v2 and v3 generator examples', 'v2', {
+          signing_appellant_phone: '+WWW-WWWWWWWWWWWWWWW'
+        }
       end
 
-      context 'pdf verification alternate signer overflow' do
-        let(:supplemental_claim) { create(:supplemental_claim, evidence_submission_indicated: true, created_at: '2021-02-03T14:15:16Z') }
-
-        it 'generates the expected pdf' do
-          supplemental_claim.auth_headers['X-Alternate-Signer-First-Name'] = 'W' * 30
-          supplemental_claim.auth_headers['X-Alternate-Signer-Middle-Initial'] = 'W' * 1
-          supplemental_claim.auth_headers['X-Alternate-Signer-Last-Name'] = 'W' * 40
-
-          generated_pdf = described_class.new(supplemental_claim, pdf_version: 'v2').generate
-          expected_pdf = fixture_filepath('expected_200995_alternate_signer_overflow.pdf', version: 'v2')
-          expect(generated_pdf).to match_pdf(expected_pdf)
-          File.delete(generated_pdf) if File.exist?(generated_pdf)
-        end
-      end
-
-      context 'pdf extra content verification' do
-        let(:extra_supplemental_claim) { create(:extra_supplemental_claim, created_at: '2021-02-03T14:15:16Z') }
-
-        it 'generates the expected pdf' do
-          generated_pdf = described_class.new(extra_supplemental_claim, pdf_version: 'v2').generate
-          expected_pdf = fixture_filepath('expected_200995_extra.pdf', version: 'v2')
-          expect(generated_pdf).to match_pdf(expected_pdf)
-          File.delete(generated_pdf) if File.exist?(generated_pdf)
-        end
-      end
-
-      context 'pdf max length content verification' do
-        let(:schema) { read_schema('200995.json', 'v2') }
-        let(:sc) { build(:extra_supplemental_claim, created_at: '2021-02-03T14:15:16Z') }
-        let(:data) { override_max_lengths(sc, schema) }
-
-        it 'generates the expected pdf' do
-          allow_any_instance_of(AppealsApi::PdfConstruction::SupplementalClaim::V2::FormData).to receive(:signing_appellant_phone).and_return('+WWW-WWWWWWWWWWWWWWW')
-          allow_any_instance_of(AppealsApi::PdfConstruction::SupplementalClaim::V2::FormData).to receive(:signing_appellant_zip_code).and_return('W' * 16)
-          allow_any_instance_of(AppealsApi::PdfConstruction::SupplementalClaim::V2::FormData).to receive(:signing_appellant_number_and_street).and_return("#{'W' * 60} #{'W' * 30} #{'W' * 10}")
-          allow_any_instance_of(AppealsApi::PdfConstruction::SupplementalClaim::V2::FormData).to receive(:signing_appellant_city).and_return('W' * 60)
-          allow_any_instance_of(AppealsApi::PdfConstruction::SupplementalClaim::V2::FormData).to receive(:signing_appellant_email).and_return('W' * 255)
-
-          sc.form_data = data
-          # we tried to use JSON_SCHEMER, but it did not work with our headers, and chose not to invest more time atm.
-          sc.auth_headers['X-VA-First-Name'] = 'W' * 30
-          sc.auth_headers['X-VA-Last-Name'] = 'W' * 40
-          sc.auth_headers['X-VA-NonVeteranClaimant-First-Name'] = 'W' * 30
-          sc.auth_headers['X-VA-NonVeteranClaimant-Last-Name'] = 'W' * 40
-          sc.auth_headers['X-Consumer-Username'] = 'W' * 255
-          sc.auth_headers['X-Consumer-ID'] = 'W' * 255
-          sc.save!
-
-          generated_pdf = described_class.new(sc, pdf_version: 'v2').generate
-          expected_pdf = fixture_filepath('expected_200995_maxlength.pdf', version: 'v2')
-          expect(generated_pdf).to match_pdf(expected_pdf)
-          File.delete(generated_pdf) if File.exist?(generated_pdf)
-        end
+      context 'v3' do
+        include_examples 'shared SC v2 and v3 generator examples', 'v3', {
+          international_phone: '+WWW-WWWWWWWWWWWWWWW'
+        }
       end
     end
     # rubocop:enable Layout/LineLength

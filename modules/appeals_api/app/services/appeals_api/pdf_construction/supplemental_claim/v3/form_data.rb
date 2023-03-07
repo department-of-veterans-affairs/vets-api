@@ -10,12 +10,12 @@ module AppealsApi
           BENEFIT_TYPE_CODES = {
             'compensation' => 1,
             'pensionSurvivorsBenefits' => 2,
-            'veteranReadinessAndEmployment' => 3,
-            'fiduciary' => 4,
+            'fiduciary' => 3,
+            'lifeInsurance' => 4,
             'education' => 5,
-            'veteransHealthAdministration' => 6,
+            'veteranReadinessAndEmployment' => 6,
             'loanGuaranty' => 7,
-            'lifeInsurance' => 8,
+            'veteransHealthAdministration' => 8,
             'nationalCemeteryAdministration' => 9
           }.freeze
 
