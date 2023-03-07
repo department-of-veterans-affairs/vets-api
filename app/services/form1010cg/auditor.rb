@@ -44,7 +44,7 @@ module Form1010cg
 
     def record(event, **context)
       message = "record_#{event}"
-      context.any? ? send(message, context) : send(message)
+      context.any? ? send(message, **context) : send(message)
     end
 
     def record_submission_attempt
