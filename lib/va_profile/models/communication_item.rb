@@ -66,7 +66,7 @@ module VAProfile
       private
 
       def communication_channel_valid
-        if communication_channel.present? && !communication_channel.valid?
+        if communication_channel.present? && communication_channel.invalid?
           errors.add(:communication_channel, communication_channel.errors.full_messages.join(','))
         end
       end
