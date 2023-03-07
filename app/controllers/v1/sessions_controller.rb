@@ -142,7 +142,7 @@ module V1
     def mhv_unverified_validation(user_session_form)
       if html_escaped_relay_state['type'] == 'mhv_verified' && user_session_form.user.loa[:current] < LOA::THREE
         Rails.logger.warn('SessionsController version:v1 mhv basic account blocked for mhv_verified type')
-        raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:mhv_unverified_blocked]
+        raise SAML::UserAttributeError.new(**SAML::UserAttributeError::ERRORS[:mhv_unverified_blocked])
       end
     end
 
