@@ -46,7 +46,7 @@ module CypressViewportUpdater
                      rewrite_line(line: line, new_value: viewports.desktop[0].height, prop: 'viewportHeight')
                    elsif (prop = VIEWPORT_PROPS.select { |p| line.include?(p.to_s) }.first)
                      viewport_idx += 1 if prop == 'height:'
-                     if prop == 'devicesWithViewport:' && !lines[idx + 1].include?('percentTraffic:')
+                     if prop == 'devicesWithViewport:' && lines[idx + 1].exclude?('percentTraffic:')
                        skip_next_line = true
                      end
                      rewrite_line(line: line,

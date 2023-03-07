@@ -235,9 +235,9 @@ RSpec.describe CypressViewportUpdater::CypressConfigJsFile do
       line += ',' if line == ']' && selected_lines[index + 1] != '}' ||
                      line == '}' && selected_lines[index + 1] == '{' ||
                      (in_object &&
-                     !line.include?('{') &&
-                     !selected_lines[index + 1].include?('}') &&
-                     !selected_lines[index + 1].include?(']') &&
+                     line.exclude?('{') &&
+                     selected_lines[index + 1].exclude?('}') &&
+                     selected_lines[index + 1].exclude?(']') &&
                      (object_prop_index_is_even && index.odd? || object_prop_index_is_odd && index.even?))
 
       line
