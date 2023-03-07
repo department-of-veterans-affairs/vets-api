@@ -280,7 +280,7 @@ module SAML
           mismatched_ids_error = SAML::UserAttributeError::ERRORS[multiple_ids_error_type]
           error_data = { mismatched_ids: ids, icn: mhv_icn }
           Rails.logger.warn("[SAML::UserAttributes::SSOe] #{mismatched_ids_error[:message]}, #{error_data}")
-          raise SAML::UserAttributeError, mismatched_ids_error unless mhv_outbound_redirect(mismatched_ids_error)
+          raise SAML::UserAttributeError.new(**mismatched_ids_error) unless mhv_outbound_redirect(mismatched_ids_error)
         end
       end
 

@@ -658,7 +658,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           it 'logs a message to Sentry' do
             allow(saml_user).to receive(:changing_multifactor?).and_return(true)
             expect(Raven).to receive(:extra_context).with(current_user_uuid: uuid, current_user_icn: '11111111111')
-            expect(Raven).to receive(:extra_context).with(saml_uuid: 'invalid', saml_icn: '11111111111')
+            expect(Raven).to receive(:extra_context).with({ saml_uuid: 'invalid', saml_icn: '11111111111' })
             expect(Raven).to receive(:capture_message).with(
               "Couldn't locate exiting user after MFA establishment",
               level: 'warning'
