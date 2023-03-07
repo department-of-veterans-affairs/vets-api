@@ -14,7 +14,7 @@ module ClaimsApi
         def type
           validate_request!(ClaimsApi::V2::ParamsValidation::IntentToFile)
 
-          type = itf_types[params[:type].downcase]
+          type = get_bgs_type(params)
           response = bgs_service.intent_to_file.find_intent_to_file_by_ptcpnt_id_itf_type_cd(
             target_veteran.participant_id,
             type
@@ -37,10 +37,8 @@ module ClaimsApi
 
         def submit
           validate_request!(ClaimsApi::V2::ParamsValidation::IntentToFile)
-
-          type = itf_types[params[:type].downcase]
-          options = intent_to_file_options(type)
-          check_for_invalid_survivor_submission(options) if type == 'S'
+          type = get_bgs_type(params)
+          options = build_options_and_validate(type)
           bgs_response = bgs_service.intent_to_file.insert_intent_to_file(options)
 
           lighthouse_itf = bgs_itf_to_lighthouse_itf(bgs_itf: bgs_response)
@@ -50,6 +48,8 @@ module ClaimsApi
 
         def validate
           validate_request!(ClaimsApi::V2::ParamsValidation::IntentToFile)
+          type = get_bgs_type(params)
+          build_options_and_validate(type)
           render json: {
             data: {
               type: 'intentToFileValidation',
@@ -60,17 +60,15 @@ module ClaimsApi
           }
         end
 
-        def validate_ssn(ssn)
-          regex = /^(\d{9})$/
-          if !regex.match?(ssn) || ssn.size != 9
-            error_detail = 'Invalid claimantSsn parameter'
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail)
-          end
-        end
-
         private
 
-        def intent_to_file_options(type)
+        def build_options_and_validate(type)
+          options = build_intent_to_file_options(type)
+          check_for_invalid_survivor_submission(options) if type == 'S'
+          options
+        end
+
+        def build_intent_to_file_options(type)
           options = {
             intent_to_file_type_code: type,
             participant_vet_id: target_veteran.participant_id,
@@ -85,7 +83,7 @@ module ClaimsApi
         def handle_claimant_fields(options:, params:, target_veteran:)
           claimant_ssn = params[:claimantSsn]
           if claimant_ssn.present?
-            claimant_ssn = claimant_ssn.gsub('-', '')
+            claimant_ssn = claimant_ssn.delete('^0-9')
             validate_ssn(claimant_ssn)
           end
           options[:claimant_ssn] = claimant_ssn if claimant_ssn
@@ -96,7 +94,18 @@ module ClaimsApi
           options
         end
 
+        def validate_ssn(ssn)
+          regex = /^(\d{9})$/
+          unless regex.match?(ssn)
+            error_detail = 'Invalid claimantSsn parameter'
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail)
+          end
+        end
+
         def check_for_invalid_survivor_submission(options)
+          error_detail = "claimantSsn parameter cannot be blank for type 'survivor'"
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail) if claimant_ssn_blank?(options)
+
           error_detail = "Veteran cannot file for type 'survivor'"
           if claimant_id_equals_vet_id?(options)
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_detail)
@@ -108,12 +117,20 @@ module ClaimsApi
           end
         end
 
+        def claimant_ssn_blank?(options)
+          options[:claimant_ssn].blank?
+        end
+
         def claimant_id_equals_vet_id?(options)
           options[:participant_claimant_id] == options[:participant_vet_id]
         end
 
         def claimant_ssn_equals_vet_ssn?(options)
           options[:claimant_ssn] == options[:ssn]
+        end
+
+        def get_bgs_type(params)
+          itf_types[params[:type].downcase]
         end
 
         def itf_types

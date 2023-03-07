@@ -416,6 +416,18 @@ RSpec.describe 'IntentToFiles', type: :request do
                   expect(response.status).to eq(200)
                 end
               end
+
+              context "when 'claimantSsn' contains separators" do
+                it 'returns a 200' do
+                  with_okta_user(scopes) do |auth_header|
+                    survivor_data = data
+                    survivor_data[:type] = 'survivor'
+                    survivor_data[:claimantSsn] = '123-45-6789'
+                    post itf_submit_path, params: survivor_data, headers: auth_header
+                    expect(response.status).to eq(200)
+                  end
+                end
+              end
             end
 
             context 'when no optional parameters are provided' do
