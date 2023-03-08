@@ -1,0 +1,66 @@
+type: object
+required:
+  - id
+  - type
+  - attributes
+properties:
+  id:
+    type: string
+    example: "{87B6DE5D-CD79-4D15-B6DC-A5F9A324DC3E}"
+  type:
+    type: string
+    example: "decisionLetter"
+  attributes:
+    type: object
+    required:
+      - seriesId
+      - version
+      - typeDescription
+      - typeId
+      - docType
+      - subject
+      - receivedAt
+      - source
+      - mimeType
+      - altDocTypes
+      - restricted
+      - uploadDate
+    properties:
+      seriesId:
+        type: string, null
+        example: "{EC1B5F0C-E3FB-4A41-B93F-E1A88D549CDF}"
+      version:
+        type: string, null
+        example: "1"
+      typeDescription:
+        type: string, null
+        example: "Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)"
+      typeId:
+        type: string, null
+        example: "184"
+      docType:
+        type: string, null
+        example: "184"
+      subject:
+        type: string, null
+        example: null
+      receivedAt:
+        type: date
+        example: "2022-09-22"
+      source:
+        type: string, null
+        example: "VBMS"
+      mimeType:
+        type: string, null
+        example: "application/pdf"
+      altDocTypes:
+        type: string, null
+        example: ""
+      restricted:
+        type: boolean
+        example: false
+      uploadDate:
+        type: date, null
+        example: "2022-09-23"
+
+

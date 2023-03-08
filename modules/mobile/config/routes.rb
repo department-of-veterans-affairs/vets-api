@@ -16,6 +16,7 @@ Mobile::Engine.routes.draw do
     put '/appointments/preferences', to: 'appointment_preferences#update'
     post '/appointment', to: 'appointments#create'
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
+    get '/claims/decision_letters', to: 'decision_letters#index'
     get '/claim/:id', to: 'claims_and_appeals#get_claim'
     post '/claim/:id/documents', to: 'claims_and_appeals#upload_document'
     post '/claim/:id/documents/multi-image', to: 'claims_and_appeals#upload_multi_image_document'
