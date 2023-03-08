@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative '../../../config/environment'
 require 'hca/validations'
 
 frozen_time = '2017-01-04 03:00:00 EDT'
