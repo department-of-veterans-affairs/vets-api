@@ -26,7 +26,6 @@ spec:
               env:
                 - name: GIT_REVISION
                   value: {{ $root.Values.image.tag}}
-{{ toYaml $root.Values.web.envSecrets | indent 16 }}
               {{- range $keys, $key := $root.Values.common.secrets }}
               {{- range $secrets, $secret := $key }}
                 - name: {{ $secret.env_var }}
