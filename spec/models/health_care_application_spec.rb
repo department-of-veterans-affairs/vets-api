@@ -21,6 +21,20 @@ RSpec.describe HealthCareApplication, type: :model do
       end
     end
 
+    context 'when disability_rating is nil' do
+      it 'does nothing' do
+        expect_any_instance_of(EVSS::CommonService).to receive(
+          :get_rating_info
+        ).and_return(OpenStruct.new(user_percent_of_disability: nil))
+
+        expect(health_care_application).not_to receive(:log_exception_to_sentry)
+
+        health_care_application.send(:prefill_compensation_type)
+
+        expect(health_care_application.parsed_form['vaCompensationType']).to eq(nil)
+      end
+    end
+
     context 'with an error' do
       it 'logs to sentry and doesnt raise the error' do
         expect(health_care_application).to receive(:log_exception_to_sentry)

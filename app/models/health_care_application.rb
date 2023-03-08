@@ -208,6 +208,8 @@ class HealthCareApplication < ApplicationRecord
     rating_info_service = EVSS::CommonService.new(auth_headers)
     response = rating_info_service.get_rating_info
 
+    return if response.user_percent_of_disability.nil?
+
     Raven.extra_context(disability_rating: response.user_percent_of_disability)
 
     parsed_form['vaCompensationType'] = 'highDisability' if response.user_percent_of_disability >= DISABILITY_THRESHOLD
