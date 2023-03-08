@@ -16,8 +16,6 @@ RSpec.describe MHVLoggingService do
 
   before do
     Sidekiq::Testing.inline!
-    mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-    allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     allow(MHVLogging::Client).to receive(:new).and_return(authenticated_client)
   end
 
