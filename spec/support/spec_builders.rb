@@ -14,7 +14,12 @@ module SpecBuilders
 
           context "with an input of #{args.join(',')}" do
             it "returns #{return_val}" do
-              actual = klass.send(method, *args)
+              actual =
+                if args.length == 1 && args[0].is_a?(Hash) && !args[0].empty?
+                  klass.send(method, **args.first)
+                else
+                  klass.send(method, *args)
+                end
 
               expect(actual).to eq(return_val)
             end
