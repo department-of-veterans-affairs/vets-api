@@ -159,6 +159,25 @@ module V2
         response.build(response: resp).handle
       end
 
+      # Call the CHIP API to prepare pre check-in data for day-of check-in.
+      #
+      # A CHIP token is required and if it is either not present in Redis or cannot
+      # be retrieved from CHIP, an unauthorized message is returned.
+      #
+      # @see https://github.com/department-of-veterans-affairs/chip CHIP API details
+      #
+      #
+      # @return [Faraday::Response] response from CHIP
+      # @return [Faraday::Response] unauthorized message if token is not present
+      def initiate_check_in
+        resp = if token.present?
+                 chip_client.initiate_check_in(token: token)
+               else
+                 Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+               end
+        response.build(response: resp).handle
+      end
+
       # Call the CHIP API to delete check-in/pre check-in data.
       #
       # A CHIP token is required and if it is either not present in Redis or cannot

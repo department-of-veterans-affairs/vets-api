@@ -338,6 +338,60 @@ describe V2::Chip::Service do
     end
   end
 
+  describe '#initiate_check_in' do
+    context 'when token is already present' do
+      let(:lorota_uuid) { 'ce70fc80-0590-441a-8f7f-f0117f769425' }
+      let(:params) do
+        {
+          id: lorota_uuid
+        }
+      end
+      let(:resp) do
+        {
+          data: {
+            attributes: {
+              uuid: :lorota_uuid
+            },
+            id: :lorota_uuid
+          },
+          uuid: :lorota_uuid
+        }
+      end
+
+      let(:faraday_response) { Faraday::Response.new(body: resp, status: 200) }
+      let(:hsh) { { data: faraday_response.body, status: faraday_response.status } }
+
+      before do
+        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
+        allow_any_instance_of(::V2::Chip::Client).to receive(:initiate_check_in).and_return(faraday_response)
+      end
+
+      it 'returns initiate_check_in response' do
+        expect(subject.build(check_in: valid_check_in, params: params)
+                      .initiate_check_in).to eq(hsh)
+      end
+    end
+
+    context 'when token is not present' do
+      let(:error_response) { { data: { error: true, message: 'Unauthorized' }, status: 401 } }
+      let(:lorota_uuid) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
+      let(:params) do
+        {
+          id: lorota_uuid
+        }
+      end
+
+      before do
+        allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+      end
+
+      it 'returns unauthorized message' do
+        expect(subject.build(check_in: valid_check_in, params: params)
+                      .initiate_check_in).to eq(error_response)
+      end
+    end
+  end
+
   describe '#delete' do
     context 'when token is already present' do
       let(:lorota_uuid) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
