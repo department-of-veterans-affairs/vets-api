@@ -5,7 +5,7 @@ require 'rails_helper'
 describe LighthousePolicy do
   subject { described_class }
 
-  permissions :access_claims? do
+  permissions :access? do
     context 'user has ICN and Participant ID' do
       let(:user) { build(:user, :loa3) }
 

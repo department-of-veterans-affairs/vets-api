@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/direct-deposit-management/v1/direct-deposit?icn=1012829910V765229
+    uri: https://sandbox-api.va.gov/services/direct-deposit-management/v1/direct-deposit?icn=1012666073V986297
     body:
       encoding: US-ASCII
       string: ''
@@ -16,7 +16,7 @@ http_interactions:
       Host:
       - sandbox-api.va.gov
       Authorization:
-      - Bearer eyJraWQiOiJobHhBdy1rNy01Qkc1VnE3LU1FcEc4UjBxSnRkcHNyZjh2N0NnY3hVREFVIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULjA4QjdEcTNuakR6U2ZRSHk1MGNyY2k2blBsSDl3R1AxOTJ6cXVEVUY4SEUiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXNpMGUyMWhidjVpRWxFaDJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2RpcmVjdC1kZXBvc2l0LW1hbmFnZW1lbnQiLCJpYXQiOjE2NzcyNTQyMDcsImV4cCI6MTY3NzI1NDgwNywiY2lkIjoiMG9hazlwbm5weTZuR2FTVFoycDciLCJzY3AiOlsiZGlyZWN0LmRlcG9zaXQud3JpdGUiLCJkaXJlY3QuZGVwb3NpdC5yZWFkIl0sInN1YiI6IjBvYWs5cG5ucHk2bkdhU1RaMnA3In0.bRpcscGBZR2udSguh7XQUakKmFcScX_oMI_vf05hfwLYMb5xj7rk9V6QszCwisN8yEw8b1hsXvB6DnJUCHYbqi3MA4scwZ8MZzPLzwYKXZlSItT6W4_4Gn_ELvseCvT-v7o-J7LKDeinA9VbVMBmt7CAqT90nYuG1MA-Df_YV4uOvFFkMV1OmCP5vFCUyhbpTKOA9ciHPw8ZrIOBJxGNaU7LJnCgQ63oesDWc9tb9vMfxJt0osA8WxaPoP_QRB0484ZZipaGGiCwa0og_WLRGwcTeMEjVFoovnCIEe2PymBEIXyoEkDpbmKQi3rWRRdobpXvAHhpNpDHZ91rQ4eX7A
+      - Bearer abcdefghijklmnop
   response:
     status:
       code: 404

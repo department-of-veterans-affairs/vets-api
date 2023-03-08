@@ -34,7 +34,7 @@ RSpec.describe 'Fetching user data' do
           BackendServices::HCA,
           BackendServices::EDUCATION_BENEFITS,
           BackendServices::EVSS_CLAIMS,
-          BackendServices::LIGHTHOUSE_CLAIMS,
+          BackendServices::LIGHTHOUSE,
           BackendServices::FORM526,
           BackendServices::USER_PROFILE,
           BackendServices::RX,

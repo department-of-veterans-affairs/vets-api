@@ -468,6 +468,9 @@ features:
       phone was changed.  For an address change, the notification email will specify whether the residential or correspondence
       address was changed.
     enable_in_development: true
+  profile_lighthouse_direct_deposit:
+    actor_type: user
+    description: When enabled, will request direct deposit data from lighthouse API.
   profile_user_claims:
     actor_type: user
     description: When enabled, /v0/user will return user profile claims for accessing service endpoints.

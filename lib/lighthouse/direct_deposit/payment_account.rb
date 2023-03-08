@@ -10,16 +10,32 @@ module Lighthouse
       attribute :account_number, String
       attribute :routing_number, String
 
+      ACCOUNT_NUM_REGEX = /\A\d*\z/.freeze
+      ROUTING_NUM_REGEX = /\A\d{9}\z/.freeze
+
+      validates :account_type, inclusion: { in: %w[CHECKING SAVINGS] }, presence: true
+      validates :account_number, presence: true
+      validates :routing_number, presence: true
+
+      validates_format_of :account_number, with: ACCOUNT_NUM_REGEX
+      validates_format_of :routing_number, with: ROUTING_NUM_REGEX
+
       # Converts a decoded JSON response from Lighthouse to an instance of the PaymentAccount model
       # @param body [Hash] the decoded response body from Lighthouse
       # @return [Lighthouse::DirectDeposit::PaymentAccount] the model built from the response body
-      def self.build_from(body)
+      def self.build_from(_status, body)
+        payment_account = body&.dig('paymentAccount')
+
         Lighthouse::DirectDeposit::PaymentAccount.new(
-          name: body['financial_institution_name'],
-          account_type: body['account_type'],
-          account_number: body['account_number'],
-          routing_number: body['financial_institution_routing_number']
+          name: payment_account['financialInstitutionName'],
+          account_type: payment_account['accountType'],
+          account_number: payment_account['accountNumber'],
+          routing_number: payment_account['financialInstitutionRoutingNumber']
         )
+      end
+
+      def account_type
+        @account_type&.upcase
       end
     end
   end
