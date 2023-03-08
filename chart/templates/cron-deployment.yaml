@@ -5,6 +5,7 @@ apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: {{ $name }}
+  namespace: {{ $root.Release.Namespace }}
 spec:
   schedule: "{{ $cronJob.schedule }}"
   concurrencyPolicy: Forbid
@@ -26,6 +27,7 @@ spec:
               env:
                 - name: GIT_REVISION
                   value: {{ $root.Values.image.tag}}
+{{ toYaml $root.Values.web.dbMigrate.envSecrets | indent 16 }}
               {{- range $keys, $key := $root.Values.common.secrets }}
               {{- range $secrets, $secret := $key }}
                 - name: {{ $secret.env_var }}
@@ -36,4 +38,6 @@ spec:
               {{- end }}
               {{- end }}
           restartPolicy: Never
+          securityContext:
+            fsGroup: 1000
 {{- end }}
