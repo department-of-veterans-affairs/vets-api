@@ -33,7 +33,6 @@ properties:
                 - direct_deposit_benefits
                 - disability_rating
                 - letters_and_documents
-                - auth_idme
                 - secure_messaging
                 - appointments
                 - user_profile_update

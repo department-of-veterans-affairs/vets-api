@@ -20,7 +20,6 @@ module Mobile
         %i[evss direct_deposit_benefits],
         %i[evss disability_rating],
         %i[evss letters_and_documents],
-        %i[idme auth_idme],
         %i[mhv secure_messaging],
         %i[vaos appointments],
         %i[vet360 user_profile_update],
