@@ -9,7 +9,7 @@ module Lighthouse
       attribute :is_corp_available, Boolean
       attribute :is_corp_rec_found, Boolean
       attribute :has_no_bdn_payments, Boolean
-      attribute :has_indentity, Boolean
+      attribute :has_identity, Boolean
       attribute :has_index, Boolean
       attribute :is_competent, Boolean
       attribute :has_mailing_address, Boolean
@@ -20,20 +20,28 @@ module Lighthouse
       # Converts a decoded JSON response from Lighthouse to an instance of the ControlInformation model
       # @param body [Hash] the decoded response body from Lighthouse
       # @return [Lighthouse::DirectDeposit::ControlInformation] the model built from the response body
-      def self.build_from(body)
+      def self.build_from(_status, body)
+        control_info = body&.dig('controlInformation')
+
         Lighthouse::DirectDeposit::ControlInformation.new(
-          can_update_direct_deposit: body['can_update_direct_deposit'],
-          is_corp_available: body['is_corp_available'],
-          is_corp_rec_found: body['is_corp_rec_found'],
-          has_no_bdn_payments: body['has_no_bdn_payments'],
-          has_indentity: body['has_indentity'],
-          has_index: body['has_index'],
-          is_competent: body['is_competent'],
-          has_mailing_address: body['has_mailing_address'],
-          has_no_fiduciary_assigned: body['has_no_fiduciary_assigned'],
-          is_not_deceased: body['is_not_deceased'],
-          has_payment_address: body['has_payment_address']
+          can_update_direct_deposit: control_info['canUpdateDirectDeposit'],
+          is_corp_available: control_info['isCorpAvailable'],
+          is_corp_rec_found: control_info['isCorpRecFound'],
+          has_no_bdn_payments: control_info['hasNoBdnPayments'],
+          has_identity: control_info['hasIndentity'], # correct spelling error from Lighthouse
+          has_index: control_info['hasIndex'],
+          is_competent: control_info['isCompetent'],
+          has_mailing_address: control_info['hasMailingAddress'],
+          has_no_fiduciary_assigned: control_info['hasNoFiduciaryAssigned'],
+          is_not_deceased: control_info['isNotDeceased'],
+          has_payment_address: control_info['hasPaymentAddress']
         )
+      end
+
+      def authorized?
+        is_competent &&
+          has_no_fiduciary_assigned &&
+          is_not_deceased
       end
     end
   end

@@ -2,8 +2,7 @@
 
 require 'common/client/base'
 require 'lighthouse/direct_deposit/configuration'
-require 'lighthouse/direct_deposit/financial_institution'
-require 'lighthouse/direct_deposit/response'
+require 'lighthouse/direct_deposit/payment_information_response'
 
 module DirectDeposit
   class Service < Common::Client::Base
@@ -17,14 +16,14 @@ module DirectDeposit
       super()
     end
 
-    def get_direct_deposits
+    def get
       response = config.get("?icn=#{@icn}")
       build_response(response)
     rescue Faraday::ClientError => e
       handle_error(e)
     end
 
-    def update_direct_deposit(body)
+    def update(body)
       response = config.put("?icn=#{@icn}", body)
       build_response(response)
     rescue Faraday::ClientError => e
@@ -33,15 +32,11 @@ module DirectDeposit
 
     def handle_error(e)
       # TODO: log_exception_to_sentry
-
-      status = e.response[:status]
-      body = e.response[:body]
-
-      Lighthouse::DirectDeposit::Response.new(status, body)
+      Lighthouse::DirectDeposit::PaymentInformationResponse.new(e.response[:status], e.response[:body])
     end
 
     def build_response(response)
-      Lighthouse::DirectDeposit::Response.new(response.status, response.body)
+      Lighthouse::DirectDeposit::PaymentInformationResponse.new(response.status, response.body)
     end
   end
 end

@@ -256,6 +256,10 @@ Rails.application.routes.draw do
       end
     end
 
+    namespace :comp_and_pen do
+      resource :direct_deposit, only: %i[show update]
+    end
+
     namespace :profile do
       resource :alternate_phone, only: %i[show create]
       resource :email, only: %i[show create]
