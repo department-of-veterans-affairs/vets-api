@@ -11,12 +11,6 @@ RSpec.describe 'Fetching user data' do
 
     before do
       allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
-      mhv_account = double('MHVAccount', creatable?: false, upgradable?: false, account_state: 'upgraded')
-      allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
-      allow(mhv_account).to receive(:user_uuid).and_return(mhv_user.uuid)
-      allow(mhv_account).to receive(:terms_and_conditions_accepted?).and_return(true)
-      allow(mhv_account).to receive(:needs_terms_acceptance?).and_return(false)
-      allow(mhv_account).to receive(:user=).and_return(mhv_user)
       create(:account, idme_uuid: mhv_user.uuid)
       sign_in_as(mhv_user)
       get v0_user_url, params: nil, headers: v0_user_request_headers

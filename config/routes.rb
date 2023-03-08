@@ -319,10 +319,6 @@ Rails.application.routes.draw do
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
-    resource :mhv_account, only: %i[show create] do
-      post :upgrade
-    end
-
     get 'feature_toggles', to: 'feature_toggles#index'
 
     resource :mhv_opt_in_flags, only: %i[show create]

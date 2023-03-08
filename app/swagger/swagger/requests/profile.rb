@@ -7,40 +7,6 @@ module Swagger
     class Profile
       include Swagger::Blocks
 
-      swagger_path '/v0/mhv_account' do
-        operation :get do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Gets MHV account information'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              property :id, type: :string
-              property :type, type: :string, example: 'mhv_accounts'
-              key :required, [:data]
-
-              property :data, type: :object do
-                key :required, [:attributes]
-                property :attributes, type: :object do
-                  property :account_level, type: :string, example: 'Premium'
-                  property :account_state, type: :string, example: 'needs_va_patient'
-                  property :terms_and_conditions_accepted, type: :boolean, example: 'false'
-                end
-              end
-            end
-          end
-
-          key :produces, ['application/json']
-          key :consumes, ['application/json']
-        end
-      end
-
       swagger_path '/v0/profile/communication_preferences/{communication_permission_id}' do
         operation :patch do
           extend Swagger::Responses::AuthenticationError

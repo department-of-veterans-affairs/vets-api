@@ -324,7 +324,6 @@ RSpec/SubjectStub:
     - 'spec/models/emis_redis/military_information_v2_spec.rb'
     - 'spec/models/session_spec.rb'
     - 'spec/services/evss_claim_service_spec.rb'
-    - 'spec/services/mhv_accounts_service_spec.rb'
     - 'spec/uploaders/evss_claim_document_uploader_spec.rb'
     - 'spec/services/form1010cg/service_spec.rb'
     - 'spec/services/form1010cg/auditor_spec.rb'
