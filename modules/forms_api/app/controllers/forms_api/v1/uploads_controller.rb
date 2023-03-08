@@ -24,7 +24,7 @@ module FormsApi
 
         central_mail_service = CentralMail::Service.new
         filled_form = {
-          'metadata' => filler.metadata,
+          'metadata' => filler.metadata.to_json,
           'document' => filler.to_faraday_upload(file_path, form_id)
         }
         response = central_mail_service.upload(filled_form)
