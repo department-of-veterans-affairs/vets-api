@@ -1,0 +1,128 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "id": "http://example.com/example.json",
+  "type": "object",
+  "required": [
+    "data"
+  ],
+  "properties": {
+    "data": {
+      "id": "#/properties/data",
+      "type": "array",
+      "additionalItems": false,
+      "items": {
+        "id": "#/properties/data/items",
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "attributes"
+        ],
+        "properties": {
+          "id": {
+            "id": "#/properties/data/items/properties/id",
+            "type": "string"
+          },
+          "type": {
+            "id": "#/properties/data/items/properties/type",
+            "type": "string"
+          },
+          "attributes": {
+            "id": "#/properties/data/items/properties/attributes",
+            "type": "object",
+            "required": [
+              "seriesId",
+              "version",
+              "typeDescription",
+              "typeId",
+              "docType",
+              "subject",
+              "receivedAt",
+              "source",
+              "mimeType",
+              "altDocTypes",
+              "restricted",
+              "uploadDate"
+
+            ],
+            "properties": {
+              "seriesId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "version": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "typeDescription": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "typeId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "docType": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "subject": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "receivedAt": {
+                "type": [
+                  "string"
+                ]
+              },
+              "source": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "mimeType": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "altDocTypes": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "restricted": {
+                "type": [
+                  "boolean"
+                ]
+              },
+              "uploadDate": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

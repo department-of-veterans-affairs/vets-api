@@ -1217,6 +1217,75 @@ paths:
       security:
         - Bearer: []
       summary: /v0/claim/{id}/request-decision
+  /v0/claims/decision-letters:
+    get:
+      description: Returns the list of claim decision letters for given user
+      operationId: decision-letters
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/DecisionLetters.yml
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Authentication is possible but has failed or not yet been provided.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Client was forbidden from upstream resource.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The requested resource could not be found.
+        '408':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The response from this API timed out.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Failure in processing entity
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An internal API error occured.
+        '502':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service the API depends on returned an error.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service is unavailable, or its circuit breaker
+            may have been tripped.
+        '504':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: A response from an upstream service timed out.
+      security:
+        - Bearer: [ ]
+      summary: /v0/claims/decision-letters
   /v0/claims-and-appeals-overview:
     get:
       description: Returns info on all user's claims and appeals for mobile overview
@@ -1333,6 +1402,7 @@ paths:
       security:
         - Bearer: []
       summary: /v0/claims-and-appeals-overview
+
   /v0/community-care-providers:
     get:
       description: Returns a list of community care providers who provide the requested medical specialty within
@@ -1444,6 +1514,7 @@ paths:
       security:
         - Bearer: []
       summary: /v0/community-care-providers
+
   /v0/disability-rating:
     get:
       description: Returns the list of disability ratings for given user
