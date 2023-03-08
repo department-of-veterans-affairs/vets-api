@@ -433,7 +433,7 @@ Rails.application.routes.draw do
 
   mount TestUserDashboard::Engine, at: '/test_user_dashboard' if Settings.test_user_dashboard.env == 'staging'
 
-  if Settings.vsp_enironment == 'localhost' || Settings.vsp_environment == 'development'
+  if %w[test localhost development].include?(Settings.vsp_environment)
     mount MockedAuthentication::Engine, at: '/mocked_authentication'
   end
 
