@@ -283,7 +283,7 @@ module VBADocuments
         msg = format_msg(VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT, from, to, guid)
         params = { consumer_id: consumer_id, consumer_name: consumer_name,
                    event: VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT, api_guid: guid, msg: msg }
-        Webhooks::Utilities.record_notifications(params)
+        Webhooks::Utilities.record_notifications(**params)
       end
 
       # set new current status
