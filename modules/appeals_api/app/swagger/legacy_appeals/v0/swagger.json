@@ -25,18 +25,13 @@
         "operationId": "getLegacyAppeals",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.read"
+              "appeals/LegacyAppeals.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "appeals/LegacyAppeals.read"
             ]
           },
           {
@@ -134,6 +129,15 @@
                     "value": {
                       "errors": [
                         {
+                          "title": "Validation error",
+                          "detail": "Validation error",
+                          "code": "100",
+                          "source": {
+                            "pointer": "/"
+                          },
+                          "status": "422"
+                        },
+                        {
                           "title": "Invalid length",
                           "detail": "'' did not fit within the defined length limits",
                           "code": "142",
@@ -157,11 +161,67 @@
                           "meta": {
                             "regex": "^[0-9]{9}$"
                           }
+                        },
+                        {
+                          "title": "Invalid pattern",
+                          "detail": "'' did not match the defined pattern",
+                          "code": "143",
+                          "source": {
+                            "pointer": "/X-VA-File-Number"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "regex": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]"
+                          }
+                        },
+                        {
+                          "title": "Invalid length",
+                          "detail": "'' did not fit within the defined length limits",
+                          "code": "142",
+                          "source": {
+                            "pointer": "/X-VA-File-Number"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "max_length": 9,
+                            "min_length": 1
+                          }
                         }
                       ]
                     }
                   },
-                  "when ssn formatted incorrectly": {
+                  "when X-VA-ICN is missing": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Invalid length",
+                          "detail": "'' did not fit within the defined length limits",
+                          "code": "142",
+                          "source": {
+                            "pointer": "/X-VA-ICN"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "max_length": 17,
+                            "min_length": 17
+                          }
+                        },
+                        {
+                          "title": "Invalid pattern",
+                          "detail": "'' did not match the defined pattern",
+                          "code": "143",
+                          "source": {
+                            "pointer": "/X-VA-ICN"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "regex": "^[0-9]{10}V[0-9]{6}$"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "when SSN formatted incorrectly": {
                     "value": {
                       "errors": [
                         {
@@ -187,6 +247,37 @@
                           "status": "422",
                           "meta": {
                             "regex": "^[0-9]{9}$"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "when ICN formatted incorrectly": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Invalid length",
+                          "detail": "'12345' did not fit within the defined length limits",
+                          "code": "142",
+                          "source": {
+                            "pointer": "/X-VA-ICN"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "max_length": 17,
+                            "min_length": 17
+                          }
+                        },
+                        {
+                          "title": "Invalid pattern",
+                          "detail": "'12345' did not match the defined pattern",
+                          "code": "143",
+                          "source": {
+                            "pointer": "/X-VA-ICN"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "regex": "^[0-9]{10}V[0-9]{6}$"
                           }
                         }
                       ]
@@ -260,11 +351,6 @@
   },
   "components": {
     "securitySchemes": {
-      "apikey": {
-        "type": "apiKey",
-        "name": "apikey",
-        "in": "header"
-      },
       "bearer_token": {
         "type": "http",
         "scheme": "bearer",
@@ -278,8 +364,8 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "claim.read": "Retrieve claim data",
-              "claim.write": "Submit claim data"
+              "appeals/LegacyAppeals.read": "Retrieve legacy appeals data",
+              "appeals.read": "Retrieve any type of appeal data"
             }
           }
         }
@@ -292,8 +378,8 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "claim.read": "Retrieve claim data",
-              "claim.write": "Submit claim data"
+              "appeals/LegacyAppeals.read": "Retrieve legacy appeals data",
+              "appeals.read": "Retrieve any type of appeal data"
             }
           }
         }
@@ -440,19 +526,19 @@
           }
         ]
       },
-      "X-VA-SSN": {
-        "description": "social security number",
-        "type": "string",
-        "minLength": 9,
-        "maxLength": 9,
-        "pattern": "^[0-9]{9}$"
-      },
       "X-VA-ICN": {
         "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
         "type": "string",
         "minLength": 17,
         "maxLength": 17,
         "pattern": "^[0-9]{10}V[0-9]{6}$"
+      },
+      "X-VA-SSN": {
+        "description": "social security number",
+        "type": "string",
+        "minLength": 9,
+        "maxLength": 9,
+        "pattern": "^[0-9]{9}$"
       }
     }
   },

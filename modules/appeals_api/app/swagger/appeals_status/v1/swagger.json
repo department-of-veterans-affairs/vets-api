@@ -26,18 +26,13 @@
         "description": "Returns a list of all known appeal records for the given veteran. Includes details of each appeal's current status, priority, and history of updates.",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.read"
+              "appeals/AppealsStatus.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "appeals/AppealsStatus.read"
             ]
           },
           {
@@ -133,11 +128,6 @@
   },
   "components": {
     "securitySchemes": {
-      "apikey": {
-        "type": "apiKey",
-        "name": "apikey",
-        "in": "header"
-      },
       "bearer_token": {
         "type": "http",
         "scheme": "bearer",
@@ -151,8 +141,8 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "claim.read": "Retrieve claim data",
-              "claim.write": "Submit claim data"
+              "appeals/AppealsStatus.read": "Retrieve appeals status data",
+              "appeals.read": "Retrieve any type of appeal data"
             }
           }
         }
@@ -165,8 +155,8 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "claim.read": "Retrieve claim data",
-              "claim.write": "Submit claim data"
+              "appeals/AppealsStatus.read": "Retrieve appeals status data",
+              "appeals.read": "Retrieve any type of appeal data"
             }
           }
         }

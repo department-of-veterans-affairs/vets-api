@@ -45,10 +45,11 @@ module DocHelpers
   end
 
   def self.security_config(oauth_scopes = [])
-    config = [{ apikey: [] }]
-    return config if DocHelpers.decision_reviews?
-
-    config + [{ productionOauth: oauth_scopes }, { sandboxOauth: oauth_scopes }, { bearer_token: [] }]
+    if DocHelpers.decision_reviews?
+      [{ apikey: [] }]
+    else
+      [{ productionOauth: oauth_scopes }, { sandboxOauth: oauth_scopes }, { bearer_token: [] }]
+    end
   end
 
   # @param [Hash] opts
@@ -60,7 +61,7 @@ module DocHelpers
   # @option opts [Boolean] :token_valid Whether the OAuth token (if any) should be recognized as valid
   shared_examples 'rswag example' do |opts|
     before do |example|
-      with_rswag_auth(opts[:scopes], valid: opts.fetch(:token_valid, true)) do
+      with_rswag_auth(opts.fetch(:scopes, []), valid: opts.fetch(:token_valid, true)) do
         submit_request(example.metadata)
       end
     end

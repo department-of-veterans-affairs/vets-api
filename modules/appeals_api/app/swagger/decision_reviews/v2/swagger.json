@@ -2154,6 +2154,15 @@
                     "value": {
                       "errors": [
                         {
+                          "title": "Validation error",
+                          "detail": "Validation error",
+                          "code": "100",
+                          "source": {
+                            "pointer": "/"
+                          },
+                          "status": "422"
+                        },
+                        {
                           "title": "Invalid length",
                           "detail": "'' did not fit within the defined length limits",
                           "code": "142",
@@ -2177,11 +2186,36 @@
                           "meta": {
                             "regex": "^[0-9]{9}$"
                           }
+                        },
+                        {
+                          "title": "Invalid pattern",
+                          "detail": "'' did not match the defined pattern",
+                          "code": "143",
+                          "source": {
+                            "pointer": "/X-VA-File-Number"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "regex": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]"
+                          }
+                        },
+                        {
+                          "title": "Invalid length",
+                          "detail": "'' did not fit within the defined length limits",
+                          "code": "142",
+                          "source": {
+                            "pointer": "/X-VA-File-Number"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "max_length": 9,
+                            "min_length": 1
+                          }
                         }
                       ]
                     }
                   },
-                  "when ssn formatted incorrectly": {
+                  "when SSN formatted incorrectly": {
                     "value": {
                       "errors": [
                         {
@@ -2207,6 +2241,37 @@
                           "status": "422",
                           "meta": {
                             "regex": "^[0-9]{9}$"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "when ICN formatted incorrectly": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Invalid length",
+                          "detail": "'12345' did not fit within the defined length limits",
+                          "code": "142",
+                          "source": {
+                            "pointer": "/X-VA-ICN"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "max_length": 17,
+                            "min_length": 17
+                          }
+                        },
+                        {
+                          "title": "Invalid pattern",
+                          "detail": "'12345' did not match the defined pattern",
+                          "code": "143",
+                          "source": {
+                            "pointer": "/X-VA-ICN"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "regex": "^[0-9]{10}V[0-9]{6}$"
                           }
                         }
                       ]
@@ -9884,8 +9949,8 @@
         ]
       },
       "X-VA-ICN": {
-        "type": "string",
         "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
+        "type": "string",
         "minLength": 17,
         "maxLength": 17,
         "pattern": "^[0-9]{10}V[0-9]{6}$"

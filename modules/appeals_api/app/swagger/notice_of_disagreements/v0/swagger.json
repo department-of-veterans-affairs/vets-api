@@ -26,18 +26,13 @@
         "description": "Submits an appeal of type Notice of Disagreement. This endpoint is the same as submitting [VA Form 10182](https://www.va.gov/vaforms/va/pdf/VA10182.pdf) via mail or fax directly to the Board of Veterans’ Appeals.",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.write"
+              "appeals/NoticeOfDisagreements.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.write"
+              "appeals/NoticeOfDisagreements.write"
             ]
           },
           {
@@ -541,18 +536,13 @@
         "description": "Returns all of the data associated with a specific Notice of Disagreement.",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.read"
+              "appeals/NoticeOfDisagreements.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "appeals/NoticeOfDisagreements.read"
             ]
           },
           {
@@ -648,18 +638,13 @@
         "description": "Returns the [JSON Schema](https://json-schema.org/) for the `POST /forms/10182` endpoint.",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.read"
+              "appeals/NoticeOfDisagreements.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "appeals/NoticeOfDisagreements.read"
             ]
           },
           {
@@ -1930,18 +1915,13 @@
         "description": "Like the POST /forms/10182, but only does the validations <b>—does not submit anything.</b>",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.write"
+              "appeals/NoticeOfDisagreements.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.write"
+              "appeals/NoticeOfDisagreements.write"
             ]
           },
           {
@@ -2322,18 +2302,13 @@
         ],
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.write"
+              "appeals/NoticeOfDisagreements.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.write"
+              "appeals/NoticeOfDisagreements.write"
             ]
           },
           {
@@ -2462,18 +2437,13 @@
         "description": "Accepts document metadata, document binary, and attachment binaries. Full URL, including\nquery parameters, provided from POST `/*/evidence_submissions`.\nPlease see the `documentUploadMetadata` schema for the required payload schema.\n\n## Example Payload\n\nThe following demonstrates a (redacted) multipart payload suitable for submitting to the PUT\nendpoint. Most programming languages should have provisions for assembling a multipart\npayload like this without having to do so manually.\n\n```\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"metadata\"\nContent-Type: application/json\n\n{\"veteranFirstName\": \"Jane\",\n\"veteranLastName\": \"Doe\",\n\"fileNumber\": \"012345678\",\n\"zipCode\": \"94402\",\n\"source\": \"Vets.gov\",\n\"docType\": \"316\"\n\"businessLine\": \"BVA\"}\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"content\"\nContent-Type: application/pdf\n\n<Binary PDF contents>\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"attachment1\"\nContent-Type: application/pdf\n\n<Binary PDF attachment contents>\n--17de1ed8f01442b2a2d7a93506314b76--\n```\n\nThis PUT request would have an overall HTTP Content-Type header:\n\n```\nContent-Type: multipart/form-data; boundary=17de1ed8f01442b2a2d7a93506314b76\n```\n\nNote that the Content-Disposition parameter \"name\" in each part must be the expected values\n\"metadata\", \"content\", \"attachment1\"...\"attachmentN\"\n",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.write"
+              "appeals/NoticeOfDisagreements.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.write"
+              "appeals/NoticeOfDisagreements.write"
             ]
           },
           {
@@ -2566,18 +2536,13 @@
         "description": "Returns all of the data associated with a specific Notice of Disagreement Evidence Submission.",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.read"
+              "appeals/NoticeOfDisagreements.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "appeals/NoticeOfDisagreements.read"
             ]
           },
           {
@@ -2671,11 +2636,6 @@
   },
   "components": {
     "securitySchemes": {
-      "apikey": {
-        "type": "apiKey",
-        "name": "apikey",
-        "in": "header"
-      },
       "bearer_token": {
         "type": "http",
         "scheme": "bearer",
@@ -2689,8 +2649,10 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "claim.read": "Retrieve claim data",
-              "claim.write": "Submit claim data"
+              "appeals/NoticeOfDisagreements.read": "Retrieve notice of disagreements data",
+              "appeals/NoticeOfDisagreements.write": "Submit notice of disagreements",
+              "appeals.read": "Retrieve any type of appeal data",
+              "appeals.write": "Submit any type of appeal"
             }
           }
         }
@@ -2703,8 +2665,10 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "claim.read": "Retrieve claim data",
-              "claim.write": "Submit claim data"
+              "appeals/NoticeOfDisagreements.read": "Retrieve notice of disagreements data",
+              "appeals/NoticeOfDisagreements.write": "Submit notice of disagreements",
+              "appeals.read": "Retrieve any type of appeal data",
+              "appeals.write": "Submit any type of appeal"
             }
           }
         }
@@ -4321,8 +4285,11 @@
         ]
       },
       "X-VA-ICN": {
+        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
         "type": "string",
-        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)"
+        "minLength": 17,
+        "maxLength": 17,
+        "pattern": "^[0-9]{10}V[0-9]{6}$"
       },
       "X-VA-Last-Name": {
         "allOf": [

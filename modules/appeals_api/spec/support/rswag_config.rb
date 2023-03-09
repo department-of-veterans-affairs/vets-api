@@ -56,18 +56,46 @@ class AppealsApi::RswagConfig
 
   private
 
-  def security_schemes
-    schemes = {
-      apikey: {
-        type: :apiKey,
-        name: :apikey,
-        in: :header
-      }
+  OAUTH_SCOPE_DESCRIPTIONS = {
+    appeals_status: {
+      'appeals/AppealsStatus.read': 'Retrieve appeals status data'
+    },
+    contestable_issues: {
+      'appeals/ContestableIssues.read': 'Retrieve contestable issues data'
+    },
+    higher_level_reviews: {
+      'appeals/HigherLevelReviews.read': 'Retrieve higher-level review data',
+      'appeals/HigherLevelReviews.write': 'Submit higher-level reviews'
+    },
+    legacy_appeals: {
+      'appeals/LegacyAppeals.read': 'Retrieve legacy appeals data'
+    },
+    notice_of_disagreements: {
+      'appeals/NoticeOfDisagreements.read': 'Retrieve notice of disagreements data',
+      'appeals/NoticeOfDisagreements.write': 'Submit notice of disagreements'
+    },
+    supplemental_claims: {
+      'appeals/SupplementalClaims.read': 'Retrieve supplemental claims data',
+      'appeals/SupplementalClaims.write': 'Submit supplemental claims'
     }
+  }.freeze
 
-    return schemes if DocHelpers.decision_reviews?
+  def security_schemes
+    if DocHelpers.decision_reviews?
+      {
+        apikey: {
+          type: :apiKey,
+          name: :apikey,
+          in: :header
+        }
+      }
+    else
+      api_specific_scopes = OAUTH_SCOPE_DESCRIPTIONS[DocHelpers.api_name.to_sym]
+      scope_descriptions = api_specific_scopes.merge(
+        { 'appeals.read': 'Retrieve any type of appeal data' }
+      )
+      scope_descriptions.merge!({ 'appeals.write': 'Submit any type of appeal' }) if api_specific_scopes.count > 1
 
-    schemes.merge(
       {
         bearer_token: {
           type: :http,
@@ -81,10 +109,7 @@ class AppealsApi::RswagConfig
             authorizationCode: {
               authorizationUrl: 'https://api.va.gov/oauth2/authorization',
               tokenUrl: 'https://api.va.gov/oauth2/token',
-              scopes: {
-                'claim.read': 'Retrieve claim data',
-                'claim.write': 'Submit claim data'
-              }
+              scopes: scope_descriptions
             }
           }
         },
@@ -95,15 +120,12 @@ class AppealsApi::RswagConfig
             authorizationCode: {
               authorizationUrl: 'https://sandbox-api.va.gov/oauth2/authorization',
               tokenUrl: 'https://sandbox-api.va.gov/oauth2/token',
-              scopes: {
-                'claim.read': 'Retrieve claim data',
-                'claim.write': 'Submit claim data'
-              }
+              scopes: scope_descriptions
             }
           }
         }
       }
-    )
+    end
   end
 
   # rubocop:disable Metrics/AbcSize
@@ -144,11 +166,11 @@ class AppealsApi::RswagConfig
       a << shared_schemas.slice(*%W[address phone timezone #{nbs_key}])
     when 'contestable_issues'
       a << contestable_issues_schema('#/components/schemas')
-      a << generic_schemas('#/components/schemas').slice(*%i[errorModel X-VA-SSN X-VA-File-Number])
+      a << generic_schemas('#/components/schemas').slice(*%i[errorModel X-VA-SSN X-VA-File-Number X-VA-ICN])
       a << shared_schemas.slice(*%W[#{nbs_key}])
     when 'legacy_appeals'
       a << legacy_appeals_schema('#/components/schemas')
-      a << generic_schemas('#/components/schemas').slice(*%i[errorModel X-VA-SSN X-VA-File-Number])
+      a << generic_schemas('#/components/schemas').slice(*%i[errorModel X-VA-SSN X-VA-File-Number X-VA-ICN])
       a << shared_schemas.slice(*%W[#{nbs_key}])
     when 'appeals_status'
       a << appeals_status_response_schemas
@@ -201,8 +223,11 @@ class AppealsApi::RswagConfig
         'pattern': '^[0-9]{9}$'
       },
       "X-VA-ICN": {
+        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
         "type": 'string',
-        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)"
+        "minLength": 17,
+        "maxLength": 17,
+        "pattern": '^[0-9]{10}V[0-9]{6}$'
       },
       'X-VA-First-Name': {
         'allOf': [

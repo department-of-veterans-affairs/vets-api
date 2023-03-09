@@ -26,18 +26,13 @@
         "operationId": "createHlr",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.write"
+              "appeals/HigherLevelReviews.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.write"
+              "appeals/HigherLevelReviews.write"
             ]
           },
           {
@@ -719,18 +714,13 @@
         "operationId": "showHlr",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.read"
+              "appeals/HigherLevelReviews.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "appeals/HigherLevelReviews.read"
             ]
           },
           {
@@ -826,18 +816,13 @@
         "description": "Returns the [JSON Schema](https://json-schema.org) related to the `POST /forms/200996` endpoint",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.read"
+              "appeals/HigherLevelReviews.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "appeals/HigherLevelReviews.read"
             ]
           },
           {
@@ -2120,18 +2105,13 @@
         "description": "Like the POST /higher_level_reviews, but only does the validations <b>—does not submit anything.</b>",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.write"
+              "appeals/HigherLevelReviews.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.write"
+              "appeals/HigherLevelReviews.write"
             ]
           },
           {
@@ -2623,11 +2603,6 @@
   },
   "components": {
     "securitySchemes": {
-      "apikey": {
-        "type": "apiKey",
-        "name": "apikey",
-        "in": "header"
-      },
       "bearer_token": {
         "type": "http",
         "scheme": "bearer",
@@ -2641,8 +2616,10 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "claim.read": "Retrieve claim data",
-              "claim.write": "Submit claim data"
+              "appeals/HigherLevelReviews.read": "Retrieve higher-level review data",
+              "appeals/HigherLevelReviews.write": "Submit higher-level reviews",
+              "appeals.read": "Retrieve any type of appeal data",
+              "appeals.write": "Submit any type of appeal"
             }
           }
         }
@@ -2655,8 +2632,10 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "claim.read": "Retrieve claim data",
-              "claim.write": "Submit claim data"
+              "appeals/HigherLevelReviews.read": "Retrieve higher-level review data",
+              "appeals/HigherLevelReviews.write": "Submit higher-level reviews",
+              "appeals.read": "Retrieve any type of appeal data",
+              "appeals.write": "Submit any type of appeal"
             }
           }
         }
@@ -3954,8 +3933,11 @@
         ]
       },
       "X-VA-ICN": {
+        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
         "type": "string",
-        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)"
+        "minLength": 17,
+        "maxLength": 17,
+        "pattern": "^[0-9]{10}V[0-9]{6}$"
       },
       "X-VA-Insurance-Policy-Number": {
         "allOf": [

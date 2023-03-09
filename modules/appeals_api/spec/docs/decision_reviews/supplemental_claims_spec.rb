@@ -9,13 +9,16 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 # rubocop:disable RSpec/VariableName, RSpec/RepeatedExample, Layout/LineLength
 describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: :request do
   include DocHelpers
-  let(:apikey) { 'apikey' }
-  let(:Authorization) { 'Bearer TEST_TOKEN' }
+  if DocHelpers.decision_reviews?
+    let(:apikey) { 'apikey' }
+  else
+    let(:Authorization) { 'Bearer TEST_TOKEN' }
+  end
 
   p = DocHelpers.decision_reviews? ? '/supplemental_claims' : '/forms/200995'
   path p do
     post 'Creates a new Supplemental Claim' do
-      scopes = %w[claim.write]
+      scopes = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST]
       tags 'Supplemental Claims'
       operationId 'createSc'
       description = <<~DESC
@@ -126,7 +129,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
   p = DocHelpers.decision_reviews? ? '/supplemental_claims/{uuid}' : '/forms/200995/{uuid}'
   path p do
     get 'Shows a specific Supplemental Claim. (a.k.a. the Show endpoint)' do
-      scopes = %w[claim.read]
+      scopes = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:GET]
       tags 'Supplemental Claims'
       operationId 'showSc'
       description 'Returns all of the data associated with a specific Supplemental Claim.'
@@ -181,7 +184,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
   else
     path '/schemas/{schema_type}' do
       get 'Gets the Supplemental Claims JSON Schema.' do
-        scopes = %w[claim.read]
+        scopes = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:GET]
         tags 'Supplemental Claims'
         operationId 'scSchema'
         description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /forms/200995` endpoint.'
@@ -224,7 +227,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
   p = DocHelpers.decision_reviews? ? '/supplemental_claims/validate' : '/forms/200995/validate'
   path p do
     post 'Validates a POST request body against the JSON schema.' do
-      scopes = %w[claim.write]
+      scopes = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST]
       tags 'Supplemental Claims'
       operationId 'scValidate'
       description 'Like the POST /supplemental_claims, but only does the validations <b>—does not submit anything.</b>'
@@ -316,7 +319,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
   p = DocHelpers.decision_reviews? ? '/supplemental_claims/evidence_submissions' : '/evidence_submissions'
   path p do
     post 'Get a location for subsequent evidence submission document upload PUT request' do
-      scopes = %w[claim.write]
+      scopes = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST]
       tags 'Supplemental Claims'
       operationId 'postSupplementalClaimEvidenceSubmission'
       description <<~DESC
@@ -407,7 +410,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
 
   path '/sc_upload_path' do
     put 'Accepts Supplemental Claim Evidence Submission document upload.' do
-      scopes = %w[claim.write]
+      scopes = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST]
       tags 'Supplemental Claims'
       operationId 'putSupplementalClaimEvidenceSubmission'
 
@@ -458,7 +461,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
   p = DocHelpers.decision_reviews? ? '/supplemental_claims/evidence_submissions/{uuid}' : '/evidence_submissions/{uuid}'
   path p do
     get 'Returns all of the data associated with a specific Supplemental Claim Evidence Submission.' do
-      scopes = %w[claim.read]
+      scopes = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:GET]
       tags 'Supplemental Claims'
       operationId 'getSupplementalClaimEvidenceSubmission'
       description 'Returns all of the data associated with a specific Supplemental Claim Evidence Submission.'
