@@ -459,7 +459,7 @@ RSpec.describe 'user', type: :request do
             'errors' => [
               {
                 'title' => 'Record not found',
-                'detail' => 'The record identified by {:id=>"1"} could not be found',
+                'detail' => 'The record identified by 1 could not be found',
                 'code' => '404',
                 'status' => '404'
               }
