@@ -3,7 +3,7 @@
 module VAOS
   module V2
     class ProvidersSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_id :provider_identifier
 

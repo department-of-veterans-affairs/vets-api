@@ -7,7 +7,7 @@ require 'fast_jsonapi'
 module VAOS
   module V0
     class CancelReasonSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_id :number
       attributes :number,

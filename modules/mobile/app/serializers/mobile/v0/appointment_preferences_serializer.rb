@@ -5,7 +5,7 @@ require 'fast_jsonapi'
 module Mobile
   module V0
     class AppointmentPreferencesSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       attributes :notification_frequency,
                  :email_allowed,

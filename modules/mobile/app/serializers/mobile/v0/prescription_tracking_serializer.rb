@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class PrescriptionTrackingSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_type :PrescriptionTracking
       set_id :tracking_number

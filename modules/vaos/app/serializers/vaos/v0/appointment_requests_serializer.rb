@@ -5,7 +5,7 @@
 module VAOS
   module V0
     class AppointmentRequestsSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_id(&:appointment_request_id)
 

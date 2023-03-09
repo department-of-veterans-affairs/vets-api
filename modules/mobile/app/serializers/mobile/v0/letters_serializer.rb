@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class LettersSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_type :letters
       attributes :letters

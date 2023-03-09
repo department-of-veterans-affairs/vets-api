@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class ClinicsSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_id :id
 

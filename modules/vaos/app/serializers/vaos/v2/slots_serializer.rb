@@ -3,7 +3,7 @@
 module VAOS
   module V2
     class SlotsSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_id :id
 

@@ -7,7 +7,7 @@ require 'fast_jsonapi'
 module VAOS
   module V0
     class DirectBookingEligibilityCriteriaSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       attributes :id,
                  :created_date,

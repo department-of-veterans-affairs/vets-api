@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class FacilitiesInfoSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_type :facilities_info
       attributes :facilities

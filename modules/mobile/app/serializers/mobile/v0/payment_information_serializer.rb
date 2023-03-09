@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class PaymentInformationSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_type :paymentInformation
       attributes :account_control, :payment_account

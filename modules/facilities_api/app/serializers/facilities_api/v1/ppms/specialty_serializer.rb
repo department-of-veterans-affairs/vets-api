@@ -2,8 +2,7 @@
 
 module FacilitiesApi
   class V1::PPMS::SpecialtySerializer
-    include FastJsonapi::ObjectSerializer
-    include FastJsonapi::ObjectSerializer
+    include JSONAPI::Serializer
 
     set_id :specialty_code
     set_key_transform :camel_lower
