@@ -136,6 +136,14 @@ describe SignIn::Idme::Service do
   end
 
   describe '#user_info' do
+    let(:test_client_cert_path) { 'spec/fixtures/sign_in/oauth_test.crt' }
+    let(:test_client_key_path) { 'spec/fixtures/sign_in/oauth_test.key' }
+
+    before do
+      allow(Settings.idme).to receive(:client_cert_path).and_return(test_client_cert_path)
+      allow(Settings.idme).to receive(:client_key_path).and_return(test_client_key_path)
+    end
+
     it 'returns user attributes' do
       VCR.use_cassette('identity/idme_200_responses') do
         expect(subject.user_info(token)).to eq(user_info)
