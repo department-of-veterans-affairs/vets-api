@@ -26,18 +26,13 @@
         "description": "Submits an appeal of type Supplemental Claim. This endpoint is the same as submitting [VA form 200995](https://www.vba.va.gov/pubs/forms/VBA-20-0995-ARE.pdf) via mail or fax directly to the Board of Veterans’ Appeals.\n<br /><br />\n<b>Note about the 5103 Notice of Acknowledgement</b>\n<br /><br />\nThe 5103 Notice regarding new & relevant evidence must be acknowledged when the issue(s) being contested is a Disability Compensation issue. The notice can be found here: [http://www.va.gov/disability/how-to-file-claim/evidence-needed](http://www.va.gov/disability/how-to-file-claim/evidence-needed). If the issue(s) being submitted are Disability Compensation and 'No' is selected, the API will return an error.  Please ensure the Veteran reviews the content about the 5103 Notice at the link above.\n<br /><br />\nSupplemental Claims submitted via other avenues that do NOT select 'Yes' for the 5103 Notice are subject to a 30 day suspense so the 5103 Notice can be mailed to the Veteran.\n",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.write"
+              "appeals/SupplementalClaims.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.write"
+              "appeals/SupplementalClaims.write"
             ]
           },
           {
@@ -791,18 +786,13 @@
         "description": "Returns all of the data associated with a specific Supplemental Claim.",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.read"
+              "appeals/SupplementalClaims.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "appeals/SupplementalClaims.read"
             ]
           },
           {
@@ -898,18 +888,13 @@
         "description": "Returns the [JSON Schema](https://json-schema.org/) for the `POST /forms/200995` endpoint.",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.read"
+              "appeals/SupplementalClaims.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "appeals/SupplementalClaims.read"
             ]
           },
           {
@@ -2301,18 +2286,13 @@
         "description": "Like the POST /supplemental_claims, but only does the validations <b>—does not submit anything.</b>",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.write"
+              "appeals/SupplementalClaims.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.write"
+              "appeals/SupplementalClaims.write"
             ]
           },
           {
@@ -2839,18 +2819,13 @@
         ],
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.write"
+              "appeals/SupplementalClaims.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.write"
+              "appeals/SupplementalClaims.write"
             ]
           },
           {
@@ -3004,18 +2979,13 @@
         "description": "Accepts document metadata, document binary, and attachment binaries. Full URL, including\nquery parameters, provided from POST `/*/evidence_submissions`.\nPlease see the `documentUploadMetadata` schema for the required payload schema.\n\n## Example Payload\n\nThe following demonstrates a (redacted) multipart payload suitable for submitting to the PUT\nendpoint. Most programming languages should have provisions for assembling a multipart\npayload like this without having to do so manually.\n\n```\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"metadata\"\nContent-Type: application/json\n\n{\"veteranFirstName\": \"Jane\",\n\"veteranLastName\": \"Doe\",\n\"fileNumber\": \"012345678\",\n\"zipCode\": \"94402\",\n\"source\": \"Vets.gov\",\n\"docType\": \"316\"\n\"businessLine\": \"BVA\"}\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"content\"\nContent-Type: application/pdf\n\n<Binary PDF contents>\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"attachment1\"\nContent-Type: application/pdf\n\n<Binary PDF attachment contents>\n--17de1ed8f01442b2a2d7a93506314b76--\n```\n\nThis PUT request would have an overall HTTP Content-Type header:\n\n```\nContent-Type: multipart/form-data; boundary=17de1ed8f01442b2a2d7a93506314b76\n```\n\nNote that the Content-Disposition parameter \"name\" in each part must be the expected values\n\"metadata\", \"content\", \"attachment1\"...\"attachmentN\"\n",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.write"
+              "appeals/SupplementalClaims.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.write"
+              "appeals/SupplementalClaims.write"
             ]
           },
           {
@@ -3108,18 +3078,13 @@
         "description": "Returns all of the data associated with a specific Supplemental Claim Evidence Submission.",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.read"
+              "appeals/SupplementalClaims.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "appeals/SupplementalClaims.read"
             ]
           },
           {
@@ -3212,11 +3177,6 @@
   },
   "components": {
     "securitySchemes": {
-      "apikey": {
-        "type": "apiKey",
-        "name": "apikey",
-        "in": "header"
-      },
       "bearer_token": {
         "type": "http",
         "scheme": "bearer",
@@ -3230,8 +3190,10 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "claim.read": "Retrieve claim data",
-              "claim.write": "Submit claim data"
+              "appeals/SupplementalClaims.read": "Retrieve supplemental claims data",
+              "appeals/SupplementalClaims.write": "Submit supplemental claims",
+              "appeals.read": "Retrieve any type of appeal data",
+              "appeals.write": "Submit any type of appeal"
             }
           }
         }
@@ -3244,8 +3206,10 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "claim.read": "Retrieve claim data",
-              "claim.write": "Submit claim data"
+              "appeals/SupplementalClaims.read": "Retrieve supplemental claims data",
+              "appeals/SupplementalClaims.write": "Submit supplemental claims",
+              "appeals.read": "Retrieve any type of appeal data",
+              "appeals.write": "Submit any type of appeal"
             }
           }
         }
@@ -4942,8 +4906,11 @@
         ]
       },
       "X-VA-ICN": {
+        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
         "type": "string",
-        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)"
+        "minLength": 17,
+        "maxLength": 17,
+        "pattern": "^[0-9]{10}V[0-9]{6}$"
       },
       "X-VA-Insurance-Policy-Number": {
         "allOf": [

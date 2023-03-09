@@ -9,12 +9,15 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 # rubocop:disable RSpec/VariableName, RSpec/ScatteredSetup, RSpec/RepeatedExample, Layout/LineLength
 describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :request do
   include DocHelpers
-  let(:apikey) { 'apikey' }
-  let(:Authorization) { 'Bearer TEST_TOKEN' }
+  if DocHelpers.decision_reviews?
+    let(:apikey) { 'apikey' }
+  else
+    let(:Authorization) { 'Bearer TEST_TOKEN' }
+  end
 
   path '/contestable_issues/{decision_review_type}' do
     get 'Returns all contestable issues for a specific veteran.' do
-      scopes = %w[claim.read]
+      scopes = AppealsApi::ContestableIssues::V0::ContestableIssuesController::OAUTH_SCOPES[:GET]
       tags 'Contestable Issues'
       operationId 'getContestableIssues'
 
@@ -46,7 +49,12 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
       parameter AppealsApi::SwaggerSharedComponents.header_params[:va_receipt_date]
       let(:'X-VA-Receipt-Date') { '1981-01-01' }
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header]
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header].merge(
+        {
+          required: !DocHelpers.decision_reviews?
+        }
+      )
+      let(:'X-VA-ICN') { '1234567890V123456' } unless DocHelpers.decision_reviews?
 
       response '200', 'JSON:API response returning all contestable issues for a specific veteran.' do
         schema '$ref' => '#/components/schemas/contestableIssues'
@@ -167,6 +175,36 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
 
           it 'returns a 422 response' do |example|
             assert_response_matches_metadata(example.metadata)
+          end
+        end
+
+        unless DocHelpers.decision_reviews?
+          context 'X-VA-ICN header missing' do
+            let(:'X-VA-ICN') { nil }
+
+            schema '$ref' => '#/components/schemas/errorModel'
+
+            before do |example|
+              with_rswag_auth(scopes) do
+                submit_request(example.metadata)
+              end
+            end
+
+            after do |example|
+              example.metadata[:response][:content] = {
+                'application/json' => {
+                  examples: {
+                    example.metadata[:example_group][:description] => {
+                      value: JSON.parse(response.body, symbolize_names: true)
+                    }
+                  }
+                }
+              }
+            end
+
+            it 'returns a 422 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
           end
         end
       end

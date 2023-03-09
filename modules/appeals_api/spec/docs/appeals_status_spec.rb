@@ -9,12 +9,16 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 # rubocop:disable RSpec/VariableName, Layout/LineLength
 describe 'Appeals Status', swagger_doc: DocHelpers.output_json_path, type: :request do
   include DocHelpers
-  let(:apikey) { 'apikey' }
+  if DocHelpers.decision_reviews?
+    let(:apikey) { 'apikey' }
+  else
+    let(:Authorization) { 'Bearer TEST_TOKEN' }
+  end
 
   if DocHelpers.running_rake_task?
     path '/appeals' do
       get 'Retrieve appeals status for the Veteran with the supplied SSN' do
-        scopes = %w[claim.read]
+        scopes = AppealsApi::V1::AppealsController::OAUTH_SCOPES[:GET]
         tags 'Appeals Status'
         operationId 'getAppealStatus'
 

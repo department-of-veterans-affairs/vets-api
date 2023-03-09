@@ -26,18 +26,13 @@
         "description": "Returns all issues associated with a Veteran that have been decided as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.",
         "security": [
           {
-            "apikey": [
-
-            ]
-          },
-          {
             "productionOauth": [
-              "claim.read"
+              "appeals/ContestableIssues.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "appeals/ContestableIssues.read"
             ]
           },
           {
@@ -257,6 +252,37 @@
                         }
                       ]
                     }
+                  },
+                  "X-VA-ICN header missing": {
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Invalid length",
+                          "detail": "'' did not fit within the defined length limits",
+                          "code": "142",
+                          "source": {
+                            "pointer": "/X-VA-ICN"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "max_length": 17,
+                            "min_length": 17
+                          }
+                        },
+                        {
+                          "title": "Invalid pattern",
+                          "detail": "'' did not match the defined pattern",
+                          "code": "143",
+                          "source": {
+                            "pointer": "/X-VA-ICN"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "regex": "^[0-9]{10}V[0-9]{6}$"
+                          }
+                        }
+                      ]
+                    }
                   }
                 },
                 "schema": {
@@ -309,11 +335,6 @@
   },
   "components": {
     "securitySchemes": {
-      "apikey": {
-        "type": "apiKey",
-        "name": "apikey",
-        "in": "header"
-      },
       "bearer_token": {
         "type": "http",
         "scheme": "bearer",
@@ -327,8 +348,8 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "claim.read": "Retrieve claim data",
-              "claim.write": "Submit claim data"
+              "appeals/ContestableIssues.read": "Retrieve contestable issues data",
+              "appeals.read": "Retrieve any type of appeal data"
             }
           }
         }
@@ -341,8 +362,8 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "claim.read": "Retrieve claim data",
-              "claim.write": "Submit claim data"
+              "appeals/ContestableIssues.read": "Retrieve contestable issues data",
+              "appeals.read": "Retrieve any type of appeal data"
             }
           }
         }
@@ -575,6 +596,13 @@
           }
         ]
       },
+      "X-VA-ICN": {
+        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
+        "type": "string",
+        "minLength": 17,
+        "maxLength": 17,
+        "pattern": "^[0-9]{10}V[0-9]{6}$"
+      },
       "X-VA-Receipt-Date": {
         "description": "(yyyy-mm-dd) Date to limit the contestable issues",
         "type": "string",
@@ -587,13 +615,6 @@
         "maxLength": 9,
         "pattern": "^[0-9]{9}$"
       }
-    },
-    "X-VA-ICN": {
-      "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
-      "type": "string",
-      "minLength": 17,
-      "maxLength": 17,
-      "pattern": "^[0-9]{10}V[0-9]{6}$"
     }
   },
   "servers": [
