@@ -5,7 +5,7 @@ require 'fast_jsonapi'
 module Mobile
   module V0
     class VeteransAffairsEligibilitySerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_type :va_eligibility
       attributes :services, :cc_supported

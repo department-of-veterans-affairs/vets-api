@@ -3,7 +3,7 @@
 module CovidVaccine
   module V0
     class FacilitySerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       attribute(:name) { |x| x[:name] }
       attribute(:distance) { |x| x[:distance] }

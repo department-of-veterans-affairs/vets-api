@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class PrescriptionsSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_type :Prescription
       set_id :prescription_id

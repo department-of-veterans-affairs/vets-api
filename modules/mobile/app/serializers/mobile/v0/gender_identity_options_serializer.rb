@@ -5,7 +5,7 @@ require 'fast_jsonapi'
 module Mobile
   module V0
     class GenderIdentityOptionsSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_type :GenderIdentityOptions
       attributes :options

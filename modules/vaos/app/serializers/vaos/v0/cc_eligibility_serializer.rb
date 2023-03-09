@@ -7,7 +7,7 @@ require 'fast_jsonapi'
 module VAOS
   module V0
     class CCEligibilitySerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_id do |object|
         object.patient_request[:service_type]

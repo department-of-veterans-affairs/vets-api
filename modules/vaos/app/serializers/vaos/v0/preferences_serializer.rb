@@ -7,7 +7,7 @@ require 'fast_jsonapi'
 module VAOS
   module V0
     class PreferencesSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       attributes :notification_frequency,
                  :email_allowed,

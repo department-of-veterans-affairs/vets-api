@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class ClaimSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
       set_type :claim
       attributes :date_filed, :min_est_date, :max_est_date, :phase_change_date, :open,
                  :waiver_submitted, :documents_needed, :development_letter_sent, :decision_letter_sent, :phase,

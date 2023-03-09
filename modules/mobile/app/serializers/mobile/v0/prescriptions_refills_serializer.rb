@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class PrescriptionsRefillsSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_type :PrescriptionRefills
 

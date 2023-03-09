@@ -7,7 +7,7 @@ require 'fast_jsonapi'
 module VAOS
   module V0
     class SystemSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_id :unique_id
       attributes :unique_id,

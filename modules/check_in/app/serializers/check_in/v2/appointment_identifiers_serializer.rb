@@ -3,7 +3,7 @@
 module CheckIn
   module V2
     class AppointmentIdentifiersSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_id(&:id)
       set_type :appointment_identifier

@@ -5,7 +5,7 @@ require 'fast_jsonapi'
 module Mobile
   module V1
     class UserSerializer < Mobile::V0::UserSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       private
 

@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class CommunityCareProviderSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_id :provider_identifier
 

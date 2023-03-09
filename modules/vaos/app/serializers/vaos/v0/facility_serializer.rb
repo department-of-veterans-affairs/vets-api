@@ -7,7 +7,7 @@ require 'fast_jsonapi'
 module VAOS
   module V0
     class FacilitySerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_id :institution_code
       attributes :institution_code,

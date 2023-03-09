@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class MessageSignatureSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_type :messageSignature
       attributes :signature_name, :include_signature, :signature_title

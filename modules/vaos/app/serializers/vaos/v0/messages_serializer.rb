@@ -3,7 +3,7 @@
 module VAOS
   module V0
     class MessagesSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_id do |object|
         object.data_identifier[:unique_id]

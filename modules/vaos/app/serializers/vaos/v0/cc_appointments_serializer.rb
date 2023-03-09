@@ -5,7 +5,7 @@
 module VAOS
   module V0
     class CCAppointmentsSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_id :appointment_request_id
       set_type :cc_appointments

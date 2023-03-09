@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class MaintenanceWindowSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       attributes :service,
                  :start_time,

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Lighthouse::Facilities::FacilitySerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   set_key_transform :camel_lower
 
