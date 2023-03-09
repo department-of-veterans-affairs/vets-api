@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'fast_jsonapi'
+require 'jsonapi/serializer'
 require 'va_profile/demographics/service'
 
 module Mobile
