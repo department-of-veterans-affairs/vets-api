@@ -1,3 +1,4 @@
+# UNCOMMENT THIS AFTER K8s is merged to master and change k8s references to master
 # name: Release and Update Manifests
 #
 # on:
