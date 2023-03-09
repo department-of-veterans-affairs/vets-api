@@ -103,7 +103,7 @@ module AppealsApi
       def add_date_error(pointer, date_str, error_opts = {})
         errors.add pointer,
                    "Date must be in the past: #{date_str}",
-                   error_opts.merge(error_tpath: 'common.exceptions.detailed_schema_errors.range')
+                   **error_opts.merge(error_tpath: 'common.exceptions.detailed_schema_errors.range')
       end
 
       def add_date_range_error(pointer, start_date, end_date, error_opts = {})
