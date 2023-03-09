@@ -75,7 +75,7 @@ module VAOS
       # @param tags [Hash] key value pairs of semantically relevant tags needed for debugging
       # @return [Boolean] returns true or false
       def log(type, message, tags)
-        Rails.logger.send(type, message, tags)
+        Rails.logger.send(type, message, **tags)
       end
 
       # #decode_jwt_no_sig_check decodes the JWT token received in the response without signature verification
