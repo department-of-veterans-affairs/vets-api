@@ -3,6 +3,7 @@
 require 'string_helpers'
 require 'sentry_logging'
 require 'va_profile/configuration'
+require 'hca/military_information'
 
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
@@ -205,17 +206,40 @@ class FormProfile
 
   private
 
+  def initialize_military_information_vaprofile
+    military_information_data = {}
+    military_information = HCA::MilitaryInformation.new(user)
+
+    HCA::MilitaryInformation::PREFILL_METHODS.each do |attr|
+      military_information_data[attr] = military_information.public_send(attr)
+    end
+
+    military_information_data
+  rescue => e
+    if Rails.env.production?
+      log_exception_to_sentry(e, {}, prefill: :vaprofile_military)
+
+      {}
+    else
+      raise e
+    end
+  end
+
   def initialize_military_information
     return {} unless user.authorize :emis, :access?
 
     military_information = user.military_information
     military_information_data = {}
 
+    military_information_data.merge!(initialize_military_information_vaprofile) if Flipper.enabled?(
+      :hca_vaprofile_military_info, user
+    )
+
     military_information_data[:vic_verified] = user.can_access_id_card?
 
     begin
       EMISRedis::MilitaryInformation::PREFILL_METHODS.each do |attr|
-        military_information_data[attr] = military_information.public_send(attr)
+        military_information_data[attr] = military_information.public_send(attr) if military_information_data[attr].nil?
       end
     rescue => e
       if Rails.env.production?

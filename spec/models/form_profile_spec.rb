@@ -10,6 +10,7 @@ RSpec.describe FormProfile, type: :model do
   let(:mvi_profile) { build(:mvi_profile, suffix: 'Jr.') }
 
   before do
+    Flipper.disable(:hca_vaprofile_military_info)
     stub_mpi(mvi_profile)
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)
@@ -515,8 +516,7 @@ RSpec.describe FormProfile, type: :model do
       'postNov111998Combat' => true,
       'gender' => user.gender,
       'homePhone' => us_phone,
-      'veteranSocialSecurityNumber' => user.ssn,
-      'vaCompensationType' => 'highDisability'
+      'veteranSocialSecurityNumber' => user.ssn
     }
   end
 
@@ -849,6 +849,37 @@ RSpec.describe FormProfile, type: :model do
         }
       }
     }
+  end
+
+  describe '#initialize_military_information_vaprofile' do
+    context 'when va profile is down in production' do
+      before do
+        allow(Rails.env).to receive(:production?).and_return(true)
+      end
+
+      it 'logs exception and returns empty hash' do
+        expect(form_profile).to receive(:log_exception_to_sentry).with(
+          instance_of(VCR::Errors::UnhandledHTTPRequestError), {}, prefill: :vaprofile_military
+        )
+
+        expect(form_profile.send(:initialize_military_information_vaprofile)).to eq({})
+      end
+    end
+
+    it 'prefills military data from va profile' do
+      VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
+        expect(form_profile.send(:initialize_military_information_vaprofile)).to eq(
+          {
+            'hca_last_service_branch' => 'army',
+            'last_entry_date' => '2012-03-02',
+            'last_discharge_date' => '2018-10-31',
+            'discharge_type' => 'other',
+            'post_nov111998_combat' => false,
+            'sw_asia_combat' => false
+          }
+        )
+      end
+    end
   end
 
   describe '#pciu_us_phone' do
