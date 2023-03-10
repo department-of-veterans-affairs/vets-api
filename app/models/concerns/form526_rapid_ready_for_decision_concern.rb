@@ -7,6 +7,8 @@ require 'lighthouse/veterans_health/client'
 module Form526RapidReadyForDecisionConcern
   extend ActiveSupport::Concern
 
+  STATSD_KEY_PREFIX = 'worker.rapid_ready_for_decision'
+
   def send_rrd_alert_email(subject, message, error = nil, to = Settings.rrd.alerts.recipients)
     RrdAlertMailer.build(self, subject, message, error, to).deliver_now
   end
@@ -136,9 +138,11 @@ module Form526RapidReadyForDecisionConcern
                                         })
     response = client.initiate_apcas_processing
     save_metadata(mas_packetId: response.dig('body', 'packetId'))
+    StatsD.increment("#{STATSD_KEY_PREFIX}.notify_mas.success")
   rescue => e
     send_rrd_alert_email("Failure: MA claim - #{submitted_claim_id}", e.to_s, nil,
                          Settings.rrd.mas_tracking.recipients)
+    StatsD.increment("#{STATSD_KEY_PREFIX}.notify_mas.failure")
   end
 
   def send_completed_notification
