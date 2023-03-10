@@ -53,7 +53,7 @@ gem 'clam_scan'
 gem 'combine_pdf'
 gem 'config'
 gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/connect_vbms.git', branch: 'master', require: 'vbms'
-gem 'coverband'
+gem 'coverband', require: false
 gem 'date_validator'
 gem 'ddtrace'
 gem 'dogstatsd-ruby'
