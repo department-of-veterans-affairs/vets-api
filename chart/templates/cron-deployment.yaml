@@ -1,7 +1,7 @@
 {{- $root := . -}}
 {{- range $name, $cronJob := $root.Values.cronJobs }}
 ---
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: {{ $name }}
@@ -16,14 +16,16 @@ spec:
       backoffLimit: 1
       template:
         spec:
-          serviceAccountName: {{ $root.Values.serviceAccount.name }}
           containers:
             - name: {{ $name }}
               image: "{{ $root.Values.image.value }}:{{ $root.Values.image.tag }}"
+              imagePullPolicy: {{ $cronJob.imagePullPolicy | default $root.Values.image.pullPolicy }}
               command:
 {{ toYaml $cronJob.command | indent 16 }}
               args:
 {{ toYaml $cronJob.args | indent 16 }}
+              volumeMounts:
+{{ toYaml $root.Values.common.volumeMounts | indent 16 }}
               env:
                 - name: GIT_REVISION
                   value: {{ $root.Values.image.tag}}
@@ -37,7 +39,9 @@ spec:
                       key:  {{ $secret.name }}
               {{- end }}
               {{- end }}
-          restartPolicy: Never
+          restartPolicy: OnFailure
           securityContext:
             fsGroup: 1000
+          volumes:
+{{ toYaml $root.Values.common.volumes | indent 12 }}
 {{- end }}
