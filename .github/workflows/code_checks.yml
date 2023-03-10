@@ -71,13 +71,13 @@ jobs:
       - name: Setup Database
         run: |
              docker-compose -f docker-compose.test.yml run vets-api bash \
-             -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -n 10 -e 'bin/rails db:reset'"
+             -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -n 13 -e 'bin/rails db:reset'"
 
       - name: Run Specs
         timeout-minutes: 20
         run: |
              docker-compose -f docker-compose.test.yml run vets-api bash \
-             -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 10 -o '--color --tty'"
+             -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 13 -o '--color --tty'"
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v3
