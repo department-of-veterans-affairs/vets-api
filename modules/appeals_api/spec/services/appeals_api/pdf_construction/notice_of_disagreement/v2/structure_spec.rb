@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-shared_examples 'notice of disagreements v2 and v3 structure examples' do
+describe AppealsApi::PdfConstruction::NoticeOfDisagreement::V2::Structure do
   let(:notice_of_disagreement) { create(:extra_notice_of_disagreement_v2) }
 
   describe '#form_fill' do
@@ -46,22 +46,10 @@ shared_examples 'notice of disagreements v2 and v3 structure examples' do
       expect(result).to eq [1, '4-end', '2-3']
     end
   end
-end
 
-module AppealsApi
-  module PdfConstruction
-    module NoticeOfDisagreement
-      module V2
-        describe Structure do
-          include_examples 'notice of disagreements v2 and v3 structure examples'
-
-          describe 'form_title' do
-            it 'returns the NOD doc title' do
-              expect(described_class.new(notice_of_disagreement).form_title).to eq('10182_v2')
-            end
-          end
-        end
-      end
+  describe 'form_title' do
+    it 'returns the NOD doc title' do
+      expect(described_class.new(notice_of_disagreement).form_title).to eq('10182_v2')
     end
   end
 end

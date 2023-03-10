@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-shared_examples 'notice of disagreements v2 and v3 form data examples' do
+describe AppealsApi::PdfConstruction::NoticeOfDisagreement::V2::FormData do
   let(:notice_of_disagreement) { create(:notice_of_disagreement_v2, :board_review_hearing) }
   let(:signing_appellant) { notice_of_disagreement.signing_appellant }
   let(:form_data) { described_class.new(notice_of_disagreement) }
@@ -128,18 +128,6 @@ shared_examples 'notice of disagreements v2 and v3 form data examples' do
       it do
         expect(notice_of_disagreement).to receive(:representative)
         form_data.representative
-      end
-    end
-  end
-end
-
-module AppealsApi
-  module PdfConstruction
-    module NoticeOfDisagreement
-      module V2
-        describe FormData do
-          include_examples 'notice of disagreements v2 and v3 form data examples'
-        end
       end
     end
   end

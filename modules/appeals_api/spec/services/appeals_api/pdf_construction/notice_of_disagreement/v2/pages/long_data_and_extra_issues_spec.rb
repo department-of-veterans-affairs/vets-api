@@ -2,24 +2,25 @@
 
 require 'rails_helper'
 
-module AppealsApi::PdfConstruction::NoticeOfDisagreement::V2
-  describe Pages::LongDataAndExtraIssues do
-    describe '#build!' do
-      let(:notice_of_disagreement) { create(:extra_notice_of_disagreement_v2) }
+describe AppealsApi::PdfConstruction::NoticeOfDisagreement::V2::Pages::LongDataAndExtraIssues do
+  describe '#build!' do
+    let(:notice_of_disagreement) { create(:extra_notice_of_disagreement_v2) }
 
-      it 'returns the same object that it received' do
-        pdf = Prawn::Document.new
-        resulted_pdf = described_class.new(pdf, FormData.new(notice_of_disagreement)).build!
+    it 'returns the same object that it received' do
+      pdf = Prawn::Document.new
+      form_data = AppealsApi::PdfConstruction::NoticeOfDisagreement::V2::FormData.new(notice_of_disagreement)
 
-        expect(resulted_pdf).to eq pdf
-      end
+      resulted_pdf = described_class.new(pdf, form_data).build!
 
-      it 'starts a new pdf page' do
-        pdf = Prawn::Document.new
+      expect(resulted_pdf).to eq pdf
+    end
 
-        expect { described_class.new(pdf, FormData.new(notice_of_disagreement)).build! }
-          .to change { pdf.page_count }.by 1
-      end
+    it 'starts a new pdf page' do
+      pdf = Prawn::Document.new
+      form_data = AppealsApi::PdfConstruction::NoticeOfDisagreement::V2::FormData.new(notice_of_disagreement)
+
+      expect { described_class.new(pdf, form_data).build! }
+        .to change { pdf.page_count }.by 1
     end
   end
 end
