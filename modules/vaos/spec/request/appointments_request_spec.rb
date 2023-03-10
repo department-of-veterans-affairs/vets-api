@@ -13,40 +13,6 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
-  context 'loa1 user' do
-    let(:current_user) { build(:user, :loa1) }
-
-    describe 'GET appointments' do
-      it 'does not have access' do
-        skip 'VAOS V0 routes disabled'
-        get '/vaos/v0/appointments'
-        expect(response).to have_http_status(:forbidden)
-        expect(JSON.parse(response.body)['errors'].first['detail'])
-          .to eq('You do not have access to online scheduling')
-      end
-    end
-
-    describe 'POST appointments' do
-      it 'does not have access' do
-        skip 'VAOS V0 routes disabled'
-        post '/vaos/v0/appointments'
-        expect(response).to have_http_status(:forbidden)
-        expect(JSON.parse(response.body)['errors'].first['detail'])
-          .to eq('You do not have access to online scheduling')
-      end
-    end
-
-    describe 'PUT appointments/cancel' do
-      it 'does not have access' do
-        skip 'VAOS V0 routes disabled'
-        put '/vaos/v0/appointments/cancel'
-        expect(response).to have_http_status(:forbidden)
-        expect(JSON.parse(response.body)['errors'].first['detail'])
-          .to eq('You do not have access to online scheduling')
-      end
-    end
-  end
-
   context 'loa3 user' do
     let(:current_user) { build(:user, :vaos) }
 
@@ -54,86 +20,6 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       let(:start_date) { Time.zone.parse('2020-06-02T07:00:00Z') }
       let(:end_date) { Time.zone.parse('2020-07-02T08:00:00Z') }
       let(:params) { { type: 'va', start_date: start_date, end_date: end_date } }
-
-      context 'with flipper disabled' do
-        it 'does not have access' do
-          skip 'VAOS V0 routes disabled'
-          Flipper.disable('va_online_scheduling')
-          get '/vaos/v0/appointments'
-          expect(response).to have_http_status(:forbidden)
-          expect(JSON.parse(response.body)['errors'].first['detail'])
-            .to eq('You do not have access to online scheduling')
-        end
-      end
-
-      context 'without icn' do
-        before { stub_mpi_not_found }
-
-        let(:current_user) { build(:user, :mhv, mhv_icn: nil) }
-
-        it 'does not have access' do
-          skip 'VAOS V0 routes disabled'
-          get '/vaos/v0/appointments'
-          expect(response).to have_http_status(:forbidden)
-          expect(JSON.parse(response.body)['errors'].first['detail'])
-            .to eq('No patient ICN found')
-        end
-      end
-
-      context 'without a type' do
-        it 'has a parameter missing exception' do
-          skip 'VAOS V0 routes disabled'
-          get '/vaos/v0/appointments', params: params.except(:type)
-          expect(response).to have_http_status(:bad_request)
-          expect(response.body).to be_a(String)
-          expect(JSON.parse(response.body)['errors'].first['detail'])
-            .to eq('The required parameter "type", is missing')
-        end
-      end
-
-      context 'without a start_date' do
-        it 'has a parameter missing exception' do
-          skip 'VAOS V0 routes disabled'
-          get '/vaos/v0/appointments', params: params.except(:start_date)
-          expect(response).to have_http_status(:bad_request)
-          expect(response.body).to be_a(String)
-          expect(JSON.parse(response.body)['errors'].first['detail'])
-            .to eq('The required parameter "start_date", is missing')
-        end
-      end
-
-      context 'without an end_date' do
-        it 'has a parameter missing exception' do
-          skip 'VAOS V0 routes disabled'
-          get '/vaos/v0/appointments', params: params.except(:end_date)
-          expect(response).to have_http_status(:bad_request)
-          expect(response.body).to be_a(String)
-          expect(JSON.parse(response.body)['errors'].first['detail'])
-            .to eq('The required parameter "end_date", is missing')
-        end
-      end
-
-      context 'with an invalid type' do
-        it 'has an invalid field type exception' do
-          skip 'VAOS V0 routes disabled'
-          get '/vaos/v0/appointments', params: params.merge(type: 'invalid')
-          expect(response).to have_http_status(:bad_request)
-          expect(response.body).to be_a(String)
-          expect(JSON.parse(response.body)['errors'].first['detail'])
-            .to eq('"invalid" is not a valid value for "type"')
-        end
-      end
-
-      context 'with an invalid start_date' do
-        it 'has an invalid field type exception' do
-          skip 'VAOS V0 routes disabled'
-          get '/vaos/v0/appointments', params: params.merge(start_date: 'invalid')
-          expect(response).to have_http_status(:bad_request)
-          expect(response.body).to be_a(String)
-          expect(JSON.parse(response.body)['errors'].first['detail'])
-            .to eq('"invalid" is not a valid value for "start_date"')
-        end
-      end
 
       context 'with an invalid end_date' do
         it 'has an invalid field type exception' do
