@@ -62,6 +62,7 @@ properties:
               - DSL
               - MHV
       authorizedServices:
+        description: Services the user is allowed to access. See availableServices for a list of all services available via the mobile API.
         type: array
         items:
           type: string
