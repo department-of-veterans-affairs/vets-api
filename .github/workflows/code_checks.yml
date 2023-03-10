@@ -49,10 +49,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Setup Docker
-        run: |
-          docker volume create --name=test_bundle_v2_7_6-cache-v3
-
       - name: Build Docker Image
         uses: docker/build-push-action@v4
         with:
@@ -69,21 +65,18 @@ jobs:
 
       - name: Install gems
         run: |
-             docker-compose -f docker-compose.test.yml -f docker-compose.gha.yml \
-             run vets-api bash \
+             docker-compose -f docker-compose.test.yml run vets-api bash \
              -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true rails --version"
 
       - name: Setup Database
         run: |
-             docker-compose -f docker-compose.test.yml -f docker-compose.gha.yml \
-             run vets-api bash \
+             docker-compose -f docker-compose.test.yml run vets-api bash \
              -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -n 16 -e 'bin/rails db:reset'"
 
       - name: Run Specs
         timeout-minutes: 20
         run: |
-             docker-compose -f docker-compose.test.yml -f docker-compose.gha.yml \
-             run vets-api bash \
+             docker-compose -f docker-compose.test.yml run vets-api bash \
              -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 16 -o '--color --tty'"
 
       - name: Upload Coverage Report
