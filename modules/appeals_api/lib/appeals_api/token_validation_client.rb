@@ -16,7 +16,7 @@ module AppealsApi
       json = { 'aud': audience }
       headers = { 'apiKey': @api_key, 'Authorization': "Bearer #{token}" }
 
-      response = perform(:post, 'v2/validation', json, headers)
+      response = perform(:post, 'v3/validation', json, headers)
 
       raise ::Common::Exceptions::Unauthorized unless response.status == 200
 

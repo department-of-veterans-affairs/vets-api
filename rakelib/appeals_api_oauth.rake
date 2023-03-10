@@ -25,10 +25,6 @@ def openid_metadata
   ).with_indifferent_access
 end
 
-def ccg_audience
-  "#{openid_metadata[:issuer]}/v1/token"
-end
-
 def api_host
   URI(openid_metadata[:token_endpoint]).host
 end
@@ -87,7 +83,7 @@ end
 def validate_token(api_key:, token:)
   puts 'Validating token...'
 
-  validation_uri = "https://#{api_host}/internal/auth/v2/validation"
+  validation_uri = "https://#{api_host}/internal/auth/v3/validation"
   # sandbox is correct here for non-prod tokens (including with dev-api.va.gov, for example)
   validation_host = api_host == 'api.va.gov' ? 'api.va.gov' : 'sandbox-api.va.gov'
   validation_audience = "https://#{validation_host}/services/appeals"

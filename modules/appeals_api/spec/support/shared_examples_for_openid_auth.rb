@@ -8,7 +8,7 @@ def with_openid_auth(scopes = %w[], valid: true, &block)
   allow_any_instance_of(AppealsApi::TokenValidationClient)
     .to receive(:permitted_scopes).and_return scopes
 
-  VCR.use_cassette("token_validation/v2/indicates_token_is_#{valid ? '' : 'in'}valid") do
+  VCR.use_cassette("token_validation/v3/indicates_token_is_#{valid ? '' : 'in'}valid") do
     block.call(scopes.empty? ? {} : { 'Authorization' => "Bearer #{auth_token}" })
   end
 end
