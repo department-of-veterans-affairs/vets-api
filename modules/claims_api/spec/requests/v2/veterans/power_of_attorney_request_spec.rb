@@ -23,6 +23,14 @@ RSpec.describe 'Power Of Attorney', type: :request do
     end
   end
 
+  let(:ows) do
+    if Flipper.enabled? :bgs_via_faraday
+      ClaimsApi::LocalBGS
+    else
+      BGS::OrgWebService
+    end
+  end
+
   describe 'PowerOfAttorney' do
     before do
       Veteran::Service::Representative.new(representative_id: '12345', poa_codes: [individual_poa_code],
@@ -88,7 +96,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
             with_okta_user(scopes) do |auth_header|
               expect_any_instance_of(cws).to receive(:find_poa_by_participant_id)
                 .and_return(bgs_poa)
-              allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)
+              allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
 
               put appoint_individual_path, params: data, headers: auth_header
@@ -185,7 +193,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
               expect_any_instance_of(cws).to receive(:find_poa_by_participant_id)
                 .and_return(bgs_poa)
-              allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)
+              allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
 
               put appoint_individual_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
@@ -229,7 +237,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
             with_okta_user(scopes) do |auth_header|
               expect_any_instance_of(cws).to receive(:find_poa_by_participant_id)
                 .and_return(bgs_poa)
-              allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)
+              allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
 
               put appoint_organization_path, params: data, headers: auth_header
@@ -270,7 +278,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
               allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
               expect_any_instance_of(cws).to receive(:find_poa_by_participant_id)
                 .and_return(bgs_poa)
-              allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)
+              allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
 
               put appoint_organization_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }

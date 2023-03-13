@@ -15,9 +15,17 @@ describe Veteran::User do
       )
     end
 
+    let(:ows) do
+      if Flipper.enabled? :bgs_via_faraday
+        ClaimsApi::LocalBGS
+      else
+        BGS::OrgWebService
+      end
+    end
+
     it 'initializes from a user' do
       VCR.use_cassette('bgs/claimant_web_service/find_poa_by_participant_id') do
-        allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)
+        allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
           .and_return({ person_poa_history: { person_poa: [{ begin_dt: Time.zone.now, legacy_poa_cd: '033' }] } })
         veteran = Veteran::User.new(user)
         expect(veteran.power_of_attorney.code).to eq('044')
@@ -27,7 +35,7 @@ describe Veteran::User do
 
     it 'does not bomb out if poa is missing' do
       VCR.use_cassette('bgs/claimant_web_service/not_find_poa_by_participant_id') do
-        allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)
+        allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
           .and_return({ person_poa_history: nil })
         veteran = Veteran::User.new(user)
         expect(veteran.power_of_attorney).to eq(nil)
@@ -37,7 +45,7 @@ describe Veteran::User do
 
     it 'provides most recent previous poa' do
       VCR.use_cassette('bgs/claimant_web_service/find_poa_by_participant_id') do
-        allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)
+        allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
           .and_return({
                         person_poa_history: {
                           person_poa: [
@@ -54,7 +62,7 @@ describe Veteran::User do
 
     it 'does not bomb out if poa history contains a single record' do
       VCR.use_cassette('bgs/claimant_web_service/find_poa_by_participant_id') do
-        allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)
+        allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
           .and_return({ person_poa_history: { person_poa: { begin_dt: Time.zone.now, legacy_poa_cd: '033' } } })
         veteran = Veteran::User.new(user)
         expect(veteran.power_of_attorney.code).to eq('044')
