@@ -87,7 +87,7 @@ module AppealsApi
 
             text_opts = form_fields.boxes[attr].merge(DEFAULT_TEXT_OPTIONS)
 
-            whiteout pdf, form_fields.boxes[attr]
+            whiteout pdf, **form_fields.boxes[attr]
 
             pdf.text_box text, text_opts
           end
