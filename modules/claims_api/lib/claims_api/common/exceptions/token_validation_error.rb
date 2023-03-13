@@ -6,8 +6,8 @@ module ClaimsApi
       def errors
         [
           {
-            title: 'Token Validation Error',
-            detail: 'Invalid token.'
+            title: 'Not authorized',
+            detail: 'Not authorized.'
           }
         ]
       end

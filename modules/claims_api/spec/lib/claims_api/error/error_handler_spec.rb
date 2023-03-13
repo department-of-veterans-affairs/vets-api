@@ -40,8 +40,8 @@ describe ApplicationController, type: :controller do
       expect(response).to have_http_status(:unauthorized)
       parsed_body = JSON.parse(response.body)
       expect(parsed_body['errors'].size).to eq(1)
-      expect(parsed_body['errors'][0]['title']).to eq('Token Validation Error')
-      expect(parsed_body['errors'][0]['detail']).to eq('Invalid token.')
+      expect(parsed_body['errors'][0]['title']).to eq('Not authorized')
+      expect(parsed_body['errors'][0]['detail']).to eq('Not authorized.')
     end
   end
 
@@ -55,8 +55,8 @@ describe ApplicationController, type: :controller do
       parsed_body = JSON.parse(response.body)
 
       expect(parsed_body['errors'].size).to eq(1)
-      expect(parsed_body['errors'][0]['title']).to eq('Token Validation Error')
-      expect(parsed_body['errors'][0]['detail']).to eq('Invalid token.')
+      expect(parsed_body['errors'][0]['title']).to eq('Not authorized')
+      expect(parsed_body['errors'][0]['detail']).to eq('Not authorized.')
     end
   end
 end
