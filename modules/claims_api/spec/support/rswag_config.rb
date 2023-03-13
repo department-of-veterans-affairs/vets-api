@@ -111,6 +111,12 @@ class ClaimsApi::RswagConfig
           {
             name: '5103 Waiver',
             description: 'Allows authenticated and authorized users to file a 5103 Notice Response on a claim.'
+          },
+          {
+            name: 'Intent to File',
+            description: <<~VERBIAGE
+              Allows authenticated and authorized users to automatically establish an Intent to File (21-0966) in VBMS.
+            VERBIAGE
           }
         ],
         components: {
