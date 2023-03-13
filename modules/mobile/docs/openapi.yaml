@@ -1286,6 +1286,81 @@ paths:
       security:
         - Bearer: [ ]
       summary: /v0/claims/decision-letters
+  /v0/claims/decision-letters/{document_id}/download:
+    get:
+      description: Downloads a decision letter
+      operationId: decision-letter-download
+      parameters:
+        - description: id of the document being downloaded
+          in: path
+          name: document_id
+          required: true
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                format: binary
+                type: string
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Authentication is possible but has failed or not yet been provided.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Client was forbidden from upstream resource.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The requested resource could not be found.
+        '408':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The response from this API timed out.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Failure in processing entity
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An internal API error occured.
+        '502':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service the API depends on returned an error.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: An upstream service is unavailable, or its circuit breaker
+            may have been tripped.
+        '504':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: A response from an upstream service timed out.
+      security:
+        - Bearer: [ ]
+      summary: /v0/claims/decision-letters/{document_id}/download
   /v0/claims-and-appeals-overview:
     get:
       description: Returns info on all user's claims and appeals for mobile overview
@@ -1514,7 +1589,6 @@ paths:
       security:
         - Bearer: []
       summary: /v0/community-care-providers
-
   /v0/disability-rating:
     get:
       description: Returns the list of disability ratings for given user
