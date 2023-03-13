@@ -282,6 +282,8 @@ module ClaimsApi
                                 data[:phase_chngd_dt]
                               elsif data[:benefit_claim_details_dto].present?
                                 data[:benefit_claim_details_dto][:phase_chngd_dt]
+                              elsif data[:bnft_claim_lc_status].present?
+                                format_bgs_phase_date(data)
                               else
                                 format_bgs_phase_date(data[:benefit_claim_details_dto])
                               end
