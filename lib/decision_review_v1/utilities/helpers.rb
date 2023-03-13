@@ -79,8 +79,12 @@ module DecisionReviewV1
         data.body[/(?<=\[).*?(?=\])/].split(': ').last
       end
 
-      def parse_form412_response_to_log_msg(data:, bm: nil)
-        log_data = { form_id: FORM4142_ID, parent_form_id: SUPP_CLAIM_FORM_ID, message: data.body, status: data.status }
+      def parse_form412_response_to_log_msg(appeal_submission_id:, data:, bm: nil)
+        log_data = { message: 'Supplemental Claim 4142 submitted.',
+                     appeal_submission_id: appeal_submission_id,
+                     form_id: FORM4142_ID, parent_form_id: SUPP_CLAIM_FORM_ID,
+                     response_body: data.body,
+                     response_status: data.status }
         log_data[:extracted_uuid] = extract_uuid_from_central_mail_message(data) if data.success?
         log_data[:meta] = benchmark_to_log_data_hash(bm) unless bm.nil?
         log_data

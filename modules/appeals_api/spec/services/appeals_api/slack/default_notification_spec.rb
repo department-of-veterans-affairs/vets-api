@@ -2,36 +2,32 @@
 
 require 'rails_helper'
 
-module AppealsApi
-  module Slack
-    RSpec.describe DefaultNotification do
-      describe '#message_text' do
-        let(:params) do
-          {
-            'test_key' => 'test_value',
-            'args' => %w[1234 5678],
-            'gibberish' => 2,
-            'indeed' => 'indeed gibberish',
-            'message' => 'Something happened here'
-          }
-        end
+describe AppealsApi::Slack::DefaultNotification do
+  describe '#message_text' do
+    let(:params) do
+      {
+        'test_key' => 'test_value',
+        'args' => %w[1234 5678],
+        'gibberish' => 2,
+        'indeed' => 'indeed gibberish',
+        'message' => 'Something happened here'
+      }
+    end
 
-        it 'returns the VSP environment' do
-          with_settings(Settings, vsp_environment: 'staging') do
-            expect(
-              described_class.new(params).message_text
-            ).to include('ENVIRONMENT: :construction: staging :construction')
-          end
-        end
+    it 'returns the VSP environment' do
+      with_settings(Settings, vsp_environment: 'staging') do
+        expect(
+          described_class.new(params).message_text
+        ).to include('ENVIRONMENT: :construction: staging :construction')
+      end
+    end
 
-        it 'displays all the keys capitalized and formatted' do
-          with_settings(Settings, vsp_environment: 'staging') do
-            expect(described_class.new(params).message_text).to include(
-              "\nTEST_KEY : test_value\nARGS : [\"1234\", \"5678\"]
+    it 'displays all the keys capitalized and formatted' do
+      with_settings(Settings, vsp_environment: 'staging') do
+        expect(described_class.new(params).message_text).to include(
+          "\nTEST_KEY : test_value\nARGS : [\"1234\", \"5678\"]
 GIBBERISH : 2\nINDEED : indeed gibberish\nMESSAGE : Something happened here"
-            )
-          end
-        end
+        )
       end
     end
   end

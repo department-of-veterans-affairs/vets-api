@@ -392,7 +392,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     end
     let(:controller_name) { 'application' }
     let(:client_type) { 'mhv_session' }
-    let(:sign_in_method) { SAML::User::IDME_CSID }
+    let(:sign_in_method) { SignIn::Constants::Auth::IDME }
     let(:authn_context) { LOA::IDME_LOA3 }
     let(:tags_context) { { controller_name: controller_name, sign_in_method: sign_in_method, sign_in_acct_type: nil } }
     let(:loa) { { current: 3, highest: 3 } }

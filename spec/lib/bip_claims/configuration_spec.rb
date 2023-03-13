@@ -18,7 +18,7 @@ describe BipClaims::Configuration do
 
   describe '#mock_enabled?' do
     context 'when Settings.bip.claims.mock is true' do
-      before { Settings.bip.claims.mock = 'true' }
+      before { allow(Settings.bip.claims).to receive(:mock).and_return('true') }
 
       it 'returns true' do
         expect(BipClaims::Configuration.instance).to be_mock_enabled
@@ -26,7 +26,7 @@ describe BipClaims::Configuration do
     end
 
     context 'when Settings.caseflow.mock is false' do
-      before { Settings.bip.claims.mock = 'false' }
+      before { allow(Settings.bip.claims).to receive(:mock).and_return('false') }
 
       it 'returns false' do
         expect(BipClaims::Configuration.instance).not_to be_mock_enabled

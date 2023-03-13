@@ -120,13 +120,7 @@ describe Mobile::ListFilter, aggregate_failures: true do
     end
 
     describe 'data validation and error handling' do
-      before do
-        Settings.sentry.dsn = 'asdf'
-      end
-
-      after do
-        Settings.sentry.dsn = nil
-      end
+      before { allow(Settings.sentry).to receive(:dsn).and_return('asdf') }
 
       it 'logs an error and returns original list when list is not an array' do
         params = paramiterize({})

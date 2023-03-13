@@ -2,10 +2,12 @@
 
 require 'rails_helper'
 require 'saml/ssoe_settings_service'
-require 'lib/sentry_logging_spec_helper'
 
 RSpec.describe SAML::SSOeSettingsService do
-  before { Settings.saml_ssoe.idp_metadata_file = Rails.root.join('spec', 'support', 'saml', 'test_idp_metadata.xml') }
+  before do
+    allow(Settings.saml_ssoe)
+      .to receive(:idp_metadata_file).and_return(Rails.root.join('spec', 'support', 'saml', 'test_idp_metadata.xml'))
+  end
 
   describe '.saml_settings' do
     it 'returns a settings instance' do

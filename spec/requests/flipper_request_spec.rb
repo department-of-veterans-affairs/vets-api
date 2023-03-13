@@ -17,7 +17,7 @@ RSpec.describe 'Flipper UI' do
   context 'with authenticated admin user' do
     before do
       sign_in_as(user)
-      Settings.flipper.admin_user_emails << user.email
+      allow(Settings.flipper).to receive(:admin_user_emails).and_return(user.email)
       Flipper.enable(:test_feature)
     end
 

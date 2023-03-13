@@ -9,6 +9,7 @@ RSpec.describe SignIn::ClientConfig, type: :model do
            authentication: authentication,
            anti_csrf: anti_csrf,
            redirect_uri: redirect_uri,
+           logout_redirect_uri: logout_redirect_uri,
            access_token_duration: access_token_duration,
            access_token_audience: access_token_audience,
            refresh_token_duration: refresh_token_duration)
@@ -17,6 +18,7 @@ RSpec.describe SignIn::ClientConfig, type: :model do
   let(:authentication) { SignIn::Constants::Auth::API }
   let(:anti_csrf) { false }
   let(:redirect_uri) { 'some-redirect-uri' }
+  let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
   let(:access_token_duration) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
   let(:access_token_audience) { 'some-access-token-audience' }
   let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
@@ -127,6 +129,30 @@ RSpec.describe SignIn::ClientConfig, type: :model do
 
         it 'raises validation error' do
           expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+    end
+
+    describe '#logout_redirect_uri' do
+      context 'when logout_redirect_uri is nil' do
+        let(:logout_redirect_uri) { nil }
+
+        context 'and authentication is set to cookie auth' do
+          let(:authentication) { SignIn::Constants::Auth::COOKIE }
+          let(:expected_error_message) { "Validation failed: Logout redirect uri can't be blank" }
+          let(:expected_error) { ActiveRecord::RecordInvalid }
+
+          it 'raises validation error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+
+        context 'and authentication is set to api auth' do
+          let(:authentication) { SignIn::Constants::Auth::API }
+
+          it 'does not raise validation error' do
+            expect { subject }.not_to raise_error
+          end
         end
       end
     end

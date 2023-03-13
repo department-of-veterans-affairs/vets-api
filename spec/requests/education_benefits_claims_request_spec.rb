@@ -83,9 +83,7 @@ RSpec.describe 'Education Benefits Claims Integration', type: %i[request seriali
         }
       end
 
-      before { Settings.sentry.dsn = 'asdf' }
-
-      after { Settings.sentry.dsn = nil }
+      before { allow(Settings.sentry).to receive(:dsn).and_return('asdf') }
 
       it 'renders json of the errors' do
         subject

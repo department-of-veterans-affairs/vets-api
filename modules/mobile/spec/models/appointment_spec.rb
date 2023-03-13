@@ -17,12 +17,7 @@ RSpec.describe Mobile::V0::Appointment, type: :model do
     end
 
     context 'when in production' do
-      before do
-        @original_hostname = Settings.hostname
-        Settings.hostname = 'api.va.gov'
-      end
-
-      after { Settings.hostname = @original_hostname }
+      before { allow(Settings).to receive(:hostname).and_return('api.va.gov') }
 
       it 'does not convert mocked ids' do
         expect(Mobile::V0::Appointment.convert_from_non_prod_id!('983')).to eq('983')
@@ -44,12 +39,7 @@ RSpec.describe Mobile::V0::Appointment, type: :model do
     end
 
     context 'when in production' do
-      before do
-        @original_hostname = Settings.hostname
-        Settings.hostname = 'api.va.gov'
-      end
-
-      after { Settings.hostname = @original_hostname }
+      before { allow(Settings).to receive(:hostname).and_return('api.va.gov') }
 
       it 'does not convert real ids' do
         expect(Mobile::V0::Appointment.convert_to_non_prod_id!('442')).to eq('442')

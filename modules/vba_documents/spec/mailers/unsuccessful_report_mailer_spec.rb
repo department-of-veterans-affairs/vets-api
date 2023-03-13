@@ -63,7 +63,7 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
 
     before do
       current_env_url = env_url.last
-      Settings.vba_documents.location.prefix = current_env_url
+      allow(Settings.vba_documents.location).to receive(:prefix).and_return(current_env_url)
       VBADocuments::Deployment.environment = VBADocuments::Deployment.fetch_environment
       if VBADocuments::UnsuccessfulReportMailer.const_defined?(:RECIPIENTS)
         VBADocuments::UnsuccessfulReportMailer.send(:remove_const, :RECIPIENTS)
@@ -111,7 +111,7 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
       before do
         expect(VBADocuments::Deployment).to receive(:environment).and_return('prod')
         expect(YAML).to receive(:load_file).and_return(recipients)
-        Settings.vba_documents.slack.enabled = true
+        allow(Settings.vba_documents.slack).to receive(:enabled).and_return(true)
       end
 
       it 'returns the recipients list for prod + all environments + the Slack alert email' do
@@ -132,7 +132,7 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
       before do
         expect(VBADocuments::Deployment).to receive(:environment).and_return('staging')
         expect(YAML).to receive(:load_file).and_return(recipients)
-        Settings.vba_documents.slack.enabled = false
+        allow(Settings.vba_documents.slack).to receive(:enabled).and_return(false)
       end
 
       it 'returns the recipients list for staging + all environments' do
@@ -151,7 +151,7 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
       before do
         expect(VBADocuments::Deployment).to receive(:environment).and_return('dev')
         expect(YAML).to receive(:load_file).and_return(recipients)
-        Settings.vba_documents.slack.enabled = false
+        allow(Settings.vba_documents.slack).to receive(:enabled).and_return(false)
       end
 
       it 'returns the recipients list all environments only' do

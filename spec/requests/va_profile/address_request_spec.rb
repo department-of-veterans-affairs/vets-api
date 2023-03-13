@@ -192,7 +192,7 @@ RSpec.describe 'address' do
         before do
           allow_any_instance_of(User).to receive(:vet360_id).and_return('1')
           allow_any_instance_of(User).to receive(:icn).and_return('1234')
-          Settings.virtual_hosts << 'www.example.com'
+          allow(Settings).to receive(:virtual_hosts).and_return('www.example.com')
         end
 
         it 'is successful' do

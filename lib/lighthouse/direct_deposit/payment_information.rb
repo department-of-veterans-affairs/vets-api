@@ -41,12 +41,8 @@ module Lighthouse
       end
 
       def error
-        if authorized?
-          @error
-        else
-          'To view payment account, the following indicators must be true: ' \
-            'is_competent, is_not_deceased, and has_no_fiduciary_assigned'
-        end
+        return @error if authorized? && @error.present?
+        return @control_information&.error_message unless authorized?
       end
     end
   end

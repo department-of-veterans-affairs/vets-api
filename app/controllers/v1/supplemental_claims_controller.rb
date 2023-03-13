@@ -22,14 +22,15 @@ module V1
       submitted_appeal_uuid = sc_response.body.dig('data', 'id')
       unless submitted_appeal_uuid.nil?
         appeal_submission, _ipf_id = clear_in_progress_form(submitted_appeal_uuid)
-        unless form4142.nil?
+        if form4142.present?
           handle_4142(request_body: req_body_obj,
-                      form4142: form4142,
-                      response: sc_response,
-                      appeal_submission_id: appeal_submission.id,
+                      form4142: form4142, response: sc_response, appeal_submission_id: appeal_submission.id,
                       submitted_appeal_uuid: submitted_appeal_uuid)
         end
-        submit_evidence(sc_evidence, appeal_submission.id, submitted_appeal_uuid) unless sc_evidence.nil?
+        if sc_evidence.present?
+          submit_evidence(sc_evidence, appeal_submission.id,
+                          submitted_appeal_uuid)
+        end
         render json: sc_response.body, status: sc_response.status
       end
     rescue => e

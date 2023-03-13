@@ -10,7 +10,7 @@ RSpec.describe 'letters' do
 
   before do
     sign_in_as(user)
-    Settings.evss.mock_letters = false
+    allow(Settings.evss).to receive(:mock_letters).and_return(false)
   end
 
   describe 'GET /v0/letters' do

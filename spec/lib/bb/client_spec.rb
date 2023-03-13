@@ -36,9 +36,7 @@ describe 'bb client' do
   end
 
   context 'with sentry enabled' do
-    before { Settings.sentry.dsn = 'asdf' }
-
-    after { Settings.sentry.dsn = nil }
+    before { allow(Settings.sentry).to receive(:dsn).and_return('asdf') }
 
     it 'logs failed extract statuses', :vcr do
       VCR.use_cassette('bb_client/gets_a_list_of_extract_statuses') do

@@ -7,7 +7,6 @@ require_relative '../../../app/serializers/vba_documents/upload_serializer'
 
 RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
   include VBADocuments::Fixtures
-  Settings.vba_documents.v2_enabled = true
   load('./modules/vba_documents/config/routes.rb')
 
   describe '#create /v2/uploads/report' do

@@ -1,39 +1,98 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'controllers/concerns/form_attachment_create_spec'
 
 RSpec.describe V0::HCAAttachmentsController, type: :controller do
-  it_behaves_like 'a FormAttachmentCreate controller'
+  describe '::FORM_ATTACHMENT_MODEL' do
+    it 'is a FormAttachment model' do
+      expect(described_class::FORM_ATTACHMENT_MODEL.ancestors).to include(FormAttachment)
+    end
+  end
 
   describe '#create' do
-    it 'uploads an hca attachment' do
-      post(:create, params: { hca_attachment: {
-             file_data: fixture_file_upload('../pdf_fill/extras.pdf')
-           } })
-      expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq HCAAttachment.last.guid
-      expect(FormAttachment.last).to be_a(HCAAttachment)
+    let(:form_attachment_guid) { SecureRandom.uuid }
+    let(:pdf_file) do
+      fixture_file_upload('doctors-note.pdf', 'application/pdf')
+    end
+    let(:form_attachment_model) { described_class::FORM_ATTACHMENT_MODEL }
+    let(:param_namespace) { form_attachment_model.to_s.underscore.split('/').last }
+    let(:resource_name) { form_attachment_model.name.remove('::').snakecase }
+    let(:json_api_type) { resource_name.pluralize }
+    let(:attachment_factory_id) { resource_name.to_sym }
+
+    it 'requires params.`param_namespace`' do
+      empty_req_params = [nil, {}]
+      empty_req_params << { param_namespace => {} }
+      empty_req_params.each do |params|
+        post(:create, params: params)
+
+        expect(response).to have_http_status(:bad_request)
+
+        response_body = JSON.parse(response.body)
+
+        expect(response_body['errors'].size).to eq(1)
+        expect(response_body['errors'][0]).to eq(
+          'title' => 'Missing parameter',
+          'detail' => "The required parameter \"#{param_namespace}\", is missing",
+          'code' => '108',
+          'status' => '400'
+        )
+      end
     end
 
-    it 'validates input parameters' do
-      post(:create)
+    it 'requires file_data to be a file' do
+      params = { param_namespace => { file_data: 'not_a_file_just_a_string' } }
+      post(:create, params: params)
       expect(response).to have_http_status(:bad_request)
-      expect(JSON.parse(response.body)['errors'].first['detail'])
-        .to eq('The required parameter "hca_attachment", is missing')
+      response_body_errors = JSON.parse(response.body)['errors']
+
+      expect(response_body_errors.size).to eq(1)
+      expect(response_body_errors[0]).to eq(
+        'title' => 'Invalid field value',
+        'detail' => '"String" is not a valid value for "file_data"',
+        'code' => '103',
+        'status' => '400'
+      )
     end
 
-    it 'validates that the upload attachment is not nil' do
-      file_data = fixture_file_upload('../pdf_fill/extras.pdf')
+    def expect_form_attachment_creation
+      form_attachment = build(attachment_factory_id, guid: form_attachment_guid)
 
-      post(:create, params: { hca_attachment: {
-             file_data: file_data
-           } })
+      expect(form_attachment_model).to receive(:new) do
+        expect(form_attachment).to receive(:set_file_data!)
 
-      uploaded_file_path =  HCAAttachment.last.get_file.file
-      file_1 = File.open(uploaded_file_path).read
-      file_2 = File.open(file_data).read
+        expect(form_attachment).to receive(:save!) do
+          form_attachment.id = 99
+          form_attachment
+        end
 
-      expect(file_1).to eq(file_2)
+        form_attachment
+      end
+
+      expect(subject).to receive(:render).with(json: form_attachment).and_call_original # rubocop:disable RSpec/SubjectStub
+
+      form_attachment
+    end
+
+    it 'creates a FormAttachment' do
+      params = { param_namespace => { file_data: pdf_file } }
+      expect_form_attachment_creation
+      post(:create, params: params)
+
+      expect(response).to have_http_status(:ok)
+      expect(
+        JSON.parse(response.body)
+      ).to eq(
+        {
+          'data' => {
+            'id' => '99',
+            'type' => json_api_type,
+            'attributes' => {
+              'guid' => form_attachment_guid
+            }
+          }
+        }
+      )
     end
   end
 end

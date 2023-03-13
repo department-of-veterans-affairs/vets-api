@@ -164,11 +164,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
 
     context 'with invalid params' do
       before do
-        Settings.sentry.dsn = 'asdf'
-      end
-
-      after do
-        Settings.sentry.dsn = nil
+        allow(Settings.sentry).to receive(:dsn).and_return('asdf')
       end
 
       let(:params) do
@@ -340,11 +336,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
           let(:error) { Common::Client::Errors::HTTPError.new('error message') }
 
           before do
-            Settings.sentry.dsn = 'asdf'
-          end
-
-          after do
-            Settings.sentry.dsn = nil
+            allow(Settings.sentry).to receive(:dsn).and_return('asdf')
           end
 
           it 'renders error message' do

@@ -31,8 +31,8 @@ module SignIn
                         format: :html)
       end
 
-      def render_logout
-        "#{sign_out_url}?#{sign_out_params(config.logout_redirect_uri, SecureRandom.hex).to_query}"
+      def render_logout(state)
+        "#{sign_out_url}?#{sign_out_params(config.logout_redirect_uri, state).to_query}"
       end
 
       def token(code)

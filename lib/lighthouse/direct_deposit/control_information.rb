@@ -39,9 +39,11 @@ module Lighthouse
       end
 
       def authorized?
-        is_competent &&
-          has_no_fiduciary_assigned &&
-          is_not_deceased
+        can_update_direct_deposit
+      end
+
+      def error_message
+        'All control indicators must be true to view payment account information.'
       end
     end
   end

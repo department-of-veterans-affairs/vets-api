@@ -10,20 +10,12 @@ RSpec.describe PagerDuty::CacheGlobalDowntime, type: %i[job aws_helpers] do
   let(:mw_hash) { FactoryBot.build(:maintenance_hash) }
 
   before do
-    Settings.maintenance.services = { global: 'ABCDEF' }
-    Settings.maintenance.aws.access_key_id = 'key'
-    Settings.maintenance.aws.secret_access_key = 'secret'
-    Settings.maintenance.aws.bucket = 'bucket'
-    Settings.maintenance.aws.region = 'region'
+    allow(Settings.maintenance).to receive(:services).and_return({ global: 'ABCDEF' })
+    allow(Settings.maintenance.aws).to receive(:access_key_id).and_return('key')
+    allow(Settings.maintenance.aws).to receive(:secret_access_key).and_return('secret')
+    allow(Settings.maintenance.aws).to receive(:bucket).and_return('bucket')
+    allow(Settings.maintenance.aws).to receive(:region).and_return('region')
     allow(PagerDuty::MaintenanceClient).to receive(:new) { client_stub }
-  end
-
-  after do
-    Settings.maintenance.services = nil
-    Settings.maintenance.aws.access_key_id = nil
-    Settings.maintenance.aws.secret_access_key = nil
-    Settings.maintenance.aws.bucket = nil
-    Settings.maintenance.aws.region = nil
   end
 
   describe '#perform' do
@@ -50,11 +42,7 @@ RSpec.describe PagerDuty::CacheGlobalDowntime, type: %i[job aws_helpers] do
 
     context 'with error response from client' do
       before do
-        Settings.sentry.dsn = 'asdf'
-      end
-
-      after do
-        Settings.sentry.dsn = nil
+        allow(Settings.sentry).to receive(:dsn).and_return('asdf')
       end
 
       it 'bails on backend error' do

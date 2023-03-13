@@ -9,7 +9,7 @@ require_dependency 'vba_documents/multipart_parser'
 
 RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
   include VBADocuments::Fixtures
-  Settings.vba_documents.v2_enabled = true
+
   load('./modules/vba_documents/config/routes.rb')
 
   let(:test_caller) { { 'caller' => 'tester' } }

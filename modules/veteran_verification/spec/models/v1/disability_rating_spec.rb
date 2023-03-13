@@ -6,7 +6,7 @@ describe VeteranVerification::V1::DisabilityRating do
   let(:user) { build(:openid_user, identity_attrs: build(:user_identity_attrs, :loa3, ssn: '796126777')) }
 
   before do
-    Settings.vet_verification.mock_bgs = false
+    allow(Settings.vet_verification).to receive(:mock_bgs).and_return(false)
   end
 
   describe '#formatted_ratings' do

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-shared_examples 'notice of disagreements v2 and v3 form fields examples' do
+describe AppealsApi::PdfConstruction::NoticeOfDisagreement::V2::FormFields do
   let(:form_fields) { described_class.new }
 
   describe '#veteran_file_number' do
@@ -99,17 +99,5 @@ shared_examples 'notice of disagreements v2 and v3 form fields examples' do
 
   describe '#issue_table_decision_date' do
     it { expect(form_fields.issue_table_decision_date(6)).to eq('F[0].Page_1[0].Percentage2[6]') }
-  end
-end
-
-module AppealsApi
-  module PdfConstruction
-    module NoticeOfDisagreement
-      module V2
-        describe FormFields do
-          include_examples 'notice of disagreements v2 and v3 form fields examples'
-        end
-      end
-    end
   end
 end

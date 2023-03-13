@@ -3439,6 +3439,7 @@ paths:
                   meta:
                     properties:
                       availableServices:
+                        description: All services available through the mobile API. See authorizedServices for a list of services available to the user.
                         example:
                           - appeals
                           - appointments
@@ -3523,6 +3524,7 @@ paths:
                   meta:
                     properties:
                       availableServices:
+                        description: All services available through the mobile API. See authorizedServices for a list of services available to the user.
                         example:
                           - appeals
                           - appointments

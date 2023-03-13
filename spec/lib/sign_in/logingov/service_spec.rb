@@ -99,11 +99,10 @@ describe SignIn::Logingov::Service do
     let(:expected_url_host) { Settings.logingov.oauth_url }
     let(:expected_url_path) { 'openid_connect/logout' }
     let(:expected_url) { "#{expected_url_host}/#{expected_url_path}?#{expected_url_params.to_query}" }
-
-    before { allow(SecureRandom).to receive(:hex).and_return(state) }
+    let(:state) { 'some-state' }
 
     it 'renders expected logout url' do
-      expect(subject.render_logout).to eq(expected_url)
+      expect(subject.render_logout(state)).to eq(expected_url)
     end
   end
 
@@ -184,7 +183,7 @@ describe SignIn::Logingov::Service do
       }
     end
     let(:credential_level) { create(:credential_level, current_ial: IAL::TWO, max_ial: IAL::TWO) }
-    let(:service_name) { SAML::User::LOGINGOV_CSID }
+    let(:service_name) { SignIn::Constants::Auth::LOGINGOV }
     let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }
     let(:authn_context) { IAL::LOGIN_GOV_IAL2 }
     let(:auto_uplevel) { false }

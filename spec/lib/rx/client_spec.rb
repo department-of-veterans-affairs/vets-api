@@ -48,7 +48,7 @@ describe Rx::Client do
 
   shared_examples 'prescriptions' do |caching_enabled|
     before do
-      Settings.mhv.rx.collection_caching_enabled = caching_enabled
+      allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(caching_enabled)
     end
 
     let(:cache_keys) { ["#{client.session.user_id}:getactiverx", "#{client.session.user_id}:gethistoryrx"] }

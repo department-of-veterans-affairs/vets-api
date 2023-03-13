@@ -1,0 +1,91 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://dev-api.va.gov/internal/auth/v3/validation
+    body:
+      encoding: UTF-8
+      string: '{"aud":["https://dev-api.va.gov/services/some-api","ABC123"]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - abcd1234abcd1234abcd1234abcd1234abcd1234
+      Authorization:
+      - Bearer ABC123
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 27 Oct 2021 17:42:07 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '9999'
+      X-Ratelimit-Limit-Minute:
+      - '10000'
+      Ratelimit-Remaining:
+      - '9999'
+      Ratelimit-Limit:
+      - '10000'
+      Ratelimit-Reset:
+      - '54'
+      Etag:
+      - W/"302f54da78a01cbec75ea220b84bc590"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Git-Sha:
+      - b729fdd171f81c5f5ae160b4243f06ce639f8b20
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 8425c021-8dbb-4c85-9888-5600d141c20e
+      X-Runtime:
+      - '1.414564'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Kong-Upstream-Latency:
+      - '1418'
+      X-Kong-Proxy-Latency:
+      - '10'
+      Via:
+      - kong/2.3.2
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS01de8f7b=01c8917e48884b7226c27bd140f0eb2f527fce3e9b31650454faad7ed365571aec98929c29ed7f5f1899ce34cdb6b3b7f7be80efa5;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"AT.5srKQCpbOCwG9HZRItYk_ERIkOfhdLWifr5f4HRRQx8.oar136oq1wFphHGiO2p7","type":"validated_token","attributes":{"ver":1,"jti":"AT.5srKQCpbOCwG9HZRItYk_ERIkOfhdLWifr5f4HRRQx8.oar136oq1wFphHGiO2p7","iss":"https://deptva-eval.okta.com/oauth2/default","aud":"api://default","iat":1635353996,"exp":1635357596,"cid":"0oa41882gkjtBRJhu2p7","uid":"00u3z5e6as6tEwXWx2p7","scp":["openid","offline_access","profile","some_resource.read"],"sub":"b24346a788c04dfea5048d44ad071181","act":{"icn":"1012667145V762142","npi":null,"sec_id":null,"vista_id":null,"type":"patient"},"launch":{"patient":"1012667145V762142"}}}}'
+  recorded_at: Wed, 27 Oct 2021 17:42:07 GMT
+recorded_with: VCR 6.0.0

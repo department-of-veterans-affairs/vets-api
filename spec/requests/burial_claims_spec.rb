@@ -16,11 +16,7 @@ RSpec.describe 'Burial Claim Integration' do
 
     context 'with invalid params' do
       before do
-        Settings.sentry.dsn = 'asdf'
-      end
-
-      after do
-        Settings.sentry.dsn = nil
+        allow(Settings.sentry).to receive(:dsn).and_return('asdf')
       end
 
       let(:params) do

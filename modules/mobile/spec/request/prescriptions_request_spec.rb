@@ -28,7 +28,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
   after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
 
   before do
-    Settings.mhv.rx.collection_caching_enabled = true
+    allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(true)
     allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return(mhv_account_type)
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
     current_user = build(:iam_user, :mhv)

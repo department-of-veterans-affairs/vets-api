@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-# frozen_string_literal: true
 
 require 'evss/disability_compensation_auth_headers' # required to build a Form526Submission
 
@@ -20,7 +19,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   describe '.perform_async, disabled' do
     # Make sure it doesnt do anything if flipper disabled
     before do
-      Settings.form526_backup.enabled = false
+      allow(Settings.form526_backup).to receive(:enabled).and_return(false)
     end
 
     let!(:submission) { create :form526_submission, :with_everything }
@@ -37,8 +36,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   %w[single multi].each do |payload_method|
     describe ".perform_async, enabled, #{payload_method} payload" do
       before do
-        Settings.form526_backup.submission_method = payload_method
-        Settings.form526_backup.enabled = true
+        allow(Settings.form526_backup).to receive(:submission_method).and_return(payload_method)
+        allow(Settings.form526_backup).to receive(:enabled).and_return(true)
       end
 
       let!(:submission) { create :form526_submission, :with_everything }
@@ -123,8 +122,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
 
   describe '.perform_async, enabled, and converts non-pdf evidence to pdf' do
     before do
-      Settings.form526_backup.submission_method = 'single'
-      Settings.form526_backup.enabled = true
+      allow(Settings.form526_backup).to receive(:submission_method).and_return('single')
+      allow(Settings.form526_backup).to receive(:enabled).and_return(true)
     end
 
     let!(:submission) { create :form526_submission, :with_non_pdf_uploads }

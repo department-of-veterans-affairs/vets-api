@@ -170,8 +170,13 @@ module V0
       render json: { errors: e }, status: :unauthorized
     end
 
-    def logout
+    def logout # rubocop:disable Metrics/MethodLength
+      client_id = params[:client_id].presence || 'vaweb' # TODO: TB 3/3/2023 - Remove this once frontend adds client_id
       anti_csrf_token = anti_csrf_token_param.presence
+
+      if client_config(client_id).blank?
+        raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
+      end
 
       unless load_user(skip_expiration_check: true)
         raise SignIn::Errors::LogoutAuthorizationError.new message: 'Unable to Authorize User'
@@ -182,11 +187,24 @@ module V0
 
       sign_in_logger.token_log('logout', @access_token)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS)
+
+      logout_redirect = SignIn::LogoutRedirectGenerator.new(user: @current_user,
+                                                            client_config: client_config(client_id)).perform
+
+      logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
+    rescue SignIn::Errors::LogoutAuthorizationError, SignIn::Errors::SessionNotAuthorizedError => e
+      sign_in_logger.info('logout error', { errors: e.message })
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
+
+      logout_redirect = SignIn::LogoutRedirectGenerator.new(user: @current_user,
+                                                            client_config: client_config(client_id)).perform
+
+      logout_redirect ? redirect_to(logout_redirect) : render(status: :ok)
     rescue => e
       sign_in_logger.info('logout error', { errors: e.message })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
-    ensure
-      redirect_to logout_get_redirect_url
+
+      render json: { errors: e }, status: :bad_request
     end
 
     def introspect
@@ -224,15 +242,6 @@ module V0
       raise SignIn::Errors::MalformedParamsError.new message: 'Grant Type is not defined' unless grant_type
     end
 
-    def logout_get_redirect_url
-      cspid = @current_user.nil? ? nil : @current_user.identity.sign_in[:service_name]
-      if cspid == SAML::User::LOGINGOV_CSID
-        auth_service(cspid).render_logout
-      else
-        URI.parse(Settings.sign_in.client_redirect_uris.web_logout).to_s
-      end
-    end
-
     def handle_pre_login_error(error, client_id)
       if cookie_authentication?(client_id)
         error_code = error.try(:code) || SignIn::Constants::ErrorCode::INVALID_REQUEST
@@ -245,7 +254,7 @@ module V0
     def handle_credential_provider_error(error, type)
       if error == SignIn::Constants::Auth::ACCESS_DENIED
         error_message = 'User Declined to Authorize Client'
-        error_code = if type == SAML::User::LOGINGOV_CSID
+        error_code = if type == SignIn::Constants::Auth::LOGINGOV
                        SignIn::Constants::ErrorCode::LOGINGOV_VERIFICATION_DENIED
                      else
                        SignIn::Constants::ErrorCode::IDME_VERIFICATION_DENIED
@@ -320,7 +329,7 @@ module V0
 
     def auth_service(type)
       case type
-      when SAML::User::LOGINGOV_CSID
+      when SignIn::Constants::Auth::LOGINGOV
         logingov_auth_service
       else
         idme_auth_service(type)

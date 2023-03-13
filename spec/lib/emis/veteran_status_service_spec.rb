@@ -11,7 +11,7 @@ describe EMIS::VeteranStatusService do
   let(:no_status) { '1005079361' }
 
   before do
-    Settings.vet_verification.mock_emis = false
+    allow(Settings.vet_verification).to receive(:mock_emis).and_return(false)
   end
 
   describe 'get_veteran_status' do

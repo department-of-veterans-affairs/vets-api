@@ -28,8 +28,8 @@ RSpec.describe 'Disability Rating Mock API endpoint', type: :request do
   before do
     allow(JWT).to receive(:decode).and_return(jwt)
     Session.create(uuid: user.uuid, token: token)
-    Settings.vet_verification.mock_bgs = true
-    Settings.vet_verification.mock_bgs_url = 'https://blue.qa.lighthouse.va.gov/mock-bgs/v0'
+    allow(Settings.vet_verification).to receive(:mock_bgs).and_return(true)
+    allow(Settings.vet_verification).to receive(:mock_bgs_url).and_return('https://blue.qa.lighthouse.va.gov/mock-bgs/v0')
   end
 
   context 'with valid mock bgs responses' do

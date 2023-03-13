@@ -210,11 +210,11 @@ module SignIn
     end
 
     def mhv_auth?
-      service_name == SAML::User::MHV_ORIGINAL_CSID
+      service_name == Constants::Auth::MHV
     end
 
     def dslogon_auth?
-      service_name == SAML::User::DSLOGON_CSID
+      service_name == Constants::Auth::DSLOGON
     end
 
     def verified_credential?

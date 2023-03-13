@@ -87,11 +87,7 @@ RSpec.describe PagerDuty::PollMaintenanceWindows, type: :job do
 
   context 'with error response from client' do
     before do
-      Settings.sentry.dsn = 'asdf'
-    end
-
-    after do
-      Settings.sentry.dsn = nil
+      allow(Settings.sentry).to receive(:dsn).and_return('asdf')
     end
 
     it 'bails on backend error' do
