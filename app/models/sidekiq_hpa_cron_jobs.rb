@@ -2,7 +2,7 @@
 
 class SidekiqHpaCronJobs < Common::RedisStore
   def self.clean_up_queues
-    10.times.each do |_i|
+    999.times.each do |_i|
       SidekiqAlive::CleanupQueues.perform_async
       SidekiqStatsJob.perform_async
       EVSS::DeleteOldClaims.perform_async
