@@ -17,6 +17,7 @@ module SignIn
               presence: true,
               inclusion: { in: Constants::Auth::AUTHENTICATION_TYPES, allow_nil: false }
     validates :client_id, presence: true, uniqueness: true
+    validates :logout_redirect_uri, presence: true, if: :cookie_auth?
 
     def self.valid_client_id?(client_id:)
       find_by(client_id: client_id).present?

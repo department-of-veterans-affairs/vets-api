@@ -40,7 +40,7 @@ RSpec.describe SignIn::UserCreator do
     let(:icn) { 'some-icn' }
     let(:loa) { { current: LOA::THREE, highest: LOA::THREE } }
     let(:csp_email) { 'some-csp-email' }
-    let(:service_name) { SAML::User::LOGINGOV_CSID }
+    let(:service_name) { SignIn::Constants::Auth::LOGINGOV }
     let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }
     let!(:user_verification) { create(:logingov_user_verification, logingov_uuid: logingov_uuid) }
     let(:user_uuid) { user_verification.backing_credential_identifier }

@@ -34,7 +34,7 @@ module SignIn
     def check_required_verification_level
       if unverified_account_with_forced_verification?
         case type
-        when SAML::User::MHV_ORIGINAL_CSID
+        when Constants::Auth::MHV
           raise_unverified_credential_blocked_error(code: Constants::ErrorCode::MHV_UNVERIFIED_BLOCKED)
         else
           raise_unverified_credential_blocked_error(code: Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE)
@@ -60,11 +60,11 @@ module SignIn
 
     def max_ial
       case type
-      when SAML::User::LOGINGOV_CSID
+      when Constants::Auth::LOGINGOV
         verified_ial_level(verified_at)
-      when SAML::User::MHV_ORIGINAL_CSID
+      when Constants::Auth::MHV
         verified_ial_level(LOA::MHV_PREMIUM_VERIFIED.include?(mhv_assurance))
-      when SAML::User::DSLOGON_CSID
+      when Constants::Auth::DSLOGON
         Rails.logger.info("[CredentialLevelCreator] DSLogon level of assurance: #{dslogon_assurance}, " \
                           "credential_uuid: #{credential_uuid}")
         verified_ial_level(LOA::DSLOGON_PREMIUM_VERIFIED.include?(dslogon_assurance))
@@ -75,11 +75,11 @@ module SignIn
 
     def current_ial
       case type
-      when SAML::User::LOGINGOV_CSID
+      when Constants::Auth::LOGINGOV
         verified_ial_level(logingov_acr == IAL::LOGIN_GOV_IAL2 || previously_verified?(:logingov_uuid))
-      when SAML::User::MHV_ORIGINAL_CSID
+      when Constants::Auth::MHV
         verified_ial_level(requested_verified_account? && LOA::MHV_PREMIUM_VERIFIED.include?(mhv_assurance))
-      when SAML::User::DSLOGON_CSID
+      when Constants::Auth::DSLOGON
         verified_ial_level(requested_verified_account? &&
                            LOA::DSLOGON_PREMIUM_VERIFIED.include?(dslogon_assurance))
       else
@@ -108,9 +108,9 @@ module SignIn
 
     def auto_uplevel
       case type
-      when SAML::User::LOGINGOV_CSID
+      when Constants::Auth::LOGINGOV
         logingov_acr != IAL::LOGIN_GOV_IAL2 && previously_verified?(:logingov_uuid)
-      when SAML::User::IDME_CSID
+      when Constants::Auth::IDME
         credential_ial != LOA::IDME_CLASSIC_LOA3 && previously_verified?(:idme_uuid)
       else
         false

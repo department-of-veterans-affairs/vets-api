@@ -82,7 +82,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
     end
 
     context 'when type is logingov' do
-      let(:type) { SAML::User::LOGINGOV_CSID }
+      let(:type) { SignIn::Constants::Auth::LOGINGOV }
 
       context 'and user info has verified_at trait' do
         let(:verified_at) { Time.zone.now }
@@ -170,7 +170,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
     end
 
     context 'when type is mhv' do
-      let(:type) { SAML::User::MHV_ORIGINAL_CSID }
+      let(:type) { SignIn::Constants::Auth::MHV }
 
       context 'and mhv assurance is set to premium' do
         let(:mhv_assurance) { 'Premium' }
@@ -226,7 +226,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
     end
 
     context 'when type is dslogon' do
-      let(:type) { SAML::User::DSLOGON_CSID }
+      let(:type) { SignIn::Constants::Auth::DSLOGON }
       let(:expected_rails_log) do
         "[CredentialLevelCreator] DSLogon level of assurance: #{dslogon_assurance}, credential_uuid: #{sub}"
       end
@@ -316,7 +316,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
     end
 
     context 'when type is some other supported value' do
-      let(:type) { SAML::User::IDME_CSID }
+      let(:type) { SignIn::Constants::Auth::IDME }
 
       context 'and user info level of assurance equals idme classic loa3' do
         let(:level_of_assurance) { LOA::THREE }
