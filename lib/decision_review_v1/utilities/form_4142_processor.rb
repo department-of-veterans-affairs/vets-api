@@ -52,7 +52,7 @@ module DecisionReviewV1
           'veteranLastName' => veteran_full_name['last'],
           'fileNumber' => @form['vaFileNumber'] || @form['veteranSocialSecurityNumber'],
           'receiveDt' => received_date,
-          'uuid' => @uuid,
+          'uuid' => "#{@uuid}_4142",
           'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
           'source' => 'VA Forms Group B',
           'hashV' => Digest::SHA256.file(@pdf_path).hexdigest,
