@@ -7,7 +7,7 @@ module V0
   module CompAndPen
     class DirectDepositsController < ApplicationController
       before_action :controller_enabled?
-      before_action { authorize :lighthouse, :access? }
+      before_action { authorize :lighthouse, :access_direct_deposit? }
       before_action :validate_payment_account, only: :update
 
       def show

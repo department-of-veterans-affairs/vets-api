@@ -116,8 +116,7 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
         json = JSON.parse(response.body)
         expect(response).to have_http_status(:forbidden)
 
-        error_msg = 'To view payment account, the following indicators must be true: ' \
-                    'is_competent, is_not_deceased, and has_no_fiduciary_assigned'
+        error_msg = 'All control indicators must be true to view payment account information.'
         expect(json['error']).to eq(error_msg)
       end
     end
