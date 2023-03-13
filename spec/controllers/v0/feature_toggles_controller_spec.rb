@@ -54,7 +54,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
     context 'when flipper.mute_logs settings is true' do
       before do
         allow(ActiveRecord::Base.logger).to receive(:silence)
-        Settings.flipper.mute_logs = true
+        allow(Settings.flipper).to receive(:mute_logs).and_return(true)
       end
 
       it 'sets ActiveRecord logger to silence' do
@@ -65,7 +65,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
     end
 
     context 'when flipper.mute_logs settings is false' do
-      before { Settings.flipper.mute_logs = false }
+      before { allow(Settings.flipper).to receive(:mute_logs).and_return(false) }
 
       it 'does not set ActiveRecord logger to silence' do
         expect(ActiveRecord::Base.logger).not_to receive(:silence)

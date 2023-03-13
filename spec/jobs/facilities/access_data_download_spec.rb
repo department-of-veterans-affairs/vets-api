@@ -58,11 +58,7 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
 
     context 'handles satisfaction errors' do
       before do
-        Settings.sentry.dsn = 'asdf'
-      end
-
-      after do
-        Settings.sentry.dsn = nil
+        allow(Settings.sentry).to receive(:dsn).and_return('asdf')
       end
 
       it 'bails on backend error' do
@@ -93,11 +89,7 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
 
     context 'handles wait time errors' do
       before do
-        Settings.sentry.dsn = 'asdf'
-      end
-
-      after do
-        Settings.sentry.dsn = nil
+        allow(Settings.sentry).to receive(:dsn).and_return('asdf')
       end
 
       it 'bails on backend error' do

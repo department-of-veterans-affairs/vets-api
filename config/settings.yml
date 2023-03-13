@@ -195,6 +195,7 @@ central_mail:
 bip:
   claims:
     url: "https://claims-uat.dev8.bip.va.gov"
+    mock: false
 
 # Settings for VAProfile
 vet360:
@@ -550,6 +551,8 @@ webhooks:
 
 # Settings for VBA Document upload service module
 vba_documents:
+  v2_upload_endpoint_enabled: false
+  v2_enabled: false
   documentation:
     path_enabled_flag: false
   report_enabled: false
@@ -1138,6 +1141,10 @@ vbms:
 
 vet_verification:
   key_path: modules/veteran_verification/spec/fixtures/verification_test.pem
+  mock_emis: false
+  mock_emis_host: false
+  mock_bgs: false
+  mock_bgs_url: false
 
 github_stats:
   username: github-stats-rake
@@ -1415,6 +1422,9 @@ test_user_dashboard:
   github_oauth:
     client_id:
     client_secret:
+
+websockets:
+  websocket_settings: false
 
 lighthouse_health_immunization:
   client_id: '0oad0xggirKLf2ger2p7'

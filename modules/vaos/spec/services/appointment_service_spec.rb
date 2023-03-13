@@ -112,11 +112,7 @@ describe VAOS::AppointmentService do
     let(:type) { 'va' }
 
     context 'when appointments return a 200 with a partial error' do
-      around do |example|
-        Settings.sentry.dsn = true
-        example.run
-        Settings.sentry.dsn = nil
-      end
+      before { allow(Settings.sentry).to receive(:dsn).and_return(true) }
 
       it 'logs those partial responses to sentry' do
         VCR.use_cassette('vaos/appointments/get_appointments_200_partial_error',

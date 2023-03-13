@@ -12,13 +12,9 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
     auth.merge('Accept' => 'application/json')
   end
   context 'Mock Emis' do
-    before(:context) do
-      Settings.vet_verification.mock_emis = true
-      Settings.vet_verification.mock_emis_host = 'https://vaausvrsapp81.aac.va.gov'
-    end
-
-    after(:context) do
-      Settings.vet_verification.mock_emis = false
+    before do
+      allow(Settings.vet_verification).to receive(:mock_emis).and_return(true)
+      allow(Settings.vet_verification).to receive(:mock_emis_host).and_return('https://vaausvrsapp81.aac.va.gov')
     end
 
     context 'with valid emis responses' do
@@ -178,8 +174,8 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
   end
 
   context 'Betamocks Emis' do
-    before(:context) do
-      Settings.vet_verification.mock_emis = false
+    before do
+      allow(Settings.vet_verification).to receive(:mock_emis).and_return(false)
     end
 
     context 'with valid emis responses' do

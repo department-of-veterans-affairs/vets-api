@@ -15,11 +15,7 @@ describe PagerDuty::MaintenanceClient do
   end
 
   before do
-    Settings.maintenance.services = { evss: 'ABCDEF', mhv: 'BCDEFG' }
-  end
-
-  after do
-    Settings.maintenance.services = nil
+    allow(Settings.maintenance).to receive(:services).and_return({ evss: 'ABCDEF', mhv: 'BCDEFG' })
   end
 
   context 'with single page of results' do
@@ -78,7 +74,7 @@ describe PagerDuty::MaintenanceClient do
   end
 
   context 'with no configured services' do
-    before { Settings.maintenance.services = nil }
+    before { allow(Settings.maintenance).to receive(:services).and_return(nil) }
 
     it 'returns empty results' do
       windows = subject.get_all

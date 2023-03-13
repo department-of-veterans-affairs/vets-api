@@ -138,11 +138,7 @@ RSpec.describe 'PPIU' do
 
       context 'when user does not have an associated email address' do
         before do
-          Settings.sentry.dsn = 'asdf'
-        end
-
-        after do
-          Settings.sentry.dsn = nil
+          allow(Settings.sentry).to receive(:dsn).and_return('asdf')
         end
 
         it 'logs a message to Sentry' do

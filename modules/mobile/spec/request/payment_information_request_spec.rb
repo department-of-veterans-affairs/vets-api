@@ -200,13 +200,7 @@ RSpec.describe 'payment_information', type: :request do
         end
 
         context 'when user does not have an associated email address' do
-          before do
-            Settings.sentry.dsn = 'asdf'
-          end
-
-          after do
-            Settings.sentry.dsn = nil
-          end
+          before { allow(Settings.sentry).to receive(:dsn).and_return('asdf') }
 
           it 'logs a message to Sentry' do
             VCR.use_cassette('evss/ppiu/update_payment_information') do

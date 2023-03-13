@@ -5,12 +5,6 @@ require 'rails_helper'
 require './lib/webhooks/utilities'
 
 RSpec.describe 'Webhooks::Utilities' do
-  let(:websocket_settings) do
-    {
-      require_https: false
-    }
-  end
-
   let(:observers) do
     {
       'subscriptions' => [
@@ -32,13 +26,6 @@ RSpec.describe 'Webhooks::Utilities' do
     Webhooks::Utilities.register_events('test_event',
                                         api_name: 'TEST_API', max_retries: 3) do
       'working!'
-    end
-  end
-
-  before do
-    Settings.websockets = Config::Options.new
-    websocket_settings.each_pair do |k, v|
-      Settings.websockets.send("#{k}=".to_sym, v)
     end
   end
 

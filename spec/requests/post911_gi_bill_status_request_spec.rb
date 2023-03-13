@@ -11,7 +11,7 @@ RSpec.describe 'Post 911 GI Bill Status' do
 
   before do
     sign_in
-    Settings.evss.mock_gi_bill_status = false
+    allow(Settings.evss).to receive(:mock_gi_bill_status).and_return(false)
   end
 
   context 'inside working hours' do

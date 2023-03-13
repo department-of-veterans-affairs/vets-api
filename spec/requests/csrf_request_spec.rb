@@ -5,25 +5,17 @@ require 'rails_helper'
 RSpec.describe 'CSRF scenarios' do
   # ActionController::Base.allow_forgery_protection = false in the 'test' environment
   # We explicitly enable it for this spec
-  before(:all) do
-    Settings.sentry.dsn = 'truthy'
-    @original_val = ActionController::Base.allow_forgery_protection
-    ActionController::Base.allow_forgery_protection = true
-  end
-
-  after(:all) do
-    Settings.sentry.dsn = nil
-    ActionController::Base.allow_forgery_protection = @original_val
-  end
-
   before do
+    allow(Settings.sentry).to receive(:dsn).and_return('truthy')
+    @original_val = ActionController::Base.allow_forgery_protection
+    allow(ActionController::Base).to receive(:allow_forgery_protection).and_return(true)
     # innocuous route chosen for setting the CSRF token in the response header
     get(v0_maintenance_windows_path)
     @token = response.headers['X-CSRF-Token']
   end
 
   describe 'CSRF protection' do
-    before(:all) do
+    before do
       Rails.application.routes.draw do
         namespace :v0, defaults: { format: 'json' } do
           resources :maintenance_windows, only: [:index]

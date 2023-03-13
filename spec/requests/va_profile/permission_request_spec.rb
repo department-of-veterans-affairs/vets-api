@@ -13,7 +13,7 @@ RSpec.describe 'permission' do
   before do
     Timecop.freeze(frozen_time)
     sign_in_as(user)
-    Settings.virtual_hosts << 'www.example.com'
+    allow(Settings).to receive(:virtual_hosts).and_return('www.example.com')
   end
 
   after do

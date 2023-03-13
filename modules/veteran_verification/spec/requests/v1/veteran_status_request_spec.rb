@@ -8,13 +8,9 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
   let(:scopes) { %w[profile email openid veteran_status.read] }
 
   context 'mock emis' do
-    before(:context) do
-      Settings.vet_verification.mock_emis = true
-      Settings.vet_verification.mock_emis_host = 'https://vaausvrsapp81.aac.va.gov'
-    end
-
-    after(:context) do
-      Settings.vet_verification.mock_emis = false
+    before do
+      allow(Settings.vet_verification).to receive(:mock_emis).and_return(true)
+      allow(Settings.vet_verification).to receive(:mock_emis_host).and_return('https://vaausvrsapp81.aac.va.gov')
     end
 
     context 'with valid emis responses' do
@@ -71,8 +67,8 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
   end
 
   context 'betamocks emis' do
-    before(:context) do
-      Settings.vet_verification.mock_emis = false
+    before do
+      allow(Settings.vet_verification).to receive(:mock_emis).and_return(false)
     end
 
     context 'with valid emis responses' do

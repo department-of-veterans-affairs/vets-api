@@ -43,11 +43,7 @@ RSpec.describe Facilities::DentalServiceReloadJob, type: :job do
 
   context 'when encountering an error' do
     before do
-      Settings.sentry.dsn = 'asdf'
-    end
-
-    after do
-      Settings.sentry.dsn = nil
+      allow(Settings.sentry).to receive(:dsn).and_return('asdf')
     end
 
     it 'logs mental health reload error to sentry' do

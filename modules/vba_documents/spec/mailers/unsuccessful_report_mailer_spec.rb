@@ -63,7 +63,7 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
 
     before do
       current_env_url = env_url.last
-      Settings.vba_documents.location.prefix = current_env_url
+      allow(Settings.vba_documents.location).to receive(:prefix).and_return(current_env_url)
       VBADocuments::Deployment.environment = VBADocuments::Deployment.fetch_environment
       if VBADocuments::UnsuccessfulReportMailer.const_defined?(:RECIPIENTS)
         VBADocuments::UnsuccessfulReportMailer.send(:remove_const, :RECIPIENTS)

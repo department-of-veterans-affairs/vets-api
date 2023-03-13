@@ -26,7 +26,7 @@ describe Caseflow::Configuration do
 
   describe '#mock_enabled?' do
     context 'when Settings.caseflow.mock is true' do
-      before { Settings.caseflow.mock = 'true' }
+      before { allow(Settings.caseflow).to receive(:mock).and_return('true') }
 
       it 'returns true' do
         expect(Caseflow::Configuration.instance).to be_mock_enabled
@@ -34,7 +34,7 @@ describe Caseflow::Configuration do
     end
 
     context 'when Settings.caseflow.mock is false' do
-      before { Settings.caseflow.mock = 'false' }
+      before { allow(Settings.caseflow).to receive(:mock).and_return('false') }
 
       it 'returns false' do
         expect(Caseflow::Configuration.instance).not_to be_mock_enabled

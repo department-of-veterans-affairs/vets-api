@@ -45,7 +45,7 @@ RSpec.describe VBADocuments::MonthlyReportMailer, type: [:mailer] do
       before do
         expect(VBADocuments::Deployment).to receive(:environment).and_return('prod')
         expect(YAML).to receive(:load_file).and_return(recipients)
-        Settings.vba_documents.slack.enabled = true
+        allow(Settings.vba_documents.slack).to receive(:enabled).and_return(true)
       end
 
       it 'returns the recipients list for prod + all environments + the Slack alert email' do
@@ -66,7 +66,7 @@ RSpec.describe VBADocuments::MonthlyReportMailer, type: [:mailer] do
       before do
         expect(VBADocuments::Deployment).to receive(:environment).and_return('staging')
         expect(YAML).to receive(:load_file).and_return(recipients)
-        Settings.vba_documents.slack.enabled = false
+        allow(Settings.vba_documents.slack).to receive(:enabled).and_return(false)
       end
 
       it 'returns the recipients list for staging + all environments' do
@@ -85,7 +85,7 @@ RSpec.describe VBADocuments::MonthlyReportMailer, type: [:mailer] do
       before do
         expect(VBADocuments::Deployment).to receive(:environment).and_return('dev')
         expect(YAML).to receive(:load_file).and_return(recipients)
-        Settings.vba_documents.slack.enabled = false
+        allow(Settings.vba_documents.slack).to receive(:enabled).and_return(false)
       end
 
       it 'returns the recipients list for all environments only' do

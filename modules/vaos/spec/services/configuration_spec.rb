@@ -17,7 +17,7 @@ describe VAOS::Configuration do
 
   describe '#mock_enabled?' do
     context 'when Settings.va_mobile.mock is true' do
-      before { Settings.va_mobile.mock = 'true' }
+      before { allow(Settings.va_mobile).to receive(:mock).and_return(true) }
 
       it 'returns true' do
         expect(VAOS::Configuration.instance).to be_mock_enabled
@@ -25,7 +25,7 @@ describe VAOS::Configuration do
     end
 
     context 'when Settings.va_mobile.mock is false' do
-      before { Settings.va_mobile.mock = 'false' }
+      before { allow(Settings.va_mobile).to receive(:mock).and_return(false) }
 
       it 'returns false' do
         expect(VAOS::Configuration.instance).not_to be_mock_enabled

@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'rx/client' # used to stub Rx::Client in tests
-require 'lib/sentry_logging_spec_helper'
 
 RSpec.describe ApplicationController, type: :controller do
   controller do
@@ -79,7 +78,68 @@ RSpec.describe ApplicationController, type: :controller do
     end
   end
 
-  it_behaves_like 'a sentry logger'
+  describe 'a sentry logger' do
+    subject { class_instance }
+
+    let(:class_instance) { described_class.new }
+    let(:exception) { StandardError.new }
+
+    context 'with SENTRY_DSN set' do
+      before { allow(Settings.sentry).to receive(:dsn).and_return('asdf') }
+
+      describe '#log_message_to_sentry' do
+        it 'error logs to Rails logger' do
+          expect(Rails.logger).to receive(:error).with(/blah/).with(/context/)
+          subject.log_message_to_sentry('blah', :error, { extra: 'context' }, tags: 'tagging')
+        end
+
+        it 'logs to Sentry' do
+          expect(Raven).to receive(:tags_context)
+          expect(Raven).to receive(:extra_context)
+          expect(Raven).to receive(:capture_message)
+          subject.log_message_to_sentry('blah', :error, { extra: 'context' }, tags: 'tagging')
+        end
+      end
+
+      describe '#log_exception_to_sentry' do
+        it 'warn logs to Rails logger' do
+          expect(Rails.logger).to receive(:error).with("#{exception.message}.")
+          subject.log_exception_to_sentry(exception)
+        end
+
+        it 'logs to Sentry' do
+          expect(Raven).to receive(:capture_exception).with(exception, level: 'error').once
+          subject.log_exception_to_sentry(exception)
+        end
+      end
+    end
+
+    context 'without SENTRY_DSN set' do
+      describe '#log_message_to_sentry' do
+        it 'warn logs to Rails logger' do
+          expect(Rails.logger).to receive(:warn).with(/blah/).with(/context/)
+          subject.log_message_to_sentry('blah', :warn, { extra: 'context' }, tags: 'tagging')
+        end
+
+        it 'does not log to Sentry' do
+          expect(Raven).to receive(:capture_exception).exactly(0).times
+          subject.log_message_to_sentry('blah', :warn, { extra: 'context' }, tags: 'tagging')
+        end
+      end
+
+      describe '#log_exception_to_sentry' do
+        it 'error logs to Rails logger' do
+          expect(Rails.logger).to receive(:error).with("#{exception.message}.")
+          subject.log_exception_to_sentry(exception)
+        end
+
+        it 'does not log to Sentry' do
+          expect(Raven).to receive(:capture_exception).exactly(0).times
+          subject.log_exception_to_sentry(exception)
+        end
+      end
+    end
+  end
 
   describe 'Sentry Handling' do
     around do |example|

@@ -24,7 +24,7 @@ describe VAOS::Middleware::VAOSLogging do
   let(:user_service_uri) { 'https://veteran.apps.va.gov/users/v2/session?processRules=true' }
 
   before do
-    Settings.va_mobile.key_path = fixture_file_path('open_ssl_rsa_private.pem')
+    allow(Settings.va_mobile).to receive(:key_path).and_return(fixture_file_path('open_ssl_rsa_private.pem'))
     Timecop.freeze
   end
 

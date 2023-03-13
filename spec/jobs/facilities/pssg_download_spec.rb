@@ -123,12 +123,8 @@ RSpec.describe Facilities::PSSGDownload, type: :job do
 
   context 'when encountering an error' do
     before do
-      Settings.sentry.dsn = 'asdf'
+      allow(Settings.sentry).to receive(:dsn).and_return('asdf')
       create :vha_648A4
-    end
-
-    after do
-      Settings.sentry.dsn = nil
     end
 
     it 'logs pssg download error to sentry' do

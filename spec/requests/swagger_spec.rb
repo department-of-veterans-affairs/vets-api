@@ -1766,8 +1766,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     context 'without EVSS mock' do
       before do
-        Settings.evss.mock_gi_bill_status = false
-        Settings.evss.mock_letters = false
+        allow(Settings.evss).to receive(:mock_gi_bill_status).and_return(false)
+        allow(Settings.evss).to receive(:mock_letters).and_return(false)
       end
 
       it 'supports getting EVSS Gi Bill Status' do

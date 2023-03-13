@@ -5,10 +5,6 @@ require 'rails_helper'
 RSpec.describe 'address' do
   include SchemaMatchers
 
-  before(:all) { @cached_enabled_val = Settings.evss.reference_data_service.enabled }
-
-  after(:all) { Settings.evss.reference_data_service.enabled = @cached_enabled_val }
-
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:camel_header) { { 'X-Key-Inflection' => 'camel' } }
   let(:headers_with_camel) { headers.merge(camel_header) }
@@ -20,7 +16,7 @@ RSpec.describe 'address' do
 
   describe '#reference_data_service.enabled=false' do
     before do
-      Settings.evss.reference_data_service.enabled = false
+      allow(Settings.evss.reference_data_service).to receive(:enabled).and_return(false)
     end
 
     describe 'GET /v0/address' do
@@ -223,7 +219,7 @@ RSpec.describe 'address' do
 
   describe '#reference_data_service.enabled=true' do
     before do
-      Settings.evss.reference_data_service.enabled = true
+      allow(Settings.evss.reference_data_service).to receive(:enabled).and_return(true)
     end
 
     describe 'GET /v0/address/countries' do

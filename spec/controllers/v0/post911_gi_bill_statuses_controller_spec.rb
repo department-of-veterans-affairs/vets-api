@@ -20,7 +20,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
 
     context 'without mocked responses' do
       before do
-        Settings.evss.mock_gi_bill_status = false
+        allow(Settings.evss).to receive(:mock_gi_bill_status).and_return(false)
       end
 
       gi_bill_200 = { cassette_name: 'evss/gi_bill_status/gi_bill_status' }

@@ -8,8 +8,8 @@ RSpec.describe TransactionalEmailAnalyticsJob, type: :job do
   end
 
   before do
-    Settings.govdelivery.token = 'asdf'
-    Settings.google_analytics.tracking_id = 'UA-XXXXXXXXX-1'
+    allow(Settings.govdelivery).to receive(:token).and_return('asdf')
+    allow(Settings.google_analytics).to receive(:tracking_id).and_return('UA-XXXXXXXXX-1')
   end
 
   describe '#perform', run_at: '2018-05-30 18:18:56' do
@@ -22,7 +22,7 @@ RSpec.describe TransactionalEmailAnalyticsJob, type: :job do
 
     context 'Google Analytics tracking ID is missing from settings' do
       it 'raises an error' do
-        Settings.google_analytics.tracking_id = nil
+        allow(Settings.google_analytics).to receive(:tracking_id).and_return(nil)
         expect { subject.perform }.to raise_error(Common::Exceptions::ParameterMissing)
       end
     end

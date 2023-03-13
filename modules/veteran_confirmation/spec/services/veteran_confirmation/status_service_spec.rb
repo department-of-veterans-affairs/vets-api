@@ -57,8 +57,8 @@ RSpec.describe VeteranConfirmation::StatusService do
     let(:emis_error) { EMIS::Responses::ErrorResponse.new('Failed in eMIS') }
 
     context 'when betamocks emis passed valid attributes' do
-      before(:context) do
-        Settings.vet_verification.mock_emis = false
+      before do
+        allow(Settings.vet_verification).to receive(:mock_emis).and_return(false)
       end
 
       it 'confirms veteran status for persons with a title38 status of V1' do
@@ -125,13 +125,9 @@ RSpec.describe VeteranConfirmation::StatusService do
     end
 
     context 'when mock-emis passed valid attributes' do
-      before(:context) do
-        Settings.vet_verification.mock_emis = true
-        Settings.vet_verification.mock_emis_host = 'https://vaausvrsapp81.aac.va.gov'
-      end
-
-      after(:context) do
-        Settings.vet_verification.mock_emis = false
+      before do
+        allow(Settings.vet_verification).to receive(:mock_emis).and_return(true)
+        allow(Settings.vet_verification).to receive(:mock_emis_host).and_return('https://vaausvrsapp81.aac.va.gov')
       end
 
       it 'confirms veteran status for persons with a title38 status of V1' do

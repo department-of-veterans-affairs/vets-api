@@ -5,22 +5,15 @@ require './modules/vba_documents/app/workers/vba_documents/slack_notifier'
 
 RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
   let(:faraday_response) { instance_double('Faraday::Response') }
-  let(:slack_settings) do
-    {
-      in_flight_notification_hung_time_in_days: 14,
-      renotification_in_minutes: 240,
-      update_stalled_notification_in_minutes: 180,
-      daily_notification_hour: 7,
-      default_alert_url: '',
-      enabled: true
-    }
-  end
+  let(:slack_enabled) { true }
 
   before do
-    Settings.vba_documents.slack = Config::Options.new
-    slack_settings.each_pair do |k, v|
-      Settings.vba_documents.slack.send("#{k}=".to_sym, v)
-    end
+    allow(Settings.vba_documents.slack).to receive(:in_flight_notification_hung_time_in_days).and_return(14)
+    allow(Settings.vba_documents.slack).to receive(:renotification_in_minutes).and_return(240)
+    allow(Settings.vba_documents.slack).to receive(:update_stalled_notification_in_minutes).and_return(180)
+    allow(Settings.vba_documents.slack).to receive(:daily_notification_hour).and_return(7)
+    allow(Settings.vba_documents.slack).to receive(:default_alert_url).and_return('')
+    allow(Settings.vba_documents.slack).to receive(:enabled).and_return(slack_enabled)
     allow(faraday_response).to receive(:success?).and_return(true)
     @job = VBADocuments::SlackNotifier.new
     allow(@job).to receive(:send_to_slack) {
@@ -29,14 +22,14 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
     @results = nil
   end
 
-  after do
-    Settings.vba_documents.slack = nil
-  end
+  context 'when flag is disabled' do
+    let(:slack_enabled) { false }
 
-  it 'does nothing if the flag is disabled' do
-    with_settings(Settings.vba_documents.slack, enabled: false) do
-      @results = @job.perform
-      expect(@results).to be(nil)
+    it 'does nothing' do
+      with_settings(Settings.vba_documents.slack, enabled: false) do
+        @results = @job.perform
+        expect(@results).to be(nil)
+      end
     end
   end
 

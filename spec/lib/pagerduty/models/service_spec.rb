@@ -65,11 +65,7 @@ describe PagerDuty::Models::Service do
 
     context 'with an alternate service prefix' do
       before do
-        Settings.maintenance.service_query_prefix = 'Staging: External: '
-      end
-
-      after do
-        Settings.maintenance.service_query_prefix = 'External: '
+        allow(Settings.maintenance).to receive(:service_query_prefix).and_return('Staging: External: ')
       end
 
       it 'includes the staging service from the returned list of services' do
