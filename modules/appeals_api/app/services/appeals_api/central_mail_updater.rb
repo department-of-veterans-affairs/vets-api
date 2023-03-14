@@ -93,7 +93,7 @@ module AppealsApi
       end
 
       begin
-        appeal.update_status! attributes
+        appeal.update_status!(**attributes)
       rescue => e
         log_exception e, appeal, central_mail_status.status
       end

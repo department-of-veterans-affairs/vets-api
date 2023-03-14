@@ -109,7 +109,7 @@ module AppealsApi
       def add_date_range_error(pointer, start_date, end_date, error_opts = {})
         errors.add pointer,
                    "#{start_date} must before or the same day as #{end_date}. Both dates must also be in the past.",
-                   error_opts.merge(error_tpath: 'common.exceptions.detailed_schema_errors.range')
+                   **error_opts.merge(error_tpath: 'common.exceptions.detailed_schema_errors.range')
       end
     end
     # rubocop:enable Metrics/BlockLength
