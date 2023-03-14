@@ -816,3 +816,6 @@ features:
   bgs_via_faraday_file_number:
     actor_type: user
     description: If enabled uses the faraday connection to BGS to locate file_number
+  virtual_agent_show_floating_chatbot:
+    actor_type: user
+    description: Enables a floating chatbot on the chatbot page - managed by virtual agent team
