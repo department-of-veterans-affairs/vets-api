@@ -15,7 +15,7 @@ module MyHealth
         resource = collection_resource
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
         resource = resource.sort(params[:sort])
-        resource = resource.paginate(pagination_params)
+        resource = resource.paginate(**pagination_params)
         render json: resource.data,
                serializer: CollectionSerializer,
                each_serializer: PrescriptionSerializer,
