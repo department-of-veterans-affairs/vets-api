@@ -22,11 +22,13 @@ RSpec.describe VANotify::IcnJob, type: :worker do
       expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.va_gov.api_key).and_return(client)
 
       expect(client).to receive(:send_email).with(
-        recipient_identifier: {
-          id_value: icn,
-          id_type: 'ICN'
-        },
-        template_id: template_id
+        {
+          recipient_identifier: {
+            id_value: icn,
+            id_type: 'ICN'
+          },
+          template_id: template_id
+        }
       )
 
       described_class.new.perform(icn, template_id)

@@ -35,7 +35,7 @@ RSpec.describe Mobile::V0::Vet360LinkingJob, type: :job do
     it 'logs the failure with the user uuid' do
       VCR.use_cassette('profile/init_vet360_id_status_400') do
         expect(Rails.logger).to receive(:error).with(
-          'Mobile Vet360 account linking failed for user with uuid', user_uuid: user.uuid
+          'Mobile Vet360 account linking failed for user with uuid', { user_uuid: user.uuid }
         )
         expect { subject.perform(user.uuid) }.to raise_error(Common::Exceptions::BackendServiceException)
       end

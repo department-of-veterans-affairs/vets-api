@@ -45,7 +45,7 @@ module ClaimsApi
         ews.status = ClaimsApi::EvidenceWaiverSubmission::UPDATED
         # Clear out the error message if there were previous failures
         ews.bgs_error_message = nil if ews.bgs_error_message.present?
-        ClaimsApi::Logger.log(ews_id: ews.id, claim_id: ews.claim_id, detail: 'Waiver Success')
+        ClaimsApi::Logger.log({ ews_id: ews.id, claim_id: ews.claim_id, detail: 'Waiver Success' })
       end
     end
   end

@@ -25,7 +25,7 @@ describe ClaimsApi::EvidenceWaiver do
       constructor = ClaimsApi::EvidenceWaiver.new(auth_headers: ews.auth_headers)
       expected_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', '5103',
                                      'signed_filled_final.pdf')
-      generated_pdf = constructor.construct({ response: true })
+      generated_pdf = constructor.construct(response: true)
       expect(generated_pdf).to match_pdf_content_of(expected_pdf)
     end
   end

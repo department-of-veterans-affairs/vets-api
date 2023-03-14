@@ -115,7 +115,7 @@ module VAOS
         log_message_to_sentry(
           'VAOS::AppointmentService#get_appointments has response errors.',
           :info,
-          errors: response.body[:errors].to_json
+          { errors: response.body[:errors].to_json }
         )
       end
 

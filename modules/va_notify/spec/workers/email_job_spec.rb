@@ -22,8 +22,10 @@ RSpec.describe VANotify::EmailJob, type: :worker do
       expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.va_gov.api_key).and_return(client)
 
       expect(client).to receive(:send_email).with(
-        email_address: email,
-        template_id: template_id
+        {
+          email_address: email,
+          template_id: template_id
+        }
       )
 
       described_class.new.perform(email, template_id)
