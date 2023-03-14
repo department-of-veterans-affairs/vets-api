@@ -61,7 +61,7 @@ RSpec.describe CovidVaccine::RegistrationEmailJob, type: :worker do
 
       described_class.perform_async(email, date, confirmation_id)
       expect(Raven).to receive(:capture_exception).with(StandardError, { level: 'error' })
-      expect(Raven).to receive(:extra_context).with(sid: 'confirmation_id_uuid')
+      expect(Raven).to receive(:extra_context).with({ sid: 'confirmation_id_uuid' })
 
       with_settings(Settings.sentry, dsn: 'T') do
         expect { described_class.perform_one }

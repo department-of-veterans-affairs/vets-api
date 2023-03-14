@@ -11,12 +11,10 @@ RSpec.describe 'Claims', type: :request do
   let(:scopes) { %w[claim.read] }
   let(:profile) do
     MPI::Responses::FindProfileResponse.new(
-      {
-        status: 'OK',
-        profile: FactoryBot.build(:mvi_profile,
-                                  participant_id: nil,
-                                  participant_ids: [])
-      }
+      status: 'OK',
+      profile: FactoryBot.build(:mvi_profile,
+                                participant_id: nil,
+                                participant_ids: [])
     )
   end
 

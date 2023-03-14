@@ -83,7 +83,7 @@ RSpec.describe 'health_quest patients', type: :request do
       end
 
       it 'returns a Patient FHIR response type' do
-        post '/health_quest/v0/patients', {}
+        post '/health_quest/v0/patients'
 
         expect(JSON.parse(response.body)).to eq({ 'resourceType' => 'Patient' })
       end
