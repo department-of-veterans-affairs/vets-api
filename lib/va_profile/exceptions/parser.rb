@@ -50,7 +50,7 @@ module VAProfile
       def exceptions_file
         config = Rails.root.join('config', 'locales', 'exceptions.en.yml')
 
-        YAML.load_file(config)
+        YAML.load_file(config, aliases: true)
       end
     end
   end
