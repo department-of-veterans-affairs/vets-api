@@ -18,7 +18,6 @@ RSpec.describe SAML::PostURLService do
     let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
 
     around do |example|
-      User.create(user)
       Timecop.freeze('2018-04-09T17:52:03Z')
       RequestStore.store['request_id'] = request_id
       example.run
@@ -91,7 +90,6 @@ RSpec.describe SAML::PostURLService do
     let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
 
     around do |example|
-      User.create(user)
       Timecop.freeze('2018-04-09T17:52:03Z')
       RequestStore.store['request_id'] = request_id
       example.run
@@ -379,7 +377,6 @@ RSpec.describe SAML::PostURLService do
     let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
 
     around do |example|
-      User.create(user)
       Timecop.freeze('2018-04-09T17:52:03Z')
       RequestStore.store['request_id'] = request_id
       example.run
@@ -627,7 +624,6 @@ RSpec.describe SAML::PostURLService do
     end
 
     around do |example|
-      User.create(user)
       Timecop.freeze('2018-04-09T17:52:03Z')
       RequestStore.store['request_id'] = request_id
       with_settings(Settings.saml_ssoe, relay: "http://#{slug_id}.review.vetsgov-internal/auth/login/callback") do

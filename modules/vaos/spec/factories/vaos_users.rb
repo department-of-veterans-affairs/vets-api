@@ -16,6 +16,7 @@ FactoryBot.modify do
       birth_date { '1953-04-01' }
       ssn { '796061976' }
       va_patient { true }
+      stub_mpi { false }
 
       loa do
         {
@@ -69,6 +70,7 @@ FactoryBot.modify do
       birth_date { '1962-02-07' }
       ssn { '796029146' }
       va_patient { true }
+      stub_mpi { false }
 
       loa do
         {

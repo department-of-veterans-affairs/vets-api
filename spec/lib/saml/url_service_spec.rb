@@ -14,7 +14,6 @@ RSpec.describe SAML::URLService do
     let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
 
     around do |example|
-      User.create(user)
       Timecop.freeze('2018-04-09T17:52:03Z')
       RequestStore.store['request_id'] = '123'
       example.run
@@ -337,7 +336,6 @@ RSpec.describe SAML::URLService do
     let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
 
     around do |example|
-      User.create(user)
       Timecop.freeze('2018-04-09T17:52:03Z')
       RequestStore.store['request_id'] = '123'
       example.run
@@ -593,7 +591,6 @@ RSpec.describe SAML::URLService do
     let(:expected_logout_saml_url) { "#{saml_settings.idp_slo_target_url}?SAMLRequest=" }
 
     around do |example|
-      User.create(user)
       Timecop.freeze('2018-04-09T17:52:03Z')
       RequestStore.store['request_id'] = '123'
       with_settings(Settings.saml_ssoe, relay: "http://#{slug_id}.review.vetsgov-internal/auth/login/callback") do

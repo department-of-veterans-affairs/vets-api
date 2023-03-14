@@ -1130,7 +1130,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       context 'when user is missing birls only' do
-        let(:mhv_user) { build(:user_with_no_birls_id) }
+        let(:mhv_user) { build(:user, :loa3, birls_id: nil) }
 
         it 'fails with 422' do
           expect(subject).to validate(:post, '/v0/mvi_users/{id}', 422, headers.merge('id' => '21-0966'))
@@ -2315,6 +2315,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'profiles' do
+      let(:mhv_user) { create(:user, :loa3) }
+
       it 'supports getting email address data' do
         expect(subject).to validate(:get, '/v0/profile/email', 401)
         VCR.use_cassette('evss/pciu/email') do
@@ -2400,7 +2402,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports getting full name data' do
         expect(subject).to validate(:get, '/v0/profile/full_name', 401)
 
-        user = build(:user_with_suffix, :loa3)
+        user = build(:user, :loa3, middle_name: 'Robert')
         headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
 
         expect(subject).to validate(:get, '/v0/profile/full_name', 200, headers)
@@ -2920,7 +2922,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'profile/person/status/:transaction_id' do
-      let(:user_without_vet360_id) { build(:user_with_suffix, :loa3) }
+      let(:user_without_vet360_id) { build(:user, :loa3) }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user_without_vet360_id, nil, true) } } }
 
       before do

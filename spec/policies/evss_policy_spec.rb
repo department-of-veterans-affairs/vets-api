@@ -57,7 +57,7 @@ describe EVSSPolicy do
     end
 
     context 'with a user who does not have the required date of birth' do
-      let(:user) { build(:no_dob_evss_user, :loa3, birth_date: nil) }
+      let(:user) { build(:user, :loa3, birth_date: nil) }
 
       it 'denies access' do
         expect(subject).not_to permit(user, :evss)

@@ -52,7 +52,7 @@ RSpec.describe V0::UsersController, type: :controller do
   end
 
   context 'when logged in as a vet360 user' do
-    let(:user) { build(:vets360_user) }
+    let(:user) { build(:user, :loa3) }
 
     before do
       sign_in_as(user)

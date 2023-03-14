@@ -571,6 +571,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         context 'UserIdentity & MPI ID validations' do
+          let(:loa3_user) { build(:user, :loa3, uuid: uuid, idme_uuid: uuid, stub_mpi: false) }
           let(:mpi_profile) { build(:mvi_profile) }
           let(:expected_error_data) do
             { identity_value: expected_identity_value, mpi_value: expected_mpi_value, icn: loa3_user.icn }
@@ -610,7 +611,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
 
           context 'icn validation' do
-            let(:mpi_profile) { build(:mvi_profile, icn: '1234567V01112538') }
+            let(:mpi_profile) { build(:mvi_profile, icn: 'some-mpi-icn') }
             let(:expected_identity_value) { loa3_user.identity.icn }
             let(:expected_mpi_value) { loa3_user.mpi_icn }
             let(:validation_id) { 'ICN' }
@@ -619,6 +620,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
 
           context 'MHV correlation id validation' do
+            let(:mpi_profile) { build(:mvi_profile, mhv_ids: [Faker::Number.number(digits: 11)]) }
             let(:expected_identity_value) { loa3_user.identity.mhv_correlation_id }
             let(:expected_mpi_value) { loa3_user.mpi_mhv_correlation_id }
             let(:validation_id) { 'MHV Correlation ID' }

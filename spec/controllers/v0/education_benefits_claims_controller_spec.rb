@@ -12,7 +12,7 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
     it 'returns zero results for a user without submissions' do
       sign_in_as(user)
       create(:va10203, education_benefits_claim: create(:education_benefits_claim))
-        .after_submit(create(:user, :user_with_no_idme_uuid))
+        .after_submit(create(:user, :loa3, uuid: SecureRandom.uuid, idme_uuid: nil))
 
       get(:stem_claim_status)
 

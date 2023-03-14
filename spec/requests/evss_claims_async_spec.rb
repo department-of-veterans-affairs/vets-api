@@ -5,16 +5,13 @@ require 'rails_helper'
 RSpec.describe 'EVSS Claims management', type: :request do
   include SchemaMatchers
 
-  let(:user) { create(:user, :loa3, edipi: nil) }
+  let(:user) { create(:user, :loa3) }
   let(:evss_user) { create(:evss_user) }
   let(:claim) { create(:evss_claim, user_uuid: user.uuid) }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   context 'for a user without evss attrs' do
-    before do
-      profile = build(:mvi_profile, edipi: nil)
-      stub_mpi(profile)
-    end
+    let(:user) { create(:user, :loa3, edipi: nil) }
 
     it 'returns a 403' do
       sign_in_as(user)

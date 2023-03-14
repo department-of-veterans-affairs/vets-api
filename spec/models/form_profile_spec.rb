@@ -6,12 +6,10 @@ require 'decision_review/schemas'
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
 
-  let(:user) { build(:user, :loa3, :mvi_profile_street_and_suffix) }
-  let(:mvi_profile) { build(:mvi_profile, suffix: 'Jr.') }
+  let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:mvi_profile_address)) }
 
   before do
     Flipper.disable(:hca_vaprofile_military_info)
-    stub_mpi(mvi_profile)
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)
   end

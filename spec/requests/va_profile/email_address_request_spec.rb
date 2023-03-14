@@ -199,7 +199,7 @@ RSpec.describe 'email_address' do
 
     context 'when effective_end_date is included' do
       let(:email) do
-        build(:email, vet360_id: '1',
+        build(:email, vet360_id: user.vet360_id,
                       email_address: 'person42@example.com',
                       effective_end_date: '2019-04-09T11:52:03.000-06:00')
       end

@@ -42,7 +42,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
 
     it 'sets 5103 waiver when requesting a decision' do
-      sign_in_as(user)
+      sign_in_as(evss_user)
       expect do
         post '/v0/evss_claims/600118851/request_decision'
       end.to change(EVSS::RequestDecision.jobs, :size).by(1)
@@ -67,7 +67,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
 
     it 'user cannot access claim of another user' do
-      sign_in_as(user)
+      sign_in_as(evss_user)
       FactoryBot.create(:evss_claim, id: 2, evss_id: 189_625,
                                      user_uuid: 'xyz')
       # check tagging of EVSSClaimsController.show RecordNotFound error
@@ -80,7 +80,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
     context '5103 waiver has not been submitted yet' do
       it 'has waiver_submitted set after requesting a decision' do
-        sign_in_as(user)
+        sign_in_as(evss_user)
         claim.requested_decision = false
         claim.save
 

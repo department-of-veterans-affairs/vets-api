@@ -214,13 +214,13 @@ RSpec.describe 'telephone' do
   end
 
   describe 'DELETE /v0/profile/telephones' do
+    let(:user) { build(:user, :loa3, icn: '64762895576664260') }
     let(:telephone) do
       build(:telephone, vet360_id: user.vet360_id)
     end
     let(:id_in_cassette) { 42 }
 
     before do
-      allow_any_instance_of(User).to receive(:icn).and_return('64762895576664260')
       telephone.id = id_in_cassette
     end
 

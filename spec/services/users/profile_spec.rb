@@ -380,7 +380,7 @@ RSpec.describe Users::Profile do
       end
 
       context 'with a valid user' do
-        let(:user) { build(:user, :loa3) }
+        let(:user) { build(:user, :loa3, vet360_id: '1') }
         let(:vet360_info) { subject.vet360_contact_information }
 
         it 'is populated', :aggregate_failures do

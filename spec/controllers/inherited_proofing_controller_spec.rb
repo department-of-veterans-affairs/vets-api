@@ -185,7 +185,7 @@ RSpec.describe InheritedProofingController, type: :controller do
 
           context 'and there is a mhv identity data object for the given auth code in the access token' do
             let!(:mhv_identity_data) { create(:mhv_identity_data, code: auth_code, user_uuid: user.uuid) }
-            let(:user) { create(:user, :mpi_attr_sourcing, :mhv) }
+            let(:user) { create(:user, :mhv) }
 
             before do
               allow_any_instance_of(InheritedProofing::UserAttributesEncryptor)
