@@ -33,7 +33,7 @@ module DecisionReviewV1
       # @return [Faraday::Response]
       #
       def create_supplemental_claim(request_body:, user:)
-        with_monitoring_and_error_handling(user: user) do
+        with_monitoring_and_error_handling do
           request_body = request_body.to_json if request_body.is_a?(Hash)
           headers = create_supplemental_claims_headers(user)
           response, bm = run_and_benchmark_if_enabled do
@@ -59,7 +59,7 @@ module DecisionReviewV1
       #
       def process_form4142_submission(request_body:, form4142:, user:, response:)
         appeal_submission_id = response.body['data']['id']
-        with_monitoring_and_error_handling(user: user) do
+        with_monitoring_and_error_handling do
           form4142_response, bm = run_and_benchmark_if_enabled do
             new_body = get_and_rejigger_required_info(request_body: request_body, form4142: form4142, user: user)
             submit_form4142(form_data: new_body, response: response)
