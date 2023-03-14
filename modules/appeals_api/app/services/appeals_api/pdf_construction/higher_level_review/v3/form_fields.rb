@@ -70,6 +70,82 @@ module AppealsApi
           def contestable_issue_year_field(subform, index)
             "form1[0].#subform[#{subform}].DOByear[#{index}]"
           end
+
+          # rubocop:disable Metrics/MethodLength
+          def boxes
+            {
+              veteran_first_name: { at: [3, 559.7], width: 195, height: 14.4 },
+              veteran_last_name: { at: [229, 559.7], width: 293, height: 14.4 },
+              veteran_file_number: { at: [199, 527.2], width: 154, height: 14.4 },
+              veteran_number_and_street: { at: [27, 461], width: 512, height: 13.6 },
+              veteran_city: { at: [199, 440.5], width: 307, height: 14 },
+              veteran_zip_code: { at: [297, 417.8], width: 82, height: 15.3 },
+              veteran_email: { at: [7, 334.5], width: 515, height: 13.6 },
+              veteran_phone_extension: { at: [225, 378], width: 50, height: 10 },
+              veteran_international_phone: { at: [381, 366.3], width: 114, height: 12.8 },
+              claimant_first_name: { at: [8, 289.3], width: 193, height: 14.3 },
+              claimant_last_name: { at: [235, 289.1], width: 293, height: 14.1 },
+              claimant_number_and_street: { at: [28, 218.9], width: 514, height: 13.5 },
+              claimant_city: { at: [199.2, 199.4], width: 308, height: 14 },
+              claimant_zip_code: { at: [297, 177.1], width: 82, height: 14.4 },
+              claimant_email: { at: [8, 113.7], width: 513.5, height: 13.8 },
+              claimant_international_phone: { at: [382, 143.8], width: 115, height: 12.8 },
+              rep_first_name: { at: [11, 574.6], width: 195, height: 13.6 },
+              rep_last_name: { at: [225, 574.6], width: 293, height: 13.6 },
+              rep_phone_extension: { at: [225, 546], width: 100 },
+              rep_international_phone: { at: [245, 546], width: 195 },
+              rep_email: { at: [11, 514.2], width: 513, height: 13 },
+              veteran_claimant_signature: { at: [-3, 329], width: 371, height: 18 }
+            }.merge(contestable_issues_table_boxes) # NOTE: rep signature field is not yet supported
+          end
+
+          private
+
+          def contestable_issues_table_boxes
+            # The contestable issues table is split across two pages. Horizontal placement of its parts is different on
+            # each page, and row heights are inconsistent within each part of the table.
+            table_left_pg1 = -5
+            table_left_pg2 = -3
+            table_top_pg1 = 352
+            table_top_pg2 = 673
+            left_col_width = 374
+            right_col_width_pg2 = 170
+            row_height = 46.8
+
+            {
+              issue_pg1: Structure::MAX_ISSUES_FIRST_PAGE.times.map do |i|
+                {
+                  at: [table_left_pg1, table_top_pg1 - (row_height * i) + (i * 1.4)],
+                  width: left_col_width, height: 23, valign: :top
+                }
+              end,
+              issue_pg2: Structure::MAX_ISSUES_SECOND_PAGE.times.map do |i|
+                {
+                  at: [table_left_pg2, table_top_pg2 - (row_height * i)],
+                  width: left_col_width, height: 23, valign: :top
+                }
+              end,
+              soc_date_pg1: Structure::MAX_ISSUES_FIRST_PAGE.times.map do |i|
+                {
+                  at: [table_left_pg1 + left_col_width + 4, table_top_pg1 - (row_height * i) + (i * 1.4)],
+                  width: right_col_width_pg2, height: 15
+                }
+              end,
+              soc_date_pg2: Structure::MAX_ISSUES_SECOND_PAGE.times.map do |i|
+                { at: [table_left_pg2 + left_col_width + 4, table_top_pg2 - (row_height * i)], width: 160, height: 15 }
+              end,
+              disagreement_area_pg1: Structure::MAX_ISSUES_FIRST_PAGE.times.map do |i|
+                {
+                  at: [table_left_pg1, table_top_pg1 - (row_height * i) - 21 + (i * 1.2)],
+                  width: left_col_width, height: 15
+                }
+              end,
+              disagreement_area_pg2: Structure::MAX_ISSUES_SECOND_PAGE.times.map do |i|
+                { at: [table_left_pg2, table_top_pg2 - (row_height * i) - 21], width: left_col_width, height: 15 }
+              end
+            }
+          end
+          # rubocop:enable Metrics/MethodLength
         end
       end
     end
