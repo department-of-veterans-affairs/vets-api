@@ -11,7 +11,7 @@ describe VAProfile::Person::Service, skip_vet360: true do
   describe '#init_vet360_id' do
     subject { described_class.new(user) }
 
-    let(:user) { build(:user_with_suffix, :loa3) }
+    let(:user) { build(:user, :loa3) }
 
     context 'with a user present, that has a icn_with_aaid, and no passed in ICN' do
       it 'returns a status of 200', :aggregate_failures do

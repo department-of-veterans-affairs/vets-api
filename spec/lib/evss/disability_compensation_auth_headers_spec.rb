@@ -6,7 +6,7 @@ require 'evss/disability_compensation_auth_headers'
 describe EVSS::DisabilityCompensationAuthHeaders do
   let(:auth_headers) { { 'foo' => 'bar' } }
   let(:user) { build(:user) }
-  let(:blank_gender_user) { build(:blank_gender_user) }
+  let(:blank_gender_user) { build(:user, :loa3, gender: '') }
   let(:valid_headers) { described_class.new(user) }
   let(:unknown_gender_headers) { described_class.new(blank_gender_user) }
 

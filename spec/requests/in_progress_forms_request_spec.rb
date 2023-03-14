@@ -134,7 +134,7 @@ RSpec.describe V0::InProgressFormsController do
     end
 
     describe '#show' do
-      let(:user) { build(:user, :loa3, :mvi_profile_street_and_suffix) }
+      let(:user) { build(:user, :loa3, address: build(:mvi_profile_address)) }
       let!(:in_progress_form) { create(:in_progress_form, :with_nested_metadata, user_uuid: user.uuid) }
 
       context 'when the user is not loa3' do

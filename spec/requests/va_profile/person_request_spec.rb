@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'person' do
   include SchemaMatchers
 
-  let(:user) { build(:user_with_suffix, :loa3) }
+  let(:user) { build(:user, :loa3) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
 

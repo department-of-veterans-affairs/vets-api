@@ -26,7 +26,7 @@ describe BGSPolicy do
     end
 
     context 'with a user who does not have the required bgs attributes' do
-      let(:user) { build(:unauthorized_bgs_user, :loa3) }
+      let(:user) { build(:user, :loa3, ssn: nil, participant_id: nil, icn: nil) }
 
       it 'denies access' do
         expect(subject).not_to permit(user, :bgs)

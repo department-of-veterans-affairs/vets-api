@@ -4,13 +4,10 @@ require 'rails_helper'
 
 RSpec.describe 'transactions' do
   include SchemaMatchers
-  let(:user) { build(:user, :loa3) }
+  let(:vet360_id) { '1' }
+  let(:user) { build(:user, :loa3, vet360_id: vet360_id) }
 
   before do
-    # vet360_id appears in the API request URI so we need it to match the cassette
-    allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
-      build(:find_profile_response, profile: build(:mvi_profile, vet360_id: '1'))
-    )
     allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
     user.vet360_contact_info
     sign_in_as(user)

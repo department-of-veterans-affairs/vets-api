@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe MPIData, skip_mvi: true do
-  let(:user) { build(:user, :loa3) }
+  let(:user) { build(:user, :loa3, stub_mpi: false) }
 
   describe '.for_user' do
     subject { MPIData.for_user(user.identity) }
@@ -82,11 +82,11 @@ describe MPIData, skip_mvi: true do
       end
 
       it 'creates a birls_id from add_person_proxy and adds it to existing mpi data object' do
-        expect { subject }.to change(mpi_data, :birls_id).from(mpi_profile.birls_id).to(birls_id)
+        expect { subject }.to change(mpi_data, :birls_id).from(user.birls_id).to(birls_id)
       end
 
       it 'creates a participant_id from add_person_proxy and adds it to existing mpi data object' do
-        expect { subject }.to change(mpi_data, :participant_id).from(mpi_profile.participant_id).to(participant_id)
+        expect { subject }.to change(mpi_data, :participant_id).from(user.participant_id).to(participant_id)
       end
 
       it 'copies relevant results from orchestration search to fields for add person call' do
@@ -145,7 +145,6 @@ describe MPIData, skip_mvi: true do
     end
 
     context 'when user is loa3' do
-      let(:user) { build(:user, :loa3) }
       let(:profile_response) { 'some-profile-response' }
 
       before do

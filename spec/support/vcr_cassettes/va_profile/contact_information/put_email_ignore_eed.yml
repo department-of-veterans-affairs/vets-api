@@ -5,7 +5,7 @@ http_interactions:
     uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/emails
     body:
       encoding: UTF-8
-      string: '{"bio":{"emailAddressText":"person42@example.com","emailId":42,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2018-06-06T15:35:55.000Z","vet360Id":"123456789","effectiveStartDate":"2018-06-06T15:35:55.000Z","effectiveEndDate":null}}'
+      string: '{"bio":{"emailAddressText":"person42@example.com","emailId":42,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2018-06-06T15:35:55.000Z","vet360Id":"1","effectiveStartDate":"2018-06-06T15:35:55.000Z","effectiveEndDate":null}}'
     headers:
       Accept:
       - application/json

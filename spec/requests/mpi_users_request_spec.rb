@@ -25,7 +25,7 @@ RSpec.describe 'MPI Users Endpoint' do
 
       # sad path, missing birls only which means we have big problems
       context('when user is missing birls_id only') do
-        let(:user) { build(:user_with_no_birls_id) }
+        let(:user) { build(:user, :loa3, birls_id: nil) }
 
         before do
           sign_in_as(user)

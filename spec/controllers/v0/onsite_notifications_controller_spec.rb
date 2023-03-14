@@ -56,7 +56,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
 
       context 'when a user is trying to update another users onsite_notification' do
         before do
-          onsite_notification.update!(va_profile_id: '1')
+          onsite_notification.update!(va_profile_id: '98765')
         end
 
         it 'returns 404' do

@@ -35,7 +35,7 @@ RSpec.describe InheritedProofing::UserAttributesFetcher do
 
       context 'and User does exist for matching user_uuid' do
         let(:user) do
-          create(:user, :loa3, :mpi_attr_sourcing,
+          create(:user, :loa3,
                  first_name: first_name, last_name: last_name, address: address,
                  home_phone: home_phone, birth_date: birth_date, ssn: ssn)
         end

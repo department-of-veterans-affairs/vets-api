@@ -12,7 +12,7 @@ RSpec.describe Form526Submission do
     )
   end
 
-  let(:user) { create(:disabilities_compensation_user) }
+  let(:user) { create(:user, :loa3, first_name: 'Beyonce', last_name: 'Knowles') }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end

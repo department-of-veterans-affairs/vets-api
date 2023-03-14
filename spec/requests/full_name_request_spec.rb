@@ -6,7 +6,7 @@ RSpec.describe 'full_name' do
   include SchemaMatchers
 
   before do
-    sign_in_as(build(:user_with_suffix, :loa3))
+    sign_in_as(build(:user, :loa3, middle_name: 'Robert'))
   end
 
   describe 'GET /v0/profile/full_name' do

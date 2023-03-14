@@ -7,7 +7,8 @@ RSpec.describe 'personal_information' do
   include SchemaMatchers
   include ErrorDetails
 
-  let(:user) { create(:user, :loa3) }
+  let(:user) { create(:user, :loa3, mpi_profile: mpi_profile) }
+  let(:mpi_profile) { {} }
   let(:idme_uuid) { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
 
   before do
@@ -29,11 +30,12 @@ RSpec.describe 'personal_information' do
     end
 
     context 'when MVI does not return a gender nor birthday', skip_mvi: true do
+      let(:mpi_profile) { { birth_date: nil, gender: nil } }
+
       it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('mpi/find_candidate/missing_birthday_and_gender') do
           VCR.use_cassette('va_profile/demographics/demographics') do
             get '/v0/profile/personal_information'
-
             expect(response).to have_http_status(:bad_gateway)
             expect(response).to match_response_schema('errors')
           end

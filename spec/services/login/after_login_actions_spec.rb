@@ -150,8 +150,8 @@ RSpec.describe Login::AfterLoginActions do
     end
 
     context 'UserIdentity & MPI ID validations' do
-      let(:loa3_user) { build(:user, :loa3) }
-      let(:mpi_profile) { build(:mvi_profile) }
+      let(:loa3_user) { build(:user, :loa3, mpi_profile: mpi_profile) }
+      let(:mpi_profile) { {} }
       let(:expected_error_data) do
         { identity_value: expected_identity_value, mpi_value: expected_mpi_value, icn: loa3_user.icn }
       end
@@ -161,7 +161,6 @@ RSpec.describe Login::AfterLoginActions do
 
       before do
         allow(Rails.logger).to receive(:warn)
-        allow_any_instance_of(User).to receive(:mpi_profile).and_return(mpi_profile)
       end
 
       shared_examples 'identity-mpi id validation' do
@@ -172,6 +171,7 @@ RSpec.describe Login::AfterLoginActions do
       end
 
       context 'ssn validation' do
+        let(:mpi_profile) { { ssn: Faker::Number.number(digits: 9) } }
         let(:expected_identity_value) { loa3_user.identity.ssn }
         let(:expected_mpi_value) { loa3_user.ssn_mpi }
         let(:validation_id) { 'SSN' }
@@ -181,7 +181,7 @@ RSpec.describe Login::AfterLoginActions do
       end
 
       context 'edipi validation' do
-        let(:mpi_profile) { build(:mvi_profile, edipi: Faker::Number.number(digits: 10)) }
+        let(:mpi_profile) { { edipi: Faker::Number.number(digits: 10) } }
         let(:expected_identity_value) { loa3_user.identity.edipi }
         let(:expected_mpi_value) { loa3_user.edipi_mpi }
         let(:validation_id) { 'EDIPI' }
@@ -190,7 +190,7 @@ RSpec.describe Login::AfterLoginActions do
       end
 
       context 'icn validation' do
-        let(:mpi_profile) { build(:mvi_profile, icn: '1234567V01112538') }
+        let(:mpi_profile) { { icn: '1234567V01112538' } }
         let(:expected_identity_value) { loa3_user.identity.icn }
         let(:expected_mpi_value) { loa3_user.mpi_icn }
         let(:validation_id) { 'ICN' }

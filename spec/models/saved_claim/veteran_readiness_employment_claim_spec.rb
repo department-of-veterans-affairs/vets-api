@@ -35,7 +35,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
               'middle' => 'John',
               'last' => 'Simpson'
             },
-            'dob' => '1809-02-12'
+            'dob' => '1986-05-06'
           }
         )
 
