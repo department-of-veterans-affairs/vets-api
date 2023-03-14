@@ -58,7 +58,7 @@ RSpec.describe 'V0::TravelClaims', type: :request do
 
       before do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
-          post '/check_in/v2/sessions', session_params
+          post '/check_in/v2/sessions', **session_params
         end
 
         VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
