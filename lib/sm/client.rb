@@ -178,7 +178,7 @@ module SM
 
       json = perform(:get, path + params, nil, token_headers).body
 
-      Common::Collection.new(MessageThread, json)
+      Common::Collection.new(MessageThread, **json)
     end
 
     ##
@@ -198,7 +198,7 @@ module SM
                           "folder/#{folder_id}/searchMessage/page/#{page_num}/pageSize/#{page_size}",
                           args.to_h,
                           token_headers).body
-      Common::Collection.new(Message, json_data)
+      Common::Collection.new(Message, **json_data)
     end
     # @!endgroup
 
@@ -289,7 +289,7 @@ module SM
     def get_messages_for_thread(id)
       path = "message/#{id}/messagesforthread"
       json = perform(:get, path, nil, token_headers).body
-      Common::Collection.new(MessageThreadDetails, json)
+      Common::Collection.new(MessageThreadDetails, **json)
     end
 
     ##
@@ -432,7 +432,7 @@ module SM
       if data
         Rails.logger.info("secure messaging #{model} cache fetch", cache_key)
         statsd_cache_hit
-        Common::Collection.new(model, { data: data })
+        Common::Collection.new(model, data: data)
       else
         Rails.logger.info("secure messaging #{model} service fetch", cache_key)
         statsd_cache_miss
