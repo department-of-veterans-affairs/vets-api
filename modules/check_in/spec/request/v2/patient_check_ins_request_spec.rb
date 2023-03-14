@@ -175,7 +175,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
 
       it 'returns valid response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
-          post '/check_in/v2/sessions', session_params
+          post '/check_in/v2/sessions', **session_params
           expect(response.status).to eq(200)
         end
 
@@ -208,7 +208,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
 
       it 'returns a successful response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
-          post '/check_in/v2/sessions', session_params
+          post '/check_in/v2/sessions', **session_params
           expect(response.status).to eq(200)
         end
 
@@ -256,7 +256,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
 
       it 'returns 404 error response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
-          post '/check_in/v2/sessions', session_params
+          post '/check_in/v2/sessions', **session_params
           expect(response.status).to eq(200)
         end
 
@@ -299,7 +299,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
 
       it 'returns 500 error response' do
         VCR.use_cassette 'check_in/lorota/token/token_200' do
-          post '/check_in/v2/sessions', session_params
+          post '/check_in/v2/sessions', **session_params
           expect(response.status).to eq(200)
         end
 
