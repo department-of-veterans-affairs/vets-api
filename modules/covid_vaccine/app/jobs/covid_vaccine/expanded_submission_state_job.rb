@@ -14,7 +14,7 @@ module CovidVaccine
       difference = total_submissions - state_data[:total_count_of_states]
       state_data.merge!({ discrepancy_count: difference })
 
-      Rails.logger.info("#{self.class.name}: Count of states", state_data)
+      Rails.logger.info("#{self.class.name}: Count of states", **state_data)
     rescue => e
       handle_errors(e)
     end
