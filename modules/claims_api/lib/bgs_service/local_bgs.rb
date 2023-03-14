@@ -150,7 +150,7 @@ module ClaimsApi
       duration = (::Process.clock_gettime(::Process::CLOCK_MONOTONIC) - start_time).round(4)
 
       # event should be first key in log, duration last
-      ClaimsApi::Logger.log 'local_bgs', { event: event }.merge(extra_params).merge({ duration: duration })
+      ClaimsApi::Logger.log 'local_bgs', **{ event: event }.merge(extra_params).merge({ duration: duration })
       StatsD.measure("api.claims_api.local_bgs.#{event}.duration", duration, tags: {})
       result
     end
