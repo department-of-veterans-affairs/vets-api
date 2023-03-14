@@ -13,7 +13,7 @@ RSpec.describe 'PatientCheckIns', type: :request do
 
   describe 'POST `create`' do
     it 'returns not implemented' do
-      post '/check_in/v0/patient_check_ins', {}
+      post '/check_in/v0/patient_check_ins'
 
       expect(response.status).to eq(501)
     end

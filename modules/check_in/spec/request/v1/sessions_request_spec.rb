@@ -13,7 +13,7 @@ RSpec.describe 'V1::SessionsController', type: :request do
 
   describe 'POST `create`' do
     it 'returns not implemented' do
-      post '/check_in/v1/sessions', {}
+      post '/check_in/v1/sessions'
 
       expect(response.status).to eq(501)
     end
