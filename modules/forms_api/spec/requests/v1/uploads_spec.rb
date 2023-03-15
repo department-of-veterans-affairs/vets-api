@@ -21,8 +21,7 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
           fixture_path = Rails.root.join('modules', 'forms_api', 'spec', 'fixtures', 'form_json', test_payload)
           data = JSON.parse(fixture_path.read)
           post '/forms_api/v1/simple_forms', params: data
-          result = JSON.parse(response.body)
-          expect(result['status']).to eq('success')
+          expect(response).to have_http_status(:ok)
         end
       end
     end
