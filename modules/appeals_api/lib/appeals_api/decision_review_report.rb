@@ -20,12 +20,6 @@ module AppealsApi
       @faulty_hlr ||= HigherLevelReview.where(created_at: from..to, status: FAULTY_STATUSES).order(created_at: :desc)
     end
 
-    def stuck_hlr
-      HigherLevelReview.v2.where('updated_at < ? AND status IN (?)',
-                                 1.week.ago,
-                                 HlrStatus::STATUSES - HlrStatus::COMPLETE_STATUSES).order(created_at: :desc)
-    end
-
     def total_hlr_successes
       # HLRv1s final success status is "success", while HLRv2 is "complete", so we need to count on both
       @total_hlr_successes ||= lambda do
@@ -44,10 +38,6 @@ module AppealsApi
       @faulty_nod ||= NoticeOfDisagreement.where(created_at: from..to, status: FAULTY_STATUSES).order(created_at: :desc)
     end
 
-    def stuck_nod
-      @stuck_nod ||= stuck_records(NoticeOfDisagreement, NodStatus, 1.month.ago)
-    end
-
     def total_nod_successes
       @total_nod_successes ||= total_statuses_count(NoticeOfDisagreement)
     end
@@ -59,10 +49,6 @@ module AppealsApi
 
     def faulty_sc
       @faulty_sc ||= SupplementalClaim.where(created_at: from..to, status: FAULTY_STATUSES).order(created_at: :desc)
-    end
-
-    def stuck_sc
-      @stuck_sc = stuck_records(SupplementalClaim, ScStatus)
     end
 
     def total_sc_successes
@@ -97,10 +83,6 @@ module AppealsApi
 
     def no_faulty_records?
       faulty_hlr.empty? && faulty_nod.empty? && faulty_sc.empty?
-    end
-
-    def no_stuck_records?
-      stuck_hlr.empty? && stuck_nod.empty? && stuck_sc.empty?
     end
 
     private

@@ -237,6 +237,10 @@ features:
     actor_type: user
     description: Enables the weekly decision review text error report
     enable_in_development: true
+  decision_review_daily_error_report_enabled:
+    actor_type: user
+    description: Enables the daily error report email
+    enable_in_development: true
   decision_review_daily_stuck_records_report_enabled:
     actor_type: user
     description: Enables the daily decision review stuck records Slack report

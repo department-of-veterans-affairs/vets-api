@@ -45,17 +45,17 @@
   <body>
     <h1>Daily <%= @friendly_env %> Error Report </h1>
 
-    <%= render partial: 'faulty_appeal_table', locals: { appeal_name: 'HLR', faulty_appeals: @report.faulty_hlr + @report.stuck_hlr } %>
+    <%= render partial: 'faulty_appeal_table', locals: { appeal_name: 'HLR', faulty_appeals: @report.faulty_hlr } %>
 
     <br />
     <hr />
 
-    <%= render partial: 'faulty_appeal_table', locals: { appeal_name: 'NOD', faulty_appeals: @report.faulty_nod + @report.stuck_nod } %>
+    <%= render partial: 'faulty_appeal_table', locals: { appeal_name: 'NOD', faulty_appeals: @report.faulty_nod } %>
 
     <br />
     <hr />
 
-    <%= render partial: 'faulty_appeal_table', locals: { appeal_name: 'SC', faulty_appeals: @report.faulty_sc + @report.stuck_sc } %>
+    <%= render partial: 'faulty_appeal_table', locals: { appeal_name: 'SC', faulty_appeals: @report.faulty_sc } %>
 
   </body>
 </html>

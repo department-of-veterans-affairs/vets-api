@@ -5,28 +5,6 @@ require 'appeals_api/decision_review_report'
 
 describe AppealsApi::DecisionReviewReport do
   # rubocop:disable Layout/FirstHashElementIndentation
-  shared_examples 'stuck appeals' do |opts|
-    it 'retrieves records stuck in incomplete statuses' do
-      stuck_appeal_no_updates = nil
-      stuck_appeal_with_updates = nil
-      unstuck_appeal = nil
-
-      Timecop.freeze 1.year.ago do
-        stuck_appeal_no_updates = create(opts[:record_type])
-        stuck_appeal_with_updates = create(opts[:record_type])
-        unstuck_appeal = create(opts[:record_type])
-      end
-      unstuck_appeal.update! status: :complete, updated_at: 3.months.ago
-      stuck_appeal_with_updates.update! status: :submitting, updated_at: 3.months.ago
-
-      result = subject.send(opts[:method]).pluck(:id)
-
-      expect(result).not_to include unstuck_appeal.id
-      expect(result).to include stuck_appeal_no_updates.id
-      expect(result).to include stuck_appeal_with_updates.id
-    end
-  end
-
   it 'can correctly calculate hlrs' do
     create_list :higher_level_review_v2, 3, status: 'processing'
 
@@ -67,31 +45,6 @@ describe AppealsApi::DecisionReviewReport do
 
       expect(subject.faulty_hlr).to eq([recent_error, old_error])
     end
-  end
-
-  describe '#stuck_hlr' do
-    it 'ignores HLRv1 records' do
-      stuck_appeal_no_updates = nil
-      stuck_appeal_with_updates = nil
-      unstuck_appeal = nil
-
-      Timecop.freeze(1.year.ago) do
-        stuck_appeal_no_updates = create :higher_level_review_v1
-        stuck_appeal_with_updates = create :higher_level_review_v1
-        unstuck_appeal = create :higher_level_review_v1
-      end
-
-      unstuck_appeal.update! status: :complete, updated_at: 3.months.ago
-      stuck_appeal_with_updates.update! status: :submitting, updated_at: 3.months.ago
-
-      result = subject.stuck_hlr.pluck(:id)
-
-      expect(result).not_to include unstuck_appeal.id
-      expect(result).not_to include stuck_appeal_no_updates.id
-      expect(result).not_to include stuck_appeal_with_updates.id
-    end
-
-    it_behaves_like 'stuck appeals', record_type: :higher_level_review_v2, method: :stuck_hlr
   end
 
   describe '#total_hlr_successes' do
@@ -142,10 +95,6 @@ describe AppealsApi::DecisionReviewReport do
     end
   end
 
-  describe '#stuck_nod' do
-    it_behaves_like 'stuck appeals', record_type: :notice_of_disagreement, method: :stuck_nod
-  end
-
   describe '#total_nod_successes' do
     it 'shows correct count of all successful NODs regardless of timeframe' do
       create_list :notice_of_disagreement, 5, created_at: 3.weeks.ago
@@ -189,10 +138,6 @@ describe AppealsApi::DecisionReviewReport do
 
       expect(subject.faulty_sc).to eq([recent_error, old_error])
     end
-  end
-
-  describe '#stuck_sc' do
-    it_behaves_like 'stuck appeals', record_type: :supplemental_claim, method: :stuck_sc
   end
 
   describe '#total_sc_successes' do

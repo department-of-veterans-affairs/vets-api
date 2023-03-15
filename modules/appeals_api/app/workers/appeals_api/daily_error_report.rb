@@ -2,6 +2,9 @@
 
 require 'sidekiq'
 
+# This report will only result in an email if there are errored records to report on.
+# While the DecisionReviewReportDaily will also have this data, having it as a separate email makes
+# filtering for it in your email client easier.
 module AppealsApi
   class DailyErrorReport
     include ReportRecipientsReader
@@ -29,7 +32,7 @@ module AppealsApi
     private
 
     def enabled?
-      Settings.modules_appeals_api.reports.daily_error.enabled && FeatureFlipper.send_email?
+      Flipper.enabled?(:decision_review_daily_error_report_enabled) && FeatureFlipper.send_email?
     end
   end
 end
