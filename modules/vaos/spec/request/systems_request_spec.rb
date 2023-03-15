@@ -297,31 +297,5 @@ RSpec.describe 'systems', type: :request do
         end
       end
     end
-
-    describe 'GET /vaos/v0/systems/:system_id/pact' do
-      context 'with a valid GET system pact response' do
-        it 'returns a 200 with the correct schema' do
-          skip 'VAOS V0 routes disabled'
-          VCR.use_cassette('vaos/systems/get_system_pact', match_requests_on: %i[method path query]) do
-            get '/vaos/v0/systems/688/pact'
-
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to be_a(String)
-            expect(response).to match_response_schema('vaos/system_pact')
-          end
-        end
-
-        it 'returns a 200 with the correct camel-inflected schema' do
-          skip 'VAOS V0 routes disabled'
-          VCR.use_cassette('vaos/systems/get_system_pact', match_requests_on: %i[method path query]) do
-            get '/vaos/v0/systems/688/pact', headers: inflection_header
-
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to be_a(String)
-            expect(response).to match_camelized_response_schema('vaos/system_pact')
-          end
-        end
-      end
-    end
   end
 end
