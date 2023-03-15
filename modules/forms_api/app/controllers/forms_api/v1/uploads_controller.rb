@@ -30,7 +30,7 @@ module FormsApi
         }
         response = central_mail_service.upload(filled_form)
 
-        render json: { status: 'success', message: response.body }
+        render json: { message: response.body }, status: response.status
       end
     end
   end
