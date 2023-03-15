@@ -2,6 +2,8 @@
 
 require 'sidekiq'
 
+# The "weekly" in the job name refers to its cadence, not the bound timeframe of records to report on.
+# All errors are reported, as well as "stuck" records.
 module AppealsApi
   class WeeklyErrorReport
     include ReportRecipientsReader
@@ -11,11 +13,11 @@ module AppealsApi
     # Only retry for ~48 hours since the job is run weekly
     sidekiq_options retry: 16, unique_for: 48.hours
 
-    def perform(to: Time.zone.now, from: 1.week.ago.beginning_of_day)
+    def perform
       if enabled?
         recipients = load_recipients(:error_report_weekly)
         if recipients.present?
-          WeeklyErrorReportMailer.build(date_from: from, date_to: to, friendly_duration: 'Weekly',
+          WeeklyErrorReportMailer.build(friendly_duration: 'Weekly',
                                         recipients: recipients).deliver_now
         end
       end

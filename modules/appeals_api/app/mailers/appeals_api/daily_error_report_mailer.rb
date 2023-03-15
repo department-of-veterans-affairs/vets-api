@@ -8,7 +8,7 @@ module AppealsApi
       @report = DecisionReviewReport.new
       @friendly_env = (Settings.vsp_environment || Rails.env).titleize
 
-      return if @report.no_faulty_records? && @report.no_stuck_records?
+      return if @report.no_faulty_records?
 
       template = File.read(path)
       body = ERB.new(template).result(binding)

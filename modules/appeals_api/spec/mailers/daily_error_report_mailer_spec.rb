@@ -18,33 +18,18 @@ RSpec.describe AppealsApi::DailyErrorReportMailer, type: [:mailer] do
     it 'sends the email' do
       with_settings(Settings, vsp_environment: 'mary Poppins') do
         errored_nod = create(:notice_of_disagreement, :status_error)
-        stuck_nod = create(:notice_of_disagreement, created_at: 1.year.ago)
         stuck_errored_nod = create(:notice_of_disagreement, created_at: 1.year.ago)
 
         Timecop.freeze(6.months.ago) do
           Sidekiq::Testing.inline! do
-            stuck_nod.update_status! status: :processing
             stuck_errored_nod.update_status! status: :error
           end
         end
 
         expect(subject.subject).to eq 'Daily Error Decision Review API report (Mary Poppins)'
         expect(subject.body.decoded).to include(errored_nod.id).once
-        expect(subject.body.decoded).to include(stuck_nod.id).once
         expect(subject.body.decoded).to include(stuck_errored_nod.id).once
       end
-    end
-
-    it 'sends the email even when there are only stuck records' do
-      stuck_nod = create(:notice_of_disagreement, created_at: 1.year.ago)
-
-      Timecop.freeze(6.months.ago) do
-        Sidekiq::Testing.inline! do
-          stuck_nod.update_status! status: :processing
-        end
-      end
-
-      expect(subject.body).to include stuck_nod.id
     end
 
     it "doesn't send the email if there are no errors" do

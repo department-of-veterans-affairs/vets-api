@@ -3,6 +3,8 @@
 require 'sidekiq'
 require 'sidekiq/monitored_worker'
 
+# This alerts to slack so that we are more immediately aware of UNSUBMITTED records that somehow did not error
+# but have also not been submitted to CMP - it's rare, but has happened.
 class AppealsApi::DailyStuckRecordsReport
   include Sidekiq::Worker
   include Sidekiq::MonitoredWorker
