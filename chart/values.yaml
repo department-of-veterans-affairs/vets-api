@@ -42,6 +42,7 @@ web:
     livenessProbe:
       enabled: true
   socatProxyEnabled: false
+  terminationGracePeriodSeconds: ""
   envSecrets:
     - name: DD_APM_ENABLED
       value: false

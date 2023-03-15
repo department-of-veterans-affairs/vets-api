@@ -104,5 +104,6 @@ spec:
         {{- if $root.Values.web.socatProxyEnabled }}
 {{ toYaml $root.Values.common.socatProxy | indent 8 }}
         {{- end }}
+      terminationGracePeriodSeconds: {{ $root.Values.web.terminationGracePeriodSeconds }}
       serviceAccountName: {{ $root.Values.serviceAccount.name }}
 {{- end }}
