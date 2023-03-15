@@ -478,6 +478,9 @@ features:
   profile_user_claims:
     actor_type: user
     description: When enabled, /v0/user will return user profile claims for accessing service endpoints.
+  profile_show_mhv_notification_settings:
+    actor_type: user
+    description: Display MHV notification settings - RX refill shipment, appointment, secure messaging, and medical images/reports
   profile_show_military_academy_attendance:
     actor_type: user
     description: When enabled, profile service history will include military academy attendance.
