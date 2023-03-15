@@ -129,3 +129,6 @@ spec/lib/pdf_utilities/pdf_validator @department-of-veterans-affairs/va-api-engi
 
 # Decision Reviews (Appeals) API product
 modules/appeals_api @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-banana-peels
+
+# Disability Benefits Experience support
+lib/disability_compensation @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/bdex
