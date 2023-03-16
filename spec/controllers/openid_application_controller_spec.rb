@@ -314,32 +314,5 @@ RSpec.describe OpenidApplicationController, type: :controller do
         end
       end
     end
-
-    context 'with an ID.me credential profile with mismatched mvi profile' do
-      let(:okta_response) { FactoryBot.build(:okta_idme_response) }
-      let(:faraday_response) { instance_double('Faraday::Response') }
-      let(:mvi_profile) do
-        build(:mvi_profile,
-              icn: '1013062086V794841',
-              family_name: 'CARROLL')
-      end
-
-      before do
-        allow(JWT).to receive(:decode).and_return(token)
-        stub_mpi(mvi_profile)
-      end
-
-      it 'returns 401 and mismatched session' do
-        with_okta_configured do
-          allow_any_instance_of(Okta::Service).to receive(:user).and_return(faraday_response)
-          allow(faraday_response).to receive(:success?).and_return(true)
-          allow(faraday_response).to receive(:body).and_return(okta_response)
-
-          request.headers['Authorization'] = 'Bearer FakeToken'
-          get :index
-          expect(response.status).to eq(401)
-        end
-      end
-    end
   end
 end

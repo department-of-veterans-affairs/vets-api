@@ -54,7 +54,6 @@ class OpenidApplicationController < ApplicationController
     return false if @session.uuid.nil?
 
     @current_user = OpenidUser.find(@session.uuid)
-    confirm_icn_match(profile)
   end
 
   # Populates launch context if an applicable launch scope is found
@@ -158,20 +157,6 @@ class OpenidApplicationController < ApplicationController
                                                      'SecID' => profile['SecID'], 'VistaId' => profile['VistaId'],
                                                      'npi' => profile['npi'], 'icn' => profile['icn'] }))
     @session.save && user_identity.save && @current_user.save
-  end
-
-  # Ensure the Okta profile ICN continues to match the MPI ICN
-  # If mismatched, revoke in Okta, set @session to nil, and return false
-  # POA support (profile['icn'].nil?)
-  def confirm_icn_match(profile)
-    if profile['icn'].nil? || @current_user&.icn == profile['icn']
-      true
-    else
-      log_message_to_sentry('Profile ICN mismatch detected.', :warn)
-      @session = nil
-      Okta::Service.new.clear_user_session(token.identifiers.okta_uid)
-      false
-    end
   end
 
   def establish_ssoi_session(profile)
