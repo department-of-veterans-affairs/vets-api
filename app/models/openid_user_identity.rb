@@ -21,6 +21,7 @@ class OpenidUserIdentity < ::UserIdentity
       middle_name: profile['middleName'],
       last_name: profile['lastName'],
       mhv_icn: profile['icn'],
+      icn: profile['icn'],
       loa: profile.derived_loa
     )
     identity.expire(ttl)
