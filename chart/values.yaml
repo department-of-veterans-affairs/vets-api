@@ -31,9 +31,11 @@ web:
       - containerPort: ""
         name: ""
   healthCheck:
+    command: ""
     requestPath: ""
     port: ""
     initialDelaySeconds: ""
+    failureThreshold: ""
     periodSeconds: ""
     readinessPath: ""
     readinessPort: ""

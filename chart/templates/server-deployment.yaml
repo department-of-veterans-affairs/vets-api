@@ -63,15 +63,13 @@ spec:
             periodSeconds: {{ $root.Values.web.healthCheck.periodSeconds }}
           {{- end }}
           readinessProbe: #ensure container is ready to start accepting traffic
-            httpGet:
-              path: {{ $root.Values.web.healthCheck.readinessPath }}
-              port: {{ $root.Values.web.healthCheck.readinessPort }}
-              httpHeaders:
-                - name: Host
-                  value: {{ $service.healthCheck.host | default $root.Values.web.healthCheck.host }}
+            exec:
+              command:
+                - {{ $root.Values.web.healthCheck.command }}
             initialDelaySeconds: {{ $root.Values.web.healthCheck.initialDelaySeconds }}
             periodSeconds: {{ $root.Values.web.healthCheck.periodSeconds }}
             successThreshold: {{ $root.Values.web.healthCheck.successThreshold }}
+            failureThreshold: {{ $root.Values.web.healthCheck.failureThreshold }}
           resources:
 {{ toYaml $root.Values.web.resources | indent 12 }}
           volumeMounts:
