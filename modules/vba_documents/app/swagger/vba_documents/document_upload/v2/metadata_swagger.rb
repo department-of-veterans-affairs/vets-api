@@ -54,7 +54,7 @@ module VBADocuments
             property :businessLine do
               key :type, :string
               key :example, 'CMP'
-              key :enum, Flipper.enabled?(:vba_documents_nca_lob) ? %i[CMP PMC INS EDU VRE BVA FID NCA OTH] : %i[CMP PMC INS EDU VRE BVA FID OTH]
+              key :enum, %i[CMP PMC INS EDU VRE BVA FID NCA OTH]
               key :description,
                   <<~DESCRIPTION
                     Cannot be missing or empty.  The valid values are:<br><br>
@@ -64,9 +64,8 @@ module VBADocuments
                     EDU - Education benefits, programs, and affiliations<br><br>
                     VRE - Veteran Readiness & Employment such as employment questionnaires, employment discrimination, employment verification<br><br>
                     BVA - Board of Veteran Appeals<br><br>
-                    FID - Fiduciary / financial appointee, including family member benefits<br><br>#{
-                      Flipper.enabled?(:vba_documents_nca_lob) ? "\nNCA - National Cemetery Administration<br><br>" : ''
-                    }
+                    FID - Fiduciary / financial appointee, including family member benefits<br><br>
+                    NCA - National Cemetery Administration<br><br>
                     OTH - Other (this value if used, will be treated as CMP)<br>
                   DESCRIPTION
             end

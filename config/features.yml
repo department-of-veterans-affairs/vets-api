@@ -752,9 +752,6 @@ features:
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
-  vba_documents_nca_lob:
-    actor_type: user
-    description: Allows the use of the NCA (National Cemetery Administration) line of business
   yellow_ribbon_mvp_enhancement:
     actor_type: user
     description: Enhances Yellow Ribbon MVP.
