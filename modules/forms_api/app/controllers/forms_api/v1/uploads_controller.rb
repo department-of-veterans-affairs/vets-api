@@ -21,16 +21,17 @@ module FormsApi
         filler = FormsApi::PdfFiller.new(form_number: form_id, data: JSON.parse(params.to_json))
 
         file_path = filler.generate
+        metadata = filler.metadata
         file_name = "#{form_id}.pdf"
 
         central_mail_service = CentralMail::Service.new
         filled_form = {
-          'metadata' => filler.metadata.to_json,
+          'metadata' => metadata.to_json,
           'document' => filler.to_faraday_upload(file_path, file_name)
         }
         response = central_mail_service.upload(filled_form)
 
-        render json: { message: response.body, confirmation_number: filler.metadata['uuid'] }, status: response.status
+        render json: { message: response.body, confirmation_number: metadata['uuid'] }, status: response.status
       end
     end
   end
