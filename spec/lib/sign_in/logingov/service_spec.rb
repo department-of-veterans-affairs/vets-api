@@ -93,16 +93,46 @@ describe SignIn::Logingov::Service do
       {
         client_id: client_id,
         post_logout_redirect_uri: logout_redirect_uri,
-        state: state
+        state: encoded_state
       }
     end
+    let(:encoded_state) { Base64.encode64(state_payload.to_json) }
+    let(:state_payload) do
+      {
+        logout_redirect: client_logout_redirect_uri,
+        seed: seed
+      }
+    end
+    let(:seed) { 'some-seed' }
     let(:expected_url_host) { Settings.logingov.oauth_url }
     let(:expected_url_path) { 'openid_connect/logout' }
     let(:expected_url) { "#{expected_url_host}/#{expected_url_path}?#{expected_url_params.to_query}" }
-    let(:state) { 'some-state' }
+    let(:client_logout_redirect_uri) { 'some-client-logout-redirect-uri' }
 
-    it 'renders expected logout url' do
-      expect(subject.render_logout(state)).to eq(expected_url)
+    before { allow(SecureRandom).to receive(:hex).and_return(seed) }
+
+    it 'returns expected logout url' do
+      expect(subject.render_logout(client_logout_redirect_uri)).to eq(expected_url)
+    end
+  end
+
+  describe '#render_logout_redirect' do
+    let(:encoded_state) { Base64.encode64(state_payload.to_json) }
+    let(:state_payload) do
+      {
+        logout_redirect: client_logout_redirect_uri,
+        seed: seed
+      }
+    end
+    let(:seed) { 'some-seed' }
+    let(:client_logout_redirect_uri) { 'some-client-logout-redirect-uri' }
+
+    it 'renders the oauth_get_form template' do
+      expect(subject.render_logout_redirect(encoded_state)).to include('form id="oauth-form"')
+    end
+
+    it 'directs to the expected logout redirect uri' do
+      expect(subject.render_logout_redirect(encoded_state)).to include(client_logout_redirect_uri)
     end
   end
 

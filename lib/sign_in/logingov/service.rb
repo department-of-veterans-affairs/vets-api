@@ -10,8 +10,6 @@ module SignIn
       SCOPE = 'profile profile:verified_at address email social_security_number openid'
 
       def render_auth(state: SecureRandom.hex, acr: IAL::LOGIN_GOV_IAL1)
-        renderer = ActionController::Base.renderer
-        renderer.controller.prepend_view_path(Rails.root.join('lib', 'sign_in', 'templates'))
         Rails.logger.info("[SignIn][Logingov][Service] Rendering auth, state: #{state}, acr: #{acr}")
         renderer.render(template: 'oauth_get_form',
                         locals: {
@@ -20,7 +18,7 @@ module SignIn
                           {
                             acr_values: acr,
                             client_id: config.client_id,
-                            nonce: nonce,
+                            nonce: random_seed,
                             prompt: config.prompt,
                             redirect_uri: config.redirect_uri,
                             response_type: config.response_type,
@@ -31,8 +29,15 @@ module SignIn
                         format: :html)
       end
 
-      def render_logout(state)
-        "#{sign_out_url}?#{sign_out_params(config.logout_redirect_uri, state).to_query}"
+      def render_logout(client_logout_redirect_uri)
+        "#{sign_out_url}?#{sign_out_params(config.logout_redirect_uri,
+                                           encode_logout_redirect(client_logout_redirect_uri)).to_query}"
+      end
+
+      def render_logout_redirect(state)
+        state_hash = JSON.parse(Base64.decode64(state))
+        logout_redirect_uri = state_hash['logout_redirect']
+        renderer.render(template: 'oauth_get_form', locals: { url: URI.parse(logout_redirect_uri).to_s }, format: :html)
       end
 
       def token(code)
@@ -130,20 +135,39 @@ module SignIn
         }.to_json
       end
 
+      def encode_logout_redirect(logout_redirect_uri)
+        Base64.encode64(logout_state_payload(logout_redirect_uri).to_json)
+      end
+
+      def logout_state_payload(logout_redirect_uri)
+        {
+          logout_redirect: logout_redirect_uri,
+          seed: random_seed
+        }
+      end
+
       def client_assertion_jwt
         jwt_payload = {
           iss: config.client_id,
           sub: config.client_id,
           aud: token_url,
           jti: SecureRandom.hex,
-          nonce: nonce,
+          nonce: random_seed,
           exp: Time.now.to_i + config.client_assertion_expiration_seconds
         }
         JWT.encode(jwt_payload, config.ssl_key, 'RS256')
       end
 
-      def nonce
-        @nonce ||= SecureRandom.hex
+      def random_seed
+        @random_seed ||= SecureRandom.hex
+      end
+
+      def renderer
+        @renderer ||= begin
+          renderer = ActionController::Base.renderer
+          renderer.controller.prepend_view_path(Rails.root.join('lib', 'sign_in', 'templates'))
+          renderer
+        end
       end
     end
   end

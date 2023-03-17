@@ -15,7 +15,7 @@ module SignIn
       return unless logout_redirect_uri
 
       if authenticated_with_logingov?
-        logingov_service.render_logout(encode_logout_redirect)
+        logingov_service.render_logout(logout_redirect_uri)
       else
         parse_logout_redirect_uri
       end
@@ -31,27 +31,12 @@ module SignIn
       authenticated_credential == Constants::Auth::LOGINGOV
     end
 
-    def encode_logout_redirect
-      Base64.encode64(generate_logout_state_payload.to_s)
-    end
-
-    def generate_logout_state_payload
-      {
-        logout_redirect: logout_redirect_uri,
-        seed: random_seed
-      }
-    end
-
     def logout_redirect_uri
       @logout_redirect_uri ||= client_config.logout_redirect_uri
     end
 
     def authenticated_credential
       @authenticated_credential ||= user.nil? ? nil : user.identity.sign_in[:service_name]
-    end
-
-    def random_seed
-      @random_seed ||= SecureRandom.hex
     end
 
     def logingov_service

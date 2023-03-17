@@ -27,7 +27,7 @@ RSpec.describe SignIn::LogoutRedirectGenerator do
               seed: random_seed
             }
           end
-          let(:state) { Base64.encode64(logout_state_payload.to_s) }
+          let(:state) { Base64.encode64(logout_state_payload.to_json) }
           let(:expected_url_params) do
             {
               client_id: logingov_client_id,
