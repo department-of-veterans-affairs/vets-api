@@ -3,6 +3,6 @@
 FactoryBot.define do
   factory :mock_credential_info, class: 'MockedAuthentication::MockCredentialInfo' do
     credential_info_code { SecureRandom.hex }
-    credential_info { { type: 'logingov' } }
+    credential_info { { credential: 'some-credential' } }
   end
 end
