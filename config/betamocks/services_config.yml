@@ -710,7 +710,7 @@
       :response_delay: 0.2
       :cache_multiple_responses:
         :uid_location: body
-        :uid_locator: 'SSN4":[\s]*"(\w+)"'
+        :uid_locator: 'dob":[\s]*"\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])"'
     - :method: :get
       :path: <%= "/#{Settings.check_in.lorota_v2.base_path}/data/*" %>
       :file_path: "/lorota/data"
