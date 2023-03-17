@@ -30,7 +30,7 @@ module FormsApi
         }
         response = central_mail_service.upload(filled_form)
 
-        render json: { message: response.body }, status: response.status
+        render json: { message: response.body, confirmation_number: filler.metadata['uuid'] }, status: response.status
       end
     end
   end
