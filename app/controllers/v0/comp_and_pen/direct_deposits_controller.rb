@@ -12,7 +12,9 @@ module V0
 
       def show
         response = service.get
-        render status: response.status, json: response.body
+        render status: response.status,
+               json: response.body,
+               serializer: CompAndPenDirectDepositSerializer
       end
 
       def update

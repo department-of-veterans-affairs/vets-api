@@ -27,13 +27,13 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
         end
 
         json = JSON.parse(response.body)
-        payment_account = json['payment_account']
+        payment_account = json['data']['attributes']['payment_account']
 
         expect(payment_account).not_to be_nil
         expect(payment_account['name']).to eq('WELLS FARGO BANK')
         expect(payment_account['account_type']).to eq('CHECKING')
-        expect(payment_account['account_number']).to eq('1234567890')
-        expect(payment_account['routing_number']).to eq('031000503')
+        expect(payment_account['account_number']).to eq('******7890')
+        expect(payment_account['routing_number']).to eq('*****0503')
       end
 
       it 'returns control information' do
@@ -42,7 +42,7 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
         end
 
         json = JSON.parse(response.body)
-        control_info = json['control_information']
+        control_info = json['data']['attributes']['control_information']
 
         expect(control_info['can_update_direct_deposit']).to be(true)
         expect(control_info['is_corp_available']).to be(true)
@@ -116,8 +116,9 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
         json = JSON.parse(response.body)
         expect(response).to have_http_status(:forbidden)
 
-        error_msg = 'All control indicators must be true to view payment account information.'
-        expect(json['error']).to eq(error_msg)
+        expected_error = 'All control indicators must be true to view payment account information.'
+        error = json['data']['attributes']['error']
+        expect(error).to eq(expected_error)
       end
     end
 
