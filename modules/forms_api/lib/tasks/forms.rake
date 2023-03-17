@@ -15,7 +15,7 @@ namespace :forms_api do
                PdfForms.new(PDFTK_LOCAL_PATH)
              end
 
-    form_name = file_path.split('/').last.split('.').first.camelize.gsub('-', '_')
+    form_name = file_path.split('/').last.split('.').first
 
     new_model_file = Rails.root.join(FORMS_API_MODELS_PATH, "#{form_name}.rb")
 
@@ -26,24 +26,27 @@ namespace :forms_api do
     metadata_method = <<-METADATA
     def metadata(pdf_path)
       {
-        "veteranFirstName"=> @data.dig('veteran_full_name', 'first'),
-        "veteranLastName"=> @data.dig('veteran_full_name', 'last'),
-        "fileNumber"=> @data['va_file_number'],
-        "zipCode"=>"00000",
-        "source"=>"va.gov",
+        'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
+        'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
+        'fileNumber' => @data.dig('veteran', 'va_file_number').presence || @data.dig('veteran', 'ssn'),
+        'zipCode' => @data.dig('veteran', 'address', 'postal_code'),
+        'source' => 'forms_api',
+        'uuid' => SecureRandom.uuid,
         'hashV' => Digest::SHA256.file(pdf_path).hexdigest,
-        "numberAttachments"=>0,
-        "receiveDt"=> Time.zone.now.strftime('%Y-%m-%d %H:%M%S'),
-        "numberPages"=> PdfInfo::Metadata.read(pdf_path).pages,
-        "docType"=>"10182",
-        "businessLine"=> @data['form_number'].split('_').first.upcase
+        'numberAttachments' => 0,
+        'receiveDt' => Time.zone.now.strftime('%Y-%m-%d %H:%M:%S'),
+        'numberPages' => PdfInfo::Metadata.read(pdf_path).pages,
+        'businessLine' => 'CMP',
+        'docType' => @data['form_number']
       }
     end
     METADATA
 
     File.open(new_model_file, 'w') do |f|
+      f.puts '# frozen_string_literal: true'
+      f.puts ''
       f.puts 'module FormsApi'
-      f.puts "  class FormsApi::#{form_name.gsub('_', '')}"
+      f.puts "  class #{form_name.upcase.gsub('_', '')}"
       f.puts '    include Virtus.model(nullify_blank: true)'
       f.puts ''
       f.puts '    attribute :data'
@@ -70,12 +73,12 @@ namespace :forms_api do
     puts "Created #{new_model_file}"
 
     # create the form mapping file
-    mapping_file = Rails.root.join(FORMS_API_MAPPINGS_PATH, "#{form_name.downcase}.json.erb")
+    mapping_file = Rails.root.join(FORMS_API_MAPPINGS_PATH, "#{form_name}.json.erb")
     File.open(mapping_file, 'w') do |f|
       f.puts '{'
       meta_data.each_with_index do |field, index|
         puts field.inspect
-        f.print "  \"#{field[:pdf_field]}\": \"<%= data.dig( '#{field[:attribute]}') %>"
+        f.print "  \"#{field[:pdf_field]}\": \"<%= data.dig('#{field[:attribute]}') %>"
         f.puts "\"#{index + 1 == meta_data.size ? '' : ','}"
       end
       f.puts '}'
