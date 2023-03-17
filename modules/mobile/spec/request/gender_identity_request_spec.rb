@@ -23,11 +23,18 @@ RSpec.describe 'gender identity', type: :request do
 
   describe 'GET /mobile/v0/gender_identity/edit' do
     context 'requested' do
-      it 'returns a list of valid ids' do
+      before do
         get('/mobile/v0/user/gender_identity/edit', headers: iam_headers)
+      end
 
+      it 'returns a list of valid ids' do
         json = json_body_for(response)['attributes']['options']
         expect(json).to eq(VAProfile::Models::GenderIdentity::OPTIONS.transform_keys(&:downcase))
+      end
+
+      it 'returns a list in correct order' do
+        codes = response.parsed_body.dig('data', 'attributes', 'options').keys
+        expect(codes).to eq(%w[m b tm tf f n o])
       end
     end
   end
