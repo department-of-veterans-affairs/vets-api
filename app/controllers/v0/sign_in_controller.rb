@@ -6,7 +6,7 @@ require 'sign_in/logger'
 
 module V0
   class SignInController < SignIn::ApplicationController
-    skip_before_action :authenticate, only: %i[authorize callback token refresh revoke logout]
+    skip_before_action :authenticate, only: %i[authorize callback token refresh revoke logout logingov_logout_proxy]
 
     def authorize # rubocop:disable Metrics/MethodLength
       type = params[:type].presence
@@ -203,6 +203,18 @@ module V0
     rescue => e
       sign_in_logger.info('logout error', { errors: e.message })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_FAILURE)
+
+      render json: { errors: e }, status: :bad_request
+    end
+
+    def logingov_logout_proxy
+      state = params[:state].presence
+
+      raise SignIn::Errors::MalformedParamsError.new message: 'State is not defined' unless state
+
+      render body: logingov_auth_service.render_logout_redirect(state), content_type: 'text/html'
+    rescue => e
+      sign_in_logger.info('logingov_logout_proxy error', { errors: e.message })
 
       render json: { errors: e }, status: :bad_request
     end
