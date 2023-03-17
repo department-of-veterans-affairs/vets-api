@@ -153,7 +153,10 @@ common:
   volumes: {}
   initContainers: {}
   secrets: {}
-  configMap:
-    name: ""
-    data: ""
-
+  configMaps:
+    configMap:
+      name: ""
+      data: ""
+    readinessConfigMap:
+      name: ""
+      data: ""

@@ -1,0 +1,16 @@
+{{- $root := . -}}
+{{- range $name, $config := $root.Values.common.configMaps }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: {{ .Release.Namespace }}
+  creationTimestamp: null
+  name: {{ $config.name }}
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/sync-wave: "-2"
+data:
+{{ toYaml $config.data | indent 2  }}
+{{- end }}

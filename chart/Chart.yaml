@@ -26,7 +26,8 @@ type: application
 # 0.10.22 - Use readiness http host and allow disabling the livenessProbe
 # 0.11.00 - Enabled cron jobs
 # 0.11.04 - add terminationGracePeriodSeconds for server
-version: 0.11.04
+# 0.11.05 - add configmap for readiness probe - pod saturation
+version: 0.11.05
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
