@@ -22,8 +22,8 @@ module FormsApi
         'numberAttachments' => 0,
         'receiveDt' => Time.zone.now.strftime('%Y-%m-%d %H:%M:%S'),
         'numberPages' => PdfInfo::Metadata.read(pdf_path).pages,
-        'docType' => @data['form_number'],
-        'businessLine' => 'VHA'
+        'businessLine' => 'CMP',
+        'docType' => @data['form_number']
       }
     end
   end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module FormsApi
-  class FormsApi::VBA264555
+  class VBA264555
     include Virtus.model(nullify_blank: true)
 
     attribute :data
@@ -22,8 +22,8 @@ module FormsApi
         'numberAttachments' => 0,
         'receiveDt' => Time.zone.now.strftime('%Y-%m-%d %H:%M:%S'),
         'numberPages' => PdfInfo::Metadata.read(pdf_path).pages,
-        'docType' => @data['form_number'],
-        'businessLine' => 'VBA'
+        'businessLine' => 'CMP',
+        'docType' => @data['form_number']
       }
     end
   end
