@@ -20,9 +20,9 @@ properties:
             type: object
             example:
               m: "Man"
-              f: "Woman"
+              b: "Non-Binary"
               tm: "Transgender Man"
               tf: "Transgender Woman"
-              b: "Non-Binary"
+              f: "Woman"
               n: "Prefer not to answer"
               o: "A gender not listed here"
