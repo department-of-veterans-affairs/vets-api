@@ -12,7 +12,6 @@ module Mobile
           @user = user
         end
 
-        # rubocop:disable Metrics/MethodLength
         def get_appointments(start_date:, end_date:, include_pending:, pagination_params: {})
           statuses = include_pending ? VAOS_STATUSES : VAOS_STATUSES.excluding('proposed')
 
@@ -20,14 +19,6 @@ module Mobile
           # or the upstream serice does not use them.
           response = vaos_v2_appointments_service.get_appointments(start_date, end_date, statuses.join(','),
                                                                    pagination_params)
-          # Temporary logging for bug found only in production
-          ids = response[:data].pluck(:id)
-
-          if ids.include?('16668268')
-            response[:data].each do |a|
-              Rails.logger.info('Mobile VAOS response', user: @user.uuid, appointment: a)
-            end
-          end
 
           appointments = response[:data]
           filterer = PresentationFilter.new(include_pending: include_pending)
@@ -39,15 +30,8 @@ module Mobile
 
           appointments = vaos_v2_to_v0_appointment_adapter.parse(appointments)
 
-          if ids.include?('16668268')
-            appointments.each do |a|
-              Rails.logger.info('Mobile appointment response', user: @user.uuid, appointment: a)
-            end
-          end
-
           appointments.sort_by(&:start_date_utc)
         end
-        # rubocop:enable Metrics/MethodLength
 
         private
 
