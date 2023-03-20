@@ -203,8 +203,8 @@ describe SignIn::Logingov::Service do
     let(:expected_standard_attributes) do
       {
         logingov_uuid: user_uuid,
-        current_ial: IAL::TWO,
-        max_ial: IAL::TWO,
+        current_ial: SignIn::Constants::Auth::IAL_TWO,
+        max_ial: SignIn::Constants::Auth::IAL_TWO,
         service_name: service_name,
         csp_email: email,
         multifactor: multifactor,
@@ -212,10 +212,14 @@ describe SignIn::Logingov::Service do
         auto_uplevel: auto_uplevel
       }
     end
-    let(:credential_level) { create(:credential_level, current_ial: IAL::TWO, max_ial: IAL::TWO) }
+    let(:credential_level) do
+      create(:credential_level, current_ial: SignIn::Constants::Auth::IAL_TWO,
+                                max_ial: SignIn::Constants::Auth::IAL_TWO)
+    end
+
     let(:service_name) { SignIn::Constants::Auth::LOGINGOV }
     let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }
-    let(:authn_context) { IAL::LOGIN_GOV_IAL2 }
+    let(:authn_context) { SignIn::Constants::Auth::LOGIN_GOV_IAL2 }
     let(:auto_uplevel) { false }
     let(:expected_address) do
       {

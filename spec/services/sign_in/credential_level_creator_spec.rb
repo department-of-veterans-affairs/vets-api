@@ -16,8 +16,8 @@ RSpec.describe SignIn::CredentialLevelCreator do
     let(:id_token) { JWT.encode(id_token_payload, OpenSSL::PKey::RSA.new(2048), 'RS256') }
     let(:id_token_payload) { 'some-id-token' }
     let(:verified_at) { Time.zone.now }
-    let(:credential_ial) { IAL::ONE }
-    let(:level_of_assurance) { LOA::IDME_CLASSIC_LOA3 }
+    let(:credential_ial) { SignIn::Constants::Auth::IAL_ONE }
+    let(:level_of_assurance) { SignIn::Constants::Auth::IDME_CLASSIC_LOA3 }
     let(:mhv_assurance) { 'some-mhv-assurance' }
     let(:dslogon_assurance) { 'some-dslogon-assurance' }
     let(:sub) { 'some-sub-uuid' }
@@ -86,11 +86,11 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
       context 'and user info has verified_at trait' do
         let(:verified_at) { Time.zone.now }
-        let(:expected_max_ial) { IAL::TWO }
+        let(:expected_max_ial) { SignIn::Constants::Auth::IAL_TWO }
 
         context 'and id token acr is defined as IAL 2' do
-          let(:id_token_payload) { { acr: IAL::LOGIN_GOV_IAL2 } }
-          let(:expected_current_ial) { IAL::TWO }
+          let(:id_token_payload) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2 } }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
 
           it_behaves_like 'a created credential level'
         end
@@ -104,7 +104,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
               context 'and sign_in auto_uplevel settings is false' do
                 let(:auto_uplevel) { false }
-                let(:expected_current_ial) { IAL::ONE }
+                let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
                 let(:expected_auto_uplevel) { false }
 
                 it_behaves_like 'a created credential level'
@@ -118,7 +118,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
             end
 
             context 'and user has not previously authenticated as a verified user' do
-              let(:expected_current_ial) { IAL::ONE }
+              let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
               let(:expected_auto_uplevel) { false }
 
               it_behaves_like 'a created credential level'
@@ -134,7 +134,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
           context 'and requested_acr is set to min' do
             let(:requested_acr) { SignIn::Constants::Auth::MIN }
-            let(:expected_current_ial) { IAL::TWO }
+            let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
             let(:expected_auto_uplevel) { true }
 
             it_behaves_like 'an auto-uplevel capable credential'
@@ -142,7 +142,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
           context 'and requested_acr is set to ial1' do
             let(:requested_acr) { SignIn::Constants::Auth::IAL1 }
-            let(:expected_current_ial) { IAL::ONE }
+            let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
             it_behaves_like 'an auto-uplevel capable credential'
           end
@@ -151,18 +151,18 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
       context 'and user info does not have verified_at trait' do
         let(:verified_at) { nil }
-        let(:expected_max_ial) { IAL::ONE }
+        let(:expected_max_ial) { SignIn::Constants::Auth::IAL_ONE }
 
         context 'and id token acr is defined as IAL 2' do
-          let(:id_token_payload) { { acr: IAL::LOGIN_GOV_IAL2 } }
-          let(:expected_current_ial) { IAL::TWO }
+          let(:id_token_payload) { { acr: SignIn::Constants::Auth::LOGIN_GOV_IAL2 } }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
 
           it_behaves_like 'invalid credential level error'
         end
 
         context 'and id token acr is not defined as IAL 2' do
           let(:id_token_payload) { 'some-id-token-payload' }
-          let(:expected_current_ial) { IAL::ONE }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
           it_behaves_like 'a created credential level'
         end
@@ -174,25 +174,25 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
       context 'and mhv assurance is set to premium' do
         let(:mhv_assurance) { 'Premium' }
-        let(:expected_max_ial) { IAL::TWO }
+        let(:expected_max_ial) { SignIn::Constants::Auth::IAL_TWO }
 
         context 'and requested_acr is set to loa3' do
           let(:requested_acr) { SignIn::Constants::Auth::LOA3 }
-          let(:expected_current_ial) { IAL::TWO }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
 
           it_behaves_like 'a created credential level'
         end
 
         context 'and requested_acr is set to min' do
           let(:requested_acr) { SignIn::Constants::Auth::MIN }
-          let(:expected_current_ial) { IAL::TWO }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
 
           it_behaves_like 'a created credential level'
         end
 
         context 'and requested_acr is set to loa1' do
           let(:requested_acr) { SignIn::Constants::Auth::LOA1 }
-          let(:expected_current_ial) { IAL::ONE }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
           it_behaves_like 'a created credential level'
         end
@@ -200,7 +200,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
       context 'and mhv assurance is not set to premium' do
         let(:mhv_assurance) { 'some-mhv-assurance' }
-        let(:expected_max_ial) { IAL::ONE }
+        let(:expected_max_ial) { SignIn::Constants::Auth::IAL_ONE }
 
         context 'and requested_acr is set to loa3' do
           let(:requested_acr) { SignIn::Constants::Auth::LOA3 }
@@ -211,14 +211,14 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
         context 'and requested_acr is set to min' do
           let(:requested_acr) { SignIn::Constants::Auth::MIN }
-          let(:expected_current_ial) { IAL::ONE }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
           it_behaves_like 'a created credential level'
         end
 
         context 'and requested_acr is set to loa1' do
           let(:requested_acr) { SignIn::Constants::Auth::LOA1 }
-          let(:expected_current_ial) { IAL::ONE }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
           it_behaves_like 'a created credential level'
         end
@@ -237,52 +237,52 @@ RSpec.describe SignIn::CredentialLevelCreator do
       end
 
       context 'and dslogon assurance is set to dslogon assurance two' do
-        let(:dslogon_assurance) { LOA::DSLOGON_ASSURANCE_TWO }
-        let(:expected_max_ial) { IAL::TWO }
+        let(:dslogon_assurance) { SignIn::Constants::Auth::DSLOGON_ASSURANCE_TWO }
+        let(:expected_max_ial) { SignIn::Constants::Auth::IAL_TWO }
 
         context 'and requested_acr is set to loa3' do
           let(:requested_acr) { SignIn::Constants::Auth::LOA3 }
-          let(:expected_current_ial) { IAL::TWO }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
 
           it_behaves_like 'a created credential level'
         end
 
         context 'and requested_acr is set to min' do
           let(:requested_acr) { SignIn::Constants::Auth::MIN }
-          let(:expected_current_ial) { IAL::TWO }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
 
           it_behaves_like 'a created credential level'
         end
 
         context 'and requested_acr is set to loa1' do
           let(:requested_acr) { SignIn::Constants::Auth::LOA1 }
-          let(:expected_current_ial) { IAL::ONE }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
           it_behaves_like 'a created credential level'
         end
       end
 
       context 'and dslogon assurance is set to 3' do
-        let(:dslogon_assurance) { LOA::DSLOGON_ASSURANCE_THREE }
-        let(:expected_max_ial) { IAL::TWO }
+        let(:dslogon_assurance) { SignIn::Constants::Auth::DSLOGON_ASSURANCE_THREE }
+        let(:expected_max_ial) { SignIn::Constants::Auth::IAL_TWO }
 
         context 'and requested_acr is set to loa3' do
           let(:requested_acr) { SignIn::Constants::Auth::LOA3 }
-          let(:expected_current_ial) { IAL::TWO }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
 
           it_behaves_like 'a created credential level'
         end
 
         context 'and requested_acr is set to min' do
           let(:requested_acr) { SignIn::Constants::Auth::MIN }
-          let(:expected_current_ial) { IAL::TWO }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
 
           it_behaves_like 'a created credential level'
         end
 
         context 'and requested_acr is set to loa1' do
           let(:requested_acr) { SignIn::Constants::Auth::LOA1 }
-          let(:expected_current_ial) { IAL::ONE }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
           it_behaves_like 'a created credential level'
         end
@@ -290,7 +290,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
       context 'and dslogon assurance is set to an arbitrary value' do
         let(:dslogon_assurance) { 'some-dslogon-assurance' }
-        let(:expected_max_ial) { IAL::ONE }
+        let(:expected_max_ial) { SignIn::Constants::Auth::IAL_ONE }
 
         context 'and requested_acr is set to loa3' do
           let(:requested_acr) { SignIn::Constants::Auth::LOA3 }
@@ -301,14 +301,14 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
         context 'and requested_acr is set to min' do
           let(:requested_acr) { SignIn::Constants::Auth::MIN }
-          let(:expected_current_ial) { IAL::ONE }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
           it_behaves_like 'a created credential level'
         end
 
         context 'and requested_acr is set to loa1' do
           let(:requested_acr) { SignIn::Constants::Auth::LOA1 }
-          let(:expected_current_ial) { IAL::ONE }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
           it_behaves_like 'a created credential level'
         end
@@ -319,12 +319,12 @@ RSpec.describe SignIn::CredentialLevelCreator do
       let(:type) { SignIn::Constants::Auth::IDME }
 
       context 'and user info level of assurance equals idme classic loa3' do
-        let(:level_of_assurance) { LOA::THREE }
-        let(:expected_max_ial) { IAL::TWO }
+        let(:level_of_assurance) { SignIn::Constants::Auth::LOA_THREE }
+        let(:expected_max_ial) { SignIn::Constants::Auth::IAL_TWO }
 
         context 'and user info credential ial equals idme classic loa3' do
-          let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
-          let(:expected_current_ial) { IAL::TWO }
+          let(:credential_ial) { SignIn::Constants::Auth::IDME_CLASSIC_LOA3 }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
 
           it_behaves_like 'a created credential level'
         end
@@ -338,7 +338,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
               context 'and sign_in auto_uplevel settings is false' do
                 let(:auto_uplevel) { false }
-                let(:expected_current_ial) { IAL::ONE }
+                let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
                 let(:expected_auto_uplevel) { false }
 
                 it_behaves_like 'a created credential level'
@@ -352,7 +352,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
             end
 
             context 'and user has not previously authenticated as a verified user' do
-              let(:expected_current_ial) { IAL::ONE }
+              let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
               let(:expected_auto_uplevel) { false }
 
               it_behaves_like 'a created credential level'
@@ -368,7 +368,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
           context 'and requested_acr is set to min' do
             let(:requested_acr) { SignIn::Constants::Auth::MIN }
-            let(:expected_current_ial) { IAL::TWO }
+            let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
             let(:expected_auto_uplevel) { true }
 
             it_behaves_like 'an auto-uplevel capable credential'
@@ -376,7 +376,7 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
           context 'and requested_acr is set to ial1' do
             let(:requested_acr) { SignIn::Constants::Auth::LOA1 }
-            let(:expected_current_ial) { IAL::ONE }
+            let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
             it_behaves_like 'an auto-uplevel capable credential'
           end
@@ -385,18 +385,18 @@ RSpec.describe SignIn::CredentialLevelCreator do
 
       context 'and user info level of assurance does not equal idme classic loa3' do
         let(:level_of_assurance) { 'some-level-of-assurance' }
-        let(:expected_max_ial) { IAL::ONE }
+        let(:expected_max_ial) { SignIn::Constants::Auth::IAL_ONE }
 
         context 'and user info credential ial equals idme classic loa3' do
-          let(:credential_ial) { LOA::IDME_CLASSIC_LOA3 }
-          let(:expected_current_ial) { IAL::TWO }
+          let(:credential_ial) { SignIn::Constants::Auth::IDME_CLASSIC_LOA3 }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_TWO }
 
           it_behaves_like 'invalid credential level error'
         end
 
         context 'and user info credential ial does not equal idme classic loa3' do
           let(:credential_ial) { 'some-credential-ial' }
-          let(:expected_current_ial) { IAL::ONE }
+          let(:expected_current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
           it_behaves_like 'a created credential level'
         end

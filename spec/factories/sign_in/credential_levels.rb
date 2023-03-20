@@ -5,8 +5,8 @@ FactoryBot.define do
     skip_create
 
     requested_acr { SignIn::Constants::Auth::ACR_VALUES.first }
-    current_ial { IAL::ONE }
-    max_ial { IAL::ONE }
+    current_ial { SignIn::Constants::Auth::IAL_ONE }
+    max_ial { SignIn::Constants::Auth::IAL_ONE }
     credential_type { SignIn::Constants::Auth::CSP_TYPES.first }
     auto_uplevel { false }
 

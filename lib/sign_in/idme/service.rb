@@ -10,7 +10,7 @@ module SignIn
 
       attr_accessor :type
 
-      def render_auth(state: SecureRandom.hex, acr: LOA::IDME_LOA1_VETS)
+      def render_auth(state: SecureRandom.hex, acr: Constants::Auth::IDME_LOA1)
         renderer = ActionController::Base.renderer
         renderer.controller.prepend_view_path(Rails.root.join('lib', 'sign_in', 'templates'))
         Rails.logger.info("[SignIn][Idme][Service] Rendering auth, state: #{state}, acr: #{acr}")
@@ -84,11 +84,13 @@ module SignIn
       def get_authn_context(current_ial)
         case type
         when Constants::Auth::IDME
-          current_ial == IAL::TWO ? LOA::IDME_LOA3 : LOA::IDME_LOA1_VETS
-        when Constants::Auth::DSLOGON
-          current_ial == IAL::TWO ? LOA::IDME_DSLOGON_LOA3 : LOA::IDME_DSLOGON_LOA1
+          current_ial == Constants::Auth::IAL_TWO ? Constants::Auth::IDME_LOA3 : Constants::Auth::IDME_LOA1
         when Constants::Auth::MHV
-          current_ial == IAL::TWO ? LOA::IDME_MHV_LOA3 : LOA::IDME_MHV_LOA1
+          current_ial == Constants::Auth::IAL_TWO ? Constants::Auth::IDME_MHV_LOA3 : Constants::Auth::IDME_MHV_LOA1
+        when Constants::Auth::DSLOGON
+          return Constants::Auth::IDME_DSLOGON_LOA3 if current_ial == Constants::Auth::IAL_TWO
+
+          Constants::Auth::IDME_DSLOGON_LOA1
         end
       end
 

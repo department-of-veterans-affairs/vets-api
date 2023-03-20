@@ -35,7 +35,7 @@ module SignIn
       end
 
       def idme_scope
-        LOA::IDME_LOA3
+        Constants::Auth::IDME_LOA3
       end
 
       def auth_path

@@ -7,10 +7,10 @@ RSpec.describe SignIn::AttributeValidator do
     subject { SignIn::AttributeValidator.new(user_attributes: user_attributes).perform }
 
     let(:user_attributes) { { current_ial: current_ial } }
-    let(:current_ial) { IAL::ONE }
+    let(:current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
     context 'when credential is not verified' do
-      let(:current_ial) { IAL::ONE }
+      let(:current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
       it 'returns nil' do
         expect(subject).to be nil
@@ -40,7 +40,7 @@ RSpec.describe SignIn::AttributeValidator do
       let(:idme_uuid) { nil }
       let(:mhv_correlation_id) { nil }
       let(:edipi) { nil }
-      let(:current_ial) { IAL::TWO }
+      let(:current_ial) { SignIn::Constants::Auth::IAL_TWO }
       let(:ssn) { nil }
       let(:birth_date) { nil }
       let(:email) { nil }

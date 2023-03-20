@@ -206,7 +206,7 @@ module SignIn
     end
 
     def loa
-      @loa ||= { current: LOA::THREE, highest: LOA::THREE }
+      @loa ||= { current: Constants::Auth::LOA_THREE, highest: Constants::Auth::LOA_THREE }
     end
 
     def mhv_auth?
@@ -218,7 +218,7 @@ module SignIn
     end
 
     def verified_credential?
-      current_ial == IAL::TWO
+      current_ial == Constants::Auth::IAL_TWO
     end
 
     def sign_in_logger
