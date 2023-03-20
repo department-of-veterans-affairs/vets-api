@@ -56,6 +56,10 @@ Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
 Relationship to service member:  <%= @applicant.relationship&.upcase %>
 
 <% if @applicant.spouseInfo.present? -%>
+<% unless Rails.env.production? -%>
+Married date: <%= to_date(@applicant.spouseInfo.marriageDate) %>
+
+<% end -%>
 Is a divorce or annulment pending?: <%= yesno(@applicant.spouseInfo.divorcePending) %>
 
 Have you remarried since the death of the veteran?: <%= yesno(@applicant.spouseInfo.remarried) %>
