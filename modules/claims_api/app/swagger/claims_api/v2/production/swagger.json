@@ -1659,8 +1659,8 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "Token Validation Error",
-                      "detail": "Invalid token."
+                      "title": "Not authorized",
+                      "detail": "Not authorized."
                     }
                   ]
                 },
@@ -1981,8 +1981,8 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "Token Validation Error",
-                      "detail": "Invalid token."
+                      "title": "Not authorized",
+                      "detail": "Not authorized."
                     }
                   ]
                 },
@@ -2320,8 +2320,8 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "Token Validation Error",
-                      "detail": "Invalid token."
+                      "title": "Not authorized",
+                      "detail": "Not authorized."
                     }
                   ]
                 },
