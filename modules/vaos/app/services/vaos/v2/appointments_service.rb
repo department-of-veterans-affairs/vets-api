@@ -44,6 +44,7 @@ module VAOS
         with_monitoring do
           response = perform(:post, appointments_base_url, params, headers)
           process_service_category(response.body)
+          log_telehealth_data(response.body[:telehealth]&.[](:atlas)) unless response.body[:telehealth]&.[](:atlas).nil?
           OpenStruct.new(response.body)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if params[:status] == 'booked'
@@ -75,11 +76,11 @@ module VAOS
       end
 
       def log_telehealth_data(atlas_data)
-        atlas_entry = { VAOS_TELEHEALTH_DATA_KEY => process_atlas_details(atlas_data) }
+        atlas_entry = { VAOS_TELEHEALTH_DATA_KEY => atlas_details(atlas_data) }
         Rails.logger.info('VAOS telehealth atlas details', atlas_entry.to_json)
       end
 
-      def process_atlas_details(atlas_data)
+      def atlas_details(atlas_data)
         {
           siteCode: atlas_data&.[](:site_code),
           address: atlas_data&.[](:address)
