@@ -23,6 +23,10 @@ redis:
     url: redis://localhost:63790
   sidekiq:
     url: redis://localhost:63790
+clamav:
+  image: clamav/clamav
+  ports:
+    - 33100:3310    
 ```
 
 *Note: If you have local instances of Postgres or Redis that were only for use by vets-api, you can stop them to save system resources.*
