@@ -415,8 +415,7 @@ module ClaimsApi
               end
             end
 
-            uploads_allowed = ['NEEDED", "SUBMITTED_AWAITING_REVIEW", "INITIAL_REVIEW_COMPLETE']
-                              .include? status ? true : false
+            uploads_allowed = %w[NEEDED SUBMITTED_AWAITING_REVIEW INITIAL_REVIEW_COMPLETE].include?(status)
 
             {
               closed_date: date_present(item[:date_closed]),
