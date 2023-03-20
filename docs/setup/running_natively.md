@@ -1,10 +1,12 @@
 ## Running the app Natively
 
 ## EKS
-Prior to EKS, ClamAV (the virus scanner) was deployed in the same process as Vets API. With EKS, ClamAV has been extracted out into it’s own service. Locally you can see the docker-compose.yml config for clamav here. To run this locally, just run the make up command (see Makefile) but to skip this for local setup run the foreman command:
+Prior to EKS, ClamAV (the virus scanner) was deployed in the same process as Vets API. With EKS, ClamAV has been extracted out into it’s own service. Locally you can see the docker-compose.yml config for clamav.
 
-To run vets-api and its redis and postgres dependencies run the following command from within the repo you cloned 
-foreman start -m all=1,clamd=0,freshclam=0
+TODO: Running clamav natively, as we did in Vets API master still needs to be configured. For the time being, please run:
+`docker-compose -f docker-compose-clamav.yml up`
+
+After that, follow the native instructions and run foreman start -m all=1
 
 You should then be able to navigate to [http://localhost:3000/v0/status](http://localhost:3000/v0/status) in your
 browser and start interacting with the API. Changes to the source in your local
