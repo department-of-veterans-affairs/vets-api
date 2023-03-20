@@ -235,8 +235,8 @@ describe SignIn::Idme::Service do
     let(:expected_standard_attributes) do
       {
         idme_uuid: user_uuid,
-        current_ial: IAL::TWO,
-        max_ial: IAL::TWO,
+        current_ial: SignIn::Constants::Auth::IAL_TWO,
+        max_ial: SignIn::Constants::Auth::IAL_TWO,
         service_name: service_name,
         csp_email: email,
         multifactor: multifactor,
@@ -246,13 +246,15 @@ describe SignIn::Idme::Service do
     end
     let(:service_name) { SignIn::Constants::Auth::IDME }
     let(:auto_uplevel) { false }
-    let(:authn_context) { LOA::IDME_LOA3 }
+    let(:authn_context) { SignIn::Constants::Auth::IDME_LOA3 }
     let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }
-    let(:credential_level) { create(:credential_level, current_ial: IAL::TWO, max_ial: IAL::TWO) }
+    let(:credential_level) do
+      create(:credential_level, current_ial: SignIn::Constants::Auth::IAL_TWO,
+                                max_ial: SignIn::Constants::Auth::IAL_TWO)
+    end
 
     context 'when type is idme' do
       let(:type) { SignIn::Constants::Auth::IDME }
-      let(:authn_context) { LOA::IDME_LOA3 }
       let(:service_name) { SignIn::Constants::Auth::IDME }
       let(:user_info) do
         OpenStruct.new(
@@ -314,7 +316,7 @@ describe SignIn::Idme::Service do
 
     context 'when type is dslogon' do
       let(:type) { SignIn::Constants::Auth::DSLOGON }
-      let(:authn_context) { LOA::IDME_DSLOGON_LOA3 }
+      let(:authn_context) { SignIn::Constants::Auth::IDME_DSLOGON_LOA3 }
       let(:service_name) { SignIn::Constants::Auth::DSLOGON }
       let(:user_info) do
         OpenStruct.new(
@@ -359,7 +361,7 @@ describe SignIn::Idme::Service do
 
     context 'when type is mhv' do
       let(:type) { SignIn::Constants::Auth::MHV }
-      let(:authn_context) { LOA::IDME_MHV_LOA3 }
+      let(:authn_context) { SignIn::Constants::Auth::IDME_MHV_LOA3 }
       let(:service_name) { SignIn::Constants::Auth::MHV }
       let(:user_info) do
         OpenStruct.new(

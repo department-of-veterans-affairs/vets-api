@@ -111,7 +111,7 @@ module SignIn
     end
 
     def ial_to_loa(ial)
-      ial == IAL::TWO ? LOA::THREE : LOA::ONE
+      ial == Constants::Auth::IAL_TWO ? Constants::Auth::LOA_THREE : Constants::Auth::LOA_ONE
     end
 
     def user_uuid

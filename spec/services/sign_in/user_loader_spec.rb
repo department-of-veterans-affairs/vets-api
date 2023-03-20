@@ -11,7 +11,7 @@ RSpec.describe SignIn::UserLoader do
     let(:user_uuid) { user_account.id }
     let(:user_account) { create(:user_account) }
     let(:user_verification) { create(:idme_user_verification, user_account: user_account) }
-    let(:user_loa) { { current: LOA::THREE, highest: LOA::THREE } }
+    let(:user_loa) { { current: SignIn::Constants::Auth::LOA_THREE, highest: SignIn::Constants::Auth::LOA_THREE } }
     let(:user_icn) { user_account.icn }
     let(:session) { create(:oauth_session, user_account: user_account, user_verification: user_verification) }
     let(:session_handle) { session.handle }
@@ -36,7 +36,7 @@ RSpec.describe SignIn::UserLoader do
         let(:edipi) { 'some-mpi-edipi' }
         let(:idme_uuid) { user_verification.idme_uuid }
         let(:email) { session.credential_email }
-        let(:authn_context) { LOA::IDME_LOA3 }
+        let(:authn_context) { SignIn::Constants::Auth::IDME_LOA3 }
         let(:service_name) { user_verification.credential_type }
         let(:multifactor) { true }
         let(:client_config) { create(:client_config) }

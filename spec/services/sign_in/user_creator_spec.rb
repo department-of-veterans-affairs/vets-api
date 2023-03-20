@@ -34,11 +34,11 @@ RSpec.describe SignIn::UserCreator do
     let(:client_config) { create(:client_config) }
     let(:code_challenge) { 'some-code-challenge' }
     let(:type) { service_name }
-    let(:current_ial) { IAL::TWO }
-    let(:max_ial) { IAL::TWO }
+    let(:current_ial) { SignIn::Constants::Auth::IAL_TWO }
+    let(:max_ial) { SignIn::Constants::Auth::IAL_TWO }
     let(:logingov_uuid) { SecureRandom.hex }
     let(:icn) { 'some-icn' }
-    let(:loa) { { current: LOA::THREE, highest: LOA::THREE } }
+    let(:loa) { { current: SignIn::Constants::Auth::LOA_THREE, highest: SignIn::Constants::Auth::LOA_THREE } }
     let(:csp_email) { 'some-csp-email' }
     let(:service_name) { SignIn::Constants::Auth::LOGINGOV }
     let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }

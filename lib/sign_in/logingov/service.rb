@@ -9,7 +9,7 @@ module SignIn
 
       SCOPE = 'profile profile:verified_at address email social_security_number openid'
 
-      def render_auth(state: SecureRandom.hex, acr: IAL::LOGIN_GOV_IAL1)
+      def render_auth(state: SecureRandom.hex, acr: Constants::Auth::LOGIN_GOV_IAL1)
         Rails.logger.info("[SignIn][Logingov][Service] Rendering auth, state: #{state}, acr: #{acr}")
         renderer.render(template: 'oauth_get_form',
                         locals: {
@@ -103,7 +103,7 @@ module SignIn
       end
 
       def get_authn_context(current_ial)
-        current_ial == IAL::TWO ? IAL::LOGIN_GOV_IAL2 : IAL::LOGIN_GOV_IAL1
+        current_ial == Constants::Auth::IAL_TWO ? Constants::Auth::LOGIN_GOV_IAL2 : Constants::Auth::LOGIN_GOV_IAL1
       end
 
       def auth_url

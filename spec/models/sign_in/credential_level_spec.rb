@@ -12,8 +12,8 @@ RSpec.describe SignIn::CredentialLevel, type: :model do
   end
 
   let(:requested_acr) { SignIn::Constants::Auth::ACR_VALUES.first }
-  let(:current_ial) { IAL::ONE }
-  let(:max_ial) { IAL::ONE }
+  let(:current_ial) { SignIn::Constants::Auth::IAL_ONE }
+  let(:max_ial) { SignIn::Constants::Auth::IAL_ONE }
   let(:credential_type) { SignIn::Constants::Auth::CSP_TYPES.first }
 
   describe 'validations' do
@@ -75,8 +75,8 @@ RSpec.describe SignIn::CredentialLevel, type: :model do
       end
 
       context 'when max_ial is less than current_ial' do
-        let(:max_ial) { IAL::ONE }
-        let(:current_ial) { IAL::TWO }
+        let(:max_ial) { SignIn::Constants::Auth::IAL_ONE }
+        let(:current_ial) { SignIn::Constants::Auth::IAL_TWO }
         let(:expected_error) { ActiveModel::ValidationError }
         let(:expected_error_message) { 'Validation failed: Max ial cannot be less than Current ial' }
 
@@ -94,8 +94,8 @@ RSpec.describe SignIn::CredentialLevel, type: :model do
       let(:requested_acr) { SignIn::Constants::Auth::MIN }
 
       context 'and current_ial is less than max_ial' do
-        let(:current_ial) { IAL::ONE }
-        let(:max_ial) { IAL::TWO }
+        let(:current_ial) { SignIn::Constants::Auth::IAL_ONE }
+        let(:max_ial) { SignIn::Constants::Auth::IAL_TWO }
 
         it 'returns true' do
           expect(subject).to be(true)
@@ -103,8 +103,8 @@ RSpec.describe SignIn::CredentialLevel, type: :model do
       end
 
       context 'and current_ial is equal to max_ial' do
-        let(:current_ial) { IAL::ONE }
-        let(:max_ial) { IAL::ONE }
+        let(:current_ial) { SignIn::Constants::Auth::IAL_ONE }
+        let(:max_ial) { SignIn::Constants::Auth::IAL_ONE }
 
         it 'returns false' do
           expect(subject).to be(false)
