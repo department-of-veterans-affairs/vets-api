@@ -314,7 +314,7 @@ module AppealsApi
         'veteranReadinessAndEmployment' => 'VRE',
         'loanGuaranty' => 'CMP',
         'education' => 'EDU',
-        'nationalCemeteryAdministration' => 'CMP'
+        'nationalCemeteryAdministration' => 'NCA'
       }[benefit_type]
     end
 

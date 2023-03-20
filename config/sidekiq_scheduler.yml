@@ -26,6 +26,11 @@ AppealsApi::DecisionReviewReportWeekly:
   class: AppealsApi::DecisionReviewReportWeekly
   description: "Weekly report of appeals submissions"
 
+AppealsApi::FlipperStatusAlert:
+  cron: "40 * * * *" # Every hour, 40 minutes after the hour
+  class: AppealsApi::FlipperStatusAlert
+  description: "Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled"
+
 AppealsApi::HigherLevelReviewCleanUpWeekOldPii:
   every: ['24h', {first_in: '45m'}]
   class: AppealsApi::HigherLevelReviewCleanUpWeekOldPii

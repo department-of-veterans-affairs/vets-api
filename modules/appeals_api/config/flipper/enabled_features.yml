@@ -1,0 +1,23 @@
+common:
+  - decision_review_hlr_email
+  - decision_review_nod_email
+  - decision_review_sc_email
+development:
+  - decision_review_icn_updater_enabled
+staging:
+  - decision_review_weekly_error_report_enabled
+  - decision_review_daily_error_report_enabled
+  - decision_review_daily_stuck_records_report_enabled
+  - decision_review_monthly_stats_report_enabled
+sandbox:
+production:
+  - decision_review_hlr_pii_expunge_enabled
+  - decision_review_nod_pii_expunge_enabled
+  - decision_review_sc_pii_expunge_enabled
+  - decision_review_hlr_status_updater_enabled
+  - decision_review_nod_status_updater_enabled
+  - decision_review_sc_status_updater_enabled
+  - decision_review_weekly_error_report_enabled
+  - decision_review_daily_error_report_enabled
+  - decision_review_daily_stuck_records_report_enabled
+  - decision_review_monthly_stats_report_enabled
