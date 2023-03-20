@@ -143,57 +143,5 @@ RSpec.describe 'systems', type: :request do
         end
       end
     end
-
-    describe 'GET /vaos/v0/systems/:system_id/facilities' do
-      context 'with a set of clinic ids' do
-        it 'returns a 200 with the correct schema' do
-          skip 'VAOS V0 routes disabled'
-          VCR.use_cassette('vaos/systems/get_institutions', match_requests_on: %i[method path query]) do
-            get '/vaos/v0/systems/442/clinic_institutions', params: { clinic_ids: [16, 90, 110, 192, 193] }
-
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to be_a(String)
-            expect(response).to match_response_schema('vaos/system_institutions')
-          end
-        end
-
-        it 'returns a 200 with the correct camel-inflected schema' do
-          skip 'VAOS V0 routes disabled'
-          VCR.use_cassette('vaos/systems/get_institutions', match_requests_on: %i[method path query]) do
-            get '/vaos/v0/systems/442/clinic_institutions',
-                params: { clinic_ids: [16, 90, 110, 192, 193] },
-                headers: inflection_header
-
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to be_a(String)
-            expect(response).to match_camelized_response_schema('vaos/system_institutions')
-          end
-        end
-      end
-
-      context 'with one clinic id' do
-        it 'returns a 200 with the correct schema' do
-          skip 'VAOS V0 routes disabled'
-          VCR.use_cassette('vaos/systems/get_institutions_single', match_requests_on: %i[method path query]) do
-            get '/vaos/v0/systems/442/clinic_institutions', params: { clinic_ids: 16 }
-
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to be_a(String)
-            expect(response).to match_response_schema('vaos/system_institutions')
-          end
-        end
-
-        it 'returns a 200 with the correct camel-inflected schema' do
-          skip 'VAOS V0 routes disabled'
-          VCR.use_cassette('vaos/systems/get_institutions_single', match_requests_on: %i[method path query]) do
-            get '/vaos/v0/systems/442/clinic_institutions', params: { clinic_ids: 16 }, headers: inflection_header
-
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to be_a(String)
-            expect(response).to match_camelized_response_schema('vaos/system_institutions')
-          end
-        end
-      end
-    end
   end
 end
