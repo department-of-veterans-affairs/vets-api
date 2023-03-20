@@ -729,7 +729,7 @@
                       "claimTypeCode": "400PREDSCHRG",
                       "claimDate": "2017-05-02",
                       "claimPhaseDates": {
-                        "phaseChangeDate": null,
+                        "phaseChangeDate": "2017-10-18",
                         "currentPhaseBack": false,
                         "latestPhaseType": "Complete",
                         "previousPhases": {
@@ -1361,6 +1361,172 @@
         }
       }
     },
+    "/:veteranId/526": {
+      "post": {
+        "summary": "Submits form 526",
+        "tags": [
+          "Disability"
+        ],
+        "operationId": "post526Claim",
+        "security": [
+          {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Establishes a Disability Compensation Claim in VBMS.",
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "example": "1012667145V762142",
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "526 Response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/:veteranId/526/validate": {
+      "post": {
+        "summary": "Validates a 526 claim form submission.",
+        "tags": [
+          "Disability"
+        ],
+        "operationId": "post526ClaimValidate",
+        "security": [
+          {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Test to make sure the form submission works with your parameters.\nSubmission validates against the schema returned by the GET /forms/526 endpoint.\n",
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "example": "1012667145V762142",
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "526 Response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/:veteranId/526/attachments": {
+      "post": {
+        "summary": "Upload documents supporting a 526 claim",
+        "tags": [
+          "Disability"
+        ],
+        "operationId": "upload526Attachments",
+        "security": [
+          {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Used to attach supporting documents for a 526 claim. For wet-signature PDFs, use the PUT /forms/526/{id} endpoint.\n\n<br/><br/>\nThis endpoint accepts a document binary PDF as part of a multi-part payload (for example, attachment1, attachment2, attachment3).\n\n",
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "example": "1012667145V762142",
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "upload response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "attachment1": {
+                    "type": "file",
+                    "description": "Attachment contents. Must be provided in binary PDF or [base64 string](https://raw.githubusercontent.com/department-of-veterans-affairs/vets-api/master/modules/claims_api/spec/fixtures/base64pdf) format and less than 11 in x 11 in.\n"
+                  },
+                  "attachment2": {
+                    "type": "file",
+                    "description": "Attachment contents. Must be provided in binary PDF or [base64 string](https://raw.githubusercontent.com/department-of-veterans-affairs/vets-api/master/modules/claims_api/spec/fixtures/base64pdf) format and less than 11 in x 11 in.\n"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/veterans/{veteranId}/claims/{id}/5103": {
       "post": {
         "summary": "Submit Evidence Waiver 5103",
@@ -1862,8 +2028,8 @@
                   "id": "1",
                   "type": "intent_to_file",
                   "attributes": {
-                    "creationDate": "2023-03-09",
-                    "expirationDate": "2024-03-09",
+                    "creationDate": "2023-03-16",
+                    "expirationDate": "2024-03-16",
                     "type": "compensation",
                     "status": "active"
                   }
