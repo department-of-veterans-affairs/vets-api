@@ -1,20 +1,20 @@
 apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
-  name: veteran-verification
+  name: veteran-verification-v1
   description: Veteran Verification APIs for VA Lighthouse program
-  title: Veteran Verification API
+  title: Veteran Verification API v1
   tags:
     - lighthouse
     - external
   links:
-    - url: https://developer.va.gov/explore/verification/docs/veteran_verification?version=current
+    - url: https://developer.va.gov/explore/verification/docs/veteran_verification?version=v1
       title: Public Docs
       icon: web
 spec:
   type: openapi
   lifecycle: production
-  owner: lighthouse-pivot
+  owner: lighthouse-ninjapigs
   system: vets-api
   definition:
     $text: https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/veteran_verification/VETERAN_VERIFICATION_V1.yml
