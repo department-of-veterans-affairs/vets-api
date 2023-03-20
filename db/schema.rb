@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_03_03_003828) do
+ActiveRecord::Schema.define(version: 2023_03_14_210725) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -693,20 +693,6 @@ ActiveRecord::Schema.define(version: 2023_03_03_003828) do
     t.index ["start_time"], name: "index_maintenance_windows_on_start_time"
   end
 
-  create_table "mhv_accounts", id: :serial, force: :cascade do |t|
-    t.string "user_uuid", null: false
-    t.string "account_state", null: false
-    t.datetime "registered_at"
-    t.datetime "upgraded_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "mhv_correlation_id"
-    t.uuid "user_account_id"
-    t.index ["mhv_correlation_id"], name: "index_mhv_accounts_on_mhv_correlation_id"
-    t.index ["user_account_id"], name: "index_mhv_accounts_on_user_account_id"
-    t.index ["user_uuid", "mhv_correlation_id"], name: "index_mhv_accounts_on_user_uuid_and_mhv_correlation_id", unique: true
-  end
-
   create_table "mhv_opt_in_flags", force: :cascade do |t|
     t.uuid "user_account_id"
     t.string "feature", null: false
@@ -1108,7 +1094,6 @@ ActiveRecord::Schema.define(version: 2023_03_03_003828) do
   add_foreign_key "health_quest_questionnaire_responses", "user_accounts"
   add_foreign_key "in_progress_forms", "user_accounts"
   add_foreign_key "inherited_proof_verified_user_accounts", "user_accounts"
-  add_foreign_key "mhv_accounts", "user_accounts"
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
