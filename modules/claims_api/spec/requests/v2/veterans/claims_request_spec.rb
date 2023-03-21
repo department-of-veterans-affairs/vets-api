@@ -18,6 +18,16 @@ RSpec.describe 'Claims', type: :request do
     )
   end
 
+  let(:profile_erroneous_icn) do
+    MPI::Responses::FindProfileResponse.new(
+      {
+        status: 'OK',
+        profile: FactoryBot.build(:mvi_profile,
+                                  icn: '667711332299')
+      }
+    )
+  end
+
   describe 'Claims' do
     describe 'index' do
       context 'auth header' do
@@ -363,7 +373,7 @@ RSpec.describe 'Claims', type: :request do
             allow(JWT).to receive(:decode).and_return(nil)
             allow(Token).to receive(:new).and_return(ccg_token)
             allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
-
+            allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(true)
             allow_any_instance_of(MPIData)
               .to receive(:mvi_response).and_return(profile)
 
@@ -948,6 +958,31 @@ RSpec.describe 'Claims', type: :request do
                 expect(json_response['data']['attributes']['status']).to eq('ERRORED')
               end
             end
+          end
+        end
+      end
+
+      describe 'ICN' do
+        context 'when not found' do
+          let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
+
+          it 'returns a 404' do
+            allow(JWT).to receive(:decode).and_return(nil)
+            allow(Token).to receive(:new).and_return(ccg_token)
+            allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
+
+            allow_any_instance_of(MPIData)
+              .to receive(:mvi_response).and_return(profile_erroneous_icn)
+
+            get "/services/claims/v2/veterans/#{profile_erroneous_icn.profile.icn}/claims/#{claim_id}",
+                headers: { 'Authorization' => 'Bearer HelloWorld' }
+
+            expect(response.status).to eq(404)
+            json_response = JSON.parse(response.body)
+            expect(json_response['errors'][0]['detail']).to eq(
+              "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). " \
+              'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
+            )
           end
         end
       end
