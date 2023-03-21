@@ -126,7 +126,35 @@ describe AppealsApi::SupplementalClaim, type: :model do
   end
 
   describe '#soc_opt_in' do
-    it { expect(sc_with_nvc.soc_opt_in).to be true }
+    let(:sc_opted_in) { create(:extra_supplemental_claim) }
+    let(:sc_not_opted_in) { create(:minimal_supplemental_claim) }
+
+    describe 'when pdf version is unset' do
+      it 'uses the value from the record' do
+        expect(sc_opted_in.soc_opt_in).to be true
+        expect(sc_not_opted_in.soc_opt_in).to be false
+      end
+    end
+
+    describe 'when pdf_version is v2' do
+      let(:sc_opted_in) { create(:extra_supplemental_claim, pdf_version: 'v2') }
+      let(:sc_not_opted_in) { create(:minimal_supplemental_claim, pdf_version: 'v2') }
+
+      it 'uses the value from the record' do
+        expect(sc_opted_in.soc_opt_in).to be true
+        expect(sc_not_opted_in.soc_opt_in).to be false
+      end
+    end
+
+    describe 'when pdf_version is v3' do
+      let(:sc_opted_in) { create(:extra_supplemental_claim, pdf_version: 'v3') }
+      let(:sc_not_opted_in) { create(:minimal_supplemental_claim, pdf_version: 'v3') }
+
+      it 'is always true' do
+        expect(sc_opted_in.soc_opt_in).to be true
+        expect(sc_not_opted_in.soc_opt_in).to be true
+      end
+    end
   end
 
   describe '#form_5103_notice_acknowledged' do
