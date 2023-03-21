@@ -10,9 +10,8 @@ module ClaimsApi
         before_action :verify_access!
 
         def index
-          bgs_claims = bgs_service.ebenefits_benefit_claims_status.find_benefit_claims_status_by_ptcpnt_id(
-            participant_id: target_veteran.participant_id
-          )
+          bgs_claims = find_bgs_claims!
+
           lighthouse_claims = ClaimsApi::AutoEstablishedClaim.where(veteran_icn: target_veteran.mpi.icn)
 
           render json: [] && return unless bgs_claims || lighthouse_claims
@@ -40,11 +39,6 @@ module ClaimsApi
         end
 
         private
-
-        def bgs_service
-          BGS::Services.new(external_uid: target_veteran.participant_id,
-                            external_key: target_veteran.participant_id)
-        end
 
         def evss_docs_service
           EVSS::DocumentsService.new(auth_headers)
@@ -157,6 +151,22 @@ module ClaimsApi
           # so catch the exception here and return a 404 instead
           if e.message.include?("No BnftClaim found for #{claim_id}")
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
+          end
+
+          raise
+        end
+
+        def find_bgs_claims!
+          bgs_service.ebenefits_benefit_claims_status.find_benefit_claims_status_by_ptcpnt_id(
+            participant_id: target_veteran.participant_id
+          )
+        rescue Savon::SOAPFault => e
+          # the ebenefits service raises an exception if a participant id is not found,
+          # so catch the exception here and return a 422 instead
+          if e.message.include?('No Person found for ptcpnt_id')
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail:
+              "Unable to locate Veteran's Participant ID in Benefits Gateway Services (BGS). " \
+              'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
           end
 
           raise
