@@ -1,3 +1,12 @@
+FROM ruby:3.0.5-slim-bullseye AS modules
+
+WORKDIR /tmp
+
+# Copy each module's Gemfile, gemspec, and version.rb files
+COPY modules/ modules/
+RUN find modules -type f ! \( -name Gemfile -o -name "*.gemspec" -o -path "*/lib/*/version.rb" \) -delete && \
+    find modules -type d -empty -delete
+
 FROM ruby:3.0.5-slim-bullseye
 
 # Allow for setting ENV vars via --build-arg
@@ -42,9 +51,7 @@ ENV LANG=C.UTF-8 \
 
 RUN gem install bundler:${BUNDLER_VERSION} --no-document
 
-RUN wget -q https://vets-api-build-artifacts.s3-us-gov-west-1.amazonaws.com/bundle_cache.tar.bz2 -O - \
-  | tar -xjf - -C /usr/local/bundle/
-COPY modules ./modules
+COPY --from=modules /tmp/modules modules/
 COPY Gemfile Gemfile.lock ./
 RUN bundle install \
   && rm -rf /usr/local/bundle/cache/*.gem \
