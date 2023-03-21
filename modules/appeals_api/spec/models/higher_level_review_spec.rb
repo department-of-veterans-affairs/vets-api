@@ -292,6 +292,42 @@ describe AppealsApi::HigherLevelReview, type: :model do
         end
       end
     end
+
+    describe '#soc_opt_in' do
+      let(:hlr_opted_in) { create(:higher_level_review_v2) }
+      let(:not_opted_in_form_data) do
+        form_data['data']['attributes']['socOptIn'] = false
+        form_data
+      end
+      let(:hlr_not_opted_in) { create(:higher_level_review_v2, form_data: not_opted_in_form_data) }
+
+      describe 'when pdf version is unset' do
+        it 'uses the value from the record' do
+          expect(hlr_opted_in.soc_opt_in).to eq(true)
+          expect(hlr_not_opted_in.soc_opt_in).to eq(false)
+        end
+      end
+
+      describe 'when pdf_version is v2' do
+        let(:hlr_opted_in) { create(:higher_level_review_v2, pdf_version: 'v2') }
+        let(:hlr_not_opted_in) { create(:higher_level_review_v2, form_data: not_opted_in_form_data, pdf_version: 'v2') }
+
+        it 'uses the value from the record' do
+          expect(hlr_opted_in.soc_opt_in).to be true
+          expect(hlr_not_opted_in.soc_opt_in).to be false
+        end
+      end
+
+      describe 'when pdf_version is v3' do
+        let(:hlr_opted_in) { create(:higher_level_review_v2, pdf_version: 'v3') }
+        let(:hlr_not_opted_in) { create(:higher_level_review_v2, form_data: not_opted_in_form_data, pdf_version: 'v3') }
+
+        it 'is always true' do
+          expect(hlr_opted_in.soc_opt_in).to be true
+          expect(hlr_not_opted_in.soc_opt_in).to be true
+        end
+      end
+    end
   end
 
   context 'PdfOutputPrep concern' do

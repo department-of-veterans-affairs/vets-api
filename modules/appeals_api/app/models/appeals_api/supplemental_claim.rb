@@ -169,7 +169,8 @@ module AppealsApi
     end
 
     def soc_opt_in
-      data_attributes['socOptIn']
+      # This is no longer optional as of v3 of the PDF
+      pdf_version&.downcase == 'v3' || data_attributes&.dig('socOptIn')
     end
 
     def new_evidence
