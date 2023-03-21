@@ -125,9 +125,7 @@ module AppealsApi::V2
           render_unprocessable_entity(
             "decision_review_type must be one of: #{VALID_DECISION_REVIEW_TYPES.join(', ')}"
           )
-        end
-
-        if invalid_benefit_type?
+        elsif invalid_benefit_type?
           render_unprocessable_entity(
             "benefit_type must be one of: #{caseflow_benefit_type_mapping.keys.join(', ')}"
           )

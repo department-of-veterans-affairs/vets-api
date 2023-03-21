@@ -23,7 +23,7 @@ module AppealsApi
     }.freeze
 
     included do
-      before_action :validate_auth_token!
+      prepend_before_action :validate_auth_token!
     end
 
     def audience_url

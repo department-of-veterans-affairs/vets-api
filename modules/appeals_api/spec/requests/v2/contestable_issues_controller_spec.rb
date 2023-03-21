@@ -4,42 +4,24 @@ require 'rails_helper'
 require_relative AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_contestable_issues.rb')
 
 describe AppealsApi::V2::DecisionReviews::ContestableIssuesController, type: :request do
-  include_examples 'contestable issues index requests',
-                   decision_review_type: 'higher_level_reviews',
-                   benefit_type: 'compensation',
-                   version: 'v2'
+  include_examples 'Contestable Issues API v0 and Decision Reviews v1 & v2 shared request examples',
+                   base_path: '/services/appeals/v2/decision_reviews/contestable_issues'
 
-  describe 'using versioned namespace route with oauth' do
-    include_examples 'contestable issues index requests',
-                     decision_review_type: 'higher_level_reviews',
-                     benefit_type: 'compensation',
-                     use_versioned_namespace_route: true,
-                     version: 'v2'
-
-    it_behaves_like(
-      'an endpoint with OpenID auth',
-      AppealsApi::ContestableIssues::V0::ContestableIssuesController::OAUTH_SCOPES[:GET]
-    ) do
-      let(:path) do
-        '/services/appeals/contestable_issues/v0/contestable_issues/higher_level_reviews?benefit_type=compensation'
-      end
-      let(:headers) { { 'X-VA-SSN': '872958715', 'X-VA-Receipt-Date': '2019-12-01', 'X-VA-ICN': '1013062086V794840' } }
-
-      def make_request(auth_header)
-        VCR.use_cassette('caseflow/higher_level_reviews/contestable_issues') do
-          get(path, headers: headers.merge(auth_header))
-        end
-      end
+  context 'with errors' do
+    let(:body) { JSON.parse(response.body) }
+    let(:headers) { { 'X-VA-SSN': 'abcdefghi', 'X-VA-Receipt-Date': '2019-12-01' } }
+    let(:path) do
+      '/services/appeals/v2/decision_reviews/contestable_issues/higher_level_reviews?benefit_type=compensation'
     end
-  end
 
-  it 'errors are in  JsonAPI ErrorObject format' do
-    opts = { decision_review_type: 'higher_level_review', benefit_type: 'compensation', version: 'v2' }
-    get_issues ssn: 'abcdefghi', options: opts
-    error = JSON.parse(response.body)['errors'][0]
-    expect(error['detail']).to eq "'abcdefghi' did not match the defined pattern"
-    expect(error['code']).to eq '143'
-    expect(error['source']['pointer']).to eq '/X-VA-SSN'
-    expect(error['meta']['regex']).to be_present
+    before { get(path, headers: headers) }
+
+    it 'presents errors in JsonAPI ErrorObject format' do
+      error = body['errors'].first
+      expect(error['detail']).to eq "'abcdefghi' did not match the defined pattern"
+      expect(error['code']).to eq '143'
+      expect(error['source']['pointer']).to eq '/X-VA-SSN'
+      expect(error['meta']['regex']).to be_present
+    end
   end
 end
