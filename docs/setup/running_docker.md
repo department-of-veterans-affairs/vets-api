@@ -21,6 +21,8 @@ After that, run the make/docker-compose commands per usual.
 
 First make sure to follow the common [base setup](https://github.com/department-of-veterans-affairs/vets-api/blob/master/README.md#Base%20setup).
 
+## Makefile
+
 A Makefile provides shortcuts for interacting with the docker images.
 
 You can see all of the targets and an explanation of what they do with:
