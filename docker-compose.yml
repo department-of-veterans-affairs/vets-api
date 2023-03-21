@@ -16,6 +16,7 @@ x-app: &common
   volumes:
     - "../vets-api-mockdata:/cache"
     - .:/app:cached
+    - shared-vol:/tmp
   working_dir: /app
   depends_on:
     - clamav
@@ -31,6 +32,8 @@ services:
     image: clamav/clamav
     ports:
       - 33100:3310
+    volumes:
+     - shared-vol:/vets-api
   redis:
     image: redis:5.0-alpine
     ports:
@@ -53,3 +56,6 @@ services:
   worker:
     <<: *common
     command: bundle exec sidekiq -q critical,4 -q tasker,3 -q default,2 -q low,1
+
+volumes:
+ shared-vol:
