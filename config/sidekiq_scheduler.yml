@@ -12,7 +12,7 @@ AppealsApi::DailyErrorReport:
   description: "Daily report of appeals errors"
 
 AppealsApi::DailyStuckRecordsReport:
-  cron: '0 0 8 * * MON-FRI America/New_York'
+  cron: '0 8 * * MON-FRI America/New_York'
   class: AppealsApi::DailyStuckRecordsReport
   description: "Daily report of all stuck appeals submissions"
 
@@ -27,7 +27,7 @@ AppealsApi::DecisionReviewReportWeekly:
   description: "Weekly report of appeals submissions"
 
 AppealsApi::FlipperStatusAlert:
-  cron: "40 * * * *" # Every hour, 40 minutes after the hour
+  cron: '0 2,9,16 * * MON-FRI America/New_York'
   class: AppealsApi::FlipperStatusAlert
   description: "Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled"
 

@@ -3,8 +3,8 @@
 module Flipper
   module Utilities
     module BulkFeatureChecker
-      # Accepts an array of feature keys (symbol or string format) and returns a result hash of which keys
-      # are enabled, disabled, or missing; feature keys are returned in symbol format
+      # Accepts an array of feature keys (string or symbol format) and returns a result hash of which keys
+      # are enabled, disabled, or missing; feature keys are returned in string format
       def self.enabled_status(features)
         result = {
           enabled: [],
@@ -13,7 +13,7 @@ module Flipper
         }
         existing_features = Flipper.features.map(&:name)
 
-        Array(features).map(&:to_sym).each do |feature|
+        Array(features).map(&:to_s).each do |feature|
           unless existing_features.include?(feature)
             result[:missing] << feature
             next
