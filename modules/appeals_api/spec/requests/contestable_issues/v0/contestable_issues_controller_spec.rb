@@ -4,6 +4,9 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::ContestableIssues::V0::ContestableIssuesController, type: :request do
+  include_examples 'Contestable Issues API v0 and Decision Reviews v1 & v2 shared request examples',
+                   base_path: '/services/appeals/contestable_issues/v0/contestable_issues'
+
   describe '#schema' do
     let(:path) { '/services/appeals/contestable_issues/v0/schemas/headers' }
 
