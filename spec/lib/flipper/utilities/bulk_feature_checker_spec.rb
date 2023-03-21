@@ -31,7 +31,7 @@ RSpec.describe Flipper::Utilities::BulkFeatureChecker do
     end
 
     context 'when all provided features are missing' do
-      let(:features) { %i[missing_feature1 missing_feature2] }
+      let(:features) { %w[missing_feature1 missing_feature2] }
       let(:expected_result) do
         {
           enabled: [],
@@ -46,7 +46,7 @@ RSpec.describe Flipper::Utilities::BulkFeatureChecker do
     end
 
     context 'when all provided features are enabled' do
-      let(:features) { %i[enabled_feature1 enabled_feature2] }
+      let(:features) { %w[enabled_feature1 enabled_feature2] }
       let(:expected_result) do
         {
           enabled: features,
@@ -67,7 +67,7 @@ RSpec.describe Flipper::Utilities::BulkFeatureChecker do
     end
 
     context 'when all provided features are disabled' do
-      let(:features) { %i[disabled_feature1 disabled_feature2] }
+      let(:features) { %w[disabled_feature1 disabled_feature2] }
       let(:expected_result) do
         {
           enabled: [],
@@ -88,9 +88,9 @@ RSpec.describe Flipper::Utilities::BulkFeatureChecker do
     end
 
     context 'when features in various states are provided' do
-      let(:enabled_features) { %i[enabled_feature3 enabled_feature4] }
-      let(:disabled_features) { %i[disabled_feature3 disabled_feature4] }
-      let(:missing_features) { %i[missing_feature3 missing_feature4] }
+      let(:enabled_features) { %w[enabled_feature3 enabled_feature4] }
+      let(:disabled_features) { %w[disabled_feature3 disabled_feature4] }
+      let(:missing_features) { %w[missing_feature3 missing_feature4] }
       let(:features) { enabled_features + disabled_features + missing_features }
       let(:expected_result) do
         {
@@ -115,26 +115,26 @@ RSpec.describe Flipper::Utilities::BulkFeatureChecker do
       end
     end
 
-    context 'when provided feature keys are strings' do
-      let(:enabled_features) { %w[enabled_feature5 enabled_feature6] }
-      let(:disabled_features) { %w[disabled_feature5 disabled_feature6] }
-      let(:missing_features) { %w[missing_feature5 missing_feature6] }
+    context 'when provided feature keys are symbols' do
+      let(:enabled_features) { %i[enabled_feature5 enabled_feature6] }
+      let(:disabled_features) { %i[disabled_feature5 disabled_feature6] }
+      let(:missing_features) { %i[missing_feature5 missing_feature6] }
       let(:features) { enabled_features + disabled_features + missing_features }
       let(:expected_result) do
         {
-          enabled: enabled_features.map(&:to_sym),
-          disabled: disabled_features.map(&:to_sym),
-          missing: missing_features.map(&:to_sym)
+          enabled: enabled_features.map(&:to_s),
+          disabled: disabled_features.map(&:to_s),
+          missing: missing_features.map(&:to_s)
         }
       end
 
       before do
         enabled_features.each do |feature|
-          Flipper.enable(feature.to_sym)
+          Flipper.enable(feature.to_s)
         end
 
         disabled_features.each do |feature|
-          Flipper.disable(feature.to_sym)
+          Flipper.disable(feature.to_s)
         end
       end
 
