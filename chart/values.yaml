@@ -37,12 +37,10 @@ web:
     initialDelaySeconds: ""
     failureThreshold: ""
     periodSeconds: ""
-    readinessPath: ""
-    readinessPort: ""
     successThreshold: ""
     host: ""
     livenessProbe:
-      enabled: true
+      enabled: false
   socatProxyEnabled: false
   terminationGracePeriodSeconds: ""
   envSecrets:
