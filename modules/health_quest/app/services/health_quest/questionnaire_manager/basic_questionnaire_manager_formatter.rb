@@ -14,8 +14,8 @@ module HealthQuest
     # @!attribute hashed_questionnaires
     #   @return [Hash]
     class BasicQuestionnaireManagerFormatter
-      ID_MATCHER = /([I2\-a-zA-Z0-9]+)\z/i.freeze
-      ORG_ID_MATCHER = /(^vha_\d{3,})/.freeze
+      ID_MATCHER = /([I2\-a-zA-Z0-9]+)\z/i
+      ORG_ID_MATCHER = /(^vha_\d{3,})/
 
       attr_reader :appointments, :hashed_organizations, :hashed_locations, :hashed_questionnaires
 

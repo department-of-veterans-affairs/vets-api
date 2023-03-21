@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-Dir.glob(File.expand_path('shared_examples/*.rb', __dir__)).sort.each(&method(:require))
+Dir.glob(File.expand_path('shared_examples/*.rb', __dir__)).each(&method(:require))
 
 RSpec.describe 'API V1 doc validations', type: :request do
   context 'json validation' do

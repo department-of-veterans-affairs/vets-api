@@ -9,8 +9,8 @@ module HCA
 
     VALIDATION_FAIL_KEY = 'api.hca.validation_fail'
     FAULT_EL = 'S:Envelope/S:Body/ns0:Fault'
-    FAULT_STRING_EL = "#{FAULT_EL}/faultstring"
-    FAULT_CODE_EL = "#{FAULT_EL}/detail/VoaFaultException/faultExceptions/faultException/code"
+    FAULT_STRING_EL = "#{FAULT_EL}/faultstring".freeze
+    FAULT_CODE_EL = "#{FAULT_EL}/detail/VoaFaultException/faultExceptions/faultException/code".freeze
 
     def on_complete(env)
       super

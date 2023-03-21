@@ -8,7 +8,7 @@ module HealthQuest
     # @!attribute qr_array
     #   @return [Array]
     class QuestionnaireResponsesFormatter
-      ID_MATCHER = /([I2\-a-zA-Z0-9]+)\z/i.freeze
+      ID_MATCHER = /([I2\-a-zA-Z0-9]+)\z/i
 
       attr_reader :qr_array
 

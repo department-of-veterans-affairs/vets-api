@@ -11,49 +11,49 @@ module Identity
       # They tend to follow the format: <id>^<id_type>^<assigning_facility>^<assigning_authority>^<id_state>
 
       # ICN_REGEX, ex. 16701377^NI^200M^USVHA^A
-      ICN_REGEX = /^\w+\^NI\^200M\^USVHA\^\w+$/.freeze
+      ICN_REGEX = /^\w+\^NI\^200M\^USVHA\^\w+$/
 
       # PERMANENT_ICN_REGEX, ex. 1008830476V316605^NI^200M^USVHA^P
-      PERMANENT_ICN_REGEX = /^\w+\^NI\^200M\^USVHA\^P$/.freeze
+      PERMANENT_ICN_REGEX = /^\w+\^NI\^200M\^USVHA\^P$/
 
       # SEC_ID_REGEX, ex. 1008830476^PN^200PROV^USDVA^A
-      SEC_ID_REGEX = /^\w+\^PN\^200PROV\^USDVA\^A$/.freeze
+      SEC_ID_REGEX = /^\w+\^PN\^200PROV\^USDVA\^A$/
 
       # MHV_IDS_REGEX, ex. 123456^PI^200MHV^USVHA^P
-      MHV_IDS_REGEX = /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/.freeze
+      MHV_IDS_REGEX = /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/
 
       # ACTIVE_MHV_IDS_REGEX, ex. 123456^PI^200MHV^USVHA^A
-      ACTIVE_MHV_IDS_REGEX = /^\w+\^PI\^200MH.{0,1}\^\w+\^A$/.freeze
+      ACTIVE_MHV_IDS_REGEX = /^\w+\^PI\^200MH.{0,1}\^\w+\^A$/
 
       # MHV_IEN_REGEX, ex. 123456^PI^200MHS^USVHA^A
-      MHV_IEN_REGEX = /^\w+\^PI\^200MHS\^USVHA\^A$/.freeze
+      MHV_IEN_REGEX = /^\w+\^PI\^200MHS\^USVHA\^A$/
 
       # EDIPI_REGEX, ex. 2107307560^NI^200DOD^USDOD^A
-      EDIPI_REGEX = /^\w+\^NI\^200DOD\^USDOD\^A$/.freeze
+      EDIPI_REGEX = /^\w+\^NI\^200DOD\^USDOD\^A$/
 
       # VBA_CORP_ID_REGEX, ex. 600043180^PI^200CORP^USVBA^A
-      VBA_CORP_ID_REGEX = /^\w+\^PI\^200CORP\^USVBA\^A$/.freeze
+      VBA_CORP_ID_REGEX = /^\w+\^PI\^200CORP\^USVBA\^A$/
 
       # IDME_ID_REGEX, ex. 54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A
-      IDME_ID_REGEX = /^\w+\^PN\^200VIDM\^USDVA\^A$/.freeze
+      IDME_ID_REGEX = /^\w+\^PN\^200VIDM\^USDVA\^A$/
 
       # LOGINGOV_ID_REGEX, ex. aa478abc-e494-4af1-9f87-d002f8fe1cda^PN^200VLGN^USDVA^A
-      LOGINGOV_ID_REGEX = /^[\w-]+\^PN\^200VLGN\^USDVA\^A$/.freeze
+      LOGINGOV_ID_REGEX = /^[\w-]+\^PN\^200VLGN\^USDVA\^A$/
 
       # VHA_FACILITY_IDS_REGEX, ex. 123456^PI^200MHV^USVHA^A
-      VHA_FACILITY_IDS_REGEX = /^\w+\^PI\^\w+\^USVHA\^\w+$/.freeze
+      VHA_FACILITY_IDS_REGEX = /^\w+\^PI\^\w+\^USVHA\^\w+$/
 
       # CERNER_FACILITY_IDS_REGEX, ex. 123456^PI^200MHV^USVHA^C
-      CERNER_FACILITY_IDS_REGEX = /^\w+\^PI\^\w+\^USVHA\^C$/.freeze
+      CERNER_FACILITY_IDS_REGEX = /^\w+\^PI\^\w+\^USVHA\^C$/
 
       # CERNER_ID_REGEX, ex. 123456^PI^200CRNR^USVHA^A
-      CERNER_ID_REGEX = /^\w+\^PI\^200CRNR\^US\w+\^A$/.freeze
+      CERNER_ID_REGEX = /^\w+\^PI\^200CRNR\^US\w+\^A$/
 
       # BIRLS_IDS_REGEX, ex. 123456^PI^200BRLS^USVBA^A
-      BIRLS_IDS_REGEX = /^\w+\^PI\^200BRLS\^USVBA\^A$/.freeze
+      BIRLS_IDS_REGEX = /^\w+\^PI\^200BRLS\^USVBA\^A$/
 
       # VET360_ID_REGEX, ex. 123456^PI^200VETS^USDVA^A
-      VET360_ID_REGEX = /^\w+\^PI\^200VETS\^USDVA\^A$/.freeze
+      VET360_ID_REGEX = /^\w+\^PI\^200VETS\^USDVA\^A$/
 
       ICN_ASSIGNING_AUTHORITY_ID = '^NI^200M^USVHA'
 

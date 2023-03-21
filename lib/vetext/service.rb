@@ -11,9 +11,9 @@ module VEText
 
     STATSD_KEY_PREFIX = 'vetext_push'
     BASE_PATH = '/api/vetext/pub/mobile/push'
-    REGISTER_PATH = "#{BASE_PATH}/endpoint"
-    PREFERENCES_PATH = "#{BASE_PATH}/preferences/client"
-    SEND_PATH = "#{BASE_PATH}/send"
+    REGISTER_PATH = "#{BASE_PATH}/endpoint".freeze
+    PREFERENCES_PATH = "#{BASE_PATH}/preferences/client".freeze
+    SEND_PATH = "#{BASE_PATH}/send".freeze
 
     def register(app_name, device_token, icn, os, device_name = nil)
       Rails.logger.info('VEText Push service register method enter', app_name: app_name, app_sid: app_sid(app_name))

@@ -4,7 +4,7 @@ namespace :va_forms do
   QUERY = File.read(Rails.root.join('modules', 'va_forms', 'config', 'graphql_query.txt'))
   SOCKS_URL = Settings.docker_debugging&.socks_url ? Settings.docker_debugging.socks_url : 'socks://localhost:2001'
   FORMS_URL = Settings.va_forms.drupal_url
-  CURL_COMMAND = <<~CURL_COMMAND
+  CURL_COMMAND = <<~CURL_COMMAND.freeze
     curl -i -X POST -k -u  #{Settings.va_forms.drupal_username}:#{Settings.va_forms.drupal_password} --proxy "#{SOCKS_URL}" -d '#{{ query: QUERY }.to_json}' #{FORMS_URL}/graphql
   CURL_COMMAND
 

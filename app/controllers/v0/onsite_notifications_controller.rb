@@ -2,7 +2,7 @@
 
 module V0
   class OnsiteNotificationsController < ApplicationController
-    BEARER_PATTERN = /^Bearer /.freeze
+    BEARER_PATTERN = /^Bearer /
 
     skip_before_action :verify_authenticity_token, only: [:create]
     skip_before_action :authenticate, only: [:create]

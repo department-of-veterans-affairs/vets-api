@@ -4,7 +4,7 @@ require 'common/exceptions'
 
 module ClaimsApi
   class Veteran
-    SSN_REGEX = /\d{3}-\d{2}-\d{4}|\d{9}/.freeze
+    SSN_REGEX = /\d{3}-\d{2}-\d{4}|\d{9}/
 
     include Virtus.model
 

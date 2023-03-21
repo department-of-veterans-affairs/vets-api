@@ -52,7 +52,7 @@ module HealthQuest
 
       HEALTH_CARE_FORM_PREFIX = 'HC-QSTNR'
       USE_CONTEXT_DELIMITER = ','
-      ID_MATCHER = /([I2\-a-zA-Z0-9]+)\z/i.freeze
+      ID_MATCHER = /([I2\-a-zA-Z0-9]+)\z/i
       SUCCESS_STATUS = '201'
 
       attr_reader :lighthouse_appointments,

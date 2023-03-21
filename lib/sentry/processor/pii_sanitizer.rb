@@ -46,8 +46,8 @@ module Sentry
       JSON_STARTS_WITH = ['[', '{'].freeze
 
       FILTER_MASK = 'FILTERED-CLIENTSIDE'
-      FILTER_MASK_NIL = "#{FILTER_MASK}-NIL"
-      FILTER_MASK_BLANK = "#{FILTER_MASK}-BLANK"
+      FILTER_MASK_NIL = "#{FILTER_MASK}-NIL".freeze
+      FILTER_MASK_BLANK = "#{FILTER_MASK}-BLANK".freeze
 
       def process(unsanitized_object)
         sanitize(unsanitized_object.deep_dup)

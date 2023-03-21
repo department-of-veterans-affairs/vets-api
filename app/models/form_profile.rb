@@ -143,7 +143,7 @@ class FormProfile
     '26-4555' => ::FormProfiles::VA264555
   }.freeze
 
-  APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i.freeze
+  APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
 
   attr_reader :form_id, :user
 

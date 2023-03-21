@@ -11,8 +11,8 @@ module VAProfile
       include VAProfile::Concerns::Defaultable
       include VAProfile::Concerns::Expirable
 
-      VALID_ALPHA_REGEX = /[a-zA-Z ]+/.freeze
-      VALID_NUMERIC_REGEX = /[0-9]+/.freeze
+      VALID_ALPHA_REGEX = /[a-zA-Z ]+/
+      VALID_NUMERIC_REGEX = /[0-9]+/
       ADDRESS_FIELD_LIMIT = 35
 
       RESIDENCE      = 'RESIDENCE/CHOICE'

@@ -9,10 +9,10 @@ module CentralMail
     VALID_LOB = { 'CMP' => 'CMP', 'PMC' => 'PMC', 'INS' => 'INS', 'EDU' => 'EDU', 'VRE' => 'VRE', 'BVA' => 'BVA',
                   'FID' => 'FID', 'NCA' => 'NCA', 'OTH' => 'CMP' }.freeze
     REQUIRED_KEYS = %w[veteranFirstName veteranLastName fileNumber zipCode].freeze
-    FILE_NUMBER_REGEX = /^\d{8,9}$/.freeze
-    INVALID_ZIP_CODE_ERROR_REGEX = /Invalid zipCode/.freeze
-    MISSING_ZIP_CODE_ERROR_REGEX = /Missing zipCode/.freeze
-    NON_FAILING_ERROR_REGEX = /Document already uploaded with uuid/.freeze
+    FILE_NUMBER_REGEX = /^\d{8,9}$/
+    INVALID_ZIP_CODE_ERROR_REGEX = /Invalid zipCode/
+    MISSING_ZIP_CODE_ERROR_REGEX = /Missing zipCode/
+    NON_FAILING_ERROR_REGEX = /Document already uploaded with uuid/
     INVALID_ZIP_CODE_ERROR_MSG = 'Invalid ZIP Code. ZIP Code must be 5 digits, ' \
                                  'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
     MISSING_ZIP_CODE_ERROR_MSG = 'Missing ZIP Code. ZIP Code must be 5 digits, ' \

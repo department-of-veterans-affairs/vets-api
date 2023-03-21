@@ -12,7 +12,7 @@ Datadog.configure do |c|
 end
 
 # Load rake support files
-Dir[Rails.root.join('lib', 'tasks', 'support', '**', '*.rb')].sort.each { |f| require f }
+Dir[Rails.root.join('lib', 'tasks', 'support', '**', '*.rb')].each { |f| require f }
 Rake.add_rakelib 'rakelib/prod'
 Rails.application.load_tasks
 

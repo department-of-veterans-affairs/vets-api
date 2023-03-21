@@ -55,7 +55,7 @@ module Form526RapidReadyForDecisionConcern
   end
 
   Uploader = RapidReadyForDecision::FastTrackPdfUploadManager
-  PDF_FILENAME_REGEX = /#{Uploader::DOCUMENT_NAME_PREFIX}.*#{Uploader::DOCUMENT_NAME_SUFFIX}/.freeze
+  PDF_FILENAME_REGEX = /#{Uploader::DOCUMENT_NAME_PREFIX}.*#{Uploader::DOCUMENT_NAME_SUFFIX}/
 
   # @return if an RRD pdf has been included as a file to upload
   def rrd_pdf_added_for_uploading?

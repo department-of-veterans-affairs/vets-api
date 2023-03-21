@@ -10,8 +10,8 @@ module Lighthouse
       attribute :account_number, String
       attribute :routing_number, String
 
-      ACCOUNT_NUM_REGEX = /\A\d*\z/.freeze
-      ROUTING_NUM_REGEX = /\A\d{9}\z/.freeze
+      ACCOUNT_NUM_REGEX = /\A\d*\z/
+      ROUTING_NUM_REGEX = /\A\d{9}\z/
 
       validates :account_type, inclusion: { in: %w[CHECKING SAVINGS] }, presence: true
       validates :account_number, presence: true

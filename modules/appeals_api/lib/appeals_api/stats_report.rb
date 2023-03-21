@@ -8,7 +8,7 @@ module AppealsApi
       %w[processing submitted], %w[submitted complete], %w[processing success], %w[error success]
     ].freeze
 
-    STALLED_RECORD_MONTHS = (3..6).freeze
+    STALLED_RECORD_MONTHS = (3..6)
 
     def initialize(date_from, date_to)
       @date_from = date_from

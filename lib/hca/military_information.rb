@@ -53,7 +53,7 @@ module HCA
     ].freeze
 
     NOV_1998 = Date.new(1998, 11, 11)
-    GULF_WAR_RANGE = (Date.new(1990, 8, 2)..NOV_1998).freeze
+    GULF_WAR_RANGE = (Date.new(1990, 8, 2)..NOV_1998)
 
     def initialize(user)
       @service = VAProfile::MilitaryPersonnel::Service.new(user)

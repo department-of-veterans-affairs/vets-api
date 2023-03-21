@@ -8,7 +8,7 @@ module HealthQuest
     # @!attribute sip_array
     #   @return [Array]
     class SaveInProgressFormatter
-      ID_MATCHER = /HC-QSTNR_([I2\-a-zA-Z0-9]+)_/i.freeze
+      ID_MATCHER = /HC-QSTNR_([I2\-a-zA-Z0-9]+)_/i
 
       attr_reader :sip_array
 

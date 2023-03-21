@@ -6,7 +6,7 @@ require 'evss/disability_compensation_form/rating_info_response'
 module EVSS
   class CommonService < BaseService
     API_VERSION = Settings.evss.versions.common
-    BASE_URL = "#{Settings.evss.url}/wss-common-services-web-#{API_VERSION}/rest/"
+    BASE_URL = "#{Settings.evss.url}/wss-common-services-web-#{API_VERSION}/rest/".freeze
 
     def initialize(*args)
       super

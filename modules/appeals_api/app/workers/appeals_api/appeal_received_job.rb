@@ -6,7 +6,7 @@ module AppealsApi
   class AppealReceivedJob
     include Sidekiq::Worker
     STATSD_KEY_PREFIX = 'api.appeals.received'
-    STATSD_CLAIMANT_EMAIL_SENT = "#{STATSD_KEY_PREFIX}.claimant.email.sent"
+    STATSD_CLAIMANT_EMAIL_SENT = "#{STATSD_KEY_PREFIX}.claimant.email.sent".freeze
 
     # @param [Hash] opts
     # @option opts [String] :receipt_event The callback indicating which appeal was received. Required.
