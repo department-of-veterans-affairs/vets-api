@@ -46,7 +46,12 @@ describe 'Notice of Disagreements', swagger_doc: DocHelpers.output_json_path, ty
       parameter file_number_header_params
       let(:'X-VA-File-Number') { '987654321' }
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header]
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header].merge(
+        {
+          required: !DocHelpers.decision_reviews?
+        }
+      )
+      let(:'X-VA-ICN') { '1234567890V123456' } unless DocHelpers.decision_reviews?
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_first_name_header]
       let(:'X-VA-First-Name') { 'first' }
@@ -258,7 +263,12 @@ describe 'Notice of Disagreements', swagger_doc: DocHelpers.output_json_path, ty
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
       let(:'X-VA-File-Number') { '987654321' }
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header]
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header].merge(
+        {
+          required: !DocHelpers.decision_reviews?
+        }
+      )
+      let(:'X-VA-ICN') { '1234567890V123456' } unless DocHelpers.decision_reviews?
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_first_name_header]
       let(:'X-VA-First-Name') { 'first' }

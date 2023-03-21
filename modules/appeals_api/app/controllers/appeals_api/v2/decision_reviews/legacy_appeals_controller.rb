@@ -5,6 +5,7 @@ require 'common/exceptions'
 require 'appeals_api/form_schemas'
 
 class AppealsApi::V2::DecisionReviews::LegacyAppealsController < AppealsApi::ApplicationController
+  FORM_NUMBER = 'LEGACY_APPEALS_HEADERS'
   HEADERS = JSON.parse(
     File.read(
       AppealsApi::Engine.root.join('config/schemas/v2/legacy_appeals_headers.json')
@@ -41,7 +42,7 @@ class AppealsApi::V2::DecisionReviews::LegacyAppealsController < AppealsApi::App
   attr_reader :caseflow_response, :caseflow_exception_response
 
   def request_headers
-    HEADERS.index_with { |key| request.headers[key] }.compact
+    self.class::HEADERS.index_with { |key| request.headers[key] }.compact
   end
 
   def caseflow_request_headers
@@ -56,7 +57,7 @@ class AppealsApi::V2::DecisionReviews::LegacyAppealsController < AppealsApi::App
     AppealsApi::FormSchemas.new(
       SCHEMA_ERROR_TYPE,
       schema_version: 'v2'
-    ).validate!('LEGACY_APPEALS_HEADERS', request_headers)
+    ).validate!(self.class::FORM_NUMBER, request_headers)
   end
 
   def get_legacy_appeals_from_caseflow

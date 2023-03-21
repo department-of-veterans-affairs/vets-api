@@ -29,7 +29,8 @@
         "X-VA-First-Name",
         "X-VA-Last-Name",
         "X-VA-File-Number",
-        "X-VA-Birth-Date"
+        "X-VA-Birth-Date",
+        "X-VA-ICN"
       ]
     },
 
@@ -62,7 +63,10 @@
 
     "X-VA-ICN": {
       "type": "string",
-      "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)"
+      "description": "Veteran's ICN",
+      "pattern": "^[0-9]{10}V[0-9]{6}$",
+      "minLength": 17,
+      "maxLength": 17
     },
 
     "X-VA-NonVeteranClaimant-First-Name": {

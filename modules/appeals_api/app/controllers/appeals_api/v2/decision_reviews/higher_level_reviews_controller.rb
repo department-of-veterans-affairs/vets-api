@@ -25,10 +25,12 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   )['definitions']['hlrCreateParameters']['properties'].keys
   SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
   ALLOWED_COLUMNS = %i[id status code detail created_at updated_at].freeze
+  ICN_HEADER = 'X-VA-ICN'
+  ICN_REGEX = /^[0-9]{10}V[0-9]{6}$/.freeze
 
   def index
     veteran_hlrs = AppealsApi::HigherLevelReview.select(ALLOWED_COLUMNS)
-                                                .where(veteran_icn: request_headers['X-VA-ICN'].presence&.strip)
+                                                .where(veteran_icn: request_headers['X-VA-ICN'])
                                                 .order(created_at: :desc)
     render json: AppealsApi::HigherLevelReviewSerializer.new(veteran_hlrs).serializable_hash
   end
@@ -65,10 +67,15 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   private
 
   def validate_index_headers
-    validation_errors = [{ status: 422, detail: 'X-VA-ICN is required' }]
-    if request_headers['X-VA-ICN'].presence&.strip.blank?
-      render json: { errors: validation_errors }, status: :unprocessable_entity
+    validation_errors = []
+
+    if request_headers[ICN_HEADER].blank?
+      validation_errors << { status: 422, detail: "#{ICN_HEADER} is required" }
+    elsif !ICN_REGEX.match?(request_headers[ICN_HEADER])
+      validation_errors << { status: 422, detail: "#{ICN_HEADER} has an invalid format. Pattern: #{ICN_REGEX.inspect}" }
     end
+
+    render json: { errors: validation_errors }, status: :unprocessable_entity if validation_errors.present?
   end
 
   def validate_json_schema
@@ -116,7 +123,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   end
 
   def request_headers
-    HEADERS.index_with { |key| request.headers[key] }.compact
+    self.class::HEADERS.index_with { |key| request.headers[key] }.compact
   end
 
   def new_higher_level_review
@@ -125,7 +132,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
       form_data: @json_body,
       source: request_headers['X-Consumer-Username'].presence&.strip,
       api_version: 'V2',
-      veteran_icn: request_headers['X-VA-ICN'].presence&.strip
+      veteran_icn: request_headers['X-VA-ICN']
     )
 
     render_model_errors unless @higher_level_review.validate

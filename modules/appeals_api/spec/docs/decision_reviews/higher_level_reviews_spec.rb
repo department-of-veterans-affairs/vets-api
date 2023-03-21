@@ -43,7 +43,12 @@ describe 'Higher-Level Reviews', swagger_doc: DocHelpers.output_json_path, type:
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header]
       let(:'X-VA-SSN') { '000000000' }
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header]
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header].merge(
+        {
+          required: !DocHelpers.decision_reviews?
+        }
+      )
+      let(:'X-VA-ICN') { '1234567890V123456' } unless DocHelpers.decision_reviews?
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_first_name_header]
       let(:'X-VA-First-Name') { 'first' }
@@ -431,7 +436,12 @@ describe 'Higher-Level Reviews', swagger_doc: DocHelpers.output_json_path, type:
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header]
       let(:'X-VA-SSN') { '000000000' }
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header]
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header].merge(
+        {
+          required: !DocHelpers.decision_reviews?
+        }
+      )
+      let(:'X-VA-ICN') { '1234567890V123456' } unless DocHelpers.decision_reviews?
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_first_name_header]
       let(:'X-VA-First-Name') { 'first' }

@@ -13,7 +13,10 @@
         },
         "X-VA-ICN": {
           "type": "string",
-          "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)"
+          "description": "Veteran's ICN",
+          "pattern": "^[0-9]{10}V[0-9]{6}$",
+          "minLength": 17,
+          "maxLength": 17
         },
         "X-VA-First-Name": {
           "type": "string",
@@ -84,7 +87,8 @@
         "X-VA-SSN",
         "X-VA-First-Name",
         "X-VA-Last-Name",
-        "X-VA-Birth-Date"
+        "X-VA-Birth-Date",
+        "X-VA-ICN"
       ],
       "dependencies": {
         "X-VA-NonVeteranClaimant-SSN": ["X-VA-NonVeteranClaimant-First-Name", "X-VA-NonVeteranClaimant-Last-Name", "X-VA-NonVeteranClaimant-Birth-Date"],
