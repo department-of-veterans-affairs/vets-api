@@ -54,7 +54,7 @@
           {
             "in": "header",
             "name": "X-VA-ICN",
-            "required": false,
+            "required": true,
             "description": "Veteran's ICN",
             "example": "1013062086V794840",
             "schema": {
@@ -1943,7 +1943,7 @@
           {
             "in": "header",
             "name": "X-VA-ICN",
-            "required": false,
+            "required": true,
             "description": "Veteran's ICN",
             "example": "1013062086V794840",
             "schema": {

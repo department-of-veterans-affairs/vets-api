@@ -55,13 +55,21 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
 
     context 'when no ICN is provided' do
       it 'returns a 422 error' do
-        max_headers.delete('X-VA-ICN')
-
-        get(path, headers: @max_headers)
+        get(path, headers: max_headers.except('X-VA-ICN'))
 
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
         expect(parsed['errors'][0]['detail']).to include('X-VA-ICN is required')
+      end
+    end
+
+    context 'when provided ICN is in an invalid format' do
+      it 'returns a 422 error' do
+        get(path, headers: { 'X-VA-ICN' => '1393231' })
+
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).to be_an Array
+        expect(parsed['errors'][0]['detail']).to include('X-VA-ICN has an invalid format')
       end
     end
   end
@@ -77,7 +85,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         sc = AppealsApi::SupplementalClaim.find(sc_guid)
 
         expect(sc.source).to eq('va.gov')
-        expect(sc.veteran_icn).to be_nil
+        expect(sc.veteran_icn).to eq('1013062086V794840')
         expect(parsed['data']['type']).to eq('supplementalClaim')
         expect(parsed['data']['attributes']['status']).to eq('pending')
         expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
@@ -109,6 +117,32 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         expect(sc.veteran_icn).to eq('1013062086V794840')
         # since icn is already provided in header, the icn updater sidekiq worker is redundant and skipped
         expect(icn_updater_sidekiq_worker).not_to have_received(:perform_async)
+      end
+    end
+
+    context 'when icn header is present but does not meet length requirements' do
+      let(:icn) { '1393231' }
+
+      it 'returns a 422 error with details' do
+        post(path, params: extra_data, headers: headers.merge({ 'X-VA-ICN' => icn }))
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        error = JSON.parse(response.body)['errors'][0]
+        expect(error['title']).to eql('Invalid length')
+        expect(error['detail']).to include("'#{icn}' did not fit within the defined length limits")
+      end
+    end
+
+    context 'when icn header is present but does not meet pattern requirements' do
+      let(:icn) { '49392810394830103' }
+
+      it 'returns a 422 error with details' do
+        post(path, params: extra_data, headers: headers.merge({ 'X-VA-ICN' => icn }))
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        error = JSON.parse(response.body)['errors'][0]
+        expect(error['title']).to eql('Invalid pattern')
+        expect(error['detail']).to include("'#{icn}' did not match the defined pattern")
       end
     end
 
@@ -476,6 +510,32 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
           expect(body['errors']).to be_an Array
           expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
+      end
+    end
+
+    context 'when icn header is present but does not meet length requirements' do
+      let(:icn) { '1393231' }
+
+      it 'returns a 422 error with details' do
+        post(path, params: extra_data, headers: headers.merge({ 'X-VA-ICN' => icn }))
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        error = JSON.parse(response.body)['errors'][0]
+        expect(error['title']).to eql('Invalid length')
+        expect(error['detail']).to include("'#{icn}' did not fit within the defined length limits")
+      end
+    end
+
+    context 'when icn header is present but does not meet pattern requirements' do
+      let(:icn) { '49392810394830103' }
+
+      it 'returns a 422 error with details' do
+        post(path, params: extra_data, headers: headers.merge({ 'X-VA-ICN' => icn }))
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        error = JSON.parse(response.body)['errors'][0]
+        expect(error['title']).to eql('Invalid pattern')
+        expect(error['detail']).to include("'#{icn}' did not match the defined pattern")
       end
     end
 

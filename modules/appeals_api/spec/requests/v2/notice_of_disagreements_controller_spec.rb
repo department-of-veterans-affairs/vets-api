@@ -56,13 +56,21 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
 
     context 'when no ICN is provided' do
       it 'returns a 422 error' do
-        @max_headers.delete('X-VA-ICN')
-
-        get(path, headers: @max_headers)
+        get(path, headers: @max_headers.except('X-VA-ICN'))
 
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
         expect(parsed['errors'][0]['detail']).to include('X-VA-ICN is required')
+      end
+    end
+
+    context 'when provided ICN is in an invalid format' do
+      it 'returns a 422 error' do
+        get(path, headers: { 'X-VA-ICN' => '1393231' })
+
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).to be_an Array
+        expect(parsed['errors'][0]['detail']).to include('X-VA-ICN has an invalid format')
       end
     end
   end
@@ -97,6 +105,30 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
         post(path, params: @minimum_data, headers: @headers.except('X-VA-File-Number'))
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
+      end
+    end
+
+    context 'when icn header is present but does not meet length requirements' do
+      let(:icn) { '1393231' }
+
+      it 'returns a 422 error with details' do
+        post(path, params: @minimum_data, headers: @headers.merge({ 'X-VA-ICN' => icn }))
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(parsed['errors'][0]['title']).to eql('Invalid length')
+        expect(parsed['errors'][0]['detail']).to include("'#{icn}' did not fit within the defined length limits")
+      end
+    end
+
+    context 'when icn header is present but does not meet pattern requirements' do
+      let(:icn) { '49392810394830103' }
+
+      it 'returns a 422 error with details' do
+        post(path, params: @minimum_data, headers: @headers.merge({ 'X-VA-ICN' => icn }))
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(parsed['errors'][0]['title']).to eql('Invalid pattern')
+        expect(parsed['errors'][0]['detail']).to include("'#{icn}' did not match the defined pattern")
       end
     end
 
@@ -339,6 +371,30 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
       end
     end
 
+    context 'when icn header is present but does not meet length requirements' do
+      let(:icn) { '1393231' }
+
+      it 'returns a 422 error with details' do
+        post(path, params: @minimum_data, headers: @headers.merge({ 'X-VA-ICN' => icn }))
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(parsed['errors'][0]['title']).to eql('Invalid length')
+        expect(parsed['errors'][0]['detail']).to include("'#{icn}' did not fit within the defined length limits")
+      end
+    end
+
+    context 'when icn header is present but does not meet pattern requirements' do
+      let(:icn) { '49392810394830103' }
+
+      it 'returns a 422 error with details' do
+        post(path, params: @minimum_data, headers: @headers.merge({ 'X-VA-ICN' => icn }))
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(parsed['errors'][0]['title']).to eql('Invalid pattern')
+        expect(parsed['errors'][0]['detail']).to include("'#{icn}' did not match the defined pattern")
+      end
+    end
+
     context 'with oauth' do
       let(:oauth_path) { new_base_path 'forms/10182/validate' }
 
@@ -359,7 +415,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
         with_openid_auth(
           AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:POST]
         ) do |auth_header|
-          post(oauth_path, params: @minimum_data, headers: @headers.merge(auth_header))
+          post(oauth_path, params: @max_data, headers: @max_headers.merge(auth_header))
         end
         oauth_status = response.status
         oauth_body = JSON.parse(response.body)
