@@ -48,6 +48,10 @@ RSpec.describe CheckIn::V2::Session do
     it 'responds to check_in_type' do
       expect(subject.build({}).respond_to?(:check_in_type)).to be(true)
     end
+
+    it 'responds to handoff' do
+      expect(subject.build({}).respond_to?(:handoff)).to be(true)
+    end
   end
 
   describe '#valid?' do
@@ -57,7 +61,8 @@ RSpec.describe CheckIn::V2::Session do
           uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
           dob: '1970-02-20',
           last_name: 'Johnson',
-          check_in_type: 'preCheckIn'
+          check_in_type: 'preCheckIn',
+          handoff: true
         }
       }
 
