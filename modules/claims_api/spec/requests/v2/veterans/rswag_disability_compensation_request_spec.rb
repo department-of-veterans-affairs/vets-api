@@ -5,13 +5,13 @@ require 'rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
 describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers.new.claims_api_docs do # rubocop:disable RSpec/DescribeClass
-  path '/:veteranId/526' do
+  path '/veterans/{veteranId}/526' do
     post 'Submits form 526' do
       tags 'Disability'
       operationId 'post526Claim'
       security [
-        { productionOauth: ['claim.read', 'claim.write'] },
-        { sandboxOauth: ['claim.read', 'claim.write'] },
+        { productionOauth: ['system/claim.read', 'system/claim.write'] },
+        { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
         { bearer_token: [] }
       ]
       consumes 'application/json'
@@ -48,13 +48,13 @@ describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers
     end
   end
 
-  path '/:veteranId/526/validate' do
+  path '/veterans/{veteranId}/526/validate' do
     post 'Validates a 526 claim form submission.' do
       tags 'Disability'
       operationId 'post526ClaimValidate'
       security [
-        { productionOauth: ['claim.read', 'claim.write'] },
-        { sandboxOauth: ['claim.read', 'claim.write'] },
+        { productionOauth: ['system/claim.read', 'system/claim.write'] },
+        { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
         { bearer_token: [] }
       ]
       consumes 'application/json'
@@ -95,13 +95,13 @@ describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers
     end
   end
 
-  path '/:veteranId/526/attachments' do
+  path '/veterans/{veteranId}/526/attachments' do
     post 'Upload documents supporting a 526 claim' do
       tags 'Disability'
       operationId 'upload526Attachments'
       security [
-        { productionOauth: ['claim.read', 'claim.write'] },
-        { sandboxOauth: ['claim.read', 'claim.write'] },
+        { productionOauth: ['system/claim.read', 'system/claim.write'] },
+        { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
         { bearer_token: [] }
       ]
       consumes 'multipart/form-data'

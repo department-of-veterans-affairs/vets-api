@@ -71,12 +71,12 @@
         "security": [
           {
             "productionOauth": [
-              "claim.read"
+              "system/claim.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "system/claim.read"
             ]
           },
           {
@@ -378,12 +378,12 @@
         "security": [
           {
             "productionOauth": [
-              "claim.read"
+              "system/claim.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "system/claim.read"
             ]
           },
           {
@@ -679,12 +679,12 @@
         "security": [
           {
             "productionOauth": [
-              "claim.read"
+              "system/claim.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "system/claim.read"
             ]
           },
           {
@@ -729,7 +729,7 @@
                       "claimTypeCode": "400PREDSCHRG",
                       "claimDate": "2017-05-02",
                       "claimPhaseDates": {
-                        "phaseChangeDate": null,
+                        "phaseChangeDate": "2017-10-18",
                         "currentPhaseBack": false,
                         "latestPhaseType": "Complete",
                         "previousPhases": {
@@ -786,7 +786,7 @@
                           "trackedItemId": 325525,
                           "trackedItemStatus": "NEEDED",
                           "uploaded": false,
-                          "uploadsAllowed": false
+                          "uploadsAllowed": true
                         },
                         {
                           "closedDate": null,
@@ -800,7 +800,7 @@
                           "trackedItemId": 325524,
                           "trackedItemStatus": "NEEDED",
                           "uploaded": false,
-                          "uploadsAllowed": false
+                          "uploadsAllowed": true
                         }
                       ]
                     }
@@ -1371,12 +1371,12 @@
         "security": [
           {
             "productionOauth": [
-              "claim.write"
+              "system/claim.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.write"
+              "system/claim.write"
             ]
           },
           {
@@ -1548,12 +1548,12 @@
         "security": [
           {
             "productionOauth": [
-              "claim.read"
+              "system/claim.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "system/claim.read"
             ]
           },
           {
@@ -1824,14 +1824,14 @@
         "security": [
           {
             "productionOauth": [
-              "claim.read",
-              "claim.write"
+              "system/claim.read",
+              "system/claim.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read",
-              "claim.write"
+              "system/claim.read",
+              "system/claim.write"
             ]
           },
           {
@@ -2179,14 +2179,14 @@
         "security": [
           {
             "productionOauth": [
-              "claim.read",
-              "claim.write"
+              "system/claim.read",
+              "system/claim.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read",
-              "claim.write"
+              "system/claim.read",
+              "system/claim.write"
             ]
           },
           {
