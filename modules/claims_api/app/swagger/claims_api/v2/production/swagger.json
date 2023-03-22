@@ -776,7 +776,7 @@
                       "trackedItems": [
                         {
                           "closedDate": null,
-                          "description": null,
+                          "description": "MG-not a recognized condition",
                           "displayedName": "Request 1",
                           "dvlpmtTc": "CLMNTRQST",
                           "openedDate": null,
@@ -790,7 +790,7 @@
                         },
                         {
                           "closedDate": null,
-                          "description": null,
+                          "description": "Line of Duty determination from claimant",
                           "displayedName": "Request 2",
                           "dvlpmtTc": "CLMNTRQST",
                           "openedDate": null,

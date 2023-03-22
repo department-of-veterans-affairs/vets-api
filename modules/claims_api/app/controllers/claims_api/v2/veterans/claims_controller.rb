@@ -429,7 +429,7 @@ module ClaimsApi
 
             {
               closed_date: date_present(item[:date_closed]),
-              description: item[:items],
+              description: item[:short_nm],
               displayed_name: "Request #{i + 1}", # +1 given a 1 index'd array
               dvlpmt_tc: item[:dvlpmt_tc],
               opened_date: date_present(item[:date_open]),
