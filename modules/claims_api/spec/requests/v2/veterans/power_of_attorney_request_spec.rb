@@ -11,7 +11,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
   let(:appoint_organization_path) do
     "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney:appoint-organization"
   end
-  let(:scopes) { %w[claim.write] }
+  let(:scopes) { %w[system/claim.write] }
   let(:individual_poa_code) { 'A1H' }
   let(:organization_poa_code) { '083' }
   let(:bgs_poa) { { person_org_name: "#{individual_poa_code} name-here" } }

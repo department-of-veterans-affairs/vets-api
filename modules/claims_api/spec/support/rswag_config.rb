@@ -134,8 +134,8 @@ class ClaimsApi::RswagConfig
                   authorizationUrl: 'https://api.va.gov/oauth2/authorization',
                   tokenUrl: 'https://api.va.gov/oauth2/token',
                   scopes: {
-                    'claim.read': 'Retrieve claim data',
-                    'claim.write': 'Submit claim data'
+                    'system/claim.read': 'Retrieve claim data',
+                    'system/claim.write': 'Submit claim data'
                   }
                 }
               }
@@ -148,8 +148,8 @@ class ClaimsApi::RswagConfig
                   authorizationUrl: 'https://sandbox-api.va.gov/oauth2/authorization',
                   tokenUrl: 'https://sandbox-api.va.gov/oauth2/token',
                   scopes: {
-                    'claim.read': 'Retrieve claim data',
-                    'claim.write': 'Submit claim data'
+                    'system/claim.read': 'Retrieve claim data',
+                    'system/claim.write': 'Submit claim data'
                   }
                 }
               }

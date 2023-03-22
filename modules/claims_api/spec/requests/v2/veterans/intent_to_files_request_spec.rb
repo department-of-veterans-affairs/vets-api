@@ -17,7 +17,7 @@ RSpec.describe 'IntentToFiles', type: :request do
 
       let(:type) { 'compensation' }
       let(:itf_type_path) { "/services/claims/v2/veterans/#{veteran_id}/intent-to-file/#{type}" }
-      let(:scopes) { %w[claim.read] }
+      let(:scopes) { %w[system/claim.read] }
 
       describe 'auth header' do
         let(:stub_response) do
@@ -320,7 +320,7 @@ RSpec.describe 'IntentToFiles', type: :request do
       end
 
       let(:itf_submit_path) { "/services/claims/v2/veterans/#{veteran_id}/intent-to-file" }
-      let(:scopes) { %w[claim.write] }
+      let(:scopes) { %w[system/claim.write] }
       let(:data) do
         {
           type: 'compensation'
@@ -507,7 +507,7 @@ RSpec.describe 'IntentToFiles', type: :request do
       end
 
       let(:itf_validate_path) { "/services/claims/v2/veterans/#{veteran_id}/intent-to-file/validate" }
-      let(:scopes) { %w[claim.write] }
+      let(:scopes) { %w[system/claim.write] }
       let(:data) do
         {
           type: 'compensation'
