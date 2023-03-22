@@ -12,7 +12,7 @@ module VAOS
     #       class OrganizationsController < BaseController
     #         def index...
     #
-    class BaseController < VAOS::V0::BaseController
+    class BaseController < VAOS::BaseController
       before_action :authorize
 
       private

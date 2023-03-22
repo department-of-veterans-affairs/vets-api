@@ -2,7 +2,7 @@
 
 module VAOS
   module V2
-    class FacilitiesController < VAOS::V0::BaseController
+    class FacilitiesController < VAOS::BaseController
       def index
         response = mobile_facility_service.get_facilities(ids: ids,
                                                           children: children,

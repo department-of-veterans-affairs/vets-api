@@ -2,7 +2,7 @@
 
 module VAOS
   module V2
-    class PatientsController < VAOS::V0::BaseController
+    class PatientsController < VAOS::BaseController
       def index
         response = patient_service.get_patient_appointment_metadata(
           patient_params[:clinical_service_id],

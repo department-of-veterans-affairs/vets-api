@@ -2,7 +2,7 @@
 
 module VAOS
   module V2
-    class ClinicsController < VAOS::V0::BaseController
+    class ClinicsController < VAOS::BaseController
       CLINIC_KEY = 'Clinic'
 
       def index

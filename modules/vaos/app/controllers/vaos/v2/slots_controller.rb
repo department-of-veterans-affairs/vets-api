@@ -2,7 +2,7 @@
 
 module VAOS
   module V2
-    class SlotsController < VAOS::V0::BaseController
+    class SlotsController < VAOS::BaseController
       def index
         response = systems_service.get_available_slots(location_id: location_id,
                                                        clinic_id: clinic_id,

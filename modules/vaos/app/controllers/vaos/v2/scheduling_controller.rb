@@ -2,7 +2,7 @@
 
 module VAOS
   module V2
-    class SchedulingController < VAOS::V0::BaseController
+    class SchedulingController < VAOS::BaseController
       def configurations
         response = mobile_facility_service.get_scheduling_configurations(csv_facility_ids, params[:cc_enabled])
         render json: VAOS::V2::SchedulingConfigurationSerializer.new(response[:data], meta: response[:meta])
