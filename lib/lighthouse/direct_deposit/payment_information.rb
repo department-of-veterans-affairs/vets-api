@@ -41,7 +41,7 @@ module Lighthouse
       end
 
       def error
-        return @error if authorized? && @error.present?
+        return @error if @error.present?
         return @control_information&.error_message unless authorized?
       end
     end

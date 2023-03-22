@@ -12,7 +12,7 @@ module DirectDeposit
   class Configuration < Common::Client::Configuration::REST
     self.read_timeout = Settings.lighthouse.direct_deposit.timeout || 20
 
-    API_SCOPES = %w[direct.deposit.fake direct.deposit.write].freeze
+    API_SCOPES = %w[direct.deposit.read direct.deposit.write].freeze
     DIRECT_DEPOSIT_PATH = 'services/direct-deposit-management/v1/direct-deposit'
     TOKEN_PATH = 'oauth2/direct-deposit-management/system/v1/token'
 

@@ -1,0 +1,78 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: https://sandbox-api.va.gov/services/direct-deposit-management/v1/direct-deposit?icn=1012666073V986297
+    body:
+      encoding: US-ASCII
+      string: '{"paymentAccount":{"accountType":"CHECKING","accountNumber":"1234567890","financialInstitutionRoutingNumber":"031000503"}}'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - sandbox-api.va.gov
+      Authorization:
+      - Bearer abcdefghijklmnop
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 422
+      message: ''
+    headers:
+      Date:
+      - Thu, 23 Feb 2023 21:47:59 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '58'
+      Ratelimit-Reset:
+      - '7'
+      Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      Content-Language:
+      - en-US
+      Pragma:
+      - no-cache
+      - no-cache
+      X-Kong-Upstream-Latency:
+      - '5345'
+      X-Kong-Proxy-Latency:
+      - '2'
+      Via:
+      - kong/3.0.2
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{
+        "type": "https://api.va.gov/services/direct-deposit-management/errors/unable-to-update",
+        "title": "Unable To Update",
+        "status": 422,
+        "detail": "Updating bank information not allowed.",
+        "instance": "e48e3aeb-f312-11ec-88e8-f55e56a472a2",
+        "errorCodes": [
+          {
+            "errorCode": "payment.restriction.indicators.present",
+            "detail": "hasNoBdnPayments is false."
+          }
+        ]
+      }'
+  recorded_at: Thu, 23 Feb 2023 21:47:59 GMT
+recorded_with: VCR 6.1.0

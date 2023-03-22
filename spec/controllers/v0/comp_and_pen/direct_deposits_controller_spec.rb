@@ -217,5 +217,49 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
         expect(json['errors'].last['title']).to eq('Routing number is invalid')
       end
     end
+
+    context 'when unprocessable entity' do
+      let(:params) do
+        {
+          account_type: 'CHECKING',
+          account_number: '1234567890',
+          routing_number: '031000503'
+        }
+      end
+
+      it 'returns a validation error' do
+        VCR.use_cassette('lighthouse/direct_deposit/update/422_response') do
+          put(:update, params: params)
+        end
+
+        expect(response).to have_http_status(:unprocessable_entity)
+
+        json = JSON.parse(response.body)
+        error = json['data']['attributes']['error']
+
+        expect(error).not_to be_nil
+        expect(error['title']).to eq('Unable To Update')
+        expect(error['detail']).to eq('Updating bank information not allowed.')
+        expect(error['meta'][0]['key']).to eq('payment.restriction.indicators.present')
+        expect(error['meta'][0]['text']).to eq('hasNoBdnPayments is false.')
+      end
+    end
+
+    context 'when invalid scopes are provided' do
+      it 'returns a 400' do
+        error_message = 'One or more scopes are not configured for the authorization server resource.'
+
+        VCR.use_cassette('lighthouse/direct_deposit/show/400_invalid_scopes') do
+          get(:show)
+        end
+
+        json = JSON.parse(response.body)
+        error = json['data']['attributes']['error']
+
+        expect(response).to have_http_status(:bad_request)
+        expect(error['title']).to eq('invalid_scope')
+        expect(error['detail']).to eq(error_message)
+      end
+    end
   end
 end
