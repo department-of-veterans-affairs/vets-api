@@ -11,7 +11,7 @@ RSpec.describe 'Disability Claims', type: :request do
       'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
       'X-VA-Gender': 'M' }
   end
-  let(:scopes) { %w[claim.write] }
+  let(:scopes) { %w[system/claim.write] }
 
   before do
     stub_poa_verification

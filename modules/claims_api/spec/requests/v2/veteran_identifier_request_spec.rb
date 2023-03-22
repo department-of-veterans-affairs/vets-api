@@ -14,7 +14,7 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request,
       birthdate: '1967-06-19'
     }
   end
-  let(:scopes) { %w[claim.write] }
+  let(:scopes) { %w[system/claim.write] }
   let(:test_user_icn) { '1012667145V762142' }
   let(:veteran) { ClaimsApi::Veteran.new }
   let(:veteran_mpi_data) { MPIData.new }

@@ -10,9 +10,9 @@ module ClaimsApi
         root_url = request.base_url == 'https://api.va.gov' ? 'https://api.va.gov' : 'https://sandbox-api.va.gov'
         claims_audience = "#{root_url}/services/claims"
         request_method_to_scope = {
-          'GET' => 'claim.read',
-          'PUT' => 'claim.write',
-          'POST' => 'claim.write'
+          'GET' => 'system/claim.read',
+          'PUT' => 'system/claim.write',
+          'POST' => 'system/claim.write'
         }
 
         @is_valid_ccg_flow ||= client.token_valid?(audience: claims_audience,

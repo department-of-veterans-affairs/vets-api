@@ -10,8 +10,8 @@ describe 'Claims',
       tags 'Claims'
       operationId 'findClaims'
       security [
-        { productionOauth: ['claim.read'] },
-        { sandboxOauth: ['claim.read'] },
+        { productionOauth: ['system/claim.read'] },
+        { sandboxOauth: ['system/claim.read'] },
         { bearer_token: [] }
       ]
       produces 'application/json'
@@ -47,7 +47,7 @@ describe 'Claims',
             )
             bgs_data
           end
-          let(:scopes) { %w[claim.read] }
+          let(:scopes) { %w[system/claim.read] }
 
           before do |example|
             with_okta_user(scopes) do
@@ -82,7 +82,7 @@ describe 'Claims',
                                                       'default.json')))
 
           let(:Authorization) { nil }
-          let(:scopes) { %w[claim.read] }
+          let(:scopes) { %w[system/claim.read] }
 
           before do |example|
             with_okta_user(scopes) do
@@ -110,7 +110,7 @@ describe 'Claims',
                                                       'default.json')))
 
           let(:veteran) { OpenStruct.new(mpi: nil, participant_id: nil) }
-          let(:scopes) { %w[claim.read] }
+          let(:scopes) { %w[system/claim.read] }
 
           before do |example|
             with_okta_user(scopes) do
@@ -141,8 +141,8 @@ describe 'Claims',
       tags 'Claims'
       operationId 'findClaimById'
       security [
-        { productionOauth: ['claim.read'] },
-        { sandboxOauth: ['claim.read'] },
+        { productionOauth: ['system/claim.read'] },
+        { sandboxOauth: ['system/claim.read'] },
         { bearer_token: [] }
       ]
       produces 'application/json'
@@ -198,7 +198,7 @@ describe 'Claims',
             )
             bgs_data
           end
-          let(:scopes) { %w[claim.read] }
+          let(:scopes) { %w[system/claim.read] }
 
           before do |example|
             with_okta_user(scopes) do
@@ -235,7 +235,7 @@ describe 'Claims',
                                                       'default.json')))
 
           let(:Authorization) { nil }
-          let(:scopes) { %w[claim.read] }
+          let(:scopes) { %w[system/claim.read] }
 
           before do |example|
             with_okta_user(scopes) do
@@ -263,7 +263,7 @@ describe 'Claims',
                                                       'default.json')))
 
           let(:veteran) { OpenStruct.new(mpi: nil, participant_id: nil) }
-          let(:scopes) { %w[claim.read] }
+          let(:scopes) { %w[system/claim.read] }
 
           before do |example|
             with_okta_user(scopes) do
@@ -295,7 +295,7 @@ describe 'Claims',
             )
           )
           let(:veteran) { OpenStruct.new(mpi: nil, participant_id: nil) }
-          let(:scopes) { %w[claim.read] }
+          let(:scopes) { %w[system/claim.read] }
 
           before do |example|
             with_okta_user(scopes) do

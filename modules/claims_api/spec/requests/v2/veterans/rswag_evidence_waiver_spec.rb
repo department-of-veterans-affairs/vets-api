@@ -13,8 +13,8 @@ describe 'EvidenceWaiver5103',
       tags '5103 Waiver'
       operationId 'submitEvidenceWaiver5103'
       security [
-        { productionOauth: ['claim.write'] },
-        { sandboxOauth: ['claim.write'] },
+        { productionOauth: ['system/claim.write'] },
+        { sandboxOauth: ['system/claim.write'] },
         { bearer_token: [] }
       ]
       consumes 'application/json'
@@ -46,7 +46,7 @@ describe 'EvidenceWaiver5103',
                                                       'veterans',
                                                       'submit_waiver_5103.json')))
 
-          let(:scopes) { %w[claim.write] }
+          let(:scopes) { %w[system/claim.write] }
 
           before do |example|
             with_okta_user(scopes) do
@@ -76,7 +76,7 @@ describe 'EvidenceWaiver5103',
                                                       'default.json')))
 
           let(:Authorization) { nil }
-          let(:scopes) { %w[claim.read] }
+          let(:scopes) { %w[system/claim.read] }
 
           before do |example|
             with_okta_user(scopes) do
@@ -104,7 +104,7 @@ describe 'EvidenceWaiver5103',
                                                       'default.json')))
 
           let(:veteran) { OpenStruct.new(mpi: nil, participant_id: nil) }
-          let(:scopes) { %w[claim.read] }
+          let(:scopes) { %w[system/claim.read] }
 
           before do |example|
             with_okta_user(scopes) do

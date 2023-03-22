@@ -11,8 +11,8 @@ describe 'Veteran Identifier', swagger_doc: Rswag::TextHelpers.new.claims_api_do
       tags 'Veteran Identifier'
       operationId 'postVeteranId'
       security [
-        { productionOauth: ['claim.read'] },
-        { sandboxOauth: ['claim.read'] },
+        { productionOauth: ['system/claim.read'] },
+        { sandboxOauth: ['system/claim.read'] },
         { bearer_token: [] }
       ]
       consumes 'application/json'
@@ -30,7 +30,7 @@ describe 'Veteran Identifier', swagger_doc: Rswag::TextHelpers.new.claims_api_do
           lastName: 'Ellis'
         }
       end
-      let(:scopes) { %w[claim.read] }
+      let(:scopes) { %w[system/claim.read] }
       let(:test_user_icn) { '1012667145V762142' }
       let(:veteran) { ClaimsApi::Veteran.new }
       let(:veteran_mpi_data) { MPIData.new }

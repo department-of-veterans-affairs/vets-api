@@ -30,8 +30,8 @@ describe 'PowerOfAttorney',
       tags 'Power of Attorney'
       operationId 'findPowerOfAttorney'
       security [
-        { productionOauth: ['claim.read', 'claim.write'] },
-        { sandboxOauth: ['claim.read', 'claim.write'] },
+        { productionOauth: ['system/claim.read', 'system/system/claim.write'] },
+        { sandboxOauth: ['system/claim.read', 'system/system/claim.write'] },
         { bearer_token: [] }
       ]
       produces 'application/json'
@@ -44,7 +44,7 @@ describe 'PowerOfAttorney',
                 type: :string,
                 description: 'ID of Veteran'
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
-      let(:scopes) { %w[claim.read claim.write] }
+      let(:scopes) { %w[system/claim.read system/system/claim.write] }
       let(:poa_code) { 'A1Q' }
       let(:bgs_poa) { { person_org_name: "#{poa_code} name-here" } }
 
@@ -175,8 +175,8 @@ describe 'PowerOfAttorney',
       tags 'Power of Attorney'
       operationId 'appointIndividualPowerOfAttorney'
       security [
-        { productionOauth: ['claim.write'] },
-        { sandboxOauth: ['claim.write'] },
+        { productionOauth: ['system/claim.write'] },
+        { sandboxOauth: ['system/claim.write'] },
         { bearer_token: [] }
       ]
       consumes 'application/json'
@@ -193,7 +193,7 @@ describe 'PowerOfAttorney',
       parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney]
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
-      let(:scopes) { %w[claim.write] }
+      let(:scopes) { %w[system/claim.write] }
       let(:individual_poa_code) { 'A1H' }
       let(:organization_poa_code) { '083' }
       let(:bgs_poa) { { person_org_name: "#{individual_poa_code} name-here" } }
@@ -342,8 +342,8 @@ describe 'PowerOfAttorney',
       tags 'Power of Attorney'
       operationId 'appointOrganizationPowerOfAttorney'
       security [
-        { productionOauth: ['claim.write'] },
-        { sandboxOauth: ['claim.write'] },
+        { productionOauth: ['system/claim.write'] },
+        { sandboxOauth: ['system/claim.write'] },
         { bearer_token: [] }
       ]
       consumes 'application/json'
@@ -360,7 +360,7 @@ describe 'PowerOfAttorney',
       parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney]
 
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
-      let(:scopes) { %w[claim.write] }
+      let(:scopes) { %w[system/claim.write] }
       let(:individual_poa_code) { 'A1H' }
       let(:organization_poa_code) { '083' }
       let(:bgs_poa) { { person_org_name: "#{individual_poa_code} name-here" } }

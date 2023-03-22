@@ -8,7 +8,7 @@ RSpec.describe 'Claims', type: :request do
   let(:claim_id) { '600131328' }
   let(:all_claims_path) { "/services/claims/v2/veterans/#{veteran_id}/claims" }
   let(:claim_by_id_path) { "/services/claims/v2/veterans/#{veteran_id}/claims/#{claim_id}" }
-  let(:scopes) { %w[claim.read] }
+  let(:scopes) { %w[system/claim.read] }
   let(:profile) do
     MPI::Responses::FindProfileResponse.new(
       status: 'OK',

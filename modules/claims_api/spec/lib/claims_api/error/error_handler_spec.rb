@@ -6,7 +6,7 @@ require 'token_validation/v2/client'
 require 'claims_api/error/error_handler'
 
 describe ApplicationController, type: :controller do
-  let(:scopes) { %w[claim.write] }
+  let(:scopes) { %w[system/claim.write] }
 
   controller do
     include ClaimsApi::Error::ErrorHandler
