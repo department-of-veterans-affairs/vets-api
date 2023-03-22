@@ -91,6 +91,8 @@ module ClaimsApi
       private
 
       def claims_service
+        edipi_check
+
         ClaimsApi::UnsynchronizedEVSSClaimService.new(target_veteran)
       end
 
@@ -144,6 +146,14 @@ module ClaimsApi
       def set_tags_and_extra_context
         RequestStore.store['additional_request_attributes'] = { 'source' => 'claims_api' }
         Raven.tags_context(source: 'claims_api')
+      end
+
+      def edipi_check
+        if target_veteran.edipi.blank?
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail:
+            "Unable to locate Veteran's EDIPI in Master Person Index (MPI). " \
+            'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
+        end
       end
     end
   end

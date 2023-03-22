@@ -1073,11 +1073,20 @@ RSpec.describe 'Disability Claims ', type: :request do
             participant_id: '32397028'
           }
         end
+        let(:profile_with_edipi) do
+          MPI::Responses::FindProfileResponse.new(
+            {
+              status: 'OK',
+              profile: FactoryBot.build(:mvi_profile,
+                                        edipi: '2536798')
+            }
+          )
+        end
         let(:mvi_profile) { build(:mvi_profile) }
         let(:mvi_profile_response) { build(:find_profile_response, profile: mvi_profile) }
         let(:add_response) { build(:add_person_response, parsed_codes: parsed_codes) }
 
-        it 'adds person to MPI' do
+        it 'returns a 422 without an edipi' do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
               VCR.use_cassette('evss/reference_data/countries') do
@@ -1089,6 +1098,25 @@ RSpec.describe 'Disability Claims ', type: :request do
                       .and_return(mvi_profile_response)
                     allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
                       .and_return(mvi_profile_response)
+
+                    post path, params: data, headers: auth_header
+                    expect(response.status).to eq(422)
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        it 'adds person to MPI and checks for edipi' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('evss/reference_data/countries') do
+                VCR.use_cassette('mpi/add_person/add_person_success') do
+                  VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
+                    allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(true)
+                    allow_any_instance_of(MPIData).to receive(:mvi_response)
+                      .and_return(profile_with_edipi)
 
                     post path, params: data, headers: auth_header
                     expect(response.status).to eq(200)
