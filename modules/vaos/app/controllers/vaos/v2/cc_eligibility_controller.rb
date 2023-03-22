@@ -2,7 +2,7 @@
 
 module VAOS
   module V2
-    class CCEligibilityController < VAOS::V0::BaseController
+    class CCEligibilityController < VAOS::BaseController
       def show
         response = cce_service.get_eligibility(params[:service_type])
         render json: VAOS::V2::CCEligibilitySerializer.new(response[:data], meta: response[:meta])
