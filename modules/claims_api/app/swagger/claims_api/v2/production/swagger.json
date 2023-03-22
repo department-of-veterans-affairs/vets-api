@@ -731,7 +731,7 @@
                       "claimPhaseDates": {
                         "phaseChangeDate": "2017-10-18",
                         "currentPhaseBack": false,
-                        "latestPhaseType": "Complete",
+                        "latestPhaseType": "COMPLETE",
                         "previousPhases": {
                           "phase1CompleteDate": "2017-10-18"
                         }
@@ -898,6 +898,16 @@
                                 },
                                 "latestPhaseType": {
                                   "type": "string",
+                                  "enum": [
+                                    "PENDING",
+                                    "CLAIM_RECEIVED",
+                                    "INITIAL_REVIEW",
+                                    "EVIDENCE_GATHERING_REVIEW_DECISION",
+                                    "PREPARATION_FOR_NOTIFICATION",
+                                    "COMPLETE",
+                                    "ERRORED",
+                                    "CANCELED"
+                                  ],
                                   "nullable": true,
                                   "description": "The most current phase for the claim"
                                 },
@@ -1862,8 +1872,8 @@
                   "id": "1",
                   "type": "intent_to_file",
                   "attributes": {
-                    "creationDate": "2023-03-09",
-                    "expirationDate": "2024-03-09",
+                    "creationDate": "2023-03-22",
+                    "expirationDate": "2024-03-22",
                     "type": "compensation",
                     "status": "active"
                   }

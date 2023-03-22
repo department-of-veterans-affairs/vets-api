@@ -5,7 +5,7 @@
         "benefit_claim_id": "555555555",
         "bnft_claim_lc_status": {
             "phase_chngd_dt": "2017-10-18T08:23:35.000+00:00",
-            "phase_type": "Complete",
+            "phase_type": "COMPLETE",
             "phase_type_change_ind": "78"
         },
         "bnft_claim_type_cd": "400PREDSCHRG",
