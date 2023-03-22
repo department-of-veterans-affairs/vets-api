@@ -71,12 +71,12 @@
         "security": [
           {
             "productionOauth": [
-              "claim.read"
+              "system/claim.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "system/claim.read"
             ]
           },
           {
@@ -378,12 +378,12 @@
         "security": [
           {
             "productionOauth": [
-              "claim.read"
+              "system/claim.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "system/claim.read"
             ]
           },
           {
@@ -679,12 +679,12 @@
         "security": [
           {
             "productionOauth": [
-              "claim.read"
+              "system/claim.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "system/claim.read"
             ]
           },
           {
@@ -786,7 +786,7 @@
                           "trackedItemId": 325525,
                           "trackedItemStatus": "NEEDED",
                           "uploaded": false,
-                          "uploadsAllowed": false
+                          "uploadsAllowed": true
                         },
                         {
                           "closedDate": null,
@@ -800,7 +800,7 @@
                           "trackedItemId": 325524,
                           "trackedItemStatus": "NEEDED",
                           "uploaded": false,
-                          "uploadsAllowed": false
+                          "uploadsAllowed": true
                         }
                       ]
                     }
@@ -1361,7 +1361,7 @@
         }
       }
     },
-    "/:veteranId/526": {
+    "/veterans/{veteranId}/526": {
       "post": {
         "summary": "Submits form 526",
         "tags": [
@@ -1371,14 +1371,14 @@
         "security": [
           {
             "productionOauth": [
-              "claim.read",
-              "claim.write"
+              "system/claim.read",
+              "system/claim.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read",
-              "claim.write"
+              "system/claim.read",
+              "system/claim.write"
             ]
           },
           {
@@ -1410,7 +1410,7 @@
         }
       }
     },
-    "/:veteranId/526/validate": {
+    "/veterans/{veteranId}/526/validate": {
       "post": {
         "summary": "Validates a 526 claim form submission.",
         "tags": [
@@ -1420,14 +1420,14 @@
         "security": [
           {
             "productionOauth": [
-              "claim.read",
-              "claim.write"
+              "system/claim.read",
+              "system/claim.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read",
-              "claim.write"
+              "system/claim.read",
+              "system/claim.write"
             ]
           },
           {
@@ -1459,7 +1459,7 @@
         }
       }
     },
-    "/:veteranId/526/attachments": {
+    "/veterans/{veteranId}/526/attachments": {
       "post": {
         "summary": "Upload documents supporting a 526 claim",
         "tags": [
@@ -1469,14 +1469,14 @@
         "security": [
           {
             "productionOauth": [
-              "claim.read",
-              "claim.write"
+              "system/claim.read",
+              "system/claim.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read",
-              "claim.write"
+              "system/claim.read",
+              "system/claim.write"
             ]
           },
           {
@@ -1537,12 +1537,12 @@
         "security": [
           {
             "productionOauth": [
-              "claim.write"
+              "system/claim.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.write"
+              "system/claim.write"
             ]
           },
           {
@@ -1714,12 +1714,12 @@
         "security": [
           {
             "productionOauth": [
-              "claim.read"
+              "system/claim.read"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read"
+              "system/claim.read"
             ]
           },
           {
@@ -1990,14 +1990,14 @@
         "security": [
           {
             "productionOauth": [
-              "claim.read",
-              "claim.write"
+              "system/claim.read",
+              "system/claim.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read",
-              "claim.write"
+              "system/claim.read",
+              "system/claim.write"
             ]
           },
           {
@@ -2345,14 +2345,14 @@
         "security": [
           {
             "productionOauth": [
-              "claim.read",
-              "claim.write"
+              "system/claim.read",
+              "system/claim.write"
             ]
           },
           {
             "sandboxOauth": [
-              "claim.read",
-              "claim.write"
+              "system/claim.read",
+              "system/claim.write"
             ]
           },
           {

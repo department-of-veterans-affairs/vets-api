@@ -174,8 +174,8 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
       tags 'Intent to File'
       operationId 'post0966itf'
       security [
-        { productionOauth: ['system/claim.read', 'system/system/claim.write'] },
-        { sandboxOauth: ['system/claim.read', 'system/system/claim.write'] },
+        { productionOauth: ['system/claim.read', 'system/claim.write'] },
+        { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
         { bearer_token: [] }
       ]
       consumes 'application/json'
@@ -203,7 +203,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
             )
           )
 
-          let(:scopes) { %w[system/system/claim.write] }
+          let(:scopes) { %w[system/claim.write] }
           let(:data) do
             {
               type: 'compensation'
@@ -248,7 +248,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'default.json')))
 
-          let(:scopes) { %w[system/system/claim.write] }
+          let(:scopes) { %w[system/claim.write] }
           let(:data) do
             {
               type: 'some-invalid-value'
@@ -280,7 +280,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'default.json')))
 
-          let(:scopes) { %w[system/system/claim.write] }
+          let(:scopes) { %w[system/claim.write] }
           let(:data) do
             {
               type: 'compensation'
@@ -312,7 +312,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'default.json')))
 
-          let(:scopes) { %w[system/system/claim.write] }
+          let(:scopes) { %w[system/claim.write] }
           let(:data) do
             {
               type: 'compensation'
@@ -344,7 +344,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'default.json')))
 
-          let(:scopes) { %w[system/system/claim.write] }
+          let(:scopes) { %w[system/claim.write] }
           let(:data) { { type: 'survivor', claimantSsn: '796111863' } }
           let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
 
@@ -380,8 +380,8 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
       tags 'Intent to File'
       operationId 'validate0966itf'
       security [
-        { productionOauth: ['system/claim.read', 'system/system/claim.write'] },
-        { sandboxOauth: ['system/claim.read', 'system/system/claim.write'] },
+        { productionOauth: ['system/claim.read', 'system/claim.write'] },
+        { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
         { bearer_token: [] }
       ]
       consumes 'application/json'
