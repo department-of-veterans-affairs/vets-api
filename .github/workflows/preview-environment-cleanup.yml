@@ -25,6 +25,7 @@ jobs:
         run: |
           npm install fs
           npm install @actions/core
+          npm install js-yaml
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
