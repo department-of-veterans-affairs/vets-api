@@ -11,7 +11,15 @@ module Common
       # `clamd` runs within service group, needs group read
       File.chmod(0o640, file_path)
 
-      ClamAV::PatchClient.new.safe?(file_path) # patch to call our class
+      if mock_enabled?
+        true
+      else
+        ClamAV::PatchClient.new.safe?(file_path) # patch to call our class
+      end
+    end
+
+    def mock_enabled?
+      Settings.clamav.mock
     end
   end
 end
