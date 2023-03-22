@@ -19,8 +19,10 @@ module V0
 
       def update
         response = service.update payment_account_params
-        # Rails.logger.info('DirectDepositsController#update request completed', sso_logging_info)
-        render status: response.status, json: response.body
+
+        render status: response.status,
+               json: response.body,
+               serializer: CompAndPenDirectDepositSerializer
       end
 
       private

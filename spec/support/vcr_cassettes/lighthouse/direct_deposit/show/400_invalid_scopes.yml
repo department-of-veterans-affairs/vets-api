@@ -1,0 +1,44 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/direct-deposit-management/v1/direct-deposit?icn=1012666073V986297
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer abcdefghijklmnop
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      date:
+      - Tue, 14 Feb 2023 20:18:30 GMT
+      content-type:
+      - application/json; charset=utf-8
+      content-length:
+      - '124'
+      connection:
+      - keep-alive
+      vary:
+      - Origin
+      etag:
+      - W/"7c-/gQopYgOcAf/Q+2WCHJbcJXBKQE"
+      cache-control:
+      - ''
+    body:
+      encoding: UTF-8
+      string: '{"error":"invalid_scope","error_description":"One or more scopes are
+        not configured for the authorization server resource."}'
+  recorded_at: Tue, 14 Feb 2023 20:18:30 GMT
+recorded_with: VCR 6.1.0
