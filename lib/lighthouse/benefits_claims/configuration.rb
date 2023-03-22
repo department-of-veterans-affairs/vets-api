@@ -12,7 +12,7 @@ module BenefitsClaims
   class Configuration < Common::Client::Configuration::REST
     self.read_timeout = Settings.lighthouse.benefits_claims.timeout || 20
 
-    API_SCOPES = %w[claim.read claim.write].freeze
+    API_SCOPES = %w[system/claim.read system/claim.write].freeze
     CLAIMS_PATH = 'services/claims/v2/veterans'
     TOKEN_PATH = 'oauth2/claims/system/v1/token'
 
