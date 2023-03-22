@@ -58,6 +58,16 @@
                 },
                 "latestPhaseType": {
                   "type": "string",
+                  "enum": [
+                    "PENDING",
+                    "CLAIM_RECEIVED",
+                    "INITIAL_REVIEW",
+                    "EVIDENCE_GATHERING_REVIEW_DECISION",
+                    "PREPARATION_FOR_NOTIFICATION",
+                    "COMPLETE",
+                    "ERRORED",
+                    "CANCELED"
+                  ],
                   "nullable": true,
                   "description": "The most current phase for the claim"
                 },
