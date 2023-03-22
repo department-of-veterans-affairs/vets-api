@@ -13,7 +13,7 @@ module Rx
         # @return [Faraday::Env]
         #
         def on_complete(env)
-          Rails.logger.info('RX Parser Debugging', body: env.body, status: env.status)
+          Rails.logger.info('RX Parser Debugging', status: env.status, body: env.body)
           return unless env.response_headers['content-type']&.match?(/\bjson/)
           # If POST for prescriptions is successful message body is irrelevant
           # if it was not successul an exception would have already been raised

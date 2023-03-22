@@ -14,7 +14,6 @@ module Rx
         # @return [Faraday::Env]
         #
         def on_complete(env)
-          Rails.logger.info('RX Failed Station Debugging', body: env.body, status: env.status)
           return unless env.body.is_a? Hash
 
           station_list = env.body.try(:[], :metadata).try(:[], :failed_station_list)
