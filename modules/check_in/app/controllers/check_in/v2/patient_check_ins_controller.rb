@@ -7,7 +7,8 @@ module CheckIn
       after_action :after_logger, only: %i[show create]
 
       def show
-        check_in_session = CheckIn::V2::Session.build(data: { uuid: params[:id] }, jwt: low_auth_token)
+        check_in_session = CheckIn::V2::Session.build(data: { uuid: params[:id], handoff: handoff? },
+                                                      jwt: low_auth_token)
 
         unless check_in_session.authorized?
           render json: check_in_session.unauthorized_message, status: :unauthorized and return
@@ -40,6 +41,10 @@ module CheckIn
 
       def authorize
         routing_error unless Flipper.enabled?('check_in_experience_enabled')
+      end
+
+      def handoff?
+        params[:handoff]&.downcase == 'true'
       end
     end
   end

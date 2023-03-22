@@ -746,6 +746,10 @@
       :file_path: "/chip/token/default"
       :response_delay: 0.2
     - :method: :post
+      :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/initiate-check-in/*" %>
+      :file_path: "/chip/initiate-check-in/default"
+      :response_delay: 10
+    - :method: :post
       :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/check-in/*" %>
       :file_path: "/chip/check-in/default"
       :response_delay: 5
