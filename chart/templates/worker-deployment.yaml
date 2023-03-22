@@ -90,6 +90,7 @@ spec:
                   key:  {{ $secret.name }}
           {{- end }}
           {{- end }}
+        {{- if $root.Values.clamav.enabled  }}
         - name: clamav
           image: "{{ $root.Values.clamav.image.value }}:{{ $root.Values.clamav.image.tag }}"
           imagePullPolicy: {{ $root.Values.image.pullPolicy }}
@@ -100,7 +101,8 @@ spec:
 {{ toYaml $root.Values.clamav.resources | indent 12 }}
           volumeMounts:
 {{ toYaml $root.Values.clamav.volumeMounts | indent 12 }}
-        {{- if $root.Values.web.socatProxyEnabled }}
+        {{- end }}
+        {{- if $root.Values.worker.socatProxyEnabled }}
 {{ toYaml $root.Values.common.socatProxy | indent 8 }}
         {{- end }}
       terminationGracePeriodSeconds: {{ .Values.worker.terminationGracePeriodSeconds }} # put your longest Job time here plus security time.
