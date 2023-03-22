@@ -59,9 +59,6 @@ spec:
             httpGet:
               path: {{ $root.Values.web.healthCheck.requestPath }}
               port: {{ $root.Values.web.healthCheck.port }}
-              httpHeaders:
-                - name: Host
-                  value: {{ $service.healthCheck.host | default $root.Values.web.healthCheck.host }}
             initialDelaySeconds: {{ $root.Values.web.healthCheck.initialDelaySeconds }}
             periodSeconds: {{ $root.Values.web.healthCheck.periodSeconds }}
           startupProbe:
