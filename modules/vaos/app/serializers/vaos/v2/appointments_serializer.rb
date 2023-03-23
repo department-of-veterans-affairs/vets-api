@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# VAOS V2 serializer not in use
+# :nocov:
 module VAOS
   module V2
     class AppointmentsSerializer
@@ -33,3 +35,4 @@ module VAOS
     end
   end
 end
+# :nocov:
