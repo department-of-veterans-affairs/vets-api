@@ -11,9 +11,9 @@ module MockedAuthentication
 
       validate_authorize_params(credential_info, state, error)
 
-      credential_info_code = CredentialInfoCreator.new(credential_info: credential_info).perform unless error
+      credential_info_code = CredentialInfoCreator.new(credential_info:).perform unless error
 
-      redirect_to RedirectUrlGenerator.new(state: state, code: credential_info_code, error: error).perform
+      redirect_to RedirectUrlGenerator.new(state:, code: credential_info_code, error:).perform
     rescue => e
       render json: { errors: e }, status: :bad_request
     end

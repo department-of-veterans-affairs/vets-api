@@ -34,7 +34,7 @@ module Common
 
           def response_values
             {
-              status: status,
+              status:,
               detail: 'Received an error response that could not be processed',
               code: 'VA900',
               source: 'MHV provided unparsable error response, check logs for original request body.'

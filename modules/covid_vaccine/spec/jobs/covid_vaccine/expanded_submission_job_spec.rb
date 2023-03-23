@@ -28,7 +28,7 @@ RSpec.describe CovidVaccine::ExpandedSubmissionJob, type: :worker do
     it 'updates the submission object' do
       sid = SecureRandom.uuid
       allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-        .and_return({ sid: sid })
+        .and_return({ sid: })
       allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
         .and_return(mvi_profile_response)
       subject.perform(submission.id)

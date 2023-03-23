@@ -65,14 +65,14 @@ module AppealsApi
           records = AppealsApi::StatusUpdate.where(
             from: status_from,
             to: status_to,
-            statusable_type: statusable_type,
+            statusable_type:,
             status_update_time: date_from..date_to
           ).order(:statusable_id).to_a
 
           previous_records = AppealsApi::StatusUpdate.where(
             to: status_from,
             statusable_id: records.pluck(:statusable_id),
-            statusable_type: statusable_type
+            statusable_type:
           ).where.not(from: status_from).order(:statusable_id).to_a
 
           records.zip(previous_records)
@@ -126,7 +126,7 @@ module AppealsApi
       @stalled[appeal_class.name][status] ||= appeal_class.where(
         'updated_at < ?',
         (date_to - STALLED_RECORD_MONTHS.first.months).beginning_of_day
-      ).where(status: status).order(updated_at: :desc)
+      ).where(status:).order(updated_at: :desc)
     end
 
     def formatted_stalled_stats(appeal_class)

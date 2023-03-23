@@ -22,7 +22,7 @@ RSpec.describe BGS::FlashUpdater, type: :job do
   it 'submits flashes to bgs successfully' do
     flashes.each do |flash_name|
       expect_any_instance_of(BGS::ClaimantWebService)
-        .to receive(:add_flash).with(file_number: ssn, flash_name: flash_name)
+        .to receive(:add_flash).with(file_number: ssn, flash_name:)
     end
     expect_any_instance_of(BGS::ClaimantWebService)
       .to receive(:find_assigned_flashes).with(ssn).and_return(assigned_flashes)
@@ -34,10 +34,10 @@ RSpec.describe BGS::FlashUpdater, type: :job do
     flashes.each_with_index do |flash_name, index|
       if index.zero?
         expect_any_instance_of(BGS::ClaimantWebService).to receive(:add_flash)
-          .with(file_number: ssn, flash_name: flash_name).and_raise(BGS::ShareError.new('failed', 500))
+          .with(file_number: ssn, flash_name:).and_raise(BGS::ShareError.new('failed', 500))
       else
         expect_any_instance_of(BGS::ClaimantWebService)
-          .to receive(:add_flash).with(file_number: ssn, flash_name: flash_name)
+          .to receive(:add_flash).with(file_number: ssn, flash_name:)
       end
     end
     expect_any_instance_of(BGS::ClaimantWebService)

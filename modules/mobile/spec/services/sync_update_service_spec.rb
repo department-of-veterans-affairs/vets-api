@@ -24,7 +24,7 @@ describe Mobile::V0::Profile::SyncUpdateService do
         VCR.use_cassette('profile/get_address_status_complete') do
           VCR.use_cassette('profile/get_address_status_incomplete') do
             VCR.use_cassette('profile/put_address_initial') do
-              service.save_and_await_response(resource_type: :address, params: params, update: true)
+              service.save_and_await_response(resource_type: :address, params:, update: true)
             end
           end
         end
@@ -45,7 +45,7 @@ describe Mobile::V0::Profile::SyncUpdateService do
           VCR.use_cassette('profile/get_address_status_incomplete_2') do
             VCR.use_cassette('profile/get_address_status_incomplete') do
               VCR.use_cassette('profile/put_address_initial') do
-                service.save_and_await_response(resource_type: :address, params: params, update: true)
+                service.save_and_await_response(resource_type: :address, params:, update: true)
               end
             end
           end
@@ -71,7 +71,7 @@ describe Mobile::V0::Profile::SyncUpdateService do
           VCR.use_cassette('profile/get_address_status_incomplete_2') do
             VCR.use_cassette('profile/get_address_status_incomplete') do
               VCR.use_cassette('profile/put_address_initial') do
-                expect { service.save_and_await_response(resource_type: :address, params: params, update: true) }
+                expect { service.save_and_await_response(resource_type: :address, params:, update: true) }
                   .to raise_error(Common::Exceptions::GatewayTimeout)
               end
             end
@@ -84,7 +84,7 @@ describe Mobile::V0::Profile::SyncUpdateService do
       it 'raises a backend service exception' do
         VCR.use_cassette('profile/get_address_status_error') do
           VCR.use_cassette('profile/put_address_initial') do
-            expect { service.save_and_await_response(resource_type: :address, params: params, update: true) }
+            expect { service.save_and_await_response(resource_type: :address, params:, update: true) }
               .to raise_error(Common::Exceptions::BackendServiceException)
           end
         end

@@ -100,7 +100,7 @@ class TokenStorageService
   end
 
   def get_s3_bucket_objects(s3_resource, prefix)
-    s3_resource.bucket(Settings.dhp.s3.bucket).objects({ prefix: prefix })
+    s3_resource.bucket(Settings.dhp.s3.bucket).objects({ prefix: })
   end
 
   def token_file_path(prefix)
@@ -114,7 +114,7 @@ class TokenStorageService
   # @raise TokenRetrievalError
   def lists_files_in_bucket(prefix)
     resp = s3_client.list_objects_v2(
-      { bucket: Settings.dhp.s3.bucket, prefix: prefix }
+      { bucket: Settings.dhp.s3.bucket, prefix: }
     )
     resp.contents.empty? ? raise(TokenRetrievalError, "No files in #{prefix} or #{prefix} does not exist.") : resp
   end

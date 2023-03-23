@@ -21,7 +21,7 @@ RSpec.describe 'Test User Dashboard', type: :request do
 
     context 'with valid authentication headers' do
       it 'accepts the request and returns a response' do
-        get('/test_user_dashboard/tud_accounts', params: '', headers: headers)
+        get('/test_user_dashboard/tud_accounts', params: '', headers:)
 
         expect(response).to have_http_status(:ok)
         expect(response.content_type).to eq 'application/json; charset=utf-8'
@@ -43,7 +43,7 @@ RSpec.describe 'Test User Dashboard', type: :request do
 
     it 'updates the tud account notes field' do
       allow(TestUserDashboard::TudAccount).to receive(:find).and_return(tud_account)
-      put('/test_user_dashboard/tud_accounts/123', params: { notes: notes }, headers: headers)
+      put('/test_user_dashboard/tud_accounts/123', params: { notes: }, headers:)
 
       expect(response).to have_http_status(:ok)
       expect(tud_account.notes).to eq('Test note string goes here.')

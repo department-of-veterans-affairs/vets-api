@@ -8,7 +8,7 @@ class CreateDailySpoolFilesMailer < ApplicationMailer
     rpo_msg = if region.nil?
                 'files'
               else
-                "file for #{EducationForm::EducationFacility.rpo_name(region: region)}"
+                "file for #{EducationForm::EducationFacility.rpo_name(region:)}"
               end
     opt = {}
     opt[:to] =

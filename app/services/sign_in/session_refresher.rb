@@ -46,10 +46,10 @@ module SignIn
     end
 
     def create_new_tokens
-      SessionContainer.new(session: session,
+      SessionContainer.new(session:,
                            refresh_token: child_refresh_token,
-                           access_token: access_token,
-                           client_config: client_config,
+                           access_token:,
+                           client_config:,
                            anti_csrf_token: updated_anti_csrf_token)
     end
 
@@ -73,11 +73,11 @@ module SignIn
         session_handle: session.handle,
         client_id: session.client_id,
         user_uuid: refresh_token.user_uuid,
-        audience: audience,
+        audience:,
         refresh_token_hash: get_hash(child_refresh_token.to_json),
         parent_refresh_token_hash: refresh_token_hash,
         anti_csrf_token: updated_anti_csrf_token,
-        last_regeneration_time: last_regeneration_time
+        last_regeneration_time:
       )
     end
 

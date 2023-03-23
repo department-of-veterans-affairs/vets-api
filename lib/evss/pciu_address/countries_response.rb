@@ -18,7 +18,7 @@ module EVSS
 
       def initialize(status, response = nil)
         countries = response&.body&.dig('cnp_countries') || response&.body&.dig('countries')
-        super(status, countries: countries)
+        super(status, countries:)
       end
     end
   end

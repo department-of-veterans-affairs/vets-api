@@ -13,8 +13,8 @@ module CypressViewportUpdater
       raw_content.split("\n").each do |line|
         if /va-top-(mobile|tablet|desktop)-\d+/.match(line)
           if /va-top-(mobile|tablet|desktop)-1/.match(line)
-            create_viewport_presets(line: line,
-                                    viewports: viewports) do |updated_line|
+            create_viewport_presets(line:,
+                                    viewports:) do |updated_line|
                                       new_lines << updated_line
                                     end
           end

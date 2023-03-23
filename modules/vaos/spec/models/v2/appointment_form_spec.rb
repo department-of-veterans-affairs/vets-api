@@ -6,7 +6,7 @@ describe VAOS::V2::AppointmentForm, type: :model do
   let(:user) { build(:user, :vaos) }
 
   describe 'valid object' do
-    subject { build(:appointment_form_v2, :community_cares, user: user) }
+    subject { build(:appointment_form_v2, :community_cares, user:) }
 
     it 'validates presence of required attributes' do
       expect(subject).to be_valid
@@ -24,7 +24,7 @@ describe VAOS::V2::AppointmentForm, type: :model do
   end
 
   describe 'with empty slot hash' do
-    subject { build(:appointment_form_v2, :with_empty_slot_hash, user: user) }
+    subject { build(:appointment_form_v2, :with_empty_slot_hash, user:) }
 
     it 'validates presence of required attributes' do
       expect(subject).to be_valid

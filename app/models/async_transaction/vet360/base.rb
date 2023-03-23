@@ -78,7 +78,7 @@ module AsyncTransaction
       # @param transaction_id [String] the transaction UUID
       # @return [AddressTransaction, EmailTransaction, TelephoneTransaction]
       def self.find_transaction!(user_uuid, transaction_id)
-        Base.find_by!(user_uuid: user_uuid, transaction_id: transaction_id)
+        Base.find_by!(user_uuid:, transaction_id:)
       end
 
       def self.update_transaction_from_api(transaction_record, api_response)

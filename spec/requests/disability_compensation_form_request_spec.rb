@@ -19,7 +19,7 @@ RSpec.describe 'Disability compensation form' do
       Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider')
       it 'matches the rated disabilities schema' do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-          get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers
+          get('/v0/disability_compensation_form/rated_disabilities', params: nil, headers:)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('rated_disabilities')
         end
@@ -37,7 +37,7 @@ RSpec.describe 'Disability compensation form' do
     context 'with a 500 response' do
       it 'returns a bad gateway response' do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
-          get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers
+          get('/v0/disability_compensation_form/rated_disabilities', params: nil, headers:)
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
@@ -55,7 +55,7 @@ RSpec.describe 'Disability compensation form' do
     context 'with a 401 response' do
       it 'returns a bad gateway response' do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_401') do
-          get '/v0/disability_compensation_form/submit_all_claim', params: nil, headers: headers
+          get('/v0/disability_compensation_form/submit_all_claim', params: nil, headers:)
           expect(response).to have_http_status(:not_found)
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
@@ -73,7 +73,7 @@ RSpec.describe 'Disability compensation form' do
     context 'with a 403 unauthorized response' do
       it 'returns a not authorized response' do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_403') do
-          get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers
+          get('/v0/disability_compensation_form/rated_disabilities', params: nil, headers:)
           expect(response).to have_http_status(:forbidden)
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
@@ -91,7 +91,7 @@ RSpec.describe 'Disability compensation form' do
     context 'with a generic 400 response' do
       it 'returns a bad request response' do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
-          get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers
+          get('/v0/disability_compensation_form/rated_disabilities', params: nil, headers:)
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
@@ -117,7 +117,7 @@ RSpec.describe 'Disability compensation form' do
     let(:conditions) { JSON.parse(response.body)['data'] }
 
     it 'returns matching conditions', :aggregate_failures do
-      get '/v0/disability_compensation_form/suggested_conditions?name_part=art', params: nil, headers: headers
+      get('/v0/disability_compensation_form/suggested_conditions?name_part=art', params: nil, headers:)
       expect(response).to have_http_status(:ok)
       expect(response).to match_response_schema('suggested_conditions')
       expect(conditions.count).to eq 3
@@ -134,13 +134,13 @@ RSpec.describe 'Disability compensation form' do
     end
 
     it 'returns an empty array when no conditions match', :aggregate_failures do
-      get '/v0/disability_compensation_form/suggested_conditions?name_part=xyz', params: nil, headers: headers
+      get('/v0/disability_compensation_form/suggested_conditions?name_part=xyz', params: nil, headers:)
       expect(response).to have_http_status(:ok)
       expect(conditions.count).to eq 0
     end
 
     it 'returns a 500 when name_part is missing' do
-      get '/v0/disability_compensation_form/suggested_conditions', params: nil, headers: headers
+      get('/v0/disability_compensation_form/suggested_conditions', params: nil, headers:)
       expect(response).to have_http_status(:bad_request)
     end
   end
@@ -170,7 +170,7 @@ RSpec.describe 'Disability compensation form' do
         let(:all_claims_form) { File.read 'spec/support/disability_compensation_form/all_claims_fe_submission.json' }
 
         it 'matches the rated disabilites schema' do
-          post '/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers: headers
+          post('/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('submit_disability_form')
         end
@@ -183,7 +183,7 @@ RSpec.describe 'Disability compensation form' do
 
         it 'starts the submit job' do
           expect(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to receive(:perform_async).once
-          post '/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers: headers
+          post '/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers:
         end
       end
 
@@ -191,7 +191,7 @@ RSpec.describe 'Disability compensation form' do
         let(:bdd_form) { File.read 'spec/support/disability_compensation_form/bdd_fe_submission.json' }
 
         it 'matches the rated disabilites schema' do
-          post '/v0/disability_compensation_form/submit_all_claim', params: bdd_form, headers: headers
+          post('/v0/disability_compensation_form/submit_all_claim', params: bdd_form, headers:)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('submit_disability_form')
         end
@@ -206,7 +206,7 @@ RSpec.describe 'Disability compensation form' do
 
     context 'with invalid json body' do
       it 'returns a 422' do
-        post '/v0/disability_compensation_form/submit_all_claim', params: { 'form526' => nil }.to_json, headers: headers
+        post('/v0/disability_compensation_form/submit_all_claim', params: { 'form526' => nil }.to_json, headers:)
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
@@ -223,7 +223,7 @@ RSpec.describe 'Disability compensation form' do
       end
 
       it 'returns the job status and response', :aggregate_failures do
-        get "/v0/disability_compensation_form/submission_status/#{job_status.job_id}", params: nil, headers: headers
+        get("/v0/disability_compensation_form/submission_status/#{job_status.job_id}", params: nil, headers:)
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)).to match(
           'data' => {
@@ -254,7 +254,7 @@ RSpec.describe 'Disability compensation form' do
       let(:job_status) { create(:form526_job_status, :retryable_error, form526_submission_id: submission.id) }
 
       it 'returns the job status and response', :aggregate_failures do
-        get "/v0/disability_compensation_form/submission_status/#{job_status.job_id}", params: nil, headers: headers
+        get("/v0/disability_compensation_form/submission_status/#{job_status.job_id}", params: nil, headers:)
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)).to have_deep_attributes(
           'data' => {
@@ -277,7 +277,7 @@ RSpec.describe 'Disability compensation form' do
       let(:job_status) { create(:form526_job_status, :non_retryable_error, form526_submission_id: submission.id) }
 
       it 'returns the job status and response', :aggregate_failures do
-        get "/v0/disability_compensation_form/submission_status/#{job_status.job_id}", params: nil, headers: headers
+        get("/v0/disability_compensation_form/submission_status/#{job_status.job_id}", params: nil, headers:)
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)).to have_deep_attributes(
           'data' => {
@@ -297,7 +297,7 @@ RSpec.describe 'Disability compensation form' do
 
     context 'when no record is found' do
       it 'returns the async submit transaction status and response', :aggregate_failures do
-        get '/v0/disability_compensation_form/submission_status/123', params: nil, headers: headers
+        get('/v0/disability_compensation_form/submission_status/123', params: nil, headers:)
         expect(response).to have_http_status(:not_found)
       end
     end

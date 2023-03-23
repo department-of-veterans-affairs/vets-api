@@ -49,7 +49,7 @@ module CypressViewportUpdater
       @rank = rank
       # variable names are converted to json and must be snakeCase
       # rubocop:disable Naming/VariableName
-      @devicesWithViewport = device_list(device: device, resolution: resolution)
+      @devicesWithViewport = device_list(device:, resolution:)
       @percentTraffic = "#{calculate_percentage_of_users_who_use_viewport(number_of_users, total_users)}%"
       @percentTrafficPeriod = traffic_period
       @viewportPreset = "va-top-#{device}-#{rank}"

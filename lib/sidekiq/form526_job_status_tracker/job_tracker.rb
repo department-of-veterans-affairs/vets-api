@@ -23,23 +23,23 @@ module Sidekiq
           form526_submission_id = msg['args'].first
 
           values = {
-            form526_submission_id: form526_submission_id,
-            job_id: job_id,
+            form526_submission_id:,
+            job_id:,
             job_class: msg['class'].demodulize,
             status: Form526JobStatus::STATUS[:exhausted],
-            error_class: error_class,
-            error_message: error_message,
+            error_class:,
+            error_message:,
             bgjob_errors: {},
             updated_at: timestamp
           }
 
-          form_job_status = Form526JobStatus.find_by(job_id: job_id)
+          form_job_status = Form526JobStatus.find_by(job_id:)
           bgjob_errors = form_job_status.bgjob_errors || {}
           new_error = {
             "#{timestamp.to_i}": {
               caller_method: __method__.to_s,
-              error_class: error_class, error_message: error_message,
-              timestamp: timestamp
+              error_class:, error_message:,
+              timestamp:
             }
           }
           bgjob_errors.merge!(new_error)
@@ -70,10 +70,10 @@ module Sidekiq
           vagov_id = JSON.parse(submission_obj.auth_headers_json)['va_eauth_service_transaction_id']
           log_message = {
             submission_id: form526_submission_id,
-            job_id: job_id,
+            job_id:,
             job_class: values[:job_class],
-            error_class: error_class,
-            error_message: error_message,
+            error_class:,
+            error_message:,
             remaining_birls: additional_birls_to_try,
             va_eauth_service_transaction_id: vagov_id
           }
@@ -152,7 +152,7 @@ module Sidekiq
       #
       def non_retryable_error_handler(error)
         upsert_job_status(Form526JobStatus::STATUS[:non_retryable_error], error)
-        log_exception_to_sentry(error, status: :non_retryable_error, jid: jid)
+        log_exception_to_sentry(error, status: :non_retryable_error, jid:)
         log_error('non_retryable_error', error)
         metrics.increment_non_retryable(error, @is_bdd)
       end
@@ -165,7 +165,7 @@ module Sidekiq
         values = { form526_submission_id: @status_submission_id,
                    job_id: jid,
                    job_class: klass,
-                   status: status,
+                   status:,
                    error_class: nil,
                    error_message: nil,
                    bgjob_errors: {},
@@ -178,27 +178,27 @@ module Sidekiq
         values[:error_message] = error_message
 
         values[:bgjob_errors] = update_background_job_errors(job_id: jid,
-                                                             error_class: error_class,
-                                                             error_message: error_message,
-                                                             caller_method: caller_method,
-                                                             timestamp: timestamp)
+                                                             error_class:,
+                                                             error_message:,
+                                                             caller_method:,
+                                                             timestamp:)
         # rubocop:disable Rails/SkipsModelValidations
         Form526JobStatus.upsert(values, unique_by: :job_id)
         # rubocop:enable Rails/SkipsModelValidations
       end
 
       def update_background_job_errors(job_id:, error_class:, error_message:, caller_method:, timestamp: Time.now.utc)
-        form_job_status = Form526JobStatus.find_by(job_id: job_id)
+        form_job_status = Form526JobStatus.find_by(job_id:)
         return unless form_job_status
 
         bgjob_errors = form_job_status.bgjob_errors || {}
 
         new_error = {
           "#{timestamp.to_i}": {
-            caller_method: caller_method,
-            error_class: error_class,
-            error_message: error_message,
-            timestamp: timestamp
+            caller_method:,
+            error_class:,
+            error_message:,
+            timestamp:
           }
         }
 

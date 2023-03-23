@@ -14,7 +14,7 @@ module V0
         features = get_all_features
       end
 
-      render json: { data: { type: 'feature_toggles', features: features } }
+      render json: { data: { type: 'feature_toggles', features: } }
     end
 
     private

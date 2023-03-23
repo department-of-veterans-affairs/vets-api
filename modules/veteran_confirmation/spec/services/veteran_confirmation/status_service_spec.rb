@@ -22,7 +22,7 @@ RSpec.describe VeteranConfirmation::StatusService do
     let(:mvi_profile) do
       profile = MPI::Models::MviProfile.new
       profile.edipi = '1005490754'
-      response = create(:find_profile_response, profile: profile)
+      response = create(:find_profile_response, profile:)
       response
     end
 

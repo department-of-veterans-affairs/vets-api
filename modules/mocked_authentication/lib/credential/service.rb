@@ -16,7 +16,7 @@ module MockedAuthentication
                           {
                             acr_values: acr,
                             mock_redirect_uri: Settings.sign_in.mock_auth_redirect,
-                            state: state
+                            state:
                           }
                         },
                         format: :html)

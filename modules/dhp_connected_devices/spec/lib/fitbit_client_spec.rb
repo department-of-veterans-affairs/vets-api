@@ -16,7 +16,7 @@ RSpec.describe DhpConnectedDevices::Fitbit::Client do
         user_id: '1FAKE' }.to_json.to_s
     end
 
-    let(:faraday_response) { double('Faraday::Response', status: 200, body: body) }
+    let(:faraday_response) { double('Faraday::Response', status: 200, body:) }
 
     context 'successful response from fitbit' do
       before do

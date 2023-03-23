@@ -44,14 +44,14 @@ module EVSS
       def get_evss_claim_metadata(pdf_path, doc_type)
         pdf_path_split = pdf_path.split('/')
         {
-          doc_type: doc_type,
+          doc_type:,
           file_name: pdf_path_split.last
         }
       end
 
       def create_document_data(evss_claim_id, upload_data, doc_type)
         EVSSClaimDocument.new(
-          evss_claim_id: evss_claim_id,
+          evss_claim_id:,
           file_name: upload_data[:file_name],
           tracked_item_id: nil,
           document_type: doc_type

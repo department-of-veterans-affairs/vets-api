@@ -14,7 +14,7 @@ RSpec.describe BGS::Marriages do
       it 'returns hash for spouse who lives with veteran' do
         VCR.use_cassette('bgs/dependents/create/spouse/lives_with_veteran') do
           dependents = BGS::Marriages.new(
-            proc_id: proc_id,
+            proc_id:,
             payload: spouse_payload,
             user: user_object
           ).create_all
@@ -35,7 +35,7 @@ RSpec.describe BGS::Marriages do
       it 'returns hash for spouse who has different address (separated)' do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Marriages.new(
-            proc_id: proc_id,
+            proc_id:,
             payload: all_flows_payload,
             user: user_object
           ).create_all
@@ -77,7 +77,7 @@ RSpec.describe BGS::Marriages do
             .and_call_original
 
           BGS::Marriages.new(
-            proc_id: proc_id,
+            proc_id:,
             payload: spouse_payload,
             user: user_object
           ).create_all

@@ -6,7 +6,7 @@ require 'inherited_proofing/jwt_decoder'
 RSpec.describe InheritedProofing::JwtDecoder do
   describe '#perform' do
     subject do
-      InheritedProofing::JwtDecoder.new(access_token_jwt: access_token_jwt).perform
+      InheritedProofing::JwtDecoder.new(access_token_jwt:).perform
     end
 
     let(:access_token_jwt) { JWT.encode(payload, private_key, jwt_encode_algorithm) }

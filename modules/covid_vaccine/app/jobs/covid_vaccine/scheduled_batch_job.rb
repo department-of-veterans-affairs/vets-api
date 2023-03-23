@@ -15,9 +15,9 @@ module CovidVaccine
       Rails.logger.info('Covid_Vaccine Scheduled_Batch: Start')
 
       batch_id = CovidVaccine::V0::EnrollmentProcessor.batch_records!
-      Rails.logger.info('Covid_Vaccine Scheduled_Batch: Batch_Created', batch_id: batch_id)
+      Rails.logger.info('Covid_Vaccine Scheduled_Batch: Batch_Created', batch_id:)
 
-      success_details = { batch_id: batch_id }
+      success_details = { batch_id: }
       if enrollment_upload_enabled?
         jid = CovidVaccine::EnrollmentUploadJob.perform_async(batch_id)
         success_details.merge!(enrollment_upload_job_id: jid)

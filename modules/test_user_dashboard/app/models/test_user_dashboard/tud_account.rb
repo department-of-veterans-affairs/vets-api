@@ -20,12 +20,12 @@ module TestUserDashboard
       unless (identity = UserIdentity.find(account_uuid))
         identity = UserIdentity.create(
           uuid: account_uuid,
-          email: email,
-          first_name: first_name,
-          last_name: last_name,
-          gender: gender,
+          email:,
+          first_name:,
+          last_name:,
+          gender:,
           birth_date: birth_date.to_s(:iso_8601),
-          ssn: ssn,
+          ssn:,
           loa: { lowest: 1, highest: 3 }
         )
       end

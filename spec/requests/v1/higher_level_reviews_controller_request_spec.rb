@@ -17,7 +17,7 @@ RSpec.describe V1::HigherLevelReviewsController do
     subject do
       post '/v1/higher_level_reviews',
            params: VetsJsonSchema::EXAMPLES.fetch('HLR-CREATE-REQUEST-BODY_V1').to_json,
-           headers: headers
+           headers:
     end
 
     it 'creates an HLR' do

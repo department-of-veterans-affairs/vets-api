@@ -13,7 +13,7 @@ module AppealsApi
 
     def perform(ids)
       batch_size = CentralMailUpdater::MAX_UUIDS_PER_REQUEST
-      SupplementalClaim.where(id: ids).find_in_batches(batch_size: batch_size).with_index do |batch, i|
+      SupplementalClaim.where(id: ids).find_in_batches(batch_size:).with_index do |batch, i|
         CentralMailUpdater.new.call(batch)
         sleep 5 if i.positive? # Avoid flooding CMP with requests all at once
       end

@@ -12,9 +12,9 @@ RSpec.describe 'Claim Document Attachment', type: :request do
   end
 
   it 'uploads a file' do
-    params = { file: file, form_id: '21P-527EZ' }
+    params = { file:, form_id: '21P-527EZ' }
     expect do
-      post '/v0/claim_documents', params: params
+      post('/v0/claim_documents', params:)
     end.to change(PersistentAttachment, :count).by(1)
     expect(response.status).to eq(200)
     resp = JSON.parse(response.body)

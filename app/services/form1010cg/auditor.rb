@@ -55,11 +55,11 @@ module Form1010cg
       increment self.class.metrics.submission.success
       log(
         'Submission Successful',
-        claim_guid: claim_guid,
-        carma_case_id: carma_case_id,
-        metadata: metadata,
-        attachments: attachments,
-        attachments_job_id: attachments_job_id
+        claim_guid:,
+        carma_case_id:,
+        metadata:,
+        attachments:,
+        attachments_job_id:
       )
     end
 
@@ -92,12 +92,12 @@ module Form1010cg
 
     def record_submission_failure_client_data(errors:, claim_guid: nil)
       increment self.class.metrics.submission.failure.client.data
-      log 'Submission Failed: invalid data provided by client', claim_guid: claim_guid, errors: errors
+      log 'Submission Failed: invalid data provided by client', claim_guid:, errors:
     end
 
     def record_submission_failure_client_qualification(claim_guid:)
       increment self.class.metrics.submission.failure.client.qualification
-      log 'Submission Failed: qualifications not met', claim_guid: claim_guid
+      log 'Submission Failed: qualifications not met', claim_guid:
     end
 
     def record_pdf_download
@@ -107,16 +107,16 @@ module Form1010cg
     def record_attachments_delivered(claim_guid:, carma_case_id:, attachments:)
       log(
         'Attachments Delivered',
-        claim_guid: claim_guid,
-        carma_case_id: carma_case_id,
-        attachments: attachments
+        claim_guid:,
+        carma_case_id:,
+        attachments:
       )
     end
 
     def log_mpi_search_result(claim_guid:, form_subject:, result:)
       labels = { found: 'found', not_found: 'NOT FOUND', skipped: 'search was skipped' }
       result_label = labels[result]
-      log("MPI Profile #{result_label} for #{form_subject.titleize}", { claim_guid: claim_guid })
+      log("MPI Profile #{result_label} for #{form_subject.titleize}", { claim_guid: })
     end
 
     private

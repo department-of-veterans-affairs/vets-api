@@ -90,7 +90,7 @@ module MPI
             error_details[:error_texts].append(error_text) unless error_details[:error_texts].include?(error_text)
           end
         end
-        { error_details: error_details }
+        { error_details: }
       end
 
       private
@@ -141,7 +141,7 @@ module MPI
           ssn: parse_ssn(locate_element(person_component, SSN_XPATH), optional_params),
           address: parse_address(person_component),
           home_phone: parse_phone(person, person_prefix),
-          person_types: person_types
+          person_types:
         }
       end
 
@@ -153,7 +153,7 @@ module MPI
 
       def create_ids_obj(full_mvi_ids, parsed_mvi_ids)
         {
-          full_mvi_ids: full_mvi_ids
+          full_mvi_ids:
         }.merge(parse_single_ids(parsed_mvi_ids).merge(parse_multiple_ids(parsed_mvi_ids)))
       end
 
@@ -216,7 +216,7 @@ module MPI
       def validate_dob(dob, icn)
         Date.iso8601(dob)
       rescue Date::Error
-        Rails.logger.warn 'MPI::Response.parse_dob failed', { dob: dob, icn: icn }
+        Rails.logger.warn 'MPI::Response.parse_dob failed', { dob:, icn: }
       end
 
       def parse_name(name, optional_params)
@@ -226,7 +226,7 @@ module MPI
         given = [*name_element.locate('given')].map { |el| el.nodes.first.capitalize }
         family = name_element.locate('family').first.nodes.first.capitalize
         suffix = name_element.locate('suffix')&.first&.nodes&.first&.capitalize
-        { given: given, family: family, suffix: suffix }
+        { given:, family:, suffix: }
       rescue
         Rails.logger.warn 'MPI::Response.parse_name failed'
         { given: nil, family: nil }

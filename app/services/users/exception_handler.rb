@@ -83,7 +83,7 @@ module Users
     def mpi_error(status)
       error_template.merge(
         description: "#{error.class}, #{error.message}",
-        status: status
+        status:
       )
     end
 

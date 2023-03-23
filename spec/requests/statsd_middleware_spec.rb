@@ -34,7 +34,7 @@ RSpec.describe StatsdMiddleware, type: :request do
     tags = %w[controller:v0/prescriptions action:index source_app:not_provided status:200]
     expect do
       get '/v0/prescriptions'
-    end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1, value: 1)
+    end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags:, times: 1, value: 1)
   end
 
   it 'sends duration data to statsd' do
@@ -42,7 +42,7 @@ RSpec.describe StatsdMiddleware, type: :request do
     tags = %w[controller:v0/prescriptions action:index source_app:not_provided]
     expect do
       get '/v0/prescriptions'
-    end.to trigger_statsd_measure(StatsdMiddleware::DURATION_KEY, tags: tags, times: 1, value: 0.0)
+    end.to trigger_statsd_measure(StatsdMiddleware::DURATION_KEY, tags:, times: 1, value: 0.0)
   end
 
   it 'sends db_runtime data to statsd' do
@@ -50,7 +50,7 @@ RSpec.describe StatsdMiddleware, type: :request do
     tags = %w[controller:v0/prescriptions action:index status:200]
     expect do
       get '/v0/prescriptions'
-    end.to trigger_statsd_measure('api.request.db_runtime', tags: tags, times: 1, value: be_between(0, 100))
+    end.to trigger_statsd_measure('api.request.db_runtime', tags:, times: 1, value: be_between(0, 100))
   end
 
   it 'sends view_runtime data to statsd' do
@@ -58,21 +58,21 @@ RSpec.describe StatsdMiddleware, type: :request do
     tags = %w[controller:v0/prescriptions action:index status:200]
     expect do
       get '/v0/prescriptions'
-    end.to trigger_statsd_measure('api.request.view_runtime', tags: tags, times: 1, value: be_between(0, 100))
+    end.to trigger_statsd_measure('api.request.view_runtime', tags:, times: 1, value: be_between(0, 100))
   end
 
   it 'handles a missing route correctly' do
     tags = %w[controller:application action:routing_error source_app:not_provided status:404]
     expect do
       get '/v0/blahblah'
-    end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1, value: 1)
+    end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags:, times: 1, value: 1)
   end
 
   it 'provides duration for missing routes' do
     tags = %w[controller:application action:routing_error source_app:not_provided]
     expect do
       get '/v0/blahblah'
-    end.to trigger_statsd_measure(StatsdMiddleware::DURATION_KEY, tags: tags, times: 1, value: 0.0)
+    end.to trigger_statsd_measure(StatsdMiddleware::DURATION_KEY, tags:, times: 1, value: 0.0)
   end
 
   it 'sends source_app to statsd' do
@@ -80,7 +80,7 @@ RSpec.describe StatsdMiddleware, type: :request do
     tags = %w[controller:v0/prescriptions action:index source_app:profile status:200]
     expect do
       get '/v0/prescriptions', headers: { 'Source-App-Name' => 'profile' }
-    end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)
+    end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags:, times: 1)
   end
 
   it 'sends undefined to statsd when source_app is undefined' do
@@ -88,7 +88,7 @@ RSpec.describe StatsdMiddleware, type: :request do
     tags = %w[controller:v0/prescriptions action:index source_app:undefined status:200]
     expect do
       get '/v0/prescriptions', headers: { 'Source-App-Name' => 'undefined' }
-    end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)
+    end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags:, times: 1)
   end
 
   it 'uses not_in_allowlist for source_app when the value is not in allow list' do
@@ -96,7 +96,7 @@ RSpec.describe StatsdMiddleware, type: :request do
     tags = %w[controller:v0/prescriptions action:index source_app:not_in_allowlist status:200]
     expect do
       get '/v0/prescriptions', headers: { 'Source-App-Name' => 'foo' }
-    end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)
+    end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags:, times: 1)
   end
 
   it 'logs a warning for unrecognized source_app_name headers' do

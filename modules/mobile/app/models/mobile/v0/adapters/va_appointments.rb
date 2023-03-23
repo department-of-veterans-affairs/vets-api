@@ -92,30 +92,30 @@ module Mobile
 
           cancel_id = if booked_va_appointment?(status, type)
                         Mobile::V0::Appointment.encode_cancel_id(
-                          start_date_local: start_date_local,
+                          start_date_local:,
                           clinic_id: appointment_hash[:clinic_id],
                           facility_id: Mobile::V0::Appointment.convert_to_non_prod_id!(facility_id),
-                          healthcare_service: healthcare_service
+                          healthcare_service:
                         )
                       end
 
           adapted_hash = {
             id: appointment_hash[:id],
             appointment_type: type,
-            cancel_id: cancel_id,
+            cancel_id:,
             comment: comment(details, type),
-            facility_id: facility_id,
-            sta6aid: sta6aid,
+            facility_id:,
+            sta6aid:,
             healthcare_provider: nil, # healthcare_provider is currently only used by CC appointments
             healthcare_service: healthcare_service(appointment_hash, details, type),
             location: location(details, type, facility_id),
             minutes_duration: minutes_duration(details, type),
             phone_only: appointment_hash[:phone_only] == true,
-            start_date_local: start_date_local,
-            start_date_utc: start_date_utc,
-            status: status,
-            status_detail: status_detail,
-            time_zone: time_zone,
+            start_date_local:,
+            start_date_utc:,
+            status:,
+            status_detail:,
+            time_zone:,
             vetext_id: vetext_id(appointment_hash, start_date_local),
             reason: details[:booking_note],
             is_covid_vaccine: covid_vaccine?(appointment_hash),
@@ -128,7 +128,7 @@ module Mobile
             friendly_location_name: nil
           }
 
-          Rails.logger.info('metric.mobile.appointment.type', type: type)
+          Rails.logger.info('metric.mobile.appointment.type', type:)
 
           Mobile::V0::Appointment.new(adapted_hash)
         end

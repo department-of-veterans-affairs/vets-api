@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe MHVOptInFlag do
   subject { described_class.new(params) }
 
-  let(:params) { { user_account_id: account_uuid, feature: feature } }
+  let(:params) { { user_account_id: account_uuid, feature: } }
   let(:user_verification) { create(:user_verification) }
   let(:user_account) { user_verification.user_account }
   let(:account_uuid) { user_account.id }

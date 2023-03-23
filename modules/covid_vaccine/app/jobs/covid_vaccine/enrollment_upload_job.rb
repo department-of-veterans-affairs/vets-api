@@ -11,19 +11,19 @@ module CovidVaccine
     STATSD_SUCCESS_NAME = 'worker.covid_vaccine_enrollment_upload.success'
 
     def perform(batch_id)
-      Rails.logger.info('Covid_Vaccine Enrollment_Upload: Start', batch_id: batch_id)
+      Rails.logger.info('Covid_Vaccine Enrollment_Upload: Start', batch_id:)
 
       processor = CovidVaccine::V0::EnrollmentProcessor.new(batch_id)
       record_count = processor.process_and_upload!
 
-      Rails.logger.info('Covid_Vaccine Enrollment_Upload: Success', batch_id: batch_id, record_count: record_count)
+      Rails.logger.info('Covid_Vaccine Enrollment_Upload: Success', batch_id:, record_count:)
       StatsD.increment(STATSD_SUCCESS_NAME)
     rescue => e
       handle_errors(e, batch_id)
     end
 
     def handle_errors(ex, batch_id)
-      Rails.logger.error('Covid_Vaccine Enrollment_Upload: Failed', batch_id: batch_id)
+      Rails.logger.error('Covid_Vaccine Enrollment_Upload: Failed', batch_id:)
       log_exception_to_sentry(ex)
       StatsD.increment(STATSD_ERROR_NAME)
       raise ex

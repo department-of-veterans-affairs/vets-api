@@ -138,7 +138,7 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
         errors: [
           {
             code: '404',
-            detail: I18n.t('appeals_api.errors.not_found', type: 'SupplementalClaim', id: id),
+            detail: I18n.t('appeals_api.errors.not_found', type: 'SupplementalClaim', id:),
             status: '404',
             title: 'Record not found'
           }

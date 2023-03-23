@@ -86,7 +86,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     after do
       if @attributes
         guid = @attributes['guid']
-        upload = VBADocuments::UploadFile.find_by(guid: guid)
+        upload = VBADocuments::UploadFile.find_by(guid:)
         expect(upload).to be_uploaded
       end
     end
@@ -125,7 +125,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         before { Flipper.disable :vba_documents_skip_dimension_check }
 
         it 'returns a UUID with status of error' do
-          post SUBMIT_ENDPOINT, params: params
+          post(SUBMIT_ENDPOINT, params:)
           expect(response).to have_http_status(:bad_request)
           json = JSON.parse(response.body)
           @attributes = json['data']['attributes']
@@ -143,7 +143,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         before { Flipper.enable :vba_documents_skip_dimension_check }
 
         it 'allows the upload, returning a UUID with a status of uploaded and correct metadata' do
-          post SUBMIT_ENDPOINT, params: params
+          post(SUBMIT_ENDPOINT, params:)
           expect(response).to have_http_status(:ok)
           json = JSON.parse(response.body)
           @attributes = json['data']['attributes']

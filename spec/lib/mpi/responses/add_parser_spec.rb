@@ -9,7 +9,7 @@ describe MPI::Responses::AddParser do
   let(:mpi_codes) { { other: [{ codeSystemName: 'MVI', code: 'INTERR', displayName: 'Internal System Error' }] } }
   let(:error_details) do
     { other: mpi_codes[:other],
-      error_details: { ack_detail_code: ack_detail_code,
+      error_details: { ack_detail_code:,
                        id_extension: '200VGOV-1373004c-e23e-4d94-90c5-5b101f6be54a',
                        error_texts: ['Internal System Error'] } }
   end
@@ -31,7 +31,7 @@ describe MPI::Responses::AddParser do
     end
 
     describe '#parse' do
-      let(:codes) { { birls_id: '111985523', participant_id: '32397028', transaction_id: transaction_id } }
+      let(:codes) { { birls_id: '111985523', participant_id: '32397028', transaction_id: } }
 
       it 'returns a MviProfile with the parsed attributes' do
         expect(parser.parse).to have_deep_attributes(codes)
@@ -64,12 +64,12 @@ describe MPI::Responses::AddParser do
             other: [
               { codeSystemName: 'MVI', code: error, displayName: 'test error' }
             ],
-            birls_id: birls_id,
-            participant_id: participant_id,
-            logingov_uuid: logingov_uuid,
-            idme_uuid: idme_uuid,
-            edipi: edipi,
-            icn: icn
+            birls_id:,
+            participant_id:,
+            logingov_uuid:,
+            idme_uuid:,
+            edipi:,
+            icn:
           }
         end
 

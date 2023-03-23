@@ -39,11 +39,11 @@ module SignIn
         mhv_icn: session.user_account.icn,
         idme_uuid: user_verification.idme_uuid,
         logingov_uuid: user_verification.logingov_uuid,
-        loa: loa,
+        loa:,
         email: session.credential_email,
-        authn_context: authn_context,
-        multifactor: multifactor,
-        sign_in: sign_in
+        authn_context:,
+        multifactor:,
+        sign_in:
       }
     end
 

@@ -6,7 +6,7 @@ require 'shrine/plugins/storage_from_config'
 describe Shrine::Plugins::StorageFromConfig do
   let(:uploader) do
     Class.new(Shrine).tap do |k|
-      k.plugin :storage_from_config, settings: settings
+      k.plugin :storage_from_config, settings:
     end
   end
 

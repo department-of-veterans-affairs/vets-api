@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'transactions' do
   include SchemaMatchers
   let(:vet360_id) { '1' }
-  let(:user) { build(:user, :loa3, vet360_id: vet360_id) }
+  let(:user) { build(:user, :loa3, vet360_id:) }
 
   before do
     allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)

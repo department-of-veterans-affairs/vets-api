@@ -31,7 +31,7 @@ def stub_vet360(person = nil)
   )
 
   allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_return(
-    VAProfile::ContactInformation::PersonResponse.new(200, person: person)
+    VAProfile::ContactInformation::PersonResponse.new(200, person:)
   )
 end
 # rubocop:enable Metrics/MethodLength

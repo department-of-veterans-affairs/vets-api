@@ -51,11 +51,11 @@ module Search
     #
     def query_params
       {
-        affiliate: affiliate,
-        access_key: access_key,
-        query: query,
-        offset: offset,
-        limit: limit
+        affiliate:,
+        access_key:,
+        query:,
+        offset:,
+        limit:
       }
     end
 

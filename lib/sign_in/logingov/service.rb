@@ -73,7 +73,7 @@ module SignIn
           redirect_uri: config.redirect_uri,
           response_type: config.response_type,
           scope: SCOPE,
-          state: state
+          state:
         }
       end
 
@@ -96,7 +96,7 @@ module SignIn
       end
 
       def log_credential(credential)
-        MockedAuthentication::Mockdata::Writer.save_credential(credential: credential, credential_type: 'logingov')
+        MockedAuthentication::Mockdata::Writer.save_credential(credential:, credential_type: 'logingov')
       end
 
       def raise_client_error(client_error, function_name)
@@ -126,14 +126,14 @@ module SignIn
         {
           client_id: config.client_id,
           post_logout_redirect_uri: redirect_uri,
-          state: state
+          state:
         }
       end
 
       def token_params(code)
         {
           grant_type: config.grant_type,
-          code: code,
+          code:,
           client_assertion_type: config.client_assertion_type,
           client_assertion: client_assertion_jwt
         }.to_json

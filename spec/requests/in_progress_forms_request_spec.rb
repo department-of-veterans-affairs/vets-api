@@ -161,7 +161,7 @@ RSpec.describe V0::InProgressFormsController do
           it 'converts the json keys' do
             form_data = { 'view:hasVaMedicalRecords' => true }
 
-            in_progress_form.update(form_data: form_data)
+            in_progress_form.update(form_data:)
             get v0_in_progress_form_url(in_progress_form.form_id),
                 headers: { 'HTTP_X_KEY_INFLECTION' => 'camel' }
             body = JSON.parse(response.body)
@@ -181,7 +181,7 @@ RSpec.describe V0::InProgressFormsController do
               'Hello, there Sam-I -Am!' => true
             }
 
-            in_progress_form.update(form_data: form_data)
+            in_progress_form.update(form_data:)
             get v0_in_progress_form_url(in_progress_form.form_id)
             body = JSON.parse(response.body)
             expect(body.keys).to include('formData', 'metadata')
@@ -357,7 +357,7 @@ RSpec.describe V0::InProgressFormsController do
         let(:form_data) { { some_form_data: 'form-data' }.to_json }
 
         it 'updates the right form' do
-          put v0_in_progress_form_url(existing_form.form_id), params: { form_data: form_data }
+          put v0_in_progress_form_url(existing_form.form_id), params: { form_data: }
           expect(response).to have_http_status(:ok)
 
           expect(existing_form.reload.form_data).to eq(form_data)

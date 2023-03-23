@@ -16,7 +16,7 @@ module V0
 
     def update
       form = InProgressForm.form_for_user(form_id, @current_user) ||
-             InProgressForm.new(form_id: form_id, user_uuid: @current_user.uuid)
+             InProgressForm.new(form_id:, user_uuid: @current_user.uuid)
       form.user_account = @current_user.user_account
       form.real_user_uuid = @current_user.uuid
       form.update!(form_data: params[:form_data] || params[:formData], metadata: params[:metadata])

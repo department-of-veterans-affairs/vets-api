@@ -39,7 +39,7 @@ class FormProfiles::VA5655 < FormProfile
 
     file_number =
       begin
-        response = BGS::People::Request.new.find_person_by_participant_id(user: user)
+        response = BGS::People::Request.new.find_person_by_participant_id(user:)
         response.file_number.presence || user.ssn
       rescue
         user.ssn

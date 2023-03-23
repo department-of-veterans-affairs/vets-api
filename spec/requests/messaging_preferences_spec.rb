@@ -9,7 +9,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
   include SchemaMatchers
 
   let(:va_patient) { true }
-  let(:current_user) { build(:user, :mhv, va_patient: va_patient, mhv_account_type: mhv_account_type) }
+  let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
 
   before do
     allow(SM::Client).to receive(:new).and_return(authenticated_client)
@@ -42,7 +42,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
 
       let(:va_patient) { false }
       let(:current_user) do
-        build(:user, :mhv, :no_vha_facilities, va_patient: va_patient, mhv_account_type: mhv_account_type)
+        build(:user, :mhv, :no_vha_facilities, va_patient:, mhv_account_type:)
       end
 
       include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
@@ -64,7 +64,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
       VCR.use_cassette('sm_client/preferences/sets_the_email_notification_settings', record: :none) do
         params = { email_address: 'kamyar.karshenas@va.gov',
                    frequency: 'none' }
-        put '/v0/messaging/health/preferences', params: params
+        put '/v0/messaging/health/preferences', params:
       end
 
       expect(response).to have_http_status(:ok)
@@ -77,7 +77,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
     it 'requires all parameters for update' do
       VCR.use_cassette('sm_client/preferences/sets_the_email_notification_settings', record: :none) do
         params = { email_address: 'kamyar.karshenas@va.gov' }
-        put '/v0/messaging/health/preferences', params: params
+        put '/v0/messaging/health/preferences', params:
       end
 
       expect(response).to have_http_status(:unprocessable_entity)
@@ -87,7 +87,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
       VCR.use_cassette('sm_client/preferences/sets_the_email_notification_settings', record: :none) do
         params = { email_address: 'kamyar.karshenas@va.gov',
                    frequency: 'hourly' }
-        put '/v0/messaging/health/preferences', params: params
+        put '/v0/messaging/health/preferences', params:
       end
 
       expect(response).to have_http_status(:unprocessable_entity)
@@ -97,7 +97,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
       VCR.use_cassette('sm_client/preferences/raises_a_backend_service_exception_when_email_includes_spaces') do
         params = { email_address: 'kamyar karshenas@va.gov',
                    frequency: 'daily' }
-        put '/v0/messaging/health/preferences', params: params
+        put '/v0/messaging/health/preferences', params:
       end
 
       expect(response).to have_http_status(:unprocessable_entity)

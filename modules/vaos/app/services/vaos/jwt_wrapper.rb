@@ -35,7 +35,7 @@ module VAOS
         exp: 15.minutes.from_now.to_i,
         sst: 1.minute.ago.to_i + 50,
         version: VERSION,
-        gender: gender,
+        gender:,
         dob: parsed_date,
         dateOfBirth: parsed_date,
         edipid: user.edipi_mpi,

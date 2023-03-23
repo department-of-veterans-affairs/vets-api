@@ -23,11 +23,11 @@ module BGS
     # rubocop:disable Metrics/MethodLength
     def submit(payload)
       proc_id = create_proc_id_and_form
-      veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user, claim_type: '130SCHATTEBN').create
+      veteran = VnpVeteran.new(proc_id:, payload:, user: @user, claim_type: '130SCHATTEBN').create
 
       process_relationships(proc_id, veteran, payload)
 
-      vnp_benefit_claim = VnpBenefitClaim.new(proc_id: proc_id, veteran: veteran, user: @user)
+      vnp_benefit_claim = VnpBenefitClaim.new(proc_id:, veteran:, user: @user)
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
       set_claim_type('MANUAL_VAGOV') # we are TEMPORARILY always setting to MANUAL_VAGOV for 674
@@ -38,9 +38,9 @@ module BGS
       benefit_claim_record = BenefitClaim.new(
         args: {
           vnp_benefit_claim: vnp_benefit_claim_record,
-          veteran: veteran,
+          veteran:,
           user: @user,
-          proc_id: proc_id,
+          proc_id:,
           end_product_name: @end_product_name,
           end_product_code: @end_product_code
         }
@@ -61,11 +61,11 @@ module BGS
     private
 
     def process_relationships(proc_id, veteran, payload)
-      dependent = DependentHigherEdAttendance.new(proc_id: proc_id, payload: payload, user: @user).create
+      dependent = DependentHigherEdAttendance.new(proc_id:, payload:, user: @user).create
 
       VnpRelationships.new(
-        proc_id: proc_id,
-        veteran: veteran,
+        proc_id:,
+        veteran:,
         dependents: [dependent],
         step_children: [],
         user: @user
@@ -76,9 +76,9 @@ module BGS
 
     def process_674(proc_id, dependent, payload)
       StudentSchool.new(
-        proc_id: proc_id,
+        proc_id:,
         vnp_participant_id: dependent[:vnp_participant_id],
-        payload: payload,
+        payload:,
         user: @user
       ).create
     end

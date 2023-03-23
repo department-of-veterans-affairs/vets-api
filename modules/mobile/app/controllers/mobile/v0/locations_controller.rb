@@ -9,7 +9,7 @@ module Mobile
         Rails.logger.info('Mobile Location', param_id: params[:id])
 
         lh_location = service.get_location(params[:id])
-        Rails.logger.info('Mobile Location, Lighthouse Info', lh_location: lh_location)
+        Rails.logger.info('Mobile Location, Lighthouse Info', lh_location:)
         if lh_location[:identifier].nil?
           raise Common::Exceptions::BackendServiceException, 'validation_errors_bad_request'
         end

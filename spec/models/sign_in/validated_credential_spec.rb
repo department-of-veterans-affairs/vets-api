@@ -5,9 +5,9 @@ require 'rails_helper'
 RSpec.describe SignIn::ValidatedCredential, type: :model do
   let(:validated_credential) do
     create(:validated_credential,
-           user_verification: user_verification,
-           credential_email: credential_email,
-           client_config: client_config)
+           user_verification:,
+           credential_email:,
+           client_config:)
   end
 
   let(:user_verification) { create(:user_verification) }

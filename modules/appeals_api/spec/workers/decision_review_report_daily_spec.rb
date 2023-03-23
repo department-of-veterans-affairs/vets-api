@@ -22,9 +22,9 @@ describe AppealsApi::DecisionReviewReportDaily, type: :job do
         allow(YAML).to receive(:load_file).and_return({ 'common' => recipients })
         expect(AppealsApi::DecisionReviewMailer).to receive(:build).once.with(
           date_from: date_from.beginning_of_day,
-          date_to: date_to,
+          date_to:,
           friendly_duration: 'Daily',
-          recipients: recipients
+          recipients:
         ).and_return(double.tap do |mailer|
           expect(mailer).to receive(:deliver_now).once
         end)

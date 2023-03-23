@@ -64,7 +64,7 @@ RSpec.describe ClaimsApi::EwsUpdater, type: :job do
   def create_target_veteran
     {
       mhv_icn: veteran_id,
-      loa: loa,
+      loa:,
       external_key: 'external_key',
       external_uid: 'external_uid'
     }

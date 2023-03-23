@@ -69,7 +69,7 @@ RSpec.describe BGS::People::Response do
   end
 
   describe '#cache?' do
-    subject { described_class.new(response, status: status).cache? }
+    subject { described_class.new(response, status:).cache? }
 
     context 'when status is ok' do
       let(:status) { :ok }

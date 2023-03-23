@@ -53,7 +53,7 @@ module BGS
 
     # Proxy to call a method on our web service.
     def request(method, message = nil)
-      @client.call(method, message: message)
+      @client.call(method, message:)
     end
 
     # Handle BGS Person not found error

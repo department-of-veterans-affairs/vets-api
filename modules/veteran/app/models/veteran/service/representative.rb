@@ -45,7 +45,7 @@ module Veteran
       #
       # @return [Veteran::Service::Representative] First representative record found using the submitted search criteria
       def self.for_user(first_name:, last_name:, ssn: nil, dob: nil)
-        reps = all_for_user(first_name: first_name, last_name: last_name, ssn: ssn, dob: dob)
+        reps = all_for_user(first_name:, last_name:, ssn:, dob:)
         return nil if reps.blank?
 
         reps.first

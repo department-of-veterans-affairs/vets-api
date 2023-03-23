@@ -6,7 +6,7 @@ class AppealsApiWeeklyErrorReportMailerPreview < ActionMailer::Preview
     recipients = Settings.modules_appeals_api.reports.weekly_error.recipients
     AppealsApi::WeeklyErrorReportMailer.build(
       date_from: Time.zone.now, date_to:  1.week.ago.beginning_of_day,
-      friendly_duration: 'Weekly', recipients: recipients
+      friendly_duration: 'Weekly', recipients:
     )
   end
 end

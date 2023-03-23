@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe SignIn::Logger do
-  let(:logger) { SignIn::Logger.new(prefix: prefix) }
+  let(:logger) { SignIn::Logger.new(prefix:) }
   let(:prefix) { 'some-logger-prefix' }
   let(:user_account) { create(:user_account) }
   let(:expected_logger_message) { "[SignInService] [#{prefix}] #{message}" }
@@ -17,7 +17,7 @@ RSpec.describe SignIn::Logger do
   describe '#info' do
     subject { logger.info(message, attributes) }
 
-    let(:attributes) { { attribute: attribute } }
+    let(:attributes) { { attribute: } }
 
     it 'create a Rails info log with expected values' do
       expect(Rails.logger).to receive(:info).with(expected_logger_message, attributes)

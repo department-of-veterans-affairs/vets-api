@@ -20,7 +20,7 @@ module MockedAuthentication
     end
 
     def mock_credential_info
-      @mock_credential_info ||= CredentialInfo.new(credential_info_code: credential_info_code,
+      @mock_credential_info ||= CredentialInfo.new(credential_info_code:,
                                                    credential_info: parsed_credential_info)
     end
 

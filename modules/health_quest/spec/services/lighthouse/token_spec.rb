@@ -6,7 +6,7 @@ describe HealthQuest::Lighthouse::Token do
   subject { described_class }
 
   let(:user) { double('User', account_uuid: 'abc123', icn: '1008596379V859838') }
-  let(:token) { subject.build(user: user, api: 'pgd_api') }
+  let(:token) { subject.build(user:, api: 'pgd_api') }
 
   describe 'constants' do
     it 'has an ACCESS_TOKEN' do
@@ -141,7 +141,7 @@ describe HealthQuest::Lighthouse::Token do
     end
 
     context 'when health_api' do
-      let(:token) { subject.build(user: user, api: 'health_api') }
+      let(:token) { subject.build(user:, api: 'health_api') }
 
       it 'sets the health scopes' do
         scopes = Settings.hqva_mobile.lighthouse.health_api_scopes.join(' ')

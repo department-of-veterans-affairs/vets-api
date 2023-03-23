@@ -6,10 +6,10 @@ RSpec.describe SignIn::RefreshTokenDecryptor do
   describe '#perform' do
     subject { SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: token_to_decrypt).perform }
 
-    let(:refresh_token) { create(:refresh_token, version: version, nonce: nonce) }
+    let(:refresh_token) { create(:refresh_token, version:, nonce:) }
     let(:version) { SignIn::Constants::RefreshToken::CURRENT_VERSION }
     let(:nonce) { 'some-nonce' }
-    let(:encrypted_refresh_token) { SignIn::RefreshTokenEncryptor.new(refresh_token: refresh_token).perform }
+    let(:encrypted_refresh_token) { SignIn::RefreshTokenEncryptor.new(refresh_token:).perform }
     let(:token_to_decrypt) { encrypted_refresh_token }
 
     context 'when version part of encrypted refresh_token string has been changed' do

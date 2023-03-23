@@ -101,10 +101,10 @@ module HealthQuest
       def appointments_with_questionnaires
         @appointments_with_questionnaires ||=
           BasicQuestionnaireManagerFormatter.build(
-            appointments: appointments,
-            hashed_organizations: hashed_organizations,
-            hashed_locations: hashed_locations,
-            hashed_questionnaires: hashed_questionnaires
+            appointments:,
+            hashed_organizations:,
+            hashed_locations:,
+            hashed_questionnaires:
           ).to_a
       end
 

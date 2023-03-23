@@ -29,7 +29,7 @@ task backfill_user_account_for_in_progress_forms: :environment do
                    get_user_verification(form.user_uuid)
     next unless user_account
 
-    form.update!(user_account: user_account)
+    form.update!(user_account:)
   end
   Rails.logger.info('[BackfillUserAccountIdForInProgressForms] Finished rake task')
   Rails.logger.info(in_progress_form_rails_logger_message)

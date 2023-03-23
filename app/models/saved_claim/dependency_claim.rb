@@ -38,7 +38,7 @@ class SavedClaim::DependencyClaim < SavedClaim
     self.form_id = form_id
 
     form_path = PdfFill::Filler.fill_form(self)
-    upload_to_vbms(path: form_path, doc_type: doc_type)
+    upload_to_vbms(path: form_path, doc_type:)
   end
 
   def add_veteran_info(va_file_number_with_payload)
@@ -99,7 +99,7 @@ class SavedClaim::DependencyClaim < SavedClaim
     uploader = ClaimsApi::VBMSUploader.new(
       filepath: path,
       file_number: parsed_form['veteran_information']['va_file_number'] || parsed_form['veteran_information']['ssn'],
-      doc_type: doc_type
+      doc_type:
     )
 
     uploader.upload!
@@ -114,6 +114,6 @@ class SavedClaim::DependencyClaim < SavedClaim
     veteran_data = dependent_data['dependents_application'].slice('household_income', 'veteran_contact_information')
     college_student_data = { 'dependents_application' => student_data.merge!(veteran_data) }
 
-    { college_student_data: college_student_data, dependent_data: dependent_data }
+    { college_student_data:, dependent_data: }
   end
 end

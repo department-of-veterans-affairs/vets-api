@@ -13,7 +13,7 @@ namespace :pension_burial do
 
       if JIDS.include?(jid)
         guid = job.args[1]['internal']['history'][0]['user_args']['guid']
-        persistent_attachment = PersistentAttachment.find_by(guid: guid)
+        persistent_attachment = PersistentAttachment.find_by(guid:)
         raise if persistent_attachment.completed_at.present?
 
         persistent_attachment.process

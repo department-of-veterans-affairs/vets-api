@@ -86,7 +86,7 @@ namespace :form526 do
       F526_OPTIONS_STRUCT.new(
         print_header: -> { print_row.call(**F526_ROW[:headers]) },
         print_hr: -> { puts '------------------------------------------------------------' },
-        print_row: print_row,
+        print_row:,
         print_total: ->(header, total) { puts format("%-20s#{separator}%s", "#{header}:", total) },
         ignore_submission: ->(_) { false },
         submissions: Form526Submission.where(created_at: [start_date.beginning_of_day..end_date.end_of_day]),
@@ -218,7 +218,7 @@ namespace :form526 do
         c_id: submission.submitted_claim_id,
         p_id: submission.auth_headers['va_eauth_pid'],
         complete: submission.workflow_complete,
-        version: version
+        version:
       )
     end
     options.submissions = options.submissions.where.not(id: ids_to_ignore) if ids_to_ignore.present?
@@ -482,7 +482,7 @@ namespace :form526 do
           edipis << edipi
         end
 
-        response = MPI::Service.new.find_profile_by_edipi(edipi: edipi).profile
+        response = MPI::Service.new.find_profile_by_edipi(edipi:).profile
         active_corp_ids = response.full_mvi_ids.select { |id| id.match?(/\d*\^PI\^200CORP\^USVBA\^A/) }
         vname = "#{fs.auth_headers['va_eauth_firstName']} #{fs.auth_headers['va_eauth_lastName']}"
         csv << [vname, edipi, active_corp_ids] if active_corp_ids.count > 1
@@ -517,8 +517,8 @@ namespace :form526 do
           puts "icn blank #{fs.id}"
           next
         end
-        user = OpenStruct.new(participant_id: fs.auth_headers['va_eauth_pid'], icn: icn, common_name: vname,
-                              ssn: ssn)
+        user = OpenStruct.new(participant_id: fs.auth_headers['va_eauth_pid'], icn:, common_name: vname,
+                              ssn:)
         award_response = BGS::AwardsService.new(user).get_awards
         if award_response
           soj = award_response[:award_stn_nbr]
@@ -697,7 +697,7 @@ namespace :form526 do
     end
 
     def user_identity(icn:, edipi:)
-      OpenStruct.new mhv_icn: icn, edipi: edipi
+      OpenStruct.new mhv_icn: icn, edipi:
     end
 
     def edipi(auth_headers)
@@ -707,7 +707,7 @@ namespace :form526 do
     def icn(edipi)
       raise Error, 'no edipi' unless edipi
 
-      icns = Account.where(edipi: edipi).pluck :icn
+      icns = Account.where(edipi:).pluck :icn
       raise Error, 'multiple icns' if icns.uniq.length > 1
 
       icns.first

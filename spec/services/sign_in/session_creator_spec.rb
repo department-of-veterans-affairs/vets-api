@@ -4,17 +4,17 @@ require 'rails_helper'
 
 RSpec.describe SignIn::SessionCreator do
   let(:session_creator) do
-    SignIn::SessionCreator.new(validated_credential: validated_credential)
+    SignIn::SessionCreator.new(validated_credential:)
   end
 
   describe '#perform' do
     subject { session_creator.perform }
 
     context 'when input object is a ValidatedCredential' do
-      let(:validated_credential) { create(:validated_credential, client_config: client_config) }
+      let(:validated_credential) { create(:validated_credential, client_config:) }
       let(:user_uuid) { validated_credential.user_verification.backing_credential_identifier }
       let(:client_id) { client_config.client_id }
-      let(:client_config) { create(:client_config, refresh_token_duration: refresh_token_duration) }
+      let(:client_config) { create(:client_config, refresh_token_duration:) }
       let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
 
       context 'expected anti_csrf_token' do
@@ -45,7 +45,7 @@ RSpec.describe SignIn::SessionCreator do
           create(:refresh_token,
                  uuid: expected_token_uuid,
                  user_uuid: expected_user_uuid,
-                 parent_refresh_token_hash: parent_refresh_token_hash,
+                 parent_refresh_token_hash:,
                  session_handle: expected_handle,
                  nonce: stubbed_random_number,
                  anti_csrf_token: stubbed_random_number)
@@ -103,7 +103,7 @@ RSpec.describe SignIn::SessionCreator do
           create(:refresh_token,
                  uuid: expected_token_uuid,
                  user_uuid: expected_user_uuid,
-                 parent_refresh_token_hash: parent_refresh_token_hash,
+                 parent_refresh_token_hash:,
                  session_handle: expected_handle,
                  nonce: stubbed_random_number,
                  anti_csrf_token: stubbed_random_number)

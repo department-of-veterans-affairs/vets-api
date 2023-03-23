@@ -27,7 +27,7 @@ describe PagerDuty::MaintenanceClient do
         .to_return(
           status: 200,
           headers: { 'Content-Type' => 'application/json; charset=utf-8' },
-          body: body
+          body:
         )
       windows = subject.get_all
       expect(windows).to be_a(Array)
@@ -41,7 +41,7 @@ describe PagerDuty::MaintenanceClient do
         .to_return(
           status: 200,
           headers: { 'Content-Type' => 'application/json; charset=utf-8' },
-          body: body
+          body:
         )
       windows = subject.get_all
       expect(windows.first[:description]).to eq('')
@@ -91,7 +91,7 @@ describe PagerDuty::MaintenanceClient do
         .to_return(
           status: 200,
           headers: { 'Content-Type' => 'application/json; charset=utf-8' },
-          body: body
+          body:
         )
       windows = subject.get_all('service_ids' => %w[ABCDEF])
       expect(windows).to be_a(Array)

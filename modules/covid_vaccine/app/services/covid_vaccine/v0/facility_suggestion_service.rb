@@ -54,7 +54,7 @@ module CovidVaccine
         # There may not be the number of requested VAMCs in this list
         # if there are many clinics closer by, but return as many as are
         # available up to requested count.
-        response = client.get_facilities(lat: lat, long: lng,
+        response = client.get_facilities(lat:, long: lng,
                                          per_page: 50, type: 'health')
 
         result = response.select(&allowed_vamcs).map(&elements)

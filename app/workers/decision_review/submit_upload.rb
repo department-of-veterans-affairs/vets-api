@@ -64,7 +64,7 @@ module DecisionReview
         file_number: file_number_or_ssn
       )
       upload_url = upload_url_response.body.dig('data', 'attributes', 'location')
-      get_dr_svc.put_notice_of_disagreement_upload(upload_url: upload_url,
+      get_dr_svc.put_notice_of_disagreement_upload(upload_url:,
                                                    file_upload: sanitized_file,
                                                    metadata_string: appeal_submission.upload_metadata)
       upload_url_response
@@ -77,7 +77,7 @@ module DecisionReview
         file_number: file_number_or_ssn
       )
       upload_url = upload_url_response.body.dig('data', 'attributes', 'location')
-      get_dr_svc.put_supplemental_claim_upload(upload_url: upload_url,
+      get_dr_svc.put_supplemental_claim_upload(upload_url:,
                                                file_upload: sanitized_file,
                                                metadata_string: appeal_submission.upload_metadata)
       upload_url_response

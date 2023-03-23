@@ -30,7 +30,7 @@ module MedicalCopays
       def initialize(opts)
         @request = MedicalCopays::Request.build
         @user = opts[:user]
-        @request_data = RequestData.build(user: user) unless user.nil?
+        @request_data = RequestData.build(user:) unless user.nil?
       end
 
       ##
@@ -52,7 +52,7 @@ module MedicalCopays
           response.body.concat(zero_balance_statements.list)
         end
 
-        ResponseData.build(response: response).handle
+        ResponseData.build(response:).handle
       end
 
       ##

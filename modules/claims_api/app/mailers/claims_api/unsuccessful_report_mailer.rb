@@ -36,7 +36,7 @@ module ClaimsApi
         to: RECIPIENTS,
         subject: 'Benefits Claims Daily Submission Report',
         content_type: 'text/html',
-        body: body
+        body:
       )
     end
 

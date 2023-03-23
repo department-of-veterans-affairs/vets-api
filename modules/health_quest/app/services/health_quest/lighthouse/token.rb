@@ -34,14 +34,14 @@ module HealthQuest
       # @return [Lighthouse::Token] an instance of this class
       #
       def self.build(user:, api:)
-        new(user: user, api: api)
+        new(user:, api:)
       end
 
       def initialize(opts)
         @api = opts[:api]
         @user = opts[:user]
         @request = Request.build
-        @claims_token = ClaimsToken.build(api: api).sign_assertion
+        @claims_token = ClaimsToken.build(api:).sign_assertion
       end
 
       ##

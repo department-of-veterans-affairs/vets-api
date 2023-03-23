@@ -17,7 +17,7 @@ module ClaimsApi
 
         @is_valid_ccg_flow ||= client.token_valid?(audience: claims_audience,
                                                    scope: request_method_to_scope[request.method],
-                                                   token: token)
+                                                   token:)
         raise ::Common::Exceptions::Forbidden unless @is_valid_ccg_flow
       end
     end

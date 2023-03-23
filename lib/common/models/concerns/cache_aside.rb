@@ -54,7 +54,7 @@ module Common
     private
 
     def set_attributes(key, response)
-      self.attributes = { uuid: key, response: response }
+      self.attributes = { uuid: key, response: }
     end
   end
 end

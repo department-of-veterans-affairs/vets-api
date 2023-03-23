@@ -14,7 +14,7 @@ RSpec.describe 'Messages Integration', type: :request do
   let(:draft) { attributes_for(:message, body: 'Body 1', subject: 'Subject 1') }
   let(:params) { draft.slice(:category, :subject, :body, :recipient_id) }
   let(:va_patient) { true }
-  let(:current_user) { build(:user, :mhv, va_patient: va_patient, mhv_account_type: mhv_account_type) }
+  let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before do
@@ -25,7 +25,7 @@ RSpec.describe 'Messages Integration', type: :request do
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
 
-    before { post '/my_health/v1/messaging/message_drafts', params: params }
+    before { post '/my_health/v1/messaging/message_drafts', params: }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
     include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
@@ -34,7 +34,7 @@ RSpec.describe 'Messages Integration', type: :request do
   context 'Advanced User' do
     let(:mhv_account_type) { 'Advanced' }
 
-    before { post '/my_health/v1/messaging/message_drafts', params: params }
+    before { post '/my_health/v1/messaging/message_drafts', params: }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
     include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
@@ -44,11 +44,11 @@ RSpec.describe 'Messages Integration', type: :request do
     let(:mhv_account_type) { 'Premium' }
 
     context 'not a va patient' do
-      before { post '/my_health/v1/messaging/message_drafts', params: params }
+      before { post '/my_health/v1/messaging/message_drafts', params: }
 
       let(:va_patient) { false }
       let(:current_user) do
-        build(:user, :mhv, :no_vha_facilities, va_patient: va_patient, mhv_account_type: mhv_account_type)
+        build(:user, :mhv, :no_vha_facilities, va_patient:, mhv_account_type:)
       end
 
       include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
@@ -59,7 +59,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
       it 'responds to POST #create' do
         VCR.use_cassette('sm_client/message_drafts/creates_a_draft') do
-          post '/my_health/v1/messaging/message_drafts', params: params
+          post '/my_health/v1/messaging/message_drafts', params:
         end
 
         expect(response).to be_successful
@@ -70,7 +70,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
       it 'responds to POST #create when camel-inflected' do
         VCR.use_cassette('sm_client/message_drafts/creates_a_draft') do
-          post '/my_health/v1/messaging/message_drafts', params: params, headers: inflection_header
+          post '/my_health/v1/messaging/message_drafts', params:, headers: inflection_header
         end
 
         expect(response).to be_successful
@@ -84,7 +84,7 @@ RSpec.describe 'Messages Integration', type: :request do
           params[:subject] = 'Updated Subject'
           params[:id] = created_draft_id
 
-          put "/my_health/v1/messaging/message_drafts/#{created_draft_id}", params: params
+          put "/my_health/v1/messaging/message_drafts/#{created_draft_id}", params:
         end
 
         expect(response).to be_successful
@@ -97,7 +97,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
       it 'responds to POST #create' do
         VCR.use_cassette('sm_client/message_drafts/creates_a_draft_reply') do
-          post "/my_health/v1/messaging/message_drafts/#{reply_id}/replydraft", params: params
+          post "/my_health/v1/messaging/message_drafts/#{reply_id}/replydraft", params:
         end
 
         expect(response).to be_successful
@@ -108,7 +108,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
       it 'responds to POST #create when camel-inflected' do
         VCR.use_cassette('sm_client/message_drafts/creates_a_draft_reply') do
-          post "/my_health/v1/messaging/message_drafts/#{reply_id}/replydraft", params: params,
+          post "/my_health/v1/messaging/message_drafts/#{reply_id}/replydraft", params:,
                                                                                 headers: inflection_header
         end
 
@@ -122,7 +122,7 @@ RSpec.describe 'Messages Integration', type: :request do
         VCR.use_cassette('sm_client/message_drafts/updates_a_draft_reply') do
           params[:body] = 'Updated Body'
           params[:id] = created_draft_reply_id
-          put "/my_health/v1/messaging/message_drafts/#{reply_id}/replydraft/#{created_draft_reply_id}", params: params
+          put "/my_health/v1/messaging/message_drafts/#{reply_id}/replydraft/#{created_draft_reply_id}", params:
         end
 
         expect(response).to be_successful

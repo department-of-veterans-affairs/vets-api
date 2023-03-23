@@ -22,7 +22,7 @@ module VBADocuments
         results = { long_flyers_alerted: long_flyers_alert,
                     upload_stalled_alerted: upload_stalled_alert,
                     invalid_parts_alerted: invalid_parts_alert,
-                    daily_notification: daily_notification }
+                    daily_notification: }
       rescue => e
         results = e
       end

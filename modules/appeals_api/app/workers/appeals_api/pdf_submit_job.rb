@@ -31,7 +31,7 @@ module AppealsApi
       appeal = appeal_wrapper(appeal_class).new(appeal_class.find(appeal_id))
 
       begin
-        stamped_pdf = AppealsApi::PdfConstruction::Generator.new(appeal, pdf_version: pdf_version).generate
+        stamped_pdf = AppealsApi::PdfConstruction::Generator.new(appeal, pdf_version:).generate
         appeal.update_status!(status: 'submitting')
         upload_to_central_mail(appeal, stamped_pdf)
         File.delete(stamped_pdf) if File.exist?(stamped_pdf)

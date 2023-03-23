@@ -24,8 +24,8 @@ module EVSS
         {
           version: :TLSv1_2,
           verify: true,
-          client_cert: client_cert,
-          client_key: client_key,
+          client_cert:,
+          client_key:,
           ca_file: root_ca
         }
       end

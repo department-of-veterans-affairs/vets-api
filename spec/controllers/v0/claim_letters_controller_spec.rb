@@ -27,7 +27,7 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
 
   describe '#show' do
     it 'responds with a pdf with a dated filename' do
-      get(:show, params: { document_id: document_id })
+      get(:show, params: { document_id: })
 
       expect(response.header['Content-Type']).to eq('application/pdf')
       expect(response.header['Content-Disposition']).to include("filename=\"#{filename}\"")
@@ -42,7 +42,7 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     end
 
     it 'has a dated filename' do
-      get(:show, params: { document_id: document_id })
+      get(:show, params: { document_id: })
 
       expect(response.header['Content-Disposition']).to include("filename=\"#{filename}\"")
     end

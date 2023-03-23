@@ -61,7 +61,7 @@ module Mobile
             {
               id: entry['id'],
               type: 'appeal',
-              subtype: subtype,
+              subtype:,
               completed: !entry['attributes']['active'],
               date_filed: entry['attributes']['events'][filed_index]['date'],
               updated_at: entry['attributes']['events'].last['date'],

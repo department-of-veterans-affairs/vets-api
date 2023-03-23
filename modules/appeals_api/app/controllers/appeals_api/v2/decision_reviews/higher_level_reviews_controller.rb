@@ -108,7 +108,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
 
     return if error.blank?
 
-    render status: status, json: error
+    render status:, json: error
   end
 
   def validation_success

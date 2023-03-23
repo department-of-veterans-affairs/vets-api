@@ -59,8 +59,8 @@ RSpec.describe BGS::StudentSchool do
         )
 
         BGS::StudentSchool.new(
-          proc_id: proc_id,
-          vnp_participant_id: vnp_participant_id,
+          proc_id:,
+          vnp_participant_id:,
           payload: all_flows_payload,
           user: user_object
         ).create

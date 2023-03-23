@@ -77,7 +77,7 @@ describe 'sm client' do
         ]
       end
       let(:params) { @params }
-      let(:params_with_attachments) { { message: params }.merge(uploads: uploads) }
+      let(:params_with_attachments) { { message: params }.merge(uploads:) }
 
       it 'a new message without attachments' do
         expect(created_message).to be_a(Message)

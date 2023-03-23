@@ -5,7 +5,7 @@ require 'mpi/messages/request_builder'
 
 describe MPI::Messages::RequestBuilder do
   describe '#perform' do
-    subject { described_class.new(extension: extension, body: body, search_token: search_token).perform }
+    subject { described_class.new(extension:, body:, search_token:).perform }
 
     before do
       allow(SecureRandom).to receive(:uuid).and_return(random_number)

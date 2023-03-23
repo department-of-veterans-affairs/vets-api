@@ -30,7 +30,7 @@ module BB
 
           data =  parsed_extract_status_list || parsed_health_record_types
           @parsed_json = {
-            data: data,
+            data:,
             errors: @errors,
             metadata: @meta_attributes
           }
@@ -42,7 +42,7 @@ module BB
                        @parsed_json.delete(:last_updatedtime)
 
           {
-            updated_at: updated_at,
+            updated_at:,
             failed_station_list: @parsed_json.delete(:failed_station_list)
           }
         end

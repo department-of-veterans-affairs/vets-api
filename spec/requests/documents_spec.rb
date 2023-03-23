@@ -15,17 +15,17 @@ RSpec.describe 'Documents management', type: :request do
   before { sign_in_as(user) }
 
   it 'uploads a file' do
-    params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }
+    params = { file:, tracked_item_id:, document_type: }
     expect do
-      post '/v0/evss_claims/189625/documents', params: params
+      post('/v0/evss_claims/189625/documents', params:)
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
   end
 
   it 'rejects files with invalid document_types' do
-    params = { file: file, tracked_item_id: tracked_item_id, document_type: 'invalid type' }
-    post '/v0/evss_claims/189625/documents', params: params
+    params = { file:, tracked_item_id:, document_type: 'invalid type' }
+    post('/v0/evss_claims/189625/documents', params:)
     expect(response.status).to eq(422)
     expect(JSON.parse(response.body)['errors'].first['title']).to eq(
       I18n.t('errors.messages.uploads.document_type_unknown')
@@ -33,8 +33,8 @@ RSpec.describe 'Documents management', type: :request do
   end
 
   it 'normalizes requests with a null tracked_item_id' do
-    params = { file: file, tracked_item_id: 'null', document_type: document_type }
-    post '/v0/evss_claims/189625/documents', params: params
+    params = { file:, tracked_item_id: 'null', document_type: }
+    post('/v0/evss_claims/189625/documents', params:)
     args = EVSS::DocumentUpload.jobs.first['args'][2]
     expect(response.status).to eq(202)
     expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
@@ -46,8 +46,8 @@ RSpec.describe 'Documents management', type: :request do
     let(:file) { fixture_file_upload('invalid_idme_cert.crt', 'application/x-x509-ca-cert') }
 
     it 'rejects files with invalid document_types' do
-      params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }
-      post '/v0/evss_claims/189625/documents', params: params
+      params = { file:, tracked_item_id:, document_type: }
+      post('/v0/evss_claims/189625/documents', params:)
       expect(response.status).to eq(422)
       expect(JSON.parse(response.body)['errors'].first['title']).to eq('Unprocessable Entity')
     end
@@ -57,22 +57,22 @@ RSpec.describe 'Documents management', type: :request do
     let(:locked_file) { fixture_file_upload('locked_pdf_password_is_test.pdf', 'application/pdf') }
 
     it 'rejects locked PDFs if no password is provided' do
-      params = { file: locked_file, tracked_item_id: tracked_item_id, document_type: document_type }
-      post '/v0/evss_claims/189625/documents', params: params
+      params = { file: locked_file, tracked_item_id:, document_type: }
+      post('/v0/evss_claims/189625/documents', params:)
       expect(response.status).to eq(422)
       expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.pdf.locked'))
     end
 
     it 'accepts locked PDFs with the correct password' do
-      params = { file: locked_file, tracked_item_id: tracked_item_id, document_type: document_type, password: 'test' }
-      post '/v0/evss_claims/189625/documents', params: params
+      params = { file: locked_file, tracked_item_id:, document_type:, password: 'test' }
+      post('/v0/evss_claims/189625/documents', params:)
       expect(response.status).to eq(202)
       expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
     end
 
     it 'rejects locked PDFs with the incocorrect password' do
-      params = { file: locked_file, tracked_item_id: tracked_item_id, document_type: document_type, password: 'bad' }
-      post '/v0/evss_claims/189625/documents', params: params
+      params = { file: locked_file, tracked_item_id:, document_type:, password: 'bad' }
+      post('/v0/evss_claims/189625/documents', params:)
       expect(response.status).to eq(422)
       expect(JSON.parse(response.body)['errors'].first['title']).to eq(
         I18n.t('errors.messages.uploads.pdf.incorrect_password')
@@ -89,8 +89,8 @@ RSpec.describe 'Documents management', type: :request do
     end
 
     it 'rejects a file that is not really a PDF' do
-      params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
-      post '/v0/evss_claims/189625/documents', params: params
+      params = { file: tempfile, tracked_item_id:, document_type: }
+      post('/v0/evss_claims/189625/documents', params:)
       expect(response.status).to eq(422)
       expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.malformed_pdf'))
     end
@@ -100,8 +100,8 @@ RSpec.describe 'Documents management', type: :request do
     let(:file) { fixture_file_upload('empty_file.txt', 'text/plain') }
 
     it 'rejects a text file with no body' do
-      params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }
-      post '/v0/evss_claims/189625/documents', params: params
+      params = { file:, tracked_item_id:, document_type: }
+      post('/v0/evss_claims/189625/documents', params:)
       expect(response.status).to eq(422)
       expect(JSON.parse(response.body)['errors'].first['detail']).to eq(
         I18n.t('errors.messages.min_size_error', min_size: '1 Byte')
@@ -118,8 +118,8 @@ RSpec.describe 'Documents management', type: :request do
     end
 
     it 'rejects a text file containing untranslatable characters' do
-      params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
-      post '/v0/evss_claims/189625/documents', params: params
+      params = { file: tempfile, tracked_item_id:, document_type: }
+      post('/v0/evss_claims/189625/documents', params:)
       expect(response.status).to eq(422)
       expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.ascii_encoded'))
     end
@@ -134,8 +134,8 @@ RSpec.describe 'Documents management', type: :request do
     end
 
     it 'accepts a text file containing translatable characters' do
-      params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
-      post '/v0/evss_claims/189625/documents', params: params
+      params = { file: tempfile, tracked_item_id:, document_type: }
+      post('/v0/evss_claims/189625/documents', params:)
       expect(response.status).to eq(202)
       expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
     end
@@ -152,8 +152,8 @@ RSpec.describe 'Documents management', type: :request do
     end
 
     it 'rejects a text file containing binary data' do
-      params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
-      post '/v0/evss_claims/189625/documents', params: params
+      params = { file: tempfile, tracked_item_id:, document_type: }
+      post('/v0/evss_claims/189625/documents', params:)
       expect(response.status).to eq(422)
       expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.ascii_encoded'))
     end

@@ -65,7 +65,7 @@ describe 'form526 rake tasks', type: :request do
       sign_in_as(user)
       put '/v0/in_progress_forms/21-526EZ', params: in_progress_form.to_json, headers: headers_with_camel
       run_rake_task
-      get '/v0/in_progress_forms/21-526EZ', headers: headers
+      get('/v0/in_progress_forms/21-526EZ', headers:)
       response_json = JSON.parse(response.body)
       expect(response_json['formData']).to eq(in_progress_form526_original['formData'])
     end

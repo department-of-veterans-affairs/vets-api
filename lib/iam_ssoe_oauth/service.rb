@@ -45,7 +45,7 @@ module IAMSSOeOAuth
       URI.encode_www_form(
         {
           client_id: CLIENT_ID,
-          token: token,
+          token:,
           token_type_hint: TOKEN_TYPE_HINT
         }
       )

@@ -69,8 +69,8 @@ module CentralMail
 
     def response_values(key, source, status, detail)
       {
-        status: status,
-        detail: detail,
+        status:,
+        detail:,
         code: key,
         source: source.to_s
       }

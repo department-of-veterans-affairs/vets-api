@@ -98,12 +98,12 @@ module Mobile
 
         def submit_document(file, claim_id, tracked_item_id, document_type, password)
           document_data = EVSSClaimDocument.new(evss_claim_id: claim_id, file_obj: file, uuid: SecureRandom.uuid,
-                                                file_name: file.original_filename, tracked_item_id: tracked_item_id,
-                                                document_type: document_type, password: password)
+                                                file_name: file.original_filename, tracked_item_id:,
+                                                document_type:, password:)
           raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
           jid = evss_claim_service.upload_document(document_data)
-          Rails.logger.info('Mobile Request', { claim_id: claim_id, job_id: jid })
+          Rails.logger.info('Mobile Request', { claim_id:, job_id: jid })
           jid
         end
 

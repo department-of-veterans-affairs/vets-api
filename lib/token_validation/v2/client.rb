@@ -22,13 +22,13 @@ module TokenValidation
 
         return false unless response.status == 200
 
-        token_permits_scope?(scope: scope, response: response)
+        token_permits_scope?(scope:, response:)
       end
 
       private
 
       def token_permits_scope?(scope:, response:)
-        permitted_scopes = permitted_scopes(response: response)
+        permitted_scopes = permitted_scopes(response:)
         permitted_scopes.include?(scope)
       end
 

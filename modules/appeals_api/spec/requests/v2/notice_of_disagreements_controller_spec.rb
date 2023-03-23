@@ -443,7 +443,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
       data['data']['attributes']['boardReviewOption'] = 'hearing'
       headers = @max_headers.merge('X-VA-Birth-Date' => '3000-01-02')
 
-      post(path, params: data.to_json, headers: headers)
+      post(path, params: data.to_json, headers:)
 
       expect(response.status).to eq 422
       expect(parsed['errors'].count).to eq 3

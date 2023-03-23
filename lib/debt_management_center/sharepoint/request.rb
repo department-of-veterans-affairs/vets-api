@@ -31,12 +31,12 @@ module DebtManagementCenter
       # @return [Faraday::Response] - Response from SharePoint upload
       #
       def upload(form_contents:, form_submission:, station_id:)
-        upload_response = upload_pdf(form_contents: form_contents, form_submission: form_submission,
-                                     station_id: station_id)
+        upload_response = upload_pdf(form_contents:, form_submission:,
+                                     station_id:)
 
         list_item_id = get_pdf_list_item_id(upload_response)
 
-        update_list_item_fields(list_item_id: list_item_id, form_submission: form_submission, station_id: station_id)
+        update_list_item_fields(list_item_id:, form_submission:, station_id:)
       end
 
       private
@@ -50,7 +50,7 @@ module DebtManagementCenter
         auth_response = auth_connection.post("/#{tenant_id}/tokens/OAuth/2", {
                                                grant_type: 'client_credentials',
                                                client_id: "#{client_id}@#{tenant_id}",
-                                               client_secret: client_secret,
+                                               client_secret:,
                                                resource: "#{resource}/#{sharepoint_url}@#{tenant_id}"
                                              })
 

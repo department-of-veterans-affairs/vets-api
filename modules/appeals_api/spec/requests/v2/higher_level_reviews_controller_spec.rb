@@ -198,7 +198,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         headers = @minimum_required_headers
         headers['X-VA-Birth-Date'] = 'apricot'
 
-        post(path, params: @data.to_json, headers: headers)
+        post(path, params: @data.to_json, headers:)
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
       end

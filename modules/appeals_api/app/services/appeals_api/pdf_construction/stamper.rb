@@ -29,7 +29,7 @@ module AppealsApi
       def date_and_consumer_stamp_path
         text = generate_text(10, @appeal.consumer_name)
         CentralMail::DatestampPdf.new(date_stamp_path).run(
-          text: text,
+          text:,
           x: 445,
           y: 782,
           text_only: true,

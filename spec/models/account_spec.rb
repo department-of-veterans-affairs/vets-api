@@ -18,8 +18,8 @@ RSpec.describe Account, type: :model do
     sec_id = 'some-sec-id'
 
     expect do
-      first_account = Account.new(sec_id: sec_id)
-      second_account = Account.new(sec_id: sec_id)
+      first_account = Account.new(sec_id:)
+      second_account = Account.new(sec_id:)
 
       first_account.save
       second_account.save
@@ -86,7 +86,7 @@ RSpec.describe Account, type: :model do
   end
 
   describe '.lookup_by_user_uuid' do
-    let!(:find_me) { create(:account, idme_uuid: idme_uuid, logingov_uuid: logingov_uuid, icn: icn) }
+    let!(:find_me) { create(:account, idme_uuid:, logingov_uuid:, icn:) }
     let!(:dont_find_me) { create(:account, idme_uuid: other_idme_uuid, logingov_uuid: other_logingov_uuid) }
     let(:idme_uuid) { 'some-idme-uuid' }
     let(:logingov_uuid) { 'some-logingov-uuid' }
@@ -125,7 +125,7 @@ RSpec.describe Account, type: :model do
     end
 
     context 'when a user account has a uuid matching user_uuid' do
-      let(:user_uuid) { create(:user_account, icn: icn).id }
+      let(:user_uuid) { create(:user_account, icn:).id }
 
       it 'returns the account that matches the icn in the user account' do
         expect(Account.lookup_by_user_uuid(user_uuid)).to eq find_me
@@ -138,8 +138,8 @@ RSpec.describe Account, type: :model do
     let!(:dont_find_me) { create :account }
 
     context 'when user_uuid matches a UserAccount' do
-      let(:user_uuid) { create(:user_account, icn: icn).id }
-      let!(:account) { create(:account, icn: icn) }
+      let(:user_uuid) { create(:user_account, icn:).id }
+      let!(:account) { create(:account, icn:) }
 
       context 'and matching UserAccount has an icn' do
         let(:icn) { 'some-icn' }

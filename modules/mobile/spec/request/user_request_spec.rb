@@ -619,7 +619,7 @@ RSpec.describe 'user', type: :request do
           )
         )
         expect(Rails.logger).to receive(:error).with(
-          'Error fetching user data from EVSS', user_uuid: user.uuid, details: details
+          'Error fetching user data from EVSS', user_uuid: user.uuid, details:
         )
 
         VCR.use_cassette('payment_information/payment_information') do

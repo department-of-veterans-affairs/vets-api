@@ -31,11 +31,11 @@ module Common
         end
 
         def increment(key, tags = nil)
-          StatsDMetric.new(key: key).save
+          StatsDMetric.new(key:).save
           if tags.blank?
             StatsD.increment(key)
           else
-            StatsD.increment(key, tags: tags)
+            StatsD.increment(key, tags:)
           end
         end
       end

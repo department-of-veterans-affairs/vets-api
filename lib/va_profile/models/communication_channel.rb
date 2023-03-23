@@ -21,7 +21,7 @@ module VAProfile
           id: communication_channel_data['communication_channel_id'],
           name: communication_channel_data['name'],
           description: communication_channel_data['description'],
-          default_send_indicator: default_send_indicator
+          default_send_indicator:
         )
 
         permission = permission_res['bios']&.find do |permission_data|

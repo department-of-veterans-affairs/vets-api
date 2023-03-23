@@ -18,22 +18,22 @@ module V0
 
       delete_cookies if token_cookies
 
-      acr_for_type = SignIn::AcrTranslator.new(acr: acr, type: type).perform
-      state = SignIn::StatePayloadJwtEncoder.new(code_challenge: code_challenge,
-                                                 code_challenge_method: code_challenge_method,
-                                                 acr: acr,
+      acr_for_type = SignIn::AcrTranslator.new(acr:, type:).perform
+      state = SignIn::StatePayloadJwtEncoder.new(code_challenge:,
+                                                 code_challenge_method:,
+                                                 acr:,
                                                  client_config: client_config(client_id),
-                                                 type: type,
-                                                 client_state: client_state).perform
-      context = { type: type, client_id: client_id, acr: acr }
+                                                 type:,
+                                                 client_state:).perform
+      context = { type:, client_id:, acr: }
 
       sign_in_logger.info('authorize', context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SUCCESS,
                        tags: ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}"])
 
-      render body: auth_service(type, client_id).render_auth(state: state, acr: acr_for_type), content_type: 'text/html'
+      render body: auth_service(type, client_id).render_auth(state:, acr: acr_for_type), content_type: 'text/html'
     rescue SignIn::Errors::StandardError => e
-      sign_in_logger.info('authorize error', { errors: e.message, client_id: client_id, type: type, acr: acr })
+      sign_in_logger.info('authorize error', { errors: e.message, client_id:, type:, acr: })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_FAILURE)
       handle_pre_login_error(e, client_id)
     rescue => e
@@ -50,7 +50,7 @@ module V0
       validate_callback_params(code, state, error)
 
       state_payload = SignIn::StatePayloadJwtDecoder.new(state_payload_jwt: state).perform
-      SignIn::StatePayloadVerifier.new(state_payload: state_payload).perform
+      SignIn::StatePayloadVerifier.new(state_payload:).perform
 
       handle_credential_provider_error(error, state_payload&.type) if error
       service_token_response = auth_service(state_payload.type, state_payload.client_id).token(code)
@@ -62,7 +62,7 @@ module V0
       credential_level = SignIn::CredentialLevelCreator.new(requested_acr: state_payload.acr,
                                                             type: state_payload.type,
                                                             id_token: service_token_response[:id_token],
-                                                            user_info: user_info).perform
+                                                            user_info:).perform
       if credential_level.can_uplevel_credential?
         render_uplevel_credential(state_payload)
       else
@@ -88,11 +88,11 @@ module V0
 
       validate_token_params(code, code_verifier, grant_type)
 
-      validated_credential = SignIn::CodeValidator.new(code: code,
-                                                       code_verifier: code_verifier,
-                                                       grant_type: grant_type).perform
-      session_container = SignIn::SessionCreator.new(validated_credential: validated_credential).perform
-      serializer_response = SignIn::TokenSerializer.new(session_container: session_container,
+      validated_credential = SignIn::CodeValidator.new(code:,
+                                                       code_verifier:,
+                                                       grant_type:).perform
+      session_container = SignIn::SessionCreator.new(validated_credential:).perform
+      serializer_response = SignIn::TokenSerializer.new(session_container:,
                                                         cookies: token_cookies).perform
 
       sign_in_logger.token_log('token', session_container.access_token)
@@ -113,8 +113,8 @@ module V0
 
       decrypted_refresh_token = SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
       session_container = SignIn::SessionRefresher.new(refresh_token: decrypted_refresh_token,
-                                                       anti_csrf_token: anti_csrf_token).perform
-      serializer_response = SignIn::TokenSerializer.new(session_container: session_container,
+                                                       anti_csrf_token:).perform
+      serializer_response = SignIn::TokenSerializer.new(session_container:,
                                                         cookies: token_cookies).perform
 
       sign_in_logger.token_log('refresh', session_container.access_token)
@@ -138,7 +138,7 @@ module V0
       raise SignIn::Errors::MalformedParamsError.new message: 'Refresh token is not defined' unless refresh_token
 
       decrypted_refresh_token = SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
-      SignIn::SessionRevoker.new(refresh_token: decrypted_refresh_token, anti_csrf_token: anti_csrf_token).perform
+      SignIn::SessionRevoker.new(refresh_token: decrypted_refresh_token, anti_csrf_token:).perform
 
       sign_in_logger.token_log('revoke', decrypted_refresh_token)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_SUCCESS)
@@ -181,7 +181,7 @@ module V0
         raise SignIn::Errors::LogoutAuthorizationError.new message: 'Unable to Authorize User'
       end
 
-      SignIn::SessionRevoker.new(access_token: @access_token, anti_csrf_token: anti_csrf_token).perform
+      SignIn::SessionRevoker.new(access_token: @access_token, anti_csrf_token:).perform
       delete_cookies if token_cookies
 
       sign_in_logger.token_log('logout', @access_token)
@@ -259,7 +259,7 @@ module V0
         error_code = error.try(:code) || SignIn::Constants::ErrorCode::INVALID_REQUEST
         params_hash = { auth: 'fail', code: error_code, request_id: request.request_id }
         render body: SignIn::RedirectUrlGenerator.new(redirect_uri: client_config(client_id).redirect_uri,
-                                                      params_hash: params_hash).perform,
+                                                      params_hash:).perform,
                content_type: 'text/html'
       else
         render json: { errors: error }, status: :bad_request
@@ -291,17 +291,17 @@ module V0
                                                  type: state_payload.type,
                                                  client_state: state_payload.client_state).perform
       render body: auth_service(state_payload.type,
-                                state_payload.client_id).render_auth(state: state, acr: acr_for_type),
+                                state_payload.client_id).render_auth(state:, acr: acr_for_type),
              content_type: 'text/html'
     end
 
     def create_login_code(state_payload, user_info, credential_level) # rubocop:disable Metrics/MethodLength
       user_attributes = auth_service(state_payload.type,
                                      state_payload.client_id).normalized_attributes(user_info, credential_level)
-      verified_icn = SignIn::AttributeValidator.new(user_attributes: user_attributes).perform
-      user_code_map = SignIn::UserCreator.new(user_attributes: user_attributes,
-                                              state_payload: state_payload,
-                                              verified_icn: verified_icn,
+      verified_icn = SignIn::AttributeValidator.new(user_attributes:).perform
+      user_code_map = SignIn::UserCreator.new(user_attributes:,
+                                              state_payload:,
+                                              verified_icn:,
                                               request_ip: request.ip).perform
       context = {
         type: state_payload.type,
@@ -319,7 +319,7 @@ module V0
       params_hash.merge!(state: user_code_map.client_state) if user_code_map.client_state.present?
 
       render body: SignIn::RedirectUrlGenerator.new(redirect_uri: user_code_map.client_config.redirect_uri,
-                                                    params_hash: params_hash).perform,
+                                                    params_hash:).perform,
              content_type: 'text/html'
     end
 
@@ -343,7 +343,7 @@ module V0
     end
 
     def auth_service(type, client_id = nil)
-      SignIn::AuthenticationServiceRetriever.new(type: type, client_config: client_config(client_id)).perform
+      SignIn::AuthenticationServiceRetriever.new(type:, client_config: client_config(client_id)).perform
     end
 
     def cookie_authentication?(client_id)
@@ -351,7 +351,7 @@ module V0
     end
 
     def client_config(client_id)
-      @client_config ||= SignIn::ClientConfig.find_by(client_id: client_id)
+      @client_config ||= SignIn::ClientConfig.find_by(client_id:)
     end
 
     def sign_in_logger

@@ -217,7 +217,7 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
 
       context 'with Authentication-Method header value of SIS' do
         let(:access_token) { create(:access_token) }
-        let(:bearer_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token).perform }
+        let(:bearer_token) { SignIn::AccessTokenJwtEncoder.new(access_token:).perform }
         let!(:user) { create(:user, :loa3, uuid: access_token.user_uuid) }
 
         before do

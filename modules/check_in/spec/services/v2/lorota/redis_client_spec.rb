@@ -104,7 +104,7 @@ describe V2::Lorota::RedisClient do
     let(:token) { '12345' }
 
     it 'saves the value in cache' do
-      expect(redis_client.save(check_in_uuid: uuid, token: token)).to eq(true)
+      expect(redis_client.save(check_in_uuid: uuid, token:)).to eq(true)
 
       val = Rails.cache.read(
         "check_in_lorota_v2_#{uuid}_read.full",
@@ -128,7 +128,7 @@ describe V2::Lorota::RedisClient do
       end
 
       it 'returns the cached value' do
-        expect(redis_client.retry_attempt_count(uuid: uuid)).to eq('2')
+        expect(redis_client.retry_attempt_count(uuid:)).to eq('2')
       end
     end
 
@@ -146,14 +146,14 @@ describe V2::Lorota::RedisClient do
 
       it 'returns nil' do
         Timecop.travel(retry_attempt_expiry.from_now) do
-          expect(redis_client.retry_attempt_count(uuid: uuid)).to eq(nil)
+          expect(redis_client.retry_attempt_count(uuid:)).to eq(nil)
         end
       end
     end
 
     context 'when cache does not exist' do
       it 'returns nil' do
-        expect(redis_client.retry_attempt_count(uuid: uuid)).to eq(nil)
+        expect(redis_client.retry_attempt_count(uuid:)).to eq(nil)
       end
     end
   end
@@ -163,7 +163,7 @@ describe V2::Lorota::RedisClient do
     let(:retry_count) { 3 }
 
     it 'saves the value in cache' do
-      expect(redis_client.save_retry_attempt_count(uuid: uuid, retry_count: retry_count)).to eq(true)
+      expect(redis_client.save_retry_attempt_count(uuid:, retry_count:)).to eq(true)
 
       val = Rails.cache.read(
         "authentication_retry_limit_#{uuid}",

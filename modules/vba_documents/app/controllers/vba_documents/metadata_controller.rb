@@ -76,7 +76,7 @@ module VBADocuments
       render json: {
         description: 'VBA Documents API upstream health check',
         status: health_checker.services_are_healthy? ? 'UP' : 'DOWN',
-        time: time,
+        time:,
         details: {
           name: 'All upstream services',
           upstreamServices: VBADocuments::HealthChecker::SERVICES.map do |service|
@@ -98,7 +98,7 @@ module VBADocuments
           name: service_name.titleize,
           statusCode: healthy ? 200 : 503,
           status: healthy ? 'OK' : 'Unavailable',
-          time: time
+          time:
         }
       }
     end

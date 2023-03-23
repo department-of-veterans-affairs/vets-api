@@ -53,7 +53,7 @@ module JsonSchema
         errors.concat(required_errors.map { |error| build_required_errors(error) }.reduce(:concat))
       end
       errors.concat(other_errors.map { |error| build_error(error) })
-      { errors: errors }
+      { errors: }
     end
   end
 end

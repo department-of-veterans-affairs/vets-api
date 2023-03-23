@@ -5,9 +5,9 @@ require 'rails_helper'
 RSpec.describe SignIn::CodeValidator do
   describe '#perform' do
     subject do
-      SignIn::CodeValidator.new(code: code,
-                                code_verifier: code_verifier,
-                                grant_type: grant_type).perform
+      SignIn::CodeValidator.new(code:,
+                                code_verifier:,
+                                grant_type:).perform
     end
 
     let(:code) { 'some-code' }
@@ -28,8 +28,8 @@ RSpec.describe SignIn::CodeValidator do
       let!(:code_container) do
         create(:code_container,
                code: code_container_code,
-               code_challenge: code_challenge,
-               user_verification_id: user_verification_id)
+               code_challenge:,
+               user_verification_id:)
       end
       let(:code_container_code) { code }
       let(:code_challenge) { 'some-code-challenge' }
@@ -81,7 +81,7 @@ RSpec.describe SignIn::CodeValidator do
             let(:expected_email) { code_container.credential_email }
             let(:expected_client_config) { SignIn::ClientConfig.find_by(client_id: code_container.client_id) }
             let(:expected_validated_credential) do
-              SignIn::ValidatedCredential.new(user_verification: user_verification,
+              SignIn::ValidatedCredential.new(user_verification:,
                                               credential_email: expected_email,
                                               client_id: expected_client_id)
             end
@@ -89,7 +89,7 @@ RSpec.describe SignIn::CodeValidator do
             it 'returns a validated credential object with expected attributes' do
               expect(subject).to have_attributes(credential_email: expected_email,
                                                  client_config: expected_client_config,
-                                                 user_verification: user_verification)
+                                                 user_verification:)
             end
 
             it 'returns a validated credential object with expected credential email' do

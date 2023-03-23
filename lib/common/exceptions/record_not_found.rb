@@ -16,7 +16,7 @@ module Common
 
       def errors
         detail = @detail.presence || { id: @id }
-        Array(SerializableError.new(i18n_interpolated(detail: detail)))
+        Array(SerializableError.new(i18n_interpolated(detail:)))
       end
     end
   end

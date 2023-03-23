@@ -51,7 +51,7 @@ module EducationForm
         regional_data = group_submissions_by_region(records)
         formatted_records = format_records(regional_data)
         # Create a remote file for each region, and write the records into them
-        writer = SFTPWriter::Factory.get_writer(Settings.edu.sftp).new(Settings.edu.sftp, logger: logger)
+        writer = SFTPWriter::Factory.get_writer(Settings.edu.sftp).new(Settings.edu.sftp, logger:)
         write_files(writer, structured_data: formatted_records)
       rescue => e
         StatsD.increment("#{STATSD_FAILURE_METRIC}.general")
@@ -70,7 +70,7 @@ module EducationForm
     # open for a shorter period of time.
     def format_records(grouped_data)
       raw_groups = grouped_data.each do |region, v|
-        region_id = EducationFacility.facility_for(region: region)
+        region_id = EducationFacility.facility_for(region:)
         grouped_data[region] = v.map do |record|
           format_application(record, rpo: region_id)
         end.compact
@@ -84,7 +84,7 @@ module EducationForm
     # Creates or updates an SpoolFileEvent for tracking and to prevent multiple files per RPO per date during retries
     def write_files(writer, structured_data:)
       structured_data.each do |region, records|
-        region_id = EducationFacility.facility_for(region: region)
+        region_id = EducationFacility.facility_for(region:)
         filename = "#{region_id}_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}_vetsgov.spl"
         spool_file_event = SpoolFileEvent.build_event(region_id, filename)
 

@@ -11,15 +11,15 @@ RSpec.describe V1::SessionsController, type: :controller do
 
   let(:uuid) { SecureRandom.uuid }
   let(:token) { 'abracadabra-open-sesame' }
-  let(:loa1_user) { build(:user, :loa1, uuid: uuid, idme_uuid: uuid) }
-  let(:loa3_user) { build(:user, :loa3, uuid: uuid, idme_uuid: uuid) }
-  let(:ial1_user) { build(:user, :ial1, uuid: uuid, logingov_uuid: uuid) }
+  let(:loa1_user) { build(:user, :loa1, uuid:, idme_uuid: uuid) }
+  let(:loa3_user) { build(:user, :loa3, uuid:, idme_uuid: uuid) }
+  let(:ial1_user) { build(:user, :ial1, uuid:, logingov_uuid: uuid) }
   let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
   let(:user_attributes) { double('user_attributes', saml_user_attributes) }
   let(:saml_user) do
     instance_double('SAML::User',
                     changing_multifactor?: false,
-                    user_attributes: user_attributes,
+                    user_attributes:,
                     to_hash: saml_user_attributes,
                     needs_csp_id_mpi_update?: false,
                     validate!: nil)
@@ -50,7 +50,7 @@ RSpec.describe V1::SessionsController, type: :controller do
   let(:authn_context) { LOA::IDME_LOA1_VETS }
   let(:valid_saml_response) do
     build_saml_response(
-      authn_context: authn_context,
+      authn_context:,
       level_of_assurance: ['3'],
       attributes: build(:ssoe_idme_loa1, va_eauth_ial: 3),
       in_response_to: login_uuid,
@@ -60,7 +60,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
   let(:expected_redirect_url) { 'http://127.0.0.1:3001/auth/login/callback' }
   let(:error_code) { '007' }
-  let(:expected_redirect_params) { { auth: 'fail', code: error_code, request_id: request_id }.to_query }
+  let(:expected_redirect_params) { { auth: 'fail', code: error_code, request_id: }.to_query }
   let(:expected_redirect) do
     uri = URI.parse(expected_redirect_url)
     uri.query = expected_redirect_params
@@ -126,7 +126,7 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect(SAML::SSOeSettingsService)
                 .to receive(:saml_settings)
                 .with(force_authn: expected_force_authn)
-              expect { get(:new, params: { type: type, clientId: '123123' }) }
+              expect { get(:new, params: { type:, clientId: '123123' }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ["context:#{type}", 'version:v1', 'client_id:vaweb'], **once)
                 .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY, **once)
@@ -135,7 +135,7 @@ RSpec.describe V1::SessionsController, type: :controller do
               payload = SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload
               expect(payload)
                 .to eq({
-                         type: type,
+                         type:,
                          authn_context: authn,
                          transaction_id: payload[:transaction_id]
                        })
@@ -143,7 +143,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
             context 'USiP user' do
               it 'logs the USiP client application' do
-                expect { get(:new, params: { type: type, clientId: '123123', application: 'vamobile' }) }
+                expect { get(:new, params: { type:, clientId: '123123', application: 'vamobile' }) }
                   .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                                tags: ["context:#{type}", 'version:v1', 'client_id:vamobile'], **once)
               end
@@ -331,7 +331,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'routes requiring auth' do
         %w[mfa verify].each do |type|
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
-            get(:new, params: { type: type })
+            get(:new, params: { type: })
             expect(response).to have_http_status(:unauthorized)
             expect(JSON.parse(response.body))
               .to eq('errors' => [{
@@ -370,7 +370,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       end
 
       context 'when authenticated type is mhv_verified' do
-        let(:type_param) { { type: type } }
+        let(:type_param) { { type: } }
         let(:type) { 'mhv_verified' }
 
         context 'and authenticated user is loa three' do
@@ -387,7 +387,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           let(:saml_user_attributes) { loa1_user.attributes.merge(loa1_user.identity.attributes) }
           let(:error_code) { SAML::UserAttributeError::MHV_UNVERIFIED_BLOCKED_CODE }
           let(:expected_redirect_params) do
-            { auth: 'fail', code: error_code, request_id: request_id, type: type }.to_query
+            { auth: 'fail', code: error_code, request_id:, type: }.to_query
           end
 
           it 'redirects to an auth failure page' do
@@ -409,7 +409,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
         let(:valid_saml_response) do
           build_saml_response(
-            authn_context: authn_context,
+            authn_context:,
             level_of_assurance: ['3'],
             attributes: invalid_attributes,
             in_response_to: login_uuid,
@@ -459,7 +459,7 @@ RSpec.describe V1::SessionsController, type: :controller do
   context 'when logged in' do
     before do
       allow(SAML::User).to receive(:new).and_return(saml_user)
-      session_object = Session.create(uuid: uuid, token: token)
+      session_object = Session.create(uuid:, token:)
       session_object.to_hash.each { |k, v| session[k] = v }
       loa1 = User.create(loa1_user.attributes)
       UserIdentity.create(loa1_user.identity.attributes)
@@ -471,7 +471,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         %w[mhv dslogon idme mfa verify].each do |type|
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             it 'responds' do
-              expect { get(:new, params: { type: type }) }
+              expect { get(:new, params: { type: }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ["context:#{type}", 'version:v1', 'client_id:vaweb'], **once)
               expect(response).to have_http_status(:ok)
@@ -571,7 +571,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         context 'UserIdentity & MPI ID validations' do
-          let(:loa3_user) { build(:user, :loa3, uuid: uuid, idme_uuid: uuid, stub_mpi: false) }
+          let(:loa3_user) { build(:user, :loa3, uuid:, idme_uuid: uuid, stub_mpi: false) }
           let(:mpi_profile) { build(:mvi_profile) }
           let(:expected_error_data) do
             { identity_value: expected_identity_value, mpi_value: expected_mpi_value, icn: loa3_user.icn }
@@ -653,7 +653,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           let(:saml_user_attributes) do
             loa3_user.attributes.merge(loa3_user.identity.attributes.merge(uuid: 'invalid', mhv_icn: '11111111111'))
           end
-          let(:loa1_user) { build(:user, :loa1, uuid: uuid, idme_uuid: uuid, mhv_icn: '11111111111') }
+          let(:loa1_user) { build(:user, :loa1, uuid:, idme_uuid: uuid, mhv_icn: '11111111111') }
 
           it 'logs a message to Sentry' do
             allow(saml_user).to receive(:changing_multifactor?).and_return(true)
@@ -915,7 +915,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       context 'MVI is down', :aggregate_failures do
         let(:authn_context) { 'myhealthevet' }
-        let(:mhv_premium_user) { build(:user, :mhv, uuid: uuid) }
+        let(:mhv_premium_user) { build(:user, :mhv, uuid:) }
         let(:saml_user_attributes) do
           mhv_premium_user.attributes.merge(mhv_premium_user.identity.attributes).merge(first_name: nil)
         end

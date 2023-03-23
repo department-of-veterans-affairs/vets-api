@@ -12,15 +12,15 @@ module DebtManagementCenter
       notify_client.send_email(
         {
           email_address: email,
-          template_id: template_id,
-          personalisation: personalisation
+          template_id:,
+          personalisation:
         }.compact
       )
     rescue => e
       log_exception_to_sentry(
         e,
         {
-          args: { template_id: template_id }
+          args: { template_id: }
         },
         { error: :dmc_va_notify_email_job }
       )

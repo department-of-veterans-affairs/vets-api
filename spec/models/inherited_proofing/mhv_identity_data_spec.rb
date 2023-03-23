@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe InheritedProofing::MHVIdentityData, type: :model do
-  let(:mhv_identity_data) { InheritedProofing::MHVIdentityData.new(user_uuid: user_uuid, code: code, data: data) }
+  let(:mhv_identity_data) { InheritedProofing::MHVIdentityData.new(user_uuid:, code:, data:) }
   let(:user_uuid) { SecureRandom.uuid }
   let(:code) { SecureRandom.hex }
   let(:data) do

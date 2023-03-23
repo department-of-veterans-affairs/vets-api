@@ -12,9 +12,7 @@ module TestUserDashboard
     def checkin(is_manual_checkin: false)
       return unless tud_account
 
-      if last_checkin_time_nil?
-        availability_log.update(checkin_time: Time.now.utc, is_manual_checkin: is_manual_checkin)
-      end
+      availability_log.update(checkin_time: Time.now.utc, is_manual_checkin:) if last_checkin_time_nil?
     end
 
     def checkout

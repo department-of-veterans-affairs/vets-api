@@ -107,7 +107,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
       end
       let(:message_params) { attributes_for(:message, subject: 'CI Run', body: 'Continuous Integration') }
       let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
-      let(:params_with_attachments) { { message: params }.merge(uploads: uploads) }
+      let(:params_with_attachments) { { message: params }.merge(uploads:) }
 
       context 'message' do
         it 'without attachments' do

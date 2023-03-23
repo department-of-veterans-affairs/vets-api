@@ -54,7 +54,7 @@ module VAOS
 
       def update_appointment(appt_id, status)
         url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
-        params = VAOS::V2::UpdateAppointmentForm.new(status: status).params
+        params = VAOS::V2::UpdateAppointmentForm.new(status:).params
         with_monitoring do
           response = perform(:put, url_path, params, headers)
           OpenStruct.new(response.body)
@@ -163,7 +163,7 @@ module VAOS
       end
 
       def status_params(statuses)
-        { statuses: statuses }
+        { statuses: }
       end
 
       def page_params(pagination_params)

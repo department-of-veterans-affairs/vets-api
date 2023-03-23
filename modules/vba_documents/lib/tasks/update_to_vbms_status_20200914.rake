@@ -737,7 +737,7 @@ namespace :temp do
           return
         end
 
-        return if submission.update(status: status)
+        return if submission.update(status:)
 
         update_failed << uuid
       end

@@ -33,7 +33,7 @@ module Mobile
     end
 
     def raise_unauthorized(detail)
-      raise Common::Exceptions::Unauthorized.new(detail: detail)
+      raise Common::Exceptions::Unauthorized.new(detail:)
     end
 
     def link_user_with_vets360

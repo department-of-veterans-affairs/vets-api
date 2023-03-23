@@ -67,7 +67,7 @@ RSpec.describe UserSessionForm, type: :model do
          '12345748^PI^200MHS^USVHA^A']
       end
       let(:add_person_response) do
-        MPI::Responses::AddPersonResponse.new(status: status, parsed_codes: parsed_codes)
+        MPI::Responses::AddPersonResponse.new(status:, parsed_codes:)
       end
       let(:status) { 'OK' }
       let(:parsed_codes) { { icn: saml_attributes[:va_eauth_icn] } }
@@ -104,10 +104,10 @@ RSpec.describe UserSessionForm, type: :model do
 
       context 'when credential identifier can be found on existing account' do
         let(:user_account) { create(:user_account, icn: saml_attributes[:va_eauth_icn]) }
-        let!(:user_verification) { create(:idme_user_verification, user_account: user_account) }
+        let!(:user_verification) { create(:idme_user_verification, user_account:) }
         let(:idme_uuid) { user_verification.idme_uuid }
         let(:add_person_response) do
-          MPI::Responses::AddPersonResponse.new(status: status, parsed_codes: parsed_codes)
+          MPI::Responses::AddPersonResponse.new(status:, parsed_codes:)
         end
         let(:status) { 'OK' }
         let(:parsed_codes) { { icn: saml_attributes[:va_eauth_icn] } }

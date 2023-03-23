@@ -60,7 +60,7 @@ module Rx
     def get_tracking_rx(id)
       json = perform(:get, "prescription/rxtracking/#{id}", nil, token_headers).body
       data = json[:data].first.merge(prescription_id: id)
-      Tracking.new(json.merge(data: data))
+      Tracking.new(json.merge(data:))
     end
 
     ##

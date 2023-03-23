@@ -44,8 +44,8 @@ module V2
       def initialize(opts)
         @settings = Settings.check_in.authentication
         @check_in = opts[:check_in]
-        @chip_service = V2::Chip::Service.build(check_in: check_in)
-        @lorota_client = Client.build(check_in: check_in)
+        @chip_service = V2::Chip::Service.build(check_in:)
+        @lorota_client = Client.build(check_in:)
         @redis_client = RedisClient.build
       end
 
@@ -89,10 +89,10 @@ module V2
           if token.present?
             chip_service.refresh_appointments if appointment_identifiers.present?
 
-            lorota_client.data(token: token)
+            lorota_client.data(token:)
           end
 
-        patient_check_in = CheckIn::V2::PatientCheckIn.build(data: raw_data, check_in: check_in)
+        patient_check_in = CheckIn::V2::PatientCheckIn.build(data: raw_data, check_in:)
 
         return patient_check_in.unauthorized_message if token.blank?
         return patient_check_in.error_message if patient_check_in.error_status?

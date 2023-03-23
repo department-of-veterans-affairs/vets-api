@@ -11,7 +11,7 @@ module VAOS
         params = {
           clinicalServiceId: clinic_service_id,
           facilityId: facility_id,
-          type: type
+          type:
         }
 
         with_monitoring do

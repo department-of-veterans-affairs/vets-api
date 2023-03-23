@@ -15,7 +15,7 @@ RSpec.describe V0::MHVOptInFlagsController, type: :controller do
     let(:user_verification) { create(:user_verification) }
     let(:user_account) { user_verification.user_account }
     let(:account_uuid) { user_account.id }
-    let(:user) { create(:user, account_uuid: account_uuid) }
+    let(:user) { create(:user, account_uuid:) }
     let(:feature) { 'secure_messaging' }
 
     before do
@@ -37,8 +37,8 @@ RSpec.describe V0::MHVOptInFlagsController, type: :controller do
 
     describe '#show' do
       before do
-        MHVOptInFlag.create(user_account_id: user.account_uuid, feature: feature)
-        get :show, params: { feature: feature }
+        MHVOptInFlag.create(user_account_id: user.account_uuid, feature:)
+        get :show, params: { feature: }
       end
 
       context 'no opt in flag record is found' do
@@ -64,7 +64,7 @@ RSpec.describe V0::MHVOptInFlagsController, type: :controller do
         before { allow(MHVOptInFlag).to receive(:find_or_create_by).and_raise('Internal Server Error') }
 
         it 'returns an unknown error response' do
-          post :create, params: { feature: feature }
+          post :create, params: { feature: }
 
           expect(response).to have_http_status(:internal_server_error)
           expect(JSON.parse(response.body)['errors']).to include('Internal Server Error')
@@ -75,7 +75,7 @@ RSpec.describe V0::MHVOptInFlagsController, type: :controller do
         let(:feature) { 'invalid_feature_value' }
 
         it 'returns a bad_request error for feature param not included in MHVOptInFlag::FEATURES' do
-          post :create, params: { feature: feature }
+          post :create, params: { feature: }
 
           expect(response).to have_http_status(:bad_request)
           expect(JSON.parse(response.body)['errors']).to include('Feature param is not valid')
@@ -83,7 +83,7 @@ RSpec.describe V0::MHVOptInFlagsController, type: :controller do
       end
 
       context 'requested opt in flag does not exist' do
-        before { post :create, params: { feature: feature } }
+        before { post :create, params: { feature: } }
 
         it 'creates a new opt in flag record' do
           expect(response).to have_http_status(:created)
@@ -94,8 +94,8 @@ RSpec.describe V0::MHVOptInFlagsController, type: :controller do
 
       context 'requested opt in flag exists' do
         before do
-          MHVOptInFlag.create(user_account_id: user.account_uuid, feature: feature)
-          post :create, params: { feature: feature }
+          MHVOptInFlag.create(user_account_id: user.account_uuid, feature:)
+          post :create, params: { feature: }
         end
 
         it 'finds and returns the existing opt in flag record' do

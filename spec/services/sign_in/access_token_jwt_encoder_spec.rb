@@ -4,9 +4,9 @@ require 'rails_helper'
 
 RSpec.describe SignIn::AccessTokenJwtEncoder do
   describe '#perform' do
-    subject { SignIn::AccessTokenJwtEncoder.new(access_token: access_token).perform }
+    subject { SignIn::AccessTokenJwtEncoder.new(access_token:).perform }
 
-    let(:access_token) { create(:access_token, client_id: client_id) }
+    let(:access_token) { create(:access_token, client_id:) }
     let(:client_id) { client_config.client_id }
     let(:client_config) { create(:client_config) }
 

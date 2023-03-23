@@ -12,12 +12,12 @@ FactoryBot.define do
     code { SecureRandom.hex }
 
     initialize_with do
-      new(acr: acr,
-          code_challenge: code_challenge,
-          client_state: client_state,
-          client_id: client_id,
-          type: type,
-          code: code)
+      new(acr:,
+          code_challenge:,
+          client_state:,
+          client_id:,
+          type:,
+          code:)
     end
   end
 end

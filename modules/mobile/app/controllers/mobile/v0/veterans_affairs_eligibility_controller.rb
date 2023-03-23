@@ -5,7 +5,7 @@ module Mobile
     class VeteransAffairsEligibilityController < ApplicationController
       def show
         Rails.logger.info('Veterans Affair eligibility service call start',
-                          { facility_ids: facility_ids, user_uuid: @current_user.uuid })
+                          { facility_ids:, user_uuid: @current_user.uuid })
         data = mobile_facility_service.get_scheduling_configurations(facility_ids)[:data]
         services = medical_service_adapter.parse(data)
 

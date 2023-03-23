@@ -18,9 +18,9 @@ module VAOS
 
       def get_facilities(ids:, children: nil, type: nil, pagination_params: {})
         params = {
-          ids: ids,
-          children: children,
-          type: type
+          ids:,
+          children:,
+          type:
         }.merge(page_params(pagination_params)).compact
         with_monitoring do
           options = { params_encoder: Faraday::FlatParamsEncoder }

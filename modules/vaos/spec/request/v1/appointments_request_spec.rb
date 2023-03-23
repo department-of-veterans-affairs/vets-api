@@ -102,7 +102,7 @@ RSpec.describe 'Appointment', type: :request do
           VCR.use_cassette('vaos/fhir/appointment/post_appointment_create_request_201',
                            match_requests_on: %i[method path query]) do
             headers = { 'Content-Type' => 'application/json+fhir', 'Accept' => 'application/json+fhir' }
-            post '/vaos/v1/Appointment', params: request_body, headers: headers
+            post('/vaos/v1/Appointment', params: request_body, headers:)
             expect(response).to have_http_status(:created)
             expect(response.body).to eq(expected_body)
           end
@@ -116,7 +116,7 @@ RSpec.describe 'Appointment', type: :request do
           VCR.use_cassette('vaos/fhir/appointment/post_appointment_invalid_request_400',
                            match_requests_on: %i[method path query]) do
             headers = { 'Content-Type' => 'application/json+fhir', 'Accept' => 'application/json+fhir' }
-            post '/vaos/v1/Appointment', params: invalid_request_body, headers: headers
+            post('/vaos/v1/Appointment', params: invalid_request_body, headers:)
             expect(response).to have_http_status(:bad_request)
             expect(JSON.parse(response.body)['issue'].first['code']).to eq('VAOS_400')
           end
@@ -151,7 +151,7 @@ RSpec.describe 'Appointment', type: :request do
           VCR.use_cassette('vaos/fhir/appointment/put_appointment_request_200',
                            match_requests_on: %i[method path query]) do
             headers = { 'Content-Type' => 'application/json+fhir', 'Accept' => 'application/json+fhir' }
-            put '/vaos/v1/Appointment/1631', params: request_body, headers: headers
+            put('/vaos/v1/Appointment/1631', params: request_body, headers:)
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(JSON.parse(expected_body))
           end
@@ -163,7 +163,7 @@ RSpec.describe 'Appointment', type: :request do
           VCR.use_cassette('vaos/fhir/appointment/put_appointment_invalid_request_400',
                            match_requests_on: %i[method path query]) do
             headers = { 'Content-Type' => 'application/json+fhir', 'Accept' => 'application/json+fhir' }
-            put '/vaos/v1/Appointment/1631X', params: request_body, headers: headers
+            put('/vaos/v1/Appointment/1631X', params: request_body, headers:)
             expect(response).to have_http_status(:bad_request)
             expect(JSON.parse(response.body)['issue'].first['code']).to eq('VAOS_400')
           end
@@ -177,7 +177,7 @@ RSpec.describe 'Appointment', type: :request do
           VCR.use_cassette('vaos/fhir/appointment/put_appointment_cancel_request_200',
                            match_requests_on: %i[method path query]) do
             headers = { 'Content-Type' => 'application/json+fhir', 'Accept' => 'application/json+fhir' }
-            put '/vaos/v1/Appointment/1631', params: request_body, headers: headers
+            put('/vaos/v1/Appointment/1631', params: request_body, headers:)
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)['status']).to eq('cancelled')
           end

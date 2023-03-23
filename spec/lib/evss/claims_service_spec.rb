@@ -24,7 +24,7 @@ describe EVSS::ClaimsService do
     it 'gets claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
       VCR.use_cassette(
         'evss/claims/claims',
-        erb: { transaction_id: transaction_id },
+        erb: { transaction_id: },
         match_requests_on: VCR.all_matches
       ) do
         response = subject.all_claims
@@ -42,7 +42,7 @@ describe EVSS::ClaimsService do
     it 'posts a 5103 waiver', run_at: 'Tue, 12 Dec 2017 03:21:11 GMT' do
       VCR.use_cassette(
         'evss/claims/set_5103_waiver',
-        erb: { transaction_id: transaction_id },
+        erb: { transaction_id: },
         match_requests_on: VCR.all_matches
       ) do
         response = subject.request_decision(evss_id)

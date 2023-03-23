@@ -45,7 +45,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportDownloader do
 
     context 'with a valid filenet id' do
       before do
-        fsr.update(filenet_id: filenet_id, uuid: user.uuid)
+        fsr.update(filenet_id:, uuid: user.uuid)
       end
 
       it 'downloads the pdf' do

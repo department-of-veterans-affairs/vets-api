@@ -32,7 +32,7 @@ module IAMSessionHelper
   def iam_sign_in(iam_user = FactoryBot.build(:iam_user), access_token = nil)
     token = access_token || DEFAULT_ACCESS_TOKEN
     IAMUser.create(iam_user)
-    IAMSession.create(token: token, uuid: iam_user.identity.uuid)
+    IAMSession.create(token:, uuid: iam_user.identity.uuid)
   end
 end
 

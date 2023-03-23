@@ -9,7 +9,7 @@ module ClaimsApi
     def upload_to_vbms(power_of_attorney, path)
       uploader = VBMSUploader.new(
         filepath: path,
-        file_number: retrieve_veteran_file_number(power_of_attorney: power_of_attorney),
+        file_number: retrieve_veteran_file_number(power_of_attorney:),
         doc_type: '295'
       )
       upload_response = uploader.upload!
@@ -53,7 +53,7 @@ module ClaimsApi
       ssn = power_of_attorney.auth_headers['va_eauth_pnid']
 
       begin
-        bgs_service(power_of_attorney: power_of_attorney).people.find_by_ssn(ssn)&.[](:file_nbr) # rubocop:disable Rails/DynamicFindBy
+        bgs_service(power_of_attorney:).people.find_by_ssn(ssn)&.[](:file_nbr) # rubocop:disable Rails/DynamicFindBy
       rescue BGS::ShareError => e
         error_message = "A BGS failure occurred while trying to retrieve Veteran 'FileNumber'"
         log_exception_to_sentry(e, nil, { message: error_message }, 'warn')

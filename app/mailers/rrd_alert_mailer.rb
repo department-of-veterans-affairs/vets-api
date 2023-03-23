@@ -9,8 +9,8 @@ class RrdAlertMailer < ApplicationMailer
     environment = "[#{Settings.vsp_environment}] " unless Settings.vsp_environment == 'production'
 
     mail(
-      to: to,
-      subject: subject,
+      to:,
+      subject:,
       body: ERB.new(template).result(binding)
     )
   end

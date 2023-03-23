@@ -21,7 +21,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
     context 'when corresponding notice of disagreement record not found' do
       it 'returns an error' do
         stub_upload_location
-        post path, params: { nod_uuid: 1979 }, headers: headers
+        post(path, params: { nod_uuid: 1979 }, headers:)
 
         expect(response.status).to eq 404
         expect(response.body).to include 'NoticeOfDisagreement with uuid 1979 not found'
@@ -31,7 +31,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
     context 'when corresponding notice of disagreement record found' do
       it "returns an error if nod 'boardReviewOption' is not 'evidence_submission'" do
         stub_upload_location
-        post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
+        post(path, params: { nod_uuid: notice_of_disagreement.id }, headers:)
 
         expect(response.status).to eq 422
         expect(response.body).to include "'boardReviewOption' must be 'evidence_submission'"
@@ -41,7 +41,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         it 'returns success with 202' do
           stub_upload_location
           notice_of_disagreement.update(board_review_option: 'evidence_submission')
-          post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
+          post(path, params: { nod_uuid: notice_of_disagreement.id }, headers:)
 
           expect(response.status).to eq 202
           expect(response.body).to include notice_of_disagreement.id
@@ -51,7 +51,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           stub_upload_location
           notice_of_disagreement.update(board_review_option: 'evidence_submission')
           headers['X-VA-File-Number'] = '1111111111'
-          post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
+          post(path, params: { nod_uuid: notice_of_disagreement.id }, headers:)
 
           expect(response.status).to eq 422
           expect(response.body).to include "'X-VA-File-Number' does not match"
@@ -63,7 +63,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         it 'creates the evidence submission and returns upload location' do
           stub_upload_location 'http://another.fakesite.com/rewrittenpath/uuid'
           notice_of_disagreement.update(board_review_option: 'evidence_submission', auth_headers: nil)
-          post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
+          post(path, params: { nod_uuid: notice_of_disagreement.id }, headers:)
 
           data = JSON.parse(response.body)['data']
           expect(data).to have_key('id')
@@ -80,7 +80,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           receive(:get_location).and_raise('Unable to provide document upload location')
         )
         notice_of_disagreement.update(board_review_option: 'evidence_submission', auth_headers: nil)
-        post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
+        post(path, params: { nod_uuid: notice_of_disagreement.id }, headers:)
 
         expect(response.status).to eq 500
         expect(response.body).to include('Unable to provide document upload location')
@@ -89,7 +89,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
 
     it "returns an error when 'nod_uuid' parameter is missing" do
       stub_upload_location
-      post path, headers: headers
+      post(path, headers:)
 
       expect(response.status).to eq 400
       expect(response.body).to include 'Must supply a corresponding NOD'
@@ -98,7 +98,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
     it 'stores the source from headers' do
       stub_upload_location
       notice_of_disagreement.update(board_review_option: 'evidence_submission')
-      post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
+      post(path, params: { nod_uuid: notice_of_disagreement.id }, headers:)
       data = JSON.parse(response.body)['data']
       record = AppealsApi::EvidenceSubmission.find_by(guid: data['id'])
       expect(record.source).to eq headers['X-Consumer-Username']
@@ -119,20 +119,20 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         :accepted
       ) do
         def make_request(auth_header)
-          post(oauth_path, params: params, headers: headers.merge(auth_header))
+          post(oauth_path, params:, headers: headers.merge(auth_header))
         end
       end
 
       it 'behaves the same as the equivalent decision reviews route' do
         Timecop.freeze(Time.current) do
-          post(path, params: params, headers: headers)
+          post(path, params:, headers:)
           orig_body = JSON.parse(response.body)
           orig_body['data']['id'] = 'ignored'
 
           with_openid_auth(
             AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceSubmissionsController::OAUTH_SCOPES[:POST]
           ) do |auth_header|
-            post(oauth_path, params: params, headers: headers.merge(auth_header))
+            post(oauth_path, params:, headers: headers.merge(auth_header))
           end
           oauth_body = JSON.parse(response.body)
           oauth_body['data']['id'] = 'ignored'

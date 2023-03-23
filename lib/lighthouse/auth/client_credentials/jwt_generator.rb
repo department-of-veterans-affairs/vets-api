@@ -13,8 +13,8 @@ module Auth
         {
           iss: client_id,
           sub: client_id,
-          aud: aud,
-          iat: iat,
+          aud:,
+          iat:,
           exp: iat + TTL
         }
       end

@@ -6,7 +6,7 @@ RSpec.describe AppealsApi::DecisionReviewMailer, type: [:mailer] do
   describe '#build' do
     subject do
       described_class.build(date_from: 7.days.ago, date_to: Time.zone.now, friendly_duration: 'duration',
-                            recipients: recipients).deliver_now
+                            recipients:).deliver_now
     end
 
     let(:recipients) do
@@ -36,7 +36,7 @@ RSpec.describe AppealsApi::DecisionReviewMailer, type: [:mailer] do
       create_list :supplemental_claim, 2, status: 'complete', created_at: 3.weeks.ago
 
       mail = described_class.build(date_from: 7.days.ago, date_to: Time.zone.now, friendly_duration: 'Weekly',
-                                   recipients: recipients).deliver_now
+                                   recipients:).deliver_now
 
       body = mail.body.to_s
       expect(body).to include 'Total HLR: 0'
@@ -47,7 +47,7 @@ RSpec.describe AppealsApi::DecisionReviewMailer, type: [:mailer] do
     it 'displays more useful info on faulty evidence submissions' do
       es = create :evidence_submission_with_error
       mail = described_class.build(date_from: 7.days.ago, date_to: Time.zone.now, friendly_duration: 'Weekly',
-                                   recipients: recipients).deliver_now
+                                   recipients:).deliver_now
       body = mail.body.to_s
       expect(body).to include es.guid
       expect(body).to include es.supportable_id

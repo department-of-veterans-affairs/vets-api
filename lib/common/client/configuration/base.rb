@@ -83,7 +83,7 @@ module Common
         #
         def request_options
           {
-            open_timeout: open_timeout,
+            open_timeout:,
             timeout: read_timeout
           }
         end
@@ -128,7 +128,7 @@ module Common
             name: service_name,
             request_matcher: matcher,
             error_threshold: breakers_error_threshold,
-            exception_handler: exception_handler
+            exception_handler:
           )
         end
 

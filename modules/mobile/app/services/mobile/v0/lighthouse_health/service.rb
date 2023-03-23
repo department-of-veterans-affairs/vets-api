@@ -32,7 +32,7 @@ module Mobile
         #
         def get_location(id)
           response = perform(:get, "Location/#{id}", nil, headers)
-          Rails.logger.info('Mobile Lighthouse Service, Location response', response: response)
+          Rails.logger.info('Mobile Lighthouse Service, Location response', response:)
           raise Common::Exceptions::BackendServiceException, 'LIGHTHOUSE_FACILITIES404' if response[:status] == 404
 
           response.body

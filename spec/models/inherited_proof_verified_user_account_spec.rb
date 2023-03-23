@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe InheritedProofVerifiedUserAccount, type: :model do
   let(:inherited_proof_verified_user_account) do
     create(:inherited_proof_verified_user_account,
-           user_account: user_account)
+           user_account:)
   end
   let(:user_account) { create(:user_account) }
 
@@ -25,7 +25,7 @@ RSpec.describe InheritedProofVerifiedUserAccount, type: :model do
       context 'when user_account is not unique' do
         let!(:previous_inherited_proof_verified_user_account) do
           create(:inherited_proof_verified_user_account,
-                 user_account: user_account)
+                 user_account:)
         end
         let(:expected_error_message) { 'Validation failed: User account has already been taken' }
 

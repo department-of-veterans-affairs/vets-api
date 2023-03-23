@@ -41,7 +41,7 @@ RSpec.describe 'facilities info', type: :request do
 
       it 'returns facility details sorted by closest to home' do
         VCR.use_cassette('appointments/get_multiple_mfs_facilities_200', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/facilities-info/home', headers: iam_headers, params: params
+          get('/mobile/v0/facilities-info/home', headers: iam_headers, params:)
           facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
           expect(response).to have_http_status(:ok)
           expect(facilities[0]['id']).to eq('757')
@@ -52,7 +52,7 @@ RSpec.describe 'facilities info', type: :request do
 
       it 'returns facility details sorted by closest to current location' do
         VCR.use_cassette('appointments/get_multiple_mfs_facilities_200', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/facilities-info/current', headers: iam_headers, params: params
+          get('/mobile/v0/facilities-info/current', headers: iam_headers, params:)
           facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
           expect(response).to have_http_status(:ok)
           expect(facilities[0]['id']).to eq('358')
@@ -63,7 +63,7 @@ RSpec.describe 'facilities info', type: :request do
 
       it 'returns facility details sorted alphabetically' do
         VCR.use_cassette('appointments/get_multiple_mfs_facilities_200', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/facilities-info/alphabetical', headers: iam_headers, params: params
+          get('/mobile/v0/facilities-info/alphabetical', headers: iam_headers, params:)
           facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
           expect(response).to have_http_status(:ok)
           expect(facilities[0]['id']).to eq('358')
@@ -74,7 +74,7 @@ RSpec.describe 'facilities info', type: :request do
 
       it 'returns facility details sorted by most recent appointment' do
         VCR.use_cassette('appointments/get_multiple_mfs_facilities_200', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/facilities-info/appointments', headers: iam_headers, params: params
+          get('/mobile/v0/facilities-info/appointments', headers: iam_headers, params:)
           facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
           expect(response).to have_http_status(:ok)
           expect(facilities[0]['id']).to eq('358')
@@ -102,7 +102,7 @@ RSpec.describe 'facilities info', type: :request do
 
         VCR.use_cassette('appointments/legacy_get_facilities_for_facilities_info',
                          match_requests_on: %i[method uri]) do
-          get '/mobile/v0/facilities-info/test', headers: iam_headers, params: params
+          get('/mobile/v0/facilities-info/test', headers: iam_headers, params:)
           expect(response.parsed_body['errors']).to eq(expected_error_message)
         end
       end
@@ -115,7 +115,7 @@ RSpec.describe 'facilities info', type: :request do
 
       it 'returns facility details sorted alphabetically' do
         VCR.use_cassette('appointments/get_multiple_facilities_200', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/facilities-info/appointments', headers: iam_headers, params: params
+          get('/mobile/v0/facilities-info/appointments', headers: iam_headers, params:)
           facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
           expect(response).to have_http_status(:ok)
           expect(facilities[0]['name']).to eq('American Lake VA Medical Center')
@@ -133,7 +133,7 @@ RSpec.describe 'facilities info', type: :request do
 
       it 'logs the cache is nil and still returns alphabetized facilities' do
         VCR.use_cassette('appointments/get_multiple_facilities_200', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/facilities-info/appointments', headers: iam_headers, params: params
+          get('/mobile/v0/facilities-info/appointments', headers: iam_headers, params:)
           expect(Rails.logger).to have_received(:info).with('mobile facilities info appointments cache nil',
                                                             user_uuid: '3097e489-ad75-5746-ab1a-e0aabc1b426a')
           facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
@@ -154,7 +154,7 @@ RSpec.describe 'facilities info', type: :request do
 
       it 'remaining facilities are sorted alphabetically' do
         VCR.use_cassette('appointments/get_multiple_facilities_200', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/facilities-info/appointments', headers: iam_headers, params: params
+          get('/mobile/v0/facilities-info/appointments', headers: iam_headers, params:)
           facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
           expect(response).to have_http_status(:ok)
           expect(facilities[0]['name']).to eq('Cheyenne VA Medical Center')

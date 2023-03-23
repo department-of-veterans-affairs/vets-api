@@ -95,7 +95,7 @@ describe EMIS::BrokenVeteranStatusService do
 
   it 'gives me back an error' do
     VCR.use_cassette('emis/get_veteran_status/broken') do
-      response = subject.get_veteran_status(edipi: edipi)
+      response = subject.get_veteran_status(edipi:)
       expect(response).to be_an_instance_of(EMIS::Responses::ErrorResponse)
       expect(response.error).to be_an_instance_of(Common::Client::Errors::HTTPError)
       expect(response.error.message).to be('SOAP HTTP call failed')

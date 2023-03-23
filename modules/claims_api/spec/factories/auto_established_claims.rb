@@ -48,7 +48,7 @@ FactoryBot.define do
 
     factory :auto_established_claim_with_supporting_documents do
       after(:create) do |auto_established_claim|
-        create_list(:supporting_document, 1, auto_established_claim: auto_established_claim)
+        create_list(:supporting_document, 1, auto_established_claim:)
       end
     end
   end

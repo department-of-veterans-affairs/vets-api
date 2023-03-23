@@ -9,7 +9,7 @@ RSpec.describe CovidVaccine::ExpandedRegistrationEmailJob, type: :worker do
   let(:email) { 'vets.gov.user+0@gmail.com' }
   let(:date) { Time.current.to_s }
   let(:registration_submission) do
-    create(:covid_vax_expanded_registration, email_confirmation_id: email_confirmation_id)
+    create(:covid_vax_expanded_registration, email_confirmation_id:)
   end
 
   around do |example|

@@ -80,13 +80,13 @@ module Login
     end
 
     def update_backing_idme_uuid
-      user_verification.update(backing_idme_uuid: backing_idme_uuid)
+      user_verification.update(backing_idme_uuid:)
     end
 
     def deprecate_unverified_user_account
       deprecated_user_account = user_verification.user_account
       DeprecatedUserAccount.create!(user_account: deprecated_user_account,
-                                    user_verification: user_verification)
+                                    user_verification:)
       user_verification.update(user_account: existing_user_account, verified_at: Time.zone.now)
       set_deprecated_log(deprecated_user_account.id, user_verification.id, existing_user_account.id)
     end
@@ -94,16 +94,16 @@ module Login
     def update_newly_verified_user
       user_verification_account = user_verification.user_account
       user_verification.update(verified_at: Time.zone.now)
-      user_verification_account.update(icn: icn)
+      user_verification_account.update(icn:)
     end
 
     def create_user_verification
       set_new_user_log
       verified_at = icn ? Time.zone.now : nil
       UserVerification.create!(type => identifier,
-                               user_account: existing_user_account || UserAccount.new(icn: icn),
-                               backing_idme_uuid: backing_idme_uuid,
-                               verified_at: verified_at)
+                               user_account: existing_user_account || UserAccount.new(icn:),
+                               backing_idme_uuid:,
+                               verified_at:)
     end
 
     def user_verification_needs_to_be_updated?
@@ -140,7 +140,7 @@ module Login
     end
 
     def existing_user_account
-      @existing_user_account ||= icn ? UserAccount.find_by(icn: icn) : nil
+      @existing_user_account ||= icn ? UserAccount.find_by(icn:) : nil
     end
 
     def user_verification

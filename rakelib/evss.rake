@@ -72,8 +72,8 @@ namespace :evss do
         }
       }.to_json
       id = SecureRandom.uuid
-      Facilities::DODFacility.where(name: row['name'], address: address).first_or_create(
-        id: id, name: row['name'], address: address, lat: 0.0, long: 0.0
+      Facilities::DODFacility.where(name: row['name'], address:).first_or_create(
+        id:, name: row['name'], address:, lat: 0.0, long: 0.0
       )
     end
   end

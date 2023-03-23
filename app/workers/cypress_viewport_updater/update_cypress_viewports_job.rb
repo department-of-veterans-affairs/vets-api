@@ -24,8 +24,8 @@ module CypressViewportUpdater
       github.create_branch
 
       [cypress_config_js_file, viewport_preset_js_file].each do |file|
-        file.update(viewports: viewports)
-        github.update_content(file: file)
+        file.update(viewports:)
+        github.update_content(file:)
       end
 
       github.submit_pr

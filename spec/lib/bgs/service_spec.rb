@@ -11,7 +11,7 @@ RSpec.describe BGS::Service do
   let(:first_name) { 'abraham.lincoln@vets.gov' }
 
   context 'direct deposit methods' do
-    let(:user_object) { build(:ch33_dd_user, first_name: first_name) }
+    let(:user_object) { build(:ch33_dd_user, first_name:) }
 
     before { allow_any_instance_of(User).to receive(:common_name).and_return(first_name) }
 
@@ -72,7 +72,7 @@ RSpec.describe BGS::Service do
             VCR.use_cassette('bgs/ddeft/find_bank_name_invalid_routing') do
               expect(bgs_service).to receive(:log_exception_to_sentry).with(
                 an_instance_of(Savon::SOAPFault),
-                { routing_number: routing_number },
+                { routing_number: },
                 { error: 'ch33_dd' }
               )
 

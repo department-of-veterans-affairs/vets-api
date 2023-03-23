@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe UserAccount, type: :model do
-  let(:user_account) { create(:user_account, icn: icn) }
+  let(:user_account) { create(:user_account, icn:) }
   let(:icn) { nil }
 
   describe 'validations' do
@@ -31,7 +31,7 @@ RSpec.describe UserAccount, type: :model do
         let(:expected_error_message) { 'Validation failed: Icn has already been taken' }
 
         before do
-          create(:user_account, icn: icn)
+          create(:user_account, icn:)
         end
 
         it 'raises a validation error' do

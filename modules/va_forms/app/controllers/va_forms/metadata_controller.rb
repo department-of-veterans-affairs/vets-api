@@ -40,7 +40,7 @@ module VAForms
       render json: {
         description: HEALTH_DESCRIPTION_UPSTREAM,
         status: health_checker.services_are_healthy? ? 'UP' : 'DOWN',
-        time: time,
+        time:,
         details: {
           name: 'All upstream services',
           upstreamServices: VAForms::HealthChecker::SERVICES.map do |service|
@@ -62,7 +62,7 @@ module VAForms
           name: service_name.titleize,
           statusCode: healthy ? 200 : 503,
           status: healthy ? 'OK' : 'Unavailable',
-          time: time
+          time:
         }
       }
     end

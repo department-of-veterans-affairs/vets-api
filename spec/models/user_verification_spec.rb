@@ -5,12 +5,12 @@ require 'rails_helper'
 RSpec.describe UserVerification, type: :model do
   let(:user_verification) do
     create(:user_verification,
-           idme_uuid: idme_uuid,
-           logingov_uuid: logingov_uuid,
-           dslogon_uuid: dslogon_uuid,
-           mhv_uuid: mhv_uuid,
-           backing_idme_uuid: backing_idme_uuid,
-           verified_at: verified_at,
+           idme_uuid:,
+           logingov_uuid:,
+           dslogon_uuid:,
+           mhv_uuid:,
+           backing_idme_uuid:,
+           verified_at:,
            user_account_id: user_account&.id)
   end
 

@@ -7,7 +7,7 @@ describe InheritedProofing::Logingov::Service do
   let(:auth_code) { SecureRandom.hex }
 
   describe '#render_auth' do
-    let(:response) { subject.render_auth(auth_code: auth_code).to_s }
+    let(:response) { subject.render_auth(auth_code:).to_s }
 
     it 'renders the oauth_get_form template' do
       expect(response).to include('form id="oauth-form"')

@@ -15,7 +15,7 @@ module ClaimsApi
     def perform(evidence_waiver_id)
       evidence_waiver_submission = ClaimsApi::EvidenceWaiverSubmission.find(evidence_waiver_id)
       auth_headers = evidence_waiver_submission.auth_headers
-      output_path = ClaimsApi::EvidenceWaiver.new(auth_headers: auth_headers).construct
+      output_path = ClaimsApi::EvidenceWaiver.new(auth_headers:).construct
 
       upload_to_vbms(evidence_waiver_submission, output_path)
       ClaimsApi::EwsUpdater.perform_async(evidence_waiver_id)

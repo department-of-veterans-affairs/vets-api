@@ -65,14 +65,14 @@ module SignIn
     end
 
     def add_mpi_user
-      add_person_response = mpi_service.add_person_implicit_search(first_name: first_name,
-                                                                   last_name: last_name,
-                                                                   ssn: ssn,
-                                                                   birth_date: birth_date,
+      add_person_response = mpi_service.add_person_implicit_search(first_name:,
+                                                                   last_name:,
+                                                                   ssn:,
+                                                                   birth_date:,
                                                                    email: credential_email,
-                                                                   address: address,
-                                                                   idme_uuid: idme_uuid,
-                                                                   logingov_uuid: logingov_uuid)
+                                                                   address:,
+                                                                   idme_uuid:,
+                                                                   logingov_uuid:)
       unless add_person_response.ok?
         handle_error('User MPI record cannot be created',
                      Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
@@ -84,16 +84,16 @@ module SignIn
       return if auto_uplevel
 
       user_attribute_mismatch_checks
-      update_profile_response = mpi_service.update_profile(last_name: last_name,
-                                                           ssn: ssn,
-                                                           birth_date: birth_date,
+      update_profile_response = mpi_service.update_profile(last_name:,
+                                                           ssn:,
+                                                           birth_date:,
                                                            icn: verified_icn,
                                                            email: credential_email,
-                                                           address: address,
-                                                           idme_uuid: idme_uuid,
-                                                           logingov_uuid: logingov_uuid,
-                                                           edipi: edipi,
-                                                           first_name: first_name)
+                                                           address:,
+                                                           idme_uuid:,
+                                                           logingov_uuid:,
+                                                           edipi:,
+                                                           first_name:)
       unless update_profile_response&.ok?
         handle_error('User MPI record cannot be updated', Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE)
       end
@@ -136,7 +136,7 @@ module SignIn
         error = prevent_auth ? Errors::AttributeMismatchError : nil
         handle_error("Attribute mismatch, #{type} in credential does not match MPI attribute",
                      Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE,
-                     error: error)
+                     error:)
       end
     end
 
@@ -171,7 +171,7 @@ module SignIn
 
     def handle_error(error_message, error_code, error: nil)
       sign_in_logger.info('attribute validator error', { errors: error_message,
-                                                         credential_uuid: credential_uuid,
+                                                         credential_uuid:,
                                                          type: service_name })
       raise error.new message: error_message, code: error_code if error
     end

@@ -52,7 +52,7 @@ module ClaimsApi
     end
 
     def supporting_documents
-      auto_established_claim = ClaimsApi::AutoEstablishedClaim.find_by evss_id: evss_id
+      auto_established_claim = ClaimsApi::AutoEstablishedClaim.find_by(evss_id:)
       if auto_established_claim.present?
         auto_established_claim.supporting_documents.map do |document|
           {

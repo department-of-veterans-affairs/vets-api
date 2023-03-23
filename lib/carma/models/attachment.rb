@@ -105,12 +105,12 @@ module CARMA
 
       def to_hash
         {
-          id: id,
-          carma_case_id: carma_case_id,
-          veteran_name: veteran_name,
-          file_path: file_path,
-          document_type: document_type,
-          document_date: document_date
+          id:,
+          carma_case_id:,
+          veteran_name:,
+          file_path:,
+          document_type:,
+          document_date:
         }
       end
 

@@ -33,7 +33,7 @@ module HealthQuest
       private
 
       def connection
-        Faraday.new(url: url, headers: headers) do |conn|
+        Faraday.new(url:, headers:) do |conn|
           conn.response :health_quest_errors
           conn.use :health_quest_logging
           conn.adapter Faraday.default_adapter

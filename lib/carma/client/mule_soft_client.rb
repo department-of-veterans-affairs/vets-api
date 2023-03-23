@@ -42,7 +42,7 @@ module CARMA
       def post_args(resource, payload, timeout)
         body = payload.is_a?(String) ? payload : payload.to_json
         headers = config.base_request_headers
-        opts = { timeout: timeout }
+        opts = { timeout: }
         [:post, resource, body, headers, opts]
       end
 

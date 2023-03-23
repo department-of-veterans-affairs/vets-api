@@ -34,19 +34,19 @@ module ClaimsApi
           check_file_number_exists!
           ClaimsApi::Logger.log('poa', poa_id: poa_code, detail: 'File number check completed.')
 
-          power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
-                                                                                          source_name: source_name)
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5:,
+                                                                                          source_name:)
           ClaimsApi::Logger.log('poa', poa_id: power_of_attorney&.id, detail: 'Located PoA in vets-api')
           unless power_of_attorney&.status&.in?(%w[submitted pending])
             attributes = {
               status: ClaimsApi::PowerOfAttorney::PENDING,
-              auth_headers: auth_headers,
+              auth_headers:,
               form_data: form_attributes,
               current_poa: current_poa_code,
-              header_md5: header_md5,
+              header_md5:,
               cid: token.payload['cid']
             }
-            attributes.merge!({ source_data: source_data }) unless token.client_credentials_token?
+            attributes.merge!({ source_data: }) unless token.client_credentials_token?
             ClaimsApi::Logger.log('poa', poa_id: power_of_attorney&.id, detail: 'Attributes merged')
 
             power_of_attorney = ClaimsApi::PowerOfAttorney.create(attributes)
@@ -139,7 +139,7 @@ module ClaimsApi
         # @return [JSON] Success if valid, error messages if invalid.
         def validate
           ClaimsApi::Logger.log('poa', detail: '2122/validate - Request Started')
-          add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
+          add_deprecation_headers_to_response(response:, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           validate_json_schema
 
           poa_code = form_attributes.dig('serviceOrganization', 'poaCode')

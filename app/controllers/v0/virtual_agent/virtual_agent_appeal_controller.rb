@@ -20,7 +20,7 @@ module V0
         end
         data = data_for_first_comp_appeal(appeals_data_array)
         render json: {
-          data: data
+          data:
         }
       end
 

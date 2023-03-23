@@ -16,7 +16,7 @@ module ClaimsApi
         include ClaimsApi::EndpointDeprecation
 
         def schema
-          add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
+          add_deprecation_headers_to_response(response:, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           render json: { data: [ClaimsApi::FormSchemas.new.schemas[self.class::FORM_NUMBER]] }
         end
 
@@ -69,7 +69,7 @@ module ClaimsApi
           temp_file = Tempfile.new(filename, encoding: 'ASCII-8BIT')
           temp_file.write(decoded_data)
           temp_file.close
-          ActionDispatch::Http::UploadedFile.new(filename: filename,
+          ActionDispatch::Http::UploadedFile.new(filename:,
                                                  type: 'application/pdf',
                                                  tempfile: temp_file)
         end
@@ -97,7 +97,7 @@ module ClaimsApi
           external_key = target_veteran.participant_id.to_s
           @local_bgs_service ||= ClaimsApi::LocalBGS.new(
             external_uid: external_key,
-            external_key: external_key
+            external_key:
           )
         end
 

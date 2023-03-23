@@ -19,7 +19,7 @@ module IAMSSOeOAuth
 
     def logout
       uuid = @session.uuid
-      Rails.logger.info('IAMUser logout: start', uuid: uuid)
+      Rails.logger.info('IAMUser logout: start', uuid:)
 
       identity_destroy_count = IAMUserIdentity.find(uuid).destroy
       user_destroy_count = IAMUser.find(uuid).destroy
@@ -27,13 +27,13 @@ module IAMSSOeOAuth
 
       # redis returns number of records successfully deleted
       if [identity_destroy_count, user_destroy_count, session_destroy_count].all?(&:positive?)
-        Rails.logger.info('IAMUser logout: success', uuid: uuid)
+        Rails.logger.info('IAMUser logout: success', uuid:)
         true
       else
-        Rails.logger.warn('IAMUser logout: failure', uuid: uuid, status: {
-                            identity_destroy_count: identity_destroy_count,
-                            user_destroy_count: user_destroy_count,
-                            session_destroy_count: session_destroy_count
+        Rails.logger.warn('IAMUser logout: failure', uuid:, status: {
+                            identity_destroy_count:,
+                            user_destroy_count:,
+                            session_destroy_count:
                           })
         false
       end
@@ -138,8 +138,8 @@ module IAMSSOeOAuth
         user_uuid: identity.uuid,
         secid: identity.iam_sec_id,
         token: Session.obscure_token(token),
-        credential_type: credential_type,
-        session_type: session_type
+        credential_type:,
+        session_type:
       }
       Rails.logger.info('IAM SSOe OAuth: Session established', log_attrs)
       StatsD.increment(STATSD_OAUTH_SESSION_KEY, tags: ["type:#{session_type}", "credential:#{credential_type}"])

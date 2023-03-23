@@ -46,8 +46,8 @@ RSpec.describe Efolder::Service do
           'GetDocumentContent',
           document_id,
           OpenStruct.new(
-            document_id: document_id,
-            content: content
+            document_id:,
+            content:
           )
         )
       end

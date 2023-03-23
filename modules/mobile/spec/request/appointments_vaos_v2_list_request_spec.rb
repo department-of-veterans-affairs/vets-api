@@ -67,7 +67,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
       it 'location is populated' do
         VCR.use_cassette('appointments/VAOS_v2/get_facility_200', match_requests_on: %i[method uri]) do
           VCR.use_cassette('appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
-            get '/mobile/v0/appointments', headers: iam_headers, params: params
+            get '/mobile/v0/appointments', headers: iam_headers, params:
           end
         end
         location = response.parsed_body.dig('data', 0, 'attributes', 'location')
@@ -95,7 +95,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
       it 'location is nil' do
         VCR.use_cassette('appointments/VAOS_v2/get_facility_500', match_requests_on: %i[method uri]) do
           VCR.use_cassette('appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
-            get '/mobile/v0/appointments', headers: iam_headers, params: params
+            get '/mobile/v0/appointments', headers: iam_headers, params:
           end
         end
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
@@ -109,7 +109,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
       it 'healthcareService is populated' do
         VCR.use_cassette('appointments/VAOS_v2/get_clinic_200', match_requests_on: %i[method uri]) do
           VCR.use_cassette('appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
-            get '/mobile/v0/appointments', headers: iam_headers, params: params
+            get '/mobile/v0/appointments', headers: iam_headers, params:
           end
         end
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
@@ -124,7 +124,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         VCR.use_cassette('appointments/VAOS_v2/get_clinic_bad_facility_id_500', match_requests_on: %i[method uri]) do
           VCR.use_cassette('appointments/VAOS_v2/get_appointment_200_bad_facility_id',
                            match_requests_on: %i[method uri]) do
-            get '/mobile/v0/appointments', headers: iam_headers, params: params
+            get '/mobile/v0/appointments', headers: iam_headers, params:
           end
         end
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
@@ -140,7 +140,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
 
       it 'returned appointment is identical to VAOS v0 version' do
         VCR.use_cassette('appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/appointments', headers: iam_headers, params: params
+          get '/mobile/v0/appointments', headers: iam_headers, params:
         end
         appt_v0_cancelled = JSON.parse(File.read(Rails.root.join('modules', 'mobile', 'spec', 'support',
                                                                  'fixtures', 'va_v0_appointment.json')))
@@ -169,7 +169,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
       it 'returns no appointment requests' do
         VCR.use_cassette('appointments/VAOS_v2/get_all_appointment_200_ruben', match_requests_on: %i[method uri]) do
           VCR.use_cassette('providers/get_provider_200', match_requests_on: %i[method uri], tag: :force_utf8) do
-            get '/mobile/v0/appointments', headers: iam_headers, params: params
+            get '/mobile/v0/appointments', headers: iam_headers, params:
           end
         end
         expect(response).to have_http_status(:ok)
@@ -201,7 +201,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
       it 'processes appointments without error' do
         VCR.use_cassette('appointments/VAOS_v2/get_all_appointment_200_ruben', match_requests_on: %i[method uri]) do
           VCR.use_cassette('providers/get_provider_200', match_requests_on: %i[method uri], tag: :force_utf8) do
-            get '/mobile/v0/appointments', headers: iam_headers, params: params
+            get '/mobile/v0/appointments', headers: iam_headers, params:
           end
         end
         expect(response).to have_http_status(:ok)

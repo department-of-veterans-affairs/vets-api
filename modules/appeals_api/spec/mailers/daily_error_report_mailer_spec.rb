@@ -12,7 +12,7 @@ RSpec.describe AppealsApi::DailyErrorReportMailer, type: [:mailer] do
         laura.trager@adhocteam.us
         nathan.wright@oddball.io
       ]
-      described_class.build(recipients: recipients).deliver_now
+      described_class.build(recipients:).deliver_now
     end
 
     it 'sends the email' do

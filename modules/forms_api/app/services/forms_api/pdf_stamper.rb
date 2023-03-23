@@ -26,7 +26,7 @@ module FormsApi
       desired_stamps.append([73, 320]) if data['living_situation']['is_in_care_facility'] == false
       current_file_path = generated_form_path
       desired_stamps.each do |x, y|
-        out_path = CentralMail::DatestampPdf.new(current_file_path).run(text: 'X', x: x, y: y, text_only: true)
+        out_path = CentralMail::DatestampPdf.new(current_file_path).run(text: 'X', x:, y:, text_only: true)
         current_file_path = out_path
       end
       File.rename(current_file_path, generated_form_path)

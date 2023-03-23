@@ -59,7 +59,7 @@ module Mobile
 
           unless most_recent_year.is_a? Numeric
             Rails.logger.error('Mobile Payment Error Non Numeric Year', { year_in_error: most_recent_year,
-                                                                          available_years: available_years })
+                                                                          available_years: })
           end
 
           start_date = DateTime.new(most_recent_year).beginning_of_year.utc
@@ -70,7 +70,7 @@ module Mobile
       end
 
       def paginate(payments, validated_params)
-        Mobile::PaginationHelper.paginate(list: payments, validated_params: validated_params)
+        Mobile::PaginationHelper.paginate(list: payments, validated_params:)
       end
     end
   end

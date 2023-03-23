@@ -23,15 +23,15 @@ module V2
 
         case status
         when 200, 400
-          { data: value, status: status }
+          { data: value, status: }
         when 401
-          { data: { error: true, message: 'Unauthorized' }, status: status }
+          { data: { error: true, message: 'Unauthorized' }, status: }
         when 404
-          { data: { error: true, message: 'We could not find that UUID' }, status: status }
+          { data: { error: true, message: 'We could not find that UUID' }, status: }
         when 403
-          { data: { error: true, message: 'Forbidden' }, status: status }
+          { data: { error: true, message: 'Forbidden' }, status: }
         else
-          { data: { error: true, message: 'Something went wrong' }, status: status }
+          { data: { error: true, message: 'Something went wrong' }, status: }
         end
       end
     end

@@ -44,7 +44,7 @@ module AppealsApi
         data[:source] = { pointer: error.attribute.to_s } if error.options[:source].blank?
         data.compact # remove nil keys
       end
-      { errors: errors }
+      { errors: }
     end
   end
 end

@@ -22,11 +22,11 @@ module TravelClaim
 
       case status
       when 200
-        { data: response_body, status: status }
+        { data: response_body, status: }
       when 400, 401, 404
-        { data: error_data(message: response_body[:message]), status: status }
+        { data: error_data(message: response_body[:message]), status: }
       else
-        { data: unknown_error_data, status: status }
+        { data: unknown_error_data, status: }
       end
     end
 
@@ -50,7 +50,7 @@ module TravelClaim
                      'CLM_010_CLAIM_SUBMISSION_ERROR'
                    end
 
-      { error: true, code: error_code, message: message }
+      { error: true, code: error_code, message: }
     end
   end
 end

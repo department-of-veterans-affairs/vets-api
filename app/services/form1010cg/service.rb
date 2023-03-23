@@ -163,7 +163,7 @@ module Form1010cg
 
       return @cache[:veteran_statuses][form_subject] = false if icn == NOT_FOUND
 
-      response = emis_service.get_veteran_status(icn: icn)
+      response = emis_service.get_veteran_status(icn:)
 
       is_veteran = response&.items&.first&.title38_status_code == 'V1'
 
@@ -214,8 +214,8 @@ module Form1010cg
     def log_mpi_search_result(form_subject, result)
       self.class::AUDITOR.log_mpi_search_result(
         claim_guid: claim.guid,
-        form_subject: form_subject,
-        result: result
+        form_subject:,
+        result:
       )
     end
   end

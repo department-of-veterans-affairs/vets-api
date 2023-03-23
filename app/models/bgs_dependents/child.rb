@@ -75,7 +75,7 @@ module BGSDependents
     #
     def address(dependents_application)
       dependent_address(
-        dependents_application: dependents_application,
+        dependents_application:,
         lives_with_vet: @child_info['does_child_live_with_you'],
         alt_address: @child_info.dig('child_address_info', 'address')
       )

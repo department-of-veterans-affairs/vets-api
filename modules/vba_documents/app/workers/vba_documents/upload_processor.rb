@@ -26,7 +26,7 @@ module VBADocuments
       @cause = caller_data.nil? ? { caller: 'unknown' } : caller_data['caller']
       response = nil
       VBADocuments::UploadSubmission.with_advisory_lock(guid) do
-        @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
+        @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid:)
         if @upload
           tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.as_json)
           Rails.logger.info('VBADocuments: Start Processing.', tracking_hash)

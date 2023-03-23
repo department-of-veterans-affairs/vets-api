@@ -8,12 +8,12 @@ RSpec.describe OpenidUser, type: :model do
   let(:identity) { OpenidUserIdentity.create(build(:user_identity_attrs)) }
 
   it 'reuses the uuid' do
-    user = OpenidUser.build_from_identity(identity: identity, ttl: some_ttl)
+    user = OpenidUser.build_from_identity(identity:, ttl: some_ttl)
     expect(user.uuid).to eq(identity.uuid)
   end
 
   it 'passes same validity checks as User' do
-    user = OpenidUser.build_from_identity(identity: identity, ttl: some_ttl)
+    user = OpenidUser.build_from_identity(identity:, ttl: some_ttl)
     expect(user).to be_valid
   end
 
@@ -21,7 +21,7 @@ RSpec.describe OpenidUser, type: :model do
     let(:identity) { OpenidUserIdentity.create(build(:user_identity_attrs, :loa3)) }
 
     it 'passes same vailidity checks as User' do
-      user = OpenidUser.build_from_identity(identity: identity, ttl: some_ttl)
+      user = OpenidUser.build_from_identity(identity:, ttl: some_ttl)
       expect(user).to be_valid
     end
   end

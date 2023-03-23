@@ -102,7 +102,7 @@ RSpec.describe 'PPIU' do
     context 'with a valid evss response' do
       it 'matches the ppiu schema' do
         VCR.use_cassette('evss/ppiu/update_payment_information') do
-          put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
+          put('/v0/ppiu/payment_information', params: ppiu_request, headers:)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('payment_information')
           expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response))
@@ -123,7 +123,7 @@ RSpec.describe 'PPIU' do
       context 'when the user does have an associated email address' do
         subject do
           VCR.use_cassette('evss/ppiu/update_payment_information') do
-            put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
+            put '/v0/ppiu/payment_information', params: ppiu_request, headers:
           end
         end
 
@@ -146,7 +146,7 @@ RSpec.describe 'PPIU' do
             expect_any_instance_of(User).to receive(:all_emails).and_return([])
             expect(Raven).to receive(:capture_message).once
 
-            put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
+            put('/v0/ppiu/payment_information', params: ppiu_request, headers:)
             expect(response).to have_http_status(:ok)
           end
         end
@@ -163,7 +163,7 @@ RSpec.describe 'PPIU' do
       end
 
       it 'returns a validation error' do
-        put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
+        put('/v0/ppiu/payment_information', params: ppiu_request, headers:)
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
       end
@@ -178,7 +178,7 @@ RSpec.describe 'PPIU' do
     context 'with a 403 response' do
       it 'returns a not authorized response' do
         VCR.use_cassette('evss/ppiu/update_forbidden') do
-          put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
+          put('/v0/ppiu/payment_information', params: ppiu_request, headers:)
           expect(response).to have_http_status(:forbidden)
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
@@ -196,7 +196,7 @@ RSpec.describe 'PPIU' do
     context 'with a 500 server error type' do
       it 'returns a service error response' do
         VCR.use_cassette('evss/ppiu/update_service_error') do
-          put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
+          put('/v0/ppiu/payment_information', params: ppiu_request, headers:)
           expect(response).to have_http_status(:service_unavailable)
           expect(response).to match_response_schema('evss_errors')
         end
@@ -214,7 +214,7 @@ RSpec.describe 'PPIU' do
     context 'with a 500 server error type pertaining to potential fraud' do
       it 'returns a service error response', :aggregate_failures do
         VCR.use_cassette('evss/ppiu/update_fraud') do
-          put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
+          put('/v0/ppiu/payment_information', params: ppiu_request, headers:)
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_response_schema('evss_errors')
           expect(JSON.parse(response.body)['errors'].first['title']).to eq('Potential Fraud')
@@ -234,7 +234,7 @@ RSpec.describe 'PPIU' do
     context 'with a 500 server error type pertaining to the account being flagged' do
       it 'returns a service error response', :aggregate_failures do
         VCR.use_cassette('evss/ppiu/update_flagged') do
-          put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
+          put('/v0/ppiu/payment_information', params: ppiu_request, headers:)
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_response_schema('evss_errors')
           expect(JSON.parse(response.body)['errors'].first['title']).to eq('Account Flagged')

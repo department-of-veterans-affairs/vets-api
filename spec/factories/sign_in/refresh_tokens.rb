@@ -13,13 +13,13 @@ FactoryBot.define do
     version { SignIn::Constants::RefreshToken::CURRENT_VERSION }
 
     initialize_with do
-      new(user_uuid: user_uuid,
-          session_handle: session_handle,
-          uuid: uuid,
-          parent_refresh_token_hash: parent_refresh_token_hash,
-          anti_csrf_token: anti_csrf_token,
-          nonce: nonce,
-          version: version)
+      new(user_uuid:,
+          session_handle:,
+          uuid:,
+          parent_refresh_token_hash:,
+          anti_csrf_token:,
+          nonce:,
+          version:)
     end
   end
 end

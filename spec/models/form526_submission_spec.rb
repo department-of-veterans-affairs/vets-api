@@ -8,7 +8,7 @@ RSpec.describe Form526Submission do
       user_uuid: user.uuid,
       saved_claim_id: saved_claim.id,
       auth_headers_json: auth_headers.to_json,
-      form_json: form_json
+      form_json:
     )
   end
 
@@ -226,7 +226,7 @@ RSpec.describe Form526Submission do
         user_uuid: user.uuid,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
-        form_json: form_json,
+        form_json:,
         birls_ids_tried: birls_ids_tried.to_json
       )
     end
@@ -310,7 +310,7 @@ RSpec.describe Form526Submission do
         user_uuid: user.uuid,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
-        form_json: form_json,
+        form_json:,
         birls_ids_tried: birls_ids_tried.to_json
       )
     end
@@ -335,7 +335,7 @@ RSpec.describe Form526Submission do
         Form526Submission.new(
           user_uuid: user.uuid,
           saved_claim_id: saved_claim.id,
-          form_json: form_json,
+          form_json:,
           birls_ids_tried: birls_ids_tried.to_json
         )
       end
@@ -362,7 +362,7 @@ RSpec.describe Form526Submission do
         user_uuid: user.uuid,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
-        form_json: form_json,
+        form_json:,
         birls_ids_tried: birls_ids_tried.to_json
       )
     end
@@ -404,7 +404,7 @@ RSpec.describe Form526Submission do
         user_uuid: user.uuid,
         saved_claim_id: saved_claim.id,
         auth_headers_json: headers.to_json,
-        form_json: form_json,
+        form_json:,
         birls_ids_tried: birls_ids_tried.to_json
       )
     end

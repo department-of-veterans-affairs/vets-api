@@ -30,9 +30,9 @@ module ClaimsApi
         def create_ews(claim_id)
           attributes = {
             status: ClaimsApi::EvidenceWaiverSubmission::PENDING,
-            auth_headers: auth_headers,
+            auth_headers:,
             cid: source_cid,
-            claim_id: claim_id
+            claim_id:
           }
 
           new_ews = ClaimsApi::EvidenceWaiverSubmission.create!(attributes)
@@ -49,7 +49,7 @@ module ClaimsApi
         def find_lighthouse_claim!(claim_id:)
           lighthouse_claim = ClaimsApi::AutoEstablishedClaim.get_by_id_and_icn(claim_id, target_veteran.mpi.icn)
 
-          if looking_for_lighthouse_claim?(claim_id: claim_id) && lighthouse_claim.blank?
+          if looking_for_lighthouse_claim?(claim_id:) && lighthouse_claim.blank?
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
           end
 

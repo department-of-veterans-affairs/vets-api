@@ -77,7 +77,7 @@ module RapidReadyForDecision
         from: ApplicationMailer.default[:from],
         to: Settings.rrd.alerts.recipients,
         subject: 'Rapid Ready for Decision (RRD) Job Errored',
-        body: body
+        body:
       ).deliver_now
     end
 
@@ -93,7 +93,7 @@ module RapidReadyForDecision
       return account if account
 
       edipi = form526_submission.auth_headers['va_eauth_dodedipnid'].presence
-      Account.find_by(edipi: edipi) if edipi
+      Account.find_by(edipi:) if edipi
     end
 
     def upload_pdf_and_attach_special_issue(claim_context, pdf)
@@ -104,7 +104,7 @@ module RapidReadyForDecision
     def pdf(patient_info, bpreadings, medications)
       assessed_data = {
         bp_readings: bpreadings,
-        medications: medications
+        medications:
       }
       RapidReadyForDecision::FastTrackPdfGenerator.new(patient_info, assessed_data, :hypertension).generate
     end

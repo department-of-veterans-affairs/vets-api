@@ -12,8 +12,8 @@ RSpec.describe 'prescriptions', type: :request do
   let(:va_patient) { true }
   let(:current_user) do
     build(:user, :mhv, authn_context: LOA::IDME_LOA3_VETS,
-                       va_patient: va_patient,
-                       mhv_account_type: mhv_account_type,
+                       va_patient:,
+                       mhv_account_type:,
                        sign_in: { service_name: SignIn::Constants::Auth::IDME })
   end
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
@@ -45,8 +45,8 @@ RSpec.describe 'prescriptions', type: :request do
                 :mhv,
                 :no_vha_facilities,
                 authn_context: LOA::IDME_LOA3_VETS,
-                va_patient: va_patient,
-                mhv_account_type: mhv_account_type,
+                va_patient:,
+                mhv_account_type:,
                 sign_in: { service_name: SignIn::Constants::Auth::IDME })
         end
 
@@ -209,7 +209,7 @@ RSpec.describe 'prescriptions', type: :request do
           VCR.use_cassette('rx_client/preferences/sets_rx_preferences', record: :none) do
             params = { email_address: 'kamyar.karshenas@va.gov',
                        rx_flag: false }
-            put '/my_health/v1/prescriptions/preferences', params: params
+            put '/my_health/v1/prescriptions/preferences', params:
           end
 
           expect(response).to have_http_status(:ok)
@@ -222,7 +222,7 @@ RSpec.describe 'prescriptions', type: :request do
         it 'requires all parameters for update' do
           VCR.use_cassette('rx_client/preferences/sets_rx_preferences', record: :none) do
             params = { email_address: 'kamyar.karshenas@va.gov' }
-            put '/my_health/v1/prescriptions/preferences', params: params
+            put '/my_health/v1/prescriptions/preferences', params:
           end
 
           expect(response).to have_http_status(:unprocessable_entity)
@@ -232,7 +232,7 @@ RSpec.describe 'prescriptions', type: :request do
           VCR.use_cassette('rx_client/preferences/raises_a_backend_service_exception_when_email_includes_spaces') do
             params = { email_address: 'kamyar karshenas@va.gov',
                        rx_flag: false }
-            put '/my_health/v1/prescriptions/preferences', params: params
+            put '/my_health/v1/prescriptions/preferences', params:
           end
 
           expect(response).to have_http_status(:unprocessable_entity)

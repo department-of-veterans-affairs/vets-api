@@ -82,7 +82,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
       expect(Form1010cg::Service).not_to receive(:new).with(claim)
 
-      post controller_action, params: params
+      post(controller_action, params:)
 
       log = PersonalInformationLog.last
       expect(log.error_class).to eq('1010CGValidationError')
@@ -165,7 +165,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       params = { caregivers_assistance_claim: { form: form_data } }
       expect_any_instance_of(Form1010cg::Auditor).to receive(:record_caregivers)
 
-      post :create, params: params
+      post :create, params:
     end
 
     it 'submits to background job' do
@@ -203,7 +203,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
       expect(described_class::AUDITOR).to receive(:record).with(:pdf_download)
 
-      post :download_pdf, params: params
+      post(:download_pdf, params:)
 
       expect(response).to have_http_status(:ok)
 

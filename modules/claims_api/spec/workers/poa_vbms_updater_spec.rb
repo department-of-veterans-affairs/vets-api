@@ -67,7 +67,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
       participant_id: user.participant_id,
       poa_code: '074',
       allow_poa_access: 'y',
-      allow_poa_c_add: allow_poa_c_add
+      allow_poa_c_add:
     ).and_return({ return_code: 'GUIE50000' })
     service_double = instance_double('BGS::Services')
     expect(service_double).to receive(:corporate_update).and_return(corporate_update_stub)

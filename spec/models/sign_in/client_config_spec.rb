@@ -5,14 +5,14 @@ require 'rails_helper'
 RSpec.describe SignIn::ClientConfig, type: :model do
   let(:client_config) do
     create(:client_config,
-           client_id: client_id,
-           authentication: authentication,
-           anti_csrf: anti_csrf,
-           redirect_uri: redirect_uri,
-           logout_redirect_uri: logout_redirect_uri,
-           access_token_duration: access_token_duration,
-           access_token_audience: access_token_audience,
-           refresh_token_duration: refresh_token_duration)
+           client_id:,
+           authentication:,
+           anti_csrf:,
+           redirect_uri:,
+           logout_redirect_uri:,
+           access_token_duration:,
+           access_token_audience:,
+           refresh_token_duration:)
   end
   let(:client_id) { 'some-client-id' }
   let(:authentication) { SignIn::Constants::Auth::API }

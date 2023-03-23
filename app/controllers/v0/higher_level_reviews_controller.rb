@@ -19,7 +19,7 @@ module V0
       AppealSubmission.create!(user_uuid: @current_user.uuid,
                                user_account: @current_user.user_account,
                                type_of_appeal: 'HLR',
-                               submitted_appeal_uuid: submitted_appeal_uuid)
+                               submitted_appeal_uuid:)
       render json: hlr_response_body
     rescue => e
       request = begin
@@ -29,7 +29,7 @@ module V0
       end
 
       log_exception_to_personal_information_log(
-        e, error_class: error_class(method: 'create', exception_class: e.class), request: request
+        e, error_class: error_class(method: 'create', exception_class: e.class), request:
       )
       raise
     end

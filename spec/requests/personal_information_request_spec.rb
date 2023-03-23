@@ -7,7 +7,7 @@ RSpec.describe 'personal_information' do
   include SchemaMatchers
   include ErrorDetails
 
-  let(:user) { create(:user, :loa3, mpi_profile: mpi_profile) }
+  let(:user) { create(:user, :loa3, mpi_profile:) }
   let(:mpi_profile) { {} }
   let(:idme_uuid) { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
 

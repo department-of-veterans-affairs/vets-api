@@ -115,9 +115,9 @@ module TravelClaim
 
     def auth_params
       {
-        client_id: client_id,
-        client_secret: client_secret,
-        scope: scope,
+        client_id:,
+        client_secret:,
+        scope:,
         grant_type: GRANT_TYPE
       }
     end

@@ -7,7 +7,7 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
 
   context request_params do
     before do
-      get '/v1/facilities/va', params: params
+      get '/v1/facilities/va', params:
     end
 
     it { expect(response).to be_successful }
@@ -18,7 +18,7 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
 
     unless mobile.nil?
       it "is expected that all results have mobile=#{mobile}" do
-        expected_array = ids.collect { |id| { id: id, mobile: mobile } }
+        expected_array = ids.collect { |id| { id:, mobile: } }
         expect(parsed_body['data'].collect { |x| x['attributes'].slice(:id, :mobile) }).to match(expected_array)
       end
     end
@@ -27,8 +27,8 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
       current_page = request_params[:page] || 1
       prev_page = current_page > 1 ? current_page - 1 : nil
       expect(parsed_body[:meta][:pagination]).to include({
-                                                           current_page: current_page,
-                                                           prev_page: prev_page,
+                                                           current_page:,
+                                                           prev_page:,
                                                            next_page: be_kind_of(Integer).or(be_nil),
                                                            total_pages: be_kind_of(Integer)
                                                          })

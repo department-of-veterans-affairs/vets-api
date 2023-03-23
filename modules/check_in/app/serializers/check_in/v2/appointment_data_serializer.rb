@@ -54,8 +54,8 @@ module CheckIn
           emergencyContactConfirmedAt: raw_confirmation[:emergencyContactConfirmedAt]
         }
         {
-          demographics: demographics,
-          appointments: appointments,
+          demographics:,
+          appointments:,
           patientDemographicsStatus: demographics_confirmation
         }
       end

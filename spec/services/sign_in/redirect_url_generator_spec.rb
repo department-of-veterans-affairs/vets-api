@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe SignIn::RedirectUrlGenerator do
   describe '#perform' do
     subject do
-      SignIn::RedirectUrlGenerator.new(redirect_uri: redirect_uri, params_hash: params_hash).perform
+      SignIn::RedirectUrlGenerator.new(redirect_uri:, params_hash:).perform
     end
 
     let(:redirect_uri) { Faker::Internet.url }

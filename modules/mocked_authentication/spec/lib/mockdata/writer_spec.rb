@@ -6,7 +6,7 @@ require 'mockdata/writer'
 describe MockedAuthentication::Mockdata::Writer do
   describe '.save_credential' do
     subject do
-      MockedAuthentication::Mockdata::Writer.save_credential(credential: credential, credential_type: credential_type)
+      MockedAuthentication::Mockdata::Writer.save_credential(credential:, credential_type:)
     end
 
     let(:credential) do

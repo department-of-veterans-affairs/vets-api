@@ -9,16 +9,16 @@ describe Mobile::V2::Appointments::PresentationFilter do
   let(:cancelled) { mock_appointment(id: 'past', status: 'cancelled', start: 30.days.ago) }
   let(:request) do
     requested_periods = [{ start: 20.days.ago }]
-    mock_appointment(id: 'request', status: 'proposed', created: 30.days.ago, requested_periods: requested_periods)
+    mock_appointment(id: 'request', status: 'proposed', created: 30.days.ago, requested_periods:)
   end
 
   def mock_appointment(id: nil, created: nil, status: nil, start: nil, requested_periods: nil)
     OpenStruct.new(
-      id: id,
+      id:,
       created: created&.to_s,
-      status: status,
+      status:,
       start: start&.to_s,
-      requested_periods: requested_periods
+      requested_periods:
     )
   end
 

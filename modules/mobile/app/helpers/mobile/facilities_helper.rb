@@ -10,9 +10,9 @@ module Mobile
       ids = facility_ids.join(',')
 
       facility_ids.each do |facility_id|
-        Rails.logger.info('metric.mobile.appointment.facility', facility_id: facility_id)
+        Rails.logger.info('metric.mobile.appointment.facility', facility_id:)
       end
-      vaos_facilities = VAOS::V2::MobileFacilityService.new(user).get_facilities(ids: ids, children: include_children,
+      vaos_facilities = VAOS::V2::MobileFacilityService.new(user).get_facilities(ids:, children: include_children,
                                                                                  type: nil)
       vaos_facilities[:data]
     end
@@ -41,10 +41,10 @@ module Mobile
         zip_code = address['zip']
       end
       Mobile::V0::Address.new(
-        street: street,
+        street:,
         city: address.symbolize_keys[:city],
         state: address.symbolize_keys[:state],
-        zip_code: zip_code
+        zip_code:
       )
     end
 

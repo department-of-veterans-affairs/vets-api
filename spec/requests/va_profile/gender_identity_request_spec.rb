@@ -24,7 +24,7 @@ RSpec.describe 'gender_identity' do
       it 'matches the gender_identity schema', :aggregate_failures do
         gender_identity = VAProfile::Models::GenderIdentity.new(code: 'F')
         VCR.use_cassette('va_profile/demographics/post_gender_identity_success') do
-          put('/v0/profile/gender_identities', params: gender_identity.to_json, headers: headers)
+          put('/v0/profile/gender_identities', params: gender_identity.to_json, headers:)
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('va_profile/gender_identity_response')
@@ -34,7 +34,7 @@ RSpec.describe 'gender_identity' do
       it 'returns the correct values', :aggregate_failures do
         gender_identity = VAProfile::Models::GenderIdentity.new(code: 'F')
         VCR.use_cassette('va_profile/demographics/post_gender_identity_success') do
-          put('/v0/profile/gender_identities', params: gender_identity.to_json, headers: headers)
+          put('/v0/profile/gender_identities', params: gender_identity.to_json, headers:)
 
           json = json_body_for(response)['attributes']['gender_identity']
           expect(response).to have_http_status(:ok)
@@ -50,7 +50,7 @@ RSpec.describe 'gender_identity' do
       it 'when code is blank', :aggregate_failures do
         gender_identity = VAProfile::Models::GenderIdentity.new(code: nil)
 
-        put('/v0/profile/gender_identities', params: gender_identity.to_json, headers: headers)
+        put('/v0/profile/gender_identities', params: gender_identity.to_json, headers:)
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
@@ -60,7 +60,7 @@ RSpec.describe 'gender_identity' do
       it 'when code is an invalid option', :aggregate_failures do
         gender_identity = VAProfile::Models::GenderIdentity.new(code: 'A')
 
-        put('/v0/profile/gender_identities', params: gender_identity.to_json, headers: headers)
+        put('/v0/profile/gender_identities', params: gender_identity.to_json, headers:)
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')

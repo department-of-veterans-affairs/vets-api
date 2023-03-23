@@ -30,7 +30,7 @@ RSpec.describe VAOS::V1::BaseController, type: :controller do
 
   context 'with a RecordNotFound error' do
     it 'renders json object with developer attributes' do
-      get :record_not_found, params: { id: id }
+      get :record_not_found, params: { id: }
       expected_body = {
         'id' => id,
         'issue' => [
@@ -56,7 +56,7 @@ RSpec.describe VAOS::V1::BaseController, type: :controller do
 
   context 'with a BackendServiceError error' do
     it 'renders json object with developer attributes' do
-      get :service_error, params: { id: id }
+      get :service_error, params: { id: }
       expected_body = {
         'id' => id,
         'issue' => [

@@ -47,7 +47,7 @@ module V0
         json = JSON.parse(response.episodes.to_json, symbolize_names: true)
 
         render status: response.status,
-               json: json,
+               json:,
                serializer: ServiceHistorySerializer
       end
 

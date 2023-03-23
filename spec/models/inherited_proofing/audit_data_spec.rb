@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe InheritedProofing::AuditData, type: :model do
-  let(:audit_data) { InheritedProofing::AuditData.new(user_uuid: user_uuid, code: code, legacy_csp: legacy_csp) }
+  let(:audit_data) { InheritedProofing::AuditData.new(user_uuid:, code:, legacy_csp:) }
   let(:user_uuid) { SecureRandom.uuid }
   let(:code) { SecureRandom.hex }
   let(:legacy_csp) { 'mhv' }

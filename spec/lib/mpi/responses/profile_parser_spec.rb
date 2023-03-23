@@ -8,10 +8,10 @@ describe MPI::Responses::ProfileParser do
   let(:parser) { MPI::Responses::ProfileParser.new(faraday_response) }
   let(:ack_detail_code) { 'AE' }
   let(:error_details) do
-    { error_details: { ack_detail_code: ack_detail_code,
-                       id_extension: id_extension,
-                       transaction_id: transaction_id,
-                       error_texts: error_texts } }
+    { error_details: { ack_detail_code:,
+                       id_extension:,
+                       transaction_id:,
+                       error_texts: } }
   end
   let(:headers) { { 'x-global-transaction-id' => transaction_id } }
   let(:transaction_id) { 'some-transaction-id' }
@@ -45,7 +45,7 @@ describe MPI::Responses::ProfileParser do
           sec_id: nil,
           search_token: 'WSDOC1609131753362231779394902',
           id_theft_flag: false,
-          transaction_id: transaction_id
+          transaction_id:
         )
       end
 
@@ -60,7 +60,7 @@ describe MPI::Responses::ProfileParser do
           build(
             :mpi_profile_response,
             :address_austin,
-            icn: icn,
+            icn:,
             suffix: nil,
             birth_date: nil,
             birls_id: nil,
@@ -72,11 +72,11 @@ describe MPI::Responses::ProfileParser do
             sec_id: nil,
             search_token: 'WSDOC1609131753362231779394902',
             id_theft_flag: false,
-            transaction_id: transaction_id
+            transaction_id:
           )
         end
         let(:expected_log_message) { 'MPI::Response.parse_dob failed' }
-        let(:expected_log_values) { { dob: '198003', icn: icn } }
+        let(:expected_log_values) { { dob: '198003', icn: } }
 
         it 'sets the birth_date to nil' do
           expect(parser.parse).to have_deep_attributes(mvi_profile)
@@ -106,7 +106,7 @@ describe MPI::Responses::ProfileParser do
             sec_id: nil,
             search_token: 'WSDOC1609131753362231779394902',
             id_theft_flag: false,
-            transaction_id: transaction_id
+            transaction_id:
           )
         end
 
@@ -133,7 +133,7 @@ describe MPI::Responses::ProfileParser do
             sec_id: nil,
             search_token: 'WSDOC1609131753362231779394902',
             id_theft_flag: false,
-            transaction_id: transaction_id
+            transaction_id:
           )
         end
 
@@ -172,7 +172,7 @@ describe MPI::Responses::ProfileParser do
             ],
             search_token: 'WSDOC1609131753362231779394902',
             id_theft_flag: false,
-            transaction_id: transaction_id
+            transaction_id:
           )
         end
 
@@ -200,7 +200,7 @@ describe MPI::Responses::ProfileParser do
             edipis: [],
             mhv_ids: ['1100792239'],
             active_mhv_ids: ['1100792239'],
-            icn_with_aaid: icn_with_aaid,
+            icn_with_aaid:,
             full_mvi_ids: [
               '1008714701V416111^NI^200M^USVHA^P',
               '796122306^PI^200BRLS^USVBA^A',
@@ -210,7 +210,7 @@ describe MPI::Responses::ProfileParser do
             ],
             search_token: 'WSDOC1908201553145951848240311',
             id_theft_flag: false,
-            transaction_id: transaction_id
+            transaction_id:
           )
         end
 
@@ -261,7 +261,7 @@ describe MPI::Responses::ProfileParser do
           person_types: %w[DEP VET],
           relationships: [mpi_profile_relationship_component],
           id_theft_flag: false,
-          transaction_id: transaction_id
+          transaction_id:
         )
       end
 
@@ -320,7 +320,7 @@ describe MPI::Responses::ProfileParser do
   context 'with no subject element' do
     let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_no_subject_response.xml')) }
     let(:mvi_profile) { build(:mpi_profile_response, :missing_attrs) }
-    let(:expected_mvi_profile) { MPI::Models::MviProfile.new({ transaction_id: transaction_id }) }
+    let(:expected_mvi_profile) { MPI::Models::MviProfile.new({ transaction_id: }) }
 
     describe '#parse' do
       it 'return empty mvi profile if the response includes no suject element' do
@@ -402,7 +402,7 @@ describe MPI::Responses::ProfileParser do
         :multiple_mhvids,
         mhv_ien: nil,
         mhv_iens: [],
-        icn_with_aaid: icn_with_aaid,
+        icn_with_aaid:,
         cerner_id: nil,
         cerner_facility_ids: [],
         full_mvi_ids: [
@@ -417,7 +417,7 @@ describe MPI::Responses::ProfileParser do
         search_token: 'WSDOC1611060614456041732180196',
         person_types: ['PAT'],
         id_theft_flag: false,
-        transaction_id: transaction_id
+        transaction_id:
       )
     end
 
@@ -441,7 +441,7 @@ describe MPI::Responses::ProfileParser do
         mhv_iens: [],
         search_token: 'WSDOC1609131753362231779394902',
         id_theft_flag: false,
-        transaction_id: transaction_id
+        transaction_id:
       )
     end
 

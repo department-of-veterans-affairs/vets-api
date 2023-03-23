@@ -13,7 +13,7 @@ module BGS
     sidekiq_options retry: false
 
     def perform(user_uuid, saved_claim_id, vet_info)
-      in_progress_form = InProgressForm.find_by(form_id: FORM_ID, user_uuid: user_uuid)
+      in_progress_form = InProgressForm.find_by(form_id: FORM_ID, user_uuid:)
       in_progress_copy = in_progress_form_copy(in_progress_form)
       user = User.find(user_uuid)
       claim_data = valid_claim_data(saved_claim_id, vet_info)

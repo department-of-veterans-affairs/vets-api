@@ -33,7 +33,7 @@ module SM
                   parsed_categories ||
                   parsed_signature
           @parsed_json = {
-            data: data,
+            data:,
             errors: @errors,
             metadata: @meta_attributes
           }
@@ -98,9 +98,9 @@ module SM
           attachments = Array.wrap(message_json[:attachments])
           # remove the outermost object name for attachment and inject message_id
           attachments = attachments.map do |attachment|
-            attachment[:attachment].map { |e| e.merge(message_id: message_id) }
+            attachment[:attachment].map { |e| e.merge(message_id:) }
           end.flatten
-          message_json.merge(attachments: attachments)
+          message_json.merge(attachments:)
         end
       end
     end

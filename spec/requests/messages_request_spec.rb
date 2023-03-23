@@ -12,7 +12,7 @@ RSpec.describe 'Messages Integration' do
   let(:inbox_id) { 0 }
   let(:message_id) { 573_059 }
   let(:va_patient) { true }
-  let(:current_user) { build(:user, :mhv, va_patient: va_patient, mhv_account_type: mhv_account_type) }
+  let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before do
@@ -46,7 +46,7 @@ RSpec.describe 'Messages Integration' do
 
       let(:va_patient) { false }
       let(:current_user) do
-        build(:user, :mhv, :no_vha_facilities, va_patient: va_patient, mhv_account_type: mhv_account_type)
+        build(:user, :mhv, :no_vha_facilities, va_patient:, mhv_account_type:)
       end
 
       include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
@@ -109,7 +109,7 @@ RSpec.describe 'Messages Integration' do
       end
       let(:message_params) { attributes_for(:message, subject: 'CI Run', body: 'Continuous Integration') }
       let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
-      let(:params_with_attachments) { { message: params }.merge(uploads: uploads) }
+      let(:params_with_attachments) { { message: params }.merge(uploads:) }
 
       context 'message' do
         it 'without attachments' do

@@ -57,7 +57,7 @@ RSpec.describe DebtManagementCenter::DebtLetterDownloader, vcr: vcr_options do
             good_document_id,
             OpenStruct.new(
               document_id: good_document_id,
-              content: content
+              content:
             )
           )
         end

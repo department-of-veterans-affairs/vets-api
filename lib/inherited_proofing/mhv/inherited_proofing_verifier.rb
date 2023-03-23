@@ -39,8 +39,8 @@ module InheritedProofing
       end
 
       def cache_identity_data
-        InheritedProofing::MHVIdentityData.new(user_uuid: user.uuid, code: code, data: identity_info).save!
-        InheritedProofing::AuditData.new(user_uuid: user.uuid, code: code, legacy_csp: 'mhv').save!
+        InheritedProofing::MHVIdentityData.new(user_uuid: user.uuid, code:, data: identity_info).save!
+        InheritedProofing::AuditData.new(user_uuid: user.uuid, code:, legacy_csp: 'mhv').save!
       end
 
       def missing_identity_doc?

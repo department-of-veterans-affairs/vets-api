@@ -25,11 +25,11 @@ module ClaimsApi
       def render_body_is_not_a_hash_error(body)
         status = 422
         error = {
-          status: status,
+          status:,
           detail: "The request body isn't a JSON object: #{body.inspect}",
           source: ''
         }
-        render status: status, json: { errors: [error] }
+        render status:, json: { errors: [error] }
       end
     end
   end

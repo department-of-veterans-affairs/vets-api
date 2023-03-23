@@ -29,7 +29,7 @@ RSpec.describe CypressViewportUpdater::Viewport do
            .request_reports
       total_users = ga.user_report.data.totals.first.values.first.to_f
       row = ga.viewport_report.data.rows.first
-      @viewport = described_class.new(row: row, rank: 1, total_users: total_users)
+      @viewport = described_class.new(row:, rank: 1, total_users:)
     end
   end
 

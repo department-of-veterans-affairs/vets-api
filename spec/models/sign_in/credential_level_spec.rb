@@ -5,10 +5,10 @@ require 'rails_helper'
 RSpec.describe SignIn::CredentialLevel, type: :model do
   let(:credential_level) do
     create(:credential_level,
-           requested_acr: requested_acr,
-           current_ial: current_ial,
-           max_ial: max_ial,
-           credential_type: credential_type)
+           requested_acr:,
+           current_ial:,
+           max_ial:,
+           credential_type:)
   end
 
   let(:requested_acr) { SignIn::Constants::Auth::ACR_VALUES.first }

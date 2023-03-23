@@ -71,7 +71,7 @@ module MedicalCopays
     # @return [Faraday::Connection]
     #
     def connection
-      Faraday.new(url: url, headers: headers) do |conn|
+      Faraday.new(url:, headers:) do |conn|
         conn.request :json
         conn.use :breakers
         conn.use Faraday::Response::RaiseError

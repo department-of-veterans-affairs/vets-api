@@ -92,7 +92,7 @@ module AppealsApi
     end
 
     def group_evidence_submission_records(record_type, supportable_type)
-      group_records(record_type, record_type.where(created_at: from..to, supportable_type: supportable_type))
+      group_records(record_type, record_type.where(created_at: from..to, supportable_type:))
     end
 
     def group_records(record_type, record_collection)

@@ -101,7 +101,7 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
     subject do
       post(
         :create,
-        params: params,
+        params:,
         as: :json
       )
     end

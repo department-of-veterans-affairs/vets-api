@@ -59,7 +59,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
       match_requests_on: [:method]
     ) do
       it 'responds to GET #index with success even if no providers are found' do
-        get '/facilities_api/v1/ccp', params: params
+        get('/facilities_api/v1/ccp', params:)
 
         expect(response).to be_successful
       end
@@ -77,7 +77,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
         end
 
         it 'requires a specialty code' do
-          get '/facilities_api/v1/ccp', params: params
+          get('/facilities_api/v1/ccp', params:)
 
           bod = JSON.parse(response.body)
 
@@ -108,7 +108,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
         end
 
         it 'returns a results from the pos_locator' do
-          get '/facilities_api/v1/ccp', params: params
+          get('/facilities_api/v1/ccp', params:)
 
           bod = JSON.parse(response.body)
 
@@ -134,7 +134,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
         )
 
         expect do
-          get '/facilities_api/v1/ccp', params: params
+          get '/facilities_api/v1/ccp', params:
         end.to instrument('facilities.ppms.v1.request.faraday')
       end
 
@@ -166,7 +166,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
       end
 
       it 'returns a results from the provider_locator' do
-        get '/facilities_api/v1/ccp', params: params
+        get('/facilities_api/v1/ccp', params:)
 
         bod = JSON.parse(response.body)
         expect(bod['data']).to include(
@@ -211,7 +211,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
       end
 
       it 'returns results from the pos_locator' do
-        get '/facilities_api/v1/ccp', params: params
+        get('/facilities_api/v1/ccp', params:)
 
         bod = JSON.parse(response.body)
 
@@ -257,7 +257,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
       end
 
       it 'returns results from the pos_locator' do
-        get '/facilities_api/v1/ccp', params: params
+        get('/facilities_api/v1/ccp', params:)
 
         bod = JSON.parse(response.body)
 
@@ -279,7 +279,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
       end
 
       it 'requires a specialty code' do
-        get '/facilities_api/v1/ccp/provider', params: params
+        get('/facilities_api/v1/ccp/provider', params:)
 
         bod = JSON.parse(response.body)
 
@@ -309,7 +309,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
       end
 
       it 'returns a results from the pos_locator' do
-        get '/facilities_api/v1/ccp/provider', params: params
+        get('/facilities_api/v1/ccp/provider', params:)
 
         bod = JSON.parse(response.body)
 
@@ -320,7 +320,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
     end
 
     it 'returns a results from the provider_locator' do
-      get '/facilities_api/v1/ccp/provider', params: params
+      get('/facilities_api/v1/ccp/provider', params:)
 
       bod = JSON.parse(response.body)
       expect(bod['data']).to include(
@@ -364,7 +364,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
     end
 
     it 'returns results from the pos_locator' do
-      get '/facilities_api/v1/ccp/pharmacy', params: params
+      get('/facilities_api/v1/ccp/pharmacy', params:)
 
       bod = JSON.parse(response.body)
 
@@ -409,7 +409,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
     end
 
     it 'returns results from the pos_locator' do
-      get '/facilities_api/v1/ccp/urgent_care', params: params
+      get('/facilities_api/v1/ccp/urgent_care', params:)
 
       bod = JSON.parse(response.body)
 

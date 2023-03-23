@@ -9,7 +9,7 @@ module AppealsApi
       mail(
         content_type: 'text/html',
         to: recipients,
-        subject: subject,
+        subject:,
         body: report.text.lines.join('<br>')
       )
     end

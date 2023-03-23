@@ -12,9 +12,9 @@ module TestUserDashboard
       return unless row['idme_uuid'] || row['logingov_uuid']
 
       account_details = row.merge(account_uuid: id_uuid,
-                                  id_types: id_types,
-                                  birth_date: birth_date,
-                                  services: services).compact
+                                  id_types:,
+                                  birth_date:,
+                                  services:).compact
 
       account = TudAccount.find_or_initialize_by(email: row['email'])
       account.update!(account_details)

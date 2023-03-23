@@ -6,10 +6,10 @@ module ClaimsApi
   module V2
     class VeteranIdentifierController < ClaimsApi::V2::ApplicationController
       def find
-        verify_access! if ccg_flow?(token: token)
+        verify_access! if ccg_flow?(token:)
         validate_request!(ClaimsApi::V2::ParamsValidation::VeteranIdentifier)
         raise ::Common::Exceptions::ResourceNotFound if target_veteran&.mpi&.icn.blank?
-        unless ccg_flow?(token: token) || user_is_target_veteran? || user_is_representative?
+        unless ccg_flow?(token:) || user_is_target_veteran? || user_is_representative?
           raise ::Common::Exceptions::Forbidden
         end
 
@@ -25,7 +25,7 @@ module ClaimsApi
           first_name: params[:firstName],
           last_name: params[:lastName],
           va_profile: ClaimsApi::Veteran.build_profile(params[:birthdate]),
-          loa: ccg_flow?(token: token) ? { current: 3, highest: 3 } : @current_user.loa
+          loa: ccg_flow?(token:) ? { current: 3, highest: 3 } : @current_user.loa
         )
       end
 

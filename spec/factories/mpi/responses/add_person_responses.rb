@@ -9,9 +9,9 @@ FactoryBot.define do
     error { nil }
 
     initialize_with do
-      new(status: status,
-          parsed_codes: parsed_codes,
-          error: error)
+      new(status:,
+          parsed_codes:,
+          error:)
     end
   end
 
@@ -23,9 +23,9 @@ FactoryBot.define do
     error { nil }
 
     initialize_with do
-      new(status: status,
-          parsed_codes: parsed_codes,
-          error: error)
+      new(status:,
+          parsed_codes:,
+          error:)
     end
   end
 end

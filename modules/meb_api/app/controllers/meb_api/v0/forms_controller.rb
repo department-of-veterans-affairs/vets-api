@@ -35,7 +35,7 @@ module MebApi
         response = claimant_response.status == 200 ? claim_status_response : claimant_response
         serializer = claimant_response.status == 200 ? ClaimStatusSerializer : ClaimantSerializer
 
-        render json: response, serializer: serializer
+        render json: response, serializer:
       end
 
       def claimant_info

@@ -77,7 +77,7 @@ module AppealsApi
     def veteran
       @veteran ||= Appellant.new(
         type: :veteran,
-        auth_headers: auth_headers,
+        auth_headers:,
         form_data: data_attributes&.dig('veteran')
       )
     end
@@ -85,7 +85,7 @@ module AppealsApi
     def claimant
       @claimant ||= Appellant.new(
         type: :claimant,
-        auth_headers: auth_headers,
+        auth_headers:,
         form_data: data_attributes&.dig('claimant')
       )
     end
@@ -239,9 +239,9 @@ module AppealsApi
 
       send(
         raise_on_error ? :update! : :update,
-        status: status,
-        code: code,
-        detail: detail
+        status:,
+        code:,
+        detail:
       )
 
       if status != current_status || code != current_code || detail != current_detail
@@ -252,8 +252,8 @@ module AppealsApi
             to: status.to_s,
             status_update_time: Time.zone.now.iso8601,
             statusable_id: id,
-            code: code,
-            detail: detail
+            code:,
+            detail:
           }.stringify_keys
         )
 
@@ -263,7 +263,7 @@ module AppealsApi
           AppealsApi::AppealReceivedJob.perform_async(
             {
               receipt_event: 'nod_received',
-              email_identifier: email_identifier,
+              email_identifier:,
               first_name: veteran_first_name,
               date_submitted: veterans_local_time.iso8601,
               guid: id,
@@ -277,14 +277,14 @@ module AppealsApi
     # rubocop:enable Metrics/MethodLength
 
     def update_status!(status:, code: nil, detail: nil)
-      update_status(status: status, code: code, detail: detail, raise_on_error: true)
+      update_status(status:, code:, detail:, raise_on_error: true)
     end
 
     private
 
     def mpi_veteran
       AppealsApi::Veteran.new(
-        ssn: ssn,
+        ssn:,
         first_name: veteran_first_name,
         last_name: veteran_last_name,
         birth_date: veteran_birth_date.iso8601

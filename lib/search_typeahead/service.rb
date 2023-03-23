@@ -45,9 +45,9 @@ module SearchTypeahead
     #
     def query_params
       {
-        name: name,
+        name:,
         q: query,
-        api_key: api_key
+        api_key:
       }
     end
 

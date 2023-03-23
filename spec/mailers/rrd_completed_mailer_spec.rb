@@ -36,7 +36,7 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
 
       simulate_rrd_results(submission, {
                              pdf_created: true,
-                             med_stats: { bp_readings_count: bp_readings_count,
+                             med_stats: { bp_readings_count:,
                                           medications_count: active_medications_count },
                              pdf_guid: 'a950ef07-9eaa-4784-b5af-bda8c50a83f9'
                            })
@@ -92,7 +92,7 @@ RSpec.describe RrdCompletedMailer, type: [:mailer] do
         simulate_rrd_results(submission, {
                                pdf_created: true,
                                med_stats: { medications_count: active_medications_count,
-                                            asthma_medications_count: asthma_medications_count },
+                                            asthma_medications_count: },
                                pdf_guid: 'a950ef07-9eaa-4784-b5af-bda8c50a83f9'
                              })
       end

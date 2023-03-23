@@ -73,7 +73,7 @@ module PdfFill
       @extras_generator.add_text(
         v,
         key_data.slice(:question_num, :question_suffix, :question_text).merge(
-          i: i
+          i:
         )
       )
     end
@@ -131,14 +131,14 @@ module PdfFill
 
         transform_data(
           form_data: { first_key => EXTRAS_TEXT },
-          pdftk_keys: pdftk_keys,
+          pdftk_keys:,
           i: 0
         )
 
         add_array_to_extras(form_data, pdftk_keys)
       else
         form_data.each_with_index do |v, idx|
-          transform_data(form_data: v, pdftk_keys: pdftk_keys, i: idx)
+          transform_data(form_data: v, pdftk_keys:, i: idx)
         end
       end
     end
@@ -154,7 +154,7 @@ module PdfFill
           transform_data(
             form_data: v,
             pdftk_keys: pdftk_keys[k],
-            i: i
+            i:
           )
         end
       else

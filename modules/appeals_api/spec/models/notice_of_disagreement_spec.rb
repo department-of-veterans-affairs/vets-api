@@ -10,7 +10,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
   let(:form_data) { fixture_as_json 'valid_10182.json', version: 'v1' }
   let(:notice_of_disagreement) do
     review_option = form_data['data']['attributes']['boardReviewOption']
-    build(:notice_of_disagreement, form_data: form_data, auth_headers: auth_headers, board_review_option: review_option)
+    build(:notice_of_disagreement, form_data:, auth_headers:, board_review_option: review_option)
   end
 
   describe '.build' do
@@ -157,7 +157,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     let(:example_instance) { notice_of_disagreement }
     let(:instance_without_email) do
       described_class.create!(
-        auth_headers: auth_headers,
+        auth_headers:,
         api_version: 'V1',
         form_data: form_data.deep_merge(
           { 'data' => { 'attributes' => { 'veteran' => { 'emailAddressText' => nil } } } }
@@ -241,7 +241,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         let(:auth_headers) { fixture_as_json 'valid_10182_headers.json', version: 'v2' }
         let(:form_data) { fixture_as_json 'valid_10182_minimum.json', version: 'v2' }
         let(:invalid_notice_of_disagreement) do
-          build(:minimal_notice_of_disagreement_v2, form_data: form_data, auth_headers: auth_headers, api_version: 'v2')
+          build(:minimal_notice_of_disagreement_v2, form_data:, auth_headers:, api_version: 'v2')
         end
 
         context 'when extension reason provided, but extension request is false' do

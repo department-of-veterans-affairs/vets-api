@@ -44,7 +44,7 @@ module Facilities
           'main' => cemetery['phone'],
           'fax' => cemetery['fax']
         },
-        hours: hours,
+        hours:,
         services: {},
         feedback: {},
         access: {} }

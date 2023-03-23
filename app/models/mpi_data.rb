@@ -165,7 +165,7 @@ class MPIData < Common::RedisStore
 
   # @return [MPI::Responses::FindProfileResponse] the response returned from MVI
   def mvi_response(user_key: get_user_key)
-    @mvi_response ||= response_from_redis_or_service(user_key: user_key)
+    @mvi_response ||= response_from_redis_or_service(user_key:)
   end
 
   def mpi_response_is_cached?(user_key: get_user_key)

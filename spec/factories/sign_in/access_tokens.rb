@@ -17,17 +17,17 @@ FactoryBot.define do
     created_time { Time.zone.now }
 
     initialize_with do
-      new(session_handle: session_handle,
-          user_uuid: user_uuid,
-          client_id: client_id,
-          audience: audience,
-          refresh_token_hash: refresh_token_hash,
-          parent_refresh_token_hash: parent_refresh_token_hash,
-          anti_csrf_token: anti_csrf_token,
-          last_regeneration_time: last_regeneration_time,
-          version: version,
-          expiration_time: expiration_time,
-          created_time: created_time)
+      new(session_handle:,
+          user_uuid:,
+          client_id:,
+          audience:,
+          refresh_token_hash:,
+          parent_refresh_token_hash:,
+          anti_csrf_token:,
+          last_regeneration_time:,
+          version:,
+          expiration_time:,
+          created_time:)
     end
   end
 end

@@ -5,16 +5,16 @@ require 'rails_helper'
 RSpec.describe SignIn::StatePayloadJwtDecoder do
   describe '#perform' do
     subject do
-      SignIn::StatePayloadJwtDecoder.new(state_payload_jwt: state_payload_jwt).perform
+      SignIn::StatePayloadJwtDecoder.new(state_payload_jwt:).perform
     end
 
     let(:state_payload_jwt) do
-      SignIn::StatePayloadJwtEncoder.new(acr: acr,
-                                         client_config: client_config,
-                                         code_challenge_method: code_challenge_method,
-                                         type: type,
-                                         code_challenge: code_challenge,
-                                         client_state: client_state).perform
+      SignIn::StatePayloadJwtEncoder.new(acr:,
+                                         client_config:,
+                                         code_challenge_method:,
+                                         type:,
+                                         code_challenge:,
+                                         client_state:).perform
     end
     let(:code_challenge) { Base64.urlsafe_encode64('some-safe-code-challenge') }
     let(:code_challenge_method) { SignIn::Constants::Auth::CODE_CHALLENGE_METHOD }
@@ -37,11 +37,11 @@ RSpec.describe SignIn::StatePayloadJwtDecoder do
 
       let(:jwt_payload) do
         {
-          code_challenge: code_challenge,
-          client_state: client_state,
-          acr: acr,
-          type: type,
-          client_id: client_id
+          code_challenge:,
+          client_state:,
+          acr:,
+          type:,
+          client_id:
         }
       end
       let(:expected_error) { SignIn::Errors::StatePayloadSignatureMismatchError }

@@ -40,9 +40,7 @@ module SignIn
     private
 
     def confirm_client_id
-      unless ClientConfig.valid_client_id?(client_id: client_id)
-        errors.add(:base, 'Client id must map to a configuration')
-      end
+      errors.add(:base, 'Client id must map to a configuration') unless ClientConfig.valid_client_id?(client_id:)
     end
   end
 end

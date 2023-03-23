@@ -21,7 +21,7 @@ module Mobile
                                  else
                                    [e.status_code, e.errors]
                                  end
-          Rails.logger.info('Mobile Disability Rating Error Details: ', details: details)
+          Rails.logger.info('Mobile Disability Rating Error Details: ', details:)
           Rails.logger.info('Mobile Disability Rating Expanded Error: ',
                             "response value: #{e.response_values if defined? e.response_values}.
                             original status: #{e.original_status if defined? e.original_status}.

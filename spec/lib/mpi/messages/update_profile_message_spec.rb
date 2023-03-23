@@ -5,16 +5,16 @@ require 'mpi/messages/update_profile_message'
 
 describe MPI::Messages::UpdateProfileMessage do
   let(:update_profile_message) do
-    described_class.new(last_name: last_name,
-                        ssn: ssn,
-                        icn: icn,
-                        birth_date: birth_date,
-                        email: email,
-                        idme_uuid: idme_uuid,
-                        logingov_uuid: logingov_uuid,
-                        edipi: edipi,
-                        address: address,
-                        first_name: first_name)
+    described_class.new(last_name:,
+                        ssn:,
+                        icn:,
+                        birth_date:,
+                        email:,
+                        idme_uuid:,
+                        logingov_uuid:,
+                        edipi:,
+                        address:,
+                        first_name:)
   end
 
   let(:last_name) { 'some-last-name' }
@@ -187,12 +187,12 @@ describe MPI::Messages::UpdateProfileMessage do
     context 'when address is defined' do
       let(:address) do
         {
-          street: street,
-          street2: street2,
-          state: state,
-          city: city,
-          postal_code: postal_code,
-          country: country
+          street:,
+          street2:,
+          state:,
+          city:,
+          postal_code:,
+          country:
         }
       end
       let(:street) { 'some-street' }

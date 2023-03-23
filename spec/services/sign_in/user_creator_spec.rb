@@ -5,29 +5,29 @@ require 'rails_helper'
 RSpec.describe SignIn::UserCreator do
   describe '#perform' do
     subject do
-      SignIn::UserCreator.new(user_attributes: user_attributes,
-                              state_payload: state_payload,
+      SignIn::UserCreator.new(user_attributes:,
+                              state_payload:,
                               verified_icn: icn,
-                              request_ip: request_ip).perform
+                              request_ip:).perform
     end
 
     let(:user_attributes) do
       {
-        logingov_uuid: logingov_uuid,
-        loa: loa,
-        csp_email: csp_email,
-        current_ial: current_ial,
-        max_ial: max_ial,
-        multifactor: multifactor,
-        authn_context: authn_context
+        logingov_uuid:,
+        loa:,
+        csp_email:,
+        current_ial:,
+        max_ial:,
+        multifactor:,
+        authn_context:
       }
     end
     let(:state_payload) do
       create(:state_payload,
-             client_state: client_state,
-             client_id: client_id,
-             code_challenge: code_challenge,
-             type: type)
+             client_state:,
+             client_id:,
+             code_challenge:,
+             type:)
     end
     let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
     let(:client_id) { client_config.client_id }
@@ -42,10 +42,10 @@ RSpec.describe SignIn::UserCreator do
     let(:csp_email) { 'some-csp-email' }
     let(:service_name) { SignIn::Constants::Auth::LOGINGOV }
     let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }
-    let!(:user_verification) { create(:logingov_user_verification, logingov_uuid: logingov_uuid) }
+    let!(:user_verification) { create(:logingov_user_verification, logingov_uuid:) }
     let(:user_uuid) { user_verification.backing_credential_identifier }
     let(:multifactor) { true }
-    let(:sign_in) { { service_name: service_name, auth_broker: auth_broker, client_id: client_id } }
+    let(:sign_in) { { service_name:, auth_broker:, client_id: } }
     let(:authn_context) { service_name }
     let(:login_code) { 'some-login-code' }
     let(:expected_last_signed_in) { '2023-1-1' }

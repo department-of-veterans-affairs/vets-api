@@ -131,7 +131,7 @@ class HealthCareApplication < ApplicationRecord
         :application_date, :enrollment_date,
         :preferred_facility, :effective_date,
         :primary_eligibility
-      ).merge(parsed_status: parsed_status)
+      ).merge(parsed_status:)
     else
       { parsed_status: if ee_data[:enrollment_status].present?
                          HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED

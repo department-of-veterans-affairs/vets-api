@@ -30,7 +30,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
       it 'and a result that matches our schema is successfully returned with the 200 status ' do
         VCR.use_cassette('claims/claims') do
           VCR.use_cassette('appeals/appeals') do
-            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
+            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
             expect(response).to have_http_status(:ok)
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body['data']
@@ -75,7 +75,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
       it 'and the results are for page 2 of a 12 item pages which only has 10 entries' do
         VCR.use_cassette('claims/claims') do
           VCR.use_cassette('appeals/appeals') do
-            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
+            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
             expect(response).to have_http_status(:ok)
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body['data']
@@ -96,7 +96,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
       it 'and the results contain only closed records' do
         VCR.use_cassette('claims/claims') do
           VCR.use_cassette('appeals/appeals') do
-            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
+            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
             expect(response).to have_http_status(:ok)
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body['data']
@@ -119,7 +119,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
       it 'and the results contain only open records' do
         VCR.use_cassette('claims/claims') do
           VCR.use_cassette('appeals/appeals') do
-            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
+            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
             expect(response).to have_http_status(:ok)
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body['data']
@@ -149,7 +149,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
 claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
               }] }
             )
-            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
+            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
             parsed_response_contents = response.parsed_body['data']
             expect(parsed_response_contents[0]['type']).to eq('appeal')
             expect(parsed_response_contents.last['type']).to eq('appeal')
@@ -180,7 +180,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
                                   'source' => 'No method error',
                                   'status' => '502' }] }
             )
-            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
+            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
             expect(response).to have_http_status(:multi_status)
             parsed_response_contents = response.parsed_body['data']
             expect(parsed_response_contents[0]['type']).to eq('claim')
@@ -218,7 +218,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
                                   'source' => 'No method error',
                                   'status' => '502' }] }
             )
-            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
+            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
             expect(response).to have_http_status(:bad_gateway)
             expect(response.parsed_body.dig('meta', 'errors').length).to eq(2)
             expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('claims')
@@ -237,7 +237,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
             expect(Rails.logger).to receive(:error).with(
               'Mobile Claims and Appeals: error received from claims service', { error_details: 'NoMethodError' }
             )
-            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
+            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
             expect(response.parsed_body['data'].size).to eq(
               5
             )
@@ -262,7 +262,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
 
       it 'retrieves the cached appointments rather than hitting the service' do
         expect_any_instance_of(Mobile::V0::Claims::Proxy).not_to receive(:get_claims_and_appeals)
-        get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
+        get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
         expect(response).to have_http_status(:ok)
         parsed_response_contents = response.parsed_body['data']
         open_claim = parsed_response_contents.select { |entry| entry['id'] == '600114693' }[0]

@@ -9,7 +9,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
   let(:params) do
     {
       onsite_notification: {
-        template_id: template_id,
+        template_id:,
         va_profile_id: '1'
       }
     }
@@ -114,7 +114,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
 
     context 'with valid params' do
       it 'creates an onsite notification' do
-        post(:create, params: params, as: :json)
+        post(:create, params:, as: :json)
 
         expect(response.status).to eq(200)
 
@@ -134,7 +134,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
       end
 
       it 'returns a validation error' do
-        post(:create, params: params, as: :json)
+        post(:create, params:, as: :json)
 
         expect(JSON.parse(response.body)).to eq(
           { 'errors' =>
@@ -153,7 +153,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
     context 'with missing Authorization header' do
       it 'returns 403' do
         request.headers['Authorization'] = nil
-        post(:create, params: params)
+        post(:create, params:)
         expect(response.status).to eq(403)
       end
     end
@@ -161,7 +161,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
     context 'with invalid Authorization header' do
       it 'returns 403' do
         request.headers['Authorization'] = 'Bearer foo'
-        post(:create, params: params)
+        post(:create, params:)
         expect(response.status).to eq(403)
       end
     end
@@ -176,7 +176,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
           }, private_key, 'ES256'
         )}"
 
-        post(:create, params: params)
+        post(:create, params:)
         expect(response.status).to eq(200)
       end
     end
@@ -186,7 +186,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
         payload = { user: 'va_notify', iat: Time.current.to_i, exp: 1.minute.ago.to_i }
         request.headers['Authorization'] = "Bearer #{JWT.encode(payload, private_key, 'ES256')}"
 
-        post(:create, params: params)
+        post(:create, params:)
         expect(response.status).to eq(403)
       end
     end
@@ -196,7 +196,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
         payload = { user: 'va_notify', exp: 1.minute.ago.to_i }
         request.headers['Authorization'] = "Bearer #{JWT.encode(payload, private_key, 'ES256')}"
 
-        post(:create, params: params)
+        post(:create, params:)
         expect(response.status).to eq(403)
       end
     end
@@ -206,7 +206,7 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
         payload = { user: 'va_notify', iat: Time.current.to_i }
         request.headers['Authorization'] = "Bearer #{JWT.encode(payload, private_key, 'ES256')}"
 
-        post(:create, params: params)
+        post(:create, params:)
         expect(response.status).to eq(403)
       end
     end

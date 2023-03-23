@@ -33,8 +33,8 @@ namespace :vbms do
     document = OpenStruct.new(source: 'BVA', document_type: '295')
 
     request = VBMS::Requests::InitializeUpload.new(
-      content_hash: content_hash,
-      filename: filename,
+      content_hash:,
+      filename:,
       file_number: veteran.filenumber,
       va_receive_date: Time.zone.now,
       doc_type: document.document_type,
@@ -53,7 +53,7 @@ namespace :vbms do
     filepath = 'VBA-21-22A-ARE.pdf'
     request = VBMS::Requests::UploadDocument.new(
       upload_token: '{9532DD12-92D0-4BC7-BDAB-2C7D59AF4D70}',
-      filepath: filepath
+      filepath:
     )
     result = client.send_request(request)
     puts result.inspect

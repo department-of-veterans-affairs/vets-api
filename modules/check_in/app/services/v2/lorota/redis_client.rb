@@ -37,14 +37,14 @@ module V2
 
       def retry_attempt_count(uuid:)
         Rails.cache.read(
-          retry_attempt_prefix(uuid: uuid),
+          retry_attempt_prefix(uuid:),
           namespace: 'check-in-lorota-v2-cache'
         )
       end
 
       def save_retry_attempt_count(uuid:, retry_count:)
         Rails.cache.write(
-          retry_attempt_prefix(uuid: uuid),
+          retry_attempt_prefix(uuid:),
           retry_count,
           namespace: 'check-in-lorota-v2-cache',
           expires_in: retry_attempt_expiry

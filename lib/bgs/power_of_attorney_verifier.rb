@@ -31,7 +31,7 @@ module BGS
           middle_initial = user.middle_name[0]
           reps = Veteran::Service::Representative.all_for_user(first_name: user.first_name,
                                                                last_name: user.last_name,
-                                                               middle_initial: middle_initial)
+                                                               middle_initial:)
 
           raise ::Common::Exceptions::Unauthorized, detail: 'VSO Representative Not Found' if reps.blank?
           raise ::Common::Exceptions::Unauthorized, detail: 'Ambiguous VSO Representative Results' if reps.count > 1

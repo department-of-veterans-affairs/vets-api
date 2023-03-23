@@ -27,7 +27,7 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
     let(:mhv_account_type) { 'Basic' }
 
     it 'is not authorized' do
-      post '/mobile/v0/messaging/health/message_drafts', headers: iam_headers, params: params
+      post('/mobile/v0/messaging/health/message_drafts', headers: iam_headers, params:)
       expect(response).not_to be_successful
       expect(response.status).to eq(403)
     end
@@ -37,7 +37,7 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
     let(:mhv_account_type) { 'Advanced' }
 
     it 'is not authorized' do
-      post '/mobile/v0/messaging/health/message_drafts', headers: iam_headers, params: params
+      post('/mobile/v0/messaging/health/message_drafts', headers: iam_headers, params:)
       expect(response).not_to be_successful
       expect(response.status).to eq(403)
     end
@@ -54,7 +54,7 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
 
       it 'responds to POST #create' do
         VCR.use_cassette('sm_client/message_drafts/creates_a_draft') do
-          post '/mobile/v0/messaging/health/message_drafts', params: params, headers: iam_headers
+          post '/mobile/v0/messaging/health/message_drafts', params:, headers: iam_headers
         end
 
         expect(response).to be_successful
@@ -80,7 +80,7 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
           params[:subject] = 'Updated Subject'
           params[:id] = created_draft_id
 
-          put "/mobile/v0/messaging/health/message_drafts/#{created_draft_id}", params: params, headers: iam_headers
+          put "/mobile/v0/messaging/health/message_drafts/#{created_draft_id}", params:, headers: iam_headers
         end
 
         expect(response).to be_successful
@@ -93,7 +93,7 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
 
       it 'responds to POST #create' do
         VCR.use_cassette('sm_client/message_drafts/creates_a_draft_reply') do
-          post "/mobile/v0/messaging/health/message_drafts/#{reply_id}/replydraft", params: params, headers: iam_headers
+          post "/mobile/v0/messaging/health/message_drafts/#{reply_id}/replydraft", params:, headers: iam_headers
         end
 
         expect(response).to be_successful
@@ -104,7 +104,7 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
 
       it 'does not remove proceeding whitespace for #create with signature only' do
         VCR.use_cassette('sm_client/message_drafts/creates_a_draft_reply_signature_only') do
-          post "/mobile/v0/messaging/health/message_drafts/#{reply_id}/replydraft", params: params, headers: iam_headers
+          post "/mobile/v0/messaging/health/message_drafts/#{reply_id}/replydraft", params:, headers: iam_headers
         end
 
         expect(response).to be_successful
@@ -119,7 +119,7 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
           params[:body] = 'Updated Body'
           params[:id] = created_draft_reply_id
           put "/mobile/v0/messaging/health/message_drafts/#{reply_id}/replydraft/#{created_draft_reply_id}",
-              params: params, headers: iam_headers
+              params:, headers: iam_headers
         end
 
         expect(response).to be_successful

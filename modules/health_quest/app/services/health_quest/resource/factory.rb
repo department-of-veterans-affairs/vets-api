@@ -32,10 +32,10 @@ module HealthQuest
       def initialize(opts)
         @user = opts[:user]
         @resource_identifier = opts[:resource_identifier]
-        @session_service = HealthQuest::Lighthouse::Session.build(user: user, api: opts[:api])
+        @session_service = HealthQuest::Lighthouse::Session.build(user:, api: opts[:api])
         @query = Query.build(session_store: session_service.retrieve,
                              api: opts[:api],
-                             resource_identifier: resource_identifier)
+                             resource_identifier:)
         @options_builder = Shared::OptionsBuilder
       end
 

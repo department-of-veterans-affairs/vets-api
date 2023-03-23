@@ -10,7 +10,7 @@ describe EMIS::PaymentService do
     context 'with a valid request' do
       it 'calls the get_combat_pay endpoint with a proper emis message' do
         VCR.use_cassette('emis/get_combat_pay/valid') do
-          response = subject.get_combat_pay(edipi: edipi)
+          response = subject.get_combat_pay(edipi:)
           expect(response).to be_ok
         end
       end
@@ -23,7 +23,7 @@ describe EMIS::PaymentService do
     context 'with a valid request' do
       it 'calls the get_reserve_drill_days endpoint with a proper emis message' do
         VCR.use_cassette('emis/get_reserve_drill_days/valid') do
-          response = subject.get_reserve_drill_days(edipi: edipi)
+          response = subject.get_reserve_drill_days(edipi:)
           expect(response).to be_ok
         end
       end
@@ -36,7 +36,7 @@ describe EMIS::PaymentService do
     context 'with a valid request' do
       it 'calls the get_retirement_pay endpoint with a proper emis message' do
         VCR.use_cassette('emis/get_retirement_pay/valid') do
-          response = subject.get_retirement_pay(edipi: edipi)
+          response = subject.get_retirement_pay(edipi:)
           expect(response).to be_ok
         end
       end
@@ -49,7 +49,7 @@ describe EMIS::PaymentService do
     context 'with a valid request' do
       it 'calls the get_separation_pay endpoint with a proper emis message' do
         VCR.use_cassette('emis/get_separation_pay/valid') do
-          response = subject.get_separation_pay(edipi: edipi)
+          response = subject.get_separation_pay(edipi:)
           expect(response).to be_ok
         end
       end

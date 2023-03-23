@@ -61,7 +61,7 @@ module V2
       # @return [Hash] unauthorized message if token is not present
       def create_check_in
         resp = if token.present?
-                 chip_client.check_in_appointment(token: token, appointment_ien: check_in_body[:appointment_ien])
+                 chip_client.check_in_appointment(token:, appointment_ien: check_in_body[:appointment_ien])
                else
                  Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
                end
@@ -77,7 +77,7 @@ module V2
       # @return [Faraday::Response] unauthorized message if token is not present
       def refresh_appointments
         if token.present?
-          chip_client.refresh_appointments(token: token, identifier_params: identifier_params)
+          chip_client.refresh_appointments(token:, identifier_params:)
         else
           Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
         end
@@ -93,7 +93,7 @@ module V2
       # @return [Hash] unauthorized message if token is not present
       def pre_check_in
         resp = if token.present?
-                 chip_client.pre_check_in(token: token, demographic_confirmations: demographic_confirmations)
+                 chip_client.pre_check_in(token:, demographic_confirmations:)
                else
                  Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
                end
@@ -113,7 +113,7 @@ module V2
       # @return [Faraday::Response] unauthorized message if token is not present
       def set_precheckin_started
         if token.present?
-          chip_client.set_precheckin_started(token: token)
+          chip_client.set_precheckin_started(token:)
         else
           Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
         end
@@ -132,7 +132,7 @@ module V2
         resp = if check_in_body.nil?
                  Faraday::Response.new(body: check_in.invalid_request.to_json, status: 400)
                elsif token.present?
-                 chip_client.confirm_demographics(token: token, demographic_confirmations:
+                 chip_client.confirm_demographics(token:, demographic_confirmations:
                    demographic_confirmations.merge(identifier_params, { uuid: check_in.uuid }))
                else
                  Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
@@ -152,7 +152,7 @@ module V2
       # @return [Faraday::Response] unauthorized message if token is not present
       def refresh_precheckin
         resp = if token.present?
-                 chip_client.refresh_precheckin(token: token)
+                 chip_client.refresh_precheckin(token:)
                else
                  Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
                end
@@ -171,7 +171,7 @@ module V2
       # @return [Faraday::Response] unauthorized message if token is not present
       def initiate_check_in
         resp = if token.present?
-                 chip_client.initiate_check_in(token: token)
+                 chip_client.initiate_check_in(token:)
                else
                  Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
                end
@@ -189,7 +189,7 @@ module V2
       # @return [Faraday::Response] unauthorized message if token is not present
       def delete
         resp = if token.present?
-                 chip_client.delete(token: token)
+                 chip_client.delete(token:)
                else
                  Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
                end

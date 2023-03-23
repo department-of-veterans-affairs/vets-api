@@ -36,7 +36,7 @@ module Preneeds
           attachment_type_id: attachment_id
         ),
         file: get_file,
-        name: name
+        name:
       )
     end
   end

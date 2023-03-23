@@ -5,7 +5,7 @@ require 'mpi/messages/request_helper'
 
 describe MPI::Messages::RequestHelper do
   describe '.build_identifier' do
-    subject { described_class.build_identifier(identifier: identifier, root: root) }
+    subject { described_class.build_identifier(identifier:, root:) }
 
     let(:identifier) { 'some-identifier' }
     let(:root) { 'some-root' }
@@ -22,7 +22,7 @@ describe MPI::Messages::RequestHelper do
   end
 
   describe '.build_name' do
-    subject { described_class.build_name(given_names: given_names, family_name: family_name) }
+    subject { described_class.build_name(given_names:, family_name:) }
 
     let(:first_given_name) { 'some-given-name' }
     let(:second_given_name) { 'some-other-given-name' }
@@ -69,7 +69,7 @@ describe MPI::Messages::RequestHelper do
   end
 
   describe '.build_birth_date' do
-    subject { described_class.build_birth_date(birth_date: birth_date) }
+    subject { described_class.build_birth_date(birth_date:) }
 
     let(:birth_date) { '1-1-2020' }
     let(:expected_birth_date) { Date.parse(birth_date)&.strftime('%Y%m%d') }
@@ -96,7 +96,7 @@ describe MPI::Messages::RequestHelper do
   end
 
   describe '.build_ssn' do
-    subject { described_class.build_ssn(ssn: ssn) }
+    subject { described_class.build_ssn(ssn:) }
 
     let(:ssn) { 'some-ssn' }
     let(:expected_value_element) do
@@ -123,7 +123,7 @@ describe MPI::Messages::RequestHelper do
   end
 
   describe '.build_gender' do
-    subject { described_class.build_gender(gender: gender) }
+    subject { described_class.build_gender(gender:) }
 
     let(:gender) { 'some-gender' }
     let(:expected_value_element) do
@@ -149,7 +149,7 @@ describe MPI::Messages::RequestHelper do
   end
 
   describe '.build_represented_organization' do
-    subject { described_class.build_represented_organization(edipi: edipi) }
+    subject { described_class.build_represented_organization(edipi:) }
 
     before { Timecop.freeze }
 
@@ -195,7 +195,7 @@ describe MPI::Messages::RequestHelper do
   end
 
   describe '.build_query_by_parameter' do
-    subject { described_class.build_query_by_parameter(search_type: search_type) }
+    subject { described_class.build_query_by_parameter(search_type:) }
 
     let(:search_type) { 'some-search-type' }
     let(:expected_query_id_element) do
@@ -234,7 +234,7 @@ describe MPI::Messages::RequestHelper do
   end
 
   describe '.build_assigned_person_instance' do
-    subject { described_class.build_assigned_person_instance(given_names: given_names, family_name: family_name) }
+    subject { described_class.build_assigned_person_instance(given_names:, family_name:) }
 
     let(:first_given_name) { 'some-given-name' }
     let(:second_given_name) { 'some-other-given-name' }
@@ -305,7 +305,7 @@ describe MPI::Messages::RequestHelper do
   end
 
   describe '.build_assigned_person_ssn' do
-    subject { described_class.build_assigned_person_ssn(ssn: ssn) }
+    subject { described_class.build_assigned_person_ssn(ssn:) }
 
     let(:ssn) { 'some-ssn' }
     let(:expected_element) do
@@ -350,7 +350,7 @@ describe MPI::Messages::RequestHelper do
   end
 
   describe '.build_id_null_flavor' do
-    subject { described_class.build_id_null_flavor(type: type) }
+    subject { described_class.build_id_null_flavor(type:) }
 
     let(:type) { 'some-type' }
     let(:expected_element) do
@@ -420,7 +420,7 @@ describe MPI::Messages::RequestHelper do
   end
 
   describe '.build_patient_person_name' do
-    subject { described_class.build_patient_person_name(given_names: given_names, family_name: family_name) }
+    subject { described_class.build_patient_person_name(given_names:, family_name:) }
 
     let(:first_given_name) { 'some-given-name' }
     let(:second_given_name) { 'some-other-given-name' }
@@ -456,7 +456,7 @@ describe MPI::Messages::RequestHelper do
   end
 
   describe '.build_telecom' do
-    subject { described_class.build_telecom(type: type, value: email) }
+    subject { described_class.build_telecom(type:, value: email) }
 
     let(:email) { 'some-email' }
     let(:type) { 'EMAIL' }
@@ -473,7 +473,7 @@ describe MPI::Messages::RequestHelper do
   end
 
   describe '.build_patient_person_birth_date' do
-    subject { described_class.build_patient_person_birth_date(birth_date: birth_date) }
+    subject { described_class.build_patient_person_birth_date(birth_date:) }
 
     let(:birth_date) { '19201030' }
     let(:expected_element) do
@@ -489,11 +489,11 @@ describe MPI::Messages::RequestHelper do
 
   describe '.build_patient_person_address' do
     subject do
-      described_class.build_patient_person_address(street: street,
-                                                   state: state,
-                                                   city: city,
-                                                   postal_code: postal_code,
-                                                   country: country)
+      described_class.build_patient_person_address(street:,
+                                                   state:,
+                                                   city:,
+                                                   postal_code:,
+                                                   country:)
     end
 
     let(:street) { 'some-street' }
@@ -550,7 +550,7 @@ describe MPI::Messages::RequestHelper do
   end
 
   describe '.build_patient_identifier' do
-    subject { described_class.build_patient_identifier(identifier: identifier, root: root, class_code: class_code) }
+    subject { described_class.build_patient_identifier(identifier:, root:, class_code:) }
 
     let(:identifier) { 'some-identifier' }
     let(:root) { 'some-root' }
@@ -752,7 +752,7 @@ describe MPI::Messages::RequestHelper do
   end
 
   describe '.build_code' do
-    subject { described_class.build_code(code: code) }
+    subject { described_class.build_code(code:) }
 
     let(:code) { 'some-code' }
     let(:expected_element) do

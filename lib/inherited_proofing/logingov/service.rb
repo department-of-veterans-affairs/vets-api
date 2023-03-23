@@ -22,7 +22,7 @@ module InheritedProofing
                           {
                             acr_values: IAL::LOGIN_GOV_IAL2,
                             client_id: config.client_id,
-                            nonce: nonce,
+                            nonce:,
                             prompt: config.prompt,
                             redirect_uri: config.redirect_uri,
                             response_type: config.response_type,

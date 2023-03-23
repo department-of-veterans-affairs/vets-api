@@ -12,7 +12,7 @@ RSpec.describe 'Folders Integration', type: :request do
   let(:inbox_id) { 0 }
   let(:message_id) { 573_059 }
   let(:va_patient) { true }
-  let(:current_user) { build(:user, :mhv, va_patient: va_patient, mhv_account_type: mhv_account_type) }
+  let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before do
@@ -46,7 +46,7 @@ RSpec.describe 'Folders Integration', type: :request do
 
       let(:va_patient) { false }
       let(:current_user) do
-        build(:user, :mhv, :no_vha_facilities, va_patient: va_patient, mhv_account_type: mhv_account_type)
+        build(:user, :mhv, :no_vha_facilities, va_patient:, mhv_account_type:)
       end
 
       include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
@@ -104,7 +104,7 @@ RSpec.describe 'Folders Integration', type: :request do
 
         it 'response to POST #create' do
           VCR.use_cassette('sm_client/folders/creates_a_folder_and_deletes_a_folder') do
-            post '/my_health/v1/messaging/folders', params: params
+            post '/my_health/v1/messaging/folders', params:
           end
 
           expect(response).to be_successful
@@ -114,7 +114,7 @@ RSpec.describe 'Folders Integration', type: :request do
 
         it 'response to POST #create with camel-inflection' do
           VCR.use_cassette('sm_client/folders/creates_a_folder_and_deletes_a_folder') do
-            post '/my_health/v1/messaging/folders', params: params, headers: inflection_header
+            post '/my_health/v1/messaging/folders', params:, headers: inflection_header
           end
 
           expect(response).to be_successful
@@ -131,7 +131,7 @@ RSpec.describe 'Folders Integration', type: :request do
 
         it 'responds to RENAME #update' do
           VCR.use_cassette('sm_client/folders/renames_a_folder') do
-            put "/my_health/v1/messaging/folders/#{id}", params: params
+            put "/my_health/v1/messaging/folders/#{id}", params:
           end
 
           expect(response).to be_successful

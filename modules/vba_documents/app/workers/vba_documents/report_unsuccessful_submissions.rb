@@ -58,7 +58,7 @@ module VBADocuments
         in_process_rate = 100 - error_rate - expired_rate - success_rate
 
         if totals.positive?
-          ret_hash[name] = counts.merge(totals: totals,
+          ret_hash[name] = counts.merge(totals:,
                                         success_rate: "#{success_rate}%",
                                         in_process_rate: "#{in_process_rate}%",
                                         error_rate: "#{error_rate}%",

@@ -53,7 +53,7 @@ describe Shrine::Plugins::ValidateVirusFree do
         let(:message) { 'oh noes!' }
 
         it 'adds an error with a custom error message if clam scan returns not safe' do
-          result = instance.validate_virus_free(message: message)
+          result = instance.validate_virus_free(message:)
           expect(result).to be(false)
           expect(instance.errors).to eq(['oh noes!'])
         end

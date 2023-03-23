@@ -24,7 +24,7 @@ module Webhooks
       def record_notifications(consumer_id:, consumer_name:, event:, api_guid:, msg:)
         api_name = Webhooks::Utilities.event_to_api_name[event]
         webhook_urls = Webhooks::Subscription.get_notification_urls(
-          api_name: api_name, consumer_id: consumer_id, event: event, api_guid: api_guid
+          api_name:, consumer_id:, event:, api_guid:
         )
         return [] unless webhook_urls.size.positive?
 

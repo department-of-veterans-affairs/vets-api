@@ -10,7 +10,7 @@ describe HealthQuest::Resource::Factory do
   let(:user) { double('User', icn: '1008596379V859838') }
   let(:session_store) { double('SessionStore', token: '123abc') }
   let(:session_service) do
-    double('HealthQuest::Lighthouse::Session', user: user, api: 'pgd_api', retrieve: session_store)
+    double('HealthQuest::Lighthouse::Session', user:, api: 'pgd_api', retrieve: session_store)
   end
   let(:client_reply) { double('FHIR::ClientReply') }
 

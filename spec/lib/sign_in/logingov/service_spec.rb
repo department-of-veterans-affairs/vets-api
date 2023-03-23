@@ -32,11 +32,11 @@ describe SignIn::Logingov::Service do
     OpenStruct.new({
                      sub: user_uuid,
                      iss: 'https://idp.int.identitysandbox.gov/',
-                     email: email,
+                     email:,
                      email_verified: true,
                      given_name: first_name,
                      family_name: last_name,
-                     address: address,
+                     address:,
                      birthdate: birth_date,
                      social_security_number: ssn,
                      verified_at: 1_635_465_286
@@ -50,9 +50,9 @@ describe SignIn::Logingov::Service do
     {
       formatted: formatted_address,
       street_address: street,
-      postal_code: postal_code,
-      region: region,
-      locality: locality
+      postal_code:,
+      region:,
+      locality:
     }
   end
   let(:formatted_address) { "#{street}\n#{locality}, #{region} #{postal_code}" }
@@ -69,7 +69,7 @@ describe SignIn::Logingov::Service do
   let(:acr) { 'some-acr' }
 
   describe '#render_auth' do
-    let(:response) { subject.render_auth(state: state, acr: acr).to_s }
+    let(:response) { subject.render_auth(state:, acr:).to_s }
     let(:expected_log) { "[SignIn][Logingov][Service] Rendering auth, state: #{state}, acr: #{acr}" }
 
     it 'logs information to rails logger' do
@@ -91,7 +91,7 @@ describe SignIn::Logingov::Service do
     let(:logout_redirect_uri) { Settings.logingov.logout_redirect_uri }
     let(:expected_url_params) do
       {
-        client_id: client_id,
+        client_id:,
         post_logout_redirect_uri: logout_redirect_uri,
         state: encoded_state
       }
@@ -100,7 +100,7 @@ describe SignIn::Logingov::Service do
     let(:state_payload) do
       {
         logout_redirect: client_logout_redirect_uri,
-        seed: seed
+        seed:
       }
     end
     let(:seed) { 'some-seed' }
@@ -121,7 +121,7 @@ describe SignIn::Logingov::Service do
     let(:state_payload) do
       {
         logout_redirect: client_logout_redirect_uri,
-        seed: seed
+        seed:
       }
     end
     let(:seed) { 'some-seed' }
@@ -219,11 +219,11 @@ describe SignIn::Logingov::Service do
         logingov_uuid: user_uuid,
         current_ial: SignIn::Constants::Auth::IAL_TWO,
         max_ial: SignIn::Constants::Auth::IAL_TWO,
-        service_name: service_name,
+        service_name:,
         csp_email: email,
-        multifactor: multifactor,
-        authn_context: authn_context,
-        auto_uplevel: auto_uplevel
+        multifactor:,
+        authn_context:,
+        auto_uplevel:
       }
     end
     let(:credential_level) do
@@ -239,18 +239,18 @@ describe SignIn::Logingov::Service do
       {
         street: street.split("\n").first,
         street2: street.split("\n").last,
-        postal_code: postal_code,
+        postal_code:,
         state: region,
         city: locality,
-        country: country
+        country:
       }
     end
     let(:country) { 'USA' }
     let(:expected_attributes) do
       expected_standard_attributes.merge({ ssn: ssn.tr('-', ''),
-                                           birth_date: birth_date,
-                                           first_name: first_name,
-                                           last_name: last_name,
+                                           birth_date:,
+                                           first_name:,
+                                           last_name:,
                                            address: expected_address })
     end
 

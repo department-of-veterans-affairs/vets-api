@@ -89,7 +89,7 @@ module SignIn
     end
 
     def client_config
-      @client_config ||= ClientConfig.find_by(client_id: client_id)
+      @client_config ||= ClientConfig.find_by(client_id:)
     end
   end
 end

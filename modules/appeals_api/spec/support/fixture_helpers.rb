@@ -2,11 +2,11 @@
 
 module FixtureHelpers
   def fixture_to_s(filename, version: '')
-    File.read fixture_filepath(filename, version: version)
+    File.read fixture_filepath(filename, version:)
   end
 
   def fixture_as_json(filename, version: '')
-    JSON.parse fixture_to_s(filename, version: version)
+    JSON.parse fixture_to_s(filename, version:)
   end
 
   def fixture_filepath(filename, version: '')

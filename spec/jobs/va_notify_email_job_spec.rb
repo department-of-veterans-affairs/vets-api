@@ -21,7 +21,7 @@ RSpec.describe VANotifyEmailJob, type: :model do
 
       expect(client).to receive(:send_email).with(
         email_address: email,
-        template_id: template_id
+        template_id:
       )
 
       described_class.new.perform(email, template_id)
@@ -35,7 +35,7 @@ RSpec.describe VANotifyEmailJob, type: :model do
             instance_of(Common::Exceptions::BackendServiceException),
             {
               args: {
-                template_id: template_id,
+                template_id:,
                 personalisation: nil
               }
             },

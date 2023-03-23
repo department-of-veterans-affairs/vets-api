@@ -11,7 +11,7 @@ module EVSS
       redis_config_key :pciu_address_dependencies
 
       def cache_or_service(key, &block)
-        do_cached_with(key: key, &block)
+        do_cached_with(key:, &block)
       end
     end
   end

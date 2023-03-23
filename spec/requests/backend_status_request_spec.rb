@@ -16,7 +16,7 @@ RSpec.describe 'Backend Status' do
     let(:online_weekday) { tz.parse('24th Jan 2018 06:00:00') }
 
     before do
-      Session.create(uuid: user.uuid, token: token)
+      Session.create(uuid: user.uuid, token:)
       User.create(user)
     end
 

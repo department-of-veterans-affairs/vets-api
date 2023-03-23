@@ -5,7 +5,7 @@ require 'mpi/messages/find_profile_by_edipi'
 
 describe MPI::Messages::FindProfileByEdipi do
   describe '.perform' do
-    subject { described_class.new(edipi: edipi).perform }
+    subject { described_class.new(edipi:).perform }
 
     let(:edipi) { 'fake-edipi-number' }
     let(:idm_path) { 'env:Envelope/env:Body/idm:PRPA_IN201305UV02' }

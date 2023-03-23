@@ -13,7 +13,7 @@ module VANotify
     def self.send(email_address:, template_id:, first_name:, user_uuid_and_form_id:)
       return if find(user_uuid_and_form_id)
 
-      create(user_uuid_and_form_id: user_uuid_and_form_id)
+      create(user_uuid_and_form_id:)
       VANotify::EmailJob.perform_async(
         email_address,
         template_id,

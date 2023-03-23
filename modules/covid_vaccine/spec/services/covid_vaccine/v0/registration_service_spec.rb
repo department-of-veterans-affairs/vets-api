@@ -74,7 +74,7 @@ describe CovidVaccine::V0::RegistrationService do
       it 'updates submission record' do
         sid = SecureRandom.uuid
         expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-          .and_return({ sid: sid })
+          .and_return({ sid: })
         expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
           .and_return(mvi_profile_response)
 

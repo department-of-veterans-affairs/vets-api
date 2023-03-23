@@ -93,7 +93,7 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
       expect(client_stub).to receive(:post).twice
       expect(client_stub).to receive(:get).once
 
-      subject.upload(form_contents: form_content, form_submission: form_submission, station_id: station_id)
+      subject.upload(form_contents: form_content, form_submission:, station_id:)
     end
   end
 end

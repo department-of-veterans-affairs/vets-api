@@ -5,7 +5,7 @@ module HealthQuest
     module FactoryTypes
       def patient_type
         {
-          user: user,
+          user:,
           resource_identifier: 'patient',
           api: Settings.hqva_mobile.lighthouse.health_api
         }
@@ -13,7 +13,7 @@ module HealthQuest
 
       def questionnaire_type
         {
-          user: user,
+          user:,
           resource_identifier: 'questionnaire',
           api: Settings.hqva_mobile.lighthouse.pgd_api
         }
@@ -21,7 +21,7 @@ module HealthQuest
 
       def questionnaire_response_type
         {
-          user: user,
+          user:,
           resource_identifier: 'questionnaire_response',
           api: Settings.hqva_mobile.lighthouse.pgd_api
         }
@@ -29,7 +29,7 @@ module HealthQuest
 
       def appointment_type
         {
-          user: user,
+          user:,
           resource_identifier: 'appointment',
           api: Settings.hqva_mobile.lighthouse.health_api
         }
@@ -37,7 +37,7 @@ module HealthQuest
 
       def location_type
         {
-          user: user,
+          user:,
           resource_identifier: 'location',
           api: Settings.hqva_mobile.lighthouse.health_api
         }
@@ -45,7 +45,7 @@ module HealthQuest
 
       def organization_type
         {
-          user: user,
+          user:,
           resource_identifier: 'organization',
           api: Settings.hqva_mobile.lighthouse.health_api
         }

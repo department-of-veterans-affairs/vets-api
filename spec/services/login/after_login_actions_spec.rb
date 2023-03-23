@@ -5,8 +5,8 @@ require 'rails_helper'
 RSpec.describe Login::AfterLoginActions do
   describe '#perform' do
     context 'creating credential email' do
-      let(:user) { create(:user, email: email, idme_uuid: idme_uuid) }
-      let!(:user_verification) { create(:idme_user_verification, idme_uuid: idme_uuid) }
+      let(:user) { create(:user, email:, idme_uuid:) }
+      let!(:user_verification) { create(:idme_user_verification, idme_uuid:) }
       let(:idme_uuid) { 'some-idme-uuid' }
       let(:email) { 'some-email' }
 
@@ -18,8 +18,8 @@ RSpec.describe Login::AfterLoginActions do
     end
 
     context 'creating user acceptable verified credential' do
-      let(:user) { create(:user, idme_uuid: idme_uuid) }
-      let!(:user_verification) { create(:idme_user_verification, idme_uuid: idme_uuid) }
+      let(:user) { create(:user, idme_uuid:) }
+      let!(:user_verification) { create(:idme_user_verification, idme_uuid:) }
       let(:idme_uuid) { 'some-idme-uuid' }
       let(:expected_avc_at) { '2021-1-1' }
 
@@ -150,7 +150,7 @@ RSpec.describe Login::AfterLoginActions do
     end
 
     context 'UserIdentity & MPI ID validations' do
-      let(:loa3_user) { build(:user, :loa3, mpi_profile: mpi_profile) }
+      let(:loa3_user) { build(:user, :loa3, mpi_profile:) }
       let(:mpi_profile) { {} }
       let(:expected_error_data) do
         { identity_value: expected_identity_value, mpi_value: expected_mpi_value, icn: loa3_user.icn }

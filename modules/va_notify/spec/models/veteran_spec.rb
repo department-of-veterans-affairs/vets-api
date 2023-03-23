@@ -3,14 +3,14 @@
 require 'rails_helper'
 
 RSpec.describe VANotify::Veteran, type: :model do
-  let(:user_account) { create(:user_account, icn: icn) }
+  let(:user_account) { create(:user_account, icn:) }
   let(:icn) { nil }
-  let(:in_progress_form) { create(:in_progress_686c_form, user_account: user_account) }
+  let(:in_progress_form) { create(:in_progress_686c_form, user_account:) }
   let(:subject) { VANotify::Veteran.new(in_progress_form) }
 
   describe '#first_name' do
     context 'unsupported form id' do
-      let(:in_progress_form) { create(:in_progress_1010ez_form, user_account: user_account, form_id: 'something') }
+      let(:in_progress_form) { create(:in_progress_1010ez_form, user_account:, form_id: 'something') }
 
       it 'raises error with unsupported form id' do
         expect { subject.first_name }.to raise_error(VANotify::Veteran::UnsupportedForm)
@@ -24,7 +24,7 @@ RSpec.describe VANotify::Veteran, type: :model do
     end
 
     context '1010ez' do
-      let(:in_progress_form) { create(:in_progress_1010ez_form, user_account: user_account) }
+      let(:in_progress_form) { create(:in_progress_1010ez_form, user_account:) }
 
       it 'returns the first_name from form data' do
         expect(subject.first_name).to eq('first_name')
@@ -33,7 +33,7 @@ RSpec.describe VANotify::Veteran, type: :model do
 
     context '526ez' do
       let(:icn) { 'icn' }
-      let(:in_progress_form) { create(:in_progress_526_form, user_account: user_account) }
+      let(:in_progress_form) { create(:in_progress_526_form, user_account:) }
       let(:mpi_response) { create(:find_profile_response, profile: build(:mvi_profile, given_names: [first_name])) }
 
       before do

@@ -132,7 +132,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     # send the data to them. We always send a pdf to VBMS
     return unless PERMITTED_OFFICE_LOCATIONS.include?(@office_location)
 
-    service = VRE::Ch31Form.new(user: user, claim: self)
+    service = VRE::Ch31Form.new(user:, claim: self)
     service.submit
   end
 
@@ -142,7 +142,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     uploader = ClaimsApi::VBMSUploader.new(
       filepath: Rails.root.join(form_path),
       file_number: parsed_form['veteranInformation']['VAFileNumber'] || parsed_form['veteranInformation']['ssn'],
-      doc_type: doc_type
+      doc_type:
     )
 
     log_to_statsd('vbms') do
@@ -229,7 +229,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def bgs_client
     @service ||= BGS::Services.new(
       external_uid: parsed_form['email'],
-      external_key: external_key
+      external_key:
     )
   end
 
@@ -242,7 +242,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def veteran_va_file_number(user)
-    response = BGS::People::Request.new.find_person_by_participant_id(user: user)
+    response = BGS::People::Request.new.find_person_by_participant_id(user:)
     response.file_number
   rescue
     nil

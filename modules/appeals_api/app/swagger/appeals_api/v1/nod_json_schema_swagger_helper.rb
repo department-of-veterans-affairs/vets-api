@@ -83,16 +83,16 @@ class AppealsApi::V1::NodJsonSchemaSwaggerHelper
         properties: {
           id: { '$ref': '#/components/schemas/uuid' },
           type: { type: :string, enum: [type] },
-          attributes: { type: :object, properties: properties }
+          attributes: { type: :object, properties: }
         }
       }
       time = '2020-04-23T21:06:12.531Z'
       attrs = { status: :processing, updatedAt: time, createdAt: time, formData: example_all_fields_used }
-      example = { data: { id: '1234567a-89b0-123c-d456-789e01234f56', type: type, attributes: attrs } }
+      example = { data: { id: '1234567a-89b0-123c-d456-789e01234f56', type:, attributes: attrs } }
 
       {
         description: 'Info about a single Notice of Disagreement',
-        content: { 'application/json': { schema: schema, examples: { nodFound: { value: example } } } }
+        content: { 'application/json': { schema:, examples: { nodFound: { value: example } } } }
       }
     end.call
   end

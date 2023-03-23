@@ -94,7 +94,7 @@ describe VBADocuments::UploadSubmission, type: :model do
 
     it "returns records that have a status defined in 'IN_FLIGHT_STATUSES'" do
       all_statuses.each do |status|
-        upload = FactoryBot.create(:upload_submission, status: status, guid: SecureRandom.uuid)
+        upload = FactoryBot.create(:upload_submission, status:, guid: SecureRandom.uuid)
 
         if in_flight_statuses.include?(status)
           expect(subject).to include(upload)

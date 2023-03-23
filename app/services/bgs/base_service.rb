@@ -22,7 +22,7 @@ module BGS
     def initialize_service
       BGS::Services.new(
         external_uid: @user.icn,
-        external_key: external_key
+        external_key:
       )
     end
 

@@ -17,7 +17,7 @@ RSpec.describe SAML::User do
     let(:callback_url) { 'http://http://127.0.0.1:3000/v1/sessions/callback/v1/sessions/callback' }
     let(:saml_response) do
       build_saml_response(
-        authn_context: authn_context,
+        authn_context:,
         level_of_assurance: [highest_attained_loa],
         attributes: saml_attributes,
         existing_attributes: existing_saml_attributes,
@@ -117,7 +117,7 @@ RSpec.describe SAML::User do
           },
           multifactor: true,
           icn: nil,
-          authn_context: authn_context
+          authn_context:
         )
       end
 
@@ -156,7 +156,7 @@ RSpec.describe SAML::User do
           sec_id: '1200049153',
           icn: '1200049153V217987',
           multifactor: true,
-          authn_context: authn_context
+          authn_context:
         )
       end
 
@@ -174,7 +174,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          authn_context: authn_context,
+          authn_context:,
           birth_date: nil,
           first_name: 'JERRY',
           last_name: 'GPKTESTNINE',
@@ -212,7 +212,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          authn_context: authn_context,
+          authn_context:,
           birth_date: nil,
           first_name: 'JERRY',
           last_name: 'GPKTESTNINE',
@@ -251,7 +251,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          authn_context: authn_context,
+          authn_context:,
           birth_date: '1969-04-07',
           first_name: 'JERRY',
           last_name: 'GPKTESTNINE',
@@ -289,7 +289,7 @@ RSpec.describe SAML::User do
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           birth_date: nil,
-          authn_context: authn_context,
+          authn_context:,
           edipi: nil,
           first_name: nil,
           last_name: nil,
@@ -309,7 +309,7 @@ RSpec.describe SAML::User do
                      auth_broker: SAML::URLService::BROKER_CODE },
           sec_id: nil,
           icn: nil,
-          multifactor: multifactor
+          multifactor:
         )
       end
 
@@ -329,7 +329,7 @@ RSpec.describe SAML::User do
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           birth_date: '1988-11-24',
-          authn_context: authn_context,
+          authn_context:,
           edipi: nil,
           first_name: 'ALEX',
           last_name: 'MAC',
@@ -349,7 +349,7 @@ RSpec.describe SAML::User do
                      auth_broker: SAML::URLService::BROKER_CODE },
           sec_id: '1013183292',
           icn: '1013183292V131165',
-          multifactor: multifactor
+          multifactor:
         )
       end
     end
@@ -364,7 +364,7 @@ RSpec.describe SAML::User do
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           birth_date: nil,
-          authn_context: authn_context,
+          authn_context:,
           edipi: nil,
           first_name: nil,
           last_name: nil,
@@ -405,7 +405,7 @@ RSpec.describe SAML::User do
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           birth_date: '1977-03-07',
-          authn_context: authn_context,
+          authn_context:,
           edipi: '2107307560',
           first_name: 'TRISTAN',
           last_name: 'GPTESTSYSTWO',
@@ -428,7 +428,7 @@ RSpec.describe SAML::User do
           },
           sec_id: '1012853550',
           icn: '1012853550V207686',
-          multifactor: multifactor
+          multifactor:
         )
       end
     end
@@ -447,7 +447,7 @@ RSpec.describe SAML::User do
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           birth_date: '1977-03-07',
-          authn_context: authn_context,
+          authn_context:,
           edipi: '2107307560',
           first_name: 'TRISTAN',
           last_name: 'GPTESTSYSTWO',
@@ -470,7 +470,7 @@ RSpec.describe SAML::User do
           },
           sec_id: '1012853550',
           icn: nil,
-          multifactor: multifactor
+          multifactor:
         )
       end
     end
@@ -741,7 +741,7 @@ RSpec.describe SAML::User do
           expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(
             'User attributes contains multiple sec_id values',
             'warn',
-            { sec_id: sec_id }
+            { sec_id: }
           )
           subject.validate!
         end
@@ -754,7 +754,7 @@ RSpec.describe SAML::User do
           expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
             'User attributes contains multiple sec_id values',
             'warn',
-            { sec_id: sec_id }
+            { sec_id: }
           )
           subject.validate!
         end
@@ -886,7 +886,7 @@ RSpec.describe SAML::User do
       xit 'has various important attributes' do
         expect(subject.to_hash).to eq(
           birth_date: nil,
-          authn_context: authn_context,
+          authn_context:,
           edipi: '1606997570',
           first_name: nil,
           last_name: nil,
@@ -907,7 +907,7 @@ RSpec.describe SAML::User do
           },
           sec_id: nil,
           icn: nil,
-          multifactor: multifactor
+          multifactor:
         )
       end
     end
@@ -928,7 +928,7 @@ RSpec.describe SAML::User do
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           birth_date: '1951-06-04',
-          authn_context: authn_context,
+          authn_context:,
           edipi: '2106798217',
           first_name: 'BRANDIN',
           last_name: 'MILLER-NIETO',
@@ -970,7 +970,7 @@ RSpec.describe SAML::User do
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           birth_date: '1956-07-10',
-          authn_context: authn_context,
+          authn_context:,
           edipi: '1005169255',
           first_name: 'JOHNNIE',
           last_name: 'WEAVER',
@@ -993,7 +993,7 @@ RSpec.describe SAML::User do
           },
           sec_id: '0000028007',
           icn: '1012740600V714187',
-          multifactor: multifactor
+          multifactor:
         )
       end
     end
@@ -1011,7 +1011,7 @@ RSpec.describe SAML::User do
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           birth_date: '1956-07-10',
-          authn_context: authn_context,
+          authn_context:,
           edipi: '1005169255',
           first_name: 'JOHNNIE',
           last_name: 'WEAVER',
@@ -1034,7 +1034,7 @@ RSpec.describe SAML::User do
           },
           sec_id: '0000028007',
           icn: '1012740600V714187',
-          multifactor: multifactor
+          multifactor:
         )
       end
     end
@@ -1069,7 +1069,7 @@ RSpec.describe SAML::User do
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           birth_date: '1946-10-20',
-          authn_context: authn_context,
+          authn_context:,
           edipi: '1606997570',
           first_name: 'SOFIA',
           last_name: 'MCKIBBENS',
@@ -1092,7 +1092,7 @@ RSpec.describe SAML::User do
           },
           sec_id: '1012779219',
           icn: '1012779219V964737',
-          multifactor: multifactor
+          multifactor:
         )
       end
 
@@ -1124,7 +1124,7 @@ RSpec.describe SAML::User do
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           birth_date: '1982-05-23',
-          authn_context: authn_context,
+          authn_context:,
           edipi: nil,
           first_name: 'ZACK',
           last_name: 'DAYTMHV',
@@ -1147,7 +1147,7 @@ RSpec.describe SAML::User do
           },
           sec_id: '1013062086',
           icn: '1013062086V794840',
-          multifactor: multifactor
+          multifactor:
         )
       end
     end
@@ -1164,7 +1164,7 @@ RSpec.describe SAML::User do
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           birth_date: '1969-04-07',
-          authn_context: authn_context,
+          authn_context:,
           edipi: '1320002060',
           first_name: 'JERRY',
           last_name: 'GPKTESTNINE',
@@ -1187,7 +1187,7 @@ RSpec.describe SAML::User do
           },
           sec_id: '1012827134',
           icn: '1012827134V054550',
-          multifactor: multifactor
+          multifactor:
         )
       end
     end

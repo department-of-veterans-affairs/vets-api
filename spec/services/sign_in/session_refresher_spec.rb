@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe SignIn::SessionRefresher do
   let(:session_refresher) do
-    SignIn::SessionRefresher.new(refresh_token: refresh_token, anti_csrf_token: input_anti_csrf_token)
+    SignIn::SessionRefresher.new(refresh_token:, anti_csrf_token: input_anti_csrf_token)
   end
 
   describe '#perform' do
@@ -13,32 +13,32 @@ RSpec.describe SignIn::SessionRefresher do
     context 'given a refresh token and anti csrf token' do
       let(:refresh_token) do
         create(:refresh_token,
-               anti_csrf_token: anti_csrf_token,
-               session_handle: session_handle,
-               parent_refresh_token_hash: parent_refresh_token_hash,
-               user_uuid: user_uuid)
+               anti_csrf_token:,
+               session_handle:,
+               parent_refresh_token_hash:,
+               user_uuid:)
       end
-      let(:parent_refresh_token) { create(:refresh_token, user_uuid: user_uuid, session_handle: session_handle) }
+      let(:parent_refresh_token) { create(:refresh_token, user_uuid:, session_handle:) }
       let(:parent_refresh_token_hash) { Digest::SHA256.hexdigest(parent_refresh_token.to_json) }
       let(:session_hashed_refresh_token) { Digest::SHA256.hexdigest(parent_refresh_token_hash) }
       let(:anti_csrf_token) { 'some-anti-csrf-token' }
       let(:input_anti_csrf_token) { anti_csrf_token }
       let(:session_handle) { SecureRandom.uuid }
       let(:user_uuid) { user_verification.credential_identifier }
-      let(:user_verification) { create(:user_verification, user_account: user_account) }
+      let(:user_verification) { create(:user_verification, user_account:) }
       let(:user_account) { create(:user_account) }
       let!(:session) do
         create(:oauth_session,
                refresh_expiration: session_expiration,
                hashed_refresh_token: session_hashed_refresh_token,
                handle: session_handle,
-               user_account: user_account,
-               client_id: client_id)
+               user_account:,
+               client_id:)
       end
       let(:session_expiration) { Time.zone.now + 5.minutes }
       let(:client_id) { client_config.client_id }
       let(:client_config) do
-        create(:client_config, anti_csrf: anti_csrf, refresh_token_duration: refresh_token_duration)
+        create(:client_config, anti_csrf:, refresh_token_duration:)
       end
       let(:anti_csrf) { false }
       let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
@@ -209,7 +209,7 @@ RSpec.describe SignIn::SessionRefresher do
         let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError }
         let(:expected_error_message) { 'No valid Session found' }
         let(:refresh_token) do
-          create(:refresh_token, session_handle: refresh_token_session_handle, anti_csrf_token: anti_csrf_token)
+          create(:refresh_token, session_handle: refresh_token_session_handle, anti_csrf_token:)
         end
 
         it 'raises a session not authorized error' do

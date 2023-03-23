@@ -58,7 +58,7 @@ module V0
           :married,
           { ages_of_other_dependents: [],
             veteran_full_name: full_name,
-            address: address,
+            address:,
             spouse_full_name: full_name,
             employment_history: [
               :veteran_or_spouse,

@@ -6,7 +6,7 @@ require 'mpi/messages/find_profile_by_identifier'
 describe MPI::Messages::FindProfileByIdentifier do
   describe '.perform' do
     subject do
-      described_class.new(identifier: identifier, identifier_type: identifier_type, search_type: search_type).perform
+      described_class.new(identifier:, identifier_type:, search_type:).perform
     end
 
     let(:identifier) { 'some-identifier' }

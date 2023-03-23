@@ -27,7 +27,7 @@ RSpec.describe RapidReadyForDecision::Form526BaseJob, type: :worker do
         FactoryBot.create(:disabilities_compensation_user, icn: icn_for_user_without_bp_reading_within_one_year)
       end
       let!(:submission_for_user_wo_bp) do
-        create(:form526_submission, :with_uploads, user: user, submitted_claim_id: '600130094')
+        create(:form526_submission, :with_uploads, user:, submitted_claim_id: '600130094')
       end
 
       it 'raises NoRrdProcessorForClaim' do

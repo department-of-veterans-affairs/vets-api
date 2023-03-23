@@ -66,7 +66,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
 
     context 'with logged in user' do
       it 'downloads the pdf' do
-        set_filenet_id(user: user, filenet_id: filenet_id)
+        set_filenet_id(user:, filenet_id:)
 
         VCR.use_cassette('dmc/download_pdf') do
           VCR.use_cassette('bgs/people_service/person_data') do

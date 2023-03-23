@@ -5,10 +5,10 @@ require 'rails_helper'
 RSpec.describe SignIn::CredentialLevelCreator do
   describe '#perform' do
     subject do
-      SignIn::CredentialLevelCreator.new(requested_acr: requested_acr,
-                                         type: type,
-                                         id_token: id_token,
-                                         user_info: user_info).perform
+      SignIn::CredentialLevelCreator.new(requested_acr:,
+                                         type:,
+                                         id_token:,
+                                         user_info:).perform
     end
 
     let(:requested_acr) { SignIn::Constants::Auth::ACR_VALUES.first }
@@ -23,12 +23,12 @@ RSpec.describe SignIn::CredentialLevelCreator do
     let(:sub) { 'some-sub-uuid' }
     let(:expected_auto_uplevel) { false }
     let(:user_info) do
-      OpenStruct.new({ verified_at: verified_at,
-                       credential_ial: credential_ial,
-                       level_of_assurance: level_of_assurance,
-                       mhv_assurance: mhv_assurance,
-                       dslogon_assurance: dslogon_assurance,
-                       sub: sub })
+      OpenStruct.new({ verified_at:,
+                       credential_ial:,
+                       level_of_assurance:,
+                       mhv_assurance:,
+                       dslogon_assurance:,
+                       sub: })
     end
     let(:auto_uplevel) { false }
 

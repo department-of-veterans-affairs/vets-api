@@ -235,8 +235,8 @@ describe PdfFill::HashConverter do
     it 'converts the hash correctly' do
       expect(
         described_class.new('%m/%d/%Y').transform_data(
-          form_data: form_data,
-          pdftk_keys: pdftk_keys
+          form_data:,
+          pdftk_keys:
         )
       ).to eq(
         'form1[0].#subform[1].EnterCharacterD0[0]' => 'honorable',

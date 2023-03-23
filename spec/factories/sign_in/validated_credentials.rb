@@ -9,9 +9,9 @@ FactoryBot.define do
     client_config { create(:client_config) }
 
     initialize_with do
-      new(user_verification: user_verification,
-          client_config: client_config,
-          credential_email: credential_email)
+      new(user_verification:,
+          client_config:,
+          credential_email:)
     end
   end
 end

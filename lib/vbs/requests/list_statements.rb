@@ -38,7 +38,7 @@ module VBS
 
       def data
         {
-          edipi: edipi,
+          edipi:,
           vistaAccountNumbers: vista_account_numbers
         }
       end

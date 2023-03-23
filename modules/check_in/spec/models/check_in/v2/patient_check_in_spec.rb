@@ -44,10 +44,10 @@ RSpec.describe CheckIn::V2::PatientCheckIn do
 
   describe 'check_in_type' do
     let(:uuid) { Faker::Internet.uuid }
-    let(:check_in) { double('Session', uuid: uuid, check_in_type: 'preCheckIn') }
+    let(:check_in) { double('Session', uuid:, check_in_type: 'preCheckIn') }
 
     it 'delegates check_in_type to check_in' do
-      patient_check_in = subject.build(check_in: check_in)
+      patient_check_in = subject.build(check_in:)
 
       expect(patient_check_in.check_in_type).to eq('preCheckIn')
     end
@@ -55,12 +55,12 @@ RSpec.describe CheckIn::V2::PatientCheckIn do
 
   describe '#unauthorized_message' do
     let(:uuid) { Faker::Internet.uuid }
-    let(:check_in) { double('Session', uuid: uuid) }
+    let(:check_in) { double('Session', uuid:) }
     let(:data) { double('FaradayResponse', status: 200, body: {}) }
-    let(:resp) { { permissions: 'read.none', status: 'success', uuid: uuid } }
+    let(:resp) { { permissions: 'read.none', status: 'success', uuid: } }
 
     it 'returns a hashed response' do
-      patient_check_in_with_data = subject.build(data: data, check_in: check_in)
+      patient_check_in_with_data = subject.build(data:, check_in:)
 
       expect(patient_check_in_with_data.unauthorized_message).to eq(resp)
     end
@@ -70,7 +70,7 @@ RSpec.describe CheckIn::V2::PatientCheckIn do
     let(:data) { double('FaradayResponse', status: 401, body: {}) }
 
     it 'returns true' do
-      patient_check_in_with_data = subject.build(data: data, check_in: nil)
+      patient_check_in_with_data = subject.build(data:, check_in: nil)
 
       expect(patient_check_in_with_data.error_status?).to eq(true)
     end
@@ -78,12 +78,12 @@ RSpec.describe CheckIn::V2::PatientCheckIn do
 
   describe '#error_message' do
     let(:uuid) { Faker::Internet.uuid }
-    let(:check_in) { double('Session', uuid: uuid) }
+    let(:check_in) { double('Session', uuid:) }
     let(:data) { double('FaradayResponse', status: 403, body: { error: 'forbidden' }.to_json) }
     let(:resp) { { error: true, message: { 'error' => 'forbidden' }, status: 403 } }
 
     it 'returns an error message' do
-      patient_check_in_with_data = subject.build(data: data, check_in: nil)
+      patient_check_in_with_data = subject.build(data:, check_in: nil)
 
       expect(patient_check_in_with_data.error_message).to eq(resp)
     end

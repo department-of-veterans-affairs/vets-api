@@ -41,8 +41,8 @@ class InProgressForm < ApplicationRecord
   after_save :log_hca_email_diff
 
   def self.form_for_user(form_id, user)
-    user_uuid_form = InProgressForm.find_by(form_id: form_id, user_uuid: user.uuid)
-    user_account_form = InProgressForm.find_by(form_id: form_id, user_account: user.user_account) if user.user_account
+    user_uuid_form = InProgressForm.find_by(form_id:, user_uuid: user.uuid)
+    user_account_form = InProgressForm.find_by(form_id:, user_account: user.user_account) if user.user_account
     user_uuid_form || user_account_form
   end
 
@@ -58,7 +58,7 @@ class InProgressForm < ApplicationRecord
   def data_and_metadata
     {
       formData: JSON.parse(form_data),
-      metadata: metadata
+      metadata:
     }
   end
 
@@ -127,7 +127,7 @@ class InProgressForm < ApplicationRecord
   end
 
   def custom_expires_after
-    options = { form_id: form_id, days_till_expires: days_till_expires }
+    options = { form_id:, days_till_expires: }
 
     FormDurations::Worker.build(options).get_duration
   end

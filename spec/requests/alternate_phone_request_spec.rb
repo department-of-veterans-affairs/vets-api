@@ -88,7 +88,7 @@ RSpec.describe 'alternate phone' do
     context 'with a 200 response' do
       it 'matches the phone schema', :aggregate_failures do
         VCR.use_cassette('evss/pciu/post_alternate_phone') do
-          post('/v0/profile/alternate_phone', params: phone.to_json, headers: headers)
+          post('/v0/profile/alternate_phone', params: phone.to_json, headers:)
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('phone_number_response')
@@ -109,7 +109,7 @@ RSpec.describe 'alternate phone' do
       it 'matches the errors schema', :aggregate_failures do
         phone = build :phone_number, :nil_effective_date, number: ''
 
-        post('/v0/profile/alternate_phone', params: phone.to_json, headers: headers)
+        post('/v0/profile/alternate_phone', params: phone.to_json, headers:)
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
@@ -131,7 +131,7 @@ RSpec.describe 'alternate phone' do
       it 'matches the errors schema', :aggregate_failures do
         phone = build :phone_number, :nil_effective_date, number: '123-456-7890'
 
-        post('/v0/profile/alternate_phone', params: phone.to_json, headers: headers)
+        post('/v0/profile/alternate_phone', params: phone.to_json, headers:)
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
@@ -152,7 +152,7 @@ RSpec.describe 'alternate phone' do
     context 'with a 400 response' do
       it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('evss/pciu/post_alternate_phone_status_400') do
-          post('/v0/profile/alternate_phone', params: phone.to_json, headers: headers)
+          post('/v0/profile/alternate_phone', params: phone.to_json, headers:)
 
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('errors')
@@ -172,7 +172,7 @@ RSpec.describe 'alternate phone' do
     context 'with a 403 response' do
       it 'returns a forbidden response' do
         VCR.use_cassette('evss/pciu/post_alternate_phone_status_403') do
-          post('/v0/profile/alternate_phone', params: phone.to_json, headers: headers)
+          post('/v0/profile/alternate_phone', params: phone.to_json, headers:)
 
           expect(response).to have_http_status(:forbidden)
         end
@@ -182,7 +182,7 @@ RSpec.describe 'alternate phone' do
     context 'with a 500 response' do
       it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('evss/pciu/post_alternate_phone_status_500') do
-          post('/v0/profile/alternate_phone', params: phone.to_json, headers: headers)
+          post('/v0/profile/alternate_phone', params: phone.to_json, headers:)
 
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('errors')

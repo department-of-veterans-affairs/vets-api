@@ -13,7 +13,7 @@ RSpec.describe BGS::Dependents do
       it 'returns a hash with a spouse type death' do
         VCR.use_cassette('bgs/dependents/create/death') do
           dependents = BGS::Dependents.new(
-            proc_id: proc_id,
+            proc_id:,
             payload: all_flows_payload,
             user: user_object
           ).create_all
@@ -34,7 +34,7 @@ RSpec.describe BGS::Dependents do
       it 'returns an hash with divorce data' do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
-            proc_id: proc_id,
+            proc_id:,
             payload: all_flows_payload,
             user: user_object
           ).create_all

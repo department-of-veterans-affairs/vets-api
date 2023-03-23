@@ -7,7 +7,7 @@ require 'support/url_service_helpers'
 RSpec.describe SAML::URLService do
   context 'using loa/3/vets context' do
     subject do
-      described_class.new(saml_settings, session: session, user: user, params: params)
+      described_class.new(saml_settings, session:, user:, params:)
     end
 
     let(:user) { build(:user) }
@@ -328,8 +328,8 @@ RSpec.describe SAML::URLService do
 
   context 'using loa/3 context' do
     subject do
-      described_class.new(saml_settings, session: session, user: user,
-                                         params: params, loa3_context: LOA::IDME_LOA3)
+      described_class.new(saml_settings, session:, user:,
+                                         params:, loa3_context: LOA::IDME_LOA3)
     end
 
     let(:user) { build(:user) }
@@ -579,7 +579,7 @@ RSpec.describe SAML::URLService do
   end
 
   context 'review instance' do
-    subject { described_class.new(saml_settings, session: session, user: user, params: params) }
+    subject { described_class.new(saml_settings, session:, user:, params:) }
 
     let(:user) { build(:user) }
     let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }

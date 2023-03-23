@@ -10,7 +10,7 @@ class Device < ApplicationRecord
                    .where(veteran_device_records: { icn: user.icn, active: true })
                    .select(:key, :name)
     {
-      active: active,
+      active:,
       inactive: Device.where.not(name: active.pluck(:name))
                       .select(:key, :name)
     }

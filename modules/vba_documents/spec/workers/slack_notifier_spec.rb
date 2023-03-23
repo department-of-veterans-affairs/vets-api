@@ -136,7 +136,7 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
     Timecop.travel(1.minute.from_now) do
       @job.perform
     end
-    u = VBADocuments::UploadSubmission.find_by(guid: guid)
+    u = VBADocuments::UploadSubmission.find_by(guid:)
     expect(last_notified).to be < u.metadata['last_slack_notification'].to_i
   end
 

@@ -27,7 +27,7 @@ RSpec.describe VANotify::IcnJob, type: :worker do
             id_value: icn,
             id_type: 'ICN'
           },
-          template_id: template_id
+          template_id:
         }
       )
 
@@ -46,7 +46,7 @@ RSpec.describe VANotify::IcnJob, type: :worker do
                   id_value: icn,
                   id_type: 'ICN'
                 },
-                template_id: template_id,
+                template_id:,
                 personalisation: nil
               }
             },

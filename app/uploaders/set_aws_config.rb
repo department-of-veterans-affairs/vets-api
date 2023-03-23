@@ -5,7 +5,7 @@ module SetAWSConfig
     self.aws_credentials = {
       access_key_id: aws_access_key_id,
       secret_access_key: aws_secret_access_key,
-      region: region
+      region:
     }
     self.aws_acl = 'private'
     self.aws_bucket = bucket

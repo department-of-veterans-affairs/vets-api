@@ -8,7 +8,7 @@ RSpec.describe ClaimsApi::UnsynchronizedEVSSClaimService, type: :model do
 
   before do
     external_key = user.common_name || user.email
-    allow(BGS::Services).to receive(:new).with({ external_uid: user.icn, external_key: external_key })
+    allow(BGS::Services).to receive(:new).with({ external_uid: user.icn, external_key: })
     allow(Veteran::User).to receive(:new) { OpenStruct.new(power_of_attorney: PowerOfAttorney.new(code: 'A1Q')) }
     @veteran = Veteran::User.new(user)
     @veteran.power_of_attorney = PowerOfAttorney.new(code: 'A1Q')

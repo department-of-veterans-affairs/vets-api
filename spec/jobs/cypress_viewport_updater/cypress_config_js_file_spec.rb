@@ -109,7 +109,7 @@ RSpec.describe CypressViewportUpdater::CypressConfigJsFile do
 
     it 'creates mobile viewport objects with the correct data' do
       data = @file.update(viewports: @viewports).updated_content
-      mobile_viewports = extract_viewport_data_from_javascript_file(data: data)['vaTopMobileViewports']
+      mobile_viewports = extract_viewport_data_from_javascript_file(data:)['vaTopMobileViewports']
 
       if @viewports.mobile.count == mobile_viewports.count
         @viewports.mobile.each_with_index do |new_data, i|
@@ -127,7 +127,7 @@ RSpec.describe CypressViewportUpdater::CypressConfigJsFile do
 
     it 'creates tablet viewport objects with the correct data' do
       data = @file.update(viewports: @viewports).updated_content
-      tablet_viewports = extract_viewport_data_from_javascript_file(data: data)['vaTopTabletViewports']
+      tablet_viewports = extract_viewport_data_from_javascript_file(data:)['vaTopTabletViewports']
 
       if @viewports.tablet.count == tablet_viewports.count
         @viewports.tablet.each_with_index do |new_data, i|
@@ -145,7 +145,7 @@ RSpec.describe CypressViewportUpdater::CypressConfigJsFile do
 
     it 'creates desktop viewport objects with the correct data' do
       data = @file.update(viewports: @viewports).updated_content
-      desktop_viewports = extract_viewport_data_from_javascript_file(data: data)['vaTopDesktopViewports']
+      desktop_viewports = extract_viewport_data_from_javascript_file(data:)['vaTopDesktopViewports']
 
       if @viewports.desktop.count == desktop_viewports.count
         @viewports.desktop.each_with_index do |new_data, i|
@@ -171,9 +171,9 @@ RSpec.describe CypressViewportUpdater::CypressConfigJsFile do
   end
 
   def extract_viewport_data_from_javascript_file(data:)
-    selected_lines = select_lines_from_file(data: data)
-    selected_lines = remove_chars(selected_lines: selected_lines)
-    JSON.parse("{#{format_as_json(selected_lines: selected_lines).join}")
+    selected_lines = select_lines_from_file(data:)
+    selected_lines = remove_chars(selected_lines:)
+    JSON.parse("{#{format_as_json(selected_lines:).join}")
   end
 
   def select_lines_from_file(data:)

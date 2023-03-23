@@ -33,7 +33,7 @@ class Token
     key = OIDC::KeyService.get_key(kid, iss)
     if key.blank?
       StatsD.increment('okta_kid_lookup_failure', 1, tags: ["kid:#{kid}"])
-      Rails.logger.info('Public key not found', kid: kid, exp: decoded_token[0]['exp'])
+      Rails.logger.info('Public key not found', kid:, exp: decoded_token[0]['exp'])
       raise error_klass("Public key not found for kid specified in token: '#{kid}'")
     end
 

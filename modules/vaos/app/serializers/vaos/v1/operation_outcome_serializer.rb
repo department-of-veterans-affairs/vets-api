@@ -35,7 +35,7 @@ module VAOS
             status: 'generated',
             div: "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>#{issue.first[:details]}</p></div>"
           },
-          issue: issue
+          issue:
         }
       end
 

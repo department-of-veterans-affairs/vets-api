@@ -27,7 +27,7 @@ RSpec.describe 'clinics', type: :request do
 
       it 'returns 200' do
         VCR.use_cassette('appointments/get_facility_clinics_200', match_requests_on: %i[method uri]) do
-          get "/mobile/v0/appointments/facilities/#{facility_id}/clinics", params: params, headers: iam_headers
+          get "/mobile/v0/appointments/facilities/#{facility_id}/clinics", params:, headers: iam_headers
 
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('clinic')
@@ -42,7 +42,7 @@ RSpec.describe 'clinics', type: :request do
       it 'returns 200 with empty response' do
         VCR.use_cassette('appointments/get_facility_clinics_bad_facility_id_200',
                          match_requests_on: %i[method uri]) do
-          get "/mobile/v0/appointments/facilities/#{facility_id}/clinics", params: params, headers: iam_headers
+          get "/mobile/v0/appointments/facilities/#{facility_id}/clinics", params:, headers: iam_headers
 
           expect(response).to have_http_status(:ok)
           expect(response.parsed_body['data']).to eq([])
@@ -57,7 +57,7 @@ RSpec.describe 'clinics', type: :request do
       it 'returns bad request' do
         VCR.use_cassette('appointments/get_facility_clinics_bad_service_400',
                          match_requests_on: %i[method uri]) do
-          get "/mobile/v0/appointments/facilities/#{facility_id}/clinics", params: params, headers: iam_headers
+          get "/mobile/v0/appointments/facilities/#{facility_id}/clinics", params:, headers: iam_headers
 
           expect(response).to have_http_status(:bad_request)
           expect(JSON.parse(response.parsed_body.dig('errors', 0, 'source',
@@ -75,7 +75,7 @@ RSpec.describe 'clinics', type: :request do
 
       it 'returns 200' do
         VCR.use_cassette('appointments/get_available_slots_200', match_requests_on: %i[method uri]) do
-          get "/mobile/v0/appointments/facilities/#{facility_id}/clinics/#{clinic_id}/slots", params: params,
+          get "/mobile/v0/appointments/facilities/#{facility_id}/clinics/#{clinic_id}/slots", params:,
                                                                                               headers: iam_headers
 
           expect(response).to have_http_status(:ok)
@@ -121,7 +121,7 @@ RSpec.describe 'clinics', type: :request do
 
       it 'returns a 502 error' do
         VCR.use_cassette('appointments/get_available_slots_500', match_requests_on: %i[method uri]) do
-          get "/mobile/v0/appointments/facilities/#{facility_id}/clinics/#{clinic_id}/slots", params: params,
+          get "/mobile/v0/appointments/facilities/#{facility_id}/clinics/#{clinic_id}/slots", params:,
                                                                                               headers: iam_headers
 
           expect(response).to have_http_status(:bad_gateway)

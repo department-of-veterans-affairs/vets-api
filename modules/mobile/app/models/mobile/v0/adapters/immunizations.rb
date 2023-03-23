@@ -17,7 +17,7 @@ module Mobile
               date: date(immunization),
               dose_number: dose_number(immunization[:protocol_applied]),
               dose_series: dose_series(immunization[:protocol_applied]),
-              group_name: group_name,
+              group_name:,
               location_id: location_id(immunization.dig(:location, :reference)),
               manufacturer: manufacturer(immunization, group_name),
               note: note(immunization[:note]),

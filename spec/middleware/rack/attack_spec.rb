@@ -21,10 +21,10 @@ RSpec.describe Rack::Attack do
 
   describe '#throttled_response' do
     it 'adds X-RateLimit-* headers to the response' do
-      post '/v0/limited', headers: headers
+      post('/v0/limited', headers:)
       expect(last_response.status).not_to eq(429)
 
-      post '/v0/limited', headers: headers
+      post('/v0/limited', headers:)
       expect(last_response.status).to eq(429)
       expect(last_response.headers).to include(
         'X-RateLimit-Limit',
@@ -36,16 +36,16 @@ RSpec.describe Rack::Attack do
 
   describe 'covid_vaccine' do
     it 'limits requests for any post and put endpoints to 4 in 5 minutes' do
-      post '/covid_vaccine/v0/registration', headers: headers
+      post('/covid_vaccine/v0/registration', headers:)
       expect(last_response.status).not_to eq(429)
-      put '/covid_vaccine/v0/registration/opt_out', headers: headers
+      put('/covid_vaccine/v0/registration/opt_out', headers:)
       expect(last_response.status).not_to eq(429)
-      put '/covid_vaccine/v0/registration/opt_in', headers: headers
+      put('/covid_vaccine/v0/registration/opt_in', headers:)
       expect(last_response.status).not_to eq(429)
-      put '/covid_vaccine/v0/registration/unauthenticated', headers: headers
+      put('/covid_vaccine/v0/registration/unauthenticated', headers:)
       expect(last_response.status).not_to eq(429)
 
-      put '/covid_vaccine/v0/registration/opt_out', headers: headers
+      put('/covid_vaccine/v0/registration/opt_out', headers:)
       expect(last_response.status).to eq(429)
     end
   end
@@ -60,14 +60,14 @@ RSpec.describe Rack::Attack do
           allow_any_instance_of(V2::Lorota::Service).to receive(:check_in_data).and_return(data)
 
           10.times do
-            get '/check_in/v2/patient_check_ins/d602d9eb-9a31-484f-9637-13ab0b507e0d', headers: headers
+            get('/check_in/v2/patient_check_ins/d602d9eb-9a31-484f-9637-13ab0b507e0d', headers:)
 
             expect(last_response.status).to eq(200)
           end
         end
 
         it 'throttles with status 429' do
-          get '/check_in/v2/patient_check_ins/d602d9eb-9a31-484f-9637-13ab0b507e0d', headers: headers
+          get('/check_in/v2/patient_check_ins/d602d9eb-9a31-484f-9637-13ab0b507e0d', headers:)
 
           expect(last_response.status).to eq(429)
         end
@@ -105,14 +105,14 @@ RSpec.describe Rack::Attack do
     context 'when more than 20 requests' do
       before do
         20.times do
-          get '/v0/medical_copays', headers: headers
+          get('/v0/medical_copays', headers:)
 
           expect(last_response.status).to eq(401)
         end
       end
 
       it 'throttles with status 429' do
-        get '/v0/medical_copays', headers: headers
+        get('/v0/medical_copays', headers:)
 
         expect(last_response.status).to eq(429)
       end
@@ -153,11 +153,11 @@ RSpec.describe Rack::Attack do
   describe 'vic rate-limits', run_at: 'Thu, 26 Dec 2015 15:54:20 GMT' do
     before do
       limit.times do
-        post endpoint, headers: headers
+        post(endpoint, headers:)
         expect(last_response.status).not_to eq(429)
       end
 
-      post endpoint, headers: headers
+      post endpoint, headers:
     end
 
     context 'profile photo upload' do

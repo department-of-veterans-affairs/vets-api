@@ -64,7 +64,7 @@ RSpec.describe EVSS::FailedClaimsReport, type: :job do
       it 'gets the document hash from sidekiq' do
         expect(
           subject.get_document_hash(
-            user_uuid: user_uuid,
+            user_uuid:,
             tracked_item_id: 1234,
             file_name: 'foo.pdf'
           )
@@ -76,7 +76,7 @@ RSpec.describe EVSS::FailedClaimsReport, type: :job do
       it 'returns nil' do
         expect(
           subject.get_document_hash(
-            user_uuid: user_uuid,
+            user_uuid:,
             tracked_item_id: 123,
             file_name: 'foo.pdf'
           )

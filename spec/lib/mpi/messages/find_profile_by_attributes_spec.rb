@@ -6,15 +6,15 @@ require 'mpi/messages/find_profile_by_attributes'
 describe MPI::Messages::FindProfileByAttributes do
   describe '.perform' do
     subject do
-      described_class.new(first_name: first_name,
-                          middle_name: middle_name,
-                          last_name: last_name,
-                          birth_date: birth_date,
-                          ssn: ssn,
-                          gender: gender,
-                          orch_search: orch_search,
-                          edipi: edipi,
-                          search_type: search_type).perform
+      described_class.new(first_name:,
+                          middle_name:,
+                          last_name:,
+                          birth_date:,
+                          ssn:,
+                          gender:,
+                          orch_search:,
+                          edipi:,
+                          search_type:).perform
     end
 
     let(:first_name) { 'some-first-name' }

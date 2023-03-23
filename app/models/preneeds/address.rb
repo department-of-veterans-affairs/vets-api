@@ -28,7 +28,7 @@ module Preneeds
     #
     def as_eoas
       hash = {
-        address1: street, address2: street2, city: city,
+        address1: street, address2: street2, city:,
         countryCode: country, postalZip: postal_code, state: state || ''
       }
 

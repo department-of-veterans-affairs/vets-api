@@ -43,9 +43,9 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
   end
 
   def get_contestable_issues_from_caseflow(filter: true)
-    caseflow_response = Caseflow::Service.new.get_contestable_issues headers: caseflow_request_headers,
-                                                                     benefit_type: benefit_type,
-                                                                     decision_review_type: decision_review_type
+    caseflow_response = Caseflow::Service.new.get_contestable_issues(headers: caseflow_request_headers,
+                                                                     benefit_type:,
+                                                                     decision_review_type:)
 
     @caseflow_response = filtered_caseflow_response(decision_review_type, caseflow_response, filter)
   rescue Common::Exceptions::BackendServiceException => @backend_service_exception # rubocop:disable Naming/RescuedExceptionsVariableName

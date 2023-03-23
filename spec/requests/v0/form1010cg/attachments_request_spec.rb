@@ -21,7 +21,7 @@ RSpec.describe 'Form 10-10CG Attachments' do
 
   def make_upload_request_with(file_fixture_path, content_type)
     request_options = {
-      headers: headers,
+      headers:,
       params: {
         attachment: {
           file_data: fixture_file_upload(file_fixture_path, content_type)

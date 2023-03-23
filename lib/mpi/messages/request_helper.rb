@@ -5,7 +5,7 @@ module MPI
     class RequestHelper
       class << self
         def build_identifier(identifier:, root:)
-          element('id', root: root, extension: identifier)
+          element('id', root:, extension: identifier)
         end
 
         def build_name(given_names:, family_name:)
@@ -121,7 +121,7 @@ module MPI
         end
 
         def build_telecom(type:, value:)
-          element('telecom', use: type, value: value)
+          element('telecom', use: type, value:)
         end
 
         def build_patient_person_birth_date(birth_date:)
@@ -140,8 +140,8 @@ module MPI
 
         def build_patient_identifier(identifier:, root:, class_code:)
           ssn_element = element('asOtherIDs', classCode: class_code)
-          ssn_element << build_identifier(identifier: identifier, root: root)
-          ssn_element << build_scoping_organization(root: root)
+          ssn_element << build_identifier(identifier:, root:)
+          ssn_element << build_scoping_organization(root:)
           ssn_element
         end
 
@@ -179,7 +179,7 @@ module MPI
         end
 
         def build_code(code:)
-          element('code', code: code, codeSystem: '2.16.840.1.113883.1.6')
+          element('code', code:, codeSystem: '2.16.840.1.113883.1.6')
         end
 
         def build_parameter_list_element
@@ -190,7 +190,7 @@ module MPI
 
         def build_scoping_organization(root:, orchestration: nil)
           scoping_organization = element('scopingOrganization', determinerCode: 'INSTANCE', classCode: 'ORG')
-          scoping_organization << element('id', root: root)
+          scoping_organization << element('id', root:)
           scoping_organization << text_element('name', 'MVI.ORCHESTRATION') if orchestration
           scoping_organization
         end

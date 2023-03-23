@@ -4,10 +4,10 @@ module VAOS
   module V2
     class SlotsController < VAOS::BaseController
       def index
-        response = systems_service.get_available_slots(location_id: location_id,
-                                                       clinic_id: clinic_id,
-                                                       start_dt: start_dt,
-                                                       end_dt: end_dt)
+        response = systems_service.get_available_slots(location_id:,
+                                                       clinic_id:,
+                                                       start_dt:,
+                                                       end_dt:)
         render json: VAOS::V2::SlotsSerializer.new(response)
       end
 

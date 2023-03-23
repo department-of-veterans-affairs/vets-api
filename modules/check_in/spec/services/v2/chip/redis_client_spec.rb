@@ -90,7 +90,7 @@ describe V2::Chip::RedisClient do
     let(:token) { '12345' }
 
     it 'saves the value in cache' do
-      expect(redis_client.save(token: token)).to eq(true)
+      expect(redis_client.save(token:)).to eq(true)
 
       val = Rails.cache.read(
         'check_in_chip_v2_2dcdrrn5zc',

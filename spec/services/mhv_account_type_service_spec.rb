@@ -7,12 +7,12 @@ RSpec.describe MHVAccountTypeService do
 
   let(:unknown_error) { 'BackendServiceException: {:status=>400, :detail=>nil, :code=>"VA900", :source=>nil}' }
   let(:sign_in) { { service_name: SignIn::Constants::Auth::MHV } }
-  let(:user_identity) { instance_double('UserIdentity', mhv_account_type: nil, sign_in: sign_in) }
+  let(:user_identity) { instance_double('UserIdentity', mhv_account_type: nil, sign_in:) }
   let(:mhv_correlation_id) { '12210827' }
   let(:user) do
     instance_double(
       'User',
-      mhv_correlation_id: mhv_correlation_id,
+      mhv_correlation_id:,
       identity: user_identity,
       uuid: 1,
       authn_context: 'myhealthevet',
@@ -29,7 +29,7 @@ RSpec.describe MHVAccountTypeService do
   end
 
   context 'known mhv_account_type' do
-    let(:user_identity) { instance_double('UserIdentity', mhv_account_type: 'Whatever', sign_in: sign_in) }
+    let(:user_identity) { instance_double('UserIdentity', mhv_account_type: 'Whatever', sign_in:) }
 
     it '#mhv_account_type returns known account type' do
       VCR.use_cassette('mhv_account_type_service/premium') do
@@ -95,7 +95,7 @@ RSpec.describe MHVAccountTypeService do
       {
         uuid: user.uuid,
         mhv_correlation_id: user.mhv_correlation_id,
-        eligible_data_classes: eligible_data_classes,
+        eligible_data_classes:,
         authn_context: user.authn_context,
         va_patient: user.va_patient?,
         mhv_acct_type: user.identity.mhv_account_type

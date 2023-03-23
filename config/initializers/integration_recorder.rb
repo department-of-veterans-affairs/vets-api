@@ -115,8 +115,8 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
       def feature_settings
         {
           vcr_cassette_path: relative_cassette_path,
-          internal_cassette: internal_cassette,
-          external_cassette: external_cassette,
+          internal_cassette:,
+          external_cassette:,
           insecure_random: @insecure_random,
           time_freeze: @time_freeze
         }

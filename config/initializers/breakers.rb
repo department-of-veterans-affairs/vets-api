@@ -89,7 +89,7 @@ Rails.application.reloader.to_prepare do
 
   client = Breakers::Client.new(
     redis_connection: redis_namespace,
-    services: services,
+    services:,
     logger: Rails.logger,
     plugins: [plugin]
   )

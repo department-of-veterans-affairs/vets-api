@@ -26,7 +26,7 @@ namespace :github_stats do
 
     # setup calculator for determining duration that excludes weekends
     schedule = { %i[mon tue wed thu fri] => [[0 * 3600, 24 * 3600]] }
-    calculator = OperatingHours::Calculator.new(schedule: schedule)
+    calculator = OperatingHours::Calculator.new(schedule:)
     # get open PRs for vets-api and vets-website and add data to hash
     responses = {}
     REPOS.each do |repo|
@@ -56,7 +56,7 @@ namespace :github_stats do
 
         # send duration to StatsD
         StatsD.measure(STATSD_METRIC, duration,
-                       tags: { repo: repo, number: number, user: user })
+                       tags: { repo:, number:, user: })
       end.compact
     end
   end

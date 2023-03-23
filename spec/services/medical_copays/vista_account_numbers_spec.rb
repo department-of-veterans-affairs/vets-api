@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe MedicalCopays::VistaAccountNumbers do
-  subject { described_class.build(data: data, user: user) }
+  subject { described_class.build(data:, user:) }
 
   let(:data) do
     {

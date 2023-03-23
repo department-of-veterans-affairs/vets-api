@@ -20,7 +20,7 @@ describe AppealsApi::DailyErrorReport, type: :job do
     it 'sends mail' do
       allow(YAML).to receive(:load_file).and_return({ 'common' => recipients })
       expect(AppealsApi::DailyErrorReportMailer).to receive(:build).once.with(
-        recipients: recipients
+        recipients:
       ).and_return(double.tap do |mailer|
         expect(mailer).to receive(:deliver_now).once
       end)

@@ -21,10 +21,10 @@ describe AppealsApi::DecisionReviewReportWeekly, type: :job do
         allow(YAML).to receive(:load_file).and_return({ 'common' => recipients,
                                                         'production' => ['laura.trager@adhocteam.us'] })
         expect(AppealsApi::DecisionReviewMailer).to receive(:build).once.with(
-          date_from: date_from,
-          date_to: date_to,
+          date_from:,
+          date_to:,
           friendly_duration: 'Weekly',
-          recipients: recipients
+          recipients:
         ).and_return(double.tap do |mailer|
           expect(mailer).to receive(:deliver_now).once
         end)

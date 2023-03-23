@@ -10,7 +10,7 @@ class VeteranDeviceRecord < ApplicationRecord
   end
 
   def validate_unique_ids
-    if VeteranDeviceRecord.find_by(device_id: device_id, icn: icn).nil?
+    if VeteranDeviceRecord.find_by(device_id:, icn:).nil?
       nil
     else
       errors.add(:icn, 'User already associated with provided device_id')

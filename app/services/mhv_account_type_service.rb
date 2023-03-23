@@ -85,7 +85,7 @@ class MHVAccountTypeService
     extra_context.merge!(
       uuid: user.uuid,
       mhv_correlation_id: user.mhv_correlation_id,
-      eligible_data_classes: eligible_data_classes,
+      eligible_data_classes:,
       authn_context: user.authn_context,
       va_patient: user.va_patient?,
       mhv_acct_type: user.identity.mhv_account_type

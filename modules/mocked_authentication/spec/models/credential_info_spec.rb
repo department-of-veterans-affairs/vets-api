@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe MockedAuthentication::CredentialInfo do
-  let(:mock_credential_info) { build(:mock_credential_info, credential_info_code: credential_info_code) }
+  let(:mock_credential_info) { build(:mock_credential_info, credential_info_code:) }
   let(:credential_info_code) { SecureRandom.hex }
 
   describe '#validate' do

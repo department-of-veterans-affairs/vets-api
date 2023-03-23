@@ -32,11 +32,11 @@ describe MPIData, skip_mvi: true do
     let(:mpi_profile) { build(:mvi_profile) }
 
     context 'with a successful add' do
-      let(:add_response) { create(:add_person_response, parsed_codes: parsed_codes) }
+      let(:add_response) { create(:add_person_response, parsed_codes:) }
       let(:parsed_codes) do
         {
-          birls_id: birls_id,
-          participant_id: participant_id
+          birls_id:,
+          participant_id:
         }
       end
       let(:birls_id) { '111985523' }
@@ -63,15 +63,15 @@ describe MPIData, skip_mvi: true do
       let(:person_types) { ['VET'] }
       let(:mpi_profile) do
         build(:mvi_profile,
-              given_names: given_names,
-              family_name: family_name,
-              birth_date: birth_date,
-              icn: icn,
-              edipi: edipi,
-              search_token: search_token,
-              ssn: ssn,
-              person_types: person_types,
-              gender: gender)
+              given_names:,
+              family_name:,
+              birth_date:,
+              icn:,
+              edipi:,
+              search_token:,
+              ssn:,
+              person_types:,
+              gender:)
       end
 
       before do
@@ -198,7 +198,7 @@ describe MPIData, skip_mvi: true do
         end
 
         context 'and the response is not successful with not found response' do
-          let(:profile_response) { create(:find_profile_not_found_response, profile: profile) }
+          let(:profile_response) { create(:find_profile_not_found_response, profile:) }
           let(:profile) { 'some-unsuccessful-profile' }
 
           it 'returns the unsuccessful response' do
@@ -212,7 +212,7 @@ describe MPIData, skip_mvi: true do
         end
 
         context 'and the response is not successful with server error response' do
-          let(:profile_response) { create(:find_profile_server_error_response, profile: profile) }
+          let(:profile_response) { create(:find_profile_server_error_response, profile:) }
           let(:profile) { 'some-unsuccessful-profile' }
 
           it 'returns the unsuccessful response' do
@@ -313,7 +313,7 @@ describe MPIData, skip_mvi: true do
 
     context 'with an error response' do
       let(:mpi_data) { MPIData.for_user(user.identity) }
-      let(:profile_response_error) { create(:find_profile_server_error_response, error: error) }
+      let(:profile_response_error) { create(:find_profile_server_error_response, error:) }
       let(:error) { 'some-error' }
 
       before do

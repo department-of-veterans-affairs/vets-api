@@ -51,7 +51,7 @@ module VBADocuments
       mail(
         to: RECIPIENTS,
         subject: "Monthly Benefits Intake Submission Report for #{@environment}",
-        body: body
+        body:
       )
     end
     # rubocop:enable Metrics/MethodLength

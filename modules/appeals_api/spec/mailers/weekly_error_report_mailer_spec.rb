@@ -6,7 +6,7 @@ RSpec.describe AppealsApi::WeeklyErrorReportMailer, type: [:mailer] do
   describe '#build' do
     subject do
       described_class.build(friendly_duration: 'Weekly',
-                            recipients: recipients).deliver_now
+                            recipients:).deliver_now
     end
 
     let(:recipients) do

@@ -81,7 +81,7 @@ context CypressViewportUpdater::ExistingGithubFile do
   let!(:name) { 'cypress.config.js' }
 
   before do
-    @file = described_class.new(github_path: github_path, name: name)
+    @file = described_class.new(github_path:, name:)
   end
 
   it_behaves_like 'an existing file'

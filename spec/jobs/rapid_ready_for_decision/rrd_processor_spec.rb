@@ -146,7 +146,7 @@ RSpec.describe RapidReadyForDecision::RrdProcessor do
           auth_headers.delete('va_eauth_dodedipnid')
 
           create(:form526_submission, :asthma_claim_for_increase,
-                 user: user,
+                 user:,
                  user_uuid: 'nonsense',
                  auth_headers_json: auth_headers.to_json)
         end

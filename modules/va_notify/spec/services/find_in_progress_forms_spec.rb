@@ -44,7 +44,7 @@ describe VANotify::FindInProgressForms do
   def create_in_progress_form_days_ago(count, form_id:, user_uuid: nil)
     user_uuid ||= SecureRandom.uuid
     Timecop.freeze(count.days.ago)
-    in_progress_form = create(:in_progress_686c_form, user_uuid: user_uuid, form_id: form_id)
+    in_progress_form = create(:in_progress_686c_form, user_uuid:, form_id:)
     Timecop.return
     in_progress_form
   end

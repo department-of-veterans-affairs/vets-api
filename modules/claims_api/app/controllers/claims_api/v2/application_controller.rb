@@ -143,7 +143,7 @@ module ClaimsApi
       def build_target_veteran(veteran_id:, loa:) # rubocop:disable Metrics/MethodLength
         target_veteran ||= ClaimsApi::Veteran.new(
           mhv_icn: veteran_id,
-          loa: loa
+          loa:
         )
         # populate missing veteran attributes with their mpi record
         found_record = target_veteran.mpi_record?(user_key: veteran_id)

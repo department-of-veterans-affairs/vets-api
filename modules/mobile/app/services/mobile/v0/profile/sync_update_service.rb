@@ -152,7 +152,7 @@ module Mobile
         def raise_timeout_error(elapsed, try)
           Rails.logger.error(
             'mobile syncronous profile update timeout',
-            transaction_id: @transaction_id, try: try, elapsed: elapsed
+            transaction_id: @transaction_id, try:, elapsed:
           )
           raise Common::Exceptions::GatewayTimeout
         end
@@ -160,7 +160,7 @@ module Mobile
         def log_incomplete(elapsed, next_try_seconds, try)
           Rails.logger.info(
             'mobile syncronous profile update not yet complete',
-            transaction_id: @transaction_id, try: try, seconds_until_retry: next_try_seconds, elapsed: elapsed
+            transaction_id: @transaction_id, try:, seconds_until_retry: next_try_seconds, elapsed:
           )
         end
       end

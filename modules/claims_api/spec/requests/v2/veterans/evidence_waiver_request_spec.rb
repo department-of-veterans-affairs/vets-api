@@ -21,7 +21,7 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
   describe '5103 Waiver' do
     describe 'submit' do
       context 'Vet flow' do
-        let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: payload) }
+        let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload:) }
 
         context 'when provided' do
           context 'when valid' do
