@@ -8,11 +8,6 @@
   "trainingState": "virginia",
   "educationObjective": "bachelors",
   "educationalCounseling": true,
-  "spouseInfo": {
-    "divorcePending": true,
-    "remarried": true,
-    "remarriageDate": "2016-12-15"
-  },
   "benefit": "chapter35",
   "currentSameAsPrevious": true,
   "previousBenefits": {
