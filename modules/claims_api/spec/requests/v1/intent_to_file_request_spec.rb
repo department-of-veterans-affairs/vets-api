@@ -380,7 +380,7 @@ RSpec.describe 'Intent to file', type: :request do
 
     it 'returns a 422 when invalid target_veteran' do
       with_okta_user(scopes) do |auth_header|
-        vet = FactoryBot.build(:user, :loa3, birls_id: nil)
+        vet = build(:claims_veteran, :nil_birls_id)
         allow_any_instance_of(ClaimsApi::V1::ApplicationController)
           .to receive(:veteran_from_headers).and_return(vet)
 
