@@ -1,40 +1,45 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "object",
-  "additionalProperties": false,
-  "required": ["id", "type"],
+  "required": ["data"],  
   "properties": {
-    "id": {
-      "type": "string",
-      "description": "Intent To File ID",
-      "example": "600131328"
-    },
-    "type": {
-      "type": "string",
-      "example": "intent_to_file"
-    },
-    "attributes": {
-      "required": ["creationDate", "expirationDate", "status", "type"],
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "attributes"],
       "properties": {
-        "creationDate": {
+        "id": {
           "type": "string",
-          "format": "date",
-          "description": "Date the Intent to File was received at the VA"
-        },
-        "expirationDate": {
-          "type": "string",
-          "format": "date",
-          "description": "Date the Intent to File expires, this is 1 year from the createdDate"
-        },
-        "status": {
-          "type": "string",
-          "description": "The status of the Intent to File",
-          "example": "active"
+          "description": "Intent To File ID",
+          "example": "600131328"
         },
         "type": {
           "type": "string",
-          "description": "The type of Intent to File filed.",
-          "example": "compensation"
+          "example": "intent_to_file"
+        },
+        "attributes": {
+          "required": ["creationDate", "expirationDate", "status", "type"],
+          "properties": {
+            "creationDate": {
+              "type": "string",
+              "format": "date",
+              "description": "Date the Intent to File was received at the VA"
+            },
+            "expirationDate": {
+              "type": "string",
+              "format": "date",
+              "description": "Date the Intent to File expires, this is 1 year from the createdDate"
+            },
+            "status": {
+              "type": "string",
+              "description": "The status of the Intent to File",
+              "example": "active"
+            },
+            "type": {
+              "type": "string",
+              "description": "The type of Intent to File filed.",
+              "example": "compensation"
+            }
+          }
         }
       }
     }

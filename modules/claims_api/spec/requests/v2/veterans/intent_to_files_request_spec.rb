@@ -167,7 +167,7 @@ RSpec.describe 'IntentToFiles', type: :request do
 
               parsed_response = JSON.parse(response.body)
               expect(response.status).to eq(200)
-              expect(parsed_response['id']).to eq('2')
+              expect(parsed_response['data']['id']).to eq('2')
             end
           end
         end
