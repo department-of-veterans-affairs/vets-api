@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sign_in/logingov/service'
+require 'sign_in/idme/service'
 
 RSpec.describe V0::SignInController, type: :controller do
   describe 'GET authorize' do
@@ -70,7 +72,7 @@ RSpec.describe V0::SignInController, type: :controller do
           { auth: 'fail', code: SignIn::Constants::ErrorCode::INVALID_REQUEST, request_id: request_id }.to_query
         end
         let(:expected_redirect) do
-          uri = URI.parse(Settings.sign_in.client_redirect_uris.web)
+          uri = URI.parse(client_config.redirect_uri)
           uri.query = expected_redirect_params
           uri.to_s
         end
@@ -489,7 +491,7 @@ RSpec.describe V0::SignInController, type: :controller do
           { auth: 'fail', code: error_code, request_id: request_id }.to_query
         end
         let(:expected_redirect) do
-          uri = URI.parse(Settings.sign_in.client_redirect_uris.web)
+          uri = URI.parse(client_config.redirect_uri)
           uri.query = expected_redirect_params
           uri.to_s
         end

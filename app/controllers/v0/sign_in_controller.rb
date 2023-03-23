@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'sign_in/logingov/service'
-require 'sign_in/idme/service'
 require 'sign_in/logger'
 
 module V0
@@ -33,7 +31,7 @@ module V0
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SUCCESS,
                        tags: ["type:#{type}", "client_id:#{client_id}", "acr:#{acr}"])
 
-      render body: auth_service(type).render_auth(state: state, acr: acr_for_type), content_type: 'text/html'
+      render body: auth_service(type, client_id).render_auth(state: state, acr: acr_for_type), content_type: 'text/html'
     rescue SignIn::Errors::StandardError => e
       sign_in_logger.info('authorize error', { errors: e.message, client_id: client_id, type: type, acr: acr })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_FAILURE)
@@ -55,11 +53,12 @@ module V0
       SignIn::StatePayloadVerifier.new(state_payload: state_payload).perform
 
       handle_credential_provider_error(error, state_payload&.type) if error
-      service_token_response = auth_service(state_payload.type).token(code)
+      service_token_response = auth_service(state_payload.type, state_payload.client_id).token(code)
 
       raise SignIn::Errors::CodeInvalidError.new message: 'Code is not valid' unless service_token_response
 
-      user_info = auth_service(state_payload.type).user_info(service_token_response[:access_token])
+      user_info = auth_service(state_payload.type,
+                               state_payload.client_id).user_info(service_token_response[:access_token])
       credential_level = SignIn::CredentialLevelCreator.new(requested_acr: state_payload.acr,
                                                             type: state_payload.type,
                                                             id_token: service_token_response[:id_token],
@@ -212,7 +211,8 @@ module V0
 
       raise SignIn::Errors::MalformedParamsError.new message: 'State is not defined' unless state
 
-      render body: logingov_auth_service.render_logout_redirect(state), content_type: 'text/html'
+      render body: auth_service(SignIn::Constants::Auth::LOGINGOV).render_logout_redirect(state),
+             content_type: 'text/html'
     rescue => e
       sign_in_logger.info('logingov_logout_proxy error', { errors: e.message })
 
@@ -257,7 +257,7 @@ module V0
     def handle_pre_login_error(error, client_id)
       if cookie_authentication?(client_id)
         error_code = error.try(:code) || SignIn::Constants::ErrorCode::INVALID_REQUEST
-        redirect_to failed_auth_url({ auth: 'fail', code: error_code, request_id: request.request_id })
+        redirect_to failed_auth_url(client_id, { auth: 'fail', code: error_code, request_id: request.request_id })
       else
         render json: { errors: error }, status: :bad_request
       end
@@ -279,8 +279,8 @@ module V0
       end
     end
 
-    def failed_auth_url(params)
-      uri = URI.parse(Settings.sign_in.client_redirect_uris.web)
+    def failed_auth_url(client_id, params)
+      uri = URI.parse(client_config(client_id).redirect_uri)
       uri.query = params.to_query
       uri.to_s
     end
@@ -293,12 +293,14 @@ module V0
                                                  client_config: client_config(state_payload.client_id),
                                                  type: state_payload.type,
                                                  client_state: state_payload.client_state).perform
-      render body: auth_service(state_payload.type).render_auth(state: state, acr: acr_for_type),
+      render body: auth_service(state_payload.type,
+                                state_payload.client_id).render_auth(state: state, acr: acr_for_type),
              content_type: 'text/html'
     end
 
     def create_login_code(state_payload, user_info, credential_level)
-      user_attributes = auth_service(state_payload.type).normalized_attributes(user_info, credential_level)
+      user_attributes = auth_service(state_payload.type,
+                                     state_payload.client_id).normalized_attributes(user_info, credential_level)
       verified_icn = SignIn::AttributeValidator.new(user_attributes: user_attributes).perform
       user_code_map = SignIn::UserCreator.new(user_attributes: user_attributes,
                                               state_payload: state_payload,
@@ -339,13 +341,8 @@ module V0
       cookies.delete(SignIn::Constants::Auth::INFO_COOKIE_NAME, domain: Settings.sign_in.info_cookie_domain)
     end
 
-    def auth_service(type)
-      case type
-      when SignIn::Constants::Auth::LOGINGOV
-        logingov_auth_service
-      else
-        idme_auth_service(type)
-      end
+    def auth_service(type, client_id = nil)
+      SignIn::AuthenticationServiceRetriever.new(type: type, client_config: client_config(client_id)).perform
     end
 
     def cookie_authentication?(client_id)
@@ -354,18 +351,6 @@ module V0
 
     def client_config(client_id)
       @client_config ||= SignIn::ClientConfig.find_by(client_id: client_id)
-    end
-
-    def idme_auth_service(type)
-      @idme_auth_service ||= begin
-        @idme_auth_service = SignIn::Idme::Service.new
-        @idme_auth_service.type = type
-        @idme_auth_service
-      end
-    end
-
-    def logingov_auth_service
-      @logingov_auth_service ||= SignIn::Logingov::Service.new
     end
 
     def sign_in_logger

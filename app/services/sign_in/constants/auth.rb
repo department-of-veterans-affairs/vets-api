@@ -19,7 +19,7 @@ module SignIn
                           LOGIN_GOV_IAL1 = 'http://idmanagement.gov/ns/assurance/ial/1',
                           LOGIN_GOV_IAL2 = 'http://idmanagement.gov/ns/assurance/ial/2'].freeze
       ANTI_CSRF_COOKIE_NAME = 'vagov_anti_csrf_token'
-      AUTHENTICATION_TYPES = [COOKIE = 'cookie', API = 'api'].freeze
+      AUTHENTICATION_TYPES = [COOKIE = 'cookie', API = 'api', MOCK = 'mock'].freeze
       BROKER_CODE = 'sis'
       CLIENT_STATE_MINIMUM_LENGTH = 22
       CODE_CHALLENGE_METHOD = 'S256'

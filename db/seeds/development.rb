@@ -33,7 +33,7 @@ vamobile_mock.update!(authentication: SignIn::Constants::Auth::API,
 
 # Create Config for localhost mocked authentication client
 vamock = SignIn::ClientConfig.find_or_initialize_by(client_id: 'vamock')
-vamock.update!(authentication: SignIn::Constants::Auth::COOKIE,
+vamock.update!(authentication: SignIn::Constants::Auth::MOCK,
                anti_csrf: true,
                redirect_uri: 'http://localhost:3001/auth/login/callback',
                access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,

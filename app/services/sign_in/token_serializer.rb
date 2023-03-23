@@ -16,6 +16,10 @@ module SignIn
         {}
       elsif api_authentication_client?
         token_json_response
+      elsif mock_authentication_client?
+        set_cookies
+        set_info_cookie
+        token_json_response
       end
     end
 
@@ -81,6 +85,10 @@ module SignIn
 
     def api_authentication_client?
       client_config.api_auth?
+    end
+
+    def mock_authentication_client?
+      client_config.mock_auth?
     end
 
     def anti_csrf_enabled_client?

@@ -40,7 +40,7 @@ module SignIn
     end
 
     def logingov_service
-      @logingov_service ||= SignIn::Logingov::Service.new
+      AuthenticationServiceRetriever.new(type: Constants::Auth::LOGINGOV).perform
     end
   end
 end
