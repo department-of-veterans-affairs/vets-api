@@ -2,6 +2,7 @@
 
 require 'sign_in/idme/configuration'
 require 'sign_in/idme/errors'
+require 'mockdata/writer'
 
 module SignIn
   module Idme
@@ -160,6 +161,7 @@ module SignIn
             algorithm: config.jwt_decode_algorithm
           }
         )&.first
+        log_parsed_credential(decoded_jwt) if config.log_credential
         OpenStruct.new(decoded_jwt)
       rescue JWT::VerificationError
         raise Errors::JWTVerificationError, '[SignIn][Idme][Service] JWT body does not match signature'
@@ -167,6 +169,10 @@ module SignIn
         raise Errors::JWTExpiredError, '[SignIn][Idme][Service] JWT has expired'
       rescue JWT::DecodeError
         raise Errors::JWTDecodeError, '[SignIn][Idme][Service] JWT is malformed'
+      end
+
+      def log_parsed_credential(decoded_jwt)
+        MockedAuthentication::Mockdata::Writer.save_credential(credential: decoded_jwt, credential_type: type)
       end
 
       def auth_url

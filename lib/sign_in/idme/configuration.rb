@@ -82,6 +82,10 @@ module SignIn
         OpenSSL::X509::Certificate.new(File.read(client_cert_path))
       end
 
+      def log_credential
+        false
+      end
+
       # Faraday connection object with breakers, snakecase and json response middleware
       # @return Faraday::Connection connection to make http calls
       #

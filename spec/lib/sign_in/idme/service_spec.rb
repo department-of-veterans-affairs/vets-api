@@ -150,6 +150,20 @@ describe SignIn::Idme::Service do
       end
     end
 
+    context 'when log_credential is enabled in idme configuration' do
+      before do
+        allow_any_instance_of(SignIn::Idme::Configuration).to receive(:log_credential).and_return(true)
+        allow(MockedAuthentication::Mockdata::Writer).to receive(:save_credential)
+      end
+
+      it 'makes a call to mocked authentication writer to save the credential' do
+        VCR.use_cassette('identity/idme_200_responses') do
+          expect(MockedAuthentication::Mockdata::Writer).to receive(:save_credential)
+          subject.user_info(token)
+        end
+      end
+    end
+
     context 'when an issue occurs with the client request' do
       let(:expected_error) { Common::Client::Errors::ClientError }
       let(:expected_error_message) do

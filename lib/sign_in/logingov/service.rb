@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sign_in/logingov/configuration'
+require 'mockdata/writer'
 
 module SignIn
   module Logingov
@@ -52,6 +53,7 @@ module SignIn
 
       def user_info(token)
         response = perform(:get, config.userinfo_path, nil, { 'Authorization' => "Bearer #{token}" })
+        log_credential(response.body) if config.log_credential
         OpenStruct.new(response.body)
       rescue Common::Client::Errors::ClientError => e
         raise_client_error(e, 'UserInfo')
@@ -93,6 +95,10 @@ module SignIn
 
       def united_states_country_code
         'USA'
+      end
+
+      def log_credential(credential)
+        MockedAuthentication::Mockdata::Writer.save_credential(credential: credential, credential_type: 'logingov')
       end
 
       def raise_client_error(client_error, function_name)
