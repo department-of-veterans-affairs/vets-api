@@ -30,5 +30,15 @@ module SignIn
     def api_auth?
       authentication == Constants::Auth::API
     end
+
+    def mock_auth?
+      authentication == Constants::Auth::MOCK && appropriate_mock_environment?
+    end
+
+    private
+
+    def appropriate_mock_environment?
+      %w[test localhost development].include?(Settings.vsp_environment)
+    end
   end
 end

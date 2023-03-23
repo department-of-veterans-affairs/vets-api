@@ -56,11 +56,8 @@ sign_in:
   cookies_secure: false
   info_cookie_domain: localhost
   auto_uplevel: true
-  client_redirect_uris:
-    mobile: 'vamobile://login-success'
-    web: 'http://localhost:3001/auth/login/callback'
-    web_logout: 'http://localhost:3001'
-    mobile_test: 'http://localhost:4001/auth/sis/login-success'
+  mock_auth_url: http://localhost:3000/mock_auth_frontend
+  mock_redirect_uri: http://localhost:3000/v0/sign_in/callback
 
 lockbox:
   master_key: "0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9"

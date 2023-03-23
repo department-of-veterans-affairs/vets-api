@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module MockedAuthentication
-  class MockCredentialInfo < Common::RedisStore
+  class CredentialInfo < Common::RedisStore
     redis_store REDIS_CONFIG[:mock_credential_info][:namespace]
     redis_ttl REDIS_CONFIG[:mock_credential_info][:each_ttl]
     redis_key :credential_info_code

@@ -208,6 +208,14 @@ RSpec.describe SignIn::ClientConfig, type: :model do
         expect(subject).to be(false)
       end
     end
+
+    context 'when authentication method is set to mock' do
+      let(:authentication) { SignIn::Constants::Auth::MOCK }
+
+      it 'returns false' do
+        expect(subject).to be(false)
+      end
+    end
   end
 
   describe '#api_auth?' do
@@ -226,6 +234,72 @@ RSpec.describe SignIn::ClientConfig, type: :model do
 
       it 'returns true' do
         expect(subject).to be(true)
+      end
+    end
+
+    context 'when authentication method is set to mock' do
+      let(:authentication) { SignIn::Constants::Auth::MOCK }
+
+      it 'returns false' do
+        expect(subject).to be(false)
+      end
+    end
+  end
+
+  describe '#mock_auth?' do
+    subject { client_config.mock_auth? }
+
+    context 'when authentication method is set to mock' do
+      let(:authentication) { SignIn::Constants::Auth::MOCK }
+
+      before { allow(Settings).to receive(:vsp_environment).and_return(vsp_environment) }
+
+      context 'and vsp_environment is set to test' do
+        let(:vsp_environment) { 'test' }
+
+        it 'returns true' do
+          expect(subject).to be(true)
+        end
+      end
+
+      context 'and vsp_environment is set to localhost' do
+        let(:vsp_environment) { 'localhost' }
+
+        it 'returns true' do
+          expect(subject).to be(true)
+        end
+      end
+
+      context 'and vsp_environment is set to development' do
+        let(:vsp_environment) { 'development' }
+
+        it 'returns true' do
+          expect(subject).to be(true)
+        end
+      end
+
+      context 'and vsp_environment is set to production' do
+        let(:vsp_environment) { 'production' }
+
+        it 'returns false' do
+          expect(subject).to be(false)
+        end
+      end
+    end
+
+    context 'when authentication method is set to api' do
+      let(:authentication) { SignIn::Constants::Auth::API }
+
+      it 'returns false' do
+        expect(subject).to be(false)
+      end
+    end
+
+    context 'when authentication method is set to cookie' do
+      let(:authentication) { SignIn::Constants::Auth::COOKIE }
+
+      it 'returns false' do
+        expect(subject).to be(false)
       end
     end
   end

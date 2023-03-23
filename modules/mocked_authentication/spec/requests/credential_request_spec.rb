@@ -51,9 +51,9 @@ RSpec.describe 'Mocked Authentication Mock Credential', type: :request do
         expect(response).to redirect_to(expected_redirect_url)
       end
 
-      it 'creates a new MockCredentialInfo associated with returned code' do
+      it 'creates a new CredentialInfo associated with returned code' do
         subject
-        expect(MockedAuthentication::MockCredentialInfo.find(expected_code)).not_to be_nil
+        expect(MockedAuthentication::CredentialInfo.find(expected_code)).not_to be_nil
       end
     end
 
