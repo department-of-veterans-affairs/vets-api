@@ -333,7 +333,7 @@ class OpenidApplicationController < ApplicationController
     return false unless token.payload
 
     if (actions.empty? ||
-      Array.wrap(actions).map(&:to_s).include?(action_name)) && (Array.wrap(scopes) & token.payload['scp']).empty?
+      Array.wrap(actions).map(&:to_s).include?(action_name)) && !Array.wrap(scopes).intersect?(token.payload['scp'])
       render_unauthorized
     end
   end
