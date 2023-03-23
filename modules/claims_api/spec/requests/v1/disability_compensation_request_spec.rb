@@ -14,12 +14,8 @@ RSpec.describe 'Disability Claims ', type: :request do
   let(:scopes) { %w[claim.write] }
   let(:multi_profile) do
     MPI::Responses::FindProfileResponse.new(
-      {
-        status: 'OK',
-        profile: FactoryBot.build(:mvi_profile,
-                                  participant_id: nil,
-                                  participant_ids: %w[123456789 987654321])
-      }
+      status: 'OK',
+      profile: FactoryBot.build(:mvi_profile, participant_id: nil, participant_ids: %w[123456789 987654321])
     )
   end
 
