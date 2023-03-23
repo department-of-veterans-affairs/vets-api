@@ -32,7 +32,7 @@ module ClaimsApi
           message = "No active '#{params[:type]}' intent to file found."
           raise ::Common::Exceptions::ResourceNotFound.new(detail: message) if active_itf.blank?
 
-          render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(active_itf)
+          render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(active_itf, root: :data)
         end
 
         def submit
@@ -43,7 +43,7 @@ module ClaimsApi
 
           lighthouse_itf = bgs_itf_to_lighthouse_itf(bgs_itf: bgs_response)
 
-          render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(lighthouse_itf)
+          render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(lighthouse_itf, root: :data)
         end
 
         def validate
@@ -52,7 +52,7 @@ module ClaimsApi
           build_options_and_validate(type)
           render json: {
             data: {
-              type: 'intentToFileValidation',
+              type: 'intent_to_file_validation',
               attributes: {
                 status: 'valid'
               }

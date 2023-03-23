@@ -1766,60 +1766,70 @@
             "content": {
               "application/json": {
                 "example": {
-                  "id": "193685",
-                  "type": "intent_to_file",
-                  "attributes": {
-                    "creationDate": "2021-03-16T19:15:21.000-05:00",
-                    "expirationDate": "2022-03-16T19:15:20.000-05:00",
-                    "type": "compensation",
-                    "status": "active"
+                  "data": {
+                    "id": "193685",
+                    "type": "intent_to_file",
+                    "attributes": {
+                      "creationDate": "2021-03-16T19:15:21.000-05:00",
+                      "expirationDate": "2022-03-16T19:15:20.000-05:00",
+                      "type": "compensation",
+                      "status": "active"
+                    }
                   }
                 },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-04/schema#",
-                  "type": "object",
-                  "additionalProperties": false,
                   "required": [
-                    "id",
-                    "type"
+                    "data"
                   ],
                   "properties": {
-                    "id": {
-                      "type": "string",
-                      "description": "Intent To File ID",
-                      "example": "600131328"
-                    },
-                    "type": {
-                      "type": "string",
-                      "example": "intent_to_file"
-                    },
-                    "attributes": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
                       "required": [
-                        "creationDate",
-                        "expirationDate",
-                        "status",
-                        "type"
+                        "id",
+                        "type",
+                        "attributes"
                       ],
                       "properties": {
-                        "creationDate": {
+                        "id": {
                           "type": "string",
-                          "format": "date",
-                          "description": "Date the Intent to File was received at the VA"
-                        },
-                        "expirationDate": {
-                          "type": "string",
-                          "format": "date",
-                          "description": "Date the Intent to File expires, this is 1 year from the createdDate"
-                        },
-                        "status": {
-                          "type": "string",
-                          "description": "The status of the Intent to File",
-                          "example": "active"
+                          "description": "Intent To File ID",
+                          "example": "600131328"
                         },
                         "type": {
                           "type": "string",
-                          "description": "The type of Intent to File filed.",
-                          "example": "compensation"
+                          "example": "intent_to_file"
+                        },
+                        "attributes": {
+                          "required": [
+                            "creationDate",
+                            "expirationDate",
+                            "status",
+                            "type"
+                          ],
+                          "properties": {
+                            "creationDate": {
+                              "type": "string",
+                              "format": "date",
+                              "description": "Date the Intent to File was received at the VA"
+                            },
+                            "expirationDate": {
+                              "type": "string",
+                              "format": "date",
+                              "description": "Date the Intent to File expires, this is 1 year from the createdDate"
+                            },
+                            "status": {
+                              "type": "string",
+                              "description": "The status of the Intent to File",
+                              "example": "active"
+                            },
+                            "type": {
+                              "type": "string",
+                              "description": "The type of Intent to File filed.",
+                              "example": "compensation"
+                            }
+                          }
                         }
                       }
                     }
@@ -2035,60 +2045,70 @@
             "content": {
               "application/json": {
                 "example": {
-                  "id": "1",
-                  "type": "intent_to_file",
-                  "attributes": {
-                    "creationDate": "2023-03-22",
-                    "expirationDate": "2024-03-22",
-                    "type": "compensation",
-                    "status": "active"
+                  "data": {
+                    "id": "1",
+                    "type": "intent_to_file",
+                    "attributes": {
+                      "creationDate": "2023-03-23",
+                      "expirationDate": "2024-03-23",
+                      "type": "compensation",
+                      "status": "active"
+                    }
                   }
                 },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-04/schema#",
-                  "type": "object",
-                  "additionalProperties": false,
                   "required": [
-                    "id",
-                    "type"
+                    "data"
                   ],
                   "properties": {
-                    "id": {
-                      "type": "string",
-                      "description": "Intent To File ID",
-                      "example": "600131328"
-                    },
-                    "type": {
-                      "type": "string",
-                      "example": "intent_to_file"
-                    },
-                    "attributes": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
                       "required": [
-                        "creationDate",
-                        "expirationDate",
-                        "status",
-                        "type"
+                        "id",
+                        "type",
+                        "attributes"
                       ],
                       "properties": {
-                        "creationDate": {
+                        "id": {
                           "type": "string",
-                          "format": "date",
-                          "description": "Date the Intent to File was received at the VA"
-                        },
-                        "expirationDate": {
-                          "type": "string",
-                          "format": "date",
-                          "description": "Date the Intent to File expires, this is 1 year from the createdDate"
-                        },
-                        "status": {
-                          "type": "string",
-                          "description": "The status of the Intent to File",
-                          "example": "active"
+                          "description": "Intent To File ID",
+                          "example": "600131328"
                         },
                         "type": {
                           "type": "string",
-                          "description": "The type of Intent to File filed.",
-                          "example": "compensation"
+                          "example": "intent_to_file"
+                        },
+                        "attributes": {
+                          "required": [
+                            "creationDate",
+                            "expirationDate",
+                            "status",
+                            "type"
+                          ],
+                          "properties": {
+                            "creationDate": {
+                              "type": "string",
+                              "format": "date",
+                              "description": "Date the Intent to File was received at the VA"
+                            },
+                            "expirationDate": {
+                              "type": "string",
+                              "format": "date",
+                              "description": "Date the Intent to File expires, this is 1 year from the createdDate"
+                            },
+                            "status": {
+                              "type": "string",
+                              "description": "The status of the Intent to File",
+                              "example": "active"
+                            },
+                            "type": {
+                              "type": "string",
+                              "description": "The type of Intent to File filed.",
+                              "example": "compensation"
+                            }
+                          }
                         }
                       }
                     }
@@ -2391,7 +2411,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "type": "intentToFileValidation",
+                    "type": "intent_to_file_validation",
                     "attributes": {
                       "status": "valid"
                     }
