@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# VAOS V2 serializer not in use:
+# :nocov:
 require 'jsonapi/serializer'
 
 module VAOS
@@ -12,3 +14,4 @@ module VAOS
     end
   end
 end
+# :nocov:
