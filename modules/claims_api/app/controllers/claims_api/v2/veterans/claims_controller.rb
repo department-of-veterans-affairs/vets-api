@@ -2,6 +2,7 @@
 
 require 'claims_api/bgs_claim_status_mapper'
 require 'claims_api/v2/mock_documents_service'
+require 'bgs_service/local_bgs'
 
 module ClaimsApi
   module V2
@@ -167,6 +168,20 @@ module ClaimsApi
             raise ::Common::Exceptions::UnprocessableEntity.new(detail:
               "Unable to locate Veteran's Participant ID in Benefits Gateway Services (BGS). " \
               'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
+          end
+
+          raise
+        end
+
+        def find_tracked_items!(claim_id)
+          return if claim_id.blank?
+
+          local_bgs_service.find_tracked_items(claim_id)[:dvlpmt_items] || []
+        rescue Savon::SOAPFault => e
+          # the ebenefits service raises an exception if a claim tracked items are not found,
+          # so catch the exception here and return a 404 instead
+          if e.message.include?("No tracked items found for #{claim_id}")
+            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim tracked items not found')
           end
 
           raise
@@ -374,10 +389,8 @@ module ClaimsApi
           claim_id = bgs_claim.dig(:benefit_claim_details_dto, :benefit_claim_id)
           return [] if claim_id.nil?
 
-          tracked_items = bgs_service
-                          .tracked_items
-                          .find_tracked_items(claim_id)
-                          .dig(:benefit_claim, :dvlpmt_items) || []
+          tracked_items = find_tracked_items!(claim_id)
+
           ebenefits_details = bgs_claim[:benefit_claim_details_dto]
 
           tracked_ids = handle_array_or_hash(tracked_items, :dvlpmt_item_id)

@@ -132,6 +132,13 @@ module ClaimsApi
                           external_key: target_veteran.participant_id)
       end
 
+      def local_bgs_service
+        @local_bgs_service ||= ClaimsApi::LocalBGS.new(
+          external_uid: target_veteran.participant_id,
+          external_key: target_veteran.participant_id
+        )
+      end
+
       def build_target_veteran(veteran_id:, loa:) # rubocop:disable Metrics/MethodLength
         target_veteran ||= ClaimsApi::Veteran.new(
           mhv_icn: veteran_id,
