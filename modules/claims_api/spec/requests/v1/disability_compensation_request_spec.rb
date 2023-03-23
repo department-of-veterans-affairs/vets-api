@@ -1092,11 +1092,8 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
         let(:profile_with_edipi) do
           MPI::Responses::FindProfileResponse.new(
-            {
-              status: 'OK',
-              profile: FactoryBot.build(:mvi_profile,
-                                        edipi: '2536798')
-            }
+            status: 'OK',
+            profile: FactoryBot.build(:mvi_profile, edipi: '2536798')
           )
         end
         let(:mvi_profile) { build(:mvi_profile) }
