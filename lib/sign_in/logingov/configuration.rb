@@ -78,6 +78,10 @@ module SignIn
         OpenSSL::X509::Certificate.new(File.read(client_cert_path))
       end
 
+      def log_credential
+        false
+      end
+
       def service_name
         'logingov'
       end

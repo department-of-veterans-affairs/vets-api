@@ -174,9 +174,23 @@ describe SignIn::Logingov::Service do
   end
 
   describe '#user_info' do
-    it 'returns a user attributes' do
+    it 'returns user attributes' do
       VCR.use_cassette('identity/logingov_200_responses') do
         expect(subject.user_info(token)).to eq(user_info)
+      end
+    end
+
+    context 'when log_credential is enabled in idme configuration' do
+      before do
+        allow_any_instance_of(SignIn::Logingov::Configuration).to receive(:log_credential).and_return(true)
+        allow(MockedAuthentication::Mockdata::Writer).to receive(:save_credential)
+      end
+
+      it 'makes a call to mocked authentication writer to save the credential' do
+        VCR.use_cassette('identity/logingov_200_responses') do
+          expect(MockedAuthentication::Mockdata::Writer).to receive(:save_credential)
+          subject.user_info(token)
+        end
       end
     end
 
