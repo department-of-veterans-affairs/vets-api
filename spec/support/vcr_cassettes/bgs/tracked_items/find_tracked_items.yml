@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/TrackedItemService/TrackedItemsService?WSDL
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/TrackedItemService/TrackedItemService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -266,7 +266,7 @@ http_interactions:
   recorded_at: Wed, 17 Aug 2022 20:30:36 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/TrackedItemService/TrackedItemsService
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/TrackedItemService/TrackedItemService
     body:
       encoding: UTF-8
       string: |-
