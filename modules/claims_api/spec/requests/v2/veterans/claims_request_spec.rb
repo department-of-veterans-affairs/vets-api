@@ -20,11 +20,8 @@ RSpec.describe 'Claims', type: :request do
 
   let(:profile_erroneous_icn) do
     MPI::Responses::FindProfileResponse.new(
-      {
-        status: 'OK',
-        profile: FactoryBot.build(:mvi_profile,
-                                  icn: '667711332299')
-      }
+      status: 'OK',
+      profile: FactoryBot.build(:mvi_profile, icn: '667711332299')
     )
   end
 
