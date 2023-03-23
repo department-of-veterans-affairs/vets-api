@@ -35,8 +35,8 @@ module EVSS
       conn.get url
     end
 
-    def post(url, body = nil, headers = { 'Content-Type' => 'application/json' }, &block)
-      conn.post(url, body, headers, &block)
+    def post(url, body = nil, headers = { 'Content-Type' => 'application/json' }, &)
+      conn.post(url, body, headers, &)
     end
 
     def base_url

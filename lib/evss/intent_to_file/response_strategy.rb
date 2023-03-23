@@ -9,8 +9,8 @@ module EVSS
       include Common::CacheAside
       redis_config_key :intent_to_file_response
 
-      def cache_or_service(user_uuid, type, &block)
-        do_cached_with(key: "#{user_uuid}:#{type}", &block)
+      def cache_or_service(user_uuid, type, &)
+        do_cached_with(key: "#{user_uuid}:#{type}", &)
       end
     end
   end

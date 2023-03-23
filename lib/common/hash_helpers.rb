@@ -4,16 +4,16 @@ module Common
   module HashHelpers
     module_function
 
-    def deep_transform_parameters!(val, &block)
+    def deep_transform_parameters!(val, &)
       # rails 5.1 no longer has deep_transform_keys!
       # because params are no longer inheriting from HashWithIndifferentAccess
       case val
       when Array
-        val.map { |v| deep_transform_parameters!(v, &block) }
+        val.map { |v| deep_transform_parameters!(v, &) }
       when Hash, ActionController::Parameters
         val.keys.each do |k, v = val[k]|
           val.delete(k)
-          val[yield(k)] = deep_transform_parameters!(v, &block)
+          val[yield(k)] = deep_transform_parameters!(v, &)
         end
         val
       else
@@ -27,14 +27,14 @@ module Common
       end
     end
 
-    def deep_remove_helper(hash, &block)
+    def deep_remove_helper(hash, &)
       delete_if_block = proc do |_k, v|
         case v
         when Hash
           v.delete_if(&delete_if_block)
           nil
         when Array
-          v.reject!(&block)
+          v.reject!(&)
           v.each do |item|
             delete_if_block.call(nil, item)
           end
