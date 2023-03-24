@@ -8,7 +8,7 @@ module VAOS
   module V2
     class AppointmentsService < VAOS::SessionService
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
-      VAOS_SERVICE_CATEGORY_KEY = 'VAOSServiceCategory'
+      VAOS_SERVICE_DATA_KEY = 'VAOSServiceTypesAndCategory'
       VAOS_TELEHEALTH_DATA_KEY = 'VAOSTelehealthData'
 
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
@@ -20,7 +20,7 @@ module VAOS
         with_monitoring do
           response = perform(:get, appointments_base_url, params, headers)
           response.body[:data].each do |appt|
-            process_service_category(appt)
+            find_and_log_service_type_and_category(appt)
             log_telehealth_data(appt[:telehealth]&.[](:atlas)) unless appt[:telehealth]&.[](:atlas).nil?
           end
           {
@@ -43,7 +43,7 @@ module VAOS
         params.compact_blank!
         with_monitoring do
           response = perform(:post, appointments_base_url, params, headers)
-          process_service_category(response.body)
+          find_and_log_service_type_and_category(response.body)
           log_telehealth_data(response.body[:telehealth]&.[](:atlas)) unless response.body[:telehealth]&.[](:atlas).nil?
           OpenStruct.new(response.body)
         rescue Common::Exceptions::BackendServiceException => e
@@ -87,18 +87,36 @@ module VAOS
         }
       end
 
-      def process_service_category(appt)
-        appt[:service_category]&.each do |category_el|
-          category_el&.[](:coding)&.each do |coding_el|
-            service_category_data = coding_el&.[](:code)
-            log_service_category(service_category_data)
-          end
-        end
+      def find_and_log_service_type_and_category(appt)
+        service_category_found = process_service_types_or_category(appt[:service_category])
+        service_types_array_found = process_service_types_or_category(appt[:service_types])
+        service_type_found = appt[:service_type]
+        log_service_type_and_category(type_and_category_data(service_type_found, service_types_array_found,
+                                                             service_category_found))
       end
 
-      def log_service_category(service_category_data)
-        service_category_log_entry = { VAOS_SERVICE_CATEGORY_KEY => service_category_data }
-        Rails.logger.info('VAOS appointment service category', service_category_log_entry.to_json)
+      def process_service_types_or_category(appt_service_data)
+        found_values = []
+        appt_service_data&.each do |type_or_category_el|
+          type_or_category_el&.[](:coding)&.each do |coding_el|
+            service_type_or_category_data = coding_el&.[](:code)
+            found_values << service_type_or_category_data
+          end
+        end
+        found_values
+      end
+
+      def type_and_category_data(type, types_array, category)
+        {
+          vaos_service_type: type,
+          vaos_service_types_array: types_array,
+          vaos_service_category: category
+        }
+      end
+
+      def log_service_type_and_category(service_data)
+        service_log_entry = { VAOS_SERVICE_DATA_KEY => service_data }
+        Rails.logger.info('VAOS appointment service category and type', service_log_entry.to_json)
       end
 
       def deserialized_appointments(appointment_list)
