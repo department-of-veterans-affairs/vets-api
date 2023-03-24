@@ -31,8 +31,8 @@ describe StringHelpers do
       ['hello', 'hello', 0],
       ['hello', 'helo', 1],
       ['hello', 'jello', 1],
-      ['hello', 'helol', 1],
       ['hello', 'hellol', 1],
+      ['hello', 'helol', 2],
       ['hello', 'heloll', 2],
       ['hello', 'cheese', 4],
       ['hello', 'saint', 5],
@@ -47,14 +47,14 @@ describe StringHelpers do
     end
 
     it 'raises an error if either argument is nil' do
-      expect { described_class.levenshtein_distance('', nil) }.to raise_error TypeError
-      expect { described_class.levenshtein_distance(nil, '') }.to raise_error TypeError
+      expect { described_class.levenshtein_distance('', nil) }.to raise_error NoMethodError
+      expect { described_class.levenshtein_distance(nil, '') }.to raise_error NoMethodError
     end
 
     it 'raises an error if either argument is something else than a string' do
-      expect { described_class.levenshtein_distance('woah', /woah/) }.to raise_error TypeError
-      expect { described_class.levenshtein_distance(5.3, '5.3') }.to raise_error TypeError
-      expect { described_class.levenshtein_distance(Object.new, 'Hello') }.to raise_error TypeError
+      expect { described_class.levenshtein_distance('woah', /woah/) }.to raise_error NoMethodError
+      expect { described_class.levenshtein_distance(5.3, '5.3') }.to raise_error NoMethodError
+      expect { described_class.levenshtein_distance(Object.new, 'Hello') }.to raise_error NoMethodError
     end
   end
 

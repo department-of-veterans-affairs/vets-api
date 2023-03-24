@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'levenshtein'
-
 module StringHelpers
+  extend Gem::Text
+
   module_function
 
   def capitalize_only(str)
@@ -17,10 +17,6 @@ module StringHelpers
     return if ssn.blank?
 
     "#{ssn[0..2]}-#{ssn[3..4]}-#{ssn[5..8]}"
-  end
-
-  def levenshtein_distance(str_a, str_b)
-    Levenshtein.distance(str_a, str_b)
   end
 
   def heuristics(str_a, str_b)

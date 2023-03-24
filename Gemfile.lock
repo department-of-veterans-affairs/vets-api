@@ -547,8 +547,6 @@ GEM
       rexml
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
-    levenshtein-ffi (1.1.0)
-      ffi (~> 1.9)
     libdatadog (0.9.0.1.0)
     libdatadog (0.9.0.1.0-x86_64-linux)
     libddwaf (1.5.1.0.0)
@@ -1092,7 +1090,6 @@ DEPENDENCIES
   jwe
   jwt
   kms_encrypted
-  levenshtein-ffi
   liquid
   lockbox
   mail
