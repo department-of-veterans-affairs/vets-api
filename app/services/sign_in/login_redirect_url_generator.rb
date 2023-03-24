@@ -12,14 +12,15 @@ module SignIn
     end
 
     def perform
-      redirect_uri.query = redirect_uri_params.to_query
-      redirect_uri.to_s
+      renderer.render(template: 'oauth_get_form',
+                      locals: { url: redirect_uri, params: redirect_uri_params },
+                      format: :html)
     end
 
     private
 
     def redirect_uri
-      @redirect_uri ||= URI.parse(client_config.redirect_uri)
+      @redirect_uri ||= client_config.redirect_uri
     end
 
     def redirect_uri_params
@@ -29,6 +30,14 @@ module SignIn
         params[:type] = type
         params[:state] = client_state if client_state.present?
         params
+      end
+    end
+
+    def renderer
+      @renderer ||= begin
+        renderer = ActionController::Base.renderer
+        renderer.controller.prepend_view_path(Rails.root.join('lib', 'sign_in', 'templates'))
+        renderer
       end
     end
   end
