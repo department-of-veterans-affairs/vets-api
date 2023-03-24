@@ -67,10 +67,13 @@ module OIDC
     end
 
     def self.build_key(jwks_object)
-      key = OpenSSL::PKey::RSA.new
       e = OpenSSL::BN.new(Base64.urlsafe_decode64(jwks_object['e']), 2)
       n = OpenSSL::BN.new(Base64.urlsafe_decode64(jwks_object['n']), 2)
-      key.set_key(n, e, nil)
+
+      data_sequence = OpenSSL::ASN1::Sequence([OpenSSL::ASN1::Integer(n), OpenSSL::ASN1::Integer(e)])
+      asn1 = OpenSSL::ASN1::Sequence(data_sequence)
+      key = OpenSSL::PKey::RSA.new(asn1.to_der)
+
       [jwks_object['kid'], key]
     end
   end
