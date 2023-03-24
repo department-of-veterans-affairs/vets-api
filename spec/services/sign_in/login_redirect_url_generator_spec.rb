@@ -18,31 +18,39 @@ RSpec.describe SignIn::LoginRedirectUrlGenerator do
     let(:login_code) { 'some-login-code' }
     let(:type) { 'some-type' }
     let(:client_state) { 'some-client-state' }
-    let(:expected_redirect_uri) { "#{redirect_uri}?#{code_param}#{state_param}#{type_param}" }
-    let(:code_param) { "code=#{login_code}" }
-    let(:type_param) { "&type=#{type}" }
-    let(:state_param) { "&state=#{client_state}" }
     let(:client_config) { create(:client_config) }
+    let(:redirect_uri) { client_config.redirect_uri }
+    let(:client_id) { client_config.client_id }
+
+    it 'renders the oauth_get_form template' do
+      expect(subject).to include('form id="oauth-form"')
+    end
+
+    it 'directs to the given redirect url set in the client configuration' do
+      expect(subject).to include("action=\"#{redirect_uri}\"")
+    end
+
+    it 'includes expected code param' do
+      expect(subject).to include("value=\"#{login_code}\"")
+    end
+
+    it 'includes expected type param' do
+      expect(subject).to include("value=\"#{type}\"")
+    end
 
     context 'when client_state is not nil' do
       let(:client_state) { 'some-client-state' }
-      let(:state_param) { "&state=#{client_state}" }
-      let(:redirect_uri) { client_config.redirect_uri }
-      let(:client_id) { client_config.client_id }
 
-      it 'returns expected redirect uri with state param' do
-        expect(subject).to eq(expected_redirect_uri)
+      it 'includes expected state param' do
+        expect(subject).to include("value=\"#{client_state}\"")
       end
     end
 
     context 'when client_state is nil' do
       let(:client_state) { nil }
-      let(:state_param) { nil }
-      let(:redirect_uri) { client_config.redirect_uri }
-      let(:client_id) { client_config.client_id }
 
-      it 'returns expected redirect uri without state param' do
-        expect(subject).to eq(expected_redirect_uri)
+      it 'does not include expected state param' do
+        expect(subject).not_to include("value=\"#{client_state}\"")
       end
     end
   end

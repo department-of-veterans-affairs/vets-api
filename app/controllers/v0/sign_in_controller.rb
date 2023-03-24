@@ -298,7 +298,7 @@ module V0
              content_type: 'text/html'
     end
 
-    def create_login_code(state_payload, user_info, credential_level)
+    def create_login_code(state_payload, user_info, credential_level) # rubocop:disable Metrics/MethodLength
       user_attributes = auth_service(state_payload.type,
                                      state_payload.client_id).normalized_attributes(user_info, credential_level)
       verified_icn = SignIn::AttributeValidator.new(user_attributes: user_attributes).perform
@@ -319,7 +319,8 @@ module V0
                               "ial:#{credential_level.current_ial}",
                               "acr:#{state_payload.acr}"])
 
-      redirect_to SignIn::LoginRedirectUrlGenerator.new(user_code_map: user_code_map).perform
+      render body: SignIn::LoginRedirectUrlGenerator.new(user_code_map: user_code_map).perform,
+             content_type: 'text/html'
     end
 
     def refresh_token_param
