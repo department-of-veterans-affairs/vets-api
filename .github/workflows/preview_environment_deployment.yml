@@ -36,6 +36,16 @@ jobs:
       - name: Install dependencies
         run: |
           npm install @actions/core
+      
+      - name: Start Deployment
+        if: ${{ github.event_name == 'push' }}
+        uses: bobheadxi/deployments@v1
+        id: deployment
+        with:
+          step: start
+          token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          env: master/main/${{ github.ref_name }}
+          ref: ${{ github.ref_name }}
 
       - name: Get Source Repo and Source Ref
         run: node ./script/github-actions/pe-deploy-source.js
@@ -69,4 +79,4 @@ jobs:
           token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
           event-type: deploy_review_instance
           repository: department-of-veterans-affairs/devops
-          client-payload: '{"source_repo": "${{ env.SOURCE_REPO }}", "source_ref": "${{ env.SOURCE_REF }}", "source_ref_sanitized": "${{ env.SOURCE_REF_SANITIZED }}"}'
+          client-payload: '{"source_repo": "${{ env.SOURCE_REPO }}", "source_ref": "${{ env.SOURCE_REF }}", "source_ref_sanitized": "${{ env.SOURCE_REF_SANITIZED }}", "deployment_id": "${{ steps.deployment.outputs.deployment_id }}"}'
