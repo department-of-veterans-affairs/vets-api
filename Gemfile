@@ -32,7 +32,7 @@ path 'modules' do
   gem 'veteran_verification'
 end
 
-gem 'rails', '~> 6.1.7'
+gem 'rails', github: 'rails/rails', branch: '6-1-stable'
 
 gem 'aasm'
 gem 'active_model_serializers', git: 'https://github.com/department-of-veterans-affairs/active_model_serializers', branch: 'master'
@@ -190,7 +190,7 @@ group :development, :test do
   gem 'guard-rspec'
   gem 'parallel_tests'
   gem 'pry-byebug'
-  gem 'rack-test', require: 'rack/test'
+  gem 'rack-test', '1.1.0', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rainbow' # Used to colorize output for rake tasks
   gem 'rspec-instrumentation-matcher'
