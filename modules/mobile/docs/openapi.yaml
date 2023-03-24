@@ -4298,15 +4298,8 @@ paths:
       summary: /v0/user/gender_identity
   /v0/user/gender_identity/edit:
     get:
-      description: Retrieves a list of valid gender identity keys
+      description: Retrieves a list of valid gender identity keys. Note that this endpoint does not use the camel case key inflection header like most other mobile endpoints to keep the keys upcase.
       operationId: user.editGenderIdentity
-      parameters:
-        - in: header
-          name: X-Key-Inflection
-          schema:
-            description: Allows the API to return camelCase keys rather than snake_case.
-            example: camel
-            type: string
       responses:
         '200':
           content:
