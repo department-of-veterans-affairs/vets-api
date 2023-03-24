@@ -59,7 +59,7 @@ ARG rails_env=development
 
 ENV BUNDLE_ENTERPRISE__CONTRIBSYS__COM=$sidekiq_license
 ENV RAILS_ENV=$rails_env
-ENV BUNDLER_VERSION=2.4.8
+ENV BUNDLER_VERSION=2.4.9
 
 # only extra dev/build opts go here, common packages go in base 👆
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \

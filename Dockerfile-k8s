@@ -8,7 +8,7 @@ ARG BUNDLE_ENTERPRISE__CONTRIBSYS__COM \
   USER_ID=1000
 ENV RAILS_ENV=$RAILS_ENV \
   BUNDLE_ENTERPRISE__CONTRIBSYS__COM=$BUNDLE_ENTERPRISE__CONTRIBSYS__COM \
-  BUNDLER_VERSION=2.4.8
+  BUNDLER_VERSION=2.4.9
 
 RUN groupadd --gid $USER_ID nonroot \
   && useradd --uid $USER_ID --gid nonroot --shell /bin/bash --create-home nonroot --home-dir /app
