@@ -220,7 +220,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           end
 
           before do |example|
-            allow_any_instance_of(BGS::IntentToFileWebService).to receive(:insert_intent_to_file).and_return(
+            allow_any_instance_of(ClaimsApi::LocalBGS).to receive(:insert_intent_to_file).and_return(
               stub_response
             )
 

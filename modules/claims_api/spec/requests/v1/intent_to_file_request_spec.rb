@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'bgs_service/local_bgs'
 
 RSpec.describe 'Intent to file', type: :request do
   let(:headers) do
@@ -153,7 +154,7 @@ RSpec.describe 'Intent to file', type: :request do
       describe 'handling the claimant fields' do
         context "when 'participant_claimant_id' is provided" do
           it 'that field and value are sent to BGS' do
-            expect_any_instance_of(BGS::IntentToFileWebService)
+            expect_any_instance_of(ClaimsApi::LocalBGS)
               .to receive(:insert_intent_to_file).with(hash_including(participant_claimant_id: '123')).and_return({})
 
             with_okta_user(scopes) do |auth_header|
@@ -165,7 +166,7 @@ RSpec.describe 'Intent to file', type: :request do
 
         context "when 'claimant_ssn' is provided" do
           it 'that field and value are sent to BGS' do
-            expect_any_instance_of(BGS::IntentToFileWebService)
+            expect_any_instance_of(ClaimsApi::LocalBGS)
               .to receive(:insert_intent_to_file).with(hash_including(claimant_ssn: '123')).and_return({})
 
             with_okta_user(scopes) do |auth_header|
@@ -181,7 +182,7 @@ RSpec.describe 'Intent to file', type: :request do
           end
 
           it "'participant_claimant_id' is set to the target_veteran.participant_id and sent to BGS " do
-            expect_any_instance_of(BGS::IntentToFileWebService)
+            expect_any_instance_of(ClaimsApi::LocalBGS)
               .to receive(:insert_intent_to_file).with(hash_including(participant_claimant_id: '999')).and_return({})
 
             with_okta_user(scopes) do |auth_header|
@@ -192,7 +193,7 @@ RSpec.describe 'Intent to file', type: :request do
 
         context "when both 'participant_claimant_id' and 'claimant_ssn' are provided" do
           it "both 'participant_claimant_id' and 'claimant_ssn' are sent to BGS " do
-            expect_any_instance_of(BGS::IntentToFileWebService)
+            expect_any_instance_of(ClaimsApi::LocalBGS)
               .to receive(:insert_intent_to_file).with(
                 hash_including(
                   participant_claimant_id: '123', claimant_ssn: '456'

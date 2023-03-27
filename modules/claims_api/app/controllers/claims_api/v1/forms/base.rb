@@ -93,6 +93,14 @@ module ClaimsApi
           bgs
         end
 
+        def local_bgs_service
+          external_key = target_veteran.participant_id.to_s
+          @local_bgs_service ||= ClaimsApi::LocalBGS.new(
+            external_uid: external_key,
+            external_key: external_key
+          )
+        end
+
         def received_date
           form_attributes['received_date']
         end
