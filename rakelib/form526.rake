@@ -39,7 +39,8 @@ namespace :form526 do
     # args[:second] = args[:first]
     #######################################
 
-    ROW = {
+    # rubocop:disable Lint/OrAssignmentToConstant
+    F526_ROW ||= {
       order: %i[created_at updated_at id c_id p_id complete version],
       format_strings: {
         created_at: '%-24s',
@@ -60,7 +61,7 @@ namespace :form526 do
         version: 'form version:'
       }
     }.freeze
-    OPTIONS_STRUCT = Struct.new(
+    F526_OPTIONS_STRUCT ||= Struct.new(
       :print_header,
       :print_hr,
       :print_row,
@@ -70,15 +71,16 @@ namespace :form526 do
       :success_failure_totals_header_string,
       keyword_init: true
     )
+    # rubocop:enable Lint/OrAssignmentToConstant
     def date_range_mode(args_array)
       start_date = args_array.first&.to_date || 30.days.ago.utc
       end_date = args_array.second&.to_date || Time.zone.now.utc
       separator = ' '
-      printf_string = ROW[:order].map { |key| ROW[:format_strings][key] }.join(separator)
-      print_row = ->(**fields) { puts format(printf_string, *ROW[:order].map { |key| fields[key] }) }
+      printf_string = F526_ROW[:order].map { |key| F526_ROW[:format_strings][key] }.join(separator)
+      print_row = ->(**fields) { puts format(printf_string, *F526_ROW[:order].map { |key| fields[key] }) }
 
-      OPTIONS_STRUCT.new(
-        print_header: -> { print_row.call(**ROW[:headers]) },
+      F526_OPTIONS_STRUCT.new(
+        print_header: -> { print_row.call(**F526_ROW[:headers]) },
         print_hr: -> { puts '------------------------------------------------------------' },
         print_row: print_row,
         print_total: ->(header, total) { puts format("%-20s#{separator}%s", "#{header}:", total) },
@@ -90,9 +92,11 @@ namespace :form526 do
 
     def bdd_stats_mode(args_array)
       dates = dates_from_array args_array
-      prnt = ->(**fields) { puts ROW[:order].map { |key| fields[key].try(:iso8601) || fields[key].inspect }.join(',') }
-      OPTIONS_STRUCT.new(
-        print_header: -> { puts ROW[:order].map { |key| ROW[:headers][key] }.join(',') },
+      # rubocop:disable Layout/LineLength
+      prnt = ->(**fields) { puts F526_ROW[:order].map { |key| fields[key].try(:iso8601) || fields[key].inspect }.join(',') }
+      # rubocop:enable Layout/LineLength
+      F526_OPTIONS_STRUCT.new(
+        print_header: -> { puts F526_ROW[:order].map { |key| F526_ROW[:headers][key] }.join(',') },
         print_hr: -> { puts },
         print_row: (
           if unredacted_flag_present?(args_array)
