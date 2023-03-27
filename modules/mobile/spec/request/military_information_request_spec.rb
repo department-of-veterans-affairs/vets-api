@@ -175,5 +175,14 @@ RSpec.describe 'military_information', type: :request do
         expect(response).to have_http_status(:not_found)
       end
     end
+
+    context 'with a user not authorized' do
+      it 'returns a forbidden response' do
+        user = FactoryBot.build(:iam_user, :no_edipi_id)
+        iam_sign_in(user)
+        get '/mobile/v0/military-service-history', headers: iam_headers
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
   end
 end
