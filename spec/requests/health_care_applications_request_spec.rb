@@ -55,6 +55,13 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         }
       end
 
+      it 'logs user loa' do
+        allow(Raven).to receive(:extra_context)
+        expect(Raven).to receive(:extra_context).with(user_loa: nil)
+
+        get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
+      end
+
       it 'returns the enrollment status data' do
         expect(HealthCareApplication).to receive(:user_icn).and_return('123')
         expect(HealthCareApplication).to receive(:enrollment_status).with(

@@ -38,6 +38,10 @@ module V0
         if loa3
           current_user.icn
         else
+          Raven.extra_context(
+            user_loa: current_user&.loa
+          )
+
           HealthCareApplication.user_icn(
             HealthCareApplication.user_attributes(params[:userAttributes])
           )
