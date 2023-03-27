@@ -8,7 +8,7 @@ module HealthQuest
     # @!attribute groups
     #   @return [ResponsesGroup]
     class QuestionnaireResponseCollector
-      ID_MATCHER = %r{Questionnaire/([a-z0-9-]+)\z}i.freeze
+      ID_MATCHER = %r{Questionnaire/([a-z0-9-]+)\z}i
 
       attr_reader :groups
 

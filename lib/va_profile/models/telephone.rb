@@ -11,8 +11,8 @@ module VAProfile
       include VAProfile::Concerns::Defaultable
       include VAProfile::Concerns::Expirable
 
-      VALID_AREA_CODE_REGEX = /[0-9]+/.freeze
-      VALID_PHONE_NUMBER_REGEX = /[^a-zA-Z]+/.freeze
+      VALID_AREA_CODE_REGEX = /[0-9]+/
+      VALID_PHONE_NUMBER_REGEX = /[^a-zA-Z]+/
 
       MOBILE      = 'MOBILE'
       HOME        = 'HOME'

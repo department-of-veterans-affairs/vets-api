@@ -11,7 +11,7 @@ class InheritedProofingController < ApplicationController
   skip_before_action :verify_authenticity_token, :authenticate, only: [:user_attributes]
   before_action :authenticate_auth_code_access_token, only: [:user_attributes]
 
-  BEARER_PATTERN = /^Bearer /.freeze
+  BEARER_PATTERN = /^Bearer /
 
   def auth
     auth_code = InheritedProofing::MHV::InheritedProofingVerifier.new(@current_user).perform

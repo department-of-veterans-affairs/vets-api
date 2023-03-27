@@ -6,7 +6,7 @@ module SignIn
   module Authentication
     extend ActiveSupport::Concern
 
-    BEARER_PATTERN = /^Bearer /.freeze
+    BEARER_PATTERN = /^Bearer /
 
     included do
       before_action :authenticate

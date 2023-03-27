@@ -11,7 +11,7 @@
 # before normalizing boundary: "Content-Type"=>[...=-----------RubyMultipartPost-59e4838b71b5b6d9da3596629c7aa4bc"]
 # after normalizing boundary: "Content-Type"=>[...=-----------RubyMultipartPost"]
 
-MULTIPART_HEADER_MATCHER = %r{^multipart/form-data; boundary=(.+)$}.freeze
+MULTIPART_HEADER_MATCHER = %r{^multipart/form-data; boundary=(.+)$}
 BOUNDARY_STRING = '-----------RubyMultipartPost'
 
 def normalized_multipart_request(request)

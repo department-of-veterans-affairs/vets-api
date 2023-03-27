@@ -5,7 +5,7 @@ require 'appeals_api/token_validation_client'
 module AppealsApi
   module OpenidAuth
     extend ActiveSupport::Concern
-    TOKEN_REGEX = /^Bearer (\S+)$/.freeze
+    TOKEN_REGEX = /^Bearer (\S+)$/
 
     # These appeals_api-wide scopes should be allowed for any route using OAuth anywhere in the appeals APIs.
     DEFAULT_OAUTH_SCOPES = {

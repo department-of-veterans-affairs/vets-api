@@ -11,7 +11,7 @@ module CovidVaccine
                       preferred_facility email_address phone sms_acknowledgement
                       address_line1 address_line2 address_line3 city state_code zip_code country_name
                       compliance_agreement privacy_agreement_accepted].freeze
-      ZIP_REGEX = /\A^\d{5}(-\d{4})?$\z/.freeze
+      ZIP_REGEX = /\A^\d{5}(-\d{4})?$\z/
 
       attr_accessor(*ATTRIBUTES)
 

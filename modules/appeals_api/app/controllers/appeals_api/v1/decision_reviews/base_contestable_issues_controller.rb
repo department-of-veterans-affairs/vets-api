@@ -8,8 +8,8 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
   before_action :validate_headers, only: %i[index]
 
   EXPECTED_HEADERS = %w[X-VA-SSN X-VA-Receipt-Date X-VA-File-Number X-VA-ICN].freeze
-  SSN_REGEX = /^[0-9]{9}$/.freeze
-  ICN_REGEX = /^[0-9]{10}V[0-9]{6}$/.freeze
+  SSN_REGEX = /^[0-9]{9}$/
+  ICN_REGEX = /^[0-9]{10}V[0-9]{6}$/
   UNUSABLE_RESPONSE_ERROR = {
     errors: [
       {

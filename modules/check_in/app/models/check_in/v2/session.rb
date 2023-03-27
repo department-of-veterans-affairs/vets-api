@@ -21,9 +21,9 @@ module CheckIn
     class Session
       extend Forwardable
 
-      UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.freeze
-      DOB_REGEX = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.freeze
-      LAST_NAME_REGEX = /^.{1,600}$/.freeze
+      UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+      DOB_REGEX = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/
+      LAST_NAME_REGEX = /^.{1,600}$/
 
       attr_reader :uuid, :dob, :last_name, :settings, :jwt, :check_in_type, :handoff
 

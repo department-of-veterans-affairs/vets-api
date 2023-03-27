@@ -5,8 +5,8 @@ require './lib/tasks/support/schema_camelizer'
 
 describe SchemaCamelizer do
   TEST_DIRECTORY = 'tmp/camel_schema_tests'
-  TEST_SCHEMA_DIRECTORY = "#{TEST_DIRECTORY}/schemas"
-  TEST_RESULT_DIRECTORY = "#{TEST_DIRECTORY}/schemas_camelized"
+  TEST_SCHEMA_DIRECTORY = "#{TEST_DIRECTORY}/schemas".freeze
+  TEST_RESULT_DIRECTORY = "#{TEST_DIRECTORY}/schemas_camelized".freeze
 
   before(:context) do
     # create directories for source and result schemas

@@ -4,7 +4,7 @@ require 'sidekiq/monitored_worker'
 
 module Form1010cg
   class SubmissionJob
-    STATSD_KEY_PREFIX = "#{Form1010cg::Auditor::STATSD_KEY_PREFIX}.async."
+    STATSD_KEY_PREFIX = "#{Form1010cg::Auditor::STATSD_KEY_PREFIX}.async.".freeze
     include Sidekiq::Worker
     include Sidekiq::MonitoredWorker
     include SentryLogging

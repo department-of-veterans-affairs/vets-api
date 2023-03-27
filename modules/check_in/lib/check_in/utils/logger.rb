@@ -3,7 +3,7 @@
 module CheckIn
   module Utils
     class Logger
-      API_STATUS_REGEXP = /\W+status\W+([^"|^,|^\\]*)/.freeze
+      API_STATUS_REGEXP = /\W+status\W+([^"|^,|^\\]*)/
 
       attr_reader :ctrl
 

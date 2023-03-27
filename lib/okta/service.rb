@@ -11,9 +11,9 @@ module Okta
 
     STATSD_KEY_PREFIX = 'api.okta'
     API_BASE_PATH = '/api/v1'
-    USER_API_BASE_PATH = "#{API_BASE_PATH}/users"
-    APP_API_BASE_PATH = "#{API_BASE_PATH}/apps"
-    AUTH_SERVER_API_BASE_PATH = "#{API_BASE_PATH}/authorizationServers"
+    USER_API_BASE_PATH = "#{API_BASE_PATH}/users".freeze
+    APP_API_BASE_PATH = "#{API_BASE_PATH}/apps".freeze
+    AUTH_SERVER_API_BASE_PATH = "#{API_BASE_PATH}/authorizationServers".freeze
 
     configuration Okta::Configuration
 

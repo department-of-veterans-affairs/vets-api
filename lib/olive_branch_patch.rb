@@ -21,7 +21,7 @@ module OliveBranchMiddlewareExtension
 
   private
 
-  VA_KEY_REGEX = /("[^"]+VA[^"]*"):/.freeze
+  VA_KEY_REGEX = /("[^"]+VA[^"]*"):/
 
   def un_camel_va_keys!(json)
     # rubocop:disable Style/PerlBackrefs

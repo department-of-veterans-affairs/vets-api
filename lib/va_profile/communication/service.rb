@@ -8,7 +8,7 @@ module VAProfile
     class Service < VAProfile::Service
       include Common::Client::Concerns::Monitoring
 
-      STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.communication"
+      STATSD_KEY_PREFIX = "#{VAProfile::Service::STATSD_KEY_PREFIX}.communication".freeze
       OID = '2.16.840.1.113883.4.349'
       VA_PROFILE_ID_POSTFIX = '^PI^200VETS^USDVA'
 

@@ -7,7 +7,7 @@ require 'sftp_writer/factory'
 module EducationForm
   WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
   STATSD_KEY = 'worker.education_benefits_claim'
-  STATSD_FAILURE_METRIC = "#{STATSD_KEY}.failed_spool_file"
+  STATSD_FAILURE_METRIC = "#{STATSD_KEY}.failed_spool_file".freeze
 
   class FormattingError < StandardError
   end

@@ -21,8 +21,8 @@ module EVSS
       include ActiveModel::Validations
       include ActiveModel::Serialization
 
-      ACCOUNT_NUM_REGEX = /\A\d*\z/.freeze
-      ROUTING_NUM_REGEX = /\A\d{9}\z/.freeze
+      ACCOUNT_NUM_REGEX = /\A\d*\z/
+      ROUTING_NUM_REGEX = /\A\d{9}\z/
 
       attribute :account_type, String
       attribute :financial_institution_name, String

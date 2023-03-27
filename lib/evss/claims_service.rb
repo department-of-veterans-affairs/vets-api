@@ -5,7 +5,7 @@ require 'evss/base_service'
 module EVSS
   class ClaimsService < BaseService
     API_VERSION = Settings.evss.versions.claims
-    BASE_URL = "#{Settings.evss.url}/wss-claims-services-web-#{API_VERSION}/rest"
+    BASE_URL = "#{Settings.evss.url}/wss-claims-services-web-#{API_VERSION}/rest".freeze
     DEFAULT_TIMEOUT = 55 # in seconds
 
     def initialize(*args)

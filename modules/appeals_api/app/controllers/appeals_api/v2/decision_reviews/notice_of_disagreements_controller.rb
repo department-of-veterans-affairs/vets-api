@@ -26,7 +26,7 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
   SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
   ALLOWED_COLUMNS = %i[id status code detail created_at updated_at].freeze
   ICN_HEADER = 'X-VA-ICN'
-  ICN_REGEX = /^[0-9]{10}V[0-9]{6}$/.freeze
+  ICN_REGEX = /^[0-9]{10}V[0-9]{6}$/
 
   def index
     veteran_nods = AppealsApi::NoticeOfDisagreement.select(ALLOWED_COLUMNS)

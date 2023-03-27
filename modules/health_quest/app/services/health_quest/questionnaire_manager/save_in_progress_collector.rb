@@ -9,7 +9,7 @@ module HealthQuest
     #   @return [ResponsesGroup]
     class SaveInProgressCollector
       IN_PROGRESS_STATUS = 'in-progress'
-      ID_MATCHER = /_([a-zA-Z0-9-]+)\z/i.freeze
+      ID_MATCHER = /_([a-zA-Z0-9-]+)\z/i
 
       attr_reader :groups
 

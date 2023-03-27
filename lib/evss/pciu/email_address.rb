@@ -11,7 +11,7 @@ module EVSS
     #   @return [String] Email address between 6-255 characters containing an @-sign and a period to indicate a TLD
     #
     class EmailAddress < BaseModel
-      VALID_EMAIL_REGEX = /.+@.+\..+/i.freeze
+      VALID_EMAIL_REGEX = /.+@.+\..+/i
 
       attribute :email, String
 

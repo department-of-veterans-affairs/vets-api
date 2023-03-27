@@ -20,7 +20,7 @@ module FormDurations
     # including custom form_ids. Example: Get HC-QSTNR from the
     # form_id HC-QSTNR_123abc
     #
-    REGEXP_ID_MATCHER = /^[^_]*/.freeze
+    REGEXP_ID_MATCHER = /^[^_]*/
     ##
     # The default Registry key to use if none of the given form_ids match
     #

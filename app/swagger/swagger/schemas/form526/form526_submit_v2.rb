@@ -6,8 +6,8 @@ module Swagger
       class Form526SubmitV2
         include Swagger::Blocks
 
-        DATE_PATTERN = /^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$/.freeze
-        ADDRESS_PATTERN = /^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$/.freeze
+        DATE_PATTERN = /^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$/
+        ADDRESS_PATTERN = /^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$/
 
         swagger_schema :Form526SubmitV2 do
           key :required, [:form526]

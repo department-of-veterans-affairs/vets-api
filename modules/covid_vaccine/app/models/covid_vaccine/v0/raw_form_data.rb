@@ -6,7 +6,7 @@ module CovidVaccine
       include ActiveModel::Validations
 
       ATTRIBUTES = %w[email zip_code vaccine_interest birth_date].freeze
-      ZIP_REGEX = /\A^\d{5}(-\d{4})?$\z/.freeze
+      ZIP_REGEX = /\A^\d{5}(-\d{4})?$\z/
 
       attr_accessor(*ATTRIBUTES)
 
