@@ -899,14 +899,17 @@
                                 "latestPhaseType": {
                                   "type": "string",
                                   "enum": [
-                                    "PENDING",
+                                    "CANCELED",
                                     "CLAIM_RECEIVED",
                                     "INITIAL_REVIEW",
-                                    "EVIDENCE_GATHERING_REVIEW_DECISION",
+                                    "PENDING",
+                                    "EVIDENCE_GATHERING",
+                                    "REVIEW_OF_EVIDENCE",
+                                    "PREPARATION_FOR_DECISION",
+                                    "PENDING_DECISION_APPROVAL",
                                     "PREPARATION_FOR_NOTIFICATION",
-                                    "COMPLETE",
                                     "ERRORED",
-                                    "CANCELED"
+                                    "COMPLETE"
                                   ],
                                   "nullable": true,
                                   "description": "The most current phase for the claim"
@@ -2049,8 +2052,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-03-23",
-                      "expirationDate": "2024-03-23",
+                      "creationDate": "2023-03-24",
+                      "expirationDate": "2024-03-24",
                       "type": "compensation",
                       "status": "active"
                     }
