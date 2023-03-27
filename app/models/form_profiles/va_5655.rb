@@ -64,6 +64,6 @@ class FormProfiles::VA5655 < FormProfile
     last_month = Time.zone.today - 30.days
 
     # Filter to only use recent payments from last 30 days
-    payments&.select { |payment| payment[:payment_date] > last_month }&.last&.[](:payment_amount)
+    payments&.select { |payment| Date.parse(payment[:payment_date].to_s) > last_month }&.last&.[](:payment_amount)
   end
 end
