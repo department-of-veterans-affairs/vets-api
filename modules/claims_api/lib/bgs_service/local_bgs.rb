@@ -96,6 +96,11 @@ module ClaimsApi
                           'Soapaction' => "\"#{action}\""
                         })
       end
+      if response.status >= 500
+        status_and_reason = "HTTP status: #{response.status}, reason: #{response.reason_phrase}"
+        ClaimsApi::Logger.log(action, detail: status_and_reason)
+        raise Faraday::ServerError, response.reason_phrase
+      end
       log_duration event: 'parsed_response', key: key do
         parsed_response(response, action, key)
       end
@@ -140,6 +145,23 @@ module ClaimsApi
                    key: 'PoaHistory')
     end
 
+    def insert_intent_to_file(options)
+      request_body = construct_itf_body(options)
+      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
+        <intentToFileDTO>
+        </intentToFileDTO>
+      EOXML
+
+      request_body.each do |k, z|
+        node = Nokogiri::XML::Node.new k.to_s, body
+        node.content = z.to_s
+        opt = body.at('intentToFileDTO')
+        node.parent = opt
+      end
+      make_request(endpoint: 'IntentToFileWebServiceBean/IntentToFileWebService', action: 'insertIntentToFile',
+                   body: body, key: 'IntentToFileDTO')
+    end
+
     def find_tracked_items(id)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <claimId />
@@ -154,6 +176,19 @@ module ClaimsApi
     end
 
     private
+
+    def construct_itf_body(options)
+      request_body = {
+        itfTypeCd: options[:intent_to_file_type_code],
+        ptcpntVetId: options[:participant_vet_id],
+        rcvdDt: options[:received_date],
+        signtrInd: options[:signature_indicated],
+        submtrApplcnTypeCd: options[:submitter_application_icn_type_code]
+      }
+      request_body[:ptcpntClmantId] = options[:participant_claimant_id] if options.key?(:participant_claimant_id)
+      request_body[:clmantSsn] = options[:claimant_ssn] if options.key?(:claimant_ssn)
+      request_body
+    end
 
     def log_duration(event: 'default', **extra_params)
       # Who are we to question sidekiq's use of CLOCK_MONOTONIC to avoid negative durations?

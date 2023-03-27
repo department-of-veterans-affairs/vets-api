@@ -2,6 +2,7 @@
 
 require_dependency 'claims_api/intent_to_file_serializer'
 require 'evss/intent_to_file/service'
+require 'bgs_service/local_bgs'
 
 module ClaimsApi
   module V1
@@ -28,12 +29,12 @@ module ClaimsApi
           check_for_invalid_burial_submission! if form_type == 'burial'
           ClaimsApi::Logger.log('itf', detail: '0966 - Controller Actions Completed')
 
-          bgs_response = bgs_service.intent_to_file.insert_intent_to_file(intent_to_file_options)
+          bgs_response = local_bgs_service.insert_intent_to_file(intent_to_file_options)
           ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::SUBMITTED, cid: token.payload['cid'])
           ClaimsApi::Logger.log('itf', detail: 'Submitted to BGS')
           render json: bgs_response,
                  serializer: ClaimsApi::IntentToFileSerializer
-        rescue Savon::SOAPFault => e
+        rescue Faraday::ServerError => e
           ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: token.payload['cid'])
           raise ::Common::Exceptions::UnprocessableEntity.new(detail: e.message&.split('>')&.last)
         end
