@@ -5,6 +5,7 @@ require 'evss/auth_headers'
 require 'token_validation/v2/client'
 require 'claims_api/error/error_handler'
 require 'claims_api/claim_logger'
+require 'bgs_service/local_bgs'
 
 module ClaimsApi
   module V2

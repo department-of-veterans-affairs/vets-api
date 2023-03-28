@@ -35,7 +35,7 @@ describe Webhooks::Utilities, type: :model do
     # load dependent models
     module Testing
       include Webhooks::Utilities
-      EVENTS = %w[model_event model_event2].freeze
+      EVENTS = %w[model_event model_event2].freeze unless defined? EVENTS
       register_events(*EVENTS, api_name: API_NAME, max_retries: 3) do
         'working!'
       end

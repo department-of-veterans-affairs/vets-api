@@ -2,7 +2,6 @@
 
 require 'claims_api/bgs_claim_status_mapper'
 require 'claims_api/v2/mock_documents_service'
-require 'bgs_service/local_bgs'
 
 module ClaimsApi
   module V2
@@ -144,47 +143,21 @@ module ClaimsApi
         def find_bgs_claim!(claim_id:)
           return if claim_id.blank?
 
-          bgs_service.ebenefits_benefit_claims_status.find_benefit_claim_details_by_benefit_claim_id(
-            benefit_claim_id: claim_id
+          local_bgs_service.find_benefit_claim_details_by_benefit_claim_id(
+            claim_id
           )
-        rescue Savon::SOAPFault => e
-          # the ebenefits service raises an exception if a claim is not found,
-          # so catch the exception here and return a 404 instead
-          if e.message.include?("No BnftClaim found for #{claim_id}")
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
-          end
-
-          raise
         end
 
         def find_bgs_claims!
-          bgs_service.ebenefits_benefit_claims_status.find_benefit_claims_status_by_ptcpnt_id(
-            participant_id: target_veteran.participant_id
+          local_bgs_service.find_benefit_claims_status_by_ptcpnt_id(
+            target_veteran.participant_id
           )
-        rescue Savon::SOAPFault => e
-          # the ebenefits service raises an exception if a participant id is not found,
-          # so catch the exception here and return a 422 instead
-          if e.message.include?('No Person found for ptcpnt_id')
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail:
-              "Unable to locate Veteran's Participant ID in Benefits Gateway Services (BGS). " \
-              'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
-          end
-
-          raise
         end
 
         def find_tracked_items!(claim_id)
           return if claim_id.blank?
 
           local_bgs_service.find_tracked_items(claim_id)[:dvlpmt_items] || []
-        rescue Savon::SOAPFault => e
-          # the ebenefits service raises an exception if a claim tracked items are not found,
-          # so catch the exception here and return a 404 instead
-          if e.message.include?("No tracked items found for #{claim_id}")
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim tracked items not found')
-          end
-
-          raise
         end
 
         def looking_for_lighthouse_claim?(claim_id:)
