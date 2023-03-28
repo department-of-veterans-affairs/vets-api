@@ -54,7 +54,7 @@ module ClaimsApi
 
     alias token id
 
-    def to_internal
+    def to_internal # rubocop:disable Metrics/MethodLength
       form_data['applicationExpirationDate'] ||= build_application_expiration
       form_data['claimDate'] ||= persisted? ? created_at.iso8601 : Time.zone.now.iso8601
       cast_claim_date!
@@ -66,6 +66,7 @@ module ClaimsApi
       form_data['disabilites'] = massage_invalid_disability_names
       form_data['disabilites'] = remove_special_issues_from_secondary_disabilities
       form_data['treatments'] = transform_treatment_dates if treatments?
+      form_data['treatments'] = transform_treatment_center_names if treatments?
       form_data['serviceInformation'] = transform_service_branch
       transform_service_pay_service_branch
 
@@ -256,6 +257,16 @@ module ClaimsApi
         treatment = transform_treatment_end_date(treatment: treatment)
         treatment
       end
+    end
+
+    def transform_treatment_center_names
+      treatments = form_data['treatments']
+
+      treatments.map do |treatment|
+        treatment['center']['name'] = ' ' if treatment.dig('center', 'name').empty?
+        treatment
+      end
+      treatments
     end
 
     def transform_treatment_start_date(treatment:)

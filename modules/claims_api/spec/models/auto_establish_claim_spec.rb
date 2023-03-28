@@ -490,6 +490,24 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
       expect(ln2).to eq('line 1')
       expect(ln3).to eq('Suite 1 Appt 5')
     end
+
+    it "handles 'treatments[].center.name' as an empty string" do
+      temp_form_data = pending_record.form_data
+      temp_form_data['treatments'] = [
+        {
+          treatedDisabilityNames: ['PTSD (post traumatic stress disorder)'],
+          center: {
+            name: '',
+            country: 'USA'
+          }
+        }
+      ]
+
+      pending_record.form_data = temp_form_data
+      payload = JSON.parse(pending_record.to_internal)
+
+      expect(payload['form526']['treatments'][0]['center']['name']).to eq(' ')
+    end
   end
 
   describe 'evss_id_by_token' do

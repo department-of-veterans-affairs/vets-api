@@ -246,7 +246,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           ]
         end
 
-        context "when 'treatments[].center.country' is an empty string'" do
+        context "when 'treatments[].center.country' is an empty string" do
           let(:treated_disability_names) { ['PTSD (post traumatic stress disorder)'] }
 
           it 'returns a bad request' do
