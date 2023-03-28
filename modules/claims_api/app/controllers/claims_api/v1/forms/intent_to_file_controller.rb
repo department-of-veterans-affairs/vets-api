@@ -30,13 +30,15 @@ module ClaimsApi
           ClaimsApi::Logger.log('itf', detail: '0966 - Controller Actions Completed')
 
           bgs_response = local_bgs_service.insert_intent_to_file(intent_to_file_options)
-          ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::SUBMITTED, cid: token.payload['cid'])
-          ClaimsApi::Logger.log('itf', detail: 'Submitted to BGS')
-          render json: bgs_response,
-                 serializer: ClaimsApi::IntentToFileSerializer
-        rescue Faraday::ServerError => e
-          ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: token.payload['cid'])
-          raise ::Common::Exceptions::UnprocessableEntity.new(detail: e.message&.split('>')&.last)
+          if bgs_response.empty?
+            ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: token.payload['cid'])
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'Veteran ID not found')
+          else
+            ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::SUBMITTED, cid: token.payload['cid'])
+            ClaimsApi::Logger.log('itf', detail: 'Submitted to BGS')
+            render json: bgs_response,
+                   serializer: ClaimsApi::IntentToFileSerializer
+          end
         end
 
         # GET current intent to file status based on type.
