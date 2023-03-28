@@ -172,7 +172,7 @@ module ClaimsApi
             claim_type_code: data[:bnft_claim_type_cd],
             claim_type: data[:claim_status_type],
             close_date: data[:claim_complete_dt].present? ? format_bgs_date(data[:claim_complete_dt]) : nil,
-            contention_list: data[:contentions]&.split(',')&.collect(&:strip) || [],
+            contention_list: data[:contentions]&.split(/(?<=\)),/)&.collect(&:strip) || [],
             decision_letter_sent: map_yes_no_to_boolean('decision_notification_sent',
                                                         data[:decision_notification_sent]),
             development_letter_sent: map_yes_no_to_boolean('development_letter_sent', data[:development_letter_sent]),
