@@ -12,22 +12,7 @@ module SignIn
 
       def render_auth(state: SecureRandom.hex, acr: Constants::Auth::LOGIN_GOV_IAL1)
         Rails.logger.info("[SignIn][Logingov][Service] Rendering auth, state: #{state}, acr: #{acr}")
-        renderer.render(template: 'oauth_get_form',
-                        locals: {
-                          url: auth_url,
-                          params:
-                          {
-                            acr_values: acr,
-                            client_id: config.client_id,
-                            nonce: random_seed,
-                            prompt: config.prompt,
-                            redirect_uri: config.redirect_uri,
-                            response_type: config.response_type,
-                            scope: SCOPE,
-                            state: state
-                          }
-                        },
-                        format: :html)
+        RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(acr, state)).perform
       end
 
       def render_logout(client_logout_redirect_uri)
@@ -38,7 +23,7 @@ module SignIn
       def render_logout_redirect(state)
         state_hash = JSON.parse(Base64.decode64(state))
         logout_redirect_uri = state_hash['logout_redirect']
-        renderer.render(template: 'oauth_get_form', locals: { url: URI.parse(logout_redirect_uri).to_s }, format: :html)
+        RedirectUrlGenerator.new(redirect_uri: URI.parse(logout_redirect_uri).to_s).perform
       end
 
       def token(code)
@@ -78,6 +63,19 @@ module SignIn
       end
 
       private
+
+      def auth_params(acr, state)
+        {
+          acr_values: acr,
+          client_id: config.client_id,
+          nonce: random_seed,
+          prompt: config.prompt,
+          redirect_uri: config.redirect_uri,
+          response_type: config.response_type,
+          scope: SCOPE,
+          state: state
+        }
+      end
 
       def normalize_address(address)
         return unless address
@@ -166,14 +164,6 @@ module SignIn
 
       def random_seed
         @random_seed ||= SecureRandom.hex
-      end
-
-      def renderer
-        @renderer ||= begin
-          renderer = ActionController::Base.renderer
-          renderer.controller.prepend_view_path(Rails.root.join('lib', 'sign_in', 'templates'))
-          renderer
-        end
       end
     end
   end

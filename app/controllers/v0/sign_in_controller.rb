@@ -257,7 +257,10 @@ module V0
     def handle_pre_login_error(error, client_id)
       if cookie_authentication?(client_id)
         error_code = error.try(:code) || SignIn::Constants::ErrorCode::INVALID_REQUEST
-        redirect_to failed_auth_url(client_id, { auth: 'fail', code: error_code, request_id: request.request_id })
+        params_hash = { auth: 'fail', code: error_code, request_id: request.request_id }
+        render body: SignIn::RedirectUrlGenerator.new(redirect_uri: client_config(client_id).redirect_uri,
+                                                      params_hash: params_hash).perform,
+               content_type: 'text/html'
       else
         render json: { errors: error }, status: :bad_request
       end
@@ -277,12 +280,6 @@ module V0
         error_code = SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE
         raise SignIn::Errors::CredentialProviderError.new message: error_message, code: error_code
       end
-    end
-
-    def failed_auth_url(client_id, params)
-      uri = URI.parse(client_config(client_id).redirect_uri)
-      uri.query = params.to_query
-      uri.to_s
     end
 
     def render_uplevel_credential(state_payload)
@@ -318,8 +315,11 @@ module V0
                               "client_id:#{state_payload.client_id}",
                               "ial:#{credential_level.current_ial}",
                               "acr:#{state_payload.acr}"])
+      params_hash = { login_code: user_code_map.login_code, type: user_code_map.type }
+      params_hash.merge!(state: user_code_map.client_state) if user_code_map.client_state.present?
 
-      render body: SignIn::LoginRedirectUrlGenerator.new(user_code_map: user_code_map).perform,
+      render body: SignIn::RedirectUrlGenerator.new(redirect_uri: user_code_map.client_config.redirect_uri,
+                                                    params_hash: params_hash).perform,
              content_type: 'text/html'
     end
 
