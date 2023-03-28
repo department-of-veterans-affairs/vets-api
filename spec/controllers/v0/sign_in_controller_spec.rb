@@ -67,23 +67,33 @@ RSpec.describe V0::SignInController, type: :controller do
 
       context 'and client_id maps to a web based configuration' do
         let(:authentication) { SignIn::Constants::Auth::COOKIE }
-        let(:expected_error_status) { :redirect }
-        let(:expected_redirect_params) do
-          { auth: 'fail', code: SignIn::Constants::ErrorCode::INVALID_REQUEST, request_id: request_id }.to_query
-        end
-        let(:expected_redirect) do
-          uri = URI.parse(client_config.redirect_uri)
-          uri.query = expected_redirect_params
-          uri.to_s
-        end
+        let(:expected_error_status) { :ok }
+        let(:error_code) { SignIn::Constants::ErrorCode::INVALID_REQUEST }
+        let(:auth_param) { 'fail' }
         let(:request_id) { SecureRandom.uuid }
 
         before do
           allow_any_instance_of(ActionController::TestRequest).to receive(:request_id).and_return(request_id)
         end
 
-        it 'redirects to frontend failure page' do
-          expect(subject).to redirect_to(expected_redirect)
+        it 'renders the oauth_get_form template' do
+          expect(subject.body).to include('form id="oauth-form"')
+        end
+
+        it 'directs to the given redirect url set in the client configuration' do
+          expect(subject.body).to include("action=\"#{client_config.redirect_uri}\"")
+        end
+
+        it 'includes expected auth param' do
+          expect(subject.body).to include("value=\"#{auth_param}\"")
+        end
+
+        it 'includes expected code param' do
+          expect(subject.body).to include("value=\"#{error_code}\"")
+        end
+
+        it 'includes expected request_id param' do
+          expect(subject.body).to include("value=\"#{request_id}\"")
         end
 
         it 'returns expected status' do
@@ -486,15 +496,8 @@ RSpec.describe V0::SignInController, type: :controller do
 
       context 'and client_id maps to a web based configuration' do
         let(:authentication) { SignIn::Constants::Auth::COOKIE }
-        let(:expected_error_status) { :redirect }
-        let(:expected_redirect_params) do
-          { auth: 'fail', code: error_code, request_id: request_id }.to_query
-        end
-        let(:expected_redirect) do
-          uri = URI.parse(client_config.redirect_uri)
-          uri.query = expected_redirect_params
-          uri.to_s
-        end
+        let(:expected_error_status) { :ok }
+        let(:auth_param) { 'fail' }
         let(:expected_error_log) { '[SignInService] [V0::SignInController] callback error' }
         let(:expected_error_message) do
           { errors: expected_error, client_id: client_id, type: type, acr: acr }
@@ -505,8 +508,24 @@ RSpec.describe V0::SignInController, type: :controller do
           allow_any_instance_of(ActionController::TestRequest).to receive(:request_id).and_return(request_id)
         end
 
-        it 'redirects to frontend failure page' do
-          expect(subject).to redirect_to(expected_redirect)
+        it 'renders the oauth_get_form template' do
+          expect(subject.body).to include('form id="oauth-form"')
+        end
+
+        it 'directs to the given redirect url set in the client configuration' do
+          expect(subject.body).to include("action=\"#{client_config.redirect_uri}\"")
+        end
+
+        it 'includes expected auth param' do
+          expect(subject.body).to include("value=\"#{auth_param}\"")
+        end
+
+        it 'includes expected code param' do
+          expect(subject.body).to include("value=\"#{error_code}\"")
+        end
+
+        it 'includes expected request_id param' do
+          expect(subject.body).to include("value=\"#{request_id}\"")
         end
 
         it 'returns expected status' do

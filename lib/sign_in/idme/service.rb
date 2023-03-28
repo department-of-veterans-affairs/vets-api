@@ -12,22 +12,8 @@ module SignIn
       attr_accessor :type
 
       def render_auth(state: SecureRandom.hex, acr: Constants::Auth::IDME_LOA1)
-        renderer = ActionController::Base.renderer
-        renderer.controller.prepend_view_path(Rails.root.join('lib', 'sign_in', 'templates'))
         Rails.logger.info("[SignIn][Idme][Service] Rendering auth, state: #{state}, acr: #{acr}")
-        renderer.render(template: 'oauth_get_form',
-                        locals: {
-                          url: auth_url,
-                          params:
-                          {
-                            scope: acr,
-                            state: state,
-                            client_id: config.client_id,
-                            redirect_uri: config.redirect_uri,
-                            response_type: config.response_type
-                          }
-                        },
-                        format: :html)
+        RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(acr, state)).perform
       end
 
       def normalized_attributes(user_info, credential_level)
@@ -61,6 +47,16 @@ module SignIn
       end
 
       private
+
+      def auth_params(acr, state)
+        {
+          scope: acr,
+          state: state,
+          client_id: config.client_id,
+          redirect_uri: config.redirect_uri,
+          response_type: config.response_type
+        }
+      end
 
       def raise_client_error(client_error, function_name)
         status = client_error.status
