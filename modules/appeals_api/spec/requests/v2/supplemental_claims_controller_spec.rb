@@ -96,7 +96,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         sc = AppealsApi::SupplementalClaim.find(parsed['data']['id'])
         data_evidence_type = JSON.parse(data).dig(*%w[data attributes evidenceSubmission evidenceType])
 
-        expect(sc.metadata).to eq({ 'evidenceType' => data_evidence_type })
+        expect(sc.metadata).to eq({ 'evidence_type' => data_evidence_type })
       end
     end
 
@@ -275,7 +275,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         sc = AppealsApi::SupplementalClaim.find(sc_guid)
 
         expect(sc.evidence_submission_indicated).to be_truthy
-        expect(sc.metadata['evidenceType']).to eq %w[upload]
+        expect(sc.metadata['evidence_type']).to eq %w[upload]
       end
 
       it 'with no evidence' do
@@ -287,7 +287,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         sc = AppealsApi::SupplementalClaim.find(sc_guid)
 
         expect(sc.evidence_submission_indicated).to be_falsey
-        expect(sc.metadata['evidenceType']).to eq %w[none]
+        expect(sc.metadata['evidence_type']).to eq %w[none]
       end
 
       it 'evidenceType with both none and retrieval' do
@@ -326,7 +326,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         sc = AppealsApi::SupplementalClaim.find(sc_guid)
 
         expect(sc.evidence_submission_indicated).to be_falsey
-        expect(sc.metadata['evidenceType']).to eq %w[retrieval]
+        expect(sc.metadata['evidence_type']).to eq %w[retrieval]
       end
 
       it 'with both retrieval and upload evidence' do
@@ -339,7 +339,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         sc = AppealsApi::SupplementalClaim.find(sc_guid)
 
         expect(sc.evidence_submission_indicated).to be_truthy
-        expect(sc.metadata['evidenceType']).to match_array %w[retrieval upload]
+        expect(sc.metadata['evidence_type']).to match_array %w[retrieval upload]
       end
     end
 
