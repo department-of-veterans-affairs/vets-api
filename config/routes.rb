@@ -440,7 +440,8 @@ Rails.application.routes.draw do
     mount MockedAuthentication::Engine, at: '/mocked_authentication'
   end
 
-  mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint.new
+  mount Flipper::UI.app(Flipper.instance, { rack_protection: { except: :http_origin } }),
+        at: '/flipper', constraints: Flipper::AdminUserConstraint.new
 
   if Rails.env.production?
     require 'coverband'
