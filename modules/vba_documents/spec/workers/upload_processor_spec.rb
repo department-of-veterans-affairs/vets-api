@@ -496,15 +496,67 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     context 'with invalid sizes' do
-      %w[18x22 22x18].each do |invalid_size|
+      invalid_sizes = %w[18x22 22x18]
+
+      context 'when vba_documents_skip_dimension_check flag is off' do
+        before { Flipper.disable(:vba_documents_skip_dimension_check) }
+
         it 'sets an error status for invalid size' do
+          invalid_sizes.each do |invalid_size|
+            allow(VBADocuments::MultipartParser).to receive(:parse) {
+              { 'metadata' => valid_metadata, 'content' => get_fixture("#{invalid_size}.pdf") }
+            }
+            described_class.new.perform(upload.guid, test_caller)
+            updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+            expect(updated.status).to eq('error')
+            expect(updated.code).to eq('DOC108')
+          end
+        end
+
+        context 'when metadata.json contains skipDimensionCheck = true' do
+          let(:special_metadata) { JSON.parse(valid_metadata).merge({ 'skipDimensionCheck' => true }).to_json }
+          let(:content) { get_fixture("#{invalid_sizes.first}.pdf") }
+
+          before do
+            allow(CentralMail::Service).to receive(:new) { client_stub }
+            allow(faraday_response).to receive(:status).and_return(200)
+            allow(faraday_response).to receive(:body).and_return('')
+            allow(faraday_response).to receive(:success?).and_return(true)
+            allow(client_stub).to receive(:upload).and_return(faraday_response)
+          end
+
+          it 'allows the upload' do
+            allow(VBADocuments::MultipartParser).to receive(:parse) do
+              { 'metadata' => special_metadata, 'content' => content }
+            end
+            described_class.new.perform(upload.guid, test_caller)
+            updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+            expect(updated.uploaded_pdf.dig('content', 'dimensions', 'oversized_pdf')).to eq(true)
+            expect(updated.status).to eq('received')
+          end
+        end
+      end
+
+      context 'when vba_documents_skip_dimension_check flag is on' do
+        let(:content) { get_fixture("#{invalid_sizes.first}.pdf") }
+
+        before do
+          Flipper.enable(:vba_documents_skip_dimension_check)
+          allow(CentralMail::Service).to receive(:new) { client_stub }
+          allow(faraday_response).to receive(:status).and_return(200)
+          allow(faraday_response).to receive(:body).and_return('')
+          allow(faraday_response).to receive(:success?).and_return(true)
+          allow(client_stub).to receive(:upload).and_return(faraday_response)
+        end
+
+        it 'allows the upload' do
           allow(VBADocuments::MultipartParser).to receive(:parse) {
-            { 'metadata' => valid_metadata, 'content' => get_fixture("#{invalid_size}.pdf") }
+            { 'metadata' => valid_metadata, 'content' => content }
           }
           described_class.new.perform(upload.guid, test_caller)
           updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-          expect(updated.status).to eq('error')
-          expect(updated.code).to eq('DOC108')
+          expect(updated.uploaded_pdf.dig('content', 'dimensions', 'oversized_pdf')).to eq(true)
+          expect(updated.status).to eq('received')
         end
       end
     end

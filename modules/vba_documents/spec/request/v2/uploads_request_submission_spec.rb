@@ -118,19 +118,44 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(@attributes['uploaded_pdf']).to have_key('content')
     end
 
-    it 'returns a UUID with status of error when an attachment is oversized' do
-      post SUBMIT_ENDPOINT,
-           params: {}.merge(valid_metadata).merge(valid_content).merge(invalid_attachment_oversized)
-      expect(response).to have_http_status(:bad_request)
-      json = JSON.parse(response.body)
-      @attributes = json['data']['attributes']
-      expect(@attributes).to have_key('guid')
-      expect(@attributes['status']).to eq('error')
-      uploaded_pdf = @attributes['uploaded_pdf']
-      expect(uploaded_pdf['total_documents']).to eq(3)
-      expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to eq(false)
-      expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to eq(true)
-      expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to eq(false)
+    describe 'when an attachment is oversized' do
+      let(:params) { {}.merge(valid_metadata).merge(valid_content).merge(invalid_attachment_oversized) }
+
+      context 'with the "vba_documents_skip_dimension_check" flag turned off' do
+        before { Flipper.disable :vba_documents_skip_dimension_check }
+
+        it 'returns a UUID with status of error' do
+          post SUBMIT_ENDPOINT, params: params
+          expect(response).to have_http_status(:bad_request)
+          json = JSON.parse(response.body)
+          @attributes = json['data']['attributes']
+          expect(@attributes).to have_key('guid')
+          expect(@attributes['status']).to eq('error')
+          uploaded_pdf = @attributes['uploaded_pdf']
+          expect(uploaded_pdf['total_documents']).to eq(3)
+          expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to eq(false)
+          expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to eq(true)
+          expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to eq(false)
+        end
+      end
+
+      context 'with the "vba_documents_skip_dimension_check" flag turned on' do
+        before { Flipper.enable :vba_documents_skip_dimension_check }
+
+        it 'allows the upload, returning a UUID with a status of uploaded and correct metadata' do
+          post SUBMIT_ENDPOINT, params: params
+          expect(response).to have_http_status(:ok)
+          json = JSON.parse(response.body)
+          @attributes = json['data']['attributes']
+          expect(@attributes).to have_key('guid')
+          expect(@attributes['status']).to eq('uploaded')
+          uploaded_pdf = @attributes['uploaded_pdf']
+          expect(uploaded_pdf['total_documents']).to eq(3)
+          expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to eq(false)
+          expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to eq(true)
+          expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to eq(false)
+        end
+      end
     end
 
     %i[dashes_slashes_first_last valid_metadata_space_in_name].each do |allowed|

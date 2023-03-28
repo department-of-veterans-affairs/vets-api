@@ -59,14 +59,14 @@ module VBADocuments
       raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object')
     end
 
-    def validate_documents(parts)
+    def validate_documents(parts, pdf_validator_options = {})
       # Validate 'content' document
-      validate_document(parts[DOC_PART_NAME], DOC_PART_NAME)
+      validate_document(parts[DOC_PART_NAME], DOC_PART_NAME, pdf_validator_options)
 
       # Validate attachments
       attachment_names = parts.keys.select { |key| key.match(/attachment\d+/) }
       attachment_names.each do |attachment_name|
-        validate_document(parts[attachment_name], attachment_name)
+        validate_document(parts[attachment_name], attachment_name, pdf_validator_options)
       end
     end
 
@@ -112,9 +112,15 @@ module VBADocuments
       end
     end
 
-    def validate_document(file_path, part_name)
-      validator = PDFValidator::Validator.new(file_path, { check_encryption: false })
-      result = validator.validate
+    DEFAULT_PDF_VALIDATOR_OPTIONS = {
+      check_encryption: false # Owner passwords are allowed, user passwords are not
+    }.freeze
+
+    def validate_document(file_path, part_name, pdf_validator_options = {})
+      options = DEFAULT_PDF_VALIDATOR_OPTIONS.merge(pdf_validator_options)
+      options.merge!({ check_page_dimensions: false }) if Flipper.enabled?(:vba_documents_skip_dimension_check)
+
+      result = PDFValidator::Validator.new(file_path, options).validate
 
       unless result.valid_pdf?
         errors = result.errors

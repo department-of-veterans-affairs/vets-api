@@ -44,7 +44,17 @@ end
 
 # See https://developer.va.gov/explore/authorization/docs/client-credentials
 # rubocop:disable Metrics/MethodLength
-def generate_ccg_token(client_id:, private_key_path:, scopes: [])
+def generate_ccg_token(api_name = nil)
+  client_id = prompt(
+    'Client ID',
+    :modules_appeals_api, :token_generation, :ccg, :client_id
+  )
+  private_key_path = prompt(
+    'Path to private key',
+    :modules_appeals_api, :token_generation, :ccg, :private_key_path
+  )
+  scopes = api_scopes(api_name)
+
   token_uri = openid_metadata[:token_endpoint]
   puts "Fetching CCG token (#{scopes.join(', ')}) from '#{token_uri}'..."
 
@@ -79,9 +89,28 @@ def generate_ccg_token(client_id:, private_key_path:, scopes: [])
 end
 # rubocop:enable Metrics/MethodLength
 
+def configured_api_key(api_name)
+  return nil if api_name.blank?
+
+  Settings.dig(:modules_appeals_api, :token_validation, api_name.to_sym, :api_key)
+end
+
 # See https://sandbox-api.va.gov/internal/auth/docs/v2/validation.json
-def validate_token(api_key:, token:)
+# rubocop:disable Metrics/MethodLength
+def validate_token(api_name = nil)
   puts 'Validating token...'
+
+  api_key = configured_api_key(api_name)
+
+  if api_key.blank?
+    API_NAMES.each do |name|
+      api_key = configured_api_key(name)
+      break if api_key.present?
+    end
+  end
+
+  api_key = prompt('Token validation service API key') if api_key.blank?
+  token = prompt('Token to validate')
 
   validation_uri = "https://#{api_host}/internal/auth/v3/validation"
   # sandbox is correct here for non-prod tokens (including with dev-api.va.gov, for example)
@@ -100,11 +129,14 @@ def validate_token(api_key:, token:)
 
   puts JSON.pretty_generate(JSON.parse(result.body))
 end
+# rubocop:enable Metrics/MethodLength
 
 API_NAMES = %w[appeals_status contestable_issues higher_level_reviews legacy_appeals
                notice_of_disagreements supplemental_claims].freeze
 
-def api_scopes(api_name)
+def api_scopes(api_name = nil)
+  return %w[appeals.read appeals.write] if api_name.blank?
+
   {
     appeals_status: AppealsApi::V1::AppealsController::OAUTH_SCOPES,
     contestable_issues: AppealsApi::ContestableIssues::V0::ContestableIssuesController::OAUTH_SCOPES,
@@ -121,32 +153,26 @@ end
 
 namespace :appeals_api do
   namespace :token do
+    desc 'Get a CCG token for all appeals APIs'
+    task ccg: :environment do
+      generate_ccg_token
+    end
+
+    desc 'Validate an OpenID (CCG or Okta) token'
+    task validate: :environment do
+      validate_token
+    end
+
     API_NAMES.each do |api_name|
       namespace abbreviate_snake_case_name(api_name).to_sym do
         desc "Get a CCG token for #{api_name}"
         task ccg: :environment do
-          generate_ccg_token(
-            client_id: prompt(
-              'Client ID',
-              :modules_appeals_api, :token_generation, :ccg, :client_id
-            ),
-            private_key_path: prompt(
-              'Path to private key',
-              :modules_appeals_api, :token_generation, :ccg, :private_key_path
-            ),
-            scopes: api_scopes(api_name)
-          )
+          generate_ccg_token(api_name)
         end
 
         desc "Validate an OpenID (CCG or Okta) token for #{api_name}"
         task validate: :environment do
-          validate_token(
-            api_key: prompt(
-              'Token validation service API key',
-              :modules_appeals_api, :token_validation, api_name, :api_key
-            ),
-            token: prompt('Token to validate')
-          )
+          validate_token(api_name)
         end
       end
     end
