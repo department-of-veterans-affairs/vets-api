@@ -104,12 +104,6 @@ module ClaimsApi
                         })
       end
 
-      if response.status >= 500
-        status_and_reason = "HTTP status: #{response.status}, reason: #{response.reason_phrase}"
-        ClaimsApi::Logger.log(action, detail: status_and_reason)
-        raise Faraday::ServerError, response.reason_phrase
-      end
-
       log_duration event: 'parsed_response', key: key do
         parsed_response(response, action, key)
       end
