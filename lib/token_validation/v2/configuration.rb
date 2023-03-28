@@ -15,6 +15,7 @@ module TokenValidation
 
       def connection
         Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+          conn.use :breakers
           conn.request :json
           conn.response :snakecase
           conn.adapter Faraday.default_adapter

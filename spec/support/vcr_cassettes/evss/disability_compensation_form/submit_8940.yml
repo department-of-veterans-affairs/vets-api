@@ -4,7 +4,6 @@ http_interactions:
     method: post
     uri: "<EVSS_BASE_URL>/wss-document-services-web-3.7/rest/queuedDocumentUploadService/ajaxUploadFile?claimId=123456789&docType=L149&docTypeDescription=VA%20Form%2021-8940%20-%20Veterans%20Application%20for%20Increased%20Compensation%20Based%20on%20Un-employability&qqfile=b480d18c02e22aea90f6f4bf68c57d71.pdf&systemName=vets.gov&trackedItemIds"
     body:
-      encoding: UTF-8
       string: !binary |-
         JVBERi0xLjcKJeLjz9MKMSAwIG9iaiAKPDwKL0Zvcm1UeXBlIDEKL1N1YnR5
         cGUgL0Zvcm0KL1Jlc291cmNlcyAKPDwKL0ZvbnQgCjw8Ci9GMS4wIDIgMCBS
@@ -32668,7 +32667,6 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: UTF-8
       string: '{"messages":null,"success":true,"vrmUploadSuccess":true,"datetime":"10/23/2018
         12:25:25 EDT"}'
     http_version:
@@ -32677,7 +32675,6 @@ http_interactions:
     method: post
     uri: "<EVSS_BASE_URL>/wss-document-services-web-3.7/rest/queuedDocumentUploadService/ajaxUploadFile?claimId=123456789&docType=L149&docTypeDescription=VA%20Form%2021-8940%20-%20Veterans%20Application%20for%20Increased%20Compensation%20Based%20on%20Un-employability&qqfile=3a53a0e91e3716cef70ac734185d6694.pdf&systemName=vets.gov&trackedItemIds"
     body:
-      encoding: UTF-8
       string: !binary |-
         JVBERi0xLjcKJeLjz9MKMSAwIG9iaiAKPDwKL0Zvcm1UeXBlIDEKL1N1YnR5
         cGUgL0Zvcm0KL1Jlc291cmNlcyAKPDwKL0ZvbnQgCjw8Ci9GMS4wIDIgMCBS
@@ -59713,7 +59710,6 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: UTF-8
       string: '{"messages":null,"success":true,"vrmUploadSuccess":true,"datetime":"10/23/2018
         12:25:38 EDT"}'
     http_version:
