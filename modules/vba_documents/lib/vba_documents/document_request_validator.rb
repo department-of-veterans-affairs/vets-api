@@ -69,8 +69,8 @@ module VBADocuments
       Tempfile.create("vba-documents-validate-#{SecureRandom.hex}.pdf", binmode: true) do |tempfile|
         tempfile << @request.body.read
         tempfile.rewind
-
-        validator = PDFValidator::Validator.new(tempfile, PDF_VALIDATOR_OPTIONS)
+        options = Flipper.enabled?(:vba_documents_skip_dimension_check) ? { check_page_dimensions: false } : {}
+        validator = PDFValidator::Validator.new(tempfile, PDF_VALIDATOR_OPTIONS.merge(options))
         result = validator.validate
 
         unless result.valid_pdf?
