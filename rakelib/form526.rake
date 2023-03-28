@@ -39,39 +39,43 @@ namespace :form526 do
     # args[:second] = args[:first]
     #######################################
 
-    # rubocop:disable Lint/OrAssignmentToConstant
-    F526_ROW ||= {
-      order: %i[created_at updated_at id c_id p_id complete version],
-      format_strings: {
-        created_at: '%-24s',
-        updated_at: '%-24s',
-        id: '%-15s',
-        c_id: '%-10s',
-        p_id: '%-15s',
-        complete: '%-18s',
-        version: '%s'
-      },
-      headers: {
-        created_at: 'created at:',
-        updated_at: 'updated at:',
-        id: 'submission id:',
-        c_id: 'claim id:',
-        p_id: 'participant id:',
-        complete: 'workflow complete:',
-        version: 'form version:'
-      }
-    }.freeze
-    F526_OPTIONS_STRUCT ||= Struct.new(
-      :print_header,
-      :print_hr,
-      :print_row,
-      :print_total,
-      :ignore_submission,
-      :submissions,
-      :success_failure_totals_header_string,
-      keyword_init: true
-    )
-    # rubocop:enable Lint/OrAssignmentToConstant
+    unless defined? F526_ROW
+      F526_ROW = {
+        order: %i[created_at updated_at id c_id p_id complete version],
+        format_strings: {
+          created_at: '%-24s',
+          updated_at: '%-24s',
+          id: '%-15s',
+          c_id: '%-10s',
+          p_id: '%-15s',
+          complete: '%-18s',
+          version: '%s'
+        },
+        headers: {
+          created_at: 'created at:',
+          updated_at: 'updated at:',
+          id: 'submission id:',
+          c_id: 'claim id:',
+          p_id: 'participant id:',
+          complete: 'workflow complete:',
+          version: 'form version:'
+        }
+      }.freeze
+    end
+
+    unless defined? F526_OPTIONS_STRUCT
+      F526_OPTIONS_STRUCT = Struct.new(
+        :print_header,
+        :print_hr,
+        :print_row,
+        :print_total,
+        :ignore_submission,
+        :submissions,
+        :success_failure_totals_header_string,
+        keyword_init: true
+      )
+    end
+
     def date_range_mode(args_array)
       start_date = args_array.first&.to_date || 30.days.ago.utc
       end_date = args_array.second&.to_date || Time.zone.now.utc
