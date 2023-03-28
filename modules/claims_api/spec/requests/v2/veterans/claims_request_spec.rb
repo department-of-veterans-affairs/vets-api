@@ -826,7 +826,7 @@ RSpec.describe 'Claims', type: :request do
             lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
                                                        evss_id: '111111111')
             claim_contentions = bgs_claim_response
-            claim_contentions[:benefit_claim_details_dto][:contentions] = ' c1,  c2, c3'
+            claim_contentions[:benefit_claim_details_dto][:contentions] = ' c1 (New),  c2 (Old), c3 (Unknown)'
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 VCR.use_cassette('evss/documents/get_claim_documents') do
@@ -840,7 +840,32 @@ RSpec.describe 'Claims', type: :request do
                   json_response = JSON.parse(response.body)
                   expect(response.status).to eq(200)
                   claim_contentions_res = json_response['data']['attributes']['contentionList']
-                  expect(claim_contentions_res).to eq(%w[c1 c2 c3])
+                  expect(claim_contentions_res).to eq(['c1 (New)', 'c2 (Old)', 'c3 (Unknown)'])
+                end
+              end
+            end
+          end
+
+          it 'lists the contentions correclty with extra commas' do
+            lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
+                                                       evss_id: '111111111')
+            claim_contentions = bgs_claim_response
+            claim_contentions[:benefit_claim_details_dto][:contentions] =
+              'Low back strain (New), Knee, internal derangement (New)'
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+                VCR.use_cassette('evss/documents/get_claim_documents') do
+                  expect_any_instance_of(bcs)
+                    .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(claim_contentions)
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:get_by_id_and_icn).and_return(lh_claim)
+
+                  get claim_by_id_path, headers: auth_header
+
+                  json_response = JSON.parse(response.body)
+                  expect(response.status).to eq(200)
+                  claim_contentions_res = json_response['data']['attributes']['contentionList']
+                  expect(claim_contentions_res).to eq(['Low back strain (New)', 'Knee, internal derangement (New)'])
                 end
               end
             end
