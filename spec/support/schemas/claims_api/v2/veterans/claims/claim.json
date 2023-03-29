@@ -297,7 +297,7 @@
                     "description": "ID of the tracked item",
                     "example": 293454
                   },
-                  "displayedName": {
+                  "displayName": {
                     "type": "string",
                     "nullable": true,
                     "description": "Request #",
@@ -316,7 +316,7 @@
                     "description": "True if the item is overdue",
                     "example": true
                   },
-                  "trackedItemStatus": {
+                  "status": {
                     "type": "string",
                     "nullable": true,
                     "description": "Enum with the status of the tracked item",

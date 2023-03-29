@@ -416,12 +416,12 @@ module ClaimsApi
             {
               closed_date: date_present(item[:date_closed]),
               description: item[:short_nm],
-              displayed_name: "Request #{i + 1}", # +1 given a 1 index'd array
+              display_name: "Request #{i + 1}", # +1 given a 1 index'd array
               opened_date: date_present(item[:date_open]),
               overdue: item[:suspns_dt].nil? ? false : item[:suspns_dt] < Time.zone.now, # EVSS generates this field
               requested_date: date_present(item[:req_dt]),
               tracked_item_id: id.to_i,
-              tracked_item_status: status, # EVSS generates this field
+              status: status, # EVSS generates this field
               uploaded: !item[:date_rcvd].nil?, # EVSS generates this field
               uploads_allowed: uploads_allowed # EVSS generates this field
             }
