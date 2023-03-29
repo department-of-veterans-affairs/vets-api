@@ -119,10 +119,6 @@ module Form526RapidReadyForDecisionConcern
     rrd_pdf_added_for_uploading? && rrd_special_issue_set?
   end
 
-  def notify_mas_tracking
-    RrdMasNotificationMailer.build(self).deliver_now
-  end
-
   def notify_mas_all_claims_tracking
     RrdMasNotificationMailer.build(self, Settings.rrd.mas_all_claims_tracking.recipients).deliver_now
   end

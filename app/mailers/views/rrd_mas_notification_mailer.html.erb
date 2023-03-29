@@ -4,7 +4,7 @@
     <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
   </head>
   <body>
-    <%= @disabilities.pluck('name', 'diagnosticCode').join(', ') %>
+    <%= @disabilities.pluck('diagnosticCode').join(', ') %>
     <table border="1" cellspacing="1" cellpadding="5"><thead>
         <tr>
           <td>Benefit Claim Id</td>
