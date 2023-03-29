@@ -347,6 +347,16 @@ coe:
 adapted_housing:
   prefill: true
 
+# Settings for Expiry Scanner
+expiry_scanner:
+  slack:
+    channel_id: ~
+  directories: ~
+
+argocd:
+  slack:
+    api_key: ~
+
 # Settings for EVSS
 evss:
   prefill: true
