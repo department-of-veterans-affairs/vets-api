@@ -8,7 +8,7 @@ RSpec.describe V0::UserTransitionAvailabilitiesController, type: :request do
   before { sign_in_as(user) }
 
   describe '/v0/user_transition_availabilities' do
-    context 'when Flipper organic_dsl_conversion_experiment is enabled' do
+    context 'when Flipper organic_conversion_experiment is enabled' do
       it 'is a valid request' do
         get '/v0/user_transition_availabilities'
         expect(response).to have_http_status(:ok)
@@ -41,13 +41,14 @@ RSpec.describe V0::UserTransitionAvailabilitiesController, type: :request do
           get '/v0/user_transition_availabilities'
           json_body = JSON.parse(response.body)
           expect(json_body).to include 'organic_modal' => true
+          expect(json_body).to include 'credential_type' => SAML::User::DSLOGON_CSID
         end
       end
     end
 
-    context 'when Flipper organic_dsl_conversion_experiment is disabled' do
+    context 'when Flipper organic_conversion_experiment is disabled' do
       before do
-        Flipper.disable(:organic_dsl_conversion_experiment)
+        Flipper.disable(:organic_conversion_experiment)
       end
 
       it 'is a valid request' do

@@ -7,7 +7,7 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
   let(:user) { create(:user) }
 
   describe '.perform' do
-    context 'when Flipper organic_dsl_conversion_experiment is enabled' do
+    context 'when Flipper organic_conversion_experiment is enabled' do
       context 'User is dslogon authenticated' do
         context 'When user has avc' do
           let(:user) { create(:user, :dslogon, :accountable_with_logingov_uuid) }
@@ -29,7 +29,9 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
           let(:user) { create(:user, :dslogon) }
 
           it 'hash returns true' do
-            expect(service.perform).to include(organic_modal: true)
+            result = service.perform
+            expect(result).to include(organic_modal: true)
+            expect(result).to include(credential_type: SAML::User::DSLOGON_CSID)
           end
         end
       end
@@ -41,11 +43,39 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
           expect(service.perform).to include(organic_modal: false)
         end
       end
+
+      context 'User is mhv authenticated' do
+        context 'When user has avc' do
+          let(:user) { create(:user, :mhv, :accountable_with_logingov_uuid) }
+
+          it 'hash returns false' do
+            expect(service.perform).to include(organic_modal: false)
+          end
+        end
+      end
+
+      context 'When user has ivc' do
+        let(:user) { create(:user, :mhv, :accountable) }
+
+        it 'hash returns false' do
+          expect(service.perform).to include(organic_modal: false)
+        end
+      end
+
+      context 'When user has no avc/ivc' do
+        let(:user) { create(:user, :mhv) }
+
+        it 'hash returns true' do
+          result = service.perform
+          expect(result).to include(organic_modal: true)
+          expect(result).to include(credential_type: SAML::User::MHV_ORIGINAL_CSID)
+        end
+      end
     end
 
-    context 'When Flipper organic_dsl_conversion_experiment is disabled' do
+    context 'When Flipper organic_conversion_experiment is disabled' do
       before do
-        Flipper.disable(:organic_dsl_conversion_experiment)
+        Flipper.disable(:organic_conversion_experiment)
       end
 
       it 'hash returns false' do

@@ -22,18 +22,27 @@ class AcceptableVerifiedCredentialAdoptionService
     @result ||= {}
   end
 
+  def credential_type
+    @credential_type ||= user.identity.sign_in[:service_name]
+  end
+
   def display_organic_modal_for_logingov_conversion
     result[:organic_modal] =
-      Flipper.enabled?(:organic_dsl_conversion_experiment, user) && user_qualifies_for_conversion?
+      Flipper.enabled?(:organic_conversion_experiment, user) && user_qualifies_for_conversion?
+    result[:credential_type] = credential_type
     result
   end
 
   def user_qualifies_for_conversion?
-    logged_in_with_dsl? && !verified_credential_at?
+    (logged_in_with_dsl? || logged_in_with_mhv?) && !verified_credential_at?
   end
 
   def logged_in_with_dsl?
-    user.identity.sign_in[:service_name] == SAML::User::DSLOGON_CSID
+    credential_type == SAML::User::DSLOGON_CSID
+  end
+
+  def logged_in_with_mhv?
+    credential_type == SAML::User::MHV_ORIGINAL_CSID
   end
 
   def verified_credential_at?
