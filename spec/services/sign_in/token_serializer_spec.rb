@@ -76,7 +76,7 @@ RSpec.describe SignIn::TokenSerializer do
       end
       let(:expected_info_cookie) do
         {
-          value: info_cookie_value,
+          value: info_cookie_value.to_json,
           expires: refresh_token_expiration,
           secure: secure,
           domain: domain,
