@@ -1,0 +1,51 @@
+{
+  "messages": [
+    {
+      "key": "letterGeneration.letterEligibilityError",
+      "text": "string",
+      "severity": "WARN"
+    }
+  ],
+  "letters": [
+    {
+      "letterName": "Benefit Summary Dependent",
+      "letterType": "BENEFIT_SUMMARY_DEPENDENT"
+    }
+  ],
+  "letterDestination": {
+    "country": "USA",
+    "addressLine1": "2476 MAIN STREET",
+    "addressLine2": "STE # 12",
+    "addressLine3": "West",
+    "city": "RESTON",
+    "state": "VA",
+    "zipCode": "12345",
+    "fullName": "John A Smith"
+  },
+  "militaryServices": [
+    {
+      "branch": "Army",
+      "characterOfService": "HONORABLE",
+      "releasedDateTime": "2016-02-04T17:51:56Z",
+      "enteredDateTime": "2016-02-04T17:51:56Z"
+    }
+  ],
+  "benefitInformation": {
+    "serviceConnectedPercentage": 2,
+    "awardEffectiveDateTime": "2016-02-04T17:51:56Z",
+    "monthlyAwardAmount": {
+      "value": 2673,
+      "currency": "USD"
+    },
+    "serviceConnectedDisabilities": true,
+    "nonServiceConnectedPension": false,
+    "individualUnemployabilityGranted": false,
+    "chapter35Eligibility": true,
+    "specialMonthlyCompensation": false,
+    "adaptedHousing": false,
+    "chapter35EligibilityDateTime": "2016-02-04T17:51:56Z",
+    "hasDeathResultOfDisability": false,
+    "hasSurvivorsIndemnityCompensationAward": false,
+    "hasSurvivorsPensionAward": false
+  }
+}
