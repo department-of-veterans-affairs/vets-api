@@ -461,7 +461,7 @@ features:
     actor_type: user
     description: This determines the visibility of the OmniChannel link in the claim status tool
     enable_in_development: true
-  organic_dsl_conversion_experiment:
+  organic_conversion_experiment:
     actor_type: user
     description: Toggle to enable login.gov create account modal experiment
   pdf_warning_banner:
