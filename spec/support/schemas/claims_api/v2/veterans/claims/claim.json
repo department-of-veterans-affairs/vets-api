@@ -285,13 +285,6 @@
                     "description": "Description of the tracked item",
                     "example": "Buddy mentioned - No complete address"
                   },
-                  "suspensionDate": {
-                    "format": "date",
-                    "type": "string",
-                    "nullable": true,
-                    "description": "Suspension date on the tracked item",
-                    "example": "2017-10-18"
-                  },
                   "requestedDate": {
                     "format": "date",
                     "type": "string",
@@ -303,11 +296,6 @@
                     "type": "integer",
                     "description": "ID of the tracked item",
                     "example": 293454
-                  },
-                  "dvlpmtTc": {
-                    "type": "string",
-                    "nullable": true,
-                    "example": "CLMNTRQST"
                   },
                   "displayedName": {
                     "type": "string",
@@ -327,12 +315,6 @@
                     "nullable": true,
                     "description": "True if the item is overdue",
                     "example": true
-                  },
-                  "suspenseDate": {
-                    "format": "date",
-                    "type": "string",
-                    "nullable": true,
-                    "example": "2017-10-18"
                   },
                   "trackedItemStatus": {
                     "type": "string",
