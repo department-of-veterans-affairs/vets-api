@@ -778,11 +778,9 @@
                           "closedDate": null,
                           "description": "MG-not a recognized condition",
                           "displayedName": "Request 1",
-                          "dvlpmtTc": "CLMNTRQST",
                           "openedDate": null,
                           "overdue": true,
                           "requestedDate": "2022-02-04",
-                          "suspenseDate": "2022-03-06",
                           "trackedItemId": 325525,
                           "trackedItemStatus": "NEEDED",
                           "uploaded": false,
@@ -792,11 +790,9 @@
                           "closedDate": null,
                           "description": "Line of Duty determination from claimant",
                           "displayedName": "Request 2",
-                          "dvlpmtTc": "CLMNTRQST",
                           "openedDate": null,
                           "overdue": true,
                           "requestedDate": "2022-02-04",
-                          "suspenseDate": "2022-03-06",
                           "trackedItemId": 325524,
                           "trackedItemStatus": "NEEDED",
                           "uploaded": false,
@@ -1128,13 +1124,6 @@
                                     "description": "Description of the tracked item",
                                     "example": "Buddy mentioned - No complete address"
                                   },
-                                  "suspensionDate": {
-                                    "format": "date",
-                                    "type": "string",
-                                    "nullable": true,
-                                    "description": "Suspension date on the tracked item",
-                                    "example": "2017-10-18"
-                                  },
                                   "requestedDate": {
                                     "format": "date",
                                     "type": "string",
@@ -1146,11 +1135,6 @@
                                     "type": "integer",
                                     "description": "ID of the tracked item",
                                     "example": 293454
-                                  },
-                                  "dvlpmtTc": {
-                                    "type": "string",
-                                    "nullable": true,
-                                    "example": "CLMNTRQST"
                                   },
                                   "displayedName": {
                                     "type": "string",
@@ -1170,12 +1154,6 @@
                                     "nullable": true,
                                     "description": "True if the item is overdue",
                                     "example": true
-                                  },
-                                  "suspenseDate": {
-                                    "format": "date",
-                                    "type": "string",
-                                    "nullable": true,
-                                    "example": "2017-10-18"
                                   },
                                   "trackedItemStatus": {
                                     "type": "string",
@@ -2052,8 +2030,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-03-24",
-                      "expirationDate": "2024-03-24",
+                      "creationDate": "2023-03-28",
+                      "expirationDate": "2024-03-28",
                       "type": "compensation",
                       "status": "active"
                     }
