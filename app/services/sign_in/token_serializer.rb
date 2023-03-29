@@ -52,7 +52,7 @@ module SignIn
 
     def set_info_cookie
       cookies[Constants::Auth::INFO_COOKIE_NAME] = {
-        value: info_cookie_value,
+        value: info_cookie_value.to_json,
         expires: session_expiration,
         secure: Settings.sign_in.cookies_secure,
         httponly: false,
