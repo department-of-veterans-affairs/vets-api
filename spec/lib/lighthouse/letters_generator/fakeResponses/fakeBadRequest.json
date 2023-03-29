@@ -1,0 +1,7 @@
+{
+  "type": "https://api.va.gov/services/letters/v1/api-schema/errors/constraint-violation",
+  "title": "Invalid field value",
+  "status": 400,
+  "detail": "getLettersResponse.icn must match \"^\\d{10}V\\d{6}$\", getLettersResponse.icn size must be between 17 and 17",
+  "instance": "e6d1119e-dc91-4b4d-b583-0f309de0807b"
+}

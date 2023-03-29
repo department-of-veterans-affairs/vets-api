@@ -1091,6 +1091,15 @@ lighthouse:
       client_id: ~
       rsa_key: ~
     use_mocks: false
+  letters_generator:
+    url: https://sandbox-api.va.gov
+    path: /services/va-letter-generator/v1/
+    use_mocks: false
+    access_token:
+      path: oauth2/va-letter-generator/system/v1/token
+      client_id: ~ 
+      rsa_key: ~
+      aud_claim_url: https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token
   benefits_reference_data:
     url: https://sandbox-api.va.gov
     path: services/benefits-reference-data
