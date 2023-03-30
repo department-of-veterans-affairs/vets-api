@@ -11,30 +11,34 @@ class ExpiryScanner
   API_PATH = 'https://slack.com/api/chat.postMessage'
 
   def self.scan_certs
-    messages = []
+    result = false
+    messages = ["Vets-Api #{Settings.vsp_environment} - SSL certificate scan result"]
     cert_paths = Dir.glob(directories)
     cert_paths.each do |cert_path|
       if File.extname(cert_path) == '.pem' || File.extname(cert_path) == '.crt'
-        messages << define_expiry_urgency(cert_path)
+        message = define_expiry_urgency(cert_path)
+        if message.present?
+          messages << message
+          result = true
+        end
       end
     rescue
       Rails.logger.debug { "ERROR: Could not parse certificate #{cert_path}" }
     end
-    Faraday.post(API_PATH, request_body(messages.join("\n")), request_headers) if messages.any?
+    Faraday.post(API_PATH, request_body(messages.join("\n")), request_headers) if result
   end
 
   def self.define_expiry_urgency(cert_path)
-    result = ''
     now = DateTime.now
     cert = OpenSSL::X509::Certificate.new(File.read(cert_path))
     expiry = cert.not_after.to_datetime
-    if now + URGENT_REMAINING_DAYS > expiry
-      return "URGENT: #{cert_path} expires in less than #{URGENT_REMAINING_DAYS} days: #{expiry}"
-    elsif now + REMAINING_DAYS > expiry
-      return "ATTENTION: #{cert_path} expires in less than #{REMAINING_DAYS} days: #{expiry}"
-    end
+    return nil if expiry > now + REMAINING_DAYS
 
-    result
+    if now + URGENT_REMAINING_DAYS > expiry
+      "URGENT: #{cert_path} expires in less than #{URGENT_REMAINING_DAYS} days: #{expiry}"
+    else
+      "ATTENTION: #{cert_path} expires in less than #{REMAINING_DAYS} days: #{expiry}"
+    end
   end
 
   def self.request_body(message)
