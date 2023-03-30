@@ -91,6 +91,7 @@ describe VBADocuments::FlipperStatusAlert, type: :job do
     end
 
     it 'does not notify Slack when all features are enabled' do
+      allow(YAML).to receive(:load_file).and_return({ 'common' => %w[feature1 feature2] })
       bulk_checker_result = { enabled: %w[feature1 feature2], disabled: [], missing: [] }
       allow(Flipper::Utilities::BulkFeatureChecker).to receive(:enabled_status).and_return(bulk_checker_result)
       expect(VBADocuments::Slack::Messenger).not_to receive(:new)
@@ -99,6 +100,7 @@ describe VBADocuments::FlipperStatusAlert, type: :job do
     end
 
     it 'notifies Slack when some features are disabled' do
+      allow(YAML).to receive(:load_file).and_return({ 'common' => %w[feature1 feature2 feature3] })
       bulk_checker_result = { enabled: %w[feature1], disabled: %w[feature2 feature3], missing: [] }
       allow(Flipper::Utilities::BulkFeatureChecker).to receive(:enabled_status).and_return(bulk_checker_result)
       expected_notify = {
@@ -114,6 +116,7 @@ describe VBADocuments::FlipperStatusAlert, type: :job do
     end
 
     it 'notifies Slack when some features are missing' do
+      allow(YAML).to receive(:load_file).and_return({ 'common' => %w[feature1 feature2 feature3] })
       bulk_checker_result = { enabled: %w[feature1], disabled: [], missing: %w[feature2 feature3] }
       allow(Flipper::Utilities::BulkFeatureChecker).to receive(:enabled_status).and_return(bulk_checker_result)
       expected_notify = {
@@ -129,6 +132,7 @@ describe VBADocuments::FlipperStatusAlert, type: :job do
     end
 
     it 'notifies slack when there are disabled and missing features' do
+      allow(YAML).to receive(:load_file).and_return({ 'common' => %w[feature1 feature2 feature3 feature4 feature5] })
       bulk_checker_result = { enabled: %w[feature1], disabled: %w[feature2 feature3], missing: %w[feature4 feature5] }
       allow(Flipper::Utilities::BulkFeatureChecker).to receive(:enabled_status).and_return(bulk_checker_result)
       expected_notify = {
