@@ -3,7 +3,7 @@
 require 'sidekiq'
 require 'flipper/utilities/bulk_feature_checker'
 
-module AppealsApi
+module VBADocuments
   class FlipperStatusAlert
     include Sidekiq::Worker
 
@@ -25,7 +25,7 @@ module AppealsApi
     private
 
     def load_features_from_config
-      file_path = AppealsApi::Engine.root.join('config', 'flipper', 'enabled_features.yml')
+      file_path = VBADocuments::Engine.root.join('config', 'flipper', 'enabled_features.yml')
       feature_hash = read_config_file(file_path)
       return [] if feature_hash.nil?
 
@@ -33,7 +33,7 @@ module AppealsApi
       features = (env_hash + (feature_hash['common'] || [])).uniq.sort
 
       if features.empty?
-        AppealsApi::Slack::Messager.new(
+        VBADocuments::Slack::Messenger.new(
           {
             warning: "#{WARNING_EMOJI} #{self.class.name} has no configured enabled features",
             file_path: file_path.to_s
@@ -48,7 +48,7 @@ module AppealsApi
       if File.exist?(path)
         YAML.load_file(path) || {}
       else
-        AppealsApi::Slack::Messager.new(
+        VBADocuments::Slack::Messenger.new(
           {
             warning: "#{WARNING_EMOJI} #{self.class.name} features file does not exist",
             file_path: path.to_s
@@ -70,7 +70,7 @@ module AppealsApi
         missing_flags: slack_message(:missing)
       }
 
-      AppealsApi::Slack::Messager.new(slack_details).notify!
+      VBADocuments::Slack::Messenger.new(slack_details).notify!
     end
 
     def slack_message(flag_category)

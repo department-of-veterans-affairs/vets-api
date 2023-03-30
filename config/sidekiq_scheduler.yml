@@ -256,6 +256,11 @@ VANotify::InProgressForms:
   class: VANotify::InProgressForms
   description: "In progress form reminder emails (sent via VaNotify)"
 
+VBADocuments::FlipperStatusAlert:
+  cron: '0 2,9,16 * * MON-FRI America/New_York'
+  class: VBADocuments::FlipperStatusAlert
+  description: "Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled"
+
 VBADocuments::ReportMonthlySubmissions:
   cron: "4 3 2 1 * * America/New_York"
   class: VBADocuments::ReportMonthlySubmissions
