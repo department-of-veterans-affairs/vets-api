@@ -991,7 +991,6 @@ flipper:
     - wesley.rowe@agile6.com
     - jill.adams@agile6.com
     - allison@cityfriends.tech
-    - cnunez@kindsys.us
     - helene.mccarron@thoughtworks.com # Virtual Agent
     - ryan.shaw@adhocteam.us
     - brandyn.sullins@govcio.com # Brandyn Sullins - Front End Engineer - GCIO
@@ -1016,6 +1015,8 @@ flipper:
     - NOAH.STERN@va.gov # Noah Sterngo GCIO VFEP BE Dev
     - GREGG.PUHALA@va.gov # Gregg Puhala GCIO VFEP BE Dev
     - derrick.ellerbie@agile6.com # Derrick Ellerbie - Engineer - Agile 6
+    - daniel.sasser@va.gov # Daniel Sasser - Engineer - Agile 6 - Sitewide Crew, Public Websites
+    - daniel.sasser@agile6.com # Daniel Sasser - Engineer - Agile 6 - Sitewide Crew, Public Websites
 
 bgs:
   application: ~
