@@ -86,8 +86,8 @@ module Preneeds
         end
 
       {
-        body: body,
-        headers: headers
+        body:,
+        headers:
       }
     end
 

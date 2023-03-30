@@ -70,9 +70,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         let(:code_challenge) { '1BUpxy37SoIPmKw96wbd6MDcvayOYm3ptT-zbe6L_zM' }
         let!(:code_container) do
           create(:code_container,
-                 code: code,
-                 code_challenge: code_challenge,
-                 user_verification_id: user_verification_id)
+                 code:,
+                 code_challenge:,
+                 user_verification_id:)
         end
 
         it 'validates the authorization_code & returns tokens' do
@@ -87,14 +87,14 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       describe 'POST v0/sign_in/refresh' do
         let(:user_verification) { create(:user_verification) }
-        let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
+        let(:validated_credential) { create(:validated_credential, user_verification:) }
         let(:session_container) do
-          SignIn::SessionCreator.new(validated_credential: validated_credential).perform
+          SignIn::SessionCreator.new(validated_credential:).perform
         end
         let(:refresh_token) do
           CGI.escape(SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform)
         end
-        let(:refresh_token_param) { { refresh_token: refresh_token } }
+        let(:refresh_token_param) { { refresh_token: } }
 
         it 'refreshes the session and returns new tokens' do
           expect(subject).to validate(
@@ -125,9 +125,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       describe 'POST v0/sign_in/revoke' do
         let(:user_verification) { create(:user_verification) }
-        let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
+        let(:validated_credential) { create(:validated_credential, user_verification:) }
         let(:session_container) do
-          SignIn::SessionCreator.new(validated_credential: validated_credential).perform
+          SignIn::SessionCreator.new(validated_credential:).perform
         end
         let(:refresh_token) do
           CGI.escape(SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform)
@@ -146,9 +146,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       describe 'GET v0/sign_in/revoke_all_sessions' do
         let(:user_verification) { create(:user_verification) }
-        let(:validated_credential) { create(:validated_credential, user_verification: user_verification) }
+        let(:validated_credential) { create(:validated_credential, user_verification:) }
         let(:session_container) do
-          SignIn::SessionCreator.new(validated_credential: validated_credential).perform
+          SignIn::SessionCreator.new(validated_credential:).perform
         end
         let(:access_token_object) { session_container.access_token }
         let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid, middle_name: 'leo') }
@@ -2937,7 +2937,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :va_profile_initialize_person_transaction,
           :init_vet360_id,
           user_uuid: user_without_vet360_id.uuid,
-          transaction_id: transaction_id
+          transaction_id:
         )
 
         expect(subject).to validate(
@@ -2964,7 +2964,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, token, true) } } }
 
       before do
-        Session.create(uuid: user.uuid, token: token)
+        Session.create(uuid: user.uuid, token:)
       end
 
       it 'supports getting connected applications' do

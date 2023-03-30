@@ -321,7 +321,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   context 'with valid responses' do
     before do
       allow(JWT).to receive(:decode).and_return(jwt)
-      Session.create(token: token, uuid: user.uuid)
+      Session.create(token:, uuid: user.uuid)
       user.save
     end
 
@@ -443,7 +443,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   context 'when a response is invalid' do
     before do
       allow(JWT).to receive(:decode).and_return(jwt)
-      Session.create(uuid: user.uuid, token: token)
+      Session.create(uuid: user.uuid, token:)
       user.save
     end
 
@@ -654,7 +654,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
 
     before do
       allow(JWT).to receive(:decode).and_return(jwt_charon)
-      Session.create(token: token, uuid: user.uuid, charon_response: charon_response)
+      Session.create(token:, uuid: user.uuid, charon_response:)
     end
 
     it 'v2 POST returns json response if valid user charon session' do

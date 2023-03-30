@@ -5,12 +5,12 @@ require 'rails_helper'
 RSpec.describe SignIn::LogoutRedirectGenerator do
   describe '#perform' do
     subject do
-      SignIn::LogoutRedirectGenerator.new(user: user, client_config: client_config).perform
+      SignIn::LogoutRedirectGenerator.new(user:, client_config:).perform
     end
 
     describe '#perform' do
       let(:user) { create(:user) }
-      let(:client_config) { create(:client_config, logout_redirect_uri: logout_redirect_uri) }
+      let(:client_config) { create(:client_config, logout_redirect_uri:) }
       let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
 
       context 'when logout redirect uri is defined in the client configuration' do
@@ -32,7 +32,7 @@ RSpec.describe SignIn::LogoutRedirectGenerator do
             {
               client_id: logingov_client_id,
               post_logout_redirect_uri: logingov_logout_redirect_uri,
-              state: state
+              state:
             }
           end
           let(:expected_url_host) { Settings.logingov.oauth_url }

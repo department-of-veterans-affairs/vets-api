@@ -25,7 +25,7 @@ module AppsApi
       logs = get_events(event_type)
       logs.body.each do |event|
         parsed_hash = parse_event(event)
-        send_email(hash: parsed_hash, template: template) unless event_is_invalid?(parsed_hash, event)
+        send_email(hash: parsed_hash, template:) unless event_is_invalid?(parsed_hash, event)
       end
     end
 
@@ -39,13 +39,13 @@ module AppsApi
       okta_app = @okta_service.app(app_id)
       app_record = DirectoryApplication.find_by(name: okta_app.body['label'])
       user = @okta_service.user(user_id)
-      create_hash(app_record: app_record, user: user, event: event)
+      create_hash(app_record:, user:, event:)
     end
 
     def create_hash(app_record:, user:, event:)
       {
         uuid: event['uuid'],
-        app_record: app_record,
+        app_record:,
         user_email: user.body['profile']['email'],
         options: {
           first_name: user.body['profile']['firstName'],

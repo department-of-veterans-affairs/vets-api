@@ -44,7 +44,7 @@ describe PdfFill::ExtrasGenerator do
 
       subject.instance_variable_set(:@generate_blocks, metadatas.reverse.map do |metadata|
         {
-          metadata: metadata
+          metadata:
         }
       end)
 

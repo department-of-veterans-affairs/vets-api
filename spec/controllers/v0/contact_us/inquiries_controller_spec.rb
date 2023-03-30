@@ -48,7 +48,7 @@ RSpec.describe V0::ContactUs::InquiriesController, type: :controller do
 
   describe '#create' do
     def send_create
-      post(:create, params: { ask: { form: form } })
+      post(:create, params: { ask: { form: } })
     end
 
     context 'when Flipper :get_help_ask_form is' do
@@ -77,7 +77,7 @@ RSpec.describe V0::ContactUs::InquiriesController, type: :controller do
 
             expect(Flipper).to receive(:enabled?).with(:get_help_ask_form).and_return(true)
 
-            post :create, params: params
+            post(:create, params:)
 
             expect(response).to have_http_status(:created)
 
@@ -99,7 +99,7 @@ RSpec.describe V0::ContactUs::InquiriesController, type: :controller do
 
             expect(Flipper).to receive(:enabled?).with(:get_help_ask_form).and_return(true)
 
-            post :create, params: params
+            post(:create, params:)
 
             expect(JSON.parse(response.body)['errors']).not_to be_empty
 

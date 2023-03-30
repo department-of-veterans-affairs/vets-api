@@ -8,7 +8,7 @@ describe GIDSRedis do
   let(:scrubbed_params) { {} }
   let(:body) { {} }
   let(:gids_response) do
-    GI::GIDSResponse.new(status: 200, body: body)
+    GI::GIDSResponse.new(status: 200, body:)
   end
 
   context 'when `GIDSRedis` responds to method' do

@@ -5,10 +5,10 @@ require 'rails_helper'
 RSpec.describe SignIn::StatePayloadVerifier do
   describe '#perform' do
     subject do
-      SignIn::StatePayloadVerifier.new(state_payload: state_payload).perform
+      SignIn::StatePayloadVerifier.new(state_payload:).perform
     end
 
-    let(:state_payload) { create(:state_payload, code: code) }
+    let(:state_payload) { create(:state_payload, code:) }
     let(:code) { 'some-code' }
 
     context 'when code in state payload is not valid' do
@@ -21,7 +21,7 @@ RSpec.describe SignIn::StatePayloadVerifier do
     end
 
     context 'when code in state payload is valid' do
-      before { SignIn::StateCode.new(code: code).save! }
+      before { SignIn::StateCode.new(code:).save! }
 
       it 'returns nil' do
         expect(subject).to eq(nil)

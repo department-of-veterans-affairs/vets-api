@@ -42,7 +42,7 @@ module VAProfile
           address_line1: address_hash['address_line1'],
           address_line2: address_hash['address_line2'],
           address_line3: address_hash['address_line3'],
-          address_type: address_type,
+          address_type:,
           city: address_hash['city'],
           country_name: address_hash['country']['name'],
           country_code_iso3: address_hash['country']['iso3_code']

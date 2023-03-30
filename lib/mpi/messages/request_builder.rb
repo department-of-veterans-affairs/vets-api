@@ -66,7 +66,7 @@ module MPI
         element << element('id', root: '1.2.840.114350.1.13.0.1.7.1.1', extension: "200VGOV-#{SecureRandom.uuid}")
         element << element('creationTime', value: Time.now.utc.strftime('%Y%m%d%H%M%S'))
         element << element('versionCode', code: '4.1')
-        element << element('interactionId', root: '2.16.840.1.113883.1.6', extension: extension)
+        element << element('interactionId', root: '2.16.840.1.113883.1.6', extension:)
         element << element('processingCode', code: processing_code)
         element << element('processingModeCode', code: 'T')
         element << element('acceptAckCode', code: 'AL')

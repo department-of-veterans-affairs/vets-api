@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe BGS::DependentService do
-  let(:user) { FactoryBot.create(:evss_user, :loa3, birth_date: birth_date) }
+  let(:user) { FactoryBot.create(:evss_user, :loa3, birth_date:) }
   let(:birth_date) { '1809-02-12' }
   let(:claim) { double('claim') }
   let(:vet_info) do

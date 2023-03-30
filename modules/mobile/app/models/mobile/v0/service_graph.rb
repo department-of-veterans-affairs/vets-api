@@ -66,9 +66,9 @@ module Mobile
         MaintenanceWindow.new(
           id: Digest::UUID.uuid_v5('MaintenanceWindow', downstream_name.to_s),
           service: downstream_name,
-          start_time: start_time,
-          end_time: end_time,
-          description: description
+          start_time:,
+          end_time:,
+          description:
         )
       end
     end

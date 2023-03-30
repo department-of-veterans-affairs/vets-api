@@ -316,7 +316,7 @@ RSpec.describe Form1010cg::Service do
 
           expect(described_class::AUDITOR).to receive(:log_mpi_search_result).with(
             claim_guid: subject.claim.guid,
-            form_subject: form_subject,
+            form_subject:,
             result: :found
           )
 
@@ -332,7 +332,7 @@ RSpec.describe Form1010cg::Service do
 
           expect(described_class::AUDITOR).to receive(:log_mpi_search_result).with(
             claim_guid: subject.claim.guid,
-            form_subject: form_subject,
+            form_subject:,
             result: :not_found
           )
 
@@ -358,7 +358,7 @@ RSpec.describe Form1010cg::Service do
         %w[primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
           expect(described_class::AUDITOR).to receive(:log_mpi_search_result).with(
             claim_guid: subject.claim.guid,
-            form_subject: form_subject,
+            form_subject:,
             result: :skipped
           )
 

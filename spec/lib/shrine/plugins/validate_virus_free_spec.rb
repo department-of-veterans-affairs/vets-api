@@ -64,7 +64,7 @@ describe Shrine::Plugins::ValidateVirusFree do
           allow(ClamScan::Client).to receive(:scan)
             .and_return(instance_double('ClamScan::Response', safe?: false))
 
-          result = instance.validate_virus_free(message: message)
+          result = instance.validate_virus_free(message:)
           expect(result).to be(false)
           expect(instance.errors).to eq(['oh noes!'])
         end

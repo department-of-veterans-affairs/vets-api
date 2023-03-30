@@ -43,7 +43,7 @@ module Common
 
           def response_values
             {
-              status: status,
+              status:,
               detail: body['detail'],
               code: service_i18n_key,
               source: body['source']

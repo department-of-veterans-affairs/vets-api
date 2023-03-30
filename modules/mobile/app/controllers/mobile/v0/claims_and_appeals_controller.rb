@@ -23,7 +23,7 @@ module Mobile
         validated_params = validate_params
 
         json, status = fetch_all_cached_or_service(validated_params, params[:showCompleted])
-        render json: json, status: status
+        render json:, status:
       end
 
       def get_claim
@@ -71,7 +71,7 @@ module Mobile
         list = filter_by_completed(list, show_completed) if show_completed.present?
         list, meta = paginate(list, validated_params)
 
-        options = { meta: { errors: errors, pagination: meta.dig(:meta, :pagination) },
+        options = { meta: { errors:, pagination: meta.dig(:meta, :pagination) },
                     links: meta[:links] }
 
         [Mobile::V0::ClaimOverviewSerializer.new(list, options), status]
@@ -86,7 +86,7 @@ module Mobile
       end
 
       def paginate(list, validated_params)
-        Mobile::PaginationHelper.paginate(list: list, validated_params: validated_params)
+        Mobile::PaginationHelper.paginate(list:, validated_params:)
       end
 
       def pagination_params

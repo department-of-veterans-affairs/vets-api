@@ -20,7 +20,7 @@ module CovidVaccine
       template_id = Settings.vanotify.services.va_gov.template_id.covid_vaccine_expanded_registration
       email_address = submission.raw_form_data['email_address']
 
-      notify_response = notify_client.send_email(email_address: email_address, template_id: template_id,
+      notify_response = notify_client.send_email(email_address:, template_id:,
                                                  personalisation: { 'date' => formatted_date(submission.created_at),
                                                                     'confirmation_id' => submission.submission_uuid },
                                                  reference: submission.submission_uuid)
@@ -35,7 +35,7 @@ module CovidVaccine
     end
 
     def handle_errors(ex, record_id)
-      log_exception_to_sentry(ex, { record_id: record_id })
+      log_exception_to_sentry(ex, { record_id: })
       StatsD.increment(STATSD_ERROR_NAME)
 
       if ex.respond_to?(:status_code)

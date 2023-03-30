@@ -13,7 +13,7 @@ RSpec.describe BGS::DependentHigherEdAttendance do
       it 'returns a hash with a relationship type Child' do
         VCR.use_cassette('bgs/dependent_higher_ed_attendance/create') do
           dependents = BGS::DependentHigherEdAttendance.new(
-            proc_id: proc_id,
+            proc_id:,
             payload: form_674_only,
             user: user_object
           ).create

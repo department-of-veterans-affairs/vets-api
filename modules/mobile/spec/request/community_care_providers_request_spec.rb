@@ -23,7 +23,7 @@ RSpec.describe 'community care providers', type: :request do
     it 'returns 200 with paginated results' do
       VCR.use_cassette('facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
         params = { serviceType: 'podiatry' }
-        get '/mobile/v0/community-care-providers', headers: iam_headers, params: params
+        get('/mobile/v0/community-care-providers', headers: iam_headers, params:)
 
         expect(response).to have_http_status(:success)
         expect(response.parsed_body['data'].count).to eq(10)
@@ -33,7 +33,7 @@ RSpec.describe 'community care providers', type: :request do
     it 'matches schema' do
       VCR.use_cassette('facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
         params = { serviceType: 'podiatry' }
-        get '/mobile/v0/community-care-providers', headers: iam_headers, params: params
+        get('/mobile/v0/community-care-providers', headers: iam_headers, params:)
 
         expect(response.body).to match_json_schema('community_care_providers')
       end
@@ -43,7 +43,7 @@ RSpec.describe 'community care providers', type: :request do
       VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
         VCR.use_cassette('facilities/ppms/community_clinics_near_facility', match_requests_on: %i[method uri]) do
           params = { serviceType: 'podiatry', facilityId: '442' }
-          get '/mobile/v0/community-care-providers', headers: iam_headers, params: params
+          get('/mobile/v0/community-care-providers', headers: iam_headers, params:)
 
           expect(response.parsed_body['meta']).to eq(
             { 'pagination' => { 'currentPage' => 1, 'perPage' => 10, 'totalPages' => 1, 'totalEntries' => 10 } }
@@ -74,7 +74,7 @@ RSpec.describe 'community care providers', type: :request do
       it 'returns an empty list' do
         VCR.use_cassette('facilities/ppms/community_clinics_empty_search', match_requests_on: %i[method uri]) do
           params = { serviceType: 'podiatry' }
-          get '/mobile/v0/community-care-providers', headers: iam_headers, params: params
+          get('/mobile/v0/community-care-providers', headers: iam_headers, params:)
           expect(response).to have_http_status(:success)
           expect(response.parsed_body['data']).to eq([])
         end
@@ -85,7 +85,7 @@ RSpec.describe 'community care providers', type: :request do
       it 'returns a list of providers based on the user\'s home address' do
         VCR.use_cassette('facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
           params = { serviceType: 'podiatry' }
-          get '/mobile/v0/community-care-providers', headers: iam_headers, params: params
+          get('/mobile/v0/community-care-providers', headers: iam_headers, params:)
           expect(response).to have_http_status(:success)
           expect(response.parsed_body['data'].count).to eq(10)
         end
@@ -99,7 +99,7 @@ RSpec.describe 'community care providers', type: :request do
             address.longitude = nil
 
             params = { serviceType: 'podiatry' }
-            get '/mobile/v0/community-care-providers', headers: iam_headers, params: params
+            get('/mobile/v0/community-care-providers', headers: iam_headers, params:)
             expect(response).to have_http_status(:unprocessable_entity)
             expect(response.parsed_body.dig('errors', 0, 'detail')).to eq('User has no home latitude and longitude')
           end
@@ -112,7 +112,7 @@ RSpec.describe 'community care providers', type: :request do
         VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
           VCR.use_cassette('facilities/ppms/community_clinics_near_facility', match_requests_on: %i[method uri]) do
             params = { facilityId: '442', serviceType: 'podiatry' }
-            get '/mobile/v0/community-care-providers', headers: iam_headers, params: params
+            get('/mobile/v0/community-care-providers', headers: iam_headers, params:)
             expect(response).to have_http_status(:success)
           end
         end
@@ -123,7 +123,7 @@ RSpec.describe 'community care providers', type: :request do
           VCR.use_cassette('lighthouse_health/get_facilities_empty', match_requests_on: %i[method uri]) do
             VCR.use_cassette('facilities/ppms/community_clinics_near_facility', match_requests_on: %i[method uri]) do
               params = { facilityId: '442', serviceType: 'podiatry' }
-              get '/mobile/v0/community-care-providers', headers: iam_headers, params: params
+              get('/mobile/v0/community-care-providers', headers: iam_headers, params:)
 
               expect(response).to have_http_status(:not_found)
               expect(response.parsed_body.dig('errors', 0, 'detail')).to eq(

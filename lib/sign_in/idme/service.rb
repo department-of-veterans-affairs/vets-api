@@ -51,7 +51,7 @@ module SignIn
       def auth_params(acr, state)
         {
           scope: acr,
-          state: state,
+          state:,
           client_id: config.client_id,
           redirect_uri: config.redirect_uri,
           response_type: config.response_type
@@ -178,7 +178,7 @@ module SignIn
       def token_params(code)
         {
           grant_type: config.grant_type,
-          code: code,
+          code:,
           client_id: config.client_id,
           client_secret: config.client_secret,
           redirect_uri: config.redirect_uri

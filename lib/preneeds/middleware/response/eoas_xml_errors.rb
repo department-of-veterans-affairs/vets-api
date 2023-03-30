@@ -55,8 +55,8 @@ module Preneeds
 
         def response_values
           {
-            status: status,
-            detail: detail,
+            status:,
+            detail:,
             code: 'VA900',
             source: 'EOAS provided a general error response, check logs for original request body.'
           }

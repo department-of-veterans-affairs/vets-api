@@ -12,7 +12,7 @@ module CovidVaccine
       def create
         raw_form_data = params[:registration]
         record = CovidVaccine::V0::ExpandedRegistrationSubmission.create!({ submission_uuid: SecureRandom.uuid,
-                                                                            raw_form_data: raw_form_data })
+                                                                            raw_form_data: })
         audit_log(raw_form_data)
         CovidVaccine::ExpandedRegistrationEmailJob.perform_async(record.id) if raw_form_data['email_address'].present?
         render json: record, serializer: CovidVaccine::V0::ExpandedRegistrationSerializer, status: :created

@@ -30,7 +30,7 @@ module RapidReadyForDecision
         }
       end
       medications = flagged_medications.sort_by { |medication| medication[:flagged] ? 0 : 1 }
-      { medications: medications }
+      { medications: }
     end
 
     def med_stats_hash(assessed_data)

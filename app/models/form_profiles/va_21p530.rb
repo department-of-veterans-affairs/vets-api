@@ -22,7 +22,7 @@ class FormProfiles::VA21p530 < FormProfile
 
     form_data = generate_prefill(mappings) if FormProfile.prefill_enabled_forms.include?(form_id)
 
-    { form_data: form_data, metadata: metadata }
+    { form_data:, metadata: }
   end
 
   private

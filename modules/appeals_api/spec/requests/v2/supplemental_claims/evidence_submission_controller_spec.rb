@@ -21,7 +21,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
     context 'when corresponding supplemental claim record not found' do
       it 'returns an error' do
         stub_upload_location
-        post path, params: { sc_uuid: 1979 }, headers: headers
+        post(path, params: { sc_uuid: 1979 }, headers:)
 
         expect(response.status).to eq 404
         expect(response.body).to include 'SupplementalClaim with uuid 1979 not found'
@@ -32,7 +32,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
       context "when sc record 'auth_headers' are present" do
         it 'returns success with 202' do
           stub_upload_location
-          post path, params: { sc_uuid: supplemental_claim.id }, headers: headers
+          post(path, params: { sc_uuid: supplemental_claim.id }, headers:)
 
           expect(response.status).to eq 202
           expect(response.body).to include supplemental_claim.id
@@ -41,7 +41,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
         it "returns an error if request 'headers['X-VA-SSN'] and SC record SSNs do not match" do
           stub_upload_location
           headers['X-VA-SSN'] = '1111111111'
-          post path, params: { sc_uuid: supplemental_claim.id }, headers: headers
+          post(path, params: { sc_uuid: supplemental_claim.id }, headers:)
 
           expect(response.status).to eq 422
           expect(response.body).to include "'X-VA-SSN' does not match"
@@ -53,7 +53,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
         it 'creates the evidence submission and returns upload location' do
           stub_upload_location 'http://another.fakesite.com/rewrittenpath/uuid'
           supplemental_claim.auth_headers = nil
-          post path, params: { sc_uuid: supplemental_claim.id }, headers: headers
+          post(path, params: { sc_uuid: supplemental_claim.id }, headers:)
 
           data = JSON.parse(response.body)['data']
           expect(data).to have_key('id')
@@ -70,7 +70,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
           receive(:get_location).and_raise('Unable to provide document upload location')
         )
         supplemental_claim.auth_headers = nil
-        post path, params: { sc_uuid: supplemental_claim.id }, headers: headers
+        post(path, params: { sc_uuid: supplemental_claim.id }, headers:)
 
         expect(response.status).to eq 500
         expect(response.body).to include('Unable to provide document upload location')
@@ -79,7 +79,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
 
     it "returns an error when 'sc_uuid' parameter is missing" do
       stub_upload_location
-      post path, headers: headers
+      post(path, headers:)
 
       expect(response.status).to eq 400
       expect(response.body).to include 'Must supply a corresponding Supplemental Claim'
@@ -87,7 +87,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
 
     it 'stores the source from headers' do
       stub_upload_location
-      post path, params: { sc_uuid: supplemental_claim.id }, headers: headers
+      post(path, params: { sc_uuid: supplemental_claim.id }, headers:)
       data = JSON.parse(response.body)['data']
       record = AppealsApi::EvidenceSubmission.find_by(guid: data['id'])
       expect(record.source).to eq headers['X-Consumer-Username']
@@ -106,20 +106,20 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
         :accepted
       ) do
         def make_request(auth_header)
-          post(oauth_path, params: params, headers: headers.merge(auth_header))
+          post(oauth_path, params:, headers: headers.merge(auth_header))
         end
       end
 
       it 'behaves the same as the equivalent decision reviews route' do
         Timecop.freeze(Time.current) do
-          post(path, params: params, headers: headers)
+          post(path, params:, headers:)
           orig_body = JSON.parse(response.body)
           orig_body['data']['id'] = 'ignored'
 
           with_openid_auth(
             AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmissionsController::OAUTH_SCOPES[:POST]
           ) do |auth_header|
-            post(oauth_path, params: params, headers: headers.merge(auth_header))
+            post(oauth_path, params:, headers: headers.merge(auth_header))
           end
           oauth_body = JSON.parse(response.body)
           oauth_body['data']['id'] = 'ignored'

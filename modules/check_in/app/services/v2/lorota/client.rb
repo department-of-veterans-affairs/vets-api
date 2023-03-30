@@ -50,7 +50,7 @@ module V2
       def initialize(opts)
         @settings = Settings.check_in.lorota_v2
         @check_in = opts[:check_in]
-        @claims_token = ClaimsToken.build(check_in: check_in).sign_assertion
+        @claims_token = ClaimsToken.build(check_in:).sign_assertion
       end
 
       # POST request to LoROTA token endpoint to get an access token
@@ -76,7 +76,7 @@ module V2
       private
 
       def connection
-        Faraday.new(url: url) do |conn|
+        Faraday.new(url:) do |conn|
           conn.use :breakers
           conn.response :raise_error, error_prefix: 'LOROTA-API'
           conn.response :betamocks if mock_enabled?

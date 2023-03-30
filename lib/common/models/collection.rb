@@ -59,7 +59,7 @@ module Common
       if cache_key
         json_string = redis_namespace.get(cache_key)
         if json_string.nil?
-          collection = new(klass, **yield.merge(cache_key: cache_key))
+          collection = new(klass, **yield.merge(cache_key:))
           cache(collection.serialize, cache_key, ttl)
           collection
         else
@@ -96,8 +96,8 @@ module Common
     def find_by(filter = {})
       verify_filter_keys!(filter)
       result = @data.select { |item| finder(item, filter) }
-      metadata = @metadata.merge(filter: filter)
-      Collection.new(type, data: result, metadata: metadata, errors: errors)
+      metadata = @metadata.merge(filter:)
+      Collection.new(type, data: result, metadata:, errors:)
     end
 
     def find_first_by(filter = {})
@@ -118,7 +118,7 @@ module Common
       end
 
       metadata = @metadata.merge(sort: fields)
-      Collection.new(type, data: result, metadata: metadata, errors: errors)
+      Collection.new(type, data: result, metadata:, errors:)
     end
 
     def paginate(page: nil, per_page: nil)
@@ -126,11 +126,11 @@ module Common
       max_per_page = type.max_per_page || 100
       per_page = [(per_page.try(:to_i) || type.per_page || 10), max_per_page].min
       collection = paginator(page, per_page)
-      Collection.new(type, data: collection, metadata: metadata.merge(pagination_meta(page, per_page)), errors: errors)
+      Collection.new(type, data: collection, metadata: metadata.merge(pagination_meta(page, per_page)), errors:)
     end
 
     def serialize
-      { data: data, metadata: metadata, errors: errors }.to_json
+      { data:, metadata:, errors: }.to_json
     end
 
     private
@@ -174,9 +174,7 @@ module Common
     def paginator(page, per_page)
       if defined?(::WillPaginate::Collection)
         WillPaginate::Collection.create(page, per_page, @data.length) do |pager|
-          if pager.out_of_bounds?
-            raise Common::Exceptions::InvalidPaginationParams.new({ page: page, per_page: per_page })
-          end
+          raise Common::Exceptions::InvalidPaginationParams.new({ page:, per_page: }) if pager.out_of_bounds?
 
           pager.replace @data[pager.offset, pager.per_page]
         end
@@ -188,7 +186,7 @@ module Common
     def pagination_meta(page, per_page)
       total_entries = @data.size
       total_pages = total_entries.zero? ? 1 : (total_entries / per_page.to_f).ceil
-      { pagination: { current_page: page, per_page: per_page, total_pages: total_pages, total_entries: total_entries } }
+      { pagination: { current_page: page, per_page:, total_pages:, total_entries: } }
     end
 
     def sort_fields(params)

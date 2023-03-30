@@ -43,7 +43,7 @@ module VBADocuments
 
     # look_back is an int and unit of measure is a string or symbol (hours, days, minutes, etc)
     scope :aged_processing, lambda { |look_back, unit_of_measure, status|
-      where(status: status)
+      where(status:)
         .where("(metadata -> 'status' -> ? -> 'start')::bigint < ?", status,
                look_back.to_i.send(unit_of_measure.to_sym).ago.to_i)
         .order(-> { Arel.sql("(metadata -> 'status' -> '#{status}' -> 'start')::bigint asc") }.call)
@@ -57,7 +57,7 @@ module VBADocuments
     end
 
     def self.fake_status(guid)
-      empty_submission = OpenStruct.new(guid: guid,
+      empty_submission = OpenStruct.new(guid:,
                                         status: 'error',
                                         code: 'DOC105',
                                         detail: VBADocuments::UploadError::DOC105,
@@ -218,7 +218,7 @@ module VBADocuments
         self.code = 'DOC202'
         self.detail = "Upstream status: #{response_object['errorMessage']}"
       else
-        log_message_to_sentry('Unknown status value from Central Mail API', :warning, status: status)
+        log_message_to_sentry('Unknown status value from Central Mail API', :warning, status:)
         raise Common::Exceptions::BadGateway, detail: 'Unknown processing status'
       end
     end
@@ -281,8 +281,8 @@ module VBADocuments
       # get the message to record the status change web hook
       if Settings.vba_documents.v2_enabled
         msg = format_msg(VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT, from, to, guid)
-        params = { consumer_id: consumer_id, consumer_name: consumer_name,
-                   event: VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT, api_guid: guid, msg: msg }
+        params = { consumer_id:, consumer_name:,
+                   event: VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT, api_guid: guid, msg: }
         Webhooks::Utilities.record_notifications(**params)
       end
 
@@ -292,7 +292,7 @@ module VBADocuments
 
     def format_msg(event, from_status, to_status, guid)
       api = Webhooks::Utilities.event_to_api_name[event]
-      { api_name: api, guid: guid, event: event, status_from: from_status, status_to: to_status,
+      { api_name: api, guid:, event:, status_from: from_status, status_to: to_status,
         epoch_time: Time.now.to_i }
     end
   end

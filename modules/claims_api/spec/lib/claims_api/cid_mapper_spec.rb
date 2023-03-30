@@ -17,7 +17,7 @@ describe ClaimsApi::CidMapper do
     cid = 'ABCDEFGHIJKLMNOP'
 
     it "returns an obfuscated version of the 'cid'" do
-      mapped_value = ClaimsApi::CidMapper.new(cid: cid).name
+      mapped_value = ClaimsApi::CidMapper.new(cid:).name
       expect(mapped_value).to eq('ABCDEFG...')
     end
   end
@@ -26,7 +26,7 @@ describe ClaimsApi::CidMapper do
     cid = nil
 
     it "returns 'no cid'" do
-      mapped_value = ClaimsApi::CidMapper.new(cid: cid).name
+      mapped_value = ClaimsApi::CidMapper.new(cid:).name
       expect(mapped_value).to eq('no cid')
     end
   end
@@ -35,7 +35,7 @@ describe ClaimsApi::CidMapper do
     cid = ' '
 
     it "returns 'no cid'" do
-      mapped_value = ClaimsApi::CidMapper.new(cid: cid).name
+      mapped_value = ClaimsApi::CidMapper.new(cid:).name
       expect(mapped_value).to eq('no cid')
     end
   end
@@ -44,7 +44,7 @@ describe ClaimsApi::CidMapper do
     cid = ''
 
     it "returns 'no cid'" do
-      mapped_value = ClaimsApi::CidMapper.new(cid: cid).name
+      mapped_value = ClaimsApi::CidMapper.new(cid:).name
       expect(mapped_value).to eq('no cid')
     end
   end

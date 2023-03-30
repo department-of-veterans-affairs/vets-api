@@ -30,7 +30,7 @@ describe 'OliveBranchPatch', type: :request do
 
   it 'does not change response keys when camel inflection is not used' do
     data = { hello_to_the_va: 'greetingsVA' }
-    get '/some_json', params: { data: data }, headers: { 'Content-Type' => 'application/json' }
+    get '/some_json', params: { data: }, headers: { 'Content-Type' => 'application/json' }
     json = JSON.parse(response.body)
     expect(json.keys).to eq ['hello_to_the_va']
     expect(json['hello_to_the_va']).to eq data[:hello_to_the_va]
@@ -40,7 +40,7 @@ describe 'OliveBranchPatch', type: :request do
   it 'keeps keys with leading va in lower' do
     data = { va_key: 'valueForVA' }
     get '/some_json',
-        params: { data: data },
+        params: { data: },
         headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
     json = JSON.parse(response.body)
     expect(json.keys).to eq ['vaKey']
@@ -50,7 +50,7 @@ describe 'OliveBranchPatch', type: :request do
     # this pdf fixture chosen arbitrarily
     params = { path: 'spec/fixtures/pdf_fill/21-0781a/simple.pdf' }
     get '/some_document',
-        params: params,
+        params:,
         headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
     expect(response).to have_http_status(:ok)
   end
@@ -58,7 +58,7 @@ describe 'OliveBranchPatch', type: :request do
   it 'does not change keys if `VA` is not in the middle of a key' do
     data = { hello_there: 'hello there' }
     get '/some_json',
-        params: { data: data },
+        params: { data: },
         headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
     json = JSON.parse(response.body)
     expect(json.keys).to eq ['helloThere']
@@ -68,7 +68,7 @@ describe 'OliveBranchPatch', type: :request do
   it 'changes `VA` keys containing a colon' do
     data = { 'view:has_va_medical_records' => true }
     get '/some_json',
-        params: { data: data },
+        params: { data: },
         headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
     json = JSON.parse(response.body)
     expect(json.keys).to eq ['view:hasVaMedicalRecords']
@@ -78,7 +78,7 @@ describe 'OliveBranchPatch', type: :request do
   it 'changes a key with `VA` to be `Va`' do
     data = { year_va_founded: 1989 }
     get '/some_json',
-        params: { data: data },
+        params: { data: },
         headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
     json = JSON.parse(response.body)
     expect(json.keys).to eq ['yearVaFounded']
@@ -88,7 +88,7 @@ describe 'OliveBranchPatch', type: :request do
   it 'changes keys with `VA` to use `Va` for each instance of `VA`' do
     data = { we_love_the_va: true, thumbs_up_for_the_va: 'two' }
     get '/some_json',
-        params: { data: data },
+        params: { data: },
         headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
     json = JSON.parse(response.body)
     expect(json.keys).to eq %w[weLoveTheVa thumbsUpForTheVa]
@@ -106,7 +106,7 @@ describe 'OliveBranchPatch', type: :request do
       'notes' => { 'url' => 'va.gov' }
     } }
     get '/some_json',
-        params: { data: data },
+        params: { data: },
         headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
     json = JSON.parse(response.body)
     expect(json.keys).to eq ['theVaAddress']
@@ -116,7 +116,7 @@ describe 'OliveBranchPatch', type: :request do
   it 'changes a `VA` key to `Va` with an array value' do
     data = { three_va_administrations: ['VHA', 'VBA', 'National Cemetery Administration'] }
     get '/some_json',
-        params: { data: data },
+        params: { data: },
         headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
     json = JSON.parse(response.body)
     expect(json.keys).to eq ['threeVaAdministrations']
@@ -126,7 +126,7 @@ describe 'OliveBranchPatch', type: :request do
   it 'changes a `VA` key with a null value' do
     data = { year_va_closes: nil }
     get '/some_json',
-        params: { data: data },
+        params: { data: },
         headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
     json = JSON.parse(response.body)
     expect(json.keys).to eq ['yearVaCloses']
@@ -156,7 +156,7 @@ describe 'OliveBranchPatch', type: :request do
     }
 
     get '/some_json',
-        params: { data: data },
+        params: { data: },
         headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
 
     json = JSON.parse(response.body)

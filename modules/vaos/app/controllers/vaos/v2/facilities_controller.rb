@@ -4,9 +4,9 @@ module VAOS
   module V2
     class FacilitiesController < VAOS::BaseController
       def index
-        response = mobile_facility_service.get_facilities(ids: ids,
-                                                          children: children,
-                                                          type: type)
+        response = mobile_facility_service.get_facilities(ids:,
+                                                          children:,
+                                                          type:)
         render json: VAOS::V2::FacilitiesSerializer.new(response[:data], meta: response[:meta])
       end
 

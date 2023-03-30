@@ -85,8 +85,8 @@ module MDOT
       }
     end
 
-    def with_monitoring_and_error_handling(&block)
-      with_monitoring(2, &block)
+    def with_monitoring_and_error_handling(&)
+      with_monitoring(2, &)
     rescue => e
       handle_error(e)
     end

@@ -27,7 +27,7 @@ class VANotifyDdEmailJob
 
     notify_client.send_email(
       email_address: email,
-      template_id: template_id
+      template_id:
     )
   end
 end

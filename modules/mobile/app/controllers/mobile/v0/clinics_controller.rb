@@ -15,7 +15,7 @@ module Mobile
         end_date = params[:end_date] || two_months_from_now.iso8601
 
         response = systems_service.get_available_slots(location_id: facility_id,
-                                                       clinic_id: clinic_id,
+                                                       clinic_id:,
                                                        start_dt: start_date,
                                                        end_dt: end_date)
 

@@ -21,7 +21,7 @@ describe Mobile::V0::Messaging::Client do
       with_settings(Settings.mhv_mobile.sm, app_token: 'TestToken') do
         stub_request(:get, /session/).with(headers: { 'appToken' => 'TestToken' })
                                      .to_return(status: 200, headers: { 'Token' => 'abcd1234z' })
-        svc = Mobile::V0::Messaging::Client.new(session: { user_id: user_id })
+        svc = Mobile::V0::Messaging::Client.new(session: { user_id: })
         svc.authenticate
         expect(Redis.new.get(key)).to be_truthy
       end

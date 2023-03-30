@@ -21,7 +21,7 @@ module Common
                   else
                     I18n.t('common.exceptions.validation_errors')
                   end
-          SerializableError.new error.merge source: { pointer: pointer }
+          SerializableError.new error.merge source: { pointer: }
         end
       end
 
@@ -79,8 +79,8 @@ module Common
 
       def pattern(error)
         regex = error.dig 'schema', 'pattern'
-        data = i18n_interpolated :pattern, detail: { value: error['data'], regex: regex }
-        data.merge! meta: { regex: regex }
+        data = i18n_interpolated :pattern, detail: { value: error['data'], regex: }
+        data.merge! meta: { regex: }
         data
       end
 
@@ -112,7 +112,7 @@ module Common
         format = error.dig 'schema', 'format'
         data = i18n_interpolated :format, detail: { value: error['data'] }
         data[:meta] ||= {}
-        data.merge! meta: { format: format }
+        data.merge! meta: { format: }
         data
       end
     end

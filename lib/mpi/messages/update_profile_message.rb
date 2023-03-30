@@ -95,7 +95,7 @@ module MPI
       def build_patient_person
         element = RequestHelper.build_patient_person_element
         element << RequestHelper.build_patient_person_name(given_names: [first_name], family_name: last_name)
-        element << RequestHelper.build_patient_person_birth_date(birth_date: birth_date)
+        element << RequestHelper.build_patient_person_birth_date(birth_date:)
         if address.present?
           element << RequestHelper.build_patient_person_address(street: combined_street,
                                                                 state: address[:state],
@@ -103,10 +103,10 @@ module MPI
                                                                 postal_code: address[:postal_code],
                                                                 country: address[:country])
         end
-        element << RequestHelper.build_identifier(identifier: identifier, root: identifier_root)
+        element << RequestHelper.build_identifier(identifier:, root: identifier_root)
         element << RequestHelper.build_telecom(type: email_type, value: email)
         element << RequestHelper.build_patient_identifier(identifier: ssn, root: ssn_root, class_code: ssn_class_code)
-        element << RequestHelper.build_patient_identifier(identifier: identifier,
+        element << RequestHelper.build_patient_identifier(identifier:,
                                                           root: identifier_root,
                                                           class_code: identifier_class_code)
         element

@@ -6,7 +6,7 @@ describe TravelClaim::Service do
   subject { described_class }
 
   let(:uuid) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
-  let(:check_in) { CheckIn::V2::Session.build(data: { uuid: uuid }) }
+  let(:check_in) { CheckIn::V2::Session.build(data: { uuid: }) }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
   before do
@@ -17,17 +17,17 @@ describe TravelClaim::Service do
 
   describe '.build' do
     it 'returns an instance of Service' do
-      expect(subject.build(check_in: check_in)).to be_an_instance_of(described_class)
+      expect(subject.build(check_in:)).to be_an_instance_of(described_class)
     end
   end
 
   describe '#initialize' do
     it 'has a check_in session' do
-      expect(subject.build(check_in: check_in).check_in).to be_a(CheckIn::V2::Session)
+      expect(subject.build(check_in:).check_in).to be_a(CheckIn::V2::Session)
     end
 
     it 'has a redis client' do
-      expect(subject.build(check_in: check_in).redis_client).to be_a(TravelClaim::RedisClient)
+      expect(subject.build(check_in:).redis_client).to be_a(TravelClaim::RedisClient)
     end
   end
 
@@ -47,7 +47,7 @@ describe TravelClaim::Service do
     context 'when it does not exist in redis' do
       before do
         expect_any_instance_of(TravelClaim::Client).to receive(:token)
-          .and_return(Faraday::Response.new(body: { access_token: access_token }.to_json, status: 200))
+          .and_return(Faraday::Response.new(body: { access_token: }.to_json, status: 200))
       end
 
       it 'returns token by calling client' do
@@ -103,7 +103,7 @@ describe TravelClaim::Service do
       end
 
       it 'returns response from claim api' do
-        expect(subject.build(check_in: check_in,
+        expect(subject.build(check_in:,
                              params: { appointment_date: '2020-10-16' }).submit_claim).to eq(submit_claim_response)
       end
     end

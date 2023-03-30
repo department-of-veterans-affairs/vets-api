@@ -23,7 +23,7 @@ module MebApi
         response = claimant_response.status == 201 ? eligibility_response : claimant_response
         serializer = claimant_response.status == 201 ? EligibilitySerializer : ClaimantSerializer
 
-        render json: response, serializer: serializer
+        render json: response, serializer:
       end
 
       def claim_status
@@ -34,7 +34,7 @@ module MebApi
         response = claimant_response.status == 201 ? claim_status_response : claimant_response
         serializer = claimant_response.status == 201 ? ClaimStatusSerializer : ClaimantSerializer
 
-        render json: response, serializer: serializer
+        render json: response, serializer:
       end
 
       def claim_letter

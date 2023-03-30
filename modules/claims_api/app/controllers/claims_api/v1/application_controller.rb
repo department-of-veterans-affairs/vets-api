@@ -59,7 +59,7 @@ module ClaimsApi
 
         ClaimsApi::Logger.log('validate_identifiers',
                               rid: request.request_id,
-                              require_birls: require_birls,
+                              require_birls:,
                               header_request: header_request?,
                               ptcpnt_id: target_veteran.participant_id.present?,
                               icn: target_veteran&.mpi_icn,
@@ -126,7 +126,7 @@ module ClaimsApi
           headers_to_validate = %w[X-VA-SSN X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date]
           validate_headers(headers_to_validate)
           validate_ccg_token! if token.client_credentials_token?
-          veteran_from_headers(with_gender: with_gender)
+          veteran_from_headers(with_gender:)
         else
           ClaimsApi::Veteran.from_identity(identity: @current_user)
         end

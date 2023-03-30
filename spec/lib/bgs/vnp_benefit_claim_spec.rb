@@ -38,7 +38,7 @@ RSpec.describe BGS::VnpBenefitClaim do
     it 'returns a VnpBenefitClaimObject' do
       VCR.use_cassette('bgs/vnp_benefit_claim/create') do
         vnp_benefit_claim = BGS::VnpBenefitClaim.new(
-          proc_id: proc_id,
+          proc_id:,
           veteran: veteran_hash,
           user: user_object
         ).create
@@ -69,7 +69,7 @@ RSpec.describe BGS::VnpBenefitClaim do
           .and_call_original
 
         BGS::VnpBenefitClaim.new(
-          proc_id: proc_id,
+          proc_id:,
           veteran: veteran_hash,
           user: user_object
         ).create
@@ -81,7 +81,7 @@ RSpec.describe BGS::VnpBenefitClaim do
     it 'updates a VnpBenefitClaimObject' do
       VCR.use_cassette('bgs/vnp_benefit_claim/update') do
         existing_record = BGS::VnpBenefitClaim.new(
-          proc_id: proc_id,
+          proc_id:,
           veteran: veteran_hash,
           user: user_object
         ).update(benefit_claim, vnp_benefit_claim)
@@ -111,7 +111,7 @@ RSpec.describe BGS::VnpBenefitClaim do
           .and_call_original
 
         BGS::VnpBenefitClaim.new(
-          proc_id: proc_id,
+          proc_id:,
           veteran: veteran_hash,
           user: user_object
         ).update(benefit_claim, vnp_benefit_claim)

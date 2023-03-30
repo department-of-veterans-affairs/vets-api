@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe MockedAuthentication::CredentialInfoCreator do
   describe '#perform' do
-    subject { described_class.new(credential_info: credential_info).perform }
+    subject { described_class.new(credential_info:).perform }
 
     let(:credential_payload) { { 'credential' => 'some-credential' } }
     let(:credential_info) { Base64.encode64(credential_payload.deep_symbolize_keys.to_json) }

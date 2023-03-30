@@ -12,7 +12,7 @@ module VAForms
     def perform
       Rails.logger.info('VAForms::FormReloader is being called.')
       query = File.read(Rails.root.join('modules', 'va_forms', 'config', 'graphql_query.txt'))
-      body = { query: query }
+      body = { query: }
       response = connection.post do |req|
         req.path = 'graphql'
         req.body = body.to_json
@@ -37,7 +37,7 @@ module VAForms
     def test
       Rails.logger.info('VAForms::FormReloaderTest is being called.')
       query = File.read(Rails.root.join('modules', 'va_forms', 'config', 'test.txt'))
-      body = { query: query }
+      body = { query: }
       response = connection.post do |req|
         req.path = 'graphql'
         req.body = body.to_json

@@ -21,7 +21,7 @@ module VAProfile
               address_meta_data: address_suggestion_hash['address_meta_data'].except('validation_key')
             }
           end,
-          validation_key: validation_key
+          validation_key:
         }
       end
 

@@ -4,9 +4,9 @@ module Mobile
   module V0
     module Contracts
       class PaginationBase < Base
-        def self.params(*external_schemas, &block)
+        def self.params(*external_schemas, &)
           schemas = [Schemas::PaginationSchema, *external_schemas].uniq
-          super(*schemas, &block)
+          super(*schemas, &)
         end
 
         params

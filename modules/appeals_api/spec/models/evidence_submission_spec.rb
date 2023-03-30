@@ -7,7 +7,7 @@ describe AppealsApi::EvidenceSubmission, type: :model do
   let(:notice_of_disagreement) { create(:notice_of_disagreement) }
   let(:upload_submission) { create(:upload_submission) }
   let(:evidence_submission) do
-    create :evidence_submission, supportable: notice_of_disagreement, upload_submission: upload_submission
+    create :evidence_submission, supportable: notice_of_disagreement, upload_submission:
   end
 
   it 'responds to supportable' do

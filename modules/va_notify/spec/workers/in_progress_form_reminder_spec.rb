@@ -130,7 +130,7 @@ describe VANotify::InProgressFormReminder, type: :worker do
 
   def create_in_progress_form_days_ago(count, user_uuid:, form_id:)
     Timecop.freeze(count.days.ago)
-    in_progress_form = create(:in_progress_form, user_uuid: user_uuid, form_id: form_id)
+    in_progress_form = create(:in_progress_form, user_uuid:, form_id:)
     Timecop.return
     in_progress_form
   end

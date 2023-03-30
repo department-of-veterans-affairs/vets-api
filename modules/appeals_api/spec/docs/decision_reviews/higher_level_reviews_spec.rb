@@ -196,7 +196,7 @@ describe 'Higher-Level Reviews', swagger_doc: DocHelpers.output_json_path, type:
 
         it_behaves_like 'rswag example', desc: 'returns a 200 response',
                                          response_wrapper: :normalize_appeal_response,
-                                         scopes: scopes
+                                         scopes:
       end
 
       response '404', 'Higher-Level Review not found' do
@@ -204,7 +204,7 @@ describe 'Higher-Level Reviews', swagger_doc: DocHelpers.output_json_path, type:
 
         let(:uuid) { 'invalid' }
 
-        it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes: scopes
+        it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes:
       end
 
       it_behaves_like 'rswag 500 response'
@@ -386,24 +386,24 @@ describe 'Higher-Level Reviews', swagger_doc: DocHelpers.output_json_path, type:
           'timezone': { value: 'timezone' }
         }
 
-        parameter name: :schema_type,
+        parameter(name: :schema_type,
                   in: :path,
                   type: :string,
                   description: "Schema type. Can be: `#{examples.keys.join('`, `')}`",
                   required: true,
-                  examples: examples
+                  examples:)
 
         examples.each do |_, v|
           response '200', 'The JSON schema for the given `schema_type` parameter' do
             let(:schema_type) { v[:value] }
-            it_behaves_like 'rswag example', desc: v[:value], extract_desc: true, scopes: scopes
+            it_behaves_like 'rswag example', desc: v[:value], extract_desc: true, scopes:
           end
         end
 
         response '404', '`schema_type` not found' do
           schema '$ref' => '#/components/schemas/errorModel'
           let(:schema_type) { 'invalid_schema_type' }
-          it_behaves_like 'rswag example', desc: 'schema type not found', scopes: scopes
+          it_behaves_like 'rswag example', desc: 'schema type not found', scopes:
         end
 
         it_behaves_like 'rswag 500 response'

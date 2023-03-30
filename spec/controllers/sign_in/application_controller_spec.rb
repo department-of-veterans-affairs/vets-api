@@ -43,7 +43,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       let(:expected_error) { 'Access token JWT is malformed' }
       let(:expected_error_json) { { 'errors' => expected_error } }
       let(:sentry_context) do
-        { access_token_authorization_header: access_token, access_token_cookie: access_token_cookie }.compact
+        { access_token_authorization_header: access_token, access_token_cookie: }.compact
       end
       let(:sentry_log_level) { :error }
 
@@ -113,7 +113,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         end
 
         context 'and access_token is an expired JWT' do
-          let(:access_token_object) { create(:access_token, expiration_time: expiration_time) }
+          let(:access_token_object) { create(:access_token, expiration_time:) }
           let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
           let(:expiration_time) { Time.zone.now - 1.day }
           let(:expected_error) { 'Access token has expired' }
@@ -165,7 +165,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
 
       context 'and access_token is an expired JWT' do
-        let(:access_token_object) { create(:access_token, expiration_time: expiration_time) }
+        let(:access_token_object) { create(:access_token, expiration_time:) }
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
         let(:expiration_time) { Time.zone.now - 1.day }
         let(:expected_error) { 'Access token has expired' }
@@ -256,7 +256,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         end
 
         context 'and access_token is an expired JWT' do
-          let(:access_token_object) { create(:access_token, expiration_time: expiration_time) }
+          let(:access_token_object) { create(:access_token, expiration_time:) }
           let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
           let(:expiration_time) { Time.zone.now - 1.day }
           let(:expected_error) { 'Access token has expired' }
@@ -312,7 +312,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
 
       context 'and access_token is an expired JWT' do
-        let(:access_token_object) { create(:access_token, expiration_time: expiration_time) }
+        let(:access_token_object) { create(:access_token, expiration_time:) }
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
         let(:expiration_time) { Time.zone.now - 1.day }
         let(:expected_error) { 'Access token has expired' }
@@ -380,7 +380,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
 
     let(:authorization) { "Bearer #{access_token}" }
     let(:access_token_object) { create(:access_token, user_uuid: user_account.id, session_handle: session.handle) }
-    let(:session) { create(:oauth_session, user_account: user_account) }
+    let(:session) { create(:oauth_session, user_account:) }
     let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
     let(:user_account) { create(:user_account) }
     let(:va_exception_error) do
@@ -394,15 +394,15 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     let(:client_type) { 'mhv_session' }
     let(:sign_in_method) { SignIn::Constants::Auth::IDME }
     let(:authn_context) { LOA::IDME_LOA3 }
-    let(:tags_context) { { controller_name: controller_name, sign_in_method: sign_in_method, sign_in_acct_type: nil } }
+    let(:tags_context) { { controller_name:, sign_in_method:, sign_in_acct_type: nil } }
     let(:loa) { { current: 3, highest: 3 } }
     let(:user_context) do
-      { id: access_token_object.user_uuid, authn_context: authn_context, loa: loa, mhv_icn: user_account.icn }
+      { id: access_token_object.user_uuid, authn_context:, loa:, mhv_icn: user_account.icn }
     end
     let!(:user) do
       create(:user, uuid: access_token_object.user_uuid,
-                    loa: loa,
-                    authn_context: authn_context,
+                    loa:,
+                    authn_context:,
                     mhv_icn: user_account.icn,
                     fingerprint: request.ip)
     end

@@ -172,7 +172,7 @@ module HealthQuest
         org = organization_service.get(org_id)
 
         HealthQuest::QuestionnaireManager::PdfGenerator::Composer
-          .synthesize(questionnaire_response: snapshot, appointment: appointment, location: location, org: org)
+          .synthesize(questionnaire_response: snapshot, appointment:, location:, org:)
           .document
           .render
       end
@@ -209,13 +209,13 @@ module HealthQuest
       def compose
         @compose ||= begin
           @aggregated_data = transformer.manufacture(
-            lighthouse_appointments: lighthouse_appointments,
-            locations: locations,
-            organizations: organizations,
-            facilities: facilities,
-            questionnaires: questionnaires,
-            questionnaire_responses: questionnaire_responses,
-            save_in_progress: save_in_progress
+            lighthouse_appointments:,
+            locations:,
+            organizations:,
+            facilities:,
+            questionnaires:,
+            questionnaire_responses:,
+            save_in_progress:
           )
 
           aggregated_data.combine

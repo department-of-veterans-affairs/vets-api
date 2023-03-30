@@ -7,8 +7,8 @@ RSpec.describe SignIn::IntrospectSerializer do
 
   let(:user) do
     create(:user, :loa3,
-           middle_name: middle_name, logingov_uuid: logingov_uuid, idme_uuid: idme_uuid,
-           mhv_ids: mhv_ids, active_mhv_ids: mhv_ids, participant_id: participant_id)
+           middle_name:, logingov_uuid:, idme_uuid:,
+           mhv_ids:, active_mhv_ids: mhv_ids, participant_id:)
   end
   let(:middle_name) { 'some-middle-name' }
   let(:logingov_uuid) { 'some-logingov-uuid' }

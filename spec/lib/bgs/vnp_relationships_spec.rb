@@ -34,7 +34,7 @@ RSpec.describe BGS::VnpRelationships do
           dependent_array = [child]
 
           dependents = BGS::VnpRelationships.new(
-            proc_id: proc_id,
+            proc_id:,
             veteran: veteran_hash,
             dependents: dependent_array,
             step_children: [],
@@ -69,11 +69,11 @@ RSpec.describe BGS::VnpRelationships do
 
           dependent_array = [divorce]
           dependents = BGS::VnpRelationships.new(
-            proc_id: proc_id,
+            proc_id:,
             veteran: veteran_hash,
             dependents: dependent_array,
             step_children: [],
-            user: user
+            user:
           ).create_all
 
           expect(dependents.first).to include(
@@ -107,7 +107,7 @@ RSpec.describe BGS::VnpRelationships do
 
           dependent_array = [death]
           dependents = BGS::VnpRelationships.new(
-            proc_id: proc_id,
+            proc_id:,
             veteran: veteran_hash,
             dependents: dependent_array,
             step_children: [],
@@ -144,7 +144,7 @@ RSpec.describe BGS::VnpRelationships do
 
           dependent_array = [spouse]
           dependents = BGS::VnpRelationships.new(
-            proc_id: proc_id,
+            proc_id:,
             veteran: veteran_hash,
             dependents: dependent_array,
             step_children: [],
@@ -179,7 +179,7 @@ RSpec.describe BGS::VnpRelationships do
           }
 
           dependent_array = [spouse]
-          dependents = BGS::VnpRelationships.new(proc_id: proc_id,
+          dependents = BGS::VnpRelationships.new(proc_id:,
                                                  veteran: veteran_hash,
                                                  dependents: dependent_array,
                                                  step_children: [],
@@ -198,7 +198,7 @@ RSpec.describe BGS::VnpRelationships do
       it 'processes relationships for the veteran and spouse\'s ex-spouses' do
         VCR.use_cassette('bgs/vnp_relationships/create_all') do
           bgs_relationship = described_class.new(
-            proc_id: proc_id,
+            proc_id:,
             veteran: veteran_hash,
             dependents: dependent_relationships,
             step_children: [],
@@ -238,7 +238,7 @@ RSpec.describe BGS::VnpRelationships do
       it 'creates a relationship between a stepchild that left the house and a guardian' do
         VCR.use_cassette('bgs/vnp_relationships/step_children') do
           bgs_relationship = described_class.new(
-            proc_id: proc_id,
+            proc_id:,
             veteran: veteran_hash,
             dependents: [],
             step_children: step_children_relationships,

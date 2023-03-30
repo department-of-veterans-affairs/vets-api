@@ -24,7 +24,7 @@ RSpec.describe V0::Form1010cg::AttachmentsController, type: :controller do
       empty_req_params = [nil, {}]
       empty_req_params << { param_namespace => {} }
       empty_req_params.each do |params|
-        post(:create, params: params)
+        post(:create, params:)
 
         expect(response).to have_http_status(:bad_request)
 
@@ -42,7 +42,7 @@ RSpec.describe V0::Form1010cg::AttachmentsController, type: :controller do
 
     it 'requires file_data to be a file' do
       params = { param_namespace => { file_data: 'not_a_file_just_a_string' } }
-      post(:create, params: params)
+      post(:create, params:)
       expect(response).to have_http_status(:bad_request)
       response_body_errors = JSON.parse(response.body)['errors']
 
@@ -77,7 +77,7 @@ RSpec.describe V0::Form1010cg::AttachmentsController, type: :controller do
     it 'creates a FormAttachment' do
       params = { param_namespace => { file_data: pdf_file } }
       expect_form_attachment_creation
-      post(:create, params: params)
+      post(:create, params:)
 
       expect(response).to have_http_status(:ok)
       expect(

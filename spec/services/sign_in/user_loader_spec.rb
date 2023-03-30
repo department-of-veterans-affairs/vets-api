@@ -4,16 +4,16 @@ require 'rails_helper'
 
 RSpec.describe SignIn::UserLoader do
   describe '#perform' do
-    subject { SignIn::UserLoader.new(access_token: access_token, request_ip: request_ip).perform }
+    subject { SignIn::UserLoader.new(access_token:, request_ip:).perform }
 
-    let(:access_token) { create(:access_token, user_uuid: user.uuid, session_handle: session_handle) }
+    let(:access_token) { create(:access_token, user_uuid: user.uuid, session_handle:) }
     let!(:user) { create(:user, :loa3, uuid: user_uuid, loa: user_loa, icn: user_icn) }
     let(:user_uuid) { user_account.id }
     let(:user_account) { create(:user_account) }
-    let(:user_verification) { create(:idme_user_verification, user_account: user_account) }
+    let(:user_verification) { create(:idme_user_verification, user_account:) }
     let(:user_loa) { { current: SignIn::Constants::Auth::LOA_THREE, highest: SignIn::Constants::Auth::LOA_THREE } }
     let(:user_icn) { user_account.icn }
-    let(:session) { create(:oauth_session, user_account: user_account, user_verification: user_verification) }
+    let(:session) { create(:oauth_session, user_account:, user_verification:) }
     let(:session_handle) { session.handle }
     let(:request_ip) { '123.456.78.90' }
 
@@ -31,7 +31,7 @@ RSpec.describe SignIn::UserLoader do
 
       context 'and associated session exists' do
         let(:session) do
-          create(:oauth_session, client_id: client_id, user_account: user_account, user_verification: user_verification)
+          create(:oauth_session, client_id:, user_account:, user_verification:)
         end
         let(:edipi) { 'some-mpi-edipi' }
         let(:idme_uuid) { user_verification.idme_uuid }
@@ -43,13 +43,13 @@ RSpec.describe SignIn::UserLoader do
         let(:client_id) { client_config.client_id }
         let(:auth_broker) { SignIn::Constants::Auth::BROKER_CODE }
         let(:sign_in) do
-          { service_name: service_name,
-            auth_broker: auth_broker,
-            client_id: client_id }
+          { service_name:,
+            auth_broker:,
+            client_id: }
         end
 
         before do
-          stub_mpi(build(:mvi_profile, edipi: edipi, icn: user_icn))
+          stub_mpi(build(:mvi_profile, edipi:, icn: user_icn))
         end
 
         it 'reloads user object with expected attributes' do

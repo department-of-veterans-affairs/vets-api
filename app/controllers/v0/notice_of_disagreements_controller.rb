@@ -3,7 +3,7 @@
 module V0
   class NoticeOfDisagreementsController < AppealsBaseController
     def create
-      nod_response_body = AppealSubmission.submit_nod(current_user: @current_user, request_body_hash: request_body_hash)
+      nod_response_body = AppealSubmission.submit_nod(current_user: @current_user, request_body_hash:)
       render json: nod_response_body
     rescue => e
       request = begin
@@ -13,7 +13,7 @@ module V0
       end
 
       log_exception_to_personal_information_log(
-        e, error_class: error_class(method: 'create', exception_class: e.class), request: request
+        e, error_class: error_class(method: 'create', exception_class: e.class), request:
       )
       raise
     end

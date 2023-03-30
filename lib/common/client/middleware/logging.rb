@@ -18,7 +18,7 @@ module Common
               data: {
                 method: env.method,
                 url: env.url.to_s,
-                request_body: request_body,
+                request_body:,
                 response_body: Base64.encode64(response_env.body)
               }
             )

@@ -10,11 +10,11 @@ RSpec.describe Login::UserVerifier do
       OpenStruct.new(
         {
           edipi: edipi_identifier,
-          sign_in: { service_name: login_value, auth_broker: auth_broker },
+          sign_in: { service_name: login_value, auth_broker: },
           mhv_correlation_id: mhv_correlation_id_identifier,
           idme_uuid: idme_uuid_identifier,
           logingov_uuid: logingov_uuid_identifier,
-          icn: icn,
+          icn:,
           user_verification_id: nil,
           user_account_uuid: nil
         }
@@ -62,8 +62,8 @@ RSpec.describe Login::UserVerifier do
         let(:idme_uuid_identifier) { 'some-idme-uuid-identifier' }
         let!(:user_verification) do
           UserVerification.create!(type => idme_uuid_identifier,
-                                   backing_idme_uuid: backing_idme_uuid,
-                                   user_account: user_account)
+                                   backing_idme_uuid:,
+                                   user_account:)
         end
         let(:user_account) { UserAccount.new }
 
@@ -88,9 +88,9 @@ RSpec.describe Login::UserVerifier do
           let(:user_account) { UserAccount.new(icn: user_identity.icn) }
           let!(:user_verification) do
             UserVerification.create!(authn_identifier_type => authn_identifier,
-                                     user_account: user_account,
-                                     backing_idme_uuid: backing_idme_uuid,
-                                     verified_at: verified_at)
+                                     user_account:,
+                                     backing_idme_uuid:,
+                                     verified_at:)
           end
           let(:verified_at) { Time.zone.now - 1.day }
 
@@ -107,9 +107,9 @@ RSpec.describe Login::UserVerifier do
             let(:old_backing_idme_uuid) { 'some-old-backing-idme-uuid' }
             let!(:user_verification) do
               UserVerification.create!(authn_identifier_type => authn_identifier,
-                                       user_account: user_account,
+                                       user_account:,
                                        backing_idme_uuid: old_backing_idme_uuid,
-                                       verified_at: verified_at)
+                                       verified_at:)
             end
 
             it 'updates user verification with the new determined backing idme uuid' do
@@ -148,7 +148,7 @@ RSpec.describe Login::UserVerifier do
 
                 before do
                   UserVerification.create!(authn_identifier_type => 'some-other-authn-identifier',
-                                           backing_idme_uuid: backing_idme_uuid,
+                                           backing_idme_uuid:,
                                            user_account: other_user_account)
                 end
 
@@ -177,7 +177,7 @@ RSpec.describe Login::UserVerifier do
 
                 it 'sets the deprecated user account to the initial user_verification user_account' do
                   subject
-                  deprecated_account = DeprecatedUserAccount.find_by(user_verification: user_verification).user_account
+                  deprecated_account = DeprecatedUserAccount.find_by(user_verification:).user_account
                   expect(deprecated_account).to eq(user_account)
                 end
 
@@ -199,7 +199,7 @@ RSpec.describe Login::UserVerifier do
 
                 before do
                   UserVerification.create!(authn_identifier_type => 'some-other-authn-identifier',
-                                           backing_idme_uuid: backing_idme_uuid,
+                                           backing_idme_uuid:,
                                            user_account: other_user_account)
                 end
 
@@ -277,7 +277,7 @@ RSpec.describe Login::UserVerifier do
           end
 
           context 'and user_account matching icn already exists' do
-            let!(:existing_user_account) { UserAccount.create!(icn: icn) }
+            let!(:existing_user_account) { UserAccount.create!(icn:) }
 
             it 'does not create a new user_account record' do
               expect { subject }.not_to change(UserAccount, :count)
@@ -303,7 +303,7 @@ RSpec.describe Login::UserVerifier do
         context 'and user_verification for user credential already exists' do
           let!(:user_verification) do
             UserVerification.create!(authn_identifier_type => authn_identifier,
-                                     backing_idme_uuid: backing_idme_uuid,
+                                     backing_idme_uuid:,
                                      user_account: UserAccount.new(icn: nil))
           end
 

@@ -85,8 +85,8 @@ module Veteran
       middle_initial = vso['Representative'].split&.third
 
       rep = Veteran::Service::Representative.find_or_initialize_by(representative_id: vso['Registration Num'],
-                                                                   first_name: first_name,
-                                                                   last_name: last_name)
+                                                                   first_name:,
+                                                                   last_name:)
       poa_code = vso['POA'].gsub(/\W/, '')
       rep.poa_codes << poa_code unless rep.poa_codes.include?(poa_code)
 

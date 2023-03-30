@@ -23,8 +23,8 @@ module CARMA
 
       def add(document_type, local_path)
         all << CARMA::Models::Attachment.new(
-          carma_case_id: carma_case_id,
-          document_type: document_type,
+          carma_case_id:,
+          document_type:,
           file_path: local_path,
           veteran_name: {
             first: veteran_first_name,
@@ -63,7 +63,7 @@ module CARMA
 
       def to_hash
         {
-          has_errors: has_errors,
+          has_errors:,
           data: all.map(&:to_hash)
         }
       end

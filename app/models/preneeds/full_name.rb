@@ -28,7 +28,7 @@ module Preneeds
     def as_eoas
       hash = {
         firstName: first, lastName: last, maidenName: maiden,
-        middleName: middle, suffix: suffix
+        middleName: middle, suffix:
       }
 
       %i[maidenName middleName suffix].each { |key| hash.delete(key) if hash[key].blank? }

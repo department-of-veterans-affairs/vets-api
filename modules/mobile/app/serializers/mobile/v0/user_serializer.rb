@@ -79,8 +79,8 @@ module Mobile
         province = profile.dig(:residential_address, :province)
         if address_type.in?(['DOMESTIC', 'OVERSEAS MILITARY']) && province.present?
           Rails.logger.info('Mobile User Address - Province in domestic or military address',
-                            province: province,
-                            address_type: address_type)
+                            province:,
+                            address_type:)
         end
       end
 
@@ -141,7 +141,7 @@ module Mobile
       def facility(facility_id, facility_name)
         cerner_facility_ids = user.cerner_facility_ids || []
         {
-          facility_id: facility_id,
+          facility_id:,
           is_cerner: cerner_facility_ids.include?(facility_id),
           facility_name: facility_name.nil? ? '' : facility_name
         }

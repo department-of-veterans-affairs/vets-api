@@ -109,7 +109,7 @@ RSpec.describe 'V2::Demographics', type: :request do
 
         VCR.use_cassette('check_in/chip/confirm_demographics/confirm_demographics_504', match_requests_on: [:host]) do
           VCR.use_cassette('check_in/chip/token/token_200') do
-            patch "/check_in/v2/demographics/#{id}", params: params
+            patch "/check_in/v2/demographics/#{id}", params:
           end
         end
         expect(response.status).to eq(400)
@@ -168,7 +168,7 @@ RSpec.describe 'V2::Demographics', type: :request do
 
         VCR.use_cassette('check_in/chip/confirm_demographics/confirm_demographics_200', match_requests_on: [:host]) do
           VCR.use_cassette('check_in/chip/token/token_200') do
-            patch "/check_in/v2/demographics/#{id}", params: params
+            patch "/check_in/v2/demographics/#{id}", params:
           end
         end
         expect(response.status).to eq(200)

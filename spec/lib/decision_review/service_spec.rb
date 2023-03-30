@@ -52,7 +52,7 @@ describe DecisionReview::Service do
     let(:user) do
       name = 'x' * 100
       icn = 123
-      build :user, first_name: name, middle_name: name, last_name: name, icn: icn
+      build :user, first_name: name, middle_name: name, last_name: name, icn:
     end
 
     it 'returns a properly formatted 200 response' do
@@ -64,7 +64,7 @@ describe DecisionReview::Service do
   end
 
   describe '#create_higher_level_review' do
-    subject { described_class.new.create_higher_level_review(request_body: body.to_json, user: user) }
+    subject { described_class.new.create_higher_level_review(request_body: body.to_json, user:) }
 
     let(:body) { VetsJsonSchema::EXAMPLES['HLR-CREATE-REQUEST-BODY'] }
 
@@ -103,7 +103,7 @@ describe DecisionReview::Service do
   end
 
   describe '#create_notice_of_disagreement' do
-    subject { described_class.new.create_notice_of_disagreement(request_body: body.to_json, user: user) }
+    subject { described_class.new.create_notice_of_disagreement(request_body: body.to_json, user:) }
 
     let(:body) do
       full_body = JSON.parse(File.read(
@@ -208,7 +208,7 @@ describe DecisionReview::Service do
 
   describe '#get_higher_level_review_contestable_issues' do
     subject do
-      described_class.new.get_higher_level_review_contestable_issues(benefit_type: benefit_type, user: user)
+      described_class.new.get_higher_level_review_contestable_issues(benefit_type:, user:)
     end
 
     let(:benefit_type) { 'compensation' }
@@ -268,7 +268,7 @@ describe DecisionReview::Service do
 
   describe '#get_notice_of_disagreement_contestable_issues' do
     subject do
-      described_class.new.get_notice_of_disagreement_contestable_issues(user: user)
+      described_class.new.get_notice_of_disagreement_contestable_issues(user:)
     end
 
     context '200 response' do
@@ -344,7 +344,7 @@ describe DecisionReview::Service do
 
   describe '#put_notice_of_disagreement_upload' do
     subject do
-      described_class.new.put_notice_of_disagreement_upload(upload_url: path, file_upload: file_upload,
+      described_class.new.put_notice_of_disagreement_upload(upload_url: path, file_upload:,
                                                             metadata_string: metadata)
     end
 
@@ -370,7 +370,7 @@ describe DecisionReview::Service do
 
   describe '#get_notice_of_disagreement_upload' do
     subject do
-      described_class.new.get_notice_of_disagreement_upload(guid: guid)
+      described_class.new.get_notice_of_disagreement_upload(guid:)
     end
 
     let(:guid) { '59cdb98f-f94b-4aaa-8952-4d1e59b6e40a' }

@@ -5,12 +5,12 @@ require 'rails_helper'
 RSpec.describe SignIn::OAuthSession, type: :model do
   let(:oauth_session) do
     create(:oauth_session,
-           user_verification: user_verification,
-           handle: handle,
-           hashed_refresh_token: hashed_refresh_token,
-           refresh_expiration: refresh_expiration,
-           refresh_creation: refresh_creation,
-           client_id: client_id)
+           user_verification:,
+           handle:,
+           hashed_refresh_token:,
+           refresh_expiration:,
+           refresh_creation:,
+           client_id:)
   end
 
   let(:user_verification) { create(:user_verification) }
@@ -48,7 +48,7 @@ RSpec.describe SignIn::OAuthSession, type: :model do
       end
 
       context 'when handle is duplicate' do
-        let!(:oauth_session_dup) { create(:oauth_session, handle: handle) }
+        let!(:oauth_session_dup) { create(:oauth_session, handle:) }
         let(:expected_error_message) { 'Validation failed: Handle has already been taken' }
 
         it 'raises validation error' do
@@ -70,7 +70,7 @@ RSpec.describe SignIn::OAuthSession, type: :model do
       end
 
       context 'when hashed_refresh_token is duplicate' do
-        let!(:oauth_session_dup) { create(:oauth_session, hashed_refresh_token: hashed_refresh_token) }
+        let!(:oauth_session_dup) { create(:oauth_session, hashed_refresh_token:) }
         let(:expected_error_message) { 'Validation failed: Hashed refresh token has already been taken' }
 
         it 'raises validation error' do

@@ -76,7 +76,7 @@ describe TravelClaim::RedisClient do
     let(:token) { '12345' }
 
     it 'saves the value in cache' do
-      expect(redis_client.save_token(token: token)).to eq(true)
+      expect(redis_client.save_token(token:)).to eq(true)
 
       val = Rails.cache.read(
         'token',
@@ -101,7 +101,7 @@ describe TravelClaim::RedisClient do
 
     context 'when cache does not exist' do
       it 'returns nil' do
-        expect(redis_client.icn(uuid: uuid)).to eq(nil)
+        expect(redis_client.icn(uuid:)).to eq(nil)
       end
     end
 
@@ -116,7 +116,7 @@ describe TravelClaim::RedisClient do
       end
 
       it 'returns the cached value' do
-        expect(redis_client.icn(uuid: uuid)).to eq(patient_icn)
+        expect(redis_client.icn(uuid:)).to eq(patient_icn)
       end
     end
 
@@ -132,7 +132,7 @@ describe TravelClaim::RedisClient do
 
       it 'returns nil' do
         Timecop.travel(appt_data_expiry.from_now) do
-          expect(redis_client.icn(uuid: uuid)).to eq(nil)
+          expect(redis_client.icn(uuid:)).to eq(nil)
         end
       end
     end

@@ -12,7 +12,7 @@ module VANotify
       notify_client.send_email(
         {
           recipient_identifier: { id_value: icn, id_type: 'ICN' },
-          template_id: template_id, personalisation: personalisation
+          template_id:, personalisation:
         }.compact
       )
     rescue Common::Exceptions::BackendServiceException => e
@@ -21,7 +21,7 @@ module VANotify
           e,
           {
             args: { recipient_identifier: { id_value: icn, id_type: 'ICN' },
-                    template_id: template_id, personalisation: personalisation }
+                    template_id:, personalisation: }
           },
           { error: :va_notify_icn_job }
         )

@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe V2::Lorota::Client do
-  subject { described_class.build(check_in: check_in) }
+  subject { described_class.build(check_in:) }
 
   let(:check_in) do
     CheckIn::V2::Session.build(data: { uuid: 'd602d9eb-9a31-484f-9637-13ab0b507e0d', dob: '1970-02-20',
@@ -81,13 +81,13 @@ describe V2::Lorota::Client do
     end
 
     it 'returns a valid response' do
-      expect(subject.data(token: token)).to eq(faraday_response)
+      expect(subject.data(token:)).to eq(faraday_response)
     end
 
     it 'yields to block' do
       expect_any_instance_of(Faraday::Connection).to receive(:get).with(anything).and_yield(Faraday::Request.new)
 
-      subject.data(token: token)
+      subject.data(token:)
     end
   end
 end

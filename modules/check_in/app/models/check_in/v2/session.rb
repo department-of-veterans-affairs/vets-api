@@ -93,7 +93,7 @@ module CheckIn
       # @return [Hash]
       #
       def unauthorized_message
-        { permissions: 'read.none', status: 'success', uuid: uuid }
+        { permissions: 'read.none', status: 'success', uuid: }
       end
 
       #
@@ -102,7 +102,7 @@ module CheckIn
       # @return [Hash]
       #
       def success_message
-        { permissions: 'read.full', status: 'success', uuid: uuid }
+        { permissions: 'read.full', status: 'success', uuid: }
       end
 
       #

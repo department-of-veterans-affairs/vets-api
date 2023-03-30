@@ -40,8 +40,8 @@ module Mobile
 
     def fetch_from_external_service(user, start_date, end_date)
       appointments_proxy(user).get_appointments(
-        start_date: start_date,
-        end_date: end_date,
+        start_date:,
+        end_date:,
         include_pending: true
       )
     end
@@ -61,8 +61,8 @@ module Mobile
         dates = {
           requested_start_date: start_date,
           requested_end_date: end_date,
-          latest_allowable_cache_start_date: latest_allowable_cache_start_date,
-          earliest_allowable_cache_end_date: earliest_allowable_cache_end_date
+          latest_allowable_cache_start_date:,
+          earliest_allowable_cache_end_date:
         }
         Rails.logger.error('Appointments fetch request outside of allowable cache range', dates)
       end

@@ -31,7 +31,7 @@ module VeteranVerification
     end
 
     def sign(payload)
-      headers = { kid: kid }
+      headers = { kid: }
       JWT.encode(payload, @keypair, 'RS256', headers)
     end
   end

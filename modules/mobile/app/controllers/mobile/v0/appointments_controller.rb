@@ -14,12 +14,12 @@ module Mobile
         reverse_sort = !(params[:sort] =~ /-startDateUtc/).nil?
 
         validated_params = Mobile::V0::Contracts::Appointments.new.call(
-          start_date: start_date,
-          end_date: end_date,
+          start_date:,
+          end_date:,
           page_number: params.dig(:page, :number),
           page_size: params.dig(:page, :size),
-          use_cache: use_cache,
-          reverse_sort: reverse_sort,
+          use_cache:,
+          reverse_sort:,
           included: params[:included],
           include: params[:include]
         )
@@ -86,7 +86,7 @@ module Mobile
       end
 
       def paginate(appointments, validated_params)
-        Mobile::PaginationHelper.paginate(list: appointments, validated_params: validated_params)
+        Mobile::PaginationHelper.paginate(list: appointments, validated_params:)
       end
 
       def include_pending?(params)

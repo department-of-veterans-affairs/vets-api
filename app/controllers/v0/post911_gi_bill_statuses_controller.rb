@@ -62,7 +62,7 @@ module V0
 
     def log_vet_not_found(user, timestamp)
       PersonalInformationLog.create(
-        data: { timestamp: timestamp, user: user_json(user) },
+        data: { timestamp:, user: user_json(user) },
         error_class: 'EVSS::GiBillStatus::NotFound'
       )
     end

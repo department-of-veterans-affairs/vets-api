@@ -196,7 +196,7 @@ module EMISRedis
         return {} unless service_branch
 
         {
-          service_branch: service_branch,
+          service_branch:,
           date_range: {
             from: military_service_episode.begin_date.to_s,
             to: military_service_episode.end_date.to_s

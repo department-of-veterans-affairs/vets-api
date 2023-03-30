@@ -18,14 +18,14 @@ module Mobile
     end
 
     def self.paginate(list:, validated_params:, errors: nil)
-      new(list: list, validated_params: validated_params, errors: errors).paginate
+      new(list:, validated_params:, errors:).paginate
     end
 
     def paginate
       pages = list.each_slice(page_size).to_a
 
       page_meta_data = {
-        errors: errors,
+        errors:,
         meta: {
           pagination: {
             current_page: page_number,

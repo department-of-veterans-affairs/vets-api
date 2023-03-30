@@ -10,7 +10,7 @@ module SentryLogging
 
     if Settings.sentry.dsn.present?
       set_raven_metadata(extra_context, tags_context)
-      Raven.capture_message(message, level: level)
+      Raven.capture_message(message, level:)
     end
   end
 
@@ -19,7 +19,7 @@ module SentryLogging
 
     if Settings.sentry.dsn.present?
       set_raven_metadata(extra_context, tags_context)
-      Raven.capture_exception(exception.cause.presence || exception, level: level)
+      Raven.capture_exception(exception.cause.presence || exception, level:)
     end
 
     if exception.is_a? Common::Exceptions::BackendServiceException
@@ -52,7 +52,7 @@ module SentryLogging
     level = 'warn' if level == 'warning'
     if errors.present?
       error_details = errors.first.attributes.compact.reject { |_k, v| v.try(:empty?) }
-      Rails.logger.send(level, message, error_details.merge(backtrace: backtrace))
+      Rails.logger.send(level, message, error_details.merge(backtrace:))
     else
       Rails.logger.send(level, message)
     end

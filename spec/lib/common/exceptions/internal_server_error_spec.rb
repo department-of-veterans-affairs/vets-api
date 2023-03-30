@@ -23,7 +23,7 @@ describe Common::Exceptions::InternalServerError do
     let(:environment) { 'production' }
     let(:env) { ActiveSupport::StringInquirer.new(environment) }
 
-    before { stub_const('Rails', double('Rails', env: env)) }
+    before { stub_const('Rails', double('Rails', env:)) }
 
     context 'with environment = production' do
       it 'implements #errors which returns an array' do

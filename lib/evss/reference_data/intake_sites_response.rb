@@ -18,7 +18,7 @@ module EVSS
 
       def initialize(status, response = nil)
         separation_locations = response&.body&.dig('intake_sites')
-        super(status, separation_locations: separation_locations)
+        super(status, separation_locations:)
       end
     end
   end

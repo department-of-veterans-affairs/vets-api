@@ -38,22 +38,22 @@ module MedicalCopays
         case status
         when 200
           StatsD.increment("#{STATSD_KEY_PREFIX}.success")
-          { data: transformed_body, status: status }
+          { data: transformed_body, status: }
         when 400
           StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
-          { data: { message: 'Bad request' }, status: status }
+          { data: { message: 'Bad request' }, status: }
         when 401
           StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
-          { data: { message: 'Unauthorized' }, status: status }
+          { data: { message: 'Unauthorized' }, status: }
         when 403
           StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
-          { data: { message: 'Forbidden' }, status: status }
+          { data: { message: 'Forbidden' }, status: }
         when 404
           StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
-          { data: { message: 'Resource not found' }, status: status }
+          { data: { message: 'Resource not found' }, status: }
         else
           StatsD.increment("#{STATSD_KEY_PREFIX}.failure")
-          { data: { message: 'Something went wrong' }, status: status }
+          { data: { message: 'Something went wrong' }, status: }
         end
       end
 

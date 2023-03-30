@@ -44,7 +44,7 @@ module CovidVaccine
       # Writes CSV to file for an existing batch. Does not permute state of any records.
       # This is a convenience/failsafe mechanism for manual intervention
       def self.write_to_file(batch_id, stream)
-        records = CovidVaccine::V0::ExpandedRegistrationSubmission.where(batch_id: batch_id)
+        records = CovidVaccine::V0::ExpandedRegistrationSubmission.where(batch_id:)
         csv_generator = ExpandedRegistrationCsvGenerator.new(records)
         stream.write csv_generator.io.read
         records.length
@@ -57,13 +57,13 @@ module CovidVaccine
         return if batch_id.nil?
 
         CovidVaccine::V0::ExpandedRegistrationSubmission
-          .where(batch_id: batch_id).update_all(state: 'enrollment_pending')
+          .where(batch_id:).update_all(state: 'enrollment_pending')
       end
 
       def self.batch_records!
         batch_id = Time.now.utc.strftime('%Y%m%d%H%M%S')
         records = CovidVaccine::V0::ExpandedRegistrationSubmission.where(state: 'received', batch_id: nil)
-        records.update_all(batch_id: batch_id)
+        records.update_all(batch_id:)
         batch_id
       end
       # rubocop:enable Rails/SkipsModelValidations

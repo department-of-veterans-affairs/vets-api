@@ -39,6 +39,6 @@ class EvssRatedDisabilitiesProvider
         )
       end
 
-    DisabilityCompensation::ApiProvider::RatedDisabilitiesResponse.new(rated_disabilities: rated_disabilities)
+    DisabilityCompensation::ApiProvider::RatedDisabilitiesResponse.new(rated_disabilities:)
   end
 end

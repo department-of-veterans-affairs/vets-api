@@ -125,9 +125,9 @@ module VSPDanger
 
         OpenStruct.new(
           total_changes: insertions + deletions,
-          insertions: insertions,
-          deletions: deletions,
-          file_name: file_name
+          insertions:,
+          deletions:,
+          file_name:
         )
       end.compact
     end

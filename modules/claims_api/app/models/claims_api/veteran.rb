@@ -69,7 +69,7 @@ module ClaimsApi
     end
 
     def mpi_record?(user_key: uuid)
-      mpi.mvi_response(user_key: user_key).ok?
+      mpi.mvi_response(user_key:).ok?
     end
 
     def ssn=(new_ssn)
@@ -109,7 +109,7 @@ module ClaimsApi
 
     def self.build_profile(birth_date)
       OpenStruct.new(
-        birth_date: birth_date
+        birth_date:
       )
     end
 

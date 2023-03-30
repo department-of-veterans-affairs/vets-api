@@ -174,7 +174,7 @@ module HealthQuest
           x = type == 'key' ? 30 : 120
           style = type == 'key' ? :normal : :medium
 
-          composer.text_box(value, at: [x, composer.bounds.top - y_dec], size: 12, style: style)
+          composer.text_box(value, at: [x, composer.bounds.top - y_dec], size: 12, style:)
         end
 
         ##

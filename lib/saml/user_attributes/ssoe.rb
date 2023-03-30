@@ -193,7 +193,7 @@ module SAML
                   else
                     SAML::User::AUTHN_CONTEXTS.fetch(authn_context).fetch(:sign_in)
                   end
-        sign_in.merge(account_type: account_type, auth_broker: SAML::URLService::BROKER_CODE)
+        sign_in.merge(account_type:, auth_broker: SAML::URLService::BROKER_CODE)
       end
 
       def needs_csp_id_mpi_update?
@@ -201,7 +201,7 @@ module SAML
       end
 
       def to_hash
-        SERIALIZABLE_ATTRIBUTES.index_with { |k| send(k) }.merge(authn_context: authn_context)
+        SERIALIZABLE_ATTRIBUTES.index_with { |k| send(k) }.merge(authn_context:)
       end
 
       # Raise any fatal exceptions due to validation issues

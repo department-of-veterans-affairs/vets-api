@@ -147,7 +147,7 @@ module DecisionReview
 
     def get_notice_of_disagreement_upload_url(nod_uuid:, ssn:)
       with_monitoring_and_error_handling do
-        perform :post, 'notice_of_disagreements/evidence_submissions', { nod_uuid: nod_uuid },
+        perform :post, 'notice_of_disagreements/evidence_submissions', { nod_uuid: },
                 { 'X-VA-SSN' => ssn.to_s.strip.presence }
       end
     end
@@ -239,7 +239,7 @@ module DecisionReview
       if missing_required_fields.present?
         raise Common::Exceptions::Forbidden.new(
           source: "#{self.class}##{__method__}",
-          detail: { missing_required_fields: missing_required_fields }
+          detail: { missing_required_fields: }
         )
       end
 
@@ -261,7 +261,7 @@ module DecisionReview
       if missing_required_fields.present?
         raise Common::Exceptions::Forbidden.new(
           source: "#{self.class}##{__method__}",
-          detail: { missing_required_fields: missing_required_fields }
+          detail: { missing_required_fields: }
         )
       end
 
@@ -281,8 +281,8 @@ module DecisionReview
       }
     end
 
-    def with_monitoring_and_error_handling(&block)
-      with_monitoring(2, &block)
+    def with_monitoring_and_error_handling(&)
+      with_monitoring(2, &)
     rescue => e
       handle_error(e)
     end
@@ -329,7 +329,7 @@ module DecisionReview
       PersonalInformationLog.create!(
         error_class: "#{self.class.name}#validate_against_schema exception #{e.class}#{append_to_error_class}",
         data: {
-          json: json, schema: schema, errors: errors,
+          json:, schema:, errors:,
           error: Class.new.include(FailedRequestLoggable).exception_hash(e)
         }
       )

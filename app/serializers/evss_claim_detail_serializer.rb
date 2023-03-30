@@ -54,7 +54,7 @@ class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
     return nil unless date
 
     {
-      type: type,
+      type:,
       date: Date.strptime(date, '%m/%d/%Y')
     }
   end
@@ -94,7 +94,7 @@ class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
   def create_tracked_item_event(type, obj)
     documents = create_documents(obj['vba_documents'] || [])
     event = {
-      type: type,
+      type:,
       tracked_item_id: obj['tracked_item_id'],
       description: ActionView::Base.full_sanitizer.sanitize(obj['description']),
       display_name: obj['displayed_name'],
@@ -107,7 +107,7 @@ class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
       received_date: date_or_nil_from(obj, 'received_date'),
       closed_date: date_or_nil_from(obj, 'closed_date'),
       suspense_date: date_or_nil_from(obj, 'suspense_date'),
-      documents: documents,
+      documents:,
       upload_date: latest_upload_date(documents)
     }
     event[:date] = event.slice(*EVENT_DATE_FIELDS).values.compact.first

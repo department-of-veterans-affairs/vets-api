@@ -32,7 +32,7 @@ describe AppealsApi::StatsReport do
       Timecop.freeze(oldest_date)
       starting_statuses.each_with_index do |status, i|
         stalled_groups[i].each_with_index do |r, j|
-          r.update_status!(status: status)
+          r.update_status!(status:)
           Timecop.travel(oldest_date + (i + j + 1).weeks)
         end
       end
@@ -120,7 +120,7 @@ describe AppealsApi::StatsReport do
         expect(records.pluck(:id)).to match_array(stalled_records_in_status.pluck(:id))
         expect(records).to all(have_attributes(
                                  {
-                                   status: status,
+                                   status:,
                                    updated_at: be < end_date - described_class::STALLED_RECORD_MONTHS.first.months
                                  }
                                ))

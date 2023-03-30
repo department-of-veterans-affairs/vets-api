@@ -443,11 +443,11 @@ class User < Common::RedisStore
     when SAML::User::DSLOGON_CSID
       return UserVerification.find_by(dslogon_uuid: identity.edipi) if identity.edipi
     when SAML::User::LOGINGOV_CSID
-      return UserVerification.find_by(logingov_uuid: logingov_uuid) if logingov_uuid
+      return UserVerification.find_by(logingov_uuid:) if logingov_uuid
     end
     return nil unless idme_uuid
 
-    UserVerification.find_by(idme_uuid: idme_uuid) || UserVerification.find_by(backing_idme_uuid: idme_uuid)
+    UserVerification.find_by(idme_uuid:) || UserVerification.find_by(backing_idme_uuid: idme_uuid)
   end
 
   def get_relationships_array

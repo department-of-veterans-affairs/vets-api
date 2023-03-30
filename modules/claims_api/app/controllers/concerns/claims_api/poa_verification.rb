@@ -79,7 +79,7 @@ module ClaimsApi
             middle_initial = @current_user.middle_name[0]
             reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
                                                                    last_name: @current_user.last_name,
-                                                                   middle_initial: middle_initial)
+                                                                   middle_initial:)
 
             raise ::Common::Exceptions::Unauthorized, detail: 'VSO Representative Not Found' if reps.blank?
             raise ::Common::Exceptions::Unauthorized, detail: 'Ambiguous VSO Representative Results' if reps.count > 1

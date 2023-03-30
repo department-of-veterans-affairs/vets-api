@@ -28,7 +28,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request do
 
   before do
     allow(JWT).to receive(:decode).and_return(jwt)
-    Session.create(uuid: user.uuid, token: token)
+    Session.create(uuid: user.uuid, token:)
     allow(Settings.vet_verification).to receive(:mock_bgs).and_return(false)
   end
 

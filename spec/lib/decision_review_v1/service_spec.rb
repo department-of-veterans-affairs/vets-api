@@ -100,7 +100,7 @@ describe DecisionReviewV1::Service do
   end
 
   describe '#create_higher_level_review' do
-    subject { described_class.new.create_higher_level_review(request_body: body.to_json, user: user) }
+    subject { described_class.new.create_higher_level_review(request_body: body.to_json, user:) }
 
     let(:body) { VetsJsonSchema::EXAMPLES['HLR-CREATE-REQUEST-BODY_V1'] }
 
@@ -169,7 +169,7 @@ describe DecisionReviewV1::Service do
 
   describe '#get_higher_level_review_contestable_issues' do
     subject do
-      described_class.new.get_higher_level_review_contestable_issues(benefit_type: benefit_type, user: user)
+      described_class.new.get_higher_level_review_contestable_issues(benefit_type:, user:)
     end
 
     let(:benefit_type) { 'compensation' }
@@ -228,7 +228,7 @@ describe DecisionReviewV1::Service do
   end
 
   describe '#create_notice_of_disagreement' do
-    subject { described_class.new.create_notice_of_disagreement(request_body: body.to_json, user: user) }
+    subject { described_class.new.create_notice_of_disagreement(request_body: body.to_json, user:) }
 
     let(:body) do
       full_body = VetsJsonSchema::EXAMPLES['NOD-CREATE-REQUEST-BODY_V1']
@@ -301,7 +301,7 @@ describe DecisionReviewV1::Service do
 
   describe '#get_notice_of_disagreement_contestable_issues' do
     subject do
-      described_class.new.get_notice_of_disagreement_contestable_issues(user: user)
+      described_class.new.get_notice_of_disagreement_contestable_issues(user:)
     end
 
     context '200 response' do
@@ -377,7 +377,7 @@ describe DecisionReviewV1::Service do
 
   describe '#put_notice_of_disagreement_upload' do
     subject do
-      described_class.new.put_notice_of_disagreement_upload(upload_url: path, file_upload: file_upload,
+      described_class.new.put_notice_of_disagreement_upload(upload_url: path, file_upload:,
                                                             metadata_string: metadata)
     end
 
@@ -403,7 +403,7 @@ describe DecisionReviewV1::Service do
 
   describe '#get_notice_of_disagreement_upload' do
     subject do
-      described_class.new.get_notice_of_disagreement_upload(guid: guid)
+      described_class.new.get_notice_of_disagreement_upload(guid:)
     end
 
     let(:guid) { '59cdb98f-f94b-4aaa-8952-4d1e59b6e40a' }
@@ -435,7 +435,7 @@ describe DecisionReviewV1::Service do
   end
 
   describe '#create_supplemental_claim' do
-    subject { described_class.new.create_supplemental_claim(request_body: body.to_json, user: user) }
+    subject { described_class.new.create_supplemental_claim(request_body: body.to_json, user:) }
 
     let(:body) { VetsJsonSchema::EXAMPLES['SC-CREATE-REQUEST-BODY_V1'] }
 
@@ -504,7 +504,7 @@ describe DecisionReviewV1::Service do
 
   describe '#get_supplemental_claim_contestable_issues' do
     subject do
-      described_class.new.get_supplemental_claim_contestable_issues(user: user, benefit_type: benefit_type)
+      described_class.new.get_supplemental_claim_contestable_issues(user:, benefit_type:)
     end
 
     let(:benefit_type) { 'compensation' }
@@ -594,7 +594,7 @@ describe DecisionReviewV1::Service do
 
   describe '#put_supplemental_claim_upload' do
     subject do
-      described_class.new.put_supplemental_claim_upload(upload_url: path, file_upload: file_upload,
+      described_class.new.put_supplemental_claim_upload(upload_url: path, file_upload:,
                                                         metadata_string: metadata)
     end
 
@@ -620,7 +620,7 @@ describe DecisionReviewV1::Service do
 
   describe '#get_supplemental_claim_upload' do
     subject do
-      described_class.new.get_supplemental_claim_upload(uuid: uuid)
+      described_class.new.get_supplemental_claim_upload(uuid:)
     end
 
     let(:uuid) { '59cdb98f-f94b-4aaa-8952-4d1e59b6e40a' }

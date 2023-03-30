@@ -137,8 +137,8 @@ class EducationBenefitsClaim < ApplicationRecord
 
     EducationBenefitsSubmission.create!(
       opt.merge(
-        region: region,
-        form_type: form_type,
+        region:,
+        form_type:,
         education_benefits_claim: self
       )
     )

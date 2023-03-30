@@ -73,7 +73,7 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
 
       create(:education_benefits_submission, created_at: date, status: 'submitted')
       %w[1995 1990e 5490 1990n 5495 10203].each do |form_type|
-        create(:education_benefits_submission, form_type: form_type, created_at: date)
+        create(:education_benefits_submission, form_type:, created_at: date)
       end
       create(:education_benefits_submission, form_type: '0993', created_at: date, region: :western)
       create(:education_benefits_submission, form_type: '0994',
@@ -103,7 +103,7 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
       describe '#calculate_submissions' do
         subject do
           job_with_date.create_csv_header
-          job_with_date.calculate_submissions(range_type: range_type, status: status)
+          job_with_date.calculate_submissions(range_type:, status:)
         end
 
         def self.verify_status_numbers(status, result)

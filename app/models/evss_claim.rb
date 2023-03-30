@@ -12,12 +12,12 @@ class EVSSClaim < ApplicationRecord
   def self.claim_for_user_uuid(user_uuid)
     return EVSSClaim.none unless user_uuid
 
-    where(user_uuid: user_uuid)
+    where(user_uuid:)
   end
 
   def self.claim_for_user_account(user_account)
     return EVSSClaim.none unless user_account
 
-    where(user_account: user_account)
+    where(user_account:)
   end
 end

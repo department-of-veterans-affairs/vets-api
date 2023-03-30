@@ -30,7 +30,7 @@ describe HealthQuest::Middleware::HealthQuestLogging do
     let(:log_tags) do
       {
         jti: jwt_id,
-        status: status,
+        status:,
         duration: 0.0
       }
     end

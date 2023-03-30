@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe MedicalCopays::VBS::Service do
-  subject { described_class.build(user: user) }
+  subject { described_class.build(user:) }
 
   def stub_get_copays(response)
     allow_any_instance_of(MedicalCopays::VBS::Service).to receive(:get_copays).and_return(response)

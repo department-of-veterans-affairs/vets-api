@@ -52,7 +52,7 @@ module ConvertFileType
 
   def tiff?(carrier_wave_sanitized_file)
     self.class.tiff?(
-      carrier_wave_sanitized_file: carrier_wave_sanitized_file,
+      carrier_wave_sanitized_file:,
       mimemagic_object: self.class.inspect_binary(carrier_wave_sanitized_file)
     )
   end
@@ -60,11 +60,11 @@ module ConvertFileType
   def tiff_or_incorrect_extension?(carrier_wave_sanitized_file)
     mimemagic_object = self.class.inspect_binary carrier_wave_sanitized_file
     self.class.tiff?(
-      carrier_wave_sanitized_file: carrier_wave_sanitized_file,
-      mimemagic_object: mimemagic_object
+      carrier_wave_sanitized_file:,
+      mimemagic_object:
     ) || self.class.incorrect_extension?(
       extension: carrier_wave_sanitized_file.extension,
-      mimemagic_object: mimemagic_object
+      mimemagic_object:
     )
   end
 end

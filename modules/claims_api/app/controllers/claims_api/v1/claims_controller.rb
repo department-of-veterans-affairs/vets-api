@@ -54,7 +54,7 @@ module ClaimsApi
       def fetch_errored(claim)
         if claim.evss_response&.any?
           errors = format_evss_errors(claim.evss_response)
-          raise ::Common::Exceptions::UnprocessableEntity.new(errors: errors)
+          raise ::Common::Exceptions::UnprocessableEntity.new(errors:)
         else
           message = 'Unknown EVSS Async Error'
           raise ::Common::Exceptions::UnprocessableEntity.new(detail: message)

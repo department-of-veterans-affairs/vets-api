@@ -27,13 +27,13 @@ module Mobile
         end
 
         def get_clinic(location_id, clinic_id)
-          clinics = systems_service.get_facility_clinics(location_id: location_id, clinic_ids: clinic_id)
+          clinics = systems_service.get_facility_clinics(location_id:, clinic_ids: clinic_id)
           clinics.first unless clinics.empty?
         rescue Common::Exceptions::BackendServiceException
           Rails.logger.error(
             "Error fetching clinic #{clinic_id} for location #{location_id}",
-            clinic_id: clinic_id,
-            location_id: location_id
+            clinic_id:,
+            location_id:
           )
         end
 
@@ -42,7 +42,7 @@ module Mobile
         rescue Common::Exceptions::BackendServiceException
           Rails.logger.error(
             "Error fetching facility details for location_id #{location_id}",
-            location_id: location_id
+            location_id:
           )
         end
 

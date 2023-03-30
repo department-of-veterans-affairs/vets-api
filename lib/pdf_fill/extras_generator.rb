@@ -31,7 +31,7 @@ module PdfFill
       end
 
       @generate_blocks << {
-        metadata: metadata,
+        metadata:,
         block: create_block(value, metadata)
       }
     end

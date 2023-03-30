@@ -38,7 +38,7 @@ module Lighthouse
         begin
           log = "Retrieving eligible letter types and destination from #{config.generator_url}/#{endpoint}"
           response = Lighthouse::LettersGenerator.measure_time(log) do
-            config.connection.get(endpoint, { icn: icn })
+            config.connection.get(endpoint, { icn: })
           end
         rescue Faraday::ClientError, Faraday::ServerError => e
           Raven.tags_context(
@@ -61,7 +61,7 @@ module Lighthouse
         begin
           log = "Retrieving benefit information from #{config.generator_url}/#{endpoint}"
           response = Lighthouse::LettersGenerator.measure_time(log) do
-            config.connection.get(endpoint, { icn: icn })
+            config.connection.get(endpoint, { icn: })
           end
         rescue Faraday::ClientError, Faraday::ServerError => e
           Raven.tags_context(
@@ -90,7 +90,7 @@ module Lighthouse
         begin
           log = "Retrieving benefit information from #{config.generator_url}/#{endpoint}"
           response = Lighthouse::LettersGenerator.measure_time(log) do
-            config.connection.get(endpoint, { icn: icn }.merge(letter_options))
+            config.connection.get(endpoint, { icn: }.merge(letter_options))
           end
         rescue Faraday::ClientError, Faraday::ServerError => e
           Raven.tags_context(team: 'benefits-claim-appeal-status', feature: 'letters-generator')

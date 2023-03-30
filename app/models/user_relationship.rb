@@ -40,9 +40,9 @@ class UserRelationship
   # Sparse hash to serialize to frontend
   def to_hash
     {
-      first_name: first_name,
-      last_name: last_name,
-      birth_date: birth_date
+      first_name:,
+      last_name:,
+      birth_date:
     }
   end
 

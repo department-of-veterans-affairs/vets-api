@@ -56,7 +56,7 @@ module RapidReadyForDecision
     def accounts_matching_edipi(edipi)
       return [] unless edipi
 
-      Account.where(edipi: edipi).order(:id).to_a
+      Account.where(edipi:).order(:id).to_a
     end
   end
 end

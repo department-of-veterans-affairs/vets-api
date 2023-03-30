@@ -6,7 +6,7 @@ require 'inherited_proofing/user_attributes_fetcher'
 RSpec.describe InheritedProofing::UserAttributesFetcher do
   describe '#perform' do
     subject do
-      InheritedProofing::UserAttributesFetcher.new(auth_code: auth_code).perform
+      InheritedProofing::UserAttributesFetcher.new(auth_code:).perform
     end
 
     let(:auth_code) { 'some-auth-code' }
@@ -22,7 +22,7 @@ RSpec.describe InheritedProofing::UserAttributesFetcher do
     end
 
     context 'and MHVIdentityData for auth_code does exist' do
-      let!(:mhv_identity_data) { create(:mhv_identity_data, code: auth_code, user_uuid: user_uuid) }
+      let!(:mhv_identity_data) { create(:mhv_identity_data, code: auth_code, user_uuid:) }
 
       context 'and User does not exist for matching user_uuid' do
         let(:user_uuid) { 'some-non-existing-user-uuid' }
@@ -36,8 +36,8 @@ RSpec.describe InheritedProofing::UserAttributesFetcher do
       context 'and User does exist for matching user_uuid' do
         let(:user) do
           create(:user, :loa3,
-                 first_name: first_name, last_name: last_name, address: address,
-                 home_phone: home_phone, birth_date: birth_date, ssn: ssn)
+                 first_name:, last_name:, address:,
+                 home_phone:, birth_date:, ssn:)
         end
         let(:first_name) { 'some-first-name' }
         let(:last_name) { 'some-last-name' }

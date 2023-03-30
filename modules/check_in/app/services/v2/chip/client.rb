@@ -194,7 +194,7 @@ module V2
       # @return [Faraday::Connection]
       #
       def connection
-        Faraday.new(url: url) do |conn|
+        Faraday.new(url:) do |conn|
           conn.use :breakers
           conn.response :raise_error, error_prefix: service_name
           conn.response :betamocks if mock_enabled?

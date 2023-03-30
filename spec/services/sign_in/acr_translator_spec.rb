@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe SignIn::AcrTranslator do
   describe '#perform' do
     subject do
-      SignIn::AcrTranslator.new(acr: acr, type: type, uplevel: uplevel).perform
+      SignIn::AcrTranslator.new(acr:, type:, uplevel:).perform
     end
 
     let(:acr) { 'some-acr' }

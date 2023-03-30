@@ -11,11 +11,11 @@ FactoryBot.define do
     client_config { create(:client_config) }
 
     initialize_with do
-      new(session: session,
-          refresh_token: refresh_token,
-          access_token: access_token,
-          anti_csrf_token: anti_csrf_token,
-          client_config: client_config)
+      new(session:,
+          refresh_token:,
+          access_token:,
+          anti_csrf_token:,
+          client_config:)
     end
   end
 end

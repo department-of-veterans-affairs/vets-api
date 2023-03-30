@@ -90,9 +90,9 @@ filter_pattern = if arguments[:fp].nil?
 
 #
 # query CloudWatch and store in records in Redis
-options = { filter_pattern: filter_pattern,
-            start_date: start_date,
-            end_date: end_date }
+options = { filter_pattern:,
+            start_date:,
+            end_date: }
 
 LogsProcessor.fetch_data(options) do |json_log|
   request_id = json_log['named_tags']['request_id']

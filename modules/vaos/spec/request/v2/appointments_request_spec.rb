@@ -117,7 +117,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         it 'has access and returns va appointments and honors includes' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path query],
                                                                         allow_playback_repeats: true) do
-            get '/vaos/v2/appointments?_include=facilities,clinics', params: params, headers: inflection_header
+            get '/vaos/v2/appointments?_include=facilities,clinics', params:, headers: inflection_header
             data = JSON.parse(response.body)['data']
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
@@ -166,7 +166,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             .and_return(mock_clinic_without_physical_location)
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path query],
                                                                         allow_playback_repeats: true) do
-            get '/vaos/v2/appointments?_include=facilities,clinics', params: params, headers: inflection_header
+            get '/vaos/v2/appointments?_include=facilities,clinics', params:, headers: inflection_header
             data = JSON.parse(response.body)['data']
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
@@ -180,7 +180,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         it 'has access and returns va appointments' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method path query],
                                                                         allow_playback_repeats: true) do
-            get '/vaos/v2/appointments', params: params, headers: inflection_header
+            get '/vaos/v2/appointments', params:, headers: inflection_header
             data = JSON.parse(response.body)['data']
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
@@ -196,7 +196,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
                            match_requests_on: %i[method path query], allow_playback_repeats: true) do
             # unstub the get_clinic method for this test 500 error was being returned
             allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic).and_call_original
-            get '/vaos/v2/appointments?_include=clinics', params: params, headers: inflection_header
+            get '/vaos/v2/appointments?_include=clinics', params:, headers: inflection_header
             data = JSON.parse(response.body)['data']
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
@@ -211,7 +211,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic).and_call_original
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_system_service_500',
                            match_requests_on: %i[method path query], allow_playback_repeats: true) do
-            get '/vaos/v2/appointments', params: params, headers: inflection_header
+            get '/vaos/v2/appointments', params:, headers: inflection_header
             data = JSON.parse(response.body)['data']
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
@@ -225,7 +225,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_facility).and_call_original
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_mobile_facility_service_500',
                            match_requests_on: %i[method path query], allow_playback_repeats: true) do
-            get '/vaos/v2/appointments?_include=facilities', params: params, headers: inflection_header
+            get '/vaos/v2/appointments?_include=facilities', params:, headers: inflection_header
             data = JSON.parse(response.body)['data']
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
@@ -299,7 +299,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_v2_partial_error',
                            match_requests_on: %i[method path query]) do
             get '/vaos/v2/appointments?start=2022-01-01T19:25:00Z&end=2022-12-01T19:45:00Z&statuses[]=proposed',
-                params: params, headers: inflection_header
+                params:, headers: inflection_header
 
             expect(response).to have_http_status(:multi_status)
             expect(response).to match_camelized_response_schema('vaos/v2/va_appointments', { strict: false })

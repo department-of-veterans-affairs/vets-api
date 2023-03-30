@@ -45,7 +45,7 @@ module VBADocuments
       mail(
         to: RECIPIENTS,
         subject: "Benefits Intake Unsuccessful Submission Report for #{@environment}",
-        body: body
+        body:
       )
     end
   end

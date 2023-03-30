@@ -235,8 +235,8 @@ Rails.application.reloader.to_prepare do
   ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_, _, _, _, payload|
     tags = ["controller:#{payload.dig(:params, :controller)}", "action:#{payload.dig(:params, :action)}",
             "status:#{payload[:status]}"]
-    StatsD.measure('api.request.db_runtime', payload[:db_runtime].to_i, tags: tags)
-    StatsD.measure('api.request.view_runtime', payload[:view_runtime].to_i, tags: tags)
+    StatsD.measure('api.request.db_runtime', payload[:db_runtime].to_i, tags:)
+    StatsD.measure('api.request.view_runtime', payload[:view_runtime].to_i, tags:)
   end
 
   # init gibft
@@ -292,7 +292,7 @@ Rails.application.reloader.to_prepare do
         tags << "facilities.ppms.results:#{count || 0}"
       end
 
-      StatsD.measure(measurement, duration, tags: tags)
+      StatsD.measure(measurement, duration, tags:)
     end
   end
 

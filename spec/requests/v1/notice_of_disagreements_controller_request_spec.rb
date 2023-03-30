@@ -25,7 +25,7 @@ RSpec.describe V1::NoticeOfDisagreementsController do
     subject do
       post '/v1/notice_of_disagreements',
            params: VetsJsonSchema::EXAMPLES.fetch('NOD-CREATE-REQUEST-BODY_V1').to_json,
-           headers: headers
+           headers:
     end
 
     it 'creates an NOD' do

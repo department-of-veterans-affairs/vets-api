@@ -24,7 +24,7 @@ module Common
       # The message will be the actual backend service response from middleware,
       # not the I18n version.
       def message
-        "BackendServiceException: #{response_values.merge(code: code)}"
+        "BackendServiceException: #{response_values.merge(code:)}"
       end
 
       def errors
@@ -56,7 +56,7 @@ module Common
       private
 
       def render_overides
-        { status: status, detail: detail, code: code, source: source }
+        { status:, detail:, code:, source: }
       end
 
       # REQUIRED - This is the i18n code returned from raise_error middleware. If it exists in

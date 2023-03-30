@@ -47,7 +47,7 @@ describe AppealsApi::PdfConstruction::Generator do
       shared_examples 'shared NOD v2 and v3 generator examples' do |pdf_version|
         let(:fixture_name) { 'expected_10182.pdf' }
         let(:nod) { create(:notice_of_disagreement_v2, created_at: '2021-02-03T14:15:16Z') }
-        let(:generated_pdf) { described_class.new(nod, pdf_version: pdf_version).generate }
+        let(:generated_pdf) { described_class.new(nod, pdf_version:).generate }
         let(:expected_pdf) { fixture_filepath(fixture_name, version: pdf_version) }
 
         after do
@@ -121,10 +121,10 @@ describe AppealsApi::PdfConstruction::Generator do
         after { File.delete(generated_pdf) if File.exist?(generated_pdf) }
 
         let(:created_at) { '2021-02-03T14:15:16Z' }
-        let(:generated_pdf) { described_class.new(hlr, pdf_version: pdf_version).generate }
+        let(:generated_pdf) { described_class.new(hlr, pdf_version:).generate }
         let(:expected_pdf) { fixture_filepath(fixture_name, version: pdf_version) }
         let(:fixture_name) { 'expected_200996.pdf' }
-        let(:hlr) { create(:higher_level_review_v2, created_at: created_at) }
+        let(:hlr) { create(:higher_level_review_v2, created_at:) }
 
         it 'generates the expected pdf' do
           expect(generated_pdf).to match_pdf(expected_pdf)
@@ -132,7 +132,7 @@ describe AppealsApi::PdfConstruction::Generator do
 
         context 'with extra content' do
           let(:fixture_name) { 'expected_200996_extra.pdf' }
-          let(:hlr) { create(:extra_higher_level_review_v2, created_at: created_at) }
+          let(:hlr) { create(:extra_higher_level_review_v2, created_at:) }
 
           it 'generates the expected pdf' do
             expect(generated_pdf).to match_pdf(expected_pdf)
@@ -141,7 +141,7 @@ describe AppealsApi::PdfConstruction::Generator do
 
         context 'with minimum content' do
           let(:fixture_name) { 'expected_200996_minimum.pdf' }
-          let(:hlr) { create(:minimal_higher_level_review_v2, created_at: created_at) }
+          let(:hlr) { create(:minimal_higher_level_review_v2, created_at:) }
 
           it 'generates the expected pdf' do
             expect(generated_pdf).to match_pdf(expected_pdf)
@@ -157,7 +157,7 @@ describe AppealsApi::PdfConstruction::Generator do
               ).to receive(field_name).and_return(field_value)
             end
 
-            create(:extra_higher_level_review_v2, created_at: created_at) do |appeal|
+            create(:extra_higher_level_review_v2, created_at:) do |appeal|
               appeal.form_data = override_max_lengths(appeal, read_schema('200996.json', 'v2'))
               # TODO: update countryCodeISO2 in expected_200996_maxlength.pdf with expected override_max_lengths values
               appeal.form_data['data']['attributes']['veteran']['address']['countryCodeISO2'] = 'US'
@@ -188,7 +188,7 @@ describe AppealsApi::PdfConstruction::Generator do
           context 'when compatible with Windows-1252' do
             let(:text) { 'Smartquotes: “”‘’' }
             let(:hlr) do
-              create(:higher_level_review_v2, created_at: created_at) do |appeal|
+              create(:higher_level_review_v2, created_at:) do |appeal|
                 appeal.form_data['included'][0]['attributes']['issue'] = text
               end
             end
@@ -203,7 +203,7 @@ describe AppealsApi::PdfConstruction::Generator do
             let(:normal_text) { 'allergies' }
             let(:special_text) { '∑' }
             let(:hlr) do
-              create(:higher_level_review_v2, created_at: created_at) do |appeal|
+              create(:higher_level_review_v2, created_at:) do |appeal|
                 appeal.form_data['included'][0]['attributes']['issue'] = "#{special_text}#{normal_text}"
               end
             end
@@ -236,10 +236,10 @@ describe AppealsApi::PdfConstruction::Generator do
     context 'Supplemental Claim' do
       shared_examples 'shared SC v2 and v3 generator examples' do |pdf_version, max_content_form_data|
         let(:created_at) { '2021-02-03T14:15:16Z' }
-        let(:generated_pdf) { described_class.new(sc, pdf_version: pdf_version).generate }
+        let(:generated_pdf) { described_class.new(sc, pdf_version:).generate }
         let(:expected_pdf) { fixture_filepath(fixture_name, version: pdf_version) }
         let(:fixture_name) { 'expected_200995.pdf' }
-        let(:sc) { create(:supplemental_claim, evidence_submission_indicated: true, created_at: created_at) }
+        let(:sc) { create(:supplemental_claim, evidence_submission_indicated: true, created_at:) }
 
         after { File.delete(generated_pdf) if File.exist?(generated_pdf) }
 
@@ -250,7 +250,7 @@ describe AppealsApi::PdfConstruction::Generator do
         describe 'with alternate signer' do
           let(:fixture_name) { 'expected_200995_alternate_signer.pdf' }
           let(:sc) do
-            create(:supplemental_claim, evidence_submission_indicated: true, created_at: created_at) do |appeal|
+            create(:supplemental_claim, evidence_submission_indicated: true, created_at:) do |appeal|
               appeal.auth_headers.merge!(
                 {
                   'X-Alternate-Signer-First-Name' => ' Wwwwwwww ',
@@ -269,7 +269,7 @@ describe AppealsApi::PdfConstruction::Generator do
         describe 'with alternate signer signature overflow' do
           let(:fixture_name) { 'expected_200995_alternate_signer_overflow.pdf' }
           let(:sc) do
-            create(:supplemental_claim, evidence_submission_indicated: true, created_at: created_at) do |appeal|
+            create(:supplemental_claim, evidence_submission_indicated: true, created_at:) do |appeal|
               appeal.auth_headers.merge!(
                 {
                   'X-Alternate-Signer-First-Name' => 'W' * 30,
@@ -286,7 +286,7 @@ describe AppealsApi::PdfConstruction::Generator do
         end
 
         describe 'extra content' do
-          let(:sc) { create(:extra_supplemental_claim, created_at: created_at) }
+          let(:sc) { create(:extra_supplemental_claim, created_at:) }
           let(:fixture_name) { 'expected_200995_extra.pdf' }
 
           it 'generates the expected pdf' do
@@ -307,7 +307,7 @@ describe AppealsApi::PdfConstruction::Generator do
               ).to receive(name).and_return(value)
             end
 
-            create(:extra_supplemental_claim, created_at: created_at) do |appeal|
+            create(:extra_supplemental_claim, created_at:) do |appeal|
               appeal.form_data = override_max_lengths(appeal, read_schema('200995.json', 'v2'))
               appeal.auth_headers.merge!(
                 'X-VA-First-Name' => 'W' * 30,

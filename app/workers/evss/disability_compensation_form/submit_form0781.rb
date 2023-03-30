@@ -117,7 +117,7 @@ module EVSS
 
       def create_document_data(evss_claim_id, upload_data)
         EVSSClaimDocument.new(
-          evss_claim_id: evss_claim_id,
+          evss_claim_id:,
           file_name: upload_data[:file_name],
           tracked_item_id: nil,
           document_type: upload_data[:doc_type]

@@ -58,7 +58,7 @@ module CentralMail
     end
 
     def update_submission(state)
-      @claim.central_mail_submission.update!(state: state) if @claim.respond_to?(:central_mail_submission)
+      @claim.central_mail_submission.update!(state:) if @claim.respond_to?(:central_mail_submission)
     end
 
     def to_faraday_upload(file_path)

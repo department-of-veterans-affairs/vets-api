@@ -7,7 +7,7 @@ describe VAProfile::ContactInformation::TransactionResponse do
   describe '.from' do
     subject { described_class.from(raw_response) }
 
-    let(:raw_response) { OpenStruct.new(body: body) }
+    let(:raw_response) { OpenStruct.new(body:) }
 
     describe VAProfile::ContactInformation::AddressTransactionResponse do
       let(:body) do

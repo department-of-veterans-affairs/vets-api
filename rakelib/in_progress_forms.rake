@@ -51,6 +51,6 @@ namespace :form_progress do
     puts '------------------------------------------------------------'
     puts "* #{form_id} from #{start_date} to #{end_date} *"
     puts '------------------------------------------------------------'
-    InProgressForm.where(updated_at: [start_date.beginning_of_day..end_date.end_of_day], form_id: form_id)
+    InProgressForm.where(updated_at: [start_date.beginning_of_day..end_date.end_of_day], form_id:)
   end
 end

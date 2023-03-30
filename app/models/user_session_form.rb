@@ -64,7 +64,7 @@ class UserSessionForm
     Rails.logger.info('Account UUID injected into user SAML attributes')
     saml_user_attributes = saml_user.to_hash
     add_csp_id_to_mpi(saml_user_attributes, idme_uuid)
-    saml_user_attributes.merge({ uuid: idme_uuid, idme_uuid: idme_uuid })
+    saml_user_attributes.merge({ uuid: idme_uuid, idme_uuid: })
   end
 
   def add_csp_id_to_mpi(saml_user_attributes, idme_uuid)
@@ -75,7 +75,7 @@ class UserSessionForm
                                                                last_name: saml_user_attributes[:last_name],
                                                                ssn: saml_user_attributes[:ssn],
                                                                birth_date: saml_user_attributes[:birth_date],
-                                                               idme_uuid: idme_uuid)
+                                                               idme_uuid:)
     log_message_to_sentry("Failed Add CSP ID to MPI FAILED, idme: #{idme_uuid}", :warn) unless mpi_response.ok?
   end
 

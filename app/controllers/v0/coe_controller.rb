@@ -28,7 +28,7 @@ module V0
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
       clear_saved_form(claim.form_id)
-      render json: { data: { attributes: { reference_number: response, claim: claim } } }
+      render json: { data: { attributes: { reference_number: response, claim: } } }
     end
 
     def documents

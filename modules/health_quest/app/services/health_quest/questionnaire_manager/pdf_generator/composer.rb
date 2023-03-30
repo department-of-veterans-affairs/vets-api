@@ -44,14 +44,14 @@ module HealthQuest
           set_font
 
           repeat(:all) do
-            Header.build(opts: opts, composer: self).draw
-            Footer.build(opts: opts, composer: self).draw
+            Header.build(opts:, composer: self).draw
+            Footer.build(opts:, composer: self).draw
           end
 
           bounding_box([0, bounds.top - 178], width: bounds.width - 20, height: 560) do
-            AppointmentInfo.build(opts: opts, composer: self).draw
-            Demographics.build(opts: opts, composer: self).draw
-            QuestionnaireResponseInfo.build(opts: opts, composer: self).draw
+            AppointmentInfo.build(opts:, composer: self).draw
+            Demographics.build(opts:, composer: self).draw
+            QuestionnaireResponseInfo.build(opts:, composer: self).draw
           end
         end
 

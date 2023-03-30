@@ -14,7 +14,7 @@ describe AppealsApi::V2::DecisionReviews::ContestableIssuesController, type: :re
       '/services/appeals/v2/decision_reviews/contestable_issues/higher_level_reviews?benefit_type=compensation'
     end
 
-    before { get(path, headers: headers) }
+    before { get(path, headers:) }
 
     it 'presents errors in JsonAPI ErrorObject format' do
       error = body['errors'].first

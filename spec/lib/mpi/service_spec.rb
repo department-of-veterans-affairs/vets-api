@@ -30,15 +30,15 @@ describe MPI::Service do
     { other: [{ codeSystem: code_system,
                 code: mpi_error_code,
                 displayName: error_display_name }],
-      transaction_id: transaction_id,
-      error_details: { ack_detail_code: ack_detail_code,
-                       id_extension: id_extension,
-                       error_texts: error_texts } }
+      transaction_id:,
+      error_details: { ack_detail_code:,
+                       id_extension:,
+                       error_texts: } }
   end
   let(:find_profile_error_details) do
-    { error_details: { ack_detail_code: ack_detail_code,
-                       id_extension: id_extension,
-                       error_texts: error_texts } }
+    { error_details: { ack_detail_code:,
+                       id_extension:,
+                       error_texts: } }
   end
 
   let(:mvi_profile) do
@@ -56,7 +56,7 @@ describe MPI::Service do
       mhv_iens: [],
       edipi: nil,
       edipis: [],
-      icn_with_aaid: icn_with_aaid,
+      icn_with_aaid:,
       person_types: [],
       full_mvi_ids: [
         '1008714701V416111^NI^200M^USVHA^P',
@@ -67,7 +67,7 @@ describe MPI::Service do
       ],
       search_token: nil,
       id_theft_flag: false,
-      transaction_id: transaction_id
+      transaction_id:
     )
   end
 
@@ -115,13 +115,13 @@ describe MPI::Service do
 
   describe '#add_person_proxy' do
     subject do
-      mpi_service.add_person_proxy(last_name: last_name,
-                                   ssn: ssn,
-                                   birth_date: birth_date,
-                                   icn: icn,
-                                   edipi: edipi,
-                                   search_token: search_token,
-                                   first_name: first_name)
+      mpi_service.add_person_proxy(last_name:,
+                                   ssn:,
+                                   birth_date:,
+                                   icn:,
+                                   edipi:,
+                                   search_token:,
+                                   first_name:)
     end
 
     let(:statsd_caller) { 'add_person_proxy' }
@@ -174,8 +174,8 @@ describe MPI::Service do
     context 'invalid requests' do
       let(:add_person_error_details) do
         { other: [{ codeSystem: code_system, code: mpi_error_code, displayName: error_display_name }],
-          transaction_id: transaction_id,
-          error_details: { ack_detail_code: ack_detail_code, id_extension: id_extension, error_texts: error_texts } }
+          transaction_id:,
+          error_details: { ack_detail_code:, id_extension:, error_texts: } }
       end
       let(:transaction_id) { 'some-transaction-id' }
       let(:code_system) { 'some-code-system' }
@@ -288,14 +288,14 @@ describe MPI::Service do
 
   describe '#add_person_implicit_search' do
     subject do
-      mpi_service.add_person_implicit_search(last_name: last_name,
-                                             ssn: ssn,
-                                             birth_date: birth_date,
-                                             email: email,
-                                             address: address,
-                                             idme_uuid: idme_uuid,
-                                             logingov_uuid: logingov_uuid,
-                                             first_name: first_name)
+      mpi_service.add_person_implicit_search(last_name:,
+                                             ssn:,
+                                             birth_date:,
+                                             email:,
+                                             address:,
+                                             idme_uuid:,
+                                             logingov_uuid:,
+                                             first_name:)
     end
 
     let(:statsd_caller) { 'add_person_implicit_search' }
@@ -319,7 +319,7 @@ describe MPI::Service do
     context 'valid request' do
       let(:expected_icn) { '1013677101V363970' }
       let(:transaction_id) { '4bae058f5e3cb2c800274633' }
-      let(:parsed_response) { { icn: expected_icn, transaction_id: transaction_id } }
+      let(:parsed_response) { { icn: expected_icn, transaction_id: } }
 
       before { VCR.insert_cassette('mpi/add_person/add_person_implicit_search_success') }
 
@@ -331,8 +331,8 @@ describe MPI::Service do
     context 'invalid requests' do
       let(:add_person_error_details) do
         { other: [{ codeSystem: code_system, code: mpi_error_code, displayName: error_display_name }],
-          transaction_id: transaction_id,
-          error_details: { ack_detail_code: ack_detail_code, id_extension: id_extension, error_texts: error_texts } }
+          transaction_id:,
+          error_details: { ack_detail_code:, id_extension:, error_texts: } }
       end
       let(:transaction_id) { 'some-transaction-id' }
       let(:code_system) { 'some-code-system' }
@@ -445,16 +445,16 @@ describe MPI::Service do
 
   describe '#update_profile' do
     subject do
-      mpi_service.update_profile(last_name: last_name,
-                                 ssn: ssn,
-                                 birth_date: birth_date,
-                                 icn: icn,
-                                 email: email,
-                                 address: address,
-                                 idme_uuid: idme_uuid,
-                                 logingov_uuid: logingov_uuid,
-                                 edipi: edipi,
-                                 first_name: first_name)
+      mpi_service.update_profile(last_name:,
+                                 ssn:,
+                                 birth_date:,
+                                 icn:,
+                                 email:,
+                                 address:,
+                                 idme_uuid:,
+                                 logingov_uuid:,
+                                 edipi:,
+                                 first_name:)
     end
 
     let(:statsd_caller) { 'update_profile' }
@@ -491,7 +491,7 @@ describe MPI::Service do
     context 'valid request' do
       let(:transaction_id) { nil }
       let(:idme_uuid) { 'b2fab2b56af045e1a9e2394347af91ef' }
-      let(:parsed_response) { { idme_uuid: idme_uuid, transaction_id: transaction_id } }
+      let(:parsed_response) { { idme_uuid:, transaction_id: } }
 
       before { VCR.insert_cassette('mpi/update_profile/update_profile_success') }
 
@@ -503,8 +503,8 @@ describe MPI::Service do
     context 'invalid requests' do
       let(:add_person_error_details) do
         { other: [{ codeSystem: code_system, code: mpi_error_code, displayName: error_display_name }],
-          transaction_id: transaction_id,
-          error_details: { ack_detail_code: ack_detail_code, id_extension: id_extension, error_texts: error_texts } }
+          transaction_id:,
+          error_details: { ack_detail_code:, id_extension:, error_texts: } }
       end
       let(:transaction_id) { 'some-transaction-id' }
       let(:code_system) { 'some-code-system' }
@@ -622,7 +622,7 @@ describe MPI::Service do
     let(:transaction_id) { '4bae058f5d5c4fa906c85472' }
     let(:identifier_type) { MPI::Constants::ICN }
     let(:expected_icn) { '1008714701V416111' }
-    let(:parsed_response) { { transaction_id: transaction_id } }
+    let(:parsed_response) { { transaction_id: } }
 
     before { VCR.insert_cassette('mpi/find_candidate/valid_icn_full') }
 
@@ -672,10 +672,10 @@ describe MPI::Service do
 
   shared_examples 'find profile invalid requests' do
     let(:find_profile_error_details) do
-      { error_details: { ack_detail_code: ack_detail_code,
-                         id_extension: id_extension,
-                         transaction_id: transaction_id,
-                         error_texts: error_texts } }
+      { error_details: { ack_detail_code:,
+                         id_extension:,
+                         transaction_id:,
+                         error_texts: } }
     end
     let(:transaction_id) { 'some-transaction-id' }
     let(:ack_detail_code) { 'some-ack-detail-code' }
@@ -778,9 +778,9 @@ describe MPI::Service do
 
   describe '#find_profile_by_identifier' do
     subject do
-      mpi_service.find_profile_by_identifier(identifier: identifier,
-                                             identifier_type: identifier_type,
-                                             search_type: search_type)
+      mpi_service.find_profile_by_identifier(identifier:,
+                                             identifier_type:,
+                                             search_type:)
     end
 
     let(:statsd_caller) { 'find_profile_by_identifier' }
@@ -808,7 +808,7 @@ describe MPI::Service do
   end
 
   describe '#find_profile_by_edipi' do
-    subject { mpi_service.find_profile_by_edipi(edipi: edipi, search_type: search_type) }
+    subject { mpi_service.find_profile_by_edipi(edipi:, search_type:) }
 
     let(:statsd_caller) { 'find_profile_by_edipi' }
     let(:edipi) { 'some-edipi' }
@@ -825,11 +825,11 @@ describe MPI::Service do
 
   describe '#find_profile_by_attributes_with_orch_search' do
     subject do
-      mpi_service.find_profile_by_attributes_with_orch_search(first_name: first_name,
-                                                              last_name: last_name,
-                                                              birth_date: birth_date,
-                                                              ssn: ssn,
-                                                              edipi: edipi)
+      mpi_service.find_profile_by_attributes_with_orch_search(first_name:,
+                                                              last_name:,
+                                                              birth_date:,
+                                                              ssn:,
+                                                              edipi:)
     end
 
     let(:statsd_caller) { 'find_profile_by_attributes_with_orch_search' }
@@ -861,11 +861,11 @@ describe MPI::Service do
 
   describe '#find_profile_by_attributes' do
     subject do
-      mpi_service.find_profile_by_attributes(first_name: first_name,
-                                             last_name: last_name,
-                                             birth_date: birth_date,
-                                             ssn: ssn,
-                                             search_type: search_type)
+      mpi_service.find_profile_by_attributes(first_name:,
+                                             last_name:,
+                                             birth_date:,
+                                             ssn:,
+                                             search_type:)
     end
 
     let(:statsd_caller) { 'find_profile_by_attributes' }

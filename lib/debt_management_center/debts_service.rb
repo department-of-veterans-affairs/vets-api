@@ -58,7 +58,7 @@ module DebtManagementCenter
       debts = @debts.map { |d| d['id'] = SecureRandom.uuid }
       debt_params = { REDIS_CONFIG[:debt][:namespace] => user.uuid }
       debt_store = DebtManagementCenter::DebtStore.new(debt_params)
-      debt_store.update(uuid: user.uuid, debts: debts)
+      debt_store.update(uuid: user.uuid, debts:)
     end
 
     def sort_by_date(debt_history)

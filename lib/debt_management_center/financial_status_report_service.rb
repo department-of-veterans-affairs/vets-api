@@ -144,7 +144,7 @@ module DebtManagementCenter
       Rails.logger.info('5655 Form Submitting to VHA', submission_id: form_submission.id)
       sharepoint_request.upload(
         form_contents: vha_form,
-        form_submission: form_submission,
+        form_submission:,
         station_id: vha_form['facilityNum']
       )
       vbs_response = vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
@@ -172,7 +172,7 @@ module DebtManagementCenter
 
       Form5655Submission.create(
         form_json: form_json.to_json,
-        metadata: metadata,
+        metadata:,
         user_uuid: @user.uuid,
         user_account: @user.user_account
       )

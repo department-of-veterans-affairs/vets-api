@@ -168,7 +168,7 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
         }
 
         VCR.use_cassette('lighthouse/direct_deposit/update/200_response') do
-          put(:update, params: params)
+          put(:update, params:)
         end
 
         expect(response).to have_http_status(:ok)
@@ -189,7 +189,7 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
         }
 
         VCR.use_cassette('lighthouse/direct_deposit/update/200_response') do
-          put(:update, params: params)
+          put(:update, params:)
         end
 
         expect(response).to have_http_status(:not_found)
@@ -207,7 +207,7 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
 
       it 'returns a validation error' do
         VCR.use_cassette('lighthouse/direct_deposit/update/200_response') do
-          put(:update, params: params)
+          put(:update, params:)
         end
 
         expect(response).to have_http_status(:unprocessable_entity)
@@ -229,7 +229,7 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
 
       it 'returns a validation error' do
         VCR.use_cassette('lighthouse/direct_deposit/update/422_response') do
-          put(:update, params: params)
+          put(:update, params:)
         end
 
         expect(response).to have_http_status(:unprocessable_entity)

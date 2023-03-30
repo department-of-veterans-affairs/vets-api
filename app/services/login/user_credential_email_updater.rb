@@ -18,7 +18,7 @@ module Login
     attr_reader :credential_email, :user_verification
 
     def update_user_credential_email
-      user_credential_email = UserCredentialEmail.find_or_initialize_by(user_verification: user_verification)
+      user_credential_email = UserCredentialEmail.find_or_initialize_by(user_verification:)
       user_credential_email.credential_email = credential_email
       user_credential_email.save!
     end

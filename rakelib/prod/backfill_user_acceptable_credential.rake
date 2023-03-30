@@ -33,7 +33,7 @@ task :backfill_user_acceptable_credential, [:start_uuid] => :environment do |_, 
     batch_range_log(user_account_batch.first.id, user_account_batch.last.id)
     ActiveRecord::Base.logger.silence do
       user_account_batch.each do |user_account|
-        Login::UserAcceptableVerifiedCredentialUpdater.new(user_account: user_account).perform
+        Login::UserAcceptableVerifiedCredentialUpdater.new(user_account:).perform
       end
     end
   end

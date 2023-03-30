@@ -8,7 +8,7 @@ describe HealthQuest::Resource::Query do
   let(:session_store) { double('SessionStore', token: '123abc') }
   let(:opts) do
     {
-      session_store: session_store,
+      session_store:,
       resource_identifier: 'questionnaire_response',
       api: Settings.hqva_mobile.lighthouse.pgd_api
     }

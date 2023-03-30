@@ -308,7 +308,7 @@ describe V2::Lorota::Service do
     context 'when lorota token endpoint call succeeds' do
       before do
         allow_any_instance_of(V2::Lorota::Client).to receive(:token)
-          .and_return(Faraday::Response.new(body: { token: token }.to_json, status: 200))
+          .and_return(Faraday::Response.new(body: { token: }.to_json, status: 200))
       end
 
       it 'returns data from lorota' do
@@ -696,7 +696,7 @@ describe V2::Lorota::Service do
       it 'saves appointment identifiers' do
         expect_any_instance_of(CheckIn::V2::PatientCheckIn).to receive(:save).once
 
-        subject.build(check_in: check_in).check_in_data
+        subject.build(check_in:).check_in_data
       end
     end
 

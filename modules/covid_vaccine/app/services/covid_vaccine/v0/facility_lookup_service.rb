@@ -37,14 +37,14 @@ module CovidVaccine
       #
       def nearest_facilities(lat, lng)
         client = Lighthouse::Facilities::Client.new
-        response = client.nearby(lat: lat, lng: lng)
+        response = client.nearby(lat:, lng:)
         # Work around a bug in /nearby API that returns non-VHA facilities
         response = response.filter { |x| x.id.start_with?('vha_') }
         result = nearest_vamc(response.map { |x| x.id.delete_prefix('vha_') })
         if result.blank?
           # Does not seem feasible that a location would be closer to
           # 30 clinics than any VAMCs
-          response = client.get_facilities(lat: lat, long: lng,
+          response = client.get_facilities(lat:, long: lng,
                                            per_page: 30, type: 'health')
           result = nearest_vamc(response.map { |x| x.id.delete_prefix('vha_') })
         end
@@ -52,8 +52,8 @@ module CovidVaccine
         sta6a = result.first if result.first.length > 3
         sta6a = result.last if result.last.length > 3
         {
-          sta3n: sta3n,
-          sta6a: sta6a
+          sta3n:,
+          sta6a:
         }
       rescue
         # For now just bail on any exception while getting facilities

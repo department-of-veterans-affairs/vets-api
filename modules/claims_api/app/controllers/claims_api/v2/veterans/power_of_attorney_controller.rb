@@ -40,17 +40,17 @@ module ClaimsApi
         end
 
         def submit_power_of_attorney(poa_code)
-          power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
-                                                                                          source_name: source_name)
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5:,
+                                                                                          source_name:)
           unless power_of_attorney&.status&.in?(%w[submitted pending])
             attributes = {
               status: ClaimsApi::PowerOfAttorney::PENDING,
-              auth_headers: auth_headers,
+              auth_headers:,
               form_data: params,
               current_poa: current_poa_code,
-              header_md5: header_md5
+              header_md5:
             }
-            attributes.merge!({ source_data: source_data }) unless token.client_credentials_token?
+            attributes.merge!({ source_data: }) unless token.client_credentials_token?
 
             # use .create! so we don't need to check if it's persisted just to call save (compare w/ v1)
             power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)

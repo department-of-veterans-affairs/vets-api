@@ -5,11 +5,11 @@ require 'rails_helper'
 RSpec.describe SignIn::SessionContainer, type: :model do
   let(:session_container) do
     create(:session_container,
-           session: session,
-           refresh_token: refresh_token,
-           access_token: access_token,
-           anti_csrf_token: anti_csrf_token,
-           client_config: client_config)
+           session:,
+           refresh_token:,
+           access_token:,
+           anti_csrf_token:,
+           client_config:)
   end
 
   let(:session) { create(:oauth_session) }

@@ -40,13 +40,13 @@ describe HealthQuest::QuestionnaireManager::PdfGenerator::Header do
     it 'uses a bounding box' do
       expect_any_instance_of(Prawn::Document).to receive(:bounding_box).once
 
-      subject.build(opts: { questionnaire_response: qr, org: org }, composer: composer.synthesize).draw.to_s
+      subject.build(opts: { questionnaire_response: qr, org: }, composer: composer.synthesize).draw.to_s
     end
 
     it 'receives a block' do
       expect_any_instance_of(Prawn::Document).to receive(:bounding_box).and_yield
 
-      subject.build(opts: { questionnaire_response: qr, org: org }, composer: composer.synthesize).draw.to_s
+      subject.build(opts: { questionnaire_response: qr, org: }, composer: composer.synthesize).draw.to_s
     end
   end
 
@@ -73,7 +73,7 @@ describe HealthQuest::QuestionnaireManager::PdfGenerator::Header do
     end
 
     it 'returns the org name' do
-      expect(subject.build(opts: { org: org }).org_name).to eq('Bar')
+      expect(subject.build(opts: { org: }).org_name).to eq('Bar')
     end
   end
 

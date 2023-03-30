@@ -57,7 +57,7 @@ class TransactionalEmailAnalyticsJob
 
   def relevant_emails(page)
     @all_emails = govdelivery_client.email_messages.get(
-      page: page,
+      page:,
       sort_by: 'created_at',
       sort_order: 'DESC',
       page_size: 50
@@ -80,7 +80,7 @@ class TransactionalEmailAnalyticsJob
     @govdelivery_client ||= GovDelivery::TMS::Client.new(
       Settings.govdelivery.token,
       api_root: "https://#{Settings.govdelivery.server}",
-      logger: logger
+      logger:
     )
   end
 

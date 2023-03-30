@@ -61,7 +61,7 @@ module AppealsApi
       end
 
       def target_veteran
-        OpenStruct.new(ssn: ssn)
+        OpenStruct.new(ssn:)
       end
     end
   end

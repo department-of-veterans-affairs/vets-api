@@ -11,7 +11,7 @@ RSpec.describe BGSDependents::Relationship do
       family_relationship_type_name: 'Spouse',
       marriage_state: 'FL',
       marriage_city: 'Tampa',
-      event_date: event_date
+      event_date:
     }
   end
   let(:params_response) do

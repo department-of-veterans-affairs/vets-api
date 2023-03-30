@@ -26,7 +26,7 @@ module EVSS
         upload_data = upload_data.first if upload_data.is_a?(Array) # temporary for transition
         guid = upload_data&.dig('confirmationCode')
         with_tracking("Form526 Upload: #{guid}", submission.saved_claim_id, submission.id) do
-          sea = SupportingEvidenceAttachment.find_by(guid: guid)
+          sea = SupportingEvidenceAttachment.find_by(guid:)
           file_body = sea&.get_file&.read
 
           raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file_body.nil?

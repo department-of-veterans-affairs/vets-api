@@ -4,10 +4,10 @@ require 'rails_helper'
 
 RSpec.describe SignIn::AuthenticationServiceRetriever do
   describe '#perform' do
-    subject { SignIn::AuthenticationServiceRetriever.new(type: type, client_config: client_config).perform }
+    subject { SignIn::AuthenticationServiceRetriever.new(type:, client_config:).perform }
 
     let(:type) { 'some-type' }
-    let(:client_config) { create(:client_config, authentication: authentication) }
+    let(:client_config) { create(:client_config, authentication:) }
     let(:authentication) { SignIn::Constants::Auth::API }
 
     context 'when client id maps to a mocked authentication configuration' do

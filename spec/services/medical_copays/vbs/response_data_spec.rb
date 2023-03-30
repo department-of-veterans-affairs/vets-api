@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe MedicalCopays::VBS::ResponseData do
   subject { described_class }
 
-  let(:resp) { Faraday::Response.new(body: body, status: status) }
+  let(:resp) { Faraday::Response.new(body:, status:) }
   let(:today_date) { Time.zone.today.strftime('%m%d%Y') }
   let(:body) { [{ 'foo_bar' => 'bar', 'pS_STATEMENT_DATE' => today_date }] }
   let(:status) { 200 }

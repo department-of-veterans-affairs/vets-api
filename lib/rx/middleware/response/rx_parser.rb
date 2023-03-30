@@ -31,7 +31,7 @@ module Rx
 
           data =  parsed_prescription_list || parsed_tracking_object || parsed_prescription
           @parsed_json = {
-            data: data,
+            data:,
             errors: @errors,
             metadata: @meta_attributes
           }
@@ -43,7 +43,7 @@ module Rx
                        @parsed_json.delete(:last_updatedtime)
 
           {
-            updated_at: updated_at,
+            updated_at:,
             failed_station_list: @parsed_json.delete(:failed_station_list)
           }
         end

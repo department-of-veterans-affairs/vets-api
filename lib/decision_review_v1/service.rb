@@ -174,7 +174,7 @@ module DecisionReviewV1
     #
     def get_notice_of_disagreement_upload_url(nod_uuid:, file_number:)
       with_monitoring_and_error_handling do
-        perform :post, 'notice_of_disagreements/evidence_submissions', { nod_uuid: nod_uuid },
+        perform :post, 'notice_of_disagreements/evidence_submissions', { nod_uuid: },
                 { 'X-VA-File-Number' => file_number.to_s.strip.presence }
       end
     end
@@ -256,7 +256,7 @@ module DecisionReviewV1
       if missing_required_fields.present?
         raise Common::Exceptions::Forbidden.new(
           source: "#{self.class}##{__method__}",
-          detail: { missing_required_fields: missing_required_fields }
+          detail: { missing_required_fields: }
         )
       end
 
@@ -277,7 +277,7 @@ module DecisionReviewV1
       if missing_required_fields.present?
         raise Common::Exceptions::Forbidden.new(
           source: "#{self.class}##{__method__}",
-          detail: { missing_required_fields: missing_required_fields }
+          detail: { missing_required_fields: }
         )
       end
 
@@ -307,8 +307,8 @@ module DecisionReviewV1
       }
     end
 
-    def with_monitoring_and_error_handling(&block)
-      with_monitoring(2, &block)
+    def with_monitoring_and_error_handling(&)
+      with_monitoring(2, &)
     rescue => e
       handle_error(error: e)
     end
@@ -324,15 +324,15 @@ module DecisionReviewV1
 
     def log_error_details(error:, message: nil)
       info = {
-        message: message,
+        message:,
         error_class: error.class,
-        error: error
+        error:
       }
       ::Rails.logger.info(info)
     end
 
     def handle_error(error:, message: nil)
-      save_and_log_error(error: error, message: message)
+      save_and_log_error(error:, message:)
       source_hash = { source: "#{error.class} raised in #{self.class}" }
       raise case error
             when Faraday::ParsingError
@@ -356,7 +356,7 @@ module DecisionReviewV1
 
     def save_and_log_error(error:, message:)
       save_error_details(error)
-      log_error_details(error: error, message: message)
+      log_error_details(error:, message:)
     end
 
     def validate_against_schema(json:, schema:, append_to_error_class: '')
@@ -368,7 +368,7 @@ module DecisionReviewV1
       PersonalInformationLog.create!(
         error_class: "#{self.class.name}#validate_against_schema exception #{e.class}#{append_to_error_class}",
         data: {
-          json: json, schema: schema, errors: errors,
+          json:, schema:, errors:,
           error: Class.new.include(FailedRequestLoggable).exception_hash(e)
         }
       )

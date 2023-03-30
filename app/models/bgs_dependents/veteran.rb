@@ -38,8 +38,8 @@ module BGSDependents
     def veteran_response(participant, address, claim_info)
       {
         vnp_participant_id: participant[:vnp_ptcpnt_id],
-        first_name: first_name,
-        last_name: last_name,
+        first_name:,
+        last_name:,
         vnp_participant_address_id: address[:vnp_ptcpnt_addrs_id],
         file_number: claim_info[:va_file_number],
         address_line_one: address[:addrs_one_txt],

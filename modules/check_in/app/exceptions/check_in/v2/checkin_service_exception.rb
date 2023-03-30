@@ -6,7 +6,7 @@ module CheckIn
       CIE_EXCEPTION_CODE = 'CIE-VETS-API_'
 
       def initialize(status:, original_body: {})
-        super(CIE_EXCEPTION_CODE + status, response(status: status, original_body: original_body),
+        super(CIE_EXCEPTION_CODE + status, response(status:, original_body:),
               status, original_body)
       end
 
@@ -14,7 +14,7 @@ module CheckIn
 
       def response(status:, original_body: {})
         {
-          status: status,
+          status:,
           detail: [original_body],
           code: CIE_EXCEPTION_CODE + status
         }

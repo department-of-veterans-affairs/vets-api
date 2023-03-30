@@ -5,23 +5,23 @@ require 'rails_helper'
 RSpec.describe SignIn::AccessToken, type: :model do
   let(:access_token) do
     create(:access_token,
-           session_handle: session_handle,
-           client_id: client_id,
-           user_uuid: user_uuid,
-           audience: audience,
-           refresh_token_hash: refresh_token_hash,
-           parent_refresh_token_hash: parent_refresh_token_hash,
-           anti_csrf_token: anti_csrf_token,
-           last_regeneration_time: last_regeneration_time,
-           expiration_time: expiration_time,
-           version: version,
-           created_time: created_time)
+           session_handle:,
+           client_id:,
+           user_uuid:,
+           audience:,
+           refresh_token_hash:,
+           parent_refresh_token_hash:,
+           anti_csrf_token:,
+           last_regeneration_time:,
+           expiration_time:,
+           version:,
+           created_time:)
   end
 
   let(:session_handle) { create(:oauth_session).handle }
   let(:user_uuid) { create(:user_account).id }
   let!(:client_config) do
-    create(:client_config, authentication: authentication, access_token_duration: access_token_duration)
+    create(:client_config, authentication:, access_token_duration:)
   end
   let(:access_token_duration) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
   let(:client_id) { client_config.client_id }

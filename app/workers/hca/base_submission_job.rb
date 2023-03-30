@@ -12,12 +12,12 @@ module HCA
       begin
         result = HCA::Service.new(user_identifier).submit_form(form)
       rescue VALIDATION_ERROR
-        PersonalInformationLog.create!(data: { form: form }, error_class: VALIDATION_ERROR.to_s)
+        PersonalInformationLog.create!(data: { form: }, error_class: VALIDATION_ERROR.to_s)
 
         @health_care_application.update!(
           state: 'failed',
           form: form.to_json,
-          google_analytics_client_id: google_analytics_client_id
+          google_analytics_client_id:
         )
 
         return false

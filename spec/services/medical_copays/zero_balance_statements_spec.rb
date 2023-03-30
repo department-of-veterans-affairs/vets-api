@@ -9,7 +9,7 @@ RSpec.describe MedicalCopays::ZeroBalanceStatements do
   let(:facility_hash) { { 'foo' => ['123'] } }
   let(:today_date) { Time.zone.today.strftime('%m%d%Y') }
 
-  let(:default_params) { { statements: statements, facility_hash: facility_hash } }
+  let(:default_params) { { statements:, facility_hash: } }
 
   let(:vha_358_attributes) do
     {
@@ -139,7 +139,7 @@ RSpec.describe MedicalCopays::ZeroBalanceStatements do
       end
 
       it 'lists the zero balance facility in VBS format' do
-        expect(subject.build(statements: statements, facility_hash: facility_hash).list).to eq(listed_zero_balances)
+        expect(subject.build(statements:, facility_hash:).list).to eq(listed_zero_balances)
       end
     end
 
@@ -175,7 +175,7 @@ RSpec.describe MedicalCopays::ZeroBalanceStatements do
       end
 
       it 'lists only the one facility for zero balances' do
-        expect(subject.build(statements: statements, facility_hash: facility_hash).list).to eq(listed_zero_balances)
+        expect(subject.build(statements:, facility_hash:).list).to eq(listed_zero_balances)
       end
     end
 
@@ -232,7 +232,7 @@ RSpec.describe MedicalCopays::ZeroBalanceStatements do
       end
 
       it 'lists the zero balance facility in VBS format' do
-        expect(subject.build(statements: statements, facility_hash: facility_hash).list).to eq(listed_zero_balances)
+        expect(subject.build(statements:, facility_hash:).list).to eq(listed_zero_balances)
       end
     end
 
@@ -262,7 +262,7 @@ RSpec.describe MedicalCopays::ZeroBalanceStatements do
       let(:facility_hash) { { '358' => ['123456'] } }
 
       it 'returns empty array' do
-        expect(subject.build({ statements: statements, facility_hash: facility_hash }).list).to eq([])
+        expect(subject.build({ statements:, facility_hash: }).list).to eq([])
       end
     end
 

@@ -149,8 +149,8 @@ class OpenidApplicationController < ApplicationController
   def establish_session(profile)
     ttl = token.payload['exp'] - Time.current.utc.to_i
 
-    user_identity = OpenidUserIdentity.build_from_profile(uuid: token.identifiers.uuid, profile: profile, ttl: ttl)
-    @current_user = OpenidUser.build_from_identity(identity: user_identity, ttl: ttl)
+    user_identity = OpenidUserIdentity.build_from_profile(uuid: token.identifiers.uuid, profile:, ttl:)
+    @current_user = OpenidUser.build_from_identity(identity: user_identity, ttl:)
     @session = build_session(ttl,
                              token.identifiers.uuid,
                              Okta::UserProfile.new({ 'last_login_type' => profile['last_login_type'],
@@ -211,13 +211,13 @@ class OpenidApplicationController < ApplicationController
   end
 
   def build_session(ttl, uuid, profile)
-    session = Session.new(token: hash_token(token), uuid: uuid, profile: profile)
+    session = Session.new(token: hash_token(token), uuid:, profile:)
     session.expire(ttl)
     session
   end
 
   def build_launch_session(ttl, launch)
-    session = Session.new(token: hash_token(token), launch: launch)
+    session = Session.new(token: hash_token(token), launch:)
     session.expire(ttl)
     session
   end
@@ -333,7 +333,7 @@ class OpenidApplicationController < ApplicationController
     return false unless token.payload
 
     if (actions.empty? ||
-      Array.wrap(actions).map(&:to_s).include?(action_name)) && (Array.wrap(scopes) & token.payload['scp']).empty?
+      Array.wrap(actions).map(&:to_s).include?(action_name)) && !Array.wrap(scopes).intersect?(token.payload['scp'])
       render_unauthorized
     end
   end

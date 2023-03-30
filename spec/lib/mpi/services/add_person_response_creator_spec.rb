@@ -5,7 +5,7 @@ require 'mpi/services/add_person_response_creator'
 
 describe MPI::Services::AddPersonResponseCreator do
   describe '#perform' do
-    subject { described_class.new(type: type, response: response, error: error).perform }
+    subject { described_class.new(type:, response:, error:).perform }
 
     let(:type) { 'some-type' }
     let(:response) { 'some-response' }
@@ -68,7 +68,7 @@ describe MPI::Services::AddPersonResponseCreator do
         let(:error_details) do
           { other: mpi_codes[:other],
             transaction_id: nil,
-            error_details: { ack_detail_code: ack_detail_code,
+            error_details: { ack_detail_code:,
                              id_extension: '200VGOV-1373004c-e23e-4d94-90c5-5b101f6be54a',
                              error_texts: ['Internal System Error'] } }
         end
@@ -89,7 +89,7 @@ describe MPI::Services::AddPersonResponseCreator do
         let(:error_details) do
           { other: mpi_codes[:other],
             transaction_id: nil,
-            error_details: { ack_detail_code: ack_detail_code,
+            error_details: { ack_detail_code:,
                              id_extension: '200VGOV-1373004c-e23e-4d94-90c5-5b101f6be54a',
                              error_texts: ['Internal System Error'] } }
         end
@@ -127,9 +127,9 @@ describe MPI::Services::AddPersonResponseCreator do
         it 'creates an add person response with expected parsed codes' do
           expect(subject.parsed_codes).to eq(
             {
-              birls_id: birls_id,
-              participant_id: participant_id,
-              transaction_id: transaction_id
+              birls_id:,
+              participant_id:,
+              transaction_id:
             }
           )
         end

@@ -45,9 +45,9 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdaterLogger do
     context 'when user_avc is defined' do
       let(:user_avc) do
         create(:user_acceptable_verified_credential,
-               user_account: user_account,
-               acceptable_verified_credential_at: acceptable_verified_credential_at,
-               idme_verified_credential_at: idme_verified_credential_at)
+               user_account:,
+               acceptable_verified_credential_at:,
+               idme_verified_credential_at:)
       end
       let(:user_account) { create(:user_account) }
       let(:expected_verified_credential_at) { '2023-1-1' }
@@ -92,7 +92,7 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdaterLogger do
 
       context 'and there is a change to acceptable_verified_credential_at' do
         let(:acceptable_verified_credential_at) { expected_verified_credential_at }
-        let!(:user_verification) { create(:logingov_user_verification, user_account: user_account) }
+        let!(:user_verification) { create(:logingov_user_verification, user_account:) }
         let(:expected_added_type) { 'avc' }
 
         context 'and idme_verified_credential_at is nil' do
@@ -106,7 +106,7 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdaterLogger do
           end
 
           context 'and there is also a mhv verification' do
-            let!(:mhv_verification) { create(:mhv_user_verification, user_account: user_account) }
+            let!(:mhv_verification) { create(:mhv_user_verification, user_account:) }
             let(:expected_added_from_type) { 'mhv' }
 
             it_behaves_like 'a logger'
@@ -114,7 +114,7 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdaterLogger do
           end
 
           context 'and there is also a dslogon verification' do
-            let!(:dslogon_verification) { create(:dslogon_user_verification, user_account: user_account) }
+            let!(:dslogon_verification) { create(:dslogon_user_verification, user_account:) }
             let(:expected_added_from_type) { 'dslogon' }
 
             it_behaves_like 'a logger'
@@ -124,7 +124,7 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdaterLogger do
 
         context 'and there is already an idme_verified_credential_at' do
           let(:idme_verified_credential_at) { expected_verified_credential_at }
-          let!(:idme_verification) { create(:idme_user_verification, user_account: user_account) }
+          let!(:idme_verification) { create(:idme_user_verification, user_account:) }
           let(:expected_added_from_type) { 'idme' }
 
           before do
@@ -139,7 +139,7 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdaterLogger do
 
       context 'and there is a change to idme_verified_credential_at' do
         let(:idme_verified_credential_at) { expected_verified_credential_at }
-        let!(:user_verification) { create(:idme_user_verification, user_account: user_account) }
+        let!(:user_verification) { create(:idme_user_verification, user_account:) }
         let(:expected_added_type) { 'ivc' }
 
         context 'and acceptable_verified_credential_at is nil' do
@@ -153,7 +153,7 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdaterLogger do
           end
 
           context 'and there is also a mhv verification' do
-            let!(:mhv_verification) { create(:mhv_user_verification, user_account: user_account) }
+            let!(:mhv_verification) { create(:mhv_user_verification, user_account:) }
             let(:expected_added_from_type) { 'mhv' }
 
             it_behaves_like 'a logger'
@@ -161,7 +161,7 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdaterLogger do
           end
 
           context 'and there is also a dslogon verification' do
-            let!(:dslogon_verification) { create(:dslogon_user_verification, user_account: user_account) }
+            let!(:dslogon_verification) { create(:dslogon_user_verification, user_account:) }
             let(:expected_added_from_type) { 'dslogon' }
 
             it_behaves_like 'a logger'
@@ -171,7 +171,7 @@ RSpec.describe Login::UserAcceptableVerifiedCredentialUpdaterLogger do
 
         context 'and there is already an acceptable_verified_credential_at' do
           let(:acceptable_verified_credential_at) { expected_verified_credential_at }
-          let!(:logingov_verification) { create(:logingov_user_verification, user_account: user_account) }
+          let!(:logingov_verification) { create(:logingov_user_verification, user_account:) }
           let(:expected_added_from_type) { 'logingov' }
 
           before do

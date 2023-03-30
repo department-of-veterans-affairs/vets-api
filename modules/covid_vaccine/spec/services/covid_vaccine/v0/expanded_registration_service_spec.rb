@@ -61,7 +61,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
                                :sta3n,
                                :sta6a,
                                :vaccine_interest))
-          .and_return({ sid: sid })
+          .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
           .and_return(mvi_profile_response)
 
@@ -74,7 +74,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         sid = SecureRandom.uuid
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .with(hash_including(authenticated: false))
-          .and_return({ sid: sid })
+          .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
           .and_return(mvi_profile_response)
         subject.register(submission)
@@ -85,7 +85,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
       it 'updates submission record' do
         sid = SecureRandom.uuid
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-          .and_return({ sid: sid })
+          .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
           .and_return(mvi_profile_response)
         subject.register(submission)
@@ -96,7 +96,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
       it 'updates state to registered' do
         sid = SecureRandom.uuid
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-          .and_return({ sid: sid })
+          .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
           .and_return(mvi_profile_response)
         subject.register(submission)
@@ -107,7 +107,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
       it 'adds ICN to Nil enrollment data' do
         sid = SecureRandom.uuid
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-          .and_return({ sid: sid })
+          .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
           .and_return(mvi_profile_response)
         subject.register(submission)
@@ -118,7 +118,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
       it 'adds ICN to non Nil encrypted enrollment data' do
         sid = SecureRandom.uuid
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-          .and_return({ sid: sid })
+          .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
           .and_return(mvi_profile_response)
         subject.register(submission_eligibility_info)
@@ -129,7 +129,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
       it 'allows a spouse to register' do
         sid = SecureRandom.uuid
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-          .and_return({ sid: sid })
+          .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
           .and_return(mvi_profile_response)
         subject.register(submission_spouse)
@@ -140,7 +140,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
       it 'allows non us address and facility' do
         sid = SecureRandom.uuid
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-          .and_return({ sid: sid })
+          .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
           .and_return(mvi_profile_response)
         subject.register(submission_non_us)
@@ -151,7 +151,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
       it 'submits when email does not exist' do
         sid = SecureRandom.uuid
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-          .and_return({ sid: sid })
+          .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
           .and_return(mvi_profile_response)
         subject.register(submission_no_email)
@@ -162,7 +162,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
       it 'submits with a composite facility ID' do
         sid = SecureRandom.uuid
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-          .and_return({ sid: sid })
+          .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
           .and_return(mvi_profile_response)
         subject.register(submission_composite_facility)
@@ -231,7 +231,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           it 'updates submission record' do
             sid = SecureRandom.uuid
             allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-              .and_return({ sid: sid })
+              .and_return({ sid: })
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
               .and_return(mvi_profile_response)
             subject.register(submission_enrollment_complete)
@@ -242,7 +242,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           it 'updates state to registered' do
             sid = SecureRandom.uuid
             allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-              .and_return({ sid: sid })
+              .and_return({ sid: })
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
               .and_return(mvi_profile_response)
             subject.register(submission_enrollment_complete)
@@ -264,7 +264,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           it 'submits and updates state when MPI Profile is not found' do
             sid = SecureRandom.uuid
             allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-              .and_return({ sid: sid })
+              .and_return({ sid: })
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
               .and_return(mvi_profile_not_found)
 
@@ -276,7 +276,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           it 'submits and updates state when MPI facility does not match' do
             sid = SecureRandom.uuid
             allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-              .and_return({ sid: sid })
+              .and_return({ sid: })
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
               .and_return(mvi_facility_not_found)
 
@@ -288,7 +288,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           it 'submits and updates state when preferred location does not exist and MPI matches ICN' do
             sid = SecureRandom.uuid
             allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-              .and_return({ sid: sid })
+              .and_return({ sid: })
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
               .and_return(mvi_facility_not_found)
 
@@ -300,7 +300,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           it 'submits and updates state when preferred location does not exist and MPI does not match ICN' do
             sid = SecureRandom.uuid
             allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-              .and_return({ sid: sid })
+              .and_return({ sid: })
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
               .and_return(mvi_profile_not_found)
 
@@ -313,7 +313,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             it 'updates submission record' do
               sid = SecureRandom.uuid
               allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-                .and_return({ sid: sid })
+                .and_return({ sid: })
               allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
                 .and_return(mvi_profile_response)
               subject.register(submission_enrollment_complete)
@@ -324,7 +324,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             it 'updates state to registered' do
               sid = SecureRandom.uuid
               allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-                .and_return({ sid: sid })
+                .and_return({ sid: })
               allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
                 .and_return(mvi_profile_response)
               subject.register(submission_enrollment_complete)

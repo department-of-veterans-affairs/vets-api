@@ -35,13 +35,13 @@ module MPI
       with_monitoring do
         raw_response = perform(
           :post, '',
-          MPI::Messages::AddPersonProxyAddMessage.new(last_name: last_name,
-                                                      ssn: ssn,
-                                                      birth_date: birth_date,
-                                                      icn: icn,
-                                                      edipi: edipi,
-                                                      search_token: search_token,
-                                                      first_name: first_name).perform,
+          MPI::Messages::AddPersonProxyAddMessage.new(last_name:,
+                                                      ssn:,
+                                                      birth_date:,
+                                                      icn:,
+                                                      edipi:,
+                                                      search_token:,
+                                                      first_name:).perform,
           soapaction: Constants::ADD_PERSON
         )
         MPI::Services::AddPersonResponseCreator.new(type: Constants::ADD_PERSON_PROXY_TYPE,
@@ -64,14 +64,14 @@ module MPI
       with_monitoring do
         raw_response = perform(
           :post, '',
-          MPI::Messages::AddPersonImplicitSearchMessage.new(last_name: last_name,
-                                                            ssn: ssn,
-                                                            birth_date: birth_date,
-                                                            email: email,
-                                                            address: address,
-                                                            idme_uuid: idme_uuid,
-                                                            logingov_uuid: logingov_uuid,
-                                                            first_name: first_name).perform,
+          MPI::Messages::AddPersonImplicitSearchMessage.new(last_name:,
+                                                            ssn:,
+                                                            birth_date:,
+                                                            email:,
+                                                            address:,
+                                                            idme_uuid:,
+                                                            logingov_uuid:,
+                                                            first_name:).perform,
           soapaction: Constants::ADD_PERSON
         )
         MPI::Services::AddPersonResponseCreator.new(type: Constants::ADD_PERSON_IMPLICIT_TYPE,
@@ -87,9 +87,9 @@ module MPI
                                    search_type: Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
       with_monitoring do
         raw_response = perform(:post, '',
-                               MPI::Messages::FindProfileByIdentifier.new(identifier: identifier,
-                                                                          identifier_type: identifier_type,
-                                                                          search_type: search_type).perform,
+                               MPI::Messages::FindProfileByIdentifier.new(identifier:,
+                                                                          identifier_type:,
+                                                                          search_type:).perform,
                                soapaction: Constants::FIND_PROFILE)
         MPI::Services::FindProfileResponseCreator.new(type: Constants::FIND_PROFILE_BY_IDENTIFIER_TYPE,
                                                       response: raw_response).perform
@@ -101,8 +101,8 @@ module MPI
     def find_profile_by_edipi(edipi:, search_type: Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
       with_monitoring do
         raw_response = perform(:post, '',
-                               MPI::Messages::FindProfileByEdipi.new(edipi: edipi,
-                                                                     search_type: search_type).perform,
+                               MPI::Messages::FindProfileByEdipi.new(edipi:,
+                                                                     search_type:).perform,
                                soapaction: Constants::FIND_PROFILE)
         MPI::Services::FindProfileResponseCreator.new(type: Constants::FIND_PROFILE_BY_EDIPI_TYPE,
                                                       response: raw_response).perform
@@ -118,12 +118,12 @@ module MPI
                                                     edipi:)
       with_monitoring do
         raw_response = perform(:post, '',
-                               MPI::Messages::FindProfileByAttributes.new(first_name: first_name,
-                                                                          last_name: last_name,
-                                                                          birth_date: birth_date,
-                                                                          ssn: ssn,
+                               MPI::Messages::FindProfileByAttributes.new(first_name:,
+                                                                          last_name:,
+                                                                          birth_date:,
+                                                                          ssn:,
                                                                           orch_search: true,
-                                                                          edipi: edipi).perform,
+                                                                          edipi:).perform,
                                soapaction: Constants::FIND_PROFILE)
         MPI::Services::FindProfileResponseCreator.new(type: Constants::FIND_PROFILE_BY_ATTRIBUTES_ORCH_SEARCH_TYPE,
                                                       response: raw_response).perform
@@ -140,11 +140,11 @@ module MPI
                                    search_type: Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
       with_monitoring do
         raw_response = perform(:post, '',
-                               MPI::Messages::FindProfileByAttributes.new(first_name: first_name,
-                                                                          last_name: last_name,
-                                                                          birth_date: birth_date,
-                                                                          ssn: ssn,
-                                                                          search_type: search_type).perform,
+                               MPI::Messages::FindProfileByAttributes.new(first_name:,
+                                                                          last_name:,
+                                                                          birth_date:,
+                                                                          ssn:,
+                                                                          search_type:).perform,
                                soapaction: Constants::FIND_PROFILE)
         MPI::Services::FindProfileResponseCreator.new(type: Constants::FIND_PROFILE_BY_ATTRIBUTES_TYPE,
                                                       response: raw_response).perform
@@ -167,16 +167,16 @@ module MPI
       with_monitoring do
         raw_response = perform(
           :post, '',
-          MPI::Messages::UpdateProfileMessage.new(last_name: last_name,
-                                                  ssn: ssn,
-                                                  birth_date: birth_date,
-                                                  icn: icn,
-                                                  email: email,
-                                                  address: address,
-                                                  idme_uuid: idme_uuid,
-                                                  logingov_uuid: logingov_uuid,
-                                                  edipi: edipi,
-                                                  first_name: first_name).perform,
+          MPI::Messages::UpdateProfileMessage.new(last_name:,
+                                                  ssn:,
+                                                  birth_date:,
+                                                  icn:,
+                                                  email:,
+                                                  address:,
+                                                  idme_uuid:,
+                                                  logingov_uuid:,
+                                                  edipi:,
+                                                  first_name:).perform,
           soapaction: Constants::UPDATE_PROFILE
         )
         MPI::Services::AddPersonResponseCreator.new(type: Constants::UPDATE_PROFILE_TYPE,

@@ -18,7 +18,7 @@ describe EMIS::PaymentServiceV2 do
 
         VCR.use_cassette('emis/get_pay_grade_history/success',
                          match_requests_on: [:method, :uri, header_matcher, :body]) do
-          response = subject.get_pay_grade_history(edipi: edipi)
+          response = subject.get_pay_grade_history(edipi:)
 
           expect(response).to be_ok
 

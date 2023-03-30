@@ -102,7 +102,7 @@ module V1
     end
 
     def saml_settings(force_authn: true)
-      SAML::SSOeSettingsService.saml_settings(force_authn: force_authn)
+      SAML::SSOeSettingsService.saml_settings(force_authn:)
     end
 
     def raise_saml_error(form)
@@ -275,7 +275,7 @@ module V1
 
     def new_stats(type, client_id)
       tags = ["context:#{type}", VERSION_TAG, "client_id:#{client_id}"]
-      StatsD.increment(STATSD_SSO_NEW_KEY, tags: tags)
+      StatsD.increment(STATSD_SSO_NEW_KEY, tags:)
       Rails.logger.info("SSO_NEW_KEY, tags: #{tags}")
     end
 
@@ -286,10 +286,10 @@ module V1
       case status
       when :success
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
-        StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
+        StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags:)
         Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
         Rails.logger.info("SessionsController version:v1 login complete, user_uuid=#{@current_user&.uuid}")
-        StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags: tags)
+        StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags:)
       when :failure
         tags_and_error_code = tags << "error:#{error.try(:code) || SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE}"
         error_message = error.try(:message) || 'Unknown'
@@ -335,7 +335,7 @@ module V1
       Rails.logger.info("SessionsController version:v1 saml_callback failure, user_uuid=#{@current_user&.uuid}")
 
       unless performed?
-        redirect_to url_service.login_redirect_url(auth: 'fail', code: code,
+        redirect_to url_service.login_redirect_url(auth: 'fail', code:,
                                                    request_id: request.request_id)
       end
       login_stats(:failure, exc) unless response.nil?
@@ -401,10 +401,10 @@ module V1
     end
 
     def url_service(force_authn = true)
-      @url_service ||= SAML::PostURLService.new(saml_settings(force_authn: force_authn),
+      @url_service ||= SAML::PostURLService.new(saml_settings(force_authn:),
                                                 session: @session_object,
                                                 user: current_user,
-                                                params: params,
+                                                params:,
                                                 loa3_context: LOA::IDME_LOA3)
     end
   end

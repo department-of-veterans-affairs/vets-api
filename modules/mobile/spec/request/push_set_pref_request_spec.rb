@@ -19,7 +19,7 @@ RSpec.describe 'push send', type: :request do
 
       it 'returns 200 and empty json' do
         VCR.use_cassette('vetext/set_preference_success') do
-          put '/mobile/v0/push/prefs/8c258cbe573c462f912e7dd74585a5a9', headers: iam_headers, params: params
+          put('/mobile/v0/push/prefs/8c258cbe573c462f912e7dd74585a5a9', headers: iam_headers, params:)
           expect(response).to have_http_status(:ok)
           expect(response.body).to eq('{}')
         end
@@ -36,7 +36,7 @@ RSpec.describe 'push send', type: :request do
 
       it 'returns bad request and error' do
         VCR.use_cassette('vetext/set_preferences_bad_request') do
-          put '/mobile/v0/push/prefs/bad_id', headers: iam_headers, params: params
+          put('/mobile/v0/push/prefs/bad_id', headers: iam_headers, params:)
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to match_json_schema('errors')
         end
@@ -53,7 +53,7 @@ RSpec.describe 'push send', type: :request do
 
       it 'returns bad gateway and error' do
         VCR.use_cassette('vetext/set_preferences_internal_server_error') do
-          put '/mobile/v0/push/prefs/bad_id', headers: iam_headers, params: params
+          put('/mobile/v0/push/prefs/bad_id', headers: iam_headers, params:)
           expect(response).to have_http_status(:bad_gateway)
           expect(response.body).to match_json_schema('errors')
         end

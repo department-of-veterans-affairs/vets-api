@@ -4,11 +4,11 @@ require 'rails_helper'
 
 RSpec.describe Identity::AccountCreator, type: :model do
   let(:user) do
-    OpenStruct.new({ idme_uuid: idme_uuid,
-                     logingov_uuid: logingov_uuid,
-                     sec_id: sec_id,
-                     edipi: edipi,
-                     icn: icn })
+    OpenStruct.new({ idme_uuid:,
+                     logingov_uuid:,
+                     sec_id:,
+                     edipi:,
+                     icn: })
   end
   let(:idme_uuid) { nil }
   let(:logingov_uuid) { nil }
@@ -106,7 +106,7 @@ RSpec.describe Identity::AccountCreator, type: :model do
             create(:account,
                    edipi: account_edipi,
                    icn: account_icn,
-                   sec_id: sec_id)
+                   sec_id:)
           end
 
           context 'and set of matched accounts includes account with matching logingov uuid' do

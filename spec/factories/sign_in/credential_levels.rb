@@ -11,11 +11,11 @@ FactoryBot.define do
     auto_uplevel { false }
 
     initialize_with do
-      new(requested_acr: requested_acr,
-          current_ial: current_ial,
-          max_ial: max_ial,
-          credential_type: credential_type,
-          auto_uplevel: auto_uplevel)
+      new(requested_acr:,
+          current_ial:,
+          max_ial:,
+          credential_type:,
+          auto_uplevel:)
     end
   end
 end

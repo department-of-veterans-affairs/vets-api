@@ -41,7 +41,7 @@ describe Webhooks::Subscription, type: :model do
   it 'queries for subscriptions correctly' do
     api_name = Webhooks::Utilities.event_to_api_name[observers['subscriptions'].first['event']]
     query_results = Webhooks::Subscription.get_notification_urls(
-      api_name: api_name, consumer_id: consumer_id, event: observers['subscriptions'].first['event'], api_guid: api_id
+      api_name:, consumer_id:, event: observers['subscriptions'].first['event'], api_guid: api_id
     )
     observer_urls = []
     observers['subscriptions'].each do |subscription|
@@ -50,7 +50,7 @@ describe Webhooks::Subscription, type: :model do
     observer_urls = observer_urls.flatten.uniq
 
     query_results_nil = Webhooks::Subscription.get_notification_urls(
-      api_name: api_name, consumer_id: consumer_id, event: observers['subscriptions'].first['event'], api_guid: nil
+      api_name:, consumer_id:, event: observers['subscriptions'].first['event'], api_guid: nil
     )
 
     expect(query_results).to eq(observer_urls)
@@ -60,10 +60,10 @@ describe Webhooks::Subscription, type: :model do
   it 'queries for observers by guid correctly' do
     api_name = Webhooks::Utilities.event_to_api_name[observers['subscriptions'].first['event']]
     query_results = Webhooks::Subscription.get_observers_by_guid(
-      api_name: api_name, consumer_id: consumer_id, api_guid: api_id
+      api_name:, consumer_id:, api_guid: api_id
     )
     query_results_empty = Webhooks::Subscription.get_observers_by_guid(
-      api_name: api_name, consumer_id: consumer_id, api_guid: api_id_invalid
+      api_name:, consumer_id:, api_guid: api_id_invalid
     )
 
     expect(query_results).to eq(observers['subscriptions'])

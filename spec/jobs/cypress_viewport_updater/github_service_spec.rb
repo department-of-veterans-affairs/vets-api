@@ -48,7 +48,7 @@ RSpec.describe CypressViewportUpdater::GithubService do
 
     before do
       VCR.use_cassette('cypress_viewport_updater/github_service_get_content') do
-        CypressViewportUpdater::GithubService.new.get_content(file: file)
+        CypressViewportUpdater::GithubService.new.get_content(file:)
       end
     end
 
@@ -88,7 +88,7 @@ RSpec.describe CypressViewportUpdater::GithubService do
       end
 
       VCR.use_cassette('cypress_viewport_updater/github_service_update_content_get_content') do
-        github.get_content(file: file)
+        github.get_content(file:)
       end
 
       VCR.use_cassette('cypress_viewport_updater/github_service_update_content_create_branch') do
@@ -97,7 +97,7 @@ RSpec.describe CypressViewportUpdater::GithubService do
 
       VCR.use_cassette('cypress_viewport_updater/github_service_update') do
         file.updated_content = 'Updated content'
-        @update_content = github.update_content(file: file)
+        @update_content = github.update_content(file:)
       end
     end
 

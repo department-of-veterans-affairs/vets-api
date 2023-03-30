@@ -8,7 +8,7 @@ module V0
     skip_before_action(:authenticate)
 
     def create
-      attachment = klass.new(form_id: form_id)
+      attachment = klass.new(form_id:)
       # add the file after so that we have a form_id and guid for the uploader to use
       attachment.file = params['file']
       raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?

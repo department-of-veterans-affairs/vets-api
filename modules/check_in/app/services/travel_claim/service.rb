@@ -29,7 +29,7 @@ module TravelClaim
     def initialize(opts = {})
       @check_in = opts[:check_in]
       @appointment_date = opts.dig(:params, :appointment_date)
-      @client = Client.build(check_in: check_in)
+      @client = Client.build(check_in:)
       @redis_client = RedisClient.build
       @response = Response
     end
@@ -61,7 +61,7 @@ module TravelClaim
     # @return [Response] claimNumber
     def submit_claim
       resp = if token.present?
-               client.submit_claim(token: token, patient_icn: patient_icn, appointment_date: appointment_date)
+               client.submit_claim(token:, patient_icn:, appointment_date:)
              else
                Faraday::Response.new(body: { message: 'Unauthorized' }, status: 401)
              end

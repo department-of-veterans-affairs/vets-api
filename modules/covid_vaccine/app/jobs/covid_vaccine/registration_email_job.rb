@@ -31,7 +31,7 @@ module CovidVaccine
     end
 
     def handle_errors(ex, sid)
-      log_exception_to_sentry(ex, { sid: sid })
+      log_exception_to_sentry(ex, { sid: })
       StatsD.increment(STATSD_ERROR_NAME)
 
       raise ex

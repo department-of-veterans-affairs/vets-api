@@ -10,7 +10,7 @@ def stub_mpi(profile = nil)
   # (avoids WARNING: rspec-mocks was unable to restore the original... message)
   allow_any_instance_of(MPIData).to receive(:freeze) { self }
   allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
-    build(:find_profile_response, profile: profile)
+    build(:find_profile_response, profile:)
   )
 end
 

@@ -5,12 +5,12 @@ require 'rails_helper'
 RSpec.describe SignIn::StatePayloadJwtEncoder do
   describe '#perform' do
     subject do
-      SignIn::StatePayloadJwtEncoder.new(code_challenge: code_challenge,
-                                         code_challenge_method: code_challenge_method,
-                                         client_state: client_state,
-                                         type: type,
-                                         acr: acr,
-                                         client_config: client_config).perform
+      SignIn::StatePayloadJwtEncoder.new(code_challenge:,
+                                         code_challenge_method:,
+                                         client_state:,
+                                         type:,
+                                         acr:,
+                                         client_config:).perform
     end
 
     let(:code_challenge) { 'some-code-challenge' }

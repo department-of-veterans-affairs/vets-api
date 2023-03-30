@@ -31,7 +31,7 @@ module MPI
       end
 
       def query_by_parameter
-        query_by_parameter = RequestHelper.build_query_by_parameter(search_type: search_type)
+        query_by_parameter = RequestHelper.build_query_by_parameter(search_type:)
         query_by_parameter << build_parameter_list
       end
 

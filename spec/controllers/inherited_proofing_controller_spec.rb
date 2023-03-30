@@ -216,7 +216,7 @@ RSpec.describe InheritedProofingController, type: :controller do
   end
 
   describe 'GET callback' do
-    subject { get :callback, params: { auth_code: auth_code } }
+    subject { get :callback, params: { auth_code: } }
 
     let(:audit_data_auth_code) { SecureRandom.hex }
     let(:auth_code) { audit_data_auth_code }
@@ -317,7 +317,7 @@ RSpec.describe InheritedProofingController, type: :controller do
 
         it 'saves an inherited proofing verification attached to the expected user account' do
           expect { subject }.to change(InheritedProofVerifiedUserAccount, :count).from(0).to(1)
-          expect(InheritedProofVerifiedUserAccount.find_by(user_account: user_account)).not_to be(nil)
+          expect(InheritedProofVerifiedUserAccount.find_by(user_account:)).not_to be(nil)
         end
 
         it 'resets the current session' do

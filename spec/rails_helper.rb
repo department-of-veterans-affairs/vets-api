@@ -108,14 +108,14 @@ RSpec.configure do |config|
 
   config.include(ValidationHelpers, type: :model)
   %i[controller model].each do |type|
-    config.include(ModelHelpers, type: type)
+    config.include(ModelHelpers, type:)
   end
   config.include(SAML, type: :controller)
   config.include(AwsHelpers, type: :aws_helpers)
   config.include(UploaderHelpers, uploader_helpers: true)
 
   %i[controller mdot_helpers request].each do |type|
-    config.include(MDOTHelpers, type: type)
+    config.include(MDOTHelpers, type:)
   end
 
   # Allows setting of filenet_id in the FinancialStatusReport model
@@ -160,7 +160,7 @@ RSpec.configure do |config|
   config.include SerializerSpecHelper, type: :serializer
 
   %i[model controller request].each do |type|
-    config.include PdfFillHelper, type: type
+    config.include PdfFillHelper, type:
   end
 
   # authentication_session_helper

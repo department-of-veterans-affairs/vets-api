@@ -38,7 +38,7 @@ module DocHelpers
     if DocHelpers.decision_reviews?
       block.call
     else
-      with_openid_auth(scopes, valid: valid) do |auth_header|
+      with_openid_auth(scopes, valid:) do |auth_header|
         block.call(auth_header)
       end
     end

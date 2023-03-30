@@ -54,9 +54,9 @@ module ClaimsApi
       content_hash = Digest::SHA1.hexdigest(File.read(filepath))
       filename = SecureRandom.uuid + File.basename(filepath)
       vbms_request = VBMS::Requests::InitializeUpload.new(
-        content_hash: content_hash,
-        filename: filename,
-        file_number: file_number,
+        content_hash:,
+        filename:,
+        file_number:,
         va_receive_date: Time.zone.now,
         doc_type: @doc_type,
         source: 'BVA',
@@ -68,8 +68,8 @@ module ClaimsApi
 
     def upload_document(filepath:, upload_token:)
       upload_request = VBMS::Requests::UploadDocument.new(
-        upload_token: upload_token,
-        filepath: filepath
+        upload_token:,
+        filepath:
       )
       client.send_request(upload_request)
     end

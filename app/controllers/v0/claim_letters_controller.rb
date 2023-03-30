@@ -16,7 +16,7 @@ module V0
       document_id = CGI.unescape(params[:document_id])
 
       service.get_letter(document_id) do |data, mime_type, disposition, filename|
-        send_data(data, type: mime_type, disposition: disposition, filename: filename)
+        send_data(data, type: mime_type, disposition:, filename:)
       end
     end
 

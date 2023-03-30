@@ -97,7 +97,7 @@ module AppealsApi
       render json: {
         description: 'Appeals API upstream health check',
         status: services_are_healthy ? 'UP' : 'DOWN',
-        time: time,
+        time:,
         details: {
           name: 'All upstream services',
           upstreamServices: services.map do |service|
@@ -123,7 +123,7 @@ module AppealsApi
           name: service_name.titleize,
           statusCode: healthy ? 200 : 503,
           status: healthy ? 'OK' : 'Unavailable',
-          time: time
+          time:
         }
       }
     end

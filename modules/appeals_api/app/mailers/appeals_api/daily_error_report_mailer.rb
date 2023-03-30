@@ -17,7 +17,7 @@ module AppealsApi
         to: recipients,
         subject: "Daily Error Decision Review API report (#{@friendly_env})",
         content_type: 'text/html',
-        body: body
+        body:
       )
     end
 

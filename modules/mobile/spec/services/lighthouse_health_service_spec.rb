@@ -113,7 +113,7 @@ describe Mobile::V0::LighthouseHealth::Service do
     context 'with a cached access_token' do
       before do
         allow(Mobile::V0::LighthouseSession).to receive(:get_cached).and_return(
-          Mobile::V0::LighthouseSession.new(access_token: access_token, expires_in: 300)
+          Mobile::V0::LighthouseSession.new(access_token:, expires_in: 300)
         )
       end
 

@@ -29,10 +29,10 @@ module EMIS
           edipi, icn = options.values_at(:edipi, :icn)
 
           parameters = {
-            edipi: edipi,
-            icn: icn,
-            request_name: request_name,
-            operation: operation,
+            edipi:,
+            icn:,
+            request_name:,
+            operation:,
             response_type: "EMIS::Responses::#{operation.camelize}Response#{version.upcase}".constantize
           }
           parameters[:version] = version unless version.empty?
@@ -81,9 +81,9 @@ module EMIS
     # rubocop:disable Metrics/ParameterLists
     def make_request(response_type:, operation:, request_name:, edipi: nil, icn: nil, version: 'V1')
       message = create_edipi_or_icn_message(
-        edipi: edipi,
-        icn: icn,
-        request_name: request_name
+        edipi:,
+        icn:,
+        request_name:
       )
       raw_response = warn_for_service_unavailable do
         perform(
@@ -114,10 +114,10 @@ module EMIS
     # @return [EMIS::Messages::EdipiOrIcnMessage] SOAP request message
     def create_edipi_or_icn_message(edipi:, icn:, request_name:)
       EMIS::Messages::EdipiOrIcnMessage.new(
-        edipi: edipi,
-        icn: icn,
-        request_name: request_name,
-        custom_namespaces: custom_namespaces
+        edipi:,
+        icn:,
+        request_name:,
+        custom_namespaces:
       ).to_xml
     end
   end

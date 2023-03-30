@@ -5,17 +5,17 @@ require 'rails_helper'
 RSpec.describe SignIn::AccessTokenJwtDecoder do
   describe '#perform' do
     subject do
-      SignIn::AccessTokenJwtDecoder.new(access_token_jwt: access_token_jwt).perform(with_validation: with_validation)
+      SignIn::AccessTokenJwtDecoder.new(access_token_jwt:).perform(with_validation:)
     end
 
-    let(:access_token_jwt) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token).perform }
+    let(:access_token_jwt) { SignIn::AccessTokenJwtEncoder.new(access_token:).perform }
     let(:access_token) { create(:access_token) }
     let(:with_validation) { true }
     let(:client_config) { create(:client_config) }
     let(:client_id) { client_config.client_id }
 
     context 'when access token jwt is expired' do
-      let(:access_token_jwt) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token).perform }
+      let(:access_token_jwt) { SignIn::AccessTokenJwtEncoder.new(access_token:).perform }
       let(:access_token) { create(:access_token, expiration_time: Time.zone.now - 1.day) }
 
       context 'and jwt validation is enabled' do
@@ -53,7 +53,7 @@ RSpec.describe SignIn::AccessTokenJwtDecoder do
         {
           iss: SignIn::Constants::AccessToken::ISSUER,
           aud: client_config.access_token_audience,
-          client_id: client_id,
+          client_id:,
           jti: SecureRandom.hex,
           sub: access_token.user_uuid,
           exp: access_token.expiration_time.to_i,

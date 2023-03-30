@@ -28,13 +28,13 @@ module HealthQuest
       # @return [Lighthouse::Session] an instance of this class
       #
       def self.build(user:, api:)
-        new(user: user, api: api)
+        new(user:, api:)
       end
 
       def initialize(opts)
         @api = opts[:api]
         @user = opts[:user]
-        @token = Token.build(user: user, api: api)
+        @token = Token.build(user:, api:)
         @id = session_id
         @redis_handler = RedisHandler.build(session_id: id)
       end

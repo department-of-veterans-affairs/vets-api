@@ -20,7 +20,7 @@ module SignIn
     validates :logout_redirect_uri, presence: true, if: :cookie_auth?
 
     def self.valid_client_id?(client_id:)
-      find_by(client_id: client_id).present?
+      find_by(client_id:).present?
     end
 
     def cookie_auth?

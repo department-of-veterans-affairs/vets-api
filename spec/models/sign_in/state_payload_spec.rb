@@ -5,12 +5,12 @@ require 'rails_helper'
 RSpec.describe SignIn::StatePayload, type: :model do
   let(:state_payload) do
     create(:state_payload,
-           code_challenge: code_challenge,
-           client_id: client_id,
-           type: type,
-           acr: acr,
-           code: code,
-           client_state: client_state)
+           code_challenge:,
+           client_id:,
+           type:,
+           acr:,
+           code:,
+           client_state:)
   end
 
   let(:code_challenge) { Base64.urlsafe_encode64(SecureRandom.hex) }

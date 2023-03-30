@@ -12,7 +12,7 @@ class Validatable
 end
 
 describe FolderNameConventionValidator do
-  subject { Validatable.new(name: name) }
+  subject { Validatable.new(name:) }
 
   let(:name) { nil }
 

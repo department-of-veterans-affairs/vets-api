@@ -6,7 +6,7 @@ require 'inherited_proofing/user_attributes_encryptor'
 RSpec.describe InheritedProofing::UserAttributesEncryptor do
   describe '#perform' do
     subject do
-      InheritedProofing::UserAttributesEncryptor.new(user_attributes: user_attributes).perform
+      InheritedProofing::UserAttributesEncryptor.new(user_attributes:).perform
     end
 
     let(:user_attributes) { { user_attributes: 'some-user-attributes' } }

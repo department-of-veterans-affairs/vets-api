@@ -3,10 +3,10 @@
 require 'rails_helper'
 
 describe TravelClaim::Client do
-  subject { described_class.build(check_in: check_in) }
+  subject { described_class.build(check_in:) }
 
   let(:uuid) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
-  let(:check_in) { CheckIn::V2::Session.build(data: { uuid: uuid }) }
+  let(:check_in) { CheckIn::V2::Session.build(data: { uuid: }) }
 
   describe '.build' do
     it 'returns an instance of described_class' do

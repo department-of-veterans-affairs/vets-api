@@ -3,11 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe BGS::People::Service do
-  let(:user) { create(:user, :loa3, participant_id: participant_id) }
+  let(:user) { create(:user, :loa3, participant_id:) }
   let(:participant_id) { '600061742' }
 
   before do
-    stub_mpi(build(:mvi_profile, participant_id: participant_id))
+    stub_mpi(build(:mvi_profile, participant_id:))
   end
 
   describe '#find_person_by_participant_id' do
@@ -30,7 +30,7 @@ RSpec.describe BGS::People::Service do
       let(:participant_id) { '11111111111' }
       let(:expected_error) { BGS::People::Service::VAFileNumberNotFound.new }
       let(:expected_error_message_icn) { { icn: user.icn } }
-      let(:expected_error_message_team) { { team: team } }
+      let(:expected_error_message_team) { { team: } }
       let(:team) { 'vfs-ebenefits' }
 
       it 'returns a bgs people response without a found record' do
@@ -58,7 +58,7 @@ RSpec.describe BGS::People::Service do
     context 'bgs server error' do
       let(:server_error) { StandardError }
       let(:expected_error_message_icn) { { icn: user.icn } }
-      let(:expected_error_message_team) { { team: team } }
+      let(:expected_error_message_team) { { team: } }
       let(:team) { 'vfs-ebenefits' }
       let(:status) { :error }
 

@@ -36,7 +36,7 @@ shared_examples_for 'a controller that deletes an InProgressForm' do |param_name
         let(:user) { create(:user) }
 
         it 'deletes the "in progress form"' do
-          create(:in_progress_form, user_uuid: user.uuid, form_id: form_id)
+          create(:in_progress_form, user_uuid: user.uuid, form_id:)
           expect(controller).to receive(:clear_saved_form).with(form_id).and_call_original
           sign_in_as(user)
           expect { send_create }.to change(InProgressForm, :count).by(-1)

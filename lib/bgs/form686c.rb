@@ -33,11 +33,11 @@ module BGS
     def submit(payload)
       vnp_proc_state_type_cd = get_state_type(payload)
       proc_id = create_proc_id_and_form(vnp_proc_state_type_cd)
-      veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user, claim_type: '130DPNEBNADJ').create
+      veteran = VnpVeteran.new(proc_id:, payload:, user: @user, claim_type: '130DPNEBNADJ').create
 
       process_relationships(proc_id, veteran, payload)
 
-      vnp_benefit_claim = VnpBenefitClaim.new(proc_id: proc_id, veteran: veteran, user: @user)
+      vnp_benefit_claim = VnpBenefitClaim.new(proc_id:, veteran:, user: @user)
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
       set_claim_type(vnp_proc_state_type_cd, payload['view:selectable686_options'])
@@ -48,9 +48,9 @@ module BGS
       benefit_claim_record = BenefitClaim.new(
         args: {
           vnp_benefit_claim: vnp_benefit_claim_record,
-          veteran: veteran,
+          veteran:,
           user: @user,
-          proc_id: proc_id,
+          proc_id:,
           end_product_name: @end_product_name,
           end_product_code: @end_product_code
         }
@@ -68,15 +68,15 @@ module BGS
     private
 
     def process_relationships(proc_id, veteran, payload)
-      dependents = Dependents.new(proc_id: proc_id, payload: payload, user: @user).create_all
-      marriages = Marriages.new(proc_id: proc_id, payload: payload, user: @user).create_all
-      children = Children.new(proc_id: proc_id, payload: payload, user: @user).create_all
+      dependents = Dependents.new(proc_id:, payload:, user: @user).create_all
+      marriages = Marriages.new(proc_id:, payload:, user: @user).create_all
+      children = Children.new(proc_id:, payload:, user: @user).create_all
 
       veteran_dependents = dependents + marriages + children[:dependents]
 
       VnpRelationships.new(
-        proc_id: proc_id,
-        veteran: veteran,
+        proc_id:,
+        veteran:,
         dependents: veteran_dependents,
         step_children: children[:step_children],
         user: @user

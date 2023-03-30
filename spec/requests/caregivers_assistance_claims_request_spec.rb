@@ -37,7 +37,7 @@ RSpec.describe 'Caregivers Assistance Claims' do
       expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid') # When the saved claim is initialized
       expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid') # When controller generates it for filename
 
-      post endpoint, params: body, headers: headers
+      post(endpoint, params: body, headers:)
 
       expect(response).to have_http_status(:ok)
 

@@ -56,7 +56,7 @@ module SAML
       def sign_in
         SAML::User::AUTHN_CONTEXTS.fetch(authn_context)
                                   .fetch(:sign_in)
-                                  .merge(account_type: account_type)
+                                  .merge(account_type:)
       rescue
         { service_name: 'unknown', account_type: 'N/A' }
       end

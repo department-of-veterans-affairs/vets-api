@@ -5,10 +5,10 @@ require 'rails_helper'
 RSpec.describe SignIn::UserCodeMap, type: :model do
   let(:user_code_map) do
     create(:user_code_map,
-           login_code: login_code,
-           type: type,
-           client_state: client_state,
-           client_config: client_config)
+           login_code:,
+           type:,
+           client_state:,
+           client_config:)
   end
 
   let(:login_code) { 'some-login-code' }

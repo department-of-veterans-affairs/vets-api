@@ -115,8 +115,8 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
       def feature_settings
         {
           vcr_cassette_path: relative_cassette_path,
-          internal_cassette: internal_cassette,
-          external_cassette: external_cassette,
+          internal_cassette:,
+          external_cassette:,
           insecure_random: @insecure_random,
           time_freeze: @time_freeze
         }
@@ -147,8 +147,8 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
 
       # These mini-middlewares are defined below and enabled with options passed in to
       # DualDeck::RackMiddleware
-      def middlewares(&block)
-        time_freeze_middleware { insecure_middleware(&block) }
+      def middlewares(&)
+        time_freeze_middleware { insecure_middleware(&) }
       end
 
       # Its unclear if Timecop's block method ensures that Time is returned so
@@ -163,18 +163,18 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
       end
 
       # Only freeze the time if this setting is passed to the middleware
-      def time_freeze_middleware(&block)
+      def time_freeze_middleware(&)
         if @time_freeze
-          freeze_time(&block)
+          freeze_time(&)
         else
           yield
         end
       end
 
       # Only disable randomness if this setting is passed to the middleware
-      def insecure_middleware(&block)
+      def insecure_middleware(&)
         if @insecure_random
-          SecureRandom.with_disabled_randomness(&block)
+          SecureRandom.with_disabled_randomness(&)
         else
           yield
         end

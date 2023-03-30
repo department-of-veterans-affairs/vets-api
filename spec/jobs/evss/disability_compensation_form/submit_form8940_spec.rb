@@ -33,7 +33,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm8940, type: :job do
              user_uuid: user.uuid,
              auth_headers_json: auth_headers.to_json,
              saved_claim_id: saved_claim.id,
-             submitted_claim_id: submitted_claim_id,
+             submitted_claim_id:,
              form_json: with8940)
     end
 

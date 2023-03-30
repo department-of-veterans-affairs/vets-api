@@ -29,7 +29,7 @@ RSpec.describe 'veterans Affairs Eligibility', type: :request do
 
         before do
           VCR.use_cassette('va_eligibility/get_scheduling_configurations_200', match_requests_on: %i[method uri]) do
-            get '/mobile/v0/appointments/va/eligibility', params: params, headers: iam_headers
+            get '/mobile/v0/appointments/va/eligibility', params:, headers: iam_headers
           end
         end
 
@@ -102,7 +102,7 @@ RSpec.describe 'veterans Affairs Eligibility', type: :request do
 
         before do
           VCR.use_cassette('va_eligibility/get_scheduling_configurations_200', match_requests_on: %i[method uri]) do
-            get '/mobile/v0/appointments/va/eligibility', params: params, headers: iam_headers
+            get '/mobile/v0/appointments/va/eligibility', params:, headers: iam_headers
           end
         end
 
@@ -176,7 +176,7 @@ RSpec.describe 'veterans Affairs Eligibility', type: :request do
         before do
           VCR.use_cassette('va_eligibility/get_scheduling_configurations_200_all_enabled',
                            match_requests_on: %i[method uri]) do
-            get '/mobile/v0/appointments/va/eligibility', params: params, headers: iam_headers
+            get '/mobile/v0/appointments/va/eligibility', params:, headers: iam_headers
           end
         end
 
@@ -246,7 +246,7 @@ RSpec.describe 'veterans Affairs Eligibility', type: :request do
         before do
           VCR.use_cassette('va_eligibility/get_scheduling_configurations_200_bad_facility',
                            match_requests_on: %i[method uri]) do
-            get '/mobile/v0/appointments/va/eligibility', params: params, headers: iam_headers
+            get '/mobile/v0/appointments/va/eligibility', params:, headers: iam_headers
           end
         end
 

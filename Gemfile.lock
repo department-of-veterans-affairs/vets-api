@@ -1216,7 +1216,7 @@ DEPENDENCIES
   yard
 
 RUBY VERSION
-   ruby 3.0.5p211
+   ruby 3.1.3p185
 
 BUNDLED WITH
-   2.4.9
+   2.4.10

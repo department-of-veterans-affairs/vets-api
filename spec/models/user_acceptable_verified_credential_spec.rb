@@ -5,9 +5,9 @@ require 'rails_helper'
 RSpec.describe UserAcceptableVerifiedCredential, type: :model do
   subject do
     create(:user_acceptable_verified_credential,
-           user_account: user_account,
-           acceptable_verified_credential_at: acceptable_verified_credential_at,
-           idme_verified_credential_at: idme_verified_credential_at)
+           user_account:,
+           acceptable_verified_credential_at:,
+           idme_verified_credential_at:)
   end
 
   let(:user_account) { create(:user_account) }

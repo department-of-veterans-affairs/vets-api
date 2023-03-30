@@ -35,7 +35,7 @@ describe AppealsApi::MonthlyStatsReport do
           expect(AppealsApi::StatsReportMailer).to receive(:build).with(
             date_from: (end_date - 1.month).beginning_of_day,
             date_to: end_date.beginning_of_day,
-            recipients: recipients,
+            recipients:,
             subject: 'Lighthouse appeals stats report for month starting 2021-12-02'
           ).and_call_original
 

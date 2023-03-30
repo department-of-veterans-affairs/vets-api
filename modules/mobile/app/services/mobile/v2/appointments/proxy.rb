@@ -21,7 +21,7 @@ module Mobile
                                                                    pagination_params)
 
           appointments = response[:data]
-          filterer = PresentationFilter.new(include_pending: include_pending)
+          filterer = PresentationFilter.new(include_pending:)
           appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
 
           appointments = merge_clinic_facility_address(appointments)
@@ -53,7 +53,7 @@ module Mobile
         rescue Common::Exceptions::BackendServiceException => e
           Rails.logger.error(
             "Error fetching facility details for location_id #{location_id}",
-            location_id: location_id,
+            location_id:,
             vamf_msg: e.original_body
           )
           nil
@@ -77,12 +77,12 @@ module Mobile
         end
 
         def get_clinic(location_id, clinic_id)
-          vaos_mobile_facility_service.get_clinic(station_id: location_id, clinic_id: clinic_id)
+          vaos_mobile_facility_service.get_clinic(station_id: location_id, clinic_id:)
         rescue Common::Exceptions::BackendServiceException => e
           Rails.logger.error(
             "Error fetching clinic #{clinic_id} for location #{location_id}",
-            clinic_id: clinic_id,
-            location_id: location_id,
+            clinic_id:,
+            location_id:,
             vamf_msg: e.original_body
           )
           nil

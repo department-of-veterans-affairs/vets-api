@@ -10,7 +10,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
   let(:user) { create(:user) }
   let(:session_store) { double('SessionStore', token: '123abc') }
   let(:session_service) do
-    double('HealthQuest::Lighthouse::Session', user: user, api: 'pgd_api', retrieve: session_store)
+    double('HealthQuest::Lighthouse::Session', user:, api: 'pgd_api', retrieve: session_store)
   end
   let(:client_reply) { double('FHIR::ClientReply') }
   let(:default_appointments) { double('FHIR::ClientReply', resource: double('Entry', entry: [])) }

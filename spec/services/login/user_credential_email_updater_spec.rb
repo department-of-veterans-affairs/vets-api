@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Login::UserCredentialEmailUpdater do
   describe '#perform' do
     subject do
-      described_class.new(credential_email: credential_email, user_verification: user_verification).perform
+      described_class.new(credential_email:, user_verification:).perform
     end
 
     let(:credential_email) { 'some-credential-email' }
@@ -34,7 +34,7 @@ RSpec.describe Login::UserCredentialEmailUpdater do
         let(:user_verification) { create(:user_verification) }
 
         context 'and user credential email already exists associated to the user verification' do
-          let!(:user_credential_email) { create(:user_credential_email, user_verification: user_verification) }
+          let!(:user_credential_email) { create(:user_credential_email, user_verification:) }
 
           it 'does not create a new credential email' do
             expect { subject }.not_to change(UserCredentialEmail, :count)

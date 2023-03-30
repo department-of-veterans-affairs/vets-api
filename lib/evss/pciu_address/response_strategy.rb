@@ -10,8 +10,8 @@ module EVSS
       include Common::CacheAside
       redis_config_key :pciu_address_dependencies
 
-      def cache_or_service(key, &block)
-        do_cached_with(key: key, &block)
+      def cache_or_service(key, &)
+        do_cached_with(key:, &)
       end
     end
   end

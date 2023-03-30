@@ -212,8 +212,8 @@ class FormProfiles::VA21686c < FormProfile
       {
         country_dropdown: country['dropDownCountry'],
         country_text: country['textCountry'],
-        city: city,
-        state: state
+        city:,
+        state:
       }.compact
     )
   end

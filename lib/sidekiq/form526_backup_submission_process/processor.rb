@@ -211,12 +211,12 @@ module Sidekiq
       end
 
       def log_info(message:, upload_type:, uuid:)
-        ::Rails.logger.info({ message: message, upload_type: upload_type, upload_uuid: uuid,
+        ::Rails.logger.info({ message:, upload_type:, upload_uuid: uuid,
                               submission_id: @submission.id })
       end
 
       def log_resp(message:, resp:)
-        ::Rails.logger.info({ message: message, response: resp, submission_id: @submission.id })
+        ::Rails.logger.info({ message:, response: resp, submission_id: @submission.id })
       end
 
       def generate_attachments(evidence_files, other_payloads)
@@ -235,7 +235,7 @@ module Sidekiq
           upload_url: initial_upload_location,
           file: form526_doc[:file],
           metadata: form526_doc[:metadata].to_json,
-          attachments: attachments
+          attachments:
         )
         log_info(message: 'Uploading single fallback payload to Lighthouse Successful', upload_type: FORM_526_DOC_TYPE,
                  uuid: initial_upload_uuid)
@@ -246,7 +246,7 @@ module Sidekiq
         lighthouse_service.get_upload_docs(
           file_with_full_path: form526_doc[:file],
           metadata: form526_doc[:metadata].to_json,
-          attachments: attachments
+          attachments:
         )
       end
 
@@ -332,7 +332,7 @@ module Sidekiq
         file = write_to_tmp_file(content)
         docs << {
           type: FORM_526_DOC_TYPE,
-          file: file
+          file:
         }
       end
 
@@ -340,7 +340,7 @@ module Sidekiq
         uploads = submission.form[FORM_526_UPLOADS]
         uploads.each do |upload|
           guid = upload['confirmationCode']
-          sea = SupportingEvidenceAttachment.find_by(guid: guid)
+          sea = SupportingEvidenceAttachment.find_by(guid:)
           file = sea&.get_file
           raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file.nil?
 
@@ -409,7 +409,7 @@ module Sidekiq
         file = write_to_tmp_file(content)
         docs << {
           type: FORM_526_DOC_TYPE,
-          file: file
+          file:
         }
       end
     end

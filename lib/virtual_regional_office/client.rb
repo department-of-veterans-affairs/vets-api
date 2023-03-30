@@ -35,7 +35,7 @@ module VirtualRegionalOffice
         claimSubmissionId: @claim_submission_id,
         diagnosticCode: @diagnostic_code,
         veteranInfo: veteran_info,
-        evidence: evidence
+        evidence:
       }
 
       perform(:post, Settings.virtual_regional_office.evidence_pdf_path, params.to_json.to_s, headers_hash)

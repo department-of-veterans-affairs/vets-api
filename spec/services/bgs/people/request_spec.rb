@@ -3,15 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe BGS::People::Request do
-  let(:user) { create(:user, :loa3, participant_id: participant_id) }
+  let(:user) { create(:user, :loa3, participant_id:) }
   let(:participant_id) { '600061742' }
 
   before do
-    stub_mpi(build(:mvi_profile, participant_id: participant_id))
+    stub_mpi(build(:mvi_profile, participant_id:))
   end
 
   describe '#find_person_by_participant_id' do
-    subject { BGS::People::Request.new.find_person_by_participant_id(user: user) }
+    subject { BGS::People::Request.new.find_person_by_participant_id(user:) }
 
     let(:expected_file_number) { '796043735' }
     let(:expected_participant_id) { user.participant_id }

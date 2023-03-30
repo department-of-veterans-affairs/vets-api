@@ -10,14 +10,14 @@ describe EMIS::MilitaryInformationServiceV2 do
     context 'with a valid request' do
       it 'calls the get_military_service_episodes endpoint with a proper emis message' do
         VCR.use_cassette('emis/get_military_service_episodes_v2/valid') do
-          response = subject.get_military_service_episodes(edipi: edipi)
+          response = subject.get_military_service_episodes(edipi:)
           expect(response).to be_ok
         end
       end
 
       it 'includes new fields from v2' do
         VCR.use_cassette('emis/get_military_service_episodes_v2/valid') do
-          response = subject.get_military_service_episodes(edipi: edipi)
+          response = subject.get_military_service_episodes(edipi:)
 
           first_item = response.items.first
           expect(first_item.narrative_reason_for_separation_txt).to eq('UNKNOWN')
@@ -35,7 +35,7 @@ describe EMIS::MilitaryInformationServiceV2 do
 
       it 'calls the get_military_service_episodes endpoint with a proper emis message' do
         VCR.use_cassette('emis/get_military_service_episodes_v2/valid_no_end_date') do
-          response = subject.get_military_service_episodes(edipi: edipi)
+          response = subject.get_military_service_episodes(edipi:)
           expect(response).to be_ok
         end
       end
@@ -46,7 +46,7 @@ describe EMIS::MilitaryInformationServiceV2 do
     context 'with a valid request' do
       it 'calls the get_deplopyment endpoint with a proper emis message' do
         VCR.use_cassette('emis/get_deployment_v2/valid') do
-          response = subject.get_deployment(edipi: edipi)
+          response = subject.get_deployment(edipi:)
           expect(response).to be_ok
 
           first_item = response.items.first

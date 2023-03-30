@@ -26,7 +26,7 @@ RSpec.describe 'permission' do
     it 'calls update_permission' do
       expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_permission).and_call_original
       VCR.use_cassette('va_profile/contact_information/put_permission_success') do
-        post('/v0/profile/permissions/create_or_update', params: permission.to_json, headers: headers)
+        post('/v0/profile/permissions/create_or_update', params: permission.to_json, headers:)
       end
 
       expect(response).to have_http_status(:ok)
@@ -39,7 +39,7 @@ RSpec.describe 'permission' do
     context 'with a 200 response' do
       it 'matches the permission schema', :aggregate_failures do
         VCR.use_cassette('va_profile/contact_information/post_permission_success') do
-          post('/v0/profile/permissions', params: permission.to_json, headers: headers)
+          post('/v0/profile/permissions', params: permission.to_json, headers:)
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('va_profile/transaction_response')
@@ -58,7 +58,7 @@ RSpec.describe 'permission' do
       it 'creates a new AsyncTransaction::VAProfile::PermissionTransaction db record' do
         VCR.use_cassette('va_profile/contact_information/post_permission_success') do
           expect do
-            post('/v0/profile/permissions', params: permission.to_json, headers: headers)
+            post('/v0/profile/permissions', params: permission.to_json, headers:)
           end.to change(AsyncTransaction::VAProfile::PermissionTransaction, :count).from(0).to(1)
         end
       end
@@ -69,7 +69,7 @@ RSpec.describe 'permission' do
         permission.id = 401
 
         VCR.use_cassette('va_profile/contact_information/post_permission_w_id_error') do
-          post('/v0/profile/permissions', params: permission.to_json, headers: headers)
+          post('/v0/profile/permissions', params: permission.to_json, headers:)
 
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('errors')
@@ -92,7 +92,7 @@ RSpec.describe 'permission' do
       it 'returns a forbidden response' do
         permission.id = 401
         VCR.use_cassette('va_profile/contact_information/post_permission_status_403') do
-          post('/v0/profile/permissions', params: permission.to_json, headers: headers)
+          post('/v0/profile/permissions', params: permission.to_json, headers:)
 
           expect(response).to have_http_status(:forbidden)
         end
@@ -108,7 +108,7 @@ RSpec.describe 'permission' do
     context 'with a 200 response' do
       it 'matches the permission schema', :aggregate_failures do
         VCR.use_cassette('va_profile/contact_information/put_permission_success') do
-          put('/v0/profile/permissions', params: permission.to_json, headers: headers)
+          put('/v0/profile/permissions', params: permission.to_json, headers:)
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('va_profile/transaction_response')
@@ -127,7 +127,7 @@ RSpec.describe 'permission' do
       it 'creates a new AsyncTransaction::VAProfile::PermissionTransaction db record' do
         VCR.use_cassette('va_profile/contact_information/put_permission_success') do
           expect do
-            put('/v0/profile/permissions', params: permission.to_json, headers: headers)
+            put('/v0/profile/permissions', params: permission.to_json, headers:)
           end.to change(AsyncTransaction::VAProfile::PermissionTransaction, :count).from(0).to(1)
         end
       end
@@ -151,7 +151,7 @@ RSpec.describe 'permission' do
         VCR.use_cassette('va_profile/contact_information/put_permission_ignore_eed', VCR::MATCH_EVERYTHING) do
           # The cassette we're using does not include the effectiveEndDate in the body.
           # So this test ensures that it was stripped out
-          put('/v0/profile/permissions', params: permission.to_json, headers: headers)
+          put('/v0/profile/permissions', params: permission.to_json, headers:)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('va_profile/transaction_response')
         end
@@ -185,7 +185,7 @@ RSpec.describe 'permission' do
         VCR.use_cassette('va_profile/contact_information/delete_permission_success', VCR::MATCH_EVERYTHING) do
           # The cassette we're using includes the effectiveEndDate in the body.
           # So this test will not pass if it's missing
-          delete('/v0/profile/permissions', params: permission.to_json, headers: headers)
+          delete('/v0/profile/permissions', params: permission.to_json, headers:)
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('va_profile/transaction_response')

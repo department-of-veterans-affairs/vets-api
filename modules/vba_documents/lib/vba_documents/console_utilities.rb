@@ -51,7 +51,7 @@ module VBADocuments
     private
 
     def manual_status_change(guid, from, to, error)
-      r = UploadSubmission.find_by guid: guid
+      r = UploadSubmission.find_by(guid:)
       if r&.status.eql?(from)
         UploadSubmission.transaction do
           # record the promotion
@@ -74,7 +74,7 @@ module VBADocuments
 
     # this method marks records in success status that will no longer be checked for manual promotion to vbms
     def mark_success_final(guid)
-      r = UploadSubmission.find_by guid: guid
+      r = UploadSubmission.find_by(guid:)
       if r&.status.eql?('success')
         UploadSubmission.transaction do
           unless r.metadata[UploadSubmission::FINAL_SUCCESS_STATUS_KEY]

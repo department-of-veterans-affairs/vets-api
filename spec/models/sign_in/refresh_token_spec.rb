@@ -5,12 +5,12 @@ require 'rails_helper'
 RSpec.describe SignIn::RefreshToken, type: :model do
   let(:refresh_token) do
     FactoryBot.create(:refresh_token,
-                      user_uuid: user_uuid,
-                      uuid: uuid,
-                      session_handle: session_handle,
-                      anti_csrf_token: anti_csrf_token,
-                      nonce: nonce,
-                      version: version)
+                      user_uuid:,
+                      uuid:,
+                      session_handle:,
+                      anti_csrf_token:,
+                      nonce:,
+                      version:)
   end
   let(:user_uuid) { create(:user).uuid }
   let(:uuid) { 'some-uuid' }
@@ -64,9 +64,9 @@ RSpec.describe SignIn::RefreshToken, type: :model do
 
     context 'when nonce param is not defined' do
       let(:refresh_token) do
-        SignIn::RefreshToken.new(user_uuid: user_uuid,
-                                 session_handle: session_handle,
-                                 anti_csrf_token: anti_csrf_token)
+        SignIn::RefreshToken.new(user_uuid:,
+                                 session_handle:,
+                                 anti_csrf_token:)
       end
       let(:expected_random_number) { 'some-random-number' }
 
@@ -91,9 +91,9 @@ RSpec.describe SignIn::RefreshToken, type: :model do
 
     context 'when uuid param is not defined' do
       let(:refresh_token) do
-        SignIn::RefreshToken.new(user_uuid: user_uuid,
-                                 session_handle: session_handle,
-                                 anti_csrf_token: anti_csrf_token)
+        SignIn::RefreshToken.new(user_uuid:,
+                                 session_handle:,
+                                 anti_csrf_token:)
       end
       let(:expected_random_number) { 'some-random-number' }
 
@@ -128,9 +128,9 @@ RSpec.describe SignIn::RefreshToken, type: :model do
 
     context 'when version param is not defined' do
       let(:refresh_token) do
-        SignIn::RefreshToken.new(user_uuid: user_uuid,
-                                 session_handle: session_handle,
-                                 anti_csrf_token: anti_csrf_token)
+        SignIn::RefreshToken.new(user_uuid:,
+                                 session_handle:,
+                                 anti_csrf_token:)
       end
       let(:expected_version) { SignIn::Constants::RefreshToken::CURRENT_VERSION }
 

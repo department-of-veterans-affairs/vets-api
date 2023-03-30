@@ -5,14 +5,14 @@ require 'mpi/messages/add_person_implicit_search_message'
 
 describe MPI::Messages::AddPersonImplicitSearchMessage do
   let(:add_person_implicit_search_message) do
-    described_class.new(last_name: last_name,
-                        ssn: ssn,
-                        birth_date: birth_date,
-                        idme_uuid: idme_uuid,
-                        logingov_uuid: logingov_uuid,
-                        email: email,
-                        address: address,
-                        first_name: first_name)
+    described_class.new(last_name:,
+                        ssn:,
+                        birth_date:,
+                        idme_uuid:,
+                        logingov_uuid:,
+                        email:,
+                        address:,
+                        first_name:)
   end
 
   let(:last_name) { 'some-last-name' }
@@ -157,12 +157,12 @@ describe MPI::Messages::AddPersonImplicitSearchMessage do
     context 'when address is defined' do
       let(:address) do
         {
-          street: street,
-          street2: street2,
-          state: state,
-          city: city,
-          postal_code: postal_code,
-          country: country
+          street:,
+          street2:,
+          state:,
+          city:,
+          postal_code:,
+          country:
         }
       end
       let(:street) { 'some-street' }

@@ -52,6 +52,6 @@ module FailedRequestLoggable
     }
     data[:additional_data] = additional_data if additional_data.present?
 
-    PersonalInformationLog.create! error_class: error_class, data: data
+    PersonalInformationLog.create! error_class:, data:
   end
 end

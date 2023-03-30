@@ -5,8 +5,8 @@ require 'rails_helper'
 RSpec.describe UserCredentialEmail, type: :model do
   subject do
     create(:user_credential_email,
-           user_verification: user_verification,
-           credential_email: credential_email)
+           user_verification:,
+           credential_email:)
   end
 
   let(:user_verification) { create(:user_verification) }

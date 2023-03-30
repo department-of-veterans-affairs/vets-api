@@ -230,7 +230,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
                  evss_response: [{ 'key' => 'Error', 'severity' => 'FATAL', 'text' => 'Failed' }])
           VCR.use_cassette('evss/claims/claim') do
             headers = request_headers.merge(auth_header)
-            get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers: headers)
+            get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers:)
             expect(response.status).to eq(422)
           end
         end
@@ -247,7 +247,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
                  evss_response: nil)
           VCR.use_cassette('evss/claims/claim') do
             headers = request_headers.merge(auth_header)
-            get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers: headers)
+            get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers:)
             expect(response.status).to eq(422)
           end
         end
@@ -263,7 +263,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
           allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
           allow(verifier_stub).to receive(:verify)
           headers = request_headers.merge(auth_header)
-          get '/services/claims/v1/claims/600118851', params: nil, headers: headers
+          get('/services/claims/v1/claims/600118851', params: nil, headers:)
           expect(response.status).to eq(200)
         end
       end

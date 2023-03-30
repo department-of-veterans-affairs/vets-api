@@ -9,12 +9,12 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
       from,
       to,
       consumer_claims_totals: claims_totals,
-      unsuccessful_claims_submissions: unsuccessful_claims_submissions,
-      poa_totals: poa_totals,
-      unsuccessful_poa_submissions: unsuccessful_poa_submissions,
-      ews_totals: ews_totals,
-      unsuccessful_evidence_waiver_submissions: unsuccessful_evidence_waiver_submissions,
-      itf_totals: itf_totals
+      unsuccessful_claims_submissions:,
+      poa_totals:,
+      unsuccessful_poa_submissions:,
+      ews_totals:,
+      unsuccessful_evidence_waiver_submissions:,
+      itf_totals:
     )
   end
 

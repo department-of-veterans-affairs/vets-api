@@ -25,7 +25,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       Form526Submission.create(user_uuid: user.uuid,
                                auth_headers_json: auth_headers.to_json,
                                saved_claim_id: saved_claim.id,
-                               form_json: form_json,
+                               form_json:,
                                submitted_claim_id: evss_claim_id)
     end
 

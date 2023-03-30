@@ -117,7 +117,7 @@ RSpec.describe 'email' do
     context 'with a 200 response' do
       it 'matches the email address schema', :aggregate_failures do
         VCR.use_cassette('evss/pciu/post_email_address') do
-          post('/v0/profile/email', params: email_address.to_json, headers: headers)
+          post('/v0/profile/email', params: email_address.to_json, headers:)
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('email_address_response')
@@ -138,7 +138,7 @@ RSpec.describe 'email' do
       it 'matches the errors schema', :aggregate_failures do
         email_address = build :email_address, email: ''
 
-        post('/v0/profile/email', params: email_address.to_json, headers: headers)
+        post('/v0/profile/email', params: email_address.to_json, headers:)
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
@@ -160,7 +160,7 @@ RSpec.describe 'email' do
       it 'matches the errors schema', :aggregate_failures do
         email_address = build :email_address, email: 'johngmail.com'
 
-        post('/v0/profile/email', params: email_address.to_json, headers: headers)
+        post('/v0/profile/email', params: email_address.to_json, headers:)
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
@@ -181,7 +181,7 @@ RSpec.describe 'email' do
     context 'with a 400 response' do
       it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('evss/pciu/post_email_address_status_400') do
-          post('/v0/profile/email', params: email_address.to_json, headers: headers)
+          post('/v0/profile/email', params: email_address.to_json, headers:)
 
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('errors')
@@ -201,7 +201,7 @@ RSpec.describe 'email' do
     context 'with a 403 response' do
       it 'returns a forbidden response' do
         VCR.use_cassette('evss/pciu/post_email_address_status_403') do
-          post('/v0/profile/email', params: email_address.to_json, headers: headers)
+          post('/v0/profile/email', params: email_address.to_json, headers:)
 
           expect(response).to have_http_status(:forbidden)
         end
@@ -211,7 +211,7 @@ RSpec.describe 'email' do
     context 'with a 500 response' do
       it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('evss/pciu/post_email_address_status_500') do
-          post('/v0/profile/email', params: email_address.to_json, headers: headers)
+          post('/v0/profile/email', params: email_address.to_json, headers:)
 
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('errors')
@@ -232,7 +232,7 @@ RSpec.describe 'email' do
       let(:user) { build(:unauthorized_evss_user, :loa3) }
 
       it 'matches the errors schema', :aggregate_failures do
-        post('/v0/profile/email', params: email_address.to_json, headers: headers)
+        post('/v0/profile/email', params: email_address.to_json, headers:)
 
         expect(response).to have_http_status(:forbidden)
         expect(response).to match_response_schema('errors')
@@ -246,7 +246,7 @@ RSpec.describe 'email' do
       end
 
       it 'includes the missing values in the response detail', :aggregate_failures do
-        post('/v0/profile/email', params: email_address.to_json, headers: headers)
+        post('/v0/profile/email', params: email_address.to_json, headers:)
 
         expect(error_details_for(response)).to include 'corp_id'
         expect(error_details_for(response)).to include 'edipi'

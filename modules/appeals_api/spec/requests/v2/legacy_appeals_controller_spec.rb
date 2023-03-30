@@ -210,6 +210,6 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
     end
     headers['X-VA-ICN'] = icn if icn.present?
 
-    get(path, headers: headers)
+    get(path, headers:)
   end
 end

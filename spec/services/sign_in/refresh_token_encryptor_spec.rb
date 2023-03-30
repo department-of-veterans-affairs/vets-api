@@ -4,15 +4,15 @@ require 'rails_helper'
 
 RSpec.describe SignIn::RefreshTokenEncryptor do
   describe '#perform' do
-    subject { SignIn::RefreshTokenEncryptor.new(refresh_token: refresh_token).perform }
+    subject { SignIn::RefreshTokenEncryptor.new(refresh_token:).perform }
 
-    let(:refresh_token) { create(:refresh_token, version: version, nonce: nonce) }
+    let(:refresh_token) { create(:refresh_token, version:, nonce:) }
     let(:serialized_refresh_token) { refresh_token.to_json }
     let(:version) { SignIn::Constants::RefreshToken::CURRENT_VERSION }
     let(:nonce) { 'some-nonce' }
 
     context 'when input object does not have a version attribute' do
-      let(:refresh_token) { OpenStruct.new({ data: 'some-data', nonce: nonce }) }
+      let(:refresh_token) { OpenStruct.new({ data: 'some-data', nonce: }) }
       let(:expected_error) { SignIn::Errors::RefreshTokenMalformedError }
 
       it 'raises a RefreshTokenMalformedError' do
@@ -21,7 +21,7 @@ RSpec.describe SignIn::RefreshTokenEncryptor do
     end
 
     context 'when input object does not have a nonce attribute' do
-      let(:refresh_token) { OpenStruct.new({ data: 'some-data', version: version }) }
+      let(:refresh_token) { OpenStruct.new({ data: 'some-data', version: }) }
       let(:expected_error) { SignIn::Errors::RefreshTokenMalformedError }
       let(:expected_error_message) { 'Refresh token is malformed' }
 

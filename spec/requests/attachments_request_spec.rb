@@ -8,7 +8,7 @@ RSpec.describe 'Message Attachments Integration' do
   include SM::ClientHelpers
 
   let(:va_patient) { true }
-  let(:current_user) { build(:user, :mhv, va_patient: va_patient, mhv_account_type: mhv_account_type) }
+  let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:) }
   let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
   let(:message_id) { 573_302 }
@@ -44,7 +44,7 @@ RSpec.describe 'Message Attachments Integration' do
 
       let(:va_patient) { false }
       let(:current_user) do
-        build(:user, :mhv, :no_vha_facilities, va_patient: va_patient, mhv_account_type: mhv_account_type)
+        build(:user, :mhv, :no_vha_facilities, va_patient:, mhv_account_type:)
       end
 
       include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'

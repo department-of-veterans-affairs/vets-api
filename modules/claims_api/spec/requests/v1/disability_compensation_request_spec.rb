@@ -49,7 +49,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         participant_id: '32397028'
       }
     end
-    let(:add_response) { build(:add_person_response, parsed_codes: parsed_codes) }
+    let(:add_response) { build(:add_person_response, parsed_codes:) }
 
     describe "'treatments' validations" do
       describe "'treatment.startDate' validations" do

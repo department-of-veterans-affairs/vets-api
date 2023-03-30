@@ -26,7 +26,7 @@ module Flipper
     private
 
     def sis_user_uuid(access_token_jwt)
-      access_token = SignIn::AccessTokenJwtDecoder.new(access_token_jwt: access_token_jwt).perform
+      access_token = SignIn::AccessTokenJwtDecoder.new(access_token_jwt:).perform
       access_token&.user_uuid
     end
 

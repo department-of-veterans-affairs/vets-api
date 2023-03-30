@@ -76,24 +76,24 @@ module MPI
 
       def build_assigned_person
         element = RequestHelper.build_assigned_person_element
-        element << RequestHelper.build_assigned_person_ssn(ssn: ssn)
-        element << RequestHelper.build_assigned_person_instance(given_names: given_names, family_name: last_name)
-        element << RequestHelper.build_represented_organization(edipi: edipi) if orch_search
+        element << RequestHelper.build_assigned_person_ssn(ssn:)
+        element << RequestHelper.build_assigned_person_instance(given_names:, family_name: last_name)
+        element << RequestHelper.build_represented_organization(edipi:) if orch_search
         element
       end
 
       def query_by_parameter
-        query_by_parameter = RequestHelper.build_query_by_parameter(search_type: search_type)
+        query_by_parameter = RequestHelper.build_query_by_parameter(search_type:)
         query_by_parameter << build_parameter_list
         query_by_parameter
       end
 
       def build_parameter_list
         element = RequestHelper.build_parameter_list_element
-        element << RequestHelper.build_gender(gender: gender) if gender
-        element << RequestHelper.build_birth_date(birth_date: birth_date)
-        element << RequestHelper.build_ssn(ssn: ssn)
-        element << RequestHelper.build_name(given_names: given_names, family_name: last_name)
+        element << RequestHelper.build_gender(gender:) if gender
+        element << RequestHelper.build_birth_date(birth_date:)
+        element << RequestHelper.build_ssn(ssn:)
+        element << RequestHelper.build_name(given_names:, family_name: last_name)
         element << RequestHelper.build_vba_orchestration
         element
       end

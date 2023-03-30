@@ -39,7 +39,7 @@ module CovidVaccine
         elig_info_icn = { 'patient_icn': attributes[:patient_icn] }
         elig_info_icn.merge!(submission.eligibility_info) unless submission.eligibility_info.nil?
         state = get_state(attributes, submission)
-        submission.update!(vetext_sid: response[:sid], form_data: attributes, state: state,
+        submission.update!(vetext_sid: response[:sid], form_data: attributes, state:,
                            eligibility_info: elig_info_icn)
         submission
       end
@@ -125,7 +125,7 @@ module CovidVaccine
           vaccine_interest: 'INTERESTED',
           privacy_agreement_accepted: form_data['privacy_agreement_accepted'],
           last_branch_of_service: form_data['last_branch_of_service'] || '',
-          service_date_range: service_date_range,
+          service_date_range:,
           character_of_service: form_data['character_of_service'] || '',
           enhanced_eligibility: true,
           authenticated: false

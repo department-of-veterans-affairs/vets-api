@@ -8,7 +8,7 @@ module TestUserDashboard
   class TudGithubOAuthProxyController < ApplicationController
     def index
       code = params[:code]
-      token = github_oauth_access_token_request(code: code)
+      token = github_oauth_access_token_request(code:)
       render json: token
     rescue => e
       log_exception_to_sentry(e, nil, nil, 'warn')
@@ -22,7 +22,7 @@ module TestUserDashboard
       body = {
         client_id: Settings.test_user_dashboard.github_oauth.client_id,
         client_secret: Settings.test_user_dashboard.github_oauth.client_secret,
-        code: code
+        code:
       }.to_json
 
       response = Faraday.post(url, body, 'Content-Type': 'application/json')

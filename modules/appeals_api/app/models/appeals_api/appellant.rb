@@ -162,9 +162,9 @@ module AppealsApi
     def mpi_veteran
       ClaimsApi::Veteran.new(
         uuid: ssn,
-        ssn: ssn,
-        first_name: first_name,
-        last_name: last_name,
+        ssn:,
+        first_name:,
+        last_name:,
         va_profile: ClaimsApi::Veteran.build_profile(birth_date),
         loa: { current: 3, highest: 3 }
       )

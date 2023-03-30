@@ -49,7 +49,7 @@ module EducationForm
       relation = EducationBenefitsSubmission.where(
         created_at: range,
         region: region.to_s,
-        form_type: form_type
+        form_type:
       )
       relation = relation.where(status: 'processed') if status == :processed
 

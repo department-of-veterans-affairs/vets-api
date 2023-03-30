@@ -4,9 +4,9 @@ require 'rails_helper'
 
 RSpec.describe SignIn::AttributeValidator do
   describe '#perform' do
-    subject { SignIn::AttributeValidator.new(user_attributes: user_attributes).perform }
+    subject { SignIn::AttributeValidator.new(user_attributes:).perform }
 
-    let(:user_attributes) { { current_ial: current_ial } }
+    let(:user_attributes) { { current_ial: } }
     let(:current_ial) { SignIn::Constants::Auth::IAL_ONE }
 
     context 'when credential is not verified' do
@@ -20,20 +20,20 @@ RSpec.describe SignIn::AttributeValidator do
     context 'when credential is verified' do
       let(:user_attributes) do
         {
-          logingov_uuid: logingov_uuid,
-          idme_uuid: idme_uuid,
-          current_ial: current_ial,
-          ssn: ssn,
-          birth_date: birth_date,
-          first_name: first_name,
-          last_name: last_name,
+          logingov_uuid:,
+          idme_uuid:,
+          current_ial:,
+          ssn:,
+          birth_date:,
+          first_name:,
+          last_name:,
           csp_email: email,
-          address: address,
-          service_name: service_name,
-          auto_uplevel: auto_uplevel,
-          mhv_icn: mhv_icn,
-          mhv_correlation_id: mhv_correlation_id,
-          edipi: edipi
+          address:,
+          service_name:,
+          auto_uplevel:,
+          mhv_icn:,
+          mhv_correlation_id:,
+          edipi:
         }
       end
       let(:logingov_uuid) { nil }
@@ -48,12 +48,12 @@ RSpec.describe SignIn::AttributeValidator do
       let(:last_name) { nil }
       let(:address) do
         {
-          street: street,
-          street2: street2,
-          postal_code: postal_code,
-          state: state,
-          city: city,
-          country: country
+          street:,
+          street2:,
+          postal_code:,
+          state:,
+          city:,
+          country:
         }
       end
       let(:street) { nil }
@@ -148,18 +148,18 @@ RSpec.describe SignIn::AttributeValidator do
         let(:mpi_ssn) { ssn }
         let(:mpi_profile) do
           build(:mvi_profile,
-                id_theft_flag: id_theft_flag,
-                deceased_date: deceased_date,
+                id_theft_flag:,
+                deceased_date:,
                 ssn: mpi_ssn,
-                icn: icn,
-                edipis: edipis,
+                icn:,
+                edipis:,
                 edipi: edipis.first,
                 mhv_ien: mhv_iens.first,
-                mhv_iens: mhv_iens,
+                mhv_iens:,
                 birls_id: birls_ids.first,
-                birls_ids: birls_ids,
+                birls_ids:,
                 participant_id: participant_ids.first,
-                participant_ids: participant_ids,
+                participant_ids:,
                 birth_date: mpi_birth_date,
                 given_names: [mpi_first_name],
                 family_name: mpi_last_name)
@@ -167,8 +167,8 @@ RSpec.describe SignIn::AttributeValidator do
 
         before do
           stub_mpi(build(:mvi_profile,
-                         id_theft_flag: id_theft_flag,
-                         deceased_date: deceased_date,
+                         id_theft_flag:,
+                         deceased_date:,
                          ssn: mpi_ssn,
                          birth_date: mpi_birth_date,
                          given_names: [mpi_first_name],
@@ -181,16 +181,16 @@ RSpec.describe SignIn::AttributeValidator do
           let(:expected_error_log) { 'attribute validator error' }
           let(:expected_params) do
             {
-              last_name: last_name,
-              ssn: ssn,
-              birth_date: birth_date,
-              icn: icn,
-              email: email,
-              address: address,
-              idme_uuid: idme_uuid,
-              logingov_uuid: logingov_uuid,
-              edipi: edipi,
-              first_name: first_name
+              last_name:,
+              ssn:,
+              birth_date:,
+              icn:,
+              email:,
+              address:,
+              idme_uuid:,
+              logingov_uuid:,
+              edipi:,
+              first_name:
             }
           end
 
@@ -236,7 +236,7 @@ RSpec.describe SignIn::AttributeValidator do
           let(:expected_error_code) { SignIn::Constants::ErrorCode::GENERIC_EXTERNAL_ISSUE }
           let(:expected_error_context) do
             { csp_uuid: csp_id,
-              icn: icn,
+              icn:,
               type: user_attributes[:sign_in][:service_name] }
           end
 
@@ -256,19 +256,19 @@ RSpec.describe SignIn::AttributeValidator do
         let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
         let(:mpi_profile) do
           build(:mvi_profile,
-                id_theft_flag: id_theft_flag,
-                deceased_date: deceased_date,
-                ssn: ssn,
-                icn: icn,
-                edipis: edipis,
+                id_theft_flag:,
+                deceased_date:,
+                ssn:,
+                icn:,
+                edipis:,
                 edipi: edipis.first,
                 mhv_ien: mhv_iens.first,
-                mhv_iens: mhv_iens,
+                mhv_iens:,
                 birls_id: birls_ids.first,
-                birls_ids: birls_ids,
+                birls_ids:,
                 participant_id: participant_ids.first,
-                participant_ids: participant_ids,
-                birth_date: birth_date,
+                participant_ids:,
+                birth_date:,
                 given_names: [first_name],
                 family_name: last_name)
         end
@@ -295,7 +295,7 @@ RSpec.describe SignIn::AttributeValidator do
           context 'and auto_uplevel is not set' do
             let(:auto_uplevel) { false }
             let(:update_profile_response) do
-              create(:add_person_response, status: update_status, parsed_codes: { logingov_uuid: logingov_uuid })
+              create(:add_person_response, status: update_status, parsed_codes: { logingov_uuid: })
             end
             let(:update_status) { :ok }
 
@@ -309,20 +309,20 @@ RSpec.describe SignIn::AttributeValidator do
         end
 
         context 'and mpi record does not exist for user' do
-          let(:add_person_response) { create(:add_person_response, status: status, parsed_codes: parsed_codes) }
+          let(:add_person_response) { create(:add_person_response, status:, parsed_codes:) }
           let(:status) { :ok }
           let(:icn) { 'some-icn' }
-          let(:parsed_codes) { { icn: icn } }
+          let(:parsed_codes) { { icn: } }
           let(:expected_params) do
             {
-              first_name: first_name,
-              last_name: last_name,
-              ssn: ssn,
-              birth_date: birth_date,
-              email: email,
-              address: address,
-              idme_uuid: idme_uuid,
-              logingov_uuid: logingov_uuid
+              first_name:,
+              last_name:,
+              ssn:,
+              birth_date:,
+              email:,
+              address:,
+              idme_uuid:,
+              logingov_uuid:
             }
           end
 
@@ -401,26 +401,26 @@ RSpec.describe SignIn::AttributeValidator do
           end
 
           context 'and mpi record exists for user' do
-            let(:add_person_response) { create(:add_person_response, status: status, parsed_codes: parsed_codes) }
+            let(:add_person_response) { create(:add_person_response, status:, parsed_codes:) }
             let(:status) { :ok }
             let(:icn) { mhv_icn }
-            let(:parsed_codes) { { icn: icn } }
+            let(:parsed_codes) { { icn: } }
             let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
             let(:mpi_profile) do
               build(:mvi_profile,
-                    id_theft_flag: id_theft_flag,
-                    deceased_date: deceased_date,
-                    ssn: ssn,
-                    icn: icn,
-                    edipis: edipis,
+                    id_theft_flag:,
+                    deceased_date:,
+                    ssn:,
+                    icn:,
+                    edipis:,
                     edipi: edipis.first,
                     mhv_ien: mhv_iens.first,
-                    mhv_iens: mhv_iens,
+                    mhv_iens:,
                     birls_id: birls_ids.first,
-                    birls_ids: birls_ids,
+                    birls_ids:,
                     participant_id: participant_ids.first,
-                    participant_ids: participant_ids,
-                    birth_date: birth_date,
+                    participant_ids:,
+                    birth_date:,
                     given_names: [first_name],
                     family_name: last_name)
             end
@@ -436,14 +436,14 @@ RSpec.describe SignIn::AttributeValidator do
             let(:birls_ids) { ['some-birls-id'] }
             let(:expected_params) do
               {
-                first_name: first_name,
-                last_name: last_name,
-                ssn: ssn,
-                birth_date: birth_date,
-                email: email,
-                address: address,
-                idme_uuid: idme_uuid,
-                logingov_uuid: logingov_uuid
+                first_name:,
+                last_name:,
+                ssn:,
+                birth_date:,
+                email:,
+                address:,
+                idme_uuid:,
+                logingov_uuid:
               }
             end
 
@@ -509,19 +509,19 @@ RSpec.describe SignIn::AttributeValidator do
             let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
             let(:mpi_profile) do
               build(:mvi_profile,
-                    id_theft_flag: id_theft_flag,
-                    deceased_date: deceased_date,
-                    ssn: ssn,
-                    icn: icn,
-                    edipis: edipis,
+                    id_theft_flag:,
+                    deceased_date:,
+                    ssn:,
+                    icn:,
+                    edipis:,
                     edipi: edipis.first,
                     mhv_ien: mhv_iens.first,
-                    mhv_iens: mhv_iens,
+                    mhv_iens:,
                     birls_id: birls_ids.first,
-                    birls_ids: birls_ids,
+                    birls_ids:,
                     participant_id: participant_ids.first,
-                    participant_ids: participant_ids,
-                    birth_date: birth_date,
+                    participant_ids:,
+                    birth_date:,
                     given_names: [first_name],
                     family_name: last_name)
             end
@@ -554,19 +554,19 @@ RSpec.describe SignIn::AttributeValidator do
             let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
             let(:mpi_profile) do
               build(:mvi_profile,
-                    id_theft_flag: id_theft_flag,
-                    deceased_date: deceased_date,
-                    ssn: ssn,
-                    icn: icn,
-                    edipis: edipis,
+                    id_theft_flag:,
+                    deceased_date:,
+                    ssn:,
+                    icn:,
+                    edipis:,
                     edipi: edipis.first,
                     mhv_ien: mhv_iens.first,
-                    mhv_iens: mhv_iens,
+                    mhv_iens:,
                     birls_id: birls_ids.first,
-                    birls_ids: birls_ids,
+                    birls_ids:,
                     participant_id: participant_ids.first,
-                    participant_ids: participant_ids,
-                    birth_date: birth_date,
+                    participant_ids:,
+                    birth_date:,
                     given_names: [first_name],
                     family_name: last_name)
             end
@@ -599,19 +599,19 @@ RSpec.describe SignIn::AttributeValidator do
             let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
             let(:mpi_profile) do
               build(:mvi_profile,
-                    id_theft_flag: id_theft_flag,
-                    deceased_date: deceased_date,
-                    ssn: ssn,
-                    icn: icn,
-                    edipis: edipis,
+                    id_theft_flag:,
+                    deceased_date:,
+                    ssn:,
+                    icn:,
+                    edipis:,
                     edipi: edipis.first,
                     mhv_ien: mhv_iens.first,
-                    mhv_iens: mhv_iens,
+                    mhv_iens:,
                     birls_id: birls_ids.first,
-                    birls_ids: birls_ids,
+                    birls_ids:,
                     participant_id: participant_ids.first,
-                    participant_ids: participant_ids,
-                    birth_date: birth_date,
+                    participant_ids:,
+                    birth_date:,
                     given_names: [first_name],
                     family_name: last_name)
             end
@@ -644,19 +644,19 @@ RSpec.describe SignIn::AttributeValidator do
             let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
             let(:mpi_profile) do
               build(:mvi_profile,
-                    id_theft_flag: id_theft_flag,
-                    deceased_date: deceased_date,
-                    ssn: ssn,
-                    icn: icn,
-                    edipis: edipis,
+                    id_theft_flag:,
+                    deceased_date:,
+                    ssn:,
+                    icn:,
+                    edipis:,
                     edipi: edipis.first,
                     mhv_ien: mhv_iens.first,
-                    mhv_iens: mhv_iens,
+                    mhv_iens:,
                     birls_id: birls_ids.first,
-                    birls_ids: birls_ids,
+                    birls_ids:,
                     participant_id: participant_ids.first,
-                    participant_ids: participant_ids,
-                    birth_date: birth_date,
+                    participant_ids:,
+                    birth_date:,
                     given_names: [first_name],
                     family_name: last_name)
             end

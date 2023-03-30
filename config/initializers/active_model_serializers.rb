@@ -9,7 +9,7 @@ module CustomPaginationLinks
     per_page = collection.try(:per_page) || collection.try(:limit_value) || collection.size
     pagination_links = pages_from.each_with_object({}) do |(key, value), hash|
       # Use the non nested syntax for pagination params
-      params = query_parameters.merge(page: value, per_page: per_page).to_query
+      params = query_parameters.merge(page: value, per_page:).to_query
       # Changed this to set the value to nil when no value is specified by pages_from
       hash[key] = value.present? ? "#{base_path}?#{params}" : nil
     end

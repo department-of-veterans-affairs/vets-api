@@ -40,7 +40,7 @@ module VAOS
     def patient_identifier
       {
         unique_id: patient_id,
-        assigning_authority: assigning_authority
+        assigning_authority:
       }
     end
   end

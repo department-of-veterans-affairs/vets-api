@@ -28,7 +28,7 @@ describe Middleware::CheckInLogging do
   describe '#call' do
     let(:log_tags) do
       {
-        status: status,
+        status:,
         duration: 0.0
       }
     end

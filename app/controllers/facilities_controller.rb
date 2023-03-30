@@ -27,7 +27,7 @@ class FacilitiesController < ApplicationController
     total_entries = page * per_page + 1
     hsh.compact.transform_values!(&:to_i)
     hsh.merge(
-      total_entries: total_entries
+      total_entries:
     )
   end
 

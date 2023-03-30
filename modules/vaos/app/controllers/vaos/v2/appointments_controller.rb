@@ -292,12 +292,12 @@ module VAOS
       end
 
       def get_clinic(location_id, clinic_id)
-        mobile_facility_service.get_clinic(station_id: location_id, clinic_id: clinic_id)
+        mobile_facility_service.get_clinic(station_id: location_id, clinic_id:)
       rescue Common::Exceptions::BackendServiceException => e
         Rails.logger.error(
           "Error fetching clinic #{clinic_id} for location #{location_id}",
-          clinic_id: clinic_id,
-          location_id: location_id,
+          clinic_id:,
+          location_id:,
           vamf_msg: e.original_body
         )
         nil # on error log and return nil, calling code will handle nil
@@ -308,7 +308,7 @@ module VAOS
       rescue Common::Exceptions::BackendServiceException
         Rails.logger.error(
           "Error fetching facility details for location_id #{location_id}",
-          location_id: location_id
+          location_id:
         )
       end
 

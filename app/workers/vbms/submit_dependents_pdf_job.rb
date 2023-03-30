@@ -23,7 +23,7 @@ module VBMS
           File.rename(file_path, "#{file_path}#{file_extension}")
           file_path = "#{file_path}#{file_extension}"
 
-          claim.upload_to_vbms(path: file_path, doc_type: doc_type)
+          claim.upload_to_vbms(path: file_path, doc_type:)
           Common::FileHelpers.delete_file_if_exists(file_path)
         end
       end

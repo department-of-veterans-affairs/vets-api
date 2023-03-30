@@ -66,7 +66,7 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
   def invalid_schema_type_error
     {
       title: 'not_found',
-      detail: I18n.t('appeals_api.errors.invalid_schema_type', schema_type: schema_type),
+      detail: I18n.t('appeals_api.errors.invalid_schema_type', schema_type:),
       code: 'InvalidSchemaType',
       status: '404',
       source: { parameter: schema_type },

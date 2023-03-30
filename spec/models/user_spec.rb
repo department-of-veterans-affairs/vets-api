@@ -238,7 +238,7 @@ RSpec.describe User, type: :model do
 
     describe 'getter methods' do
       context 'when saml user attributes available, icn is available, and user LOA3' do
-        let(:user) { build(:user, :loa3, mpi_profile: { vet360_id: vet360_id }) }
+        let(:user) { build(:user, :loa3, mpi_profile: { vet360_id: }) }
         let(:vet360_id) { '1234567' }
 
         it 'fetches first_name from IDENTITY' do
@@ -283,7 +283,7 @@ RSpec.describe User, type: :model do
                 middle_name: '',
                 last_name: '',
                 gender: '',
-                mpi_profile: mpi_profile)
+                mpi_profile:)
         end
         let(:mpi_profile) do
           { edipi: '1007697216',
@@ -365,7 +365,7 @@ RSpec.describe User, type: :model do
         context 'CERNER ids' do
           let(:user) do
             build(:user, :loa3,
-                  cerner_id: cerner_id, cerner_facility_ids: cerner_facility_ids)
+                  cerner_id:, cerner_facility_ids:)
           end
           let(:cerner_id) { 'some-cerner-id' }
           let(:cerner_facility_ids) { %w[123 456] }
@@ -402,7 +402,7 @@ RSpec.describe User, type: :model do
         end
 
         describe '#home_phone' do
-          let(:user) { build(:user, :loa3, home_phone: home_phone) }
+          let(:user) { build(:user, :loa3, home_phone:) }
           let(:home_phone) { '315-867-5309' }
 
           it 'returns home_phone from the MPI profile' do
@@ -414,7 +414,7 @@ RSpec.describe User, type: :model do
         context 'name attributes' do
           let(:user) do
             build(:user, :loa3,
-                  first_name: first_name, middle_name: middle_name, last_name: last_name, suffix: suffix)
+                  first_name:, middle_name:, last_name:, suffix:)
           end
           let(:first_name) { 'some-first-name' }
           let(:middle_name) { 'some-middle-name' }
@@ -449,7 +449,7 @@ RSpec.describe User, type: :model do
         end
 
         context 'MHV ids' do
-          let(:user) { build(:user, :loa3, mhv_correlation_id: nil, participant_id: participant_id) }
+          let(:user) { build(:user, :loa3, mhv_correlation_id: nil, participant_id:) }
           let(:participant_id) { 'some_mpi_participant_id' }
 
           context 'when mhv ids are nil' do
@@ -509,7 +509,7 @@ RSpec.describe User, type: :model do
         context 'VHA facility ids' do
           let(:user) do
             build(:user, :loa3,
-                  vha_facility_ids: vha_facility_ids, vha_facility_hash: vha_facility_hash)
+                  vha_facility_ids:, vha_facility_hash:)
           end
           let(:vha_facility_ids) { %w[200CRNR 200MHV] }
           let(:vha_facility_hash) { { '200CRNR' => %w[123456], '200MHV' => %w[123456] } }
@@ -528,7 +528,7 @@ RSpec.describe User, type: :model do
 
       describe '#vha_facility_hash' do
         let(:user) do
-          build(:user, :loa3, vha_facility_hash: nil, mpi_profile: { vha_facility_hash: vha_facility_hash })
+          build(:user, :loa3, vha_facility_hash: nil, mpi_profile: { vha_facility_hash: })
         end
         let(:vha_facility_hash) { { '400' => %w[123456789 999888777] } }
 
@@ -548,7 +548,7 @@ RSpec.describe User, type: :model do
 
       context 'when saml user attributes NOT available, icn is available, and user LOA3' do
         let(:given_names) { [Faker::Name.first_name] }
-        let(:mpi_profile) { build(:mvi_profile, given_names: given_names) }
+        let(:mpi_profile) { build(:mvi_profile, given_names:) }
         let(:mpi_profile_hash) do
           { given_names: mpi_profile.given_names,
             family_name: mpi_profile.family_name,
@@ -683,7 +683,7 @@ RSpec.describe User, type: :model do
   end
 
   describe '#va_patient?' do
-    let(:user) { build(:user, :loa3, vha_facility_ids: vha_facility_ids) }
+    let(:user) { build(:user, :loa3, vha_facility_ids:) }
     let(:vha_facility_ids) { [] }
 
     around do |example|
@@ -913,7 +913,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'and MPI Profile deceased date does exist' do
-      let(:mvi_profile) { build(:mvi_profile, deceased_date: deceased_date) }
+      let(:mvi_profile) { build(:mvi_profile, deceased_date:) }
       let(:deceased_date) { '20200202' }
 
       before do
@@ -1021,7 +1021,7 @@ RSpec.describe User, type: :model do
 
   describe '#fingerprint' do
     let(:fingerprint) { '196.168.0.0' }
-    let(:user) { create :user, fingerprint: fingerprint }
+    let(:user) { create :user, fingerprint: }
 
     it 'returns expected user fingerprint' do
       expect(user.fingerprint).to eq(fingerprint)
@@ -1041,13 +1041,13 @@ RSpec.describe User, type: :model do
     let(:user) do
       described_class.new(
         build(:user, :loa3,
-              idme_uuid: idme_uuid, logingov_uuid: logingov_uuid,
-              edipi: edipi, mhv_correlation_id: mhv_correlation_id, authn_context: authn_context)
+              idme_uuid:, logingov_uuid:,
+              edipi:, mhv_correlation_id:, authn_context:)
       )
     end
     let(:user_verifier_object) do
-      OpenStruct.new({ idme_uuid: idme_uuid, logingov_uuid: logingov_uuid, sign_in: user.identity_sign_in,
-                       edipi: edipi, mhv_correlation_id: mhv_correlation_id })
+      OpenStruct.new({ idme_uuid:, logingov_uuid:, sign_in: user.identity_sign_in,
+                       edipi:, mhv_correlation_id: })
     end
     let(:authn_context) { LOA::IDME_LOA1_VETS }
     let(:logingov_uuid) { 'some-logingov-uuid' }
@@ -1165,7 +1165,7 @@ RSpec.describe User, type: :model do
 
     describe '#inherited_proof_verified' do
       context 'when Inherited Proof Verified User Account exists and matches current user_account' do
-        let!(:inherited_proof_verified) { create(:inherited_proof_verified_user_account, user_account: user_account) }
+        let!(:inherited_proof_verified) { create(:inherited_proof_verified_user_account, user_account:) }
 
         it 'returns true' do
           expect(user.inherited_proof_verified).to be true

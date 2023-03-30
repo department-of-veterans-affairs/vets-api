@@ -85,7 +85,7 @@ RSpec.describe 'health records' do
 
   it 'responds to POST #create to generate a new report' do
     VCR.use_cassette('bb_client/generates_a_report') do
-      post '/v0/health_records', params: params
+      post '/v0/health_records', params:
     end
 
     expect(response).to be_accepted

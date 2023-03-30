@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe AppealsApi::PdfConstruction::SupplementalClaim::V3::FormData do
   let(:created_at) { '2023-02-03' }
-  let(:supplemental_claim) { build(:extra_supplemental_claim, created_at: created_at) }
+  let(:supplemental_claim) { build(:extra_supplemental_claim, created_at:) }
   let(:form_data) { described_class.new(supplemental_claim) }
 
   {
@@ -95,7 +95,7 @@ describe AppealsApi::PdfConstruction::SupplementalClaim::V3::FormData do
 
   describe 'phone number fields' do
     context 'domestic phone with no extension' do
-      let(:supplemental_claim) { build(:supplemental_claim, created_at: created_at) }
+      let(:supplemental_claim) { build(:supplemental_claim, created_at:) }
 
       it 'uses the domestic phone field' do
         expect(form_data.international_phone).to be_nil
@@ -106,7 +106,7 @@ describe AppealsApi::PdfConstruction::SupplementalClaim::V3::FormData do
     end
 
     context 'domestic phone with extension' do
-      let(:supplemental_claim) { build(:extra_supplemental_claim, created_at: created_at) }
+      let(:supplemental_claim) { build(:extra_supplemental_claim, created_at:) }
 
       it 'uses the international phone field' do
         expect(form_data.international_phone).to eq '555-811-1100 ext 4'
@@ -118,7 +118,7 @@ describe AppealsApi::PdfConstruction::SupplementalClaim::V3::FormData do
 
     context 'international phone' do
       let(:supplemental_claim) do
-        build(:supplemental_claim, created_at: created_at) do |sc|
+        build(:supplemental_claim, created_at:) do |sc|
           sc.form_data['data']['attributes']['veteran']['phone']['countryCode'] = '34'
           sc.form_data['data']['attributes']['veteran']['phone']['areaCode'] = '987'
           sc.form_data['data']['attributes']['veteran']['phone']['phoneNumber'] = '654321'

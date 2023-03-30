@@ -19,7 +19,7 @@ module HealthQuest
       # @return [Lighthouse::ClaimsToken] an instance of this class
       #
       def self.build(api:)
-        new(api: api)
+        new(api:)
       end
 
       def initialize(opts)
@@ -43,8 +43,8 @@ module HealthQuest
       def claims
         {
           aud: aud[api],
-          iss: iss,
-          sub: sub,
+          iss:,
+          sub:,
           jti: random_uuid,
           iat: issued_at_time,
           exp: expires_at_time

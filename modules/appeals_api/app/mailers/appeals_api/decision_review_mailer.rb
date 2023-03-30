@@ -16,7 +16,7 @@ module AppealsApi
         to: recipients,
         subject: "#{@friendly_duration} Decision Review API report (#{@friendly_env})",
         content_type: 'text/html',
-        body: body
+        body:
       )
     end
 

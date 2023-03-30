@@ -7,12 +7,12 @@ RSpec.describe FacilitiesQuery do
     it 'finds facility in the bbox' do
       create :vha_648A4
       bbox = ['-122.440689', '45.451913', '-122.786758', '45.64']
-      expect(FacilitiesQuery.generate_query(bbox: bbox).run.first.id).to eq('648A4')
+      expect(FacilitiesQuery.generate_query(bbox:).run.first.id).to eq('648A4')
     end
 
     it 'returns an empty relation when more than one distance param is given' do
       bbox = ['-122.440689', '45.451913', '-122.786758', '45.64']
-      params = { state: 'FL', bbox: bbox }
+      params = { state: 'FL', bbox: }
       results = FacilitiesQuery.generate_query(params).run
       assert results.empty?
     end
@@ -25,27 +25,27 @@ RSpec.describe FacilitiesQuery do
 
       it 'finds facility by type' do
         bbox = ['-122.440689', '45.451913', '-122.786758', '45.64']
-        expect(FacilitiesQuery.generate_query(bbox: bbox).run.size).to eq(10)
-        expect(FacilitiesQuery.generate_query(bbox: bbox, type: 'health').run.size).to eq(3)
-        expect(FacilitiesQuery.generate_query(bbox: bbox, type: 'benefits').run.size).to eq(5)
-        expect(FacilitiesQuery.generate_query(bbox: bbox, type: 'cemetery').run.size).to eq(1)
-        expect(FacilitiesQuery.generate_query(bbox: bbox, type: 'vet_center').run.size).to eq(1)
+        expect(FacilitiesQuery.generate_query(bbox:).run.size).to eq(10)
+        expect(FacilitiesQuery.generate_query(bbox:, type: 'health').run.size).to eq(3)
+        expect(FacilitiesQuery.generate_query(bbox:, type: 'benefits').run.size).to eq(5)
+        expect(FacilitiesQuery.generate_query(bbox:, type: 'cemetery').run.size).to eq(1)
+        expect(FacilitiesQuery.generate_query(bbox:, type: 'vet_center').run.size).to eq(1)
       end
 
       it 'finds health facilities by services' do
         bbox = ['-122.440689', '45.451913', '-122.786758', '45.64']
         type = 'health'
         services = %w[EmergencyCare MentalHealthCare]
-        expect(FacilitiesQuery.generate_query(bbox: bbox, type: type, services: [services[0]]).run.size).to eq(1)
-        expect(FacilitiesQuery.generate_query(bbox: bbox, type: type, services: services).run.size).to eq(3)
+        expect(FacilitiesQuery.generate_query(bbox:, type:, services: [services[0]]).run.size).to eq(1)
+        expect(FacilitiesQuery.generate_query(bbox:, type:, services:).run.size).to eq(3)
       end
 
       it 'finds benefit facilities by services' do
         bbox = ['-122.440689', '45.451913', '-122.786758', '45.64']
         type = 'benefits'
         services = %w[HomelessAssistance VocationalRehabilitationAndEmploymentAssistance]
-        params1 = { bbox: bbox, type: type, services: [services[0]] }
-        params2 = { bbox: bbox, type: type, services: services }
+        params1 = { bbox:, type:, services: [services[0]] }
+        params2 = { bbox:, type:, services: }
         expect(FacilitiesQuery.generate_query(params1).run.size).to eq(1)
         expect(FacilitiesQuery.generate_query(params2).run.size).to eq(5)
       end
@@ -64,7 +64,7 @@ RSpec.describe FacilitiesQuery do
         type = 'benefits'
         services = ['EducationAndCareerCounseling']
 
-        result = FacilitiesQuery.generate_query(state: state, type: type, services: services).run
+        result = FacilitiesQuery.generate_query(state:, type:, services:).run
 
         expect(result.size).to eq(3)
       end
@@ -82,7 +82,7 @@ RSpec.describe FacilitiesQuery do
         type = 'benefits'
         services = ['EducationAndCareerCounseling']
 
-        result = FacilitiesQuery.generate_query(zip: zip, type: type, services: services).run
+        result = FacilitiesQuery.generate_query(zip:, type:, services:).run
 
         expect(result.size).to eq(2)
       end

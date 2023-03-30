@@ -5,13 +5,13 @@ require 'mpi/messages/add_person_proxy_add_message'
 
 describe MPI::Messages::AddPersonProxyAddMessage do
   let(:add_person_proxy_add_message) do
-    described_class.new(first_name: first_name,
-                        last_name: last_name,
-                        ssn: ssn,
-                        birth_date: birth_date,
-                        icn: icn,
-                        edipi: edipi,
-                        search_token: search_token)
+    described_class.new(first_name:,
+                        last_name:,
+                        ssn:,
+                        birth_date:,
+                        icn:,
+                        edipi:,
+                        search_token:)
   end
 
   let(:first_name) { 'some-first-name' }

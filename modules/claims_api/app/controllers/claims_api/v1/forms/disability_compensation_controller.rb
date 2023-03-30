@@ -42,9 +42,9 @@ module ClaimsApi
 
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
-            auth_headers: auth_headers,
+            auth_headers:,
             form_data: form_attributes,
-            flashes: flashes,
+            flashes:,
             special_issues: special_issues_per_disability,
             source: source_name,
             cid: token.payload['cid'],
@@ -137,7 +137,7 @@ module ClaimsApi
         # rubocop:disable Metrics/MethodLength
         def validate_form_526
           ClaimsApi::Logger.log('526', detail: '526/validate - Request Started')
-          add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
+          add_deprecation_headers_to_response(response:, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
           validate_form_526_submission_values!
@@ -154,9 +154,9 @@ module ClaimsApi
 
           auto_claim = ClaimsApi::AutoEstablishedClaim.new(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
-            auth_headers: auth_headers,
+            auth_headers:,
             form_data: form_attributes,
-            flashes: flashes,
+            flashes:,
             special_issues: special_issues_per_disability
           )
           service.validate_form526(auto_claim.to_internal)

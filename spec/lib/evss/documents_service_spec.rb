@@ -23,7 +23,7 @@ describe EVSS::DocumentsService do
     it 'uploads documents', run_at: 'Fri, 05 Jan 2018 00:12:00 GMT' do
       VCR.use_cassette(
         'evss/documents/upload',
-        erb: { transaction_id: transaction_id },
+        erb: { transaction_id: },
         match_requests_on: VCR.all_matches
       ) do
         demo_file_name = ::Rails.root.join(*'/spec/fixtures/files/doctors-note.pdf'.split('/')).to_s

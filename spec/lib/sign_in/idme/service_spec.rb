@@ -11,7 +11,7 @@ describe SignIn::Idme::Service do
       access_token: '0f5ebddd60d0451782214e6705cac5d1',
       token_type: 'bearer',
       expires_in: 300,
-      scope: scope,
+      scope:,
       refresh_token: '26f282c510a740bb9c27aeed65fc08c4',
       refresh_expires_in: 604_800
     }
@@ -26,18 +26,18 @@ describe SignIn::Idme::Service do
         iat: current_time,
         credential_aal_highest: 2,
         credential_ial_highest: 'classic_loa3',
-        birth_date: birth_date,
-        email: email,
-        street: street,
-        zip: zip,
+        birth_date:,
+        email:,
+        street:,
+        zip:,
         state: address_state,
-        city: city,
-        phone: phone,
+        city:,
+        phone:,
         fname: first_name,
         social: ssn,
         lname: last_name,
         level_of_assurance: 3,
-        multifactor: multifactor,
+        multifactor:,
         credential_aal: 2,
         credential_ial: 'classic_loa3',
         uuid: user_uuid
@@ -73,7 +73,7 @@ describe SignIn::Idme::Service do
   end
 
   describe '#render_auth' do
-    let(:response) { subject.render_auth(state: state, acr: acr).to_s }
+    let(:response) { subject.render_auth(state:, acr:).to_s }
     let(:configuration) { SignIn::Idme::Configuration }
     let(:expected_authorization_page) { "#{base_path}/#{auth_path}" }
     let(:base_path) { 'some-base-path' }
@@ -251,11 +251,11 @@ describe SignIn::Idme::Service do
         idme_uuid: user_uuid,
         current_ial: SignIn::Constants::Auth::IAL_TWO,
         max_ial: SignIn::Constants::Auth::IAL_TWO,
-        service_name: service_name,
+        service_name:,
         csp_email: email,
-        multifactor: multifactor,
-        authn_context: authn_context,
-        auto_uplevel: auto_uplevel
+        multifactor:,
+        authn_context:,
+        auto_uplevel:
       }
     end
     let(:service_name) { SignIn::Constants::Auth::IDME }
@@ -280,17 +280,17 @@ describe SignIn::Idme::Service do
             iat: current_time,
             credential_aal_highest: 2,
             credential_ial_highest: 'classic_loa3',
-            birth_date: birth_date,
-            email: email,
+            birth_date:,
+            email:,
             fname: first_name,
             social: ssn,
             lname: last_name,
-            street: street,
-            zip: zip,
+            street:,
+            zip:,
             state: address_state,
-            city: city,
+            city:,
             level_of_assurance: 3,
-            multifactor: multifactor,
+            multifactor:,
             credential_aal: 2,
             credential_ial: 'classic_loa3',
             uuid: user_uuid
@@ -299,19 +299,19 @@ describe SignIn::Idme::Service do
       end
       let(:expected_address) do
         {
-          street: street,
+          street:,
           postal_code: zip,
           state: address_state,
-          city: city,
-          country: country
+          city:,
+          country:
         }
       end
       let(:country) { 'USA' }
       let(:expected_attributes) do
-        expected_standard_attributes.merge({ ssn: ssn,
-                                             birth_date: birth_date,
-                                             first_name: first_name,
-                                             last_name: last_name,
+        expected_standard_attributes.merge({ ssn:,
+                                             birth_date:,
+                                             first_name:,
+                                             last_name:,
                                              address: expected_address })
       end
 
@@ -343,14 +343,14 @@ describe SignIn::Idme::Service do
             credential_aal_highest: 2,
             credential_ial_highest: 'classic_loa3',
             dslogon_birth_date: birth_date,
-            email: email,
+            email:,
             dslogon_uuid: edipi,
             dslogon_fname: first_name,
             dslogon_idvalue: ssn,
             dslogon_lname: last_name,
             dslogon_mname: middle_name,
             level_of_assurance: 3,
-            multifactor: multifactor,
+            multifactor:,
             credential_aal: 2,
             credential_ial: 'classic_loa3',
             uuid: user_uuid
@@ -360,12 +360,12 @@ describe SignIn::Idme::Service do
       let(:middle_name) { 'some-middle-name' }
       let(:edipi) { 'some-edipi' }
       let(:expected_attributes) do
-        expected_standard_attributes.merge({ ssn: ssn,
-                                             birth_date: birth_date,
-                                             first_name: first_name,
-                                             middle_name: middle_name,
-                                             last_name: last_name,
-                                             edipi: edipi })
+        expected_standard_attributes.merge({ ssn:,
+                                             birth_date:,
+                                             first_name:,
+                                             middle_name:,
+                                             last_name:,
+                                             edipi: })
       end
 
       it 'returns expected dslogon attributes' do
@@ -387,12 +387,12 @@ describe SignIn::Idme::Service do
             iat: current_time,
             credential_aal_highest: 2,
             credential_ial_highest: 'classic_loa3',
-            email: email,
+            email:,
             mhv_uuid: mhv_correlation_id,
-            mhv_icn: mhv_icn,
-            mhv_assurance: mhv_assurance,
+            mhv_icn:,
+            mhv_assurance:,
             level_of_assurance: 3,
-            multifactor: multifactor,
+            multifactor:,
             credential_aal: 2,
             credential_ial: 'classic_loa3',
             uuid: user_uuid
@@ -403,9 +403,9 @@ describe SignIn::Idme::Service do
       let(:mhv_icn) { 'some-mhv-icn' }
       let(:mhv_assurance) { 'some-mhv-assurance' }
       let(:expected_attributes) do
-        expected_standard_attributes.merge({ mhv_icn: mhv_icn,
-                                             mhv_correlation_id: mhv_correlation_id,
-                                             mhv_assurance: mhv_assurance })
+        expected_standard_attributes.merge({ mhv_icn:,
+                                             mhv_correlation_id:,
+                                             mhv_assurance: })
       end
 
       it 'returns expected mhv attributes' do

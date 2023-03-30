@@ -16,7 +16,7 @@ module AppealsApi
         recipients = load_recipients(:report_daily)
         if recipients.present?
           DecisionReviewMailer.build(date_from: from, date_to: to, friendly_duration: 'Daily',
-                                     recipients: recipients).deliver_now
+                                     recipients:).deliver_now
         end
       end
     end

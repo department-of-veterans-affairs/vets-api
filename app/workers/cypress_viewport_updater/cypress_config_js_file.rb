@@ -41,19 +41,19 @@ module CypressViewportUpdater
         end
 
         new_line = if line.include?('viewportWidth:')
-                     rewrite_line(line: line, new_value: viewports.desktop[0].width, prop: 'viewportWidth')
+                     rewrite_line(line:, new_value: viewports.desktop[0].width, prop: 'viewportWidth')
                    elsif line.include?('viewportHeight:')
-                     rewrite_line(line: line, new_value: viewports.desktop[0].height, prop: 'viewportHeight')
+                     rewrite_line(line:, new_value: viewports.desktop[0].height, prop: 'viewportHeight')
                    elsif (prop = VIEWPORT_PROPS.select { |p| line.include?(p.to_s) }.first)
                      viewport_idx += 1 if prop == 'height:'
                      if prop == 'devicesWithViewport:' && lines[idx + 1].exclude?('percentTraffic:')
                        skip_next_line = true
                      end
-                     rewrite_line(line: line,
+                     rewrite_line(line:,
                                   new_value: viewports
                                                .send(viewport_type)[prop == 'height:' ? viewport_idx - 1 : viewport_idx]
                                                .send(prop.chomp(':')),
-                                  prop: prop)
+                                  prop:)
                    end
 
         new_lines.push(new_line.nil? ? line : new_line)

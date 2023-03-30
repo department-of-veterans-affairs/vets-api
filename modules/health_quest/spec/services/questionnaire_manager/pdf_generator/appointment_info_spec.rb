@@ -165,7 +165,7 @@ describe HealthQuest::QuestionnaireManager::PdfGenerator::AppointmentInfo do
 
   describe '#formatted_destination' do
     it 'has a formatted_destination' do
-      expect(subject.build(opts: { org: org, location: location }, composer: composer.synthesize)
+      expect(subject.build(opts: { org:, location: }, composer: composer.synthesize)
                     .formatted_destination).to eq('Foo, Bar')
     end
   end

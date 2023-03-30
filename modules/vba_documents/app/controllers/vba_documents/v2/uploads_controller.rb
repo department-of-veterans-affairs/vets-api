@@ -113,7 +113,7 @@ module VBADocuments
           upload_model.update(status: 'error', code: 'DOC104', detail: e.message)
         end
         status = upload_model.status.eql?('error') ? 400 : 200
-        render json: upload_model, serializer: VBADocuments::V2::UploadSerializer, status: status
+        render json: upload_model, serializer: VBADocuments::V2::UploadSerializer, status:
       end
       # rubocop:enable Metrics/MethodLength
 

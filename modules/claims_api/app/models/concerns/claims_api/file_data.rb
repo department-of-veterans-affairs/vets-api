@@ -26,8 +26,8 @@ module ClaimsApi
       def set_file_data!(file_data, doc_type, description = nil)
         uploader.store!(file_data)
         self.file_data = { filename: uploader.filename,
-                           doc_type: doc_type,
-                           description: description }
+                           doc_type:,
+                           description: }
       end
     end
   end

@@ -12,11 +12,11 @@ describe AppealsApi::Appellant, type: :model do
   let(:claimant_form_data) { form_data.dig('data', 'attributes', 'claimant') }
 
   let(:veteran_appellant) do
-    described_class.new(auth_headers: auth_headers, form_data: veteran_form_data, type: :veteran)
+    described_class.new(auth_headers:, form_data: veteran_form_data, type: :veteran)
   end
 
   let(:claimant_appellant) do
-    described_class.new(auth_headers: auth_headers, form_data: claimant_form_data, type: :claimant)
+    described_class.new(auth_headers:, form_data: claimant_form_data, type: :claimant)
   end
 
   describe '#first_name' do
@@ -96,7 +96,7 @@ describe AppealsApi::Appellant, type: :model do
     let(:claimant_form_data) { form_data.dig('data', 'attributes', 'claimant') }
 
     let(:claimant_appellant) do
-      described_class.new(auth_headers: auth_headers, form_data: claimant_form_data, type: :claimant)
+      described_class.new(auth_headers:, form_data: claimant_form_data, type: :claimant)
     end
 
     it { expect(claimant_appellant.zip_code_5).to eq '00000' }
@@ -111,7 +111,7 @@ describe AppealsApi::Appellant, type: :model do
   context 'when no address for claimant' do
     let(:no_address_data) { claimant_form_data.delete('address') }
     let(:claimant_appellant) do
-      described_class.new(auth_headers: auth_headers, form_data: no_address_data, type: :claimant)
+      described_class.new(auth_headers:, form_data: no_address_data, type: :claimant)
     end
 
     describe '#number_and_street' do

@@ -10,7 +10,7 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do
 
   context request_params do
     before do
-      get '/facilities_api/v1/va', params: params
+      get '/facilities_api/v1/va', params:
     end
 
     it { expect(response).to be_successful }
@@ -21,14 +21,14 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do
 
     if distances.any?
       it 'each response is expected to have a distance' do
-        expected_array = ids.collect.with_index { |id, i| { id: id, distance: distances[i] } }
+        expected_array = ids.collect.with_index { |id, i| { id:, distance: distances[i] } }
         expect(parsed_body['data'].collect { |x| x['attributes'].slice(:id, :distance) }).to match(expected_array)
       end
     end
 
     unless mobile.nil?
       it "is expected that all results have mobile=#{mobile}" do
-        expected_array = ids.collect { |id| { id: id, mobile: mobile } }
+        expected_array = ids.collect { |id| { id:, mobile: } }
         expect(parsed_body['data'].collect { |x| x['attributes'].slice(:id, :mobile) }).to match(expected_array)
       end
     end
@@ -37,8 +37,8 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do
       current_page = request_params[:page] || 1
       prev_page = current_page > 1 ? current_page - 1 : nil
       expect(parsed_body[:meta][:pagination]).to match({
-                                                         current_page: current_page,
-                                                         prev_page: prev_page,
+                                                         current_page:,
+                                                         prev_page:,
                                                          next_page: be_kind_of(Integer).or(be_nil),
                                                          total_pages: be_kind_of(Integer),
                                                          total_entries: be_kind_of(Integer)
@@ -282,7 +282,7 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
 
         before do
           Flipper.enable('facilities_locator_mobile_covid_online_scheduling', flipper)
-          get '/facilities_api/v1/va', params: params
+          get '/facilities_api/v1/va', params:
         end
 
         context 'facilities_locator_mobile_covid_online_scheduling enabled' do

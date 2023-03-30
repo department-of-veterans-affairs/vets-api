@@ -32,7 +32,7 @@ class MessagingPreference < Common::Base
   def mhv_params
     raise Common::Exceptions::ValidationErrors, self unless valid?
 
-    { email_address: email_address, notify_me: FREQUENCY_UPDATE_MAP.fetch(frequency) }
+    { email_address:, notify_me: FREQUENCY_UPDATE_MAP.fetch(frequency) }
   end
 
   def id

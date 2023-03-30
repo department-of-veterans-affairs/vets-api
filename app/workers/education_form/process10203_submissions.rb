@@ -100,7 +100,7 @@ module EducationForm
 
         submission.education_stem_automated_decision.update(
           automated_decision_state: status,
-          poa: poa
+          poa:
         )
       end
     end

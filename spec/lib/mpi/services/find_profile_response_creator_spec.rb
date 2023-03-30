@@ -5,7 +5,7 @@ require 'mpi/services/find_profile_response_creator'
 
 describe MPI::Services::FindProfileResponseCreator do
   describe '#perform' do
-    subject { described_class.new(type: type, response: response, error: error).perform }
+    subject { described_class.new(type:, response:, error:).perform }
 
     let(:type) { 'some-type' }
     let(:response) { 'some-response' }
@@ -14,10 +14,10 @@ describe MPI::Services::FindProfileResponseCreator do
     shared_examples 'error response' do
       let(:expected_error_message) { "MPI #{type} response error" }
       let(:error_details) do
-        { error_details: { ack_detail_code: ack_detail_code,
-                           id_extension: id_extension,
-                           transaction_id: transaction_id,
-                           error_texts: error_texts } }
+        { error_details: { ack_detail_code:,
+                           id_extension:,
+                           transaction_id:,
+                           error_texts: } }
       end
       let(:sentry_context) { { error_message: expected_error.message } }
       let(:sentry_log_level) { :warn }
@@ -41,10 +41,10 @@ describe MPI::Services::FindProfileResponseCreator do
     shared_examples 'record not found error response' do
       let(:expected_error_message) { "[MPI][Services][FindProfileResponseCreator] #{type} #{detailed_error_message}" }
       let(:error_details) do
-        { error_details: { ack_detail_code: ack_detail_code,
-                           id_extension: id_extension,
-                           transaction_id: transaction_id,
-                           error_texts: error_texts } }
+        { error_details: { ack_detail_code:,
+                           id_extension:,
+                           transaction_id:,
+                           error_texts: } }
       end
       let(:detailed_error_message) { "Record Not Found, transaction_id=#{transaction_id}" }
 

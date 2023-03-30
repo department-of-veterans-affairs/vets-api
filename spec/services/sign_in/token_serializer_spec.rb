@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe SignIn::TokenSerializer do
   let(:token_serializer) do
-    SignIn::TokenSerializer.new(session_container: session_container, cookies: cookies)
+    SignIn::TokenSerializer.new(session_container:, cookies:)
   end
 
   describe '#perform' do
@@ -12,20 +12,20 @@ RSpec.describe SignIn::TokenSerializer do
 
     let(:session_container) do
       create(:session_container,
-             client_config: client_config,
-             refresh_token: refresh_token,
-             access_token: access_token,
-             anti_csrf_token: anti_csrf_token)
+             client_config:,
+             refresh_token:,
+             access_token:,
+             anti_csrf_token:)
     end
     let(:cookies) { {} }
     let(:refresh_token) { create(:refresh_token) }
     let(:access_token) { create(:access_token) }
     let(:anti_csrf_token) { 'some-anti-csrf-token' }
-    let(:client_config) { create(:client_config, authentication: authentication, anti_csrf: anti_csrf) }
+    let(:client_config) { create(:client_config, authentication:, anti_csrf:) }
     let(:anti_csrf) { false }
     let(:authentication) { SignIn::Constants::Auth::API }
     let(:encoded_access_token) do
-      SignIn::AccessTokenJwtEncoder.new(access_token: access_token).perform
+      SignIn::AccessTokenJwtEncoder.new(access_token:).perform
     end
     let(:encrypted_refresh_token) do
       SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform
@@ -37,8 +37,8 @@ RSpec.describe SignIn::TokenSerializer do
       let(:refresh_token_expiration) { session_container.session.refresh_expiration }
       let(:info_cookie_value) do
         {
-          access_token_expiration: access_token_expiration,
-          refresh_token_expiration: refresh_token_expiration
+          access_token_expiration:,
+          refresh_token_expiration:
         }
       end
       let(:path) { '/' }
@@ -51,9 +51,9 @@ RSpec.describe SignIn::TokenSerializer do
         {
           value: encoded_access_token,
           expires: refresh_token_expiration,
-          path: path,
-          secure: secure,
-          httponly: httponly
+          path:,
+          secure:,
+          httponly:
         }
       end
       let(:expected_refresh_token_cookie) do
@@ -61,25 +61,25 @@ RSpec.describe SignIn::TokenSerializer do
           value: encrypted_refresh_token,
           expires: refresh_token_expiration,
           path: refresh_path,
-          secure: secure,
-          httponly: httponly
+          secure:,
+          httponly:
         }
       end
       let(:expected_anti_csrf_token_cookie) do
         {
           value: anti_csrf_token,
           expires: refresh_token_expiration,
-          path: path,
-          secure: secure,
-          httponly: httponly
+          path:,
+          secure:,
+          httponly:
         }
       end
       let(:expected_info_cookie) do
         {
           value: info_cookie_value.to_json,
           expires: refresh_token_expiration,
-          secure: secure,
-          domain: domain,
+          secure:,
+          domain:,
           httponly: httponly_info_cookie
         }
       end
@@ -149,7 +149,7 @@ RSpec.describe SignIn::TokenSerializer do
           {
             access_token: encoded_access_token,
             refresh_token: encrypted_refresh_token,
-            anti_csrf_token: anti_csrf_token
+            anti_csrf_token:
           }
         end
 
@@ -166,8 +166,8 @@ RSpec.describe SignIn::TokenSerializer do
       let(:refresh_token_expiration) { session_container.session.refresh_expiration }
       let(:info_cookie_value) do
         {
-          access_token_expiration: access_token_expiration,
-          refresh_token_expiration: refresh_token_expiration
+          access_token_expiration:,
+          refresh_token_expiration:
         }
       end
       let(:path) { '/' }
@@ -180,9 +180,9 @@ RSpec.describe SignIn::TokenSerializer do
         {
           value: encoded_access_token,
           expires: refresh_token_expiration,
-          path: path,
-          secure: secure,
-          httponly: httponly
+          path:,
+          secure:,
+          httponly:
         }
       end
       let(:expected_refresh_token_cookie) do
@@ -190,25 +190,25 @@ RSpec.describe SignIn::TokenSerializer do
           value: encrypted_refresh_token,
           expires: refresh_token_expiration,
           path: refresh_path,
-          secure: secure,
-          httponly: httponly
+          secure:,
+          httponly:
         }
       end
       let(:expected_anti_csrf_token_cookie) do
         {
           value: anti_csrf_token,
           expires: refresh_token_expiration,
-          path: path,
-          secure: secure,
-          httponly: httponly
+          path:,
+          secure:,
+          httponly:
         }
       end
       let(:expected_info_cookie) do
         {
           value: info_cookie_value.to_json,
           expires: refresh_token_expiration,
-          secure: secure,
-          domain: domain,
+          secure:,
+          domain:,
           httponly: httponly_info_cookie
         }
       end
@@ -252,7 +252,7 @@ RSpec.describe SignIn::TokenSerializer do
           {
             access_token: encoded_access_token,
             refresh_token: encrypted_refresh_token,
-            anti_csrf_token: anti_csrf_token
+            anti_csrf_token:
           }
         end
 

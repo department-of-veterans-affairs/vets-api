@@ -43,7 +43,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
     end
 
     context 'not all name fields used' do
-      let(:higher_level_review) { described_class.new(form_data: form_data, auth_headers: auth_headers) }
+      let(:higher_level_review) { described_class.new(form_data:, auth_headers:) }
 
       context 'only last name' do
         let(:auth_headers) { default_auth_headers.except('X-VA-Middle-Initial').merge('X-VA-First-Name' => ' ') }
@@ -188,7 +188,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
       let(:example_instance) { higher_level_review }
       let(:instance_without_email) do
         described_class.create!(
-          auth_headers: auth_headers,
+          auth_headers:,
           api_version: 'V2',
           form_data: form_data.deep_merge(
             { 'data' => { 'attributes' => { 'veteran' => { 'email' => nil } } } }
@@ -201,7 +201,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
   context 'validations' do
     # V1 has been deprecated, so no need to check validations of records we've effectively archived
     let(:appeal) do # appeal is used here since the shared example expects it
-      described_class.new(form_data: form_data, auth_headers: auth_headers, api_version: 'V2')
+      described_class.new(form_data:, auth_headers:, api_version: 'V2')
     end
     let(:auth_headers) { fixture_as_json 'valid_200996_headers_extra.json', version: 'v2' }
     let(:form_data) { fixture_as_json 'valid_200996_extra.json', version: 'v2' }

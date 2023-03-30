@@ -21,7 +21,7 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
         'mvi/find_candidate/find_profile_with_attributes',
         VCR::MATCH_EVERYTHING
       ) do
-        create(:in_progress_form, user_uuid: user.uuid, form_id: form_id)
+        create(:in_progress_form, user_uuid: user.uuid, form_id:)
         expect(controller).to receive(:clear_saved_form).with(form_id).and_call_original
         sign_in_as(user)
         expect { send_create }.to change(InProgressForm, :count).by(-1)

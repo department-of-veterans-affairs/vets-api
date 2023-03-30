@@ -56,12 +56,12 @@ module SignIn
     end
 
     def state_payload
-      @state_payload ||= StatePayload.new(acr: acr,
-                                          type: type,
+      @state_payload ||= StatePayload.new(acr:,
+                                          type:,
                                           client_id: client_config.client_id,
                                           code_challenge: remove_base64_padding(code_challenge),
                                           code: state_code,
-                                          client_state: client_state)
+                                          client_state:)
     end
 
     def state_code

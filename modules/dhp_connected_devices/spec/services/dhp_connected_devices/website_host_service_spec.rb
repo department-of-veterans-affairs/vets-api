@@ -17,7 +17,7 @@ RSpec.describe WebsiteHostService, type: :service do # written as a class
       let(:environment) { 'localhost' }
 
       it 'redirects to localhost:3001' do
-        redirect_url = subject.get_redirect_url({ status: 'status', vendor: vendor })
+        redirect_url = subject.get_redirect_url({ status: 'status', vendor: })
 
         expect(redirect_url).to eq 'http://localhost:3001/health-care/connected-devices/?fitbit=status#_=_'
       end
@@ -27,7 +27,7 @@ RSpec.describe WebsiteHostService, type: :service do # written as a class
       let(:environment) { 'development' }
 
       it 'redirects to dev.va.gov' do
-        redirect_url = subject.get_redirect_url({ status: 'status', vendor: vendor })
+        redirect_url = subject.get_redirect_url({ status: 'status', vendor: })
 
         expect(redirect_url).to eq 'https://dev.va.gov/health-care/connected-devices/?fitbit=status#_=_'
       end
@@ -37,7 +37,7 @@ RSpec.describe WebsiteHostService, type: :service do # written as a class
       let(:environment) { 'staging' }
 
       it 'redirects to staging.va.gov' do
-        redirect_url = subject.get_redirect_url({ status: 'status', vendor: vendor })
+        redirect_url = subject.get_redirect_url({ status: 'status', vendor: })
 
         expect(redirect_url).to eq 'https://staging.va.gov/health-care/connected-devices/?fitbit=status#_=_'
       end
@@ -47,7 +47,7 @@ RSpec.describe WebsiteHostService, type: :service do # written as a class
       let(:environment) { 'sandbox' }
 
       it 'redirects to dev.va.gov' do
-        redirect_url = subject.get_redirect_url({ status: 'status', vendor: vendor })
+        redirect_url = subject.get_redirect_url({ status: 'status', vendor: })
 
         expect(redirect_url).to eq 'https://dev.va.gov/health-care/connected-devices/?fitbit=status#_=_'
       end
@@ -57,7 +57,7 @@ RSpec.describe WebsiteHostService, type: :service do # written as a class
       let(:environment) { 'production' }
 
       it 'redirects to va.gov' do
-        redirect_url = subject.get_redirect_url({ status: 'status', vendor: vendor })
+        redirect_url = subject.get_redirect_url({ status: 'status', vendor: })
 
         expect(redirect_url).to eq 'https://www.va.gov/health-care/connected-devices/?fitbit=status#_=_'
       end

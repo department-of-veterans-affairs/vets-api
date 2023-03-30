@@ -28,7 +28,7 @@ module VAProfile
         if e.status == 404
           log_exception_to_sentry(
             e,
-            { csp_id_with_aaid: csp_id_with_aaid },
+            { csp_id_with_aaid: },
             { va_profile: :demographics_not_found },
             :warning
           )
@@ -83,8 +83,8 @@ module VAProfile
 
       def build_response(status, body)
         DemographicResponse.from(
-          status: status,
-          body: body,
+          status:,
+          body:,
           id: @user.account_id,
           type: 'mvi_models_mvi_profiles',
           gender: @user.gender_mpi,

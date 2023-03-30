@@ -15,7 +15,7 @@ module ClaimsApi
           lighthouse_claims = ClaimsApi::AutoEstablishedClaim.where(veteran_icn: target_veteran.mpi.icn)
 
           render json: [] && return unless bgs_claims || lighthouse_claims
-          mapped_claims = map_claims(bgs_claims: bgs_claims, lighthouse_claims: lighthouse_claims)
+          mapped_claims = map_claims(bgs_claims:, lighthouse_claims:)
 
           blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :index, root: :data }
           render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(mapped_claims, blueprint_options)
@@ -32,7 +32,7 @@ module ClaimsApi
 
           validate_id_with_icn(bgs_claim, lighthouse_claim, params[:veteranId])
 
-          output = generate_show_output(bgs_claim: bgs_claim, lighthouse_claim: lighthouse_claim)
+          output = generate_show_output(bgs_claim:, lighthouse_claim:)
           blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :show, root: :data }
 
           render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(output, blueprint_options)
@@ -93,7 +93,7 @@ module ClaimsApi
           mapped_claims = bgs_claims[:benefit_claims_dto][:benefit_claim].map do |bgs_claim|
             matching_claim = find_bgs_claim_in_lighthouse_collection(
               lighthouse_collection: lighthouse_claims,
-              bgs_claim: bgs_claim
+              bgs_claim:
             )
             if matching_claim
               lighthouse_claims.delete(matching_claim)
@@ -133,7 +133,7 @@ module ClaimsApi
         def find_lighthouse_claim!(claim_id:)
           lighthouse_claim = ClaimsApi::AutoEstablishedClaim.get_by_id_and_icn(claim_id, target_veteran.mpi.icn)
 
-          if looking_for_lighthouse_claim?(claim_id: claim_id) && lighthouse_claim.blank?
+          if looking_for_lighthouse_claim?(claim_id:) && lighthouse_claim.blank?
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
           end
 
@@ -180,7 +180,7 @@ module ClaimsApi
             end_product_code: data[:end_prdct_type_cd],
             evidence_waiver_submitted_5103: waiver_boolean(data[:filed5103_waiver_ind]),
             jurisdiction: data[:regional_office_jrsdctn],
-            lighthouse_id: lighthouse_id,
+            lighthouse_id:,
             max_est_claim_date: date_present(data[:max_est_claim_complete_dt]),
             min_est_claim_date: date_present(data[:min_est_claim_complete_dt]),
             status: detect_current_status(data),
@@ -421,9 +421,9 @@ module ClaimsApi
               overdue: item[:suspns_dt].nil? ? false : item[:suspns_dt] < Time.zone.now, # EVSS generates this field
               requested_date: date_present(item[:req_dt]),
               tracked_item_id: id.to_i,
-              status: status, # EVSS generates this field
+              status:, # EVSS generates this field
               uploaded: !item[:date_rcvd].nil?, # EVSS generates this field
-              uploads_allowed: uploads_allowed # EVSS generates this field
+              uploads_allowed: # EVSS generates this field
             }
           end
         end

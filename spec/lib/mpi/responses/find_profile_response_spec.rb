@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'mpi/responses/find_profile_response'
 
 describe MPI::Responses::FindProfileResponse do
-  let(:find_profile_response) { described_class.new(status: status, profile: profile, error: error) }
+  let(:find_profile_response) { described_class.new(status:, profile:, error:) }
   let(:status) { 'some-status' }
   let(:profile) { 'some-profile' }
   let(:error) { 'some-error' }

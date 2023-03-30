@@ -32,7 +32,7 @@ RSpec.describe 'person' do
     context 'with a user that has an icn_with_aaid' do
       it 'matches the transaction response schema', :aggregate_failures do
         VCR.use_cassette('va_profile/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
-          post('/v0/profile/initialize_vet360_id', params: empty_body, headers: headers)
+          post('/v0/profile/initialize_vet360_id', params: empty_body, headers:)
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('va_profile/transaction_response')
@@ -51,7 +51,7 @@ RSpec.describe 'person' do
       it 'creates a new AsyncTransaction::VAProfile::InitializePersonTransaction', :aggregate_failures do
         VCR.use_cassette('va_profile/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           expect do
-            post('/v0/profile/initialize_vet360_id', params: empty_body, headers: headers)
+            post('/v0/profile/initialize_vet360_id', params: empty_body, headers:)
           end.to change(AsyncTransaction::VAProfile::InitializePersonTransaction, :count).from(0).to(1)
 
           expect(AsyncTransaction::VAProfile::InitializePersonTransaction.first).to be_valid
@@ -62,7 +62,7 @@ RSpec.describe 'person' do
         VCR.use_cassette('va_profile/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           expect_any_instance_of(User).to receive(:invalidate_mpi_cache)
 
-          post('/v0/profile/initialize_vet360_id', params: empty_body, headers: headers)
+          post('/v0/profile/initialize_vet360_id', params: empty_body, headers:)
         end
       end
     end
@@ -70,7 +70,7 @@ RSpec.describe 'person' do
     context 'with an error response' do
       it 'matches the errors response schema', :aggregate_failures do
         VCR.use_cassette('va_profile/person/init_vet360_id_status_400', VCR::MATCH_EVERYTHING) do
-          post('/v0/profile/initialize_vet360_id', params: empty_body, headers: headers)
+          post('/v0/profile/initialize_vet360_id', params: empty_body, headers:)
 
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('errors')
@@ -99,7 +99,7 @@ RSpec.describe 'person' do
 
       it 'responds with a serialized transaction', :aggregate_failures do
         VCR.use_cassette('va_profile/contact_information/person_transaction_status') do
-          get("/v0/profile/person/status/#{transaction.transaction_id}", params: nil, headers: headers)
+          get("/v0/profile/person/status/#{transaction.transaction_id}", params: nil, headers:)
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('va_profile/transaction_response')
@@ -126,7 +126,7 @@ RSpec.describe 'person' do
 
       it 'matches the errors response schema', :aggregate_failures do
         VCR.use_cassette('va_profile/contact_information/person_transaction_status_error', VCR::MATCH_EVERYTHING) do
-          get("/v0/profile/person/status/#{transaction.transaction_id}", params: nil, headers: headers)
+          get("/v0/profile/person/status/#{transaction.transaction_id}", params: nil, headers:)
 
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('errors')

@@ -66,11 +66,11 @@ RSpec.describe EducationForm::EducationFacility do
 
         it 'uses educationProgram over relativeAddress' do
           form.educationProgram = school(central_address)
-          expect(described_class.routing_address(form, form_type: form_type).state).to eq(central_address.state)
+          expect(described_class.routing_address(form, form_type:).state).to eq(central_address.state)
         end
 
         it 'uses relativeAddress when no educationProgram address is given' do
-          expect(described_class.routing_address(form, form_type: form_type).state).to eq(western_address.state)
+          expect(described_class.routing_address(form, form_type:).state).to eq(western_address.state)
         end
       end
     end

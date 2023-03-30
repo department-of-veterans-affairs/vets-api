@@ -264,7 +264,7 @@ module VAProfile
             get_email_personalisation(personalisation)
           )
 
-          TransactionNotification.create(transaction_id: transaction_id)
+          TransactionNotification.create(transaction_id:)
         end
       end
 

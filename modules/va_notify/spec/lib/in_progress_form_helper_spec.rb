@@ -43,7 +43,7 @@ describe VANotify::InProgressFormHelper do
 
   def create_in_progress_form_days_ago(count, form_id:)
     Timecop.freeze(count.days.ago)
-    in_progress_form = create(:in_progress_form, form_id: form_id)
+    in_progress_form = create(:in_progress_form, form_id:)
     Timecop.return
     in_progress_form
   end

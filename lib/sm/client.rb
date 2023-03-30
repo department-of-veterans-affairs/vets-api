@@ -43,7 +43,7 @@ module SM
       json = perform(:get, 'preferences/notification', nil, token_headers).body
       frequency = MessagingPreference::FREQUENCY_GET_MAP[json[:data][:notify_me]]
       MessagingPreference.new(email_address: json[:data][:email_address],
-                              frequency: frequency)
+                              frequency:)
     end
 
     ##
@@ -403,7 +403,7 @@ module SM
 
       response = perform(:get, path, nil, token_headers)
       filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '').gsub(/%22|"/, '')
-      { body: response.body, filename: filename }
+      { body: response.body, filename: }
     end
     # @!endgroup
 
@@ -432,7 +432,7 @@ module SM
       if data
         Rails.logger.info("secure messaging #{model} cache fetch", cache_key)
         statsd_cache_hit
-        Common::Collection.new(model, data: data)
+        Common::Collection.new(model, data:)
       else
         Rails.logger.info("secure messaging #{model} service fetch", cache_key)
         statsd_cache_miss

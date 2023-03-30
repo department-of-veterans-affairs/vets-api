@@ -79,7 +79,7 @@ module Users
         sign_in: user.identity.sign_in,
         authn_context: user.authn_context,
         inherited_proof_verified: user.inherited_proof_verified,
-        claims: claims
+        claims:
       }
     end
 
@@ -183,7 +183,7 @@ module Users
     def facility(facility_id)
       cerner_facility_ids = user.cerner_facility_ids || []
       {
-        facility_id: facility_id,
+        facility_id:,
         is_cerner: cerner_facility_ids.include?(facility_id)
       }
     end

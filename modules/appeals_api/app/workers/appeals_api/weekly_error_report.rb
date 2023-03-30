@@ -18,7 +18,7 @@ module AppealsApi
         recipients = load_recipients(:error_report_weekly)
         if recipients.present?
           WeeklyErrorReportMailer.build(friendly_duration: 'Weekly',
-                                        recipients: recipients).deliver_now
+                                        recipients:).deliver_now
         end
       end
     end

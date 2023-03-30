@@ -55,13 +55,13 @@ module SearchClickTracking
     def query_params
       URI.encode_www_form(
         {
-          affiliate: affiliate,
-          access_key: access_key,
-          module_code: module_code,
-          url: url,
-          query: query,
-          position: position,
-          user_agent: user_agent
+          affiliate:,
+          access_key:,
+          module_code:,
+          url:,
+          query:,
+          position:,
+          user_agent:
         }
       )
     end

@@ -13,9 +13,9 @@ module BGS
 
       flashes.each do |flash_name|
         # NOTE: Assumption that duplicate flashes are ignored when submitted
-        service.add_flash(file_number: ssn, flash_name: flash_name)
+        service.add_flash(file_number: ssn, flash_name:)
       rescue BGS::ShareError, BGS::PublicError => e
-        Raven.tags_context(source: '526EZ-all-claims', submission_id: submission_id)
+        Raven.tags_context(source: '526EZ-all-claims', submission_id:)
         log_exception_to_sentry(e)
       end
 
@@ -23,7 +23,7 @@ module BGS
       flashes.each do |flash_name|
         assigned_flash = assigned_flashes.find { |af| af[:flash_name].strip == flash_name }
         if assigned_flash.blank?
-          Raven.tags_context(source: '526EZ-all-claims', submission_id: submission_id)
+          Raven.tags_context(source: '526EZ-all-claims', submission_id:)
           e = StandardError.new("Failed to assign '#{flash_name}' to Veteran")
           log_exception_to_sentry(e)
         end

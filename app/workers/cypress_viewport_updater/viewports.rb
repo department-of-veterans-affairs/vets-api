@@ -18,7 +18,7 @@ module CypressViewportUpdater
         if @viewports[viewport_type].count < NUM_TOP_VIEWPORTS[viewport_type] &&
            width_and_height_set?(row)
           count[viewport_type] += 1
-          @viewports[viewport_type] << make_viewport(row: row, rank: count[viewport_type])
+          @viewports[viewport_type] << make_viewport(row:, rank: count[viewport_type])
         end
 
         break if viewports_full?
@@ -47,8 +47,8 @@ module CypressViewportUpdater
 
     def make_viewport(row:, rank:)
       CypressViewportUpdater::
-        Viewport.new(row: row,
-                     rank: rank,
+        Viewport.new(row:,
+                     rank:,
                      total_users: @total_users)
     end
 

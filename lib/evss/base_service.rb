@@ -24,7 +24,7 @@ module EVSS
       end
 
       Breakers::Service.new(
-        name: name,
+        name:,
         request_matcher: matcher
       )
     end
@@ -35,8 +35,8 @@ module EVSS
       conn.get url
     end
 
-    def post(url, body = nil, headers = { 'Content-Type' => 'application/json' }, &block)
-      conn.post(url, body, headers, &block)
+    def post(url, body = nil, headers = { 'Content-Type' => 'application/json' }, &)
+      conn.post(url, body, headers, &)
     end
 
     def base_url
@@ -75,8 +75,8 @@ module EVSS
         {
           version: :TLSv1_2,
           verify: true,
-          client_cert: client_cert,
-          client_key: client_key,
+          client_cert:,
+          client_key:,
           ca_file: root_ca
         }
       end

@@ -36,7 +36,7 @@ module EVSS
           raise EVSSError.new(resp['messages'], resp['messages'], resp)
         end
       when 503, 504
-        raise EVSSBackendServiceError.new("EVSS#{status}", { status: status }, status, resp)
+        raise EVSSBackendServiceError.new("EVSS#{status}", { status: }, status, resp)
       end
     end
   end

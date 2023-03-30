@@ -39,7 +39,7 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
   it 'submits flashes to bgs successfully' do
     flashes.each do |flash_name|
       expect_any_instance_of(BGS::ClaimantWebService)
-        .to receive(:add_flash).with(file_number: claim.auth_headers['va_eauth_pnid'], flash_name: flash_name)
+        .to receive(:add_flash).with(file_number: claim.auth_headers['va_eauth_pnid'], flash_name:)
     end
     expect_any_instance_of(BGS::ClaimantWebService)
       .to receive(:find_assigned_flashes).with(claim.auth_headers['va_eauth_pnid']).and_return(assigned_flashes)
@@ -51,12 +51,11 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
     flashes.each_with_index do |flash_name, index|
       if index.zero?
         expect_any_instance_of(BGS::ClaimantWebService).to receive(:add_flash)
-          .with(file_number: claim.auth_headers['va_eauth_pnid'], flash_name: flash_name).and_raise(BGS::ShareError.new(
-                                                                                                      'failed', 500
-                                                                                                    ))
+          .with(file_number: claim.auth_headers['va_eauth_pnid'], flash_name:)
+          .and_raise(BGS::ShareError.new('failed', 500))
       else
         expect_any_instance_of(BGS::ClaimantWebService)
-          .to receive(:add_flash).with(file_number: claim.auth_headers['va_eauth_pnid'], flash_name: flash_name)
+          .to receive(:add_flash).with(file_number: claim.auth_headers['va_eauth_pnid'], flash_name:)
       end
     end
     expect_any_instance_of(BGS::ClaimantWebService)
@@ -68,9 +67,8 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
   it 'stores multiple bgs exceptions correctly' do
     flashes.each do |flash_name|
       expect_any_instance_of(BGS::ClaimantWebService).to receive(:add_flash)
-        .with(file_number: claim.auth_headers['va_eauth_pnid'], flash_name: flash_name).and_raise(BGS::ShareError.new(
-                                                                                                    'failed', 500
-                                                                                                  ))
+        .with(file_number: claim.auth_headers['va_eauth_pnid'], flash_name:)
+        .and_raise(BGS::ShareError.new('failed', 500))
     end
     expect_any_instance_of(BGS::ClaimantWebService)
       .to receive(:find_assigned_flashes).with(claim.auth_headers['va_eauth_pnid']).and_return({ flashes: [] })

@@ -43,7 +43,7 @@ RSpec.describe CentralMail::DatestampPdf do
 
         it 'does not include the datetime' do
           text = 'Vets.gov Submission'
-          out_path = instance.run(text: text, x: 449, y: 730, text_only: true)
+          out_path = instance.run(text:, x: 449, y: 730, text_only: true)
           assert_pdf_stamp(out_path, text)
         end
       end

@@ -6,8 +6,8 @@ module EVSS
       include Common::CacheAside
       redis_config_key :reference_data_response
 
-      def cache_by_user_and_type(user_uuid, type, &block)
-        do_cached_with(key: "#{user_uuid}:#{type}", &block)
+      def cache_by_user_and_type(user_uuid, type, &)
+        do_cached_with(key: "#{user_uuid}:#{type}", &)
       end
     end
   end

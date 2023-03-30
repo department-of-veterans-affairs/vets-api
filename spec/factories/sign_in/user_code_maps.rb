@@ -10,10 +10,10 @@ FactoryBot.define do
     client_config { create(:client_config) }
 
     initialize_with do
-      new(login_code: login_code,
-          client_state: client_state,
-          client_config: client_config,
-          type: type)
+      new(login_code:,
+          client_state:,
+          client_config:,
+          type:)
     end
   end
 end

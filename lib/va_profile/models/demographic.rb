@@ -25,8 +25,8 @@ module VAProfile
         gender_identity = VAProfile::Models::GenderIdentity.build_from(body&.dig('gender_identity')&.first)
 
         VAProfile::Models::Demographic.new(
-          preferred_name: preferred_name,
-          gender_identity: gender_identity
+          preferred_name:,
+          gender_identity:
         )
       end
     end

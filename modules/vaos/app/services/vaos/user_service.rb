@@ -26,16 +26,16 @@ module VAOS
         new_token = response.body[:jws]
         Rails.logger.info('VAOS session updated',
                           {
-                            account_uuid: account_uuid,
+                            account_uuid:,
                             new_jti: decoded_token(new_token)['jti'],
                             active_jti: decoded_token(cached.token)['jti']
                           })
         save_session!(account_uuid, new_token)
       else
-        Rails.logger.warn('VAOS no session to update', account_uuid: account_uuid)
+        Rails.logger.warn('VAOS no session to update', account_uuid:)
       end
     rescue => e
-      Rails.logger.error('VAOS session update failed', { account_uuid: account_uuid, error: e.message })
+      Rails.logger.error('VAOS session update failed', { account_uuid:, error: e.message })
       raise e
     end
 
@@ -60,8 +60,8 @@ module VAOS
 
     def save_session!(account_uuid, token)
       session_store = SessionStore.new(
-        account_uuid: account_uuid,
-        token: token,
+        account_uuid:,
+        token:,
         unix_created_at: Time.now.utc.to_i
       )
       session_store.save

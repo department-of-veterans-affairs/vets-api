@@ -269,7 +269,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       # any readable file will work for this spec
       key_path = ::Rails.root.join(*'/spec/fixtures/files/idme_cert.crt'.split('/')).to_s
-      with_settings(Settings.edu.sftp, host: 'localhost', key_path: key_path) do
+      with_settings(Settings.edu.sftp, host: 'localhost', key_path:) do
         sftp_session_mock = instance_double('Net::SSH::Connection::Session')
         sftp_mock = instance_double('Net::SFTP::Session', session: sftp_session_mock)
 

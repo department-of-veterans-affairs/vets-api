@@ -30,7 +30,7 @@ module AppealsApi
           status: status.to_s,
           title: 'Validation error'
         }
-        render status: status, json: { errors: [error] }
+        render status:, json: { errors: [error] }
       end
     end
   end

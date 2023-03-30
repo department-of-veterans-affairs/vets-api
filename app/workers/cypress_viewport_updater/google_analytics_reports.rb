@@ -67,7 +67,7 @@ module CypressViewportUpdater
     def date_range
       start_date = CypressViewportUpdater::UpdateCypressViewportsJob::START_DATE
       end_date = CypressViewportUpdater::UpdateCypressViewportsJob::END_DATE
-      DateRange.new(start_date: start_date, end_date: end_date)
+      DateRange.new(start_date:, end_date:)
     end
 
     def metric_user

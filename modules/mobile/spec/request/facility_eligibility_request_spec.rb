@@ -33,7 +33,7 @@ RSpec.describe 'Facility Eligibility', type: :request do
                            match_requests_on: %i[method uri]) do
             VCR.use_cassette('facility_eligibility/get_patient_appointment_metadata_facility_103',
                              match_requests_on: %i[method uri]) do
-              get '/mobile/v0/appointments/facility/eligibility', params: params, headers: iam_headers
+              get '/mobile/v0/appointments/facility/eligibility', params:, headers: iam_headers
             end
           end
         end
@@ -67,7 +67,7 @@ RSpec.describe 'Facility Eligibility', type: :request do
                              match_requests_on: %i[method uri]) do
               VCR.use_cassette('facility_eligibility/get_patient_appointment_metadata_facility_102',
                                match_requests_on: %i[method uri]) do
-                get '/mobile/v0/appointments/facility/eligibility', params: params, headers: iam_headers
+                get '/mobile/v0/appointments/facility/eligibility', params:, headers: iam_headers
               end
             end
           end
@@ -97,7 +97,7 @@ RSpec.describe 'Facility Eligibility', type: :request do
         end
 
         before do
-          get '/mobile/v0/appointments/facility/eligibility', params: params, headers: iam_headers
+          get '/mobile/v0/appointments/facility/eligibility', params:, headers: iam_headers
         end
 
         it 'returns 400 with an error message' do
@@ -118,7 +118,7 @@ RSpec.describe 'Facility Eligibility', type: :request do
         before do
           VCR.use_cassette('facility_eligibility/get_patient_appointment_metadata_bad_facility',
                            match_requests_on: %i[method uri]) do
-            get '/mobile/v0/appointments/facility/eligibility', params: params, headers: iam_headers
+            get '/mobile/v0/appointments/facility/eligibility', params:, headers: iam_headers
           end
         end
 

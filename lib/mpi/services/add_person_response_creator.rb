@@ -37,7 +37,7 @@ module MPI
                           "idme_uuid=#{parsed_codes[:idme_uuid]}, " \
                           "logingov_uuid=#{parsed_codes[:logingov_uuid]}, " \
                           "transaction_id=#{parsed_codes[:transaction_id]}")
-        Responses::AddPersonResponse.new(status: :ok, parsed_codes: parsed_codes)
+        Responses::AddPersonResponse.new(status: :ok, parsed_codes:)
       end
 
       def create_error_response

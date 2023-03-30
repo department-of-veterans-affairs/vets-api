@@ -435,7 +435,7 @@ RSpec.describe ApplicationController, type: :controller do
       let(:header_auth_value) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
 
       before do
-        session_object = Session.create(uuid: user.uuid, token: token)
+        session_object = Session.create(uuid: user.uuid, token:)
         User.create(user)
 
         session_object.to_hash.each { |k, v| session[k] = v }

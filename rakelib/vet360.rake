@@ -283,9 +283,9 @@ namespace :vet360 do
       response  = service.init_vet360_id(icn)
       vet360_id = response&.person&.vet360_id
 
-      results << { icn: icn, vet360_id: vet360_id }
+      results << { icn:, vet360_id: }
     rescue => e
-      results << { icn: icn, vet360_id: e.message }
+      results << { icn:, vet360_id: e.message }
     end
 
     puts "Results:\n\n#{results}"
@@ -352,6 +352,6 @@ namespace :vet360 do
   end
 
   def user_struct(vet360_id)
-    OpenStruct.new(vet360_id: vet360_id)
+    OpenStruct.new(vet360_id:)
   end
 end

@@ -13,7 +13,7 @@ module Charon
         req.url url
         req.headers['Content-Type'] = 'application/json'
         req.headers['Accept'] = 'application/json'
-        req.params = { duz: duz, site: site }
+        req.params = { duz:, site: }
       end
     end
 

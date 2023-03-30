@@ -78,7 +78,7 @@ module ClaimsApi
             submitter_application_icn_type_code: ClaimsApi::IntentToFile::SUBMITTER_CODE,
             ssn: target_veteran.ssn
           }
-          handle_claimant_fields(options: options, params: params, target_veteran: target_veteran)
+          handle_claimant_fields(options:, params:, target_veteran:)
         end
 
         # BGS requires at least 1 of 'participant_claimant_id' or 'claimant_ssn'

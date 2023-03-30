@@ -97,7 +97,7 @@ module FacilitiesApi
 
           {
             address: [latitude, longitude].join(','),
-            radius: radius,
+            radius:,
             maxResults: per_page,
             pageNumber: page,
             pageSize: per_page,
@@ -116,7 +116,7 @@ module FacilitiesApi
 
           {
             address: [latitude, longitude].join(','),
-            radius: radius,
+            radius:,
             maxResults: max_results,
             telehealthSearch: 0,
             homeHealthSearch: 0

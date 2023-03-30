@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe MedicalCopays::VBS::RequestData do
-  subject { described_class.build(user: user) }
+  subject { described_class.build(user:) }
 
   let(:user) { build(:user, :loa3) }
   let(:facility_vista_data) do

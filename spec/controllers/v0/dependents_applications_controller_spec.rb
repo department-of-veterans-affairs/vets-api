@@ -55,7 +55,7 @@ RSpec.describe V0::DependentsApplicationsController do
       end
 
       it 'shows the validation errors' do
-        post(:create, params: params)
+        post(:create, params:)
 
         expect(response.code).to eq('422')
         expect(

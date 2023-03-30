@@ -10,7 +10,7 @@ describe VAProfileRedis::ContactInformation do
     VAProfile::ContactInformation::PersonResponse.from(raw_response)
   end
   let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
-  let(:person) { build :person, telephones: telephones, permissions: permissions }
+  let(:person) { build :person, telephones:, permissions: }
   let(:telephones) do
     [
       build(:telephone),

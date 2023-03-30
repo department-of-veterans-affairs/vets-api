@@ -35,7 +35,7 @@ describe V2::Lorota::ClaimsToken do
     let(:check_in) { double('CheckIn', uuid: '123-abc') }
 
     it 'is a String' do
-      expect(subject.build(check_in: check_in).sign_assertion).to be_a(String)
+      expect(subject.build(check_in:).sign_assertion).to be_a(String)
     end
   end
 
@@ -43,7 +43,7 @@ describe V2::Lorota::ClaimsToken do
     let(:check_in) { double('CheckIn', uuid: '123-abc') }
 
     it 'is a Hash' do
-      expect(subject.build(check_in: check_in).claims).to be_a(Hash)
+      expect(subject.build(check_in:).claims).to be_a(Hash)
     end
   end
 

@@ -44,9 +44,9 @@ RSpec.describe CovidVaccine::ScheduledBatchJob, type: :worker do
           ) do
             expect(Rails.logger).to receive(:info).with('Covid_Vaccine Scheduled_Batch: Start')
             expect(Rails.logger).to receive(:info).with('Covid_Vaccine Scheduled_Batch: Batch_Created',
-                                                        batch_id: batch_id)
+                                                        batch_id:)
             expect(Rails.logger).to receive(:info).with(
-              'Covid_Vaccine Scheduled_Batch: Success', batch_id: batch_id, enrollment_upload_job_id: /\S{24}/
+              'Covid_Vaccine Scheduled_Batch: Success', batch_id:, enrollment_upload_job_id: /\S{24}/
             )
 
             expect { subject.perform }
@@ -63,9 +63,9 @@ RSpec.describe CovidVaccine::ScheduledBatchJob, type: :worker do
           ) do
             expect(Rails.logger).to receive(:info).with('Covid_Vaccine Scheduled_Batch: Start')
             expect(Rails.logger).to receive(:info).with('Covid_Vaccine Scheduled_Batch: Batch_Created',
-                                                        batch_id: batch_id)
+                                                        batch_id:)
             expect(Rails.logger).to receive(:info).with(
-              'Covid_Vaccine Scheduled_Batch: Success', { batch_id: batch_id }
+              'Covid_Vaccine Scheduled_Batch: Success', { batch_id: }
             )
 
             expect(StatsD).to receive(:increment).once.with('worker.covid_vaccine_schedule_batch.success')

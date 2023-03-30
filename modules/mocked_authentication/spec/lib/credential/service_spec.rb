@@ -10,7 +10,7 @@ describe MockedAuthentication::Credential::Service do
   before { mock_credential_instance.type = type }
 
   describe '#render_auth' do
-    subject { mock_credential_instance.render_auth(state: state, acr: acr) }
+    subject { mock_credential_instance.render_auth(state:, acr:) }
 
     let(:state) { 'some-state' }
     let(:acr) { 'some-acr' }
@@ -41,7 +41,7 @@ describe MockedAuthentication::Credential::Service do
     context 'when type in mock credential service is set to logingov' do
       let(:type) { SignIn::Constants::Auth::LOGINGOV }
       let(:access_token_hash) { { access_token: code } }
-      let(:id_token_hash) { { id_token: id_token } }
+      let(:id_token_hash) { { id_token: } }
       let(:id_token) { JWT.encode(id_token_payload, nil) }
       let(:encoded_credential_info) { Base64.encode64(credential_info.to_json) }
       let(:code) { 'some-code' }
@@ -119,15 +119,15 @@ describe MockedAuthentication::Credential::Service do
       let(:user_info) do
         OpenStruct.new({
                          sub: user_uuid,
-                         iss: iss,
-                         email: email,
+                         iss:,
+                         email:,
                          email_verified: true,
                          given_name: first_name,
                          family_name: last_name,
-                         address: address,
+                         address:,
                          birthdate: birth_date,
                          social_security_number: ssn,
-                         verified_at: verified_at
+                         verified_at:
                        })
       end
       let(:verified_at) { 'some-verified-at' }
@@ -135,9 +135,9 @@ describe MockedAuthentication::Credential::Service do
         {
           formatted: formatted_address,
           street_address: street,
-          postal_code: postal_code,
-          region: region,
-          locality: locality
+          postal_code:,
+          region:,
+          locality:
         }
       end
       let(:formatted_address) { "#{street}\n#{locality}, #{region} #{postal_code}" }
@@ -148,9 +148,9 @@ describe MockedAuthentication::Credential::Service do
           max_ial: IAL::TWO,
           service_name: type,
           csp_email: email,
-          multifactor: multifactor,
-          authn_context: authn_context,
-          auto_uplevel: auto_uplevel
+          multifactor:,
+          authn_context:,
+          auto_uplevel:
         }
       end
       let(:authn_context) { IAL::LOGIN_GOV_IAL2 }
@@ -158,17 +158,17 @@ describe MockedAuthentication::Credential::Service do
         {
           street: street.split("\n").first,
           street2: street.split("\n").last,
-          postal_code: postal_code,
+          postal_code:,
           state: region,
           city: locality,
-          country: country
+          country:
         }
       end
       let(:expected_attributes) do
         expected_standard_attributes.merge({ ssn: ssn.tr('-', ''),
-                                             birth_date: birth_date,
-                                             first_name: first_name,
-                                             last_name: last_name,
+                                             birth_date:,
+                                             first_name:,
+                                             last_name:,
                                              address: expected_address })
       end
 
@@ -182,25 +182,25 @@ describe MockedAuthentication::Credential::Service do
       let(:user_info) do
         OpenStruct.new(
           {
-            iss: iss,
+            iss:,
             sub: user_uuid,
-            aud: aud,
-            exp: exp,
-            iat: iat,
+            aud:,
+            exp:,
+            iat:,
             credential_aal_highest: 2,
             credential_ial_highest: 'classic_loa3',
-            birth_date: birth_date,
-            email: email,
-            street: street,
+            birth_date:,
+            email:,
+            street:,
             zip: postal_code,
             state: region,
             city: locality,
-            phone: phone,
+            phone:,
             fname: first_name,
             social: ssn,
             lname: last_name,
             level_of_assurance: 3,
-            multifactor: multifactor,
+            multifactor:,
             credential_aal: 2,
             credential_ial: 'classic_loa3',
             uuid: user_uuid
@@ -213,11 +213,11 @@ describe MockedAuthentication::Credential::Service do
       let(:authn_context) { LOA::IDME_LOA3 }
       let(:expected_address) do
         {
-          street: street,
-          postal_code: postal_code,
+          street:,
+          postal_code:,
           state: region,
           city: locality,
-          country: country
+          country:
         }
       end
       let(:expected_attributes) do
@@ -227,13 +227,13 @@ describe MockedAuthentication::Credential::Service do
           max_ial: IAL::TWO,
           service_name: type,
           csp_email: email,
-          multifactor: multifactor,
-          authn_context: authn_context,
-          auto_uplevel: auto_uplevel,
+          multifactor:,
+          authn_context:,
+          auto_uplevel:,
           ssn: ssn.tr('-', ''),
-          birth_date: birth_date,
-          first_name: first_name,
-          last_name: last_name,
+          birth_date:,
+          first_name:,
+          last_name:,
           address: expected_address
         }
       end
@@ -250,20 +250,20 @@ describe MockedAuthentication::Credential::Service do
           {
             iss: user_uuid,
             sub: user_uuid,
-            aud: aud,
-            exp: exp,
-            iat: iat,
+            aud:,
+            exp:,
+            iat:,
             credential_aal_highest: 2,
             credential_ial_highest: 'classic_loa3',
             dslogon_birth_date: birth_date,
-            email: email,
+            email:,
             dslogon_uuid: edipi,
             dslogon_fname: first_name,
             dslogon_idvalue: ssn,
             dslogon_lname: last_name,
             dslogon_mname: middle_name,
             level_of_assurance: 3,
-            multifactor: multifactor,
+            multifactor:,
             credential_aal: 2,
             credential_ial: 'classic_loa3',
             uuid: user_uuid
@@ -282,15 +282,15 @@ describe MockedAuthentication::Credential::Service do
           max_ial: IAL::TWO,
           service_name: type,
           csp_email: email,
-          multifactor: multifactor,
-          authn_context: authn_context,
-          auto_uplevel: auto_uplevel,
+          multifactor:,
+          authn_context:,
+          auto_uplevel:,
           ssn: ssn.tr('-', ''),
-          birth_date: birth_date,
-          first_name: first_name,
-          middle_name: middle_name,
-          last_name: last_name,
-          edipi: edipi
+          birth_date:,
+          first_name:,
+          middle_name:,
+          last_name:,
+          edipi:
         }
       end
 
@@ -306,17 +306,17 @@ describe MockedAuthentication::Credential::Service do
           {
             iss: user_uuid,
             sub: user_uuid,
-            aud: aud,
-            exp: exp,
-            iat: iat,
+            aud:,
+            exp:,
+            iat:,
             credential_aal_highest: 2,
             credential_ial_highest: 'classic_loa3',
-            email: email,
+            email:,
             mhv_uuid: mhv_correlation_id,
-            mhv_icn: mhv_icn,
-            mhv_assurance: mhv_assurance,
+            mhv_icn:,
+            mhv_assurance:,
             level_of_assurance: 3,
-            multifactor: multifactor,
+            multifactor:,
             credential_aal: 2,
             credential_ial: 'classic_loa3',
             uuid: user_uuid
@@ -337,12 +337,12 @@ describe MockedAuthentication::Credential::Service do
           max_ial: IAL::TWO,
           service_name: type,
           csp_email: email,
-          multifactor: multifactor,
-          authn_context: authn_context,
-          auto_uplevel: auto_uplevel,
-          mhv_icn: mhv_icn,
-          mhv_correlation_id: mhv_correlation_id,
-          mhv_assurance: mhv_assurance
+          multifactor:,
+          authn_context:,
+          auto_uplevel:,
+          mhv_icn:,
+          mhv_correlation_id:,
+          mhv_assurance:
         }
       end
 

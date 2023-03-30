@@ -13,7 +13,7 @@ describe FormsApi::PdfFiller do
 
       # fill the PDF
       data = JSON.parse(File.read("modules/forms_api/spec/fixtures/form_json/#{test_payload}.json"))
-      filler = FormsApi::PdfFiller.new(form_number: form_number, data: data)
+      filler = FormsApi::PdfFiller.new(form_number:, data:)
       filler.generate
       expect(File.exist?(expected_pdf_path)).to eq(true)
     end

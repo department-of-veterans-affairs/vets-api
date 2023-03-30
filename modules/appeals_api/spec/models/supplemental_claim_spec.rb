@@ -181,7 +181,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
       full_last_name = 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdddddddddd'
       default_auth_headers['X-VA-Last-Name'] = full_last_name
 
-      sc = AppealsApi::SupplementalClaim.new(auth_headers: default_auth_headers, form_data: form_data)
+      sc = AppealsApi::SupplementalClaim.new(auth_headers: default_auth_headers, form_data:)
 
       expect(sc.stamp_text).to eq 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdd... - 6789'
     end

@@ -12,7 +12,7 @@ module CovidResearch
           to: recipient,
           subject: SIGNUP_SUBJECT,
           content_type: 'text/html',
-          body: body
+          body:
         )
       end
 

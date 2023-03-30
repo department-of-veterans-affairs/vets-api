@@ -36,7 +36,7 @@ module BGS
           'Spouse',
           'Ex-Spouse',
           {
-            type: type,
+            type:,
             begin_date: marriage_info['start_date'],
             marriage_country: marriage_info['marriage_country'],
             marriage_state: marriage_info['marriage_state'],

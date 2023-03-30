@@ -94,7 +94,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
       form_data: @json_body,
       source: request_headers['X-Consumer-Username'],
       board_review_option: @json_body['data']['attributes']['boardReviewOption'],
-      api_version: api_version,
+      api_version:,
       veteran_icn: request_headers['X-VA-ICN'].presence&.strip
     )
     render_model_errors unless @notice_of_disagreement.validate
@@ -136,6 +136,6 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   end
 
   def deprecate_headers
-    deprecate(response: response)
+    deprecate(response:)
   end
 end

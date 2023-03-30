@@ -15,7 +15,7 @@ RSpec.describe BGS::Children do
     it 'returns a hash for biological child that does not live with veteran' do
       VCR.use_cassette('bgs/dependents/create') do
         children = BGS::Children.new(
-          proc_id: proc_id,
+          proc_id:,
           payload: all_flows_payload,
           user: user_object
         ).create_all
@@ -55,7 +55,7 @@ RSpec.describe BGS::Children do
           .and_call_original
 
         children = BGS::Children.new(
-          proc_id: proc_id,
+          proc_id:,
           payload: adopted_payload,
           user: user_object
         ).create_all
@@ -73,7 +73,7 @@ RSpec.describe BGS::Children do
     it 'returns a hash for step child and spouse/parent of step child' do
       VCR.use_cassette('bgs/dependents/create') do
         children = BGS::Children.new(
-          proc_id: proc_id,
+          proc_id:,
           payload: add_step_child_payload,
           user: user_object
         ).create_all
@@ -103,7 +103,7 @@ RSpec.describe BGS::Children do
     it 'returns an hash that represents a stepchild getting half of their expenses paid' do
       VCR.use_cassette('bgs/children/create_all') do
         children = BGS::Children.new(
-          proc_id: proc_id,
+          proc_id:,
           payload: all_flows_payload,
           user: user_object
         ).create_all
@@ -123,7 +123,7 @@ RSpec.describe BGS::Children do
     it 'returns a hash that represents a married child under 18' do
       VCR.use_cassette('bgs/dependents/create') do
         children = BGS::Children.new(
-          proc_id: proc_id,
+          proc_id:,
           payload: all_flows_payload,
           user: user_object
         ).create_all
@@ -144,7 +144,7 @@ RSpec.describe BGS::Children do
     it 'returns an hash that represents a married child under 18' do
       VCR.use_cassette('bgs/dependents/create') do
         children = BGS::Children.new(
-          proc_id: proc_id,
+          proc_id:,
           payload: all_flows_payload,
           user: user_object
         ).create_all

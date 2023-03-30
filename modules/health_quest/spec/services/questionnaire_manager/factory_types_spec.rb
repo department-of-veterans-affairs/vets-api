@@ -11,38 +11,38 @@ describe HealthQuest::QuestionnaireManager::FactoryTypes do
 
   describe '#patient_type' do
     it 'returns a hash' do
-      expect(patient_type).to eq({ user: user, resource_identifier: 'patient', api: 'health_api' })
+      expect(patient_type).to eq({ user:, resource_identifier: 'patient', api: 'health_api' })
     end
   end
 
   describe '#questionnaire_type' do
     it 'returns a hash' do
-      expect(questionnaire_type).to eq({ user: user, resource_identifier: 'questionnaire', api: 'pgd_api' })
+      expect(questionnaire_type).to eq({ user:, resource_identifier: 'questionnaire', api: 'pgd_api' })
     end
   end
 
   describe '#questionnaire_response_type' do
     it 'returns a hash' do
       expect(questionnaire_response_type)
-        .to eq({ user: user, resource_identifier: 'questionnaire_response', api: 'pgd_api' })
+        .to eq({ user:, resource_identifier: 'questionnaire_response', api: 'pgd_api' })
     end
   end
 
   describe '#appointment_type' do
     it 'returns a hash' do
-      expect(appointment_type).to eq({ user: user, resource_identifier: 'appointment', api: 'health_api' })
+      expect(appointment_type).to eq({ user:, resource_identifier: 'appointment', api: 'health_api' })
     end
   end
 
   describe '#location_type' do
     it 'returns a hash' do
-      expect(location_type).to eq({ user: user, resource_identifier: 'location', api: 'health_api' })
+      expect(location_type).to eq({ user:, resource_identifier: 'location', api: 'health_api' })
     end
   end
 
   describe '#organization_type' do
     it 'returns a hash' do
-      expect(organization_type).to eq({ user: user, resource_identifier: 'organization', api: 'health_api' })
+      expect(organization_type).to eq({ user:, resource_identifier: 'organization', api: 'health_api' })
     end
   end
 end

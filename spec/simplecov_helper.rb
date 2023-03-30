@@ -18,7 +18,7 @@ class SimpleCovHelper
       refuse_coverage_drop unless skip_check_coverage
       merge_timeout(3600)
     end
-    new(base_dir: base_dir).merge_results
+    new(base_dir:).merge_results
   end
 
   attr_reader :base_dir

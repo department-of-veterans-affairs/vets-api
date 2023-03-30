@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe MockedAuthentication::RedirectUrlGenerator do
   describe '#perform' do
-    subject { described_class.new(state: state, code: code, error: error).perform }
+    subject { described_class.new(state:, code:, error:).perform }
 
     let(:expected_redirect_uri) { "#{redirect_uri}?#{code_param}#{error_param}#{state_param}" }
     let(:code_param) { "code=#{code}" }

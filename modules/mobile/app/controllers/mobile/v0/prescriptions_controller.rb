@@ -16,13 +16,13 @@ module Mobile
           resource.attributes.each do |p|
             Rails.logger.info('MHV Prescription Response',
                               user: @current_user.uuid,
-                              params: params, id: p[:prescription_id],
+                              params:, id: p[:prescription_id],
                               prescription: p)
           end
         rescue => e
           Rails.logger.error(
             'Mobile Prescription Upstream Index Error',
-            resource: resource, error: e, message: e.message, backtrace: e.backtrace
+            resource:, error: e, message: e.message, backtrace: e.backtrace
           )
           raise e
         end
@@ -46,13 +46,13 @@ module Mobile
         resource = client.post_refill_rxs(ids)
 
         # Temporary logging for prescription bug investigation
-        Rails.logger.info('MHV Prescription Refill Response', user: @current_user.uuid, ids: ids, response: resource)
+        Rails.logger.info('MHV Prescription Refill Response', user: @current_user.uuid, ids:, response: resource)
 
         render json: Mobile::V0::PrescriptionsRefillsSerializer.new(@current_user.uuid, resource.body)
       rescue => e
         Rails.logger.error(
           'Mobile Prescription Refill Error',
-          resource: resource, error: e, message: e.message, backtrace: e.backtrace
+          resource:, error: e, message: e.message, backtrace: e.backtrace
         )
         raise e
       end
@@ -68,7 +68,7 @@ module Mobile
       rescue => e
         Rails.logger.error(
           'Mobile Prescription Tracking Error',
-          resource: resource, error: e, message: e.message, backtrace: e.backtrace
+          resource:, error: e, message: e.message, backtrace: e.backtrace
         )
         raise e
       end

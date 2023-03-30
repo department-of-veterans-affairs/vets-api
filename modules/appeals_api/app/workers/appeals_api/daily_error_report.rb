@@ -17,7 +17,7 @@ module AppealsApi
     def perform
       if enabled?
         recipients = load_recipients(:error_report_daily)
-        DailyErrorReportMailer.build(recipients: recipients).deliver_now if recipients.present?
+        DailyErrorReportMailer.build(recipients:).deliver_now if recipients.present?
       end
     end
 

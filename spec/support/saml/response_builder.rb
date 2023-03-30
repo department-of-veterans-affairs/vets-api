@@ -11,10 +11,10 @@ module SAML
 
     def create_user_identity(authn_context:, level_of_assurance:, attributes:, issuer: nil)
       saml = build_saml_response(
-        authn_context: authn_context,
-        level_of_assurance: level_of_assurance,
-        attributes: attributes,
-        issuer: issuer
+        authn_context:,
+        level_of_assurance:,
+        attributes:,
+        issuer:
       )
       saml_user = SAML::User.new(saml)
       user = create(:user, :response_builder, saml_user.to_hash)
@@ -33,9 +33,9 @@ module SAML
           previous_context = authn_context.gsub(/multifactor|_multifactor/, '').presence || LOA::IDME_LOA1_VETS
           create_user_identity(
             authn_context: previous_context,
-            level_of_assurance: level_of_assurance,
+            level_of_assurance:,
             attributes: existing_attributes,
-            issuer: issuer
+            issuer:
           )
         end
 
@@ -47,7 +47,7 @@ module SAML
             authn_context: previous_context,
             level_of_assurance: '1',
             attributes: existing_attributes,
-            issuer: issuer
+            issuer:
           )
         end
       end

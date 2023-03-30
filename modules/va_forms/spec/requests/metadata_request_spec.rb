@@ -55,7 +55,7 @@ RSpec.describe 'VA Forms Metadata Endpoint', type: :request do
       expect(upstream_service['description']).to eq(VAForms::HealthChecker::CMS_SERVICE)
       expect(upstream_service['details']['name']).to eq(VAForms::HealthChecker::CMS_SERVICE)
       expect(upstream_service['details']['time']).to eq('2020-09-21T00:00:00Z')
-      { parsed_response: parsed_response, upstream_service: upstream_service }
+      { parsed_response:, upstream_service: }
     end
 
     def healthy_checks(path)

@@ -39,7 +39,7 @@ module DecisionReviewV1
         if missing_required_fields.present?
           e = Common::Exceptions::Forbidden.new(
             source: "#{self.class}##{__method__}",
-            detail: { missing_required_fields: missing_required_fields }
+            detail: { missing_required_fields: }
           )
           raise e
         end
@@ -81,7 +81,7 @@ module DecisionReviewV1
 
       def parse_form412_response_to_log_msg(appeal_submission_id:, data:, bm: nil)
         log_data = { message: 'Supplemental Claim 4142 submitted.',
-                     appeal_submission_id: appeal_submission_id,
+                     appeal_submission_id:,
                      form_id: FORM4142_ID, parent_form_id: SUPP_CLAIM_FORM_ID,
                      response_body: data.body,
                      response_status: data.status }

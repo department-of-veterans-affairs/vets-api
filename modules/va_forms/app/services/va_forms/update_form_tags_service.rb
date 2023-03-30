@@ -26,7 +26,7 @@ module VAForms
     end
 
     def add_tags_to_form(form_name, tags_to_add)
-      form = VAForms::Form.find_by(form_name: form_name)
+      form = VAForms::Form.find_by(form_name:)
 
       return if form.blank?
 

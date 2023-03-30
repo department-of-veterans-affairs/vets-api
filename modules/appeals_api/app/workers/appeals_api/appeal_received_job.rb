@@ -39,8 +39,8 @@ module AppealsApi
 
       return Rails.logger.error "AppealReceived: could not find template id for #{template_name}" if template_id.blank?
 
-      vanotify_service.send_email(params({ template_id: template_id }))
-      StatsD.increment(STATSD_CLAIMANT_EMAIL_SENT, tags: { appeal_type: 'hlr', claimant_type: claimant_type })
+      vanotify_service.send_email(params({ template_id: }))
+      StatsD.increment(STATSD_CLAIMANT_EMAIL_SENT, tags: { appeal_type: 'hlr', claimant_type: })
     end
 
     def nod_received
@@ -53,8 +53,8 @@ module AppealsApi
 
       return Rails.logger.error "AppealReceived: could not find template id for #{template_name}" if template_id.blank?
 
-      vanotify_service.send_email(params({ template_id: template_id }))
-      StatsD.increment(STATSD_CLAIMANT_EMAIL_SENT, tags: { appeal_type: 'nod', claimant_type: claimant_type })
+      vanotify_service.send_email(params({ template_id: }))
+      StatsD.increment(STATSD_CLAIMANT_EMAIL_SENT, tags: { appeal_type: 'nod', claimant_type: })
     end
 
     def sc_received
@@ -67,8 +67,8 @@ module AppealsApi
 
       return Rails.logger.error "AppealReceived: could not find template id for #{template_name}" if template_id.blank?
 
-      vanotify_service.send_email(params({ template_id: template_id }))
-      StatsD.increment(STATSD_CLAIMANT_EMAIL_SENT, tags: { appeal_type: 'sc', claimant_type: claimant_type })
+      vanotify_service.send_email(params({ template_id: }))
+      StatsD.increment(STATSD_CLAIMANT_EMAIL_SENT, tags: { appeal_type: 'sc', claimant_type: })
     end
 
     private

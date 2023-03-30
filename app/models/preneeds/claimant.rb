@@ -38,8 +38,8 @@ module Preneeds
     def as_eoas
       hash = {
         address: address&.as_eoas, dateOfBirth: date_of_birth, desiredCemetery: desired_cemetery,
-        email: email, name: name&.as_eoas, phoneNumber: phone_number,
-        relationshipToVet: relationship_to_vet, ssn: ssn
+        email:, name: name&.as_eoas, phoneNumber: phone_number,
+        relationshipToVet: relationship_to_vet, ssn:
       }
 
       %i[email phoneNumber desiredCemetery].each { |key| hash.delete(key) if hash[key].blank? }

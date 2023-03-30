@@ -78,7 +78,7 @@ module DhpConnectedDevices
       end
 
       def redirect_with_status(status)
-        redirect_to website_host_service.get_redirect_url({ status: status, vendor: device_key })
+        redirect_to website_host_service.get_redirect_url({ status:, vendor: device_key })
       end
 
       def log_error(error)

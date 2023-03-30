@@ -16,7 +16,7 @@ RSpec.describe V0::GIBillFeedbacksController, type: :controller do
 
   describe '#create' do
     def send_create
-      post(:create, params: { gi_bill_feedback: { form: form } })
+      post(:create, params: { gi_bill_feedback: { form: } })
     end
 
     context 'with a valid form' do

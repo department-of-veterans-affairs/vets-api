@@ -29,7 +29,7 @@ describe EVSS::Service do
         message: 'Common::Client::Errors::ClientError',
         url: 'http://',
         body: nil,
-        transaction_id: transaction_id
+        transaction_id:
       )
       service.send(:save_error_details, Common::Client::Errors::ClientError.new)
     end

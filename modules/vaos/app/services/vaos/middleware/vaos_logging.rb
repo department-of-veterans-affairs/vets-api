@@ -59,13 +59,13 @@ module VAOS
       end
 
       def statsd_increment(key, env, error = nil)
-        StatsDMetric.new(key: key).save
+        StatsDMetric.new(key:).save
         tags = [
           "method:#{env.method.upcase}",
           "url:#{StringHelpers.filtered_endpoint_tag(env.url.path)}",
           "http_status:#{error.present? ? error.class : env.status}"
         ]
-        StatsD.increment(key, tags: tags)
+        StatsD.increment(key, tags:)
       end
 
       # #log invokes the Rails.logger

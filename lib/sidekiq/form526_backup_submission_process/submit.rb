@@ -25,7 +25,7 @@ module Sidekiq
         return unless Settings.form526_backup.enabled
 
         job_status = Form526JobStatus.create!(job_class: 'BackupSubmission', status: 'pending',
-                                              form526_submission_id: form526_submission_id, job_id: jid)
+                                              form526_submission_id:, job_id: jid)
         begin
           Processor.new(form526_submission_id).process!
           job_status.update(status: Form526JobStatus::STATUS[:success])
@@ -37,7 +37,7 @@ module Sidekiq
           )
           bgjob_errors = job_status.bgjob_errors || {}
           bgjob_errors.merge!(error_hash_for_job_status(e))
-          job_status.update(status: Form526JobStatus::STATUS[:exhausted], bgjob_errors: bgjob_errors)
+          job_status.update(status: Form526JobStatus::STATUS[:exhausted], bgjob_errors:)
           raise e
         end
       end
@@ -51,7 +51,7 @@ module Sidekiq
             caller_method: __method__.to_s,
             error_class: e.class.to_s,
             error_message: e.message,
-            timestamp: timestamp
+            timestamp:
           }
         }
       end

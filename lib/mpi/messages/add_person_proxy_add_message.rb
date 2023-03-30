@@ -32,7 +32,7 @@ module MPI
         validate_required_fields
         MPI::Messages::RequestBuilder.new(extension: MPI::Constants::ADD_PERSON,
                                           body: build_body,
-                                          search_token: search_token).perform
+                                          search_token:).perform
       rescue => e
         Rails.logger.error "[AddPersonProxyAddMessage] Failed to build request: #{e.message}"
         raise e
@@ -69,7 +69,7 @@ module MPI
         element = RequestHelper.build_assigned_person_element
         element << RequestHelper.build_identifier(identifier: icn_with_aaid, root: icn_root)
         element << RequestHelper.build_assigned_person_instance(given_names: [first_name], family_name: last_name)
-        element << RequestHelper.build_represented_organization(edipi: edipi)
+        element << RequestHelper.build_represented_organization(edipi:)
         element
       end
 
@@ -106,7 +106,7 @@ module MPI
       def build_patient_person
         element = RequestHelper.build_patient_person_element
         element << RequestHelper.build_patient_person_name(given_names: [first_name], family_name: last_name)
-        element << RequestHelper.build_patient_person_birth_date(birth_date: birth_date)
+        element << RequestHelper.build_patient_person_birth_date(birth_date:)
         element << RequestHelper.build_patient_identifier(identifier: ssn, root: ssn_root, class_code: ssn_class_code)
         element << RequestHelper.build_patient_person_proxy_add
         element

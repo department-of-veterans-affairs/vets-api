@@ -31,9 +31,9 @@ module BGS
         address,
         {
           va_file_number: @va_file_number,
-          claim_type_end_product: claim_type_end_product,
-          regional_office_number: regional_office_number,
-          location_id: location_id,
+          claim_type_end_product:,
+          regional_office_number:,
+          location_id:,
           net_worth_over_limit_ind: veteran.formatted_boolean(@payload['dependents_application']['household_income'])
         }
       )

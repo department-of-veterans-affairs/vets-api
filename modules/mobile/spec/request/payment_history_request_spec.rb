@@ -83,7 +83,7 @@ RSpec.describe 'payment_history', type: :request do
 
       before do
         VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/payment-history', headers: iam_headers, params: params
+          get '/mobile/v0/payment-history', headers: iam_headers, params:
         end
       end
 
@@ -95,11 +95,11 @@ RSpec.describe 'payment_history', type: :request do
 
     context 'when address_eft and account_number has value' do
       let(:page) { { number: 1, size: 10 } }
-      let(:params) { { page: page } }
+      let(:params) { { page: } }
 
       before do
         VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/payment-history', headers: iam_headers, params: params
+          get '/mobile/v0/payment-history', headers: iam_headers, params:
         end
       end
 
@@ -115,7 +115,7 @@ RSpec.describe 'payment_history', type: :request do
       before do
         expect do
           VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn', match_requests_on: %i[method uri]) do
-            get '/mobile/v0/payment-history', headers: iam_headers, params: params
+            get '/mobile/v0/payment-history', headers: iam_headers, params:
           end
         end.to trigger_statsd_increment('mobile.payment_history.index.failure', times: 1)
       end
@@ -155,7 +155,7 @@ RSpec.describe 'payment_history', type: :request do
 
       before do
         VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/payment-history', headers: iam_headers, params: params
+          get '/mobile/v0/payment-history', headers: iam_headers, params:
         end
       end
 
@@ -191,7 +191,7 @@ RSpec.describe 'payment_history', type: :request do
 
       before do
         VCR.use_cassette('payment_history/retrieve_payment_summary_with_bdn', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/payment-history', headers: iam_headers, params: params
+          get '/mobile/v0/payment-history', headers: iam_headers, params:
         end
       end
 

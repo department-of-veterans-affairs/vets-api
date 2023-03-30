@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'mpi/responses/add_person_response'
 
 describe MPI::Responses::AddPersonResponse do
-  let(:add_person_response) { described_class.new(status: status, parsed_codes: parsed_codes, error: error) }
+  let(:add_person_response) { described_class.new(status:, parsed_codes:, error:) }
   let(:status) { 'some-status' }
   let(:parsed_codes) { 'some-parsed-codes' }
   let(:error) { 'some-error' }

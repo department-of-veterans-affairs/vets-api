@@ -14,9 +14,9 @@ module ClaimsApi
 
       flashes.each do |flash_name|
         # NOTE: Assumption that duplicate flashes are ignored when submitted
-        service.add_flash(file_number: user['ssn'], flash_name: flash_name)
+        service.add_flash(file_number: user['ssn'], flash_name:)
       rescue BGS::ShareError, BGS::PublicError => e
-        persist_exception(e, auto_claim_id: auto_claim_id)
+        persist_exception(e, auto_claim_id:)
       end
 
       assigned_flashes = service.find_assigned_flashes(user['ssn'])[:flashes]
@@ -24,7 +24,7 @@ module ClaimsApi
         assigned_flash = assigned_flashes.find { |af| af[:flash_name].strip == flash_name }
         if assigned_flash.blank?
           e = StandardError.new("Failed to assign '#{flash_name}' to Veteran")
-          persist_exception(e, auto_claim_id: auto_claim_id, message: { text: e.message })
+          persist_exception(e, auto_claim_id:, message: { text: e.message })
         end
       end
     end
