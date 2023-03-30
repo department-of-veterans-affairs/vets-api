@@ -421,7 +421,7 @@ module ClaimsApi
               overdue: item[:suspns_dt].nil? ? false : item[:suspns_dt] < Time.zone.now, # EVSS generates this field
               requested_date: date_present(item[:req_dt]),
               tracked_item_id: id.to_i,
-              status: status, # EVSS generates this field
+              status:, # EVSS generates this field
               uploaded: !item[:date_rcvd].nil?, # EVSS generates this field
               uploads_allowed: # EVSS generates this field
             }
