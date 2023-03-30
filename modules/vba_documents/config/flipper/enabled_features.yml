@@ -1,5 +1,4 @@
 common:
-  - test_feature_flag_alert_temp
 development:
 staging:
 sandbox:
