@@ -9,7 +9,6 @@ module BGS
     include Sidekiq::Worker
     include SentryLogging
 
-    # we do individual service retries in lib/bgs/service.rb
     sidekiq_options retry: false
 
     def perform(user_uuid, saved_claim_id, vet_info)

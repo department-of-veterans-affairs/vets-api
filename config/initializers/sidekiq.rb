@@ -7,7 +7,6 @@ require 'sidekiq/error_tag'
 require 'sidekiq/semantic_logging'
 require 'sidekiq/set_request_id'
 require 'sidekiq/set_request_attributes'
-require 'sidekiq/downtime_checker_middleware'
 require 'datadog/statsd' # gem 'dogstatsd-ruby'
 
 Rails.application.reloader.to_prepare do
@@ -28,7 +27,6 @@ Rails.application.reloader.to_prepare do
     end
 
     config.server_middleware do |chain|
-      chain.add Sidekiq::DowntimeCheckerMiddleware
       chain.add Sidekiq::SemanticLogging
       chain.add SidekiqStatsInstrumentation::ServerMiddleware
       chain.add Sidekiq::RetryMonitoring

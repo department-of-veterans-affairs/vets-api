@@ -25,23 +25,6 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
     allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(false)
   end
 
-  context 'when it is a Thursday at 2AM UTC' do
-    subject { described_class.perform_async(user.uuid, dependency_claim.id, vet_info) }
-
-    before { Timecop.freeze(Time.zone.parse('2021-09-09T02:00:00Z')) }
-
-    after { Timecop.return }
-
-    it 'does not submit the 686' do
-      client_stub = instance_double('BGS::Form686c')
-      allow(BGS::Form686c).to receive(:new).with(an_instance_of(User)) { client_stub }
-      expect(client_stub).not_to receive(:submit)
-
-      subject
-      described_class.perform_one
-    end
-  end
-
   it 'calls #submit for 686c submission' do
     client_stub = instance_double('BGS::Form686c')
     allow(BGS::Form686c).to receive(:new).with(an_instance_of(User)) { client_stub }
