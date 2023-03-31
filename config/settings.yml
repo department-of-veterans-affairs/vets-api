@@ -1490,7 +1490,7 @@ lgy:
   mock_coe: true
 
 form526_backup:
-  enabled: false
+  enabled: true
   # Can be single or multi, to send 1 payload or many, to central mail
   submission_method: 'single'
   api_key: ~

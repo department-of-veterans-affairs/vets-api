@@ -15,6 +15,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
   end
 
   describe '.perform_async' do
+    define_negated_matcher :not_change, :change
+
     let(:saved_claim) { FactoryBot.create(:va526ez) }
     let(:submitted_claim_id) { 600_130_094 }
     let(:submission) do
@@ -40,7 +42,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       subject.perform_async(submission.id)
       expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_retryable).once
       expect(Form526JobStatus).to receive(:upsert).twice
-      expect { described_class.drain }.to raise_error(error_class)
+      expect do
+        described_class.drain
+      end.to raise_error(error_class).and not_change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
     end
 
     context 'with a successful submission job' do
@@ -52,7 +56,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
       it 'submits successfully' do
         subject.perform_async(submission.id)
-        described_class.drain
+        expect { described_class.drain }.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
         expect(Form526JobStatus.last.status).to eq 'success'
       end
 
@@ -235,21 +239,32 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     context 'with a client error' do
       it 'sets the job_status to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_400') do
-          expect_any_instance_of(described_class).to receive(:log_exception_to_sentry)
-          subject.perform_async(submission.id)
-          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_non_retryable).once
-          described_class.drain
-          form_job_status = Form526JobStatus.last
-          expect(form_job_status.error_class).to eq 'EVSS::DisabilityCompensationForm::ServiceException'
-          expect(form_job_status.job_class).to eq 'SubmitForm526AllClaim'
-          expect(form_job_status.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
-          expect(form_job_status.error_message).to eq(
-            '[{"key"=>"form526.serviceInformation.ConfinementPastActiveDutyDate", "severity"=>"ERROR", "text"=>"The ' \
-            'confinement start date is too far in the past"}, {"key"=>"form526.serviceInformation.' \
-            'ConfinementWithInServicePeriod", "severity"=>"ERROR", "text"=>"Your period of confinement must be ' \
-            'within a single period of service"}, {"key"=>"form526.veteran.homelessness.pointOfContact.' \
-            'pointOfContactName.Pattern", "severity"=>"ERROR", "text"=>"must match \\"([a-zA-Z0-9-/]+( ?))*$\\""}]'
-          )
+          VCR.use_cassette('form526_backup/200_lighthouse_intake_upload_location') do
+            VCR.use_cassette('form526_backup/200_evss_get_pdf') do
+              VCR.use_cassette('form526_backup/200_lighthouse_intake_upload') do
+                backup_klass = Sidekiq::Form526BackupSubmissionProcess::Submit
+                expect_any_instance_of(described_class).to receive(:log_exception_to_sentry)
+                subject.perform_async(submission.id)
+                expect_any_instance_of(
+                  Sidekiq::Form526JobStatusTracker::Metrics
+                ).to receive(:increment_non_retryable).once
+                expect { described_class.drain }.to change(backup_klass.jobs, :size).by(1)
+                form_job_status = Form526JobStatus.last
+                expect(form_job_status.error_class).to eq 'EVSS::DisabilityCompensationForm::ServiceException'
+                expect(form_job_status.job_class).to eq 'SubmitForm526AllClaim'
+                expect(form_job_status.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+                expect(form_job_status.error_message).to eq(
+                  '[{"key"=>"form526.serviceInformation.ConfinementPastActiveDutyDate", ' \
+                  '"severity"=>"ERROR", "text"=>"The ' \
+                  'confinement start date is too far in the past"}, {"key"=>"form526.serviceInformation.' \
+                  'ConfinementWithInServicePeriod", "severity"=>"ERROR", "text"=>"Your period of confinement must be ' \
+                  'within a single period of service"}, {"key"=>"form526.veteran.homelessness.pointOfContact.' \
+                  'pointOfContactName.Pattern", "severity"=>"ERROR", ' \
+                  '"text"=>"must match \\"([a-zA-Z0-9-/]+( ?))*$\\""}]'
+                )
+              end
+            end
+          end
         end
       end
     end

@@ -59,11 +59,15 @@ module Sidekiq
           # Required criteria to send a backup 526 submission from here:
           # Enabled in settings and flipper
           # Is an overall submission and NOT an upload attempt
-          # Does not have a valid claim ID (through RRD process)
-          # Does not have additional birls it is going to try and submit under
-          if Settings.form526_backup.enabled && Flipper.enabled?(flipper_sym) &&
-             values[:job_class] == 'SubmitForm526AllClaim' && submission_obj.submitted_claim_id.nil? &&
-             additional_birls_to_try.empty?
+          # Does not have a valid claim ID (through RRD process or otherwise) (protect against dup submissions)
+          # Does not have a backup submission ID (protect against dup submissions)
+          # Does not have additional birls it is going to try and submit with
+          send_backup_submission = Settings.form526_backup.enabled && Flipper.enabled?(flipper_sym) &&
+                                   values[:job_class] == 'SubmitForm526AllClaim' &&
+                                   submission_obj.submitted_claim_id.nil? &&
+                                   additional_birls_to_try.empty? && submission_obj.backup_submitted_claim_id.nil?
+
+          if send_backup_submission
             backup_job_jid = Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(form526_submission_id)
           end
 
@@ -78,14 +82,12 @@ module Sidekiq
             va_eauth_service_transaction_id: vagov_id
           }
           log_message['backup_job_id'] = backup_job_jid unless backup_job_jid.nil?
-          ::Rails.logger.error('Form526 Exhausted', log_message)
+          ::Rails.logger.error('Form526 Exhausted or Errored (retryable-error-path)', log_message)
         rescue => e
           emsg = 'Form526 Exhausted, with error tracking job exhausted'
           error_details = {
-            message: emsg,
-            error: e,
-            class: msg['class'].demodulize,
-            jid: msg['jid'],
+            message: emsg, error: e,
+            class: msg['class'].demodulize, jid: msg['jid'],
             backtrace: e.backtrace
           }
           ::Rails.logger.error(emsg, error_details)
