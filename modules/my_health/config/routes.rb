@@ -31,6 +31,10 @@ MyHealth::Engine.routes.draw do
       resource :preferences, only: %i[show update], controller: 'messaging_preferences'
     end
 
+    scope :phr do
+      resources :vaccines, only: [:index], defaults: { format: :json }
+    end
+
     resources :prescriptions, only: %i[index show], defaults: { format: :json } do
       get :active, to: 'prescriptions#index', on: :collection, defaults: { refill_status: 'active' }
       patch :refill, to: 'prescriptions#refill', on: :member
