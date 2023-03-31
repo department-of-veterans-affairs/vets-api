@@ -18,10 +18,12 @@ module Lighthouse
       attribute :has_payment_address, Boolean
 
       # Converts a decoded JSON response from Lighthouse to an instance of the ControlInformation model
-      # @param body [Hash] the decoded response body from Lighthouse
+      # @param response [Hash] from Lighthouse
       # @return [Lighthouse::DirectDeposit::ControlInformation] the model built from the response body
-      def self.build_from(_status, body)
-        control_info = body&.dig('controlInformation')
+      def self.build_from(response)
+        control_info = response&.body&.dig('controlInformation')
+
+        return if control_info.nil?
 
         Lighthouse::DirectDeposit::ControlInformation.new(
           can_update_direct_deposit: control_info['canUpdateDirectDeposit'],
@@ -40,10 +42,6 @@ module Lighthouse
 
       def authorized?
         can_update_direct_deposit
-      end
-
-      def error_message
-        'All control indicators must be true to view payment account information.'
       end
     end
   end

@@ -38,7 +38,6 @@ http_interactions:
       - ''
     body:
       encoding: UTF-8
-      string: '{"error":"invalid_scope","error_description":"One or more scopes are
-        not configured for the authorization server resource."}'
+      string: '{"error":"invalid_scope","error_description":"One or more scopes are not configured for the authorization server resource."}'
   recorded_at: Tue, 14 Feb 2023 20:18:30 GMT
 recorded_with: VCR 6.1.0

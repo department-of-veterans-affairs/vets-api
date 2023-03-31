@@ -58,7 +58,6 @@ http_interactions:
       - chunked
     body:
       encoding: UTF-8
-      string: "{ \n  \"status\": 401,\n  \"error\": \"Invalid token.\",\n  \"path\":
-        \"/direct-deposit-management/v1/direct-deposit\"\n}\n"
+      string: '{"status":401,"error":"Invalid token.","path":"/direct-deposit-management/v1/direct-deposit"}'
   recorded_at: Sun, 30 Jan 2022 10:00:00 GMT
 recorded_with: VCR 6.1.0

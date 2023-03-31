@@ -1,60 +1,52 @@
 # frozen_string_literal: true
 
 require_relative 'base'
+require 'lighthouse/direct_deposit/parsers/bad_request_parser'
+require 'lighthouse/direct_deposit/parsers/denied_request_parser'
+require 'lighthouse/direct_deposit/parsers/invalid_creds_parser'
 
 module Lighthouse
   module DirectDeposit
-    class Error < Base
-      attribute :status, String
-      attribute :title, String
-      attribute :detail, String
-      attribute :instance, String
-      attribute :meta, Array
+    class Error < StandardError
+      attr_accessor :status, :error
 
-      # Converts a decoded JSON response from Lighthouse to an instance of the Error model
-      # @param body [Hash] the decoded response body from Lighthouse
-      # @return [Lighthouse::DirectDeposit::Error] the model built from the response body
-      def self.build_from(status, body)
-        Lighthouse::DirectDeposit::Error.new(
-          status: body['status'],
-          title: parse_title(status, body),
-          detail: parse_detail(body),
-          instance: body['instance'],
-          meta: map_error_codes(body['errorCodes'])
-        )
+      def initialize(response)
+        @status = response.status
+        @error = parse_body(response)
+        super
       end
 
-      def self.parse_title(status, body)
-        return body['title'] if body['title']
-        return body['error'] if body['error']
-
-        status_message_from(status)
+      def title
+        @error['title']
       end
 
-      def self.parse_detail(body)
-        return body['detail'] if body['detail']
-        return body['error_description'] if body['error_description']
-
-        body['message']
+      def body
+        {
+          error: @error
+        }
       end
 
-      def self.map_error_codes(errors)
-        errors&.map do |e|
-          { key: e['errorCode'], text: e['detail'] }
-        end
+      def parse_body(response)
+        parser =
+          if request_denied?(response.body)
+            Lighthouse::DirectDeposit::Parsers::DeniedRequestParser.new(response)
+          elsif invalid_creds?(response.body)
+            Lighthouse::DirectDeposit::Parsers::InvalidCredsParser.new(response)
+          else
+            Lighthouse::DirectDeposit::Parsers::BadRequestParser.new(response)
+          end
+
+        parser.parse_body
       end
 
-      def self.status_message_from(code)
-        case code
-        when 401
-          'Not Authorized'
-        when 403
-          'Forbidden'
-        when 413
-          'Payload too large'
-        when 429
-          'Too many requests'
-        end
+      private
+
+      def request_denied?(body)
+        body['message']&.present?
+      end
+
+      def invalid_creds?(body)
+        body['error']&.present?
       end
     end
   end

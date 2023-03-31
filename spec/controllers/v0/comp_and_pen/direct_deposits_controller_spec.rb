@@ -107,18 +107,19 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
       end
     end
 
-    context 'when incompetent' do
+    context 'when user deceased' do
       it 'returns a status of 403' do
         VCR.use_cassette('lighthouse/direct_deposit/show/403_response') do
           get(:show)
         end
 
         json = JSON.parse(response.body)
-        expect(response).to have_http_status(:forbidden)
 
-        expected_error = 'All control indicators must be true to view payment account information.'
-        error = json['data']['attributes']['error']
-        expect(error).to eq(expected_error)
+        payment_account = json['data']['attributes']['payment_account']
+        expect(payment_account).not_to be_nil
+
+        control_info = json['data']['attributes']['control_information']
+        expect(control_info['is_not_deceased']).to be(false)
       end
     end
 
@@ -235,13 +236,14 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
         expect(response).to have_http_status(:unprocessable_entity)
 
         json = JSON.parse(response.body)
-        error = json['data']['attributes']['error']
+        e = json['data']['attributes']['error']
 
-        expect(error).not_to be_nil
-        expect(error['title']).to eq('Unable To Update')
-        expect(error['detail']).to eq('Updating bank information not allowed.')
-        expect(error['meta'][0]['key']).to eq('payment.restriction.indicators.present')
-        expect(error['meta'][0]['text']).to eq('hasNoBdnPayments is false.')
+        expect(e).not_to be_nil
+        expect(e['title']).to eq('Unable To Update')
+        expect(e['detail']).to eq('Updating bank information not allowed. hasNoBdnPayments is false.')
+        expect(e['code']).to eq('payment.restriction.indicators.present')
+        expect(e['status']).to eq(422)
+        expect(e['source']).to eq('Lighthouse Direct Deposit')
       end
     end
 
@@ -254,11 +256,14 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
         end
 
         json = JSON.parse(response.body)
-        error = json['data']['attributes']['error']
+        e = json['data']['attributes']['error']
 
         expect(response).to have_http_status(:bad_request)
-        expect(error['title']).to eq('invalid_scope')
-        expect(error['detail']).to eq(error_message)
+        expect(e['title']).to eq('invalid_scope')
+        expect(e['detail']).to eq(error_message)
+        expect(e['code']).to eq('LIGHTHOUSE_DIRECT_DEPOSIT400')
+        expect(e['status']).to eq(400)
+        expect(e['source']).to eq('Lighthouse Direct Deposit')
       end
     end
   end

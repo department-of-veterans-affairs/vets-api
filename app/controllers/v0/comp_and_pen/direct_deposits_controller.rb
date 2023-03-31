@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'lighthouse/direct_deposit/service'
+require 'lighthouse/direct_deposit/client'
 require 'lighthouse/direct_deposit/payment_account'
 
 module V0
@@ -11,15 +11,14 @@ module V0
       before_action :validate_payment_account, only: :update
 
       def show
-        response = service.get
+        response = client.get_payment_information
         render status: response.status,
                json: response.body,
                serializer: CompAndPenDirectDepositSerializer
       end
 
       def update
-        response = service.update payment_account_params
-
+        response = client.update payment_account_params
         render status: response.status,
                json: response.body,
                serializer: CompAndPenDirectDepositSerializer
@@ -31,8 +30,8 @@ module V0
         routing_error unless Flipper.enabled?(:profile_lighthouse_direct_deposit, @current_user)
       end
 
-      def service
-        @service ||= DirectDeposit::Service.new(@current_user.icn)
+      def client
+        @client ||= DirectDeposit::Client.new(@current_user.icn)
       end
 
       def payment_account_params
