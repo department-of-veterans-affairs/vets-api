@@ -34,7 +34,6 @@ http_interactions:
       - ''
     body:
       encoding: UTF-8
-      string: '{"error":"invalid_client","error_description":"A client_id must be
-        provided in the request."}'
+      string: '{"error":"invalid_client","error_description":"A client_id must be provided in the request."}'
   recorded_at: Tue, 31 Jan 2023 18:37:31 GMT
 recorded_with: VCR 6.1.0

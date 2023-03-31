@@ -23,8 +23,10 @@ module Lighthouse
       # Converts a decoded JSON response from Lighthouse to an instance of the PaymentAccount model
       # @param body [Hash] the decoded response body from Lighthouse
       # @return [Lighthouse::DirectDeposit::PaymentAccount] the model built from the response body
-      def self.build_from(_status, body)
-        payment_account = body&.dig('paymentAccount')
+      def self.build_from(response)
+        payment_account = response&.body&.dig('paymentAccount')
+
+        return if payment_account.nil?
 
         Lighthouse::DirectDeposit::PaymentAccount.new(
           name: payment_account['financialInstitutionName'],
