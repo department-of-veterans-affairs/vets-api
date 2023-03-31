@@ -125,4 +125,86 @@ RSpec.describe 'Mocked Authentication Mock Credential', type: :request do
       end
     end
   end
+
+  describe 'GET credential_list' do
+    subject { get(credential_list_path, params: credential_list_params) }
+
+    let(:credential_list_path) { '/mocked_authentication/credential_list' }
+    let(:credential_list_params) { { type: credential_type } }
+    let(:credential_type) { 'logingov' }
+    let(:vets_api_mockdata_stub) do
+      File.join(MockedAuthentication::Engine.root, 'spec', 'fixtures', 'credential_mock_data')
+    end
+    let(:mock_creds_filepath) { File.join(vets_api_mockdata_stub, 'credentials', credential_type) }
+    let(:mock_user_zero) { File.read("#{mock_creds_filepath}/vetsgovuser0.json") }
+    let(:mock_user_one) { File.read("#{mock_creds_filepath}/vetsgovuser1.json") }
+    let(:mock_user_two_two_eight) { File.read("#{mock_creds_filepath}/vetsgovuser228.json") }
+    let(:expected_mock_data) do
+      { 'vetsgovuser0' => { 'credential_payload' => JSON.parse(mock_user_zero),
+                            'encoded_credential' => Base64.encode64(mock_user_zero) },
+        'vetsgovuser1' => { 'credential_payload' => JSON.parse(mock_user_one),
+                            'encoded_credential' => Base64.encode64(mock_user_one) },
+        'vetsgovuser228' => { 'credential_payload' => JSON.parse(mock_user_two_two_eight),
+                              'encoded_credential' => Base64.encode64(mock_user_two_two_eight) } }
+    end
+
+    before { allow(Settings.sign_in).to receive(:mock_credential_dir).and_return(vets_api_mockdata_stub) }
+
+    shared_examples 'error response' do
+      let(:expected_status) { :bad_request }
+      let(:expected_error_hash) { { 'errors' => expected_error_message } }
+
+      it 'returns expected status' do
+        subject
+        expect(response).to have_http_status(expected_status)
+      end
+
+      it 'renders expected error' do
+        subject
+        expect(JSON.parse(response.body)).to eq(expected_error_hash)
+      end
+    end
+
+    shared_examples 'successful response' do
+      let(:expected_status) { :ok }
+
+      it 'returns an ok status' do
+        subject
+        expect(response).to have_http_status(expected_status)
+      end
+
+      it 'returns the expected mockdata' do
+        subject
+        mock_data = JSON.parse(response.body)['mock_profiles']
+        expect(mock_data).to eq(expected_mock_data.with_indifferent_access)
+      end
+
+      it 'returns an encoded_credential that equals the credential payload' do
+        subject
+        JSON.parse(response.body)['mock_profiles'].each do |id, profile|
+          expect(profile['encoded_credential']).to eq(expected_mock_data[id]['encoded_credential'])
+        end
+      end
+    end
+
+    context 'parameter validations' do
+      context 'when CSP type parameter is missing' do
+        let(:credential_type) { nil }
+        let(:expected_error_message) { 'Invalid credential provider type' }
+
+        it_behaves_like 'error response'
+      end
+
+      context 'when CSP type parameter is not included in CSP_TYPES' do
+        let(:credential_type) { 'some-csp-type' }
+        let(:expected_error_message) { 'Invalid credential provider type' }
+
+        it_behaves_like 'error response'
+      end
+
+      context 'when CSP type parameter is included in CSP_TYPES' do
+        it_behaves_like 'successful response'
+      end
+    end
+  end
 end

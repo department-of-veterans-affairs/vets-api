@@ -13,7 +13,7 @@ module MockedAuthentication
         private
 
         def get_file_path_for_email(email, type)
-          "#{Settings.sign_in.mock_credential_dir}/credentials/#{type}/#{email}"
+          "#{Settings.sign_in.mock_credential_dir}/credentials/#{type}/#{email}.json"
         end
 
         def parse_email(email)
