@@ -109,6 +109,7 @@ module Mobile
             friendly_location_name:
           }
 
+          StatsD.increment('mobile.appointments.type', tags: ["type:#{appointment_type}"])
           Rails.logger.info('metric.mobile.appointment.type', type: appointment_type)
           Rails.logger.info('metric.mobile.appointment.upstream_status', status: appointment[:status])
 
