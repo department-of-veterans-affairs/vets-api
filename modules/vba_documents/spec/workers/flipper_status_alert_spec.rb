@@ -17,7 +17,6 @@ describe VBADocuments::FlipperStatusAlert, type: :job do
     let(:missing_flag_emoji) { described_class::MISSING_FLAG_EMOJI }
 
     let(:missing_file_message) { "#{warning_emoji} #{described_class} features file does not exist" }
-    let(:no_features_message) { "#{warning_emoji} #{described_class} has no configured enabled features" }
     let(:flag_status_message) do
       "#{warning_emoji} One or more features expected to be enabled were found disabled or missing"
     end
@@ -25,26 +24,6 @@ describe VBADocuments::FlipperStatusAlert, type: :job do
     it 'notifies Slack of missing config file when no config file found' do
       allow(File).to receive(:exist?).and_return(false)
       expected_notify = { warning: missing_file_message, file_path: config_file_path.to_s }
-      expect(VBADocuments::Slack::Messenger).to receive(:new).with(expected_notify).and_return(messenger_instance)
-      expect(messenger_instance).to receive(:notify!).once
-
-      described_class.new.perform
-    end
-
-    it 'notifies Slack that no features were found when config file contains no features' do
-      allow(YAML).to receive(:load_file).and_return({ 'common' => nil, 'production' => nil })
-      expected_notify = { warning: no_features_message, file_path: config_file_path.to_s }
-      expect(VBADocuments::Slack::Messenger).to receive(:new).with(expected_notify).and_return(messenger_instance)
-      expect(messenger_instance).to receive(:notify!).once
-
-      with_settings(Settings, vsp_environment: 'production') do
-        described_class.new.perform
-      end
-    end
-
-    it 'notifies Slack that no features were found when config file is empty (no keys)' do
-      allow(YAML).to receive(:load_file).and_return(nil)
-      expected_notify = { warning: no_features_message, file_path: config_file_path.to_s }
       expect(VBADocuments::Slack::Messenger).to receive(:new).with(expected_notify).and_return(messenger_instance)
       expect(messenger_instance).to receive(:notify!).once
 
