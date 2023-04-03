@@ -235,22 +235,14 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         VCR.use_cassette('claims/claims') do
           VCR.use_cassette('appeals/appeals') do
             expect(Rails.logger).to receive(:error).with(
-              'Mobile Claims and Appeals: error received from claims service',
-              error_details:
-                "NoMethodError\n\n        self.terminal_implementation_action = Proc.new { raise(*args) }\n" \
-                '                                                         ^^^^^'
+              'Mobile Claims and Appeals: error received from claims service', { error_details: 'NoMethodError' }
             )
             get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
             expect(response.parsed_body['data'].size).to eq(
               5
             )
             expect(response.parsed_body.dig('meta', 'errors').first).to eq(
-              {
-                'service' => 'claims',
-                'errorDetails' =>
-                  "NoMethodError\n\n        self.terminal_implementation_action = Proc.new { raise(*args) }\n" \
-                  '                                                         ^^^^^'
-              }
+              { 'service' => 'claims', 'errorDetails' => 'NoMethodError' }
             )
           end
         end

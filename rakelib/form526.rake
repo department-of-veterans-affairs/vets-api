@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'set'
-
 namespace :form526 do
   desc <<~HEREDOC
     Get all submissions within a date period:
