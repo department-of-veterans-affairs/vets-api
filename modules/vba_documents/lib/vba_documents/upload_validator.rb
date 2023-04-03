@@ -12,7 +12,7 @@ module VBADocuments
     include CentralMail::Utilities
     include PDFUtilities
 
-    VALID_VETERAN_NAME_REGEX = %r{^[a-zA-Z\-/\s]{1,50}$}
+    VALID_VETERAN_NAME_REGEX = %r{\A[a-zA-Z\-/\s]{1,50}\z}
 
     def validate_parts(model, parts)
       unless parts.key?(META_PART_NAME)
