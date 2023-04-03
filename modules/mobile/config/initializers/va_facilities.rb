@@ -348,7 +348,7 @@ Mobile::VA_FACILITIES_BY_ID = {
   },
   'dfn-672' => {
     name: 'SAN JUAN VAMC',
-    time_zone: 'America/Argentina/San_Juan'
+    time_zone: 'America/Puerto_Rico'
 
   },
   'dfn-740' => {
