@@ -30,18 +30,8 @@ module VBADocuments
       return [] if feature_hash.nil?
 
       env_hash = feature_hash.fetch(Settings.vsp_environment.to_s, []) || []
-      features = (env_hash + (feature_hash['common'] || [])).uniq.sort
 
-      if features.empty?
-        VBADocuments::Slack::Messenger.new(
-          {
-            warning: "#{WARNING_EMOJI} #{self.class.name} has no configured enabled features",
-            file_path: file_path.to_s
-          }
-        ).notify!
-      end
-
-      features
+      (env_hash + (feature_hash['common'] || [])).uniq.sort
     end
 
     def read_config_file(path)
