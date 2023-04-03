@@ -21,6 +21,11 @@ Rails.application.reloader.to_prepare do
   StatsD.increment('iam_ssoe_oauth.auth.total', 0)
   StatsD.increment('iam_ssoe_oauth.auth.success', 0)
 
+  # Appointments #---------------------------------------------------------------
+
+  # which appointment types most often appear in the list (tags:["type:#{type}"])
+  StatsD.increment('mobile.appointments.type', 0)
+
   # Letters #--------------------------------------------------------------------
 
   # which letters are most often downloaded
