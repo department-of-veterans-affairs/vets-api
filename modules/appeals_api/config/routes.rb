@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative './route_concerns'
+
 AppealsApi::Engine.routes.draw do
   get '/appeals_status/metadata', to: 'metadata#appeals_status'
   get '/decision_reviews/metadata', to: 'metadata#decision_reviews'
@@ -74,12 +76,14 @@ AppealsApi::Engine.routes.draw do
     namespace :v0, defaults: { format: 'json' } do
       resources :api, only: [:index]
 
+      # Routes below are deprecated - they can be removed once they are no longer used:
       docs_controller = '/appeals_api/docs/v2/docs'
       get 'hlr', to: "#{docs_controller}#hlr"
       get 'nod', to: "#{docs_controller}#nod"
       get 'sc', to: "#{docs_controller}#sc"
       get 'ci', to: "#{docs_controller}#ci"
       get 'la', to: "#{docs_controller}#la"
+      # ...end of deprecated routes
     end
 
     namespace :v1, defaults: { format: 'json' } do
@@ -92,108 +96,27 @@ AppealsApi::Engine.routes.draw do
     end
   end
 
-  namespace :notice_of_disagreements, defaults: { format: 'json' } do
-    namespace :v0 do
-      oauth_cpath = '/appeals_api/notice_of_disagreements/v0/notice_of_disagreements'
+  concern :appeals_status_routes, AppealsApi::SharedRoutes::AppealsStatus
+  concerns :appeals_status_routes, deprecated: true
+  concerns :appeals_status_routes
 
-      get 'healthcheck', to: '/appeals_api/metadata#healthcheck'
-      get 'upstream_healthcheck', to: '/appeals_api/metadata#mail_status_upstream_healthcheck'
+  concern :notice_of_disagreements_routes, AppealsApi::SharedRoutes::NoticeOfDisagreements
+  concerns :notice_of_disagreements_routes, deprecated: true
+  concerns :notice_of_disagreements_routes
 
-      namespace :forms do
-        resources '10182', only: %i[create show], controller: oauth_cpath do
-          collection do
-            post 'validate'
-          end
-        end
-      end
+  concern :higher_level_reviews_routes, AppealsApi::SharedRoutes::HigherLevelReviews
+  concerns :higher_level_reviews_routes, deprecated: true
+  concerns :higher_level_reviews_routes
 
-      resources :evidence_submissions, only: %i[create show], controller: "#{oauth_cpath}/evidence_submissions"
+  concern :supplemental_claims_routes, AppealsApi::SharedRoutes::SupplementalClaims
+  concerns :supplemental_claims_routes, deprecated: true
+  concerns :supplemental_claims_routes
 
-      namespace :schemas, controller: oauth_cpath do
-        get '10182', action: :schema
-      end
+  concern :contestable_issues_routes, AppealsApi::SharedRoutes::ContestableIssues
+  concerns :contestable_issues_routes, deprecated: true
+  concerns :contestable_issues_routes
 
-      resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
-    end
-  end
-
-  namespace :higher_level_reviews, defaults: { format: 'json' } do
-    namespace :v0 do
-      oauth_cpath = '/appeals_api/higher_level_reviews/v0/higher_level_reviews'
-
-      get 'healthcheck', to: '/appeals_api/metadata#healthcheck'
-      get 'upstream_healthcheck', to: '/appeals_api/metadata#mail_status_upstream_healthcheck'
-
-      namespace :forms do
-        resources '200996', only: %i[create show], controller: oauth_cpath do
-          collection do
-            post 'validate'
-          end
-        end
-      end
-
-      namespace :schemas, controller: oauth_cpath do
-        get '200996', action: :schema
-      end
-
-      resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
-    end
-  end
-
-  namespace :supplemental_claims, defaults: { format: 'json' } do
-    namespace :v0 do
-      oauth_cpath = '/appeals_api/supplemental_claims/v0/supplemental_claims'
-
-      get 'healthcheck', to: '/appeals_api/metadata#healthcheck'
-      get 'upstream_healthcheck', to: '/appeals_api/metadata#mail_status_upstream_healthcheck'
-
-      namespace :forms do
-        resources '200995', only: %i[create show], controller: oauth_cpath do
-          collection do
-            post 'validate'
-          end
-        end
-      end
-
-      resources :evidence_submissions, only: %i[create show], controller: "#{oauth_cpath}/evidence_submissions"
-
-      namespace :schemas, controller: oauth_cpath do
-        get '200995', action: :schema
-      end
-
-      resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
-    end
-  end
-
-  namespace :contestable_issues, defaults: { format: 'json' } do
-    namespace :v0 do
-      oauth_cpath = '/appeals_api/contestable_issues/v0/contestable_issues'
-
-      get 'contestable_issues/:decision_review_type', to: "#{oauth_cpath}#index"
-      get 'healthcheck', to: '/appeals_api/metadata#healthcheck'
-      get 'upstream_healthcheck', to: '/appeals_api/metadata#appeals_status_upstream_healthcheck'
-
-      namespace :schemas, controller: oauth_cpath do
-        get 'headers', action: :schema
-      end
-
-      resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
-    end
-  end
-
-  namespace :legacy_appeals, defaults: { format: 'json' } do
-    namespace :v0 do
-      oauth_cpath = '/appeals_api/legacy_appeals/v0/legacy_appeals'
-
-      get 'legacy_appeals', to: "#{oauth_cpath}#index"
-      get 'healthcheck', to: '/appeals_api/metadata#healthcheck'
-      get 'upstream_healthcheck', to: '/appeals_api/metadata#appeals_status_upstream_healthcheck'
-
-      namespace :schemas, controller: oauth_cpath do
-        get 'headers', action: :schema
-      end
-
-      resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
-    end
-  end
+  concern :legacy_appeals_routes, AppealsApi::SharedRoutes::LegacyAppeals
+  concerns :legacy_appeals_routes, deprecated: true
+  concerns :legacy_appeals_routes
 end
