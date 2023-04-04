@@ -259,10 +259,6 @@ Rails.application.routes.draw do
       end
     end
 
-    namespace :comp_and_pen do
-      resource :direct_deposit, only: %i[show update]
-    end
-
     namespace :profile do
       resource :alternate_phone, only: %i[show create]
       resource :email, only: %i[show create]
@@ -273,6 +269,11 @@ Rails.application.routes.draw do
       resources :connected_applications, only: %i[index destroy]
       resource :valid_va_file_number, only: %i[show]
       resources :payment_history, only: %i[index]
+
+      # Lighthouse
+      namespace :direct_deposits do
+        resource :disability_compensations, only: %i[show update]
+      end
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy] do

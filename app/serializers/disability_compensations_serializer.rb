@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-class CompAndPenDirectDepositSerializer < ActiveModel::Serializer
-  attributes :control_information, :payment_account, :error
+class DisabilityCompensationsSerializer < ActiveModel::Serializer
+  attributes :control_information, :payment_account
 
   def control_information
     object[:control_information]
@@ -21,11 +21,11 @@ class CompAndPenDirectDepositSerializer < ActiveModel::Serializer
     payment_account
   end
 
-  def error
-    object[:error]
-  end
-
   def id
     nil
+  end
+
+  def type
+    'direct_deposit/disability_compensations'
   end
 end
