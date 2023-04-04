@@ -81,7 +81,9 @@ module DecisionReviewV1
 
       def parse_form412_response_to_log_msg(appeal_submission_id:, data:, bm: nil)
         log_data = { message: 'Supplemental Claim 4142 submitted.',
-                     appeal_submission_id:,
+                     lighthouse_submission: {
+                       id: appeal_submission_id
+                     },
                      form_id: FORM4142_ID, parent_form_id: SUPP_CLAIM_FORM_ID,
                      response_body: data.body,
                      response_status: data.status }
