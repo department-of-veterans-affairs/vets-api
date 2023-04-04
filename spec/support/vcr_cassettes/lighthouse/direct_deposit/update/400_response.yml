@@ -21,7 +21,7 @@ http_interactions:
       - application/json
   response:
     status:
-      code: 200
+      code: 400
       message: ''
     headers:
       Date:
@@ -61,7 +61,12 @@ http_interactions:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"paymentAccount":{"accountType":"CHECKING","accountNumber":"1234567890","financialInstitutionRoutingNumber":"031000503","financialInstitutionName":"WELLS
-        FARGO BANK"},"controlInformation":{"canUpdateDirectDeposit":true,"isCorpAvailable":true,"isCorpRecFound":true,"hasNoBdnPayments":true,"hasIndentity":true,"hasIndex":true,"isCompetent":true,"hasMailingAddress":true,"hasNoFiduciaryAssigned":true,"isNotDeceased":true,"hasPaymentAddress":true}}'
+      string: '{
+        "type": "https://api.va.gov/direct-deposit-management/errors/bad-request",
+        "title": "Bad Request",
+        "status": 400,
+        "detail": "No changes were made. Request was sent to Benefits Gateway Service (BGS), but BGS update failed. Unknown issue(s). Raw response from BGS: Failed to update Address/Bank Info. Routing number related to potential fraud.",
+        "instance": "e48e3aeb-f312-11ec-88e8-f55e56a472a2"
+      }'
   recorded_at: Thu, 23 Feb 2023 21:47:59 GMT
 recorded_with: VCR 6.1.0

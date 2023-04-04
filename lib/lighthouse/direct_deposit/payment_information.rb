@@ -24,6 +24,10 @@ module Lighthouse
           payment_account: @payment_account
         }
       end
+
+      def ok?
+        true
+      end
     end
   end
 end

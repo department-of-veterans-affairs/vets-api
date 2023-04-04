@@ -8,21 +8,22 @@ require 'lighthouse/direct_deposit/parsers/invalid_creds_parser'
 module Lighthouse
   module DirectDeposit
     class Error < StandardError
-      attr_accessor :status, :error
+      attr_accessor :status
+      attr_writer :body
 
       def initialize(response)
         @status = response.status
-        @error = parse_body(response)
+        @body = parse_body(response)
         super
       end
 
       def title
-        @error['title']
+        @body['title']
       end
 
       def body
         {
-          error: @error
+          errors: [@body]
         }
       end
 
@@ -37,6 +38,10 @@ module Lighthouse
           end
 
         parser.parse_body
+      end
+
+      def ok?
+        false
       end
 
       private

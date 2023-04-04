@@ -35,7 +35,7 @@ describe LighthousePolicy do
     end
   end
 
-  permissions :access_direct_deposit? do
+  permissions :access_disability_compensations? do
     let(:user) { build(:evss_user) }
 
     context 'user has ICN and Participant ID' do

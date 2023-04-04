@@ -18,15 +18,19 @@ describe Lighthouse::DirectDeposit::Error do
     )
 
     expected = {
-      'title' => 'Invalid token.',
-      'detail' => nil,
-      'code' => 'LIGHTHOUSE_DIRECT_DEPOSIT401',
-      'status' => 401,
-      'source' => 'Lighthouse Direct Deposit'
+      errors: [
+        {
+          'title' => 'Invalid token.',
+          'detail' => nil,
+          'code' => 'LIGHTHOUSE_DIRECT_DEPOSIT401',
+          'status' => 401,
+          'source' => 'Lighthouse Direct Deposit'
+        }
+      ]
     }
 
     e = Lighthouse::DirectDeposit::Error.new(response)
-    actual = e.error
+    actual = e.body
     expect(actual).to match expected
   end
 
@@ -43,15 +47,19 @@ describe Lighthouse::DirectDeposit::Error do
     )
 
     expected = {
-      'title' => 'Person for ICN not found',
-      'detail' => 'No data found for ICN',
-      'code' => 'LIGHTHOUSE_DIRECT_DEPOSIT404',
-      'status' => 404,
-      'source' => 'Lighthouse Direct Deposit'
+      errors: [
+        {
+          'title' => 'Person for ICN not found',
+          'detail' => 'No data found for ICN',
+          'code' => 'LIGHTHOUSE_DIRECT_DEPOSIT404',
+          'status' => 404,
+          'source' => 'Lighthouse Direct Deposit'
+        }
+      ]
     }
 
     e = Lighthouse::DirectDeposit::Error.new(response)
-    actual = e.error
+    actual = e.body
     expect(actual).to match expected
   end
 
@@ -69,15 +77,19 @@ describe Lighthouse::DirectDeposit::Error do
     )
 
     expected = {
-      'title' => 'Invalid field value',
-      'detail' => 'icn size must be between 17 and 17, getDirectDeposit.icn must match \"^\\d{10}V\\d{6}$\"',
-      'code' => 'LIGHTHOUSE_DIRECT_DEPOSIT400',
-      'status' => 400,
-      'source' => 'Lighthouse Direct Deposit'
+      errors: [
+        {
+          'title' => 'Invalid field value',
+          'detail' => 'icn size must be between 17 and 17, getDirectDeposit.icn must match \"^\\d{10}V\\d{6}$\"',
+          'code' => 'LIGHTHOUSE_DIRECT_DEPOSIT400',
+          'status' => 400,
+          'source' => 'Lighthouse Direct Deposit'
+        }
+      ]
     }
 
     e = Lighthouse::DirectDeposit::Error.new(response)
-    actual = e.error
+    actual = e.body
     expect(actual).to match expected
   end
 
@@ -100,15 +112,19 @@ describe Lighthouse::DirectDeposit::Error do
     )
 
     expected = {
-      'title' => 'Unable To Update',
-      'detail' => 'Updating bank information not allowed. hasNoBdnPayments is false.',
-      'code' => 'payment.restriction.indicators.present',
-      'status' => 422,
-      'source' => 'Lighthouse Direct Deposit'
+      errors: [
+        {
+          'title' => 'Unable To Update',
+          'detail' => 'Updating bank information not allowed. hasNoBdnPayments is false.',
+          'code' => 'payment.restriction.indicators.present',
+          'status' => 422,
+          'source' => 'Lighthouse Direct Deposit'
+        }
+      ]
     }
 
     e = Lighthouse::DirectDeposit::Error.new(response)
-    actual = e.error
+    actual = e.body
     expect(actual).to match expected
   end
 
@@ -126,15 +142,19 @@ describe Lighthouse::DirectDeposit::Error do
     )
 
     expected = {
-      'title' => 'Bad Request',
-      'detail' => 'Routing number related to potential fraud',
-      'code' => 'cnp.payment.routing.number.fraud.message',
-      'status' => 400,
-      'source' => 'Lighthouse Direct Deposit'
+      errors: [
+        {
+          'title' => 'Bad Request',
+          'detail' => 'Routing number related to potential fraud',
+          'code' => 'cnp.payment.routing.number.fraud.message',
+          'status' => 400,
+          'source' => 'Lighthouse Direct Deposit'
+        }
+      ]
     }
 
     e = Lighthouse::DirectDeposit::Error.new(response)
-    actual = e.error
+    actual = e.body
     expect(actual).to match expected
   end
 
@@ -147,15 +167,19 @@ describe Lighthouse::DirectDeposit::Error do
     )
 
     expected = {
-      'title' => 'Too many requests',
-      'detail' => 'API rate limit exceeded',
-      'code' => 'LIGHTHOUSE_DIRECT_DEPOSIT429',
-      'status' => 429,
-      'source' => 'Lighthouse Direct Deposit'
+      errors: [
+        {
+          'title' => 'Too many requests',
+          'detail' => 'API rate limit exceeded',
+          'code' => 'LIGHTHOUSE_DIRECT_DEPOSIT429',
+          'status' => 429,
+          'source' => 'Lighthouse Direct Deposit'
+        }
+      ]
     }
 
     e = Lighthouse::DirectDeposit::Error.new(response)
-    actual = e.error
+    actual = e.body
     expect(actual).to match expected
   end
 end

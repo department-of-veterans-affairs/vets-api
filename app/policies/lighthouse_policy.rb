@@ -5,7 +5,7 @@ LighthousePolicy = Struct.new(:user, :lighthouse) do
     user.icn.present? && user.participant_id.present?
   end
 
-  def access_direct_deposit?
+  def access_disability_compensations?
     user.loa3? &&
       allowed_providers.include?(user.identity.sign_in[:service_name]) &&
       user.icn.present? && user.participant_id.present?

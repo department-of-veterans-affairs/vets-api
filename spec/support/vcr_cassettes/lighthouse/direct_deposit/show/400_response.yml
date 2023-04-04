@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/direct-deposit-management/v1/direct-deposit?icn=ABC
+    uri: https://sandbox-api.va.gov/services/direct-deposit-management/v1/direct-deposit?icn=1012666073V986297
     body:
       encoding: US-ASCII
       string: ''

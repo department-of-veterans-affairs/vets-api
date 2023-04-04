@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
+RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, type: :controller do
   let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
 
   before do
@@ -63,12 +63,12 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
         end
 
         json = JSON.parse(response.body)
-        expect(json['error']).to be_nil
+        expect(json['errors']).to be_nil
       end
     end
 
     context 'when bad request' do
-      let(:user) { create(:user, :loa3, :accountable, icn: 'ABC') }
+      # let(:user) { create(:user, :loa3, :accountable, icn: 'ABC') }
 
       it 'returns a status of 400' do
         VCR.use_cassette('lighthouse/direct_deposit/show/400_response') do
@@ -161,18 +161,18 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
 
   describe '#update' do
     context 'when successful' do
-      it 'returns a status of 200' do
+      it 'returns a status of 201' do
         params = {
           account_number: '1234567890',
           account_type: 'CHECKING',
           routing_number: '031000503'
         }
 
-        VCR.use_cassette('lighthouse/direct_deposit/update/200_response') do
+        VCR.use_cassette('lighthouse/direct_deposit/update/201_response') do
           put(:update, params:)
         end
 
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:created)
       end
     end
 
@@ -197,11 +197,10 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
       end
     end
 
-    context 'when invalid request payload' do
+    context 'when missing account type' do
       let(:params) do
         {
-          account_type: 'CHECKING',
-          financial_institution_name: 'Bank of Ad Hoc',
+          routing_number: '031000503',
           account_number: '12345678'
         }
       end
@@ -214,8 +213,50 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
         expect(response).to have_http_status(:unprocessable_entity)
 
         json = JSON.parse(response.body)
-        expect(json['errors'].first['title']).to eq("Routing number can't be blank")
-        expect(json['errors'].last['title']).to eq('Routing number is invalid')
+        expect(json['errors'][0]['title']).to eq('Account type is not included in the list')
+        expect(json['errors'][1]['title']).to eq("Account type can't be blank")
+      end
+    end
+
+    context 'when missing account number' do
+      let(:params) do
+        {
+          account_type: 'CHECKING',
+          routing_number: '031000503'
+        }
+      end
+
+      it 'returns a validation error' do
+        VCR.use_cassette('lighthouse/direct_deposit/update/200_response') do
+          put(:update, params:)
+        end
+
+        expect(response).to have_http_status(:unprocessable_entity)
+
+        json = JSON.parse(response.body)
+        expect(json['errors'][0]['title']).to eq("Account number can't be blank")
+        expect(json['errors'][0]['detail']).to eq("account-number - can't be blank")
+      end
+    end
+
+    context 'when missing routing number' do
+      let(:params) do
+        {
+          account_type: 'CHECKING',
+          account_number: '12345678'
+        }
+      end
+
+      it 'returns a validation error' do
+        VCR.use_cassette('lighthouse/direct_deposit/update/200_response') do
+          put(:update, params:)
+        end
+
+        expect(response).to have_http_status(:unprocessable_entity)
+
+        json = JSON.parse(response.body)
+        expect(json['errors'][0]['title']).to eq("Routing number can't be blank")
+        expect(json['errors'][1]['title']).to eq('Routing number is invalid')
       end
     end
 
@@ -229,20 +270,20 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
       end
 
       it 'returns a validation error' do
-        VCR.use_cassette('lighthouse/direct_deposit/update/422_response') do
+        VCR.use_cassette('lighthouse/direct_deposit/update/400_response') do
           put(:update, params:)
         end
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:bad_request)
 
         json = JSON.parse(response.body)
-        e = json['data']['attributes']['error']
+        e = json['errors'].first
 
         expect(e).not_to be_nil
-        expect(e['title']).to eq('Unable To Update')
-        expect(e['detail']).to eq('Updating bank information not allowed. hasNoBdnPayments is false.')
-        expect(e['code']).to eq('payment.restriction.indicators.present')
-        expect(e['status']).to eq(422)
+        expect(e['title']).to eq('Bad Request')
+        expect(e['detail']).to eq('Routing number related to potential fraud')
+        expect(e['code']).to eq('cnp.payment.routing.number.fraud.message')
+        expect(e['status']).to eq(400)
         expect(e['source']).to eq('Lighthouse Direct Deposit')
       end
     end
@@ -256,7 +297,7 @@ RSpec.describe V0::CompAndPen::DirectDepositsController, type: :controller do
         end
 
         json = JSON.parse(response.body)
-        e = json['data']['attributes']['error']
+        e = json['errors'].first
 
         expect(response).to have_http_status(:bad_request)
         expect(e['title']).to eq('invalid_scope')
