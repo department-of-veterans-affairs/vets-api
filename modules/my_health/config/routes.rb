@@ -31,8 +31,10 @@ MyHealth::Engine.routes.draw do
       resource :preferences, only: %i[show update], controller: 'messaging_preferences'
     end
 
-    scope :phr do
-      resources :vaccines, only: [:index], defaults: { format: :json }
+    scope :medical_records do
+      resources :vaccines, only: %i[show], defaults: { format: :json } do
+        get :pdf, on: :collection
+      end
     end
 
     resources :prescriptions, only: %i[index show], defaults: { format: :json } do
