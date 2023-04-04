@@ -31,7 +31,7 @@ module DecisionReview
                      end.body.dig('data', 'id')
       appeal_submission_upload.update!(lighthouse_upload_id: lh_upload_id)
       log_success(internal_id: appeal_submission.id, lighthouse_uuid: appeal_submission.submitted_appeal_uuid,
-                  lighthouse_evidence_uuid: lh_upload_id)
+                  lighthouse_evidence_uuid: lh_upload_id, appeal_type: appeal_submission.type_of_appeal)
       StatsD.increment("#{STATSD_KEY_PREFIX}.success")
     rescue => e
       handle_error(e)
@@ -44,11 +44,14 @@ module DecisionReview
 
     private
 
-    def log_success(internal_id:, lighthouse_uuid:, lighthouse_evidence_uuid:)
+    def log_success(internal_id:, lighthouse_uuid:, lighthouse_evidence_uuid:, appeal_type:)
       Rails.logger.info({
                           message: 'Appeal evidence upload complete',
-                          internal_appeal_submission_id: internal_id,
-                          lighthouse_supplemental_claim_uuid: lighthouse_uuid,
+                          appeal_submission_id: internal_id,
+                          appeal_type:,
+                          lighthouse_submission: {
+                            id: lighthouse_uuid
+                          },
                           lighthouse_evidence_upload_id: lighthouse_evidence_uuid
                         })
     end

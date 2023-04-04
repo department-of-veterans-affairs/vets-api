@@ -22,15 +22,15 @@ module V1
       submitted_appeal_uuid = sc_response.body.dig('data', 'id')
       unless submitted_appeal_uuid.nil?
         appeal_submission, _ipf_id = clear_in_progress_form(submitted_appeal_uuid)
+        appeal_submission_id = appeal_submission.id
+        ::Rails.logger.info(post_create_log_msg(appeal_submission_id:, submitted_appeal_uuid:))
         if form4142.present?
           handle_4142(request_body: req_body_obj,
-                      form4142:, response: sc_response, appeal_submission_id: appeal_submission.id,
+                      form4142:, response: sc_response,
+                      appeal_submission_id:,
                       submitted_appeal_uuid:)
         end
-        if sc_evidence.present?
-          submit_evidence(sc_evidence, appeal_submission.id,
-                          submitted_appeal_uuid)
-        end
+        submit_evidence(sc_evidence, appeal_submission_id, submitted_appeal_uuid) if sc_evidence.present?
         render json: sc_response.body, status: sc_response.status
       end
     rescue => e
@@ -38,6 +38,16 @@ module V1
     end
 
     private
+
+    def post_create_log_msg(appeal_submission_id:, submitted_appeal_uuid:)
+      {
+        message: 'Supplemental Claim Appeal Record Created',
+        appeal_submission_id:,
+        lighthouse_submission: {
+          id: submitted_appeal_uuid
+        }
+      }
+    end
 
     def handle_4142(request_body:, form4142:, response:, appeal_submission_id:, submitted_appeal_uuid:)
       decision_review_service.process_form4142_submission(
@@ -54,7 +64,9 @@ module V1
                              parent_form_id: SUPP_CLAIM_FORM_ID,
                              message: 'Supplemental Claim Form4142 Could not be created or sent.',
                              appeal_submission_id:,
-                             submitted_appeal_lighthouse_uuid: submitted_appeal_uuid
+                             lighthouse_submission: {
+                               id: submitted_appeal_uuid
+                             }
                            })
     end
 
@@ -66,7 +78,9 @@ module V1
                             form_id: SUPP_CLAIM_FORM_ID,
                             message: 'Supplemental Claim Evidence jobs created.',
                             appeal_submission_id:,
-                            submitted_appeal_lighthouse_uuid: submitted_appeal_uuid,
+                            lighthouse_submission: {
+                              id: submitted_appeal_uuid
+                            },
                             evidence_upload_job_ids: jids
                           })
     end

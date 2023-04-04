@@ -52,7 +52,9 @@ module DecisionReviewV1
           'veteranLastName' => veteran_full_name['last'],
           'fileNumber' => @form['vaFileNumber'] || @form['veteranSocialSecurityNumber'],
           'receiveDt' => received_date,
-          'uuid' => "#{@uuid}_4142",
+          # 'uuid' => "#{@uuid}_4142", # was trying to include the main claim uuid here and just append 4142
+          # but central mail portal does not support that
+          'uuid' => SecureRandom.uuid,
           'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
           'source' => 'VA Forms Group B',
           'hashV' => Digest::SHA256.file(@pdf_path).hexdigest,
