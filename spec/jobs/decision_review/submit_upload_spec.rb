@@ -34,9 +34,10 @@ RSpec.describe DecisionReview::SubmitUpload, type: :job do
             VCR.use_cassette('decision_review/200_pdf_validation') do
               expect do
                 subject.perform_async(appeal_submission_upload.id)
-              end.to trigger_statsd_increment('shared.sidekiq.default.DecisionReview_SubmitUpload.enqueue', times: 1)
-                .and trigger_statsd_increment('api.decision_review.get_notice_of_disagreement_upload_url.total',
+                subject.drain
+              end.to trigger_statsd_increment('api.decision_review.get_notice_of_disagreement_upload_url.total',
                                               times: 1)
+                .and trigger_statsd_increment('shared.sidekiq.default.DecisionReview_SubmitUpload.enqueue', times: 1)
                 .and trigger_statsd_increment('api.decision_review.get_notice_of_disagreement_upload_url.total',
                                               times: 1)
                 .and trigger_statsd_increment('api.decision_review.put_notice_of_disagreement_upload.total', times: 1)
