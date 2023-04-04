@@ -39,6 +39,17 @@ I CERTIFY THAT I UNDERSTAND THE EFFECTS THAT THIS ELECTION TO RECEIVE DEA OR FRY
 
 <%= ssn_gender_dob(false) %>
 
+<% unless Rails.env.production? -%>
+<% if @applicant.minorHighSchoolQuestions -%>
+Applicant has graduated high school or received GED? <%= @applicant.minorHighSchoolQuestions.minorHighSchoolQuestion %>
+
+<% grad_date = @applicant.minorHighSchoolQuestions.highSchoolGedGradDate if @applicant.minorHighSchoolQuestions.highSchoolGedGradDate -%>
+<% grad_date = @applicant.minorHighSchoolQuestions.highSchoolGedExpectedGradDate unless @applicant.minorHighSchoolQuestions.highSchoolGedGradDate -%>
+<% date_label = @applicant.minorHighSchoolQuestions.highSchoolGedGradDate ? "Date graduated:" : "Date expected to graduate:" -%>
+<%= date_label %> <%= grad_date %>
+
+<% end -%>
+<% end -%>
 Name:   <%= full_name(@applicant.relativeFullName) %>
 
 Address:
@@ -154,6 +165,29 @@ Degree/Diploma/Certificate: <%= @applicant.highSchool&.degreeReceived %>
 <%= parse_with_template_path('civilian_benefits_assistance') %>
 
 Source of educational assistance for government employee: <%= @applicant.civilianBenefitsSource %>
+<% end -%>
+<% unless Rails.env.production? -%>
+<% if @applicant.minorHighSchoolQuestions -%>
+          GUARDIAN INFORMATION
+          --------------------
+First name of Parent, Guardian or Custodian: <%= @applicant.minorQuestions.guardianFirstName %>
+
+Middle name of Parent, Guardian or Custodian: <%= @applicant.minorQuestions.guardianMiddleName %>
+
+Last name of Parent, Guardian or Custodian: <%= @applicant.minorQuestions.guardianLastName %>
+
+Address of Parent, Guardian or Custodian:
+  Country: <%= @applicant.minorQuestions.guardianAddress.country %>
+  Street: <%= @applicant.minorQuestions.guardianAddress.street %>
+  Street address line 2: <%= @applicant.minorQuestions.guardianAddress.street2 %>
+  City: <%= @applicant.minorQuestions.guardianAddress.city %>
+  State: <%= @applicant.minorQuestions.guardianAddress.state %>
+  Postal code: <%= @applicant.minorQuestions.guardianAddress.postalCode %>
+  Mobile phone number: <%= @applicant.minorQuestions.guardianMobilePhone %>
+  Home phone number: <%= @applicant.minorQuestions.guardianHomePhone %>
+  Email address: <%= @applicant.minorQuestions.guardianEmail %>
+
+<% end -%>
 <% end -%>
 <%= parse_with_template_path('signatures') %>
 
