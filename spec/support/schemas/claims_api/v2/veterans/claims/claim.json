@@ -330,6 +330,12 @@
                       "SUBMITTED_AWAITING_REVIEW"
                     ]
                   },
+                  "suspenseDate": {
+                    "format": "date",
+                    "type": "string",
+                    "nullable": true,
+                    "example": "2017-10-18"
+                  },
                   "uploaded": {
                     "type": "boolean",
                     "nullable": true,

@@ -781,8 +781,9 @@
                           "openedDate": null,
                           "overdue": true,
                           "requestedDate": "2022-02-04",
+                          "status": "NEEDED",
+                          "suspenseDate": "2022-03-06",
                           "trackedItemId": 325525,
-                          "status": "INITIAL_REVIEW_COMPLETE",
                           "uploaded": false,
                           "uploadsAllowed": true
                         },
@@ -793,8 +794,9 @@
                           "openedDate": null,
                           "overdue": true,
                           "requestedDate": "2022-02-04",
+                          "status": "NEEDED",
+                          "suspenseDate": "2022-03-06",
                           "trackedItemId": 325524,
-                          "status": "INITIAL_REVIEW_COMPLETE",
                           "uploaded": false,
                           "uploadsAllowed": true
                         }
@@ -1168,6 +1170,12 @@
                                       "NO_LONGER_REQUIRED",
                                       "SUBMITTED_AWAITING_REVIEW"
                                     ]
+                                  },
+                                  "suspenseDate": {
+                                    "format": "date",
+                                    "type": "string",
+                                    "nullable": true,
+                                    "example": "2017-10-18"
                                   },
                                   "uploaded": {
                                     "type": "boolean",
