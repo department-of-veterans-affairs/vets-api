@@ -72,9 +72,16 @@ module ClaimsApi
               'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
           )
         end
-
         mpi_add_response = target_veteran.mpi.add_person_proxy
+
         raise mpi_add_response.error unless mpi_add_response.ok?
+
+        ids = target_veteran&.mpi&.participant_ids
+        if ids.nil? || ids.size.zero?
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail:
+            'Veteran missing Participant ID. ' \
+            'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
+        end
 
         ClaimsApi::Logger.log('validate_identifiers',
                               rid: request.request_id, mpi_res_ok: mpi_add_response.ok?,

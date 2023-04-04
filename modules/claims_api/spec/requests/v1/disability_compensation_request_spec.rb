@@ -1109,6 +1109,7 @@ RSpec.describe 'Disability Claims ', type: :request do
                       .and_return(mvi_profile_response)
 
                     post path, params: data, headers: auth_header
+
                     expect(response.status).to eq(422)
                   end
                 end
@@ -1131,6 +1132,33 @@ RSpec.describe 'Disability Claims ', type: :request do
                     expect(response.status).to eq(200)
                   end
                 end
+              end
+            end
+          end
+        end
+      end
+
+      context 'when consumer is Veteran, but is missing a participant id' do
+        let(:mvi_profile) { build(:mvi_profile) }
+        let(:mvi_profile_response) { build(:find_profile_response, profile: mvi_profile) }
+
+        it 'raises a 422, with message' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('evss/reference_data/countries') do
+                mvi_profile_response.profile.participant_ids = []
+                mvi_profile_response.profile.participant_id = ''
+                allow_any_instance_of(MPIData).to receive(:add_person_proxy)
+                  .and_return(mvi_profile_response)
+
+                post path, params: data, headers: auth_header
+
+                json_response = JSON.parse(response.body)
+                expect(response.status).to eq(422)
+                expect(json_response['errors'][0]['detail']).to eq(
+                  'Veteran missing Participant ID. ' \
+                  'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
+                )
               end
             end
           end
