@@ -368,8 +368,11 @@ module ClaimsApi
 
           tracked_ids = handle_array_or_hash(tracked_items, :dvlpmt_item_id)
 
+          # wwsnfy What We Still Need From You
           wwsnfy = handle_array_or_hash(ebenefits_details[:wwsnfy], :dvlpmt_item_id) || []
+          # wwr What We Received From You and Others
           wwr = handle_array_or_hash(ebenefits_details[:wwr], :dvlpmt_item_id) || []
+          # wwd What We Still Need From Others
           wwd = handle_array_or_hash(ebenefits_details[:wwd], :dvlpmt_item_id) || []
 
           ids = tracked_ids | wwsnfy | wwr | wwd
@@ -385,19 +388,21 @@ module ClaimsApi
 
             # Values for status enum: "ACCEPTED",
             # "INITIAL_REVIEW_COMPLETE",
-            # "NEEDED",
+            # "NEEDED_FROM_YOU",
+            # "NEEDED_FROM_OTHERS",
             # "NO_LONGER_REQUIRED"
             # "SUBMITTED_AWAITING_REVIEW",
 
-            if item[:date_rcvd].nil?
-              status = 'NEEDED'
+            if wwsnfy.include? id
+              status = 'NEEDED_FROM_YOU'
+            elsif wwd.include? id
+              status = 'NEEDED_FROM_OTHERS'
             else
               status = 'SUBMITTED_AWAITING_REVIEW'
 
               if item.present?
-                claim_status = bgs_claim.dig(:benefit_claim_details_dto, :bnft_claim_lc_status).max do |stat|
-                  stat[:phase_chngd_dt]
-                end
+                claim_status = [bgs_claim.dig(:benefit_claim_details_dto,
+                                              :bnft_claim_lc_status)].flatten.first[:phase_type]
                 status = if ['Preparation for Decision',
                              'Pending Decision Approval',
                              'Preparation for Notification',

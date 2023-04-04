@@ -782,7 +782,7 @@
                           "overdue": true,
                           "requestedDate": "2022-02-04",
                           "trackedItemId": 325525,
-                          "status": "NEEDED",
+                          "status": "INITIAL_REVIEW_COMPLETE",
                           "uploaded": false,
                           "uploadsAllowed": true
                         },
@@ -794,7 +794,7 @@
                           "overdue": true,
                           "requestedDate": "2022-02-04",
                           "trackedItemId": 325524,
-                          "status": "NEEDED",
+                          "status": "INITIAL_REVIEW_COMPLETE",
                           "uploaded": false,
                           "uploadsAllowed": true
                         }
@@ -1163,7 +1163,8 @@
                                     "enum": [
                                       "ACCEPTED",
                                       "INITIAL_REVIEW_COMPLETE",
-                                      "NEEDED",
+                                      "NEEDED_FROM_YOU",
+                                      "NEEDED_FROM_OTHERS",
                                       "NO_LONGER_REQUIRED",
                                       "SUBMITTED_AWAITING_REVIEW"
                                     ]
@@ -1864,8 +1865,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-03-28",
-                      "expirationDate": "2024-03-28",
+                      "creationDate": "2023-04-03",
+                      "expirationDate": "2024-04-03",
                       "type": "compensation",
                       "status": "active"
                     }
