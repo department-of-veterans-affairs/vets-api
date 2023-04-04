@@ -34,7 +34,7 @@ module Lighthouse
           faraday.request :authorization, 'Bearer', get_access_token
 
           faraday.response :betamocks if use_mocks?
-          faraday.response :json
+          faraday.response :json, { content_type: /\bjson/ }
           faraday.adapter Faraday.default_adapter
         end
       end
