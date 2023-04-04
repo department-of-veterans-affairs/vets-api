@@ -37,6 +37,18 @@ module SpoolHelpers
         end
       end
     end
+
+    def set_dates(file_name, birth_date, graduate_date)
+      infile = "spec/fixtures/education_benefits_claims/5490/template/#{file_name}"
+      outfile_name = "spec/fixtures/education_benefits_claims/5490/#{file_name}"
+      outfile = File.open(outfile_name, 'w')
+      File.foreach(infile) do |line|
+        line = line.sub('#DATEOFBIRTH#', birth_date).sub('#GRADUATEDATE#', graduate_date)
+        outfile.write(line)
+      end
+      outfile.close
+    end
+
     # rubocop:enable Metrics/MethodLength
   end
 end
