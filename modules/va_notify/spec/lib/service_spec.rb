@@ -19,6 +19,16 @@ describe VaNotify::Service do
       }
     }
   end
+  let(:send_sms_parameters) do
+    {
+      phone_number: '+19876543210',
+      template_id: '1234',
+      sms_sender_id: '9876',
+      personalisation: {
+        foo: 'bar'
+      }
+    }
+  end
 
   describe 'service initialization', test_service: true do
     let(:notification_client) { double('Notifications::Client') }
@@ -72,6 +82,20 @@ describe VaNotify::Service do
 
       subject.send_email(send_email_parameters)
       expect(notification_client).to have_received(:send_email).with(send_email_parameters)
+    end
+  end
+
+  describe '#send_sms', test_service: false do
+    subject { VaNotify::Service.new(test_api_key) }
+
+    let(:notification_client) { double('Notifications::Client') }
+
+    it 'calls notifications client' do
+      allow(Notifications::Client).to receive(:new).and_return(notification_client)
+      allow(notification_client).to receive(:send_sms)
+
+      subject.send_sms(send_sms_parameters)
+      expect(notification_client).to have_received(:send_sms).with(send_sms_parameters)
     end
   end
 

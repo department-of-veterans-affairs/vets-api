@@ -30,6 +30,14 @@ module VaNotify
       handle_error(e)
     end
 
+    def send_sms(args)
+      with_monitoring do
+        notify_client.send_sms(args)
+      end
+    rescue => e
+      handle_error(e)
+    end
+
     private
 
     def overwrite_client_networking
