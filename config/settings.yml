@@ -1250,8 +1250,8 @@ va_forms:
   # A notification for when a forms url has changed
   slack:
     enabled: false
-    notification_url: ''
-    users: '<>'
+    api_token: ''
+    channel_id: ''
 
 # Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
 genisis:
