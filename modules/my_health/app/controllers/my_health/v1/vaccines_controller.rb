@@ -2,8 +2,8 @@
 
 module MyHealth
   module V1
-    class VaccinesController < PhrController
-      def index
+    class VaccinesController < MrController
+      def pdf
         vaccine_id = params[:id]
         vaccines_list = vaccine_id ? [1] : [*0...9]
         filename = vaccine_id ? 'tmp/vaccine.pdf' : 'tmp/vaccines.pdf'

@@ -82,6 +82,7 @@ class StatsdMiddleware
     search
     search-representative
     secure-messaging
+    medical-records
     static-pages
     terms-and-conditions
     vaos
