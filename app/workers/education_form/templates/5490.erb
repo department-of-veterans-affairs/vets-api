@@ -62,8 +62,9 @@ Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
 
 <%= parse_with_template_path('bank_account') %>
 
+<% if Rails.env.production? -%>
 <%= parse_with_template_path('secondary_contact') %>
-
+<% end -%>
 Relationship to service member:  <%= @applicant.relationship&.upcase %>
 
 <% if @applicant.spouseInfo.present? -%>
