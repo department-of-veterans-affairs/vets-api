@@ -580,8 +580,9 @@ vba_documents:
       - vagov-arn
   slack:
     enabled: false
-    default_alert_url: https://example.com
-    default_alert_email: example@slack.com
+    api_token: ''
+    channel_id: ''
+    default_alert_email: ''
     in_flight_notification_hung_time_in_days: 14
     renotification_in_minutes: 240
     update_stalled_notification_in_minutes: 180

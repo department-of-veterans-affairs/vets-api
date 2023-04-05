@@ -5,16 +5,16 @@ require 'common/client/base'
 module VBADocuments
   module Slack
     class Messenger
-      ALERT_URL = Settings.vba_documents.slack.default_alert_url
+      API_PATH = 'https://slack.com/api/chat.postMessage'
       ENVIRONMENT_EMOJIS = { production: 'rotating_light', sandbox: 'rocket', staging: 'construction',
-                             development: 'brain' }.freeze
+                             development: 'brain', localhost: 'test_tube' }.freeze
 
       def initialize(params)
         @params = params
       end
 
       def notify!
-        Faraday.post(ALERT_URL, request_body, request_headers)
+        Faraday.post(API_PATH, request_body, request_headers)
       end
 
       private
@@ -26,11 +26,25 @@ module VBADocuments
       end
 
       def request_body
-        { text: notification.message_text }.to_json
+        {
+          text: notification.message_text,
+          channel: slack_channel_id
+        }.to_json
       end
 
       def request_headers
-        { 'Content-type' => 'application/json; charset=utf-8' }
+        {
+          'Content-type' => 'application/json; charset=utf-8',
+          'Authorization' => "Bearer #{slack_api_token}"
+        }
+      end
+
+      def slack_channel_id
+        Settings.vba_documents.slack.channel_id
+      end
+
+      def slack_api_token
+        Settings.vba_documents.slack.api_key
       end
     end
   end

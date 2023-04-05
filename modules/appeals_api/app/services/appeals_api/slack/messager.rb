@@ -9,7 +9,7 @@ module AppealsApi
 
       REGISTERED_NOTIFICATIONS = %i[error_retry stuck_record].freeze
       ENVIRONMENT_EMOJIS = { production: 'rotating_light', sandbox: 'rocket', staging: 'construction',
-                             development: 'brain' }.freeze
+                             development: 'brain', localhost: 'test_tube' }.freeze
 
       def initialize(params, notification_type: :default, slack_channel: slack_channel_id)
         @params = params
