@@ -16,10 +16,12 @@ module ClaimsApi
           validate_request!(ClaimsApi::V2::ParamsValidation::IntentToFile)
 
           type = get_bgs_type(params)
-          response = bgs_service.intent_to_file.find_intent_to_file_by_ptcpnt_id_itf_type_cd(
+          response = local_bgs_service.find_intent_to_file_by_ptcpnt_id_itf_type_cd(
             target_veteran.participant_id,
             type
           )
+          message = "No active '#{params[:type].downcase}' intent to file found."
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: message) if response.blank?
 
           response = [response] unless response.is_a?(Array)
           intent_to_files = response.compact.collect do |element|
@@ -30,7 +32,6 @@ module ClaimsApi
             itf[:status].casecmp?('active') && itf[:expiration_date].to_datetime > Time.zone.now
           end
 
-          message = "No active '#{params[:type]}' intent to file found."
           raise ::Common::Exceptions::ResourceNotFound.new(detail: message) if active_itf.blank?
 
           render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(active_itf, root: :data)

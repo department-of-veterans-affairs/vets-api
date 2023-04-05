@@ -58,7 +58,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
             Timecop.freeze(Time.zone.parse('2022-01-01T08:00:00Z'))
 
             with_okta_user(scopes) do
-              expect_any_instance_of(BGS::IntentToFileWebService)
+              expect_any_instance_of(ClaimsApi::LocalBGS)
                 .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(bgs_response)
 
               submit_request(example.metadata)
@@ -146,7 +146,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
 
           before do |example|
             with_okta_user(scopes) do
-              expect_any_instance_of(BGS::IntentToFileWebService)
+              expect_any_instance_of(ClaimsApi::LocalBGS)
                 .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(nil)
 
               submit_request(example.metadata)

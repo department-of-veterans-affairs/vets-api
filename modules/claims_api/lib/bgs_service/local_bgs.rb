@@ -71,7 +71,17 @@ module ClaimsApi
 
     def parsed_response(res, action, key = nil)
       parsed = Hash.from_xml(res.body)
+      if action == 'findIntentToFileByPtcpntIdItfTypeCd'
+        itf_response = []
+        [parsed.dig('Envelope', 'Body', "#{action}Response", key)].flatten.each do |itf|
+          return itf_response if itf.nil?
 
+          temp = itf.deep_transform_keys(&:underscore)
+          &.deep_symbolize_keys
+          itf_response.push(temp)
+        end
+        return itf_response
+      end
       if key.nil?
         parsed.dig('Envelope', 'Body', "#{action}Response")
               &.deep_transform_keys(&:underscore)
@@ -202,6 +212,20 @@ module ClaimsApi
 
       make_request(endpoint: 'TrackedItemService/TrackedItemService', action: 'findTrackedItems', body:,
                    key: 'BenefitClaim')
+    end
+
+    def find_intent_to_file_by_ptcpnt_id_itf_type_cd(id, type)
+      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
+        <ptcpntId></ptcpntId><itfTypeCd></itfTypeCd>
+      EOXML
+
+      ptcpnt_id = body.at 'ptcpntId'
+      ptcpnt_id.content = id.to_s
+      itf_type_cd = body.at 'itfTypeCd'
+      itf_type_cd.content = type.to_s
+
+      make_request(endpoint: 'IntentToFileWebServiceBean/IntentToFileWebService',
+                   action: 'findIntentToFileByPtcpntIdItfTypeCd', body:, key: 'IntentToFileDTO')
     end
 
     private
