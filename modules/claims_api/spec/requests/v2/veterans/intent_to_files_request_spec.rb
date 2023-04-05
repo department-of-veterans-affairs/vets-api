@@ -13,7 +13,7 @@ RSpec.describe 'IntentToFiles', type: :request do
   describe 'IntentToFiles' do
     describe 'type' do
       before do
-        allow_any_instance_of(BGS::IntentToFileWebService)
+        allow_any_instance_of(iws)
           .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(
             stub_response
           )
