@@ -94,8 +94,8 @@ module MyHealth
                                      bold: 'public/fonts/sourcesanspro-bold-webfont.ttf'
                                    },
                                    'Bitter' => {
-                                     normal: 'public/fonts/Bitter-Regular.ttf',
-                                     bold: 'public/fonts/Bitter-Bold.ttf'
+                                     normal: 'public/fonts/bitter-regular.ttf',
+                                     bold: 'public/fonts/bitter-bold.ttf'
                                    })
           vaccines = []
 
