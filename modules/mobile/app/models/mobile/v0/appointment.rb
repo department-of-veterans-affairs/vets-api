@@ -31,6 +31,7 @@ module Mobile
                                               'CANCELLED - OTHER')
       TIME_ZONE_TYPE = Types::String.enum(
         'America/Argentina/San_Juan',
+        'America/Puerto_Rico',
         'America/Anchorage',
         'America/Chicago',
         'America/Denver',
