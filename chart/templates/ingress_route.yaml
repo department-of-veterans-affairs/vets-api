@@ -17,7 +17,7 @@ spec:
     {{- range $name, $service := .Values.web.webServices }}
     {{- range $service.routes }}
     - kind: {{ .kind | default $root.Values.web.ingress.default.kind }}
-      match:  {{ .path }}
+      match:  Host(`{{ .host | default $root.Values.web.ingress.default.host }}`) && {{ .path }}
       priority: {{ .priority | default $root.Values.web.ingress.default.priority }}
       services:
         - name: {{ $name }}
