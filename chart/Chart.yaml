@@ -29,7 +29,8 @@ type: application
 # 0.11.05 - add configmap for readiness probe - pod saturation
 # 0.11.09 - add startup probe
 # 0.11.12 - TCP liveness probe
-version: 0.11.12
+# 0.11.13 - Remove host from IngressRoute matches
+version: 0.11.13
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
