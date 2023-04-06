@@ -7,7 +7,13 @@ module ClaimStatusTool
     FILENAME = 'ClaimLetter'
     # 184: Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)
     # 339: Rating Decision Letter
-    DOC_TYPE_ALLOWLIST = %w[184].freeze
+    # 27: Board Of Appeals Decision Letter
+    DOC_TYPE_ALLOWLIST =
+      if Flipper.enabled?(:cst_include_ddl_boa_letters, @current_user)
+        %w[184 27].freeze
+      else
+        %w[184].freeze
+      end
 
     def initialize(user)
       @user = user

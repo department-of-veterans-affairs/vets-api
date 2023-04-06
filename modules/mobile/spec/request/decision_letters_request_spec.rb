@@ -26,7 +26,7 @@ RSpec.describe 'decision letters', type: :request do
         first_received_at = decision_letters.first.dig('attributes', 'receivedAt')
         last_received_at = decision_letters.last.dig('attributes', 'receivedAt')
 
-        expect(decision_letters.count).to eq(5)
+        expect(decision_letters.count).to eq(6)
         expect(first_received_at).to be >= last_received_at
         expect(response.body).to match_json_schema('decision_letter')
       end

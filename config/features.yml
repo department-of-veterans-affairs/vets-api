@@ -128,6 +128,10 @@ features:
     actor_type: user
     description: When enabled, claims status tool uses the Lighthouse API instead of EVSS
     enable_in_development: true
+  cst_include_ddl_boa_letters:
+    actor_type: user
+    description: When enabled, the Download Decision Letters feature includes Board of Appeals decision letters
+    enable_in_development: true
   coe_access:
     actor_type: user
     description: Feature gates the certificate of eligibility application
