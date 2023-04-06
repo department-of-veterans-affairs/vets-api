@@ -95,8 +95,8 @@ module VAOS
     end
 
     def ttl_duration_from_token(token)
-      # token expiry with 5 second buffer
-      Time.at(decoded_token(token)['exp']).utc.to_i - Time.now.utc.to_i - 5
+      # token expiry with 45 second buffer to match SessionStore model TTL buffer
+      Time.at(decoded_token(token)['exp']).utc.to_i - Time.now.utc.to_i - 45
     end
 
     def decoded_token(token)
