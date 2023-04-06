@@ -232,8 +232,9 @@ module DecisionReviewV1
         'veteranLastName' => transliterate_name(user.last_name),
         'zipCode' => user.postal_code,
         'fileNumber' => user.ssn.to_s.strip,
-        'source' => 'Vets.gov',
-        'businessLine' => 'BVA'
+        'source' => 'va.gov',
+        'businessLine' => 'BVA',
+        'skipDimensionCheck' => true
       }.to_json
     end
 
