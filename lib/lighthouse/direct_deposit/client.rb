@@ -23,12 +23,34 @@ module DirectDeposit
       parse_response(response)
     end
 
-    def update(body)
+    def update_payment_information(params)
+      body = request_body(params)
+      save_sanitized_body(body)
+
       response = config.put("?icn=#{@icn}", body)
       parse_response(response)
     end
 
     private
+
+    def request_body(params)
+      params.delete('financial_institution_name') if params['financial_institution_name'].blank?
+      {
+        'paymentAccount' =>
+        {
+          'accountNumber' => params[:account_number],
+          'accountType' => params[:account_type],
+          'financialInstitutionRoutingNumber' => params[:routing_number]
+        }
+      }.to_json
+    end
+
+    def save_sanitized_body(body)
+      json = JSON.parse(body)
+      json['paymentAccount']['accountNumber'] = '****'
+
+      @sanitized_req_body = json
+    end
 
     def valid_response?(response)
       ok?(response) || control_info?(response)
