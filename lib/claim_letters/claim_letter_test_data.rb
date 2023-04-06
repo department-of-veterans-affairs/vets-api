@@ -110,6 +110,21 @@ module ClaimLetterTestData
       alt_doc_types: '',
       restricted: false,
       upload_date: Date.new(2022,9,23)
+    ),
+    OpenStruct.new(
+      document_id: '{27832B64-2D88-4DEE-9F6F-DF80E4CAAA88}',
+      series_id: '{350C072A-90A1-43A7-AD50-A5C9C54C357B}',
+      version: '1',
+      type_description: 'Board Of Appeals Decision Letter',
+      type_id: '27',
+      doc_type: '27',
+      subject: nil,
+      received_at: Date.new(2022,12,22),
+      source: 'VBMS',
+      mime_type: 'application/pdf',
+      alt_doc_types: '',
+      restricted: false,
+      upload_date: Date.new(2022,12,23)
     )
   ].freeze
 end
