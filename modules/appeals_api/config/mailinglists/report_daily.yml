@@ -4,6 +4,7 @@ common:
    - michel.mcdonald@adhocteam.us
    - casey.williams@adhocteam.us
    - kristen.brown@adhocteam.us
+   - matt.kelly@adhocteam.us
 development:
 staging:
 sandbox:
@@ -11,3 +12,4 @@ production:
   - matthew.self2@va.gov
   - janet.coutinho@va.gov
   - kyle.soskin@adhocteam.us
+  - lee.helmer@adhocteam.us
