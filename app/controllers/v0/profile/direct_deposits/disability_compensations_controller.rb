@@ -23,8 +23,9 @@ module V0
         end
 
         def update
-          response = client.update payment_account_params
+          response = client.update_payment_information(payment_account_params)
           if response.ok?
+            send_confirmation_email
             render status: response.status,
                    json: response.body,
                    serializer: DisabilityCompensationsSerializer
@@ -56,6 +57,10 @@ module V0
             Raven.tags_context(validation: 'direct_deposit')
             raise Common::Exceptions::ValidationErrors, payment_account
           end
+        end
+
+        def send_confirmation_email
+          VANotifyDdEmailJob.send_to_emails(current_user.all_emails, :comp_and_pen)
         end
       end
     end

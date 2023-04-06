@@ -244,7 +244,7 @@ module Swagger
             end
           end
 
-          response 201 do
+          response 200 do
             key :description, 'Direct deposit information for a users compensation and pension benefits.'
             schema do
               key :type, :object

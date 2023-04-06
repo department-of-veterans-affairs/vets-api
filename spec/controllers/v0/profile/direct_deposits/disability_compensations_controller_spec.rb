@@ -161,18 +161,18 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
 
   describe '#update' do
     context 'when successful' do
-      it 'returns a status of 201' do
+      it 'returns a status of 200' do
         params = {
           account_number: '1234567890',
           account_type: 'CHECKING',
           routing_number: '031000503'
         }
 
-        VCR.use_cassette('lighthouse/direct_deposit/update/201_response') do
+        VCR.use_cassette('lighthouse/direct_deposit/update/200_response') do
           put(:update, params:)
         end
 
-        expect(response).to have_http_status(:created)
+        expect(response).to have_http_status(:ok)
       end
     end
 
