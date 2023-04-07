@@ -29,7 +29,7 @@ FactoryBot.modify do
       after(:build) do |_user, _t|
         stub_mpi(
           build(
-            :mvi_profile,
+            :mpi_profile,
             given_names: %w[Judy Snow],
             family_name: 'Morrison',
             suffix: nil,
@@ -83,7 +83,7 @@ FactoryBot.modify do
       after(:build) do |_user, _t|
         stub_mpi(
           build(
-            :mvi_profile,
+            :mpi_profile,
             given_names: %w[Jacqueline Kain],
             family_name: 'Morgan',
             suffix: nil,

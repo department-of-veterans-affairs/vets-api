@@ -178,7 +178,7 @@ RSpec.describe 'Intent to file', type: :request do
 
         context "when neither 'participant_claimant_id' or 'claimant_ssn' is provided" do
           before do
-            stub_mpi(build(:mvi_profile, participant_id: '999'))
+            stub_mpi(build(:mpi_profile, participant_id: '999'))
           end
 
           it "'participant_claimant_id' is set to the target_veteran.participant_id and sent to BGS " do
@@ -274,7 +274,7 @@ RSpec.describe 'Intent to file', type: :request do
     context 'when Veteran has participant_id' do
       context 'when Veteran is missing a birls_id' do
         before do
-          stub_mpi(build(:mvi_profile, birls_id: nil))
+          stub_mpi(build(:mpi_profile, birls_id: nil))
         end
 
         it 'returns an unprocessible entity status' do

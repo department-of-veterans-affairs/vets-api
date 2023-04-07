@@ -34,7 +34,7 @@ RSpec.describe VANotify::Veteran, type: :model do
     context '526ez' do
       let(:icn) { 'icn' }
       let(:in_progress_form) { create(:in_progress_526_form, user_account:) }
-      let(:mpi_response) { create(:find_profile_response, profile: build(:mvi_profile, given_names: [first_name])) }
+      let(:mpi_response) { create(:find_profile_response, profile: build(:mpi_profile, given_names: [first_name])) }
 
       before do
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier)

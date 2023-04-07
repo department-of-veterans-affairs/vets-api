@@ -16,18 +16,12 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
     create(:covid_vax_expanded_registration, :unsubmitted, :state_enrollment_complete)
   end
 
-  let(:mvi_profile) { build(:mvi_profile, { vha_facility_ids: %w[358 516 553 200HD 200IP 200MHV] }) }
-  let(:mvi_profile_no_facility) { build(:mvi_profile) }
+  let(:profile) { build(:mpi_profile, { vha_facility_ids: %w[358 516 553 200HD 200IP 200MHV] }) }
+  let(:mpi_profile_no_facility) { build(:mpi_profile) }
 
-  let(:mvi_profile_response) do
-    create(:find_profile_response, profile: mvi_profile)
-  end
-  let(:mvi_profile_not_found) do
-    create(:find_profile_not_found_response)
-  end
-  let(:mvi_facility_not_found) do
-    create(:find_profile_response, profile: mvi_profile_no_facility)
-  end
+  let(:mpi_profile_response) { create(:find_profile_response, profile:) }
+  let(:mpi_profile_not_found) { create(:find_profile_not_found_response) }
+  let(:mpi_facility_not_found) { create(:find_profile_response, profile: mpi_profile_no_facility) }
 
   vcr_options = { cassette_name: 'covid_vaccine/registration_facilities',
                   match_requests_on: %i[path query],
@@ -63,7 +57,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
                                :vaccine_interest))
           .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-          .and_return(mvi_profile_response)
+          .and_return(mpi_profile_response)
 
         subject.register(submission)
         expect(submission.reload.vetext_sid).to match(sid)
@@ -76,7 +70,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           .with(hash_including(authenticated: false))
           .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-          .and_return(mvi_profile_response)
+          .and_return(mpi_profile_response)
         subject.register(submission)
         expect(submission.reload.vetext_sid).to match(sid)
         expect(submission.reload.vetext_sid).to be_truthy
@@ -87,7 +81,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-          .and_return(mvi_profile_response)
+          .and_return(mpi_profile_response)
         subject.register(submission)
         expect(submission.reload.vetext_sid).to match(sid)
         expect(submission.reload.vetext_sid).to be_truthy
@@ -98,7 +92,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-          .and_return(mvi_profile_response)
+          .and_return(mpi_profile_response)
         subject.register(submission)
         expect(submission.reload.vetext_sid).to match(sid)
         expect(submission.reload.state).to match('registered')
@@ -109,7 +103,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-          .and_return(mvi_profile_response)
+          .and_return(mpi_profile_response)
         subject.register(submission)
         expect(submission.reload.vetext_sid).to match(sid)
         expect(submission.reload.eligibility_info_ciphertext).not_to be_nil
@@ -120,7 +114,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-          .and_return(mvi_profile_response)
+          .and_return(mpi_profile_response)
         subject.register(submission_eligibility_info)
         expect(submission_eligibility_info.reload.vetext_sid).to match(sid)
         expect(submission_eligibility_info.reload.eligibility_info_ciphertext).not_to be_nil
@@ -131,7 +125,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-          .and_return(mvi_profile_response)
+          .and_return(mpi_profile_response)
         subject.register(submission_spouse)
         expect(submission_spouse.reload.vetext_sid).to match(sid)
         expect(submission_spouse.reload.state).to match('registered')
@@ -142,7 +136,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-          .and_return(mvi_profile_response)
+          .and_return(mpi_profile_response)
         subject.register(submission_non_us)
         expect(submission_non_us.reload.vetext_sid).to match(sid)
         expect(submission_non_us.reload.state).to match('registered')
@@ -153,7 +147,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-          .and_return(mvi_profile_response)
+          .and_return(mpi_profile_response)
         subject.register(submission_no_email)
         expect(submission_no_email.reload.vetext_sid).to match(sid)
         expect(submission_no_email.reload.state).to match('registered')
@@ -164,7 +158,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .and_return({ sid: })
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-          .and_return(mvi_profile_response)
+          .and_return(mpi_profile_response)
         subject.register(submission_composite_facility)
         expect(submission_composite_facility.reload.vetext_sid).to match(sid)
         expect(submission_composite_facility.reload.state).to match('registered')
@@ -174,7 +168,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         it 'does not register when lacking traits for MVI lookup' do
           expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
           allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-            .and_return(mvi_profile_not_found)
+            .and_return(mpi_profile_not_found)
           expect(Rails.logger).to receive(:info).with(
             'CovidVaccine::V0::ExpandedRegistrationService:Error in MPI Lookup',
             'mpi_error': 'no ICN found', 'submission': submission.id,
@@ -186,7 +180,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         it 'does not send data when facility does not match' do
           expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
           allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-            .and_return(mvi_facility_not_found)
+            .and_return(mpi_facility_not_found)
           expect(Rails.logger).to receive(:info).with(
             'CovidVaccine::V0::ExpandedRegistrationService:Error in MPI Lookup',
             'mpi_error': 'no matching facility found for 516',
@@ -198,7 +192,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         it 'does not submit when preferred location does not exist and MPI matches ICN' do
           expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
           allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-            .and_return(mvi_facility_not_found)
+            .and_return(mpi_facility_not_found)
           expect(Rails.logger).to receive(:info).with("#{described_class}:Error in MPI Lookup",
                                                       'mpi_error': 'no matching facility found for ',
                                                       'submission': submission_no_facility.id,
@@ -214,7 +208,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         it 'does not submit when preferred location does not exist and MPI does not match ICN' do
           expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
           allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-            .and_return(mvi_profile_not_found)
+            .and_return(mpi_profile_not_found)
           expect(Rails.logger).to receive(:info).with("#{described_class}:Error in MPI Lookup",
                                                       'mpi_error': 'no ICN found',
                                                       'submission': submission_no_facility.id,
@@ -233,7 +227,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
               .and_return({ sid: })
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-              .and_return(mvi_profile_response)
+              .and_return(mpi_profile_response)
             subject.register(submission_enrollment_complete)
             expect(submission_enrollment_complete.reload.vetext_sid).to match(sid)
             expect(submission_enrollment_complete.reload.vetext_sid).to be_truthy
@@ -244,7 +238,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
               .and_return({ sid: })
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-              .and_return(mvi_profile_response)
+              .and_return(mpi_profile_response)
             subject.register(submission_enrollment_complete)
             expect(submission_enrollment_complete.reload.vetext_sid).to match(sid)
             expect(submission_enrollment_complete.reload.state).to match('registered')
@@ -266,7 +260,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
               .and_return({ sid: })
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-              .and_return(mvi_profile_not_found)
+              .and_return(mpi_profile_not_found)
 
             subject.register(submission)
             expect(submission.reload.vetext_sid).to match(sid)
@@ -278,7 +272,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
               .and_return({ sid: })
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-              .and_return(mvi_facility_not_found)
+              .and_return(mpi_facility_not_found)
 
             subject.register(submission)
             expect(submission.reload.vetext_sid).to match(sid)
@@ -290,7 +284,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
               .and_return({ sid: })
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-              .and_return(mvi_facility_not_found)
+              .and_return(mpi_facility_not_found)
 
             subject.register(submission_no_facility)
             expect(submission_no_facility.reload.vetext_sid).to match(sid)
@@ -302,7 +296,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
               .and_return({ sid: })
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-              .and_return(mvi_profile_not_found)
+              .and_return(mpi_profile_not_found)
 
             subject.register(submission_no_facility)
             expect(submission_no_facility.reload.vetext_sid).to match(sid)
@@ -315,7 +309,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
               allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
                 .and_return({ sid: })
               allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-                .and_return(mvi_profile_response)
+                .and_return(mpi_profile_response)
               subject.register(submission_enrollment_complete)
               expect(submission_enrollment_complete.reload.vetext_sid).to match(sid)
               expect(submission_enrollment_complete.reload.vetext_sid).to be_truthy
@@ -326,7 +320,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
               allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
                 .and_return({ sid: })
               allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-                .and_return(mvi_profile_response)
+                .and_return(mpi_profile_response)
               subject.register(submission_enrollment_complete)
               expect(submission_enrollment_complete.reload.vetext_sid).to match(sid)
               expect(submission_enrollment_complete.reload.state).to match('registered')
@@ -346,7 +340,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           it 'does not submit when MPI Facility does not match' do
             expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-              .and_return(mvi_facility_not_found)
+              .and_return(mpi_facility_not_found)
             subject.register(submission)
             expect(submission.reload.vetext_sid).to be_nil
             expect(submission.reload.state).to match('enrollment_pending')
@@ -355,7 +349,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           it 'does not submit when MPI Profile is not found' do
             expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-              .and_return(mvi_profile_not_found)
+              .and_return(mpi_profile_not_found)
             subject.register(submission)
             expect(submission.reload.vetext_sid).to be_nil
             expect(submission.reload.state).to match('enrollment_pending')
@@ -364,7 +358,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           it 'does not submit when No facility is selected' do
             expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes)
-              .and_return(mvi_facility_not_found)
+              .and_return(mpi_facility_not_found)
             subject.register(submission_no_facility)
             expect(submission_no_facility.reload.vetext_sid).to be_nil
             expect(submission_no_facility.reload.state).to match('enrollment_pending')

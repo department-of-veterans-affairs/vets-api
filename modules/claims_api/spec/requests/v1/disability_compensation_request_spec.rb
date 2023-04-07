@@ -15,7 +15,7 @@ RSpec.describe 'Disability Claims ', type: :request do
   let(:multi_profile) do
     MPI::Responses::FindProfileResponse.new(
       status: 'OK',
-      profile: FactoryBot.build(:mvi_profile, participant_id: nil, participant_ids: %w[123456789 987654321])
+      profile: FactoryBot.build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321])
     )
   end
 
@@ -1089,11 +1089,11 @@ RSpec.describe 'Disability Claims ', type: :request do
         let(:profile_with_edipi) do
           MPI::Responses::FindProfileResponse.new(
             status: 'OK',
-            profile: FactoryBot.build(:mvi_profile, edipi: '2536798')
+            profile: FactoryBot.build(:mpi_profile, edipi: '2536798')
           )
         end
-        let(:mvi_profile) { build(:mvi_profile) }
-        let(:mvi_profile_response) { build(:find_profile_response, profile: mvi_profile) }
+        let(:profile) { build(:mpi_profile) }
+        let(:mpi_profile_response) { build(:find_profile_response, profile:) }
 
         it 'returns a 422 without an edipi' do
           with_okta_user(scopes) do |auth_header|
@@ -1104,9 +1104,9 @@ RSpec.describe 'Disability Claims ', type: :request do
                     expect_any_instance_of(MPIData).to receive(:add_person_proxy).once.and_call_original
                     expect_any_instance_of(MPI::Service).to receive(:add_person_proxy).and_return(add_response)
                     allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier)
-                      .and_return(mvi_profile_response)
+                      .and_return(mpi_profile_response)
                     allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
-                      .and_return(mvi_profile_response)
+                      .and_return(mpi_profile_response)
 
                     post path, params: data, headers: auth_header
 
@@ -1139,17 +1139,17 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
 
       context 'when consumer is Veteran, but is missing a participant id' do
-        let(:mvi_profile) { build(:mvi_profile) }
-        let(:mvi_profile_response) { build(:find_profile_response, profile: mvi_profile) }
+        let(:profile) { build(:mpi_profile) }
+        let(:mpi_profile_response) { build(:find_profile_response, profile:) }
 
         it 'raises a 422, with message' do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
               VCR.use_cassette('evss/reference_data/countries') do
-                mvi_profile_response.profile.participant_ids = []
-                mvi_profile_response.profile.participant_id = ''
+                mpi_profile_response.profile.participant_ids = []
+                mpi_profile_response.profile.participant_id = ''
                 allow_any_instance_of(MPIData).to receive(:add_person_proxy)
-                  .and_return(mvi_profile_response)
+                  .and_return(mpi_profile_response)
 
                 post path, params: data, headers: auth_header
 
@@ -1169,7 +1169,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     context 'when Veteran has participant_id' do
       context 'when Veteran is missing a birls_id' do
         before do
-          stub_mpi(build(:mvi_profile, birls_id: nil))
+          stub_mpi(build(:mpi_profile, birls_id: nil))
         end
 
         it 'returns an unprocessible entity status' do
@@ -1185,7 +1185,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
     context 'when Veteran has multiple participant_ids' do
       before do
-        stub_mpi(build(:mvi_profile, birls_id: nil))
+        stub_mpi(build(:mpi_profile, birls_id: nil))
       end
 
       it 'returns an unprocessible entity status' do

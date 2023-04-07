@@ -91,26 +91,27 @@ FactoryBot.define do
         given_names = [first_name]
         given_names << middle_name if middle_name.present?
 
-        { active_mhv_ids:,
-          address:,
-          birls_id:,
-          birth_date:,
-          cerner_id:,
-          cerner_facility_ids:,
-          edipi:,
-          family_name: last_name,
-          gender:,
-          given_names:,
-          home_phone:,
-          icn:,
-          mhv_ids:,
-          participant_id:,
-          person_types:,
-          ssn:,
-          suffix:,
-          vha_facility_ids:,
-          vha_facility_hash:,
-          vet360_id: }
+        mpi_attributes = { active_mhv_ids:,
+                           address:,
+                           birls_id:,
+                           birth_date:,
+                           cerner_id:,
+                           cerner_facility_ids:,
+                           edipi:,
+                           family_name: last_name,
+                           gender:,
+                           given_names:,
+                           home_phone:,
+                           icn:,
+                           mhv_ids:,
+                           participant_id:,
+                           person_types:,
+                           ssn:,
+                           suffix:,
+                           vha_facility_ids:,
+                           vha_facility_hash:,
+                           vet360_id: }
+        build(:mpi_profile, mpi_attributes)
       end
     end
 
@@ -118,7 +119,7 @@ FactoryBot.define do
       user_identity = create(:user_identity,
                              t.user_identity)
       user.instance_variable_set(:@identity, user_identity)
-      stub_mpi(build(:mvi_profile, t.mpi_profile)) unless t.stub_mpi == false
+      stub_mpi(t.mpi_profile) unless t.stub_mpi == false
     end
 
     # This is used by the response_builder helper to build a user from saml attributes
@@ -258,6 +259,10 @@ FactoryBot.define do
       loa do
         { current: LOA::ONE, highest: LOA::ONE }
       end
+    end
+
+    trait :no_mpi_profile do
+      stub_mpi { false }
     end
 
     factory :logingov_ial1_user, traits: [:ial1] do

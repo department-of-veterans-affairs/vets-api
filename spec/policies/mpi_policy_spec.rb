@@ -6,7 +6,7 @@ describe MPIPolicy do
   subject { described_class }
 
   permissions :queryable? do
-    let(:user) { build(:user, :loa3, stub_mpi: false) }
+    let(:user) { build(:user, :loa3, :no_mpi_profile) }
 
     before { stub_mpi_not_found }
 

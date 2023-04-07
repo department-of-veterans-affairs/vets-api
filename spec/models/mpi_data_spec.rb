@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe MPIData, skip_mvi: true do
-  let(:user) { build(:user, :loa3, stub_mpi: false) }
+  let(:user) { build(:user, :loa3, :no_mpi_profile) }
 
   describe '.for_user' do
     subject { MPIData.for_user(user.identity) }
@@ -29,7 +29,7 @@ describe MPIData, skip_mvi: true do
     let(:mpi_data) { MPIData.for_user(user.identity) }
     let(:profile_response_error) { create(:find_profile_server_error_response) }
     let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
-    let(:mpi_profile) { build(:mvi_profile) }
+    let(:mpi_profile) { build(:mpi_profile) }
 
     context 'with a successful add' do
       let(:add_response) { create(:add_person_response, parsed_codes:) }
@@ -62,7 +62,7 @@ describe MPIData, skip_mvi: true do
       let(:phone) { '(800) 867-5309' }
       let(:person_types) { ['VET'] }
       let(:mpi_profile) do
-        build(:mvi_profile,
+        build(:mpi_profile,
               given_names:,
               family_name:,
               birth_date:,
@@ -231,7 +231,7 @@ describe MPIData, skip_mvi: true do
   describe 'delegated attribute functions' do
     context 'with a successful response' do
       let(:mpi_data) { MPIData.for_user(user.identity) }
-      let(:mpi_profile) { build(:mvi_profile) }
+      let(:mpi_profile) { build(:mpi_profile) }
       let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
 
       before do

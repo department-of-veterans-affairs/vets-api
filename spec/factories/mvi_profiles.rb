@@ -12,21 +12,21 @@ FactoryBot.define do
 end
 
 FactoryBot.define do
-  factory :mvi_profile_address, class: 'MPI::Models::MviProfileAddress' do
+  factory :mpi_profile_address, class: 'MPI::Models::MviProfileAddress' do
     street { "#{street}, #{street2}" }
     city { Faker::Address.city[0...20] }
     state { Faker::Address.state_abbr }
     postal_code { Faker::Address.zip }
     country { 'USA' }
 
-    factory :mvi_profile_address_austin do
+    factory :mpi_profile_address_austin do
       street { '121 A St' }
       city { 'Austin' }
       state { 'TX' }
       postal_code { '78772' }
     end
 
-    factory :mvi_profile_address_springfield do
+    factory :mpi_profile_address_springfield do
       street { '42 MAIN ST' }
       city { 'SPRINGFIELD' }
       state { 'IL' }
@@ -36,7 +36,7 @@ FactoryBot.define do
 end
 
 FactoryBot.define do
-  factory :mvi_profile, class: 'MPI::Models::MviProfile' do
+  factory :mpi_profile, class: 'MPI::Models::MviProfile' do
     given_names { Array.new(1) { Faker::Name.first_name } }
     family_name { Faker::Name.last_name }
     suffix { Faker::Name.suffix }
@@ -44,7 +44,7 @@ FactoryBot.define do
     birth_date { Faker::Date.between(from: 80.years.ago, to: 30.years.ago).strftime('%Y%m%d') }
     deceased_date { nil }
     ssn { Faker::IDNumber.valid.delete('-') }
-    address { build(:mvi_profile_address) }
+    address { build(:mpi_profile_address) }
     home_phone { Faker::PhoneNumber.phone_number }
     person_types { ['PAT'] }
     full_mvi_ids {
@@ -162,7 +162,7 @@ FactoryBot.define do
         family_name { 'Ranger' }
         suffix { nil }
         ssn { '111223333' }
-        address { build(:mvi_profile_address_springfield) }
+        address { build(:mpi_profile_address_springfield) }
         home_phone { '1112223333 p1' }
         icn { '12345678901234567' }
         sec_id { '0001234567' }
@@ -179,7 +179,7 @@ FactoryBot.define do
       end
 
       trait :address_austin do
-        address { build(:mvi_profile_address_austin) }
+        address { build(:mpi_profile_address_austin) }
       end
     end
   end

@@ -17,7 +17,7 @@ RSpec.describe 'Fetching user data' do
     end
 
     context 'dont stub mpi' do
-      let(:mhv_user) { build(:user, :mhv, stub_mpi: false) }
+      let(:mhv_user) { build(:user, :mhv, :no_mpi_profile) }
 
       it 'GET /v0/user - returns proper json' do
         assert_response :success
@@ -72,7 +72,7 @@ RSpec.describe 'Fetching user data' do
 
     context 'with camel header inflection' do
       let(:v0_user_request_headers) { { 'X-Key-Inflection' => 'camel' } }
-      let(:mhv_user) { build(:user, :mhv, stub_mpi: false) }
+      let(:mhv_user) { build(:user, :mhv, :no_mpi_profile) }
 
       it 'GET /v0/user - returns proper json' do
         assert_response :success
@@ -81,15 +81,15 @@ RSpec.describe 'Fetching user data' do
     end
 
     context 'with deactivated MHV account' do
-      let(:mvi_profile) do
-        build(:mvi_profile,
+      let(:mpi_profile) do
+        build(:mpi_profile,
               mhv_ids: %w[12345 67890],
               active_mhv_ids: ['12345'])
       end
       let(:mhv_user) { build(:user, :mhv) }
 
       before do
-        stub_mpi(mvi_profile)
+        stub_mpi(mpi_profile)
         sign_in_as(mhv_user)
         get v0_user_url, params: nil
       end
@@ -101,15 +101,15 @@ RSpec.describe 'Fetching user data' do
     end
 
     context 'with multiple MHV accounts' do
-      let(:mvi_profile) do
-        build(:mvi_profile,
+      let(:mpi_profile) do
+        build(:mpi_profile,
               mhv_ids: %w[12345 67890],
               active_mhv_ids: %w[12345 67890])
       end
       let(:mhv_user) { build(:user, :mhv) }
 
       before do
-        stub_mpi(mvi_profile)
+        stub_mpi(mpi_profile)
         sign_in_as(mhv_user)
         get v0_user_url, params: nil
       end
@@ -223,7 +223,7 @@ RSpec.describe 'Fetching user data' do
   end
 
   context 'GET /v0/user - MVI Integration', :skip_mvi do
-    let(:user) { create(:user, :loa3, icn: SecureRandom.uuid, stub_mpi: false) }
+    let(:user) { create(:user, :loa3, :no_mpi_profile, icn: SecureRandom.uuid) }
 
     before { sign_in_as(user) }
 
@@ -289,7 +289,7 @@ RSpec.describe 'Fetching user data' do
     end
 
     context 'when breakers is used' do
-      let(:user2) { create(:user, :loa3, icn: SecureRandom.uuid, stub_mpi: false) }
+      let(:user2) { create(:user, :loa3, :no_mpi_profile, icn: SecureRandom.uuid) }
 
       it 'MVI raises a breakers exception after 50% failure rate', :aggregate_failures do
         now = Time.current

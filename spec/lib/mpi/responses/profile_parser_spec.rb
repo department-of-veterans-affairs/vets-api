@@ -32,7 +32,7 @@ describe MPI::Responses::ProfileParser do
     end
 
     describe '#parse' do
-      let(:mvi_profile) do
+      let(:mpi_profile) do
         build(
           :mpi_profile_response,
           :address_austin,
@@ -50,13 +50,13 @@ describe MPI::Responses::ProfileParser do
       end
 
       it 'returns a MviProfile with the parsed attributes' do
-        expect(parser.parse).to have_deep_attributes(mvi_profile)
+        expect(parser.parse).to have_deep_attributes(mpi_profile)
       end
 
       context 'when candidate has incomplete birth_date' do
         let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_incomplete_dob_response.xml')) }
         let(:icn) { '1000123456V123456' }
-        let(:mvi_profile) do
+        let(:mpi_profile) do
           build(
             :mpi_profile_response,
             :address_austin,
@@ -79,7 +79,7 @@ describe MPI::Responses::ProfileParser do
         let(:expected_log_values) { { dob: '198003', icn: } }
 
         it 'sets the birth_date to nil' do
-          expect(parser.parse).to have_deep_attributes(mvi_profile)
+          expect(parser.parse).to have_deep_attributes(mpi_profile)
         end
 
         it 'logs the birth_date & icn' do
@@ -90,7 +90,7 @@ describe MPI::Responses::ProfileParser do
 
       context 'when candidate is missing name' do
         let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_missing_name_response.xml')) }
-        let(:mvi_profile) do
+        let(:mpi_profile) do
           build(
             :mpi_profile_response,
             :address_austin,
@@ -111,13 +111,13 @@ describe MPI::Responses::ProfileParser do
         end
 
         it 'sets the names to false' do
-          expect(parser.parse).to have_deep_attributes(mvi_profile)
+          expect(parser.parse).to have_deep_attributes(mpi_profile)
         end
       end
 
       context 'when candidate has multiple stanzas with name' do
         let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_multiple_name_response.xml')) }
-        let(:mvi_profile) do
+        let(:mpi_profile) do
           build(
             :mpi_profile_response,
             :address_austin,
@@ -138,13 +138,13 @@ describe MPI::Responses::ProfileParser do
         end
 
         it 'sets the names to the stanza with legal names' do
-          expect(parser.parse).to have_deep_attributes(mvi_profile)
+          expect(parser.parse).to have_deep_attributes(mpi_profile)
         end
       end
 
       context 'with a missing address, invalid edipi, and invalid participant id' do
         let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_response_nil_address.xml')) }
-        let(:mvi_profile) do
+        let(:mpi_profile) do
           build(
             :mpi_profile_response,
             address: nil,
@@ -177,14 +177,14 @@ describe MPI::Responses::ProfileParser do
         end
 
         it 'sets the address to nil' do
-          expect(parser.parse).to have_deep_attributes(mvi_profile)
+          expect(parser.parse).to have_deep_attributes(mpi_profile)
         end
       end
 
       context 'with no middle name, missing and alternate correlation ids, multiple other_ids' do
         let(:icn_with_aaid) { '1008714701V416111^NI^200M^USVHA' }
         let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_missing_attrs_response.xml')) }
-        let(:mvi_profile) do
+        let(:mpi_profile) do
           build(
             :mpi_profile_response,
             :missing_attrs,
@@ -215,7 +215,7 @@ describe MPI::Responses::ProfileParser do
         end
 
         it 'filters with only first name and retrieve correct MHV id' do
-          expect(parser.parse).to have_deep_attributes(mvi_profile)
+          expect(parser.parse).to have_deep_attributes(mpi_profile)
         end
       end
     end
@@ -225,7 +225,7 @@ describe MPI::Responses::ProfileParser do
     let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_with_relationship_response.xml')) }
 
     describe '#parse' do
-      let(:mvi_profile) do
+      let(:mpi_profile) do
         build(
           :mpi_profile_response,
           :with_relationship,
@@ -312,19 +312,19 @@ describe MPI::Responses::ProfileParser do
       end
 
       it 'returns a MviProfile with the parsed attributes' do
-        expect(parser.parse).to have_deep_attributes(mvi_profile)
+        expect(parser.parse).to have_deep_attributes(mpi_profile)
       end
     end
   end
 
   context 'with no subject element' do
     let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_no_subject_response.xml')) }
-    let(:mvi_profile) { build(:mpi_profile_response, :missing_attrs) }
-    let(:expected_mvi_profile) { MPI::Models::MviProfile.new({ transaction_id: }) }
+    let(:mpi_profile) { build(:mpi_profile_response, :missing_attrs) }
+    let(:expected_mpi_profile) { MPI::Models::MviProfile.new({ transaction_id: }) }
 
     describe '#parse' do
       it 'return empty mvi profile if the response includes no suject element' do
-        expect(parser.parse).to have_deep_attributes(expected_mvi_profile)
+        expect(parser.parse).to have_deep_attributes(expected_mpi_profile)
       end
     end
   end
@@ -396,7 +396,7 @@ describe MPI::Responses::ProfileParser do
   context 'with multiple MHV IDs' do
     let(:icn_with_aaid) { '12345678901234567^NI^200M^USVHA' }
     let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_multiple_mhv_response.xml')) }
-    let(:mvi_profile) do
+    let(:mpi_profile) do
       build(
         :mpi_profile_response,
         :multiple_mhvids,
@@ -422,13 +422,13 @@ describe MPI::Responses::ProfileParser do
     end
 
     it 'returns an array of mhv ids' do
-      expect(parser.parse).to have_deep_attributes(mvi_profile)
+      expect(parser.parse).to have_deep_attributes(mpi_profile)
     end
   end
 
   context 'with a vet360 id' do
     let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_response.xml')) }
-    let(:mvi_profile) do
+    let(:mpi_profile) do
       build(
         :mpi_profile_response,
         :address_austin,
@@ -446,7 +446,7 @@ describe MPI::Responses::ProfileParser do
     end
 
     it 'correctly parses a Vet360 ID' do
-      expect(parser.parse).to have_deep_attributes(mvi_profile)
+      expect(parser.parse).to have_deep_attributes(mpi_profile)
     end
   end
 

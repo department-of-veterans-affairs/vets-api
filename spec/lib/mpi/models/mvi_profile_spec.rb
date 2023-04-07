@@ -5,7 +5,7 @@ require 'rails_helper'
 describe MPI::Models::MviProfile do
   describe '#mhv_correlation_id' do
     context 'with multiple ids' do
-      subject { build(:mvi_profile) }
+      subject { build(:mpi_profile) }
 
       it 'returns the first id' do
         expect(subject.mhv_correlation_id).to eq(subject.mhv_ids.first)
@@ -13,7 +13,7 @@ describe MPI::Models::MviProfile do
     end
 
     context 'with a single id' do
-      subject { build(:mvi_profile, mhv_ids: [id]) }
+      subject { build(:mpi_profile, mhv_ids: [id]) }
 
       let(:id) { '12345678' }
 
@@ -23,7 +23,7 @@ describe MPI::Models::MviProfile do
     end
 
     context 'with no ids' do
-      subject { build(:mvi_profile, mhv_ids: nil) }
+      subject { build(:mpi_profile, mhv_ids: nil) }
 
       it 'returns nil' do
         expect(subject.mhv_correlation_id).to be_nil
@@ -31,7 +31,7 @@ describe MPI::Models::MviProfile do
     end
 
     context 'with an invalid birth date' do
-      subject { build(:mvi_profile, birth_date: '0') }
+      subject { build(:mpi_profile, birth_date: '0') }
 
       it 'returns a nil birth_date' do
         expect(subject.birth_date).to be_nil
@@ -39,7 +39,7 @@ describe MPI::Models::MviProfile do
     end
 
     context 'with a valid birth date' do
-      subject { build(:mvi_profile, birth_date: '1985-01-01') }
+      subject { build(:mpi_profile, birth_date: '1985-01-01') }
 
       it 'returns a non-nil birth_date' do
         expect(Date.parse(subject.birth_date)).to be_a(Date)
@@ -62,7 +62,7 @@ describe MPI::Models::MviProfile do
       cases.each do |expected_result, inputs|
         inputs.each do |input|
           it 'returns a properly formatted suffix' do
-            expect(build(:mvi_profile, suffix: input).normalized_suffix).to eq(expected_result)
+            expect(build(:mpi_profile, suffix: input).normalized_suffix).to eq(expected_result)
           end
         end
       end
@@ -70,7 +70,7 @@ describe MPI::Models::MviProfile do
   end
 
   describe 'attributes' do
-    subject { build(:mvi_profile) }
+    subject { build(:mpi_profile) }
 
     it 'returns a icn_with_aaid' do
       expect(subject.icn_with_aaid.present?).to eq true

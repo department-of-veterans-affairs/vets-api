@@ -147,7 +147,7 @@ RSpec.describe SignIn::AttributeValidator do
         let(:mpi_last_name) { last_name }
         let(:mpi_ssn) { ssn }
         let(:mpi_profile) do
-          build(:mvi_profile,
+          build(:mpi_profile,
                 id_theft_flag:,
                 deceased_date:,
                 ssn: mpi_ssn,
@@ -166,7 +166,7 @@ RSpec.describe SignIn::AttributeValidator do
         end
 
         before do
-          stub_mpi(build(:mvi_profile,
+          stub_mpi(build(:mpi_profile,
                          id_theft_flag:,
                          deceased_date:,
                          ssn: mpi_ssn,
@@ -255,7 +255,7 @@ RSpec.describe SignIn::AttributeValidator do
       shared_examples 'credential mpi verification' do
         let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
         let(:mpi_profile) do
-          build(:mvi_profile,
+          build(:mpi_profile,
                 id_theft_flag:,
                 deceased_date:,
                 ssn:,
@@ -407,7 +407,7 @@ RSpec.describe SignIn::AttributeValidator do
             let(:parsed_codes) { { icn: } }
             let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
             let(:mpi_profile) do
-              build(:mvi_profile,
+              build(:mpi_profile,
                     id_theft_flag:,
                     deceased_date:,
                     ssn:,
@@ -508,7 +508,7 @@ RSpec.describe SignIn::AttributeValidator do
             let(:auto_uplevel) { true }
             let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
             let(:mpi_profile) do
-              build(:mvi_profile,
+              build(:mpi_profile,
                     id_theft_flag:,
                     deceased_date:,
                     ssn:,
@@ -553,7 +553,7 @@ RSpec.describe SignIn::AttributeValidator do
             let(:auto_uplevel) { true }
             let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
             let(:mpi_profile) do
-              build(:mvi_profile,
+              build(:mpi_profile,
                     id_theft_flag:,
                     deceased_date:,
                     ssn:,
@@ -598,7 +598,7 @@ RSpec.describe SignIn::AttributeValidator do
             let(:auto_uplevel) { true }
             let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
             let(:mpi_profile) do
-              build(:mvi_profile,
+              build(:mpi_profile,
                     id_theft_flag:,
                     deceased_date:,
                     ssn:,
@@ -643,7 +643,7 @@ RSpec.describe SignIn::AttributeValidator do
             let(:auto_uplevel) { true }
             let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
             let(:mpi_profile) do
-              build(:mvi_profile,
+              build(:mpi_profile,
                     id_theft_flag:,
                     deceased_date:,
                     ssn:,

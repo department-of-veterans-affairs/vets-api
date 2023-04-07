@@ -144,7 +144,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
             context 'when Veteran is missing a birls_id' do
               context 'when birls_id isn`t required' do
                 before do
-                  stub_mpi(build(:mvi_profile, birls_id: nil))
+                  stub_mpi(build(:mpi_profile, birls_id: nil))
                 end
 
                 it 'returns a 200' do
@@ -244,7 +244,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       context 'validate_veteran_identifiers' do
         context 'when Veteran identifiers are missing in MPI lookups' do
           before do
-            stub_mpi(build(:mvi_profile, birth_date: nil, participant_id: nil))
+            stub_mpi(build(:mpi_profile, birth_date: nil, participant_id: nil))
           end
 
           it 'returns an unprocessible entity status' do

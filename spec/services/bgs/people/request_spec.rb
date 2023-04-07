@@ -7,7 +7,7 @@ RSpec.describe BGS::People::Request do
   let(:participant_id) { '600061742' }
 
   before do
-    stub_mpi(build(:mvi_profile, participant_id:))
+    stub_mpi(build(:mpi_profile, participant_id:))
   end
 
   describe '#find_person_by_participant_id' do

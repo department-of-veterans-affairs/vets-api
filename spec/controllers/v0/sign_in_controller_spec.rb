@@ -702,7 +702,7 @@ RSpec.describe V0::SignInController, type: :controller do
                   }
                 end
                 let(:mpi_profile) do
-                  build(:mvi_profile,
+                  build(:mpi_profile,
                         ssn: user_info.social_security_number,
                         birth_date: Formatters::DateFormatter.format_date(user_info.birthdate),
                         given_names: [user_info.given_name],
@@ -778,7 +778,7 @@ RSpec.describe V0::SignInController, type: :controller do
               }
             end
             let(:mpi_profile) do
-              build(:mvi_profile,
+              build(:mpi_profile,
                     ssn: user_info.social,
                     birth_date: Formatters::DateFormatter.format_date(user_info.birth_date),
                     given_names: [user_info.fname],
@@ -924,7 +924,7 @@ RSpec.describe V0::SignInController, type: :controller do
               }
             end
             let(:mpi_profile) do
-              build(:mvi_profile,
+              build(:mpi_profile,
                     ssn: user_info.dslogon_idvalue,
                     birth_date: Formatters::DateFormatter.format_date(user_info.dslogon_birth_date),
                     given_names: [user_info.dslogon_fname, user_info.dslogon_mname],
@@ -1070,7 +1070,7 @@ RSpec.describe V0::SignInController, type: :controller do
             let(:token) { 'some-token' }
             let(:mhv_assurance) { 'some-mhv-assurance' }
             let(:mpi_profile) do
-              build(:mvi_profile,
+              build(:mpi_profile,
                     icn: user_info.mhv_icn,
                     mhv_ids: [user_info.mhv_uuid])
             end

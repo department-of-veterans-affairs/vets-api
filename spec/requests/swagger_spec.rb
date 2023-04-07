@@ -2953,7 +2953,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       before do
         # vet360_id appears in the API request URI so we need it to match the cassette
         allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
-          create(:find_profile_response, profile: build(:mvi_profile, vet360_id: '1'))
+          create(:find_profile_response, profile: build(:mpi_profile, vet360_id: '1'))
         )
       end
 
