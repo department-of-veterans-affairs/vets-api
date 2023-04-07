@@ -71,7 +71,7 @@ web:
   autoscaling:
     minReplicas: ""
     maxReplicas: ""
-    targetAverageValue: ""
+    targetValue: ""
     query: ""
   service:
     enabled: false
@@ -103,7 +103,7 @@ worker:
     enabled: false
     minReplicas: ""
     maxReplicas: ""
-    targetAverageValue: ""
+    targetValue: ""
     query: ""
   healthCheck:
     requestPath: ""

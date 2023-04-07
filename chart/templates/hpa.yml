@@ -18,7 +18,7 @@ spec:
   - type: External
     external:
       metricName: "datadogmetric@{{ $root.Release.Namespace }}:puma-backlog-{{ $name }}"
-      targetValue: {{ $service.autoscaling.targetAverageValue | default $root.Values.web.autoscaling.targetAverageValue }}
+      targetValue: {{ $service.autoscaling.targetValue | default $root.Values.web.autoscaling.targetValue }}
 {{- end }}
 {{- end }}
 
@@ -40,5 +40,5 @@ spec:
   - type: External
     external:
       metricName: "datadogmetric@{{ $root.Release.Namespace }}:sidekiq-enqueued-jobs"
-      targetAverageValue:  {{ .Values.worker.autoscaling.targetAverageValue }}
+      targetValue:  {{ .Values.worker.autoscaling.targetValue }}
 {{- end }}
