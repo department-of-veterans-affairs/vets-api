@@ -21,9 +21,6 @@ serviceAccount:
 #Web configuration
 
 web:
-  scaling:
-    puma_capacity: ""
-    max_threads: ""
   strategyType: RollingUpdate
   maxSurge: ""
   maxUnavailable: ""
