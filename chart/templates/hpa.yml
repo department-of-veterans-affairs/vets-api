@@ -18,7 +18,7 @@ spec:
   - type: External
     external:
       metricName: "datadogmetric@{{ $root.Release.Namespace }}:puma-backlog-{{ $name }}"
-      targetAverageValue: {{ $service.autoscaling.targetAverageValue | default $root.Values.web.autoscaling.targetAverageValue }}
+      targetValue: {{ $service.autoscaling.targetAverageValue | default $root.Values.web.autoscaling.targetAverageValue }}
 {{- end }}
 {{- end }}
 
