@@ -48,7 +48,7 @@ spec:
       containers:
         - image: "{{ $root.Values.image.value }}:{{ $root.Values.image.tag }}"
           imagePullPolicy: {{ $root.Values.image.pullPolicy }}
-          name: {{ $name }}
+          name: {{ $root.Values.appName }}-web
           ports:
             {{- range $key := $root.Values.web.containers.ports }}
             - containerPort: {{ $key.containerPort }}
