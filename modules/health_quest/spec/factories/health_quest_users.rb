@@ -26,7 +26,7 @@ FactoryBot.modify do
       # add an MHV correlation_id and vha_facility_ids corresponding to va_patient
       after(:build) do |user, _t|
         profile = build(
-          :mvi_profile,
+          :mpi_profile,
           given_names: %w[Judy Snow],
           family_name: 'Morrison',
           suffix: nil,

@@ -41,7 +41,7 @@ describe MPI::Service do
                        error_texts: } }
   end
 
-  let(:mvi_profile) do
+  let(:mpi_profile) do
     build(
       :mpi_profile_response,
       :missing_attrs,

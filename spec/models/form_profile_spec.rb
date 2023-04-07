@@ -6,7 +6,7 @@ require 'decision_review/schemas'
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
 
-  let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:mvi_profile_address)) }
+  let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:mpi_profile_address)) }
 
   before do
     Flipper.disable(:hca_vaprofile_military_info)

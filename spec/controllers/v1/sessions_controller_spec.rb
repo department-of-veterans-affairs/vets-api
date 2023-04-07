@@ -571,8 +571,8 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         context 'UserIdentity & MPI ID validations' do
-          let(:loa3_user) { build(:user, :loa3, uuid:, idme_uuid: uuid, stub_mpi: false) }
-          let(:mpi_profile) { build(:mvi_profile) }
+          let(:mpi_profile) { build(:mpi_profile) }
+          let(:loa3_user) { build(:user, :loa3, uuid:, idme_uuid: uuid, mpi_profile:) }
           let(:expected_error_data) do
             { identity_value: expected_identity_value, mpi_value: expected_mpi_value, icn: loa3_user.icn }
           end
@@ -580,10 +580,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             "[SessionsController version:v1] User Identity & MPI #{validation_id} values conflict"
           end
 
-          before do
-            allow(Rails.logger).to receive(:warn)
-            allow_any_instance_of(User).to receive(:mpi_profile).and_return(mpi_profile)
-          end
+          before { allow(Rails.logger).to receive(:warn) }
 
           shared_examples 'identity-mpi id validation' do
             it 'logs a warning when Identity & MPI values conflict' do
@@ -602,7 +599,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
 
           context 'edipi validation' do
-            let(:mpi_profile) { build(:mvi_profile, edipi: Faker::Number.number(digits: 10)) }
+            let(:mpi_profile) { build(:mpi_profile, edipi: Faker::Number.number(digits: 10)) }
             let(:expected_identity_value) { loa3_user.identity.edipi }
             let(:expected_mpi_value) { loa3_user.edipi_mpi }
             let(:validation_id) { 'EDIPI' }
@@ -611,7 +608,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
 
           context 'icn validation' do
-            let(:mpi_profile) { build(:mvi_profile, icn: 'some-mpi-icn') }
+            let(:mpi_profile) { build(:mpi_profile, icn: 'some-mpi-icn') }
             let(:expected_identity_value) { loa3_user.identity.icn }
             let(:expected_mpi_value) { loa3_user.mpi_icn }
             let(:validation_id) { 'ICN' }
@@ -620,7 +617,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
 
           context 'MHV correlation id validation' do
-            let(:mpi_profile) { build(:mvi_profile, mhv_ids: [Faker::Number.number(digits: 11)]) }
+            let(:mpi_profile) { build(:mpi_profile, mhv_ids: [Faker::Number.number(digits: 11)]) }
             let(:expected_identity_value) { loa3_user.identity.mhv_correlation_id }
             let(:expected_mpi_value) { loa3_user.mpi_mhv_correlation_id }
             let(:validation_id) { 'MHV Correlation ID' }

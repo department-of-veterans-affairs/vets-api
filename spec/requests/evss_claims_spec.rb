@@ -12,7 +12,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
   context 'for a user without evss attrs' do
     it 'returns a 403' do
       sign_in_as(user)
-      profile = build(:mvi_profile, edipi: nil)
+      profile = build(:mpi_profile, edipi: nil)
       stub_mpi(profile)
       get '/v0/evss_claims'
       expect(response).to have_http_status(:forbidden)

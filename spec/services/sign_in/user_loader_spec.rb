@@ -49,7 +49,7 @@ RSpec.describe SignIn::UserLoader do
         end
 
         before do
-          stub_mpi(build(:mvi_profile, edipi:, icn: user_icn))
+          stub_mpi(build(:mpi_profile, edipi:, icn: user_icn))
         end
 
         it 'reloads user object with expected attributes' do

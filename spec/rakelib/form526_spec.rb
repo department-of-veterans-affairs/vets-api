@@ -120,8 +120,8 @@ describe 'form526 rake tasks', type: :request do
 
   describe 'rake form526:mpi' do
     let(:submission) { create :form526_submission }
-    let(:mvi_profile) { build :mvi_profile }
-    let(:profile_response) { create(:find_profile_response, profile: mvi_profile) }
+    let(:profile) { build :mpi_profile }
+    let(:profile_response) { create(:find_profile_response, profile:) }
     let(:run_rake_task) do
       Rake::Task['form526:mpi'].reenable
       Rake.application.invoke_task "form526:mpi[#{submission.id}]"

@@ -7,7 +7,7 @@ FactoryBot.define do
     skip_create
 
     status { MPI::Responses::FindProfileResponse::OK }
-    profile { create(:mvi_profile) }
+    profile { create(:mpi_profile) }
     error { nil }
 
     initialize_with do

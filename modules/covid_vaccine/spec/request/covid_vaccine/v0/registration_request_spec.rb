@@ -29,10 +29,8 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
   let(:summary_response_attributes) do
     %w[zip_code vaccine_interest created_at]
   end
-  let(:mvi_profile) { build(:mvi_profile) }
-  let(:mvi_profile_response) do
-    create(:find_profile_response, profile: mvi_profile)
-  end
+  let(:profile) { build(:mpi_profile) }
+  let(:mpi_profile_response) { create(:find_profile_response, profile:) }
 
   describe 'registration#create' do
     context 'feature disabled' do
