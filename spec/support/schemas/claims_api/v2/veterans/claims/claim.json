@@ -22,7 +22,7 @@
         "attributes": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["claimTypeCode", "claimDate", "claimPhaseDates", "claimType", "closeDate", "contentionList", "decisionLetterSent", "developmentLetterSent", "documentsNeeded", "endProductCode", "evidenceWaiverSubmitted5103", "errors", "jurisdiction", "lighthouseId", "maxEstClaimDate", "minEstClaimDate", "status", "submitterApplicationCode", "submitterRoleCode", "supportingDocuments", "tempJurisdiction", "trackedItems"],
+          "required": ["claimTypeCode", "claimDate", "claimPhaseDates", "claimType", "closeDate", "contentions", "decisionLetterSent", "developmentLetterSent", "documentsNeeded", "endProductCode", "evidenceWaiverSubmitted5103", "errors", "jurisdiction", "lighthouseId", "maxEstClaimDate", "minEstClaimDate", "status", "submitterApplicationCode", "submitterRoleCode", "supportingDocuments", "tempJurisdiction", "trackedItems"],
           "properties": {
             "claimTypeCode": {
               "type": "string",
@@ -34,13 +34,18 @@
               "description": "Name of claim type",
               "example": "Compensation"
             },
-            "contentionList": {
+            "contentions": {
               "type": "array",
-              "items": {
-                "type": "string"
-              },
               "description": "The contentions being submitted with a claim",
-              "example": ["abnormal heart (New)", "abscess kidney (New)"]
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "abscess kidney (New)"
+                  }
+                }
+              }
             },
             "claimDate": {
               "format": "date",
