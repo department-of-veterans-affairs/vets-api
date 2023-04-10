@@ -115,6 +115,8 @@ worker:
     timeoutSeconds: ""
     successThreshold: ""
     command: []
+    postStart:
+      command: []
   terminationGracePeriodSeconds: ""
   socatProxyEnabled: false
   envSecrets:
