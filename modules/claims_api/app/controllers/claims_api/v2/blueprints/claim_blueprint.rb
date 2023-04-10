@@ -37,7 +37,7 @@ module ClaimsApi
               claim_phase_dates: claim[:claim_phase_dates],
               claim_type: claim[:claim_type],
               close_date: claim[:close_date],
-              contention_list: claim[:contention_list],
+              contentions: claim[:contentions],
               decision_letter_sent: claim[:decision_letter_sent],
               development_letter_sent: claim[:development_letter_sent],
               documents_needed: claim[:documents_needed],

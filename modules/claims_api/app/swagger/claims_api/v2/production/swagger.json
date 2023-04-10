@@ -738,15 +738,31 @@
                       },
                       "claimType": "Compensation",
                       "closeDate": "2017-10-18",
-                      "contentionList": [
-                        "abnormal heart (New)",
-                        "abscess kidney (New)",
-                        "encephalitis lethargica residuals (New)",
-                        "dracunculiasis (New)",
-                        "gingivitis (New)",
-                        "abnormal weight loss (New)",
-                        "groin condition (New)",
-                        "metritis (New)"
+                      "contentions": [
+                        {
+                          "name": "abnormal heart (New)"
+                        },
+                        {
+                          "name": "abscess kidney (New)"
+                        },
+                        {
+                          "name": "encephalitis lethargica residuals (New)"
+                        },
+                        {
+                          "name": "dracunculiasis (New)"
+                        },
+                        {
+                          "name": "gingivitis (New)"
+                        },
+                        {
+                          "name": "abnormal weight loss (New)"
+                        },
+                        {
+                          "name": "groin condition (New)"
+                        },
+                        {
+                          "name": "metritis (New)"
+                        }
                       ],
                       "decisionLetterSent": false,
                       "developmentLetterSent": false,
@@ -840,7 +856,7 @@
                             "claimPhaseDates",
                             "claimType",
                             "closeDate",
-                            "contentionList",
+                            "contentions",
                             "decisionLetterSent",
                             "developmentLetterSent",
                             "documentsNeeded",
@@ -869,16 +885,18 @@
                               "description": "Name of claim type",
                               "example": "Compensation"
                             },
-                            "contentionList": {
+                            "contentions": {
                               "type": "array",
-                              "items": {
-                                "type": "string"
-                              },
                               "description": "The contentions being submitted with a claim",
-                              "example": [
-                                "abnormal heart (New)",
-                                "abscess kidney (New)"
-                              ]
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "example": "abscess kidney (New)"
+                                  }
+                                }
+                              }
                             },
                             "claimDate": {
                               "format": "date",

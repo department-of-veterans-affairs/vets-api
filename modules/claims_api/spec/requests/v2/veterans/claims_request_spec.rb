@@ -839,8 +839,9 @@ RSpec.describe 'Claims', type: :request do
 
                   json_response = JSON.parse(response.body)
                   expect(response.status).to eq(200)
-                  claim_contentions_res = json_response['data']['attributes']['contentionList']
-                  expect(claim_contentions_res).to eq(['c1 (New)', 'c2 (Old)', 'c3 (Unknown)'])
+                  claim_contentions_res = json_response['data']['attributes']['contentions']
+                  expect(claim_contentions_res).to eq([{ 'name' => 'c1 (New)' }, { 'name' => 'c2 (Old)' },
+                                                       { 'name' => 'c3 (Unknown)' }])
                 end
               end
             end
@@ -864,8 +865,9 @@ RSpec.describe 'Claims', type: :request do
 
                   json_response = JSON.parse(response.body)
                   expect(response.status).to eq(200)
-                  claim_contentions_res = json_response['data']['attributes']['contentionList']
-                  expect(claim_contentions_res).to eq(['Low back strain (New)', 'Knee, internal derangement (New)'])
+                  claim_contentions_res = json_response['data']['attributes']['contentions']
+                  expect(claim_contentions_res).to eq([{ 'name' => 'Low back strain (New)' },
+                                                       { 'name' => 'Knee, internal derangement (New)' }])
                 end
               end
             end
