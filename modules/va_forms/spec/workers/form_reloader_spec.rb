@@ -7,9 +7,13 @@ RSpec.describe VAForms::FormReloader, type: :job do
   subject { described_class }
 
   let(:form_reloader) { VAForms::FormReloader.new }
+  let(:slack_messenger) { instance_double(VAForms::Slack::Messenger) }
 
   before do
     Sidekiq::Worker.clear_all
+
+    allow(VAForms::Slack::Messenger).to receive(:new).and_return(slack_messenger)
+    allow(slack_messenger).to receive(:notify!)
   end
 
   describe 'importer' do
