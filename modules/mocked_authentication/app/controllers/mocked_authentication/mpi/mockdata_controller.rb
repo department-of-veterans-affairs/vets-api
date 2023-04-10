@@ -39,8 +39,8 @@ module MockedAuthentication
       end
 
       def mockdata_authorize
-        authenticate_with_http_token do |token|
-          raise ActionController::BadRequest, 'Not authorized' unless token == Settings.sign_in.mockdata_sync_api_key
+        authenticate_or_request_with_http_token do |token|
+          token == Settings.sign_in.mockdata_sync_api_key
         end
       end
     end
