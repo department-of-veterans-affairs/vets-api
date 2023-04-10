@@ -10,7 +10,7 @@ module VAForms
     FORM_BASE_URL = 'https://www.va.gov'
 
     def perform
-      Rails.logger.info('VAForms::FormReloader is being called.')
+      Rails.logger.info("#{self.class.name} is being called.")
       query = File.read(Rails.root.join('modules', 'va_forms', 'config', 'graphql_query.txt'))
       body = { query: }
       response = connection.post do |req|
@@ -22,20 +22,20 @@ module VAForms
       forms_data.dig('data', 'nodeQuery', 'entities').each do |form|
         build_and_save_form(form)
       rescue => e
-        log_message_to_sentry(
-          "#{form['fieldVaFormNumber']} failed to import into forms database", :error, body: e.message
-        )
+        message = "#{self.class.name} failed to import #{form['fieldVaFormNumber']} into forms database"
+        Rails.logger.error(message, e)
+        log_message_to_sentry(message, :error, body: e.message)
         next
       end
 
       # append new tags for pg_search
       VAForms::UpdateFormTagsService.run
     rescue => e
-      Rails.logger.error('VAForms::FormReloader failed to run!', e)
+      Rails.logger.error("#{self.class.name} failed to run!", e)
     end
 
     def test
-      Rails.logger.info('VAForms::FormReloaderTest is being called.')
+      Rails.logger.info("#{self.class.name} is being called.")
       query = File.read(Rails.root.join('modules', 'va_forms', 'config', 'test.txt'))
       body = { query: }
       response = connection.post do |req|
@@ -48,13 +48,13 @@ module VAForms
         Rails.logger.info("Saving #{form['fieldVaFormRowId']}")
         build_and_save_form(form)
       rescue => e
-        log_message_to_sentry(
-          "#{form['fieldVaFormNumber']} failed to import into forms database", :error, body: e.message
-        )
+        message = "#{self.class.name} failed to import #{form['fieldVaFormNumber']} into forms database"
+        Rails.logger.error(message, e)
+        log_message_to_sentry(message, :error, body: e.message)
         next
       end
     rescue => e
-      Rails.logger.error('VAForms::FormReloader failed to run!', e)
+      Rails.logger.error("#{self.class.name} failed to run!", e)
     end
 
     def connection
@@ -166,12 +166,15 @@ module VAForms
     def notify_slack(old_form_url, new_form_url, form_name)
       return unless Settings.va_forms.slack.enabled
 
-      slack_details = {
-        class: self.class.name,
-        alert: "#{form_name} has changed from #{old_form_url} to #{new_form_url}"
-      }
-
-      VAForms::Slack::Messenger.new(slack_details).notify!
+      begin
+        slack_details = {
+          class: self.class.name,
+          alert: "#{form_name} has changed from #{old_form_url} to #{new_form_url}"
+        }
+        VAForms::Slack::Messenger.new(slack_details).notify!
+      rescue => e
+        Rails.logger.error("#{self.class.name} failed to notify Slack for form update", e)
+      end
     end
   end
 end
