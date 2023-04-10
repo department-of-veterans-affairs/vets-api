@@ -418,6 +418,7 @@ Rails.application.routes.draw do
   mount FacilitiesApi::Engine, at: '/facilities_api'
   mount FormsApi::Engine, at: '/forms_api'
   mount HealthQuest::Engine, at: '/health_quest'
+  mount IncomeLimits::Engine, at: '/income_limits'
   mount MebApi::Engine, at: '/meb_api'
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
