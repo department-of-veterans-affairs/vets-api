@@ -300,8 +300,8 @@
                   "displayName": {
                     "type": "string",
                     "nullable": true,
-                    "description": "Request #",
-                    "example": "Request 5"
+                    "description": "Description of the tracked item",
+                    "example": "Buddy mentioned - No complete address"
                   },
                   "openedDate": {
                     "format": "date",

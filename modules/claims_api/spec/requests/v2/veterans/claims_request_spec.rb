@@ -1042,6 +1042,12 @@ RSpec.describe 'Claims', type: :request do
                     expect(json_response['data']['attributes']['trackedItems'][1]['description']).to eq(
                       'Line of Duty determination from claimant'
                     )
+                    expect(json_response['data']['attributes']['trackedItems'][0]['displayName']).to eq(
+                      'MG-not a recognized condition'
+                    )
+                    expect(json_response['data']['attributes']['trackedItems'][1]['displayName']).to eq(
+                      'Line of Duty determination from claimant'
+                    )
                   end
                 end
               end
