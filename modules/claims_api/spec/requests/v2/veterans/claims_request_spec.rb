@@ -1034,16 +1034,13 @@ RSpec.describe 'Claims', type: :request do
 
                     json_response = JSON.parse(response.body)
                     first_doc_id = json_response['data']['attributes'].dig('trackedItems', 0, 'trackedItemId')
+                    resp_tracked_items = json_response['data']['attributes']['trackedItems']
                     expect(response.status).to eq(200)
                     expect(json_response).to be_an_instance_of(Hash)
                     expect(json_response['data']['id']).to eq('600236068')
                     expect(first_doc_id).to eq(325_525)
-                    expect(json_response['data']['attributes']['trackedItems'][0]['description']).to eq(
-                      'MG-not a recognized condition'
-                    )
-                    expect(json_response['data']['attributes']['trackedItems'][1]['description']).to eq(
-                      'Line of Duty determination from claimant'
-                    )
+                    expect(resp_tracked_items[0]['description']).to eq(nil)
+                    expect(resp_tracked_items[7]['description']).to start_with('On your application,')
                     expect(json_response['data']['attributes']['trackedItems'][0]['displayName']).to eq(
                       'MG-not a recognized condition'
                     )
