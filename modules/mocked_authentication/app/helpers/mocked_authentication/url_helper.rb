@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module MockedAuthentication
-  class UrlHelper
+  module UrlHelper
     include MockedAuthentication::Routing
   end
 end

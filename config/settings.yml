@@ -59,6 +59,7 @@ sign_in:
   mock_auth_url: http://localhost:3000/mock_auth_frontend
   mock_redirect_uri: http://localhost:3000/v0/sign_in/callback
   mock_credential_dir: '../vets-api-mockdata'
+  mockdata_sync_api_key: ~
 
 lockbox:
   master_key: "0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9"
@@ -1112,7 +1113,7 @@ lighthouse:
     use_mocks: false
     access_token:
       path: oauth2/va-letter-generator/system/v1/token
-      client_id: ~ 
+      client_id: ~
       rsa_key: ~
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token
   benefits_reference_data:
