@@ -267,7 +267,7 @@ VBADocuments::FlipperStatusAlert:
   description: "Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled"
 
 VBADocuments::ReportMonthlySubmissions:
-  cron: "4 3 2 1 * * America/New_York"
+  cron: "3 2 1 * *  America/New_York"
   class: VBADocuments::ReportMonthlySubmissions
   description: "Monthly report of benefits intake submissions at 02:03:04 on the first of the month"
 
@@ -277,7 +277,7 @@ VBADocuments::ReportUnsuccessfulSubmissions:
   description: "Daily report of unsuccessful benefits intake submissions"
 
 VBADocuments::SlackNotifier:
-  cron: "0 0 * * * * America/New_York"
+  cron: "0 0 * * * America/New_York"
   class: VBADocuments::SlackNotifier
   description: "Notifies slack channel if certain benefits states get stuck"
 
@@ -287,12 +287,12 @@ VBADocuments::RunUnsuccessfulSubmissions:
   description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
 
 VBADocuments::UploadRemover:
-  cron: "15,45 * * * * * America/New_York"
+  cron: "15,45 * * * * America/New_York"
   class: VBADocuments::UploadRemover
   description: "Clean up submitted documents from S3"
 
 VBADocuments::UploadScanner:
-  cron: "0,30 * * * * * America/New_York"
+  cron: "0,30 * * * * America/New_York"
   class: VBADocuments::UploadScanner
   description: "Poll upload bucket for unprocessed uploads"
 
