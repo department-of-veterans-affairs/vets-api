@@ -13,6 +13,12 @@ RSpec.describe SavedClaim::EducationBenefits do
     end
   end
 
+  it 'has #after_submit defined' do
+    # have to stub this const because of the SavedClaim after_initialize callback
+    stub_const("#{described_class}::FORM", 'SOME_FORM_NAME')
+    expect(described_class.new).to respond_to(:after_submit)
+  end
+
   describe '#in_progress_form_id' do
     it 'returns form_id' do
       form = create(:va1990)
