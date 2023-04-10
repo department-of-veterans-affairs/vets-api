@@ -4,8 +4,6 @@ require 'mockdata/reader'
 
 module MockedAuthentication
   class CredentialController < ApplicationController
-    skip_before_action :authenticate
-
     def authorize
       credential_info = params[:credential_info].presence
       state = params[:state].presence
