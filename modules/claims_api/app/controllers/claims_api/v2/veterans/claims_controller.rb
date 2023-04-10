@@ -234,18 +234,33 @@ module ClaimsApi
           end
         end
 
+        def get_completed_phase_number_from_phase_details(details)
+          if details[:phase_type_change_ind].present?
+            return if details[:phase_type_change_ind] == 'N'
+
+            details[:phase_type_change_ind].split('').first
+          end
+        end
+
         def get_bgs_phase_completed_dates(data)
           phase_dates = {}
 
           if data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status).is_a?(Array)
-            data[:benefit_claim_details_dto][:bnft_claim_lc_status].each do |lc|
-              phase_number = get_phase_number_from_phase_details(lc)
-              phase_dates["phase#{phase_number}CompleteDate"] = date_present(lc[:phase_chngd_dt])
+            max_completed_phase = 0
+            data[:benefit_claim_details_dto][:bnft_claim_lc_status].each_with_index do |lc, i|
+              completed_phase_number = get_completed_phase_number_from_phase_details(lc)
+              if i.zero?
+                max_completed_phase = completed_phase_number
+                phase_dates["phase#{completed_phase_number}CompleteDate"] = date_present(lc[:phase_chngd_dt])
+              elsif completed_phase_number.present? && completed_phase_number < max_completed_phase
+                phase_dates["phase#{completed_phase_number}CompleteDate"] = date_present(lc[:phase_chngd_dt])
+              end
             end
           else
             date = data[:benefit_claim_details_dto][:bnft_claim_lc_status][:phase_chngd_dt]
             phase_dates['phase1CompleteDate'] = date_present(date)
           end
+
           phase_dates
         end
 
