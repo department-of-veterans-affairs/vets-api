@@ -41,11 +41,18 @@ RSpec.describe 'Mocked authentication mpi mockdata', type: :request do
     context 'when authorization is invalid' do
       let(:auth_header) { 'Bearer bad-key' }
 
-      it 'returns a bad_request status and error message' do
+      it 'returns an unauthorized status' do
         get "/mocked_authentication/mpi/mockdata/#{icn}", headers: { 'Authorization' => auth_header }
 
-        expect(response).to have_http_status(:bad_request)
-        expect(JSON.parse(response.body)['errors']).to eq('Not authorized')
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when there is no authorization header' do
+      it 'returns an unauthorized status' do
+        get "/mocked_authentication/mpi/mockdata/#{icn}"
+
+        expect(response).to have_http_status(:unauthorized)
       end
     end
   end
