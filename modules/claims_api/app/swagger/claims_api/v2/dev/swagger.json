@@ -792,7 +792,7 @@
                       "trackedItems": [
                         {
                           "closedDate": null,
-                          "description": "MG-not a recognized condition",
+                          "description": null,
                           "displayName": "MG-not a recognized condition",
                           "openedDate": null,
                           "overdue": true,
@@ -805,7 +805,7 @@
                         },
                         {
                           "closedDate": null,
-                          "description": "Line of Duty determination from claimant",
+                          "description": null,
                           "displayName": "Line of Duty determination from claimant",
                           "openedDate": null,
                           "overdue": true,

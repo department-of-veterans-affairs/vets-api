@@ -6,7 +6,7 @@ require 'claims_api/v2/mock_documents_service'
 module ClaimsApi
   module V2
     module Veterans
-      class ClaimsController < ClaimsApi::V2::ApplicationController
+      class ClaimsController < ClaimsApi::V2::ApplicationController # rubocop:disable Metrics/ClassLength
         before_action :verify_access!
 
         def index
@@ -401,6 +401,10 @@ module ClaimsApi
           # wwd What We Still Need From Others
           wwd = handle_array_or_hash(ebenefits_details[:wwd], :dvlpmt_item_id) || []
 
+          # convert to array and flatten to prevent hashes from breaking this
+          ebenefits_items = ([ebenefits_details[:wwsnfy]].flatten | [ebenefits_details[:wwr]].flatten |
+                             [ebenefits_details[:wwd]].flatten).compact
+
           ids = tracked_ids | wwsnfy | wwr | wwd
 
           ids.map do |id|
@@ -446,7 +450,7 @@ module ClaimsApi
 
             {
               closed_date: date_present(item[:date_closed]),
-              description: item[:short_nm],
+              description: tracked_item_description(ebenefits_items, id),
               display_name: item[:short_nm],
               opened_date: date_present(item[:date_open]),
               overdue: item[:suspns_dt].nil? ? false : item[:suspns_dt] < Time.zone.now, # EVSS generates this field
@@ -458,6 +462,13 @@ module ClaimsApi
               uploads_allowed: # EVSS generates this field
             }
           end
+        end
+
+        def tracked_item_description(tracked_items, id)
+          return nil if tracked_items.nil?
+
+          tracked_item = tracked_items.find { |a| a[:dvlpmt_item_id] == id }
+          tracked_item.present? ? tracked_item[:items] : nil
         end
 
         def build_supporting_docs(bgs_claim)
