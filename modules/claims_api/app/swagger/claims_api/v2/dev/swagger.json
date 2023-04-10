@@ -777,11 +777,11 @@
                         {
                           "closedDate": null,
                           "description": "MG-not a recognized condition",
-                          "displayName": "Request 1",
+                          "displayName": "MG-not a recognized condition",
                           "openedDate": null,
                           "overdue": true,
                           "requestedDate": "2022-02-04",
-                          "status": "NEEDED",
+                          "status": "INITIAL_REVIEW_COMPLETE",
                           "suspenseDate": "2022-03-06",
                           "trackedItemId": 325525,
                           "uploaded": false,
@@ -790,11 +790,11 @@
                         {
                           "closedDate": null,
                           "description": "Line of Duty determination from claimant",
-                          "displayName": "Request 2",
+                          "displayName": "Line of Duty determination from claimant",
                           "openedDate": null,
                           "overdue": true,
                           "requestedDate": "2022-02-04",
-                          "status": "NEEDED",
+                          "status": "INITIAL_REVIEW_COMPLETE",
                           "suspenseDate": "2022-03-06",
                           "trackedItemId": 325524,
                           "uploaded": false,
@@ -1141,8 +1141,8 @@
                                   "displayName": {
                                     "type": "string",
                                     "nullable": true,
-                                    "description": "Request #",
-                                    "example": "Request 5"
+                                    "description": "Description of the tracked item",
+                                    "example": "Buddy mentioned - No complete address"
                                   },
                                   "openedDate": {
                                     "format": "date",
@@ -2039,8 +2039,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-04-03",
-                      "expirationDate": "2024-04-03",
+                      "creationDate": "2023-04-06",
+                      "expirationDate": "2024-04-06",
                       "type": "compensation",
                       "status": "active"
                     }
