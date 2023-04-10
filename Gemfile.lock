@@ -171,6 +171,7 @@ PATH
     facilities_api (0.1.0)
     forms_api (0.1.0)
     health_quest (0.1.0)
+    income_limits (0.1.0)
     meb_api (0.1.0)
     mobile (0.1.0)
       dry-validation
@@ -1098,6 +1099,7 @@ DEPENDENCIES
   holidays
   httpclient
   ice_nine
+  income_limits!
   iso_country_codes
   json
   json-schema

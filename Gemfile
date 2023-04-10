@@ -17,6 +17,7 @@ path 'modules' do
   gem 'facilities_api'
   gem 'forms_api'
   gem 'health_quest'
+  gem 'income_limits'
   gem 'meb_api'
   gem 'mobile'
   gem 'mocked_authentication'
