@@ -293,7 +293,7 @@ modules_appeals_api:
       # Absolute path to the private key file matching the jwk:
       private_key_path: ''
   slack:
-    api_token: ''
+    api_key: ''
     appeals_channel_id: ''
   documentation:
     path_enabled_flag: false
@@ -580,7 +580,7 @@ vba_documents:
       - vagov-arn
   slack:
     enabled: false
-    api_token: ''
+    api_key: ''
     channel_id: ''
     default_alert_email: ''
     in_flight_notification_hung_time_in_days: 14
@@ -1252,7 +1252,7 @@ va_forms:
   # A notification for when a forms url has changed
   slack:
     enabled: false
-    api_token: ''
+    api_key: ''
     channel_id: ''
 
 # Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
