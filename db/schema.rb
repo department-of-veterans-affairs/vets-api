@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_03_14_210725) do
+ActiveRecord::Schema.define(version: 2023_04_04_190930) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -948,6 +948,13 @@ ActiveRecord::Schema.define(version: 2023_03_14_210725) do
     t.float "ranking"
     t.string "tags"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
+  end
+
+  create_table "va_notify_in_progress_reminders_sent", force: :cascade do |t|
+    t.string "form_id", null: false
+    t.string "user_uuid", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "vba_documents_git_items", force: :cascade do |t|
