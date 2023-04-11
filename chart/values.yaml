@@ -141,6 +141,7 @@ clamav:
     tag: ""
     value: ""
   volumeMounts: {}
+  volumes: {}
   ports: {}
   probes: {}
   resources: {}

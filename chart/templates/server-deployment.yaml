@@ -107,6 +107,8 @@ spec:
 {{ toYaml $root.Values.clamav.resources | indent 12 }}
           volumeMounts:
 {{ toYaml $root.Values.clamav.volumeMounts | indent 12 }}
+          volumes:
+{{ toYaml $root.Values.clamav.volumes | indent 12 }}
         - name: clamav-mirror
           image: "{{ $root.Values.clamavMirror.image.value }}:{{ $root.Values.clamavMirror.image.tag }}"
           imagePullPolicy: {{ $root.Values.clamavMirror.image.pullPolicy }}
@@ -117,8 +119,6 @@ spec:
 {{ toYaml $root.Values.clamavMirror.resources | indent 12 }}
           volumeMounts:
 {{ toYaml $root.Values.clamavMirror.volumeMounts | indent 12 }}
-
-
         {{- end }}
         {{- if $root.Values.web.socatProxyEnabled }}
 {{ toYaml $root.Values.common.socatProxy | indent 8 }}
