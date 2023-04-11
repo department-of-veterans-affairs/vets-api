@@ -8,7 +8,16 @@ Vets API requires:
 
   The most up-to-date versions of each key dependency will be specified in the `docker-compose.yml` [file](https://github.com/department-of-veterans-affairs/vets-api/blob/master/docker-compose.yml) and the `Dockerfile`.
 
-  We suggest using a Ruby version manager such as [`rbenv`](https://github.com/rbenv/rbenv#installation), `asdf`, `rvm`, or `chruby` to install and maintain your version of Ruby. 
+  We suggest using a Ruby version manager such as [`rbenv`](https://github.com/rbenv/rbenv#installation), `asdf`, `rvm`, or `chruby` to install and maintain your version of Ruby.
+
+## Installing RVM
+
+1. Install `rvm` with `brew install rvm`. This could take a while.
+2. Check the ruby version number in `.ruby-version`. Use this number to install the needed Ruby version in the command `rvm install <version_number>`. This could also take a while.
+3. Run `rvm use` within the repo to confirm that the correct version is being used.
+4. After installing a new version of Ruby, run `gem install bundler` and `bundle install` to ensure all gems are installed for the current version.
+
+Steps 2-4 must be repeated if the repo's Ruby version is updated later.
 
 ## Base Setup
 
