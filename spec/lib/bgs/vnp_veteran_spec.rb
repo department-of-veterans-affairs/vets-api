@@ -161,5 +161,68 @@ RSpec.describe BGS::VnpVeteran do
         ).create
       end
     end
+
+    context 'SSN is blank' do
+      it 'logs an error to Sentry' do
+        VCR.use_cassette('bgs/vnp_veteran/create') do
+          all_flows_payload['veteran_information']['ssn'] = nil
+          vnp_veteran = BGS::VnpVeteran.new(
+            proc_id: '3828241',
+            payload: all_flows_payload,
+            user: user_object,
+            claim_type: '130DPNEBNADJ'
+          )
+          expect(vnp_veteran).to receive(:log_message_to_sentry).with(
+            'SSN is blank!',
+            :error,
+            {},
+            { team: 'vfs-ebenefits' }
+          )
+          vnp_veteran.create
+        end
+      end
+    end
+
+    context 'SSN is not 9 digits' do
+      it 'logs an error to Sentry' do
+        VCR.use_cassette('bgs/vnp_veteran/create') do
+          all_flows_payload['veteran_information']['ssn'] = '22233444'
+          vnp_veteran = BGS::VnpVeteran.new(
+            proc_id: '3828241',
+            payload: all_flows_payload,
+            user: user_object,
+            claim_type: '130DPNEBNADJ'
+          )
+          expect(vnp_veteran).to receive(:log_message_to_sentry).with(
+            'SSN has 8 digits!',
+            :error,
+            {},
+            { team: 'vfs-ebenefits' }
+          )
+          vnp_veteran.create
+        end
+      end
+    end
+
+    context 'file number is blank' do
+      it 'logs an error to Sentry' do
+        VCR.use_cassette('bgs/vnp_veteran/create') do
+          all_flows_payload['veteran_information']['va_file_number'] = nil
+          vnp_veteran = BGS::VnpVeteran.new(
+            proc_id: '3828241',
+            payload: all_flows_payload,
+            user: user_object,
+            claim_type: '130DPNEBNADJ'
+          )
+          expect(vnp_veteran).to receive(:log_message_to_sentry).with(
+            'File Number is blank!',
+            :error,
+            {},
+            { team: 'vfs-ebenefits' }
+          )
+          vnp_veteran.create
+        end
+      end
+    end
   end
 end
