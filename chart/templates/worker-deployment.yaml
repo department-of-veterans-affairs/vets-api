@@ -69,10 +69,6 @@ spec:
             initialDelaySeconds: {{ .Values.worker.healthCheck.initialDelaySeconds }}
             timeoutSeconds: {{ .Values.worker.healthCheck.timeoutSeconds }}
           lifecycle:
-            postStart:
-              exec:
-                # SIGTERM triggers a quick exit; gracefully terminate instead
-                command: {{ .Values.worker.healthCheck.postStart.command }}
             preStop:
               exec:
                 # SIGTERM triggers a quick exit; gracefully terminate instead
