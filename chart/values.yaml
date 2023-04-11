@@ -145,6 +145,18 @@ clamav:
   probes: {}
   resources: {}
 
+clamavMirror:
+  enabled: false
+  command: ""
+  image:
+    tag: ""
+    value: ""
+    pullPolicy: ""
+  volumeMounts: {}
+  ports: {}
+  probes: {}
+  resources: {}
+
 # Common configuration
 common:
   socatProxy: {}

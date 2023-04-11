@@ -35,8 +35,9 @@ type: application
 # 0.11.22 - puma scaling - averageTargetValue
 # 0.11.23 - puma scaling - targetValue - Works!
 # 0.11.24 - sidekiq scaling - targetValue
-# 0.11.25 - sidekiq postStart command
-version: 0.11.25
+# 0.11.25 - sidekiq postStart command - USE THIS VERSION
+# 0.11.26 - Trying clamav mirror
+version: 0.11.26
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
