@@ -90,14 +90,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         expect(parsed['data']['attributes']['status']).to eq('pending')
         expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
       end
-
-      it 'stores the evidenceType(s) in metadata' do
-        post(path, params: data, headers:)
-        sc = AppealsApi::SupplementalClaim.find(parsed['data']['id'])
-        data_evidence_type = JSON.parse(data).dig(*%w[data attributes evidenceSubmission evidenceType])
-
-        expect(sc.metadata).to eq({ 'evidence_type' => data_evidence_type })
-      end
     end
 
     context 'when icn header is present' do
@@ -275,7 +267,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         sc = AppealsApi::SupplementalClaim.find(sc_guid)
 
         expect(sc.evidence_submission_indicated).to be_truthy
-        expect(sc.metadata['evidence_type']).to eq %w[upload]
       end
 
       it 'with no evidence' do
@@ -287,7 +278,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         sc = AppealsApi::SupplementalClaim.find(sc_guid)
 
         expect(sc.evidence_submission_indicated).to be_falsey
-        expect(sc.metadata['evidence_type']).to eq %w[none]
       end
 
       it 'evidenceType with both none and retrieval' do
@@ -326,7 +316,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         sc = AppealsApi::SupplementalClaim.find(sc_guid)
 
         expect(sc.evidence_submission_indicated).to be_falsey
-        expect(sc.metadata['evidence_type']).to eq %w[retrieval]
       end
 
       it 'with both retrieval and upload evidence' do
@@ -339,7 +328,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         sc = AppealsApi::SupplementalClaim.find(sc_guid)
 
         expect(sc.evidence_submission_indicated).to be_truthy
-        expect(sc.metadata['evidence_type']).to match_array %w[retrieval upload]
       end
     end
 
@@ -576,6 +564,26 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
     it 'renders the json schema' do
       get path
       expect(response.status).to eq(200)
+    end
+
+    it 'excludes the potentialPactAct field when feature disabled' do
+      Flipper.disable(:decision_review_sc_pact_act_boolean)
+
+      get path
+
+      schema_path = %w[definitions scCreate properties data properties attributes properties potentialPactAct]
+      potential_pact_act = JSON.parse(response.body).dig(*schema_path)
+      expect(potential_pact_act).to be_nil
+    end
+
+    it 'includes the potentialPactAct field when feature enabled' do
+      Flipper.enable(:decision_review_sc_pact_act_boolean)
+
+      get path
+
+      schema_path = %w[definitions scCreate properties data properties attributes properties potentialPactAct]
+      potential_pact_act = JSON.parse(response.body).dig(*schema_path)
+      expect(potential_pact_act).to eq({ 'type' => 'boolean' })
     end
   end
 

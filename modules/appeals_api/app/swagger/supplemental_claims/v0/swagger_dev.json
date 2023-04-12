@@ -238,6 +238,7 @@
                                 "benefitType": "compensation",
                                 "claimantType": "other",
                                 "claimantTypeOtherValue": "Veteran Attorney",
+                                "potentialPactAct": true,
                                 "veteran": {
                                   "address": {
                                     "addressLine1": "123 Main St",
@@ -561,6 +562,7 @@
                         "benefitType": "compensation",
                         "claimantType": "other",
                         "claimantTypeOtherValue": "Veteran Attorney",
+                        "potentialPactAct": true,
                         "veteran": {
                           "address": {
                             "addressLine1": "123 Main St",
@@ -983,6 +985,9 @@
                                   "type": "string",
                                   "minLength": 1,
                                   "maxLength": 25
+                                },
+                                "potentialPactAct": {
+                                  "type": "boolean"
                                 },
                                 "veteran": {
                                   "type": "object",
@@ -2572,6 +2577,7 @@
                         "benefitType": "compensation",
                         "claimantType": "other",
                         "claimantTypeOtherValue": "Veteran Attorney",
+                        "potentialPactAct": true,
                         "veteran": {
                           "address": {
                             "addressLine1": "123 Main St",
@@ -3666,6 +3672,9 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 25
+                  },
+                  "potentialPactAct": {
+                    "type": "boolean"
                   },
                   "veteran": {
                     "type": "object",

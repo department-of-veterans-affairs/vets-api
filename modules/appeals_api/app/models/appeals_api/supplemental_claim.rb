@@ -13,6 +13,8 @@ module AppealsApi
     attr_readonly :auth_headers
     attr_readonly :form_data
 
+    before_create :assign_metadata
+
     def self.past?(date)
       date < Time.zone.today
     end
@@ -53,6 +55,16 @@ module AppealsApi
       Object.const_get(
         "AppealsApi::PdfConstruction::SupplementalClaim::#{pdf_version.upcase}::Structure"
       ).new(self)
+    end
+
+    def assign_metadata
+      return unless api_version&.downcase == 'v2'
+
+      self.metadata = if Flipper.enabled?(:decision_review_sc_pact_act_boolean)
+                        { form_data: { evidence_type:, potential_pact_act: }, pact: { potential_pact_act: } }
+                      else
+                        { form_data: { evidence_type: } }
+                      end
     end
 
     def veteran
@@ -123,6 +135,10 @@ module AppealsApi
       data_attributes['claimantTypeOtherValue']&.strip
     end
 
+    def potential_pact_act
+      data_attributes&.dig('potentialPactAct') ? true : false
+    end
+
     def alternate_signer_first_name
       auth_headers['X-Alternate-Signer-First-Name']&.strip
     end
@@ -191,6 +207,10 @@ module AppealsApi
 
     def stamp_text
       "#{veteran.last_name.truncate(35)} - #{veteran.ssn.last(4)}"
+    end
+
+    def evidence_type
+      evidence_submission&.dig('evidenceType')
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -289,7 +309,7 @@ module AppealsApi
     end
 
     def evidence_submission
-      data_attributes['evidenceSubmission']
+      data_attributes&.dig('evidenceSubmission')
     end
 
     # Used in shared model validations

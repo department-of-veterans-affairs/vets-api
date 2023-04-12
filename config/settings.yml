@@ -302,6 +302,7 @@ modules_appeals_api:
       # List of flags to indicate parts of documentation that are still WIP and not ready for production.
       # See the rswag:appeals_api:dev rake task, spec_helper, and DocHelpers#wip_doc_enabled? for usage info to opt-in.
       # NOTE: Do not remove this key even if it's empty.
+      - sc_v2_potential_pact_act
   legacy_appeals_enabled: true
   reports:
     daily_decision_review:
