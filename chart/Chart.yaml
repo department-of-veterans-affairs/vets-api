@@ -39,7 +39,8 @@ type: application
 # 0.11.26 - Trying clamav mirror
 # 0.11.27 - Removed sidekiq postStart command
 # 0.11.28 - clamav volumes
-version: 0.11.28
+# 0.11.29 - Remove volumes - http readiness
+version: 0.11.29
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to

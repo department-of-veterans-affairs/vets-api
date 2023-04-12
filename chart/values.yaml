@@ -41,6 +41,8 @@ web:
     host: ""
     livenessProbe:
       enabled: false
+    readinessProbe:
+        port: ""
   socatProxyEnabled: false
   terminationGracePeriodSeconds: ""
   envSecrets:
@@ -142,18 +144,6 @@ clamav:
     value: ""
   volumeMounts: {}
   volumes: {}
-  ports: {}
-  probes: {}
-  resources: {}
-
-clamavMirror:
-  enabled: false
-  command: ""
-  image:
-    tag: ""
-    value: ""
-    pullPolicy: ""
-  volumeMounts: {}
   ports: {}
   probes: {}
   resources: {}
