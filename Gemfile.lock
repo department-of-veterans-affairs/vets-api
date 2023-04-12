@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 4e5b120029d86c9e7bbe05521d76396eb90ea650
+  revision: f4be27eadb0f90e48860f00b5bfb71681def72dd
   branch: master
   specs:
     vets_json_schema (20.26.8)
@@ -632,16 +632,16 @@ GEM
     nio4r (2.5.8)
     nio4r (2.5.8-java)
     no_proxy_fix (0.1.2)
-    nokogiri (1.14.2)
+    nokogiri (1.14.3)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
-    nokogiri (1.14.2-java)
+    nokogiri (1.14.3-java)
       racc (~> 1.4)
-    nokogiri (1.14.2-x64-mingw32)
+    nokogiri (1.14.3-x64-mingw32)
       racc (~> 1.4)
-    nokogiri (1.14.2-x86-mingw32)
+    nokogiri (1.14.3-x86-mingw32)
       racc (~> 1.4)
-    nokogiri (1.14.2-x86_64-linux)
+    nokogiri (1.14.3-x86_64-linux)
       racc (~> 1.4)
     nori (2.6.0)
     notiffany (0.1.3)
