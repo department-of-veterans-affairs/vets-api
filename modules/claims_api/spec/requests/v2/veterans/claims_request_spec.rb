@@ -1070,6 +1070,14 @@ RSpec.describe 'Claims', type: :request do
                     expect(json_response['data']['attributes']['trackedItems'][1]['displayName']).to eq(
                       'Line of Duty determination from claimant'
                     )
+                    # date_open
+                    expect(json_response['data']['attributes']['trackedItems'][0]['requestedDate']).to eq(
+                      '2022-02-04'
+                    )
+                    # req_dt
+                    expect(json_response['data']['attributes']['trackedItems'][2]['requestedDate']).to eq(
+                      '2021-05-05'
+                    )
                   end
                 end
               end
