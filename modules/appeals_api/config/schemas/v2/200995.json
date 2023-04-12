@@ -78,6 +78,7 @@
                 },
                 "claimantType": {"type": "string", "enum": [ "veteran", "spouse_of_veteran", "child_of_veteran", "parent_of_veteran", "other"] },
                 "claimantTypeOtherValue": { "type":  "string", "minLength": 1, "maxLength": 25 },
+                "potentialPactAct": { "type": "boolean" },
                 "veteran": {
                   "type": "object",
                   "properties": {

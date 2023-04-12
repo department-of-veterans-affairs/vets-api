@@ -82,6 +82,16 @@ paths:
         '200':
           content:
             application/json:
+              examples:
+                Docket 1:
+                  value:
+                    $ref: ./examples/appeals/appeal_docket_1.yml
+                Docket 2:
+                  value:
+                    $ref: ./examples/appeals/appeal_docket_2.yml
+                Null Docket:
+                  value:
+                    $ref: ./examples/appeals/appeal_docket_null.yml
               schema:
                 $ref: ./schemas/Appeal.yml
           description: OK

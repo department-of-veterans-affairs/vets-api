@@ -67,3 +67,9 @@ There is a third choice to "mock" a successful clamav response. If you choose th
 clamav:
   mock: true
 ```
+
+1. To start Postgres and Redis: run `docker-compose -f docker-compose-deps.yml up` in one terminal window.
+2. In another terminal window, start `vets-api` as per the [native running instructions](running_natively.md).
+  * Run `bin/setup` first to create the needed database tables.
+3. Confirm the API is successfully running by seeing if you can visit [the local Flipper page.](http://localhost:3000/flipper/features)
+

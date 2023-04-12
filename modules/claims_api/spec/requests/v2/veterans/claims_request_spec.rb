@@ -333,6 +333,29 @@ RSpec.describe 'Claims', type: :request do
                 end
               end
             end
+
+            it "provides a value for 'lighthouseId', but 'claimId' will be 'nil' when bgs returns nil" do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+                  expect_any_instance_of(bcs)
+                    .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(nil)
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:where).and_return(lighthouse_claims)
+
+                  get all_claims_path, headers: auth_header
+
+                  json_response = JSON.parse(response.body)
+
+                  expect(response.status).to eq(200)
+                  expect(json_response['data']).to be_an_instance_of(Array)
+                  expect(json_response.count).to eq(1)
+                  claim = json_response['data'].first
+                  expect(claim['attributes']['status']).to eq('PENDING')
+                  expect(claim['attributes']['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
+                  expect(claim['id']).to be nil
+                end
+              end
+            end
           end
 
           context 'when no claims exist' do
@@ -1046,6 +1069,14 @@ RSpec.describe 'Claims', type: :request do
                     )
                     expect(json_response['data']['attributes']['trackedItems'][1]['displayName']).to eq(
                       'Line of Duty determination from claimant'
+                    )
+                    # date_open
+                    expect(json_response['data']['attributes']['trackedItems'][0]['requestedDate']).to eq(
+                      '2022-02-04'
+                    )
+                    # req_dt
+                    expect(json_response['data']['attributes']['trackedItems'][2]['requestedDate']).to eq(
+                      '2021-05-05'
                     )
                   end
                 end

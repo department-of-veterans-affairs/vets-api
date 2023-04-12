@@ -63,7 +63,7 @@
   "eduBenefitsPamphlet": true,
   "relativeSocialSecurityNumber": "111223333",
   "gender": "M",
-  "relativeDateOfBirth": "2006-04-04",  
+  "relativeDateOfBirth": "2006-04-11",  
   "relativeFullName": {
     "first": "Mark",
     "last": "Olson"
@@ -99,6 +99,7 @@
   "veteranDateOfDeath": "1985-01-08",
   "educationStartDate": "1985-01-09",
   "relationship": "spouse",
+  "relationshipAndChildType": "spouse",
   "benefitsRelinquishedDate": "1985-01-10",
   "toursOfDuty": [{
     "dateRange": {
@@ -153,7 +154,7 @@
   "privacyAgreementAccepted": true,
   "minorHighSchoolQuestions":{
     "minorHighSchoolQuestion":true,
-    "highSchoolGedGradDate":"2023-04-04"
+    "highSchoolGedGradDate":"2023-04-11"
   },
   "minorQuestions":{
     "guardianFirstName":"Richard",

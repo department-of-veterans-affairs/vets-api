@@ -256,6 +256,9 @@ features:
   decision_review_supplemental_claim_pdf_v3:
     actor_type: user
     description: Defaults to v3 of the Supplemental Claim PDF form instead of v2
+  decision_review_sc_pact_act_boolean:
+    actor_type: user
+    description: Adds a 'potentialPactAct' field to the Supplemental Claims V2 API schema
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.

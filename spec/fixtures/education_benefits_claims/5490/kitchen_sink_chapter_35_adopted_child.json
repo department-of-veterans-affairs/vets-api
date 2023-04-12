@@ -93,6 +93,7 @@
   "veteranDateOfDeath": "1985-01-08",
   "educationStartDate": "1985-01-09",
   "relationship": "child",
+  "relationshipAndChildType": "adopted",
   "benefitsRelinquishedDate": "1985-01-10",
   "toursOfDuty": [{
     "dateRange": {

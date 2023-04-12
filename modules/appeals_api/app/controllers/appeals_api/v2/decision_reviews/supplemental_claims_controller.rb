@@ -39,8 +39,7 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
       source: request_headers['X-Consumer-Username'].presence&.strip,
       evidence_submission_indicated: evidence_submission_indicated?,
       api_version: 'V2',
-      veteran_icn: request_headers['X-VA-ICN'],
-      metadata: { evidence_type: @json_body.dig(*%w[data attributes evidenceSubmission evidenceType]) }
+      veteran_icn: request_headers['X-VA-ICN']
     )
 
     render_model_errors(sc) and return unless sc.validate
@@ -65,6 +64,12 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
         schema_version: 'v2'
       ).schema(self.class::FORM_NUMBER)
     )
+
+    unless Flipper.enabled?(:decision_review_sc_pact_act_boolean)
+      response.tap do |s|
+        s.dig(*%w[definitions scCreate properties data properties attributes properties])&.delete('potentialPactAct')
+      end
+    end
 
     render json: response
   end

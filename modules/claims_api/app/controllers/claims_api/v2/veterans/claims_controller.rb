@@ -90,7 +90,7 @@ module ClaimsApi
         end
 
         def map_claims(bgs_claims:, lighthouse_claims:) # rubocop:disable Metrics/MethodLength
-          mapped_claims = bgs_claims[:benefit_claims_dto][:benefit_claim].map do |bgs_claim|
+          mapped_claims = (bgs_claims&.dig(:benefit_claims_dto, :benefit_claim) || []).map do |bgs_claim|
             matching_claim = find_bgs_claim_in_lighthouse_collection(
               lighthouse_collection: lighthouse_claims,
               bgs_claim:
@@ -450,11 +450,11 @@ module ClaimsApi
 
             {
               closed_date: date_present(item[:date_closed]),
+              requested_date: tracked_item_req_date(ebenefits_details, item, id),
+              received_date: date_present(item[:receive_dt]),
               description: tracked_item_description(ebenefits_items, id),
               display_name: item[:short_nm],
-              opened_date: date_present(item[:date_open]),
               overdue: item[:suspns_dt].nil? ? false : item[:suspns_dt] < Time.zone.now, # EVSS generates this field
-              requested_date: date_present(item[:req_dt]),
               status:, # EVSS generates this field
               suspense_date: date_present(item[:suspns_dt]),
               tracked_item_id: id.to_i,
@@ -462,6 +462,15 @@ module ClaimsApi
               uploads_allowed: # EVSS generates this field
             }
           end
+        end
+
+        def tracked_item_req_date(ebenefits_details, item, id)
+          items = ([ebenefits_details[:wwsnfy]].flatten |
+          [ebenefits_details[:wwr]].flatten |
+          [ebenefits_details[:wwd]].flatten).compact
+
+          tracked_item = items.find { |i| i[:dvlpmt_item_id] == id } || {}
+          date_present(tracked_item[:date_open] || item[:req_dt] || item[:create_dt])
         end
 
         def tracked_item_description(tracked_items, id)

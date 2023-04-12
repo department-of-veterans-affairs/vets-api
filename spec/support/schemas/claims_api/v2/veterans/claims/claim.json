@@ -308,11 +308,11 @@
                     "description": "Description of the tracked item",
                     "example": "Buddy mentioned - No complete address"
                   },
-                  "openedDate": {
+                  "receivedDate": {
                     "format": "date",
                     "type": "string",
                     "nullable": true,
-                    "description": "Date the tracked item was opened",
+                    "description": "Date the tracked item was received",
                     "example": "2017-10-18"
                   },
                   "overdue": {

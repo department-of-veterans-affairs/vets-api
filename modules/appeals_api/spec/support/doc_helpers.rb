@@ -77,6 +77,18 @@ module DocHelpers
             JSON.parse(response.body, symbolize_names: true)
           end
 
+      # Removes 'potentialPactAct' from example for production docs
+      unless wip_doc_enabled?(:sc_v2_potential_pact_act)
+        case r
+        when String
+          r = r.gsub(/"potentialPactAct":{"type":"boolean"},/, '')
+        when Hash
+          r.tap do |s|
+            s.dig(*%i[properties data properties attributes properties])&.delete(:potentialPactAct)
+          end
+        end
+      end
+
       example.metadata[:response][:content] = if opts[:extract_desc]
                                                 {
                                                   'application/json' => {

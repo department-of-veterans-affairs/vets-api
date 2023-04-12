@@ -15,14 +15,25 @@ EDUCATION BENEFIT BEING APPLIED FOR: <%= @applicant.benefit %>
 
 <%
   case
-  when @applicant.benefit == 'chapter35' && @applicant.relationship&.downcase == 'spouse'
+  when Rails.env.production? && @applicant.benefit == 'chapter35' && @applicant.relationship&.downcase == 'spouse'
 -%>
 I UNDERSTAND THAT I AM CHOOSING TO RECEIVE DEA BENEFITS INSTEAD OF ANY FRY SCHOLARSHIP BENEFITS FOR WHICH I AM CURRENTLY ELIGIBLE. THIS INCLUDES FRY SCHOLARSHIP BENEFITS BASED ON THE DEATH OF THE QUALIFYING INDIVIDUAL ON THIS APPLICATION, AS WELL AS, FRY SCHOLARSHIP BENEFITS BASED ON THE DEATH OF ANY OTHER INDIVIDUALS NOT LISTED ON THIS APPLICATION.
-<% when @applicant.benefit == 'chapter35' && @applicant.relationship&.downcase == 'child' -%>
+<%  when @applicant.benefit == 'chapter35' && @applicant.relationshipAndChildType == 'spouse' -%>
+I UNDERSTAND THAT I AM CHOOSING TO RECEIVE DEA BENEFITS INSTEAD OF ANY FRY SCHOLARSHIP BENEFITS FOR WHICH I AM CURRENTLY ELIGIBLE. THIS INCLUDES FRY SCHOLARSHIP BENEFITS BASED ON THE DEATH OF THE QUALIFYING INDIVIDUAL ON THIS APPLICATION, AS WELL AS, FRY SCHOLARSHIP BENEFITS BASED ON THE DEATH OF ANY OTHER INDIVIDUALS NOT LISTED ON THIS APPLICATION.
+<% when Rails.env.production? && @applicant.benefit == 'chapter35' && @applicant.relationship&.downcase == 'child' -%>
 I UNDERSTAND THAT I’M CHOOSING TO RECEIVE DEA BENEFITS INSTEAD OF ANY FRY SCHOLARSHIP BENEFITS BASED ON THE DEATH OF THE QUALIFYING INDIVIDUAL ON THIS APPLICATION. I UNDERSTAND THAT EVEN AFTER THIS CHOICE I’LL CONTINUE TO BE ELIGIBLE FOR FRY SCHOLARSHIP BENEFITS IF MY ELIGIBILITY IS BASED ON THE DEATH OF THE QUALIFYING INDIVIDUAL ON THIS APPLICATION, AND THEY DIED BEFORE AUGUST 1, 2011.
-<% when @applicant.benefit == 'chapter33' && @applicant.relationship&.downcase == 'spouse' -%>
+<% when @applicant.benefit == 'chapter35' && ['biological','step','adopted'].include?(@applicant.relationshipAndChildType) -%>
+I UNDERSTAND THAT I’M CHOOSING TO RECEIVE DEA BENEFITS INSTEAD OF ANY FRY SCHOLARSHIP BENEFITS BASED ON THE DEATH OF THE QUALIFYING INDIVIDUAL ON THIS APPLICATION. I UNDERSTAND THAT EVEN AFTER THIS CHOICE I’LL CONTINUE TO BE ELIGIBLE FOR FRY SCHOLARSHIP BENEFITS IF MY ELIGIBILITY IS BASED ON THE DEATH OF THE QUALIFYING INDIVIDUAL ON THIS APPLICATION, AND THEY DIED BEFORE AUGUST 1, 2011.
+<% when Rails.env.production? && @applicant.benefit == 'chapter33' && @applicant.relationship&.downcase == 'spouse' -%>
 I UNDERSTAND THAT I AM CHOOSING TO RECEIVE FRY SCHOLARSHIP BENEFITS INSTEAD OF ANY DEA BENEFITS FOR WHICH I AM CURRENTLY ELIGIBLE. THIS INCLUDES DEA BENEFITS BASED ON THE DEATH OF THE QUALIFYING INDIVIDUAL ON THIS APPLICATION, BASED ON THE DEATH OF ANY OTHER INDIVIDUALS NOT LISTED ON THIS APPLICATION, BASED ON A SPOUSE WHO HAS A PERMANENT AND TOTAL SERVICE-CONNECTED DISABILITY, OR BASED ON ANY OTHER CRITERIA AS LISTED IN 38 U.S.C. SECTION 3501(A)(1).
-<% when @applicant.benefit == 'chapter33' && @applicant.relationship&.downcase == 'child' -%>
+<% when @applicant.benefit == 'chapter33' && @applicant.relationshipAndChildType == 'spouse' -%>
+I UNDERSTAND THAT I AM CHOOSING TO RECEIVE FRY SCHOLARSHIP BENEFITS INSTEAD OF ANY DEA BENEFITS FOR WHICH I AM CURRENTLY ELIGIBLE. THIS INCLUDES DEA BENEFITS BASED ON THE DEATH OF THE QUALIFYING INDIVIDUAL ON THIS APPLICATION, BASED ON THE DEATH OF ANY OTHER INDIVIDUALS NOT LISTED ON THIS APPLICATION, BASED ON A SPOUSE WHO HAS A PERMANENT AND TOTAL SERVICE-CONNECTED DISABILITY, OR BASED ON ANY OTHER CRITERIA AS LISTED IN 38 U.S.C. SECTION 3501(A)(1).
+<% when Rails.env.production? && @applicant.benefit == 'chapter33' && @applicant.relationship&.downcase == 'child' -%>
+I UNDERSTAND THAT I’M CHOOSING TO RECEIVE FRY SCHOLARSHIP BENEFITS INSTEAD OF DEA BENEFITS FOR WHICH I’M CURRENTLY ELIGIBLE BASED ON THE DEATH OF THE QUALIFYING INDIVIDUAL ON THIS APPLICATION. I UNDERSTAND THAT EVEN AFTER THIS CHOICE I’LL CONTINUE TO BE ELIGIBLE FOR DEA BENEFITS IF MY ELIGIBILITY IS BASED ON:
+* THE DEATH OF THE QUALIFYING INDIVIDUAL ON THIS APPLICATION, AND THEY DIED BEFORE AUGUST 1, 2011, OR
+* A PARENT WHO HAS A PERMANENT AND TOTAL SERVICE-CONNECTED DISABILITY, OR
+* Any other criteria as listed in 38 U.S.C. SECTION 3501(a)(1)
+<% when @applicant.benefit == 'chapter33' && ['biological','step','adopted'].include?(@applicant.relationshipAndChildType) -%>
 I UNDERSTAND THAT I’M CHOOSING TO RECEIVE FRY SCHOLARSHIP BENEFITS INSTEAD OF DEA BENEFITS FOR WHICH I’M CURRENTLY ELIGIBLE BASED ON THE DEATH OF THE QUALIFYING INDIVIDUAL ON THIS APPLICATION. I UNDERSTAND THAT EVEN AFTER THIS CHOICE I’LL CONTINUE TO BE ELIGIBLE FOR DEA BENEFITS IF MY ELIGIBILITY IS BASED ON:
 * THE DEATH OF THE QUALIFYING INDIVIDUAL ON THIS APPLICATION, AND THEY DIED BEFORE AUGUST 1, 2011, OR
 * A PARENT WHO HAS A PERMANENT AND TOTAL SERVICE-CONNECTED DISABILITY, OR
@@ -50,6 +61,14 @@ Applicant has graduated high school or received GED? <%= @applicant.minorHighSch
 
 <% end -%>
 <% end -%>
+<% unless Rails.env.production? -%>
+Restorative training: <%= yesno(@applicant.restorativeTraining) %>
+
+Vocational training: <%= yesno(@applicant.vocationalTraining) %>
+
+Would you like to receive vocational and educational counseling?: <%= yesno(@applicant.educationalCounseling) %>
+
+<% end -%>
 Name:   <%= full_name(@applicant.relativeFullName) %>
 
 Address:
@@ -61,12 +80,20 @@ Email Address:  <%= @applicant.email %>
 Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
 
 <%= parse_with_template_path('bank_account') %>
-
 <% if Rails.env.production? -%>
 <%= parse_with_template_path('secondary_contact') %>
 <% end -%>
+<% if Rails.env.production? -%>
 Relationship to service member:  <%= @applicant.relationship&.upcase %>
 
+<% elsif @applicant.relationshipAndChildType.eql?('spouse') -%>
+
+Relationship to service member:  <%= @applicant.relationshipAndChildType.upcase %>
+
+<% else %>
+Relationship to service member:  <%= @applicant.relationshipAndChildType.capitalize + ' Child' %>
+
+<% end -%>
 <% if @applicant.spouseInfo.present? -%>
 <% unless Rails.env.production? -%>
 Married date: <%= to_date(@applicant.spouseInfo.marriageDate) %>
@@ -98,6 +125,7 @@ Veteran's date of birth: <%= @applicant.veteranDateOfBirth %>
 Is qualifying individual on active duty: <%= yesno(@applicant.currentlyActiveDuty) %>
 
 Outstanding felony or warrant: <%= yesno(@applicant.outstandingFelony) %>
+<% if Rails.env.production? -%>
 
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
@@ -117,7 +145,7 @@ Vocational training: <%= yesno(@applicant.vocationalTraining) %>
 In what state do you anticipate living while participating in this training: <%= @applicant.trainingState %>
 
 Would you like to receive vocational and educational counseling?: <%= yesno(@applicant.educationalCounseling) %>
-
+<% end -%>
 
                     APPLICATION HISTORY
                     -------------------
@@ -141,7 +169,7 @@ Served on active duty?: <%= yesno(@applicant.toursOfDuty.present?) %>
 
 <%= parse_with_template_path('tours_of_duty') %>
 
-
+<% if Rails.env.production? -%>
                     EDUCATION INFORMATION
                     ---------------------
 
@@ -159,6 +187,7 @@ Hours: <%= hours_and_type(@applicant.highSchool) %>
 Degree/Diploma/Certificate: <%= @applicant.highSchool&.degreeReceived %>
 
 <%= parse_with_template_path('post_high_school_trainings') %>
+<% end -%>
 <% if Rails.env.production? -%>
           ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
           ----------------------------------------------------------

@@ -717,10 +717,25 @@ class AppealsApi::RswagConfig
   end
 
   def sc_create_schemas
+    # TODO: Return full schema after we've enabled potentialPactAct functionality
     if DocHelpers.decision_reviews?
-      parse_create_schema 'v2', '200995.json'
+      sc_schema = parse_create_schema 'v2', '200995.json'
+      return sc_schema if wip_doc_enabled?(:sc_v2_potential_pact_act)
+
+      # Removes 'potentialPactAct' from schema for production docs
+      sc_schema.tap do |s|
+        s.dig(*%w[scCreate properties data properties attributes properties])&.delete('potentialPactAct')
+      end
     else
       sc_schema = parse_create_schema('v2', '200995_with_shared_refs.json', return_raw: true)
+
+      # Removes 'potentialPactAct' from schema for production docs
+      unless wip_doc_enabled?(:sc_v2_potential_pact_act)
+        sc_schema.tap do |s|
+          s.dig(*%w[properties data properties attributes properties])&.delete('potentialPactAct')
+        end
+      end
+
       {
         scCreate: { type: 'object' }.merge!(sc_schema.slice(*%w[description properties required]))
       }
