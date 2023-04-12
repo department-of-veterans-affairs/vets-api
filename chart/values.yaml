@@ -77,8 +77,7 @@ web:
     query: ""
   service:
     enabled: false
-    annotations:
-      traefik.backend.loadbalancer.sticky: "true"
+    annotations: {}
     ports: ""
     type: ClusterIP
   externalDns:
