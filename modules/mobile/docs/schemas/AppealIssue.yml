@@ -18,4 +18,3 @@ properties:
       - cavc_remand
   date:
     type: string
-    example: "2016-05-03"

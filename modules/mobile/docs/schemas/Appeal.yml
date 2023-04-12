@@ -11,10 +11,8 @@ properties:
     properties:
       type:
         type: string
-        example: "appeal"
       id:
         type: string
-        example: "3294289"
       attributes:
         type: object
         required:
@@ -49,7 +47,6 @@ properties:
             type: boolean
           aoj:
             type: string
-            example: "vba"
             enum:
               - vba
               - vha
@@ -59,7 +56,6 @@ properties:
             type: string
           docket:
             type: object, null
-            $ref: "./AppealDocket.yml"
           events:
             type: array
             items:
@@ -125,7 +121,5 @@ properties:
                   - merged
           type:
             type: string
-            example: "legacyAppeal"
           updated:
             type: string
-            example: "2018-01-19T10:20:42-05:00"

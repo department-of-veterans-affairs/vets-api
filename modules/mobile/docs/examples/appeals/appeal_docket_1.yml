@@ -1,0 +1,41 @@
+data:
+  type: "appeal"
+  id: "3294289"
+  attributes:
+    appealIds:
+      - "3294289"
+    active: true
+    alerts:
+      - type: "form9_needed"
+        details: object
+    aod: null
+    aoj: "vba"
+    description: "1 insurance issue"
+    docket:
+      month: "2015-10-01"
+      docketMonth: "2014-11-01"
+      front: false
+      total: 212814
+      ahead: 81703
+      ready: 17071
+      eta:
+        directReview: "2020-02-01"
+        evidenceSubmission: "2024-04-01"
+        hearingRequest: "2024-04-01"
+    events:
+      - type: "sc_request"
+        date: "2023-02-02"
+    evidence: null
+    incompleteHistory: true
+    issues:
+      - active: true
+        lastAction: null
+        description: "Bronicial asthma"
+        diagnosticCode: "6602"
+    location: "aoj"
+    programArea: "insurance"
+    status:
+      details: object
+      type: "pending_certification_ssoc"
+    type: "legacyAppeal"
+    updated: "2018-01-19T10:20:42-05:00"
