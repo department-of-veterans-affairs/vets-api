@@ -90,7 +90,7 @@ module ClaimsApi
         end
 
         def map_claims(bgs_claims:, lighthouse_claims:) # rubocop:disable Metrics/MethodLength
-          mapped_claims = bgs_claims[:benefit_claims_dto][:benefit_claim].map do |bgs_claim|
+          mapped_claims = (bgs_claims&.dig(:benefit_claims_dto, :benefit_claim) || []).map do |bgs_claim|
             matching_claim = find_bgs_claim_in_lighthouse_collection(
               lighthouse_collection: lighthouse_claims,
               bgs_claim:
