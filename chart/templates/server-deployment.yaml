@@ -110,6 +110,7 @@ spec:
 {{ toYaml $root.Values.clamav.resources | indent 12 }}
           volumeMounts:
 {{ toYaml $root.Values.clamav.volumeMounts | indent 12 }}
+        {{- end }}
         {{- if $root.Values.web.socatProxyEnabled }}
 {{ toYaml $root.Values.common.socatProxy | indent 8 }}
         {{- end }}
