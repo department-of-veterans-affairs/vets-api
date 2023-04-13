@@ -6,11 +6,7 @@ module AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements
     # rubocop:enable Layout/LineLength
     include AppealsApi::OpenidAuth
 
-    OAUTH_SCOPES = {
-      GET: %w[appeals/NoticeOfDisagreements.read],
-      PUT: %w[appeals/NoticeOfDisagreements.write],
-      POST: %w[appeals/NoticeOfDisagreements.write]
-    }.freeze
+    OAUTH_SCOPES = AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES
 
     private
 

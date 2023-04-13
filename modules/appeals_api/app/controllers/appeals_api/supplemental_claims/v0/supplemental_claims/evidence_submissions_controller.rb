@@ -6,11 +6,7 @@ module AppealsApi::SupplementalClaims::V0::SupplementalClaims
     # rubocop:enable Layout/LineLength
     include AppealsApi::OpenidAuth
 
-    OAUTH_SCOPES = {
-      GET: %w[appeals/SupplementalClaims.read],
-      PUT: %w[appeals/SupplementalClaims.write],
-      POST: %w[appeals/SupplementalClaims.write]
-    }.freeze
+    OAUTH_SCOPES = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES
 
     private
 

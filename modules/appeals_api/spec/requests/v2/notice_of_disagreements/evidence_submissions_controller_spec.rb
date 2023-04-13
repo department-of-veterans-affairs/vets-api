@@ -115,8 +115,8 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
 
       it_behaves_like(
         'an endpoint with OpenID auth',
-        AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceSubmissionsController::OAUTH_SCOPES[:POST],
-        :accepted
+        scopes: AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceSubmissionsController::OAUTH_SCOPES[:POST],
+        success_status: :accepted
       ) do
         def make_request(auth_header)
           post(oauth_path, params:, headers: headers.merge(auth_header))
@@ -188,7 +188,9 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
 
       it_behaves_like(
         'an endpoint with OpenID auth',
-        AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceSubmissionsController::OAUTH_SCOPES[:GET]
+        # rubocop:disable Layout/LineLength
+        scopes: AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceSubmissionsController::OAUTH_SCOPES[:GET]
+        # rubocop:enable Layout/LineLength
       ) do
         def make_request(auth_header)
           get("#{oauth_path}#{evidence_submissions.sample.guid}", headers: auth_header)

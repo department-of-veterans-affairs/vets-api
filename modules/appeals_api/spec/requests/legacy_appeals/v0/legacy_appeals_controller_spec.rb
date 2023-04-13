@@ -19,7 +19,7 @@ describe AppealsApi::LegacyAppeals::V0::LegacyAppealsController, type: :request 
       expect(response.body).to include('{"$ref":"non_blank_string.json"}')
     end
 
-    it_behaves_like('an endpoint with OpenID auth', described_class::OAUTH_SCOPES[:GET]) do
+    it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:GET]) do
       def make_request(auth_header)
         get(path, headers: auth_header)
       end

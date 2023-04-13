@@ -14,9 +14,9 @@ module AppealsApi::HigherLevelReviews::V0
     )['definitions']['hlrCreateParameters']['properties'].keys
 
     OAUTH_SCOPES = {
-      GET: %w[appeals/HigherLevelReviews.read],
-      PUT: %w[appeals/HigherLevelReviews.write],
-      POST: %w[appeals/HigherLevelReviews.write]
+      GET: %w[veteran/HigherLevelReviews.read representative/HigherLevelReviews.read system/HigherLevelReviews.read],
+      PUT: %w[veteran/HigherLevelReviews.write representative/HigherLevelReviews.write system/HigherLevelReviews.write],
+      POST: %w[veteran/HigherLevelReviews.write representative/HigherLevelReviews.write system/HigherLevelReviews.write]
     }.freeze
 
     private

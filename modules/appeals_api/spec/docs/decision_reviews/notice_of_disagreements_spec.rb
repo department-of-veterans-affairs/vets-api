@@ -131,7 +131,7 @@ describe 'Notice of Disagreements', swagger_doc: DocHelpers.output_json_path, ty
           request_body
         end
 
-        it_behaves_like 'rswag example', desc: 'returns a 422 response'
+        it_behaves_like 'rswag example', desc: 'returns a 422 response', scopes:
       end
 
       it_behaves_like 'rswag 500 response'

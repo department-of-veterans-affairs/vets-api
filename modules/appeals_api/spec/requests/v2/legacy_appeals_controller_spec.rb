@@ -186,7 +186,7 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
       context 'with oauth' do
         it_behaves_like(
           'an endpoint with OpenID auth',
-          AppealsApi::LegacyAppeals::V0::LegacyAppealsController::OAUTH_SCOPES[:GET]
+          scopes: AppealsApi::LegacyAppeals::V0::LegacyAppealsController::OAUTH_SCOPES[:GET]
         ) do
           def make_request(auth_header)
             VCR.use_cassette('caseflow/legacy_appeals_get_by_ssn') do

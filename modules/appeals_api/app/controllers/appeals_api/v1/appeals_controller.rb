@@ -5,7 +5,9 @@ module AppealsApi
     class AppealsController < AppealsApi::V0::AppealsController
       include AppealsApi::OpenidAuth
 
-      OAUTH_SCOPES = { GET: %w[appeals/AppealsStatus.read] }.freeze
+      OAUTH_SCOPES = {
+        GET: %w[veteran/AppealsStatus.read representative/AppealsStatus.read system/AppealsStatus.read]
+      }.freeze
 
       private
 

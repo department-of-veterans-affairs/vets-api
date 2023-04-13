@@ -13,7 +13,9 @@ module AppealsApi::ContestableIssues::V0
       )
     )['definitions']['contestableIssuesIndexParameters']['properties'].keys
 
-    OAUTH_SCOPES = { GET: %w[appeals/ContestableIssues.read] }.freeze
+    OAUTH_SCOPES = {
+      GET: %w[veteran/ContestableIssues.read representative/ContestableIssues.read system/ContestableIssues.read]
+    }.freeze
 
     def schema
       render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(

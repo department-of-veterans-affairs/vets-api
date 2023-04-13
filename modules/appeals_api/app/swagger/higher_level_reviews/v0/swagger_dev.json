@@ -27,12 +27,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/HigherLevelReviews.write"
+              "veteran/HigherLevelReviews.write",
+              "representative/HigherLevelReviews.write",
+              "system/HigherLevelReviews.write"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/HigherLevelReviews.write"
+              "veteran/HigherLevelReviews.write",
+              "representative/HigherLevelReviews.write",
+              "system/HigherLevelReviews.write"
             ]
           },
           {
@@ -715,12 +719,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/HigherLevelReviews.read"
+              "veteran/HigherLevelReviews.read",
+              "representative/HigherLevelReviews.read",
+              "system/HigherLevelReviews.read"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/HigherLevelReviews.read"
+              "veteran/HigherLevelReviews.read",
+              "representative/HigherLevelReviews.read",
+              "system/HigherLevelReviews.read"
             ]
           },
           {
@@ -817,12 +825,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/HigherLevelReviews.read"
+              "veteran/HigherLevelReviews.read",
+              "representative/HigherLevelReviews.read",
+              "system/HigherLevelReviews.read"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/HigherLevelReviews.read"
+              "veteran/HigherLevelReviews.read",
+              "representative/HigherLevelReviews.read",
+              "system/HigherLevelReviews.read"
             ]
           },
           {
@@ -2106,12 +2118,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/HigherLevelReviews.write"
+              "veteran/HigherLevelReviews.write",
+              "representative/HigherLevelReviews.write",
+              "system/HigherLevelReviews.write"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/HigherLevelReviews.write"
+              "veteran/HigherLevelReviews.write",
+              "representative/HigherLevelReviews.write",
+              "system/HigherLevelReviews.write"
             ]
           },
           {
@@ -2616,10 +2632,18 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "appeals/HigherLevelReviews.read": "Retrieve higher-level review data",
-              "appeals/HigherLevelReviews.write": "Submit higher-level reviews",
-              "appeals.read": "Retrieve any type of appeal data",
-              "appeals.write": "Submit any type of appeal"
+              "veteran/HigherLevelReviews.read": "Allows a veteran to see their own Higher-Level Reviews",
+              "representative/HigherLevelReviews.read": "Allows a veteran representative to see a veteran's Higher-Level Reviews",
+              "system/HigherLevelReviews.read": "Allows a system to see a veteran's Higher-Level Reviews",
+              "veteran/HigherLevelReviews.write": "Allows a veteran to submit Higher-Level Reviews for themselves",
+              "representative/HigherLevelReviews.write": "Allows a veteran representative to submit Higher-Level Reviews for a veteran",
+              "system/HigherLevelReviews.write": "Allows a system to submit Higher-Level Reviews for a veteran",
+              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
+              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
+              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran",
+              "veteran/appeals.write": "Allows a veteran to submit any type of appeal data for themselves",
+              "representative/appeals.write": "Allows a veteran representative to submit any type of appeal data for a veteran",
+              "system/appeals.write": "Allows a system to submit any type of appeal data for a veteran"
             }
           }
         }
@@ -2632,10 +2656,18 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "appeals/HigherLevelReviews.read": "Retrieve higher-level review data",
-              "appeals/HigherLevelReviews.write": "Submit higher-level reviews",
-              "appeals.read": "Retrieve any type of appeal data",
-              "appeals.write": "Submit any type of appeal"
+              "veteran/HigherLevelReviews.read": "Allows a veteran to see their own Higher-Level Reviews",
+              "representative/HigherLevelReviews.read": "Allows a veteran representative to see a veteran's Higher-Level Reviews",
+              "system/HigherLevelReviews.read": "Allows a system to see a veteran's Higher-Level Reviews",
+              "veteran/HigherLevelReviews.write": "Allows a veteran to submit Higher-Level Reviews for themselves",
+              "representative/HigherLevelReviews.write": "Allows a veteran representative to submit Higher-Level Reviews for a veteran",
+              "system/HigherLevelReviews.write": "Allows a system to submit Higher-Level Reviews for a veteran",
+              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
+              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
+              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran",
+              "veteran/appeals.write": "Allows a veteran to submit any type of appeal data for themselves",
+              "representative/appeals.write": "Allows a veteran representative to submit any type of appeal data for a veteran",
+              "system/appeals.write": "Allows a system to submit any type of appeal data for a veteran"
             }
           }
         }

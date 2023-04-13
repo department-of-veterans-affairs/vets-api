@@ -9,9 +9,9 @@ module AppealsApi
 
     # These appeals_api-wide scopes should be allowed for any route using OAuth anywhere in the appeals APIs.
     DEFAULT_OAUTH_SCOPES = {
-      GET: %w[appeals.read],
-      PUT: %w[appeals.write],
-      POST: %w[appeals.write]
+      GET: %w[veteran/appeals.read representative/appeals.read system/appeals.read],
+      PUT: %w[veteran/appeals.write representative/appeals.write system/appeals.write],
+      POST: %w[veteran/appeals.write representative/appeals.write system/appeals.write]
     }.freeze
 
     # Controllers using this concern can override this constant to specify their own scopes.
@@ -48,7 +48,7 @@ module AppealsApi
     def validate_auth_token!
       token_validation_client.validate_token!(
         audience: audience_url,
-        scopes: DEFAULT_OAUTH_SCOPES[request.method.to_sym].concat(self.class::OAUTH_SCOPES[request.method.to_sym]),
+        scopes: DEFAULT_OAUTH_SCOPES[request.method.to_sym] + self.class::OAUTH_SCOPES[request.method.to_sym],
         token: auth_token
       )
     end
