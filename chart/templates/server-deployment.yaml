@@ -71,6 +71,11 @@ spec:
             initialDelaySeconds: {{ $root.Values.web.healthCheck.initialDelaySeconds }}
             periodSeconds: {{ $root.Values.web.healthCheck.periodSeconds }}
           {{- end }}
+          lifecycle:
+            preStop:
+              httpGet:
+                port: {{ $root.Values.web.healthCheck.readinessProbe.port }}
+                path: /
           readinessProbe: #ensure container is ready to start accepting traffic
             httpGet:
               path: /
