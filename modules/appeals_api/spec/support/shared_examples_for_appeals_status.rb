@@ -158,7 +158,7 @@ shared_examples 'appeals status endpoints' do |opts|
 
     if opts[:oauth_scopes].present?
       context 'with oauth' do
-        it_behaves_like 'an endpoint with OpenID auth', opts[:oauth_scopes] do
+        it_behaves_like 'an endpoint with OpenID auth', scopes: opts[:oauth_scopes] do
           def make_request(auth_header)
             VCR.use_cassette('caseflow/appeals') do
               get('/services/appeals/v1/appeals', headers: auth_header.merge(

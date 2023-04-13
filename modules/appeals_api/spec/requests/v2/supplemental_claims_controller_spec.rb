@@ -408,7 +408,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
 
       it_behaves_like(
         'an endpoint with OpenID auth',
-        AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST]
+        scopes: AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST]
       ) do
         def make_request(auth_header)
           post(oauth_path, params: data, headers: headers.merge(auth_header))
@@ -532,7 +532,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
 
       it_behaves_like(
         'an endpoint with OpenID auth',
-        AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST]
+        scopes: AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST]
       ) do
         def make_request(auth_header)
           post(oauth_path, params: data, headers: headers.merge(auth_header))
@@ -624,7 +624,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
 
       it_behaves_like(
         'an endpoint with OpenID auth',
-        AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:GET]
+        scopes: AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:GET]
       ) do
         def make_request(auth_header)
           get(oauth_path, headers: auth_header)

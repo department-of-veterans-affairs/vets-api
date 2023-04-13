@@ -27,12 +27,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/NoticeOfDisagreements.write"
+              "veteran/NoticeOfDisagreements.write",
+              "representative/NoticeOfDisagreements.write",
+              "system/NoticeOfDisagreements.write"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/NoticeOfDisagreements.write"
+              "veteran/NoticeOfDisagreements.write",
+              "representative/NoticeOfDisagreements.write",
+              "system/NoticeOfDisagreements.write"
             ]
           },
           {
@@ -537,12 +541,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/NoticeOfDisagreements.read"
+              "veteran/NoticeOfDisagreements.read",
+              "representative/NoticeOfDisagreements.read",
+              "system/NoticeOfDisagreements.read"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/NoticeOfDisagreements.read"
+              "veteran/NoticeOfDisagreements.read",
+              "representative/NoticeOfDisagreements.read",
+              "system/NoticeOfDisagreements.read"
             ]
           },
           {
@@ -639,12 +647,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/NoticeOfDisagreements.read"
+              "veteran/NoticeOfDisagreements.read",
+              "representative/NoticeOfDisagreements.read",
+              "system/NoticeOfDisagreements.read"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/NoticeOfDisagreements.read"
+              "veteran/NoticeOfDisagreements.read",
+              "representative/NoticeOfDisagreements.read",
+              "system/NoticeOfDisagreements.read"
             ]
           },
           {
@@ -1916,12 +1928,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/NoticeOfDisagreements.write"
+              "veteran/NoticeOfDisagreements.write",
+              "representative/NoticeOfDisagreements.write",
+              "system/NoticeOfDisagreements.write"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/NoticeOfDisagreements.write"
+              "veteran/NoticeOfDisagreements.write",
+              "representative/NoticeOfDisagreements.write",
+              "system/NoticeOfDisagreements.write"
             ]
           },
           {
@@ -2303,12 +2319,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/NoticeOfDisagreements.write"
+              "veteran/NoticeOfDisagreements.write",
+              "representative/NoticeOfDisagreements.write",
+              "system/NoticeOfDisagreements.write"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/NoticeOfDisagreements.write"
+              "veteran/NoticeOfDisagreements.write",
+              "representative/NoticeOfDisagreements.write",
+              "system/NoticeOfDisagreements.write"
             ]
           },
           {
@@ -2438,12 +2458,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/NoticeOfDisagreements.write"
+              "veteran/NoticeOfDisagreements.write",
+              "representative/NoticeOfDisagreements.write",
+              "system/NoticeOfDisagreements.write"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/NoticeOfDisagreements.write"
+              "veteran/NoticeOfDisagreements.write",
+              "representative/NoticeOfDisagreements.write",
+              "system/NoticeOfDisagreements.write"
             ]
           },
           {
@@ -2537,12 +2561,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/NoticeOfDisagreements.read"
+              "veteran/NoticeOfDisagreements.read",
+              "representative/NoticeOfDisagreements.read",
+              "system/NoticeOfDisagreements.read"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/NoticeOfDisagreements.read"
+              "veteran/NoticeOfDisagreements.read",
+              "representative/NoticeOfDisagreements.read",
+              "system/NoticeOfDisagreements.read"
             ]
           },
           {
@@ -2649,10 +2677,18 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "appeals/NoticeOfDisagreements.read": "Retrieve notice of disagreements data",
-              "appeals/NoticeOfDisagreements.write": "Submit notice of disagreements",
-              "appeals.read": "Retrieve any type of appeal data",
-              "appeals.write": "Submit any type of appeal"
+              "veteran/NoticeOfDisagreements.read": "Allows a veteran to see their Board Appeals",
+              "representative/NoticeOfDisagreements.read": "Allows a veteran representative to see a veteran's Board Appeals",
+              "system/NoticeOfDisagreements.read": "Allows a system to see a veteran's Board Appeals",
+              "veteran/NoticeOfDisagreements.write": "Allows a veteran to submit Board Appeals for themselves",
+              "representative/NoticeOfDisagreements.write": "Allows a veteran representative to submit Board Appeals for a veteran",
+              "system/NoticeOfDisagreements.write": "Allows a system to submit Board Appeals for a veteran",
+              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
+              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
+              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran",
+              "veteran/appeals.write": "Allows a veteran to submit any type of appeal data for themselves",
+              "representative/appeals.write": "Allows a veteran representative to submit any type of appeal data for a veteran",
+              "system/appeals.write": "Allows a system to submit any type of appeal data for a veteran"
             }
           }
         }
@@ -2665,10 +2701,18 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "appeals/NoticeOfDisagreements.read": "Retrieve notice of disagreements data",
-              "appeals/NoticeOfDisagreements.write": "Submit notice of disagreements",
-              "appeals.read": "Retrieve any type of appeal data",
-              "appeals.write": "Submit any type of appeal"
+              "veteran/NoticeOfDisagreements.read": "Allows a veteran to see their Board Appeals",
+              "representative/NoticeOfDisagreements.read": "Allows a veteran representative to see a veteran's Board Appeals",
+              "system/NoticeOfDisagreements.read": "Allows a system to see a veteran's Board Appeals",
+              "veteran/NoticeOfDisagreements.write": "Allows a veteran to submit Board Appeals for themselves",
+              "representative/NoticeOfDisagreements.write": "Allows a veteran representative to submit Board Appeals for a veteran",
+              "system/NoticeOfDisagreements.write": "Allows a system to submit Board Appeals for a veteran",
+              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
+              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
+              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran",
+              "veteran/appeals.write": "Allows a veteran to submit any type of appeal data for themselves",
+              "representative/appeals.write": "Allows a veteran representative to submit any type of appeal data for a veteran",
+              "system/appeals.write": "Allows a system to submit any type of appeal data for a veteran"
             }
           }
         }

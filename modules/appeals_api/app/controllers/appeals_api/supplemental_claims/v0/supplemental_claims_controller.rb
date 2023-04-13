@@ -14,9 +14,9 @@ module AppealsApi::SupplementalClaims::V0
     )['definitions']['scCreateParameters']['properties'].keys
 
     OAUTH_SCOPES = {
-      GET: %w[appeals/SupplementalClaims.read],
-      PUT: %w[appeals/SupplementalClaims.write],
-      POST: %w[appeals/SupplementalClaims.write]
+      GET: %w[veteran/SupplementalClaims.read representative/SupplementalClaims.read system/SupplementalClaims.read],
+      PUT: %w[veteran/SupplementalClaims.write representative/SupplementalClaims.write system/SupplementalClaims.read],
+      POST: %w[veteran/SupplementalClaims.write representative/SupplementalClaims.write system/SupplementalClaims.read]
     }.freeze
 
     private

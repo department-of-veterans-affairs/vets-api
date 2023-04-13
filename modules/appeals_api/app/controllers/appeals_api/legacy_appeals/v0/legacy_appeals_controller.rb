@@ -13,7 +13,9 @@ module AppealsApi::LegacyAppeals::V0
       )
     )['definitions']['legacyAppealsIndexParameters']['properties'].keys
 
-    OAUTH_SCOPES = { GET: %w[appeals/LegacyAppeals.read] }.freeze
+    OAUTH_SCOPES = {
+      GET: %w[veteran/LegacyAppeals.read representative/LegacyAppeals.read system/LegacyAppeals.read]
+    }.freeze
 
     def schema
       render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(

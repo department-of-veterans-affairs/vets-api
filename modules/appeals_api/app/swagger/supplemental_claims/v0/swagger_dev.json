@@ -27,12 +27,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/SupplementalClaims.write"
+              "veteran/SupplementalClaims.write",
+              "representative/SupplementalClaims.write",
+              "system/SupplementalClaims.read"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/SupplementalClaims.write"
+              "veteran/SupplementalClaims.write",
+              "representative/SupplementalClaims.write",
+              "system/SupplementalClaims.read"
             ]
           },
           {
@@ -789,12 +793,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/SupplementalClaims.read"
+              "veteran/SupplementalClaims.read",
+              "representative/SupplementalClaims.read",
+              "system/SupplementalClaims.read"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/SupplementalClaims.read"
+              "veteran/SupplementalClaims.read",
+              "representative/SupplementalClaims.read",
+              "system/SupplementalClaims.read"
             ]
           },
           {
@@ -891,12 +899,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/SupplementalClaims.read"
+              "veteran/SupplementalClaims.read",
+              "representative/SupplementalClaims.read",
+              "system/SupplementalClaims.read"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/SupplementalClaims.read"
+              "veteran/SupplementalClaims.read",
+              "representative/SupplementalClaims.read",
+              "system/SupplementalClaims.read"
             ]
           },
           {
@@ -2292,12 +2304,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/SupplementalClaims.write"
+              "veteran/SupplementalClaims.write",
+              "representative/SupplementalClaims.write",
+              "system/SupplementalClaims.read"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/SupplementalClaims.write"
+              "veteran/SupplementalClaims.write",
+              "representative/SupplementalClaims.write",
+              "system/SupplementalClaims.read"
             ]
           },
           {
@@ -2826,12 +2842,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/SupplementalClaims.write"
+              "veteran/SupplementalClaims.write",
+              "representative/SupplementalClaims.write",
+              "system/SupplementalClaims.read"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/SupplementalClaims.write"
+              "veteran/SupplementalClaims.write",
+              "representative/SupplementalClaims.write",
+              "system/SupplementalClaims.read"
             ]
           },
           {
@@ -2986,12 +3006,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/SupplementalClaims.write"
+              "veteran/SupplementalClaims.write",
+              "representative/SupplementalClaims.write",
+              "system/SupplementalClaims.read"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/SupplementalClaims.write"
+              "veteran/SupplementalClaims.write",
+              "representative/SupplementalClaims.write",
+              "system/SupplementalClaims.read"
             ]
           },
           {
@@ -3085,12 +3109,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/SupplementalClaims.read"
+              "veteran/SupplementalClaims.read",
+              "representative/SupplementalClaims.read",
+              "system/SupplementalClaims.read"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/SupplementalClaims.read"
+              "veteran/SupplementalClaims.read",
+              "representative/SupplementalClaims.read",
+              "system/SupplementalClaims.read"
             ]
           },
           {
@@ -3196,10 +3224,18 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "appeals/SupplementalClaims.read": "Retrieve supplemental claims data",
-              "appeals/SupplementalClaims.write": "Submit supplemental claims",
-              "appeals.read": "Retrieve any type of appeal data",
-              "appeals.write": "Submit any type of appeal"
+              "veteran/SupplementalClaims.read": "Allows a veteran to see their Supplemental Claims",
+              "representative/SupplementalClaims.read": "Allows a veteran representative to see a veteran's Supplemental Claims",
+              "system/SupplementalClaims.read": "Allows a system to see a veteran's Supplemental Claims",
+              "veteran/SupplementalClaims.write": "Allows a veteran to submit Supplemental Claims for themselves",
+              "representative/SupplementalClaims.write": "Allows a veteran representative to submit Supplemental Claims for a veteran",
+              "system/SupplementalClaims.write": "Allows a system to submit Supplemental Claims for a veteran",
+              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
+              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
+              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran",
+              "veteran/appeals.write": "Allows a veteran to submit any type of appeal data for themselves",
+              "representative/appeals.write": "Allows a veteran representative to submit any type of appeal data for a veteran",
+              "system/appeals.write": "Allows a system to submit any type of appeal data for a veteran"
             }
           }
         }
@@ -3212,10 +3248,18 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "appeals/SupplementalClaims.read": "Retrieve supplemental claims data",
-              "appeals/SupplementalClaims.write": "Submit supplemental claims",
-              "appeals.read": "Retrieve any type of appeal data",
-              "appeals.write": "Submit any type of appeal"
+              "veteran/SupplementalClaims.read": "Allows a veteran to see their Supplemental Claims",
+              "representative/SupplementalClaims.read": "Allows a veteran representative to see a veteran's Supplemental Claims",
+              "system/SupplementalClaims.read": "Allows a system to see a veteran's Supplemental Claims",
+              "veteran/SupplementalClaims.write": "Allows a veteran to submit Supplemental Claims for themselves",
+              "representative/SupplementalClaims.write": "Allows a veteran representative to submit Supplemental Claims for a veteran",
+              "system/SupplementalClaims.write": "Allows a system to submit Supplemental Claims for a veteran",
+              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
+              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
+              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran",
+              "veteran/appeals.write": "Allows a veteran to submit any type of appeal data for themselves",
+              "representative/appeals.write": "Allows a veteran representative to submit any type of appeal data for a veteran",
+              "system/appeals.write": "Allows a system to submit any type of appeal data for a veteran"
             }
           }
         }

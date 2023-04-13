@@ -27,12 +27,16 @@
         "security": [
           {
             "productionOauth": [
-              "appeals/ContestableIssues.read"
+              "veteran/ContestableIssues.read",
+              "representative/ContestableIssues.read",
+              "system/ContestableIssues.read"
             ]
           },
           {
             "sandboxOauth": [
-              "appeals/ContestableIssues.read"
+              "veteran/ContestableIssues.read",
+              "representative/ContestableIssues.read",
+              "system/ContestableIssues.read"
             ]
           },
           {
@@ -348,8 +352,12 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "appeals/ContestableIssues.read": "Retrieve contestable issues data",
-              "appeals.read": "Retrieve any type of appeal data"
+              "veteran/ContestableIssues.read": "Allows a veteran to see their own contestable issues",
+              "representative/ContestableIssues.read": "Allows a veteran representative to see a veteran's contestable issues",
+              "system/ContestableIssues.read": "Allows a system to see a veteran's contestable issues",
+              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
+              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
+              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran"
             }
           }
         }
@@ -362,8 +370,12 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "appeals/ContestableIssues.read": "Retrieve contestable issues data",
-              "appeals.read": "Retrieve any type of appeal data"
+              "veteran/ContestableIssues.read": "Allows a veteran to see their own contestable issues",
+              "representative/ContestableIssues.read": "Allows a veteran representative to see a veteran's contestable issues",
+              "system/ContestableIssues.read": "Allows a system to see a veteran's contestable issues",
+              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
+              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
+              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran"
             }
           }
         }

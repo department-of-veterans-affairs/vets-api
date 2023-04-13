@@ -27,7 +27,7 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
       expect(response.body).to include('{"$ref":"phone.json"}')
     end
 
-    it_behaves_like('an endpoint with OpenID auth', described_class::OAUTH_SCOPES[:GET]) do
+    it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:GET]) do
       def make_request(auth_header)
         get(path, headers: auth_header)
       end

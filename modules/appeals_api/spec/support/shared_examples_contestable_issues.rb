@@ -45,7 +45,7 @@ RSpec.shared_examples 'Contestable Issues API v0 and Decision Reviews v1 & v2 sh
     if described_class.const_defined? :OAUTH_SCOPES
       let(:cassette) { "caseflow/#{decision_review_type}/contestable_issues" }
 
-      it_behaves_like('an endpoint with OpenID auth', described_class::OAUTH_SCOPES[:GET]) do
+      it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:GET]) do
         def make_request(auth_header)
           VCR.use_cassette(cassette) { get(path, headers: headers.merge(auth_header)) }
         end

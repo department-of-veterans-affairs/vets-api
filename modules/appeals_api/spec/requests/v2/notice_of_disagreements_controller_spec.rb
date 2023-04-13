@@ -218,7 +218,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
 
       it_behaves_like(
         'an endpoint with OpenID auth',
-        AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:POST]
+        scopes: AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:POST]
       ) do
         def make_request(auth_header)
           post(oauth_path, params: @max_data, headers: @max_headers.merge(auth_header))
@@ -285,7 +285,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
 
       it_behaves_like(
         'an endpoint with OpenID auth',
-        AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:GET]
+        scopes: AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:GET]
       ) do
         def make_request(auth_header)
           get(oauth_path, headers: auth_header)
@@ -400,7 +400,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
 
       it_behaves_like(
         'an endpoint with OpenID auth',
-        AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:POST]
+        scopes: AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:POST]
       ) do
         def make_request(auth_header)
           post(oauth_path, params: @max_data, headers: @max_headers.merge(auth_header))
