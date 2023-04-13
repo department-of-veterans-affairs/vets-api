@@ -297,7 +297,7 @@
                     "description": "Date the tracked item was requested",
                     "example": "2017-10-18"
                   },
-                  "trackedItemId": {
+                  "id": {
                     "type": "integer",
                     "description": "ID of the tracked item",
                     "example": 293454

@@ -799,7 +799,7 @@
                           "overdue": true,
                           "status": "INITIAL_REVIEW_COMPLETE",
                           "suspenseDate": "2022-03-06",
-                          "trackedItemId": 325525,
+                          "id": 325525,
                           "uploaded": false,
                           "uploadsAllowed": true
                         },
@@ -812,7 +812,7 @@
                           "overdue": true,
                           "status": "INITIAL_REVIEW_COMPLETE",
                           "suspenseDate": "2022-03-06",
-                          "trackedItemId": 325524,
+                          "id": 325524,
                           "uploaded": false,
                           "uploadsAllowed": true
                         }
@@ -1151,7 +1151,7 @@
                                     "description": "Date the tracked item was requested",
                                     "example": "2017-10-18"
                                   },
-                                  "trackedItemId": {
+                                  "id": {
                                     "type": "integer",
                                     "description": "ID of the tracked item",
                                     "example": 293454
@@ -1891,8 +1891,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-04-03",
-                      "expirationDate": "2024-04-03",
+                      "creationDate": "2023-04-12",
+                      "expirationDate": "2024-04-12",
                       "type": "compensation",
                       "status": "active"
                     }

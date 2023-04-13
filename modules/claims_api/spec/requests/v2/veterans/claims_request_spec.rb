@@ -1056,7 +1056,7 @@ RSpec.describe 'Claims', type: :request do
                     get claim_by_id_with_items_path, headers: auth_header
 
                     json_response = JSON.parse(response.body)
-                    first_doc_id = json_response['data']['attributes'].dig('trackedItems', 0, 'trackedItemId')
+                    first_doc_id = json_response['data']['attributes'].dig('trackedItems', 0, 'id')
                     resp_tracked_items = json_response['data']['attributes']['trackedItems']
                     expect(response.status).to eq(200)
                     expect(json_response).to be_an_instance_of(Hash)
