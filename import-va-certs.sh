@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 (
     cd /usr/local/share/ca-certificates/
