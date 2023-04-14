@@ -50,10 +50,16 @@ module BGS
 
     def create_person(participant)
       sentry_params = [:error, {}, { team: 'vfs-ebenefits' }]
+      if @veteran_info['ssn']&.length != 9
+        Rails.logger.info('Malformed SSN! Reassigning to User#ssn.')
+        @veteran_info['ssn'] = @user.ssn
+      end
       ssn = @veteran_info['ssn']
-      log_message_to_sentry('SSN is blank!', *sentry_params) if ssn.blank?
-      log_message_to_sentry("SSN has #{ssn.length} digits!", *sentry_params) if ssn.present? && ssn.length != 9
-      log_message_to_sentry('File Number is blank!', *sentry_params) if @veteran_info['va_file_number'].blank?
+      if ssn == '********'
+        log_message_to_sentry('SSN is redacted!', *sentry_params)
+      elsif ssn.present? && ssn.length != 9
+        log_message_to_sentry("SSN has #{ssn.length} digits!", *sentry_params)
+      end
 
       person_params = veteran.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       bgs_service.create_person(person_params)

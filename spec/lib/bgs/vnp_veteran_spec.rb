@@ -162,65 +162,68 @@ RSpec.describe BGS::VnpVeteran do
       end
     end
 
-    context 'SSN is blank' do
-      it 'logs an error to Sentry' do
-        VCR.use_cassette('bgs/vnp_veteran/create') do
-          all_flows_payload['veteran_information']['ssn'] = nil
-          vnp_veteran = BGS::VnpVeteran.new(
-            proc_id: '3828241',
-            payload: all_flows_payload,
-            user: user_object,
-            claim_type: '130DPNEBNADJ'
-          )
-          expect(vnp_veteran).to receive(:log_message_to_sentry).with(
-            'SSN is blank!',
-            :error,
-            {},
-            { team: 'vfs-ebenefits' }
-          )
-          vnp_veteran.create
-        end
-      end
-    end
-
     context 'SSN is not 9 digits' do
-      it 'logs an error to Sentry' do
+      before { all_flows_payload['veteran_information']['ssn'] = '12345678' }
+
+      it 'sets ssn to User#ssn' do
         VCR.use_cassette('bgs/vnp_veteran/create') do
-          all_flows_payload['veteran_information']['ssn'] = '22233444'
+          user_object = FactoryBot.create(:evss_user, :loa3, ssn: '123456789')
           vnp_veteran = BGS::VnpVeteran.new(
             proc_id: '3828241',
             payload: all_flows_payload,
             user: user_object,
             claim_type: '130DPNEBNADJ'
           )
-          expect(vnp_veteran).to receive(:log_message_to_sentry).with(
-            'SSN has 8 digits!',
-            :error,
-            {},
-            { team: 'vfs-ebenefits' }
-          )
+          expect(vnp_veteran).not_to receive(:log_message_to_sentry)
+          expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.')
+          expect_any_instance_of(BGS::Service).to receive(:create_person).with(hash_including(ssn_nbr: '123456789'))
           vnp_veteran.create
         end
       end
-    end
 
-    context 'file number is blank' do
-      it 'logs an error to Sentry' do
-        VCR.use_cassette('bgs/vnp_veteran/create') do
-          all_flows_payload['veteran_information']['va_file_number'] = nil
-          vnp_veteran = BGS::VnpVeteran.new(
-            proc_id: '3828241',
-            payload: all_flows_payload,
-            user: user_object,
-            claim_type: '130DPNEBNADJ'
-          )
-          expect(vnp_veteran).to receive(:log_message_to_sentry).with(
-            'File Number is blank!',
-            :error,
-            {},
-            { team: 'vfs-ebenefits' }
-          )
-          vnp_veteran.create
+      context 'User#ssn returns the same invalid ssn' do
+        it 'logs an error to Sentry' do
+          VCR.use_cassette('bgs/vnp_veteran/create') do
+            allow_any_instance_of(User).to receive(:ssn).and_return('12345678')
+            vnp_veteran = BGS::VnpVeteran.new(
+              proc_id: '3828241',
+              payload: all_flows_payload,
+              user: user_object,
+              claim_type: '130DPNEBNADJ'
+            )
+            expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.')
+            expect(vnp_veteran).to receive(:log_message_to_sentry).with(
+              'SSN has 8 digits!',
+              :error,
+              {},
+              { team: 'vfs-ebenefits' }
+            )
+            expect_any_instance_of(BGS::Service).to receive(:create_person).with(hash_including(ssn_nbr: '12345678'))
+            vnp_veteran.create
+          end
+        end
+      end
+
+      context 'User#ssn returns ********' do
+        it 'logs an error to Sentry' do
+          VCR.use_cassette('bgs/vnp_veteran/create') do
+            allow_any_instance_of(User).to receive(:ssn).and_return('********')
+            vnp_veteran = BGS::VnpVeteran.new(
+              proc_id: '3828241',
+              payload: all_flows_payload,
+              user: user_object,
+              claim_type: '130DPNEBNADJ'
+            )
+            expect(Rails.logger).to receive(:info).with('Malformed SSN! Reassigning to User#ssn.')
+            expect(vnp_veteran).to receive(:log_message_to_sentry).with(
+              'SSN is redacted!',
+              :error,
+              {},
+              { team: 'vfs-ebenefits' }
+            )
+            expect_any_instance_of(BGS::Service).to receive(:create_person).with(hash_including(ssn_nbr: '********'))
+            vnp_veteran.create
+          end
         end
       end
     end
