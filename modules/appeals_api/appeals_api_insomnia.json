@@ -1,7 +1,7 @@
 {
   "_type": "export",
   "__export_format": 4,
-  "__export_date": "2023-04-04T00:04:31.491Z",
+  "__export_date": "2023-04-13T00:21:54.503Z",
   "__export_source": "insomnia.desktop.app:v2023.1.0",
   "resources": [
     {
@@ -167,29 +167,6 @@
       "headers": [],
       "authentication": {},
       "metaSortKey": -1680213581660,
-      "isPrivate": false,
-      "settingStoreCookies": true,
-      "settingSendCookies": true,
-      "settingDisableRenderRequestBody": false,
-      "settingEncodeUrl": true,
-      "settingRebuildPath": true,
-      "settingFollowRedirects": "global",
-      "_type": "request"
-    },
-    {
-      "_id": "req_05f1788b5d954c6f9a1b41766ca780df",
-      "parentId": "fld_d16df3d551cd47d5bd7afd9eb79b2b2c",
-      "modified": 1680213611693,
-      "created": 1680213611693,
-      "url": "{{ _.base_uri }}/services/appeals/appeals-status/v1/schemas/headers",
-      "name": "Schema",
-      "description": "",
-      "method": "GET",
-      "body": {},
-      "parameters": [],
-      "headers": [],
-      "authentication": {},
-      "metaSortKey": -1679916699378.25,
       "isPrivate": false,
       "settingStoreCookies": true,
       "settingSendCookies": true,
@@ -680,93 +657,109 @@
       "modified": 1679620480318,
       "created": 1679620480318,
       "url": "{{ _.base_uri }}/services/appeals/supplemental-claims/v0/forms/200995/validate",
-      "name": "Validate a supplemental claim POST request",
+      "name": "Validate SC",
       "description": "",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"data\": {\n    \"type\": \"string\",\n    \"attributes\": {\n      \"benefitType\": \"string\",\n      \"claimantType\": \"string\",\n      \"claimantTypeOtherValue\": \"string\",\n      \"veteran\": {\n        \"address\": {\n          \"addressLine1\": \"string\",\n          \"addressLine2\": \"string\",\n          \"addressLine3\": \"string\",\n          \"city\": \"string\",\n          \"stateCode\": \"string\",\n          \"countryCodeISO2\": \"string\",\n          \"zipCode5\": \"string\",\n          \"internationalPostalCode\": \"string\"\n        },\n        \"phone\": null,\n        \"email\": \"user@example.com\",\n        \"timezone\": null\n      },\n      \"claimant\": {\n        \"address\": {\n          \"addressLine1\": \"string\",\n          \"addressLine2\": \"string\",\n          \"addressLine3\": \"string\",\n          \"city\": \"string\",\n          \"stateCode\": \"string\",\n          \"countryCodeISO2\": \"string\",\n          \"zipCode5\": \"string\",\n          \"internationalPostalCode\": \"string\"\n        },\n        \"phone\": null,\n        \"email\": \"user@example.com\",\n        \"timezone\": null\n      },\n      \"evidenceSubmission\": {\n        \"evidenceType\": [\n          \"string\"\n        ],\n        \"retrieveFrom\": [\n          {\n            \"type\": \"string\",\n            \"attributes\": {\n              \"locationAndName\": \"string\",\n              \"evidenceDates\": [\n                {\n                  \"startDate\": \"string\",\n                  \"endDate\": \"string\"\n                }\n              ]\n            }\n          }\n        ]\n      },\n      \"form5103Acknowledged\": true,\n      \"socOptIn\": true\n    }\n  },\n  \"included\": [\n    {\n      \"type\": \"string\",\n      \"attributes\": {\n        \"issue\": \"string\",\n        \"decisionDate\": \"string\",\n        \"decisionIssueId\": 0,\n        \"ratingIssueReferenceId\": \"string\",\n        \"ratingDecisionReferenceId\": \"string\",\n        \"socDate\": \"string\"\n      }\n    }\n  ]\n}"
+        "text": "{\n\t\"data\": {\n\t\t\"type\": \"supplementalClaim\",\n\t\t\"attributes\": {\n\t\t\t\"benefitType\": \"compensation\",\n\t\t\t\"claimantType\": \"other\",\n\t\t\t\"claimantTypeOtherValue\": \"Veteran Attorney\",\n\t\t\t\"veteran\": {\n\t\t\t\t\"address\": {\n\t\t\t\t\t\"addressLine1\": \"123 Main St\",\n\t\t\t\t\t\"addressLine2\": \"Suite #1200\",\n\t\t\t\t\t\"addressLine3\": \"Box 4\",\n\t\t\t\t\t\"city\": \"New York\",\n\t\t\t\t\t\"countryCodeISO2\": \"US\",\n\t\t\t\t\t\"stateCode\": \"NY\",\n\t\t\t\t\t\"zipCode5\": \"30012\"\n\t\t\t\t},\n\t\t\t\t\"phone\": {\n\t\t\t\t\t\"countryCode\": \"03\",\n\t\t\t\t\t\"areaCode\": \"555\",\n\t\t\t\t\t\"phoneNumber\": \"8001111\"\n\t\t\t\t},\n\t\t\t\t\"email\": \"{{ _.veteran_email }}\",\n\t\t\t\t\"timezone\": \"America/Chicago\"\n\t\t\t},\n\t\t\t\"claimant\": {\n\t\t\t\t\"address\": {\n\t\t\t\t\t\"addressLine1\": \"456 First St\",\n\t\t\t\t\t\"addressLine2\": \"Apt 5\",\n\t\t\t\t\t\"addressLine3\": \"Box 1\",\n\t\t\t\t\t\"city\": \"Montreal\",\n\t\t\t\t\t\"countryCodeISO2\": \"CA\",\n\t\t\t\t\t\"zipCode5\": \"00000\",\n\t\t\t\t\t\"internationalPostalCode\": \"A9999AAA\"\n\t\t\t\t},\n\t\t\t\t\"phone\": {\n\t\t\t\t\t\"countryCode\": \"1\",\n\t\t\t\t\t\"areaCode\": \"555\",\n\t\t\t\t\t\"phoneNumber\": \"8111100\",\n\t\t\t\t\t\"phoneNumberExt\": \"4\"\n\t\t\t\t},\n\t\t\t\t\"email\": \"{{ _.nvc_email }}\",\n\t\t\t\t\"timezone\": \"America/Detroit\"\n\t\t\t},\n\t\t\t\"socOptIn\": true,\n\t\t\t\"form5103Acknowledged\": true,\n\t\t\t\"evidenceSubmission\": {\n\t\t\t\t\"evidenceType\": [\n\t\t\t\t\t\"upload\",\n\t\t\t\t\t\"retrieval\"\n\t\t\t\t],\n\t\t\t\t\"retrieveFrom\": [\n\t\t\t\t\t{\n\t\t\t\t\t\t\"type\": \"retrievalEvidence\",\n\t\t\t\t\t\t\"attributes\": {\n\t\t\t\t\t\t\t\"locationAndName\": \"X-Ray VAMC\",\n\t\t\t\t\t\t\t\"evidenceDates\": [\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"startDate\": \"2020-04-10\",\n\t\t\t\t\t\t\t\t\t\"endDate\": \"2020-04-10\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"startDate\": \"2020-01-02\",\n\t\t\t\t\t\t\t\t\t\"endDate\": \"2020-02-01\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"startDate\": \"2020-02-20\",\n\t\t\t\t\t\t\t\t\t\"endDate\": \"2020-02-22\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"startDate\": \"2019-02-02\",\n\t\t\t\t\t\t\t\t\t\"endDate\": \"2020-02-03\"\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t]\n\t\t\t\t\t\t}\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"type\": \"retrievalEvidence\",\n\t\t\t\t\t\t\"attributes\": {\n\t\t\t\t\t\t\t\"locationAndName\": \"Blood Lab VA Facility\",\n\t\t\t\t\t\t\t\"evidenceDates\": [\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"startDate\": \"2020-02-20\",\n\t\t\t\t\t\t\t\t\t\"endDate\": \"2020-02-22\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"startDate\": \"2020-02-02\",\n\t\t\t\t\t\t\t\t\t\"endDate\": \"2020-02-07\"\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t]\n\t\t\t\t\t\t}\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"type\": \"retrievalEvidence\",\n\t\t\t\t\t\t\"attributes\": {\n\t\t\t\t\t\t\t\"locationAndName\": \"Doctor's Notes VAMC\",\n\t\t\t\t\t\t\t\"evidenceDates\": [\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"startDate\": \"2020-04-10\",\n\t\t\t\t\t\t\t\t\t\"endDate\": \"2020-04-10\"\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t]\n\t\t\t\t\t\t}\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"type\": \"retrievalEvidence\",\n\t\t\t\t\t\t\"attributes\": {\n\t\t\t\t\t\t\t\"locationAndName\": \"CT scan VA Medical Facility\",\n\t\t\t\t\t\t\t\"evidenceDates\": [\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"startDate\": \"2020-07-19\",\n\t\t\t\t\t\t\t\t\t\"endDate\": \"2020-07-19\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"startDate\": \"2018-03-06\",\n\t\t\t\t\t\t\t\t\t\"endDate\": \"2019-02-12\"\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t]\n\t\t\t\t\t\t}\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"type\": \"retrievalEvidence\",\n\t\t\t\t\t\t\"attributes\": {\n\t\t\t\t\t\t\t\"locationAndName\": \"Lab work VAMC\",\n\t\t\t\t\t\t\t\"evidenceDates\": [\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"startDate\": \"2018-03-06\",\n\t\t\t\t\t\t\t\t\t\"endDate\": \"2018-03-06\"\n\t\t\t\t\t\t\t\t},\n\t\t\t\t\t\t\t\t{\n\t\t\t\t\t\t\t\t\t\"startDate\": \"2018-01-15\",\n\t\t\t\t\t\t\t\t\t\"endDate\": \"2018-01-15\"\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t]\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t]\n\t\t\t}\n\t\t}\n\t},\n\t\"included\": [\n\t\t{\n\t\t\t\"type\": \"contestableIssue\",\n\t\t\t\"attributes\": {\n\t\t\t\t\"issue\": \"right shoulder\",\n\t\t\t\t\"decisionDate\": \"2000-01-08\",\n\t\t\t\t\"socDate\": \"2020-04-30\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"contestableIssue\",\n\t\t\t\"attributes\": {\n\t\t\t\t\"issue\": \"lower back\",\n\t\t\t\t\"decisionDate\": \"1900-01-06\",\n\t\t\t\t\"socDate\": \"2021-02-24\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"contestableIssue\",\n\t\t\t\"attributes\": {\n\t\t\t\t\"issue\": \"torn rotator cuff\",\n\t\t\t\t\"decisionDate\": \"1989-03-07\",\n\t\t\t\t\"socDate\": \"2020-04-30\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"contestableIssue\",\n\t\t\t\"attributes\": {\n\t\t\t\t\"issue\": \"hearing loss\",\n\t\t\t\t\"decisionDate\": \"1930-10-20\",\n\t\t\t\t\"socDate\": \"2016-05-30\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"contestableIssue\",\n\t\t\t\"attributes\": {\n\t\t\t\t\"issue\": \"sciatica\",\n\t\t\t\t\"decisionDate\": \"2007-01-19\",\n\t\t\t\t\"socDate\": \"2012-01-02\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"contestableIssue\",\n\t\t\t\"attributes\": {\n\t\t\t\t\"issue\": \"bowel obstruction\",\n\t\t\t\t\"decisionDate\": \"1999-12-29\",\n\t\t\t\t\"socDate\": \"2019-08-13\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"contestableIssue\",\n\t\t\t\"attributes\": {\n\t\t\t\t\"issue\": \"right eye\",\n\t\t\t\t\"decisionDate\": \"1920-04-02\",\n\t\t\t\t\"socDate\": \"2019-11-19\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"contestableIssue\",\n\t\t\t\"attributes\": {\n\t\t\t\t\"issue\": \"left index finger\",\n\t\t\t\t\"decisionDate\": \"2018-08-17\",\n\t\t\t\t\"socDate\": \"2021-03-20\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"contestableIssue\",\n\t\t\t\"attributes\": {\n\t\t\t\t\"issue\": \"spinal compression\",\n\t\t\t\t\"decisionDate\": \"2013-09-11\",\n\t\t\t\t\"socDate\": \"2020-08-24\"\n\t\t\t}\n\t\t}\n\t]\n}"
       },
       "parameters": [],
       "headers": [
         {
           "name": "X-VA-SSN",
           "disabled": false,
-          "value": "string"
+          "value": "{{ _.veteran_ssn }}",
+          "id": "pair_3d81a7e7919d4954a18d8524e158c883"
         },
         {
           "name": "X-VA-ICN",
-          "disabled": true,
-          "value": "string"
+          "disabled": false,
+          "value": "{{ _.veteran_icn }}",
+          "id": "pair_6702244a8e56420881cbad0989eb70bc"
         },
         {
           "name": "X-VA-First-Name",
           "disabled": false,
-          "value": "null"
+          "value": "{{ _.veteran_first_name }}",
+          "id": "pair_a4226b42cda840c5b6d48cbdc9559dd8"
         },
         {
           "name": "X-VA-Middle-Initial",
           "disabled": true,
-          "value": "null"
+          "value": "",
+          "id": "pair_2c07219ac04547ae81fb41e66a8e6265"
         },
         {
           "name": "X-VA-Last-Name",
           "disabled": false,
-          "value": "null"
+          "value": "{{ _.veteran_last_name }}",
+          "id": "pair_9f42668ca3194074b00f39660f094790"
         },
         {
           "name": "X-VA-Birth-Date",
           "disabled": false,
-          "value": "string"
+          "value": "{{ _.veteran_birth_date }}",
+          "id": "pair_03ec620b4be242d3b587bfd8ed3c53c9"
         },
         {
           "name": "X-VA-File-Number",
           "disabled": true,
-          "value": "null"
+          "value": "",
+          "id": "pair_ebfc4f67348d42858f3936ebcf826c42"
         },
         {
           "name": "X-VA-Insurance-Policy-Number",
           "disabled": true,
-          "value": "null"
+          "value": "",
+          "id": "pair_eaf91684b103418e96cdca93f8cf8333"
         },
         {
           "name": "X-VA-NonVeteranClaimant-First-Name",
           "disabled": true,
-          "value": "null"
+          "value": "",
+          "id": "pair_df3e3274a66549b4b727d3805035c272"
         },
         {
           "name": "X-VA-NonVeteranClaimant-Last-Name",
           "disabled": true,
-          "value": "null"
+          "value": "",
+          "id": "pair_af97a89cbb124be39fd75a638c3ef7c4"
         },
         {
           "name": "X-Consumer-Username",
           "disabled": true,
-          "value": "string"
+          "value": "",
+          "id": "pair_232725c347724b24a9613213b58769ec"
         },
         {
           "name": "X-Consumer-ID",
           "disabled": true,
-          "value": "string"
+          "value": "",
+          "id": "pair_bdc8e64beb11493a8ea202df7f2505cf"
         },
         {
           "name": "X-Alternate-Signer-First-Name",
           "disabled": true,
-          "value": "string"
+          "value": "",
+          "id": "pair_bf14bb1576eb4325bdb036a5040e4e57"
         },
         {
           "name": "X-Alternate-Signer-Middle-Initial",
           "disabled": true,
-          "value": "string"
+          "value": "",
+          "id": "pair_049db463c30e4494bd07d7de8ede5cfb"
         },
         {
           "name": "X-Alternate-Signer-Last-Name",
           "disabled": true,
-          "value": "string"
+          "value": "",
+          "id": "pair_1d7381e914dd45d796981a4b057646b7"
         },
         {
           "name": "Content-Type",
-          "value": "application/json"
+          "value": "application/json",
+          "id": "pair_9a6a19b362354a23919051084f426830"
         }
       ],
       "authentication": {
@@ -1093,7 +1086,7 @@
       "parentId": "fld_458b4a80f2634dd58dfd200a709d8c83",
       "modified": 1679620487258,
       "created": 1679620487258,
-      "url": "{{ _.base_uri }}/services/appeals/legacy-appeals/v0/legacy_appeals",
+      "url": "{{ _.base_uri }}/services/appeals/legacy-appeals/v0/legacy-appeals",
       "name": "List legacy appeals",
       "description": "",
       "method": "GET",
@@ -1103,7 +1096,7 @@
         {
           "name": "X-VA-SSN",
           "disabled": false,
-          "value": "{{ _.veteran_ssn }}",
+          "value": "{{ _.veteran_ssn_legacy_appeals }}",
           "id": "pair_94e55fae938a4c25bba236ac303303ba"
         },
         {
@@ -1115,7 +1108,7 @@
         {
           "name": "X-VA-ICN",
           "disabled": false,
-          "value": "{{ _.veteran_icn }}",
+          "value": "{{ _.veteran_icn_legacy_appeals }}",
           "id": "pair_828207d4fc924b31b8c5b6796b75eda3"
         }
       ],
@@ -1180,7 +1173,10 @@
       "body": {},
       "parameters": [],
       "headers": [],
-      "authentication": {},
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.bearer_token }}"
+      },
       "metaSortKey": -1679916573063,
       "isPrivate": false,
       "settingStoreCookies": true,
@@ -1514,7 +1510,7 @@
       "parentId": "fld_dd15a0685b71442f944ac9e48430a803",
       "modified": 1679620505653,
       "created": 1679620505653,
-      "url": "{{ _.base_uri }}/services/appeals/contestable-issues/v0/contestable-issues/higher_level_reviews?benefit_type=compensation",
+      "url": "{{ _.base_uri }}/services/appeals/contestable-issues/v0/contestable-issues/higher_level_reviews",
       "name": "List HLR / Compensation",
       "description": "",
       "method": "GET",
@@ -1522,15 +1518,16 @@
       "parameters": [
         {
           "name": "benefit_type",
-          "disabled": true,
-          "value": "string"
+          "disabled": false,
+          "value": "compensation",
+          "id": "pair_c438f73cd0b34d83898749bf765d5c91"
         }
       ],
       "headers": [
         {
           "name": "X-VA-SSN",
           "disabled": false,
-          "value": "{{veteran_ssn}}",
+          "value": "{{ _.veteran_ssn_contestable_issues }}",
           "id": "pair_4d734b863b7b446596c34f1c0fb4a610"
         },
         {
@@ -1548,7 +1545,7 @@
         {
           "name": "X-VA-ICN",
           "disabled": false,
-          "value": "{{ _.veteran_icn }}",
+          "value": "{{ _.veteran_icn_contestable_issues }}",
           "id": "pair_9c6ccd6fd90d41389e84174192808152"
         }
       ],
@@ -1598,7 +1595,10 @@
       "body": {},
       "parameters": [],
       "headers": [],
-      "authentication": {},
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.bearer_token }}"
+      },
       "metaSortKey": -1680213400142,
       "isPrivate": false,
       "settingStoreCookies": true,
@@ -1614,7 +1614,7 @@
       "parentId": "fld_dd15a0685b71442f944ac9e48430a803",
       "modified": 1680213406254,
       "created": 1680213406254,
-      "url": "{{ _.base_uri }}/services/appeals/constestable-issues/v0/docs",
+      "url": "{{ _.base_uri }}/services/appeals/contestable-issues/v0/docs",
       "name": "Docs",
       "description": "",
       "method": "GET",
@@ -2330,7 +2330,7 @@
       "parentId": "fld_wrk_d89a54f45e11429abb2af16aa95af1ed717c1e2a",
       "modified": 1679619764808,
       "created": 1679619764808,
-      "url": "{{ _.base_uri }}/services/appeals/v2/decision_reviews/contestable_issues/higher_level_reviews?benefit_type=compensation",
+      "url": "{{ _.base_uri }}/services/appeals/v2/decision_reviews/contestable_issues/higher_level_reviews",
       "name": "List HLR / Compensation",
       "description": "",
       "method": "GET",
@@ -2338,15 +2338,16 @@
       "parameters": [
         {
           "name": "benefit_type",
-          "disabled": true,
-          "value": "string"
+          "disabled": false,
+          "value": "compensation",
+          "id": "pair_7fe010dd1d1c4ad6b8c8ac144641a23c"
         }
       ],
       "headers": [
         {
           "name": "X-VA-SSN",
           "disabled": false,
-          "value": "{{ _.veteran_ssn }}",
+          "value": "{{ _.veteran_ssn_contestable_issues }}",
           "id": "pair_c7c4e6795083416498f219b2c6a0b4dd"
         },
         {
@@ -2364,7 +2365,7 @@
         {
           "name": "X-VA-ICN",
           "disabled": false,
-          "value": "{{ _.veteran_icn }}",
+          "value": "{{ _.veteran_icn_contestable_issues }}",
           "id": "pair_4dec9f88e16b4b079f3adedfed068d75"
         }
       ],
@@ -2411,8 +2412,9 @@
       "headers": [
         {
           "name": "X-VA-SSN",
-          "value": "{{ _.veteran_ssn }}",
-          "id": "pair_8f77f2446e3d4279ac1d3cb7c94cf5c4"
+          "value": "{{ _.veteran_ssn_legacy_appeals }}",
+          "id": "pair_8f77f2446e3d4279ac1d3cb7c94cf5c4",
+          "disabled": false
         },
         {
           "name": "X-VA-File-Number",
@@ -2422,8 +2424,9 @@
         },
         {
           "name": "X-VA-ICN",
-          "value": "{{ _.veteran_icn }}",
-          "id": "pair_7401764738714fbcb858c61431404d4d"
+          "value": "{{ _.veteran_icn_legacy_appeals }}",
+          "id": "pair_7401764738714fbcb858c61431404d4d",
+          "disabled": false
         }
       ],
       "authentication": {
@@ -2877,7 +2880,7 @@
       "parentId": "fld_6898de7a53234e6eb93a8ab25887166b",
       "modified": 1679620480308,
       "created": 1679620480308,
-      "url": "{{ _.base_uri }}/services/appeals/supplemental-claims/v0/evidence-submissions/{% prompt 'UUID required', 'UUID of SC evidence submission', '', '', false, true %}",
+      "url": "{{ _.base_uri }}/services/appeals/supplemental-claims/v0/evidence-submissions/{% response 'body', 'req_cbb139a2015a416d968dde9b20fb7f3a', 'b64::JC5kYXRhLmlk::46b', 'never', 60 %}",
       "name": "Show an SC evidence submission",
       "description": "",
       "method": "GET",
@@ -2919,7 +2922,27 @@
       "name": "Upload SC evidence submission",
       "description": "",
       "method": "PUT",
-      "body": {},
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [
+          {
+            "id": "pair_d1cc40a4f2a34a9599d28fdf43387554",
+            "name": "content",
+            "value": "{{ _.vets_api_dir }}/modules/vba_documents/spec/fixtures/21x21.pdf",
+            "description": "",
+            "type": "file",
+            "fileName": "{{ _.vets_api_dir }}/modules/vba_documents/spec/fixtures/21x21.pdf"
+          },
+          {
+            "id": "pair_bc5230df06994df3986f7151ee14fb65",
+            "name": "metadata",
+            "value": "{{ _.vets_api_dir }}/modules/vba_documents/spec/fixtures/valid_metadata.json",
+            "description": "",
+            "type": "file",
+            "fileName": "{{ _.vets_api_dir }}/modules/vba_documents/spec/fixtures/valid_metadata.json"
+          }
+        ]
+      },
       "parameters": [],
       "headers": [
         {
@@ -2927,12 +2950,13 @@
           "disabled": true,
           "value": "",
           "id": "pair_62d4c2f1276a4d01a2cfacdba453d24d"
+        },
+        {
+          "name": "Content-Type",
+          "value": "multipart/form-data"
         }
       ],
-      "authentication": {
-        "type": "bearer",
-        "token": "{{ _.bearer_token }}"
-      },
+      "authentication": {},
       "metaSortKey": -1679646623153,
       "isPrivate": false,
       "settingStoreCookies": true,
@@ -2967,6 +2991,24 @@
           "disabled": false,
           "value": "{{ _.veteran_ssn }}",
           "id": "pair_ebd8f40e053b484aacaea5b82efa4366"
+        },
+        {
+          "id": "pair_33f85e961c2548b49714489dc7c5e822",
+          "name": "X-VA-First-Name",
+          "value": "{{ _.veteran_first_name }}",
+          "description": ""
+        },
+        {
+          "id": "pair_7aa49f6ff77449e1b17feb5888ed43af",
+          "name": "X-VA-Last-Name",
+          "value": "{{ _.veteran_last_name }}",
+          "description": ""
+        },
+        {
+          "id": "pair_b96ea54b3f424d4e80bcd2faa85202d2",
+          "name": "X-VA-Birth-Date",
+          "value": "{{ _.veteran_birth_date }}",
+          "description": ""
         }
       ],
       "authentication": {
@@ -2988,7 +3030,7 @@
       "parentId": "fld_cf4c7d7af4224f64b727429f8bc4d83d",
       "modified": 1679620494979,
       "created": 1679620494979,
-      "url": "{{ _.base_uri }}/services/appeals/notice-of-disagreements/v0/evidence-submissions/{% prompt 'UUID required', 'UUID of NOD evidence submission', '', '', false, true %}",
+      "url": "{{ _.base_uri }}/services/appeals/notice-of-disagreements/v0/evidence-submissions/{% response 'body', 'req_545b598d7d85412ab1d0f204a4e979a9', 'b64::JC5kYXRhLmlk::46b', 'never', 60 %}",
       "name": "Show NOD evidence submission",
       "description": "",
       "method": "GET",
@@ -3030,7 +3072,27 @@
       "name": "Upload NOD evidence submission",
       "description": "",
       "method": "PUT",
-      "body": {},
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [
+          {
+            "id": "pair_74ce02cda66b47f78a2164516a5b2299",
+            "name": "content",
+            "value": "{{ _.vets_api_dir }}/modules/vba_documents/spec/fixtures/21x21.pdf",
+            "description": "",
+            "type": "file",
+            "fileName": "{{ _.vets_api_dir }}/modules/vba_documents/spec/fixtures/21x21.pdf"
+          },
+          {
+            "id": "pair_9b7d3565e1374ef49e32ad14de03d1a2",
+            "name": "metadata",
+            "value": "{{ _.vets_api_dir }}/modules/vba_documents/spec/fixtures/valid_metadata.json",
+            "description": "",
+            "type": "file",
+            "fileName": "{{ _.vets_api_dir }}/modules/vba_documents/spec/fixtures/valid_metadata.json"
+          }
+        ]
+      },
       "parameters": [],
       "headers": [
         {
@@ -3038,12 +3100,13 @@
           "disabled": true,
           "value": "",
           "id": "pair_6991f28445604d3288486e15391efd86"
+        },
+        {
+          "name": "Content-Type",
+          "value": "multipart/form-data"
         }
       ],
-      "authentication": {
-        "type": "bearer",
-        "token": "{{ _.bearer_token }}"
-      },
+      "authentication": {},
       "metaSortKey": -1679644797628.75,
       "isPrivate": false,
       "settingStoreCookies": true,
@@ -3078,6 +3141,24 @@
           "disabled": false,
           "value": "{{ _.veteran_file_number }}",
           "id": "pair_e7c194c365164559b7fd632285b4cf26"
+        },
+        {
+          "id": "pair_210b0ebcf8b847a9bb07f36d9cc3369d",
+          "name": "X-VA-First-Name",
+          "value": "{{ _.veteran_first_name }}",
+          "description": ""
+        },
+        {
+          "id": "pair_29f6906927f447728d951c99bd81f460",
+          "name": "X-VA-Last-Name",
+          "value": "{{ _.veteran_last_name }}",
+          "description": ""
+        },
+        {
+          "id": "pair_0e51a2c0b34349cbb7ae32296dd527b2",
+          "name": "X-VA-Birth-Date",
+          "value": "{{ _.veteran_birth_date }}",
+          "description": ""
         }
       ],
       "authentication": {
@@ -3099,7 +3180,7 @@
       "parentId": "fld_ab4a788385e04affbca9523cd7b2c540",
       "modified": 1679615865339,
       "created": 1679615865339,
-      "url": "{{ _.base_uri }}/services/appeals/v2/decision_reviews/notice_of_disagreements/evidence_submissions/{% prompt 'UUID required', 'UUID of NOD evidence submission', '', '', false, true %}",
+      "url": "{{ _.base_uri }}/services/appeals/v2/decision_reviews/notice_of_disagreements/evidence_submissions/{% response 'body', 'req_wrk_d89a54f45e11429abb2af16aa95af1eda598c96f', 'b64::JC5kYXRhLmlk::46b', 'never', 60 %}",
       "name": "Show NOD evidence submission",
       "description": "",
       "method": "GET",
@@ -3143,21 +3224,40 @@
       "name": "Upload NOD evidence submission",
       "description": "",
       "method": "PUT",
-      "body": {},
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [
+          {
+            "id": "pair_72552c35a60e498c87348efff0ebab8a",
+            "name": "metadata",
+            "value": "{{ _.vets_api_dir }}/modules/vba_documents/spec/fixtures/valid_metadata.json",
+            "description": "",
+            "type": "file",
+            "fileName": "{{ _.vets_api_dir }}/modules/vba_documents/spec/fixtures/valid_metadata.json"
+          },
+          {
+            "id": "pair_614fc8c9ec114b94980ebb04ba927dfb",
+            "name": "content",
+            "value": "{{ _.vets_api_dir }}/modules/vba_documents/spec/fixtures/21x21.pdf",
+            "description": "",
+            "type": "file",
+            "fileName": "{{ _.vets_api_dir }}/modules/vba_documents/spec/fixtures/21x21.pdf"
+          }
+        ]
+      },
       "parameters": [],
       "headers": [
         {
           "name": "Content-MD5",
           "disabled": true,
-          "value": "string"
+          "value": ""
+        },
+        {
+          "name": "Content-Type",
+          "value": "multipart/form-data"
         }
       ],
-      "authentication": {
-        "type": "apikey",
-        "key": "apikey",
-        "value": "{{ apikey }}",
-        "addTo": "header"
-      },
+      "authentication": {},
       "metaSortKey": -1679619214281.5,
       "isPrivate": false,
       "settingStoreCookies": true,
@@ -3192,6 +3292,24 @@
           "disabled": false,
           "value": "{{ _.veteran_file_number }}",
           "id": "pair_e811c7a105124efeadc13c5ee3151be0"
+        },
+        {
+          "id": "pair_e10a2c844c67473389602e4b8a3a6b63",
+          "name": "X-VA-First-Name",
+          "value": "{{ _.veteran_first_name }}",
+          "description": ""
+        },
+        {
+          "id": "pair_a7a7ef39fb8b4dde86aa26913fb50fbd",
+          "name": "X-VA-Last-Name",
+          "value": "{{ _.veteran_last_name }}",
+          "description": ""
+        },
+        {
+          "id": "pair_4de664c8c3854b64ad933158996e11f2",
+          "name": "X-VA-Birth-Date",
+          "value": "{{ _.veteran_birth_date }}",
+          "description": ""
         }
       ],
       "authentication": {
@@ -3229,7 +3347,7 @@
         },
         {
           "name": "X-VA-SSN",
-          "value": "{{ _.veteran_ssn }}",
+          "value": "{{ _.veteran_ssn_contestable_issues }}",
           "id": "pair_fd4d9b4d43ec4bb78957206881026f03"
         },
         {
@@ -3317,7 +3435,7 @@
       "parentId": "fld_983fdc5a80fe46acb4b865a58a3ef204",
       "modified": 1679619804153,
       "created": 1679619804153,
-      "url": "{{ _.base_uri }}/services/appeals/v2/decision_reviews/supplemental_claims/evidence_submissions/{% prompt 'UUID required', 'UUID of SC evidence submission', '', '', false, true %}",
+      "url": "{{ _.base_uri }}/services/appeals/v2/decision_reviews/supplemental_claims/evidence_submissions/{% response 'body', 'req_wrk_d89a54f45e11429abb2af16aa95af1ed0302f66d', 'b64::JC5kYXRhLmlk::46b', 'never', 60 %}",
       "name": "Show SC evidence submission",
       "description": "",
       "method": "GET",
@@ -3357,25 +3475,46 @@
       "parentId": "fld_983fdc5a80fe46acb4b865a58a3ef204",
       "modified": 1679619804154,
       "created": 1679619804154,
-      "url": "{% response 'body', 'req_wrk_d89a54f45e11429abb2af16aa95af1ed0302f66d', 'b64::JC5hdHRyaWJ1dGVzLmxvY2F0aW9u::46b', 'never', 60 %}",
+      "url": "{% response 'body', 'req_wrk_d89a54f45e11429abb2af16aa95af1ed0302f66d', 'b64::JC5kYXRhLmF0dHJpYnV0ZXMubG9jYXRpb24=::46b', 'never', 60 %}",
       "name": "Upload SC evidence submission",
       "description": "",
       "method": "PUT",
-      "body": {},
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [
+          {
+            "id": "pair_6eb04e3bcfeb4b26a2cb7637c3c42d79",
+            "name": "metadata",
+            "value": "{{ _.vets_api_dir }}/modules/vba_documents/spec/fixtures/valid_metadata.json",
+            "description": "",
+            "type": "file",
+            "fileName": "{{ _.vets_api_dir }}/modules/vba_documents/spec/fixtures/valid_metadata.json"
+          },
+          {
+            "id": "pair_afcf1f8a0a3e48268b7d4a92256535af",
+            "name": "content",
+            "value": "{{ _.vets_api_dir }}/modules/vba_documents/spec/fixtures/21x21.pdf",
+            "description": "",
+            "type": "file",
+            "fileName": "{{ _.vets_api_dir }}/modules/vba_documents/spec/fixtures/21x21.pdf"
+          }
+        ]
+      },
       "parameters": [],
       "headers": [
         {
           "name": "Content-MD5",
           "disabled": true,
-          "value": "string"
+          "value": "",
+          "id": "pair_6cae7e256e824fdd8bf9e71b0b23059e"
+        },
+        {
+          "name": "Content-Type",
+          "value": "multipart/form-data",
+          "id": "pair_24f8e3962a7d4be78db691234876f490"
         }
       ],
-      "authentication": {
-        "type": "apikey",
-        "key": "apikey",
-        "value": "{{ apikey }}",
-        "addTo": "header"
-      },
+      "authentication": {},
       "metaSortKey": -1679620939716.5,
       "isPrivate": false,
       "settingStoreCookies": true,
@@ -3410,6 +3549,24 @@
           "disabled": false,
           "value": "{{ _.veteran_ssn }}",
           "id": "pair_c51510b728d0426c877a3976eeed1e1f"
+        },
+        {
+          "id": "pair_3b061da2a9e549bebb73002b7539d0d8",
+          "name": "X-VA-First-Name",
+          "value": "{{ _.veteran_first_name }}",
+          "description": ""
+        },
+        {
+          "id": "pair_bbaa0c59029344ebb195a23cee2f5232",
+          "name": "X-VA-Last-Name",
+          "value": "{{ _.veteran_last_name }}",
+          "description": ""
+        },
+        {
+          "id": "pair_ba0dfc6e5d984c32a6989489df11ac3b",
+          "name": "X-VA-Birth-Date",
+          "value": "{{ _.veteran_birth_date }}",
+          "description": ""
         }
       ],
       "authentication": {
@@ -3453,7 +3610,11 @@
         "nvc_file_number": "333333333",
         "nvc_first_name": "NVCFirstName",
         "nvc_last_name": "NVCLastName",
-        "nvc_birth_date": "1803-04-05"
+        "nvc_birth_date": "1803-04-05",
+        "veteran_ssn_contestable_issues": "223560069",
+        "veteran_icn_contestable_issues": "9876543210V012345",
+        "veteran_ssn_legacy_appeals": "706572139",
+        "veteran_icn_legacy_appeals": "1200003711V449779"
       },
       "dataPropertyOrder": {
         "&": [
@@ -3475,7 +3636,11 @@
           "nvc_file_number",
           "nvc_first_name",
           "nvc_last_name",
-          "nvc_birth_date"
+          "nvc_birth_date",
+          "veteran_ssn_contestable_issues",
+          "veteran_icn_contestable_issues",
+          "veteran_ssn_legacy_appeals",
+          "veteran_icn_legacy_appeals"
         ]
       },
       "color": null,
@@ -3492,29 +3657,29 @@
       "cookies": [
         {
           "key": "TS01dd66bd",
-          "value": "01874af5a4d86234493a497e9d378b6f2fa5b6e917fb49608b841f68f10628724c9eb9b5ad70091ffbed61f5d74f901623f9c72307",
+          "value": "01874af5a4c05fd95c3c8619e147165417f4afbc590c97859d4fb7bbe69be53a3e18e1391258fa27ab3a3ae9593b29956ecee8adf4",
           "maxAge": 900,
           "domain": "sandbox-api.va.gov",
           "path": "/",
           "hostOnly": true,
           "creation": "2023-03-30T22:06:44.708Z",
-          "lastAccessed": "2023-03-30T22:06:44.708Z",
-          "id": "45682462564266"
+          "lastAccessed": "2023-04-12T23:38:23.875Z",
+          "id": "7862826036066253"
         },
         {
           "key": "TS01de8f7b",
-          "value": "01c8917e48bd2c4e76bc54b626b483dae691649fd7495004758a9c2978fe9ba01dba5eb598554204b9d25d693c75611dd315c0da40",
+          "value": "01c8917e48ef2f27ce857fcbce8f49afa9a4ea9d3a47a853c6badd67af1ef0f9a9d584eafbf86b67576d4eddc91be41e1dc6d82cf4",
           "maxAge": 900,
           "domain": "dev-api.va.gov",
           "path": "/",
           "hostOnly": true,
           "creation": "2023-04-03T20:19:19.325Z",
-          "lastAccessed": "2023-04-03T22:56:46.606Z",
-          "id": "7213278642535017"
+          "lastAccessed": "2023-04-12T23:38:02.000Z",
+          "id": "12617365069432318"
         },
         {
           "key": "api_session",
-          "value": "BB7K4MbK7eeLdrJXkc2J6X0BrGBQns2SY20h6lroMcD%2BCyi2MtEWjLmrhFGm7VERkI0tNDh2dg58D9L07BJVhjaWdxr9FI6f4cDaSlDb8ssAHPQtY5Q1OW4Ps1s7DsHnf%2FQ3wrrnNiBU%2B8CcF67Df1aVfG37IGZ1DJQSeOOsXpNh2DmqfvUm8T%2FidvdwlRZ9L9l9PmCsYSW4OH2FW8gR9zMkMXNNfTX7pfB%2FeRBPNR5LRWkyDYy4m9I9dK9NGzVk3gUOdt02a%2F7ndxirswBItwQ4G4ONj1GpFES01%2BwSDND6jSP9e6T6AjgfA5ySknw%3D--7LJDEPUOzNE9Fv73--4uRbO4CgsAGqxgq1doUePg%3D%3D",
+          "value": "tOYaWN2YB4Kgs9eyXSXz89Xulf7%2FUV87YjBKWMi%2FFkWYfgmOhKesmB1r0SSH0zyY9c7b04ydqtNEHjbHtmOWTzHWq0mYO2suSbZjs2ti4uB%2B3b9IrTTflRS9rY5t3i5t2eBb%2FvMQgleu8xz2W52LF3rGvO6KtyWMJeaLMje6jYMA8R0rUn79R6Ppb1jNI4siG1aFVwGB2tD%2BnISnWIfBC88XepDS6O6A4FT4KIhZGBOgFAGhk3jWagiqkqZyG%2BJzeCT5bn71fz2kg70Muqe7fnHjtEeZwwU4xuaTWlhm8oxmhzR24IsiOMOnJ1Wjp%2Fg%3D--%2FNNREPi70aTUGONK--bgil2MEO8OhT0Os7hyXvVQ%3D%3D",
           "domain": "localhost",
           "path": "/",
           "httpOnly": true,
@@ -3523,8 +3688,30 @@
           ],
           "hostOnly": true,
           "creation": "2023-04-03T23:19:41.913Z",
-          "lastAccessed": "2023-04-03T23:48:44.490Z",
-          "id": "5878063860010962"
+          "lastAccessed": "2023-04-13T00:21:48.914Z",
+          "id": "964969649003359"
+        },
+        {
+          "key": "TS013da938",
+          "value": "01c8917e4813c9116a616d872afbd1a888e2fb61a5b3b4c7955030f85a31b04dc3d7d676ee33f261a1536ca7f51ea1a830312e47db",
+          "maxAge": 900,
+          "domain": "staging-api.va.gov",
+          "path": "/",
+          "hostOnly": true,
+          "creation": "2023-04-04T00:18:24.093Z",
+          "lastAccessed": "2023-04-11T19:25:51.902Z",
+          "id": "5468811221738257"
+        },
+        {
+          "key": "TS01de8f7b",
+          "value": "0119a2687f387a805f15934300f0e5ec0f276439d4d13cf7df8a4b389afbb7ab5c66b8ba02839e7dcac0442b4c61e8bc08d0b9ffac",
+          "maxAge": 900,
+          "domain": "staging-api.va.gov",
+          "path": "/",
+          "hostOnly": true,
+          "creation": "2023-04-04T00:24:37.578Z",
+          "lastAccessed": "2023-04-12T23:52:13.708Z",
+          "id": "4268829926153259"
         }
       ],
       "_type": "cookie_jar"
@@ -3646,14 +3833,6 @@
       "_type": "unit_test_suite"
     },
     {
-      "_id": "uts_5cc8496b7a934eaab6d3566702290dcf",
-      "parentId": "wrk_d89a54f45e11429abb2af16aa95af1ed",
-      "modified": 1680135179663,
-      "created": 1680135179663,
-      "name": "vba_documents v1",
-      "_type": "unit_test_suite"
-    },
-    {
       "_id": "ut_80edb37d598d4ce7875b83d6dde5e0e5",
       "parentId": "uts_06630f95487146fea741928585ceaac4",
       "modified": 1680135189067,
@@ -3769,26 +3948,6 @@
       "modified": 1680135662026,
       "created": 1680135662026,
       "requestId": "req_c51fea22de754828b5cf4160f738bb47",
-      "name": "Returns 200",
-      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);",
-      "_type": "unit_test"
-    },
-    {
-      "_id": "ut_bc2f42b2e598448d8835305ef4446502",
-      "parentId": "uts_5cc8496b7a934eaab6d3566702290dcf",
-      "modified": 1680135786446,
-      "created": 1680135786446,
-      "requestId": "req_8098ebe8d0354a8592b374ae2d08f6a0",
-      "name": "Returns 200",
-      "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);",
-      "_type": "unit_test"
-    },
-    {
-      "_id": "ut_584806be38c54fc7809eee4269fe7164",
-      "parentId": "uts_5cc8496b7a934eaab6d3566702290dcf",
-      "modified": 1680136671790,
-      "created": 1680136671790,
-      "requestId": "req_6998f3c7ff434566a29e35a0eb3fc25b",
       "name": "Returns 200",
       "code": "const response1 = await insomnia.send();\nexpect(response1.status).to.equal(200);",
       "_type": "unit_test"
