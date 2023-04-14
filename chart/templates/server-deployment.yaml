@@ -54,22 +54,15 @@ spec:
             - containerPort: {{ $key.containerPort }}
               name: {{ $key.name }}
             {{- end }}
-          {{- if $root.Values.web.healthCheck.livenessProbe.enabled  }}
+          {{- if $root.Values.web.livenessProbe.enabled  }}
           livenessProbe: #ensure app is serving requests properly and know when to restart a container
             httpGet:
-              path: {{ $root.Values.web.healthCheck.requestPath }}
-              port: {{ $root.Values.web.healthCheck.port }}
-            initialDelaySeconds: {{ $root.Values.web.healthCheck.initialDelaySeconds }}
-            periodSeconds: {{ $root.Values.web.healthCheck.periodSeconds }}
-          startupProbe:
-            httpGet:
-              path: {{ $root.Values.web.healthCheck.requestPath }}
-              port: {{ $root.Values.web.healthCheck.port }}
-              httpHeaders:
-                - name: Host
-                  value: {{ $service.healthCheck.host | default $root.Values.web.healthCheck.host }}
-            initialDelaySeconds: {{ $root.Values.web.healthCheck.initialDelaySeconds }}
-            periodSeconds: {{ $root.Values.web.healthCheck.periodSeconds }}
+              path: {{ $root.Values.web.livenessProbe.requestPath }}
+              port: {{ $root.Values.web.livenessProbe.port }}
+            initialDelaySeconds: {{ $root.Values.web.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $root.Values.web.livenessProbe.periodSeconds }}
+            successThreshold: {{ $root.Values.web.livenessProbe.successThreshold }}
+            failureThreshold: {{ $root.Values.web.livenessProbe.failureThreshold }}
           {{- end }}
           lifecycle:
             preStop:
@@ -78,17 +71,28 @@ spec:
                   - /bin/sh
                   - -c
                   - sleep 40
+          startupProbe:
+            httpGet:
+              path: {{ $root.Values.web.startupProbe.requestPath }}
+              port: {{ $root.Values.web.startupProbe.port }}
+              httpHeaders:
+                - name: Host
+                  value: {{ $service.healthCheck.host | default $root.Values.web.healthCheck.host }}
+            initialDelaySeconds: {{ $root.Values.web.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ $root.Values.web.startupProbe.periodSeconds }}
+            failureThreshold: {{ $root.Values.web.startupProbe.failureThreshold }}
+            successThreshold: {{ $root.Values.web.startupProbe.successThreshold }}
           readinessProbe: #ensure container is ready to start accepting traffic
             httpGet:
-              path: /
-              port: {{ $root.Values.web.healthCheck.readinessProbe.port }}
+              path: {{ $root.Values.web.readinessProbe.requestPath }}
+              port: {{ $root.Values.web.readinessProbe.port }}
               httpHeaders:
                 - name: Host
                   value:  {{ $service.healthCheck.host | default $root.Values.web.healthCheck.host }}
-            initialDelaySeconds: {{ $root.Values.web.healthCheck.initialDelaySeconds }}
-            periodSeconds: {{ $root.Values.web.healthCheck.periodSeconds }}
-            successThreshold: {{ $root.Values.web.healthCheck.successThreshold }}
-            failureThreshold: {{ $root.Values.web.healthCheck.failureThreshold }}
+            initialDelaySeconds: {{ $root.Values.web.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $root.Values.web.readinessProbe.periodSeconds }}
+            successThreshold: {{ $root.Values.web.readinessProbe.successThreshold }}
+            failureThreshold: {{ $root.Values.web.readinessProbe.failureThreshold }}
           resources:
 {{ toYaml $root.Values.web.resources | indent 12 }}
           volumeMounts:
