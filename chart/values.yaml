@@ -39,28 +39,28 @@ web:
     periodSeconds: ""
     successThreshold: ""
     host: ""
-    livenessProbe:
-      enabled: false
-      port: ""
-      initialDelaySeconds: ""
-      failureThreshold: ""
-      periodSeconds: ""
-      successThreshold: ""
-      requestPath: ""
-    readinessProbe:
-        port: ""
-        initialDelaySeconds: ""
-        failureThreshold: ""
-        periodSeconds: ""
-        successThreshold: ""
-        requestPath: ""
-    startupProbe:
-        port: ""
-        initialDelaySeconds: ""
-        failureThreshold: ""
-        periodSeconds: ""
-        successThreshold: ""
-        requestPath: ""
+  livenessProbe:
+    enabled: false
+    port: ""
+    initialDelaySeconds: ""
+    failureThreshold: ""
+    periodSeconds: ""
+    successThreshold: ""
+    requestPath: ""
+  readinessProbe:
+    port: ""
+    initialDelaySeconds: ""
+    failureThreshold: ""
+    periodSeconds: ""
+    successThreshold: ""
+    requestPath: ""
+  startupProbe:
+    port: ""
+    initialDelaySeconds: ""
+    failureThreshold: ""
+    periodSeconds: ""
+    successThreshold: ""
+    requestPath: ""
   socatProxyEnabled: false
   terminationGracePeriodSeconds: ""
   envSecrets:
