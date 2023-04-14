@@ -3,6 +3,7 @@
 require 'evss/disability_compensation_form/service'
 require 'evss/pciu_address/service'
 require 'evss/ppiu/service'
+require 'disability_compensation/factories/api_provider_factory'
 
 module VA526ez
   class FormSpecialIssue
@@ -90,8 +91,8 @@ class FormProfiles::VA526ez < FormProfile
   def initialize_rated_disabilities_information
     return {} unless user.authorize :evss, :access?
 
-    service = EVSS::DisabilityCompensationForm::Service.new(
-      EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+    service = ApiProviderFactory.rated_disabilities_service_provider(
+      user
     )
     response = service.get_rated_disabilities
 

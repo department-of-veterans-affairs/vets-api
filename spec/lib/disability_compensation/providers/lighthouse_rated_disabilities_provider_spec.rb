@@ -7,11 +7,5 @@ require 'support/disability_compensation_form/shared_examples/rated_disabilities
 RSpec.describe LighthouseRatedDisabilitiesProvider do
   let(:current_user) { build(:user, :loa3) }
 
-  # TODO: update when the LighthouseRatedDisabilitiesProvider is implemented
-  it 'behaves like a RatedDisabilitiesProvider' do
-    # it_behaves_like :rated_disabilities_provider
-    expect do
-      LighthouseRatedDisabilitiesProvider.new(current_user)
-    end.to raise_error NotImplementedError
-  end
+  it_behaves_like 'rated disabilities provider'
 end

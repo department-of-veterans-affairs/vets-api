@@ -10,11 +10,19 @@ class ApiProviderFactory
     lighthouse: :lighthouse
   }.freeze
 
-  def self.rated_disabilities_service_provider(current_user, api_provider = :evss)
+  FEATURE_TOGGLE_RATED_DISABILITIES = 'disability_compensation_lighthouse_rated_disabilities_provider'
+
+  def self.rated_disabilities_service_provider(current_user, api_provider = nil)
+    api_provider ||= if Flipper.enabled?(FEATURE_TOGGLE_RATED_DISABILITIES)
+                       API_PROVIDER[:lighthouse]
+                     else
+                       API_PROVIDER[:evss]
+                     end
+
     case api_provider
-    when :evss
+    when API_PROVIDER[:evss]
       EvssRatedDisabilitiesProvider.new(current_user)
-    when :lighthouse
+    when API_PROVIDER[:lighthouse]
       LighthouseRatedDisabilitiesProvider.new(current_user)
     else
       raise NotImplementedError, 'No known Rated Disabilities Api Provider type provided'

@@ -30,9 +30,9 @@ module Auth
       #
       # @return [String] the access token needed to make requests
       #
-      def get_token
+      def get_token(auth_params = {})
         assertion = build_assertion
-        request_body = build_request_body(assertion, @scopes)
+        request_body = build_request_body(assertion, @scopes, auth_params)
         res = config.get_access_token(@url, request_body)
 
         res.body['access_token']
@@ -50,13 +50,13 @@ module Auth
       ##
       # @return [Hash] body of request to get access token
       #
-      def build_request_body(assertion, scopes)
+      def build_request_body(assertion, scopes, auth_params = {})
         {
           grant_type: 'client_credentials',
           client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
           client_assertion: assertion,
           scope: scopes.join(' ')
-        }
+        }.merge(auth_params)
       end
     end
   end

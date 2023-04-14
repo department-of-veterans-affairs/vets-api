@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'support/controller_spec_helper'
+require 'disability_compensation/factories/api_provider_factory'
 
 RSpec.describe V0::DisabilityCompensationInProgressFormsController do
   it_behaves_like 'a controller that does not log 404 to Sentry'
@@ -11,6 +12,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
     let(:loa1_user) { build(:user, :loa1) }
 
     before do
+      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
       sign_in_as(user)
     end
 

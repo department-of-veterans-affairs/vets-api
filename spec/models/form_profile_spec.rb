@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'decision_review/schemas'
+require 'disability_compensation/factories/api_provider_factory'
 
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
@@ -1218,6 +1219,10 @@ RSpec.describe FormProfile, type: :model do
         end
 
         context 'with a user that can prefill evss' do
+          before do
+            allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('usyergd')
+          end
+
           # NOTE: `increase only` and `all claims` use the same form prefilling
           context 'when Vet360 prefill is disabled' do
             before do
@@ -1226,6 +1231,7 @@ RSpec.describe FormProfile, type: :model do
             end
 
             it 'returns prefilled 21-526EZ' do
+              Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
                   VCR.use_cassette('evss/ppiu/payment_information') do
@@ -1251,6 +1257,7 @@ RSpec.describe FormProfile, type: :model do
               end
 
               it 'returns prefilled 21-526EZ' do
+                Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
                 expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
                 expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
                 VCR.use_cassette('evss/pciu_address/address_domestic') do
