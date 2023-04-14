@@ -288,14 +288,22 @@ modules_appeals_api:
       api_key: ''
   # The token generation values below are only used for development rake tasks.
   token_generation:
-    # URI to the well-known configuration endpoint for appeals auth:
-    config_uri: ''
     ccg:
-      # Get a client ID by submitting your public jwk here - make sure to check the box for the API under
+      config_uri: 'https://dev-api.va.gov/oauth2/appeals/system/v1/.well-known/openid-configuration'
+      # Get a client ID by submitting your public jwk here - make sure to check the boxes for the APIs under
       # "Client Credentials Grant APIs": https://developer.va.gov/onboarding/request-sandbox-access
       client_id: ''
       # Absolute path to the private key file matching the jwk:
       private_key_path: ''
+    auth:
+      config_uri: 'https://dev-api.va.gov/oauth2/appeals/v1/.well-known/openid-configuration'
+      # Get a client ID/secret by submitting this form - make sure to check the boxes for the APIs under
+      # "Authorization Code Flow APIs": https://developer.va.gov/onboarding/request-sandbox-access
+      client_id: ''
+      client_secret: ''
+      redirect_uri: ''
+      user_email: ''
+      user_password: ''
   slack:
     api_key: ''
     appeals_channel_id: ''
