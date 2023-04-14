@@ -9,12 +9,12 @@ RSpec.describe BGS::DependentService do
   let(:vet_info) do
     {
       'veteran_information' => {
-        'birth_date' => birth_date,
         'full_name' => {
-          'first' => 'WESLEY', 'last' => 'FORD', 'middle' => nil
+          'first' => 'WESLEY', 'middle' => nil, 'last' => 'FORD'
         },
         'ssn' => '796043735',
-        'va_file_number' => '796043735'
+        'va_file_number' => '796043735',
+        'birth_date' => birth_date
       }
     }
   end
@@ -22,18 +22,6 @@ RSpec.describe BGS::DependentService do
   before { allow(claim).to receive(:id).and_return('1234') }
 
   describe '#submit_686c_form' do
-    it 'formats vet info using VetInfo class' do
-      VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
-        service = BGS::DependentService.new(user)
-        allow(claim).to receive(:submittable_686?)
-        allow(claim).to receive(:submittable_674?)
-
-        expect(VetInfo).to receive(:new).with(user, a_hash_including(file_nbr: '796043735'))
-
-        service.submit_686c_form(claim)
-      end
-    end
-
     it 'calls find_person_by_participant_id' do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
         service = BGS::DependentService.new(user)

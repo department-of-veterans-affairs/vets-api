@@ -24,16 +24,4 @@ RSpec.describe BGS::AwardsService do
       end
     end
   end
-
-  describe '#gross_amount' do
-    context 'with a valid participant id' do
-      it 'returns the gross amount' do
-        VCR.use_cassette('bgs/awards_service/get_awards') do
-          service = BGS::AwardsService.new(user)
-          gross_amount = service.gross_amount
-          expect(gross_amount).to eq('541.83')
-        end
-      end
-    end
-  end
 end

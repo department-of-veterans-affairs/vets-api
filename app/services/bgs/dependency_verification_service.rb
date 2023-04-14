@@ -1,13 +1,25 @@
 # frozen_string_literal: true
 
 module BGS
-  class DependencyVerificationService < BaseService
+  class DependencyVerificationService
+    include SentryLogging
+
+    attr_reader :participant_id, :ssn, :common_name, :email, :icn
+
+    def initialize(user)
+      @participant_id = user.participant_id
+      @ssn = user.ssn
+      @common_name = user.common_name
+      @email = user.email
+      @icn = user.icn
+    end
+
     def read_diaries
-      diaries = @service.diaries.read_diaries(
+      diaries = service.diaries.read_diaries(
         {
-          beneficiary_id: @user.participant_id,
-          participant_id: @user.participant_id,
-          ssn: @user.ssn,
+          beneficiary_id: participant_id,
+          participant_id:,
+          ssn:,
           award_type: 'CPL'
         }
       )
@@ -18,7 +30,7 @@ module BGS
 
       standard_response(diaries)
     rescue => e
-      report_error(e)
+      log_exception_to_sentry(e, { icn: }, { team: Constants::SENTRY_REPORTING_TEAM })
     end
 
     private
@@ -53,6 +65,17 @@ module BGS
       end
 
       final
+    end
+
+    def service
+      @service ||= BGS::Services.new(external_uid: icn, external_key:)
+    end
+
+    def external_key
+      @external_key ||= begin
+        key = common_name.presence || email
+        key.first(Constants::EXTERNAL_KEY_MAX_LENGTH)
+      end
     end
   end
 end
