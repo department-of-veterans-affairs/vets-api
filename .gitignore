@@ -85,3 +85,6 @@ test_users.csv
 
 # Ignore Redis Dumps
 **/*.rdb
+
+# Ignore irb history
+.irb_history
