@@ -189,6 +189,13 @@ lighthouse:
       client_id: "fake_client_id"
       grant_type: "client_credentials"
       api_key: spec/support/fake_api_key_for_lighthouse.txt
+  veteran_verification:
+    host: https://sandbox-api.va.gov
+    access_token:
+      aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3u00gw66b9Ojk2p7/v1/token
+      client_id: "fake_client_id"
+      rsa_key: "fake_rsa_key"
+    use_mocks: false
 
 rrd:
   alerts:

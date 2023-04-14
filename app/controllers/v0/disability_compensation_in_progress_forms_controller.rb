@@ -4,7 +4,7 @@ module V0
   class DisabilityCompensationInProgressFormsController < InProgressFormsController
     def show
       if form_for_user
-        render json: data_and_metadata_with_updated_rated_disabilites
+        render json: data_and_metadata_with_updated_rated_disabilities
       else
         render json: camelized_prefill_for_user
       end
@@ -16,11 +16,11 @@ module V0
       FormProfiles::VA526ez::FORM_ID
     end
 
-    def data_and_metadata_with_updated_rated_disabilites
+    def data_and_metadata_with_updated_rated_disabilities
       parsed_form_data = JSON.parse(form_for_user.form_data)
       metadata = form_for_user.metadata
 
-      # If EVSS's list of rated disabilties does not match our prefilled rated disabilites
+      # If EVSS's list of rated disabilities does not match our prefilled rated disabilities
       if rated_disabilities_evss.present? &&
          arr_to_compare(parsed_form_data['ratedDisabilities']) !=
          arr_to_compare(rated_disabilities_evss.rated_disabilities)
@@ -29,8 +29,8 @@ module V0
            parsed_form_data.dig('view:claimType', 'view:claimingIncrease')
           metadata['returnUrl'] = '/disabilities/rated-disabilities'
         end
-        evss_rated_disabilites = JSON.parse(rated_disabilities_evss.rated_disabilities.to_json)
-        parsed_form_data['updatedRatedDisabilities'] = camelize_with_olivebranch(evss_rated_disabilites)
+        evss_rated_disabilities = JSON.parse(rated_disabilities_evss.rated_disabilities.to_json)
+        parsed_form_data['updatedRatedDisabilities'] = camelize_with_olivebranch(evss_rated_disabilities)
       end
 
       {

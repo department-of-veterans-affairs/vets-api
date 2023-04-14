@@ -14,15 +14,8 @@ module V0
     before_action :validate_name_part, only: [:suggested_conditions]
 
     def rated_disabilities
-      service_sym = if Flipper.enabled?('disability_compensation_lighthouse_rated_disabilities_provider')
-                      ApiProviderFactory::API_PROVIDER[:lighthouse]
-                    else
-                      ApiProviderFactory::API_PROVIDER[:evss]
-                    end
-
       service = ApiProviderFactory.rated_disabilities_service_provider(
-        @current_user,
-        service_sym
+        @current_user
       )
       response = service.get_rated_disabilities
       render json: response,

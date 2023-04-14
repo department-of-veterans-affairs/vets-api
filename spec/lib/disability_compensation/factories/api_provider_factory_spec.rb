@@ -13,15 +13,23 @@ RSpec.describe ApiProviderFactory do
     end
 
     it 'provides a Lighthouse rated disabilities provider' do
-      # TODO: This will change once we implement the Lighthouse Rated Disabilities Provider
-      expect do
-        ApiProviderFactory.rated_disabilities_service_provider(current_user, :lighthouse)
-      end.to raise_error NotImplementedError
+      provider = ApiProviderFactory.rated_disabilities_service_provider(current_user, :lighthouse)
+      expect(provider.class).to equal(LighthouseRatedDisabilitiesProvider)
     end
 
-    it 'provides rated disabilities provider' do
+    it 'provides rated disabilities provider based on Flipper' do
+      Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+      provider = ApiProviderFactory.rated_disabilities_service_provider(current_user)
+      expect(provider.class).to equal(LighthouseRatedDisabilitiesProvider)
+
+      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+      provider = ApiProviderFactory.rated_disabilities_service_provider(current_user)
+      expect(provider.class).to equal(EvssRatedDisabilitiesProvider)
+    end
+
+    it 'throw error if provider unknown' do
       expect do
-        ApiProviderFactory.rated_disabilities_service_provider(current_user, nil)
+        ApiProviderFactory.rated_disabilities_service_provider(current_user, :random)
       end.to raise_error NotImplementedError
     end
   end
