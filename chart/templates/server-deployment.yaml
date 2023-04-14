@@ -73,9 +73,11 @@ spec:
           {{- end }}
           lifecycle:
             preStop:
-              httpGet:
-                port: {{ $root.Values.web.healthCheck.readinessProbe.port }}
-                path: /
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - sleep 40
           readinessProbe: #ensure container is ready to start accepting traffic
             httpGet:
               path: /
