@@ -42,7 +42,8 @@ type: application
 # 0.11.29 - Remove volumes - http readiness
 # 0.11.32 - removed sticky session value
 # 0.11.33 - preStop lifecycle hook
-version: 0.11.33
+# 0.11.34 - preStop command
+version: 0.11.34
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
