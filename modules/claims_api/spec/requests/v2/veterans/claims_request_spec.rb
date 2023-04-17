@@ -432,7 +432,7 @@ RSpec.describe 'Claims', type: :request do
 
                 json_response = JSON.parse(response.body)
                 expect(response.status).to eq(200)
-                expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to eq(true)
+                expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to eq(false)
                 expect(json_response['data']['attributes']['claimPhaseDates']['latestPhaseType'])
                   .to eq('Claim Received')
                 expect(json_response['data']['attributes']['claimPhaseDates']['previousPhases']).to be_truthy
@@ -468,7 +468,7 @@ RSpec.describe 'Claims', type: :request do
                 json_response = JSON.parse(response.body)
                 expect(response.status).to eq(200)
                 claim_attributes = json_response['data']['attributes']
-                expect(claim_attributes['claimPhaseDates']['currentPhaseBack']).to eq(true)
+                expect(claim_attributes['claimPhaseDates']['currentPhaseBack']).to eq(false)
                 expect(claim_attributes['claimPhaseDates']['latestPhaseType']).to eq('Claim Received')
                 expect(claim_attributes['claimPhaseDates']['previousPhases']).to be_truthy
               end
@@ -813,6 +813,33 @@ RSpec.describe 'Claims', type: :request do
                   expect(response.status).to eq(200)
                   expect(json_response).to be_an_instance_of(Hash)
                   expect(json_response['data']['attributes']['status']).to eq('INITIAL_REVIEW')
+                end
+              end
+            end
+          end
+        end
+
+        context 'when a phaseback to Under Review status is received' do
+          let(:bgs_claim) { build(:bgs_response_with_phaseback_lc_status).to_h }
+
+          it "the v2 mapper sets the 'status' correctly" do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+                VCR.use_cassette('evss/documents/get_claim_documents') do
+                  expect_any_instance_of(bcs)
+                    .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+                  expect(ClaimsApi::AutoEstablishedClaim)
+                    .to receive(:get_by_id_and_icn).and_return(nil)
+
+                  get claim_by_id_path, headers: auth_header
+
+                  json_response = JSON.parse(response.body)
+                  expect(response.status).to eq(200)
+                  expect(json_response).to be_an_instance_of(Hash)
+                  expect(json_response['data']['attributes']['status']).to eq('INITIAL_REVIEW')
+                  expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to eq(true)
+                  expect(json_response['data']['attributes']['claimPhaseDates']['latestPhaseType'])
+                    .to eq('Under Review')
                 end
               end
             end
