@@ -23,48 +23,6 @@ require 'hca/service'
 require 'carma/client/mule_soft_client'
 
 Rails.application.reloader.to_prepare do
-  # Initialize session controller metric counters at 0
-  LOGIN_ERRORS = SAML::Responses::Base::ERRORS.values +
-                 UserSessionForm::ERRORS.values +
-                 SAML::UserAttributeError::ERRORS.values
-  %w[v0 v1].each do |v|
-    StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_TOTAL_KEY, 0,
-                     tags: ["version:#{v}"])
-    StatsD.increment(V1::SessionsController::STATSD_LOGIN_NEW_USER_KEY, 0,
-                     tags: ["version:#{v}"])
-    V1::SessionsController::REDIRECT_URLS.each do |t|
-      SAML::URLService::UNIFIED_SIGN_IN_CLIENTS.each do |client_id|
-        StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_KEY, 0,
-                         tags: ["version:#{v}", "context:#{t}", "client_id:#{client_id}"])
-        StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_SUCCESS, 0,
-                         tags: ["version:#{v}", "context:#{t}", "client_id:#{client_id}"])
-
-        LOGIN_ERRORS.each do |err|
-          StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_FAILURE, 0,
-                           tags: ["version:#{v}", "context:#{t}", "error:#{err[:code]}", "client_id:#{client_id}"])
-        end
-      end
-    end
-    %w[success failure].each do |s|
-      (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
-        StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_KEY, 0,
-                         tags: ["version:#{v}", "status:#{s}", "context:#{ctx}"])
-      end
-    end
-    (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
-      V1::SessionsController::REDIRECT_URLS.each do |t|
-        StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLREQUEST_KEY, 0,
-                         tags: ["version:#{v}", "context:#{ctx}", "type:#{t}"])
-        StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLRESPONSE_KEY, 0,
-                         tags: ["version:#{v}", "context:#{ctx}", "type:#{t}"])
-      end
-    end
-    LOGIN_ERRORS.each do |err|
-      StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0,
-                       tags: ["version:#{v}", "error:#{err[:tag]}"])
-    end
-  end
-
   # init GiBillStatus stats to 0
   StatsD.increment(V0::Post911GIBillStatusesController::STATSD_GI_BILL_TOTAL_KEY, 0)
   StatsD.increment(V0::Post911GIBillStatusesController::STATSD_GI_BILL_FAIL_KEY, 0, tags: ['error:unknown'])
@@ -116,14 +74,6 @@ Rails.application.reloader.to_prepare do
       StatsD.increment("#{CARMA::Client::MuleSoftClient::STATSD_KEY_PREFIX}.#{method}.#{type}", 0)
     end
   end
-
-  # init  mpi
-  StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.find_profile.total", 0)
-  StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.find_profile.fail", 0)
-  StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.add_person_proxy.total", 0)
-  StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.add_person_proxy.fail", 0)
-  StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.add_person_implicit_search.total", 0)
-  StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.add_person_implicit_search.fail", 0)
 
   # init Vet360
   VAProfile::Exceptions::Parser.instance.known_keys.each do |key|
@@ -352,12 +302,4 @@ Rails.application.reloader.to_prepare do
 
   StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.app_lookup.success", 0)
   StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.app_lookup.failure", 0)
-
-  # init user_avc_updater_logger
-  Login::UserAcceptableVerifiedCredentialUpdaterLogger::ADDED_TYPES.each do |added_type|
-    Login::UserAcceptableVerifiedCredentialUpdaterLogger::FROM_TYPES.each do |from_type|
-      StatsD.increment("api.user_avc_updater.#{from_type}.#{added_type}.added", 0)
-    end
-    StatsD.increment("api.user_avc_updater.mhv_dslogon.#{added_type}.added", 0)
-  end
 end
