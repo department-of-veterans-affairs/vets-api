@@ -182,20 +182,6 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
       expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
     end
 
-    it 'sends a confirmation email' do
-      service = described_class.new(user)
-      expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
-        user.email.downcase,
-        described_class::VHA_CONFIRMATION_TEMPLATE,
-        {
-          'name' => user.first_name,
-          'time' => '48 hours',
-          'date' => Time.zone.now.strftime('%m/%d/%Y')
-        }
-      )
-      service.submit_vha_fsr(form_submission)
-    end
-
     it 'parses out delimiter characters' do
       service = described_class.new(user)
       delimitered_json = { 'name' => "^Gr\neg|" }
@@ -274,6 +260,45 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
       valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
       service = described_class.new(user)
       expect { service.submit_combined_fsr(valid_form_data) }.to change(Form5655Submission, :count).by(1)
+    end
+  end
+
+  describe '#create_vha_fsr' do
+    let(:valid_form_data) { get_fixture('dmc/fsr_submission') }
+    let(:user) { build(:user, :loa3) }
+
+    before do
+      valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
+      response = Faraday::Response.new(status: 200, body:
+      {
+        message: 'Success'
+      })
+      allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post).and_return(response)
+      mock_sharepoint_upload
+    end
+
+    it 'creates multiple jobs with multiple stations' do
+      valid_form_data['selectedDebtsAndCopays'] = [
+        {
+          'station' => {
+            'facilitYNum' => '123'
+          },
+          'resolutionOption' => 'waiver',
+          'debtType' => 'COPAY'
+        },
+        {
+          'station' => {
+            'facilitYNum' => '456'
+          },
+          'resolutionOption' => 'waiver',
+          'debtType' => 'COPAY'
+        }
+      ]
+      service = described_class.new(user)
+      expect { service.create_vha_fsr(valid_form_data) }
+        .to change { Form5655::VHASubmissionJob.jobs.size }
+        .from(0)
+        .to(2)
     end
   end
 end

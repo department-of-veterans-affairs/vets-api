@@ -107,6 +107,7 @@ module DebtManagementCenter
       facility_copays = selected_vha_copays(form['selectedDebtsAndCopays']).group_by do |copay|
         copay['station']['facilitYNum']
       end
+      submissions = []
       facility_copays.each do |facility_num, copays|
         fsr_reason = copays.map { |copay| copay['resolutionOption'] }.uniq.join(', ')
         facility_form = form.deep_dup
@@ -118,8 +119,9 @@ module DebtManagementCenter
         facility_form = remove_form_delimiters(facility_form)
 
         submission = persist_form_submission(facility_form, copays)
-        submission.submit_to_vha
+        submissions.append(submission)
       end
+      submit_vha_batch_job(submissions)
     end
 
     def submit_vba_fsr(form)
@@ -176,6 +178,17 @@ module DebtManagementCenter
         user_uuid: @user.uuid,
         user_account: @user.user_account
       )
+    end
+
+    def submit_vha_batch_job(vha_submissions)
+      submission_batch = Sidekiq::Batch.new
+      submission_batch.on(
+        :success,
+        'DebtManagementCenter::FinancialStatusReportService#send_vha_confirmation_email'
+      )
+      submission_batch.jobs do
+        vha_submissions.map(&:submit_to_vha)
+      end
     end
 
     def selected_vba_debts(debts)
@@ -246,6 +259,10 @@ module DebtManagementCenter
       return if email.blank?
 
       DebtManagementCenter::VANotifyEmailJob.perform_async(email, template_id, email_personalization_info)
+    end
+
+    def send_vha_confirmation_email
+      send_confirmation_email(VHA_CONFIRMATION_TEMPLATE)
     end
 
     def email_personalization_info
