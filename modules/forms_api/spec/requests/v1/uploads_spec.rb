@@ -28,5 +28,6 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
 
     test_submit_request 'vha_10_10d.json'
     test_submit_request 'vba_26_4555.json'
+    test_submit_request 'vba_21_4142.json'
   end
 end
