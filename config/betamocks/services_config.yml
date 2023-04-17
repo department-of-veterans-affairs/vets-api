@@ -733,7 +733,7 @@
   :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api.claims_url).host}:#{URI(Settings.check_in.travel_reimbursement_api.claims_url).port}" %>
   :endpoints:
     - :method: :post
-      :path: <%= "/ClaimIngest/submitclaim" %>
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api.claims_base_path}/api/ClaimIngest/submitclaim" %>
       :file_path: "/travel_claim/submitclaim/default"
       :response_delay: 15
 
