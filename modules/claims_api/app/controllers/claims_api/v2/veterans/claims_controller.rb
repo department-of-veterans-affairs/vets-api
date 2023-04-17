@@ -201,31 +201,30 @@ module ClaimsApi
           end
         end
 
-        def get_phase_type_indicator_array(data)
-          return if data[:benefit_claim_details_dto][:phase_type_change_ind].nil?
+        def current_phase_back(data)
+          lc_status_array = [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten
+          return false if lc_status_array.nil?
 
-          data = data[:benefit_claim_details_dto][:phase_type_change_ind]
-          data.split('')
+          return false if lc_status_array.first&.dig(:phase_type_change_ind).nil?
+
+          indicator = latest_phase_type_change_indicator(data).split('')
+          return false if indicator == 'N'
+
+          indicator.first.to_i > indicator.last.to_i
         end
 
-        def current_phase_back(data)
-          return false if data[:benefit_claim_details_dto][:phase_type_change_ind].nil?
-
-          pt_ind_array = get_phase_type_indicator_array(data)
-          pt_ind_array.first.to_i > pt_ind_array.last.to_i
+        def latest_phase_type_change_indicator(data)
+          [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.first&.dig(:phase_type_change_ind)
         end
 
         def latest_phase_type(data)
           return if data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status).nil?
 
-          if data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status).is_a?(Array)
-            data[:benefit_claim_details_dto][:bnft_claim_lc_status][0][:phase_type]
-          elsif data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status, :phase_type)
-            data[:benefit_claim_details_dto][:bnft_claim_lc_status][:phase_type]
-          else
-            pt_ind_array = get_phase_type_indicator_array(data)
-            mapper.get_phase_from_phase_type_ind(pt_ind_array.last)
-          end
+          latest = [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.first&.dig(:phase_type)
+          return latest unless latest.nil?
+
+          indicator = latest_phase_type_change_indicator(data).split('')
+          mapper.get_phase_from_phase_type_ind(indicator.last.to_i)
         end
 
         def get_current_status_from_hash(data)
