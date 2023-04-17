@@ -5,6 +5,9 @@ require 'rails_helper'
 RSpec.describe AcceptableVerifiedCredentialAdoptionService do
   let(:service) { AcceptableVerifiedCredentialAdoptionService.new(user) }
   let(:user) { create(:user) }
+  let(:statsd_key) { 'api.user_transition_availability' }
+
+  before { allow(StatsD).to receive(:increment) }
 
   describe '.perform' do
     context 'when Flipper organic_conversion_experiment is enabled' do
@@ -15,6 +18,11 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
           it 'hash returns false' do
             expect(service.perform).to include(organic_modal: false)
           end
+
+          it 'does not log attempt' do
+            service.perform
+            expect(StatsD).to have_received(:increment).exactly(0).times
+          end
         end
 
         context 'When user has ivc' do
@@ -22,6 +30,11 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
 
           it 'hash returns false' do
             expect(service.perform).to include(organic_modal: false)
+          end
+
+          it 'does not log attempt' do
+            service.perform
+            expect(StatsD).to have_received(:increment).exactly(0).times
           end
         end
 
@@ -33,6 +46,12 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
             expect(result).to include(organic_modal: true)
             expect(result).to include(credential_type: SAML::User::DSLOGON_CSID)
           end
+
+          it 'logs attempt' do
+            service.perform
+            expect(StatsD).to have_received(:increment).exactly(1).times
+            expect(StatsD).to have_received(:increment).with("#{statsd_key}.organic_modal.dslogon").exactly(1).time
+          end
         end
       end
 
@@ -41,6 +60,11 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
 
         it 'hash returns false' do
           expect(service.perform).to include(organic_modal: false)
+        end
+
+        it 'does not log attempt' do
+          service.perform
+          expect(StatsD).to have_received(:increment).exactly(0).times
         end
       end
 
@@ -51,6 +75,11 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
           it 'hash returns false' do
             expect(service.perform).to include(organic_modal: false)
           end
+
+          it 'does not log attempt' do
+            service.perform
+            expect(StatsD).to have_received(:increment).exactly(0).times
+          end
         end
       end
 
@@ -59,6 +88,11 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
 
         it 'hash returns false' do
           expect(service.perform).to include(organic_modal: false)
+        end
+
+        it 'does not log attempt' do
+          service.perform
+          expect(StatsD).to have_received(:increment).exactly(0).times
         end
       end
 
@@ -70,6 +104,12 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
           expect(result).to include(organic_modal: true)
           expect(result).to include(credential_type: SAML::User::MHV_ORIGINAL_CSID)
         end
+
+        it 'logs attempt' do
+          service.perform
+          expect(StatsD).to have_received(:increment).exactly(1).times
+          expect(StatsD).to have_received(:increment).with("#{statsd_key}.organic_modal.mhv").exactly(1).time
+        end
       end
     end
 
@@ -80,6 +120,11 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
 
       it 'hash returns false' do
         expect(service.perform).to include(organic_modal: false)
+      end
+
+      it 'does not log attempt' do
+        service.perform
+        expect(StatsD).to have_received(:increment).exactly(0).times
       end
     end
   end

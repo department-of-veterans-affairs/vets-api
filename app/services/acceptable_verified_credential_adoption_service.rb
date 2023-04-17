@@ -30,6 +30,7 @@ class AcceptableVerifiedCredentialAdoptionService
     result[:organic_modal] =
       Flipper.enabled?(:organic_conversion_experiment, user) && user_qualifies_for_conversion?
     result[:credential_type] = credential_type
+    log_results('organic_modal') if result[:organic_modal] == true
     result
   end
 
@@ -48,5 +49,13 @@ class AcceptableVerifiedCredentialAdoptionService
   def verified_credential_at?
     user_avc = UserAcceptableVerifiedCredential.find_by(user_account: user.user_account)
     user_avc&.acceptable_verified_credential_at || user_avc&.idme_verified_credential_at
+  end
+
+  def log_results(conversion_type)
+    StatsD.increment("#{stats_key}.#{conversion_type}.#{credential_type}")
+  end
+
+  def stats_key
+    'api.user_transition_availability'
   end
 end
