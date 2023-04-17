@@ -3,7 +3,7 @@ info:
   version: 0.0.1
   title: Veteran Confirmation
   description: |
-    The Veteran Confirmation API allows you to confirm Veteran status for a given person. This can be useful for offering Veterans discounts or other benefits.
+    The Deprecated Veteran Confirmation API allows you to confirm Veteran status for a given person. This can be useful for offering Veterans discounts or other benefits.
 
     The API will only return “Confirmed” or “Not Confirmed”.
 
@@ -74,6 +74,7 @@ servers:
 paths:
   /status:
     post:
+      deprecated: true
       tags:
         - veteran_confirmation_status
       summary: Get confirmation about an individual's Veteran status according to the VA
@@ -133,25 +134,31 @@ components:
           type: string
           description: Social Security Number for the person of interest with or without dashes
           example: "555-55-5555"
+          deprecated: true
         first_name:
           type: string
           description: First name for the person of interest
           example: "John"
+          deprecated: true
         last_name:
           type: string
           description: Last name for the person of interest
           example: "Doe"
+          deprecated: true
         birth_date:
           type: string
           description: Birth date for the person of interest in any valid ISO8601 format
           example: "1965-01-01"
+          deprecated: true
         middle_name:
           type: string
           description: Optional middle name for the person of interest
           example: "Theodore"
+          deprecated: true
         gender:
           type: string
           description: Optional gender of M or F for the person of interest
+          deprecated: true
           enum:
             - M
             - F
@@ -167,6 +174,7 @@ components:
           enum:
             - confirmed
             - not confirmed
+          deprecated: true
     APIError:
       description: API invocation or processing error
       type: object
