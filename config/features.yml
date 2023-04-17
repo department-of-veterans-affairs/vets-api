@@ -211,39 +211,30 @@ features:
   decision_review_hlr_pii_expunge_enabled:
     actor_type: user
     description: Enables the higher level review PII expunge job
-    enable_in_development: true
   decision_review_nod_pii_expunge_enabled:
     actor_type: user
     description: Enables the notice of disagreement PII expunge job
-    enable_in_development: true
   decision_review_sc_pii_expunge_enabled:
     actor_type: user
     description: Enables the supplemental claim PII expunge job
-    enable_in_development: true
   decision_review_hlr_status_updater_enabled:
     actor_type: user
     description: Enables the Higher Level Review status update batch job
-    enable_in_development: true
   decision_review_nod_status_updater_enabled:
     actor_type: user
     description: Enables the Notice of Disagreement status update batch job
-    enable_in_development: true
   decision_review_sc_status_updater_enabled:
     actor_type: user
     description: Enables the Supplemental Claim status update batch job
-    enable_in_development: true
   decision_review_icn_updater_enabled:
     actor_type: user
     description: Enables the ICN lookup job
-    enable_in_development: true
   decision_review_weekly_error_report_enabled:
     actor_type: user
     description: Enables the weekly decision review text error report
-    enable_in_development: true
   decision_review_daily_error_report_enabled:
     actor_type: user
     description: Enables the daily error report email
-    enable_in_development: true
   decision_review_daily_stuck_records_report_enabled:
     actor_type: user
     description: Enables the daily decision review stuck records Slack report
