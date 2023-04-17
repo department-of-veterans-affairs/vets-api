@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# require 'bgs/services'
+require 'bgs/services'
 require 'mpi/service'
 require 'evss/service'
 # require 'bgs_service/local_bgs'
@@ -53,27 +53,27 @@ class MpiCheck < BaseCheck
   end
 end
 
-# class BgsCheck < BaseCheck
-#   def initialize(service)
-#     @service = service
-#   end
+class BgsCheck < BaseCheck
+  def initialize(service)
+    @service = service
+  end
 
-#   def check
-#     service = BGS::Services.new(
-#       external_uid: 'healthcheck_uid',
-#       external_key: 'healthcheck_key'
-#     )
-#     service.send(@service).healthy? ? process_success : process_failure
-#   rescue
-#     process_failure
-#   end
+  def check
+    service = BGS::Services.new(
+      external_uid: 'healthcheck_uid',
+      external_key: 'healthcheck_key'
+    )
+    service.send(@service).healthy? ? process_success : process_failure
+  rescue
+    process_failure
+  end
 
-#   protected
+  protected
 
-#   def name
-#     "BGS #{@service}"
-#   end
-# end
+  def name
+    "BGS #{@service}"
+  end
+end
 
 class VbmsCheck < BaseCheck
   def check
@@ -94,11 +94,13 @@ end
 
 OkComputer::Registry.register 'evss', EvssCheck.new
 OkComputer::Registry.register 'mpi', MpiCheck.new
-# OkComputer::Registry.register 'bgs-vet_record', BgsCheck.new('vet_record')
-# OkComputer::Registry.register 'bgs-corporate_update', BgsCheck.new('corporate_update')
-# OkComputer::Registry.register 'bgs-intent_to_file', BgsCheck.new('intent_to_file')
-# OkComputer::Registry.register 'bgs-claimant', BgsCheck.new('claimant')
-# OkComputer::Registry.register 'bgs-contention', BgsCheck.new('contention')
+OkComputer::Registry.register 'bgs-vet_record', BgsCheck.new('vet_record')
+OkComputer::Registry.register 'bgs-corporate_update', BgsCheck.new('corporate_update')
+OkComputer::Registry.register 'bgs-intent_to_file', BgsCheck.new('intent_to_file')
+OkComputer::Registry.register 'bgs-claimant', BgsCheck.new('claimant')
+OkComputer::Registry.register 'bgs-contention', BgsCheck.new('contention')
+OkComputer::Registry.register 'bgs-ebenefits_benefit_claims_status', BgsCheck.new('ebenefits_benefit_claims_status')
+OkComputer::Registry.register 'bgs-tracked_items', BgsCheck.new('tracked_items')
 OkComputer::Registry.register 'vbms', VbmsCheck.new
 
-# OkComputer.make_optional %w[vbms bgs-vet_record bgs-corporate_update bgs-contention]
+OkComputer.make_optional %w[vbms bgs-vet_record bgs-corporate_update bgs-contention]
