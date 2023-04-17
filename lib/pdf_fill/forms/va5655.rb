@@ -386,6 +386,18 @@ module PdfFill
             question_text: 'Additional Comments',
             limit: 450
           }
+        },
+        'applicantCertifications' => {
+          'veteranSignature' => {
+            key: 'Text1',
+            question_num: 37,
+            question_suffix: 'A'
+          },
+          'veteranDateSigned' => {
+            key: 'Text3',
+            question_num: 37,
+            question_suffix: 'B'
+          }
         }
       }.freeze
 
