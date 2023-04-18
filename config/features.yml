@@ -541,6 +541,10 @@ features:
     actor_type: user
     description: Fast tracks 526 disability compensation asthma claims by submitting additional health data
     enable_in_development: true
+  my_va_experimental:
+    actor_type: user
+    description: Use for experimental features for My VA application
+    enable_in_development: true
   my_va_redirect:
     actor_type: user
     description: After authentication redirects a user to the My VA page if they are on the homepage
@@ -786,10 +790,10 @@ features:
     description: Enables payment and debt section
   show_dashboard_notifications:
     actor_type: user
-    description: Enables on-site notifications
+    description: Enables on-site notifications 
   show_myva_dashboard_2_0:
     actor_type: user
-    description: Enables myva 2.0
+    description: Enables My VA 2.0
   check_va_inbox_enabled:
     actor_type: user
     description: Enables check inbox link
