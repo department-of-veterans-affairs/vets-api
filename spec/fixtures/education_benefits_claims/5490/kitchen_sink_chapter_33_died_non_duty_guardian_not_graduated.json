@@ -63,7 +63,7 @@
   "eduBenefitsPamphlet": true,
   "relativeSocialSecurityNumber": "111223333",
   "gender": "M",
-  "relativeDateOfBirth": "2006-04-11",  
+  "relativeDateOfBirth": "2006-04-12",  
   "relativeFullName": {
     "first": "Mark",
     "last": "Olson"
@@ -154,7 +154,7 @@
   "privacyAgreementAccepted": true,
   "minorHighSchoolQuestions":{
     "minorHighSchoolQuestion":false,
-    "highSchoolGedExpectedGradDate":"2023-04-11"
+    "highSchoolGedExpectedGradDate":"2023-04-12"
   },
   "minorQuestions":{
     "guardianFirstName":"Richard",
