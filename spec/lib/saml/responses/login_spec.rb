@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'support/saml/response_builder'
+require 'saml/responses/login'
 
 RSpec.describe SAML::Responses::Login do
   include SAML::ResponseBuilder
