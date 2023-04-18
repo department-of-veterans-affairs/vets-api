@@ -49,7 +49,8 @@ module Mobile
               updated_at: Date.strptime(
                 entry['list_data']['claim_phase_dates']['phase_change_date'], '%m/%d/%Y'
               ).iso8601,
-              display_title: entry['list_data']['status_type']
+              display_title: entry['list_data']['status_type'],
+              decision_letter_sent: entry['list_data']['decision_notification_sent'] == 'Yes'
             }
           )
         end
@@ -65,7 +66,8 @@ module Mobile
               completed: !entry['attributes']['active'],
               date_filed: entry['attributes']['events'][filed_index]['date'],
               updated_at: entry['attributes']['events'].last['date'],
-              display_title: get_appeals_display_title(subtype, entry['attributes']['programArea'])
+              display_title: get_appeals_display_title(subtype, entry['attributes']['programArea']),
+              decision_letter_sent: false
             }
           )
         end

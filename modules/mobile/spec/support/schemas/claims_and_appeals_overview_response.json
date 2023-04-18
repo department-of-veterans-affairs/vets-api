@@ -18,13 +18,17 @@
             },
             "updated_at": {
               "type": "string"
+            },
+            "decision_letter_sent": {
+              "type": "boolean"
             }
           },
           "required": [
             "subtype",
             "completed",
             "date_filed",
-            "updated_at"
+            "updated_at",
+            "decision_letter_sent"
           ],
           "type": "object"
         },
