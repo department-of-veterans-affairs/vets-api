@@ -89,7 +89,7 @@ describe TravelClaim::Service do
       end
       let(:faraday_response) { Faraday::Response.new(body: claims_json, status: 200) }
 
-      let(:submit_claim_response) { { data: claims_json, status: 200 } }
+      let(:submit_claim_response) { { data: claims_json.merge(code: 'CLM_000_SUCCESS'), status: 200 } }
 
       before do
         Rails.cache.write(
