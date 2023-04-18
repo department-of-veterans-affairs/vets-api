@@ -6,6 +6,7 @@ require 'token_validation/v2/client'
 require 'claims_api/error/error_handler'
 require 'claims_api/claim_logger'
 require 'bgs_service/local_bgs'
+require 'claims_api/form_schemas'
 
 module ClaimsApi
   module V2
@@ -13,11 +14,17 @@ module ClaimsApi
       include ClaimsApi::Error::ErrorHandler
       include ClaimsApi::CcgTokenValidation
 
+      skip_before_action :authenticate, only: %i[schema]
+
       # fetch_audience: defines the audience used for oauth
       # Overrides the default value defined in OpenidApplicationController
       # NOTE: required for Client Credential Grant (CCG) flow
       def fetch_aud
         Settings.oidc.isolated_audience.claims
+      end
+
+      def schema
+        render json: { data: [ClaimsApi::FormSchemas.new(schema_version: 'v2').schemas[self.class::FORM_NUMBER]] }
       end
 
       protected

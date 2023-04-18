@@ -42,7 +42,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       temp.to_json
     end
     let(:path) { '/services/claims/v1/forms/526' }
-    let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '526.json')) }
+    let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '526.json')) }
     let(:parsed_codes) do
       {
         birls_id: '111985523',
@@ -2847,7 +2847,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       temp.to_json
     end
     let(:path) { '/services/claims/v1/forms/526' }
-    let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '526.json')) }
+    let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '526.json')) }
 
     it 'sets the flashes and special_issues' do
       with_okta_user(scopes) do |auth_header|

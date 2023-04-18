@@ -20,7 +20,7 @@ RSpec.describe 'Intent to file', type: :request do
       participant_claimant_id: '123_456_789',
       received_date: '2015-01-05T17:42:12.058Z' }
   end
-  let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '0966.json')) }
+  let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '0966.json')) }
 
   before do
     stub_poa_verification

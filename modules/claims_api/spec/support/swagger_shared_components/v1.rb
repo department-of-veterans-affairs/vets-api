@@ -97,7 +97,7 @@ module SwaggerSharedComponents
                 properties: {
                   attributes: JSON.parse(
                     File.read(
-                      Rails.root.join('modules', 'claims_api', 'config', 'schemas', '0966.json')
+                      Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '0966.json')
                     )
                   )
                 }
@@ -125,7 +125,7 @@ module SwaggerSharedComponents
                 properties: {
                   attributes: JSON.parse(
                     File.read(
-                      Rails.root.join('modules', 'claims_api', 'config', 'schemas', '526.json')
+                      Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '526.json')
                     )
                   )
                 }
@@ -153,7 +153,7 @@ module SwaggerSharedComponents
                 properties: {
                   attributes: JSON.parse(
                     File.read(
-                      Rails.root.join('modules', 'claims_api', 'config', 'schemas', '2122.json')
+                      Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '2122.json')
                     )
                   )
                 }
