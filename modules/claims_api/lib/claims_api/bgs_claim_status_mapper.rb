@@ -50,6 +50,18 @@ module ClaimsApi
       grouped_phase(status)
     end
 
+    # Note that phase type values and claim status values are closely aligned.
+    # Specific differences for 2 of the phase type values are handled below.
+    def get_phase_type_from_dictionary(phase)
+      status = ''
+      PHASE_STATUS_DICTIONARY.each do |key, value|
+        status = key.to_s if value.include?(phase.to_s)
+      end
+      status = 'UNDER_REVIEW' if status == 'INITIAL_REVIEW'
+      status = 'GATHERING_OF_EVIDENCE' if status == 'EVIDENCE_GATHERING'
+      status
+    end
+
     def get_phase_from_phase_type_ind(phase_type_ind)
       phase = ''
       PHASE_STATUS_DICTIONARY.each do |_key, value|
