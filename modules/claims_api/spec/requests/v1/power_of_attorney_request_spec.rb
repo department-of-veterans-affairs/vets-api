@@ -29,7 +29,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
   describe '#2122' do
     let(:data) { File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json')) }
     let(:path) { '/services/claims/v1/forms/2122' }
-    let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '2122.json')) }
+    let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '2122.json')) }
 
     describe 'schema' do
       it 'returns a successful get response with json schema' do

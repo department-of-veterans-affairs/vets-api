@@ -12,6 +12,7 @@ RSpec.describe 'Disability Claims', type: :request do
       'X-VA-Gender': 'M' }
   end
   let(:scopes) { %w[system/claim.write] }
+  let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read }
 
   before do
     stub_poa_verification

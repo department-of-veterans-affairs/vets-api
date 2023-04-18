@@ -9,6 +9,7 @@ module ClaimsApi
       class PowerOfAttorneyController < ClaimsApi::V2::ApplicationController
         include ClaimsApi::PoaVerification
         before_action :verify_access!
+        FORM_NUMBER = '2122'
 
         def show
           poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code
