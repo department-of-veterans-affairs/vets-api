@@ -12,6 +12,10 @@
 # Sorted using http://yaml-sorter.herokuapp.com/
 
 features:
+  bcas_letters_use_lighthouse:
+    actor_type: user
+    description: Use lighthouse instead of EVSS to view/download benefit letters.
+    enable_in_development: true
   binding_flow_modal_dsl:
     actor_type: user
     description: Enables grandfathering modal to begin binding from dslogon to login.gov
