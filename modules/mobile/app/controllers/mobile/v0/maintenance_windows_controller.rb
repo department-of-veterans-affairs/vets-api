@@ -34,6 +34,7 @@ module Mobile
 
       def maintenance_windows
         upstream_maintenance_windows = ::MaintenanceWindow.end_after(Time.zone.now)
+        Rails.logger.info('Mobile Maintenance Windows - External Service Check', upstream_maintenance_windows)
         SERVICE_GRAPH.affected_services(upstream_maintenance_windows).values
       end
     end
