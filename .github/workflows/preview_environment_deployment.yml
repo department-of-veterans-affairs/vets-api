@@ -44,7 +44,7 @@ jobs:
         with:
           step: start
           token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
-          env: master/main/${{ github.ref_name }}
+          env: ${{ github.ref_name }}/main/main
           ref: ${{ github.ref_name }}
 
       - name: Get Source Repo and Source Ref
