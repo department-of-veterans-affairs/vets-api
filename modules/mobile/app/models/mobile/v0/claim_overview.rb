@@ -16,6 +16,7 @@ module Mobile
       attribute :date_filed, Types::Date
       attribute :updated_at, Types::Date
       attribute :display_title, Types::String
+      attribute :decision_letter_sent, Types::Bool
     end
   end
 end

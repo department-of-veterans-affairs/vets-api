@@ -24,7 +24,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
   describe 'GET /v0/claims-and-appeals-overview' do
     before { iam_sign_in }
 
-    let(:params) { { useCache: false } }
+    let(:params) { { useCache: false, page: { size: 60 } } }
 
     describe '#index (all user claims) is polled' do
       it 'and a result that matches our schema is successfully returned with the 200 status ' do
@@ -34,11 +34,12 @@ RSpec.describe 'claims and appeals overview', type: :request do
             expect(response).to have_http_status(:ok)
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body['data']
-            expect(parsed_response_contents.length).to eq(10)
-            expect(response.parsed_body.dig('meta', 'pagination', 'totalPages')).to eq(15)
+            expect(parsed_response_contents.length).to eq(60)
+            expect(response.parsed_body.dig('meta', 'pagination', 'totalPages')).to eq(3)
             open_claim = parsed_response_contents.select { |entry| entry['id'] == '600114693' }[0]
             closed_claim = parsed_response_contents.select { |entry| entry['id'] == '600106271' }[0]
             open_appeal = parsed_response_contents.select { |entry| entry['id'] == '3294289' }[0]
+            decision_letter_sent_claim = parsed_response_contents.select { |entry| entry['id'] == '600096536' }[0]
             expect(open_claim.dig('attributes', 'completed')).to eq(false)
             expect(closed_claim.dig('attributes', 'completed')).to eq(true)
             expect(open_appeal.dig('attributes', 'completed')).to eq(false)
@@ -49,6 +50,10 @@ RSpec.describe 'claims and appeals overview', type: :request do
             expect(closed_claim.dig('attributes', 'updatedAt')).to eq('2017-09-20')
             expect(open_appeal.dig('attributes', 'updatedAt')).to eq('2018-01-16')
             expect(open_appeal.dig('attributes', 'displayTitle')).to eq('disability compensation appeal')
+            expect(open_claim.dig('attributes', 'decisionLetterSent')).to eq(false)
+            expect(closed_claim.dig('attributes', 'decisionLetterSent')).to eq(false)
+            expect(open_appeal.dig('attributes', 'decisionLetterSent')).to eq(false)
+            expect(decision_letter_sent_claim.dig('attributes', 'decisionLetterSent')).to eq(true)
             expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
           end
         end
