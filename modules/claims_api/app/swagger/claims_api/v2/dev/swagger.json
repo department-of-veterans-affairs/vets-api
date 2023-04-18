@@ -2556,6 +2556,102 @@
             }
           }
         }
+      },
+      "post": {
+        "summary": "Submits form 526",
+        "tags": [
+          "Disability"
+        ],
+        "operationId": "post526Claim",
+        "security": [
+          {
+            "productionOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Establishes a Disability Compensation Claim in VBMS.",
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "example": "1012667145V762142",
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "526 Response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/veterans/{veteranId}/526/validate": {
+      "post": {
+        "summary": "Validates a 526 claim form submission.",
+        "tags": [
+          "Disability"
+        ],
+        "operationId": "post526ClaimValidate",
+        "security": [
+          {
+            "productionOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Test to make sure the form submission works with your parameters.\nSubmission validates against the schema returned by the GET /forms/526 endpoint.\n",
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "example": "1012667145V762142",
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "526 Response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
       }
     },
     "/veterans/{veteranId}/526/attachments": {
@@ -3138,8 +3234,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-04-17",
-                      "expirationDate": "2024-04-17",
+                      "creationDate": "2023-04-18",
+                      "expirationDate": "2024-04-18",
                       "type": "compensation",
                       "status": "active"
                     }
