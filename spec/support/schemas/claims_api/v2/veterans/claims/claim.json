@@ -64,16 +64,13 @@
                 "latestPhaseType": {
                   "type": "string",
                   "enum": [
-                    "CANCELED",
                     "CLAIM_RECEIVED",
-                    "INITIAL_REVIEW",
-                    "PENDING",
-                    "EVIDENCE_GATHERING",
+                    "UNDER_REVIEW",
+                    "GATHERING_OF_EVIDENCE",
                     "REVIEW_OF_EVIDENCE",
                     "PREPARATION_FOR_DECISION",
                     "PENDING_DECISION_APPROVAL",
                     "PREPARATION_FOR_NOTIFICATION",
-                    "ERRORED",
                     "COMPLETE"
                   ],
                   "nullable": true,

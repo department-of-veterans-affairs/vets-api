@@ -221,10 +221,10 @@ module ClaimsApi
           return if data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status).nil?
 
           latest = [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.first&.dig(:phase_type)
-          return latest unless latest.nil?
+          return bgs_phase_status_mapper.get_phase_type_from_dictionary(latest.downcase) unless latest.nil?
 
           indicator = latest_phase_type_change_indicator(data).split('')
-          mapper.get_phase_from_phase_type_ind(indicator.last.to_i)
+          bgs_phase_status_mapper.get_phase_type_from_dictionary(indicator.last.to_i)
         end
 
         def get_current_status_from_hash(data)

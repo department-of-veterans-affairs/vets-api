@@ -434,7 +434,7 @@ RSpec.describe 'Claims', type: :request do
                 expect(response.status).to eq(200)
                 expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to eq(false)
                 expect(json_response['data']['attributes']['claimPhaseDates']['latestPhaseType'])
-                  .to eq('Claim Received')
+                  .to eq('CLAIM_RECEIVED')
                 expect(json_response['data']['attributes']['claimPhaseDates']['previousPhases']).to be_truthy
               end
             end
@@ -469,7 +469,7 @@ RSpec.describe 'Claims', type: :request do
                 expect(response.status).to eq(200)
                 claim_attributes = json_response['data']['attributes']
                 expect(claim_attributes['claimPhaseDates']['currentPhaseBack']).to eq(false)
-                expect(claim_attributes['claimPhaseDates']['latestPhaseType']).to eq('Claim Received')
+                expect(claim_attributes['claimPhaseDates']['latestPhaseType']).to eq('CLAIM_RECEIVED')
                 expect(claim_attributes['claimPhaseDates']['previousPhases']).to be_truthy
               end
             end
@@ -839,7 +839,7 @@ RSpec.describe 'Claims', type: :request do
                   expect(json_response['data']['attributes']['status']).to eq('INITIAL_REVIEW')
                   expect(json_response['data']['attributes']['claimPhaseDates']['currentPhaseBack']).to eq(true)
                   expect(json_response['data']['attributes']['claimPhaseDates']['latestPhaseType'])
-                    .to eq('Under Review')
+                    .to eq('UNDER_REVIEW')
                 end
               end
             end
