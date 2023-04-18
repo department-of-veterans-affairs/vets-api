@@ -43,6 +43,14 @@ I UNDERSTAND THAT I’M CHOOSING TO RECEIVE FRY SCHOLARSHIP BENEFITS INSTEAD OF 
 <% if @applicant.benefitsRelinquishedDate.present? -%>
 I CERTIFY THAT I UNDERSTAND THE EFFECTS THAT THIS ELECTION TO RECEIVE DEA OR FRY SCHOLARSHIP BENEFITS WILL HAVE ON MY ELIGIBILITY TO RECEIVE DIC, AND I ELECT TO RECEIVE SUCH EDUCATION BENEFITS ON THE FOLLOWING DATE: <%= to_date(@applicant.benefitsRelinquishedDate) %>
 <% end -%>
+<% unless Rails.env.production? -%>
+
+Restorative training: <%= yesno(@applicant.restorativeTraining) %>
+
+Vocational training: <%= yesno(@applicant.vocationalTraining) %>
+
+Would you like to receive vocational and educational counseling?: <%= yesno(@applicant.educationalCounseling) %>
+<% end -%>
 
 
                             APPLICANT INFORMATION
@@ -60,14 +68,6 @@ Applicant has graduated high school or received GED? <%= @applicant.minorHighSch
 <%= date_label %> <%= grad_date %>
 
 <% end -%>
-<% end -%>
-<% unless Rails.env.production? -%>
-Restorative training: <%= yesno(@applicant.restorativeTraining) %>
-
-Vocational training: <%= yesno(@applicant.vocationalTraining) %>
-
-Would you like to receive vocational and educational counseling?: <%= yesno(@applicant.educationalCounseling) %>
-
 <% end -%>
 Name:   <%= full_name(@applicant.relativeFullName) %>
 
@@ -88,10 +88,10 @@ Relationship to service member:  <%= @applicant.relationship&.upcase %>
 
 <% elsif @applicant.relationshipAndChildType.eql?('spouse') -%>
 
-Relationship to service member:  <%= @applicant.relationshipAndChildType.upcase %>
+Relationship to service member:  <%= @applicant.relationshipAndChildType.upcase if @applicant.relationshipAndChildType %>
 
 <% else %>
-Relationship to service member:  <%= @applicant.relationshipAndChildType.capitalize + ' Child' %>
+Relationship to service member:  <%= @applicant.relationshipAndChildType.capitalize + ' Child' if @applicant.relationshipAndChildType %>
 
 <% end -%>
 <% if @applicant.spouseInfo.present? -%>
