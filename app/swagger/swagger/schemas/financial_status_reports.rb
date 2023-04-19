@@ -205,6 +205,8 @@ module Swagger
         property :selected_debts_and_copays, type: :array do
           items do
             property :debt_type, type: :string
+            property :deduction_code, type: :string
+            property :resolution_comment, type: :string
             property :resolution_option, type: :string
             property :station, type: :object do
               property :facilit_y_num, type: :string
