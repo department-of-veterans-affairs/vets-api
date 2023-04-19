@@ -152,8 +152,6 @@ module DebtManagementCenter
       vbs_response = vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
                                       { jsonDocument: vha_form.to_json })
 
-      send_confirmation_email(VHA_CONFIRMATION_TEMPLATE) if vbs_response.success?
-
       { status: vbs_response.status }
     end
 
