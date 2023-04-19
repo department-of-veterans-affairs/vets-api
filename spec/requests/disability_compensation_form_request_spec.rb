@@ -34,8 +34,11 @@ RSpec.describe 'Disability compensation form' do
     end
 
     context 'EVSS api provider' do
+      before do
+        Flipper.disable(feature_toggle_rated_disabilities)
+      end
+
       context 'with a valid 200 evss response' do
-        Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider')
         it 'matches the rated disabilities schema' do
           VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
             get('/v0/disability_compensation_form/rated_disabilities', params: nil, headers:)

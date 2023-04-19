@@ -2,6 +2,7 @@
 
 require 'evss/intent_to_file/service'
 require 'evss/intent_to_file/response_strategy'
+require 'disability_compensation/factories/api_provider_factory'
 
 module V0
   class IntentToFilesController < ApplicationController
@@ -13,7 +14,8 @@ module V0
     TYPES = %w[compensation].freeze
 
     def index
-      response = service.get_intent_to_file
+      intent_to_file_service = ApiProviderFactory.intent_to_file_service_provider(@current_user)
+      response = intent_to_file_service.get_intent_to_file
       render json: response,
              serializer: IntentToFileSerializer
     end
@@ -25,7 +27,9 @@ module V0
     end
 
     def submit
-      response = service.create_intent_to_file(params[:type])
+      intent_to_file_service = ApiProviderFactory.intent_to_file_service_provider(@current_user)
+
+      response = intent_to_file_service.create_intent_to_file(params[:type])
       render json: response,
              serializer: IntentToFileSerializer
     end

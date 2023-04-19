@@ -1079,6 +1079,11 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'intent to file' do
+      before do
+        # TODO: remove Flipper feature toggle when lighthouse provider is implemented
+        Flipper.disable('disability_compensation_lighthouse_intent_to_file_provider')
+      end
+
       it 'supports getting all intent to file' do
         expect(subject).to validate(:get, '/v0/intent_to_file', 401)
         VCR.use_cassette('evss/intent_to_file/intent_to_file') do

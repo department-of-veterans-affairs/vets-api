@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'disability_compensation/providers/rated_disabilities/rated_disabilities_provider'
-require 'support/disability_compensation_form/shared_examples/rated_disabilities_provider'
 
 RSpec.describe RatedDisabilitiesProvider do
   let(:current_user) { build(:user) }
