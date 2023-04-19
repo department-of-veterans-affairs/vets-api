@@ -138,6 +138,8 @@ module V0
         ],
         selected_debts_and_copays: [
           :debt_type,
+          :deduction_code,
+          :resolution_comment,
           :resolution_option,
           { station: [:facilit_y_num] }
         ]
