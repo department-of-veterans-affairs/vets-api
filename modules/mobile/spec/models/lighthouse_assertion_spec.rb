@@ -33,24 +33,5 @@ RSpec.describe Mobile::V0::LighthouseAssertion, type: :model do
                           ]
                         )
     end
-
-    it 'encodes the letters claim as a jwt token' do
-      expect(JWT.decode(Mobile::V0::LighthouseAssertion.new(:letters).token, rsa_key.public_key, true,
-                        { algorithm: 'RS512' })).to eq(
-                          [
-                            {
-                              'aud' => 'https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token',
-                              'iss' => '0oajpx78t3M8kurld2p7',
-                              'sub' => '0oajpx78t3M8kurld2p7',
-                              'jti' => uuid,
-                              'iat' => 1_633_910_400,
-                              'exp' => 1_633_910_700
-                            },
-                            {
-                              'alg' => 'RS512'
-                            }
-                          ]
-                        )
-    end
   end
 end

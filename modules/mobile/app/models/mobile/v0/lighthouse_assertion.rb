@@ -7,14 +7,11 @@ module Mobile
     class LighthouseAssertion
       TTL = 300
 
-      CLIENT_IDS = { health: Settings.lighthouse_health_immunization.client_id,
-                     letters: Settings.mobile_lighthouse_letters.client_id }.freeze
+      CLIENT_IDS = { health: Settings.lighthouse_health_immunization.client_id }.freeze
 
-      AUD_CLAIM_URLS = { health: Settings.lighthouse_health_immunization.audience_claim_url,
-                         letters: Settings.mobile_lighthouse_letters.aud_claim_url }.freeze
+      AUD_CLAIM_URLS = { health: Settings.lighthouse_health_immunization.audience_claim_url }.freeze
 
-      KEY_PATHS = { health: Settings.lighthouse_health_immunization.key_path,
-                    letters: Settings.mobile_lighthouse_letters.key_path }.freeze
+      KEY_PATHS = { health: Settings.lighthouse_health_immunization.key_path }.freeze
 
       def initialize(api)
         @client_id = CLIENT_IDS[api]
