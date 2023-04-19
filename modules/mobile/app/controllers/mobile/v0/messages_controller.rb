@@ -41,6 +41,7 @@ module Mobile
 
         message_params[:id] = message_params.delete(:draft_id) if message_params[:draft_id].present?
         create_message_params = { message: message_params.to_h }.merge(upload_params)
+        Rails.logger.info('Mobile SM Category Tracking', category: create_message_params.dig(:message, :category))
 
         client_response = if message.uploads.present?
                             client.post_create_message_with_attachment(create_message_params)
