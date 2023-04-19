@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'disability_compensation/factories/api_provider_factory'
 
 RSpec.describe 'Intent to file' do
   include SchemaMatchers
 
   before do
+    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE)
     sign_in
   end
 
