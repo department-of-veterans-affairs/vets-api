@@ -7,7 +7,7 @@ RSpec.describe ApplicationController, type: :controller do
   controller do
     attr_reader :payload
 
-    skip_before_action :authenticate, except: :test_authentication
+    skip_before_action :authenticate, except: %i[test_authentication test_logging]
 
     JSON_ERROR = {
       'errorCode' => 139, 'developerMessage' => '', 'message' => 'Prescription is not Refillable'
@@ -27,6 +27,10 @@ RSpec.describe ApplicationController, type: :controller do
 
     def forbidden
       raise Common::Exceptions::Forbidden
+    end
+
+    def test_logging
+      Rails.logger.info sso_logging_info
     end
 
     def breakers_outage
@@ -64,6 +68,7 @@ RSpec.describe ApplicationController, type: :controller do
 
   before do
     routes.draw do
+      get 'test_logging' => 'anonymous#test_logging'
       get 'not_authorized' => 'anonymous#not_authorized'
       get 'unauthorized' => 'anonymous#unauthorized'
       get 'routing_error' => 'anonymous#routing_error'
@@ -488,6 +493,51 @@ RSpec.describe ApplicationController, type: :controller do
           expect(JSON.parse(response.body)['errors'].first)
             .to eq('title' => 'Not authorized', 'detail' => 'Not authorized', 'code' => '401', 'status' => '401')
         end
+      end
+    end
+  end
+
+  describe '#sso_logging_info' do
+    subject { get :test_logging }
+
+    let(:user) { build(:user, :loa3) }
+    let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
+    let(:header_auth_value) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
+    let(:request_host) { Settings.hostname }
+    let(:expiration_time) { controller.instance_variable_get(:@session_object).ttl_in_time.iso8601(0) }
+    let(:sso_cookie_content) do
+      {
+        'patientIcn' => '123498767V234859',
+        'signIn' => {
+          'serviceName' => 'idme',
+          'authBroker' => 'iam',
+          'clientId' => 'web'
+        },
+        'credential_used' => 'idme',
+        'session_uuid' => user.uuid,
+        'expirationTime' => expiration_time
+      }
+    end
+    let(:expected_result) do
+      {
+        user_uuid: user.uuid,
+        sso_cookie_contents: sso_cookie_content,
+        request_host:
+      }
+    end
+
+    before do
+      allow(Rails.logger).to receive(:info)
+      session_object = Session.create(uuid: user.uuid, token:)
+      User.create(user)
+      session_object.to_hash.each { |k, v| session[k] = v }
+    end
+
+    context 'when the current user and session object exist' do
+      it 'returns a hash with the user and session info' do
+        get :test_authentication
+        expect(Rails.logger).to receive(:info).with(expected_result)
+        subject
       end
     end
   end
