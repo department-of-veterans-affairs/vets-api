@@ -18,6 +18,7 @@ properties:
       - dateFiled
       - updatedAt
       - displayTitle
+      - decisionLetterSent
     properties:
       subtype:
         type: string
@@ -37,3 +38,7 @@ properties:
         type: string
         description: Formatted title for display in mobile overview list
         example: "disability compensation appeal"
+      decisionLetterSent:
+        type: boolean
+        description: decision letter will be available from endpoint /v0/claims/decision-letters if true
+        example: "true"
