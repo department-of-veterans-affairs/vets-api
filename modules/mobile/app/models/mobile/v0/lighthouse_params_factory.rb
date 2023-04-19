@@ -38,8 +38,7 @@ module Mobile
 
       def scopes
         {
-          health: Settings.lighthouse_health_immunization.scopes.join(' '),
-          letters: Settings.mobile_lighthouse_letters.api_scopes.join(' ')
+          health: Settings.lighthouse_health_immunization.scopes.join(' ')
         }
       end
 

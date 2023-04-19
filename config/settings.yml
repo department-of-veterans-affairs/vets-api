@@ -1493,14 +1493,9 @@ lighthouse_health_immunization:
     - "patient/Immunization.read"
     - "patient/Location.read"
 
-mobile_lighthouse_letters:
+mobile_lighthouse:
   client_id: '0oajpx78t3M8kurld2p7'
-  key_path: ~
-  aud_claim_url: "https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token"
-  access_token_url: 'https://sandbox-api.va.gov/oauth2/va-letter-generator/system/v1/token'
-  api_url: 'https://sandbox-api.va.gov/services/va-letter-generator/v1/'
-  api_scopes:
-    - "letters.read"
+  rsa_key: ~
 
 token_validation:
   url: https://dev-api.va.gov/internal/auth

@@ -55,6 +55,7 @@ RSpec.describe 'letters', type: :request do
   end
 
   before do
+    skip('Temporary disabling of specs until new LH service available')
     allow(File).to receive(:read).and_return(rsa_key.to_s)
     allow_any_instance_of(IAMUser).to receive(:icn).and_return('24811694708759028')
     user = build(:iam_user)
