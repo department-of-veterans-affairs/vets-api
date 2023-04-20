@@ -23,6 +23,7 @@ spec:
       labels:
         app: {{ .Values.appName }}-sidekiq
       annotations:
+{{ toYaml $root.Values.worker_annotations | indent 8 }}
     spec:
       affinity:
         podAntiAffinity:

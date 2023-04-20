@@ -44,7 +44,8 @@ type: application
 # 0.11.33 - preStop lifecycle hook
 # 0.11.34 - preStop command
 # 0.11.36 - startupProbe
-version: 0.11.36
+# 0.11.37 - prometheus scrape annotations
+version: 0.11.37
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
