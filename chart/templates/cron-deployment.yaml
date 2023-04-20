@@ -42,6 +42,4 @@ spec:
           restartPolicy: OnFailure
           securityContext:
             fsGroup: 1000
-          volumes:
-{{ toYaml $cronJob.volumes | indent 12 }}
 {{- end }}
