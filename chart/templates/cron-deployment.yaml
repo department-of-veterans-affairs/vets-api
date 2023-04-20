@@ -25,7 +25,7 @@ spec:
               args:
 {{ toYaml $cronJob.args | indent 16 }}
               volumeMounts:
-{{ toYaml $root.Values.common.volumeMounts | indent 16 }}
+{{ toYaml $cronJob.volumeMounts | indent 16 }}
               env:
                 - name: GIT_REVISION
                   value: {{ $root.Values.image.tag}}
@@ -43,5 +43,5 @@ spec:
           securityContext:
             fsGroup: 1000
           volumes:
-{{ toYaml $root.Values.common.volumes | indent 12 }}
+{{ toYaml $cronJob.volumes | indent 12 }}
 {{- end }}

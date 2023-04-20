@@ -46,7 +46,8 @@ type: application
 # 0.11.36 - startupProbe
 # 0.11.37 - prometheus scrape annotations
 # 0.11.38 - prometheus scrape annotations syntax fix
-version: 0.11.38
+# 0.11.39 - cronjob volumes and mounts
+version: 0.11.39
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
