@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sidekiq/form526_job_status_tracker/job_tracker'
 
 describe Sidekiq::Form526JobStatusTracker::JobTracker do
   let(:worker_class) do

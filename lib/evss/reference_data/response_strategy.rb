@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/models/concerns/cache_aside'
+
 module EVSS
   module ReferenceData
     class ResponseStrategy < Common::RedisStore

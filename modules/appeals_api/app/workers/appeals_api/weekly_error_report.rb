@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'sidekiq/monitored_worker'
 
 # The "weekly" in the job name refers to its cadence, not the bound timeframe of records to report on.
 # All errors are reported, as well as "stuck" records.

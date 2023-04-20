@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'token'
 require 'token_validation/v2/client'
+require 'bgs_service/local_bgs'
 
 RSpec.describe 'Power of Attorney ', type: :request do
   let(:headers) do

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/intent_to_file/intent_to_file'
+
 module Swagger
   module Schemas
     class IntentToFile

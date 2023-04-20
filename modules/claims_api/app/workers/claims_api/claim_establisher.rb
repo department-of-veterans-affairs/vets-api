@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'sidekiq/monitored_worker'
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/disability_compensation_form/service'
 require 'sentry_logging'

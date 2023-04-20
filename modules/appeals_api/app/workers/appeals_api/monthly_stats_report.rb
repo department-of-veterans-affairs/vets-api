@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'sidekiq/monitored_worker'
+
 class AppealsApi::MonthlyStatsReport
   include Sidekiq::Worker
   include Sidekiq::MonitoredWorker
