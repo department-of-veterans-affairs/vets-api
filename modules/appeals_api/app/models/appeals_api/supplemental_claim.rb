@@ -60,11 +60,15 @@ module AppealsApi
     def assign_metadata
       return unless api_version&.downcase == 'v2'
 
+      # retain original incoming non-pii form_data in metadata since this model's form_data is eventually removed
       self.metadata = if Flipper.enabled?(:decision_review_sc_pact_act_boolean)
                         { form_data: { evidence_type:, potential_pact_act: }, pact: { potential_pact_act: } }
                       else
                         { form_data: { evidence_type: } }
                       end
+      metadata['form_data']['benefit_type'] = benefit_type
+
+      metadata['central_mail_business_line'] = lob
     end
 
     def veteran

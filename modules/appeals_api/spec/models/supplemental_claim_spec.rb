@@ -49,6 +49,11 @@ describe AppealsApi::SupplementalClaim, type: :model do
         expect(@supplemental_claim.metadata.dig('pact', 'potential_pact_act')).to be_nil
       end
 
+      it 'saves consumer benefit type to metadata' do
+        expect(supplemental_claim_veteran_only.metadata.dig('form_data', 'benefit_type')).to eq 'fiduciary'
+        expect(supplemental_claim_veteran_only.metadata['central_mail_business_line']).to eq 'FID'
+      end
+
       it 'assigns no metadata when api version is not v2' do
         @supplemental_claim.api_version = 'V1'
         @supplemental_claim.save

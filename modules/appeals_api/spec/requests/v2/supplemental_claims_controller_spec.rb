@@ -27,7 +27,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
 
     context 'with minimum required headers' do
       it 'returns all SCs for the given Veteran' do
-        uuid_1 = create(:supplemental_claim, veteran_icn: '1013062086V794840', form_data: nil).id
+        uuid_1 = create(:supplemental_claim, veteran_icn: '1013062086V794840').id
         uuid_2 = create(:supplemental_claim, veteran_icn: '1013062086V794840').id
         create(:supplemental_claim, veteran_icn: 'something_else')
 
@@ -89,6 +89,14 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         expect(parsed['data']['type']).to eq('supplementalClaim')
         expect(parsed['data']['attributes']['status']).to eq('pending')
         expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
+      end
+
+      it 'stores the evidenceType(s) in metadata' do
+        post(path, params: data, headers:)
+        sc = AppealsApi::SupplementalClaim.find(parsed['data']['id'])
+        data_evidence_type = JSON.parse(data).dig(*%w[data attributes evidenceSubmission evidenceType])
+
+        expect(sc.metadata.dig('form_data', 'evidence_type')).to eq(data_evidence_type)
       end
     end
 
