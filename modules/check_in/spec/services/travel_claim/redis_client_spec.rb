@@ -137,4 +137,39 @@ describe TravelClaim::RedisClient do
       end
     end
   end
+
+  describe '#mobile_phone' do
+    let(:uuid) { '755f64db-336f-4614-a3eb-15f732d48de1' }
+    let(:mobile_phone) { '7141234567' }
+    let(:appointment_identifiers) do
+      {
+        data: {
+          id: uuid,
+          type: :appointment_identifier,
+          attributes: { patientDFN: '123', stationNo: 888, icn: '2113957154V785237', mobilePhone: mobile_phone }
+        }
+      }
+    end
+
+    context 'when cache does not exist' do
+      it 'returns nil' do
+        expect(redis_client.mobile_phone(uuid:)).to eq(nil)
+      end
+    end
+
+    context 'when cache exists' do
+      before do
+        Rails.cache.write(
+          "check_in_lorota_v2_appointment_identifiers_#{uuid}",
+          appointment_identifiers.to_json,
+          namespace: 'check-in-lorota-v2-cache',
+          expires_in: appt_data_expiry
+        )
+      end
+
+      it 'returns the cached value' do
+        expect(redis_client.mobile_phone(uuid:)).to eq(mobile_phone)
+      end
+    end
+  end
 end
