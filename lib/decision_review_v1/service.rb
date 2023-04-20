@@ -226,11 +226,11 @@ module DecisionReviewV1
       end
     end
 
-    def self.file_upload_metadata(user)
+    def self.file_upload_metadata(user, backup_zip = nil)
       {
         'veteranFirstName' => transliterate_name(user.first_name),
         'veteranLastName' => transliterate_name(user.last_name),
-        'zipCode' => user.postal_code,
+        'zipCode' => user.postal_code || backup_zip,
         'fileNumber' => user.ssn.to_s.strip,
         'source' => 'va.gov',
         'businessLine' => 'BVA',
