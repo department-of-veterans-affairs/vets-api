@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'sidekiq/monitored_worker'
 
 # This report will only result in an email if there are errored records to report on.
 # While the DecisionReviewReportDaily will also have this data, having it as a separate email makes

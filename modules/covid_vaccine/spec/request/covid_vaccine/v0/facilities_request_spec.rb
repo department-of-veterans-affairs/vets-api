@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'lighthouse/facilities/client'
 
 RSpec.describe 'Covid Vaccine Facilities', type: :request do
   include SchemaMatchers
