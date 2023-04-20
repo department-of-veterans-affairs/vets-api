@@ -18,17 +18,17 @@ module V1
       req_body_obj = request_body_hash.is_a?(String) ? JSON.parse(request_body_hash) : request_body_hash
       form4142 = req_body_obj.delete('form4142')
       sc_evidence = req_body_obj.delete('additionalDocuments')
+      zip_from_frontend = req_body_obj.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')
       sc_response = decision_review_service.create_supplemental_claim(request_body: req_body_obj, user: @current_user)
       submitted_appeal_uuid = sc_response.body.dig('data', 'id')
       unless submitted_appeal_uuid.nil?
-        appeal_submission, _ipf_id = clear_in_progress_form(submitted_appeal_uuid)
+        appeal_submission, _ipf_id = clear_in_progress_form(submitted_appeal_uuid, zip_from_frontend)
         appeal_submission_id = appeal_submission.id
         ::Rails.logger.info(post_create_log_msg(appeal_submission_id:, submitted_appeal_uuid:))
         if form4142.present?
           handle_4142(request_body: req_body_obj,
                       form4142:, response: sc_response,
-                      appeal_submission_id:,
-                      submitted_appeal_uuid:)
+                      appeal_submission_id:, submitted_appeal_uuid:)
         end
         submit_evidence(sc_evidence, appeal_submission_id, submitted_appeal_uuid) if sc_evidence.present?
         render json: sc_response.body, status: sc_response.status
@@ -97,14 +97,16 @@ module V1
       raise
     end
 
-    def clear_in_progress_form(submitted_appeal_uuid)
+    def clear_in_progress_form(submitted_appeal_uuid, backup_zip)
       ret = [nil, nil]
       ActiveRecord::Base.transaction do
         ret[0] = AppealSubmission.create! user_uuid: @current_user.uuid,
                                           user_account: @current_user.user_account,
                                           type_of_appeal: 'SC',
                                           submitted_appeal_uuid:,
-                                          upload_metadata: DecisionReviewV1::Service.file_upload_metadata(@current_user)
+                                          upload_metadata: DecisionReviewV1::Service.file_upload_metadata(
+                                            @current_user, backup_zip
+                                          )
         # Clear in-progress form since submit was successful
         ret[1] = InProgressForm.form_for_user('20-0995', @current_user)&.destroy!
       end
