@@ -13,7 +13,7 @@ matchExpressions:
   operator: In
 topologyKey: kubernetes.io/hostname
 worker_annotations:
-  prometheus.io/scrape: true
+  prometheus.io/scrape: "true"
 annotations:
   ad.datadoghq.com/vets-api-web.checks: {}
 serviceAccount:
