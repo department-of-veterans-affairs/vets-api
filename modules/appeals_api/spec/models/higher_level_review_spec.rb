@@ -157,6 +157,18 @@ describe AppealsApi::HigherLevelReview, type: :model do
     it('matches json') { is_expected.to eq form_data_attributes['benefitType'] }
   end
 
+  describe '#metadata_formdata_benefit_type' do
+    subject { higher_level_review.metadata['form_data']['benefit_type'] }
+
+    it('matches json') { is_expected.to eq form_data_attributes['benefitType'] }
+  end
+
+  describe '#metadata_central_mail_business_line' do
+    subject { higher_level_review.metadata['central_mail_business_line'] }
+
+    it('matches json') { is_expected.to eq higher_level_review.lob }
+  end
+
   describe '#informal_conference' do
     subject { higher_level_review.informal_conference }
 

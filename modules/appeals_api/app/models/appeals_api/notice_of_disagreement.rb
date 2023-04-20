@@ -18,6 +18,8 @@ module AppealsApi
     attr_readonly :auth_headers
     attr_readonly :form_data
 
+    before_create :assign_metadata
+
     scope :pii_expunge_policy, lambda {
       where(
         status: COMPLETE_STATUSES
@@ -206,6 +208,10 @@ module AppealsApi
 
     def lob
       'BVA'
+    end
+
+    def assign_metadata
+      metadata['central_mail_business_line'] = lob
     end
 
     def accepts_evidence?

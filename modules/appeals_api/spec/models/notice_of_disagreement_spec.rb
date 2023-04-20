@@ -21,6 +21,17 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     end
   end
 
+  describe '#create' do
+    let(:nod) do
+      bro = form_data['data']['attributes']['boardReviewOption']
+      create(:notice_of_disagreement, form_data:, auth_headers:, board_review_option: bro)
+    end
+
+    it 'saves consumer benefit type to metadata' do
+      expect(nod.metadata['central_mail_business_line']).to eq 'BVA'
+    end
+  end
+
   # rubocop:disable Layout/LineLength
   describe '#validate_hearing_type_selection' do
     context "when board review option 'hearing' selected" do

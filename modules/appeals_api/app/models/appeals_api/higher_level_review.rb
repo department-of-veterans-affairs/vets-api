@@ -17,6 +17,8 @@ module AppealsApi
     attr_readonly :auth_headers
     attr_readonly :form_data
 
+    before_create :assign_metadata
+
     scope :pii_expunge_policy, lambda {
       timeframe = 7.days.ago
       v1.where('updated_at < ? AND status IN (?)', timeframe, COMPLETE_STATUSES + ['success'])
@@ -317,6 +319,13 @@ module AppealsApi
         'education' => 'EDU',
         'nationalCemeteryAdministration' => 'NCA'
       }[benefit_type]
+    end
+
+    def assign_metadata
+      # retain original incoming non-pii form_data in metadata since this model's form_data is eventually removed
+      self.metadata = { form_data: { benefit_type: } }
+
+      metadata['central_mail_business_line'] = lob
     end
 
     private
