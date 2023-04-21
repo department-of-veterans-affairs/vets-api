@@ -31,7 +31,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           build-args: |
-            userid=${{ env.VETS_API_USER_ID }}
+            BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+            USER_ID=${{ env.VETS_API_USER_ID }}
+            RAILS_ENV=production
           context: .
           # target: production
           push: true
