@@ -455,6 +455,10 @@ features:
     actor_type: user
     description: enables us to easily turn off pre-caching appointments if our requests are overwhelming the upstream service
     enable_in_development: true
+  mobile_filter_doc_27_decision_letters_out:
+    actor_type: user
+    description: filters out doc type 27 decision letters out of list of decision letters for mobile
+    enable_in_development: false
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >
