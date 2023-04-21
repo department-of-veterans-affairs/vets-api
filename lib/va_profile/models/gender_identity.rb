@@ -12,9 +12,9 @@ module VAProfile
       CODES = %w[M F TM TF B N O].freeze
       OPTIONS = {
         'M' => 'Man',
-        'B' => 'Non-Binary',
-        'TM' => 'Transgender Man',
-        'TF' => 'Transgender Woman',
+        'B' => 'Non-binary',
+        'TM' => 'Transgender man',
+        'TF' => 'Transgender woman',
         'F' => 'Woman',
         'N' => 'Prefer not to answer',
         'O' => 'A gender not listed here'
