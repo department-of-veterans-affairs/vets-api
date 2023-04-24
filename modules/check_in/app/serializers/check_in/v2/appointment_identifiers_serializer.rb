@@ -19,6 +19,10 @@ module CheckIn
       attribute :icn do |object|
         object.payload.dig(:demographics, :icn)
       end
+
+      attribute :mobilePhone do |object|
+        object.payload.dig(:demographics, :mobilePhone)
+      end
     end
   end
 end
