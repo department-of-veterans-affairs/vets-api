@@ -1,7 +1,7 @@
 {{- $root := . -}}
 {{- range $name, $service := $root.Values.web.webServices }}
 {{- if $service.autoscaling.enabled }}
-{{- $pool := "avg:puma.pool_capacity{kube_cluster_name:dsva-vagov-" }}
+{{- $pool := "min:puma.pool_capacity{kube_cluster_name:dsva-vagov-" }}
 {{- $threads := "avg:puma.max_threads{kube_cluster_name:dsva-vagov-" }}
 {{- $deployment := "-cluster,kube_deployment:" }}
 
