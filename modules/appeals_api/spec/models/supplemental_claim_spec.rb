@@ -54,7 +54,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
         expect(supplemental_claim_veteran_only.metadata['central_mail_business_line']).to eq 'FID'
       end
 
-      it 'assigns no metadata when api version is not v2' do
+      it 'assigns no metadata when api_version is not V2 or V0' do
         @supplemental_claim.api_version = 'V1'
         @supplemental_claim.save
 

@@ -25,8 +25,8 @@ module AppealsApi
 
     def stuck_err_hlrs
       stuck_hlr_statuses = HigherLevelReview::STATUSES - HigherLevelReview::COMPLETE_STATUSES - ['error']
-      err_hlrs   = HigherLevelReview.v2.where(status: 'error')
-      stuck_hlrs = HigherLevelReview.v2.where(status: stuck_hlr_statuses)
+      err_hlrs   = HigherLevelReview.v2_or_v0.where(status: 'error')
+      stuck_hlrs = HigherLevelReview.v2_or_v0.where(status: stuck_hlr_statuses)
                                     .where('updated_at < ?', 1.week.ago.beginning_of_day)
       err_hlrs.or(stuck_hlrs).order(:created_at).map { |hlr| "HLR, #{build_line(hlr)}" }
     end

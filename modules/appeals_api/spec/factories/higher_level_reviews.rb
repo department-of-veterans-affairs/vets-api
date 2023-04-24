@@ -59,4 +59,19 @@ FactoryBot.define do
         .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_200996_minimum.json'.split('/')).to_s))
     end
   end
+
+  factory :higher_level_review_v0,
+          class: 'AppealsApi::HigherLevelReview', parent: :higher_level_review_v2 do
+    api_version { 'V0' }
+  end
+
+  factory :extra_higher_level_review_v0,
+          class: 'AppealsApi::HigherLevelReview', parent: :extra_higher_level_review_v2 do
+    api_version { 'V0' }
+  end
+
+  factory :minimal_higher_level_review_v0,
+          class: 'AppealsApi::HigherLevelReview', parent: :minimal_higher_level_review_v2 do
+    api_version { 'V0' }
+  end
 end

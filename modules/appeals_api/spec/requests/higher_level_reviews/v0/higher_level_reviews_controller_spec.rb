@@ -9,6 +9,7 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
   end
 
   let(:data) { fixture_to_s 'valid_200996_minimum.json', version: 'v2' }
+  let(:headers) { fixture_as_json 'valid_200996_headers.json', version: 'v2' }
   let(:headers_extra) { fixture_as_json 'valid_200996_headers_extra.json', version: 'v2' }
   let(:parsed_response) { JSON.parse(response.body) }
 
@@ -36,6 +37,17 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
 
   describe '#create' do
     let(:path) { base_path 'forms/200996' }
+
+    it 'creates an HLR record having api_version: "V0"' do
+      with_openid_auth(described_class::OAUTH_SCOPES[:POST]) do |auth_header|
+        post(path, params: data, headers: headers.merge(auth_header))
+      end
+
+      hlr_guid = JSON.parse(response.body)['data']['id']
+      hlr = AppealsApi::HigherLevelReview.find(hlr_guid)
+
+      expect(hlr.api_version).to eq('V0')
+    end
 
     context 'when icn header is not provided' do
       it 'returns a 422 error with details' do

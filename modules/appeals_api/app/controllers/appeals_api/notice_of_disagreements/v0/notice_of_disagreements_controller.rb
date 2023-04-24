@@ -7,6 +7,8 @@ module AppealsApi::NoticeOfDisagreements::V0
     include AppealsApi::OpenidAuth
 
     FORM_NUMBER = '10182_WITH_SHARED_REFS'
+    API_VERSION = 'V0'
+    SCHEMA_VERSION = 'v2'
     HEADERS = JSON.parse(
       File.read(
         AppealsApi::Engine.root.join('config/schemas/v2/10182_with_shared_refs_headers.json')
@@ -35,7 +37,7 @@ module AppealsApi::NoticeOfDisagreements::V0
       response = AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
         AppealsApi::FormSchemas.new(
           SCHEMA_ERROR_TYPE,
-          schema_version: 'v2'
+          schema_version: self.class::SCHEMA_VERSION
         ).schema(self.class::FORM_NUMBER)
       )
 

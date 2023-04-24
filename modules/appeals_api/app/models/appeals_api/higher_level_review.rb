@@ -22,20 +22,17 @@ module AppealsApi
     scope :pii_expunge_policy, lambda {
       timeframe = 7.days.ago
       v1.where('updated_at < ? AND status IN (?)', timeframe, COMPLETE_STATUSES + ['success'])
-        .or(v2.where('updated_at < ? AND status IN (?)', timeframe, COMPLETE_STATUSES))
-    }
-
-    scope :v1, lambda {
-      where(api_version: 'V1')
-    }
-
-    scope :v2, lambda {
-      where(api_version: 'V2')
+        .or(v2_or_v0.where('updated_at < ? AND status IN (?)', timeframe, COMPLETE_STATUSES))
     }
 
     scope :stuck_unsubmitted, lambda {
       where('created_at < ? AND status IN (?)', 2.hours.ago, %w[pending submitting])
     }
+
+    scope :v1, -> { where(api_version: 'V1') }
+    scope :v2, -> { where(api_version: 'V2') }
+    scope :v0, -> { where(api_version: 'V0') }
+    scope :v2_or_v0, -> { where(api_version: %w[V2 V0]) }
 
     def self.past?(date)
       date < Time.zone.today

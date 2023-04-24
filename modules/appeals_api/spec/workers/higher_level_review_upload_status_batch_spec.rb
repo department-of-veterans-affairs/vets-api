@@ -52,6 +52,16 @@ describe AppealsApi::HigherLevelReviewUploadStatusBatch, type: :job do
           expect(upload.status).to eq('processing')
         end
       end
+
+      context 'with HLRv0 records' do
+        let(:upload) { create(:higher_level_review_v0, status: 'pending', created_at: '2021-02-03') }
+
+        it 'updates their status' do
+          Sidekiq::Testing.inline! { AppealsApi::HigherLevelReviewUploadStatusBatch.new.perform }
+          upload.reload
+          expect(upload.status).to eq('processing')
+        end
+      end
     end
 
     context 'when status updater is disabled' do

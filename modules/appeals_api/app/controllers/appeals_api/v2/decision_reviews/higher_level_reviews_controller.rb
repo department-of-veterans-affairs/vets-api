@@ -17,6 +17,8 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   before_action :find_higher_level_review, only: %i[show]
 
   FORM_NUMBER = '200996'
+  API_VERSION = 'V2'
+  SCHEMA_VERSION = 'v2'
   MODEL_ERROR_STATUS = 422
   HEADERS = JSON.parse(
     File.read(
@@ -54,7 +56,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
     render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
       AppealsApi::FormSchemas.new(
         SCHEMA_ERROR_TYPE,
-        schema_version: 'v2'
+        schema_version: self.class::SCHEMA_VERSION
       ).schema(self.class::FORM_NUMBER)
     )
   end
@@ -89,14 +91,14 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   def validate_json_schema_for_headers
     AppealsApi::FormSchemas.new(
       SCHEMA_ERROR_TYPE,
-      schema_version: 'v2'
+      schema_version: self.class::SCHEMA_VERSION
     ).validate!("#{self.class::FORM_NUMBER}_HEADERS", request_headers)
   end
 
   def validate_json_schema_for_body
     AppealsApi::FormSchemas.new(
       SCHEMA_ERROR_TYPE,
-      schema_version: 'v2'
+      schema_version: self.class::SCHEMA_VERSION
     ).validate!(self.class::FORM_NUMBER, @json_body)
   end
 
@@ -131,7 +133,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
       auth_headers: request_headers,
       form_data: @json_body,
       source: request_headers['X-Consumer-Username'].presence&.strip,
-      api_version: 'V2',
+      api_version: self.class::API_VERSION,
       veteran_icn: request_headers['X-VA-ICN']
     )
 
