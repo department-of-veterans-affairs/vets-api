@@ -84,7 +84,8 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
             attributes: {
               patientDFN: '888',
               stationNo: '5625',
-              icn: nil
+              icn: nil,
+              mobilePhone: '5553334444'
             }
           }
         }
@@ -111,7 +112,8 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
             attributes: {
               patientDFN: '888',
               stationNo: '5625',
-              icn: '12340V123456'
+              icn: '12340V123456',
+              mobilePhone: '5553334444'
             }
           }
         }
@@ -119,6 +121,59 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
 
       it 'returns a serialized hash with icn' do
         appt_struct = OpenStruct.new(appointment_data_icn)
+        appt_serializer = CheckIn::V2::AppointmentIdentifiersSerializer.new(appt_struct)
+
+        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
+      end
+    end
+
+    context 'when mobilePhone does not exist' do
+      let(:appointment_data_without_mobile_phone) do
+        appointment_data[:payload][:demographics].except!(:mobilePhone)
+        appointment_data
+      end
+
+      let(:serialized_hash_response) do
+        {
+          data: {
+            id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+            type: :appointment_identifier,
+            attributes: {
+              patientDFN: '888',
+              stationNo: '5625',
+              icn: nil,
+              mobilePhone: nil
+            }
+          }
+        }
+      end
+
+      it 'returns a serialized hash with mobilePhone nil' do
+        appt_struct = OpenStruct.new(appointment_data_without_mobile_phone)
+        appt_serializer = CheckIn::V2::AppointmentIdentifiersSerializer.new(appt_struct)
+
+        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
+      end
+    end
+
+    context 'when mobilePhone exists' do
+      let(:serialized_hash_response) do
+        {
+          data: {
+            id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+            type: :appointment_identifier,
+            attributes: {
+              patientDFN: '888',
+              stationNo: '5625',
+              icn: nil,
+              mobilePhone: '5553334444'
+            }
+          }
+        }
+      end
+
+      it 'returns a serialized hash with mobilePhone' do
+        appt_struct = OpenStruct.new(appointment_data)
         appt_serializer = CheckIn::V2::AppointmentIdentifiersSerializer.new(appt_struct)
 
         expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
