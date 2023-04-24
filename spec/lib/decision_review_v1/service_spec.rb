@@ -99,6 +99,58 @@ describe DecisionReviewV1::Service do
     end
   end
 
+  describe '#file_upload_metadata' do
+    let(:backup_zip) { '12345' }
+    let(:zip_replacement_value) { '00000' }
+
+    context 'with all data present' do
+      it 'generates metadata' do
+        md = DecisionReviewV1::Service.file_upload_metadata(user)
+        expect(JSON.parse(md).symbolize_keys).to eq({
+                                                      veteranFirstName: 'abraham',
+                                                      veteranLastName: 'lincoln',
+                                                      zipCode: '20500',
+                                                      fileNumber: '212222112',
+                                                      source: 'va.gov',
+                                                      businessLine: 'BVA',
+                                                      skipDimensionCheck: true
+                                                    })
+      end
+    end
+
+    context 'with a null postal code' do
+      it 'generates metadata, with replaced zip and no errors' do
+        allow_any_instance_of(User).to receive(:postal_code).and_return(nil)
+        md = DecisionReviewV1::Service.file_upload_metadata(user)
+        expect(JSON.parse(md)['zipCode']).to eq(zip_replacement_value)
+      end
+    end
+
+    context 'with invalid postal codes' do
+      ['', '1234', '12345-123', 123, '1' * 100].each do |invalid_zip|
+        it "generates metadata with invalid postal code (#{invalid_zip}) provided" do
+          allow_any_instance_of(User).to receive(:postal_code).and_return(invalid_zip)
+          md = DecisionReviewV1::Service.file_upload_metadata(user)
+          expect(JSON.parse(md)['zipCode']).to eq(zip_replacement_value)
+        end
+      end
+    end
+
+    context 'with backup postal codes' do
+      it 'generates metadata without using backup zip if postal code is valid' do
+        md = DecisionReviewV1::Service.file_upload_metadata(user, backup_zip)
+        expect(JSON.parse(md)['zipCode']).to eq('20500')
+      end
+
+      it 'generates metadata using backup zip if postal code is invalid' do
+        backup_zip = '12345'
+        allow_any_instance_of(User).to receive(:postal_code).and_return('1234')
+        md = DecisionReviewV1::Service.file_upload_metadata(user, backup_zip)
+        expect(JSON.parse(md)['zipCode']).to eq(backup_zip)
+      end
+    end
+  end
+
   describe '#create_higher_level_review' do
     subject { described_class.new.create_higher_level_review(request_body: body.to_json, user:) }
 
