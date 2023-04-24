@@ -14,6 +14,7 @@ describe MockedAuthentication::Credential::Service do
 
     let(:state) { 'some-state' }
     let(:acr) { 'some-acr' }
+    let(:type) { 'some-type' }
     let(:expected_redirect_url) { Settings.sign_in.mock_auth_url }
 
     it 'renders the oauth_get_form template' do
@@ -26,6 +27,10 @@ describe MockedAuthentication::Credential::Service do
 
     it 'renders acr value' do
       expect(subject.to_s).to include("value=\"#{acr}\"")
+    end
+
+    it 'renders type value' do
+      expect(subject.to_s).to include("value=\"#{type}\"")
     end
 
     it 'directs to the Mocked Authorization frontend page' do
