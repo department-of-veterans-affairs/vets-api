@@ -7,6 +7,32 @@ module Swagger
     class HealthCareApplications
       include Swagger::Blocks
 
+      swagger_path '/v0/health_care_applications/rating_info' do
+        operation :get do
+          key :description, 'Get the user\'s service connected disability rating'
+          key :operationId, 'getDisabilityRating'
+          key :tags, %w[benefits_forms]
+
+          response 200 do
+            key :description, 'disability rating response'
+
+            schema do
+              property :data, type: :object do
+                key :required, %i[attributes]
+                property :id, type: :string
+                property :type, type: :string
+
+                property :attributes, type: :object do
+                  key :required, %i[user_percent_of_disability]
+
+                  property :user_percent_of_disability, type: :integer
+                end
+              end
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/health_care_applications/{id}' do
         operation :get do
           key :description, 'Show the status of a health care application'

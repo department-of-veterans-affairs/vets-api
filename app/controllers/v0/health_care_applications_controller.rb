@@ -1,15 +1,28 @@
 # frozen_string_literal: true
 
 require 'hca/service'
+require 'bgs/service'
 
 module V0
   class HealthCareApplicationsController < ApplicationController
     FORM_ID = '1010ez'
 
-    skip_before_action(:authenticate)
+    skip_before_action(:authenticate, only: %i[create show enrollment_status healthcheck])
 
     before_action :record_submission_attempt, only: :create
     before_action :load_user, only: %i[create enrollment_status]
+
+    def rating_info
+      service = BGS::Service.new(current_user)
+      disability_rating = service.find_rating_data[:disability_rating_record][:service_connected_combined_degree]
+
+      render(
+        json: {
+          user_percent_of_disability: disability_rating
+        },
+        serializer: HCARatingInfoSerializer
+      )
+    end
 
     def create
       @health_care_application.async_compatible = params[:async_all]

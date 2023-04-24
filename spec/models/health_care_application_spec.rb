@@ -7,50 +7,7 @@ RSpec.describe HealthCareApplication, type: :model do
   let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE }
   let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
 
-  describe '#prefill_compensation_type' do
-    before do
-      health_care_application.user = FactoryBot.build(:evss_user)
-      allow(Raven).to receive(:extra_context)
-    end
-
-    it 'prefills compensation type' do
-      VCR.use_cassette('evss/disability_compensation_form/rating_info_with_disability') do
-        expect(Raven).to receive(:extra_context).with(disability_rating: 100)
-        health_care_application.send(:prefill_compensation_type)
-        expect(health_care_application.parsed_form['vaCompensationType']).to eq('highDisability')
-      end
-    end
-
-    context 'when disability_rating is nil' do
-      it 'does nothing' do
-        expect_any_instance_of(EVSS::CommonService).to receive(
-          :get_rating_info
-        ).and_return(OpenStruct.new(user_percent_of_disability: nil))
-
-        expect(health_care_application).not_to receive(:log_exception_to_sentry)
-
-        health_care_application.send(:prefill_compensation_type)
-
-        expect(health_care_application.parsed_form['vaCompensationType']).to eq(nil)
-      end
-    end
-
-    context 'with an error' do
-      it 'logs to sentry and doesnt raise the error' do
-        expect(health_care_application).to receive(:log_exception_to_sentry)
-        expect(Raven).to receive(:extra_context).with(disability_rating: 'error')
-
-        health_care_application.send(:prefill_compensation_type)
-        expect(health_care_application.parsed_form['vaCompensationType']).to eq(nil)
-      end
-    end
-  end
-
   describe '#prefill_fields' do
-    before do
-      allow(health_care_application).to receive(:prefill_compensation_type)
-    end
-
     let(:health_care_application) { build(:health_care_application) }
 
     context 'with missing fields' do
@@ -93,8 +50,6 @@ RSpec.describe HealthCareApplication, type: :model do
             end
 
             it 'doesnt set a field if the user data is null' do
-              expect(health_care_application).to receive(:prefill_compensation_type)
-
               health_care_application.send(:prefill_fields)
 
               parsed_form = health_care_application.parsed_form
@@ -104,8 +59,6 @@ RSpec.describe HealthCareApplication, type: :model do
           end
 
           it 'sets uneditable fields using user data' do
-            expect(health_care_application).to receive(:prefill_compensation_type)
-
             expect(health_care_application.valid?).to eq(false)
             health_care_application.send(:prefill_fields)
             expect(health_care_application.valid?).to eq(true)

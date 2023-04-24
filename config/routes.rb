@@ -99,6 +99,7 @@ Rails.application.routes.draw do
       collection do
         get(:healthcheck)
         get(:enrollment_status)
+        get(:rating_info)
       end
     end
 
