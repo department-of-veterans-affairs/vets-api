@@ -9,6 +9,7 @@ require 'common/client/middleware/response/snakecase'
 require 'common/client/middleware/response/mhv_xml_html_errors'
 require 'rx/middleware/response/rx_parser'
 require 'rx/middleware/response/rx_failed_station'
+require 'rx/middleware/response/rx_raise_error'
 require 'typhoeus'
 require 'typhoeus/adapters/faraday'
 
@@ -66,7 +67,7 @@ module Rx
         conn.response :rx_failed_station
         conn.response :rx_parser
         conn.response :snakecase
-        conn.response :raise_error, error_prefix: service_name
+        conn.response :rx_raise_error, error_prefix: service_name
         conn.response :mhv_errors
         conn.response :mhv_xml_html_errors
         conn.response :json_parser
@@ -86,7 +87,7 @@ module Rx
         # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
         conn.response :snakecase
-        conn.response :raise_error, error_prefix: service_name
+        conn.response :rx_raise_error, error_prefix: service_name
         conn.response :mhv_errors
         conn.response :json_parser
 
