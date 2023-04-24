@@ -22,7 +22,7 @@ module VBADocuments
         results = { long_flyers_alerted: long_flyers_alert,
                     upload_stalled_alerted: upload_stalled_alert,
                     invalid_parts_alerted: invalid_parts_alert,
-                    daily_notification: }
+                    summary_notification: }
       rescue => e
         results = e
       end
@@ -34,29 +34,24 @@ module VBADocuments
       @in_flight_hungtime = Settings.vba_documents.slack.in_flight_notification_hung_time_in_days.to_i
       @renotify_time = Settings.vba_documents.slack.renotification_in_minutes.to_i
       @upload_hungtime = Settings.vba_documents.slack.update_stalled_notification_in_minutes.to_i
-      @daily_notification_hour = Settings.vba_documents.slack.daily_notification_hour.to_i
     end
 
     private
 
-    def daily_notification
-      hour = Time.now.utc.hour + Time.zone_offset('EST') / (60 * 60)
+    def summary_notification
       results = ''
+      statuses = UploadSubmission::IN_FLIGHT_STATUSES + ['uploaded'] - ['success']
+      statuses.each do |status|
+        model = UploadSubmission.aged_processing(0, :days, status).where('created_at > ?', 7.days.ago).first
+        next unless model
 
-      if hour.eql?(@daily_notification_hour)
-        statuses = UploadSubmission::IN_FLIGHT_STATUSES + ['uploaded'] - ['success']
-        statuses.each do |status|
-          model = UploadSubmission.aged_processing(0, :days, status).where('created_at > ?', 7.days.ago).first
-          next unless model
-
-          start_time = model.metadata['status'][status]['start']
-          duration = distance_of_time_in_words(Time.now.to_i - start_time)
-          results += "\n\tStatus \'#{status}\' for #{duration}"
-        end
-
-        notify_slack('Daily Status (worst offenders over past week)', results)
-        true
+        start_time = model.metadata['status'][status]['start']
+        duration = distance_of_time_in_words(Time.now.to_i - start_time)
+        results += "\n\tStatus \'#{status}\' for #{duration}"
       end
+
+      notify_slack('Status Report (worst offenders over past week)', results)
+      true
     end
 
     def upload_stalled_alert

@@ -11,7 +11,6 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
     allow(Settings.vba_documents.slack).to receive(:in_flight_notification_hung_time_in_days).and_return(14)
     allow(Settings.vba_documents.slack).to receive(:renotification_in_minutes).and_return(240)
     allow(Settings.vba_documents.slack).to receive(:update_stalled_notification_in_minutes).and_return(180)
-    allow(Settings.vba_documents.slack).to receive(:daily_notification_hour).and_return(7)
     allow(Settings.vba_documents.slack).to receive(:enabled).and_return(slack_enabled)
     allow(VBADocuments::Slack::Messenger).to receive(:new).and_return(slack_messenger)
     allow(slack_messenger).to receive(:notify!)
@@ -31,24 +30,24 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
     end
   end
 
-  context 'daily notification' do
-    it 'does the daily notification at the correct hour' do
-      Timecop.freeze(Time.at(1_616_673_917).utc) do
-        # Time.at(1616673917).utc.hour is 12 (12 - 5 is 7 (5 is EST time offset)). See daily_notification_hour above
-        @results = @job.perform
-      end
-      expect(slack_messenger).to have_received(:notify!).once
-      expect(@results[:daily_notification]).to be(true)
+  context 'summary notification' do
+    before do
+      u = VBADocuments::UploadSubmission.create(status: 'received')
+      u.metadata['status']['received']['start'] = 15.minutes.ago.to_i
+      u.save!
     end
 
-    it 'does not do the daily notification at the incorrect hour' do
-      Timecop.freeze(Time.at(1_616_657_401).utc) do
-        # Time.at(1616657401).utc.hour is not 12
-        @results = @job.perform
-      end
-      expect(slack_messenger).not_to have_received(:notify!)
-      expect(@results).to have_key(:daily_notification)
-      expect(@results[:daily_notification]).to be(nil)
+    it 'notifies on every run' do
+      @results = @job.perform
+      expect(VBADocuments::Slack::Messenger).to have_received(:new).with(
+        {
+          class: 'VBADocuments::SlackNotifier',
+          alert: 'Status Report (worst offenders over past week)',
+          details: "\n\tStatus 'received' for 15 minutes"
+        }
+      )
+      expect(slack_messenger).to have_received(:notify!).once
+      expect(@results[:summary_notification]).to be(true)
     end
   end
 
@@ -64,7 +63,7 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
 
     it 'notifies when submission are in flight for too long' do
       @results = @job.perform
-      expect(slack_messenger).to have_received(:notify!).once
+      expect(slack_messenger).to have_received(:notify!).twice # once for long flyers and once for summary
       expect(@results[:long_flyers_alerted]).to be(true)
       expect(@results[:upload_stalled_alerted]).to be(nil)
     end
@@ -85,7 +84,7 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
         end
       end
 
-      expect(slack_messenger).to have_received(:notify!).twice
+      expect(slack_messenger).to have_received(:notify!).exactly(6).times # twice for long flyers and 4x for summary
     end
   end
 
@@ -101,7 +100,7 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
 
     it 'notifies when submission are in uploaded for too long' do
       @results = @job.perform
-      expect(slack_messenger).to have_received(:notify!).once
+      expect(slack_messenger).to have_received(:notify!).twice # once for stalled uploads and once for summary
       expect(@results[:upload_stalled_alerted]).to be(true)
       expect(@results[:long_flyers_alerted]).to be(nil)
     end
@@ -122,7 +121,7 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
         end
       end
 
-      expect(slack_messenger).to have_received(:notify!).twice
+      expect(slack_messenger).to have_received(:notify!).exactly(6).times # twice for stalled uploads and 4x for summary
     end
   end
 
@@ -159,7 +158,7 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
 
     it 'notifies when invalid parts exist' do
       @results = @job.perform
-      expect(slack_messenger).to have_received(:notify!).once
+      expect(slack_messenger).to have_received(:notify!).twice # once for invalid parts and once for summary
       expect(@results[:invalid_parts_alerted]).to be(true)
     end
 
@@ -170,7 +169,7 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
       @results = @job.perform
       expect(@results[:invalid_parts_alerted]).to be(nil)
 
-      expect(slack_messenger).to have_received(:notify!).once
+      expect(slack_messenger).to have_received(:notify!).exactly(3).times # once for invalid parts and twice for summary
     end
   end
 end
