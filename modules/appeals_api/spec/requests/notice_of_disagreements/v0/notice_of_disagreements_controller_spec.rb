@@ -9,7 +9,8 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
   end
 
   let(:minimum_data) { fixture_to_s 'valid_10182_minimum.json', version: 'v2' }
-  let(:headers) { fixture_as_json 'valid_10182_headers.json', version: 'v2' }
+  let(:max_data) { fixture_to_s 'valid_10182_extra.json', version: 'v2' }
+  let(:max_headers) { fixture_as_json 'valid_10182_headers_extra.json', version: 'v2' }
   let(:parsed_response) { JSON.parse(response.body) }
 
   describe '#schema' do
@@ -36,10 +37,21 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
   describe '#create' do
     let(:path) { base_path 'forms/10182' }
 
+    it 'creates an NOD record having api_version: "V0"' do
+      with_openid_auth(described_class::OAUTH_SCOPES[:POST]) do |auth_header|
+        post(path, params: max_data, headers: max_headers.merge(auth_header))
+      end
+
+      nod_guid = JSON.parse(response.body)['data']['id']
+      nod = AppealsApi::NoticeOfDisagreement.find(nod_guid)
+
+      expect(nod.api_version).to eq('V0')
+    end
+
     context 'when icn header is not provided' do
       it 'returns a 422 error with details' do
         with_openid_auth(described_class::OAUTH_SCOPES[:POST]) do |auth_header|
-          post(path, params: minimum_data, headers: headers.except('X-VA-ICN').merge(auth_header))
+          post(path, params: minimum_data, headers: max_headers.except('X-VA-ICN').merge(auth_header))
         end
 
         expect(response).to have_http_status(:unprocessable_entity)
@@ -55,7 +67,7 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
     context 'when icn header is not provided' do
       it 'returns a 422 error with details' do
         with_openid_auth(described_class::OAUTH_SCOPES[:POST]) do |auth_header|
-          post(path, params: minimum_data, headers: headers.except('X-VA-ICN').merge(auth_header))
+          post(path, params: minimum_data, headers: max_headers.except('X-VA-ICN').merge(auth_header))
         end
 
         expect(response).to have_http_status(:unprocessable_entity)

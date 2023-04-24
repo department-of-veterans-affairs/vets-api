@@ -87,6 +87,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         hlr_guid = JSON.parse(response.body)['data']['id']
         hlr = AppealsApi::HigherLevelReview.find(hlr_guid)
         expect(hlr.source).to eq('va.gov')
+        expect(hlr.api_version).to eq('V2')
         expect(parsed['data']['type']).to eq('higherLevelReview')
         expect(parsed['data']['attributes']['status']).to eq('pending')
         expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash

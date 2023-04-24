@@ -103,4 +103,19 @@ FactoryBot.define do
       board_review_option { 'direct_review' }
     end
   end
+
+  factory :notice_of_disagreement_v0,
+          class: 'AppealsApi::NoticeOfDisagreement', parent: :notice_of_disagreement_v2 do
+    api_version { 'V0' }
+  end
+
+  factory :extra_notice_of_disagreement_v0,
+          class: 'AppealsApi::NoticeOfDisagreement', parent: :extra_notice_of_disagreement_v2 do
+    api_version { 'V0' }
+  end
+
+  factory :minimal_notice_of_disagreement_v0,
+          class: 'AppealsApi::NoticeOfDisagreement', parent: :minimal_notice_of_disagreement_v2 do
+    api_version { 'V0' }
+  end
 end

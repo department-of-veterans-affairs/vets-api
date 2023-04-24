@@ -14,6 +14,8 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
   before_action :validate_json_schema, only: %i[create validate]
 
   FORM_NUMBER = '200995'
+  API_VERSION = 'V2'
+  SCHEMA_VERSION = 'v2'
   MODEL_ERROR_STATUS = 422
   HEADERS = JSON.parse(
     File.read(
@@ -38,7 +40,7 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
       form_data: @json_body,
       source: request_headers['X-Consumer-Username'].presence&.strip,
       evidence_submission_indicated: evidence_submission_indicated?,
-      api_version: 'V2',
+      api_version: self.class::API_VERSION,
       veteran_icn: request_headers['X-VA-ICN']
     )
 
@@ -61,7 +63,7 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
     response = AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
       AppealsApi::FormSchemas.new(
         SCHEMA_ERROR_TYPE,
-        schema_version: 'v2'
+        schema_version: self.class::SCHEMA_VERSION
       ).schema(self.class::FORM_NUMBER)
     )
 
@@ -106,14 +108,14 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
   def validate_json_schema_for_headers
     AppealsApi::FormSchemas.new(
       SCHEMA_ERROR_TYPE,
-      schema_version: 'v2'
+      schema_version: self.class::SCHEMA_VERSION
     ).validate!("#{self.class::FORM_NUMBER}_HEADERS", request_headers)
   end
 
   def validate_json_schema_for_body
     AppealsApi::FormSchemas.new(
       SCHEMA_ERROR_TYPE,
-      schema_version: 'v2'
+      schema_version: self.class::SCHEMA_VERSION
     ).validate!(self.class::FORM_NUMBER, @json_body)
   end
 

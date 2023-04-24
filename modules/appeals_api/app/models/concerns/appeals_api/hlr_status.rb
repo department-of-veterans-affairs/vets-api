@@ -9,9 +9,10 @@ module AppealsApi
     V1_STATUSES = %w[pending submitting submitted processing error uploaded received success expired complete].freeze
     V2_STATUSES = ['pending', 'submitting', 'submitted', *CentralMailUpdater::CENTRAL_MAIL_STATUSES,
                    'error'].uniq.freeze
+    V0_STATUSES = V2_STATUSES
 
     # used primarly for reporting
-    STATUSES = [*V1_STATUSES, *V2_STATUSES].uniq.freeze
+    STATUSES = [*V1_STATUSES, *V2_STATUSES, *V0_STATUSES].uniq.freeze
 
     IN_PROCESS_STATUSES = %w[submitted received processing success].freeze
     COMPLETE_STATUSES = %w[complete].freeze
@@ -22,7 +23,9 @@ module AppealsApi
 
       def versioned_statuses
         case api_version.downcase
-        when 'V2'
+        when 'v0'
+          V0_STATUSES
+        when 'v2'
           V2_STATUSES
         else
           V1_STATUSES

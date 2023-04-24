@@ -56,4 +56,19 @@ FactoryBot.define do
         .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_200995.json'.split('/')).to_s))
     end
   end
+
+  factory :supplemental_claim_v0,
+          class: 'AppealsApi::SupplementalClaim', parent: :supplemental_claim do
+    api_version { 'V0' }
+  end
+
+  factory :extra_supplemental_claim_v0,
+          class: 'AppealsApi::SupplementalClaim', parent: :extra_supplemental_claim do
+    api_version { 'V0' }
+  end
+
+  factory :minimal_supplemental_claim_v0,
+          class: 'AppealsApi::SupplementalClaim', parent: :minimal_supplemental_claim do
+    api_version { 'V0' }
+  end
 end

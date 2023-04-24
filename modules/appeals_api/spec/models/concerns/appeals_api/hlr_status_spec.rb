@@ -22,6 +22,11 @@ describe AppealsApi::HlrStatus, type: :concern do
         statuses = %w[pending submitting submitted success processing error complete]
         expect(described_class::V2_STATUSES).to match_array(statuses)
       end
+
+      it 'includes the V0 expected statuses' do
+        statuses = %w[pending submitting submitted success processing error complete]
+        expect(described_class::V0_STATUSES).to match_array(statuses)
+      end
     end
   end
 end

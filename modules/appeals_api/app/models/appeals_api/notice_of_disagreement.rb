@@ -33,6 +33,10 @@ module AppealsApi
       where('created_at < ? AND status IN (?)', 2.hours.ago, %w[pending submitting])
     }
 
+    scope :v1, -> { where(api_version: 'V1') }
+    scope :v2, -> { where(api_version: 'V2') }
+    scope :v0, -> { where(api_version: 'V0') }
+
     def self.past?(date)
       date < Time.zone.today
     end
@@ -63,7 +67,7 @@ module AppealsApi
               :claimant_birth_date_is_in_the_past,
               if: proc { |a| a.api_version.upcase != 'V1' && a.form_data.present? }
 
-    validate :validate_requesting_extension, if: :version_2?
+    validate :validate_requesting_extension, if: proc { |a| a.api_version.upcase != 'V1' && a.form_data.present? }
     validate :validate_api_version_presence
 
     has_many :evidence_submissions, as: :supportable, dependent: :destroy
@@ -366,10 +370,6 @@ module AppealsApi
     def validate_api_version_presence
       # We'll likely never see this since the controller should supply this in all circumstances
       errors.add :api_version, 'Appeal must include the api_version attribute' if api_version.blank?
-    end
-
-    def version_2?
-      pii_present? && api_version.upcase == 'V2'
     end
 
     # After expunging pii, form_data is nil, update will fail unless validation skipped

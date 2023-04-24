@@ -21,10 +21,10 @@ module AppealsApi
     end
 
     def total_hlr_successes
-      # HLRv1s final success status is "success", while HLRv2 is "complete", so we need to count on both
+      # HLRv1s final success status is "success", while HLRv2/v0 is "complete", so we need to count on both
       @total_hlr_successes ||= lambda do
         sum = total_statuses_count(HigherLevelReview.v1, ['success'])
-        sum += total_statuses_count(HigherLevelReview.v2, ['complete'])
+        sum += total_statuses_count(HigherLevelReview.v2_or_v0, ['complete'])
         sum
       end.call
     end

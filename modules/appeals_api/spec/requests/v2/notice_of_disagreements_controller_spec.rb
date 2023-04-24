@@ -84,6 +84,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
         nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
 
         expect(nod.source).to eq('va.gov')
+        expect(nod.api_version).to eq('V2')
         expect(nod.veteran_icn).to eq('1013062086V794840')
         expect(parsed['data']['type']).to eq('noticeOfDisagreement')
         expect(parsed['data']['attributes']['status']).to eq('pending')

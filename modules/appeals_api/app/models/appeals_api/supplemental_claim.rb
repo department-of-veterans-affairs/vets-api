@@ -33,6 +33,9 @@ module AppealsApi
       where('created_at < ? AND status IN (?)', 2.hours.ago, %w[pending submitting])
     }
 
+    scope :v2, -> { where(api_version: 'V2') }
+    scope :v0, -> { where(api_version: 'V0') }
+
     serialize :auth_headers, JsonMarshal::Marshaller
     serialize :form_data, JsonMarshal::Marshaller
     has_kms_key
@@ -58,7 +61,7 @@ module AppealsApi
     end
 
     def assign_metadata
-      return unless api_version&.downcase == 'v2'
+      return unless %w[v2 v0].include?(api_version.downcase)
 
       # retain original incoming non-pii form_data in metadata since this model's form_data is eventually removed
       self.metadata = if Flipper.enabled?(:decision_review_sc_pact_act_boolean)

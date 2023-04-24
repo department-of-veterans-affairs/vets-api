@@ -24,7 +24,7 @@ module AppealsApi
     private
 
     def higher_level_review_ids
-      @higher_level_review_ids ||= HigherLevelReview.v2.incomplete_statuses.order(created_at: :asc).pluck(:id)
+      @higher_level_review_ids ||= HigherLevelReview.v2_or_v0.incomplete_statuses.order(created_at: :asc).pluck(:id)
     end
 
     def enabled?

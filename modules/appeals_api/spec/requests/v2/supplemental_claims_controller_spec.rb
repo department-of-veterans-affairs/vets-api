@@ -85,6 +85,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         sc = AppealsApi::SupplementalClaim.find(sc_guid)
 
         expect(sc.source).to eq('va.gov')
+        expect(sc.api_version).to eq('V2')
         expect(sc.veteran_icn).to eq('1013062086V794840')
         expect(parsed['data']['type']).to eq('supplementalClaim')
         expect(parsed['data']['attributes']['status']).to eq('pending')

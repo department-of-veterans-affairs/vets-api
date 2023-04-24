@@ -370,4 +370,24 @@ describe AppealsApi::HigherLevelReview, type: :model do
       end
     end
   end
+
+  context 'HlrStatus concern' do
+    let(:hlr_v1) { create(:higher_level_review_v1) }
+    let(:hlr_v2) { create(:higher_level_review_v2) }
+    let(:hlr_v0) { create(:higher_level_review_v0) }
+
+    describe '#versioned_statuses' do
+      it 'returns the V1 statuses for V1 HLR records' do
+        expect(hlr_v1.versioned_statuses).to match_array(AppealsApi::HlrStatus::V1_STATUSES)
+      end
+
+      it 'returns the V2 statuses for V2 HLR records' do
+        expect(hlr_v2.versioned_statuses).to match_array(AppealsApi::HlrStatus::V2_STATUSES)
+      end
+
+      it 'returns the V0 statuses for V0 HLR records' do
+        expect(hlr_v0.versioned_statuses).to match_array(AppealsApi::HlrStatus::V0_STATUSES)
+      end
+    end
+  end
 end

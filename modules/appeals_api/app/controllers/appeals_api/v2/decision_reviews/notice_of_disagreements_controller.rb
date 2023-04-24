@@ -16,7 +16,8 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
   before_action :find_notice_of_disagreement, only: %i[show]
 
   FORM_NUMBER = '10182'
-  API_VERSION = 'v2'
+  API_VERSION = 'V2'
+  SCHEMA_VERSION = 'v2'
   MODEL_ERROR_STATUS = 422
   HEADERS = JSON.parse(
     File.read(
@@ -59,7 +60,7 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
     response = AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
       AppealsApi::FormSchemas.new(
         SCHEMA_ERROR_TYPE,
-        schema_version: 'v2'
+        schema_version: self.class::SCHEMA_VERSION
       ).schema(self.class::FORM_NUMBER)
     )
     response.tap do |s|
@@ -93,12 +94,12 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
   def validate_json_schema_for_headers
     AppealsApi::FormSchemas.new(
       SCHEMA_ERROR_TYPE,
-      schema_version: API_VERSION
+      schema_version: self.class::SCHEMA_VERSION
     ).validate!("#{self.class::FORM_NUMBER}_HEADERS", request_headers)
   end
 
   def validate_json_schema_for_body
-    schema = AppealsApi::FormSchemas.new(SCHEMA_ERROR_TYPE, schema_version: API_VERSION)
+    schema = AppealsApi::FormSchemas.new(SCHEMA_ERROR_TYPE, schema_version: self.class::SCHEMA_VERSION)
     schema.validate!(self.class::FORM_NUMBER, @json_body)
   end
 
@@ -123,7 +124,7 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
       form_data: @json_body,
       source: request_headers['X-Consumer-Username'].presence&.strip,
       board_review_option: @json_body['data']['attributes']['boardReviewOption'],
-      api_version: API_VERSION,
+      api_version: self.class::API_VERSION,
       veteran_icn: request_headers['X-VA-ICN']
     )
     render_model_errors unless @notice_of_disagreement.validate
