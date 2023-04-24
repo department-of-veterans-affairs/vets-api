@@ -10,6 +10,17 @@ RSpec.describe BGS::Service do
   let(:participant_id) { '149456' }
   let(:first_name) { 'abraham.lincoln@vets.gov' }
 
+  describe '#find_rating_data' do
+    let(:user_object) { build(:ch33_dd_user) }
+
+    it 'gets the users disability rating data' do
+      VCR.use_cassette('bgs/service/find_rating_data', VCR::MATCH_EVERYTHING) do
+        response = bgs_service.find_rating_data
+        expect(response[:disability_rating_record][:service_connected_combined_degree]).to eq('100')
+      end
+    end
+  end
+
   context 'direct deposit methods' do
     let(:user_object) { build(:ch33_dd_user, first_name:) }
 

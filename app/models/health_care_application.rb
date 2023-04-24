@@ -203,21 +203,6 @@ class HealthCareApplication < ApplicationRecord
     end
   end
 
-  def prefill_compensation_type
-    auth_headers = EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-    rating_info_service = EVSS::CommonService.new(auth_headers)
-    response = rating_info_service.get_rating_info
-
-    return if response.user_percent_of_disability.nil?
-
-    Raven.extra_context(disability_rating: response.user_percent_of_disability)
-
-    parsed_form['vaCompensationType'] = 'highDisability' if response.user_percent_of_disability >= DISABILITY_THRESHOLD
-  rescue => e
-    Raven.extra_context(disability_rating: 'error')
-    log_exception_to_sentry(e)
-  end
-
   def prefill_fields
     return if user.blank? || !user.loa3?
 
@@ -226,8 +211,6 @@ class HealthCareApplication < ApplicationRecord
       'veteranDateOfBirth' => user.birth_date,
       'veteranSocialSecurityNumber' => user.ssn_normalized
     }.compact)
-
-    prefill_compensation_type
   end
 
   def submit_async(has_email)

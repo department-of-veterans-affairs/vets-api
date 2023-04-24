@@ -38,6 +38,10 @@ module BGS
       end
     end
 
+    def find_rating_data
+      service.rating.find_rating_data(@user.ssn)
+    end
+
     def create_proc_form(vnp_proc_id, form_type_code)
       # Temporary log proc_id to sentry
       log_message_to_sentry(vnp_proc_id, :warn, '', { team: 'vfs-ebenefits' })

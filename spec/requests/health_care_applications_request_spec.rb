@@ -12,6 +12,24 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
     )
   end
 
+  describe 'GET rating_info' do
+    let(:current_user) { build(:ch33_dd_user) }
+
+    before do
+      sign_in_as(current_user)
+    end
+
+    it 'returns the users rating info' do
+      VCR.use_cassette('bgs/service/find_rating_data', VCR::MATCH_EVERYTHING) do
+        get(rating_info_v0_health_care_applications_path)
+      end
+
+      expect(JSON.parse(response.body)['data']['attributes']).to eq(
+        { 'user_percent_of_disability' => 100 }
+      )
+    end
+  end
+
   describe 'GET healthcheck' do
     subject do
       get(healthcheck_v0_health_care_applications_path)
