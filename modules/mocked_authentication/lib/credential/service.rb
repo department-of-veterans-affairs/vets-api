@@ -14,8 +14,9 @@ module MockedAuthentication
                           url: Settings.sign_in.mock_auth_url,
                           params:
                           {
+                            type:,
                             acr_values: acr,
-                            mock_redirect_uri: Settings.sign_in.mock_auth_redirect,
+                            mock_redirect_uri: Settings.sign_in.mock_redirect_uri,
                             state:
                           }
                         },

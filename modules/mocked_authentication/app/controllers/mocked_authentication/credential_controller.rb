@@ -21,10 +21,25 @@ module MockedAuthentication
     def credential_list
       type = params[:type].presence
 
-      validate_index_params(type)
+      validate_credential_list_params(type)
       mock_profiles = Mockdata::Reader.find_credentials(credential_type: type)
 
       render json: { mock_profiles: }
+    rescue => e
+      render json: { errors: e }, status: :bad_request
+    end
+
+    def index
+      type = params[:type].presence
+      state = params[:state].presence
+
+      validate_index_params(type, state)
+      @mock_profiles = Mockdata::Reader.find_credentials(credential_type: type)
+      @state = state
+
+      respond_to do |format|
+        format.html
+      end
     rescue => e
       render json: { errors: e }, status: :bad_request
     end
@@ -38,7 +53,14 @@ module MockedAuthentication
       end
     end
 
-    def validate_index_params(type)
+    def validate_index_params(type, state)
+      raise SignIn::Errors::MalformedParamsError.new message: 'State is not defined' unless state
+      unless SignIn::Constants::Auth::CSP_TYPES.include?(type)
+        raise SignIn::Errors::MalformedParamsError.new message: 'Invalid credential provider type'
+      end
+    end
+
+    def validate_credential_list_params(type)
       unless SignIn::Constants::Auth::CSP_TYPES.include?(type)
         raise SignIn::Errors::MalformedParamsError.new message: 'Invalid credential provider type'
       end
