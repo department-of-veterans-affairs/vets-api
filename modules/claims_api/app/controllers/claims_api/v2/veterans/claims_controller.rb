@@ -6,7 +6,7 @@ require 'claims_api/v2/mock_documents_service'
 module ClaimsApi
   module V2
     module Veterans
-      class ClaimsController < ClaimsApi::V2::ApplicationController # rubocop:disable Metrics/ClassLength
+      class ClaimsController < ClaimsApi::V2::ApplicationController
         before_action :verify_access!
 
         def index
@@ -230,17 +230,11 @@ module ClaimsApi
         def get_current_status_from_hash(data)
           if data&.dig('benefit_claim_details_dto', 'bnft_claim_lc_status').present?
             data[:benefit_claim_details_dto][:bnft_claim_lc_status].last do |lc|
-              phase_number = get_phase_number_from_phase_details(lc)
+              phase_number = get_completed_phase_number_from_phase_details(lc)
               bgs_phase_status_mapper.name(lc[:phase_type], phase_number || nil)
             end
           elsif data&.dig(:phase_type).present?
             bgs_phase_status_mapper.name(data[:phase_type])
-          end
-        end
-
-        def get_phase_number_from_phase_details(details)
-          if details[:phase_type_change_ind].present?
-            details[:phase_type_change_ind] == 'N' ? '1' : details[:phase_type_change_ind].split('').last
           end
         end
 
@@ -253,25 +247,20 @@ module ClaimsApi
         end
 
         def get_bgs_phase_completed_dates(data)
-          phase_dates = {}
+          lc_status_array =
+            [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.compact
+          max_completed_phase = lc_status_array.first[:phase_type_change_ind].split('').first
+          return {} if max_completed_phase.downcase.eql?('n')
 
-          if data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status).is_a?(Array)
-            max_completed_phase = 0
-            data[:benefit_claim_details_dto][:bnft_claim_lc_status].each_with_index do |lc, i|
-              completed_phase_number = get_completed_phase_number_from_phase_details(lc)
-              if i.zero?
-                max_completed_phase = completed_phase_number
-                phase_dates["phase#{completed_phase_number}CompleteDate"] = date_present(lc[:phase_chngd_dt])
-              elsif completed_phase_number.present? && completed_phase_number < max_completed_phase
-                phase_dates["phase#{completed_phase_number}CompleteDate"] = date_present(lc[:phase_chngd_dt])
+          {}.tap do |phase_date|
+            lc_status_array.reverse.map do |phase|
+              completed_phase_number = phase[:phase_type_change_ind].split('').first
+              if completed_phase_number <= max_completed_phase &&
+                 completed_phase_number.to_i.positive?
+                phase_date["phase#{completed_phase_number}CompleteDate"] = date_present(phase[:phase_chngd_dt])
               end
             end
-          else
-            date = data[:benefit_claim_details_dto][:bnft_claim_lc_status][:phase_chngd_dt]
-            phase_dates['phase1CompleteDate'] = date_present(date)
-          end
-
-          phase_dates
+          end.sort.reverse.to_h
         end
 
         def extract_date(bgs_details)
@@ -351,7 +340,7 @@ module ClaimsApi
           phase = [phase_data].flatten.max do |a, b|
             a[:phase_chngd_dt] <=> b[:phase_chngd_dt]
           end
-          phase_number = get_phase_number_from_phase_details(phase_data.last)
+          phase_number = get_completed_phase_number_from_phase_details(phase_data.last)
           bgs_phase_status_mapper.name(phase[:phase_type], phase_number || nil)
         end
 
