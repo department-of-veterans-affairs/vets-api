@@ -852,9 +852,6 @@ features:
   disability_compensation_lighthouse_rated_disabilities_provider:
     actor_type: user
     description: If enabled uses the lighthouse rated disabilities endpoint
-  btsss_login_widget:
-    actor_type: user
-    description: If enabled shows the BTSSS login widget on the /get-reimbursed-for-travel-pay/ page
   disability_compensation_lighthouse_intent_to_file_provider:
     actor_type: user
     description: If enabled uses the lighthouse intent to file endpoint
