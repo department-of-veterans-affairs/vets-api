@@ -486,6 +486,11 @@ en:
         code: 'RX99'
         detail: 'Something went wrong. Please try again later.'
         status: 502
+      RX99LOCKED: # record is locked
+        <<: *external_defaults
+        code: 'RX99LOCKED'
+        detail: 'Record is locked. Please try again later.'
+        status: 409
       RX135: # 'The User has not accepted the Rx Agreement. Please login to MHV to accept it'
         <<: *external_defaults
         code: 'RX135'
@@ -505,6 +510,11 @@ en:
         <<: *validation_errors
         code: 'RX157'
         detail: 'Email address is invalid'
+      rx_gateway_timeout:
+        <<: *gateway_timeout
+        detail: "Did not receive a timely response from an upstream server"
+        code: 408
+        status: 408
       MHVACCTCREATION99: # 'Unknown application error occurred'
         <<: *external_defaults
         code: 'MHVACCTCREATION99'

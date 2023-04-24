@@ -202,6 +202,23 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
       end
     end
 
+    describe 'error cases' do
+      it 'converts 400 errors to 409' do
+        VCR.use_cassette('rx_refill/prescriptions/gets_optimistic_locking_error') do
+          get '/mobile/v0/health/rx/prescriptions', headers: iam_headers
+        end
+
+        expect(response).to have_http_status(:conflict)
+      end
+
+      it 'converts Faraday::TimeouError to 408' do
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
+
+        get '/mobile/v0/health/rx/prescriptions', headers: iam_headers
+        expect(response).to have_http_status(:request_timeout)
+      end
+    end
+
     describe 'pagination parameters' do
       it 'forms meta data' do
         params = { page: { number: 2, size: 3 } }

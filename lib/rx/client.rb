@@ -4,6 +4,7 @@ require 'common/client/base'
 require 'common/client/concerns/mhv_session_based_client'
 require 'rx/configuration'
 require 'rx/client_session'
+require 'rx/rx_gateway_timeout'
 require 'active_support/core_ext/hash/slice'
 
 module Rx
@@ -17,6 +18,12 @@ module Rx
     client_session Rx::ClientSession
 
     CACHE_TTL = 3600 * 1 # 1 hour cache
+
+    def request(method, path, params = {}, headers = {}, options = {})
+      super(method, path, params, headers, options)
+    rescue Common::Exceptions::GatewayTimeout
+      raise Rx::RxGatewayTimeout
+    end
 
     ##
     # Get a list of active Prescriptions
