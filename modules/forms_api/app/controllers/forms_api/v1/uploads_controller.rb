@@ -33,6 +33,32 @@ module FormsApi
         response = central_mail_service.upload(filled_form)
 
         render json: { message: response.body, confirmation_number: metadata['uuid'] }, status: response.status
+      rescue => e
+        # scrubs all user-entered info from the error message
+        param_hash = JSON.parse(params.to_json)
+        remove_words(param_hash, e.message)
+        raise e
+      end
+
+      def aggregate_words(hash)
+        words = []
+        hash.each_value do |value|
+          case value
+          when Hash
+            words += aggregate_words(value)
+          when String
+            words += value.split
+          end
+        end
+        words.uniq.sort_by(&:length).reverse
+      end
+
+      def remove_words(hash, message)
+        words_to_remove = aggregate_words(hash)
+        words_to_remove.each do |word|
+          message.gsub!(word, '')
+        end
+        message
       end
     end
   end

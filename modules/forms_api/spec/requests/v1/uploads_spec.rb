@@ -29,5 +29,21 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     test_submit_request 'vha_10_10d.json'
     test_submit_request 'vba_26_4555.json'
     test_submit_request 'vba_21_4142.json'
+
+    def self.test_failed_request_scrubs_error_message(test_payload)
+      it 'makes the request and expects a failure' do
+        fixture_path = Rails.root.join('modules', 'forms_api', 'spec', 'fixtures', 'form_json', test_payload)
+        data = JSON.parse(fixture_path.read)
+        error_message = "JSON::ParserError: unexpected token at #{data}"
+        allow_any_instance_of(FormsApi::PdfFiller).to receive(:mapped_data).and_raise(RuntimeError, error_message)
+        post '/forms_api/v1/simple_forms', params: data
+        expect(response).to have_http_status(:error)
+        expect(response).not_to include(data.dig('veteran', 'ssn'))
+        expect(response).not_to include(data.dig('veteran', 'date_of_birth'))
+      end
+    end
+
+    test_failed_request_scrubs_error_message 'vba_26_4555.json'
+    test_failed_request_scrubs_error_message 'vba_21_4142.json'
   end
 end
