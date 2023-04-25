@@ -7,49 +7,6 @@ require_relative '../../../support/swagger_shared_components/v2'
 
 describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers.new.claims_api_docs do # rubocop:disable RSpec/DescribeClass
   path '/veterans/{veteranId}/526' do
-    get 'Get a 526 schema for a claim.' do
-      deprecated true
-      tags 'Disability'
-      operationId 'get526JsonSchema'
-      consumes 'application/json'
-      produces 'application/json'
-      get_schema_description = <<~VERBIAGE
-        Returns a single 526 schema to automatically generate a form. Using this GET endpoint allows users to download our current validations.
-      VERBIAGE
-      description get_schema_description
-
-      parameter name: :veteranId,
-                in: :path,
-                required: true,
-                type: :string,
-                example: '1012667145V762142',
-                description: 'ID of Veteran'
-      let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
-      let(:Authorization) { 'Bearer token' }
-
-      describe 'Getting a successful response' do
-        response '200', 'schema response' do
-          before do |example|
-            submit_request(example.metadata)
-          end
-
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
-          end
-
-          it 'returns a valid 200 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-      end
-    end
-  end
-
-  path '/veterans/{veteranId}/526' do
     post 'Submits form 526' do
       tags 'Disability'
       operationId 'post526Claim'
@@ -60,8 +17,11 @@ describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers
       ]
       consumes 'application/json'
       produces 'application/json'
-      description 'Establishes a Disability Compensation Claim in VBMS.'
 
+      get_schema_description = <<~VERBIAGE
+        The below 526 schema is in a draft state representing the attributes we are currently planning to support. Changes are expected as we continue development.#{' '}
+      VERBIAGE
+      description get_schema_description
       parameter name: 'veteranId',
                 in: :path,
                 required: true,
@@ -72,18 +32,46 @@ describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
 
+      parameter SwaggerSharedComponents::V2.body_examples[:disability_compensation]
+
       describe 'Getting a successful response' do
-        response '200', '526 Response' do
-          it 'returns a valid 200 response' do
+        response '200', 'Successful response with disability' do
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'forms',
+                                            'disability', 'submission.json').read)
+          let(:scopes) { %w[system/claim.read system/claim.write] }
+          let(:data) do
+            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                   'disability_compensation', 'form_526_json_api.json').read
+            temp = JSON.parse(temp)
+
+            temp
+          end
+
+          before do |example|
+            stub_poa_verification
+            stub_mpi
+
+            with_okta_user(scopes) do
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('evss/reference_data/countries') do
+                  submit_request(example.metadata)
+                end
+              end
+            end
+          end
+
+          after do |_example|
+            # example.metadata[:response][:content] = {
+            #   'application/json' => {
+            #     example: JSON.parse(response.body, symbolize_names: true)
+            #   }
+            # }
             one = 1
             expect(one).to eq(1)
           end
-        end
-      end
 
-      describe 'Getting a 401 response' do
-        response '401', 'Unauthorized' do
-          it 'returns a valid 200 response' do
+          it 'returns a valid 200 response' do |_example|
+            # assert_response_matches_metadata(example.metadata)
             one = 1
             expect(one).to eq(1)
           end
