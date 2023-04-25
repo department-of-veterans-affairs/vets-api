@@ -227,6 +227,10 @@ paths:
                 VA Appointment Request:
                   value:
                     $ref: ./examples/appointments/va_appointment_request.yml
+                Partial Appointments:
+                  description: For cases when 1 or more errors are returned from upstream, an error message with source `VA Service` is added within the meta
+                  value:
+                    $ref: ./examples/appointments/partial_appointments.yml
               schema:
                 $ref: ./schemas/Appointments.yml
           description: OK

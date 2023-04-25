@@ -9,6 +9,7 @@ describe Mobile::AppointmentsCacheInterface do
   # setting cache to empty array is sufficient for testing the "cache is set" behavior
   let(:cached_data) { [] }
   let(:mocked_appointments) { %i[appt1 appt2] }
+  let(:mocked_proxy_response) { [mocked_appointments, nil] }
 
   def set_cache
     Mobile::V0::Appointment.set_cached(user, cached_data)
@@ -62,9 +63,30 @@ describe Mobile::AppointmentsCacheInterface do
 
       it 'sets cache when fetching fresh data from upstream' do
         allow_any_instance_of(Mobile::V2::Appointments::Proxy).to \
-          receive(:get_appointments).and_return(mocked_appointments)
+          receive(:get_appointments).and_return(mocked_proxy_response)
         expect(Mobile::V0::Appointment).to receive(:set_cached).with(user, mocked_appointments)
         subject.fetch_appointments(user:, fetch_cache: true)
+      end
+
+      it 'sets cache when failures are present and cache_on_failure is true' do
+        allow_any_instance_of(Mobile::V2::Appointments::Proxy).to \
+          receive(:get_appointments).and_return([mocked_appointments, 'error'])
+        expect(Mobile::V0::Appointment).to receive(:set_cached)
+        subject.fetch_appointments(user:, cache_on_failures: true)
+      end
+
+      it 'does not set cache when failures are present and cache_on_failure is false' do
+        allow_any_instance_of(Mobile::V2::Appointments::Proxy).to \
+          receive(:get_appointments).and_return([mocked_appointments, 'error'])
+        expect(Mobile::V0::Appointment).not_to receive(:set_cached)
+        subject.fetch_appointments(user:, cache_on_failures: false)
+      end
+
+      it 'set cache when failures are not present and cache_on_failure is false' do
+        allow_any_instance_of(Mobile::V2::Appointments::Proxy).to \
+          receive(:get_appointments).and_return([mocked_appointments, nil])
+        expect(Mobile::V0::Appointment).to receive(:set_cached)
+        subject.fetch_appointments(user:, cache_on_failures: false)
       end
     end
 
@@ -72,13 +94,13 @@ describe Mobile::AppointmentsCacheInterface do
       set_cache
       expect(
         subject.fetch_appointments(user:, fetch_cache: true)
-      ).to eq(cached_data)
+      ).to eq([cached_data, nil])
     end
 
     it 'returns appointments from the V2 server when cache is not set' do
       expect_any_instance_of(Mobile::V2::Appointments::Proxy).to \
-        receive(:get_appointments).and_return(mocked_appointments)
-      expect(subject.fetch_appointments(user:)).to eq(mocked_appointments)
+        receive(:get_appointments).and_return(mocked_proxy_response)
+      expect(subject.fetch_appointments(user:)).to eq(mocked_proxy_response)
     end
 
     it 'uses default start and end dates when not provided' do
