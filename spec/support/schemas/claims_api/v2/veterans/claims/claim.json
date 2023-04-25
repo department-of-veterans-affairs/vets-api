@@ -340,12 +340,10 @@
                   },
                   "uploaded": {
                     "type": "boolean",
-                    "nullable": true,
                     "example": true
                   },
                   "uploadsAllowed": {
                     "type": "boolean",
-                    "nullable": true,
                     "example": true
                   }
                 }

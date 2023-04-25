@@ -6,7 +6,7 @@ require 'claims_api/v2/mock_documents_service'
 module ClaimsApi
   module V2
     module Veterans
-      class ClaimsController < ClaimsApi::V2::ApplicationController
+      class ClaimsController < ClaimsApi::V2::ApplicationController # rubocop:disable Metrics/ClassLength
         before_action :verify_access!
 
         def index
@@ -362,110 +362,132 @@ module ClaimsApi
           filed5103_waiver_ind.present? ? filed5103_waiver_ind.downcase == 'y' : false
         end
 
-        def handle_array_or_hash(object, attribute)
-          if object.present?
-            object.is_a?(Array) ? object.pluck(attribute) : [object[attribute]]
-          else
-            []
-          end
-        end
-
-        def map_bgs_tracked_items(bgs_claim) # rubocop:disable Metrics/MethodLength
+        def map_bgs_tracked_items(bgs_claim)
           return [] if bgs_claim.nil?
 
           claim_id = bgs_claim.dig(:benefit_claim_details_dto, :benefit_claim_id)
           return [] if claim_id.nil?
 
-          tracked_items = find_tracked_items!(claim_id)
+          @tracked_items = find_tracked_items!(claim_id)
 
-          ebenefits_details = bgs_claim[:benefit_claim_details_dto]
+          return [] if @tracked_items.blank?
 
-          tracked_ids = handle_array_or_hash(tracked_items, :dvlpmt_item_id)
+          @ebenefits_details = bgs_claim[:benefit_claim_details_dto]
 
-          # wwsnfy What We Still Need From You
-          wwsnfy = handle_array_or_hash(ebenefits_details[:wwsnfy], :dvlpmt_item_id) || []
-          # wwr What We Received From You and Others
-          wwr = handle_array_or_hash(ebenefits_details[:wwr], :dvlpmt_item_id) || []
-          # wwd What We Still Need From Others
-          wwd = handle_array_or_hash(ebenefits_details[:wwd], :dvlpmt_item_id) || []
-
-          # convert to array and flatten to prevent hashes from breaking this
-          ebenefits_items = ([ebenefits_details[:wwsnfy]].flatten | [ebenefits_details[:wwr]].flatten |
-                             [ebenefits_details[:wwd]].flatten).compact
-
-          ids = tracked_ids | wwsnfy | wwr | wwd
-
-          ids.map do |id|
-            item = tracked_items.find do |t|
-              if t.is_a?(Hash)
-                t[:dvlpmt_item_id] == id
-              else
-                t.include?('dvlpmt_item_id') ? t[:dvlpmt_item_id] == id : nil
-              end
-            end || {}
-
-            # Values for status enum: "ACCEPTED",
-            # "INITIAL_REVIEW_COMPLETE",
-            # "NEEDED_FROM_YOU",
-            # "NEEDED_FROM_OTHERS",
-            # "NO_LONGER_REQUIRED"
-            # "SUBMITTED_AWAITING_REVIEW",
-
-            if wwsnfy.include? id
-              status = 'NEEDED_FROM_YOU'
-            elsif wwd.include? id
-              status = 'NEEDED_FROM_OTHERS'
-            else
-              status = 'SUBMITTED_AWAITING_REVIEW'
-
-              if item.present?
-                claim_status = [bgs_claim.dig(:benefit_claim_details_dto,
-                                              :bnft_claim_lc_status)].flatten.first[:phase_type]
-                status = if ['Preparation for Decision',
-                             'Pending Decision Approval',
-                             'Preparation for Notification',
-                             'Complete'].include? claim_status
-                           'ACCEPTED'
-                         elsif ['CAN'].include? claim_status
-                           'CANCELLED'
-                         else
-                           'INITIAL_REVIEW_COMPLETE'
-                         end
-              end
-            end
-
-            uploads_allowed = %w[NEEDED SUBMITTED_AWAITING_REVIEW INITIAL_REVIEW_COMPLETE].include?(status)
-
-            {
-              closed_date: date_present(item[:date_closed]),
-              requested_date: tracked_item_req_date(ebenefits_details, item, id),
-              received_date: date_present(item[:receive_dt]),
-              description: tracked_item_description(ebenefits_items, id),
-              display_name: item[:short_nm],
-              overdue: item[:suspns_dt].nil? ? false : item[:suspns_dt] < Time.zone.now, # EVSS generates this field
-              status:, # EVSS generates this field
-              suspense_date: date_present(item[:suspns_dt]),
-              id: id.to_i,
-              uploaded: item[:receive_dt].present?, # EVSS generates this field
-              uploads_allowed: # EVSS generates this field
-            }
+          (build_wwsnfy_items | build_wwd_items | build_wwr_items | build_no_longer_needed_items).sort_by do |list_item|
+            list_item[:id]
           end
         end
 
-        def tracked_item_req_date(ebenefits_details, item, id)
-          items = ([ebenefits_details[:wwsnfy]].flatten |
-          [ebenefits_details[:wwr]].flatten |
-          [ebenefits_details[:wwd]].flatten).compact
+        def map_upload_and_status(item_id, unique_status)
+          if supporting_document?(item_id)
+            status = 'SUBMITTED_AWAITING_REVIEW'
+            uploaded = true
+          else
+            status = unique_status
+            uploaded = false
+          end
 
-          tracked_item = items.find { |i| i[:dvlpmt_item_id] == id } || {}
-          date_present(tracked_item[:date_open] || item[:req_dt] || item[:create_dt])
+          [status, uploaded]
         end
 
-        def tracked_item_description(tracked_items, id)
-          return nil if tracked_items.nil?
+        def build_wwsnfy_items
+          # wwsnfy What We Still Need From You
+          wwsnfy = [@ebenefits_details[:wwsnfy]].flatten.compact
+          return [] if wwsnfy.empty?
 
-          tracked_item = tracked_items.find { |a| a[:dvlpmt_item_id] == id }
-          tracked_item.present? ? tracked_item[:items] : nil
+          wwsnfy.map do |item|
+            status, uploaded = map_upload_and_status(item[:dvlpmt_item_id], 'NEEDED_FROM_YOU')
+
+            build_tracked_item(find_tracked_item(item[:dvlpmt_item_id]), status, item, uploaded)
+          end
+        end
+
+        def build_wwd_items
+          # wwd What We Still Need From Others
+          wwd = [@ebenefits_details[:wwd]].flatten.compact
+          return [] if wwd.empty?
+
+          wwd.map do |item|
+            status, uploaded = map_upload_and_status(item[:dvlpmt_item_id], 'NEEDED_FROM_OTHERS')
+
+            build_tracked_item(find_tracked_item(item[:dvlpmt_item_id]), status, item, uploaded)
+          end
+        end
+
+        def build_wwr_items
+          # wwr What We Received From You and Others
+          wwr = [@ebenefits_details[:wwr]].flatten.compact
+          return [] if wwr.empty?
+
+          claim_status_type = [@ebenefits_details[:bnft_claim_lc_status]].flatten.first[:phase_type]
+
+          wwr.map do |item|
+            status = accepted?(claim_status_type) ? 'ACCEPTED' : 'INITIAL_REVIEW_COMPLETE'
+            uploaded = true
+
+            build_tracked_item(find_tracked_item(item[:dvlpmt_item_id]), status, item, uploaded)
+          end
+        end
+
+        def build_no_longer_needed_items
+          no_longer_needed = [@tracked_items].flatten.compact.select do |item|
+            item[:accept_dt].present? && item[:dvlpmt_tc] == 'CLMNTRQST'
+          end
+          return [] if no_longer_needed.empty?
+
+          no_longer_needed.map do |tracked_item|
+            status = 'NO_LONGER_REQUIRED'
+            uploaded = supporting_document?(tracked_item[:dvlpmt_item_id])
+
+            build_tracked_item(tracked_item, status, {}, uploaded)
+          end
+        end
+
+        def uploads_allowed?(status)
+          %w[NEEDED_FROM_YOU NEEDED_FROM_OTHERS SUBMITTED_AWAITING_REVIEW INITIAL_REVIEW_COMPLETE].include? status
+        end
+
+        def accepted?(status)
+          ['Preparation for Decision', 'Pending Decision Approval', 'Preparation for Notification',
+           'Complete'].include? status
+        end
+
+        def overdue?(tracked_item)
+          overdue_date_present?(tracked_item) ? tracked_item[:suspns_dt] < Time.zone.now : false
+        end
+
+        def overdue_date_present?(tracked_item)
+          tracked_item[:suspns_dt].present? && tracked_item[:accept_dt].nil?
+        end
+
+        def build_tracked_item(tracked_item, status, item, uploaded)
+          uploads_allowed = uploads_allowed?(status)
+          {
+            closed_date: date_present(tracked_item[:accept_dt]),
+            description: item[:items],
+            display_name: tracked_item[:short_nm],
+            overdue: overdue?(tracked_item),
+            received_date: date_present(tracked_item[:receive_dt]),
+            requested_date: tracked_item_req_date(tracked_item, item),
+            status:,
+            suspense_date: date_present(tracked_item[:suspns_dt]),
+            id: tracked_item[:dvlpmt_item_id].to_i,
+            uploaded:,
+            uploads_allowed:
+          }
+        end
+
+        def supporting_document?(id)
+          @supporting_documents.find { |doc| doc['tracked_item_id'] == id.to_i }.present?
+        end
+
+        def find_tracked_item(id)
+          [@tracked_items].flatten.compact.find { |item| item[:dvlpmt_item_id] == id }
+        end
+
+        def tracked_item_req_date(tracked_item, item)
+          date_present(item[:date_open] || tracked_item[:req_dt] || tracked_item[:create_dt])
         end
 
         def build_supporting_docs(bgs_claim)
@@ -477,6 +499,8 @@ module ClaimsApi
                    evss_docs_service.get_claim_documents(bgs_claim[:benefit_claim_details_dto][:benefit_claim_id]).body
                  end
           return [] if docs.nil? || docs['documents'].blank?
+
+          @supporting_documents = docs['documents']
 
           docs['documents'].map do |doc|
             {
