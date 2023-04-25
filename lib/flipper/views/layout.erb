@@ -60,5 +60,13 @@
         <%== yield %>
       </div>
     </div>
+    <script>
+    const baseUrl = '<%= Settings.hostname %>' === '127.0.0.1:3000' ? 'localhost:3000': '<%= Settings.hostname %>';
+    const makeRequest = () => fetch(`//${baseUrl}/v0/sign_in/refresh?type=idme`, { method: 'POST', credentials: 'include' });
+    makeRequest();
+    setInterval(() => {
+      if(document.cookie.includes('vagov_info_token')) makeRequest();
+    }, 1000 * 60 * 4) /* 4 min */
+    </script>
   </body>
 </html>
