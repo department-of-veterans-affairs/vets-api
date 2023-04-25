@@ -30,7 +30,7 @@ module Mobile
 
           appointments = vaos_v2_to_v0_appointment_adapter.parse(appointments)
 
-          appointments.sort_by(&:start_date_utc)
+          [appointments.sort_by(&:start_date_utc), response[:meta][:failures]]
         end
 
         private

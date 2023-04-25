@@ -37,6 +37,21 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
       end
     end
 
+    it 'doesn\'t caches the user\'s appointments when failures are encountered' do
+      VCR.use_cassette('appointments/VAOS_v2/get_facility_200', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('appointments/VAOS_v2/get_clinic_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/VAOS_v2/get_appointment_200_partial_error',
+                           match_requests_on: %i[method uri]) do
+            expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
+
+            subject.perform(user.uuid)
+
+            expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
+          end
+        end
+      end
+    end
+
     context 'with mobile_precache_appointments flag off' do
       before { Flipper.disable(:mobile_precache_appointments) }
 

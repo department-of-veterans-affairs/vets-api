@@ -6,7 +6,7 @@ module Mobile
       @now = DateTime.now.utc
     end
 
-    def fetch_appointments(user:, start_date: nil, end_date: nil, fetch_cache: true)
+    def fetch_appointments(user:, start_date: nil, end_date: nil, fetch_cache: true, cache_on_failures: true)
       appointments = nil
       search_start_date = [start_date, latest_allowable_cache_start_date].compact.min
       search_end_date = [end_date, earliest_allowable_cache_end_date].compact.max
@@ -15,15 +15,16 @@ module Mobile
         appointments = Mobile::V0::Appointment.get_cached(user)
         if appointments
           Rails.logger.info('mobile appointments cache fetch', user_uuid: user.uuid)
-          return appointments
+          return [appointments, nil]
         end
       end
 
-      appointments = fetch_from_external_service(user, search_start_date, search_end_date)
-      Mobile::V0::Appointment.set_cached(user, appointments)
+      appointments, failures = fetch_from_external_service(user, search_start_date, search_end_date)
+
+      Mobile::V0::Appointment.set_cached(user, appointments) if cache_on_failures == true || failures.blank?
 
       Rails.logger.info('mobile appointments service fetch', user_uuid: user.uuid)
-      appointments
+      [appointments, failures]
     end
 
     # the mobile client can request appointments for as far back as the beginning of last year.

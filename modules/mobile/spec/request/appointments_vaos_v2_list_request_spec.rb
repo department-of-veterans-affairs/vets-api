@@ -154,6 +154,21 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         # removed vetextId, typeOfCare, and friendlyLocationName due to change in behavior decided for v2 adaption to v0
         expect(response_v2).to eq(response_v0)
       end
+
+      it 'has access and returned va appointments having partial errors' do
+        VCR.use_cassette('appointments/VAOS_v2/get_appointment_200_partial_error',
+                         match_requests_on: %i[method uri]) do
+          get '/mobile/v0/appointments', headers: iam_headers, params:
+        end
+
+        expect(response).to have_http_status(:multi_status)
+        expect(response.parsed_body['data'].count).to eq(1)
+        expect(response.parsed_body['meta']).to include(
+          {
+            'errors' => [{ 'source' => 'VA Service' }]
+          }
+        )
+      end
     end
 
     context 'request all appointments without requests' do
