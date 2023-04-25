@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": [
+    "user_uuid",
+    "sso_cookie_contents",
+    "request_host"
+  ],
+  "properties": {
+    "user_uuid": {
+      "type": "string"
+    },
+    "sso_cookie_contents": {
+      "type": "object",
+      "required": [
+        "patientIcn",
+        "signIn",
+        "credential_used",
+        "expirationTime"
+      ],
+      "properties": {
+        "patientIcn": {
+          "type": "string"
+        },
+        "signIn": {
+          "type": "object",
+          "required": [
+            "serviceName",
+            "authBroker"
+          ],
+          "properties": {
+            "serviceName": {
+              "type": "string"
+            },
+            "clientId": {
+              "type": "string"
+            },
+            "authBroker": {
+              "type": "string"
+            }
+          }
+        },
+        "credential_used": {
+          "type": "string"
+        }
+      }
+    },
+    "request_host": {
+      "type": "string"
+    }
+  }
+}

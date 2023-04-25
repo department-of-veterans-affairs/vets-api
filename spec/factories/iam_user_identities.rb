@@ -14,6 +14,7 @@ FactoryBot.define do
     icn { '1008596379V859838' }
     multifactor { true }
     iam_edipi { '1005079124' }
+    expiration_timestamp { 1.day.from_now.to_i.to_s }
 
     sign_in do
       {
