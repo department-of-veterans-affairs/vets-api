@@ -1072,40 +1072,29 @@ RSpec.describe 'Claims', type: :request do
 
           it "returns a claim with 'tracked_items'" do
             with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette(
-                'bgs/ebenefits_benefit_claims_status/find_benefit_claim_details_by_benefit_claim_id'
-              ) do
-                VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
-                  VCR.use_cassette('evss/documents/get_claim_documents') do
-                    expect(ClaimsApi::AutoEstablishedClaim)
-                      .to receive(:get_by_id_and_icn).and_return(nil)
+              VCR.use_cassette('evss/documents/get_claim_documents') do
+                VCR.use_cassette('bgs/tracked_item_service/claims_v2_show_tracked_items') do
+                  allow(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_and_icn)
 
-                    get claim_by_id_with_items_path, headers: auth_header
+                  get claim_by_id_with_items_path, headers: auth_header
 
-                    json_response = JSON.parse(response.body)
-                    first_doc_id = json_response['data']['attributes'].dig('trackedItems', 0, 'id')
-                    resp_tracked_items = json_response['data']['attributes']['trackedItems']
-                    expect(response.status).to eq(200)
-                    expect(json_response).to be_an_instance_of(Hash)
-                    expect(json_response['data']['id']).to eq('600236068')
-                    expect(first_doc_id).to eq(325_525)
-                    expect(resp_tracked_items[0]['description']).to eq(nil)
-                    expect(resp_tracked_items[7]['description']).to start_with('On your application,')
-                    expect(json_response['data']['attributes']['trackedItems'][0]['displayName']).to eq(
-                      'MG-not a recognized condition'
-                    )
-                    expect(json_response['data']['attributes']['trackedItems'][1]['displayName']).to eq(
-                      'Line of Duty determination from claimant'
-                    )
-                    # date_open
-                    expect(json_response['data']['attributes']['trackedItems'][0]['requestedDate']).to eq(
-                      '2022-02-04'
-                    )
-                    # req_dt
-                    expect(json_response['data']['attributes']['trackedItems'][2]['requestedDate']).to eq(
-                      '2021-05-05'
-                    )
-                  end
+                  json_response = JSON.parse(response.body)
+                  first_doc_id = json_response['data']['attributes'].dig('trackedItems', 0, 'id')
+                  resp_tracked_items = json_response['data']['attributes']['trackedItems']
+                  expect(response.status).to eq(200)
+                  expect(json_response['data']['id']).to eq(claim_id_with_items)
+                  expect(first_doc_id).to eq(293_439)
+                  expect(resp_tracked_items[1]['description']).to eq(nil)
+                  expect(resp_tracked_items[2]['description']).to start_with('On your application,')
+                  expect(json_response['data']['attributes']['trackedItems'][0]['displayName']).to eq(
+                    'STRs not available - substitute documents needed'
+                  )
+                  expect(json_response['data']['attributes']['trackedItems'][8]['displayName']).to eq(
+                    'Submit buddy statement(s)'
+                  )
+                  expect(json_response['data']['attributes']['trackedItems'][2]['requestedDate']).to eq(
+                    '2021-05-05'
+                  )
                 end
               end
             end
