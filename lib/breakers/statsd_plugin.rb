@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'string_helpers'
+
 module Breakers
   class StatsdPlugin
     def get_tags(upstream_request)
