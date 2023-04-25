@@ -63,6 +63,36 @@ module SwaggerSharedComponents
         )
       )
 
+      disability_compensation_json_schema = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'config',
+            'schemas',
+            'v2',
+            'request_bodies',
+            'disability_compensation',
+            'request.json'
+          )
+        )
+      )
+
+      disability_compensation_request_body_example = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'config',
+            'schemas',
+            'v2',
+            'request_bodies',
+            'disability_compensation',
+            'example.json'
+          )
+        )
+      )
+
       {
         veteran_identifier: {
           in: :body,
@@ -85,6 +115,17 @@ module SwaggerSharedComponents
             required: intent_to_file_json_schema['required'],
             properties: intent_to_file_json_schema['properties'],
             example: intent_to_file_request_body_example
+          }
+        },
+        disability_compensation: {
+          in: :body,
+          name: 'data',
+          required: true,
+          schema: {
+            type: :object,
+            required: disability_compensation_json_schema['required'],
+            properties: disability_compensation_json_schema['properties'],
+            example: disability_compensation_request_body_example
           }
         },
         power_of_attorney: {
