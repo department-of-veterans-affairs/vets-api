@@ -14,6 +14,11 @@ spec:
     name: {{ $name }}
   minReplicas: {{ $service.autoscaling.minReplicas | default $root.Values.web.autoscaling.minReplicas }}
   maxReplicas: {{ $service.autoscaling.maxReplicas | default $root.Values.web.autoscaling.maxReplicas }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+    scaleUp:
+      stabilizationWindowSeconds: 15
   metrics:
   - type: External
     external:

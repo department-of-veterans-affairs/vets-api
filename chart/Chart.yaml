@@ -49,7 +49,8 @@ type: application
 # 0.11.39 - cronjob volumes and mounts - donot use
 # 0.11.41 - fix cronjob
 # 0.11.41 - use min for pool capacity
-version: 0.11.41
+# 0.11.42 - stabilization
+version: 0.11.42
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
