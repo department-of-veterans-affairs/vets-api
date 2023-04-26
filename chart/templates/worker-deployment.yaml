@@ -6,6 +6,9 @@ kind: Deployment
 metadata:
   labels:
     app: {{ .Values.appName }}-sidekiq
+    tags.datadoghq.com/env: {{ .Values.ENV.DD_ENV }}
+    tags.datadoghq.com/service: {{ .Values.appName }}
+    tags.datadoghq.com/version: {{ .Values.image.tag }}
   name: {{ .Values.appName }}-sidekiq
   namespace: {{ .Release.Namespace }}
 spec:
@@ -22,6 +25,9 @@ spec:
     metadata:
       labels:
         app: {{ .Values.appName }}-sidekiq
+        tags.datadoghq.com/env: {{ .Values.ENV.DD_ENV }}
+        tags.datadoghq.com/service: {{ .Values.appName }}
+        tags.datadoghq.com/version: {{ .Values.image.tag }}
       annotations:
 {{ toYaml $root.Values.worker_annotations | indent 8 }}
     spec:
@@ -80,7 +86,22 @@ spec:
 {{ toYaml .Values.common.volumeMounts | indent 12 }}
           env:
             - name: GIT_REVISION
-              value: {{ .Values.image.tag}}
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/version']
+            - name: DD_VERSION
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/version']
+            - name: DD_ENV
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/env']
+            - name: DD_SERVICE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/service']
+
 {{ toYaml .Values.worker.envSecrets | indent 12 }}
           {{- range $keys, $key := .Values.common.secrets }}
           {{- range $secrets, $secret := $key }}
