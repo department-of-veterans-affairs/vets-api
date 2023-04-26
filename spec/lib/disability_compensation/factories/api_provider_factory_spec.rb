@@ -8,13 +8,11 @@ RSpec.describe ApiProviderFactory do
 
   context 'rated_disabilities' do
     it 'provides an EVSS rated disabilities provider' do
-      provider = ApiProviderFactory.rated_disabilities_service_provider(current_user, :evss)
-      expect(provider.class).to equal(EvssRatedDisabilitiesProvider)
+      expect(provider(:evss).class).to equal(EvssRatedDisabilitiesProvider)
     end
 
     it 'provides a Lighthouse rated disabilities provider' do
-      provider = ApiProviderFactory.rated_disabilities_service_provider(current_user, :lighthouse)
-      expect(provider.class).to equal(LighthouseRatedDisabilitiesProvider)
+      expect(provider(:lighthouse).class).to equal(LighthouseRatedDisabilitiesProvider)
     end
 
     it 'provides rated disabilities provider based on Flipper' do
@@ -31,6 +29,13 @@ RSpec.describe ApiProviderFactory do
       expect do
         ApiProviderFactory.rated_disabilities_service_provider(current_user, :random)
       end.to raise_error NotImplementedError
+    end
+
+    def provider(api_provider = nil)
+      ApiProviderFactory.rated_disabilities_service_provider(
+        current_user,
+        api_provider
+      )
     end
   end
 

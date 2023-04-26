@@ -9,7 +9,9 @@ class EvssRatedDisabilitiesProvider
     @service = EVSS::DisabilityCompensationForm::Service.new(auth_headers(current_user))
   end
 
-  def get_rated_disabilities
+  # @param [string] _client_id: (unused) the lighthouse_client_id requested from Lighthouse
+  # @param [string] _rsa_key_path: (unused) path to the private RSA key used to create the lighthouse_client_id
+  def get_rated_disabilities(_client_id = nil, _rsa_key_path = nil)
     data = @service.get_rated_disabilities
     transform(data)
   end

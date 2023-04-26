@@ -91,10 +91,11 @@ class FormProfiles::VA526ez < FormProfile
   def initialize_rated_disabilities_information
     return {} unless user.authorize :evss, :access?
 
+    settings = Settings.lighthouse.veteran_verification.form526
     service = ApiProviderFactory.rated_disabilities_service_provider(
       user
     )
-    response = service.get_rated_disabilities
+    response = service.get_rated_disabilities(settings.access_token.client_id, settings.access_token.rsa_key)
 
     # Remap response object to schema fields
     VA526ez::FormRatedDisabilities.new(

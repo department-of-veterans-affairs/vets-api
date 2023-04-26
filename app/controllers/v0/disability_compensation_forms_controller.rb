@@ -14,10 +14,16 @@ module V0
     before_action :validate_name_part, only: [:suggested_conditions]
 
     def rated_disabilities
+      # TODO: Hard-coding 'form526' as the application that consumes this for now
+      # need whichever app that consumes this endpoint to switch to their credentials for Lighthouse API consumption
+      application = params['application'] || 'form526'
+      settings = Settings.lighthouse.veteran_verification[application]
       service = ApiProviderFactory.rated_disabilities_service_provider(
         @current_user
       )
-      response = service.get_rated_disabilities
+
+      response = service.get_rated_disabilities(settings.access_token.client_id, settings.access_token.rsa_key)
+
       render json: response,
              serializer: RatedDisabilitiesSerializer
     end

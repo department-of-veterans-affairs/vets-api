@@ -20,7 +20,7 @@ RSpec.describe VeteranVerification::Service do
             auth_params = {
               launch: Base64.encode64(JSON.generate({ patient: '123498767V234859' }, space: ' '))
             }
-            response = @service.get_rated_disabilities(nil, auth_params)
+            response = @service.get_rated_disabilities('', '', { auth_params: })
             expect(response['data']['id']).to eq('12303')
           end
         end
