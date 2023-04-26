@@ -99,7 +99,7 @@ module Mobile
 
       def get_response_status(failures)
         case failures.size
-        when 0
+        when 0, nil
           :ok
         else
           :multi_status
