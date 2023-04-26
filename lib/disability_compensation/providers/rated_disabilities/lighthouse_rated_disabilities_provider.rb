@@ -5,16 +5,23 @@ require 'lighthouse/veteran_verification/service'
 
 class LighthouseRatedDisabilitiesProvider
   include RatedDisabilitiesProvider
+
   def initialize(current_user)
     @current_user = current_user
     @service = VeteranVerification::Service.new
   end
 
-  def get_rated_disabilities
+  # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
+  # @param [string] lighthouse_rsa_key_path: path to the private RSA key used to create the lighthouse_client_id
+  def get_rated_disabilities(lighthouse_client_id, lighthouse_rsa_key_path)
     auth_params = {
       launch: Base64.encode64(JSON.generate({ patient: @current_user.icn.to_s }))
     }
-    data = @service.get_rated_disabilities(nil, auth_params)
+    data = @service.get_rated_disabilities(
+      lighthouse_client_id,
+      lighthouse_rsa_key_path,
+      { auth_params: }
+    )
     transform(data['data']['attributes']['individual_ratings'])
   end
 

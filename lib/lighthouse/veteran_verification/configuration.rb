@@ -21,10 +21,12 @@ module VeteranVerification
     end
 
     ##
+    # @param [String] host (optional): a configurable base url host if the client application does not want to
+    #   use the default
     # @return [String] Base path for veteran_verification URLs.
     #
-    def base_path
-      "#{settings.host}/#{VETERAN_VERIFICATION_PATH}"
+    def base_path(host = nil)
+      "#{host || settings.host}/#{VETERAN_VERIFICATION_PATH}"
     end
 
     ##
@@ -35,17 +37,29 @@ module VeteranVerification
     end
 
     ##
-    # @return [Faraday::Response] response from GET request
-    #
-    def get(path, params = {}, auth_params = {})
-      connection.get(path, params, { Authorization: "Bearer #{access_token(auth_params)}" })
-    end
-
-    ##
-    # @return [Faraday::Response] response from POST request
-    #
-    def post(path, body = {})
-      connection.post(path, body, { Authorization: "Bearer #{access_token}" })
+    # @param [string] path: the endpoint to call
+    # @param [string] lighthouse_client_id: client id retrieved from Lighthouse team to call Veteran Verification APIs
+    # @param [string] lighthouse_rsa_key_path: the absolute path to the file that the client id was created from
+    # @param [hash] options: options to override aud_claim_url, params, and auth_params
+    # @option options [hash] :params body for the request
+    # @option options [string] :aud_claim_url option to override the aud_claim_url for LH Veteran Verification APIs
+    # @option options [hash] :auth_params a hash to send in auth params to create the access token
+    #   such as the launch context
+    # @option options [string] :host a base host for the Lighthouse API call
+    def get(path, lighthouse_client_id, lighthouse_rsa_key_path, options = {})
+      connection
+        .get(
+          path,
+          options[:params],
+          {
+            Authorization: "Bearer #{
+              access_token(
+                lighthouse_client_id,
+                lighthouse_rsa_key_path,
+                options
+              )}"
+          }
+        )
     end
 
     ##
@@ -80,16 +94,25 @@ module VeteranVerification
       !use_mocks? || Settings.betamocks.recording
     end
 
-    def access_token(auth_params = {})
-      token_service.get_token(auth_params) if get_access_token?
+    def access_token(lighthouse_client_id, lighthouse_rsa_key_path, options = {})
+      if get_access_token?
+        token_service(
+          lighthouse_client_id,
+          lighthouse_rsa_key_path,
+          options[:aud_claim_url],
+          options[:host]
+        )
+          .get_token(options[:auth_params])
+      end
     end
 
-    def token_service
-      url = "#{settings.host}/#{TOKEN_PATH}"
-      token = settings.access_token
+    def token_service(lighthouse_client_id, lighthouse_rsa_key_path, aud_claim_url = nil, host = nil)
+      host ||= base_path(host)
+      url = "#{host}/#{TOKEN_PATH}"
+      aud_claim_url ||= settings.aud_claim_url
 
       @token_service ||= Auth::ClientCredentials::Service.new(
-        url, API_SCOPES, token.client_id, token.aud_claim_url, token.rsa_key
+        url, API_SCOPES, lighthouse_client_id, aud_claim_url, lighthouse_rsa_key_path
       )
     end
   end

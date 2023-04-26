@@ -8,7 +8,7 @@ RSpec.describe RatedDisabilitiesProvider do
 
   it 'always raises an error on the RatedDisabilitiesProvider base module' do
     expect do
-      RatedDisabilitiesProvider.get_rated_disabilities
+      RatedDisabilitiesProvider.get_rated_disabilities('', '')
     end.to raise_error NotImplementedError
   end
 end
