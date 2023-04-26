@@ -8,6 +8,7 @@ require 'debt_management_center/financial_status_report_downloader'
 require 'debt_management_center/workers/va_notify_email_job'
 require 'debt_management_center/vbs/request'
 require 'debt_management_center/sharepoint/request'
+require 'pdf_fill/filler'
 require 'json'
 
 module DebtManagementCenter
