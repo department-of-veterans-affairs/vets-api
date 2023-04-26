@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
 require 'evss/ppiu/service'
+require_relative '../concerns/sso_logging'
 
 module Mobile
   module V0
     class PaymentInformationController < ApplicationController
+      include Mobile::Concerns::SSOLogging
+
       before_action { authorize :evss, :access? }
       before_action { authorize :ppiu, :access? }
       before_action :validate_pay_info, only: :update
