@@ -21,7 +21,10 @@ module Mobile
 
       appointments, failures = fetch_from_external_service(user, search_start_date, search_end_date)
 
-      Mobile::V0::Appointment.set_cached(user, appointments) if cache_on_failures == true || failures.blank?
+      if appointments.present? && (cache_on_failures == true || failures.blank?)
+        Mobile::V0::Appointment.set_cached(user,
+                                           appointments)
+      end
 
       Rails.logger.info('mobile appointments service fetch', user_uuid: user.uuid)
       [appointments, failures]
