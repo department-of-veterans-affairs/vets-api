@@ -23,7 +23,6 @@ spec:
       labels:
         app: {{ .Values.appName }}-sidekiq
       annotations:
-{{ toYaml $root.Values.worker_annotations | indent 8 }}
     spec:
       affinity:
         podAntiAffinity:
@@ -38,7 +37,7 @@ spec:
                         - {{ .Values.appName }}-sidekiq
                 topologyKey: {{ .Values.topologyKey }}
       securityContext:
-        fsGroup: 1000
+        fsGroup: {{ $root.Values.fsGroup }}
       volumes:
 {{ toYaml .Values.common.volumes | indent 8 }}
       {{- if .Values.mockData.enabled }}
@@ -88,7 +87,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ $keys }}
-                  key:  {{ $secret.name }}
+                  key: {{ $secret.name }}
           {{- end }}
           {{- end }}
         {{- if $root.Values.clamav.enabled  }}

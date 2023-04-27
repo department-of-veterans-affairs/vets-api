@@ -21,7 +21,7 @@ spec:
       priority: {{ .priority | default $root.Values.web.ingress.default.priority }}
       services:
         - name: {{ $name }}
-          port:  {{ .port | default $root.Values.web.ingress.default.port }}
+          port: {{ .port | default $root.Values.web.ingress.default.port }}
       middlewares:
         {{- if $root.Values.web.ingress.headers.enabled }}
         - name: traefik-real-ip-headers

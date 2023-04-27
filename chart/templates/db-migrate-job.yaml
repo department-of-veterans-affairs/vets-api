@@ -30,13 +30,13 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ $keys }}
-                  key:  {{ $secret.name }}
+                  key: {{ $secret.name }}
           {{- end }}
           {{- end }}
 
       restartPolicy: Never
       securityContext:
-        fsGroup: 1000
+        fsGroup: {{ .Values.fsGroup }}
       volumes:
 {{ toYaml .Values.common.volumes | indent 8 }}
   backoffLimit: 1

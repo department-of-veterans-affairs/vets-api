@@ -12,18 +12,16 @@ matchExpressions:
   key: app
   operator: In
 topologyKey: kubernetes.io/hostname
-worker_annotations:
-  prometheus.io/scrape: "true"
 annotations:
   ad.datadoghq.com/vets-api-web.checks: {}
 serviceAccount:
   enabled: false
   role_arn: ""
   name: ""
+fsGroup: ""
 #Web configuration
-
 web:
-  strategyType: RollingUpdate
+  strategyType: ""
   maxSurge: ""
   maxUnavailable: ""
   containers:
@@ -33,13 +31,6 @@ web:
       - containerPort: ""
         name: ""
   healthCheck:
-    command: ""
-    requestPath: ""
-    port: ""
-    initialDelaySeconds: ""
-    failureThreshold: ""
-    periodSeconds: ""
-    successThreshold: ""
     host: ""
   livenessProbe:
     enabled: false
@@ -83,7 +74,6 @@ web:
     default:
       port: ""
       kind: ""
-      middleware: ""
       host: ""
       priority: ""
     headers:
@@ -94,12 +84,11 @@ web:
     minReplicas: ""
     maxReplicas: ""
     targetValue: ""
-    query: ""
   service:
     enabled: false
     annotations: {}
     ports: ""
-    type: ClusterIP
+    type: ""
   externalDns:
     dnsName: ""
     recordTTL: ""
@@ -109,12 +98,10 @@ web:
     envSecrets:
       - name: DD_APM_ENABLED
         value: false
-
-
 #Worker Configuration
 worker:
   enabled: false
-  strategyType: RollingUpdate
+  strategyType: ""
   maxSurge: ""
   maxUnavailable: ""
   containers:
@@ -125,19 +112,15 @@ worker:
     minReplicas: ""
     maxReplicas: ""
     targetValue: ""
-    query: ""
   healthCheck:
     requestPath: ""
     port: ""
     initialDelaySeconds: ""
-    periodSeconds: ""
     readinessPath: ""
     readinessPort: ""
     timeoutSeconds: ""
     successThreshold: ""
     command: []
-    postStart:
-      command: []
   terminationGracePeriodSeconds: ""
   socatProxyEnabled: false
   envSecrets:
@@ -150,23 +133,18 @@ worker:
     limits:
       cpu: ""
       memory: ""
-  service:
-    enabled: false
-
+# cronJobs configuration
 cronJobs: {}
-
+# clamav configuration
 clamav:
   enabled: false
-  command: ""
   image:
     tag: ""
     value: ""
   volumeMounts: {}
-  volumes: {}
   ports: {}
   probes: {}
   resources: {}
-
 # Common configuration
 common:
   socatProxy: {}

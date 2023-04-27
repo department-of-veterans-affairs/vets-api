@@ -36,10 +36,10 @@ spec:
                   valueFrom:
                     secretKeyRef:
                       name: {{ $keys }}
-                      key:  {{ $secret.name }}
+                      key: {{ $secret.name }}
               {{- end }}
               {{- end }}
           restartPolicy: OnFailure
           securityContext:
-            fsGroup: 1000
+            fsGroup: {{ $root.Values.fsGroup }}
 {{- end }}

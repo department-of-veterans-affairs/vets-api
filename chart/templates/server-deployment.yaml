@@ -14,9 +14,9 @@ spec:
     matchLabels:
       app: {{ $name }}
   strategy:
-    type: RollingUpdate
+    type: {{ $root.Values.web.strategyType }}
     rollingUpdate:
-      maxSurge:  {{ $root.Values.web.maxSurge }}
+      maxSurge: {{ $root.Values.web.maxSurge }}
       maxUnavailable: {{ $root.Values.web.maxUnavailable }}
   template:
     metadata:
@@ -36,9 +36,9 @@ spec:
                       operator: {{ $root.Values.matchExpressions.operator }}
                       values:
                         - {{ $name }}
-                topologyKey:  {{ $root.Values.topologyKey }}
+                topologyKey: {{ $root.Values.topologyKey }}
       securityContext:
-        fsGroup: 1000
+        fsGroup: {{ $root.Values.fsGroup }}
       volumes:
 {{ toYaml $root.Values.common.volumes | indent 8 }}
       {{- if $root.Values.mockData.enabled }}
@@ -88,7 +88,7 @@ spec:
               port: {{ $root.Values.web.readinessProbe.port }}
               httpHeaders:
                 - name: Host
-                  value:  {{ $service.healthCheck.host | default $root.Values.web.healthCheck.host }}
+                  value: {{ $service.healthCheck.host | default $root.Values.web.healthCheck.host }}
             initialDelaySeconds: {{ $root.Values.web.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ $root.Values.web.readinessProbe.periodSeconds }}
             successThreshold: {{ $root.Values.web.readinessProbe.successThreshold }}
@@ -107,7 +107,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ $keys }}
-                  key:  {{ $secret.name }}
+                  key: {{ $secret.name }}
           {{- end }}
           {{- end }}
         {{- if $root.Values.clamav.enabled  }}
