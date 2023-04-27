@@ -7,18 +7,17 @@ module Mobile
     class PrescriptionsController < ApplicationController
       before_action { authorize :mhv_prescriptions, :access? }
 
-      # rubocop:disable Metrics/MethodLength
       def index
         begin
           resource = client.get_history_rxs
 
           # Temporary logging for prescription bug investigation
-          resource.attributes.each do |p|
-            Rails.logger.info('MHV Prescription Response',
-                              user: @current_user.uuid,
-                              params:, id: p[:prescription_id],
-                              prescription: p)
-          end
+          # resource.attributes.each do |p|
+          #   Rails.logger.info('MHV Prescription Response',
+          #                     user: @current_user.uuid,
+          #                     params:, id: p[:prescription_id],
+          #                     prescription: p)
+          # end
         rescue => e
           Rails.logger.error(
             'Mobile Prescription Upstream Index Error',
@@ -34,19 +33,18 @@ module Mobile
         serialized_prescription = Mobile::V0::PrescriptionsSerializer.new(page_resource, page_meta_data)
 
         # Temporary logging for prescription bug investigation
-        serialized_prescription.to_hash[:data].each do |p|
-          Rails.logger.info('Mobile Prescription Response', user: @current_user.uuid, id: p[:id], prescription: p)
-        end
+        # serialized_prescription.to_hash[:data].each do |p|
+        #   Rails.logger.info('Mobile Prescription Response', user: @current_user.uuid, id: p[:id], prescription: p)
+        # end
 
         render json: serialized_prescription
       end
-      # rubocop:enable Metrics/MethodLength
 
       def refill
         resource = client.post_refill_rxs(ids)
 
         # Temporary logging for prescription bug investigation
-        Rails.logger.info('MHV Prescription Refill Response', user: @current_user.uuid, ids:, response: resource)
+        # Rails.logger.info('MHV Prescription Refill Response', user: @current_user.uuid, ids:, response: resource)
 
         render json: Mobile::V0::PrescriptionsRefillsSerializer.new(@current_user.uuid, resource.body)
       rescue => e
@@ -61,8 +59,8 @@ module Mobile
         resource = client.get_tracking_history_rx(params[:id])
 
         # Temporary logging for prescription bug investigation
-        Rails.logger.info('MHV Prescription Tracking Response', user: @current_user.uuid, id: params[:id],
-                                                                response: resource)
+        # Rails.logger.info('MHV Prescription Tracking Response', user: @current_user.uuid, id: params[:id],
+        #                                                         response: resource)
 
         render json: Mobile::V0::PrescriptionTrackingSerializer.new(resource.data)
       rescue => e
