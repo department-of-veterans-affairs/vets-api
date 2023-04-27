@@ -37,7 +37,7 @@ module Mobile
           Rails.logger.info('mobile immunizations cache fetch', user_uuid: @current_user.uuid)
         else
           immunizations = immunizations_adapter.parse(service.get_immunizations)
-          Mobile::V0::Immunization.set_cached(@current_user, immunizations) if immunizations.present?
+          Mobile::V0::Immunization.set_cached(@current_user, immunizations)
           Rails.logger.info('mobile immunizations service fetch', user_uuid: @current_user.uuid)
         end
 
