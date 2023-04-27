@@ -424,6 +424,10 @@ features:
     actor_type: user
     description: This will use new API key name when available
     enable_in_development: true
+  medical_copay_notifications:
+    actor_type: user
+    description: Enables notifications to be sent for new copay statements
+    enable_in_development: true
   mhv_landing_page_enabled:
     actor_type: user
     description: Enables the new MHV landing page on VA.gov
