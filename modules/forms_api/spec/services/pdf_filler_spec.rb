@@ -23,6 +23,7 @@ describe FormsApi::PdfFiller do
   test_pdf_fill 'vba_26_4555'
   test_pdf_fill 'vba_26_4555', 'vba_26_4555-min'
   test_pdf_fill 'vba_21_4142'
+  test_pdf_fill 'vba_21_4142', 'vba_21_4142-min'
 
   def self.test_json_valid(mapping_file)
     it 'validates json is parseable' do
