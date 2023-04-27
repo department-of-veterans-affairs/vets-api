@@ -1,0 +1,43 @@
+{
+  "form_number": "21-4142",
+  "veteran": {
+    "full_name": {
+      "first": "Veteran",
+      "last": "Surname"
+    },
+    "address": {
+      "country": "USA",
+      "street": "1 First Ln",
+      "city": "Place",
+      "state": "SC",
+      "postal_code": "12345"
+    },
+    "home_phone": "9876543210",
+    "ssn": "456123782"
+  },
+  "patient_identification": {
+    "is_requesting_own_medical_records": true
+  },
+  "acknowledge_to_release_information": true,
+  "provider_facility": [
+    {
+      "provider_facility_address": {
+        "street": "1 Care Rd",
+        "city": "Helpful",
+        "country": "USA",
+        "state": "SC",
+        "postal_code": "12345"
+      },
+      "treatment_date_range": {
+        "from": "2000-02-01",
+        "to": "2000-02-09"
+      }
+    }
+  ],
+  "preparer_identification": {
+    "preparer_full_name": {
+      "first": "Veteran",
+      "last": "Surname"
+    }
+  }
+}
