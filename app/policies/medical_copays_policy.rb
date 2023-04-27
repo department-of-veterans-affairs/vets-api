@@ -17,6 +17,10 @@ MedicalCopaysPolicy = Struct.new(:user, :medical_copays) do
     accessible
   end
 
+  def access_notifications?
+    Flipper.enabled?('medical_copay_notifications')
+  end
+
   def increment_statsd(accessible)
     if accessible
       StatsD.increment('api.mcp.policy.success')

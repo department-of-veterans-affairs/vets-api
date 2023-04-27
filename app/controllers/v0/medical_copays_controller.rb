@@ -3,6 +3,7 @@
 module V0
   class MedicalCopaysController < ApplicationController
     before_action(except: :send_new_statements_notifications) { authorize :medical_copays, :access? }
+    before_action(only: :send_new_statements_notifications) { authorize :medical_copays, :access_notifications? }
 
     skip_before_action :verify_authenticity_token, only: [:send_new_statements_notifications]
     skip_before_action :authenticate, only: [:send_new_statements_notifications]
