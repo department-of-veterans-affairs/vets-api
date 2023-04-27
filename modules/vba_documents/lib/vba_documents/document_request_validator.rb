@@ -10,13 +10,22 @@ module VBADocuments
     MAX_FILE_SIZE_IN_BYTES = 100_000_000 # 100 MB
     DOCUMENT_NOT_PROVIDED_MSG = 'Document was not provided'
     DOCUMENT_NOT_A_PDF_MSG = 'Document is not a PDF'
-    FILE_SIZE_LIMIT_EXCEEDED_MSG = 'Document exceeds the file size limit of 100 MB'
+    FILE_SIZE_LIMIT_EXCEEDED_MSG = \
+      "Document exceeds the file size limit of #{MAX_FILE_SIZE_IN_BYTES / 1_000_000} MB".freeze
     DOCUMENT_FAILED_VALIDATION_MSG = 'Document failed validation'
 
-    # Skip the check for owner/permissions password - only a user password invalidates the PDF
-    PDF_VALIDATOR_OPTIONS = { check_encryption: false }.freeze
-
     attr_accessor :result
+
+    def self.pdf_validator_options
+      larger_limit = Flipper.enabled?(:vba_documents_larger_page_size_limit)
+
+      {
+        check_encryption: false, # Owner passwords are allowed, user passwords are not
+        size_limit_in_bytes: MAX_FILE_SIZE_IN_BYTES,
+        width_limit_in_inches: larger_limit ? 78 : 21,
+        height_limit_in_inches: larger_limit ? 101 : 21
+      }
+    end
 
     def initialize(request)
       @request = request
@@ -69,8 +78,7 @@ module VBADocuments
       Tempfile.create("vba-documents-validate-#{SecureRandom.hex}.pdf", binmode: true) do |tempfile|
         tempfile << @request.body.read
         tempfile.rewind
-        options = Flipper.enabled?(:vba_documents_skip_dimension_check) ? { check_page_dimensions: false } : {}
-        validator = PDFValidator::Validator.new(tempfile, PDF_VALIDATOR_OPTIONS.merge(options))
+        validator = PDFValidator::Validator.new(tempfile, DocumentRequestValidator.pdf_validator_options)
         result = validator.validate
 
         unless result.valid_pdf?
