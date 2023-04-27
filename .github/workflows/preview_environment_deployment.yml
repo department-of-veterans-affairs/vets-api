@@ -1,16 +1,33 @@
 name: Preview Environment Deployment
 
 on:
+  repository_dispatch:
+    types: [deploy_review_instance]
   push:
     branches:
       - '**'
 
 jobs:
   deploy-preview-environment:
+    name: Deploy Preview Environment
     runs-on: ubuntu-latest
     steps:
+      - name: Set default source branch
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          echo "SOURCE_REF=${{ github.ref_name }}" >> $GITHUB_ENV
+          echo "WEB_BRANCH=main" >> $GITHUB_ENV
+
+      - name: Set custom source branch
+        if: ${{ github.event_name == 'repository_dispatch' }}
+        run: |
+          echo "SOURCE_REF=${{ github.event.client_payload.source_ref }}" >> $GITHUB_ENV
+          echo "WEB_BRANCH=${{ github.event.client_payload.web_branch }}" >> $GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          ref: ${{ env.SOURCE_REF }}
 
       - name: Setup Environment
         run: echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
@@ -51,27 +68,31 @@ jobs:
         run: node ./script/github-actions/pe-deploy-source.js
         env:
           SOURCE_EVENT: ${{ github.event_name }}
-          SOURCE_BRANCH: ${{ github.event.client_payload.source_ref }}
           SOURCE_REPO: ${{ github.event.client_payload.source_repo }}
-          WORKFLOW_BRANCH: ${{ github.ref_name }}
+          SOURCE_DEPLOYMENT: ${{ github.event.client_payload.deployment_id }}
+          WORKFLOW_DEPLOYMENT: ${{ steps.deployment.outputs.deployment_id }}
+          PE_EXPIRATION_DAYS: ${{ github.event.client_payload.expiration_days }}
+          
 
-      # - name: Login to ECR # Update ECR credentials if necessary
-      #   id: login-ecr
-      #   uses: aws-actions/amazon-ecr-login@v1
+      - name: Login to ECR # Update ECR credentials if necessary
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-      # - name: Build Docker Image #use "file" input to designate alternate dockerfile path. Defaults to "Dockerfile": https://github.com/docker/build-push-action
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     build-args: |
-      #       userid=${{ env.VETS_API_USER_ID }}
-      #     context: .
-      #     # target: production
-      #     push: true
-      #     # Update tags and ECR Repository
-      #     tags: |
-      #       ${{ steps.login-ecr.outputs.registry }}/dsva/preview-environment/vets-api:${{ env.SOURCE_REF_SANITIZED }}
-      #     # cache-from: type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY
-      #     # cache-to: type=inline
+      - name: Build Docker Image #use "file" input to designate alternate dockerfile path. Defaults to "Dockerfile": https://github.com/docker/build-push-action
+        uses: docker/build-push-action@v2
+        with:
+          build-args: |
+            BUNDLE_ENTERPRISE__CONTRIBSYS__COM=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+            USER_ID=${{ env.VETS_API_USER_ID }}
+            RAILS_ENV=production
+          context: .
+          # target: production
+          push: true
+          # Update tags and ECR Repository
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/dsva/preview-environment/vets-api:${{ env.SOURCE_REF_SANITIZED }}
+          # cache-from: type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY
+          # cache-to: type=inline
 
       - name: Repository Dispatch
         uses: peter-evans/repository-dispatch@v2
@@ -79,4 +100,4 @@ jobs:
           token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
           event-type: deploy_review_instance
           repository: department-of-veterans-affairs/devops
-          client-payload: '{"source_repo": "${{ env.SOURCE_REPO }}", "source_ref": "${{ env.SOURCE_REF }}", "source_ref_sanitized": "${{ env.SOURCE_REF_SANITIZED }}", "deployment_id": "${{ steps.deployment.outputs.deployment_id }}"}'
+          client-payload: '{"source_repo": "${{ env.SOURCE_REPO }}", "source_ref": "${{ env.SOURCE_REF }}", "source_ref_sanitized": "${{ env.SOURCE_REF_SANITIZED }}", "expiration_days": "${{ env.EXPIRATION_DAYS }}", "deployment_id": "${{ env.DEPLOYMENT_ID }}", "web_branch": "${{ env.WEB_BRANCH }}", "api_branch": "${{ env.SOURCE_REF }}"}'
