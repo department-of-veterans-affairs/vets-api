@@ -7,21 +7,21 @@ module V0
     class VirtualAgentAppealController < AppealsBaseController
       def index
         if Settings.vsp_environment == 'staging'
+          Rails.logger.info 'Getting appeals from Lighthouse for staging environment'
           @user_ssan, @user_name = set_user_credentials
           appeals_response = get_appeal_from_lighthouse(@user_ssan, @user_name)
           appeals_data_array = appeals_response['data']
+          Rails.logger.info "Retrieved #{appeals_data_array.count} appeals from Lighthouse for staging environment"
         else
-          begin
-            appeals_response = appeals_service.get_appeals(current_user)
-            appeals_data_array = appeals_response.body['data']
-          rescue => e
-            return service_exception_handler(e)
-          end
+          appeals_response = appeals_service.get_appeals(current_user)
+          appeals_data_array = appeals_response.body['data']
         end
         data = data_for_first_comp_appeal(appeals_data_array)
         render json: {
           data:
         }
+      rescue => e
+        service_exception_handler(e)
       end
 
       def get_appeal_from_lighthouse(ssan, user_name)
