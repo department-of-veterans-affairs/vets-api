@@ -32,6 +32,7 @@ module FormsApi
         }
         response = central_mail_service.upload(filled_form)
 
+        Rails.logger.info("Forms api: #{params[:form_number]}, status: #{response.status}, uuid #{metadata['uuid']}")
         render json: { message: response.body, confirmation_number: metadata['uuid'] }, status: response.status
       rescue => e
         # scrubs all user-entered info from the error message
