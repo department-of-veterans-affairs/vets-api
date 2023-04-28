@@ -334,7 +334,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
     end
   end
 
-  p = DocHelpers.decision_reviews? ? '/supplemental_claims/evidence_submissions' : '/evidence_submissions'
+  p = DocHelpers.decision_reviews? ? '/supplemental_claims/evidence_submissions' : '/evidence-submissions'
   path p do
     post 'Get a location for subsequent evidence submission document upload PUT request' do
       scopes = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST]
@@ -476,7 +476,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
     end
   end
 
-  p = DocHelpers.decision_reviews? ? '/supplemental_claims/evidence_submissions/{uuid}' : '/evidence_submissions/{uuid}'
+  p = DocHelpers.decision_reviews? ? '/supplemental_claims/evidence_submissions/{uuid}' : '/evidence-submissions/{uuid}'
   path p do
     get 'Returns all of the data associated with a specific Supplemental Claim Evidence Submission.' do
       scopes = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:GET]

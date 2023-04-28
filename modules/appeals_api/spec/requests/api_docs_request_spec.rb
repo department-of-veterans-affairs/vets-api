@@ -4,20 +4,17 @@ require 'rails_helper'
 
 RSpec.describe 'Appeals Documentation Endpoints', type: :request do
   # @param [Hash] opts
-  # @option opts [String] :api_version The version of the OAS documentation to return. Required.
-  # @option opts [Hash] :doc_path The suffix path to retrieve the OAS json from. Required.
-  # @option opts [String] :server_path The OAS server suffix path. Required.
-  # @option opts [String] :openapi_version_sandbox The openapi version for sandbox. Optional. Default is "3.0.0".
-  # @option opts [String] :openapi_version_production The openapi version for production. Optional. Default is "3.0.0".
+  # @option opts [String] :path - Path to openapi docs
+  # @option opts [String] :path_template - Path template to expect in generated docs where not standards-compliant
   shared_examples 'an openapi endpoint' do |opts|
-    let(:doc_url) { "/services/appeals/docs/#{opts.fetch(:api_version)}/#{opts.fetch(:doc_path)}" }
+    let(:path) { opts.fetch(:path) }
 
-    it "successfully returns openapi spec for #{opts.fetch(:api_version)}" do
+    it "successfully fetches openapi spec from #{opts[:path]}" do
       %w[sandbox production].each do |env|
         with_settings(Settings, vsp_environment: env) do
-          get doc_url
+          get path
           status = response.status
-          expect(response).to have_http_status(:ok), "Invalid HTTP status (#{status}) from #{doc_url} on #{env}"
+          expect(response).to have_http_status(:ok), "Invalid HTTP status (#{status}) from #{path} on #{env}"
 
           json = JSON.parse(response.body)
           openapi_version = opts.fetch("openapi_version_#{env}".to_sym, '3.0.0')
@@ -27,39 +24,40 @@ RSpec.describe 'Appeals Documentation Endpoints', type: :request do
     end
 
     context 'servers' do
-      it 'lists the sandbox & production environments' do
-        get doc_url
+      let(:expected_path_template) { opts[:path_template] || path.gsub(/v\d.*$/, '{version}') }
+
+      it 'lists the url formats for the sandbox & production environments' do
+        get path
         json = JSON.parse response.body
         server_urls = json.fetch('servers').map { |server| server['url'] }
-        expect(server_urls).to include("https://sandbox-api.va.gov/services/appeals/#{opts.fetch(:server_path)}")
-        expect(server_urls).to include("https://api.va.gov/services/appeals/#{opts.fetch(:server_path)}")
+
+        expect(server_urls).to include("https://sandbox-api.va.gov#{expected_path_template}")
+        expect(server_urls).to include("https://api.va.gov#{expected_path_template}")
       end
     end
   end
 
   describe 'Appeals Status' do
-    it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'api', server_path: '{version}'
-
-    it_behaves_like 'an openapi endpoint', api_version: 'v1', doc_path: 'appeals', server_path: '{version}'
+    it_behaves_like 'an openapi endpoint',
+                    path: '/services/appeals/docs/v0/api',
+                    path_template: '/services/appeals/{version}'
+    it_behaves_like 'an openapi endpoint', path: '/services/appeals/appeals-status/v1/docs'
   end
 
   describe 'Decision Reviews' do
-    it_behaves_like 'an openapi endpoint', api_version: 'v1', doc_path: 'decision_reviews',
-                                           server_path: '{version}/decision_reviews'
-    it_behaves_like 'an openapi endpoint', api_version: 'v2', doc_path: 'decision_reviews',
-                                           server_path: '{version}/decision_reviews'
+    it_behaves_like 'an openapi endpoint',
+                    path: '/services/appeals/docs/v1/decision_reviews',
+                    path_template: '/services/appeals/{version}/decision_reviews'
+    it_behaves_like 'an openapi endpoint',
+                    path: '/services/appeals/docs/v2/decision_reviews',
+                    path_template: '/services/appeals/{version}/decision_reviews'
   end
 
   describe 'Segmented APIs' do
-    it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'hlr',
-                                           server_path: 'higher_level_reviews/{version}'
-    it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'nod',
-                                           server_path: 'notice_of_disagreements/{version}'
-    it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'sc',
-                                           server_path: 'supplemental_claims/{version}'
-    it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'ci',
-                                           server_path: 'contestable_issues/{version}'
-    it_behaves_like 'an openapi endpoint', api_version: 'v0', doc_path: 'la',
-                                           server_path: 'legacy_appeals/{version}'
+    it_behaves_like 'an openapi endpoint', path: '/services/appeals/higher-level-reviews/v0/docs'
+    it_behaves_like 'an openapi endpoint', path: '/services/appeals/notice-of-disagreements/v0/docs'
+    it_behaves_like 'an openapi endpoint', path: '/services/appeals/supplemental-claims/v0/docs'
+    it_behaves_like 'an openapi endpoint', path: '/services/appeals/contestable-issues/v0/docs'
+    it_behaves_like 'an openapi endpoint', path: '/services/appeals/legacy-appeals/v0/docs'
   end
 end

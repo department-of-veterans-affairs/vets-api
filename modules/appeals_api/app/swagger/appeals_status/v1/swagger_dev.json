@@ -756,7 +756,7 @@
   },
   "servers": [
     {
-      "url": "https://sandbox-api.va.gov/services/appeals/{version}",
+      "url": "https://sandbox-api.va.gov/services/appeals/appeals-status/{version}",
       "description": "VA.gov API sandbox environment",
       "variables": {
         "version": {
@@ -765,7 +765,7 @@
       }
     },
     {
-      "url": "https://api.va.gov/services/appeals/{version}",
+      "url": "https://api.va.gov/services/appeals/appeals-status/{version}",
       "description": "VA.gov API production environment",
       "variables": {
         "version": {

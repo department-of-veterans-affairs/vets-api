@@ -16,7 +16,7 @@
     }
   ],
   "paths": {
-    "/legacy_appeals": {
+    "/legacy-appeals": {
       "get": {
         "summary": "Returns eligible appeals in the legacy process for a Veteran.",
         "tags": [
@@ -556,7 +556,7 @@
   },
   "servers": [
     {
-      "url": "https://sandbox-api.va.gov/services/appeals/legacy_appeals/{version}",
+      "url": "https://sandbox-api.va.gov/services/appeals/legacy-appeals/{version}",
       "description": "VA.gov API sandbox environment",
       "variables": {
         "version": {
@@ -565,7 +565,7 @@
       }
     },
     {
-      "url": "https://api.va.gov/services/appeals/legacy_appeals/{version}",
+      "url": "https://api.va.gov/services/appeals/legacy-appeals/{version}",
       "description": "VA.gov API production environment",
       "variables": {
         "version": {

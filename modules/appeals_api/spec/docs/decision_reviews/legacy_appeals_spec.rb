@@ -15,7 +15,7 @@ describe 'Legacy Appeals', swagger_doc: DocHelpers.output_json_path, type: :requ
     let(:Authorization) { 'Bearer TEST_TOKEN' }
   end
 
-  path '/legacy_appeals' do
+  path DocHelpers.decision_reviews? ? '/legacy_appeals' : '/legacy-appeals' do
     get 'Returns eligible appeals in the legacy process for a Veteran.' do
       scopes = AppealsApi::LegacyAppeals::V0::LegacyAppealsController::OAUTH_SCOPES[:GET]
       tags 'Legacy Appeals'

@@ -4053,7 +4053,7 @@
   },
   "servers": [
     {
-      "url": "https://sandbox-api.va.gov/services/appeals/higher_level_reviews/{version}",
+      "url": "https://sandbox-api.va.gov/services/appeals/higher-level-reviews/{version}",
       "description": "VA.gov API sandbox environment",
       "variables": {
         "version": {
@@ -4062,7 +4062,7 @@
       }
     },
     {
-      "url": "https://api.va.gov/services/appeals/higher_level_reviews/{version}",
+      "url": "https://api.va.gov/services/appeals/higher-level-reviews/{version}",
       "description": "VA.gov API production environment",
       "variables": {
         "version": {

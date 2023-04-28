@@ -2287,7 +2287,7 @@
         }
       }
     },
-    "/evidence_submissions": {
+    "/evidence-submissions": {
       "post": {
         "summary": "Get a location for subsequent evidence submission document upload PUT request",
         "tags": [
@@ -2550,7 +2550,7 @@
         }
       }
     },
-    "/evidence_submissions/{uuid}": {
+    "/evidence-submissions/{uuid}": {
       "get": {
         "summary": "Returns all of the data associated with a specific Notice of Disagreement Evidence Submission.",
         "tags": [
@@ -4394,7 +4394,7 @@
   },
   "servers": [
     {
-      "url": "https://sandbox-api.va.gov/services/appeals/notice_of_disagreements/{version}",
+      "url": "https://sandbox-api.va.gov/services/appeals/notice-of-disagreements/{version}",
       "description": "VA.gov API sandbox environment",
       "variables": {
         "version": {
@@ -4403,7 +4403,7 @@
       }
     },
     {
-      "url": "https://api.va.gov/services/appeals/notice_of_disagreements/{version}",
+      "url": "https://api.va.gov/services/appeals/notice-of-disagreements/{version}",
       "description": "VA.gov API production environment",
       "variables": {
         "version": {

@@ -2803,7 +2803,7 @@
         }
       }
     },
-    "/evidence_submissions": {
+    "/evidence-submissions": {
       "post": {
         "summary": "Get a location for subsequent evidence submission document upload PUT request",
         "tags": [
@@ -3092,7 +3092,7 @@
         }
       }
     },
-    "/evidence_submissions/{uuid}": {
+    "/evidence-submissions/{uuid}": {
       "get": {
         "summary": "Returns all of the data associated with a specific Supplemental Claim Evidence Submission.",
         "tags": [
@@ -5028,7 +5028,7 @@
   },
   "servers": [
     {
-      "url": "https://sandbox-api.va.gov/services/appeals/supplemental_claims/{version}",
+      "url": "https://sandbox-api.va.gov/services/appeals/supplemental-claims/{version}",
       "description": "VA.gov API sandbox environment",
       "variables": {
         "version": {
@@ -5037,7 +5037,7 @@
       }
     },
     {
-      "url": "https://api.va.gov/services/appeals/supplemental_claims/{version}",
+      "url": "https://api.va.gov/services/appeals/supplemental-claims/{version}",
       "description": "VA.gov API production environment",
       "variables": {
         "version": {

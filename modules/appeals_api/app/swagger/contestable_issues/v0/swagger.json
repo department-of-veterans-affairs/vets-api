@@ -16,7 +16,7 @@
     }
   ],
   "paths": {
-    "/contestable_issues/{decision_review_type}": {
+    "/contestable-issues/{decision_review_type}": {
       "get": {
         "summary": "Returns all contestable issues for a specific veteran.",
         "tags": [
@@ -631,7 +631,7 @@
   },
   "servers": [
     {
-      "url": "https://sandbox-api.va.gov/services/appeals/contestable_issues/{version}",
+      "url": "https://sandbox-api.va.gov/services/appeals/contestable-issues/{version}",
       "description": "VA.gov API sandbox environment",
       "variables": {
         "version": {
@@ -640,7 +640,7 @@
       }
     },
     {
-      "url": "https://api.va.gov/services/appeals/contestable_issues/{version}",
+      "url": "https://api.va.gov/services/appeals/contestable-issues/{version}",
       "description": "VA.gov API production environment",
       "variables": {
         "version": {
