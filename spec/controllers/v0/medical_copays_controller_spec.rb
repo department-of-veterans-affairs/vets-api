@@ -76,9 +76,9 @@ RSpec.describe V0::MedicalCopaysController, type: :controller do
     end
   end
 
-  describe '#send_new_statements_notifications' do
+  describe '#send_statement_notifications' do
     it 'returns a success message when notifications are sent' do
-      post(:send_new_statements_notifications, params: { statements: [] })
+      post(:send_statement_notifications, params: { statements: [] })
       expect(response).to have_http_status(:ok)
     end
   end

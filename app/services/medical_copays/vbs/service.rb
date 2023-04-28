@@ -85,7 +85,7 @@ module MedicalCopays
         Base64.decode64(response.body['statement'])
       end
 
-      def send_new_statements_notifications(_statements_json)
+      def send_statement_notifications(_statements_json)
         # Placeholder until we know JSON structure
 
         { status: 200, message: 'New Statement Notifications Coming Soon' }
