@@ -33,7 +33,7 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
   end
 
   def appeal_type_with_version
-    "#{uri.path.split('/')[3]}_#{uri.path.split('/')[4]}"
+    "#{uri.path.split('/')[3]}_#{uri.path.split('/')[4]}".tr('-', '_')
   end
 
   def schema_version

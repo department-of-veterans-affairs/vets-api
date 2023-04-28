@@ -188,10 +188,8 @@ module DocHelpers
   def self.api_base_path_template
     if DocHelpers.decision_reviews?
       '/services/appeals/{version}/decision_reviews'
-    elsif DocHelpers.api_name == 'appeals_status'
-      '/services/appeals/{version}'
     else
-      "/services/appeals/#{DocHelpers.api_name}/{version}"
+      "/services/appeals/#{DocHelpers.api_name.tr('_', '-')}/{version}"
     end
   end
 

@@ -15,7 +15,8 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
     let(:Authorization) { 'Bearer TEST_TOKEN' }
   end
 
-  path '/contestable_issues/{decision_review_type}' do
+  p = DocHelpers.decision_reviews? ? '/contestable_issues/{decision_review_type}' : '/contestable-issues/{decision_review_type}'
+  path p do
     get 'Returns all contestable issues for a specific veteran.' do
       scopes = AppealsApi::ContestableIssues::V0::ContestableIssuesController::OAUTH_SCOPES[:GET]
       tags 'Contestable Issues'

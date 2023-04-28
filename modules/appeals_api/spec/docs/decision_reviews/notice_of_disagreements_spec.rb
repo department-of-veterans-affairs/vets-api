@@ -332,7 +332,7 @@ describe 'Notice of Disagreements', swagger_doc: DocHelpers.output_json_path, ty
     end
   end
 
-  p = DocHelpers.decision_reviews? ? '/notice_of_disagreements/evidence_submissions' : '/evidence_submissions'
+  p = DocHelpers.decision_reviews? ? '/notice_of_disagreements/evidence_submissions' : '/evidence-submissions'
   path p do
     post 'Get a location for subsequent evidence submission document upload PUT request' do
       scopes = AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:POST]
@@ -441,7 +441,7 @@ describe 'Notice of Disagreements', swagger_doc: DocHelpers.output_json_path, ty
     end
   end
 
-  p = DocHelpers.decision_reviews? ? '/notice_of_disagreements/evidence_submissions/{uuid}' : '/evidence_submissions/{uuid}'
+  p = DocHelpers.decision_reviews? ? '/notice_of_disagreements/evidence_submissions/{uuid}' : '/evidence-submissions/{uuid}'
   path p do
     get 'Returns all of the data associated with a specific Notice of Disagreement Evidence Submission.' do
       scopes = AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:GET]
