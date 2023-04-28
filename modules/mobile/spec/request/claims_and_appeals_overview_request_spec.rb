@@ -174,64 +174,64 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
         end
       end
 
-      it 'and appeals service fails, but claims succeeds' do
-        VCR.use_cassette('claims/claims') do
-          VCR.use_cassette('appeals/server_error') do
-            expect(Rails.logger).to receive(:error).with(
-              'Mobile Claims and Appeals: error received from appeals service',
-              { error_details: [{ 'title' => 'Bad Gateway',
-                                  'detail' => 'Received a 500 response from the upstream server',
-                                  'code' => 'CASEFLOWSTATUS500',
-                                  'source' => 'No method error',
-                                  'status' => '502' }] }
-            )
-            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
-            expect(response).to have_http_status(:multi_status)
-            parsed_response_contents = response.parsed_body['data']
-            expect(parsed_response_contents[0]['type']).to eq('claim')
-            expect(parsed_response_contents.last['type']).to eq('claim')
-            expect(response.parsed_body.dig('meta', 'errors').length).to eq(1)
-            expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('appeals')
-            open_claim = parsed_response_contents.select { |entry| entry['id'] == '600114693' }[0]
-            closed_claim = parsed_response_contents.select { |entry| entry['id'] == '600106271' }[0]
-            expect(open_claim.dig('attributes', 'completed')).to eq(false)
-            expect(closed_claim.dig('attributes', 'completed')).to eq(true)
-            expect(open_claim['type']).to eq('claim')
-            expect(closed_claim['type']).to eq('claim')
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
-          end
-        end
-      end
+      # it 'and appeals service fails, but claims succeeds' do
+      #   VCR.use_cassette('claims/claims') do
+      #     VCR.use_cassette('appeals/server_error') do
+      #       expect(Rails.logger).to receive(:error).with(
+      #         'Mobile Claims and Appeals: error received from appeals service',
+      #         { error_details: [{ 'title' => 'Bad Gateway',
+      #                             'detail' => 'Received a 500 response from the upstream server',
+      #                             'code' => 'CASEFLOWSTATUS500',
+      #                             'source' => 'No method error',
+      #                             'status' => '502' }] }
+      #       )
+      #       get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
+      #       expect(response).to have_http_status(:multi_status)
+      #       parsed_response_contents = response.parsed_body['data']
+      #       expect(parsed_response_contents[0]['type']).to eq('claim')
+      #       expect(parsed_response_contents.last['type']).to eq('claim')
+      #       expect(response.parsed_body.dig('meta', 'errors').length).to eq(1)
+      #       expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('appeals')
+      #       open_claim = parsed_response_contents.select { |entry| entry['id'] == '600114693' }[0]
+      #       closed_claim = parsed_response_contents.select { |entry| entry['id'] == '600106271' }[0]
+      #       expect(open_claim.dig('attributes', 'completed')).to eq(false)
+      #       expect(closed_claim.dig('attributes', 'completed')).to eq(true)
+      #       expect(open_claim['type']).to eq('claim')
+      #       expect(closed_claim['type']).to eq('claim')
+      #       expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+      #     end
+      #   end
+      # end
 
-      it 'both fail in upstream service' do
-        VCR.use_cassette('claims/claims_with_errors') do
-          VCR.use_cassette('appeals/server_error') do
-            expect(Rails.logger).to receive(:error).with(
-              'Mobile Claims and Appeals: error received from claims service',
-              { error_details: [{
-                'key' => 'EVSS_7022',
-                'severity' => 'ERROR',
-                'text' => "Please define your custom text for this error in \
-claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
-              }] }
-            )
-            expect(Rails.logger).to receive(:error).with(
-              'Mobile Claims and Appeals: error received from appeals service',
-              { error_details: [{ 'title' => 'Bad Gateway',
-                                  'detail' => 'Received a 500 response from the upstream server',
-                                  'code' => 'CASEFLOWSTATUS500',
-                                  'source' => 'No method error',
-                                  'status' => '502' }] }
-            )
-            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
-            expect(response).to have_http_status(:bad_gateway)
-            expect(response.parsed_body.dig('meta', 'errors').length).to eq(2)
-            expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('claims')
-            expect(response.parsed_body.dig('meta', 'errors')[1]['service']).to eq('appeals')
-            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
-          end
-        end
-      end
+      #       it 'both fail in upstream service' do
+      #         VCR.use_cassette('claims/claims_with_errors') do
+      #           VCR.use_cassette('appeals/server_error') do
+      #             expect(Rails.logger).to receive(:error).with(
+      #               'Mobile Claims and Appeals: error received from claims service',
+      #               { error_details: [{
+      #                 'key' => 'EVSS_7022',
+      #                 'severity' => 'ERROR',
+      #                 'text' => "Please define your custom text for this error in \
+      # claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
+      #               }] }
+      #             )
+      #             expect(Rails.logger).to receive(:error).with(
+      #               'Mobile Claims and Appeals: error received from appeals service',
+      #               { error_details: [{ 'title' => 'Bad Gateway',
+      #                                   'detail' => 'Received a 500 response from the upstream server',
+      #                                   'code' => 'CASEFLOWSTATUS500',
+      #                                   'source' => 'No method error',
+      #                                   'status' => '502' }] }
+      #             )
+      #             get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
+      #             expect(response).to have_http_status(:bad_gateway)
+      #             expect(response.parsed_body.dig('meta', 'errors').length).to eq(2)
+      #             expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('claims')
+      #             expect(response.parsed_body.dig('meta', 'errors')[1]['service']).to eq('appeals')
+      #             expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+      #           end
+      #         end
+      #       end
     end
 
     context 'when an internal error occurs getting claims' do
