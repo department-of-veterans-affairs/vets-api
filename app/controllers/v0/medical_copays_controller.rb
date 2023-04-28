@@ -2,12 +2,12 @@
 
 module V0
   class MedicalCopaysController < ApplicationController
-    before_action(except: :send_new_statements_notifications) { authorize :medical_copays, :access? }
-    before_action(only: :send_new_statements_notifications) { authorize :medical_copays, :access_notifications? }
+    before_action(except: :send_statement_notifications) { authorize :medical_copays, :access? }
+    before_action(only: :send_statement_notifications) { authorize :medical_copays, :access_notifications? }
 
-    skip_before_action :verify_authenticity_token, only: [:send_new_statements_notifications]
-    skip_before_action :authenticate, only: [:send_new_statements_notifications]
-    skip_after_action :set_csrf_header, only: [:send_new_statements_notifications]
+    skip_before_action :verify_authenticity_token, only: [:send_statement_notifications]
+    skip_before_action :authenticate, only: [:send_statement_notifications]
+    skip_after_action :set_csrf_header, only: [:send_statement_notifications]
 
     rescue_from ::MedicalCopays::VBS::Service::StatementNotFound, with: :render_not_found
 
@@ -28,8 +28,8 @@ module V0
       )
     end
 
-    def send_new_statements_notifications
-      render json: vbs_service.send_new_statements_notifications(params[:statements])
+    def send_statement_notifications
+      render json: vbs_service.send_statement_notifications(params[:statements])
     end
 
     private

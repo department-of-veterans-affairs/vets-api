@@ -243,7 +243,7 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/medical_copays/send_new_statements_notifications' do
+      swagger_path '/v0/medical_copays/send_statement_notifications' do
         operation :post do
           key :description, 'Endpoint to trigger notifications from new statements'
           key :operationId, 'sendNewStatementsNotifications'
