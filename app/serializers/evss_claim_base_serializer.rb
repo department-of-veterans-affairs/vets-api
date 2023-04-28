@@ -105,9 +105,8 @@ class EVSSClaimBaseSerializer < ActiveModel::Serializer
 
   def phase_from_keys(*keys)
     s = object_data.dig(*keys)&.downcase
-    phase = PHASE_MAPPING[s]
-    Rails.logger.error "Expected EVSS #{keys} to be a phase. Got '#{s}'." unless phase
-    phase
+    PHASE_MAPPING[s]
+    # Rails.logger.error "Expected EVSS #{keys} to be a phase. Got '#{s}'." unless phase
   end
 
   # object_data mediates whether a class uses object.data or
