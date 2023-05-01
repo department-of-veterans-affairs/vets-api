@@ -1960,6 +1960,12 @@ paths:
               schema:
                 $ref: ./schemas/Errors.yml
           description: The response from this API timed out.
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Record is locked by upstream server.
         '422':
           content:
             application/json:
@@ -2017,6 +2023,18 @@ paths:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Not Found
+        '408':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: The response from this API timed out.
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Record is locked by upstream server.
       security:
         - Bearer: [ ]
       summary: /v0/health/rx/prescriptions/refill
@@ -2051,6 +2069,12 @@ paths:
               schema:
                 $ref: ./schemas/Errors.yml
           description: The response from this API timed out.
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Record is locked by upstream server.
         '500':
           content:
             application/json:
