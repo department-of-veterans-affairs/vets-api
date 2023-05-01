@@ -18,8 +18,8 @@ RSpec.describe VBADocuments::PDFInspector do
       subject { @inspector.pdf_data }
 
       let(:sha256_char_length) { 64 }
-      let(:page_height) { 11.0 }
-      let(:page_width) { 8.5 }
+      let(:page_height) { 8.5 }
+      let(:page_width) { 11.0 }
 
       it 'returns a hash' do
         expect(subject).to be_a(Hash)

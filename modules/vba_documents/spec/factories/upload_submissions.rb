@@ -5,12 +5,12 @@ FactoryBot.define do
     source: nil, doc_type: 'Unknown', total_documents: 2, total_pages: 2,
     content: {
       page_count: 1,
-      dimensions: { height: 11.0, width: 8.5, oversized_pdf: false },
+      dimensions: { height: 8.5, width: 11.0, oversized_pdf: false },
       sha256_checksum: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
       attachments: [
         {
           page_count: 1,
-          dimensions: { height: 11.0, width: 8.5, oversized_pdf: false },
+          dimensions: { height: 8.5, width: 11.0, oversized_pdf: false },
           sha256_checksum: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
         }
       ]

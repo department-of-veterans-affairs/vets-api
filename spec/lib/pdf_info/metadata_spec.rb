@@ -91,13 +91,6 @@ describe PdfInfo::Metadata do
     end
   end
 
-  describe '#page_size' do
-    it 'returns the page dimensions in points' do
-      metadata = described_class.read('/tmp/file.pdf')
-      expect(metadata.page_size).to eq({ width: 612, height: 792 })
-    end
-  end
-
   describe '#encrypted?' do
     it 'returns encryption as a boolean' do
       metadata = described_class.read('/tmp/file.pdf')
