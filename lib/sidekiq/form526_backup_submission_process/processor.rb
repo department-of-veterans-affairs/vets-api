@@ -353,8 +353,7 @@ module Sidekiq
       end
 
       def get_form4142_pdf
-        processor4142 = DecisionReviewV1::Processor::Form4142Processor.new(form_data: submission.form[FORM_4142],
-                                                                           response: initial_upload)
+        processor4142 = DecisionReviewV1::Processor::Form4142Processor.new(form_data: submission.form[FORM_4142])
         docs << {
           type: FORM_4142_DOC_TYPE,
           file: processor4142.pdf_path
