@@ -11,11 +11,10 @@ module DecisionReviewV1
       # @return [Hash] the generated request body
       attr_reader :request_body
 
-      def initialize(form_data:, response:)
+      def initialize(form_data:)
         @form = form_data
-        @response = response
         @pdf_path = generate_stamp_pdf
-        @uuid = @response.is_a?(Hash) ? @response['data']['id'] : @response.body['data']['id']
+        @uuid = SecureRandom.uuid
         @request_body = {
           'document' => to_faraday_upload,
           'metadata' => generate_metadata
@@ -54,7 +53,7 @@ module DecisionReviewV1
           'receiveDt' => received_date,
           # 'uuid' => "#{@uuid}_4142", # was trying to include the main claim uuid here and just append 4142
           # but central mail portal does not support that
-          'uuid' => SecureRandom.uuid,
+          'uuid' => @uuid,
           'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
           'source' => 'VA Forms Group B',
           'hashV' => Digest::SHA256.file(@pdf_path).hexdigest,
