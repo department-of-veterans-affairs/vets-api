@@ -16,7 +16,6 @@ module VAOS
 
         appointments[:data].each do |appt|
           find_and_merge_provider_name(appt) if appt[:kind] == 'cc' && appt[:status] == 'proposed'
-          log_type_of_care_and_provider(appt)
         end
 
         # clear provider cache after processing appointments
@@ -196,7 +195,7 @@ module VAOS
         @logged_toc_providers ||= Set.new
       end
 
-      def log_type_of_care_and_provider(appt)
+      def log_type_of_care_and_provider(appt, clinic)
         logged_key = "#{appt[:kind]}-#{appt[:status]}-#{appt[:service_type]}-#{appt[:practitioners]}"
         if logged_toc_providers.exclude?(logged_key)
           Rails.logger.info(
@@ -205,6 +204,10 @@ module VAOS
             status: appt[:status],
             type_of_care: appt[:service_type],
             treatment_specialty: appt.dig(:extension, :cc_treating_specialty),
+            primary_stop_code: clinic&.[](:primary_stop_code),
+            primary_stop_code_name: clinic&.[](:primary_stop_code_name),
+            secondary_stop_code: clinic&.[](:secondary_stop_code),
+            secondary_stop_code_name: clinic&.[](:secondary_stop_code_name),
             provider_npi: find_npi(appt),
             provider_name: find_provider_name(appt),
             practice_name: find_practice_name(appt)
@@ -289,6 +292,8 @@ module VAOS
               appt[:friendly_name] = cached_clinics[appt[:clinic]][:friendly_name]
             end
           end
+
+          log_type_of_care_and_provider(appt, cached_clinics[appt[:clinic]])
         end
       end
 
