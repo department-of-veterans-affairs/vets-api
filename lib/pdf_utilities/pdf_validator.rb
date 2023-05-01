@@ -3,22 +3,6 @@
 require 'pdf_info'
 
 module PDFUtilities
-  def self.formatted_file_size(file_size_in_bytes)
-    bytes_per_gb = 1_000_000_000
-    bytes_per_mb = 1_000_000
-    bytes_per_kb = 1_000
-
-    if file_size_in_bytes >= bytes_per_gb
-      "#{format('%g', (file_size_in_bytes.to_f / bytes_per_gb))} GB"
-    elsif file_size_in_bytes >= bytes_per_mb
-      "#{format('%g', (file_size_in_bytes.to_f / bytes_per_mb))} MB"
-    elsif file_size_in_bytes >= bytes_per_kb
-      "#{format('%g', (file_size_in_bytes.to_f / bytes_per_kb))} KB"
-    else
-      "#{file_size_in_bytes} bytes"
-    end
-  end
-
   module PDFValidator
     FILE_SIZE_LIMIT_EXCEEDED_MSG = 'Document exceeds the file size limit'
     PAGE_SIZE_LIMIT_EXCEEDED_MSG = 'Document exceeds the page size limit'
@@ -46,10 +30,9 @@ module PDFUtilities
       DEFAULT_OPTIONS = {
         size_limit_in_bytes: 100_000_000, # 100 MB
         check_page_dimensions: true,
-        check_encryption: true,
-        # Height/width limits are ignored if the check_page_dimensions option is false.
-        width_limit_in_inches: 21,
-        height_limit_in_inches: 21
+        width_limit_in_inches: 21, # Ignored if check_page_dimensions: false
+        height_limit_in_inches: 21, # Ignored if check_page_dimensions: false
+        check_encryption: true
       }.freeze
 
       attr_accessor :result, :pdf_metadata
@@ -77,8 +60,7 @@ module PDFUtilities
       def check_file_size
         size_limit = @options[:size_limit_in_bytes].to_i
         if File.size(@file) > size_limit
-          message = "#{FILE_SIZE_LIMIT_EXCEEDED_MSG} of #{PDFUtilities.formatted_file_size(size_limit)}"
-          @result.add_error(message)
+          @result.add_error("#{FILE_SIZE_LIMIT_EXCEEDED_MSG} of #{formatted_file_size(size_limit)}")
         end
       end
 
@@ -105,6 +87,22 @@ module PDFUtilities
           if dimensions[:width] > width_limit || dimensions[:height] > height_limit
             @result.add_error("#{PAGE_SIZE_LIMIT_EXCEEDED_MSG} of #{width_limit} in. x #{height_limit} in.")
           end
+        end
+      end
+
+      def formatted_file_size(file_size_in_bytes)
+        bytes_per_gb = 1_000_000_000
+        bytes_per_mb = 1_000_000
+        bytes_per_kb = 1_000
+
+        if file_size_in_bytes >= bytes_per_gb
+          "#{format('%g', (file_size_in_bytes.to_f / bytes_per_gb))} GB"
+        elsif file_size_in_bytes >= bytes_per_mb
+          "#{format('%g', (file_size_in_bytes.to_f / bytes_per_mb))} MB"
+        elsif file_size_in_bytes >= bytes_per_kb
+          "#{format('%g', (file_size_in_bytes.to_f / bytes_per_kb))} KB"
+        else
+          "#{file_size_in_bytes} bytes"
         end
       end
     end

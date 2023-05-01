@@ -43,8 +43,13 @@ module PdfInfo
     end
 
     def page_size
-      width, height = self['Page size'].scan(/\d+/).map(&:to_i)
-      { width:, height: }
+      page_size_str = self['Page size']
+      height = page_size_str.split('x')[0].strip.to_i
+      width = page_size_str.split('x')[1].strip.split[0].to_i
+      {
+        height:,
+        width:
+      }
     end
 
     def page_size_inches
