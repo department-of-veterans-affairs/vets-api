@@ -178,6 +178,10 @@ edu:
       - david.rowley@accenturefederal.com
       - nick.barthelemy@accenturefederal.com
     staging_emails:
+  staging_spool_contents:
+    emails:
+      - noah.stern@va.gov
+      - gregg.puhala@dbitpro.com
 dependents:
   prefill: true
 
