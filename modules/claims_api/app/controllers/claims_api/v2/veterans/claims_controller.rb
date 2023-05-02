@@ -379,16 +379,12 @@ module ClaimsApi
           end
         end
 
-        def map_upload_and_status(item_id, unique_status)
+        def map_status(item_id, unique_status)
           if supporting_document?(item_id)
-            status = 'SUBMITTED_AWAITING_REVIEW'
-            uploaded = true
+            'SUBMITTED_AWAITING_REVIEW'
           else
-            status = unique_status
-            uploaded = false
+            unique_status
           end
-
-          [status, uploaded]
         end
 
         def build_wwsnfy_items
@@ -397,9 +393,9 @@ module ClaimsApi
           return [] if wwsnfy.empty?
 
           wwsnfy.map do |item|
-            status, uploaded = map_upload_and_status(item[:dvlpmt_item_id], 'NEEDED_FROM_YOU')
+            status = map_status(item[:dvlpmt_item_id], 'NEEDED_FROM_YOU')
 
-            build_tracked_item(find_tracked_item(item[:dvlpmt_item_id]), status, item, uploaded)
+            build_tracked_item(find_tracked_item(item[:dvlpmt_item_id]), status, item)
           end
         end
 
@@ -409,9 +405,9 @@ module ClaimsApi
           return [] if wwd.empty?
 
           wwd.map do |item|
-            status, uploaded = map_upload_and_status(item[:dvlpmt_item_id], 'NEEDED_FROM_OTHERS')
+            status = map_status(item[:dvlpmt_item_id], 'NEEDED_FROM_OTHERS')
 
-            build_tracked_item(find_tracked_item(item[:dvlpmt_item_id]), status, item, uploaded)
+            build_tracked_item(find_tracked_item(item[:dvlpmt_item_id]), status, item)
           end
         end
 
@@ -424,9 +420,8 @@ module ClaimsApi
 
           wwr.map do |item|
             status = accepted?(claim_status_type) ? 'ACCEPTED' : 'INITIAL_REVIEW_COMPLETE'
-            uploaded = true
 
-            build_tracked_item(find_tracked_item(item[:dvlpmt_item_id]), status, item, uploaded)
+            build_tracked_item(find_tracked_item(item[:dvlpmt_item_id]), status, item)
           end
         end
 
@@ -438,9 +433,8 @@ module ClaimsApi
 
           no_longer_needed.map do |tracked_item|
             status = 'NO_LONGER_REQUIRED'
-            uploaded = supporting_document?(tracked_item[:dvlpmt_item_id])
 
-            build_tracked_item(tracked_item, status, {}, uploaded)
+            build_tracked_item(tracked_item, status, {})
           end
         end
 
@@ -461,7 +455,7 @@ module ClaimsApi
           tracked_item[:suspns_dt].present? && tracked_item[:accept_dt].nil?
         end
 
-        def build_tracked_item(tracked_item, status, item, uploaded)
+        def build_tracked_item(tracked_item, status, item)
           uploads_allowed = uploads_allowed?(status)
           {
             closed_date: date_present(tracked_item[:accept_dt]),
@@ -473,7 +467,6 @@ module ClaimsApi
             status:,
             suspense_date: date_present(tracked_item[:suspns_dt]),
             id: tracked_item[:dvlpmt_item_id].to_i,
-            uploaded:,
             uploads_allowed:
           }
         end
