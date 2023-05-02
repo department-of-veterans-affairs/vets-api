@@ -98,6 +98,11 @@ module EducationForm
           begin
             writer.write(contents, filename)
 
+            # send copy of staging spool files to testers
+            email_staging_spool_files(contents) if
+              Rails.env.eql?('development') ||
+              ENV['HOSTNAME'].eql?('staging-api.va.gov')
+
             # track and update the records as processed once the file has been successfully written
             track_submissions(region_id)
 
@@ -202,6 +207,12 @@ module EducationForm
       return unless Flipper.enabled?(:spool_testing_error_3) && !FeatureFlipper.staging_email?
 
       CreateDailySpoolFilesMailer.build(region).deliver_now
+    end
+
+    def email_staging_spool_files(contents)
+      File.write('tmp/stagingspool.txt', contents)
+      CreateStagingSpoolFilesMailer.build('stagingspool.txt').deliver_now
+      File.delete('tmp/stagingspool.txt')
     end
   end
 end
