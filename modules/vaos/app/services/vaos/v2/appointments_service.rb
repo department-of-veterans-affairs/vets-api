@@ -20,7 +20,7 @@ module VAOS
         with_monitoring do
           response = perform(:get, appointments_base_url, params, headers)
           response.body[:data].each do |appt|
-            find_and_log_service_type_and_category(appt)
+            find_service_type_and_category(appt)
             log_telehealth_data(appt[:telehealth]&.[](:atlas)) unless appt[:telehealth]&.[](:atlas).nil?
           end
           {
@@ -43,7 +43,7 @@ module VAOS
         params.compact_blank!
         with_monitoring do
           response = perform(:post, appointments_base_url, params, headers)
-          find_and_log_service_type_and_category(response.body)
+          find_service_type_and_category(response.body)
           log_telehealth_data(response.body[:telehealth]&.[](:atlas)) unless response.body[:telehealth]&.[](:atlas).nil?
           OpenStruct.new(response.body)
         rescue Common::Exceptions::BackendServiceException => e
@@ -87,29 +87,32 @@ module VAOS
         }
       end
 
-      def find_and_log_service_type_and_category(appt)
-        service_category_found = process_service_types_or_category(appt[:service_category])
-        service_types_array_found = process_service_types_or_category(appt[:service_types])
-        service_type_found = appt[:service_type]
-        log_service_type_and_category(type_and_category_data(service_type_found, service_types_array_found,
+      def find_service_type_and_category(appt)
+        appointment_kind = appt&.[](:kind)
+        service_category_found = if appt.dig(:service_category, 0, :coding, 0,
+                                             :code).nil?
+                                   'ServiceCategoryNotFound'
+                                 else
+                                   appt.dig(:service_category, 0, :coding, 0,
+                                            :code)
+                                 end
+        service_types_found = if appt.dig(:service_types, 0, :coding, 0,
+                                          :code).nil?
+                                'ServiceTypesNotFound'
+                              else
+                                appt.dig(:service_types, 0, :coding, 0,
+                                         :code)
+                              end
+        service_type_found = appt[:service_type].nil? ? 'ServiceTypeNotFound' : appt[:service_type]
+        log_service_type_and_category(type_and_category_data(appointment_kind, service_type_found, service_types_found,
                                                              service_category_found))
       end
 
-      def process_service_types_or_category(appt_service_data)
-        found_values = []
-        appt_service_data&.each do |type_or_category_el|
-          type_or_category_el&.[](:coding)&.each do |coding_el|
-            service_type_or_category_data = coding_el&.[](:code)
-            found_values << service_type_or_category_data
-          end
-        end
-        found_values
-      end
-
-      def type_and_category_data(type, types_array, category)
+      def type_and_category_data(kind, type, types, category)
         {
+          vaos_appointment_kind: kind,
           vaos_service_type: type,
-          vaos_service_types_array: types_array,
+          vaos_service_types: types,
           vaos_service_category: category
         }
       end

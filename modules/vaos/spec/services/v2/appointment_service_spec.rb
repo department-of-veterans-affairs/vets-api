@@ -126,10 +126,21 @@ describe VAOS::V2::AppointmentsService do
         VCR.use_cassette('vaos/v2/appointments/get_appointments_200_and_log_data',
                          match_requests_on: %i[method path query], tag: :force_utf8) do
           allow(Rails.logger).to receive(:info).at_least(:once)
+
+          telehealth_log_body = '{"VAOSServiceTypesAndCategory":{"vaos_appointment_kind":"telehealth",' \
+                                '"vaos_service_type":"ServiceTypeNotFound","vaos_service_types":' \
+                                '"ServiceTypesNotFound","vaos_service_category":"ServiceCategoryNotFound"}}'
+
+          clinic_log_body = '{"VAOSServiceTypesAndCategory":{"vaos_appointment_kind":"clinic",' \
+                            '"vaos_service_type":"optometry","vaos_service_types":"optometry",' \
+                            '"vaos_service_category":"REGULAR"}}'
+
           response = subject.get_appointments(start_date3, end_date3)
           expect(response[:data].size).to eq(163)
           expect(Rails.logger).to have_received(:info).with('VAOS appointment service category and type',
-                                                            any_args).at_least(:once)
+                                                            telehealth_log_body).at_least(:once)
+          expect(Rails.logger).to have_received(:info).with('VAOS appointment service category and type',
+                                                            clinic_log_body).at_least(:once)
           expect(Rails.logger).to have_received(:info).with('VAOS telehealth atlas details',
                                                             any_args).at_least(:once)
         end
