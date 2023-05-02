@@ -395,7 +395,7 @@ module ClaimsApi
           wwsnfy.map do |item|
             status = map_status(item[:dvlpmt_item_id], 'NEEDED_FROM_YOU')
 
-            build_tracked_item(find_tracked_item(item[:dvlpmt_item_id]), status, item)
+            build_tracked_item(find_tracked_item(item[:dvlpmt_item_id]), status, item, wwsnfy: true)
           end
         end
 
@@ -447,21 +447,21 @@ module ClaimsApi
            'Complete'].include? status
         end
 
-        def overdue?(tracked_item)
-          overdue_date_present?(tracked_item) ? tracked_item[:suspns_dt] < Time.zone.now : false
+        def overdue?(tracked_item, wwsnfy)
+          if tracked_item[:suspns_dt].present? && tracked_item[:accept_dt].nil? && wwsnfy
+            return tracked_item[:suspns_dt] < Time.zone.now
+          end
+
+          false
         end
 
-        def overdue_date_present?(tracked_item)
-          tracked_item[:suspns_dt].present? && tracked_item[:accept_dt].nil?
-        end
-
-        def build_tracked_item(tracked_item, status, item)
+        def build_tracked_item(tracked_item, status, item, wwsnfy: false)
           uploads_allowed = uploads_allowed?(status)
           {
             closed_date: date_present(tracked_item[:accept_dt]),
             description: item[:items],
             display_name: tracked_item[:short_nm],
-            overdue: overdue?(tracked_item),
+            overdue: overdue?(tracked_item, wwsnfy),
             received_date: date_present(tracked_item[:receive_dt]),
             requested_date: tracked_item_req_date(tracked_item, item),
             status:,

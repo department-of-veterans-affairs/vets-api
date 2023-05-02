@@ -451,7 +451,7 @@ RSpec.describe 'Claims', type: :request do
           .to receive(:validate_id_with_icn).and_return(nil)
       end
 
-      describe ' BGS attributes' do
+      describe 'BGS attributes' do
         it 'are listed' do
           lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
                                                      evss_id: '111111111')
@@ -1095,6 +1095,8 @@ RSpec.describe 'Claims', type: :request do
                   expect(json_response['data']['attributes']['trackedItems'][2]['requestedDate']).to eq(
                     '2021-05-05'
                   )
+                  expect(json_response['data']['attributes']['trackedItems'][0]['overdue']).to eq(true)
+                  expect(json_response['data']['attributes']['trackedItems'][1]['overdue']).to eq(false)
                 end
               end
             end
