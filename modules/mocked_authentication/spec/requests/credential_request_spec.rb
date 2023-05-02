@@ -148,7 +148,7 @@ RSpec.describe 'Mocked Authentication Mock Credential', type: :request do
                               'encoded_credential' => Base64.encode64(mock_user_two_two_eight) } }
     end
 
-    before { allow(Settings.sign_in).to receive(:mock_credential_dir).and_return(vets_api_mockdata_stub) }
+    before { allow(Settings.betamocks).to receive(:cache_dir).and_return(vets_api_mockdata_stub) }
 
     shared_examples 'error response' do
       let(:expected_status) { :bad_request }

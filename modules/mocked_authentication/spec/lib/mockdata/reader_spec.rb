@@ -26,7 +26,7 @@ describe MockedAuthentication::Mockdata::Reader do
                               'encoded_credential' => Base64.encode64(mock_user_two_two_eight) } }
     end
 
-    before { allow(Settings.sign_in).to receive(:mock_credential_dir).and_return(vets_api_mockdata_stub) }
+    before { allow(Settings.betamocks).to receive(:cache_dir).and_return(vets_api_mockdata_stub) }
 
     it 'creates a mocked_data hash with payloads from read files' do
       read_data = subject
