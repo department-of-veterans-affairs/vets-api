@@ -13,7 +13,6 @@
 	"compensableVaServiceConnected": false,
 	"receivesVaPension": false,
 	"isEssentialAcaCoverage": false,
-    "sigiIsAmericanIndian": true,
 	"facilityState": "MA",
 	"vaMedicalFacility": "523",
 	"wantsInitialVaContact": false,
