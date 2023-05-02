@@ -338,10 +338,6 @@
                     "nullable": true,
                     "example": "2017-10-18"
                   },
-                  "uploaded": {
-                    "type": "boolean",
-                    "example": true
-                  },
                   "uploadsAllowed": {
                     "type": "boolean",
                     "example": true

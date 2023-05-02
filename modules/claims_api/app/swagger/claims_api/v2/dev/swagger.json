@@ -800,7 +800,6 @@
                           "status": "NO_LONGER_REQUIRED",
                           "suspenseDate": "2021-06-04",
                           "id": 293440,
-                          "uploaded": false,
                           "uploadsAllowed": false
                         },
                         {
@@ -813,7 +812,6 @@
                           "status": "NO_LONGER_REQUIRED",
                           "suspenseDate": "2021-06-04",
                           "id": 293443,
-                          "uploaded": false,
                           "uploadsAllowed": false
                         },
                         {
@@ -826,7 +824,6 @@
                           "status": "NO_LONGER_REQUIRED",
                           "suspenseDate": "2021-06-04",
                           "id": 293444,
-                          "uploaded": false,
                           "uploadsAllowed": false
                         },
                         {
@@ -839,7 +836,6 @@
                           "status": "NO_LONGER_REQUIRED",
                           "suspenseDate": "2021-06-04",
                           "id": 293446,
-                          "uploaded": false,
                           "uploadsAllowed": false
                         }
                       ]
@@ -1217,10 +1213,6 @@
                                     "type": "string",
                                     "nullable": true,
                                     "example": "2017-10-18"
-                                  },
-                                  "uploaded": {
-                                    "type": "boolean",
-                                    "example": true
                                   },
                                   "uploadsAllowed": {
                                     "type": "boolean",
@@ -4559,8 +4551,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-04-24",
-                      "expirationDate": "2024-04-24",
+                      "creationDate": "2023-04-27",
+                      "expirationDate": "2024-04-27",
                       "type": "compensation",
                       "status": "active"
                     }
