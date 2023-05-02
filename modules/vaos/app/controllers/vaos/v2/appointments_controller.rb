@@ -143,8 +143,8 @@ module VAOS
       # uses find_npi helper method to extract npi from appointment response,
       # then uses the npi to look up the provider name via mobile_ppms_service
       #
-      # will cache the key value pair of npi and provider name to avoid
-      # duplicate get_provider_name calls
+      # will cache at the class level the key value pair of npi and provider name to avoid
+      # duplicate get_cached_provider calls
 
       NPI_NOT_FOUND_MSG = "We're sorry, we can't display your provider's information right now."
 
@@ -153,7 +153,7 @@ module VAOS
         if found_npi
           if !read_provider_cache(found_npi)
             begin
-              provider_response = mobile_ppms_service.get_provider(found_npi)
+              provider_response = mobile_ppms_service.get_cached_provider(found_npi)
               appt[:preferred_provider_name] = provider_response[:name]
             rescue Common::Exceptions::BackendServiceException => e
               appt[:preferred_provider_name] = NPI_NOT_FOUND_MSG
