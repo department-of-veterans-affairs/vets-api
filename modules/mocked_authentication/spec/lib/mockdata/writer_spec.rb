@@ -18,7 +18,7 @@ describe MockedAuthentication::Mockdata::Writer do
     let(:expected_email) { credential['email'].split('@')[0].tr('!', '') }
     let(:credential_type) { 'some-credential-type' }
     let(:expected_filename) do
-      "#{Settings.sign_in.mock_credential_dir}/credentials/#{credential_type}/#{expected_email}.json"
+      "#{Settings.betamocks.cache_dir}/credentials/#{credential_type}/#{expected_email}.json"
     end
     let(:expected_payload) { JSON.pretty_generate(credential) }
 

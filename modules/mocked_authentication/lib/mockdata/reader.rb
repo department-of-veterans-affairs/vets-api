@@ -23,7 +23,7 @@ module MockedAuthentication
 
         def get_file_directory_for_type(type)
           type = sanitize_type(type)
-          "#{Settings.sign_in.mock_credential_dir}/credentials/#{type}"
+          "#{Settings.betamocks.cache_dir}/credentials/#{type}"
         end
 
         def sanitize_type(type)

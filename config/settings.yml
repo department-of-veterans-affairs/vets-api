@@ -58,7 +58,6 @@ sign_in:
   auto_uplevel: true
   mock_auth_url: http://localhost:3000/mocked_authentication/profiles
   mock_redirect_uri: http://localhost:3000/v0/sign_in/callback
-  mock_credential_dir: '../vets-api-mockdata'
   mockdata_sync_api_key: ~
 
 lockbox:
@@ -835,6 +834,7 @@ maintenance:
 betamocks:
   enabled: true
   recording: false
+  cache_dir: ~
   services_config: config/betamocks/services_config.yml
 
 # Settings for search
