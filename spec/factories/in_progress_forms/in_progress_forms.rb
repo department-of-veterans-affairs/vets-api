@@ -244,7 +244,6 @@ FactoryBot.define do
           "is_essential_aca_coverage": false,
           "view:preferred_facility": {},
           "view:locator": {},
-          "view:hca_american_indian_enabled": false,
           "view:is_user_in_mvi": true
         }.to_json
       end

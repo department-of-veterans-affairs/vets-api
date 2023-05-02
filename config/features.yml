@@ -29,10 +29,6 @@ features:
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
-  hca_american_indian_enabled:
-    actor_type: user
-    description: Enables American Indian SIGI question page.
-    enable_in_development: true
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.

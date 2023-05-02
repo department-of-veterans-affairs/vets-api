@@ -40,7 +40,6 @@
         <eeSummary:maritalStatus>M</eeSummary:maritalStatus>
         <eeSummary:preferredFacility>523</eeSummary:preferredFacility>
         <eeSummary:acaIndicator>false</eeSummary:acaIndicator>
-        <eeSummary:indianIndicator>true</eeSummary:indianIndicator>
       </eeSummary:demographics>
       <eeSummary:enrollmentDeterminationInfo xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas">
         <eeSummary:eligibleForMedicaid>false</eeSummary:eligibleForMedicaid>

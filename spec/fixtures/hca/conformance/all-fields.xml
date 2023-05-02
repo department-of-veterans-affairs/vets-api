@@ -75,7 +75,6 @@
           <eeSummary:race>2106-3</eeSummary:race>
         </eeSummary:races>
         <eeSummary:acaIndicator>true</eeSummary:acaIndicator>
-        <eeSummary:indianIndicator>true</eeSummary:indianIndicator>
       </eeSummary:demographics>
       <eeSummary:enrollmentDeterminationInfo xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas">
         <eeSummary:eligibleForMedicaid>true</eeSummary:eligibleForMedicaid>
