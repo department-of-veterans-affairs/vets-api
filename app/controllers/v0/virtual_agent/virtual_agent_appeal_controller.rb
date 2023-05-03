@@ -9,7 +9,7 @@ module V0
         if Settings.vsp_environment == 'staging'
           Rails.logger.info 'Getting appeals from Lighthouse for staging environment'
           @user_ssan, @user_name = set_user_credentials
-          appeals_response = get_appeal_from_lighthouse(@user_ssan, @user_name)
+          appeals_response = get_staging_appeals_from_lighthouse(@user_ssan, @user_name)
           appeals_data_array = appeals_response['data']
           Rails.logger.info "Retrieved #{appeals_data_array.count} appeals from Lighthouse for staging environment"
         else
@@ -24,7 +24,7 @@ module V0
         service_exception_handler(e)
       end
 
-      def get_appeal_from_lighthouse(ssan, user_name)
+      def get_staging_appeals_from_lighthouse(ssan, user_name)
         uri = URI(Settings.virtual_agent.lighthouse_api_uri)
 
         req = Net::HTTP::Get.new(uri)
@@ -37,6 +37,10 @@ module V0
         http.use_ssl = true
 
         response = http.request(req)
+        if response.code != '200'
+          Rails.logger.error "Lighthouse API returned #{response.code}: #{response.body}"
+          raise "#{response.code}: #{response.body}" if Settings.vsp_environment == 'staging'
+        end
 
         JSON.parse(response.body)
       end
@@ -176,7 +180,7 @@ module V0
         when 'vets.gov.user+36@gmail.com'
           ['796043735', 'vets.gov.user+36@gmail.com']
         else
-          ['796378881', 'vets.gov.user+54@gmail.com']
+          [@current_user.ssn, @current_user.email]
         end
       end
 
@@ -185,7 +189,7 @@ module V0
       def service_exception_handler(exception)
         context = 'An error occurred while attempting to retrieve the appeal(s)'
         log_exception_to_sentry(exception, 'context' => context)
-        render nothing: true, status: :service_unavailable
+        render nothing: true, status: :internal_server_error
       end
     end
   end
