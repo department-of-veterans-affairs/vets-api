@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'pdf_fill/filler'
 
 RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
   subject { described_class }
