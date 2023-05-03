@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'disability_compensation/factories/api_provider_factory'
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :job do
   subject { described_class }
@@ -32,6 +33,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
     before do
       cassettes.each { |cassette| VCR.insert_cassette(cassette) }
+      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
     end
 
     after do
@@ -73,7 +75,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           [open_claims_cassette, rated_disabilities_cassette, submit_form_cassette, mas_cassette]
         end
 
-        before { allow(StatsD).to receive(:increment) }
+        before do
+          allow(StatsD).to receive(:increment)
+        end
 
         it 'sends form526 to the MAS endpoint successfully' do
           subject.perform_async(submission.id)

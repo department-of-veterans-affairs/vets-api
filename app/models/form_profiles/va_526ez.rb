@@ -93,7 +93,10 @@ class FormProfiles::VA526ez < FormProfile
 
     settings = Settings.lighthouse.veteran_verification.form526
     service = ApiProviderFactory.rated_disabilities_service_provider(
-      user
+      {
+        auth_headers: EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h),
+        icn: user.icn.to_s
+      }
     )
     response = service.get_rated_disabilities(settings.access_token.client_id, settings.access_token.rsa_key)
 

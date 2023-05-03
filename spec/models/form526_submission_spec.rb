@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'disability_compensation/factories/api_provider_factory'
 
 RSpec.describe Form526Submission do
   subject do
@@ -888,6 +889,7 @@ RSpec.describe Form526Submission do
     after { VCR.eject_cassette('evss/disability_compensation_form/rated_disabilities_with_non_service_connected') }
 
     context 'when all corresponding rated disabilities are not service-connected' do
+      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
       let(:form_json_filename) { 'only_526_asthma.json' }
 
       it 'returns true' do
@@ -896,6 +898,7 @@ RSpec.describe Form526Submission do
     end
 
     context 'when some but not all corresponding rated disabilities are not service-connected' do
+      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
       let(:form_json_filename) { 'only_526_two_rated_disabilities.json' }
 
       it 'returns false' do
@@ -904,6 +907,7 @@ RSpec.describe Form526Submission do
     end
 
     context 'when some disabilities do not have a ratedDisabilityId yet' do
+      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
       let(:form_json_filename) { 'only_526_mixed_action_disabilities.json' }
 
       it 'returns false' do
