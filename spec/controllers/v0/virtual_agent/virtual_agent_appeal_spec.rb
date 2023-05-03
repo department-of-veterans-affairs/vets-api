@@ -29,6 +29,28 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
         allow(Settings).to receive(:vsp_environment).and_call_original
       end
 
+      it 'returns unknown status when most recent open appeal is of an unknown status' do
+        sign_in_as(user)
+        # run job
+
+        VCR.use_cassette('caseflow/virtual_agent_appeals/recent_open_unknown_appeal_status') do
+          get '/v0/virtual_agent/appeal'
+          res_body = JSON.parse(response.body)['data']
+          expect(response).to have_http_status(:ok)
+          expect(res_body).to be_kind_of(Array)
+          expect(JSON.parse(response.body)['data'].size).to equal(1)
+          expect(res_body[0]).to include({
+                                           'appeal_type' => 'Compensation',
+                                           'filing_date' => '06/11/2008',
+                                           'appeal_status' => 'Unknown Status',
+                                           'updated_date' => '01/16/2018',
+                                           'description' => ' ',
+                                           'appeal_or_review' => 'appeal'
+                                         })
+        end
+        allow(Settings).to receive(:vsp_environment).and_call_original
+      end
+
       it 'returns empty array when no appeals are found' do
         sign_in_as(user)
 
