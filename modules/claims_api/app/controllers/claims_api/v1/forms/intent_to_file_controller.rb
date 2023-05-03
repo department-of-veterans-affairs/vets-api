@@ -32,7 +32,7 @@ module ClaimsApi
           bgs_response = local_bgs_service.insert_intent_to_file(intent_to_file_options)
           if bgs_response.empty?
             ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: token.payload['cid'])
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'Veteran ID not found')
+            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Veteran ID not found')
           else
             ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::SUBMITTED, cid: token.payload['cid'])
             ClaimsApi::Logger.log('itf', detail: 'Submitted to BGS')
