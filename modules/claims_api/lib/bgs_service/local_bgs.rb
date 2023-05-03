@@ -7,6 +7,7 @@
 # worldwide through the CC0 1.0 Universal public domain dedication.
 
 require 'claims_api/claim_logger'
+require 'claims_api/error/soap_error_handler'
 
 module ClaimsApi
   class LocalBGS
@@ -113,6 +114,8 @@ module ClaimsApi
                           'Soapaction' => "\"#{action}\""
                         })
       end
+
+      soap_error_handler.handle_errors(response) if response
 
       log_duration(event: 'parsed_response', key:) do
         parsed_response(response, action, key)
@@ -254,6 +257,10 @@ module ClaimsApi
       ClaimsApi::Logger.log 'local_bgs', **{ event: }.merge(extra_params).merge({ duration: })
       StatsD.measure("api.claims_api.local_bgs.#{event}.duration", duration, tags: {})
       result
+    end
+
+    def soap_error_handler
+      ClaimsApi::SoapErrorHandler.new
     end
   end
 end
