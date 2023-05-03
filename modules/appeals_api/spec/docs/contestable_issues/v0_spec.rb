@@ -5,21 +5,26 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
+require AppealsApi::Engine.root.join('spec', 'support', 'doc_helpers.rb')
+
+def swagger_doc
+  "modules/appeals_api/app/swagger/contestable_issues/v0/swagger#{DocHelpers.doc_suffix}.json"
+end
 
 # rubocop:disable RSpec/VariableName, Layout/LineLength
-describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :request do
+RSpec.describe 'Contestable Issues', swagger_doc:, type: :request do
   include DocHelpers
-  let(:apikey) { 'apikey' }
+  let(:Authorization) { 'Bearer TEST_TOKEN' }
 
-  path '/contestable_issues/{decision_review_type}' do
+  path '/contestable-issues/{decision_review_type}' do
     get 'Returns all contestable issues for a specific veteran.' do
+      scopes = AppealsApi::ContestableIssues::V0::ContestableIssuesController::OAUTH_SCOPES[:GET]
+
       tags 'Contestable Issues'
       operationId 'getContestableIssues'
-
       description 'Returns all issues associated with a Veteran that have been decided ' \
-                  'as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.' \
-
-      security DocHelpers.security_config
+                  'as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.'
+      security DocHelpers.security_config(scopes)
       consumes 'application/json'
       produces 'application/json'
 
@@ -28,8 +33,8 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
                 required: true,
                 description: 'Scoping of appeal type for associated issues',
                 schema: {
-                  'type': 'string',
-                  'enum': %w[higher_level_reviews notice_of_disagreements supplemental_claims]
+                  type: 'string',
+                  enum: %w[higher_level_reviews notice_of_disagreements supplemental_claims]
                 },
                 example: 'higher_level_reviews'
 
@@ -39,8 +44,8 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
                 in: :query,
                 description: 'Required if decision review type is Higher Level Review or Supplemental Claims.',
                 schema: {
-                  'type': 'string',
-                  'enum': %w[
+                  type: 'string',
+                  enum: %w[
                     compensation
                     pensionSurvivorsBenefits
                     fiduciary
@@ -61,7 +66,8 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
       parameter AppealsApi::SwaggerSharedComponents.header_params[:va_receipt_date]
       let(:'X-VA-Receipt-Date') { '2019-12-01' }
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header]
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header].merge({ required: true })
+      let(:'X-VA-ICN') { '1234567890V123456' }
 
       response '200', 'JSON:API response returning all contestable issues for a specific veteran.' do
         schema '$ref' => '#/components/schemas/contestableIssues'
@@ -69,7 +75,8 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
 
         it_behaves_like 'rswag example',
                         cassette: 'caseflow/notice_of_disagreements/contestable_issues',
-                        desc: 'returns a 200 response'
+                        desc: 'returns a 200 response',
+                        scopes:
       end
 
       response '404', 'Veteran not found' do
@@ -77,7 +84,8 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
 
         it_behaves_like 'rswag example',
                         cassette: 'caseflow/higher_level_reviews/not_found',
-                        desc: 'returns a 404 response'
+                        desc: 'returns a 404 response',
+                        scopes:
       end
 
       response '422', 'Parameter Errors' do
@@ -88,7 +96,8 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
 
           it_behaves_like 'rswag example',
                           desc: 'decision_review_type must be one of: higher_level_reviews, notice_of_disagreements, supplemental_claims',
-                          extract_desc: true
+                          extract_desc: true,
+                          scopes:
         end
 
         describe 'bad X-VA-Receipt-Date' do
@@ -97,7 +106,17 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
           it_behaves_like 'rswag example',
                           cassette: 'caseflow/higher_level_reviews/bad_date',
                           desc: 'Bad receipt date for HLR',
-                          extract_desc: true
+                          extract_desc: true,
+                          scopes:
+        end
+
+        describe 'missing ICN' do
+          let(:'X-VA-ICN') { nil }
+
+          it_behaves_like 'rswag example',
+                          desc: 'X-VA-ICN header missing',
+                          extract_desc: true,
+                          scopes:
         end
       end
 
@@ -106,7 +125,8 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
       response '502', 'Unknown error' do
         it_behaves_like 'rswag example',
                         cassette: 'caseflow/higher_level_reviews/server_error',
-                        desc: 'returns a 502 response'
+                        desc: 'returns a 502 response',
+                        scopes:
       end
     end
   end
