@@ -35,34 +35,41 @@ module DocHelpers
 
   # NOTE: you must set `let(:Authorization) { 'Bearer <any-value-here>' }` in combination with this helper
   def with_rswag_auth(scopes = %w[], valid: true, &block)
-    if DocHelpers.decision_reviews?
-      block.call
-    else
+    if scopes.any?
       with_openid_auth(scopes, valid:) do |auth_header|
         block.call(auth_header)
       end
+    else
+      block.call
     end
   end
 
   def self.security_config(oauth_scopes = [])
-    if DocHelpers.decision_reviews?
-      [{ apikey: [] }]
-    else
+    if oauth_scopes.any?
       [{ productionOauth: oauth_scopes }, { sandboxOauth: oauth_scopes }, { bearer_token: [] }]
+    else
+      [{ apikey: [] }]
     end
   end
 
   # @param [Hash] opts
+  # @option opts [String] :cassette The name of the cassette to use, if any
   # @option opts [String] :desc The description of the test. Required.
-  # @option opts [Symbol] :response_wrapper Method name to wrap the response, to modify the output of the example
   # @option opts [Boolean] :extract_desc Whether to use the example name
-  # @option opts [Boolean] :skip_match Whether to skip the match metadata assertion
+  # @option opts [Symbol] :response_wrapper Method name to wrap the response, to modify the output of the example
   # @option opts [Array<String>] :scopes OAuth scopes to use when making the request, if any
+  # @option opts [Boolean] :skip_match Whether to skip the match metadata assertion
   # @option opts [Boolean] :token_valid Whether the OAuth token (if any) should be recognized as valid
   shared_examples 'rswag example' do |opts|
     before do |example|
-      with_rswag_auth(opts.fetch(:scopes, []), valid: opts.fetch(:token_valid, true)) do
-        submit_request(example.metadata)
+      scopes = opts.fetch(:scopes, [])
+      valid = opts.fetch(:token_valid, true)
+      if opts[:cassette]
+        VCR.use_cassette(opts[:cassette]) do
+          with_rswag_auth(scopes, valid:) { submit_request(example.metadata) }
+        end
+      else
+        with_rswag_auth(scopes, valid:) { submit_request(example.metadata) }
       end
     end
 

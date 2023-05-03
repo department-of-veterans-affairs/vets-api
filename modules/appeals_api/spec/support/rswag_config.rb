@@ -2,55 +2,66 @@
 
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-# rubocop:disable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength
+# rubocop:disable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength, Metrics/ParameterLists
 class AppealsApi::RswagConfig
   include DocHelpers
+
+  def rswag_doc_config(
+    base_path_template: DocHelpers.api_base_path_template,
+    description_file_path: DocHelpers.api_description_file_path,
+    name: DocHelpers.api_name,
+    tags: DocHelpers.api_tags,
+    title: DocHelpers.api_title,
+    version: DocHelpers.api_version
+  )
+    {
+      # FIXME: The Lighthouse docs UI code does not yet support openapi versions above 3.0.z
+      # This version should be updated to 3.1.0+ once that changes.
+      openapi: '3.0.0',
+      info: {
+        title:,
+        version:,
+        contact: { name: 'developer.va.gov' },
+        termsOfService: 'https://developer.va.gov/terms-of-service',
+        description: File.read(description_file_path)
+      },
+      tags:,
+      paths: {},
+      # basePath helps with rswag runs, but is not valid OAS v3. rswag.rake removes it from the output file.
+      basePath: base_path_template.gsub('{version}', version),
+      components: {
+        securitySchemes: security_schemes(name),
+        schemas: schemas(name)
+      },
+      servers: [
+        {
+          url: "https://sandbox-api.va.gov#{base_path_template}",
+          description: 'VA.gov API sandbox environment',
+          variables: { version: { default: version } }
+        },
+        {
+          url: "https://api.va.gov#{base_path_template}",
+          description: 'VA.gov API production environment',
+          variables: { version: { default: version } }
+        }
+      ]
+    }
+  end
 
   def config
     # Avoid trying to build this config when running a rake task for a non-appeals API (e.g. Claims)
     return {} if DocHelpers.running_rake_task? && ENV['RAILS_MODULE'] != 'appeals_api'
 
     {
-      DocHelpers.output_json_path => {
-        # FIXME: The Lighthouse docs UI code does not yet support openapi versions above 3.0.z
-        # This version should be updated to 3.1.0+ once that changes.
-        openapi: '3.0.0',
-        info: {
-          title: DocHelpers.api_title,
-          version: DocHelpers.api_version,
-          contact: { name: 'developer.va.gov' },
-          termsOfService: 'https://developer.va.gov/terms-of-service',
-          description: File.read(DocHelpers.api_description_file_path)
-        },
-        tags: DocHelpers.api_tags,
-        paths: {},
-        # basePath helps with rswag runs, but is not valid OAS v3. rswag.rake removes it from the output file.
-        basePath: DocHelpers.api_base_path,
-        components: {
-          securitySchemes: security_schemes,
-          schemas: schemas(DocHelpers.api_name)
-        },
-        servers: [
-          {
-            url: "https://sandbox-api.va.gov#{DocHelpers.api_base_path_template}",
-            description: 'VA.gov API sandbox environment',
-            variables: {
-              version: {
-                default: DocHelpers.api_version
-              }
-            }
-          },
-          {
-            url: "https://api.va.gov#{DocHelpers.api_base_path_template}",
-            description: 'VA.gov API production environment',
-            variables: {
-              version: {
-                default: DocHelpers.api_version
-              }
-            }
-          }
-        ]
-      }
+      DocHelpers.output_json_path => rswag_doc_config,
+      "modules/appeals_api/app/swagger/contestable_issues/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
+        title: 'Contestable Issues',
+        version: 'v0',
+        description_file_path: AppealsApi::Engine.root.join("app/swagger/contestable_issues/v0/api_description#{DocHelpers.doc_suffix}.md"),
+        base_path_template: '/services/appeals/contestable-issues/{version}',
+        name: 'contestable_issues',
+        tags: [{ name: 'Contestable Issues', description: '' }]
+      )
     }
   end
 
@@ -110,8 +121,8 @@ class AppealsApi::RswagConfig
     }
   }.freeze
 
-  def security_schemes
-    if DocHelpers.decision_reviews?
+  def security_schemes(api_name = DocHelpers.api_name)
+    if api_name == 'decision_reviews'
       {
         apikey: {
           type: :apiKey,
@@ -120,7 +131,7 @@ class AppealsApi::RswagConfig
         }
       }
     else
-      api_specific_scopes = OAUTH_SCOPE_DESCRIPTIONS[DocHelpers.api_name.to_sym]
+      api_specific_scopes = OAUTH_SCOPE_DESCRIPTIONS[api_name.to_sym]
       scope_descriptions = api_specific_scopes.merge(DEFAULT_READ_SCOPE_DESCRIPTIONS)
 
       if api_specific_scopes.keys.any? { |name| name.end_with?('.write') }
@@ -1087,4 +1098,4 @@ class AppealsApi::RswagConfig
     return_raw ? schema : schema['definitions']
   end
 end
-# rubocop:enable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength
+# rubocop:enable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength, Metrics/ParameterLists
