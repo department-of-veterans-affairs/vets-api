@@ -5,8 +5,9 @@ require 'disability_compensation/responses/rated_disabilities_response'
 
 class EvssRatedDisabilitiesProvider
   include RatedDisabilitiesProvider
-  def initialize(current_user)
-    @service = EVSS::DisabilityCompensationForm::Service.new(auth_headers(current_user))
+
+  def initialize(auth_headers)
+    @service = EVSS::DisabilityCompensationForm::Service.new(auth_headers)
   end
 
   # @param [string] _client_id: (unused) the lighthouse_client_id requested from Lighthouse
@@ -14,10 +15,6 @@ class EvssRatedDisabilitiesProvider
   def get_rated_disabilities(_client_id = nil, _rsa_key_path = nil)
     data = @service.get_rated_disabilities
     transform(data)
-  end
-
-  def auth_headers(current_user)
-    EVSS::DisabilityCompensationAuthHeaders.new(current_user).add_headers(EVSS::AuthHeaders.new(current_user).to_h)
   end
 
   def transform(data)

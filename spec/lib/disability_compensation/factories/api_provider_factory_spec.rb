@@ -5,6 +5,10 @@ require 'disability_compensation/factories/api_provider_factory'
 
 RSpec.describe ApiProviderFactory do
   let(:current_user) { build(:user, :loa3) }
+  let(:auth_headers) do
+    EVSS::DisabilityCompensationAuthHeaders.new(current_user).add_headers(EVSS::AuthHeaders.new(current_user).to_h)
+  end
+  let(:icn) { current_user.icn.to_s }
 
   context 'rated_disabilities' do
     it 'provides an EVSS rated disabilities provider' do
@@ -17,23 +21,23 @@ RSpec.describe ApiProviderFactory do
 
     it 'provides rated disabilities provider based on Flipper' do
       Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
-      provider = ApiProviderFactory.rated_disabilities_service_provider(current_user)
+      provider = ApiProviderFactory.rated_disabilities_service_provider({ auth_headers:, icn: })
       expect(provider.class).to equal(LighthouseRatedDisabilitiesProvider)
 
       Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
-      provider = ApiProviderFactory.rated_disabilities_service_provider(current_user)
+      provider = ApiProviderFactory.rated_disabilities_service_provider({ auth_headers:, icn: })
       expect(provider.class).to equal(EvssRatedDisabilitiesProvider)
     end
 
     it 'throw error if provider unknown' do
       expect do
-        ApiProviderFactory.rated_disabilities_service_provider(current_user, :random)
+        ApiProviderFactory.rated_disabilities_service_provider({ auth_headers:, icn: }, :random)
       end.to raise_error NotImplementedError
     end
 
     def provider(api_provider = nil)
       ApiProviderFactory.rated_disabilities_service_provider(
-        current_user,
+        { auth_headers:, icn: },
         api_provider
       )
     end

@@ -19,7 +19,7 @@ module V0
       application = params['application'] || 'form526'
       settings = Settings.lighthouse.veteran_verification[application]
       service = ApiProviderFactory.rated_disabilities_service_provider(
-        @current_user
+        { icn: @current_user.icn.to_s, auth_headers: }
       )
 
       response = service.get_rated_disabilities(settings.access_token.client_id, settings.access_token.rsa_key)

@@ -16,7 +16,10 @@ class ApiProviderFactory
   FEATURE_TOGGLE_RATED_DISABILITIES = 'disability_compensation_lighthouse_rated_disabilities_provider'
   FEATURE_TOGGLE_INTENT_TO_FILE = 'disability_compensation_lighthouse_intent_to_file_provider'
 
-  def self.rated_disabilities_service_provider(current_user, api_provider = nil)
+  # @param [hash] options: options to provide auth_headers
+  # @option options [hash] :auth_headers auth headers for the EVSS request
+  # @option options [string] :icn Veteran's ICN
+  def self.rated_disabilities_service_provider(options, api_provider = nil)
     api_provider ||= if Flipper.enabled?(FEATURE_TOGGLE_RATED_DISABILITIES)
                        API_PROVIDER[:lighthouse]
                      else
@@ -25,9 +28,9 @@ class ApiProviderFactory
 
     case api_provider
     when API_PROVIDER[:evss]
-      EvssRatedDisabilitiesProvider.new(current_user)
+      EvssRatedDisabilitiesProvider.new(options[:auth_headers])
     when API_PROVIDER[:lighthouse]
-      LighthouseRatedDisabilitiesProvider.new(current_user)
+      LighthouseRatedDisabilitiesProvider.new(options[:icn])
     else
       raise NotImplementedError, 'No known Rated Disabilities Api Provider type provided'
     end

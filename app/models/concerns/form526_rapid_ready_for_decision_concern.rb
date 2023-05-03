@@ -108,8 +108,13 @@ module Form526RapidReadyForDecisionConcern
 
   # fetch, memoize, and return all of the veteran's rated disabilities from EVSS
   def all_rated_disabilities
+    settings = Settings.lighthouse.veteran_verification.form526
+    service = ApiProviderFactory.rated_disabilities_service_provider(
+      # TODO: get ICN from job workflow
+      { auth_headers:, icn: '' }
+    )
     @all_rated_disabilities ||= begin
-      response = EVSS::DisabilityCompensationForm::Service.new(auth_headers).get_rated_disabilities
+      response = service.get_rated_disabilities(settings.access_token.client_id, settings.access_token.rsa_key)
       response.rated_disabilities
     end
   end
