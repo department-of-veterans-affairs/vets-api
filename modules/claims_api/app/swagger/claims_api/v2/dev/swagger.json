@@ -2613,7 +2613,7 @@
                     "additionalProperties": false,
                     "required": [
                       "mailingAddress",
-                      "currentlyVAEmployee"
+                      "currentlyVaEmployee"
                     ],
                     "properties": {
                       "currentlyVaEmployee": {
@@ -2740,10 +2740,9 @@
                     "additionalProperties": false,
                     "required": [
                       "country",
-                      "type",
-                      "addressLine1",
-                      "addressChangeType",
-                      "beginningDate"
+                      "typeOfAddressChange",
+                      "numberAndStreet",
+                      "dates"
                     ],
                     "properties": {
                       "dates": {
@@ -2766,7 +2765,7 @@
                       },
                       "typeOfAddressChange": {
                         "description": "Temporary or Permanent change of address.",
-                        "type": "array",
+                        "type": "string",
                         "enum": [
                           "TEMPORARY",
                           "PERMANENT"
@@ -3002,7 +3001,7 @@
                         "description": "Additional hazardous exposures.",
                         "properties": {
                           "additionalExposures": {
-                            "type": "array",
+                            "type": "string",
                             "description": "Additional exposure incidents.",
                             "enum": [
                               "ASBESTOS",
@@ -3171,12 +3170,12 @@
                                 "example": "2018-03-02"
                               },
                               "exposureOrEventOrInjury": {
-                                "type": "array",
+                                "type": "string",
                                 "description": "What caused the disability?",
                                 "enum": [
-                                  "exposure",
-                                  "event",
-                                  "injury"
+                                  "EXPOSURE",
+                                  "EVENT",
+                                  "INJURY"
                                 ]
                               }
                             }
@@ -3246,7 +3245,7 @@
                       "type": "object",
                       "additionalProperties": false,
                       "required": [
-                        "treatedDisabilityNames",
+                        "treatedDisabilityName",
                         "center"
                       ],
                       "properties": {
@@ -3259,9 +3258,9 @@
                           "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                           "example": "2018-03-02"
                         },
-                        "treatedDisabilityNames": {
+                        "treatedDisabilityName": {
                           "description": "Names of disability treated.",
-                          "type": "array",
+                          "type": "string",
                           "minItems": 1,
                           "maxItems": 101,
                           "uniqueItems": true,
@@ -3369,7 +3368,7 @@
                               ]
                             },
                             "serviceComponent": {
-                              "type": "array",
+                              "type": "string",
                               "description": "",
                               "enum": [
                                 "Active",
@@ -3423,7 +3422,7 @@
                         ],
                         "properties": {
                           "component": {
-                            "type": "array",
+                            "type": "string",
                             "description": "",
                             "enum": [
                               "Active",
@@ -3606,7 +3605,7 @@
                         }
                       },
                       "retiredStatus": {
-                        "type": "array",
+                        "type": "string",
                         "description": "",
                         "enum": [
                           "RETIRED",
@@ -3699,7 +3698,7 @@
                         "type": "string",
                         "example": "123123123123"
                       },
-                      "routngNumber": {
+                      "routingNumber": {
                         "description": "Veteran Bank Routing Number.",
                         "type": "string",
                         "pattern": "^\\d{9}$",
@@ -4551,8 +4550,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-04-27",
-                      "expirationDate": "2024-04-27",
+                      "creationDate": "2023-05-03",
+                      "expirationDate": "2024-05-03",
                       "type": "compensation",
                       "status": "active"
                     }
