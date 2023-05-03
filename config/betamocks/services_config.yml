@@ -691,6 +691,12 @@
       :cache_multiple_responses:
         :uid_location: body
         :uid_locator: 'email_address":"(.*?)"'
+    - :method: :post
+      :path: "/vanotify/v2/notifications/sms"
+      :file_path: "va_notify/sms"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'phone_number":"(.*?)"'
 
 #MAP_APPOINTMENT_SERVICE
 - :name: "MAP_APPOINTMENT_SERVICE"

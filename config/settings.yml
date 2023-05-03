@@ -1272,6 +1272,7 @@ vanotify:
         vha_fsr_confirmation_email: fake_template_id
     check_in:
       api_key: fake_secret
+      sms_sender_id: fake_secret
       template_id:
         claim_submission_success_text: fake_template_id
         claim_submission_duplicate_text: fake_template_id

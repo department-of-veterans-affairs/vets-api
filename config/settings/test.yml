@@ -124,6 +124,13 @@ vanotify:
       template_id:
         disconnection_template: fake_template_id
         connection_template: fake_template_id
+    check_in:
+      api_key: check-in_aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
+      sms_sender_id: fake_sms_sender_id
+      template_id:
+        claim_submission_success_text: fake_success_template_id
+        claim_submission_duplicate_text: fake_duplicate_template_id
+        claim_submission_error_text: fake_error_template_id
 
 veteran_readiness_and_employment:
   base_url: https://fake_url.com

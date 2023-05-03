@@ -1,0 +1,53 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://fakeapi.com/v2/notifications/sms
+    body:
+      encoding: UTF-8
+      string: '{"phone_number":"714-123-1234","template_id":"fake","sms_sender_id":"fake"}'
+    headers:
+      Accept:
+      - "*/*"
+      Content-Type:
+      - application/json
+      User-Agent:
+      - NOTIFY-API-RUBY-CLIENT/5.4.0
+      Authorization:
+      - Bearer token
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 201
+      message: CREATED
+    headers:
+      Date:
+      - Sat, 29 Apr 2023 05:01:44 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '566'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      X-B3-Traceid:
+      - None
+      X-B3-Spanid:
+      - None
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Frame-Options:
+      - SAMEORIGIN
+      Pragma:
+      - no-cache
+    body:
+      encoding: UTF-8
+      string: '{"billing_code":null,"content":{"body":"We received your travel reimbursement claim for
+        your VA appt on 123. Claim number,  1234. Status updates will be available online.","from_number":"53079"}'
+  recorded_at: Sat, 29 Apr 2023 05:01:44 GMT
+recorded_with: VCR 6.1.0

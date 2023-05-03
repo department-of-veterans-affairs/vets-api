@@ -1,0 +1,51 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://fakeapi.com/v2/notifications/sms
+    body:
+      encoding: UTF-8
+      string: '{"phone_number":"714-123-1234","template_id":"fake","sms_sender_id":"fake"}'
+    headers:
+      Accept:
+      - "*/*"
+      Content-Type:
+      - application/json
+      User-Agent:
+      - NOTIFY-API-RUBY-CLIENT/5.4.0
+      Authorization:
+      - Bearer token
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 403
+      message: FORBIDDEN
+    headers:
+      Date:
+      - Sat, 29 Apr 2023 05:07:57 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      X-B3-Traceid:
+      - None
+      X-B3-Spanid:
+      - None
+      Cache-Control:
+      - ''
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Encoding:
+      - gzip
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"errors":[{"error":"AuthError","message":"Invalid token: signature, api token not found"}],"status_code":403}'
+  recorded_at: Sat, 29 Apr 2023 05:07:56 GMT
+recorded_with: VCR 6.1.0
