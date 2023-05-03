@@ -1,0 +1,104 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - sandbox-api.va.gov
+      Apikey:
+      - fake_api_key
+      X-Va-Ssn:
+      - '111222333'
+      X-Va-User:
+      - vets.gov.user+110@gmail.com
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Mon, 08 Nov 2021 21:48:22 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '38'
+      Etag:
+      - W/"aa7ef9cf7255abec57c90bf8b7f29f04"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Accept, Origin
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Git-Sha:
+      - acc03a3a889c27d498f81d9b6931b3ab1d30fc31
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - e7cf9ade-b162-4b48-bbfc-57f124381434
+      X-Runtime:
+      - '0.025311'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Kong-Upstream-Latency:
+      - '30'
+      X-Kong-Proxy-Latency:
+      - '6'
+      Via:
+      - kong/2.3.2
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS01dd66bd=01c8917e489b873061d43bc02e992259192acfae4f2cd69a86aa115f83e37f1db5701defd9f0b8e63e594d9b572185624ece230b6a;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+            "errors": [
+                {
+                    "title": "Not found",
+                    "detail": "Appeals data for a veteran with that SSN was not found",
+                    "code": "CASEFLOWSTATUS404",
+                    "source": "A veteran with that SSN was not found in our systems.",
+                    "status": "404"
+                }
+            ]
+        }
+  recorded_at: Mon, 08 Nov 2021 21:48:22 GMT
+recorded_with: VCR 6.0.0
