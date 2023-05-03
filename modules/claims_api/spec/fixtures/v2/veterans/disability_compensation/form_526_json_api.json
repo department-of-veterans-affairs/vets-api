@@ -1,208 +1,197 @@
 {
-  "data": {
-      "type": "form/526",
-      "attributes": {
-          "veteranIdentification": {
-              "mailingAddress": {
-                  "numberAndStreet": ",a#'",
-                  "apartmentOrUnitNumber": "ABCD",
-                  "city": "#j2'w",
-                  "country": "ABCDEFGHIJKLMNOPQRSTUVW",
-                  "zipFirstFive": "41726",
-                  "zipLastFour": "",
-                  "state": "z,"
-              },
-              "currentlyVAEmployee": false,
-              "serviceNumber": "ABCDEFGH",
-              "emailAddress": {
-                  "email": "ABCDEFGHIJKLMNOPQRSTU",
-                  "agreeToEmailRelatedToClaim": true
-              },
-              "veteranNumber": {
-                  "telephone": "ABCDE",
-                  "internationalTelephone": "ABCD"
-              },
-              "vaFileNumber": "ABCDEF"
-          },
-          "serviceInformation": {
-              "servicePeriods": [
-                  {
-                      "serviceBranch": "Public Health Service",
-                      "activeDutyBeginDate": "0815-11-14",
-                      "activeDutyEndDate": "2343-11-30",
-                      "serviceComponent": [],
-                      "separationLocationCode": "ABCDEFGHIJKLMN"
-                  }
-              ],
-              "confinements": {
-                  "approximateBeginDate": "8349-11-06",
-                  "approximateEndDate": "2884-12-09"
-              },
-              "reservesNationalGuardService": {
-                  "obligationTermOfServiceFromDate": "3995-11-24",
-                  "obligationTermOfServiceToDate": "8502-11-17",
-                  "unitName": "''c'5'l'#l#2z",
-                  "component": [],
-                  "title10Activation": {
-                      "anticipatedSeparationDate": "6705-10-03",
-                      "title10ActivationDate": "3619-02-11"
+    "data": {
+        "type": "form/526",
+        "attributes": {
+            "veteranIdentification": {
+                "currentlyVaEmployee": false,
+                "mailingAddress": {
+                    "numberAndStreet": ",a#'",
+                    "apartmentOrUnitNumber": "ABCD",
+                    "city": "#j2'w",
+                    "country": "ABCDEFGHIJKLMNOPQRSTUVW",
+                    "zipFirstFive": "41726",
+                    "zipLastFour": "",
+                    "state": "z,"
+                },
+                "serviceNumber": "ABCDEFGH",
+                "emailAddress": {
+                    "email": "ABCDEFGHIJKLMNOPQRSTU",
+                    "agreeToEmailRelatedToClaim": true
+                },
+                "veteranNumber": {
+                    "telephone": "1234567",
+                    "internationalTelephone": "1234567"
+                },
+                "vaFileNumber": "ABCDEF"
+            },
+            "serviceInformation": {
+                "servicePeriods": [
+                    {
+                        "serviceBranch": "Public Health Service",
+                        "activeDutyBeginDate": "0815-11-14",
+                        "activeDutyEndDate": "2343-11-30",
+                        "serviceComponent": "Active",
+                        "separationLocationCode": "ABCDEFGHIJKLMN"
+                    }
+                ],
+                "confinements": {
+                    "approximateBeginDate": "8349-11-06",
+                    "approximateEndDate": "2884-12-09"
+                },
+                "reservesNationalGuardService": {
+                    "obligationTermOfServiceFromDate": "3995-11-24",
+                    "obligationTermOfServiceToDate": "8502-11-17",
+                    "unitName": "''c'5'l'#l#2z",
+                    "component": "Active",
+                    "title10Activation": {
+                        "anticipatedSeparationDate": "6705-10-03",
+                        "title10ActivationDate": "3619-02-11"
+                    },
+                    "unitPhone": {
+                        "areaCode": "123",
+                        "phoneNumber": "1234567"
+                    },
+                    "receivingInactiveDutyTrainingPay": true
+                },
+                "alternateNames": [
+                    {
+                        "firstName": "W-' 8o- ",
+                        "lastName": "w",
+                        "middleName": "5/-9'hi-2'ab'"
+                    }
+                ],
+                "servedInActiveCombatSince911": false
+            },
+            "disabilities": [
+                {
+                    "disabilityActionType": "REOPEN",
+                    "name": "ABCDEFGHIJKLMNOPQ",
+                    "classificationCode": "ABCDEFGHIJ",
+                    "serviceRelevance": "ABCDEFG",
+                    "approximateDate": "4592-11-04",
+                    "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                    "diagnosticCode": 0,
+                    "secondaryDisabilities": [
+                        {
+                            "name": "ABCDEF",
+                            "disabilityActionType": "SECONDARY",
+                            "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
+                            "classificationCode": "ABCDEFGHIJKLMNO",
+                            "approximateDate": "9904-01-03",
+                            "exposureOrEventOrInjury": "EXPOSURE"
+                        }
+                    ],
+                    "isRelatedToToxicExposure": true,
+                    "exposureOrEventOrInjury": "EXPOSURE"
+                }
+            ],
+            "claimantCertification": true,
+            "claimProcessType": "STANDARD_CLAIM_PROCESS",
+            "claimDate": "7973-12-18",
+            "changeOfAddress": {
+                "dates": {
+                    "beginningDate": "7455-11-31",
+                    "endingDate": "9963-10-11"
                   },
-                  "unitPhone": {
-                      "areaCode": "ABCDEFGHIJKLMNOPQRS",
-                      "phoneNumber": "ABCDEFGHIJK"
-                  },
-                  "receivingInactiveDutyTrainingPay": true
-              },
-              "alternateNames": [
-                  {
-                      "firstName": "W-' 8o- ",
-                      "lastName": "w",
-                      "middleName": "5/-9'hi-2'ab'"
-                  }
-              ],
-              "servedInActiveCombatSince911": false
-          },
-          "disabilities": [
-              {
-                  "disabilityActionType": "REOPEN",
-                  "name": "ABCDEFGHIJKLMNOPQ",
-                  "classificationCode": "ABCDEFGHIJ",
-                  "serviceRelevance": "ABCDEFG",
-                  "approximateDate": "4592-11-04",
-                  "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
-                  "diagnosticCode": 0,
-                  "secondaryDisabilities": [
-                      {
-                          "name": "ABCDEF",
-                          "disabilityActionType": "SECONDARY",
-                          "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
-                          "classificationCode": "ABCDEFGHIJKLMNO",
-                          "approximateDate": "9904-01-03",
-                          "exposureOrEventOrInjury": []
-                      }
-                  ],
-                  "isRelatedToToxicExposure": true,
-                  "exposureOrEventOrInjury": "ABCDEFGHIJKLMNOPQRST"
-              }
-          ],
-          "claimantCertification": true,
-          "claimProcessType": "STANDARD_CLAIM_PROCESS",
-          "claimDate": "7973-12-18",
-          "changeOfAddress": {
-              "country": "ABCDEFGHIJKLMNOPQ",
-              "type": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-              "addressLine1": "ABCDEFGHI",
-              "addressChangeType": 0,
-              "beginningDate": {},
-              "dates": {
-                  "beginningDate": "7455-11-31",
-                  "endingDate": "9963-10-11"
-              },
-              "typeOfAddressChange": [],
-              "numberAndStreet": "& #af8U X ,&k ,o&Z '74 ''8&Am 5..6",
-              "apartmentOrUnitNumber": "ABCD",
-              "city": "'s '",
-              "zipFirstFive": "42220",
-              "zipLastFour": "9897",
-              "state": "Lh"
-          },
-          "homeless": {
-              "pointOfContact": "hw86h63-v",
-              "pointOfContactNumber": 0,
-              "currentlyHomeless": {
-                  "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
-                  "otherDescription": "ABCDEFGHIJKLM"
-              },
-              "riskOfBecomingHomeless": {
-                  "livingSituationOptions": "other",
-                  "otherDescription": "ABCDEFGHIJKLMNOP"
-              }
-          },
-          "toxicExposure": {
-              "gulfWarHazard": {
-                  "servedInGulfWarHazardLocations": true,
-                  "serviceDates": {
-                      "startDate": "2523-07-21",
-                      "endDate": "1540-01-21"
-                  }
-              },
-              "herbicideHazardService": {
-                  "servedInHerbicideHazardLocations": true,
-                  "otherLocationsServed": "ABCDEFGHIJKLM",
-                  "serviceDates": {
-                      "startDate": "0401-03-07",
-                      "endDate": "9754-10-31"
-                  }
-              },
-              "additionalHazardExposures": {
-                  "additionalExposures": [],
-                  "specifiyOtherExposures": "ABCD",
-                  "exposureDates": {
-                      "startDate": "4520-07-30",
-                      "endDate": "3405-10-03"
-                  }
-              },
-              "multipleExposures": {
-                  "exposureDates": {
-                      "startDate": "8697-12-09",
-                      "endDate": "5517-07-27"
-                  },
-                  "exposureLocation": "ABCDEFGHIJKLMN",
-                  "hazardExposedTo": "ABCDEFGHIJKLMNO"
-              }
-          },
-          "treatments": [
-              {
-                  "treatedDisabilityNames": "ABCDEFGHIJKLMNOPQRST",
-                  "center": {
-                      "name": "\" ",
-                      "state": "aq",
-                      "city": "W##8'e#9S7-5.#a'vO"
-                  },
-                  "startDate": "0850-03-07",
-                  "treatedDisabilityName": [
-                      "ABCDEFGHIJ"
-                  ]
-              },
-              {
-                  "treatedDisabilityNames": true,
-                  "center": {
-                      "name": " &",
-                      "state": "aW",
-                      "city": "#'#8#'x."
-                  },
-                  "startDate": null,
-                  "treatedDisabilityName": [
-                      "ABCDEFGHIJKLMNOPQRS"
-                  ]
-              }
-          ],
-          "servicePay": {
-              "favorTrainingPay": true,
-              "favorMilitaryRetiredPay": false,
-              "receivingMilitaryRetiredPay": false,
-              "futureMilitaryRetiredPay": true,
-              "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
-              "militaryRetiredPay": {
-                  "branchOfService": "Army",
-                  "monthlyAmount": 840.75
-              },
-              "retiredStatus": [],
-              "receivedSeparationOrSeverancePay": false,
-              "separationSeverancePay": {
-                  "datePaymentReceived": "7169-07-31",
-                  "branchOfService": "Naval Academy",
-                  "preTaxAmountReceived": 379.25
-              }
-          },
-          "directDeposit": {
-              "accountType": "CHECKING",
-              "accountNumber": "ABCDEF",
-              "routingNumber": 0,
-              "routngNumber": "139344480",
-              "financialInstituteName": "ABCDEFGHIJK",
-              "noAccount": false
-          }
-      }
+                  "typeOfAddressChange": "TEMPORARY",
+                  "numberAndStreet": "10 Peach St",
+                  "apartmentOrUnitNumber": "Apt 1",
+                  "city": "Atlanta",
+                  "zipFirstFive": "42220",
+                  "zipLastFour": "9897",
+                  "state": "GA",
+                  "country": "USA"
+            },
+            "homeless": {
+                "pointOfContact": "hw86h63-v",
+                "pointOfContactNumber": 0,
+                "currentlyHomeless": {
+                    "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
+                    "otherDescription": "ABCDEFGHIJKLM"
+                },
+                "riskOfBecomingHomeless": {
+                    "livingSituationOptions": "other",
+                    "otherDescription": "ABCDEFGHIJKLMNOP"
+                }
+            },
+            "toxicExposure": {
+                "gulfWarHazard": {
+                    "servedInGulfWarHazardLocations": true,
+                    "serviceDates": {
+                        "startDate": "2523-07-21",
+                        "endDate": "1540-01-21"
+                    }
+                },
+                "herbicideHazardService": {
+                    "servedInHerbicideHazardLocations": true,
+                    "otherLocationsServed": "ABCDEFGHIJKLM",
+                    "serviceDates": {
+                        "startDate": "0401-03-07",
+                        "endDate": "9754-10-31"
+                    }
+                },
+                "additionalHazardExposures": {
+                    "additionalExposures": "ASBESTOS",
+                    "specifiyOtherExposures": "ABCD",
+                    "exposureDates": {
+                        "startDate": "4520-07-30",
+                        "endDate": "3405-10-03"
+                    }
+                },
+                "multipleExposures": {
+                    "exposureDates": {
+                        "startDate": "8697-12-09",
+                        "endDate": "5517-07-27"
+                    },
+                    "exposureLocation": "ABCDEFGHIJKLMN",
+                    "hazardExposedTo": "ABCDEFGHIJKLMNO"
+                }
+            },
+            "treatments": [
+                {
+                    "treatedDisabilityName": "PTSD (post traumatic stress disorder)",
+                    "center": {
+                        "name": "Center One",
+                        "state": "GA",
+                        "city": "Decatur"
+                    },
+                    "startDate": "1985-03-07"
+                },
+                {
+                    "treatedDisabilityName": "Trauma",
+                    "center": {
+                        "name": "Center One",
+                        "state": "GA",
+                        "city": "Decatur"
+                    },
+                    "startDate": "1985-03-07"
+                }
+            ],
+            "servicePay": {
+                "favorTrainingPay": true,
+                "favorMilitaryRetiredPay": false,
+                "receivingMilitaryRetiredPay": false,
+                "futureMilitaryRetiredPay": true,
+                "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
+                "militaryRetiredPay": {
+                    "branchOfService": "Army",
+                    "monthlyAmount": 840.75
+                },
+                "retiredStatus": "RETIRED",
+                "receivedSeparationOrSeverancePay": false,
+                "separationSeverancePay": {
+                    "datePaymentReceived": "7169-07-31",
+                    "branchOfService": "Naval Academy",
+                    "preTaxAmountReceived": 379.25
+                }
+            },
+            "directDeposit": {
+                "accountType": "CHECKING",
+                "accountNumber": "ABCDEF",
+                "routingNumber": "123123123",
+                "financialInstitutionName": "Some Bank",
+                "noAccount": false
+            }
+        }
+    }
   }
-}
