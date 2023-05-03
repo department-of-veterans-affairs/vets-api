@@ -18,7 +18,7 @@
         },
         "claimProcessType": {
             "type": "string",
-            "description": "",
+            "description": "Type of claim process.",
             "enum": [
                 "STANDARD_CLAIM_PROCESS", 
                 "FDC_PROGRAM", 
