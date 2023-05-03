@@ -368,7 +368,7 @@ FactoryBot.define do
       last_name { Faker::Name.last_name }
       icn { '1000123456V123456' }
       gender { 'M' }
-      birth_date { Faker::Time.between(from: 40.years.ago, to: 10.years.ago) }
+      birth_date { Faker::Date.between(from: 40.years.ago, to: 10.years.ago) }
       ssn { '796111864' }
       multifactor { true }
       mhv_account_type { 'Premium' }
