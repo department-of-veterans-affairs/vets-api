@@ -154,6 +154,12 @@ module V0
       def get_status_type_text(appeal_status, aoj)
         appeal_status_description = APPEAL_DESCRIPTIONS[appeal_status]
 
+        if appeal_status_description.nil?
+          appeal_status_description = 'Unknown Status'
+          unknown_status_error = StandardError.new("Unknown status: #{appeal_status} with AOJ: #{aoj}")
+          log_exception_to_sentry(unknown_status_error, { appeal_status => appeal_status, aoj => aoj })
+        end
+
         if appeal_status_description.include? '{aoj_desc}'
           appeal_status_description.gsub('{aoj_desc}', AOJ_DESCRIPTIONS[aoj])
         else
