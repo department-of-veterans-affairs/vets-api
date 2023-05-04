@@ -1,0 +1,196 @@
+*INIT*
+MARK
+
+OLSON
+111223333
+111223333
+V1990
+
+
+CH1606
+*START*
+VA Form 22-1990
+DEC 2016
+
+                    APPLICATION FOR VA EDUCATION BENEFITS
+                    -------------------------------------
+
+EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606
+
+
+
+                            APPLICANT INFORMATION
+                            ---------------------
+
+SSN: 111223333         Sex: M             Date of Birth: 1985-03-07
+
+Name:   Mark Olson
+
+Address:
+123 MAIN ST
+MILWAUKEE, WI, 53130
+USA
+
+Telephone Numbers:     Mobile:
+                       Home:    5551110000
+
+Email Address:
+Preferred Method of Contact:
+
+Direct Deposit:     Type of Account: checking
+Name of Financial Inst.: First Bank of JSON
+Routing/Transit #: 123456789   Account #: 88888888888
+
+Name, Address, & Telephone Number of Contact:
+        Sibling Olson
+        Address same as claimant
+        Phone:
+
+
+                  TYPE AND PROGRAM OF EDUCATION OR TRAINING
+                  -----------------------------------------
+
+Type of Education or Training:
+
+Name and Address of School or Training Establishment:
+
+        111 UNI DRIVE
+        LOS ANGELES, CA, 90212
+        USA
+
+Date You Started or Will Start Training:
+
+Education or Career Goal:
+
+
+                       ACTIVE DUTY SERVICE INFORMATION
+                       -------------------------------
+
+Are You Now On Active Duty?   NO
+
+Are you Now On Terminal Leave Just Before Discharge? NO
+
+Date Entered   Date Separated     Service Component
+Active Duty    From Active Duty
+2001-01-01     2010-10-10         Army
+                         Service Status:   Active Duty
+                         Involuntary Call: yes
+1995-01-01     1998-10-10         Army
+                         Service Status:   Honorable Discharge
+                         Involuntary Call: yes
+
+
+
+                    EDUCATION AND EMPLOYMENT INFORMATION
+                    ------------------------------------
+
+Date Received High School Diploma or Equivalency Certificate: 2010-06-06
+
+FAA Flight Certificates:
+cert1, cert2
+
+      Education After High School
+      ---------------------------
+
+Name and Location of College or Training Provider:
+    OtherCollege Name
+    New York, NY
+Date of Training:     From: 1999-01-01 To: 2000-01-01
+Hours: 8 (semester)
+Degree/Diploma/Certificate: BA
+Major Field/Course of Study: History
+
+
+        Employment
+        ----------
+
+Before Entering Military Service
+        Principal Occupation:
+        Number of Months:
+        License or Rating:
+
+After Leaving Military Service
+        Principal Occupation:
+        Number of Months:
+        License or Rating:
+
+
+          ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
+          ----------------------------------------------------------
+
+Did you make additional contributions (up to $600) to increase the amount
+of your monthly benefits?   NO
+
+Do you qualify for a Kicker (sometimes called a College Fund) based on
+your military service?
+
+    Active Duty Kicker:   NO
+
+    Reserve Kicker:    NO
+
+If you graduated from a military service academy, specify the year you
+graduated and received your commission:
+
+ROTC Scholarship Program and Officer's Commission. Were you commissioned as
+the result of a Senior ROTC (Reserve Officers Training Corps) Scholarship
+Program?    NO
+
+        Year of Commission:
+
+        Scholarship Amounts:
+            Year 1:          Amount:
+
+            Year 2:          Amount:
+
+            Year 3:          Amount:
+
+            Year 4:          Amount:
+
+            Year 5:          Amount:
+
+
+Senior ROTC Scholarship Program. Are you currently participating in a Senior
+ROTC Scholarship Program which pays for your tuition, fees, books and supplies
+under Section 2107, Title 10 U.S. Code?   N/A
+
+Did you have a period of active duty that the Department of Defense counts for
+purposes of repaying an education loan?    NO
+
+        Start Date:
+
+        End Date:
+
+For Active Duty Claimants Only. Are you receiving or do you anticipate
+receiving any money (including but not limited to Federal Tuition Assistance)
+from the Armed Forces or Public Health Service for the course for which you
+have applied to the VA for Education Benefits?  If you receive such benefits
+during any part of your training, check 'Yes.' Note:  If you are only applying
+for Tuition Assistance Top-Up, check 'No' to this item.    NO
+
+For Civilian Employees of the U.S. Federal Government Only. Are you receiving
+or do you anticipate receiving any money from your agency (including but not
+limited to the Government Employees Training Act) for the same period for
+which you have applied to the VA for Education Benefits? If you will receive
+such benefits during any part of your training, check Yes.    N/A
+
+
+                        MARITAL AND DEPENDENCY STATUS
+           (For Applicants with Military Service Before Jan 1, 1977)
+           ---------------------------------------------------------
+
+
+Married: YES
+Has Dependents: YES
+Parent Dependent: NO
+
+
+      Certification and Signature of Applicant
+Signature of Applicant                                               Date
+
+      Certification for Persons on Active Duty
+Signature/Title/Branch of Armed Forces Education Service Officer     Date
+
+Electronically Received by VA:  2016-09-16
+Confirmation #:  V-EBC-314
+
+*END*

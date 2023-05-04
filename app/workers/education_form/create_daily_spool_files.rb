@@ -99,8 +99,14 @@ module EducationForm
             writer.write(contents, filename)
 
             # send copy of staging spool files to testers
+            # This mailer is intended to only work for development, staging and NOT production
+            # Rails.env will return 'production' on the development & staging servers and  which
+            # will trip the unwary. To be safe, use ENV['HOSTNAME']
             email_staging_spool_files(contents) if
+              # local developer development
               Rails.env.eql?('development') ||
+
+              # VA Staging environment where we really want this to work.
               ENV['HOSTNAME'].eql?('staging-api.va.gov')
 
             # track and update the records as processed once the file has been successfully written
@@ -210,9 +216,7 @@ module EducationForm
     end
 
     def email_staging_spool_files(contents)
-      File.write('tmp/stagingspool.txt', contents)
-      CreateStagingSpoolFilesMailer.build('stagingspool.txt').deliver_now
-      File.delete('tmp/stagingspool.txt')
+      CreateStagingSpoolFilesMailer.build(contents).deliver_now
     end
   end
 end
