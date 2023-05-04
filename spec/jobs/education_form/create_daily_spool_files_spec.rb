@@ -104,7 +104,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       let(:spool_files) { Rails.root.join('tmp', 'spool_files', '*') }
 
       before do
-        expect(Rails.env).to receive('development?').once.and_return(true)
+        allow(Rails.env).to receive('development?').and_return(true)
         application_1606.saved_claim.form = {}.to_json
         application_1606.saved_claim.save!(validate: false) # Make this claim super malformed
         FactoryBot.create(:va1990_western_region)
@@ -120,6 +120,48 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
         expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(0)
         expect(Dir[spool_files].count).to eq(2)
+      end
+    end
+
+    context 'with records in staging', run_at: '2016-09-16 03:00:00 EDT' do
+      before do
+        ENV['HOSTNAME'] = 'staging-api.va.gov'
+        application_1606.saved_claim.form = {}.to_json
+        FactoryBot.create(:va1990_western_region)
+        FactoryBot.create(:va1995_full_form)
+        FactoryBot.create(:va0994_full_form)
+        ActionMailer::Base.deliveries.clear
+      end
+
+      after do
+        ENV['HOSTNAME'] = nil
+      end
+
+      it 'processes the valid messages' do
+        expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
+        expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(0)
+        expect(ActionMailer::Base.deliveries.count).to be > 0
+      end
+    end
+
+    context 'with records in production', run_at: '2016-09-16 03:00:00 EDT' do
+      before do
+        ENV['HOSTNAME'] = 'api.va.gov' # Mock how this is set in production
+        application_1606.saved_claim.form = {}.to_json
+        FactoryBot.create(:va1990_western_region)
+        FactoryBot.create(:va1995_full_form)
+        FactoryBot.create(:va0994_full_form)
+        ActionMailer::Base.deliveries.clear
+      end
+
+      after do
+        ENV['HOSTNAME'] = nil
+      end
+
+      it 'does not process the valid messages' do
+        expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
+        expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(0)
+        expect(ActionMailer::Base.deliveries.count).to be 0
       end
     end
 

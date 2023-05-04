@@ -3,16 +3,15 @@
 require 'reports/uploader'
 
 class CreateStagingSpoolFilesMailer < ApplicationMailer
-  def build(filename)
+  def build(contents)
     date = Time.zone.now.strftime('%m%d%Y')
     opt = {}
     opt[:to] = Settings.edu.staging_spool_contents.emails.dup
-    attachments[filename.to_s] = File.read("#{Rails.root.join('tmp')}/#{filename}")
-
+    note_str = '*** note: to see the contents in the correct format, copy into notepad ***'
     mail(
       opt.merge(
         subject: "Staging Spool file on #{date}",
-        body: "The staging spool file for #{date}"
+        body: "The staging spool file for #{date} #{note_str}\n\n\n#{contents}"
       )
     )
   end
