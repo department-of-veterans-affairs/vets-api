@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
-require 'vba_documents/multipart_parser'
-require 'pdf_info'
 require 'central_mail/utilities'
+require 'pdf_info'
+require 'pdf_utilities/pdf_validator'
+require 'vba_documents/document_request_validator'
+require 'vba_documents/multipart_parser'
 
 module VBADocuments
   class PDFInspector
@@ -82,13 +84,16 @@ module VBADocuments
     def pdf_metadata(pdf)
       metadata = PdfInfo::Metadata.read(pdf)
       dimensions = metadata.page_size_inches
+      max_width, max_height = VBADocuments::DocumentRequestValidator.pdf_validator_options.values_at(
+        :width_limit_in_inches, :height_limit_in_inches
+      )
 
       {
         page_count: metadata.pages,
         dimensions: {
           height: dimensions[:height].round(2),
           width: dimensions[:width].round(2),
-          oversized_pdf: dimensions[:height] > 21 || dimensions[:width] > 21
+          oversized_pdf: dimensions[:height] > max_height || dimensions[:width] > max_width
         },
         sha256_checksum: Digest::SHA256.file(pdf).hexdigest
       }

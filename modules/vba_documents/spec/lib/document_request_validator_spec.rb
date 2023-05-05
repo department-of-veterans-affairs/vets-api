@@ -25,21 +25,42 @@ RSpec.describe VBADocuments::DocumentRequestValidator do
     describe 'given a document with large pages' do
       let(:fixture_name) { '18x22.pdf' }
 
-      context 'when vba_documents_skip_dimension_check flag is off' do
-        before { Flipper.disable(:vba_documents_skip_dimension_check) }
+      context 'when vba_documents_larger_page_size_limit flag is off' do
+        before { Flipper.disable(:vba_documents_larger_page_size_limit) }
 
-        it 'considers the PDF invalid' do
-          errors = result[:errors]
-          expect(errors.length).to eq(1)
-          expect(errors.first[:status]).to eq('422')
+        describe 'with large PDF' do
+          it 'errors' do
+            expect(result[:errors].length).to eq(1)
+            expect(result[:errors].first[:status]).to eq('422')
+          end
+        end
+
+        describe 'with extra large PDF' do
+          let(:fixture_name) { '10x102.pdf' }
+
+          it 'errors' do
+            expect(result[:errors].length).to eq(1)
+            expect(result[:errors].first[:status]).to eq('422')
+          end
         end
       end
 
-      context 'when vba_documents_skip_dimension_check flag is on' do
-        before { Flipper.enable(:vba_documents_skip_dimension_check) }
+      context 'when vba_documents_larger_page_size_limit flag is on' do
+        before { Flipper.enable(:vba_documents_larger_page_size_limit) }
 
-        it 'considers the PDF valid' do
-          expect(result.dig(:data, :attributes, :status)).to eq('valid')
+        describe 'with large PDF' do
+          it 'considers the PDF valid' do
+            expect(result.dig(:data, :attributes, :status)).to eq('valid')
+          end
+        end
+
+        describe 'with extra large PDF' do
+          let(:fixture_name) { '10x102.pdf' }
+
+          it 'errors' do
+            expect(result[:errors].length).to eq(1)
+            expect(result[:errors].first[:status]).to eq('422')
+          end
         end
       end
     end
