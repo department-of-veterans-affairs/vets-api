@@ -31,10 +31,10 @@
       :uid_locator: 'fileNumber":"(\w+)"'
 
 - :name: 'VBS'
-  :base_uri: <%= "#{URI(Settings.mcp.vbs.url).host}:#{URI(Settings.mcp.vbs.url).port}" %>
+  :base_uri: <%= "#{URI(Settings.mcp.vbs_v2.url).host}:#{URI(Settings.mcp.vbs_v2.url).port}" %>
   :endpoints:
   - :method: :post
-    :path: "/Prod/GetStatementsByEDIPIAndVistaAccountNumber"
+    :path: "/vbsapi/GetStatementsByEDIPIAndVistaAccountNumber"
     :file_path: "vbs/index"
     :cache_multiple_responses:
       :uid_location: body
