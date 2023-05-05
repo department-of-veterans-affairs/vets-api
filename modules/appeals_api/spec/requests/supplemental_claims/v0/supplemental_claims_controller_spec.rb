@@ -5,7 +5,7 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type: :request do
   def base_path(path)
-    "/services/appeals/supplemental_claims/v0/#{path}"
+    "/services/appeals/supplemental-claims/v0/#{path}"
   end
 
   let(:data) { fixture_to_s 'valid_200995.json', version: 'v2' }

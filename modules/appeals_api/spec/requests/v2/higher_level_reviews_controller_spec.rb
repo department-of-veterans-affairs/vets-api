@@ -11,7 +11,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
   end
 
   def new_base_path(path)
-    "/services/appeals/higher_level_reviews/v0/#{path}"
+    "/services/appeals/higher-level-reviews/v0/#{path}"
   end
 
   before do

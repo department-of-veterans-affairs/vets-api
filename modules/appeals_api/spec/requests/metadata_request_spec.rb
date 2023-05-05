@@ -146,11 +146,11 @@ describe 'metadata request api', type: :request do
       end
 
       context 'segmented APIs' do
-        it_behaves_like 'a healthcheck', '/services/appeals/higher_level_reviews/v0/healthcheck'
-        it_behaves_like 'a healthcheck', '/services/appeals/notice_of_disagreements/v0/healthcheck'
-        it_behaves_like 'a healthcheck', '/services/appeals/supplemental_claims/v0/healthcheck'
-        it_behaves_like 'a healthcheck', '/services/appeals/contestable_issues/v0/healthcheck'
-        it_behaves_like 'a healthcheck', '/services/appeals/legacy_appeals/v0/healthcheck'
+        it_behaves_like 'a healthcheck', '/services/appeals/higher-level-reviews/v0/healthcheck'
+        it_behaves_like 'a healthcheck', '/services/appeals/notice-of-disagreements/v0/healthcheck'
+        it_behaves_like 'a healthcheck', '/services/appeals/supplemental-claims/v0/healthcheck'
+        it_behaves_like 'a healthcheck', '/services/appeals/contestable-issues/v0/healthcheck'
+        it_behaves_like 'a healthcheck', '/services/appeals/legacy-appeals/v0/healthcheck'
       end
     end
 
@@ -293,23 +293,23 @@ describe 'metadata request api', type: :request do
       context 'segmented APIs' do
         it_behaves_like(
           'an upstream healthcheck (central mail)',
-          '/services/appeals/supplemental_claims/v0/upstream_healthcheck'
+          '/services/appeals/supplemental-claims/v0/upstream-healthcheck'
         )
         it_behaves_like(
           'an upstream healthcheck (central mail)',
-          '/services/appeals/notice_of_disagreements/v0/upstream_healthcheck'
+          '/services/appeals/notice-of-disagreements/v0/upstream-healthcheck'
         )
         it_behaves_like(
           'an upstream healthcheck (central mail)',
-          '/services/appeals/higher_level_reviews/v0/upstream_healthcheck'
+          '/services/appeals/higher-level-reviews/v0/upstream-healthcheck'
         )
         it_behaves_like(
           'an upstream healthcheck (caseflow)',
-          '/services/appeals/contestable_issues/v0/upstream_healthcheck'
+          '/services/appeals/appealable-issues/v0/upstream-healthcheck'
         )
         it_behaves_like(
           'an upstream healthcheck (caseflow)',
-          '/services/appeals/legacy_appeals/v0/upstream_healthcheck'
+          '/services/appeals/legacy-appeals/v0/upstream-healthcheck'
         )
       end
     end
