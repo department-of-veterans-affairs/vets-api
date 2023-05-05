@@ -6,14 +6,14 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::Schemas::SharedSchemasController, type: :request do
   include FixtureHelpers
 
-  def base_path(appeal_type, schema_type)
-    "/services/appeals/#{appeal_type}/v0/schemas/#{schema_type}"
+  def base_path(appeal_type_segment, schema_type)
+    "/services/appeals/#{appeal_type_segment}/v0/schemas/#{schema_type}"
   end
 
   shared_examples 'successful schema request' do |schema_type, response_body_content|
-    appeal_types = %w[notice_of_disagreements higher_level_reviews supplemental_claims]
+    appeal_type_segments = %w[notice-of-disagreements higher-level-reviews supplemental-claims]
 
-    appeal_types.each do |appeal_type|
+    appeal_type_segments.each do |appeal_type|
       it "renders the #{schema_type} schema" do
         get base_path appeal_type, schema_type
 
@@ -44,10 +44,10 @@ describe AppealsApi::Schemas::SharedSchemasController, type: :request do
     end
 
     context 'when unacceptable schema type provided' do
-      appeal_types = %w[notice_of_disagreements higher_level_reviews supplemental_claims]
+      appeal_type_segments = %w[notice-of-disagreements higher-level-reviews supplemental-claims]
       appeal_forms = %w[10182 200996 200995]
 
-      appeal_types.each.with_index do |appeal_type, i|
+      appeal_type_segments.each.with_index do |appeal_type, i|
         it 'raises an error with form number in meta' do
           get base_path appeal_type, :bananas
 

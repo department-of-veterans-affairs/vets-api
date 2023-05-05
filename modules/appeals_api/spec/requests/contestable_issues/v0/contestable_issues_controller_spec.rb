@@ -5,10 +5,12 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::ContestableIssues::V0::ContestableIssuesController, type: :request do
   include_examples 'Contestable Issues API v0 and Decision Reviews v1 & v2 shared request examples',
-                   base_path: '/services/appeals/contestable_issues/v0/contestable_issues'
+                   base_path: '/services/appeals/contestable-issues/v0/contestable-issues'
+  include_examples 'Contestable Issues API v0 and Decision Reviews v1 & v2 shared request examples',
+                   base_path: '/services/appeals/appealable-issues/v0/appealable-issues'
 
   describe '#schema' do
-    let(:path) { '/services/appeals/contestable_issues/v0/schemas/headers' }
+    let(:path) { '/services/appeals/appealable-issues/v0/schemas/headers' }
 
     it 'renders the json schema for request headers with shared refs' do
       with_openid_auth(described_class::OAUTH_SCOPES[:GET]) do |auth_header|
@@ -97,7 +99,7 @@ describe AppealsApi::ContestableIssues::V0::ContestableIssuesController, type: :
   private
 
   def get_contestable_issues(headers, decision_review_type)
-    path = "/services/appeals/contestable_issues/v0/contestable_issues/#{decision_review_type}"
+    path = "/services/appeals/appealable-issues/v0/appealable-issues/#{decision_review_type}"
     with_openid_auth(described_class::OAUTH_SCOPES[:GET]) do |auth_header|
       get(path, headers: headers.merge(auth_header))
     end

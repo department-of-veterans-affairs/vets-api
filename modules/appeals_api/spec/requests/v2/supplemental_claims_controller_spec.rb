@@ -11,7 +11,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
   end
 
   def new_base_path(path)
-    "/services/appeals/supplemental_claims/v0/#{path}"
+    "/services/appeals/supplemental-claims/v0/#{path}"
   end
 
   let(:minimum_data) { fixture_to_s 'valid_200995.json', version: 'v2' }

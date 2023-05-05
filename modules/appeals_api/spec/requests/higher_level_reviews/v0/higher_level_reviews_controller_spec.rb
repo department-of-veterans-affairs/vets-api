@@ -5,7 +5,7 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type: :request do
   def base_path(path)
-    "/services/appeals/higher_level_reviews/v0/#{path}"
+    "/services/appeals/higher-level-reviews/v0/#{path}"
   end
 
   let(:data) { fixture_to_s 'valid_200996_minimum.json', version: 'v2' }

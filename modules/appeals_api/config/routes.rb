@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative './route_concerns'
-
 AppealsApi::Engine.routes.draw do
   get '/appeals_status/metadata', to: 'metadata#appeals_status'
   get '/decision_reviews/metadata', to: 'metadata#decision_reviews'
@@ -96,27 +94,185 @@ AppealsApi::Engine.routes.draw do
     end
   end
 
-  concern :appeals_status_routes, AppealsApi::SharedRoutes::AppealsStatus
-  concerns :appeals_status_routes, deprecated: true
-  concerns :appeals_status_routes
+  namespace :appeals_status, path: 'appeals-status', defaults: { format: 'json' } do
+    namespace :v1, defaults: { format: 'json' } do
+      get :appeals, to: '/appeals_api/v1/appeals#index'
+      get :healthcheck, to: '/appeals_api/metadata#healthcheck'
+      get :upstream_healthcheck,
+          to: '/appeals_api/metadata#appeals_status_upstream_healthcheck',
+          path: 'upstream-healthcheck'
+      get :docs, to: '/appeals_api/docs/v1/docs#appeals_status'
+    end
+  end
 
-  concern :notice_of_disagreements_routes, AppealsApi::SharedRoutes::NoticeOfDisagreements
-  concerns :notice_of_disagreements_routes, deprecated: true
-  concerns :notice_of_disagreements_routes
+  namespace :notice_of_disagreements, path: 'notice-of-disagreements', defaults: { format: 'json' } do
+    namespace :v0 do
+      controller_path = '/appeals_api/notice_of_disagreements/v0/notice_of_disagreements'
 
-  concern :higher_level_reviews_routes, AppealsApi::SharedRoutes::HigherLevelReviews
-  concerns :higher_level_reviews_routes, deprecated: true
-  concerns :higher_level_reviews_routes
+      get :healthcheck, to: '/appeals_api/metadata#healthcheck'
+      get :upstream_healthcheck,
+          to: '/appeals_api/metadata#mail_status_upstream_healthcheck',
+          path: 'upstream-healthcheck'
+      get :docs, to: '/appeals_api/docs/v2/docs#nod'
 
-  concern :supplemental_claims_routes, AppealsApi::SharedRoutes::SupplementalClaims
-  concerns :supplemental_claims_routes, deprecated: true
-  concerns :supplemental_claims_routes
+      namespace :forms do
+        resources '10182', only: %i[create show], controller: controller_path do
+          collection do
+            post 'validate'
+          end
+        end
+      end
 
-  concern :contestable_issues_routes, AppealsApi::SharedRoutes::ContestableIssues
-  concerns :contestable_issues_routes, deprecated: true
-  concerns :contestable_issues_routes
+      resources :evidence_submissions,
+                only: %i[create show],
+                controller: "#{controller_path}/evidence_submissions",
+                path: 'evidence-submissions'
 
-  concern :legacy_appeals_routes, AppealsApi::SharedRoutes::LegacyAppeals
-  concerns :legacy_appeals_routes, deprecated: true
-  concerns :legacy_appeals_routes
+      namespace :schemas, controller: controller_path do
+        get '10182', action: :schema
+      end
+
+      resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
+    end
+  end
+
+  namespace :higher_level_reviews, path: 'higher-level-reviews', defaults: { format: 'json' } do
+    namespace :v0 do
+      controller_path = '/appeals_api/higher_level_reviews/v0/higher_level_reviews'
+
+      get :healthcheck, to: '/appeals_api/metadata#healthcheck'
+      get :upstream_healthcheck,
+          to: '/appeals_api/metadata#mail_status_upstream_healthcheck',
+          path: 'upstream-healthcheck'
+      get :docs, to: '/appeals_api/docs/v2/docs#hlr'
+
+      namespace :forms do
+        resources '200996', only: %i[create show], controller: controller_path do
+          collection do
+            post 'validate'
+          end
+        end
+      end
+
+      namespace :schemas, controller: controller_path do
+        get '200996', action: :schema
+      end
+
+      resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
+    end
+  end
+
+  namespace :supplemental_claims, path: 'supplemental-claims', defaults: { format: 'json' } do
+    namespace :v0 do
+      controller_path = '/appeals_api/supplemental_claims/v0/supplemental_claims'
+
+      get :healthcheck, to: '/appeals_api/metadata#healthcheck'
+      get :upstream_healthcheck,
+          to: '/appeals_api/metadata#mail_status_upstream_healthcheck',
+          path: 'upstream-healthcheck'
+      get :docs, to: '/appeals_api/docs/v2/docs#sc'
+
+      namespace :forms do
+        resources '200995', only: %i[create show], controller: controller_path do
+          collection do
+            post 'validate'
+          end
+        end
+      end
+
+      resources :evidence_submissions,
+                only: %i[create show],
+                controller: "#{controller_path}/evidence_submissions",
+                path: 'evidence-submissions'
+
+      namespace :schemas, controller: controller_path do
+        get '200995', action: :schema
+      end
+
+      resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
+    end
+  end
+
+  concern :appealable_issues_routes do |opts|
+    controller_path = '/appeals_api/contestable_issues/v0/contestable_issues'
+    api_name = opts[:deprecated] ? 'contestable-issues' : 'appealable-issues'
+
+    mapper.instance_eval do
+      namespace :appealable_issues, path: api_name, defaults: { format: 'json' } do
+        namespace :v0 do
+          get :appealable_issues,
+              to: "#{controller_path}#index",
+              path: "#{api_name}/:decision_review_type"
+          get :healthcheck, to: '/appeals_api/metadata#healthcheck'
+          get :upstream_healthcheck,
+              to: '/appeals_api/metadata#appeals_status_upstream_healthcheck',
+              path: 'upstream-healthcheck'
+          get :docs, to: '/appeals_api/docs/v2/docs#ci'
+
+          namespace :schemas, controller: controller_path do
+            get 'headers', action: :schema
+          end
+
+          resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
+        end
+      end
+    end
+  end
+
+  appealable_issues_controller_path = '/appeals_api/contestable_issues/v0/contestable_issues'
+
+  concern :appealable_issues_routes do
+    get :healthcheck, to: '/appeals_api/metadata#healthcheck'
+    get :upstream_healthcheck,
+        to: '/appeals_api/metadata#appeals_status_upstream_healthcheck',
+        path: 'upstream-healthcheck'
+    get :docs, to: '/appeals_api/docs/v2/docs#ci'
+
+    namespace :schemas, controller: appealable_issues_controller_path do
+      get 'headers', action: :schema
+    end
+
+    resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
+  end
+
+  namespace :appealable_issues, path: 'appealable-issues', default: { format: 'json' } do
+    namespace :v0 do
+      get :appealable_issues,
+          to: "#{appealable_issues_controller_path}#index",
+          path: 'appealable-issues/:decision_review_type'
+
+      concerns :appealable_issues_routes
+    end
+  end
+
+  namespace :contestable_issues, path: 'contestable-issues', default: { format: 'json' } do
+    namespace :v0 do
+      get :contestable_issues,
+          to: "#{appealable_issues_controller_path}#index",
+          path: 'contestable-issues/:decision_review_type'
+
+      concerns :appealable_issues_routes
+    end
+  end
+
+  namespace :legacy_appeals, path: 'legacy-appeals', defaults: { format: 'json' } do
+    namespace :v0 do
+      controller_path = '/appeals_api/legacy_appeals/v0/legacy_appeals'
+
+      get :legacy_appeals,
+          to: "#{controller_path}#index",
+          path: 'legacy-appeals'
+      get :healthcheck, to: '/appeals_api/metadata#healthcheck'
+      get :upstream_healthcheck,
+          to: '/appeals_api/metadata#appeals_status_upstream_healthcheck',
+          path: 'upstream-healthcheck'
+      get :docs, to: '/appeals_api/docs/v2/docs#la'
+
+      namespace :schemas, controller: controller_path do
+        get 'headers', action: :schema
+      end
+
+      resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
+    end
+  end
 end

@@ -11,7 +11,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
   end
 
   def new_base_path(path)
-    "/services/appeals/notice_of_disagreements/v0/#{path}"
+    "/services/appeals/notice-of-disagreements/v0/#{path}"
   end
 
   before do

@@ -9,7 +9,7 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
   let(:headers) { fixture_as_json 'valid_200995_headers.json', version: 'v2' }
   let(:evidence_submissions) { create_list(:evidence_submission, 3, supportable: supplemental_claim) }
   let(:path) { '/services/appeals/v2/decision_reviews/supplemental_claims/evidence_submissions/' }
-  let(:oauth_path) { '/services/appeals/supplemental_claims/v0/evidence_submissions/' }
+  let(:oauth_path) { '/services/appeals/supplemental-claims/v0/evidence-submissions/' }
 
   let(:parsed) { JSON.parse(response.body) }
 

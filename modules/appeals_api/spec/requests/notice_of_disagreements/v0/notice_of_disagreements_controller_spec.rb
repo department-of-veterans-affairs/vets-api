@@ -5,7 +5,7 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController, type: :request do
   def base_path(path)
-    "/services/appeals/notice_of_disagreements/v0/#{path}"
+    "/services/appeals/notice-of-disagreements/v0/#{path}"
   end
 
   let(:minimum_data) { fixture_to_s 'valid_10182_minimum.json', version: 'v2' }

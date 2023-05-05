@@ -9,7 +9,7 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
   let(:headers) { fixture_as_json 'valid_10182_headers.json', version: 'v2' }
   let(:evidence_submissions) { create_list(:evidence_submission, 3, supportable: notice_of_disagreement) }
   let(:path) { '/services/appeals/v2/decision_reviews/notice_of_disagreements/evidence_submissions/' }
-  let(:oauth_path) { '/services/appeals/notice_of_disagreements/v0/evidence_submissions/' }
+  let(:oauth_path) { '/services/appeals/notice-of-disagreements/v0/evidence-submissions/' }
 
   let(:parsed) { JSON.parse(response.body) }
 
