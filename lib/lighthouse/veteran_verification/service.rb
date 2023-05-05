@@ -2,7 +2,7 @@
 
 require 'common/client/base'
 require 'lighthouse/veteran_verification/configuration'
-require 'lighthouse/veteran_verification/service_exception'
+require 'lighthouse/service_exception'
 
 module VeteranVerification
   class Service < Common::Client::Base
@@ -17,18 +17,25 @@ module VeteranVerification
     # @option options [hash] :auth_params a hash to send in auth params to create the access token
     # @option options [string] :host a base host for the Lighthouse API call
     def get_rated_disabilities(lighthouse_client_id, lighthouse_rsa_key_path, options = {})
+      endpoint = 'disability_rating'
       config
         .get(
-          'disability_rating',
+          endpoint,
           lighthouse_client_id,
           lighthouse_rsa_key_path,
           options
         )
         .body
-    rescue Faraday::ClientError => e
-      Rails.logger.error(
-        VeteranVerification::ServiceException.new(e.response),
-        "#{lighthouse_client_id} get_rated_disabilities Lighthouse Error"
+    rescue => e
+      handle_error(e, lighthouse_client_id, endpoint)
+    end
+
+    def handle_error(error, lighthouse_client_id, endpoint)
+      Lighthouse::ServiceException.send_error(
+        error,
+        self.class.to_s.underscore,
+        lighthouse_client_id,
+        "#{config.base_api_path}/#{endpoint}"
       )
     end
   end

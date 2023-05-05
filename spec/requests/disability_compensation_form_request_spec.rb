@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'lighthouse/auth/client_credentials/service'
+require 'lighthouse/service_exception'
 
 RSpec.describe 'Disability compensation form' do
   include SchemaMatchers
@@ -17,17 +18,56 @@ RSpec.describe 'Disability compensation form' do
 
   describe 'Get /v0/disability_compensation_form/rated_disabilities' do
     context 'Lighthouse api provider' do
-      context 'with a valid 200 lighthouse response' do
-        before do
-          Flipper.enable(feature_toggle_rated_disabilities)
-          allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
-        end
+      before do
+        Flipper.enable(feature_toggle_rated_disabilities)
+        allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
+      end
 
+      context 'with a valid 200 lighthouse response' do
         it 'matches the rated disabilities schema' do
           VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
             get('/v0/disability_compensation_form/rated_disabilities', params: nil, headers:)
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('rated_disabilities')
+          end
+        end
+
+        it 'matches the rated disabilities schema when camel-inflected' do
+          VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+            get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers_with_camel
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('rated_disabilities')
+          end
+        end
+      end
+
+      context 'error handling tests' do
+        Lighthouse::ServiceException::ERROR_MAP.each do |status, _error_class|
+          error_status = status.to_s.to_i
+          cassette_path = "lighthouse/veteran_verification/disability_rating/#{status == :'404' ? '404_ICN' : status}" \
+                          '_response'
+          it "returns #{status} response" do
+            expect(test_error(
+                     cassette_path,
+                     error_status,
+                     headers
+                   )).to be(true)
+          end
+
+          it "returns a #{status} response with camel-inflection" do
+            expect(test_error(
+                     cassette_path,
+                     error_status,
+                     headers_with_camel
+                   )).to be(true)
+          end
+        end
+
+        def test_error(cassette_path, status, headers)
+          VCR.use_cassette(cassette_path) do
+            get('/v0/disability_compensation_form/rated_disabilities', params: nil, headers:)
+            expect(response).to have_http_status(status)
+            expect(response).to match_response_schema('evss_errors', strict: false)
           end
         end
       end
