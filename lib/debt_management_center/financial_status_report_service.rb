@@ -48,11 +48,7 @@ module DebtManagementCenter
       with_monitoring_and_error_handling do
         form = add_personal_identification(form)
         validate_form_schema(form)
-        if Flipper.enabled?(:combined_financial_status_report, @user)
-          submit_combined_fsr(form)
-        else
-          submit_vba_fsr(form)
-        end
+        submit_combined_fsr(form)
       end
     end
 

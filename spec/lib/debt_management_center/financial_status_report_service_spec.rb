@@ -32,16 +32,32 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
     let(:valid_form_data) { get_fixture('dmc/fsr_submission') }
     let(:user) { build(:user, :loa3) }
 
+    context 'The flipper is turned on' do
+      before do
+        Flipper.enable(:combined_financial_status_report)
+      end
+
+      it 'submits combined fsr' do
+        VCR.use_cassette('dmc/submit_fsr') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            service = described_class.new(user)
+            expect(service).to receive(:submit_combined_fsr).with(valid_form_data)
+            service.submit_financial_status_report(valid_form_data)
+          end
+        end
+      end
+    end
+
     context 'The flipper is turned off' do
       before do
         Flipper.disable(:combined_financial_status_report)
       end
 
-      it 'defaults to use vba submission' do
+      it 'ignores flipper and uses combined fsr' do
         VCR.use_cassette('dmc/submit_fsr') do
           VCR.use_cassette('bgs/people_service/person_data') do
             service = described_class.new(user)
-            expect(service).to receive(:submit_vba_fsr).with(valid_form_data)
+            expect(service).to receive(:submit_combined_fsr).with(valid_form_data)
             service.submit_financial_status_report(valid_form_data)
           end
         end
