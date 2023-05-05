@@ -19,7 +19,7 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 200
+      code: 404
       message: OK
     headers:
       Date:
@@ -81,25 +81,14 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: '{
-  "data": {
-    "id": "12303",
-    "type": "disability-rating",
-    "attributes": {
-      "combined_disability_rating": 100,
-      "combined_effective_date": "2018-03-27",
-      "legal_effective_date": "2018-03-27",
-      "individual_ratings": [
-        {
-          "description": "Service Connected",
-          "decision": "Service Connected",
-          "effective_date": "2018-03-27",
-          "rating_percentage": 50,
-          "diagnostic_type_code": "5238",
-          "diagnostic_type_name": "Diabetes mellitus0"
-        }
-      ]
+  "errors": [
+    {
+      "title": "Veteran not identifiable.",
+      "detail": "No data found for ICN.",
+      "code": "404",
+      "status": "404"
     }
-  }
+  ]
 }'
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 recorded_with: VCR 6.1.0

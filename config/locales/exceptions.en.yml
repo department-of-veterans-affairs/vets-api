@@ -95,6 +95,11 @@ en:
         detail: "\"%{host}\" is not a safe host"
         code: 110
         status: 400
+      bad_request:
+        <<: *defaults
+        title: Bad request
+        code: 400
+        status: 400
       unauthorized:
         <<: *defaults
         title: Not authorized
@@ -107,6 +112,11 @@ en:
         code: 403
         status: 403
         sentry_type: 'none'
+      service_error:
+        <<: *defaults
+        title: Unknown Service Error
+        code: 500
+        status: 500
       record_not_found:
         <<: *defaults
         title: Record not found
@@ -119,6 +129,11 @@ en:
         detail: The requested resource could not be found
         code: 404
         status: 404
+      payload_too_large:
+        <<: *defaults
+        title: Not authorized
+        code: 413
+        status: 413
       failed_dependency:
         <<: *defaults
         title: Failed Dependency
@@ -155,11 +170,22 @@ en:
         title: Internal server error
         code: 500
         status: 500
+      external_server_internal_server_error:
+        <<: *defaults
+        title: Internal server error
+        detail: The external service sent back an internal server error
+        code: 500
+        status: 500
       bad_gateway:
         <<: *defaults
         title: Bad Gateway
         code: 502
         status: 502
+      service_unavailable:
+        <<: *defaults
+        title: Service Unavailable
+        code: 503
+        status: 503
       service_outage:
         <<: *defaults
         title: Service unavailable

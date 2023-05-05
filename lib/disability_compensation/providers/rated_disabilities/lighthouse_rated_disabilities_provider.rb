@@ -22,6 +22,7 @@ class LighthouseRatedDisabilitiesProvider
       lighthouse_rsa_key_path,
       { auth_params: }
     )
+
     transform(data['data']['attributes']['individual_ratings'])
   end
 
@@ -37,6 +38,7 @@ class LighthouseRatedDisabilitiesProvider
           rated_disability_id: 0,
           rating_decision_id: 0,
           rating_percentage: rated_disability['rating_percentage'],
+          # TODO: figure out if this is important
           related_disability_date: DateTime.now
         )
       end
@@ -44,7 +46,10 @@ class LighthouseRatedDisabilitiesProvider
   end
 
   def decision_code_transform(decision_code_text)
-    if decision_code_text&.downcase == 'Service Connected'.downcase
+    service_connected = decision_code_text&.downcase == 'Service Connected'.downcase ||
+                        decision_code_text&.downcase == '1151 Granted'.downcase
+
+    if service_connected
       'SVCCONNCTED'
     else
       'NOTSVCCON'
