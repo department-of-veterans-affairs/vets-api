@@ -223,14 +223,14 @@ sidekiq:
 check_in:
   travel_reimbursement_api:
     auth_url: https://login.microsoftonline.us
-    tenant_id: 6d4d703a-2d9a-4c2a-ac90-976e52eacb52
-    client_id: 9f124d0c-e3d0-4a02-a540-64def7ef3889
-    client_secret: f3b721aa-f9c1-4ff2-bf47-9b3a30757013
-    scope: a7a9a4e6-44e6-4e55-a30f-43cd841ec68d/.default
+    tenant_id: fake_template_id
+    client_id: fake_client_id
+    client_secret: fake_client_secret
+    scope: fake_scope/.default
     claims_url: https://dev.integration.d365.va.gov
     claims_base_path: EC/ClaimIngestSvc
-    subscription_key: sJqrAiMns1vgAopGa7U4wuOmT83YADkK
-    client_number: CLI-00001002
+    subscription_key: fake_subscription_key
+    client_number: fake_cli_number
     redis_token_expiry: 3540 # 59 minutes
     service_name: BTSSS-API
   authentication:
