@@ -29,7 +29,7 @@ module CheckIn
         params: { appointment_date: }
       ).submit_claim
 
-      claim_number = claims_resp.dig(:data, :value, :claimNumber)
+      claim_number = claims_resp.dig(:data, :claimNumber)
       template_id = case claims_resp.dig(:data, :code)
                     when TravelClaim::Response::CODE_SUCCESS
                       SUCCESS_TEMPLATE_ID

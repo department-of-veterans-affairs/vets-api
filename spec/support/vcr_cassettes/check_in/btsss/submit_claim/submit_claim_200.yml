@@ -18,13 +18,7 @@ http_interactions:
         encoding: UTF-8
         string: |-
           {
-            "value": {
-              "claimNumber": "TC202207000011666"
-            },
-            "formatters": [],
-            "contentTypes": [],
-            "declaredType": null,
-            "statusCode": 200
+            "claimNumber": "TC202207000011666"
           }
     recorded_at: Thu, 19 Nov 2020 16:45:03 GMT
 recorded_with: VCR 6.0.0
