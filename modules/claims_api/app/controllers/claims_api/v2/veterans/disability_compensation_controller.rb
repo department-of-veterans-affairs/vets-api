@@ -14,6 +14,7 @@ module ClaimsApi
 
         def submit
           validate_json_schema
+          validate_form_526_submission_values!
 
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,

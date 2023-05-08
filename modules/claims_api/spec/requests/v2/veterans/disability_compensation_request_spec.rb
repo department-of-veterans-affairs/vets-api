@@ -46,16 +46,54 @@ RSpec.describe 'Disability Claims', type: :request do
       end
       let(:add_response) { build(:add_person_response, parsed_codes:) }
 
-      before do
-        Timecop.freeze(Time.parse('2022-05-01 12:00:00 UTC'))
-      end
+      # real world example happened in API-15575
+      describe "'claim_date' difference between Lighthouse (UTC) and EVSS (Central Time)" do
+        context 'when UTC is currently a day ahead of the US Central Time Zone' do
+          context "and 'claim_date' is same as the Central Time Zone day" do
+            let(:claim_date) { (Time.zone.today - 1.day).to_s }
 
-      after do
-        Timecop.return
-      end
+            it 'responds with a 200' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/countries') do
+                    post path, params: data, headers: headers.merge(auth_header)
+                    expect(response).to have_http_status(:ok)
+                  end
+                end
+              end
+            end
+          end
 
-      describe "'claim_date'" do
-        context 'when it is the appropriate time range' do
+          context "and 'claim_date' is earlier than the Central Time Zone day" do
+            let(:claim_date) { (Time.zone.today - 7.days).to_s }
+
+            it 'responds with a 200' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/countries') do
+                    post path, params: data, headers: headers.merge(auth_header)
+                    expect(response).to have_http_status(:ok)
+                  end
+                end
+              end
+            end
+          end
+
+          context "and 'claim_date' is later than both the Central Time Zone day and UTC day" do
+            let(:claim_date) { (Time.zone.today + 7.days).to_s }
+
+            it 'responds with a bad request' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:bad_request)
+                end
+              end
+            end
+          end
+        end
+
+        context 'when UTC is same day as the US Central Time Zone day' do
           context "and 'claim_date' is the current day" do
             let(:claim_date) { Time.zone.today.to_s }
 
@@ -85,9 +123,89 @@ RSpec.describe 'Disability Claims', type: :request do
               end
             end
           end
-        end
 
-        context 'when it is formatted' do
+          context "and 'claim_date' is in the future" do
+            let(:claim_date) { (Time.zone.today + 7.days).to_s }
+
+            it 'responds with bad request' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:bad_request)
+                end
+              end
+            end
+          end
+
+          context "and 'claim_date' has timezone (iso w/Z)" do
+            let(:claim_date) { 1.day.ago.iso8601 }
+
+            it 'responds with a 200' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/countries') do
+                    post path, params: data, headers: headers.merge(auth_header)
+                    expect(response).to have_http_status(:ok)
+                  end
+                end
+              end
+            end
+          end
+
+          context "and 'claim_date' has timezone (iso wo/Z)" do
+            let(:claim_date) { 1.day.ago.iso8601.sub('Z', '-00:00') }
+
+            it 'responds with a 200' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('evss/reference_data/countries') do
+                    post path, params: data, headers: headers.merge(auth_header)
+                    expect(response).to have_http_status(:ok)
+                  end
+                end
+              end
+            end
+          end
+
+          context "and 'claim_date' has timezone (iso w/out zone)" do
+            let(:claim_date) { 1.day.ago.iso8601.sub('Z', '') }
+
+            it 'responds with a bad request' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+
+          context "and 'claim_date' has timezone (TZ String)" do
+            let(:claim_date) { 1.day.ago.to_s }
+
+            it 'responds with a 422' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+
+          context "and 'claim_date' has timezone (w/out T)" do
+            let(:claim_date) { 1.day.ago.iso8601.sub('T', ' ') }
+
+            it 'responds with a 422' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+
           context "and 'claim_date' improperly formatted (hello world)" do
             let(:claim_date) { 'hello world' }
 
@@ -110,6 +228,58 @@ RSpec.describe 'Disability Claims', type: :request do
                   post path, params: data, headers: headers.merge(auth_header)
                   expect(response).to have_http_status(:unprocessable_entity)
                 end
+              end
+            end
+          end
+        end
+      end
+
+      describe 'schema catches claimProcessType error' do
+        context 'when something other than an enum option is used' do
+          let(:claim_process_type) { 'claim_test' }
+
+          it 'responds with bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                json = JSON.parse(data)
+                json['data']['attributes']['claimProcessType'] = claim_process_type
+                data = json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+
+        context 'when an empty string is provided' do
+          let(:claim_process_type) { ' ' }
+
+          it 'responds with bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                json = JSON.parse(data)
+                json['data']['attributes']['claimProcessType'] = claim_process_type
+                data = json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      describe 'validation of claimant certification' do
+        context 'when the cert is false' do
+          let(:claimant_certification) { false }
+
+          it 'responds with a bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                json = JSON.parse(data)
+                json['data']['attributes']['claimantCertification'] = claimant_certification
+                data = json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
               end
             end
           end
