@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'disability_compensation/providers/rated_disabilities/rated_disabilities_provider'
+require 'disability_compensation/responses/rated_disabilities_response'
 require 'lighthouse/veteran_verification/service'
 
 class LighthouseRatedDisabilitiesProvider
