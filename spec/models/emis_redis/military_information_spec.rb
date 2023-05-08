@@ -238,6 +238,18 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
   end
 
   describe '#discharge_type' do
+    let(:military_information) { described_class.for_user(user) }
+
+    it 'returns nil with an unknown discharge_character_of_service_code' do
+      allow(military_information).to receive(:latest_service_episode).and_return(
+        OpenStruct.new(
+          discharge_character_of_service_code: nil
+        )
+      )
+
+      expect(military_information.discharge_type).to eq(nil)
+    end
+
     it 'returns the discharge type from the latest service episode' do
       VCR.use_cassette('emis/get_military_service_episodes/valid') do
         expect(subject.discharge_type).to eq('dishonorable')

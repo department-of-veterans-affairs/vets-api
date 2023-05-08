@@ -896,7 +896,7 @@ RSpec.describe FormProfile, type: :model do
             'hca_last_service_branch' => 'army',
             'last_entry_date' => '2012-03-02',
             'last_discharge_date' => '2018-10-31',
-            'discharge_type' => 'other',
+            'discharge_type' => nil,
             'post_nov111998_combat' => false,
             'sw_asia_combat' => false
           }

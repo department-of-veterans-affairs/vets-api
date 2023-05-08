@@ -27,6 +27,16 @@ describe HCA::MilitaryInformation do
         expect(military_information.discharge_type).to eq('general')
       end
     end
+
+    it 'with an unknown character_of_discharge_code it returns nil' do
+      allow(military_information).to receive(:latest_service_episode).and_return(
+        OpenStruct.new(
+          character_of_discharge_code: nil
+        )
+      )
+
+      expect(military_information.discharge_type).to eq(nil)
+    end
   end
 
   describe '#last_discharge_date' do
