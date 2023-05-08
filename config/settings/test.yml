@@ -328,3 +328,9 @@ vha:
     base_path: "/base"
     authentication_url: "https://fake_auth_url.com"
     mock: true
+
+mhv:
+  medical_records:
+    app_id: 0
+    app_token: xyz
+    host: http://example.org
