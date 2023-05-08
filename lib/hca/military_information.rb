@@ -112,7 +112,7 @@ module HCA
     def discharge_type
       return if latest_service_episode.blank?
 
-      DISCHARGE_TYPES[latest_service_episode&.character_of_discharge_code] || 'other'
+      DISCHARGE_TYPES[latest_service_episode&.character_of_discharge_code]
     end
 
     def last_discharge_date

@@ -227,7 +227,7 @@ module EMISRedis
     def discharge_type
       return if latest_service_episode.blank?
 
-      DISCHARGE_TYPES[latest_service_episode&.discharge_character_of_service_code] || 'other'
+      DISCHARGE_TYPES[latest_service_episode&.discharge_character_of_service_code]
     end
 
     # @return [Boolean] true if veteran served a tour of duty
