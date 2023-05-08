@@ -393,6 +393,14 @@ features:
     actor_type: user
     description: Enable/disable in progress form reminder age param
     enable_in_development: true
+  in_progress_1880_form_cron:
+    actor_type: user
+    description: Enable/disable scheduled cron for 1880 in progress form reminders (sent via VaNotify)
+    enable_in_development: true
+  in_progress_1880_form_reminder:
+    actor_type: user
+    description: Enable/disable 1880 in progress form reminders (sent via VaNotify)
+    enable_in_development: true
   in_progress_form_reminder_1010ez:
     actor_type: user
     description: Enable/disable 1010ez in progress form reminders (sent via VaNotify)

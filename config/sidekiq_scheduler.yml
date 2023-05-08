@@ -256,6 +256,11 @@ VAForms::FlipperStatusAlert:
   class: VAForms::FlipperStatusAlert
   description: "Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled"
 
+VANotify::InProgress1880Form:
+  cron: "0 * * * * America/New_York"
+  class: VANotify::InProgress1880Form
+  description: "In progress 1880 reminder emails - runs every hour and looks for forms that are 23-24 hrs old (sent via VaNotify)"
+
 VANotify::InProgressForms:
   cron: "0 16 * * * America/New_York"
   class: VANotify::InProgressForms
