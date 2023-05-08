@@ -1,0 +1,525 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: "<MHV_MR_HOST>/baseR4/Immunization?patient=49006"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/fhir+json
+        User-Agent:
+          - Ruby FHIR Client
+        Accept-Charset:
+          - utf-8
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Host:
+          - hapi.fhir.org
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Server:
+          - nginx/1.18.0 (Ubuntu)
+        Date:
+          - Fri, 05 May 2023 16:16:30 GMT
+        Content-Type:
+          - application/fhir+json;charset=utf-8
+        Transfer-Encoding:
+          - chunked
+        Connection:
+          - keep-alive
+        X-Powered-By:
+          - HAPI FHIR 6.7.0-SNAPSHOT/a3c33d2a53/2023-05-03 REST Server (FHIR Server; FHIR
+            4.0.1/R4)
+        X-Request-Id:
+          - XSXyag82pk8IWKvr
+        Last-Modified:
+          - Fri, 05 May 2023 16:16:29 GMT
+      body:
+        encoding: UTF-8
+        string: |-
+          {
+            "resourceType": "Bundle",
+            "id": "a9a31342-8efb-4ccc-b6d1-3fc8935d88eb",
+            "meta": {
+              "lastUpdated": "2023-05-05T16:16:29.954+00:00"
+            },
+            "type": "searchset",
+            "total": 15,
+            "link": [ {
+              "relation": "self",
+              "url": "https://hapi.fhir.org/baseR4/Immunization?patient=49006"
+            } ],
+            "entry": [ {
+              "fullUrl": "https://hapi.fhir.org/baseR4/Immunization/49186",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "49186",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2019-10-18T20:20:56.872+00:00",
+                  "source": "#ML8v9Ku1pGuXAhZr"
+                },
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "140",
+                    "display": "Influenza, seasonal, injectable, preservative free"
+                  } ],
+                  "text": "Influenza, seasonal, injectable, preservative free"
+                },
+                "patient": {
+                  "reference": "Patient/49006"
+                },
+                "encounter": {
+                  "reference": "Encounter/49174"
+                },
+                "occurrenceDateTime": "2010-03-15T20:27:01-04:00",
+                "primarySource": true
+              },
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://hapi.fhir.org/baseR4/Immunization/49202",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "49202",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2019-10-18T20:20:56.872+00:00",
+                  "source": "#ML8v9Ku1pGuXAhZr"
+                },
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "140",
+                    "display": "Influenza, seasonal, injectable, preservative free"
+                  } ],
+                  "text": "Influenza, seasonal, injectable, preservative free"
+                },
+                "patient": {
+                  "reference": "Patient/49006"
+                },
+                "encounter": {
+                  "reference": "Encounter/49189"
+                },
+                "occurrenceDateTime": "2011-03-21T20:27:01-04:00",
+                "primarySource": true
+              },
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://hapi.fhir.org/baseR4/Immunization/49216",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "49216",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2019-10-18T20:20:56.872+00:00",
+                  "source": "#ML8v9Ku1pGuXAhZr"
+                },
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "140",
+                    "display": "Influenza, seasonal, injectable, preservative free"
+                  } ],
+                  "text": "Influenza, seasonal, injectable, preservative free"
+                },
+                "patient": {
+                  "reference": "Patient/49006"
+                },
+                "encounter": {
+                  "reference": "Encounter/49205"
+                },
+                "occurrenceDateTime": "2012-03-26T20:27:01-04:00",
+                "primarySource": true
+              },
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://hapi.fhir.org/baseR4/Immunization/49217",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "49217",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2019-10-18T20:20:56.872+00:00",
+                  "source": "#ML8v9Ku1pGuXAhZr"
+                },
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "43",
+                    "display": "Hep B, adult"
+                  } ],
+                  "text": "Hep B, adult"
+                },
+                "patient": {
+                  "reference": "Patient/49006"
+                },
+                "encounter": {
+                  "reference": "Encounter/49205"
+                },
+                "occurrenceDateTime": "2012-03-26T20:27:01-04:00",
+                "primarySource": true
+              },
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://hapi.fhir.org/baseR4/Immunization/49251",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "49251",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2019-10-18T20:20:56.872+00:00",
+                  "source": "#ML8v9Ku1pGuXAhZr"
+                },
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "140",
+                    "display": "Influenza, seasonal, injectable, preservative free"
+                  } ],
+                  "text": "Influenza, seasonal, injectable, preservative free"
+                },
+                "patient": {
+                  "reference": "Patient/49006"
+                },
+                "encounter": {
+                  "reference": "Encounter/49229"
+                },
+                "occurrenceDateTime": "2013-04-01T20:27:01-04:00",
+                "primarySource": true
+              },
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://hapi.fhir.org/baseR4/Immunization/49252",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "49252",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2019-10-18T20:20:56.872+00:00",
+                  "source": "#ML8v9Ku1pGuXAhZr"
+                },
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "113",
+                    "display": "Td (adult) preservative free"
+                  } ],
+                  "text": "Td (adult) preservative free"
+                },
+                "patient": {
+                  "reference": "Patient/49006"
+                },
+                "encounter": {
+                  "reference": "Encounter/49229"
+                },
+                "occurrenceDateTime": "2013-04-01T20:27:01-04:00",
+                "primarySource": true
+              },
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://hapi.fhir.org/baseR4/Immunization/49253",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "49253",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2019-10-18T20:20:56.872+00:00",
+                  "source": "#ML8v9Ku1pGuXAhZr"
+                },
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "43",
+                    "display": "Hep B, adult"
+                  } ],
+                  "text": "Hep B, adult"
+                },
+                "patient": {
+                  "reference": "Patient/49006"
+                },
+                "encounter": {
+                  "reference": "Encounter/49229"
+                },
+                "occurrenceDateTime": "2013-04-01T20:27:01-04:00",
+                "primarySource": true
+              },
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://hapi.fhir.org/baseR4/Immunization/49254",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "49254",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2019-10-18T20:20:56.872+00:00",
+                  "source": "#ML8v9Ku1pGuXAhZr"
+                },
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "114",
+                    "display": "meningococcal MCV4P"
+                  } ],
+                  "text": "meningococcal MCV4P"
+                },
+                "patient": {
+                  "reference": "Patient/49006"
+                },
+                "encounter": {
+                  "reference": "Encounter/49229"
+                },
+                "occurrenceDateTime": "2013-04-01T20:27:01-04:00",
+                "primarySource": true
+              },
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://hapi.fhir.org/baseR4/Immunization/49271",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "49271",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2019-10-18T20:20:56.872+00:00",
+                  "source": "#ML8v9Ku1pGuXAhZr"
+                },
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "43",
+                    "display": "Hep B, adult"
+                  } ],
+                  "text": "Hep B, adult"
+                },
+                "patient": {
+                  "reference": "Patient/49006"
+                },
+                "encounter": {
+                  "reference": "Encounter/49258"
+                },
+                "occurrenceDateTime": "2014-04-07T20:27:01-04:00",
+                "primarySource": true
+              },
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://hapi.fhir.org/baseR4/Immunization/49286",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "49286",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2019-10-18T20:20:56.872+00:00",
+                  "source": "#ML8v9Ku1pGuXAhZr"
+                },
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "140",
+                    "display": "Influenza, seasonal, injectable, preservative free"
+                  } ],
+                  "text": "Influenza, seasonal, injectable, preservative free"
+                },
+                "patient": {
+                  "reference": "Patient/49006"
+                },
+                "encounter": {
+                  "reference": "Encounter/49274"
+                },
+                "occurrenceDateTime": "2015-04-13T20:27:01-04:00",
+                "primarySource": true
+              },
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://hapi.fhir.org/baseR4/Immunization/49325",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "49325",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2019-10-18T20:20:56.872+00:00",
+                  "source": "#ML8v9Ku1pGuXAhZr"
+                },
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "140",
+                    "display": "Influenza, seasonal, injectable, preservative free"
+                  } ],
+                  "text": "Influenza, seasonal, injectable, preservative free"
+                },
+                "patient": {
+                  "reference": "Patient/49006"
+                },
+                "encounter": {
+                  "reference": "Encounter/49314"
+                },
+                "occurrenceDateTime": "2016-04-18T20:27:01-04:00",
+                "primarySource": true
+              },
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://hapi.fhir.org/baseR4/Immunization/49339",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "49339",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2019-10-18T20:20:56.872+00:00",
+                  "source": "#ML8v9Ku1pGuXAhZr"
+                },
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "140",
+                    "display": "Influenza, seasonal, injectable, preservative free"
+                  } ],
+                  "text": "Influenza, seasonal, injectable, preservative free"
+                },
+                "patient": {
+                  "reference": "Patient/49006"
+                },
+                "encounter": {
+                  "reference": "Encounter/49338"
+                },
+                "occurrenceDateTime": "2016-08-15T20:27:01-04:00",
+                "primarySource": true
+              },
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://hapi.fhir.org/baseR4/Immunization/49362",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "49362",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2019-10-18T20:20:56.872+00:00",
+                  "source": "#ML8v9Ku1pGuXAhZr"
+                },
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "140",
+                    "display": "Influenza, seasonal, injectable, preservative free"
+                  } ],
+                  "text": "Influenza, seasonal, injectable, preservative free"
+                },
+                "patient": {
+                  "reference": "Patient/49006"
+                },
+                "encounter": {
+                  "reference": "Encounter/49361"
+                },
+                "occurrenceDateTime": "2017-07-31T20:27:01-04:00",
+                "primarySource": true
+              },
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://hapi.fhir.org/baseR4/Immunization/49419",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "49419",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2019-10-18T20:20:56.872+00:00",
+                  "source": "#ML8v9Ku1pGuXAhZr"
+                },
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "140",
+                    "display": "Influenza, seasonal, injectable, preservative free"
+                  } ],
+                  "text": "Influenza, seasonal, injectable, preservative free"
+                },
+                "patient": {
+                  "reference": "Patient/49006"
+                },
+                "encounter": {
+                  "reference": "Encounter/49408"
+                },
+                "occurrenceDateTime": "2019-05-06T20:27:01-04:00",
+                "primarySource": true
+              },
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://hapi.fhir.org/baseR4/Immunization/49432",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "49432",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2019-10-18T20:20:56.872+00:00",
+                  "source": "#ML8v9Ku1pGuXAhZr"
+                },
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "system": "http://hl7.org/fhir/sid/cvx",
+                    "code": "140",
+                    "display": "Influenza, seasonal, injectable, preservative free"
+                  } ],
+                  "text": "Influenza, seasonal, injectable, preservative free"
+                },
+                "patient": {
+                  "reference": "Patient/49006"
+                },
+                "encounter": {
+                  "reference": "Encounter/49431"
+                },
+                "occurrenceDateTime": "2019-08-05T20:27:01-04:00",
+                "primarySource": true
+              },
+              "search": {
+                "mode": "match"
+              }
+            } ]
+          }
+    recorded_at: Fri, 05 May 2023 16:16:29 GMT
+recorded_with: VCR 6.1.0
