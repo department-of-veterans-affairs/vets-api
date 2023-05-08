@@ -75,8 +75,7 @@ describe TravelClaim::Service do
     context 'when valid token exists' do
       let(:access_token) { 'test-token-123' }
       let(:claims_json) do
-        { value: { claimNumber: 'TC202207000011666' }, formatters: [], contentTypes: [],
-          declaredType: [], statusCode: 200 }
+        { claimNumber: 'TC202207000011666' }
       end
       let(:appointment_identifiers) do
         {

@@ -9,8 +9,7 @@ describe TravelClaim::Response do
     context 'when status 200' do
       context 'when json string' do
         it 'returns a formatted response' do
-          claims_api_response = { value: { claimNumber: 'TC202207000011666' }, formatters: [], contentTypes: [],
-                                  declaredType: [], statusCode: 200 }
+          claims_api_response = { claimNumber: 'TC202207000011666' }
           resp = Faraday::Response.new(body: claims_api_response, status: 200)
           hsh = { data: claims_api_response.merge(code: 'CLM_000_SUCCESS'), status: 200 }
 
