@@ -285,6 +285,24 @@ FactoryBot.define do
       end
     end
 
+    factory :in_progress_1880_form do
+      user_account { create(:user_account) }
+      form_id { '26-1880' }
+      metadata do
+        {
+          version: 1,
+          returnUrl: 'foo.com'
+        }
+      end
+      form_data do
+        # form data truncated for brevity
+        {
+          'full_name' => { 'first' => 'first', 'middle' => 'middle', 'last' => 'last' },
+          'contact_email' => 'email@example.com'
+        }.to_json
+      end
+    end
+
     factory :in_progress_686c_form do
       user_uuid { SecureRandom.uuid }
       form_id { '686C-674' }
