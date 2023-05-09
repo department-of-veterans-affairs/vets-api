@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require './lib/webhooks/utilities'
-require './app/models/webhooks/utilities'
 
 # use these loads when running in a rails console
 # load './app/models/webhooks/notification.rb'

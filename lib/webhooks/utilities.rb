@@ -2,7 +2,6 @@
 
 require 'json_schemer'
 require 'uri'
-require './app/models/webhooks/utilities'
 
 # data structures built up at class load time then frozen.  This is threadsafe.
 # rubocop:disable ThreadSafety/InstanceVariableInClassMethod
