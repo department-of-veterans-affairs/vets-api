@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/exceptions'
+require 'brd/brd'
 
 module ClaimsApi
   module DisabilityCompensationValidations # rubocop:disable Metrics/ModuleLength
@@ -58,8 +59,7 @@ module ClaimsApi
     end
 
     def valid_countries
-      @current_user.last_signed_in = Time.now.iso8601 if @current_user.last_signed_in.blank?
-      @valid_countries ||= EVSS::ReferenceData::Service.new(@current_user).get_countries.countries
+      @valid_countries ||= ClaimsApi::BRD.new(request).countries
     end
 
     def validate_form_526_change_of_address!
