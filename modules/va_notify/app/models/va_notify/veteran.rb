@@ -21,6 +21,8 @@ module VANotify
                         JSON.parse(in_progress_form.form_data).dig('veteran_information', 'full_name', 'first')
                       when '1010ez'
                         JSON.parse(in_progress_form.form_data).dig('veteran_full_name', 'first')
+                      when '26-1880'
+                        JSON.parse(in_progress_form.form_data).dig('full_name', 'first')
                       when '21-526EZ'
                         lookup_first_name_by_icn
                       else

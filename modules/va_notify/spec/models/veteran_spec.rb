@@ -31,6 +31,14 @@ RSpec.describe VANotify::Veteran, type: :model do
       end
     end
 
+    context '26-1880' do
+      let(:in_progress_form) { create(:in_progress_1880_form, user_account:) }
+
+      it 'returns the first_name from form data' do
+        expect(subject.first_name).to eq('first')
+      end
+    end
+
     context '526ez' do
       let(:icn) { 'icn' }
       let(:in_progress_form) { create(:in_progress_526_form, user_account:) }
