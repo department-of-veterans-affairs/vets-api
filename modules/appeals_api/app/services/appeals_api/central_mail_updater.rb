@@ -6,6 +6,11 @@ module AppealsApi
 
     MAX_UUIDS_PER_REQUEST = 100
 
+    ERROR_UNIDENTIFIED_MAIL = %w[
+      Unidentified Mail: We could not associate part or all of this submission with a Veteran.
+      Please verify the identifying information and resubmit.
+    ].join(' ')
+
     CENTRAL_MAIL_ERROR_STATUSES = ['Error'].freeze
 
     CENTRAL_MAIL_STATUS_ATTRIBUTES = {
@@ -18,7 +23,7 @@ module AppealsApi
 
     CENTRAL_MAIL_STATUSES = CENTRAL_MAIL_STATUS_ATTRIBUTES.to_a.map { |_, x| x.fetch(:status) }.freeze
 
-    CENTRAL_MAIL_STATUS = Struct.new(:id, :_status, :error_message, :packets) do
+    CENTRAL_MAIL_STATUS = Struct.new(:id, :_status, :_error_message, :packets) do
       # ex. packets => [{"veteranId"=>"123456789", "status"=>"Complete", "completedReason"=>"DownloadConfirmed",
       #                  "transactionDate"=>"2022-05-06"}]
       delegate :present?, to: :id
@@ -31,16 +36,28 @@ module AppealsApi
         end
       end
 
+      def error_message
+        if unidentifiable_mail_present?
+          ERROR_UNIDENTIFIED_MAIL
+        else
+          _error_message
+        end
+      end
+
       def error?
         status.in?(CENTRAL_MAIL_ERROR_STATUSES) && error_message
       end
 
       def packet_results_status
-        if Array(packets).any? { |p| p['completedReason'] == 'UnidentifiableMail' }
+        if unidentifiable_mail_present?
           'Error'
         else
           'VBMS Complete'
         end
+      end
+
+      def unidentifiable_mail_present?
+        Array(packets).any? { |p| p['completedReason'] == 'UnidentifiableMail' }
       end
     end
 
