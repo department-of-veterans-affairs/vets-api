@@ -36,7 +36,13 @@ module Common
       undefined = REQ_CLASS_INSTANCE_VARS.select { |class_var| send(class_var).nil? }
       raise NoMethodError, "Required class methods #{undefined.join(', ')} are not defined" if undefined.any?
 
-      super(attributes)
+      begin
+        super(attributes)
+      rescue NoMethodError
+        Rails.logger.error('attributes failure: attributes')
+        raise
+      end
+
       @persisted = persisted
       run_callbacks :initialize
     end
