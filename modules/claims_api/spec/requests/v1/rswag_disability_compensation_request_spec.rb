@@ -106,7 +106,7 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
 
             with_okta_user(scopes) do
               VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/countries') do
+                VCR.use_cassette('brd/countries') do
                   submit_request(example.metadata)
                 end
               end
@@ -526,7 +526,7 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
             VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
               with_okta_user(scopes) do
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/countries') do
+                  VCR.use_cassette('brd/countries') do
                     submit_request(example.metadata)
                   end
                 end

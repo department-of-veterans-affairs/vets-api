@@ -1,0 +1,79 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://staging-api.va.gov/services/benefits-reference-data/v1/countries
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v0.17.6
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 13 Apr 2023 16:23:47 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Reset:
+      - '13'
+      Ratelimit-Limit:
+      - '60'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Kong-Upstream-Latency:
+      - '11'
+      X-Kong-Proxy-Latency:
+      - '2'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      X-Frame-Options:
+      - SAMEORIGIN
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"totalItems":213,"totalPages":1,"links":[{"href":"https://staging-api.va.gov/services/benefits-reference-data/v1/countries","rel":"self"}],"items":["Afghanistan","Albania","Algeria","Angola","Anguilla","Antigua","Antigua
+        and Barbuda","Argentina","Armenia","Australia","Austria","Azerbaijan","Azores","Bahamas","Bahrain","Bangladesh","Barbados","Barbuda","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia","Bosnia-Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina
+        Faso","Burma","Burundi","Cambodia","Cameroon","Canada","Cape Verde","Cayman
+        Islands","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo,
+        Democratic Republic of","Congo, People''s Republic of","Costa Rica","Cote
+        d''Ivoire","Croatia","Cuba","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican
+        Republic","Ecuador","Egypt","El Salvador","England","Equatorial Guinea","Eritrea","Estonia","Ethiopia","Fiji","Finland","France","French
+        Guiana","Gabon","Gambia","Georgia","Germany","Ghana","Gibraltar","Great Britain","Great
+        Britain and Gibraltar","Greece","Greenland","Grenada","Guadeloupe","Guatemala","Guinea","Guinea,
+        Republic of Guinea","Guinea-Bissau","Guyana","Haiti","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel
+        (Jerusalem)","Israel (Tel Aviv)","Italy","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kiribati","Kosovo","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Leeward
+        Islands","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macao","Macedonia","Madagascar","Malawi","Malaysia","Mali","Malta","Martinique","Mauritania","Mauritius","Mexico","Moldavia","Mongolia","Montenegro","Montserrat","Morocco","Mozambique","Namibia","Nepal","Netherlands","Netherlands
+        Antilles","Nevis","New Caledonia","New Zealand","Nicaragua","Niger","Nigeria","North
+        Korea","Northern Ireland","Norway","Oman","Pakistan","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Philippines
+        (restricted payments)","Poland","Portugal","Qatar","Republic of Yemen","Romania","Russia","Rwanda","Sao-Tome/Principe","Saudi
+        Arabia","Scotland","Senegal","Serbia","Serbia/Montenegro","Seychelles","Sicily","Sierra
+        Leone","Singapore","Slovakia","Slovenia","Somalia","South Africa","South Korea","Spain","Sri
+        Lanka","St. Kitts","St. Lucia","St. Vincent","Sudan","Suriname","Swaziland","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Togo","Trinidad
+        and Tobago","Tunisia","Turkey (Adana only)","Turkey (except Adana)","Turkmenistan","USA","Uganda","Ukraine","United
+        Arab Emirates","United Kingdom","Uruguay","Uzbekistan","Vanuatu","Venezuela","Vietnam","Wales","Western
+        Samoa","Yemen Arab Republic","Zambia","Zimbabwe"]}'
+  recorded_at: Thu, 13 Apr 2023 16:23:46 GMT
+recorded_with: VCR 6.1.0
