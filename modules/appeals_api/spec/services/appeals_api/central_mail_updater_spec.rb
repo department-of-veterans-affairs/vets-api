@@ -106,21 +106,14 @@ describe AppealsApi::CentralMailUpdater do
 
     describe 'correctly maps packet statuses' do
       describe 'with one returned packet' do
-        it 'completedReason == UnidentifiableMail' do
+        it 'status == Error' do
           central_mail_response = [
             {
               uuid: appeal_1.id,
-              status: 'Complete',
-              errorMessage: '',
+              status: 'Error',
+              errorMessage: 'Errors: ERR-EMMS-FAILED, Log Date cannot be in the future.',
               lastUpdated: '2018-04-25 00:02:39',
-              packets: [
-                {
-                  veteranId: appeal_1.ssn,
-                  status: 'Complete',
-                  completedReason: 'UnidentifiableMail',
-                  transactionDate: Time.zone.today
-                }
-              ]
+              packets: []
             }
           ]
           allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
@@ -244,6 +237,36 @@ describe AppealsApi::CentralMailUpdater do
 
         expect(appeal_1.status).to eq('error')
         expect(appeal_1.detail).to eq('Downstream status: You did a bad')
+      end
+    end
+
+    context 'when a packet has a completedReason of UnidentifiableMail' do
+      before do
+        central_mail_response = [
+          {
+            uuid: appeal_1.id,
+            status: 'Complete',
+            errorMessage: '',
+            lastUpdated: '2018-04-25 00:02:39',
+            packets: [
+              {
+                veteranId: appeal_1.ssn,
+                status: 'Complete',
+                completedReason: 'UnidentifiableMail',
+                transactionDate: Time.zone.today
+              }
+            ]
+          }
+        ]
+        allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
+      end
+
+      it 'updates appeal details to include status: error and the UnidentifiableMail error message' do
+        subject.call([appeal_1])
+        appeal_1.reload
+
+        expect(appeal_1.status).to eq('error')
+        expect(appeal_1.detail).to eq("Downstream status: #{described_class::ERROR_UNIDENTIFIED_MAIL}")
       end
     end
 
