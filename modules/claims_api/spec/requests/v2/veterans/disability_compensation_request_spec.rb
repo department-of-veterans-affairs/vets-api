@@ -49,6 +49,14 @@ RSpec.describe 'Disability Claims', type: :request do
       # real world example happened in API-15575
       describe "'claim_date' difference between Lighthouse (UTC) and EVSS (Central Time)" do
         context 'when UTC is currently a day ahead of the US Central Time Zone' do
+          before do
+            Timecop.freeze(Time.parse('2022-05-01 04:46:31 UTC'))
+          end
+
+          after do
+            Timecop.return
+          end
+
           context "and 'claim_date' is same as the Central Time Zone day" do
             let(:claim_date) { (Time.zone.today - 1.day).to_s }
 
@@ -94,6 +102,14 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when UTC is same day as the US Central Time Zone day' do
+          before do
+            Timecop.freeze(Time.parse('2023-05-01 12:00:00 UTC'))
+          end
+
+          after do
+            Timecop.return
+          end
+
           context "and 'claim_date' is the current day" do
             let(:claim_date) { Time.zone.today.to_s }
 
