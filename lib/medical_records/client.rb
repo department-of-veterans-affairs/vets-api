@@ -38,5 +38,13 @@ module MedicalRecords
     def list_vaccines(patient_id)
       fhir_client.search(FHIR::Immunization, search: { parameters: { patient: patient_id } }).resource
     end
+
+    def get_allergy(allergy_id)
+      fhir_client.read(FHIR::AllergyIntolerance, allergy_id).resource
+    end
+
+    def list_allergies(patient_id)
+      fhir_client.search(FHIR::AllergyIntolerance, search: { parameters: { patient: patient_id } }).resource
+    end
   end
 end
