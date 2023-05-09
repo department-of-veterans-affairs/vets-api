@@ -533,7 +533,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
               it 'raises an exception that beginningDate is not valid' do
                 with_okta_user(scopes) do |auth_header|
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  VCR.use_cassette('brd/intake_sites') do
                     VCR.use_cassette('brd/countries') do
                       par = json_data
                       par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
@@ -564,7 +564,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
           it 'raises an exception that country is invalid' do
             with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+              VCR.use_cassette('brd/intake_sites') do
                 VCR.use_cassette('brd/countries') do
                   par = json_data
                   par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
@@ -1477,14 +1477,16 @@ RSpec.describe 'Disability Claims ', type: :request do
     context 'when submitted separationLocationCode is missing for a future activeDutyEndDate' do
       it 'responds with bad request' do
         with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('evss/reference_data/get_intake_sites') do
+          VCR.use_cassette('brd/intake_sites') do
             VCR.use_cassette('brd/countries') do
               json_data = JSON.parse data
               params = json_data
               params['data']['attributes']['serviceInformation']['servicePeriods'].first['activeDutyEndDate'] =
-                (Time.zone.today + 1.day).to_s
+                (Time.zone.today + 10.days).to_s
               post path, params: params.to_json, headers: headers.merge(auth_header)
+              json = JSON.parse(response.body)
               expect(response.status).to eq(400)
+              expect(json['errors'][0]['title']).to eq('Invalid field value')
             end
           end
         end
@@ -1494,7 +1496,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     context 'when submitted separationLocationCode is invalid' do
       it 'responds with bad request' do
         with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('evss/reference_data/get_intake_sites') do
+          VCR.use_cassette('brd/intake_sites') do
             json_data = JSON.parse data
             params = json_data
             params['data']['attributes']['serviceInformation']['servicePeriods'].first['activeDutyEndDate'] =

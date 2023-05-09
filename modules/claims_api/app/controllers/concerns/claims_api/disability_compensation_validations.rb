@@ -149,7 +149,7 @@ module ClaimsApi
       form_attributes['serviceInformation']['servicePeriods'].each do |service_period|
         next if Date.parse(service_period['activeDutyEndDate']) <= Time.zone.today
         next if separation_locations.any? do |location|
-                  location['code'] == service_period['separationLocationCode']
+                  location[:id] == service_period['separationLocationCode']
                 end
 
         raise ::Common::Exceptions::InvalidFieldValue.new('separationLocationCode',
@@ -158,9 +158,7 @@ module ClaimsApi
     end
 
     def retrieve_separation_locations
-      @current_user.last_signed_in = Time.now.iso8601 if @current_user.last_signed_in.blank?
-      locations_response = EVSS::ReferenceData::Service.new(@current_user).get_separation_locations
-      locations_response.separation_locations
+      ClaimsApi::BRD.new.intake_sites
     end
 
     def validate_form_526_service_information_confinements!

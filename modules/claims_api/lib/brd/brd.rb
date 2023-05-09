@@ -19,6 +19,10 @@ module ClaimsApi
       client.get('countries').body[:items]
     end
 
+    def intake_sites
+      client.get('intake-sites').body[:items]
+    end
+
     private
 
     def client
@@ -34,6 +38,7 @@ module ClaimsApi
       raise StandardError, 'BRD api_key missing' if api_key.blank?
 
       Faraday.new("https://#{base_name}/benefits-reference-data/v1",
+                  # Disable SSL for (localhost) testing
                   ssl: { verify: Settings.brd&.ssl != false },
                   headers: { 'apiKey' => api_key }) do |f|
         f.request :json
