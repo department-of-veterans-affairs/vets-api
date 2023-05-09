@@ -43,6 +43,10 @@ RUN ./import-va-certs.sh
 
 COPY config/clamd.conf /etc/clamav/clamd.conf
 
+RUN mkdir -p /clamav_tmp && \
+    chown -R nonroot /clamav_tmp && \
+    chmod 777 /clamav_tmp
+
 
 ENV LANG=C.UTF-8 \
    BUNDLE_JOBS=4 \
