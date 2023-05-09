@@ -6,6 +6,7 @@ MyHealth::Engine.routes.draw do
       resources :vaccines, only: %i[index show], defaults: { format: :json } do
         get :pdf, on: :collection
       end
+      resources :allergies, only: %i[index show], defaults: { format: :json }
     end
 
     scope :messaging do
