@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'mobile/application_controller'
-
 module Mobile
   class DiscoveryController < ApplicationController
     skip_before_action :authenticate
