@@ -39,7 +39,7 @@ module Common
       begin
         super(attributes)
       rescue NoMethodError
-        Rails.logger.error('attributes failure: attributes')
+        Rails.logger.error("attributes failure: #{attributes}")
         raise
       end
 
