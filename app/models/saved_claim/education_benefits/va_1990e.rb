@@ -3,8 +3,11 @@
 class SavedClaim::EducationBenefits::VA1990e < SavedClaim::EducationBenefits
   add_form_and_validation('22-1990E')
 
-  def after_submit(_user)
+  def after_submit(user)
     return unless Flipper.enabled?(:form1990e_confirmation_email)
+
+    # only sending to unauthenticated users at this time
+    return if user.present?
 
     parsed_form_data ||= JSON.parse(form)
     email = parsed_form_data['email']

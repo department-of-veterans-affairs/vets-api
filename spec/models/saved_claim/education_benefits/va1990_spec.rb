@@ -13,14 +13,23 @@ RSpec.describe SavedClaim::EducationBenefits::VA1990 do
   describe '#after_submit' do
     let(:user) { create(:user) }
 
-    describe 'sends confirmation email for the 1990' do
+    describe 'confirmation email for the 1990' do
+      it 'is skipped when user is present' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
+
+        subject = create(:va1990_chapter33)
+        subject.after_submit(user)
+
+        expect(VANotify::EmailJob).not_to have_received(:perform_async)
+      end
+
       it 'chapter 33' do
         allow(VANotify::EmailJob).to receive(:perform_async)
 
         subject = create(:va1990_chapter33)
         confirmation_number = subject.education_benefits_claim.confirmation_number
 
-        subject.after_submit(user)
+        subject.after_submit(nil)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
           'email@example.com',
@@ -42,7 +51,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA1990 do
         subject = create(:va1990_with_relinquished)
         confirmation_number = subject.education_benefits_claim.confirmation_number
 
-        subject.after_submit(user)
+        subject.after_submit(nil)
 
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
           'email@example.com',

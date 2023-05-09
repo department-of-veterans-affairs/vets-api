@@ -13,24 +13,35 @@ RSpec.describe SavedClaim::EducationBenefits::VA1990e do
   describe '#after_submit' do
     let(:user) { create(:user) }
 
-    it 'sends confirmation email for the 1990e' do
-      allow(VANotify::EmailJob).to receive(:perform_async)
+    describe 'confirmation email for the 1990e' do
+      it 'is skipped when user is present' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
 
-      subject = create(:va1990e_with_email)
-      confirmation_number = subject.education_benefits_claim.confirmation_number
+        subject = create(:va1990e_with_email)
+        subject.after_submit(user)
 
-      subject.after_submit(user)
+        expect(VANotify::EmailJob).not_to have_received(:perform_async)
+      end
 
-      expect(VANotify::EmailJob).to have_received(:perform_async).with(
-        'email@example.com',
-        'form1990e_confirmation_email_template_id',
-        {
-          'first_name' => 'MARK',
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => confirmation_number,
-          'regional_office_address' => "P.O. Box 4616\nBuffalo, NY 14240-4616"
-        }
-      )
+      it 'sends if no user is present' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
+
+        subject = create(:va1990e_with_email)
+        confirmation_number = subject.education_benefits_claim.confirmation_number
+
+        subject.after_submit(nil)
+
+        expect(VANotify::EmailJob).to have_received(:perform_async).with(
+          'email@example.com',
+          'form1990e_confirmation_email_template_id',
+          {
+            'first_name' => 'MARK',
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => confirmation_number,
+            'regional_office_address' => "P.O. Box 4616\nBuffalo, NY 14240-4616"
+          }
+        )
+      end
     end
   end
 end
