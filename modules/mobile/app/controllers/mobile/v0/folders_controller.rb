@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'mobile/messaging_controller'
-require_dependency 'mobile/v0/folder_serializer'
-
 module Mobile
   module V0
     class FoldersController < MessagingController

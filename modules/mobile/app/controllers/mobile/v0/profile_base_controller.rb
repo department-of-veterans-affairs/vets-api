@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'mobile/application_controller'
 require 'va_profile/address_validation/service'
 require_relative '../concerns/sso_logging'
 

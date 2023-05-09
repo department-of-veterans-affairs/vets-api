@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'mobile/messaging_controller'
-
 module Mobile
   module V0
     class TriageTeamsController < MessagingController

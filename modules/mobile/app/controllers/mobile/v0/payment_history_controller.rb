@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'mobile/application_controller'
 require 'adapters/payment_history_adapter'
 
 module Mobile

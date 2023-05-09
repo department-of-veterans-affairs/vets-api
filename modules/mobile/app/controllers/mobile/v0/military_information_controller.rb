@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'mobile/application_controller'
 require 'va_profile/military_personnel/service'
 
 module Mobile
