@@ -19,12 +19,15 @@ class SavedClaim::EducationBenefits::VA1990 < SavedClaim::EducationBenefits
     'chapter1607' => 'Reserve Educational Assistance Program (REAP, Chapter 1607)'
   }.freeze
 
-  def after_submit(_user)
+  def after_submit(user)
+    return unless Flipper.enabled?(:form1990_confirmation_email)
+
+    # only sending to unauthenticated users at this time
+    return if user.present?
+
     parsed_form_data ||= JSON.parse(form)
     email = parsed_form_data['email']
     return if email.blank?
-
-    return unless Flipper.enabled?(:form1990_confirmation_email)
 
     send_confirmation_email(parsed_form_data, email)
   end
