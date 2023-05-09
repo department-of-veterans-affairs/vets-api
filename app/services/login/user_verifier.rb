@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'login/errors'
-
 module Login
   class UserVerifier
     def initialize(user)
