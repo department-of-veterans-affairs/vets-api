@@ -45,10 +45,10 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
 
         expect(job).to receive(:send_error_to_sentry).with(
           anything,
-          nil
+          'non-existent-claim'
         )
 
-        job.perform('non-existant-claim', vet_info, true, false)
+        job.perform('non-existent-claim', vet_info, true, false)
       end
 
       it 'raises an error if there is nothing in the dependents_application is empty' do
