@@ -867,3 +867,6 @@ features:
   disability_compensation_lighthouse_intent_to_file_provider:
     actor_type: user
     description: If enabled uses the lighthouse intent to file endpoint
+  income_limits_new:
+    actor_type: user
+    description: If enabled, shows the newly designed income limits application
