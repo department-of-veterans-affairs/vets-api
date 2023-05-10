@@ -59,7 +59,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200_with_provider',
                          match_requests_on: %i[method path query]) do
           allow_any_instance_of(VAOS::V2::MobilePPMSService).to \
-            receive(:get_cached_provider).with('1174506877').and_return(provider_response3)
+            receive(:get_provider_with_cache).with('1174506877').and_return(provider_response3)
           post '/vaos/v2/appointments', params: community_cares_request_body2, headers: inflection_header
 
           expect(response).to have_http_status(:created)
@@ -134,7 +134,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_cc_proposed', match_requests_on: %i[method],
                                                                                     allow_playback_repeats: true) do
             allow_any_instance_of(VAOS::V2::MobilePPMSService).to \
-              receive(:get_cached_provider).with('1528231610').and_return(provider_response2)
+              receive(:get_provider_with_cache).with('1528231610').and_return(provider_response2)
             get '/vaos/v2/appointments?_include=facilities,clinics&start=2022-09-13&end=2023-01-12&statuses[]=proposed',
                 headers: inflection_header
             data = JSON.parse(response.body)['data']
@@ -150,7 +150,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200_cc_proposed', match_requests_on: %i[method],
                                                                                     allow_playback_repeats: true) do
             allow_any_instance_of(VAOS::V2::MobilePPMSService).to \
-              receive(:get_cached_provider).with('1528231610').and_return(provider_response2)
+              receive(:get_provider_with_cache).with('1528231610').and_return(provider_response2)
             allow(Rails.logger).to receive(:info)
 
             get '/vaos/v2/appointments?_include=facilities,clinics&start=2022-09-13&end=2023-01-12&statuses[]=proposed',
@@ -337,7 +337,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_cc_proposed',
                            match_requests_on: %i[method path query]) do
             allow_any_instance_of(VAOS::V2::MobilePPMSService).to \
-              receive(:get_cached_provider).with('1407938061').and_return(provider_response)
+              receive(:get_provider_with_cache).with('1407938061').and_return(provider_response)
             get '/vaos/v2/appointments/81063', headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })

@@ -33,7 +33,7 @@ module VAOS
       #
       # Note: If changing the cached object from OpenStruct to something more complex, reconsider the
       # cache strategy to something like caching the raw JSON response.
-      def get_cached_provider(provider_id)
+      def get_provider_with_cache(provider_id)
         Rails.cache.fetch("vaos_ppms_provider_#{provider_id}", expires_in: 12.hours) do
           get_provider(provider_id)
         end
