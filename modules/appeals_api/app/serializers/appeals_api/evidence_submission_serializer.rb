@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'common/exceptions'
-
 module AppealsApi
   class EvidenceSubmissionSerializer < ActiveModel::Serializer
     MAX_DETAIL_DISPLAY_LENGTH = 100

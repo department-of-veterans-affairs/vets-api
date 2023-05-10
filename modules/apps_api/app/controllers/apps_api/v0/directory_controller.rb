@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# dependencies
-require_dependency 'apps_api/application_controller'
 require 'okta/directory_service'
 module AppsApi
   module V0

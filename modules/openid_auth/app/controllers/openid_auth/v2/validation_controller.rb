@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'openid_auth/application_controller'
 require 'common/exceptions'
 require 'rest-client'
 require 'json'
