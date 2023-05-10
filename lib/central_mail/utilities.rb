@@ -79,11 +79,14 @@ module CentralMail
                  else
                    body
                  end
-        raise error_class.new(code: 'DOC104', detail: "Upstream status: #{status} - #{detail}")
+        raise error_class.new(code: 'DOC104',
+                              detail: "Upstream status: #{status} - #{detail}",
+                              upstream_http_resp_status: status)
       # Defined values: 500
       elsif status.between?(500, 599)
         raise error_class.new(code: 'DOC201',
-                              detail: "Downstream status: #{status} - #{body}")
+                              detail: "Downstream status: #{status} - #{body}",
+                              upstream_http_resp_status: status)
       end
     end
   end
