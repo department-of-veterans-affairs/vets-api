@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'va_forms/v0/swagger_root'
-require_dependency 'va_forms/v0/security_scheme_swagger'
-require_dependency 'va_forms/forms/form_swagger'
-
 module VAForms
   module Docs
     module V0
