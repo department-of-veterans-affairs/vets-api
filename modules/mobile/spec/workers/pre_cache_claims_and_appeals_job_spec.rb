@@ -11,6 +11,7 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
   before(:all) do
     @original_cassette_dir = VCR.configure(&:cassette_library_dir)
     VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
+    Flipper.disable(:mobile_lighthouse_claims)
   end
 
   after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }

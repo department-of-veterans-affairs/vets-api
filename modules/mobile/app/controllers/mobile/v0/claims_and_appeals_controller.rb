@@ -12,10 +12,20 @@ module Mobile
   module V0
     class ClaimsAndAppealsController < ApplicationController
       include IgnoreNotFound
+      before_action(only: :index) do
+        if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
+          authorize :lighthouse, :access?
+        else
+          authorize :evss, :access?
+        end
+      end
 
-      before_action { authorize :evss, :access? }
+      before_action(except: :index) do
+        authorize :evss, :access?
+      end
+
       after_action only: :upload_multi_image_document do
-        claims_proxy.cleanup_after_upload
+        evss_claims_proxy.cleanup_after_upload
       end
 
       def index
@@ -26,27 +36,27 @@ module Mobile
       end
 
       def get_claim
-        claim_detail = claims_proxy.get_claim(params[:id])
+        claim_detail = evss_claims_proxy.get_claim(params[:id])
         render json: Mobile::V0::ClaimSerializer.new(claim_detail)
       end
 
       def get_appeal
-        appeal = claims_proxy.get_appeal(params[:id])
+        appeal = evss_claims_proxy.get_appeal(params[:id])
         render json: Mobile::V0::AppealSerializer.new(appeal)
       end
 
       def request_decision
-        jid = claims_proxy.request_decision(params[:id])
+        jid = evss_claims_proxy.request_decision(params[:id])
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
       def upload_document
-        jid = claims_proxy.upload_document(params)
+        jid = evss_claims_proxy.upload_document(params)
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
       def upload_multi_image_document
-        jid = claims_proxy.upload_multi_image(params)
+        jid = evss_claims_proxy.upload_multi_image(params)
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
@@ -55,13 +65,15 @@ module Mobile
       def fetch_all_cached_or_service(validated_params, show_completed)
         list = nil
         list = Mobile::V0::ClaimOverview.get_cached(@current_user) if validated_params[:use_cache]
-        list, errors = if list.blank?
-                         Rails.logger.info('mobile claims and appeals service fetch', user_uuid: @current_user.uuid)
-                         service_list, service_errors = claims_proxy.get_claims_and_appeals
+        list, errors = if list.nil?
+                         if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
+                           service_list, service_errors = lighthouse_claims_proxy.get_claims_and_appeals
+                         else
+                           service_list, service_errors = evss_claims_proxy.get_claims_and_appeals
+                         end
                          Mobile::V0::ClaimOverview.set_cached(@current_user, list)
                          [service_list, service_errors]
                        else
-                         Rails.logger.info('mobile claims and appeals cache fetch', user_uuid: @current_user.uuid)
                          [list, []]
                        end
 
@@ -76,7 +88,11 @@ module Mobile
         [Mobile::V0::ClaimOverviewSerializer.new(list, options), status]
       end
 
-      def claims_proxy
+      def lighthouse_claims_proxy
+        @claims_proxy ||= Mobile::V0::LighthouseClaims::Proxy.new(@current_user)
+      end
+
+      def evss_claims_proxy
         @claims_proxy ||= Mobile::V0::Claims::Proxy.new(@current_user)
       end
 
