@@ -1,5 +1,7 @@
 # frozen_string_literal: false
 
+require 'brd/brd'
+
 module ClaimsApi
   module V2
     module DisabilityCompensationValidation
@@ -8,6 +10,8 @@ module ClaimsApi
         validate_form_526_submission_claim_date!
         # ensure 'claimantCertification' is true
         validate_form_526_claimant_certification!
+        # ensure mailing address country is valid
+        validate_form_526_current_mailing_address_country!
       end
 
       def validate_form_526_submission_claim_date!
@@ -24,6 +28,17 @@ module ClaimsApi
 
         raise ::Common::Exceptions::InvalidFieldValue.new('claimantCertification',
                                                           form_attributes['claimantCertification'])
+      end
+
+      def validate_form_526_current_mailing_address_country!
+        mailing_address = form_attributes.dig('veteranIdentification', 'mailingAddress')
+        return if valid_countries.include?(mailing_address['country'])
+
+        raise ::Common::Exceptions::InvalidFieldValue.new('country', mailing_address['country'])
+      end
+
+      def valid_countries
+        @valid_countries ||= ClaimsApi::BRD.new(request).countries
       end
     end
   end
