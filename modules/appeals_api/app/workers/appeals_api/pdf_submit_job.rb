@@ -23,6 +23,13 @@ module AppealsApi
       AppealsApi::SupplementalClaim => AppealsApi::ScPdfSubmitWrapper
     }.freeze
 
+    # retryable EMMS API provided http response status codes
+    # 401 Unauthorized - missing or incorrect token
+    # 429 Too many requests (for a single GUID)
+    # 500 Server Error
+    # 503 Database Offline || SOLR Service Offline || Intake API is undergoing maintenance
+    RETRYABLE_EMMS_RESP_STATUS_CODES = [401, 429, 500, 503].freeze
+
     # Retry for ~7 days
     sidekiq_options retry: 20, unique_for: 7.days
 
@@ -67,7 +74,7 @@ module AppealsApi
     end
 
     def process_response(response, appeal, metadata)
-      if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
+      if response.success?
         appeal.update_status!(status: 'submitted')
         log_submission(appeal, metadata)
       else
@@ -89,20 +96,19 @@ module AppealsApi
       log_upload_error(appeal, e)
       appeal.update_status(status: 'error', code: e.code, detail: e.detail)
 
-      if e.code == 'DOC201' || e.code == 'DOC202'
-        notify(
-          {
-            'class' => self.class.name,
-            'args' => [appeal.id, appeal.class.to_s, appeal.created_at.iso8601],
-            'error_class' => e.code,
-            'error_message' => e.detail,
-            'failed_at' => Time.zone.now
-          }
-        )
-      else
-        # allow sidekiq to retry immediately
-        raise
-      end
+      # re-raise retryable EMMS errors so sidekick will retry
+      raise if RETRYABLE_EMMS_RESP_STATUS_CODES.include?(e.upstream_http_resp_status)
+
+      # non retryable error, eat the exception so sidekiq WON'T retry and slack notify
+      notify(
+        {
+          'class' => self.class.name,
+          'args' => [appeal.id, appeal.class.to_s, appeal.created_at.iso8601],
+          'error_class' => e.code,
+          'error_message' => e.detail,
+          'failed_at' => Time.zone.now
+        }
+      )
     end
   end
 end

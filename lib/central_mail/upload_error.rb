@@ -5,7 +5,7 @@ require 'central_mail/upload_error'
 
 module CentralMail
   class UploadError < StandardError
-    attr_accessor :code, :detail
+    attr_accessor :code, :detail, :upstream_http_resp_status
 
     DEFAULT_MESSAGE = 'Internal Server Error'
 
@@ -45,10 +45,11 @@ module CentralMail
       end
     end
 
-    def initialize(message = nil, code: nil, detail: nil, pdf_validator_options: {})
+    def initialize(message = nil, code: nil, detail: nil, upstream_http_resp_status: nil, pdf_validator_options: {})
       super(message || UploadError.default_message(code, pdf_validator_options))
       @code = code
       @detail = detail
+      @upstream_http_resp_status = upstream_http_resp_status
 
       StatsD.increment self.class::STATSD_UPLOAD_FAIL_KEY, tags: ["status:#{code}"]
     end
