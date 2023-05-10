@@ -1,86 +1,86 @@
 ---
 http_interactions:
-- request:
-    method: get
-    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/1008709396V637156/claims
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Authorization:
-      - Bearer abcdefghijklmnop
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Tue, 28 Feb 2023 19:21:47 GMT
-      Content-Type:
-      - application/json; charset=utf-8
-      Connection:
-      - keep-alive
-      X-Ratelimit-Remaining-Minute:
-      - '59'
-      Ratelimit-Limit:
-      - '60'
-      Ratelimit-Remaining:
-      - '59'
-      Ratelimit-Reset:
-      - '21'
-      X-Ratelimit-Limit-Minute:
-      - '60'
-      Etag:
-      - W/"7db345ae00cfd8509278f84c36e5f5d4"
-      Referrer-Policy:
-      - strict-origin-when-cross-origin
-      Vary:
-      - Origin
-      X-Content-Type-Options:
-      - nosniff
-      X-Download-Options:
-      - noopen
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Git-Sha:
-      - 12e78331a5fccd2eb589b41ac396598a3bb33cca
-      X-Github-Repository:
-      - https://github.com/department-of-veterans-affairs/vets-api
-      X-Permitted-Cross-Domain-Policies:
-      - none
-      X-Request-Id:
-      - a2d2a2f8-f84f-4785-8340-23fbd9727575
-      X-Runtime:
-      - '8.437342'
-      X-Xss-Protection:
-      - 1; mode=block
-      Access-Control-Allow-Origin:
-      - "*"
-      X-Kong-Upstream-Latency:
-      - '8442'
-      X-Kong-Proxy-Latency:
-      - '0'
-      Via:
-      - kong/3.0.2
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains; preload
-      Cache-Control:
-      - no-cache, no-store
-      Pragma:
-      - no-cache
-      Transfer-Encoding:
-      - chunked
-    body:
-      encoding: ASCII-8BIT
-      string: '{
+  - request:
+      method: get
+      uri: https://sandbox-api.va.gov/services/claims/v2/veterans/1008596379V859838/claims
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Authorization:
+          - Bearer abcdefghijklmnop
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Tue, 28 Feb 2023 19:21:47 GMT
+        Content-Type:
+          - application/json; charset=utf-8
+        Connection:
+          - keep-alive
+        X-Ratelimit-Remaining-Minute:
+          - '59'
+        Ratelimit-Limit:
+          - '60'
+        Ratelimit-Remaining:
+          - '59'
+        Ratelimit-Reset:
+          - '21'
+        X-Ratelimit-Limit-Minute:
+          - '60'
+        Etag:
+          - W/"7db345ae00cfd8509278f84c36e5f5d4"
+        Referrer-Policy:
+          - strict-origin-when-cross-origin
+        Vary:
+          - Origin
+        X-Content-Type-Options:
+          - nosniff
+        X-Download-Options:
+          - noopen
+        X-Frame-Options:
+          - SAMEORIGIN
+        X-Git-Sha:
+          - 12e78331a5fccd2eb589b41ac396598a3bb33cca
+        X-Github-Repository:
+          - https://github.com/department-of-veterans-affairs/vets-api
+        X-Permitted-Cross-Domain-Policies:
+          - none
+        X-Request-Id:
+          - a2d2a2f8-f84f-4785-8340-23fbd9727575
+        X-Runtime:
+          - '8.437342'
+        X-Xss-Protection:
+          - 1; mode=block
+        Access-Control-Allow-Origin:
+          - "*"
+        X-Kong-Upstream-Latency:
+          - '8442'
+        X-Kong-Proxy-Latency:
+          - '0'
+        Via:
+          - kong/3.0.2
+        Strict-Transport-Security:
+          - max-age=31536000; includeSubDomains; preload
+        Cache-Control:
+          - no-cache, no-store
+        Pragma:
+          - no-cache
+        Transfer-Encoding:
+          - chunked
+      body:
+        encoding: ASCII-8BIT
+        string: '{
                  "data":[
                     {
                        "id":"600383363",
@@ -111,7 +111,7 @@ http_interactions:
                           },
                           "claimType":"Compensation",
                           "closeDate":null,
-                          "decisionLetterSent":false,
+                          "decisionLetterSent":true,
                           "developmentLetterSent":false,
                           "documentsNeeded":false,
                           "endProductCode":"010",
@@ -167,17 +167,17 @@ http_interactions:
                              "phaseChangeDate":"2021-03-22"
                           },
                           "claimType":"Compensation",
-                          "closeDate":null,
+                          "closeDate":"2023-03-22",
                           "decisionLetterSent":false,
                           "developmentLetterSent":false,
                           "documentsNeeded":false,
                           "endProductCode":"110",
                           "evidenceWaiverSubmitted5103":true,
                           "lighthouseId":null,
-                          "status":"INITIAL_REVIEW"
+                          "status":"COMPLETE"
                        }
                     }
                  ]
               }'
-  recorded_at: Tue, 28 Feb 2023 19:21:47 GMT
+    recorded_at: Tue, 28 Feb 2023 19:21:47 GMT
 recorded_with: VCR 6.1.0

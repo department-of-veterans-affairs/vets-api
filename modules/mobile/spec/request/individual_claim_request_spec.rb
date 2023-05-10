@@ -9,6 +9,7 @@ RSpec.describe 'individual claim', type: :request do
 
   describe 'GET /v0/claim/:id' do
     before do
+      Flipper.disable(:mobile_lighthouse_claims)
       iam_sign_in
       FactoryBot.create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: '3097e489-ad75-5746-ab1a-e0aabc1b426a')
       FactoryBot.create(:evss_claim, id: 2, evss_id: 111_222_333, user_uuid: '1234567890')

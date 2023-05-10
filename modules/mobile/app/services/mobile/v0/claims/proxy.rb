@@ -20,7 +20,8 @@ module Mobile
 
           claims[:errors].nil? ? full_list.push(*claims[:list]) : errors.push(claims[:errors])
           appeals[:errors].nil? ? full_list.push(*appeals[:list]) : errors.push(appeals[:errors])
-          data = Mobile::V0::Adapters::ClaimsOverview.new.parse(full_list)
+
+          data = claims_adapter.parse(full_list)
 
           errors.each do |error|
             Rails.logger.error("Mobile Claims and Appeals: error received from #{error[:service]} service",
@@ -105,6 +106,10 @@ module Mobile
           jid = evss_claim_service.upload_document(document_data)
           Rails.logger.info('Mobile Request', { claim_id:, job_id: jid })
           jid
+        end
+
+        def claims_adapter
+          Mobile::V0::Adapters::ClaimsOverview.new
         end
 
         def auth_headers
