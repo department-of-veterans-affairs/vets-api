@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'apps_api/v0/swagger_root'
-# require_dependency 'apps_api/v0/security_scheme_swagger'
-require_dependency 'apps_api/v0/apps/apps_swagger'
-
 module AppsApi
   module Docs
     module V0
