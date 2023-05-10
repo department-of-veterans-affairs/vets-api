@@ -2,8 +2,6 @@
 
 require 'rails_helper'
 
-require_dependency 'authentication_token_service'
-
 Rspec.describe MebApi::AuthenticationTokenService do
   describe '.call' do
     let(:token) { described_class.call }
