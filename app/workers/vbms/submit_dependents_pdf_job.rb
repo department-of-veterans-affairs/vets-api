@@ -8,6 +8,7 @@ module VBMS
 
     # Generates PDF for 686c form and uploads to VBMS
     def perform(saved_claim_id, va_file_number_with_payload, submittable_686, submittable_674)
+      Rails.logger.info('VBMS::SubmitDependentsPdfJob running!', { saved_claim_id: })
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
       claim.add_veteran_info(va_file_number_with_payload)
 
@@ -29,8 +30,10 @@ module VBMS
       end
 
       generate_pdf(claim, submittable_686, submittable_674)
+      Rails.logger.info('VBMS::SubmitDependentsPdfJob succeeded!', { saved_claim_id: })
     rescue => e
-      send_error_to_sentry(e, claim&.id)
+      Rails.logger.error('VBMS::SubmitDependentsPdfJob failed!', { saved_claim_id:, error: e.message })
+      send_error_to_sentry(e, saved_claim_id)
     end
 
     private

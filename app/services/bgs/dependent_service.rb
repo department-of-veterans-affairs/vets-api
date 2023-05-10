@@ -33,6 +33,7 @@ module BGS
     end
 
     def submit_686c_form(claim)
+      Rails.logger.info('BGS::DependentService running!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
       bgs_person = service.people.find_person_by_ptcpnt_id(participant_id) || service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
       file_number = bgs_person[:file_nbr]
       # BGS's file number is supposed to be an eight or nine-digit string, and
@@ -65,8 +66,10 @@ module BGS
         validate_file_number_format!(file_number:)
         validate_file_number_matches_ssn!(file_number:)
         BGS::SubmitForm686cJob.perform_async(uuid, claim.id, form_hash_686c)
+        Rails.logger.info('BGS::DependentService succeeded!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
       end
     rescue => e
+      Rails.logger.error('BGS::DependentService failed!', { user_uuid: uuid, saved_claim_id: claim.id, icn:, error: e.message }) # rubocop:disable Layout/LineLength
       log_exception_to_sentry(e, { icn:, uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
     end
 
