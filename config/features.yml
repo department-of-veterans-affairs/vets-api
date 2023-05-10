@@ -369,6 +369,10 @@ features:
   form264555:
     actor_type: user
     description: If enabled shows the digital form experience for form 26-4555
+  form_confirmation_edu_auth_user:
+    actor_type: user
+    description: Skips sending confirmation emails to authenticated users
+    enable_in_development: true
   fsr_confirmation_email:
     actor_type: user
     description: Enables notifications to be sent via email upon FSR submission
