@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'veteran_confirmation/application_controller'
 require 'common/exceptions'
 
 module VeteranConfirmation
