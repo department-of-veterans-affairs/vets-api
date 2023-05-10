@@ -5,22 +5,22 @@
             "veteranIdentification": {
                 "currentlyVaEmployee": false,
                 "mailingAddress": {
-                    "numberAndStreet": ",a#'",
-                    "apartmentOrUnitNumber": "ABCD",
-                    "city": "#j2'w",
-                    "country": "ABCDEFGHIJKLMNOPQRSTUVW",
+                    "numberAndStreet": "1234 Couch Street",
+                    "apartmentOrUnitNumber": "22",
+                    "city": "Portland",
+                    "country": "USA",
                     "zipFirstFive": "41726",
                     "zipLastFour": "",
-                    "state": "z,"
+                    "state": "OR"
                 },
                 "serviceNumber": "ABCDEFGH",
                 "emailAddress": {
-                    "email": "ABCDEFGHIJKLMNOPQRSTU",
+                    "email": "valid@somedomain.com",
                     "agreeToEmailRelatedToClaim": true
                 },
                 "veteranNumber": {
-                    "telephone": "1234567",
-                    "internationalTelephone": "1234567"
+                    "telephone": "1234567890",
+                    "internationalTelephone": "1234567890"
                 },
                 "vaFileNumber": "ABCDEF"
             },

@@ -2632,6 +2632,7 @@
                         "properties": {
                           "email": {
                             "type": "string",
+                            "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
                             "description": "The most current email address of the Veteran.",
                             "maxLength": 50
                           },
@@ -2648,11 +2649,13 @@
                         "properties": {
                           "telephone": {
                             "type": "string",
+                            "pattern": "^\\d{10}?$",
                             "description": "Veteran's phone number.",
                             "maxLength": 10
                           },
                           "internationalTelephone": {
                             "type": "string",
+                            "pattern": "^\\d{10}?$",
                             "description": "Veteran's international phone number.",
                             "maxLength": 10
                           }
@@ -2677,6 +2680,7 @@
                           "apartmentOrUnitNumber": {
                             "description": "Apartment or unit number for the Veteran's current mailing address.",
                             "type": "string",
+                            "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                             "maxLength": 5,
                             "example": "22"
                           },
@@ -4542,8 +4546,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-05-04",
-                      "expirationDate": "2024-05-04",
+                      "creationDate": "2023-05-10",
+                      "expirationDate": "2024-05-10",
                       "type": "compensation",
                       "status": "active"
                     }

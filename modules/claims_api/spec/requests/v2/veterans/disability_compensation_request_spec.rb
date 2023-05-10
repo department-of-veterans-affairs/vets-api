@@ -63,7 +63,7 @@ RSpec.describe 'Disability Claims', type: :request do
             it 'responds with a 200' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/countries') do
+                  VCR.use_cassette('brd/countries') do
                     post path, params: data, headers: headers.merge(auth_header)
                     expect(response).to have_http_status(:ok)
                   end
@@ -78,7 +78,7 @@ RSpec.describe 'Disability Claims', type: :request do
             it 'responds with a 200' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/countries') do
+                  VCR.use_cassette('brd/countries') do
                     post path, params: data, headers: headers.merge(auth_header)
                     expect(response).to have_http_status(:ok)
                   end
@@ -116,7 +116,7 @@ RSpec.describe 'Disability Claims', type: :request do
             it 'responds with a 200' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/countries') do
+                  VCR.use_cassette('brd/countries') do
                     post path, params: data, headers: headers.merge(auth_header)
                     expect(response).to have_http_status(:ok)
                   end
@@ -131,7 +131,7 @@ RSpec.describe 'Disability Claims', type: :request do
             it 'responds with a 200' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/countries') do
+                  VCR.use_cassette('brd/countries') do
                     post path, params: data, headers: headers.merge(auth_header)
                     expect(response).to have_http_status(:ok)
                   end
@@ -159,7 +159,7 @@ RSpec.describe 'Disability Claims', type: :request do
             it 'responds with a 200' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/countries') do
+                  VCR.use_cassette('brd/countries') do
                     post path, params: data, headers: headers.merge(auth_header)
                     expect(response).to have_http_status(:ok)
                   end
@@ -174,7 +174,7 @@ RSpec.describe 'Disability Claims', type: :request do
             it 'responds with a 200' do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/countries') do
+                  VCR.use_cassette('brd/countries') do
                     post path, params: data, headers: headers.merge(auth_header)
                     expect(response).to have_http_status(:ok)
                   end
@@ -288,12 +288,323 @@ RSpec.describe 'Disability Claims', type: :request do
         context 'when the cert is false' do
           let(:claimant_certification) { false }
 
-          it 'responds with a bad request' do
+          it 'responds with a 200' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
                 json = JSON.parse(data)
                 json['data']['attributes']['claimantCertification'] = claimant_certification
                 data = json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      describe 'validation of claimant mailing address elements' do
+        context 'when the country is valid' do
+          let(:country) { 'USA' }
+
+          it 'responds with a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  json = JSON.parse(data)
+                  json['data']['attributes']['veteranIdentification']['mailingAddress']['country'] = country
+                  data = json.to_json
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+        end
+
+        context 'when the country is invalid' do
+          let(:country) { 'United States of Nada' }
+
+          it 'responds with bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  json = JSON.parse(data)
+                  json['data']['attributes']['veteranIdentification']['mailingAddress']['country'] = country
+                  data = json.to_json
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:bad_request)
+                end
+              end
+            end
+          end
+        end
+
+        context 'when no mailing address data is found' do
+          it 'responds with bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  json = JSON.parse(data)
+                  json['data']['attributes']['veteranIdentification']['mailingAddress'] = {}
+                  data = json.to_json
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context 'when the phone has non-digits included' do
+        let(:telephone) { '123456789X' }
+
+        it 'responds with bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['veteranIdentification']['veteranNumber']['telephone'] = telephone
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when the internationalTelephone has non-digits included' do
+        let(:international_telephone) { '123456789X' }
+
+        it 'responds with bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['veteranIdentification']['veteranNumber']['internationalTelephone'] =
+                  international_telephone
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when the zipFirstFive has non-digits included' do
+        let(:zip_first_five) { '1234X' }
+
+        it 'responds with bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['veteranIdentification']['mailingAddress']['zipFirstFive'] = zip_first_five
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when the zipLastFour has non-digits included' do
+        let(:zip_last_four) { '123X' }
+
+        it 'responds with bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['veteranIdentification']['mailingAddress']['zipLastFour'] = zip_last_four
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when the apartmentOrUnitNumber exceeds the max length' do
+        let(:apartment_or_unit_number) { '123456' }
+
+        it 'responds with bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['veteranIdentification']['mailingAddress']['apartmentOrUnitNumber'] =
+                  apartment_or_unit_number
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when the numberAndStreet exceeds the max length' do
+        let(:number_and_street) { '1234567890abcdefghijklmnopqrstuvwxyz' }
+
+        it 'responds with bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['veteranIdentification']['mailingAddress']['numberAndStreet'] =
+                  number_and_street
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when the city exceeds the max length' do
+        let(:city) { '1234567890abcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=' }
+
+        it 'responds with bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['veteranIdentification']['mailingAddress']['city'] = city
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when the state has non-alphabetic characters' do
+        let(:state) { '!@#$%^&*()_+-=' }
+
+        it 'responds with bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['veteranIdentification']['mailingAddress']['state'] = state
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when the vaFileNumber exceeds the max length' do
+        let(:va_file_number) { '1234567890abcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=' }
+
+        it 'responds with bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['veteranIdentification']['vaFileNumber'] = va_file_number
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when currentlyVaEmployee is a non-boolean value' do
+        let(:currently_va_employee) { 'negative' }
+
+        it 'responds with bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['veteranIdentification']['currentlyVaEmployee'] =
+                  currently_va_employee
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when serviceNumber exceeds max length' do
+        let(:service_number) { '1234567890abcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=' }
+
+        it 'responds with bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['veteranIdentification']['serviceNumber'] = service_number
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when email exceeds max length' do
+        let(:email) { '1234567890abcdefghijklmnopqrstuvwxyz@someinordiantelylongdomain.com' }
+
+        it 'responds with bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['veteranIdentification']['emailAddress'] = email
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when email is not valid' do
+        let(:email) { '.invalid@somedomain.com' }
+
+        it 'responds with bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['veteranIdentification']['emailAddress'] = email
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when agreeToEmailRelatedToClaim is a non-boolean value' do
+        let(:agree_to_email_related_to_claim) { 'negative' }
+
+        it 'responds with bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['veteranIdentification']['emailAddress']['agreeToEmailRelatedToClaim'] =
+                  agree_to_email_related_to_claim
+                data = json.to_json
                 post path, params: data, headers: headers.merge(auth_header)
                 expect(response).to have_http_status(:unprocessable_entity)
               end
