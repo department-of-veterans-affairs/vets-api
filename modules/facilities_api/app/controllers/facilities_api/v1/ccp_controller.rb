@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'facilities_api/application_controller'
-
 module FacilitiesApi
   class V1::CcpController < ApplicationController
     # Provider supports the following query parameters:
