@@ -6,8 +6,13 @@ describe VAOS::V2::MobileFacilityService do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :vaos) }
+  let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
-  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
+  before do
+    allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    allow(Rails).to receive(:cache).and_return(memory_store)
+    Rails.cache.clear
+  end
 
   describe '#configuration' do
     context 'with a single facility id arg' do
@@ -141,6 +146,62 @@ describe VAOS::V2::MobileFacilityService do
     end
   end
 
+  describe '#get_clinic_with_cache' do
+    context 'with a valid request and clinic is not in the cache' do
+      it 'returns the clinic information and stores it in the cache' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200',
+                         match_requests_on: %i[method path query]) do
+          expect(Rails.cache.exist?('vaos_clinic_983_455')).to eq(false)
+          clinic = subject.get_clinic_with_cache(station_id: '983', clinic_id: '455')
+          expect(clinic[:station_id]).to eq('983')
+          expect(clinic[:clinic_id]).to eq('455')
+          expect(Rails.cache.exist?('vaos_clinic_983_455')).to eq(true)
+        end
+      end
+
+      it "calls '#get_clinic' retrieving information from MFS" do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200',
+                         match_requests_on: %i[method path query]) do
+          # rubocop:disable RSpec/SubjectStub
+          expect(subject).to receive(:get_clinic).once.and_call_original
+          # rubocop:enable RSpec/SubjectStub
+          subject.get_clinic_with_cache(station_id: '983', clinic_id: '455')
+          expect(Rails.cache.exist?('vaos_clinic_983_455')).to eq(true)
+        end
+      end
+    end
+
+    context 'with a valid request and the clinic is in the cache' do
+      it 'returns the clinic information from the cache' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200',
+                         match_requests_on: %i[method path query]) do
+          # prime the cache
+          response = subject.get_clinic(station_id: '983', clinic_id: '455')
+          Rails.cache.write('vaos_clinic_983_455', response)
+
+          # rubocop:disable RSpec/SubjectStub
+          expect(subject).not_to receive(:get_clinic)
+          # rubocop:enable RSpec/SubjectStub
+          cached_response = subject.get_clinic_with_cache(station_id: '983', clinic_id: '455')
+          expect(response).to eq(cached_response)
+          expect(Rails.cache.exist?('vaos_clinic_983_455')).to eq(true)
+        end
+      end
+    end
+
+    context 'with a backend server error' do
+      it 'raises a BackendServiceException and nothing is cached' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_500',
+                         match_requests_on: %i[method path query]) do
+          expect { subject.get_clinic_with_cache(station_id: '983', clinic_id: 'does_not_exist') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+          expect(Rails.cache.exist?('vaos_clinic_983_does_not_exist')).to eq(false)
+        end
+      end
+    end
+  end
+
   describe '#get_facility' do
     context 'with a valid request' do
       it 'returns a facility' do
@@ -172,6 +233,64 @@ describe VAOS::V2::MobileFacilityService do
           expect { subject.get_facility('983') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
+        end
+      end
+    end
+  end
+
+  describe '#get_facility_with_cache' do
+    context 'with a valid request and facility is not in the cache' do
+      it 'retrieves the facility from MFS and stores the facility in the cache' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                         match_requests_on: %i[method path query]) do
+          expect(Rails.cache.exist?('vaos_facility_983')).to eq(false)
+
+          response = subject.get_facility_with_cache('983')
+
+          expect(response[:id]).to eq('983')
+          expect(response[:type]).to eq('va_facilities')
+          expect(response[:name]).to eq('Cheyenne VA Medical Center')
+          expect(Rails.cache.exist?('vaos_facility_983')).to eq(true)
+        end
+      end
+    end
+
+    it 'calls #get_facility' do
+      VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                       match_requests_on: %i[method path query]) do
+        # rubocop:disable RSpec/SubjectStub
+        expect(subject).to receive(:get_facility).once.and_call_original
+        # rubocop:enable RSpec/SubjectStub
+        subject.get_facility_with_cache('983')
+      end
+    end
+
+    context 'with a valid request and facility is in the cache' do
+      it 'returns the facility from the cache' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                         match_requests_on: %i[method path query]) do
+          # prime the cache
+          response = subject.get_facility('983')
+          Rails.cache.write('vaos_facility_983', response)
+
+          # rubocop:disable RSpec/SubjectStub
+          expect(subject).not_to receive(:get_facility)
+          # rubocop:enable RSpec/SubjectStub
+          cached_response = subject.get_facility_with_cache('983')
+          expect(response).to eq(cached_response)
+          expect(Rails.cache.exist?('vaos_facility_983')).to eq(true)
+        end
+      end
+    end
+
+    context 'with a backend server error' do
+      it 'raises a backend exception and nothing is cached' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_500',
+                         match_requests_on: %i[method path query]) do
+          expect { subject.get_facility_with_cache('983') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+          expect(Rails.cache.exist?('vaos_facility_983')).to eq(false)
         end
       end
     end

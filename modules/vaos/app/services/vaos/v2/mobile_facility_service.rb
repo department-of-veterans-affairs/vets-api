@@ -6,6 +6,13 @@ require 'common/client/errors'
 module VAOS
   module V2
     class MobileFacilityService < VAOS::SessionService
+      # Retrieves information about a VA clinic from the Mobile Facility Service.
+      #
+      # @param station_id [String] the ID of the VA facility where the clinic is located
+      # @param clinic_id [String] the ID of the clinic to retrieve
+      #
+      # @return [OpenStruct] An OpenStruct object containing information about the clinic.
+      #
       def get_clinic(station_id:, clinic_id:)
         params = {}
         parent_site_id = station_id[0, 3]
@@ -16,6 +23,32 @@ module VAOS
         end
       end
 
+      # Retrieves a clinic from the cache if it exists, otherwise retrieves the clinic from the Mobile Facility Service.
+      #
+      # @param station_id [String] the ID of the VA facility where the clinic is located
+      # @param clinic_id [String] the ID of the clinic to retrieve
+      #
+      # @return [OpenStruct] an OpenStruct containing information about the clinic,
+      #         retrieved from either the cache or the Mobile Facility Service.
+      #
+      def get_clinic_with_cache(station_id:, clinic_id:)
+        Rails.cache.fetch("vaos_clinic_#{station_id}_#{clinic_id}", expires_in: 12.hours) do
+          get_clinic(station_id:, clinic_id:)
+        end
+      end
+
+      # Retrieves facilities based on the provided parameters from the Mobile Facility Service.
+      #
+      # @param ids [String] a required parameter that contains a comma-separated list of facility IDs.
+      # @param children [Boolean] an optional parameter that specifies if child facilities should be included (true) or
+      # excluded (false/nil).
+      # @param type [String] an optional parameter that specifies the type of facility to retrieve.
+      # @param pagination_params [Hash] an optional parameter that contains pagination parameters to use in the request
+      #
+      # @return [Hash] a hash with two keys:
+      #   - :data: A hash containing information about the facilities
+      #   - :meta: A hash containing pagination information
+      #
       def get_facilities(ids:, children: nil, type: nil, pagination_params: {})
         params = {
           ids:,
@@ -32,6 +65,12 @@ module VAOS
         end
       end
 
+      # Retrieves information about a VA facility from the Mobile Facility Service given its ID.
+      #
+      # @param facility_id [String] the ID of the VA facility to retrieve information about
+      #
+      # @return [OpenStruct] An OpenStruct object containing information about the facility.
+      #
       def get_facility(facility_id)
         params = {}
         with_monitoring do
@@ -40,6 +79,32 @@ module VAOS
         end
       end
 
+      # Retrieves a VA facility from the cache if it exists, otherwise retrieves the facility
+      # from the Mobile Facility Service.
+      #
+      # @param facility_id [String] the ID of the VA facility to retrieve
+      #
+      # @return [OpenStruct] An OpenStruct object containing information about the facility
+      #
+      def get_facility_with_cache(facility_id)
+        Rails.cache.fetch("vaos_facility_#{facility_id}", expires_in: 12.hours) do
+          get_facility(facility_id)
+        end
+      end
+
+      # Retrieves scheduling configurations for VA facilities based on the provided parameters.
+      #
+      # @param facility_ids [String] A comma-separated list of facility IDs to retrieve scheduling configurations for.
+      # @param cc_enabled [Boolean] an optional parameter If true, then only scheduling configurations for
+      #                   community care-enabled sites will be returned. If false, then only scheduling configurations
+      #                   for community care-disabled sites will be returned. If not provided, then community care
+      #                   status will be ignored.
+      # @param pagination_params [Hash] an optional parameter that contains pagination parameters to use in the request.
+      #
+      # @return [Hash] a hash with two keys:
+      #   - :data: A hash containing information about the scheduling configurations.
+      #   - :meta: A hash containing pagination information.
+      #
       def get_scheduling_configurations(facility_ids, cc_enabled = nil, pagination_params = {})
         params = {
           facilityIds: facility_ids,
