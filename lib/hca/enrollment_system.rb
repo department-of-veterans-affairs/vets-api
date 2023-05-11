@@ -15,6 +15,8 @@ module HCA
       'isWhite' => '2106-3'
     }.freeze
 
+    NO_RACE = '0000-0'
+
     SIGI_CODES = {
       'M' => 'M',
       'F' => 'F',
@@ -191,10 +193,19 @@ module HCA
       ]
     end
 
+    def demographic_no?(veteran)
+      veteran['hasDemographicNoAnswer'] == true
+    end
+
     def veteran_to_races(veteran)
       races = []
-      RACE_CODES.each do |race_key, code|
-        races << code if veteran[race_key]
+
+      if demographic_no?(veteran)
+        races << NO_RACE
+      else
+        RACE_CODES.each do |race_key, code|
+          races << code if veteran[race_key]
+        end
       end
 
       return if races.size.zero?
@@ -615,7 +626,11 @@ module HCA
           'emails' => email_from_veteran(veteran),
           'phones' => phone_number_from_veteran(veteran)
         },
-        'ethnicity' => spanish_hispanic_to_sds_code(veteran['isSpanishHispanicLatino']),
+        'ethnicity' => if demographic_no?(veteran)
+                         NO_RACE
+                       else
+                         spanish_hispanic_to_sds_code(veteran['isSpanishHispanicLatino'])
+                       end,
         'maritalStatus' => marital_status_to_sds_code(veteran['maritalStatus']),
         'preferredFacility' => veteran['vaMedicalFacility'],
         'races' => veteran_to_races(veteran),

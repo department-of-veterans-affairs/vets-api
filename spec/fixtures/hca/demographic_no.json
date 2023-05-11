@@ -1,0 +1,37 @@
+{
+  "isEssentialAcaCoverage": false,
+  "vaMedicalFacility": "598",
+  "isCoveredByHealthInsurance": false,
+  "isMedicaidEligible": false,
+  "isSpanishHispanicLatino": false,
+  "hasDemographicNoAnswer": true,
+  "gender": "M",
+  "veteranAddress": {
+    "street": "1234 Main",
+    "street2": "Apt 3",
+    "city": "City",
+    "postalCode": "17402",
+    "country": "USA",
+    "state": "AK"
+  },
+  "veteranHomeAddress": {
+    "street": "PSC 808 Box 37",
+    "city": "FPO",
+    "postalCode": "09618",
+    "country": "USA",
+    "state": "AE"
+  },
+  "email": "nope@nope.org",
+  "homePhone": "7033218520",
+  "privacyAgreementAccepted": true,
+  "veteranFullName": {
+    "first": "Mark",
+    "middle": "Tux",
+    "last": "Polarbear",
+    "suffix": "Jr."
+  },
+  "veteranDateOfBirth": "1950-10-04",
+  "veteranSocialSecurityNumber": "796104437",
+  "vaCompensationType": "highDisability",
+  "dependents": []
+}
