@@ -23,7 +23,7 @@ To avoid errors and processing delays, API consumers are encouraged to validate 
 ### Attachment & file size limits
 There is no limit on the number of files a payload can contain, but size limits do apply.
 
-* Uploaded documents cannot be larger than 21" x 21"
+* Uploaded documents cannot be larger than 78" x 101"
 * The entire payload cannot exceed 5 GB
 * No single file in a payload can exceed 100 MB
 
@@ -56,7 +56,7 @@ Validations performed:
 * Document is a valid PDF (Note: `Content-Type` header value must be "application/pdf")
 * Document does not have a user password (an owner password is acceptable)
 * File size does not exceed 100 MB
-* Page size does not exceed 21" x 21"
+* Page size does not exceed 78" x 101"
 
 ### Upload operation
 Allows a client to upload a multi-part document package (form + attachments + metadata).
