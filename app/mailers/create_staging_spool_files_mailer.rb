@@ -7,7 +7,7 @@ class CreateStagingSpoolFilesMailer < ApplicationMailer
     date = Time.zone.now.strftime('%m%d%Y')
     opt = {}
     opt[:to] = Settings.edu.staging_spool_contents.emails.dup
-    note_str = '*** note: to see the contents in the correct format, copy into notepad ***'
+    note_str = '*** note: to see in the correct format, right-click on the contents and select "View Source" ***'
     mail(
       opt.merge(
         subject: "Staging Spool file on #{date}",
