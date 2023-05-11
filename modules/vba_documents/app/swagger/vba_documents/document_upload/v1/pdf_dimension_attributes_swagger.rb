@@ -20,7 +20,7 @@ module VBADocuments
               key :example, '8.5'
             end
             property :oversized_pdf do
-              key :description, 'Indicates if this is an oversized PDF (greater than 21x21)'
+              key :description, 'Indicates if this is an oversized PDF (greater than 78x101)'
               key :type, :boolean
               key :example, 'false'
             end

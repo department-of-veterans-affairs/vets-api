@@ -23,7 +23,7 @@ To avoid errors and processing delays, API consumers are encouraged to validate 
 ### Attachment & file size limits
 There is no limit on the number of files a payload can contain, but size limits do apply.
 
-* Uploaded documents cannot be larger than 21" x 21"
+* Uploaded documents cannot be larger than 78" x 101"
 * The entire payload cannot exceed 5 GB
 * No single file in a payload can exceed 100 MB
 

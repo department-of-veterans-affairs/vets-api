@@ -3,7 +3,7 @@ the submission process. Validations performed:
 * Document is a valid PDF (Note: `Content-Type` header value must be "application/pdf")
 * Document does not have a user password (an owner password is acceptable)
 * File size does not exceed 100 MB
-* Page size does not exceed 21" x 21"
+* Page size does not exceed 78" x 101"
 
 Each PDF document is sent as a direct file upload. The request body should contain nothing other than the document in
 binary format. Binary multipart/form-data encoding is not supported. This endpoint does NOT validate metadata in JSON

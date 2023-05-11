@@ -11,7 +11,7 @@ namespace :vba_documents do
   NO_PDF_DIR
 
   # example `bundle exec rake vba_documents:inspect_pdf[path/to/pdf/directory]`
-  desc 'Inspects PDF documents and their attachments and records the metadata including 21x21 size violations'
+  desc 'Inspects PDF documents and their attachments and records the metadata including 78x101 size violations'
   task :inspect_pdf, [:pdf_test_dir] => [:environment] do |_, args|
     pdf_test_dir = args[:pdf_test_dir]
     raise ArgumentError, NO_PDF_DIR unless pdf_test_dir
