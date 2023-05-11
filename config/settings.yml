@@ -182,6 +182,12 @@ edu:
     emails:
       - noah.stern@va.gov
       - gregg.puhala@dbitpro.com
+      - kara.ciprich@va.gov
+      - napoleon.kernessant@govcio.com
+      - vishnhav.ashok@va.gov
+      - jarred.simon@vetsez.com
+      - ariana.adili@govcio.com
+
 dependents:
   prefill: true
 
