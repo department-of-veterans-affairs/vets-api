@@ -170,7 +170,7 @@ module V0
     end
 
     def logout # rubocop:disable Metrics/MethodLength
-      client_id = params[:client_id].presence || 'vaweb' # TODO: TB 3/3/2023 - Remove this once frontend adds client_id
+      client_id = params[:client_id].presence
       anti_csrf_token = anti_csrf_token_param.presence
 
       if client_config(client_id).blank?

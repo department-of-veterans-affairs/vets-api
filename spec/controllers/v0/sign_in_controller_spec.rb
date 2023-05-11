@@ -2104,7 +2104,7 @@ RSpec.describe V0::SignInController, type: :controller do
       it_behaves_like 'error response'
     end
 
-    context 'when client_id is not given', skip: 'will enable this once frontend adds client_id param' do
+    context 'when client_id is not given' do
       let(:client_id_value) { nil }
       let(:expected_error_status) { :ok }
       let(:expected_error) { SignIn::Errors::MalformedParamsError }
