@@ -43,7 +43,7 @@ describe VANotify::InProgress1880FormReminder, type: :worker do
       expiration_date = in_progress_form.expires_at.strftime('%B %d, %Y')
 
       user_account_id = in_progress_form.user_account.id
-      template_id = 'in_progress_1880_reminder_email_template_id'
+      template_id = 'form1880_reminder_email_template_id'
 
       Sidekiq::Testing.inline! do
         described_class.new.perform(in_progress_form.id)

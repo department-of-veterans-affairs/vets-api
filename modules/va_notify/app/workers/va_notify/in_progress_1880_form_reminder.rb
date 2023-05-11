@@ -21,7 +21,7 @@ module VANotify
       return if veteran.first_name.blank?
       raise MissingICN, "ICN not found for InProgressForm: #{in_progress_form.id}" if veteran.icn.blank?
 
-      template_id = Settings.vanotify.services.va_gov.template_id.in_progress_1880_reminder_email
+      template_id = Settings.vanotify.services.va_gov.template_id.form1880_reminder_email
       personalisation_details = {
         'first_name' => veteran.first_name.upcase,
         'date' => in_progress_form.expires_at.strftime('%B %d, %Y')
