@@ -51,6 +51,8 @@ module Common
       response = redis_namespace.get(redis_key)
       return nil unless response
 
+      Rails.logger.info("response: #{response} - redis_key: #{redis_key}")
+
       attributes = Oj.load(response)
       return nil if attributes.blank?
 
