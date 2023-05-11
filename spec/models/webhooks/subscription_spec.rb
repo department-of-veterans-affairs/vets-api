@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_dependency './lib/webhooks/utilities'
 
 describe Webhooks::Subscription, type: :model do
   let(:consumer_id) { 'f7d83733-a047-413b-9cce-e89269dcb5b1' }
