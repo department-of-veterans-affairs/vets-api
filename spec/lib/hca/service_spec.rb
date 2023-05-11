@@ -80,6 +80,21 @@ describe HCA::Service do
       end
     end
 
+    context 'with hasDemographicNoAnswer true' do
+      it 'submits successfully to hca', run_at: 'Fri, 05 May 2023 10:04:13 GMT' do
+        VCR.use_cassette(
+          'hca/demographic_no',
+          VCR::MATCH_EVERYTHING.merge(erb: true)
+        ) do
+          form = get_fixture('hca/demographic_no')
+          expect(HealthCareApplication.new(form: form.to_json).valid?).to eq(true)
+
+          result = HCA::Service.new.submit_form(form)
+          expect(result[:success]).to eq(true)
+        end
+      end
+    end
+
     context 'with a medicare claim number' do
       it 'submits successfully to hca', run_at: 'Wed, 27 Jul 2022 23:54:25 GMT' do
         VCR.use_cassette(

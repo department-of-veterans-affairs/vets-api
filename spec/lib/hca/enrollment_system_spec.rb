@@ -199,6 +199,25 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
+    'demographic_no?',
+    [
+      [
+        { 'hasDemographicNoAnswer' => true },
+        true
+      ],
+      [
+        { 'hasDemographicNoAnswer' => false },
+        false
+      ],
+      [
+        {},
+        false
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
     'financial_flag?',
     [
       [
@@ -411,6 +430,14 @@ describe HCA::EnrollmentSystem do
     described_class,
     'veteran_to_races',
     [
+      [
+        {
+          'hasDemographicNoAnswer' => true
+        },
+        {
+          'race' => ['0000-0']
+        }
+      ],
       [
         {
           'isAmericanIndianOrAlaskanNative' => true

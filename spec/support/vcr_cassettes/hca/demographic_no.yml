@@ -1,0 +1,76 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <%= Settings.hca.endpoint %>
+    body:
+      encoding: UTF-8
+      string: <?xml version="1.0" encoding="UTF-8"?><soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns1="http://va.gov/schema/esr/voa/v1"
+        xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://va.gov/service/esr/voa/v1"><soap:Body><ns1:submitFormRequest><va:form
+        xmlns:va="http://va.gov/schema/esr/voa/v1"><va:formIdentifier><va:type>100</va:type><va:value>1010EZ</va:value><va:version>2986360436</va:version></va:formIdentifier><va:summary><eeSummary:demographics
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:appointmentRequestResponse>false</eeSummary:appointmentRequestResponse><eeSummary:contactInfo><eeSummary:addresses><eeSummary:address><eeSummary:city>City</eeSummary:city><eeSummary:country>USA</eeSummary:country><eeSummary:line1>1234
+        Main</eeSummary:line1><eeSummary:line2>Apt 3</eeSummary:line2><eeSummary:state>AK</eeSummary:state><eeSummary:zipCode>17402</eeSummary:zipCode><eeSummary:addressTypeCode>P</eeSummary:addressTypeCode></eeSummary:address><eeSummary:address><eeSummary:city>FPO</eeSummary:city><eeSummary:country>USA</eeSummary:country><eeSummary:line1>PSC
+        808 Box 37</eeSummary:line1><eeSummary:state>AE</eeSummary:state><eeSummary:zipCode>09618</eeSummary:zipCode><eeSummary:addressTypeCode>R</eeSummary:addressTypeCode></eeSummary:address></eeSummary:addresses><eeSummary:emails><eeSummary:email><eeSummary:address>nope@nope.org</eeSummary:address><eeSummary:type>1</eeSummary:type></eeSummary:email></eeSummary:emails><eeSummary:phones><eeSummary:phone><eeSummary:phoneNumber>7033218520</eeSummary:phoneNumber><eeSummary:type>1</eeSummary:type></eeSummary:phone></eeSummary:phones></eeSummary:contactInfo><eeSummary:ethnicity>0000-0</eeSummary:ethnicity><eeSummary:maritalStatus>U</eeSummary:maritalStatus><eeSummary:preferredFacility>598</eeSummary:preferredFacility><eeSummary:races><eeSummary:race>0000-0</eeSummary:race></eeSummary:races><eeSummary:acaIndicator>false</eeSummary:acaIndicator></eeSummary:demographics><eeSummary:enrollmentDeterminationInfo
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:eligibleForMedicaid>false</eeSummary:eligibleForMedicaid><eeSummary:noseThroatRadiumInfo><eeSummary:receivingTreatment>false</eeSummary:receivingTreatment></eeSummary:noseThroatRadiumInfo><eeSummary:serviceConnectionAward><eeSummary:serviceConnectedIndicator>true</eeSummary:serviceConnectedIndicator></eeSummary:serviceConnectionAward><eeSummary:specialFactors><eeSummary:agentOrangeInd>false</eeSummary:agentOrangeInd><eeSummary:envContaminantsInd>false</eeSummary:envContaminantsInd><eeSummary:campLejeuneInd>false</eeSummary:campLejeuneInd><eeSummary:radiationExposureInd>false</eeSummary:radiationExposureInd></eeSummary:specialFactors></eeSummary:enrollmentDeterminationInfo><eeSummary:financialsInfo
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:incomeTest><eeSummary:discloseFinancialInformation>false</eeSummary:discloseFinancialInformation></eeSummary:incomeTest></eeSummary:financialsInfo><eeSummary:militaryServiceInfo
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:dischargeDueToDisability>false</eeSummary:dischargeDueToDisability><eeSummary:militaryServiceSiteRecords><eeSummary:militaryServiceSiteRecord><eeSummary:site>598</eeSummary:site></eeSummary:militaryServiceSiteRecord></eeSummary:militaryServiceSiteRecords></eeSummary:militaryServiceInfo><eeSummary:prisonerOfWarInfo
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:powIndicator>false</eeSummary:powIndicator></eeSummary:prisonerOfWarInfo><eeSummary:purpleHeart
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:indicator>false</eeSummary:indicator></eeSummary:purpleHeart><eeSummary:personInfo
+        xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:firstName>MARK</eeSummary:firstName><eeSummary:middleName>TUX</eeSummary:middleName><eeSummary:lastName>POLARBEAR</eeSummary:lastName><eeSummary:suffix>JR.</eeSummary:suffix><eeSummary:gender>M</eeSummary:gender><eeSummary:dob>10/04/1950</eeSummary:dob><eeSummary:ssnText>796104437</eeSummary:ssnText></eeSummary:personInfo></va:summary><va:applications><va:applicationInfo><va:appDate>2023-05-05</va:appDate><va:appMethod>1</va:appMethod></va:applicationInfo></va:applications></va:form><va:identity
+        xmlns:va="http://va.gov/schema/esr/voa/v1"><va:authenticationLevel><va:type>100</va:type><va:value>anonymous</va:value></va:authenticationLevel></va:identity></ns1:submitFormRequest></soap:Body></soap:Envelope>
+    headers:
+      Accept:
+      - text/xml;charset=UTF-8
+      Content-Type:
+      - text/xml;charset=UTF-8
+      User-Agent:
+      - Vets.gov Agent
+      Date:
+      - Fri, 05 May 2023 10:04:13 GMT
+      Content-Length:
+      - '4650'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 05 May 2023 10:04:13 GMT
+      Server:
+      - Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      X-Oracle-Dms-Rid:
+      - '0'
+      X-Oracle-Dms-Ecid:
+      - 97229115-c37f-4358-a471-cac337a42422-0006f97b
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Ssl-Env:
+      - 'On'
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Cache-Control:
+      - max-age=0, no-store
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="798267362"
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Body><submitFormResponse
+        xmlns="http://va.gov/schema/esr/voa/v1" xmlns:ns0="http://jaxws.webservices.esr.med.va.gov/schemas"><status>100</status><formSubmissionId>429878806</formSubmissionId><message><type>Form
+        successfully received for EE processing</type></message><timeStamp>2023-05-05T05:04:13.823-05:00</timeStamp></submitFormResponse></S:Body></S:Envelope>
+  recorded_at: Fri, 05 May 2023 10:04:13 GMT
+recorded_with: VCR 6.1.0
