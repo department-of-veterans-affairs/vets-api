@@ -523,6 +523,9 @@ features:
   profile_show_pronouns_and_sexual_orientation:
     actor_type: user
     description: Show/hide Pronouns and Sexual Orientation fields on profile page
+  profile_show_quick_submit_notification_setting:
+    actor_type: user
+    description: Show/Hide the quick submit section of notification settings in profile
   profile_use_experimental:
     description: "Use experimental features for Pofile application - Do not remove"
     enable_in_development: true
@@ -803,7 +806,7 @@ features:
     description: Enables payment and debt section
   show_dashboard_notifications:
     actor_type: user
-    description: Enables on-site notifications 
+    description: Enables on-site notifications
   show_myva_dashboard_2_0:
     actor_type: user
     description: Enables My VA 2.0
