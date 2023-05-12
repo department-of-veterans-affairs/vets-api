@@ -19,8 +19,8 @@ class AppealsApi::Docs::V2::DocsController < ApplicationController
     render json: JSON.parse(swagger_file('supplemental_claims'))
   end
 
-  def ci
-    render json: JSON.parse(swagger_file('contestable_issues'))
+  def ai
+    render json: JSON.parse(swagger_file('appealable_issues'))
   end
 
   def la

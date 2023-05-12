@@ -2,8 +2,8 @@
 
 require 'appeals_api/form_schemas'
 
-module AppealsApi::ContestableIssues::V0
-  class ContestableIssuesController < AppealsApi::V2::DecisionReviews::ContestableIssuesController
+module AppealsApi::AppealableIssues::V0
+  class AppealableIssuesController < AppealsApi::V2::DecisionReviews::ContestableIssuesController
     include AppealsApi::OpenidAuth
 
     FORM_NUMBER = 'CONTESTABLE_ISSUES_HEADERS_WITH_SHARED_REFS'
@@ -14,7 +14,10 @@ module AppealsApi::ContestableIssues::V0
     )['definitions']['contestableIssuesIndexParameters']['properties'].keys
 
     OAUTH_SCOPES = {
-      GET: %w[veteran/ContestableIssues.read representative/ContestableIssues.read system/ContestableIssues.read]
+      GET: %w[
+        veteran/AppealableIssues.read representative/AppealableIssues.read system/AppealableIssues.read
+        veteran/ContestableIssues.read representative/ContestableIssues.read system/ContestableIssues.read
+      ]
     }.freeze
 
     def schema

@@ -2,13 +2,11 @@
 
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-# rubocop:disable Layout/LineLength
-RSpec.shared_examples 'Contestable Issues API v0 and Decision Reviews v1 & v2 shared request examples' do |base_path: ''|
-  # rubocop:enable Layout/LineLength
+RSpec.shared_examples 'Appealable Issues API v0 and Decision Reviews v1 & v2 shared request examples' do |base_path: ''|
   describe '#index' do
     let(:ssn) { '872958715' }
     let(:icn) do
-      # Contestable Issues API V0 requires ICN, others do not
+      # Appealable Issues API V0 requires ICN, others do not
       base_path.include?('v0') ? '1234567890V012345' : nil
     end
     let(:file_number) { nil }
@@ -53,7 +51,7 @@ RSpec.shared_examples 'Contestable Issues API v0 and Decision Reviews v1 & v2 sh
     end
 
     context 'header validations' do
-      before { get_contestable_issues }
+      before { get_appealable_issues }
 
       context 'when X-VA-Receipt-Date is missing' do
         let(:receipt_date) { nil }
@@ -95,7 +93,7 @@ RSpec.shared_examples 'Contestable Issues API v0 and Decision Reviews v1 & v2 sh
     context 'parameter validations' do
       let(:cassette) { "caseflow/#{decision_review_type}/contestable_issues" }
 
-      before { get_contestable_issues }
+      before { get_appealable_issues }
 
       unless base_path.include?('v1')
         # Decision Reviews v1 doesn't use benefit type and its decision review type is constant
@@ -132,7 +130,7 @@ RSpec.shared_examples 'Contestable Issues API v0 and Decision Reviews v1 & v2 sh
     end
 
     context 'when caseflow responds normally' do
-      before { get_contestable_issues }
+      before { get_appealable_issues }
 
       context 'when using SSN header as veteran identifier' do
         let(:cassette) { "caseflow/#{decision_review_type}/contestable_issues" }
@@ -166,7 +164,7 @@ RSpec.shared_examples 'Contestable Issues API v0 and Decision Reviews v1 & v2 sh
       it 'logs the response and returns a 502 error' do
         expect_any_instance_of(described_class)
           .to receive(:log_caseflow_error).with('UnusableResponse', 200, unusable_body)
-        get_contestable_issues
+        get_appealable_issues
         expect(response).to have_http_status(:bad_gateway)
         expect(body['errors']).to be_an Array
       end
@@ -180,7 +178,7 @@ RSpec.shared_examples 'Contestable Issues API v0 and Decision Reviews v1 & v2 sh
           Struct.new(:status, :body).new(400, error_body)
         )
 
-        get_contestable_issues
+        get_appealable_issues
       end
 
       it 'returns the error without modification' do
@@ -200,13 +198,13 @@ RSpec.shared_examples 'Contestable Issues API v0 and Decision Reviews v1 & v2 sh
           receive(:log_caseflow_error).with('BackendServiceException', 503, 'Timeout')
         )
 
-        get_contestable_issues
+        get_appealable_issues
       end
     end
 
     private
 
-    def get_contestable_issues
+    def get_appealable_issues
       with_openid_auth(scopes) do |auth_header|
         if cassette.present?
           VCR.use_cassette(cassette) { get(path, headers: headers.merge(auth_header)) }

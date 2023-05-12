@@ -193,8 +193,9 @@ AppealsApi::Engine.routes.draw do
     end
   end
 
+  appealable_issues_controller_path = '/appeals_api/appealable_issues/v0/appealable_issues'
+
   concern :appealable_issues_routes do |opts|
-    controller_path = '/appeals_api/contestable_issues/v0/contestable_issues'
     api_name = opts[:deprecated] ? 'contestable-issues' : 'appealable-issues'
 
     mapper.instance_eval do
@@ -209,7 +210,7 @@ AppealsApi::Engine.routes.draw do
               path: 'upstream-healthcheck'
           get :docs, to: '/appeals_api/docs/v2/docs#ci'
 
-          namespace :schemas, controller: controller_path do
+          namespace :schemas, controller: appealable_issues_controller_path do
             get 'headers', action: :schema
           end
 
@@ -219,14 +220,12 @@ AppealsApi::Engine.routes.draw do
     end
   end
 
-  appealable_issues_controller_path = '/appeals_api/contestable_issues/v0/contestable_issues'
-
   concern :appealable_issues_routes do
     get :healthcheck, to: '/appeals_api/metadata#healthcheck'
     get :upstream_healthcheck,
         to: '/appeals_api/metadata#appeals_status_upstream_healthcheck',
         path: 'upstream-healthcheck'
-    get :docs, to: '/appeals_api/docs/v2/docs#ci'
+    get :docs, to: '/appeals_api/docs/v2/docs#ai'
 
     namespace :schemas, controller: appealable_issues_controller_path do
       get 'headers', action: :schema

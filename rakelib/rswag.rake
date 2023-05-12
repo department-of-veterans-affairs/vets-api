@@ -12,9 +12,9 @@ SEGMENTED_DECISION_REVIEWS_API_NAMES = Dir["#{APPEALS_API_DOCS_DIR}/decision_rev
                                        .reject { |api_name| INDEPENDENT_SEGMENTED_API_NAMES.include? api_name }
 APPEALS_API_DOCS = [
   {
-    name: 'contestable_issues',
+    name: 'appealable_issues',
     version: 'v0',
-    pattern: "#{APPEALS_API_DOCS_DIR}/contestable_issues/v0_spec.rb"
+    pattern: "#{APPEALS_API_DOCS_DIR}/appealable_issues/v0_spec.rb"
   },
   {
     name: 'decision_reviews',

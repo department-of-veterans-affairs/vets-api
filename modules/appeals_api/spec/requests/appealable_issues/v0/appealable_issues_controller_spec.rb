@@ -3,10 +3,10 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::ContestableIssues::V0::ContestableIssuesController, type: :request do
-  include_examples 'Contestable Issues API v0 and Decision Reviews v1 & v2 shared request examples',
+describe AppealsApi::AppealableIssues::V0::AppealableIssuesController, type: :request do
+  include_examples 'Appealable Issues API v0 and Decision Reviews v1 & v2 shared request examples',
                    base_path: '/services/appeals/contestable-issues/v0/contestable-issues'
-  include_examples 'Contestable Issues API v0 and Decision Reviews v1 & v2 shared request examples',
+  include_examples 'Appealable Issues API v0 and Decision Reviews v1 & v2 shared request examples',
                    base_path: '/services/appeals/appealable-issues/v0/appealable-issues'
 
   describe '#schema' do
@@ -17,8 +17,9 @@ describe AppealsApi::ContestableIssues::V0::ContestableIssuesController, type: :
         get(path, headers: auth_header)
       end
 
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body)['description']).to eq(
+        # FIXME: still need to rename to "appealable issues" in schemas
         'JSON Schema for Contestable Issues endpoint headers (Decision Reviews API)'
       )
       expect(response.body).to include('{"$ref":"non_blank_string.json"}')
@@ -47,7 +48,7 @@ describe AppealsApi::ContestableIssues::V0::ContestableIssuesController, type: :
     context 'when all required fields provided' do
       it 'GETs contestable_issues from Caseflow successfully' do
         VCR.use_cassette("caseflow/#{decision_review_type}/contestable_issues") do
-          get_contestable_issues(headers, decision_review_type)
+          get_appealable_issues(headers, decision_review_type)
 
           expect(response).to have_http_status(:ok)
           json = JSON.parse(response.body)
@@ -60,7 +61,7 @@ describe AppealsApi::ContestableIssues::V0::ContestableIssuesController, type: :
       let(:icn) { nil }
 
       it 'returns a 422 error with details' do
-        get_contestable_issues(headers, decision_review_type)
+        get_appealable_issues(headers, decision_review_type)
 
         expect(response).to have_http_status(:unprocessable_entity)
         error = JSON.parse(response.body)['errors'][0]
@@ -73,7 +74,7 @@ describe AppealsApi::ContestableIssues::V0::ContestableIssuesController, type: :
       let(:icn) { '229384' }
 
       it 'returns a 422 error with details' do
-        get_contestable_issues(headers, decision_review_type)
+        get_appealable_issues(headers, decision_review_type)
 
         expect(response).to have_http_status(:unprocessable_entity)
         error = JSON.parse(response.body)['errors'][0]
@@ -86,7 +87,7 @@ describe AppealsApi::ContestableIssues::V0::ContestableIssuesController, type: :
       let(:icn) { '22938439103910392' }
 
       it 'returns a 422 error with details' do
-        get_contestable_issues(headers, decision_review_type)
+        get_appealable_issues(headers, decision_review_type)
 
         expect(response).to have_http_status(:unprocessable_entity)
         error = JSON.parse(response.body)['errors'][0]
@@ -98,7 +99,7 @@ describe AppealsApi::ContestableIssues::V0::ContestableIssuesController, type: :
 
   private
 
-  def get_contestable_issues(headers, decision_review_type)
+  def get_appealable_issues(headers, decision_review_type)
     path = "/services/appeals/appealable-issues/v0/appealable-issues/#{decision_review_type}"
     with_openid_auth(described_class::OAUTH_SCOPES[:GET]) do |auth_header|
       get(path, headers: headers.merge(auth_header))

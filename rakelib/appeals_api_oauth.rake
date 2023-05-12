@@ -162,7 +162,7 @@ module AppealsRakeHelpers
         find_scopes.call(
           {
             appeals_status: AppealsApi::V1::AppealsController::OAUTH_SCOPES,
-            contestable_issues: AppealsApi::ContestableIssues::V0::ContestableIssuesController::OAUTH_SCOPES,
+            appealable_issues: AppealsApi::AppealableIssues::V0::AppealableIssuesController::OAUTH_SCOPES,
             higher_level_reviews: AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController::OAUTH_SCOPES,
             legacy_appeals: AppealsApi::LegacyAppeals::V0::LegacyAppealsController::OAUTH_SCOPES,
             notice_of_disagreements:
