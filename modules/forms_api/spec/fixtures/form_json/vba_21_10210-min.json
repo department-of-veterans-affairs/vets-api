@@ -1,0 +1,20 @@
+{
+  "form_number": "21-10210",
+  "claimant_type": "veteran",
+  "claim_ownership": "self",
+  "statement": "It was a dark and stormy night...",
+  "veteran_full_name": {
+      "first": "John",
+      "middle": "Middle",
+      "last": "Veteran"
+  },
+  "veteran_ssn": "222773333",
+  "veteran_mailing_address": {
+      "street": "124 Main St",
+      "city": "Anytown",
+      "country": "USA",
+      "state": "CA",
+      "postal_code": "12345"
+  },
+  "veteran_phone": "555-555-5557"
+}
