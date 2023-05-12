@@ -4,7 +4,7 @@ require 'central_mail/datestamp_pdf'
 
 module FormsApi
   class PdfStamper
-    FORM_REQUIRES_STAMP = %w[26-4555 21-4142].freeze
+    FORM_REQUIRES_STAMP = %w[26-4555 21-4142 21-10210].freeze
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
 
     def self.stamp_pdf(generated_form_path, data)
@@ -47,6 +47,47 @@ module FormsApi
       raise
     ensure
       Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
+    end
+
+    def self.stamp2110210(generated_form_path, data)
+      first_name, middle_name, last_name = get_name_to_stamp10210(data)
+      desired_stamps = [[50, 160]]
+      signature_text = "#{first_name} #{middle_name} #{last_name}"
+
+      stamp_path = Common::FileHelpers.random_file_path
+      Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
+        pdf.start_new_page
+        pdf.start_new_page
+        pdf.draw_text signature_text, at: desired_stamps[0], size: 16
+      end
+
+      multistamp(generated_form_path, stamp_path)
+    rescue
+      Rails.logger.error "Failed to generate stamped file: #{e.message}"
+      raise
+    ensure
+      Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
+    end
+
+    def self.get_name_to_stamp10210(data)
+      # claimant type values: 'veteran', 'non-veteran'
+      # claimant ownership values: 'self', 'third-party'
+      # third-party = witness
+      # self, veteran = veteran
+      # self, non-veteran = claimant
+      first_name = data.dig('veteran_full_name', 'first')
+      middle_name = data.dig('veteran_full_name', 'middle')
+      last_name = data.dig('veteran_full_name', 'last')
+      if data['claim_ownership'] == 'third-party'
+        first_name = data.dig('witness_full_name', 'first')
+        middle_name = data.dig('witness_full_name', 'middle')
+        last_name = data.dig('witness_full_name', 'last')
+      elsif data['claimant_type'] == 'non-veteran'
+        first_name = data.dig('claimant_full_name', 'first')
+        middle_name = data.dig('claimant_full_name', 'middle')
+        last_name = data.dig('claimant_full_name', 'last')
+      end
+      [first_name, middle_name, last_name]
     end
 
     def self.stamp(desired_stamps, generated_form_path, text_only: true)

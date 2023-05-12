@@ -31,6 +31,7 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     test_submit_request 'vha_10_10d.json'
     test_submit_request 'vba_26_4555.json'
     test_submit_request 'vba_21_4142.json'
+    test_submit_request 'vba_21_10210.json'
 
     def self.test_failed_request_scrubs_error_message(test_payload)
       it 'makes the request and expects a failure' do
