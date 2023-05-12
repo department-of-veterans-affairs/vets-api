@@ -57,7 +57,7 @@ RSpec.describe 'Appeals Documentation Endpoints', type: :request do
     it_behaves_like 'an openapi endpoint', path: '/services/appeals/higher-level-reviews/v0/docs'
     it_behaves_like 'an openapi endpoint', path: '/services/appeals/notice-of-disagreements/v0/docs'
     it_behaves_like 'an openapi endpoint', path: '/services/appeals/supplemental-claims/v0/docs'
-    it_behaves_like 'an openapi endpoint', path: '/services/appeals/contestable-issues/v0/docs'
+    it_behaves_like 'an openapi endpoint', path: '/services/appeals/appealable-issues/v0/docs'
     it_behaves_like 'an openapi endpoint', path: '/services/appeals/legacy-appeals/v0/docs'
   end
 end

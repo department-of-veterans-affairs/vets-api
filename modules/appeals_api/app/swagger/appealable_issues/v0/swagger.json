@@ -1,32 +1,35 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Contestable Issues",
+    "title": "Appealable Issues",
     "version": "v0",
     "contact": {
       "name": "developer.va.gov"
     },
     "termsOfService": "https://developer.va.gov/terms-of-service",
-    "description": "The Contestable Issues API lets you retrieve a list of a claimant’s contestable issues and any chains of preceding issues. Contestable issues are issues from claims about which VA has made a decision that may be eligible for appeal. Not all contestable issues are guaranteed to be eligible for appeal; for example, claimants may have another appeal in progress for an issue.\n\nTo check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://dev-developer.va.gov/explore/appeals/docs/appeals?version=current).\n\nTo file an appeal or decision review, use one of these APIs:\n* [Higher-Level Reviews API](https://dev-developer.va.gov/explore/appeals/docs/higher_level_reviews)\n* [Notice of Disagreements API](https://dev-developer.va.gov/explore/appeals/docs/notice_of_disagreements)\n* [Supplemental Claims API](https://dev-developer.va.gov/explore/appeals/docs/supplemental_claims)\n\n## Technical overview\nThe Contestable Issues API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Higher Level Review, Notice of Disagreement, or Supplemental Claim.\n\n### Authorization and Access\nThe authentication model for the Contestable Issues API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:\n* [Authorization code flow](https://dev-developer.va.gov/explore/authorization/docs/authorization-code)\n* [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/authorization/docs/client-credentials)\n\nTo use this API, you must first [request sandbox access](https://dev-developer.va.gov/onboarding/request-sandbox-access). Then, follow our authentication process for [authorization code flow](https://dev-developer.va.gov/explore/authorization/docs/authorization-code) or [client credentials grant](https://dev-developer.va.gov/explore/authorization/docs/client-credentials).\n"
+    "description": "The Appealable Issues API lets you retrieve a list of a claimant’s appealable issues and any chains of preceding issues. Appealable issues are issues from claims about which VA has made a decision that may be eligible for appeal. Not all appealable issues are guaranteed to be eligible for appeal; for example, claimants may have another appeal in progress for an issue.\n\nTo check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://developer.va.gov/explore/appeals/docs/appeals?version=current).\n\nTo file an appeal or decision review, use one of these APIs: \n* [Higher-Level Reviews API](https://developer.va.gov/explore/appeals/docs/higher_level_reviews)\n* [Notice of Disagreements API](https://developer.va.gov/explore/appeals/docs/notice_of_disagreements)\n* [Supplemental Claims API](https://developer.va.gov/explore/appeals/docs/supplemental_claims)\n\n## Technical overview\nThe Appealable Issues API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Higher Level Review, Notice of Disagreement, or Supplemental Claim.\n\n### Authorization and Access\nThe authentication model for the Appealable Issues API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:\n* [Authorization code flow](https://developer.va.gov/explore/authorization/docs/authorization-code)\n* [Client Credentials Grant (CCG)](https://developer.va.gov/explore/authorization/docs/client-credentials)\n\nTo use this API, you must first [request sandbox access](https://developer.va.gov/onboarding/request-sandbox-access). Then, follow our authentication process for [authorization code flow](https://developer.va.gov/explore/authorization/docs/authorization-code) or [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials).\n"
   },
   "tags": [
     {
-      "name": "Contestable Issues",
+      "name": "Appealable Issues",
       "description": ""
     }
   ],
   "paths": {
-    "/contestable-issues/{decision_review_type}": {
+    "/appealable-issues/{decision_review_type}": {
       "get": {
-        "summary": "Returns all contestable issues for a specific veteran.",
+        "summary": "Returns all appealable issues for a specific veteran.",
         "tags": [
-          "Contestable Issues"
+          "Appealable Issues"
         ],
-        "operationId": "getContestableIssues",
+        "operationId": "getAppealableIssues",
         "description": "Returns all issues associated with a Veteran that have been decided as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.",
         "security": [
           {
             "productionOauth": [
+              "veteran/AppealableIssues.read",
+              "representative/AppealableIssues.read",
+              "system/AppealableIssues.read",
               "veteran/ContestableIssues.read",
               "representative/ContestableIssues.read",
               "system/ContestableIssues.read"
@@ -34,6 +37,9 @@
           },
           {
             "sandboxOauth": [
+              "veteran/AppealableIssues.read",
+              "representative/AppealableIssues.read",
+              "system/AppealableIssues.read",
               "veteran/ContestableIssues.read",
               "representative/ContestableIssues.read",
               "system/ContestableIssues.read"
@@ -123,7 +129,7 @@
         ],
         "responses": {
           "200": {
-            "description": "JSON:API response returning all contestable issues for a specific veteran.",
+            "description": "JSON:API response returning all appealable issues for a specific veteran.",
             "content": {
               "application/json": {
                 "example": {
@@ -353,8 +359,11 @@
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
               "veteran/ContestableIssues.read": "Allows a veteran to see their own contestable issues",
+              "veteran/AppealableIssues.read": "Allows a veteran to see their own appealable issues",
               "representative/ContestableIssues.read": "Allows a veteran representative to see a veteran's contestable issues",
+              "representative/AppealableIssues.read": "Allows a veteran representative to see a veteran's appealable issues",
               "system/ContestableIssues.read": "Allows a system to see a veteran's contestable issues",
+              "system/AppealableIssues.read": "Allows a system to see a veteran's appealable issues",
               "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
               "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
               "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran"
@@ -371,8 +380,11 @@
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
               "veteran/ContestableIssues.read": "Allows a veteran to see their own contestable issues",
+              "veteran/AppealableIssues.read": "Allows a veteran to see their own appealable issues",
               "representative/ContestableIssues.read": "Allows a veteran representative to see a veteran's contestable issues",
+              "representative/AppealableIssues.read": "Allows a veteran representative to see a veteran's appealable issues",
               "system/ContestableIssues.read": "Allows a system to see a veteran's contestable issues",
+              "system/AppealableIssues.read": "Allows a system to see a veteran's appealable issues",
               "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
               "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
               "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran"
@@ -631,7 +643,7 @@
   },
   "servers": [
     {
-      "url": "https://sandbox-api.va.gov/services/appeals/contestable-issues/{version}",
+      "url": "https://sandbox-api.va.gov/services/appeals/appealable-issues/{version}",
       "description": "VA.gov API sandbox environment",
       "variables": {
         "version": {
@@ -640,7 +652,7 @@
       }
     },
     {
-      "url": "https://api.va.gov/services/appeals/contestable-issues/{version}",
+      "url": "https://api.va.gov/services/appeals/appealable-issues/{version}",
       "description": "VA.gov API production environment",
       "variables": {
         "version": {

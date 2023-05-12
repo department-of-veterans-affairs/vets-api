@@ -8,20 +8,20 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 require AppealsApi::Engine.root.join('spec', 'support', 'doc_helpers.rb')
 
 def swagger_doc
-  "modules/appeals_api/app/swagger/contestable_issues/v0/swagger#{DocHelpers.doc_suffix}.json"
+  "modules/appeals_api/app/swagger/appealable_issues/v0/swagger#{DocHelpers.doc_suffix}.json"
 end
 
 # rubocop:disable RSpec/VariableName, Layout/LineLength
-RSpec.describe 'Contestable Issues', swagger_doc:, type: :request do
+RSpec.describe 'Appealable Issues', swagger_doc:, type: :request do
   include DocHelpers
   let(:Authorization) { 'Bearer TEST_TOKEN' }
 
-  path '/contestable-issues/{decision_review_type}' do
-    get 'Returns all contestable issues for a specific veteran.' do
-      scopes = AppealsApi::ContestableIssues::V0::ContestableIssuesController::OAUTH_SCOPES[:GET]
+  path '/appealable-issues/{decision_review_type}' do
+    get 'Returns all appealable issues for a specific veteran.' do
+      scopes = AppealsApi::AppealableIssues::V0::AppealableIssuesController::OAUTH_SCOPES[:GET]
 
-      tags 'Contestable Issues'
-      operationId 'getContestableIssues'
+      tags 'Appealable Issues'
+      operationId 'getAppealableIssues'
       description 'Returns all issues associated with a Veteran that have been decided ' \
                   'as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.'
       security DocHelpers.security_config(scopes)
@@ -69,7 +69,8 @@ RSpec.describe 'Contestable Issues', swagger_doc:, type: :request do
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header].merge({ required: true })
       let(:'X-VA-ICN') { '1234567890V123456' }
 
-      response '200', 'JSON:API response returning all contestable issues for a specific veteran.' do
+      response '200', 'JSON:API response returning all appealable issues for a specific veteran.' do
+        # FIXME: need new schemas and responses to finish renaming to "appealable issues"
         schema '$ref' => '#/components/schemas/contestableIssues'
         let(:decision_review_type) { 'notice_of_disagreements' }
 

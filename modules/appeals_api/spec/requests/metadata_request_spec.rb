@@ -149,7 +149,7 @@ describe 'metadata request api', type: :request do
         it_behaves_like 'a healthcheck', '/services/appeals/higher-level-reviews/v0/healthcheck'
         it_behaves_like 'a healthcheck', '/services/appeals/notice-of-disagreements/v0/healthcheck'
         it_behaves_like 'a healthcheck', '/services/appeals/supplemental-claims/v0/healthcheck'
-        it_behaves_like 'a healthcheck', '/services/appeals/contestable-issues/v0/healthcheck'
+        it_behaves_like 'a healthcheck', '/services/appeals/appealable-issues/v0/healthcheck'
         it_behaves_like 'a healthcheck', '/services/appeals/legacy-appeals/v0/healthcheck'
       end
     end

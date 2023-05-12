@@ -153,6 +153,7 @@ module DocHelpers
 
   ALL_DOC_TITLES = DECISION_REVIEWS_DOC_TITLES.merge(
     {
+      appealable_issues: 'Appealable Issues',
       appeals_status: 'Appeals Status',
       decision_reviews: 'Decision Reviews'
     }
