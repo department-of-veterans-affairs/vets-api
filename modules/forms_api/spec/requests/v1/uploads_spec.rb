@@ -14,14 +14,16 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
 
     def self.test_submit_request(test_payload)
       it 'makes the request' do
-        VCR.use_cassette(
-          'central_mail/upload_mainform_only',
-          match_requests_on: [multipart_request_matcher, :method, :uri]
-        ) do
-          fixture_path = Rails.root.join('modules', 'forms_api', 'spec', 'fixtures', 'form_json', test_payload)
-          data = JSON.parse(fixture_path.read)
-          post '/forms_api/v1/simple_forms', params: data
-          expect(response).to have_http_status(:ok)
+        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+            fixture_path = Rails.root.join('modules', 'forms_api', 'spec', 'fixtures', 'form_json', test_payload)
+            data = JSON.parse(fixture_path.read)
+            post '/forms_api/v1/simple_forms', params: data
+            expect(response).to have_http_status(:ok)
+          ensure
+            metadata_file = Dir['tmp/*.FormsApi.metadata.json'][0]
+            Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
+          end
         end
       end
     end

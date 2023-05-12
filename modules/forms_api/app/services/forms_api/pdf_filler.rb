@@ -1,16 +1,10 @@
 # frozen_string_literal: true
 
-require 'central_mail/utilities'
-require 'central_mail/service'
-require 'pdf_info'
-
 module FormsApi
   class PdfFiller
-    include CentralMail::Utilities
+    attr_accessor :data, :form_number
 
     TEMPLATE_BASE = Rails.root.join('modules', 'forms_api', 'templates')
-
-    attr_accessor :data, :form_number
 
     def initialize(form_number:, data:)
       @data = data.with_indifferent_access
@@ -36,7 +30,7 @@ module FormsApi
 
     def metadata
       klass = "FormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
-      klass.metadata("tmp/#{form_number}-tmp.pdf")
+      klass.metadata
     end
 
     def escape_json_string(str)

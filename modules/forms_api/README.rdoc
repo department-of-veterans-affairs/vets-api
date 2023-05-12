@@ -1,13 +1,14 @@
 = FormsApi
 This module allows you to generate form_mappings based on a PDF file. 
 With this in place, you can submit a form payload from the vets-website 
-and have this module map that payload to the associated PDF and submit it to Central Mail.
+and have this module map that payload to the associated PDF and submit it 
+to the Benefits Intake API in Lighthouse.
 
 To generate files:
 rails forms_api:generate\['path to PDF file'\]
 
 Submission endpoint:
-/forms_api/v1/submit
+/forms_api/v1/simple_forms
 
 == Installation
 Ensure the following line is in the root project's Gemfile:

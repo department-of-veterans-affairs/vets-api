@@ -243,9 +243,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     context 'with a client error' do
       it 'sets the job_status to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_400') do
-          VCR.use_cassette('form526_backup/200_lighthouse_intake_upload_location') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
             VCR.use_cassette('form526_backup/200_evss_get_pdf') do
-              VCR.use_cassette('form526_backup/200_lighthouse_intake_upload') do
+              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
                 backup_klass = Sidekiq::Form526BackupSubmissionProcess::Submit
                 expect_any_instance_of(described_class).to receive(:log_exception_to_sentry)
                 subject.perform_async(submission.id)
