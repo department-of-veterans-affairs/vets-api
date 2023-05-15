@@ -10,10 +10,10 @@
                     "city": "Portland",
                     "country": "USA",
                     "zipFirstFive": "41726",
-                    "zipLastFour": "",
+                    "zipLastFour": "1234",
                     "state": "OR"
                 },
-                "serviceNumber": "ABCDEFGH",
+                "serviceNumber": "123456789",
                 "emailAddress": {
                     "email": "valid@somedomain.com",
                     "agreeToEmailRelatedToClaim": true
@@ -22,7 +22,7 @@
                     "telephone": "1234567890",
                     "internationalTelephone": "1234567890"
                 },
-                "vaFileNumber": "ABCDEF"
+                "vaFileNumber": "AB123CDEF"
             },
             "serviceInformation": {
                 "servicePeriods": [

@@ -44,12 +44,7 @@ module ClaimsApi
           {
             data: {
               attributes:
-                {
-                  claimProcessType: '',
-                  claimCertificationAndSignature: {
-                    dateSigned: ''
-                  }
-                }
+                {}
             }
           }
         end
