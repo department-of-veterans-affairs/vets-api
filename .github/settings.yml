@@ -1,4 +1,10 @@
 # These settings are synced to GitHub by https://probot.github.io/apps/settings/
+repository:
+  # See https://docs.github.com/en/rest/reference/repos#update-a-repository for all available settings.
+
+  # Either `true` to allow squash-merging pull requests, or `false` to prevent
+  # squash-merging.
+  allow_squash_merge: true
 
 branches:
   - name: master
