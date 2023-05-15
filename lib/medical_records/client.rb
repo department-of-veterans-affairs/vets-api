@@ -46,5 +46,14 @@ module MedicalRecords
     def list_allergies(patient_id)
       fhir_client.search(FHIR::AllergyIntolerance, search: { parameters: { patient: patient_id } }).resource
     end
+
+    def get_clinical_note(note_id)
+      fhir_client.read(FHIR::DocumentReference, note_id).resource
+    end
+
+    def list_clinical_notes(patient_id)
+      fhir_client.search(FHIR::DocumentReference,
+                         search: { parameters: { patient: patient_id, type: '83320-2,18842-5,11505-5' } }).resource
+    end
   end
 end
