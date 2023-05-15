@@ -25,7 +25,7 @@ describe 'Notice of Disagreements', swagger_doc: DocHelpers.output_json_path, ty
                   ' This endpoint is the same as submitting [VA Form 10182](https://www.va.gov/vaforms/va/pdf/VA10182.pdf)' \
                   ' via mail or fax directly to the Board of Veterans’ Appeals.'
 
-      security DocHelpers.security_config(scopes)
+      security DocHelpers.decision_reviews_security_config(scopes)
       consumes 'application/json'
       produces 'application/json'
 
@@ -146,7 +146,7 @@ describe 'Notice of Disagreements', swagger_doc: DocHelpers.output_json_path, ty
       operationId 'showNod'
       description 'Returns all of the data associated with a specific Notice of Disagreement.'
 
-      security DocHelpers.security_config(scopes)
+      security DocHelpers.decision_reviews_security_config(scopes)
       produces 'application/json'
 
       parameter name: :uuid,
@@ -183,7 +183,7 @@ describe 'Notice of Disagreements', swagger_doc: DocHelpers.output_json_path, ty
         tags 'Notice of Disagreements'
         operationId 'nodSchema'
         description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /notice_of_disagreements` endpoint.'
-        security DocHelpers.security_config
+        security DocHelpers.decision_reviews_security_config
         produces 'application/json'
 
         response '200', 'the JSON Schema for POST /notice_of_disagreements' do
@@ -200,7 +200,7 @@ describe 'Notice of Disagreements', swagger_doc: DocHelpers.output_json_path, ty
         tags 'Notice of Disagreements'
         operationId 'nodSchema'
         description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /forms/10182` endpoint.'
-        security DocHelpers.security_config(scopes)
+        security DocHelpers.decision_reviews_security_config(scopes)
         produces 'application/json'
 
         examples = {
@@ -245,7 +245,7 @@ describe 'Notice of Disagreements', swagger_doc: DocHelpers.output_json_path, ty
       tags 'Notice of Disagreements'
       operationId 'nodValidate'
       description "Like the POST #{desc_path}, but only does the validations <b>—does not submit anything.</b>"
-      security DocHelpers.security_config(scopes)
+      security DocHelpers.decision_reviews_security_config(scopes)
       consumes 'application/json'
       produces 'application/json'
 
@@ -353,7 +353,7 @@ describe 'Notice of Disagreements', swagger_doc: DocHelpers.output_json_path, ty
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
       let(:'X-VA-File-Number') { '987654321' }
 
-      security DocHelpers.security_config(scopes)
+      security DocHelpers.decision_reviews_security_config(scopes)
       produces 'application/json'
 
       response '202', 'Accepted. Location generated' do
@@ -399,7 +399,7 @@ describe 'Notice of Disagreements', swagger_doc: DocHelpers.output_json_path, ty
       tags 'Notice of Disagreements'
       operationId 'putNoticeOfDisagreementEvidenceSubmission'
       description File.read(DocHelpers.output_directory_file_path('put_description.md'))
-      security DocHelpers.security_config(scopes)
+      security DocHelpers.decision_reviews_security_config(scopes)
 
       parameter name: :'Content-MD5', in: :header, type: :string, description: 'Base64-encoded 128-bit MD5 digest of the message. Use for integrity control.'
       let(:'Content-MD5') { nil }
@@ -449,7 +449,7 @@ describe 'Notice of Disagreements', swagger_doc: DocHelpers.output_json_path, ty
       operationId 'getNoticeOfDisagreementEvidenceSubmission'
       description 'Returns all of the data associated with a specific Notice of Disagreement Evidence Submission.'
 
-      security DocHelpers.security_config(scopes)
+      security DocHelpers.decision_reviews_security_config(scopes)
       produces 'application/json'
 
       parameter name: :uuid,

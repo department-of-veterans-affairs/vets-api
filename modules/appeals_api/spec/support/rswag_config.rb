@@ -62,6 +62,14 @@ class AppealsApi::RswagConfig
         name: 'appealable_issues',
         tags: [{ name: 'Appealable Issues', description: '' }]
       ),
+      "modules/appeals_api/app/swagger/appeals_status/v1/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
+        title: 'Appeals Status',
+        version: 'v1',
+        description_file_path: AppealsApi::Engine.root.join("app/swagger/appeals_status/v1/api_description#{DocHelpers.doc_suffix}.md"),
+        base_path_template: '/services/appeals/appeals-status/{version}',
+        name: 'appeals_status',
+        tags: [{ name: 'Appeals Status', description: '' }]
+      ),
       "modules/appeals_api/app/swagger/legacy_appeals/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
         title: 'Legacy Appeals',
         version: 'v0',

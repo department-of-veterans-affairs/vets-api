@@ -32,7 +32,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
       DESC
       description description
 
-      security DocHelpers.security_config(scopes)
+      security DocHelpers.decision_reviews_security_config(scopes)
 
       consumes 'application/json'
       produces 'application/json'
@@ -143,7 +143,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
       operationId 'showSc'
       description 'Returns all of the data associated with a specific Supplemental Claim.'
 
-      security DocHelpers.security_config(scopes)
+      security DocHelpers.decision_reviews_security_config(scopes)
       produces 'application/json'
 
       parameter name: :uuid,
@@ -180,7 +180,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
         tags 'Supplemental Claims'
         operationId 'scSchema'
         description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /supplemental_claims` endpoint.'
-        security DocHelpers.security_config
+        security DocHelpers.decision_reviews_security_config
         produces 'application/json'
 
         response '200', 'the JSON Schema for POST /supplemental_claims' do
@@ -197,7 +197,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
         tags 'Supplemental Claims'
         operationId 'scSchema'
         description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /forms/200995` endpoint.'
-        security DocHelpers.security_config(scopes)
+        security DocHelpers.decision_reviews_security_config(scopes)
         produces 'application/json'
 
         examples = {
@@ -240,7 +240,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
       tags 'Supplemental Claims'
       operationId 'scValidate'
       description 'Like the POST /supplemental_claims, but only does the validations <b>—does not submit anything.</b>'
-      security DocHelpers.security_config(scopes)
+      security DocHelpers.decision_reviews_security_config(scopes)
       consumes 'application/json'
       produces 'application/json'
 
@@ -357,7 +357,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header]
       let(:'X-VA-SSN') { '123456789' }
 
-      security DocHelpers.security_config(scopes)
+      security DocHelpers.decision_reviews_security_config(scopes)
       produces 'application/json'
 
       response '202', 'Accepted. Location generated' do
@@ -433,7 +433,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
       operationId 'putSupplementalClaimEvidenceSubmission'
 
       description File.read(DocHelpers.output_directory_file_path('put_description.md'))
-      security DocHelpers.security_config(scopes)
+      security DocHelpers.decision_reviews_security_config(scopes)
 
       parameter name: :'Content-MD5', in: :header, type: :string, description: 'Base64-encoded 128-bit MD5 digest of the message. Use for integrity control.'
 
@@ -484,7 +484,7 @@ describe 'Supplemental Claims', swagger_doc: DocHelpers.output_json_path, type: 
       operationId 'getSupplementalClaimEvidenceSubmission'
       description 'Returns all of the data associated with a specific Supplemental Claim Evidence Submission.'
 
-      security DocHelpers.security_config(scopes)
+      security DocHelpers.decision_reviews_security_config(scopes)
       produces 'application/json'
 
       parameter name: :uuid, in: :path, type: :string, description: 'Supplemental Claim UUID Evidence Submission'

@@ -44,11 +44,15 @@ module DocHelpers
     end
   end
 
-  def self.security_config(oauth_scopes = [])
-    if oauth_scopes.any? || DocHelpers.api_name != 'decision_reviews'
-      [{ productionOauth: oauth_scopes }, { sandboxOauth: oauth_scopes }, { bearer_token: [] }]
-    else
+  def self.oauth_security_config(scopes = [])
+    [{ productionOauth: scopes }, { sandboxOauth: scopes }, { bearer_token: [] }]
+  end
+
+  def self.decision_reviews_security_config(oauth_scopes = [])
+    if DocHelpers.api_name == 'decision_reviews'
       [{ apikey: [] }]
+    else
+      DocHelpers.oauth_security_config(oauth_scopes)
     end
   end
 

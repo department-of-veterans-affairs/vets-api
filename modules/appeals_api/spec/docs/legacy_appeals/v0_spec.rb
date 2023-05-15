@@ -22,7 +22,7 @@ RSpec.describe 'Legacy Appeals', swagger_doc:, type: :request do
 
       tags 'Legacy Appeals'
       operationId 'getLegacyAppeals'
-      security DocHelpers.security_config(scopes)
+      security DocHelpers.oauth_security_config(scopes)
       consumes 'application/json'
       produces 'application/json'
       description = 'Returns eligible legacy appeals for a Veteran. A legacy appeal is eligible if a statement of ' \

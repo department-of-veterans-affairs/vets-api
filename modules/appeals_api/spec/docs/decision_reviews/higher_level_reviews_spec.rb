@@ -25,7 +25,7 @@ describe 'Higher-Level Reviews', swagger_doc: DocHelpers.output_json_path, type:
 
       tags 'Higher-Level Reviews'
       operationId 'createHlr'
-      security DocHelpers.security_config(scopes)
+      security DocHelpers.decision_reviews_security_config(scopes)
       consumes 'application/json'
       produces 'application/json'
 
@@ -180,7 +180,7 @@ describe 'Higher-Level Reviews', swagger_doc: DocHelpers.output_json_path, type:
       description 'Returns all of the data associated with a specific Higher-Level Review.'
       tags 'Higher-Level Reviews'
       operationId 'showHlr'
-      security DocHelpers.security_config(scopes)
+      security DocHelpers.decision_reviews_security_config(scopes)
       produces 'application/json'
 
       parameter name: :uuid,
@@ -221,7 +221,7 @@ describe 'Higher-Level Reviews', swagger_doc: DocHelpers.output_json_path, type:
                       'Higher-Level Review as of the receiptDate and bound by benefitType. Not all issues returned are guaranteed '\
                       'to be eligible for appeal. Associate these results when creating a new Higher-Level Review.'
         description description
-        security DocHelpers.security_config(scopes)
+        security DocHelpers.decision_reviews_security_config(scopes)
         produces 'application/json'
 
         parameter name: :benefit_type, in: :path, type: :string,
@@ -358,7 +358,7 @@ describe 'Higher-Level Reviews', swagger_doc: DocHelpers.output_json_path, type:
         tags 'Higher-Level Reviews'
         operationId 'hlrSchema'
         description 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /higher_level_reviews` endpoint.'
-        security DocHelpers.security_config
+        security DocHelpers.decision_reviews_security_config
         produces 'application/json'
 
         response '200', 'the JSON Schema for POST /higher_level_reviews' do
@@ -375,7 +375,7 @@ describe 'Higher-Level Reviews', swagger_doc: DocHelpers.output_json_path, type:
         tags 'Higher-Level Reviews'
         operationId 'hlrSchema'
         description 'Returns the [JSON Schema](https://json-schema.org) related to the `POST /forms/200996` endpoint'
-        security DocHelpers.security_config(scopes)
+        security DocHelpers.decision_reviews_security_config(scopes)
         produces 'application/json'
 
         examples = {
@@ -418,7 +418,7 @@ describe 'Higher-Level Reviews', swagger_doc: DocHelpers.output_json_path, type:
       tags 'Higher-Level Reviews'
       operationId 'hlrValidate'
       description 'Like the POST /higher_level_reviews, but only does the validations <b>—does not submit anything.</b>'
-      security DocHelpers.security_config(scopes)
+      security DocHelpers.decision_reviews_security_config(scopes)
       consumes 'application/json'
       produces 'application/json'
 
