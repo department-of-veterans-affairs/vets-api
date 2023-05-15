@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'vba_documents/pdf_inspector'
-
 require 'central_mail/utilities'
 require 'central_mail/service'
 require 'pdf_utilities/pdf_validator'

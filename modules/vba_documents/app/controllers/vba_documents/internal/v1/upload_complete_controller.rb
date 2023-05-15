@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'vba_documents/application_controller'
-require_dependency 'vba_documents/object_store'
 require 'common/exceptions'
 
 module VBADocuments
