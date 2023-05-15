@@ -2104,6 +2104,41 @@ en:
         code: DR_not_found
         status: 404
 
+  lighthouse:
+    letters_generator:
+      bad_request:
+        <<: *defaults
+        code: LH_bad_request
+        status: 400
+      not_authorized:
+        <<: *defaults
+        code: LH_not_authorized
+        status: 401
+      forbidden:
+        <<: *defaults
+        code: LH_forbidden
+        status: 403
+      not_found:
+        <<: *defaults
+        code: LH_not_found
+        status: 404
+      not_acceptable:
+        <<: *defaults
+        code: LH_not_acceptable
+        status: 406
+      payload_too_large:
+        <<: *defaults
+        code: LH_payload_too_large
+        status: 413
+      unprocessable_entity:
+        <<: *defaults
+        code: LH_unprocessable_entity
+        status: 422
+      too_many_requests:
+        <<: *defaults
+        code: LH_too_many_requests
+        status: 429
+
   evss:
     external_service_unavailable:
       <<: *defaults
