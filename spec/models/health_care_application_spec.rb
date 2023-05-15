@@ -7,6 +7,16 @@ RSpec.describe HealthCareApplication, type: :model do
   let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE }
   let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
 
+  describe 'schema' do
+    it 'is deep frozen' do
+      expect do
+        VetsJsonSchema::SCHEMAS['10-10EZ']['title'] = 'foo'
+      end.to raise_error(FrozenError)
+
+      expect(VetsJsonSchema::SCHEMAS['10-10EZ']['title']).to eq('APPLICATION FOR HEALTH BENEFITS (10-10EZ)')
+    end
+  end
+
   describe '#prefill_fields' do
     let(:health_care_application) { build(:health_care_application) }
 
