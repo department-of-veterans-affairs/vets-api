@@ -51,8 +51,8 @@ RSpec.describe Lighthouse::LettersGenerator::Service do
 
         expect { client.get_eligible_letter_types('BADREQUEST') }.to raise_error do |error|
           expect(error).to be_an_instance_of(Lighthouse::LettersGenerator::ServiceError)
-          expect(error.status).to be(fake_response_body['status'])
-          expect(error.message).to be(fake_response_body['detail'])
+          expect(error.errors.first.status).to eq(fake_response_body['status'].to_s)
+          expect(error.errors.first.meta[:message]).to eq(fake_response_body['detail'])
         end
       end
 
