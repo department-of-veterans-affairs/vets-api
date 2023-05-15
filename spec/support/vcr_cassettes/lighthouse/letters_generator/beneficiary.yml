@@ -1,0 +1,76 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va-letter-generator/v1/eligible-letters?icn=1012666073V986297
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer abcdefghijklmnop
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 18 Apr 2023 16:22:36 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '400'
+      Ratelimit-Remaining:
+      - '395'
+      Ratelimit-Reset:
+      - '25'
+      Ratelimit-Limit:
+      - '400'
+      X-Ratelimit-Remaining-Minute:
+      - '395'
+      Content-Language:
+      - en-US
+      Pragma:
+      - no-cache
+      - no-cache
+      X-Kong-Upstream-Latency:
+      - '1216'
+      X-Kong-Proxy-Latency:
+      - '2'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Frame-Options:
+      - SAMEORIGIN
+      Cache-Control:
+      - no-cache, no-store
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"messages":[{"key":"letterDestination.fileNumber.missing","text":"Unable
+        to determine eligibility on potential letters, BGS Veteran requires fileNumber","severity":"WARN"},{"key":"letterDestination.fileNumber.missing","text":"Unable
+        to determine eligibility on potential letters, BGS Veteran requires fileNumber","severity":"WARN"}],"letters":[{"letterName":"Benefit
+        Summary Letter","letterType":"BENEFIT_SUMMARY"},{"letterName":"Proof of Service
+        Letter","letterType":"PROOF_OF_SERVICE"},{"letterName":"Commissary Letter","letterType":"COMMISSARY"},{"letterName":"Proof
+        of Creditable Prescription Drug Coverage Letter","letterType":"MEDICARE_PARTD"},{"letterName":"Proof
+        of Minimum Essential Coverage Letter","letterType":"MINIMUM_ESSENTIAL_COVERAGE"},{"letterName":"Service
+        Verification Letter","letterType":"SERVICE_VERIFICATION"},{"letterName":"Civil
+        Service Preference Letter","letterType":"CIVIL_SERVICE"},{"letterName":"Benefit
+        Verification Letter","letterType":"BENEFIT_VERIFICATION"}],"letterDestination":{"country":"United
+        States","addressLine1":"1708 Tiburon Blvd","addressLine2":null,"addressLine3":null,"city":"Tiburon","state":"CA","zipCode":"94921","fullName":"Jesse
+        Gray"},"militaryServices":[{"branch":"Army","characterOfService":"HONORABLE","releasedDateTime":"1984-12-12T00:00:00Z","enteredDateTime":"1977-08-30T00:00:00Z"}],"benefitInformation":{"serviceConnectedPercentage":60,"awardEffectiveDateTime":"2021-12-01T00:00:00Z","monthlyAwardAmount":{"value":1288.03,"currency":"USD"},"serviceConnectedDisabilities":true,"nonServiceConnectedPension":false,"individualUnemployabilityGranted":false,"chapter35Eligibility":true,"specialMonthlyCompensation":false,"adaptedHousing":false,"chapter35EligibilityDateTime":"2018-03-14T05:00:00Z","hasDeathResultOfDisability":false,"hasSurvivorsIndemnityCompensationAward":false,"hasSurvivorsPensionAward":false}}'
+  recorded_at: Tue, 18 Apr 2023 16:22:36 GMT
+recorded_with: VCR 6.1.0

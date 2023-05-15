@@ -63,6 +63,13 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :letters_generator, only: [:index] do
+      collection do
+        get 'beneficiary', to: 'letters_generator#beneficiary'
+        get 'download/:id', to: 'letters_generator#download'
+      end
+    end
+
     resource :disability_compensation_form, only: [] do
       get 'rated_disabilities'
       get 'rating_info'

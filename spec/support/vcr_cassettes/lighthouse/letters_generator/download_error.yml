@@ -1,0 +1,64 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va-letter-generator/v1/letters/BENEFIT_SUMMARY/letter?icn=1012667145V762142
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer abcdefghijklmnop
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 422
+      message: ''
+    headers:
+      Date:
+      - Tue, 18 Apr 2023 16:22:31 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '400'
+      Ratelimit-Remaining:
+      - '398'
+      Ratelimit-Reset:
+      - '30'
+      Ratelimit-Limit:
+      - '400'
+      X-Ratelimit-Remaining-Minute:
+      - '398'
+      Content-Language:
+      - en-US
+      Pragma:
+      - no-cache
+      X-Kong-Upstream-Latency:
+      - '1170'
+      X-Kong-Proxy-Latency:
+      - '1'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"type":"https://api.va.gov/services/va-letter-generator/errors/required-data-exception","title":"Required
+        Data Error","status":422,"detail":"The following errors are present: No valid
+        address found","instance":"375763ad-de05-11ed-97d3-b54ca6e17d35","debuggingPayload":"LYgR4UXmVBtXCX/quHOapn+ykuCnQA5BzkVN+DINN+YYH9mzWANCd6EHi5MF13NzpspqXt77gJAmHSpFUyfCPieN4D5PDka4uSiGjZEaoirYu9hVhjwdxbMDMRmFxv36Du7cUn0/Rz/rENHYhdBn0Ck3Xz2fng38KzKNPSJSPkgbav8kBbvna8dK5EuPD1c="}'
+  recorded_at: Tue, 18 Apr 2023 16:22:31 GMT
+recorded_with: VCR 6.1.0
