@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require_dependency 'veteran_verification/application_controller'
-require_dependency 'notary'
+require 'notary'
 
 module VeteranVerification
   module V0
