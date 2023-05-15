@@ -55,7 +55,8 @@ module Common
       return nil if attributes.blank?
 
       unless attributes.is_a?(Hash)
-        Rails.logger.info("response: #{response} - oj parsed attributes: #{attributes} redis_key: #{redis_key}")
+        Rails.logger.info("redis_namespace: #{redis_namespace.inspect} - response: #{response}
+                            - oj parsed attributes: #{attributes} redis_key: #{redis_key}")
       end
 
       object = new(attributes, true)
