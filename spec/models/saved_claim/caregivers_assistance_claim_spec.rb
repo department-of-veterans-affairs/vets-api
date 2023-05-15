@@ -3,6 +3,18 @@
 require 'rails_helper'
 
 RSpec.describe SavedClaim::CaregiversAssistanceClaim do
+  describe 'schema' do
+    it 'is deep frozen' do
+      expect do
+        VetsJsonSchema::SCHEMAS['10-10CG']['title'] = 'foo'
+      end.to raise_error(FrozenError)
+
+      expect(VetsJsonSchema::SCHEMAS['10-10CG']['title']).to eq(
+        'Application for Comprehensive Assistance for Family Caregivers Program (10-10CG)'
+      )
+    end
+  end
+
   describe '#to_pdf' do
     let(:claim) do
       build(:caregivers_assistance_claim)
