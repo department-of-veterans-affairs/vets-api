@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-
-require_dependency 'notary'
+require 'notary'
 
 RSpec.describe VeteranVerification::Notary do
   let(:keypair_path) do

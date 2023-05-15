@@ -4,7 +4,7 @@ require 'sidekiq'
 require 'claims_api/poa_vbms_sidekiq'
 require 'claims_api/poa_pdf_constructor/organization'
 require 'claims_api/poa_pdf_constructor/individual'
-require_dependency 'claims_api/stamp_signature_error'
+require 'claims_api/stamp_signature_error'
 
 module ClaimsApi
   class PoaFormBuilderJob
