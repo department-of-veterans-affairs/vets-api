@@ -5,7 +5,6 @@
   },
   "vaFileNumber": "c12345678",
   "benefit": "chapter33",
-  "relationship": "child",
   "relationshipAndChildType": "step",
   "privacyAgreementAccepted": true
 }

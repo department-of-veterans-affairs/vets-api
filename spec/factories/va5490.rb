@@ -6,7 +6,6 @@ FactoryBot.define do
       {
         email: 'email@example.com',
         benefit: 'chapter35',
-        relationship: 'child',
         veteranSocialSecurityNumber: '111223333',
         relativeFullName: {
           first: 'Mark',
@@ -22,7 +21,6 @@ FactoryBot.define do
       {
         email: 'email@example.com',
         benefit: 'chapter33',
-        relationship: 'child',
         veteranSocialSecurityNumber: '111223333',
         relativeFullName: {
           first: 'Mark',
