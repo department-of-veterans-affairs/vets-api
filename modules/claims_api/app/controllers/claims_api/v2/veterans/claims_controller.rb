@@ -49,18 +49,27 @@ module ClaimsApi
         end
 
         def validate_id_with_icn(bgs_claim, lighthouse_claim, request_icn)
-          claim_prtcpnt_id = if bgs_claim&.dig(:benefit_claim_details_dto).present?
-                               bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_vet_id)
-                             end
+          if bgs_claim&.dig(:benefit_claim_details_dto).present?
+            clm_prtcpnt_vet_id = bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_vet_id)
+            clm_prtcpnt_clmnt_id = bgs_claim&.dig(:benefit_claim_details_dto, :ptcpnt_clmant_id)
+          end
+
           veteran_icn = if lighthouse_claim.present? && lighthouse_claim['veteran_icn'].present?
                           lighthouse_claim['veteran_icn']
                         end
 
-          if claim_prtcpnt_id != target_veteran.participant_id && veteran_icn != request_icn
+          if clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id) && veteran_icn != request_icn
             raise ::Common::Exceptions::ResourceNotFound.new(
               detail: 'Invalid claim ID for the veteran identified.'
             )
           end
+        end
+
+        def clm_prtcpnt_cannot_access_claim?(clm_prtcpnt_vet_id, clm_prtcpnt_clmnt_id)
+          return true if clm_prtcpnt_vet_id.nil? || clm_prtcpnt_clmnt_id.nil?
+
+          # if either of these is false then we have a match and can show the record
+          clm_prtcpnt_vet_id != target_veteran.participant_id && clm_prtcpnt_clmnt_id != target_veteran.participant_id
         end
 
         def generate_show_output(bgs_claim:, lighthouse_claim:) # rubocop:disable Metrics/MethodLength
