@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_05_09_181327) do
+ActiveRecord::Schema.define(version: 2023_05_12_221434) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -333,6 +333,8 @@ ActiveRecord::Schema.define(version: 2023_05_09_181327) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.text "logout_redirect_uri"
+    t.boolean "pkce"
+    t.string "certificates", array: true
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
   end
 
