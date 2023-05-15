@@ -843,6 +843,11 @@ features:
   show_meb_enhancements:
     actor_type: user
     description: Provides a flag wrapper for minor code changes to be gated from Prod.
+    enable_in_development: true
+  show_meb60_enhancements:
+    actor_type: user
+    description: Provides a flag wrapper for minor code changes to be gated from Prod.
+    enable_in_development: true
   move_form_back_button:
     actor_type: user
     description: Test moving form back button to the top of the page
