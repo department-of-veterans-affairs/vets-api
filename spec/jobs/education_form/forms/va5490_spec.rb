@@ -75,7 +75,6 @@ RSpec.describe EducationForm::Forms::VA5490 do
       simple_chapter_33_step_child
       kitchen_sink_chapter_33_spouse
       kitchen_sink_chapter_35_spouse
-      kitchen_sink_chapter_33_spouse
       kitchen_sink_chapter_35_adopted_child
     ].each do |test_application|
       test_spool_file('5490', test_application)

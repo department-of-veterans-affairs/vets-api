@@ -32,34 +32,9 @@
     "veteranSocialSecurityNumber": "111223333",
     "vaFileNumber": "c12345679"
   },
-  "highSchool": {
-    "name": "PS1",
-    "city": "new york",
-    "state": "NY",
-    "dateRange": {
-      "from": "2012-06-26",
-      "to": "2013-04-10"
-    },
-    "hours": 40,
-    "hoursType": "semester",
-    "degreeReceived": "diploma",
-    "status": "graduated",
-    "highSchoolOrGedCompletionDate": "2016-12-15"
-  },
   "civilianBenefitsAssistance": true,
   "civilianBenefitsSource": "dept of edu",
   "remarks": "remarks",
-  "educationProgram": {
-    "name": "uga",
-    "address": {
-      "city": "Milwaukee",
-      "country": "USA",
-      "postalCode": "53130",
-      "state": "WI",
-      "street": "123 Main St"
-    },
-    "educationType": "college"
-  },
   "eduBenefitsPamphlet": true,
   "relativeSocialSecurityNumber": "111223333",
   "gender": "M",
@@ -83,22 +58,8 @@
     "bankName": "First Bank of JSON",
     "routingNumber": "123456789"
   },
-  "secondaryContact": {
-    "fullName": "Sibling Olson",
-    "sameAddress": false,
-    "address": {
-      "city": "Baltimore",
-      "country": "USA",
-      "postalCode": "23131",
-      "state": "MD",
-      "street": "222 Person Drive"
-    },
-    "phone": "5550001111"
-  },
   "veteranDateOfBirth": "1985-01-07",
   "veteranDateOfDeath": "1985-01-08",
-  "educationStartDate": "1985-01-09",
-  "relationship": "spouse",
   "relationshipAndChildType": "spouse",
   "benefitsRelinquishedDate": "1985-01-10",
   "toursOfDuty": [{
@@ -118,21 +79,6 @@
     "serviceBranch": "Army Reserve",
     "serviceStatus": "ACTIVE DUTY"
   }],
-  "postHighSchoolTrainings": [
-    {
-      "name": "OtherCollege Name",
-      "dateRange": {
-        "from": "1999-01-01",
-        "to": "2000-01-01"
-      },
-      "city": "New York",
-      "hours": 8,
-      "hoursType": "semester",
-      "state": "NY",
-      "degreeReceived": "BA",
-      "major": "History"
-    }
-  ],
   "nonMilitaryJobs": [
     {
       "name": "Clerk",
