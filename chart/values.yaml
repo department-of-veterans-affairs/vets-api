@@ -130,9 +130,6 @@ worker:
     requests:
       cpu: ""
       memory: ""
-    limits:
-      cpu: ""
-      memory: ""
 # cronJobs configuration
 cronJobs: {}
 # clamav configuration

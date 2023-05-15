@@ -54,7 +54,8 @@ type: application
 # 0.11.44 - UNDO
 # 0.11.45 - Sum the hpa threads
 # 0.11.46 - Values clean up
-version: 0.11.46
+# 0.11.47 - Remove Sidekiq resource limits
+version: 0.11.47
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
