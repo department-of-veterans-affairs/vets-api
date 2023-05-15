@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/stamp_signature_error'
-
 module ClaimsApi
   module PoaPdfConstructor
     class Base
