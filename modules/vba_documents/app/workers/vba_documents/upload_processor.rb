@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
-require_dependency 'vba_documents/upload_validator'
-require_dependency 'vba_documents/payload_manager'
-require_dependency 'vba_documents/multipart_parser'
-
 require 'sidekiq'
 require 'vba_documents/object_store'
+require 'vba_documents/payload_manager'
 require 'vba_documents/upload_error'
 require 'central_mail/utilities'
 

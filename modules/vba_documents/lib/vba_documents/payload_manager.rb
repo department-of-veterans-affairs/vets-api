@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require_dependency 'vba_documents/multipart_parser'
-require_dependency 'vba_documents/object_store'
-require_dependency 'vba_documents/upload_error'
+require 'vba_documents/upload_error'
 
 module VBADocuments
   class PayloadManager
