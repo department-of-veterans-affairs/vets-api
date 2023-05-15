@@ -15,7 +15,7 @@ describe 'Legacy Appeals', swagger_doc: DocHelpers.output_json_path, type: :requ
     get 'Returns eligible appeals in the legacy process for a Veteran.' do
       tags 'Legacy Appeals'
       operationId 'getLegacyAppeals'
-      security DocHelpers.security_config
+      security DocHelpers.decision_reviews_security_config
       consumes 'application/json'
       produces 'application/json'
       description = 'Returns eligible legacy appeals for a Veteran. A legacy appeal is eligible if a statement of ' \

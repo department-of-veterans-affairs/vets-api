@@ -6,8 +6,12 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
+def swagger_doc
+  "modules/appeals_api/app/swagger/decision_reviews/v2/swagger#{DocHelpers.doc_suffix}.json"
+end
+
 # rubocop:disable RSpec/VariableName, Layout/LineLength
-describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :request do
+describe 'Contestable Issues', swagger_doc:, type: :request do
   include DocHelpers
   let(:apikey) { 'apikey' }
 
@@ -19,7 +23,7 @@ describe 'Contestable Issues', swagger_doc: DocHelpers.output_json_path, type: :
       description 'Returns all issues associated with a Veteran that have been decided ' \
                   'as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.' \
 
-      security DocHelpers.security_config
+      security DocHelpers.decision_reviews_security_config
       consumes 'application/json'
       produces 'application/json'
 

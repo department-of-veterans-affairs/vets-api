@@ -24,7 +24,7 @@ RSpec.describe 'Appealable Issues', swagger_doc:, type: :request do
       operationId 'getAppealableIssues'
       description 'Returns all issues associated with a Veteran that have been decided ' \
                   'as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.'
-      security DocHelpers.security_config(scopes)
+      security DocHelpers.oauth_security_config(scopes)
       consumes 'application/json'
       produces 'application/json'
 

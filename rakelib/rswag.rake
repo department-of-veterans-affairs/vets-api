@@ -19,7 +19,7 @@ APPEALS_API_DOCS = [
   {
     name: 'appeals_status',
     version: 'v1',
-    pattern: "#{APPEALS_API_DOCS_DIR}/appeals_status_spec.rb"
+    pattern: "#{APPEALS_API_DOCS_DIR}/appeals_status/v1_spec.rb"
   },
   {
     name: 'decision_reviews',
