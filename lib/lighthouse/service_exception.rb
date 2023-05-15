@@ -54,14 +54,14 @@ module Lighthouse
 
       if errors&.any?
         errors.map do |e|
-          status, detail, title, code = error_object_details(e, error_status)
+          status, title, detail, code = error_object_details(e, error_status)
 
           transform_error_keys(e, status, title, detail, code)
         end
       else
         error_body = error.response[:body]
 
-        status, detail, title, code = error_object_details(error_body, error_status)
+        status, title, detail, code = error_object_details(error_body, error_status)
 
         [transform_error_keys(error_body, status, title, detail, code)]
       end
