@@ -20,6 +20,6 @@
 
   "F[0].Page_1[0].Date02[0]": "<%= data.dig('previous_sah_application', 'previous_sah_application_date') %>",
   "F[0].Page_1[0].Date03[0]": "<%= data.dig('previous_hi_application', 'previous_hi_application_date') %>",
-  "F[0].Page_1[0].Date05[0]": "<%= Time.new.getlocal.strftime('%m/%d/%Y') %>",
+  "F[0].Page_1[0].Date05[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%m/%d/%Y') %>",
   "F[0].Page_1[0].Signature[0]": "<%= data.dig('veteran', 'full_name', 'first') %> <%= data.dig('veteran', 'full_name', 'middle') %> <%= data.dig('veteran', 'full_name', 'last') %> <%= data.dig('veteran', 'full_name', 'suffix') %>"
 }

@@ -12,7 +12,7 @@ module FormsApi
         stamp_method = "stamp#{data['form_number'].gsub('-', '')}"
         send(stamp_method, generated_form_path, data)
       end
-      current_time = Time.new.getlocal.strftime('%H:%M:%S')
+      current_time = Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')
       stamp_text = SUBMISSION_TEXT + current_time
       desired_stamps = [[10, 10, stamp_text]]
       stamp(desired_stamps, generated_form_path, text_only: false)
