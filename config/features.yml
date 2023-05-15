@@ -784,6 +784,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for proof of concept to help Veteran contact a facility when the type of care is not available
+  va_online_scheduling_convert_utc_to_local:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for converting from UTC to localtime in API vs. frontend application code
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
