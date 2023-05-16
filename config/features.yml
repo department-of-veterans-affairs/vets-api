@@ -397,6 +397,10 @@ features:
     actor_type: user
     description: Enable/disable in progress form reminder age param
     enable_in_development: true
+  clear_stale_in_progress_reminders_sent:
+    actor_type: user
+    description: Enable/disable clearing of one-time in progress reminders after 60 days
+    enable_in_development: true
   in_progress_1880_form_cron:
     actor_type: user
     description: Enable/disable scheduled cron for 1880 in progress form reminders (sent via VaNotify)

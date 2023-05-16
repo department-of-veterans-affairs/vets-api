@@ -266,6 +266,11 @@ VANotify::InProgressForms:
   class: VANotify::InProgressForms
   description: "In progress form reminder emails (sent via VaNotify)"
 
+VANotify::ClearStaleInProgressRemindersSent:
+  cron: "0 1 * * * America/New_York"
+  class: VANotify::ClearStaleInProgressRemindersSent
+  description: "Clear stale InProgressRemindersSent data that is more than 60 days old"
+
 VBADocuments::FlipperStatusAlert:
   cron: '0 2,9,16 * * MON-FRI America/New_York'
   class: VBADocuments::FlipperStatusAlert
