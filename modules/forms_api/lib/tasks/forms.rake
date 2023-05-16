@@ -24,20 +24,15 @@ namespace :forms_api do
     end
 
     metadata_method = <<-METADATA
-    def metadata(pdf_path)
+    def metadata
       {
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
         'veteranLastName' => @data.dig('veteran', 'full_name', 'last'),
         'fileNumber' => @data.dig('veteran', 'va_file_number').presence || @data.dig('veteran', 'ssn'),
         'zipCode' => @data.dig('veteran', 'address', 'postal_code'),
-        'source' => 'forms_api',
-        'uuid' => SecureRandom.uuid,
-        'hashV' => Digest::SHA256.file(pdf_path).hexdigest,
-        'numberAttachments' => 0,
-        'receiveDt' => Time.zone.now.strftime('%Y-%m-%d %H:%M:%S'),
-        'numberPages' => PdfInfo::Metadata.read(pdf_path).pages,
-        'businessLine' => 'CMP',
-        'docType' => @data['form_number']
+        'source' => 'VA Platform Digital Forms',
+        'docType' => @data['form_number'],
+        'businessLine' => 'CMP'
       }
     end
     METADATA
