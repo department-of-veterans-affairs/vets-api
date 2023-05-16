@@ -885,33 +885,72 @@ RSpec.describe Form526Submission do
       )
     end
 
-    before { VCR.insert_cassette('evss/disability_compensation_form/rated_disabilities_with_non_service_connected') }
-    after { VCR.eject_cassette('evss/disability_compensation_form/rated_disabilities_with_non_service_connected') }
+    context 'evss provider' do
+      before { VCR.insert_cassette('evss/disability_compensation_form/rated_disabilities_with_non_service_connected') }
+      after { VCR.eject_cassette('evss/disability_compensation_form/rated_disabilities_with_non_service_connected') }
 
-    context 'when all corresponding rated disabilities are not service-connected' do
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
-      let(:form_json_filename) { 'only_526_asthma.json' }
+      context 'when all corresponding rated disabilities are not service-connected' do
+        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+        let(:form_json_filename) { 'only_526_asthma.json' }
 
-      it 'returns true' do
-        expect(subject).to be_truthy
+        it 'returns true' do
+          expect(subject).to be_truthy
+        end
+      end
+
+      context 'when some but not all corresponding rated disabilities are not service-connected' do
+        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+        let(:form_json_filename) { 'only_526_two_rated_disabilities.json' }
+
+        it 'returns false' do
+          expect(subject).to be_falsey
+        end
+      end
+
+      context 'when some disabilities do not have a ratedDisabilityId yet' do
+        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+        let(:form_json_filename) { 'only_526_mixed_action_disabilities.json' }
+
+        it 'returns false' do
+          expect(subject).to be_falsey
+        end
       end
     end
 
-    context 'when some but not all corresponding rated disabilities are not service-connected' do
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
-      let(:form_json_filename) { 'only_526_two_rated_disabilities.json' }
-
-      it 'returns false' do
-        expect(subject).to be_falsey
+    context 'Lighthouse provider' do
+      before do
+        Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+        VCR.insert_cassette('lighthouse/veteran_verification/disability_rating/200_Not_Connected_response')
+        allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
       end
-    end
 
-    context 'when some disabilities do not have a ratedDisabilityId yet' do
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
-      let(:form_json_filename) { 'only_526_mixed_action_disabilities.json' }
+      after do
+        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+        VCR.eject_cassette('lighthouse/veteran_verification/disability_rating/200_Not_Connected_response')
+      end
 
-      it 'returns false' do
-        expect(subject).to be_falsey
+      context 'when all corresponding rated disabilities are not service-connected' do
+        let(:form_json_filename) { 'only_526_asthma.json' }
+
+        it 'returns true' do
+          expect(subject).to be_truthy
+        end
+      end
+
+      context 'when some but not all corresponding rated disabilities are not service-connected' do
+        let(:form_json_filename) { 'only_526_two_rated_disabilities.json' }
+
+        it 'returns false' do
+          expect(subject).to be_falsey
+        end
+      end
+
+      context 'when some disabilities do not have a ratedDisabilityId yet' do
+        let(:form_json_filename) { 'only_526_mixed_action_disabilities.json' }
+
+        it 'returns false' do
+          expect(subject).to be_falsey
+        end
       end
     end
   end
