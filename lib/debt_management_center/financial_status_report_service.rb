@@ -9,6 +9,7 @@ require 'debt_management_center/workers/va_notify_email_job'
 require 'debt_management_center/vbs/request'
 require 'debt_management_center/sharepoint/request'
 require 'pdf_fill/filler'
+require 'sidekiq'
 require 'json'
 
 module DebtManagementCenter
@@ -174,6 +175,8 @@ module DebtManagementCenter
     end
 
     def submit_vha_batch_job(vha_submissions)
+      return unless defined?(Sidekiq::Batch)
+
       submission_batch = Sidekiq::Batch.new
       submission_batch.on(
         :success,

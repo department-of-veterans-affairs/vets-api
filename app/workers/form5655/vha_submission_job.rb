@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'debt_management_center/financial_status_report_service'
+
 module Form5655
   class VHASubmissionJob
     include Sidekiq::Worker
