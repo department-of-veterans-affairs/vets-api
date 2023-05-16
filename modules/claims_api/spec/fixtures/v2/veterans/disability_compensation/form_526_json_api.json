@@ -105,8 +105,11 @@
                   "country": "USA"
             },
             "homeless": {
-                "pointOfContact": "hw86h63-v",
-                "pointOfContactNumber": 0,
+                "pointOfContact": "john stewart",
+                "pointOfContactNumber": {
+                    "telephone": "7028901212",
+                    "internationalTelephone": "1234567890"
+                },
                 "currentlyHomeless": {
                     "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                     "otherDescription": "ABCDEFGHIJKLM"

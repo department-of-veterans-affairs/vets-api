@@ -10,6 +10,7 @@ module ClaimsApi
 
       def map_claim
         claim_attributes
+        homeless_attributes
         chg_addr_attributes
         veteran_info
 
@@ -19,6 +20,7 @@ module ClaimsApi
       def claim_attributes
         @pdf_data[:data][:attributes] = @auto_claim.deep_symbolize_keys
         claim_date
+        veteran_info
 
         @pdf_data
       end
@@ -26,6 +28,29 @@ module ClaimsApi
       def claim_date
         @pdf_data[:data][:attributes].merge!(claimCertificationAndSignature: { dateSigned: @auto_claim['claimDate'] })
         @pdf_data[:data][:attributes].delete(:claimDate)
+
+        @pdf_data
+      end
+
+      def homeless_attributes
+        @pdf_data[:data][:attributes][:homelessInformation] = @auto_claim['homeless'].deep_symbolize_keys
+        @pdf_data[:data][:attributes].delete(:homeless)
+
+        homeless_at_risk_or_currently
+
+        @pdf_data
+      end
+
+      def homeless_at_risk_or_currently
+        at_risk = @auto_claim&.dig('homeless', 'riskOfBecomingHomeless', 'otherDescription').present?
+        currently = @auto_claim&.dig('homeless', 'pointOfContact').present?
+
+        if currently && !at_risk
+          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouCurrentlyHomeless: true)
+        else
+          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouAtRiskOfBecomingHomeless: true)
+        end
+
         @pdf_data
       end
 

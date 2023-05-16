@@ -29,7 +29,7 @@ describe ClaimsApi::V2::DisabilitiyCompensationPdfMapper do
       )
     end
 
-    context '526 section 0, attributes' do
+    context '526 section 0, claim attributes' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
       let(:mapper) { ClaimsApi::V2::DisabilitiyCompensationPdfMapper.new(form_attributes, pdf_data) }
 
@@ -115,6 +115,41 @@ describe ClaimsApi::V2::DisabilitiyCompensationPdfMapper do
         expect(country).to eq('USA')
         expect(zip).to eq('422209897')
         expect(state).to eq('GA')
+      end
+    end
+
+    context '526 section 3, homelessness' do
+      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
+      let(:mapper) { ClaimsApi::V2::DisabilitiyCompensationPdfMapper.new(form_attributes, pdf_data) }
+
+      it 'maps the homeless_point_of_contact' do
+        mapper.map_claim
+
+        homeless_point_of_contact = pdf_data[:data][:attributes][:homelessInformation][:pointOfContact]
+        homeless_telephone = pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber][:telephone]
+        homeless_international_telephone =
+          pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber][:internationalTelephone]
+        homeless_currently = pdf_data[:data][:attributes][:homelessInformation][:areYouCurrentlyHomeless]
+        homeless_risk_other_description =
+          pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless][:otherDescription]
+        homeless_situation_options =
+          pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless][:homelessSituationOptions]
+        homeless_at_risk_living_situation_options =
+          pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless][:livingSituationOptions]
+        homeless_currently_other_description =
+          pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless][:otherDescription]
+        homeless_at_risk_at_becoming =
+          pdf_data[:data][:attributes][:homelessInformation][:areYouAtRiskOfBecomingHomeless]
+
+        expect(homeless_point_of_contact).to eq('john stewart')
+        expect(homeless_telephone).to eq('7028901212')
+        expect(homeless_international_telephone).to eq('1234567890')
+        expect(homeless_currently).to eq(nil) # can't be both homess & at risk
+        expect(homeless_situation_options).to eq('FLEEING_CURRENT_RESIDENCE')
+        expect(homeless_currently_other_description).to eq('ABCDEFGHIJKLM')
+        expect(homeless_at_risk_at_becoming).to eq(true)
+        expect(homeless_at_risk_living_situation_options).to eq('other')
+        expect(homeless_risk_other_description).to eq('ABCDEFGHIJKLMNOP')
       end
     end
   end
