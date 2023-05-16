@@ -10,6 +10,7 @@ module ClaimsApi
 
       def map_claim
         claim_attributes
+        chg_addr_attributes
         veteran_info
 
         @pdf_data
@@ -28,6 +29,16 @@ module ClaimsApi
         @pdf_data
       end
 
+      # change of address
+      def chg_addr_attributes
+        @pdf_data[:data][:attributes][:changeOfAddress] =
+          @auto_claim['changeOfAddress'].deep_symbolize_keys
+
+        chg_addr_zip
+
+        @pdf_data
+      end
+
       def veteran_info
         @pdf_data[:data][:attributes].merge!(
           identificationInformation: @auto_claim['veteranIdentification'].deep_symbolize_keys
@@ -41,6 +52,12 @@ module ClaimsApi
         zip = @auto_claim['veteranIdentification']['mailingAddress']['zipFirstFive'] +
               @auto_claim['veteranIdentification']['mailingAddress']['zipLastFour']
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].merge!(zip:)
+      end
+
+      def chg_addr_zip
+        zip = @auto_claim['changeOfAddress']['zipFirstFive'] +
+              @auto_claim['changeOfAddress']['zipLastFour']
+        @pdf_data[:data][:attributes][:changeOfAddress].merge!(zip:)
       end
     end
   end
