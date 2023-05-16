@@ -1,0 +1,138 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "type": "object",
+  "required": [
+    "data"
+  ],
+  "properties": {
+    "data": {
+      "type": "object",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "attributes"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "object",
+            "required": [
+              "dateFiled",
+              "minEstDate",
+              "maxEstDate",
+              "phaseChangeDate",
+              "open",
+              "waiverSubmitted",
+              "documentsNeeded",
+              "developmentLetterSent",
+              "decisionLetterSent",
+              "phase",
+              "everPhaseBack",
+              "currentPhaseBack",
+              "requestedDecision",
+              "claimType",
+              "contentionList",
+              "vaRepresentative",
+              "eventsTimeline",
+              "updatedAt"
+            ],
+            "properties": {
+              "dateFiled": {
+                "type": [
+                  "string"
+                ]
+              },
+              "minEstDate": {
+                "type": [
+                  "string"
+                ]
+              },
+              "maxEstDate": {
+                "type": [
+                  "string"
+                ]
+              },
+              "phaseChangeDate": {
+                "type": [
+                  "string"
+                ]
+              },
+              "open": {
+                "type": [
+                  "boolean"
+                ]
+              },
+              "waiverSubmitted": {
+                "type": [
+                  "boolean"
+                ]
+              },
+              "documentsNeeded": {
+                "type": [
+                  "boolean"
+                ]
+              },
+              "developmentLetterSent": {
+                "type": [
+                  "boolean"
+                ]
+              },
+              "decisionLetterSent": {
+                "type": [
+                  "boolean"
+                ]
+              },
+              "phase": {
+                "type": [
+                  "integer"
+                ]
+              },
+              "everPhaseBack": {
+                "type": [
+                  "null"
+                ]
+              },
+              "currentPhaseBack": {
+                "type": [
+                  "boolean"
+                ]
+              },
+              "requestedDecision": {
+                "type": [
+                  "boolean"
+                ]
+              },
+              "claimType": {
+                "type": [
+                  "string"
+                ]
+              },
+              "contentionList": {
+                "type": [
+                  "array"
+                ]
+              },
+              "vaRepresentative": {
+                "type": [
+                  "null"
+                ]
+              },
+              "eventsTimeline": {
+                "type": [
+                  "array"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
