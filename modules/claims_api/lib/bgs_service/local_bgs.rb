@@ -122,6 +122,12 @@ module ClaimsApi
       end
     end
 
+    def healthcheck(endpoint)
+      connection = Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode })
+      wsdl = connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
+      wsdl.status
+    end
+
     def find_poa_by_participant_id(id)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <ptcpntId />
