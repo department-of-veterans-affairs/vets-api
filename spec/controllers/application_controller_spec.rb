@@ -504,7 +504,7 @@ RSpec.describe ApplicationController, type: :controller do
     let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
     let(:header_auth_value) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
     let(:request_host) { Settings.hostname }
-    let(:expiration_time) { controller.instance_variable_get(:@session_object).ttl_in_time.iso8601(0) }
+    let(:expiration_time) { Session.find(token).ttl_in_time.iso8601(0) }
     let(:sso_cookie_content) do
       {
         'patientIcn' => '123498767V234859',
@@ -514,7 +514,7 @@ RSpec.describe ApplicationController, type: :controller do
           'clientId' => 'web'
         },
         'credential_used' => 'idme',
-        'session_uuid' => user.uuid,
+        'session_uuid' => token,
         'expirationTime' => expiration_time
       }
     end
@@ -534,8 +534,7 @@ RSpec.describe ApplicationController, type: :controller do
     end
 
     context 'when the current user and session object exist' do
-      it 'returns a hash with the user and session info' do
-        get :test_authentication
+      it 'returns the current user session token' do
         expect(Rails.logger).to receive(:info).with(expected_result)
         subject
       end
