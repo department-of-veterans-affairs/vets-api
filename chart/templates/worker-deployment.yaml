@@ -62,12 +62,14 @@ spec:
               port: {{ .Values.worker.healthCheck.port }}
             initialDelaySeconds: {{ .Values.worker.healthCheck.initialDelaySeconds }}
             timeoutSeconds: {{ .Values.worker.healthCheck.timeoutSeconds }}
+            failureThreshold:  {{ .Values.worker.healthCheck.liveness.failureThreshold }}
           readinessProbe: #ensure container is ready to start accepting traffic
             httpGet:
               path: {{ .Values.worker.healthCheck.readinessPath }}
               port: {{ .Values.worker.healthCheck.readinessPort }}
             initialDelaySeconds: {{ .Values.worker.healthCheck.initialDelaySeconds }}
             timeoutSeconds: {{ .Values.worker.healthCheck.timeoutSeconds }}
+            failureThreshold: {{ .Values.worker.healthCheck.readiness.failureThreshold }}
           lifecycle:
             preStop:
               exec:

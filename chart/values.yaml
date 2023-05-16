@@ -121,6 +121,10 @@ worker:
     timeoutSeconds: ""
     successThreshold: ""
     command: []
+    livesness:
+      failureThreshold: 3
+    readiness:
+      failureThreshold: 3
   terminationGracePeriodSeconds: ""
   socatProxyEnabled: false
   envSecrets:
