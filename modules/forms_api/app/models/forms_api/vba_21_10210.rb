@@ -16,7 +16,7 @@ module FormsApi
         'veteranLastName' => data.dig('veteran_full_name', 'last'),
         'fileNumber' => data['veteran_va_file_number'].presence || data['veteran_ssn'],
         'zipCode' => data.dig('veteran_mailing_address', 'postal_code'),
-        'source' => 'forms_api',
+        'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
       }
