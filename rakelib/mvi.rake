@@ -41,7 +41,9 @@ namespace :mvi do
       )
 
       user.last_signed_in = Time.now.utc
+      # rubocop:disable Lint/Debugger
       pp MPIData.for_user(user).profile
+      # rubocop:enable Lint/Debugger
     rescue => e
       puts "User query failed: #{e.message}"
     end

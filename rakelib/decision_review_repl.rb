@@ -404,7 +404,7 @@ def by_error_message_category(array)
 end
 
 def puts_by_error_class(array)
-  p by_error_class array
+  puts by_error_class array
 end
 
 def by_error_class_counts(array)
@@ -412,11 +412,11 @@ def by_error_class_counts(array)
 end
 
 def puts_by_error_class_counts(array)
-  p counts by_error_class array
+  puts counts by_error_class array
 end
 
 def puts_by_error_message_category(array)
-  p by_error_message_category array
+  puts by_error_message_category array
 end
 
 def by_error_message_category_counts(array)
@@ -424,7 +424,7 @@ def by_error_message_category_counts(array)
 end
 
 def puts_by_error_message_category_counts(array)
-  p counts by_error_message_category array
+  puts counts by_error_message_category array
 end
 
 Q = PersonalInformationLogQueryBuilder

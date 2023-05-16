@@ -679,7 +679,9 @@ namespace :form526 do
       ids[:edipi] = edipi submission.auth_headers
       ids[:icn] = icn ids[:edipi]
 
+      # rubocop:disable Lint/Debugger
       pp mpi_profile(user_identity(**ids)).as_json
+      # rubocop:enable Lint/Debugger
     end
 
     def mpi_profile(user_identity)
