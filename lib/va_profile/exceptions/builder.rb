@@ -178,17 +178,17 @@ module VAProfile
       # rubocop:disable Rails/Output
       def output_results_to_console
         puts
-        p 'Needs a title:'
-        p needs_title.presence || 0
+        puts 'Needs a title:'
+        puts needs_title.presence || 0
         puts
 
-        p 'Needs detail:'
-        p needs_detail.presence || 0
+        puts 'Needs detail:'
+        puts needs_detail.presence || 0
         puts
 
         set_new_code_count
 
-        stats.each { |key, value| p "#{key.to_s.titleize}: #{value}" }
+        stats.each { |key, value| puts "#{key.to_s.titleize}: #{value}" }
       end
       # rubocop:enable Rails/Output
 

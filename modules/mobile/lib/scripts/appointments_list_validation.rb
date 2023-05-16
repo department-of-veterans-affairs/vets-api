@@ -34,7 +34,9 @@ class AppointmentsListValidation
       web_only: in_web_only,
       mobile_only: in_mobile_only
     }
+    # rubocop:disable Lint/Debugger
     pp results
+    # rubocop:enable Lint/Debugger
   end
 
   private
