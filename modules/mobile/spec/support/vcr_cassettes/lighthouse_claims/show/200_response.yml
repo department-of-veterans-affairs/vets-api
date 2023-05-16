@@ -1,0 +1,317 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/1008596379V859838/claims/600117255
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer abcdefghijklmnop
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 28 Feb 2023 21:02:39 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '25'
+      Etag:
+      - W/"6571c42e57529000188d704a3cd1f46a"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Git-Sha:
+      - b20885293917fd081d24899644d2718d2ab4ccf9
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - d687047e-5004-43c1-babb-c2f52f2fda40
+      X-Runtime:
+      - '3.569014'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Kong-Upstream-Latency:
+      - '3573'
+      X-Kong-Proxy-Latency:
+      - '24'
+      Via:
+      - kong/3.0.2
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{
+                 "data":{
+                    "id":"600383363",
+                    "type":"claim",
+                    "attributes":{
+                       "claimTypeCode":"020NEW",
+                       "claimDate":"2022-09-27",
+                       "claimPhaseDates":{
+                          "phaseChangeDate":"2022-09-30",
+                          "currentPhaseBack":false,
+                          "latestPhaseType":"GATHERING_OF_EVIDENCE",
+                          "previousPhases":{
+                             "phase2CompleteDate":"2022-09-30",
+                             "phase1CompleteDate":"2022-09-30"
+                          }
+                       },
+                       "claimType":"Compensation",
+                       "closeDate":null,
+                       "contentions":[
+                          {
+                             "name":"Accommodation, paralysis of (eye) (New)"
+                          }
+                       ],
+                       "decisionLetterSent":false,
+                       "developmentLetterSent":true,
+                       "documentsNeeded":true,
+                       "endProductCode":"020",
+                       "evidenceWaiverSubmitted5103":false,
+                       "errors":[
+                          
+                       ],
+                       "jurisdiction":"National Work Queue",
+                       "lighthouseId":null,
+                       "maxEstClaimDate":"2023-08-14",
+                       "minEstClaimDate":"2023-03-22",
+                       "status":"EVIDENCE_GATHERING_REVIEW_DECISION",
+                       "submitterApplicationCode":"VBMS",
+                       "submitterRoleCode":"VBA",
+                       "supportingDocuments":[
+                          {
+                             "documentId":"{7AF4C5E0-EBCE-49B2-9544-999ECA2904FD}",
+                             "documentTypeLabel":"VA 21-0781a, Statement in Support of Claim for PTSD Secondary to Personal Assault",
+                             "originalFileName":"2D7E2C41-CE81-44F2-9908-20E7EA7DAC1E.pdf",
+                             "trackedItemId":360053,
+                             "uploadDate":"2022-10-11"
+                          },
+                          {
+                             "documentId":"{32E31191-5EAA-4304-AE43-AB99426C4C8D}",
+                             "documentTypeLabel":"Medical Treatment Record - Non-Government Facility",
+                             "originalFileName":"rn_image_picker_lib_temp_83fdc9e3-6241-47f2-ad35-0d802cdc5b9c.pdf",
+                             "trackedItemId":360054,
+                             "uploadDate":"2022-10-13"
+                          },
+                          {
+                             "documentId":"{264AD79C-BDF3-4865-93D0-1D07EDC30F2D}",
+                             "documentTypeLabel":"VA 21-0781a, Statement in Support of Claim for PTSD Secondary to Personal Assault",
+                             "originalFileName":"multifile.pdf",
+                             "trackedItemId":360047,
+                             "uploadDate":"2022-10-13"
+                          },
+                          {
+                             "documentId":"{92932CE1-A184-473F-9657-F3E500ED6017}",
+                             "documentTypeLabel":"Correspondence",
+                             "originalFileName":"multifile.pdf",
+                             "trackedItemId":360050,
+                             "uploadDate":"2022-12-12"
+                          },
+                          {
+                             "documentId":"{883B6CC8-D726-4911-9C65-2EB360E12F52}",
+                             "documentTypeLabel":"Civilian Police Reports",
+                             "originalFileName":"7B434B58-477C-4379-816F-05E6D3A10487.pdf",
+                             "trackedItemId":360052,
+                             "uploadDate":"2023-03-01"
+                          },
+                          {
+                             "documentId":"{6A6DFA79-4EC9-4E58-9653-25BDCFB06A03}",
+                             "documentTypeLabel":"5103 Notice Acknowledgement",
+                             "originalFileName":null,
+                             "trackedItemId":null,
+                             "uploadDate":null
+                          },
+                          {
+                             "documentId":"{B38D3F6B-CEB9-4B96-8B66-72B34366C3E0}",
+                             "documentTypeLabel":"5103 Notice Acknowledgement",
+                             "originalFileName":null,
+                             "trackedItemId":null,
+                             "uploadDate":null
+                          },
+                          {
+                             "documentId":"{2AED4DB3-B31F-4584-9692-E872563812A0}",
+                             "documentTypeLabel":"5103 Notice Acknowledgement",
+                             "originalFileName":null,
+                             "trackedItemId":null,
+                             "uploadDate":null
+                          },
+                          {
+                             "documentId":"{25531877-D5B1-4E5B-B7DB-91CE056CE829}",
+                             "documentTypeLabel":"Correspondence",
+                             "originalFileName":null,
+                             "trackedItemId":null,
+                             "uploadDate":null
+                          },
+                          {
+                             "documentId":"{0C994A8F-F2FE-4963-B013-870E420EFFD1}",
+                             "documentTypeLabel":"5103 Notice Acknowledgement",
+                             "originalFileName":null,
+                             "trackedItemId":null,
+                             "uploadDate":null
+                          },
+                          {
+                             "documentId":"{13336C3E-A180-420A-A8A6-81AA3D866621}",
+                             "documentTypeLabel":"VA 21-0781a, Statement in Support of Claim for PTSD Secondary to Personal Assault",
+                             "originalFileName":null,
+                             "trackedItemId":null,
+                             "uploadDate":null
+                          },
+                          {
+                             "documentId":"{9B19566F-98ED-4C5F-895E-0EA588E81669}",
+                             "documentTypeLabel":"VA 21-0781a, Statement in Support of Claim for PTSD Secondary to Personal Assault",
+                             "originalFileName":null,
+                             "trackedItemId":null,
+                             "uploadDate":null
+                          },
+                          {
+                             "documentId":"{798F828C-3B4A-4EB5-8883-F7C49205BD98}",
+                             "documentTypeLabel":"VA 21-526EZ, Fully Developed Claim (Compensation)",
+                             "originalFileName":null,
+                             "trackedItemId":null,
+                             "uploadDate":null
+                          }
+                       ],
+                       "tempJurisdiction":null,
+                       "trackedItems":[
+                          {
+                             "closedDate":"2022-10-30",
+                             "description":null,
+                             "displayName":"Reserve or Guard service claimed - unit info needed",
+                             "overdue":false,
+                             "receivedDate":null,
+                             "requestedDate":"2022-09-30",
+                             "status":"NO_LONGER_REQUIRED",
+                             "suspenseDate":"2022-10-30",
+                             "id":360047,
+                             "uploadsAllowed":false
+                          },
+                          {
+                             "closedDate":null,
+                             "description":"The number of previous marriages indicated on your application for benefits did not equal the former spouses listed.  On the enclosed VA Form 21-686c, Declaration of Status of Dependents, please provide your complete marital history, listing the date and place of each prior marriage, and its termination.",
+                             "displayName":"Claimant marital history inconsistent - need 21-686c",
+                             "overdue":true,
+                             "receivedDate":null,
+                             "requestedDate":"2022-09-30",
+                             "status":"SUBMITTED_AWAITING_REVIEW",
+                             "suspenseDate":"2022-10-30",
+                             "id":360050,
+                             "uploadsAllowed":true
+                          },
+                          {
+                             "closedDate":null,
+                             "description":"On your application for benefits you did not provide a complete history of your previous marriages.  On the enclosed VA Form 21-686c, Declaration of Status of Dependents, please provide a complete marital history, listing the date and place of each prior marriage, and its termination.",
+                             "displayName":"History of prior marriages of claimant needed",
+                             "overdue":true,
+                             "receivedDate":null,
+                             "requestedDate":"2022-09-30",
+                             "status":"NEEDED_FROM_YOU",
+                             "suspenseDate":"2022-10-30",
+                             "id":360051,
+                             "uploadsAllowed":true
+                          },
+                          {
+                             "closedDate":null,
+                             "description":"The information provided concerning your prior marital history is inconsistent.  In order to resolve these inconsistencies you should submit certified copies of the public record of the termination (death, divorce or annulment) for each of your prior marriages.",
+                             "displayName":"Claimant marital history inconsistent - need proof",
+                             "overdue":true,
+                             "receivedDate":null,
+                             "requestedDate":"2022-09-30",
+                             "status":"SUBMITTED_AWAITING_REVIEW",
+                             "suspenseDate":"2022-10-30",
+                             "id":360052,
+                             "uploadsAllowed":true
+                          },
+                          {
+                             "closedDate":null,
+                             "description":"Provide the type of termination (death/annulment/divorce) for your marriage to <name of former spouse>.",
+                             "displayName":"Claimant - previous marriage termination type needed",
+                             "overdue":true,
+                             "receivedDate":null,
+                             "requestedDate":"2022-09-30",
+                             "status":"SUBMITTED_AWAITING_REVIEW",
+                             "suspenseDate":"2022-10-30",
+                             "id":360053,
+                             "uploadsAllowed":true
+                          },
+                          {
+                             "closedDate":"2022-10-30",
+                             "description":null,
+                             "displayName":"Claim based on other agency disability grant",
+                             "overdue":false,
+                             "receivedDate":null,
+                             "requestedDate":"2022-09-30",
+                             "status":"NO_LONGER_REQUIRED",
+                             "suspenseDate":"2022-10-30",
+                             "id":360054,
+                             "uploadsAllowed":false
+                          },
+                          {
+                             "closedDate":"2022-10-30",
+                             "description":null,
+                             "displayName":"Spouse claimant biological relationship to child needed",
+                             "overdue":false,
+                             "receivedDate":null,
+                             "requestedDate":"2022-09-30",
+                             "status":"NO_LONGER_REQUIRED",
+                             "suspenseDate":"2022-10-30",
+                             "id":360055,
+                             "uploadsAllowed":false
+                          },
+                          {
+                             "closedDate":"2022-10-30",
+                             "description":null,
+                             "displayName":"Stepchild - clarify % of support from claimant",
+                             "overdue":false,
+                             "receivedDate":null,
+                             "requestedDate":"2022-09-30",
+                             "status":"NO_LONGER_REQUIRED",
+                             "suspenseDate":"2022-10-30",
+                             "id":360056,
+                             "uploadsAllowed":false
+                          }
+                       ]
+                    }
+                 }
+              }'
+  recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
+recorded_with: VCR 6.1.0

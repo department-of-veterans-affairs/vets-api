@@ -12,7 +12,7 @@ module Mobile
   module V0
     class ClaimsAndAppealsController < ApplicationController
       include IgnoreNotFound
-      before_action(only: :index) do
+      before_action(only: %i[index get_claim]) do
         if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
           authorize :lighthouse, :access?
         else
@@ -20,7 +20,7 @@ module Mobile
         end
       end
 
-      before_action(except: :index) do
+      before_action(except: %i[index get_claim]) do
         authorize :evss, :access?
       end
 
@@ -36,7 +36,11 @@ module Mobile
       end
 
       def get_claim
-        claim_detail = evss_claims_proxy.get_claim(params[:id])
+        claim_detail = if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
+                         lighthouse_claims_adapter.parse(lighthouse_claims_proxy.get_claim(params[:id]))
+                       else
+                         evss_claims_proxy.get_claim(params[:id])
+                       end
         render json: Mobile::V0::ClaimSerializer.new(claim_detail)
       end
 
@@ -88,8 +92,12 @@ module Mobile
         [Mobile::V0::ClaimOverviewSerializer.new(list, options), status]
       end
 
+      def lighthouse_claims_adapter
+        Mobile::V0::Adapters::LighthouseIndividualClaims.new
+      end
+
       def lighthouse_claims_proxy
-        @claims_proxy ||= Mobile::V0::LighthouseClaims::Proxy.new(@current_user)
+        Mobile::V0::LighthouseClaims::Proxy.new(@current_user)
       end
 
       def evss_claims_proxy
