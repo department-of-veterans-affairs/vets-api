@@ -1,92 +1,95 @@
 {
-  "claimantCertification": true,
-  "claimProcessType": "STANDARD_CLAIM_PROCESS",
-  "claimDate": "2020-12-18",
-  "veteranIdentification": {
-      "mailingAddress": {
+  "data": {
+    "type": "form/526",
+    "attributes": {
+      "claimantCertification": true,
+      "claimProcessType": "STANDARD_CLAIM_PROCESS",
+      "claimDate": "2020-12-18",
+      "veteranIdentification": {
+          "mailingAddress": {
+            "numberAndStreet": "1234 Couch Street",
+            "apartmentOrUnitNumber": "Apt. 22",
+            "city": "Portland",
+            "country": "USA",
+            "zipFirstFive": "12345",
+            "zipLastFour": "6789",
+            "state": "OR"
+          },
+          "currentlyVAEmployee": false,
+          "serviceNumber": "123456789",
+          "emailAddress": {
+              "email": "claimant@example.com",
+              "agreeToEmailRelatedToClaim": true
+          },
+          "veteranNumber": {
+              "telephone": "555-5555",
+              "internationalTelephone": "555-5555"
+          },
+          "vaFileNumber": "12345678"
+      },
+      "changeOfAddress": {
+          "country": "USA",
+          "type": "INTERNATIONAL",
+          "addressLine1": "1234 Couch Street",
+          "dates": {
+            "beginningDate": "2018-11-31",
+            "endingDate": "2019-07-11"
+          },
+          "typeOfAddressChange": "Permanent",
           "numberAndStreet": "1234 Couch Street",
           "apartmentOrUnitNumber": "Apt. 22",
           "city": "Portland",
-          "country": "USA",
           "zipFirstFive": "12345",
-          "zipLastFour": "6789",
+          "zipLastFour": "1234",
           "state": "OR"
       },
-      "currentlyVAEmployee": false,
-      "serviceNumber": "123456789",
-      "emailAddress": {
-          "email": "claimant@example.com",
-          "agreeToEmailRelatedToClaim": true
-      },
-      "veteranNumber": {
-          "telephone": "555-5555",
-          "internationalTelephone": "555-5555"
-      },
-      "vaFileNumber": "12345678"
-  },
-  "changeOfAddress": {
-      "country": "USA",
-      "type": "INTERNATIONAL",
-      "addressLine1": "1234 Couch Street",
-      "dates": {
-        "beginningDate": "2018-11-31",
-        "endingDate": "2019-07-11"
-      },
-      "typeOfAddressChange": "Permanent",
-      "numberAndStreet": "1234 Couch Street",
-      "apartmentOrUnitNumber": "Apt. 22",
-      "city": "Portland",
-      "zipFirstFive": "12345",
-      "zipLastFour": "1234",
-      "state": "OR"
-  },
-  "homeless": {
-      "pointOfContact": "Jane Doe",
-      "pointOfContactNumber": "123-456-7890",
-      "currentlyHomeless": {
+      "homeless": {
+        "pointOfContact": "Jane Doe",
+        "pointOfContactNumber": "123-456-7890",
+        "currentlyHomeless": {
           "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
           "otherDescription": ""
-      },
-      "riskOfBecomingHomeless": {
+        },
+        "riskOfBecomingHomeless": {
           "livingSituationOptions": "other living situation",
           "otherDescription": ""
-      }
-  },
-  "toxicExposure": {
-      "gulfWarHazard": {
-          "servedInGulfWarHazardLocations": true,
-          "serviceDates": {
-              "startDate": "1999-07-21",
-              "endDate": "2005-01-21"
-          }
+        }
       },
-      "herbicideHazardService": {
-          "servedInHerbicideHazardLocations": true,
-          "otherLocationsServed": "Guam",
-          "serviceDates": {
-              "startDate": "2002-03-07",
-              "endDate": "2004-10-31"
-          }
-      },
-      "additionalHazardExposures": {
-          "additionalExposures": "ASBESTOS",
-          "specifiyOtherExposures": "",
-          "exposureDates": {
-              "startDate": "2011-07-30",
-              "endDate": "2013-10-03"
-          }
-      },
-      "multipleExposures": {
-          "exposureDates": {
-              "startDate": "2012-12-09",
-              "endDate": "2013-07-27"
+      "toxicExposure": {
+          "gulfWarHazard": {
+              "servedInGulfWarHazardLocations": true,
+              "serviceDates": {
+                  "startDate": "1999-07-21",
+                  "endDate": "2005-01-21"
+              }
           },
-          "exposureLocation": "Guam",
-          "hazardExposedTo": "RADIATION"
-      }
-  },
-  "disabilities": [
-      {
+          "herbicideHazardService": {
+              "servedInHerbicideHazardLocations": true,
+              "otherLocationsServed": "Guam",
+              "serviceDates": {
+                  "startDate": "2002-03-07",
+                  "endDate": "2004-10-31"
+              }
+          },
+          "additionalHazardExposures": {
+              "additionalExposures": ["ASBESTOS","SHAD"],
+              "specifiyOtherExposures": "",
+              "exposureDates": {
+                  "startDate": "2011-07-30",
+                  "endDate": "2013-10-03"
+              }
+          },
+          "multipleExposures": {
+              "exposureDates": {
+                  "startDate": "2012-12-09",
+                  "endDate": "2013-07-27"
+              },
+              "exposureLocation": "Guam",
+              "hazardExposedTo": "RADIATION"
+          }
+      },
+      "disabilities": [
+        {
           "disabilityActionType": "REOPEN",
           "name": "PTSD (post traumatic stress disorder)",
           "classificationCode": "249470",
@@ -95,101 +98,104 @@
           "ratedDisabilityId": "1100583",
           "diagnosticCode": 9999,
           "secondaryDisabilities": [
-              {
-                  "name": "PTSD personal trauma",
-                  "disabilityActionType": "SECONDARY",
-                  "serviceRelevance": "Caused by a service-connected disability\\nLengthy description",
-                  "classificationCode": "249470",
-                  "approximateDate": "2018-01-03",
-                  "exposureOrEventOrInjury": ""
-              }
+            {
+              "name": "PTSD personal trauma",
+              "disabilityActionType": "SECONDARY",
+              "serviceRelevance": "Caused by a service-connected disability\\nLengthy description",
+              "classificationCode": "249470",
+              "approximateDate": "2018-01-03",
+              "exposureOrEventOrInjury": ""
+            }
           ],
           "isRelatedToToxicExposure": true,
           "exposureOrEventOrInjury": ""
-      }
-  ],
-  "treatments": [
-      {
-
+        }
+      ],
+      "treatments": [
+        {
           "center": {
-              "name": "Private Facility 2",
-              "state": "CO",
-              "city": "Pueblo"
+            "name": "Private Facility 2",
+            "state": "CO",
+            "city": "Pueblo"
           },
           "startDate": "2014-03-07",
-          "treatedDisabilityNames": "PTSD (post traumatic stress disorder)"
-      },
-      {
+          "treatedDisabilityName": "PTSD (post traumatic stress disorder)"
+        },
+        {
           "center": {
-              "name": "Private Facility 3",
-              "state": "WA",
-              "city": "Seattle"
+            "name": "Private Facility 3",
+            "state": "WA",
+            "city": "Seattle"
           },
           "startDate": null,
-          "treatedDisabilityNames": "PTSD (post traumatic stress disorder)"
-      }
-  ],
-  "serviceInformation": {
-      "servicePeriods": [
-          {
-              "serviceBranch": "Public Health Service",
-              "activeDutyBeginDate": "2015-11-14",
-              "activeDutyEndDate": "2018-11-30",
-              "serviceComponent": "Active",
-              "separationLocationCode": "V01D"
-          }
+          "treatedDisabilityName": "PTSD (post traumatic stress disorder)"
+        }
       ],
-      "confinements": {
-          "approximateBeginDate": "2016-11-06",
-          "approximateEndDate": "2016-11-09"
-      },
-      "reservesNationalGuardService": {
-          "obligationTermOfServiceFromDate": "2016-11-24",
-          "obligationTermOfServiceToDate": "2017-11-17",
-          "unitName": "DonkeyPants",
-          "component": "National Guard",
-          "title10Activation": {
-              "anticipatedSeparationDate": "2017-10-03",
-              "title10ActivationDate": "2018-02-11"
+      "serviceInformation": {
+          "servicePeriods": [
+              {
+                "serviceBranch": "Public Health Service",
+                "activeDutyBeginDate": "2015-11-14",
+                "activeDutyEndDate": "2018-11-30",
+                "serviceComponent": "Active",
+                "separationLocationCode": "V01D"
+              }
+          ],
+          "confinements": {
+              "approximateBeginDate": "2016-11-06",
+              "approximateEndDate": "2016-11-09"
           },
-          "unitPhone": {
-              "areaCode": "123",
-              "phoneNumber": "456-7890"
+          "reservesNationalGuardService": {
+              "obligationTermsOfService": {
+                "startDate":"2016-11-24",
+                "endDate":"2017-11-17"
+              },
+              "unitName": "DonkeyPants",
+              "component": "National Guard",
+              "title10Activation": {
+                  "anticipatedSeparationDate": "2017-10-03",
+                  "title10ActivationDate": "2018-02-11"
+              },
+              "unitPhone": {
+                  "areaCode": "123",
+                  "phoneNumber": "456-7890"
+              },
+              "receivingInactiveDutyTrainingPay": true
           },
-          "receivingInactiveDutyTrainingPay": true
+          "alternateNames": [
+              {
+                  "firstName": "John",
+                  "lastName": "Jacob",
+                  "middleName": "Jingleheimer-Schmidt"
+              }
+          ],
+          "servedInActiveCombatSince911": false
       },
-      "alternateNames": [
-          {
-              "firstName": "John",
-              "lastName": "Jacob",
-              "middleName": "Jingleheimer-Schmidt"
-          }
-      ],
-      "servedInActiveCombatSince911": false
-  },
-  "servicePay": {
-      "favorTrainingPay": true,
-      "favorMilitaryRetiredPay": false,
-      "receivingMilitaryRetiredPay": false,
-      "futureMilitaryRetiredPay": true,
-      "futureMilitaryRetiredPayExplanation": "",
-      "militaryRetiredPay": {
-          "branchOfService": "Army",
-          "monthlyAmount": 840.75
-      },
-      "retiredStatus": [],
-      "receivedSeparationOrSeverancePay": false,
-      "separationSeverancePay": {
+      "servicePay": {
+        "favorTrainingPay": true,
+        "favorMilitaryRetiredPay": false,
+        "receivingMilitaryRetiredPay": false,
+        "futureMilitaryRetiredPay": true,
+        "futureMilitaryRetiredPayExplanation": "",
+        "militaryRetiredPay": {
+            "branchOfService": "Army",
+            "monthlyAmount": 840.75
+        },
+        "retiredStatus": [],
+        "receivedSeparationOrSeverancePay": false,
+        "separationSeverancePay": {
           "datePaymentReceived": "2018-07-31",
           "branchOfService": "Naval Academy",
           "preTaxAmountReceived": 379.25
+        }
+      },
+      "directDeposit": {
+        "accountType": "CHECKING",
+        "accountNumber": "123456789",
+        "routingNumber": "123456789",
+        "financialInstituteName": "Chase",
+        "noAccount": false
       }
-  },
-  "directDeposit": {
-      "accountType": "CHECKING",
-      "accountNumber": "123456789",
-      "routingNumber": "123456789",
-      "financialInstituteName": "Chase",
-      "noAccount": false
+    }
   }
 }

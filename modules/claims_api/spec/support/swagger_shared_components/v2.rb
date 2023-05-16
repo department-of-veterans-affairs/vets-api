@@ -71,7 +71,9 @@ module SwaggerSharedComponents
             'config',
             'schemas',
             'v2',
-            '526.json'
+            'request_bodies',
+            'disability_compensation',
+            'request.json'
           )
         )
       )

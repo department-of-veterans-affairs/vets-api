@@ -23,8 +23,7 @@
             "enum": [
                 "STANDARD_CLAIM_PROCESS", 
                 "FDC_PROGRAM", 
-                "BDD_PROGRAM_CLAIM", 
-                "TBD"
+                "BDD_PROGRAM"
             ]
         },
         "claimantCertification": {
@@ -159,111 +158,111 @@
             }
         },
         "changeOfAddress": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["country", "typeOfAddressChange", "numberAndStreet", "dates"],
-        "properties": {
-            "dates": {
-                "type": "object",
-                "properties": {
-                    "beginningDate": {
-                        "description": "Date in YYYY-MM-DD the Veteran changed address. Date must be in the future if change is temporary.",
-                        "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
-                        "type": "string",
-                        "example": "2018-06-04"
-                    },
-                    "endingDate": {
-                        "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
-                        "type": "string",
-                        "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
-                        "example": "2018-06-04"
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["country", "typeOfAddressChange", "numberAndStreet", "dates"],
+            "properties": {
+                "dates": {
+                    "type": "object",
+                    "properties": {
+                        "beginningDate": {
+                            "description": "Date in YYYY-MM-DD the Veteran changed address. Date must be in the future if change is temporary.",
+                            "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                            "type": "string",
+                            "example": "2018-06-04"
+                        },
+                        "endingDate": {
+                            "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
+                            "type": "string",
+                            "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                            "example": "2018-06-04"
+                        }
                     }
+                },
+                "typeOfAddressChange": {
+                    "description": "Temporary or Permanent change of address.",
+                    "type": "string",
+                    "enum": [
+                        "TEMPORARY", 
+                        "PERMANENT"
+                    ],
+                    "example": "PERMANENT"
+                },
+                "numberAndStreet": {
+                    "description": "Number and street, rural route, or P.O. Box for the Veteran's new address.",
+                    "type": "string",
+                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                    "maxLength": 30,
+                    "example": "1234 Couch Street"
+                },
+                "apartmentOrUnitNumber": {
+                    "description": "Apartment or unit number for the Veteran's new address.",
+                    "type": "string",
+                    "maxLength": 5,
+                    "example": "22"
+                },
+                "city": {
+                    "description": "City for the Veteran's new address.",
+                    "type": "string",
+                    "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                    "example": "Portland"
+                },
+                "country": {
+                    "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                    "type": "string",
+                    "example": "USA"
+                },
+                "zipFirstFive": {
+                    "description": "Zipcode (First 5 digits) for the Veteran's new address.",
+                    "type": "string",
+                    "pattern": "^\\d{5}?$",
+                    "example": "12345"
+                },
+                "zipLastFour": {
+                    "description": "Zipcode (Last 4 digits) for the Veteran's new address.",
+                    "type": "string",
+                    "pattern": "^\\d{4}?$",
+                    "example": "6789"
+                },
+                "state": {
+                    "description": "State for the Veteran's new address.",
+                    "type": "string",
+                    "pattern": "^[a-z,A-Z]{2}$",
+                    "example": "OR"
                 }
             },
-            "typeOfAddressChange": {
-                "description": "Temporary or Permanent change of address.",
-                "type": "string",
-                "enum": [
-                    "TEMPORARY", 
-                    "PERMANENT"
-                ],
-                "example": "PERMANENT"
-            },
-            "numberAndStreet": {
-                "description": "Number and street, rural route, or P.O. Box for the Veteran's new address.",
-                "type": "string",
-                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                "maxLength": 30,
-                "example": "1234 Couch Street"
-            },
-            "apartmentOrUnitNumber": {
-                "description": "Apartment or unit number for the Veteran's new address.",
-                "type": "string",
-                "maxLength": 5,
-                "example": "22"
-            },
-            "city": {
-                "description": "City for the Veteran's new address.",
-                "type": "string",
-                "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
-                "example": "Portland"
-            },
-            "country": {
-                "description": "Country for the Veteran's new address. Value must match the values returned by the /countries endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
-                "type": "string",
-                "example": "USA"
-            },
-            "zipFirstFive": {
-                "description": "Zipcode (First 5 digits) for the Veteran's new address.",
-                "type": "string",
-                "pattern": "^\\d{5}?$",
-                "example": "12345"
-            },
-            "zipLastFour": {
-                "description": "Zipcode (Last 4 digits) for the Veteran's new address.",
-                "type": "string",
-                "pattern": "^\\d{4}?$",
-                "example": "6789"
-            },
-            "state": {
-                "description": "State for the Veteran's new address.",
-                "type": "string",
-                "pattern": "^[a-z,A-Z]{2}$",
-                "example": "OR"
-            }
-        },
-        "allOf": [
-            {
-            "if": {
-                "properties": {
-                "type": {
-                    "const": "DOMESTIC"
+            "allOf": [
+                {
+                "if": {
+                    "properties": {
+                    "type": {
+                        "const": "DOMESTIC"
+                    }
+                    }
+                },
+                "then": {
+                    "required": [
+                    "city",
+                    "zipFirstFive",
+                    "state"
+                    ]
+                }
+                },
+                {
+                "if": {
+                    "properties": {
+                    "type": {
+                        "const": "MILITARY"
+                    }
+                    }
+                },
+                "then": {
+                    "required": [
+                    "zipFirstFive"
+                    ]
                 }
                 }
-            },
-            "then": {
-                "required": [
-                "city",
-                "zipFirstFive",
-                "state"
-                ]
-            }
-            },
-            {
-            "if": {
-                "properties": {
-                "type": {
-                    "const": "MILITARY"
-                }
-                }
-            },
-            "then": {
-                "required": [
-                "zipFirstFive"
-                ]
-            }
-            }
-        ]
+            ]
         },
         "homeless": {
             "type": "object",
@@ -276,25 +275,26 @@
                     "maxLength": 100,
                     "pattern": "^([-a-zA-Z0-9/']+( ?))*$",
                     "example": "Jane Doe"
-                    },
+                },
                 "pointOfContactNumber": {
-                    "telephone": {
-                        "description": "Primary phone of Point of Contact.",
-                        "type": "string",
-                        "example": "1231234",
-                        "maxLength": 10
+                    "properties": {
+                        "telephone": {
+                            "description": "Primary phone of Point of Contact.",
+                            "type": "string",
+                            "example": "1231234",
+                            "maxLength": 10
                         },
-                    "internationalTelephone": {
-                        "description": "international phone of Point of Contact.",
-                        "type": "string",
-                        "example": "1231234",
-                        "maxLength": 10   
+                        "internationalTelephone": {
+                            "description": "international phone of Point of Contact.",
+                            "type": "string",
+                            "example": "1231234",
+                            "maxLength": 10   
+                        }
                     }
                 },
                 "currentlyHomeless": {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["homelessSituationOptions", "otherDescription"],
                     "properties": {
                         "homelessSituationOptions": {
                         "description": "Current state of the veteran's homelessness.",
@@ -320,10 +320,6 @@
                 "riskOfBecomingHomeless": {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": [
-                        "livingSituationOptions",
-                        "otherDescription"
-                    ],
                     "properties": {
                         "livingSituationOptions": {
                         "type": "string",
@@ -409,17 +405,22 @@
                     "description": "Additional hazardous exposures.",
                     "properties": {
                         "additionalExposures": {
-                            "type": "string",
                             "description": "Additional exposure incidents.",
-                            "enum": [
-                                "ASBESTOS", 
-                                "MUSTARD_GAS", 
-                                "RADIATION", 
-                                "SHAD", 
-                                "MILITARY_OCCUPATIONAL_SPECIALTY_RELATED", 
-                                "CONTAMINATED_WATER_AT_CAMP_LEJEUNE", 
-                                "OTHER"
-                            ]
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "additionalProperties": false,
+                                "enum": [
+                                    "ASBESTOS",
+                                    "MUSTARD_GAS",
+                                    "RADIATION",
+                                    "SHAD",
+                                    "MILITARY_OCCUPATIONAL_SPECIALTY_RELATED",
+                                    "CONTAMINATED_WATER_AT_CAMP_LEJEUNE",
+                                    "OTHER"
+                                ]
+                            }
                         },
                         "specifiyOtherExposures": {
                             "type": "string",
@@ -792,11 +793,27 @@
                     "type": "object",
                     "additionalProperties": false,
                     "required": [
-                    "obligationTermOfServiceFromDate",
-                    "obligationTermOfServiceToDate",
-                    "unitName"
+                        "obligationTermsOfService",
+                        "unitName"
                     ],
                     "properties": {
+                       "obligationTermsOfService": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": ["startDate","endDate"],
+                            "properties": {
+                                "startDate": {
+                                    "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "type": "string",
+                                    "example": "2018-06-04"
+                                },
+                                "endDate": {
+                                    "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "type": "string",
+                                    "example": "2018-06-04"
+                                }
+                            }
+                        },
                         "component": {
                             "type": "string",
                             "description": "",
@@ -822,14 +839,6 @@
                                 "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                               }
                             }
-                          },
-                          "obligationTermOfServiceFromDate": {
-                            "type": "string",
-                            "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
-                          },
-                          "obligationTermOfServiceToDate": {
-                            "type": "string",
-                            "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                           },
                           "unitName": {
                             "type": "string",

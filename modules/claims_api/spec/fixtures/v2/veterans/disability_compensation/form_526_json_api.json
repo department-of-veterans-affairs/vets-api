@@ -39,8 +39,10 @@
                     "approximateEndDate": "2884-12-09"
                 },
                 "reservesNationalGuardService": {
-                    "obligationTermOfServiceFromDate": "3995-11-24",
-                    "obligationTermOfServiceToDate": "8502-11-17",
+                    "obligationTermsOfService": {
+                        "startDate":"3995-11-24",
+                        "endDate":"8502-11-17"
+                    },
                     "unitName": "''c'5'l'#l#2z",
                     "component": "Active",
                     "title10Activation": {
@@ -131,7 +133,7 @@
                     }
                 },
                 "additionalHazardExposures": {
-                    "additionalExposures": "ASBESTOS",
+                    "additionalExposures": ["ASBESTOS", "SHAD"],
                     "specifiyOtherExposures": "ABCD",
                     "exposureDates": {
                         "startDate": "4520-07-30",
@@ -194,4 +196,4 @@
             }
         }
     }
-  }
+}
