@@ -85,6 +85,14 @@ class AppealsApi::RswagConfig
         base_path_template: '/services/appeals/legacy-appeals/{version}',
         name: 'legacy_appeals',
         tags: [{ name: 'Legacy Appeals', description: '' }]
+      ),
+      "modules/appeals_api/app/swagger/supplemental_claims/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
+        title: 'Supplemental Claims',
+        version: 'v0',
+        description_file_path: AppealsApi::Engine.root.join("app/swagger/supplemental_claims/v0/api_description#{DocHelpers.doc_suffix}.md"),
+        base_path_template: '/services/appeals/supplemental-claims/{version}',
+        name: 'supplemental_claims',
+        tags: [{ name: 'Supplemental Claims', description: '' }]
       )
     }
   end
