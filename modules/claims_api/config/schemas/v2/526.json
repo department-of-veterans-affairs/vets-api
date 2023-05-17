@@ -277,16 +277,20 @@
                     "example": "Jane Doe"
                 },
                 "pointOfContactNumber": {
+                    "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                         "telephone": {
                             "description": "Primary phone of Point of Contact.",
                             "type": "string",
+                            "pattern": "^\\d{10}?$",
                             "example": "1231234",
                             "maxLength": 10
-                        },
+                            },
                         "internationalTelephone": {
                             "description": "international phone of Point of Contact.",
                             "type": "string",
+                            "pattern": "^\\d{10}?$",
                             "example": "1231234",
                             "maxLength": 10   
                         }
