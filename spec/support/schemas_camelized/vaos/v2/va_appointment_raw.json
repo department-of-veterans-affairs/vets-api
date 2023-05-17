@@ -190,6 +190,34 @@
               }
             }
           },
+          "serviceCategory":{
+            "type": "array",
+            "items": {
+              "coding": {
+                "type": "array",
+                "items": {
+                  "system": { "type": "string" },
+                  "code": { "type": "string" },
+                  "display": { "type":  "string" }
+                }
+              },
+              "text": { "type": "string"}
+            }
+          },
+          "serviceTypes":{
+            "type": "array",
+            "items": {
+              "coding": {
+                "type": "array",
+                "items": {
+                  "system": { "type": "string" },
+                  "code": { "type": "string" },
+                  "display": { "type":  "string" }
+                }
+              },
+              "text": { "type": "string"}
+            }
+          },
           "extension": {
             "type": "object",
             "properties": {

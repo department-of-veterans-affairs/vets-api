@@ -1,0 +1,55 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012845331V153043/appointments/159472
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 17 May 2023 17:16:41 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '842'
+      Server:
+      - openresty
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '332'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"data":{"id":"159472","identifier":[{"system":"http://vista-scheduling-provider-v1.sqa/vistasp/v1/Appointment/","value":"523938333130383130"}],"kind":"phone","status":"proposed","serviceType":"socialWork","serviceTypes":[{"coding":[{"system":"http://veteran.apps.va.gov/terminologies/fhir/CodeSystem/vats-service-type","code":"socialWork"}]}],"serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"COMPENSATION
+        & PENSION","display":"COMPENSATION & PENSION"}],"text":"COMPENSATION & PENSION"}],"reasonCode":{"text":"call
+        from iss"},"patientIcn":"1012845331V153043","locationId":"983","start":"2023-02-04T00:00:00Z","created":"2023-02-03T00:00:00Z","requestedPeriods":[{"start":"2023-02-04T00:00:00Z","end":"2023-02-04T00:00:00Z"}],"cancellable":true,"extension":{"ccLocation":{"address":{}}}}}'
+  recorded_at: Wed, 17 May 2023 17:16:41 GMT
+recorded_with: VCR 6.1.0
