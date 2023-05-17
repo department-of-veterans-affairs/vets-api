@@ -55,6 +55,11 @@ module VAProfile
         handle_error(e)
       end
 
+      def self.get_person(vet360_id)
+        stub_user = OpenStruct.new(vet360_id:)
+        new(stub_user).get_person
+      end
+
       def update_address(address)
         address_type =
           if address.address_pou == VAProfile::Models::BaseAddress::RESIDENCE
