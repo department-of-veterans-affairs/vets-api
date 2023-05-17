@@ -612,6 +612,102 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
       end
+
+      # toxic exposure validation tests
+      context 'when the other_locations_served does not match the regex' do
+        let(:other_locations_served) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
+
+        it 'responds with a bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['toxicExposure']['herbicideHazardService']['otherLocationsServed'] =
+                  other_locations_served
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when the additional_exposures does not match the regex' do
+        let(:additional_exposures) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
+
+        it 'responds with a bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['toxicExposure']['additionalHazardExposures']['additionalExposures'] =
+                  additional_exposures
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when the specify_other_exposures does not match the regex' do
+        let(:specify_other_exposures) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
+
+        it 'responds with a bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['toxicExposure']['additionalHazardExposures']['specifyOtherExposures'] =
+                  specify_other_exposures
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when the exposure_location does not match the regex' do
+        let(:exposure_location) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
+
+        it 'responds with a bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['toxicExposure']['multipleExposures']['exposureLocation'] =
+                  exposure_location
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      context 'when the hazard_exposed_to does not match the regex' do
+        let(:hazard_exposed_to) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
+
+        it 'responds with a bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['toxicExposure']['multipleExposures']['hazardExposedTo'] =
+                  hazard_exposed_to
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
     end
 
     context 'validate' do
