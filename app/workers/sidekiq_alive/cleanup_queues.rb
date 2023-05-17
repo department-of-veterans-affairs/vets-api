@@ -7,9 +7,9 @@ class SidekiqAlive::CleanupQueues
     queues = Sidekiq::Queue.all
 
     queues.each do |queue|
-      next unless queue.name.starts_with? 'sidekiq_alive-'
+      next unless queue.name.starts_with? 'sidekiq-alive-'
 
-      registered_queues = SidekiqAlive.registered_instances.map { |i| "sidekiq_alive-#{i.split('::')[1]}" }
+      registered_queues = SidekiqAlive.registered_instances.map { |i| "sidekiq-alive-#{i.split('::')[1]}" }
 
       next if registered_queues.include? queue.name
 
