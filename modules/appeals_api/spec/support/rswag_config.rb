@@ -86,6 +86,14 @@ class AppealsApi::RswagConfig
         name: 'legacy_appeals',
         tags: [{ name: 'Legacy Appeals', description: '' }]
       ),
+      "modules/appeals_api/app/swagger/notice_of_disagreements/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
+        title: 'Notice of Disagreements',
+        version: 'v0',
+        description_file_path: AppealsApi::Engine.root.join("app/swagger/notice_of_disagreements/v0/api_description#{DocHelpers.doc_suffix}.md"),
+        base_path_template: '/services/appeals/notice-of-disagreements/{version}',
+        name: 'notice_of_disagreements',
+        tags: [{ name: 'Notice of Disagreements', description: '' }]
+      ),
       "modules/appeals_api/app/swagger/supplemental_claims/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
         title: 'Supplemental Claims',
         version: 'v0',
