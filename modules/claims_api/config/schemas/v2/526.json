@@ -339,7 +339,7 @@
         "toxicExposure": {
             "type": "object",
             "properties": {
-                "gulfWarHazard": {
+                "gulfWarHazardService": {
                     "type": "object",
                     "description": "Toxic exposure related to the Gulf war.",
                     "properties": {

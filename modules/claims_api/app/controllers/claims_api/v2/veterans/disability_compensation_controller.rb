@@ -37,7 +37,7 @@ module ClaimsApi
         private
 
         def pdf_mapper_service(auto_claim, pdf_data)
-          ClaimsApi::V2::DisabilitiyCompensationPdfMapper.new(auto_claim, pdf_data)
+          ClaimsApi::V2::DisabilityCompensationPdfMapper.new(auto_claim, pdf_data)
         end
 
         def get_pdf_data

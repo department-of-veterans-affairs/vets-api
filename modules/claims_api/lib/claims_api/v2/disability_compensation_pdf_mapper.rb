@@ -2,7 +2,7 @@
 
 module ClaimsApi
   module V2
-    class DisabilitiyCompensationPdfMapper
+    class DisabilityCompensationPdfMapper
       def initialize(auto_claim, pdf_data)
         @auto_claim = auto_claim
         @pdf_data = pdf_data
@@ -10,6 +10,7 @@ module ClaimsApi
 
       def map_claim
         claim_attributes
+        toxic_exposure_attributes
         homeless_attributes
         chg_addr_attributes
         veteran_info
@@ -54,7 +55,6 @@ module ClaimsApi
         @pdf_data
       end
 
-      # change of address
       def chg_addr_attributes
         @pdf_data[:data][:attributes][:changeOfAddress] =
           @auto_claim['changeOfAddress'].deep_symbolize_keys
@@ -62,6 +62,21 @@ module ClaimsApi
         chg_addr_zip
 
         @pdf_data
+      end
+
+      def chg_addr_zip
+        zip = @auto_claim['changeOfAddress']['zipFirstFive'] +
+              @auto_claim['changeOfAddress']['zipLastFour']
+        @pdf_data[:data][:attributes][:changeOfAddress].merge!(zip:)
+      end
+
+      def toxic_exposure_attributes
+        @pdf_data[:data][:attributes].merge!(
+          exposureInformation: { toxicExposure: @auto_claim['toxicExposure'].deep_symbolize_keys }
+        )
+        @pdf_data[:data][:attributes].delete(:toxicExposure)
+
+        conditions_related_to_exposure?
       end
 
       def veteran_info
@@ -79,10 +94,11 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].merge!(zip:)
       end
 
-      def chg_addr_zip
-        zip = @auto_claim['changeOfAddress']['zipFirstFive'] +
-              @auto_claim['changeOfAddress']['zipLastFour']
-        @pdf_data[:data][:attributes][:changeOfAddress].merge!(zip:)
+      def conditions_related_to_exposure?
+        # If any disability is included in the request with 'isRelatedToToxicExposure' set to true,
+        # set exposureInformation.hasConditionsRelatedToToxicExposures to true.
+        # This will check 'YES' for box 15A.
+        # TODO: for disability mapping ticket
       end
     end
   end
