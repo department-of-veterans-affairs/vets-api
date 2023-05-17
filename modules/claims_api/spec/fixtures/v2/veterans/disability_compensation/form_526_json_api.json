@@ -113,14 +113,10 @@
                 "currentlyHomeless": {
                     "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
                     "otherDescription": "ABCDEFGHIJKLM"
-                },
-                "riskOfBecomingHomeless": {
-                    "livingSituationOptions": "other",
-                    "otherDescription": "ABCDEFGHIJKLMNOP"
                 }
             },
             "toxicExposure": {
-                "gulfWarHazard": {
+                "gulfWarHazardService": {
                     "servedInGulfWarHazardLocations": true,
                     "serviceDates": {
                         "startDate": "2523-07-21",
@@ -137,7 +133,7 @@
                 },
                 "additionalHazardExposures": {
                     "additionalExposures": ["ASBESTOS", "SHAD"],
-                    "specifiyOtherExposures": "ABCD",
+                    "specifyOtherExposures": "ABCD",
                     "exposureDates": {
                         "startDate": "4520-07-30",
                         "endDate": "3405-10-03"

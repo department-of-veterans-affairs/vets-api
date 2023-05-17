@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'claims_api/v2/disability_compensation_pdf_mapper'
 
-describe ClaimsApi::V2::DisabilitiyCompensationPdfMapper do
+describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
   describe '526 claim maps to the pdf generator' do
     let(:pdf_data) do
       {
@@ -31,9 +31,9 @@ describe ClaimsApi::V2::DisabilitiyCompensationPdfMapper do
 
     context '526 section 0, claim attributes' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-      let(:mapper) { ClaimsApi::V2::DisabilitiyCompensationPdfMapper.new(form_attributes, pdf_data) }
+      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data) }
 
-      it 'maps the claim date' do
+      it 'maps the attributes correctly' do
         mapper.map_claim
 
         date_signed = pdf_data[:data][:attributes][:claimCertificationAndSignature][:dateSigned]
@@ -44,9 +44,9 @@ describe ClaimsApi::V2::DisabilitiyCompensationPdfMapper do
       end
     end
 
-    context '526 section 1, veteran identification' do
+    context '526 section 1' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-      let(:mapper) { ClaimsApi::V2::DisabilitiyCompensationPdfMapper.new(form_attributes, pdf_data) }
+      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data) }
 
       it 'maps the mailing address' do
         mapper.map_claim
@@ -90,7 +90,7 @@ describe ClaimsApi::V2::DisabilitiyCompensationPdfMapper do
 
     context '526 section 2, change of address' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-      let(:mapper) { ClaimsApi::V2::DisabilitiyCompensationPdfMapper.new(form_attributes, pdf_data) }
+      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data) }
 
       it 'maps the dates' do
         mapper.map_claim
@@ -120,7 +120,7 @@ describe ClaimsApi::V2::DisabilitiyCompensationPdfMapper do
 
     context '526 section 3, homelessness' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-      let(:mapper) { ClaimsApi::V2::DisabilitiyCompensationPdfMapper.new(form_attributes, pdf_data) }
+      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data) }
 
       it 'maps the homeless_point_of_contact' do
         mapper.map_claim
@@ -130,26 +130,66 @@ describe ClaimsApi::V2::DisabilitiyCompensationPdfMapper do
         homeless_international_telephone =
           pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber][:internationalTelephone]
         homeless_currently = pdf_data[:data][:attributes][:homelessInformation][:areYouCurrentlyHomeless]
-        homeless_risk_other_description =
-          pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless][:otherDescription]
         homeless_situation_options =
           pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless][:homelessSituationOptions]
-        homeless_at_risk_living_situation_options =
-          pdf_data[:data][:attributes][:homelessInformation][:riskOfBecomingHomeless][:livingSituationOptions]
         homeless_currently_other_description =
           pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless][:otherDescription]
-        homeless_at_risk_at_becoming =
-          pdf_data[:data][:attributes][:homelessInformation][:areYouAtRiskOfBecomingHomeless]
 
         expect(homeless_point_of_contact).to eq('john stewart')
         expect(homeless_telephone).to eq('7028901212')
         expect(homeless_international_telephone).to eq('1234567890')
-        expect(homeless_currently).to eq(nil) # can't be both homess & at risk
+        expect(homeless_currently).to eq(true) # can't be both homess & at risk
         expect(homeless_situation_options).to eq('FLEEING_CURRENT_RESIDENCE')
         expect(homeless_currently_other_description).to eq('ABCDEFGHIJKLM')
-        expect(homeless_at_risk_at_becoming).to eq(true)
-        expect(homeless_at_risk_living_situation_options).to eq('other')
-        expect(homeless_risk_other_description).to eq('ABCDEFGHIJKLMNOP')
+      end
+    end
+
+    context '526 section 4, toxic exposure' do
+      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
+      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data) }
+
+      it 'maps the attributes correctly' do
+        mapper.map_claim
+
+        toxic_exp_data = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
+
+        gulf_locations = toxic_exp_data[:gulfWarHazardService][:servedInGulfWarHazardLocations]
+        gulf_start_date = toxic_exp_data[:gulfWarHazardService][:serviceDates][:startDate]
+        gulf_end_date = toxic_exp_data[:gulfWarHazardService][:serviceDates][:endDate]
+
+        herbicide_locations = toxic_exp_data[:herbicideHazardService][:servedInHerbicideHazardLocations]
+        other_locations = toxic_exp_data[:herbicideHazardService][:otherLocationsServed]
+        herb_start_date = toxic_exp_data[:herbicideHazardService][:serviceDates][:startDate]
+        herb_end_date = toxic_exp_data[:herbicideHazardService][:serviceDates][:endDate]
+
+        additional_exposures = toxic_exp_data[:additionalHazardExposures][:additionalExposures]
+        specify_other_exp = toxic_exp_data[:additionalHazardExposures][:specifyOtherExposures]
+        exp_start_date = toxic_exp_data[:additionalHazardExposures][:exposureDates][:startDate]
+        exp_end_date = toxic_exp_data[:additionalHazardExposures][:exposureDates][:endDate]
+
+        multi_exp_start_date = toxic_exp_data[:multipleExposures][:exposureDates][:startDate]
+        multi_exp_end_date = toxic_exp_data[:multipleExposures][:exposureDates][:endDate]
+        multi_exp_location = toxic_exp_data[:multipleExposures][:exposureLocation]
+        multi_exp_hazard = toxic_exp_data[:multipleExposures][:hazardExposedTo]
+
+        expect(gulf_locations).to eq(true)
+        expect(gulf_start_date).to eq('2523-07-21')
+        expect(gulf_end_date).to eq('1540-01-21')
+
+        expect(herbicide_locations).to eq(true)
+        expect(other_locations).to eq('ABCDEFGHIJKLM')
+        expect(herb_start_date).to eq('0401-03-07')
+        expect(herb_end_date).to eq('9754-10-31')
+
+        expect(additional_exposures).to eq(%w[ASBESTOS SHAD])
+        expect(specify_other_exp).to eq('ABCD')
+        expect(exp_start_date).to eq('4520-07-30')
+        expect(exp_end_date).to eq('3405-10-03')
+
+        expect(multi_exp_start_date).to eq('8697-12-09')
+        expect(multi_exp_end_date).to eq('5517-07-27')
+        expect(multi_exp_location).to eq('ABCDEFGHIJKLMN')
+        expect(multi_exp_hazard).to eq('ABCDEFGHIJKLMNO')
       end
     end
   end
