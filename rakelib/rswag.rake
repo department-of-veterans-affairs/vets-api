@@ -4,7 +4,7 @@ require 'fileutils'
 
 # Docs for APIs in this list have been split out from the decision reviews docs specs and into their own files
 # FIXME: remove this constant once all the segmented APIs have their own dedicated files
-INDEPENDENT_SEGMENTED_API_NAMES = %w[contestable_issues legacy_appeals].freeze
+INDEPENDENT_SEGMENTED_API_NAMES = %w[contestable_issues legacy_appeals notice_of_disagreements].freeze
 
 APPEALS_API_DOCS_DIR = 'modules/appeals_api/spec/docs'
 SEGMENTED_DECISION_REVIEWS_API_NAMES = Dir["#{APPEALS_API_DOCS_DIR}/decision_reviews/*.rb"]
@@ -30,6 +30,11 @@ APPEALS_API_DOCS = [
     name: 'legacy_appeals',
     version: 'v0',
     pattern: "#{APPEALS_API_DOCS_DIR}/legacy_appeals/v0_spec.rb"
+  },
+  {
+    name: 'notice_of_disagreements',
+    version: 'v0',
+    pattern: "#{APPEALS_API_DOCS_DIR}/notice_of_disagreements/v0_spec.rb"
   }
 ] + SEGMENTED_DECISION_REVIEWS_API_NAMES.map do |api_name|
   {
