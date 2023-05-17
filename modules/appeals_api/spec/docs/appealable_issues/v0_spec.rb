@@ -70,8 +70,7 @@ RSpec.describe 'Appealable Issues', swagger_doc:, type: :request do
       let(:'X-VA-ICN') { '1234567890V123456' }
 
       response '200', 'JSON:API response returning all appealable issues for a specific veteran.' do
-        # FIXME: need new schemas and responses to finish renaming to "appealable issues"
-        schema '$ref' => '#/components/schemas/contestableIssues'
+        schema '$ref' => '#/components/schemas/appealableIssues'
         let(:decision_review_type) { 'notice_of_disagreements' }
 
         it_behaves_like 'rswag example',

@@ -7,7 +7,7 @@ require 'uri'
 
 # rubocop:disable Metrics/ModuleLength
 module AppealsRakeHelpers
-  API_NAMES = %w[appeals_status contestable_issues higher_level_reviews legacy_appeals
+  API_NAMES = %w[appeals_status appealable_issues higher_level_reviews legacy_appeals
                  notice_of_disagreements supplemental_claims].freeze
 
   class << self

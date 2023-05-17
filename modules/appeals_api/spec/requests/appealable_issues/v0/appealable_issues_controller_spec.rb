@@ -18,10 +18,7 @@ describe AppealsApi::AppealableIssues::V0::AppealableIssuesController, type: :re
       end
 
       expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body)['description']).to eq(
-        # FIXME: still need to rename to "appealable issues" in schemas
-        'JSON Schema for Contestable Issues endpoint headers (Decision Reviews API)'
-      )
+      expect(JSON.parse(response.body)['description']).to eq('JSON Schema for Appealable Issues endpoint headers')
       expect(response.body).to include('{"$ref":"non_blank_string.json"}')
     end
 
@@ -53,6 +50,17 @@ describe AppealsApi::AppealableIssues::V0::AppealableIssuesController, type: :re
           expect(response).to have_http_status(:ok)
           json = JSON.parse(response.body)
           expect(json['data']).not_to be_nil
+        end
+      end
+
+      it 'replaces the type "contestableIssue" with "appealableIssue" in responses' do
+        VCR.use_cassette("caseflow/#{decision_review_type}/contestable_issues") do
+          get_appealable_issues(headers, decision_review_type)
+
+          json = JSON.parse(response.body)
+          json['data'].each do |issue|
+            expect(issue['type']).to eq('appealableIssue')
+          end
         end
       end
     end

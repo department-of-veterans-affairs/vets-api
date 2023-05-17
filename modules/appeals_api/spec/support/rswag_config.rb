@@ -242,8 +242,7 @@ class AppealsApi::RswagConfig
       )
       a << shared_schemas.slice(*%W[address phone timezone #{nbs_key}])
     when 'appealable_issues'
-      # TODO: still need to rename contestable issues v0 at the schema level
-      a << contestable_issues_schema('#/components/schemas')
+      a << appealable_issues_schema('#/components/schemas')
       a << generic_schemas('#/components/schemas').slice(*%i[errorModel X-VA-SSN X-VA-File-Number X-VA-ICN])
       a << shared_schemas.slice(*%W[#{nbs_key}])
     when 'legacy_appeals'
@@ -398,6 +397,28 @@ class AppealsApi::RswagConfig
     # Add in extra schemas for non-HLR api docs
     schemas['documentUploadMetadata'] = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'document_upload_metadata.json')))
     schemas
+  end
+
+  def appealable_issues_schema(ref_root)
+    {
+      'appealableIssues': {
+        'type': 'object',
+        'properties': {
+          'data': {
+            'type': 'array',
+            'items': {
+              '$ref': "#{ref_root}/appealableIssue"
+            }
+          }
+        }
+      },
+      'appealableIssue': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'appealable_issue.json'))),
+      'X-VA-Receipt-Date': {
+        "description": '(yyyy-mm-dd) Date to limit the appealable issues',
+        "type": 'string',
+        "format": 'date'
+      }
+    }
   end
 
   def contestable_issues_schema(ref_root)
