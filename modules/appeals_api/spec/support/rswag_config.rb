@@ -70,6 +70,14 @@ class AppealsApi::RswagConfig
         name: 'appeals_status',
         tags: [{ name: 'Appeals Status', description: '' }]
       ),
+      "modules/appeals_api/app/swagger/higher_level_reviews/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
+        title: 'Higher-Level Reviews',
+        version: 'v0',
+        description_file_path: AppealsApi::Engine.root.join("app/swagger/higher_level_reviews/v0/api_description#{DocHelpers.doc_suffix}.md"),
+        base_path_template: '/services/appeals/higher-level-reviews/{version}',
+        name: 'higher_level_reviews',
+        tags: [{ name: 'Higher-Level Reviews', description: '' }]
+      ),
       "modules/appeals_api/app/swagger/legacy_appeals/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
         title: 'Legacy Appeals',
         version: 'v0',
@@ -77,6 +85,14 @@ class AppealsApi::RswagConfig
         base_path_template: '/services/appeals/legacy-appeals/{version}',
         name: 'legacy_appeals',
         tags: [{ name: 'Legacy Appeals', description: '' }]
+      ),
+      "modules/appeals_api/app/swagger/supplemental_claims/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
+        title: 'Supplemental Claims',
+        version: 'v0',
+        description_file_path: AppealsApi::Engine.root.join("app/swagger/supplemental_claims/v0/api_description#{DocHelpers.doc_suffix}.md"),
+        base_path_template: '/services/appeals/supplemental-claims/{version}',
+        name: 'supplemental_claims',
+        tags: [{ name: 'Supplemental Claims', description: '' }]
       )
     }
   end
