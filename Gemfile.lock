@@ -541,7 +541,7 @@ GEM
     httpi (2.5.0)
       rack
       socksify
-    i18n (1.12.0)
+    i18n (1.13.0)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     image_processing (1.12.2)
@@ -674,7 +674,7 @@ GEM
     parallel (1.22.1)
     parallel_tests (4.2.0)
       parallel
-    parser (3.2.1.0)
+    parser (3.2.2.1)
       ast (~> 2.4.1)
     patience_diff (1.2.0)
       optimist (~> 3.0)
@@ -760,7 +760,7 @@ GEM
     redis (4.8.1)
     redis-namespace (1.10.0)
       redis (>= 4)
-    regexp_parser (2.7.0)
+    regexp_parser (2.8.0)
     representable (3.2.0)
       declarative (< 0.1.0)
       trailblazer-option (>= 0.1.1, < 0.2.0)
@@ -852,12 +852,12 @@ GEM
       rubocop-ast (>= 1.24.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.26.0)
+    rubocop-ast (1.28.1)
       parser (>= 3.2.1.0)
     rubocop-capybara (2.17.0)
       rubocop (~> 1.41)
     rubocop-junit-formatter (0.1.4)
-    rubocop-rails (2.18.0)
+    rubocop-rails (2.19.1)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.33.0, < 2.0)
@@ -866,7 +866,7 @@ GEM
       rubocop-capybara (~> 2.17)
     rubocop-thread_safety (0.4.4)
       rubocop (>= 0.53.0)
-    ruby-progressbar (1.11.0)
+    ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
     ruby-saml (1.15.0)
       nokogiri (>= 1.13.10)
@@ -1016,7 +1016,7 @@ GEM
       nokogiri (~> 1.11)
     yard (0.9.28)
       webrick (~> 1.7.0)
-    zeitwerk (2.6.7)
+    zeitwerk (2.6.8)
 
 PLATFORMS
   java
