@@ -243,7 +243,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
                 headers: inflection_header
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             data = JSON.parse(response.body)['data']
-            expect(data.size).to eq(4)
+            expect(data.size).to eq(5)
             expect(data[0]['attributes']['status']).to eq('proposed')
             expect(data[1]['attributes']['status']).to eq('proposed')
             expect(response).to match_camelized_response_schema('vaos/v2/va_appointments', { strict: false })
@@ -257,7 +257,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
                 headers: inflection_header
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             data = JSON.parse(response.body)['data']
-            expect(data.size).to eq(4)
+            expect(data.size).to eq(5)
             expect(data[0]['attributes']['status']).to eq('proposed')
             expect(data[1]['attributes']['status']).to eq('proposed')
             expect(response).to match_camelized_response_schema('vaos/v2/va_appointments', { strict: false })

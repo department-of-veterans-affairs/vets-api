@@ -20,6 +20,9 @@ module VAOS
         with_monitoring do
           response = perform(:get, appointments_base_url, params, headers)
           response.body[:data].each do |appt|
+            # set cancellable to false per GH#57824 for CnP appointments
+            set_cancellable_false(appt) if appt.dig(:service_category, 0, :coding, 0, :code) == 'COMPENSATION & PENSION'
+
             find_service_type_and_category(appt)
             log_telehealth_data(appt[:telehealth]&.[](:atlas)) unless appt[:telehealth]&.[](:atlas).nil?
           end
@@ -34,7 +37,10 @@ module VAOS
         params = {}
         with_monitoring do
           response = perform(:get, get_appointment_base_url(appointment_id), params, headers)
-          OpenStruct.new(response.body[:data])
+          appt = OpenStruct.new(response.body[:data])
+          # set cancellable to false per GH#57824 for CnP appointments
+          set_cancellable_false(appt) if appt.dig(:service_category, 0, :coding, 0, :code) == 'COMPENSATION & PENSION'
+          appt
         end
       end
 
@@ -66,6 +72,13 @@ module VAOS
       def log_direct_schedule_submission_errors(e)
         error_entry = { DIRECT_SCHEDULE_ERROR_KEY => ds_error_details(e) }
         Rails.logger.warn('Direct schedule submission error', error_entry.to_json)
+      end
+
+      # Modifies the appointment, setting the cancellable flag to false
+      #
+      # @param appointment [OpenStruct] the appointment to modify
+      def set_cancellable_false(appointment)
+        appointment[:cancellable] = false
       end
 
       def ds_error_details(e)
