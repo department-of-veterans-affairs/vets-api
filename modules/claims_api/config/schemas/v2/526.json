@@ -378,6 +378,7 @@
                         },
                         "otherLocationsServed": {
                             "type": "string",
+                            "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                             "description": "Other location(s) where Veteran served."
                         },
                         "serviceDates": {
@@ -422,8 +423,9 @@
                                 ]
                             }
                         },
-                        "specifiyOtherExposures": {
+                        "specifyOtherExposures": {
                             "type": "string",
+                            "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                             "description": "Other exposure incidents."
                         },
                         "exposureDates": {
@@ -469,11 +471,13 @@
                             }
                         },
                         "exposureLocation": {
-                            "type": "string",
+                            "type": "string",              
+                            "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                             "description": ""
                         },
                         "hazardExposedTo": {
                             "type": "string",
+                            "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                             "description": ""
                         }
                     }
