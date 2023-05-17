@@ -12,10 +12,12 @@ RSpec.describe SignIn::ClientConfig, type: :model do
            logout_redirect_uri:,
            access_token_duration:,
            access_token_audience:,
-           refresh_token_duration:)
+           refresh_token_duration:,
+           certificates:)
   end
   let(:client_id) { 'some-client-id' }
   let(:authentication) { SignIn::Constants::Auth::API }
+  let(:certificates) { [] }
   let(:anti_csrf) { false }
   let(:redirect_uri) { 'some-redirect-uri' }
   let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
@@ -187,6 +189,20 @@ RSpec.describe SignIn::ClientConfig, type: :model do
       it 'returns false' do
         expect(subject).to be(false)
       end
+    end
+  end
+
+  describe '#ssl_certificates' do
+    subject { client_config.ssl_certificates }
+
+    let(:certificate) do
+      OpenSSL::X509::Certificate.new(File.read('spec/fixtures/sign_in/sample_client.crt'))
+    end
+    let(:certificates) { [certificate.to_s] }
+    let(:ssl_certificates) { [certificate] }
+
+    it 'expands all certificates in the client config with OpenSSL Certificate objects' do
+      expect(subject).to eq(ssl_certificates)
     end
   end
 
