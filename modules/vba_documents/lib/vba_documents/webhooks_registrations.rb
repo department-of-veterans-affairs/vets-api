@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'webhooks/utilities'
+
 module VBADocuments
   module Registrations
     include Webhooks::Utilities

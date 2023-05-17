@@ -6,12 +6,10 @@ module AppealsApi::AppealableIssues::V0
   class AppealableIssuesController < AppealsApi::V2::DecisionReviews::ContestableIssuesController
     include AppealsApi::OpenidAuth
 
-    FORM_NUMBER = 'CONTESTABLE_ISSUES_HEADERS_WITH_SHARED_REFS'
+    FORM_NUMBER = 'APPEALABLE_ISSUES_HEADERS'
     HEADERS = JSON.parse(
-      File.read(
-        AppealsApi::Engine.root.join('config/schemas/v2/contestable_issues_headers_with_shared_refs.json')
-      )
-    )['definitions']['contestableIssuesIndexParameters']['properties'].keys
+      File.read(AppealsApi::Engine.root.join('config/schemas/v0/appealable_issues_headers.json'))
+    )['definitions']['appealableIssuesIndexParameters']['properties'].keys
 
     OAUTH_SCOPES = {
       GET: %w[
@@ -24,7 +22,7 @@ module AppealsApi::AppealableIssues::V0
       render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
         AppealsApi::FormSchemas.new(
           SCHEMA_ERROR_TYPE,
-          schema_version: 'v2'
+          schema_version: 'v0'
         ).schema(self.class::FORM_NUMBER)
       )
     end
@@ -32,7 +30,26 @@ module AppealsApi::AppealableIssues::V0
     private
 
     def token_validation_api_key
+      # FIXME: rename token storage key
       Settings.dig(:modules_appeals_api, :token_validation, :contestable_issues, :api_key)
+    end
+
+    def validate_json_schema_for_headers
+      AppealsApi::FormSchemas.new(SCHEMA_ERROR_TYPE, schema_version: 'v0')
+                             .validate!(self.class::FORM_NUMBER, request_headers)
+    end
+
+    def filtered_caseflow_response(decision_review_type, caseflow_response, filter)
+      super
+
+      if caseflow_response&.body.is_a? Hash
+        caseflow_response.body.fetch('data', []).each do |issue|
+          # Responses from caseflow still have the older name 'contestableIssue'
+          issue['type'] = 'appealableIssue' if issue['type'] == 'contestableIssue'
+        end
+      end
+
+      caseflow_response
     end
   end
 end

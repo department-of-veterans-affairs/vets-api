@@ -1,0 +1,110 @@
+{
+  "type": "object",
+  "description": "An appealable issue (to appeal this, you include it as a RequestIssue when creating a HigherLevelReview, SupplementalClaim, or Appeal)",
+  "properties": {
+    "type": { "type": "string", "enum": [ "appealableIssue" ] },
+    "id": { "type": "string", "nullable": true },
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "ratingIssueReferenceId": {
+          "type": "string",
+          "nullable": true,
+          "description": "RatingIssue ID",
+          "example": "2385"
+        },
+        "ratingIssueProfileDate": {
+          "type": "string",
+          "nullable": true,
+          "format": "date",
+          "description": "(yyyy-mm-dd) RatingIssue profile date",
+          "example": "2006-05-31"
+        },
+        "ratingIssueDiagnosticCode": {
+          "type": "string",
+          "nullable": true,
+          "description": "RatingIssue diagnostic code",
+          "example": "5005"
+        },
+        "ratingDecisionReferenceId": {
+          "type": "string",
+          "nullable": true,
+          "description": "The BGS ID for the appealable rating decision. This may be populated while ratingIssueReferenceId is nil",
+          "example": null
+        },
+        "decisionIssueId": {
+          "type": "integer",
+          "nullable": true,
+          "description": "DecisionIssue ID",
+          "example": null
+        },
+        "approxDecisionDate": {
+          "type": "string",
+          "nullable": true,
+          "format": "date",
+          "description": "(yyyy-mm-dd) Approximate decision date",
+          "example": "2006-11-27"
+        },
+        "description": {
+          "type": "string",
+          "nullable": true,
+          "description": "Description",
+          "example": "Service connection for hypertension is granted with an evaluation of 10 percent effective July 24, 2005."
+        },
+        "rampClaimId": { "type": "string", "nullable": true, "description": "RampClaim ID", "example": null },
+        "titleOfActiveReview": {
+          "type": "string",
+          "nullable": true,
+          "description": "Title of DecisionReview that this issue is still active on",
+          "example": null
+        },
+        "sourceReviewType": {
+          "type": "string",
+          "nullable": true,
+          "description": "The type of DecisionReview (HigherLevelReview, SupplementalClaim, Appeal) the issue was last decided on (if any)",
+          "example": null
+        },
+        "timely": {
+          "type": "boolean",
+          "description": "An issue is timely if the receipt date is within 372 dates of the decision date.",
+          "example": false
+        },
+        "latestIssuesInChain": {
+          "type": "array",
+          "description": "Shows the chain of decision and rating issues that preceded this issue. Only the most recent issue can be appealed (the object itself that contains the latestIssuesInChain attribute).",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "oneOf": [
+                  { "type": "string", "nullable": true },
+                  { "type": "integer" }
+                ],
+                "example": null
+              },
+              "approxDecisionDate": {
+                "type": "string",
+                "nullable": true,
+                "format": "date",
+                "example": "2006-11-27"
+              }
+            }
+          }
+        },
+        "ratingIssueSubjectText": {
+          "type": "string",
+          "nullable": true,
+          "description": "Short description of RatingIssue",
+          "example": "Hypertension"
+        },
+        "ratingIssuePercentNumber": {
+          "type": "string",
+          "nullable": true,
+          "description": "Numerical rating for RatingIssue",
+          "example": "10"
+        },
+        "isRating": { "type": "boolean", "description": "Whether or not this is a RatingIssue", "example": true }
+      }
+    }
+  }
+}
