@@ -49,72 +49,15 @@ class Form526Submission < ApplicationRecord
   BIRLS_KEY = 'va_eauth_birlsfilenumber'
   SUBMIT_FORM_526_JOB_CLASSES = %w[SubmitForm526AllClaim SubmitForm526].freeze
 
+  # Called when the DisabilityCompensation form controller is ready to hand off to the backend
+  # submission process. Currently this passes directly to the retryable EVSS workflow, but if any
+  # one-time setup or workflow redirection (e.g. for Claims Fast-Tracking) needs to happen, it should
+  # go here and call start_evss_submission_job when done.
   def start
-    rrd_sidekiq_job = rrd_job_selector.sidekiq_job
-    if rrd_sidekiq_job
-      start_rrd_job(rrd_sidekiq_job, use_backup_job: true)
-    else
-      start_evss_submission_job
-    end
-  rescue => e
-    Rails.logger.error 'The fast track was skipped due to the following error ' \
-                       " and start_evss_submission_job is being called: #{e}"
     start_evss_submission_job
   end
 
-  def start_rrd_job(rrd_sidekiq_job, use_backup_job: false)
-    workflow_batch = Sidekiq::Batch.new
-    workflow_batch.on(
-      :success,
-      'Form526Submission#rrd_complete_handler',
-      'submission_id' => id
-    )
-    workflow_batch.on(
-      :death,
-      'Form526Submission#rrd_processor_failed_handler',
-      'submission_id' => id,
-      'use_backup_job' => use_backup_job
-    )
-    job_ids = workflow_batch.jobs do
-      rrd_sidekiq_job.perform_async(id)
-    end
-    job_ids.first
-  end
-
-  # Called by Sidekiq::Batch as part of the Form 526 submission workflow
-  # When the refactored job fails, this _handler is called to run a backup_sidekiq_job.
-  def rrd_processor_failed_handler(_status, options)
-    submission = Form526Submission.find(options['submission_id'])
-    backup_sidekiq_job = submission.rrd_job_selector.sidekiq_job(backup: true) if options['use_backup_job']
-    if backup_sidekiq_job
-      message = "Restarting with backup #{backup_sidekiq_job} for submission #{submission.id}."
-      submission.send_rrd_alert_email('RRD Processor Selector alert - backup job', message)
-      return submission.start_rrd_job(backup_sidekiq_job)
-    end
-    submission.save_metadata(error: 'RRD Processor failed')
-    submission.start_evss_submission_job
-  rescue => e
-    message = <<~MESSAGE
-      RRD was skipped for submission #{submission.id} due to an error.<br/>
-      Sidekiq Job options: #{options}<br/>
-    MESSAGE
-    submission.send_rrd_alert_email('RRD Processor Selector alert', message, e)
-    submission.save_metadata(error: 'RRD Processor Selector failed')
-    submission.start_evss_submission_job
-  end
-
-  def rrd_job_selector
-    @rrd_job_selector ||= RapidReadyForDecision::SidekiqJobSelector.new(self)
-  end
-
-  # Afer RapidReadyForDecision is complete, this method is
-  # called by Sidekiq::Batch as part of the Form 526 submission workflow
-  def rrd_complete_handler(_status, options)
-    submission = Form526Submission.find(options['submission_id'])
-    submission.start_evss_submission_job
-  end
-
-  # Kicks off a 526 submit workflow batch. The first step in a submission workflow is to submit
+  # Kicks off a retryable 526 submit workflow. The first step in a submission workflow is to submit
   # an increase only or all claims form. Once the first job succeeds the batch will callback and run
   # one (cleanup job) or more ancillary jobs such as uploading supporting evidence or submitting ancillary forms.
   #

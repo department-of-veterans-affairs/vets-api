@@ -86,7 +86,6 @@ module Form526RapidReadyForDecisionConcern
   end
 
   def send_post_evss_notifications!
-    send_completed_notification if rrd_job_selector.rrd_applicable?
     conditionally_notify_mas
   end
 
@@ -144,10 +143,6 @@ module Form526RapidReadyForDecisionConcern
     send_rrd_alert_email("Failure: MA claim - #{submitted_claim_id}", e.to_s, nil,
                          Settings.rrd.mas_tracking.recipients)
     StatsD.increment("#{STATSD_KEY_PREFIX}.notify_mas.failure")
-  end
-
-  def send_completed_notification
-    RrdCompletedMailer.build(self).deliver_now
   end
 end
 # rubocop:enable Metrics/ModuleLength

@@ -99,7 +99,6 @@ module EVSS
       def non_retryable_error_handler(submission, error)
         # update JobStatus, log and metrics in JobStatus#non_retryable_error_handler
         super(error)
-        send_rrd_alert(submission, error, 'non-retryable') if submission.rrd_job_selector.rrd_applicable?
         submission.submit_with_birls_id_that_hasnt_been_tried_yet!(
           silence_errors_and_log_to_sentry: true,
           extra_content_for_sentry: { job_class: self.class.to_s.demodulize, job_id: jid }

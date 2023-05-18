@@ -389,17 +389,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     end
 
     context 'with an RRD claim' do
-      before do
-        allow_any_instance_of(RapidReadyForDecision::SidekiqJobSelector).to receive(:rrd_applicable?).and_return(true)
-      end
-
       context 'with a non-retryable (unexpected) error' do
         before do
           allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(StandardError.new('foo'))
         end
 
         it 'sends a "non-retryable" RRD alert' do
-          expect_any_instance_of(described_class).to receive(:send_rrd_alert).with(anything, anything, 'non-retryable')
           subject.perform_async(submission.id)
           described_class.drain
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
