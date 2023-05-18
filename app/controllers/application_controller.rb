@@ -47,7 +47,6 @@ class ApplicationController < ActionController::API
   def set_csrf_header
     token = form_authenticity_token
     response.set_header('X-CSRF-Token', token)
-    Rails.logger.info('CSRF response token', csrf_token: token)
   end
 
   def pagination_params
