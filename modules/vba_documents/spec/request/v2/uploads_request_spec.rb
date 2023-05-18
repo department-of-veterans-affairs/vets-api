@@ -4,6 +4,7 @@ require 'rails_helper'
 require './lib/webhooks/utilities'
 require 'vba_documents/payload_manager'
 require_relative '../../support/vba_document_fixtures'
+require 'vba_documents/object_store'
 
 RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
   include VBADocuments::Fixtures

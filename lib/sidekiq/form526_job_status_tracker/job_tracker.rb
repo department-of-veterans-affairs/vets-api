@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq/form526_backup_submission_process/submit'
+require 'sidekiq/form526_job_status_tracker/metrics'
 
 module Sidekiq
   module Form526JobStatusTracker

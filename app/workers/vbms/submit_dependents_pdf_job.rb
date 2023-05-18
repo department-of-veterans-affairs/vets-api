@@ -15,8 +15,6 @@ module VBMS
       raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
 
       claim.persistent_attachments.each do |attachment|
-        doc_type = get_doc_type(attachment.guid, claim.parsed_form)
-
         file_extension = File.extname(URI.parse(attachment.file.url).path)
         if %w[.jpg .jpeg .png .pdf].include? file_extension.downcase
           file_path = Common::FileHelpers.generate_temp_file(attachment.file.read)
@@ -24,7 +22,7 @@ module VBMS
           File.rename(file_path, "#{file_path}#{file_extension}")
           file_path = "#{file_path}#{file_extension}"
 
-          claim.upload_to_vbms(path: file_path, doc_type:)
+          claim.upload_to_vbms(path: file_path, doc_type: get_doc_type(attachment.guid, claim.parsed_form))
           Common::FileHelpers.delete_file_if_exists(file_path)
         end
       end
@@ -34,6 +32,7 @@ module VBMS
     rescue => e
       Rails.logger.error('VBMS::SubmitDependentsPdfJob failed!', { saved_claim_id:, error: e.message })
       send_error_to_sentry(e, saved_claim_id)
+      false
     end
 
     private

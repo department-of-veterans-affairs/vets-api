@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'mini_magick'
+require 'common/file_helpers'
 
 module Form526BackupSubmission
   module Utilities

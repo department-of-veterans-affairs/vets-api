@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'prawn/table'
+require 'common/file_helpers'
 
 module AppealsApi
   module PdfConstruction

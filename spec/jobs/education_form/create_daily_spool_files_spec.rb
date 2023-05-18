@@ -8,7 +8,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   let!(:application_1606) do
     create(:va1990).education_benefits_claim
   end
-  let(:line_break) { EducationForm::WINDOWS_NOTEPAD_LINEBREAK }
+  let(:line_break) { EducationForm::CreateDailySpoolFiles::WINDOWS_NOTEPAD_LINEBREAK }
 
   after(:all) do
     FileUtils.remove_dir('tmp/spool_files')

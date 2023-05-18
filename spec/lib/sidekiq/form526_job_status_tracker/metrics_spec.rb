@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sidekiq/form526_job_status_tracker/metrics'
+
 describe Sidekiq::Form526JobStatusTracker::Metrics do
   subject { described_class.new('job.prefix') }
 

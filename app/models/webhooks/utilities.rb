@@ -2,6 +2,7 @@
 
 require 'json_schemer'
 require 'uri'
+require 'webhooks/utilities'
 
 # data structures built up at class load time then frozen.  This is threadsafe.
 module Webhooks

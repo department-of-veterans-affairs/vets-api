@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'form526_backup_submission/utilities/convert_to_pdf'
 
 RSpec.describe Form526BackupSubmission::Utilities::ConvertToPdf do
   subject { described_class }

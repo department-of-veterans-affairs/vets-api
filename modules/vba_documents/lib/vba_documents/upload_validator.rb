@@ -3,6 +3,7 @@
 require 'central_mail/utilities'
 require 'central_mail/service'
 require 'pdf_utilities/pdf_validator'
+require 'vba_documents/document_request_validator'
 
 # rubocop:disable Metrics/ModuleLength
 module VBADocuments
