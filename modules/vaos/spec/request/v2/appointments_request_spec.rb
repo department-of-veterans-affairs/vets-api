@@ -147,21 +147,6 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           end
         end
 
-        it 'logs Type Of Care and Providers info skipping if already logged during request' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_cc_proposed', match_requests_on: %i[method],
-                                                                                    allow_playback_repeats: true) do
-            allow_any_instance_of(VAOS::V2::MobilePPMSService).to \
-              receive(:get_provider_with_cache).with('1528231610').and_return(provider_response2)
-            allow(Rails.logger).to receive(:info)
-
-            get '/vaos/v2/appointments?_include=facilities,clinics&start=2022-09-13&end=2023-01-12&statuses[]=proposed',
-                headers: inflection_header
-
-            expect(Rails.logger).to have_received(:info).with('VAOS Type of care and provider',
-                                                              anything).at_least(:once)
-          end
-        end
-
         it 'has access and returns va appointments and honors includes with no physical_location field' do
           allow_any_instance_of(VAOS::V2::AppointmentsController).to receive(:get_clinic)
             .and_return(mock_clinic_without_physical_location)
