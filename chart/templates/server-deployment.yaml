@@ -98,6 +98,10 @@ spec:
           volumeMounts:
 {{ toYaml $root.Values.common.volumeMounts | indent 12 }}
           env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             - name: GIT_REVISION
               value: {{ $root.Values.image.tag}}
 {{ toYaml $root.Values.web.envSecrets | indent 12 }}
