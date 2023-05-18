@@ -27,6 +27,11 @@ APPEALS_API_DOCS = [
     pattern: "#{APPEALS_API_DOCS_DIR}/decision_reviews"
   },
   {
+    name: 'higher_level_reviews',
+    version: 'v0',
+    pattern: "#{APPEALS_API_DOCS_DIR}/higher_level_reviews/v0_spec.rb"
+  },
+  {
     name: 'legacy_appeals',
     version: 'v0',
     pattern: "#{APPEALS_API_DOCS_DIR}/legacy_appeals/v0_spec.rb"
