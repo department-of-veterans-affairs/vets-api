@@ -35,9 +35,19 @@ module Lighthouse
       def transform_letters(letters)
         letters.map do |letter|
           {
-            letterType: letter['letterType'],
+            letterType: letter['letterType'].downcase,
             name: letter['letterName']
           }
+        end
+      end
+
+      def transform_military_services(services_info)
+        # transform
+        services_info.map do |service|
+          service[:enteredDate] = service.delete 'enteredDateTime'
+          service[:releasedDate] = service.delete 'releasedDateTime'
+
+          service.transform_keys(&:to_sym)
         end
       end
 
@@ -108,7 +118,10 @@ module Lighthouse
           raise Lighthouse::LettersGenerator::ServiceError.new(e.response[:body]), 'Lighthouse error'
         end
 
-        { benefitInformation: transform_benefit_information(response.body['benefitInformation']) }
+        {
+          benefitInformation: transform_benefit_information(response.body['benefitInformation']),
+          militaryService: transform_military_services(response.body['militaryServices'])
+        }
       end
 
       def download_letter(icn, letter_type, options = {})
