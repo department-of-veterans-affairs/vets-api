@@ -2,6 +2,8 @@
 
 require 'rails_helper'
 require_relative '../support/vba_document_fixtures'
+require 'vba_documents/multipart_parser'
+require 'vba_documents/pdf_inspector'
 
 RSpec.describe VBADocuments::UploadProcessor, type: :job do
   include VBADocuments::Fixtures

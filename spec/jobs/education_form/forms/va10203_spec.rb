@@ -8,7 +8,7 @@ RSpec.describe EducationForm::Forms::VA10203 do
   end
 
   def spool_file_text(file_name)
-    windows_linebreak = EducationForm::WINDOWS_NOTEPAD_LINEBREAK
+    windows_linebreak = EducationForm::CreateDailySpoolFiles::WINDOWS_NOTEPAD_LINEBREAK
     expected_text = File.read("spec/fixtures/education_benefits_claims/10203/#{file_name}").rstrip
     expected_text.gsub!("\n", windows_linebreak) unless expected_text.include?(windows_linebreak)
   end

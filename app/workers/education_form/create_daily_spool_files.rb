@@ -5,20 +5,16 @@ require 'sentry_logging'
 require 'sftp_writer/factory'
 
 module EducationForm
-  WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
-  STATSD_KEY = 'worker.education_benefits_claim'
-  STATSD_FAILURE_METRIC = "#{STATSD_KEY}.failed_spool_file".freeze
-
   class FormattingError < StandardError
-  end
-
-  class DailySpoolFileLogging < StandardError
   end
 
   class DailySpoolFileError < StandardError
   end
 
   class CreateDailySpoolFiles
+    WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
+    STATSD_KEY = 'worker.education_benefits_claim'
+    STATSD_FAILURE_METRIC = "#{STATSD_KEY}.failed_spool_file".freeze
     LIVE_FORM_TYPES = %w[1990 1995 1990e 5490 1990n 5495 0993 0994 10203 1990S].map { |t| "22-#{t.upcase}" }.freeze
     AUTOMATED_DECISIONS_STATES = [nil, 'denied', 'processed'].freeze
     include Sidekiq::Worker
@@ -93,7 +89,7 @@ module EducationForm
         else
           log_submissions(records, filename)
           # create the single textual spool file
-          contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
+          contents = records.map(&:text).join(EducationForm::CreateDailySpoolFiles::WINDOWS_NOTEPAD_LINEBREAK)
 
           begin
             writer.write(contents, filename)

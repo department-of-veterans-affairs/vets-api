@@ -29,7 +29,7 @@ module SpoolHelpers
             allow(Flipper).to receive(:enabled?).with(feature).and_return(false)
           end
 
-          windows_linebreak = EducationForm::WINDOWS_NOTEPAD_LINEBREAK
+          windows_linebreak = EducationForm::CreateDailySpoolFiles::WINDOWS_NOTEPAD_LINEBREAK
           expected_text = File.read("#{file_prefix}spl").rstrip
           expected_text.gsub!("\n", windows_linebreak) unless expected_text.include?(windows_linebreak)
 

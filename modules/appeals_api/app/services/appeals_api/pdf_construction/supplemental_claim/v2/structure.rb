@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/file_helpers'
+
 module AppealsApi
   module PdfConstruction
     module SupplementalClaim

@@ -18,6 +18,7 @@ module BGS
       service.awards.find_award_by_participant_id(participant_id, ssn) || service.awards.find_award_by_ssn(ssn)
     rescue => e
       log_exception_to_sentry(e, { icn: }, { team: Constants::SENTRY_REPORTING_TEAM })
+      false
     end
 
     private

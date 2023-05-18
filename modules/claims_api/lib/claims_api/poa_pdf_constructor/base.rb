@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/filler'
+
 module ClaimsApi
   module PoaPdfConstructor
     class Base
