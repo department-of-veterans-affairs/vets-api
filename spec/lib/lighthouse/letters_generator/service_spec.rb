@@ -117,6 +117,12 @@ RSpec.describe Lighthouse::LettersGenerator::Service do
         expect(response[:benefitInformation]).to have_key(:serviceConnectedPercentage)
         # Ensure (has)chapter35EligibilityDateTime is not present
         expect(response[:benefitInformation]).not_to have_key(:chapter35EligibilityDateTime)
+        # Ensure enteredDateTime has been transformed to enteredDate
+        expect(response[:militaryService][0]).to have_key(:enteredDate)
+        expect(response[:militaryService][0]).not_to have_key(:enteredDateTime)
+        # Ensure releasedDateTime has been transformed to releasedDate
+        expect(response[:militaryService][0]).to have_key(:releasedDate)
+        expect(response[:militaryService][0]).not_to have_key(:releasedDateTime)
       end
     end
   end
