@@ -26,20 +26,10 @@ AppealsApi::DecisionReviewReportWeekly:
   class: AppealsApi::DecisionReviewReportWeekly
   description: "Weekly report of appeals submissions"
 
-AppealsApi::FlipperStatusAlert:
-  cron: '0 2,9,16 * * MON-FRI America/New_York'
-  class: AppealsApi::FlipperStatusAlert
-  description: "Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled"
-
 AppealsApi::HigherLevelReviewCleanUpWeekOldPii:
   every: ['24h', {first_in: '45m'}]
   class: AppealsApi::HigherLevelReviewCleanUpWeekOldPii
   description: "Remove PII of HigherLevelReviews that have 1) reached one of the 'completed' statuses and 2) are a week old"
-
-AppealsApi::HigherLevelReviewUploadStatusBatch:
-  cron: "5 * * * *" # Every hour, 5 minutes after the hour
-  class: AppealsApi::HigherLevelReviewUploadStatusBatch
-  description: "Update HigherLevelReview statuses with their Central Mail status"
 
 AppealsApi::MonthlyStatsReport:
   cron: "0 0 1 * *"
@@ -51,25 +41,10 @@ AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii:
   class: AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii
   description: "Remove PII of NoticeOfDisagreements that have 1) reached one of the 'completed' statuses and 2) are a week old"
 
-AppealsApi::NoticeOfDisagreementUploadStatusBatch:
-  cron: "10 * * * *" # Every hour, 10 minutes after the hour
-  class: AppealsApi::NoticeOfDisagreementUploadStatusBatch
-  description: "Update NoticeOfDisagreement statuses with their Central Mail status"
-
 AppealsApi::SupplementalClaimCleanUpPii:
   every: ['24h', {first_in: '45m'}]
   class: AppealsApi::SupplementalClaimCleanUpPii
   description: "Remove PII of SupplementalClaims that have 1) reached one of the 'completed' statuses and 2) are a week old"
-
-AppealsApi::SupplementalClaimUploadStatusBatch:
-  cron: "15 * * * *" # Every hour, 15 minutes after the hour
-  class: AppealsApi::SupplementalClaimUploadStatusBatch
-  description: "Update SupplementalClaim statuses with their Central Mail status"
-
-AppsApi::FetchConnections:
-  every: "60m"
-  class: AppsApi::FetchConnections
-  description: "Fetches and handles notifications for recent application connections and disconnections"
 
 CentralMail::DeleteOldClaims:
   cron: "30 2 * * * America/New_York"
@@ -151,14 +126,6 @@ EducationForm::Process10203Submissions:
   class: EducationForm::Process10203Submissions
   description: "Go through 22-10203 submissions and determine if application should be processed as part of normal submission process or rejected"
 
-ExportBreakerStatus:
-  every: '1m'
-  description: "Send breaker status to statsd"
-
-ExternalServicesStatusJob:
-  every: '1m'
-  description: "Checks the current status of all external services through PagerDuty's API"
-
 FacilityAccessBulkUpdate:
   cron: "30 4 * * * America/New_York"
   class: Facilities::AccessDataDownload
@@ -184,137 +151,20 @@ FailedClaimsReport:
   class: EVSS::FailedClaimsReport
   description: "Notify developers about EVSS claims which could not be uploaded"
 
-FeatureCleanerJob:
-  cron: "0 0 * * * America/New_York"
-  description: Remove features from database that aren't listed in config/features.yml
-
-Form1010cg::DeleteOldUploadsJob:
-  cron: "0 0 * * * America/New_York"
-  description: Delete uploaded caregiver assistance claim forms 30 days old or older.
-
-GlobalDowntimeCache:
-  every: "60m"
-  class: PagerDuty::CacheGlobalDowntime
-  description: "Cache global downtimes from PagerDuty API to S3"
-
-InProgressFormCleaner:
-  cron: "0 2 * * * America/New_York"
-  class: InProgressFormCleaner
-  description: "Clear out saved forms that have not been updated in a while"
-
-MHV::AccountStatisticsJob:
-  cron: "0 */4 * * * America/New_York"
-  description: "Log MHV Account Statistics"
-
-MaintenanceWindowRefresh:
-  cron: "*/3 * * * * America/New_York"
-  class: PagerDuty::PollMaintenanceWindows
-  description: "Poll PagerDuty API for maintenance window information"
-
-New1095BsJob:
-  cron: "0 3 * * * America/New_York"
-  class: Form1095::New1095BsJob
-  description: "Getting new 1095Bs"
-
-Preneeds::DeleteOldUploads:
-  cron: "15 2 * * * America/New_York"
-  description: "Clear out preneeds file uploads older than 2 months"
-
-SidekiqStatsJob:
-  cron: "* * * * *"
-  description: "Update Sidekiq stats for export to statsd gauges"
-
-SignIn::DeleteExpiredSessionsJob:
-  cron: "0 7 * * * America/New_York"
-
 TestUserDashboard::DailyMaintenance:
   cron: "0 0 * * * America/New_York"
   class: TestUserDashboard::DailyMaintenance
   description: "Checks in TUD users that weren't properly checked in."
-
-TransactionalEmailAnalyticsJob:
-  cron: "0 1 * * * America/New_York"
-  description: "posts Transactional email (HCA Failure and Direct Deposit Update) sends and failures to Google Analytics"
-
-UserAcceptableVerifiedCredentialTotals:
-  cron: "30 2 * * * America/New_York"
-  class: Identity::UserAcceptableVerifiedCredentialTotalsJob
-  description: "Log UserAcceptableVerifiedCredential counts for Datadog consumption."
-
-VAForms::FetchLatest:
-  cron: "0 2 * * * America/New_York"
-  class: VAForms::FormReloader
-  description: "Fetches latest VA Forms"
-
-VAForms::FlipperStatusAlert:
-  cron: '0 2,9,16 * * MON-FRI America/New_York'
-  class: VAForms::FlipperStatusAlert
-  description: "Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled"
-
-VANotify::InProgress1880Form:
-  cron: "0 * * * * America/New_York"
-  class: VANotify::InProgress1880Form
-  description: "In progress 1880 reminder emails - runs every hour and looks for forms that are 23-24 hrs old (sent via VaNotify)"
-
-VANotify::InProgressForms:
-  cron: "0 16 * * * America/New_York"
-  class: VANotify::InProgressForms
-  description: "In progress form reminder emails (sent via VaNotify)"
-
-VANotify::ClearStaleInProgressRemindersSent:
-  cron: "0 1 * * * America/New_York"
-  class: VANotify::ClearStaleInProgressRemindersSent
-  description: "Clear stale InProgressRemindersSent data that is more than 60 days old"
-
-VBADocuments::FlipperStatusAlert:
-  cron: '0 2,9,16 * * MON-FRI America/New_York'
-  class: VBADocuments::FlipperStatusAlert
-  description: "Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled"
 
 VBADocuments::ReportMonthlySubmissions:
   cron: "0 2 1 * * America/New_York"
   class: VBADocuments::ReportMonthlySubmissions
   description: "Monthly report of benefits intake submissions"
 
-VBADocuments::ReportUnsuccessfulSubmissions:
-  cron: "0 0 * * MON-FRI America/New_York"
-  class: VBADocuments::ReportUnsuccessfulSubmissions
-  description: "Daily report of unsuccessful benefits intake submissions"
-
-VBADocuments::SlackNotifier:
-  cron: "0 2,9,16 * * MON-FRI America/New_York"
-  class: VBADocuments::SlackNotifier
-  description: "Notifies slack channel if certain benefits states get stuck"
-
-VBADocuments::RunUnsuccessfulSubmissions:
-  cron: "5 */2 * * * America/New_York" # Every 2 hours, 5 minutes after the hour
-  class: VBADocuments::RunUnsuccessfulSubmissions
-  description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
-
-VBADocuments::UploadRemover:
-  cron: "*/2 * * * * America/New_York"
-  class: VBADocuments::UploadRemover
-  description: "Clean up submitted documents from S3"
-
-VBADocuments::UploadScanner:
-  cron: "*/2 * * * * America/New_York"
-  class: VBADocuments::UploadScanner
-  description: "Poll upload bucket for unprocessed uploads"
-
-VBADocuments::UploadStatusBatch:
-  cron: "45 * * * * America/New_York" # Every hour, 45 minutes after the hour
-  class: VBADocuments::UploadStatusBatch
-  description: "Request updated statuses for benefits intake submissions"
-
 VRE::CreateCh31SubmissionsReportJob:
   cron: "0 0 * * * America/New_York"
   include_metadata: true
   description: "Send a daily report to the VRE team about Chapter 31 submissions"
-
-Veteran::VSOReloader:
-  cron: "0 2 * * * America/New_York"
-  class: Veteran::VSOReloader
-  description: Pulls down current list of VSOs and updates accordingly
 
 Webhooks::SchedulerJob:
   at: "<%=Settings.vba_documents.v2_enabled ? 0.seconds.from_now : 100.years.from_now%>"
