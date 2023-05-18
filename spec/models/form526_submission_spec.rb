@@ -46,95 +46,11 @@ RSpec.describe Form526Submission do
         )
       end
 
-      context 'Flipper is enabled' do
-        before do
-          Flipper.enable :rrd_hypertension_compensation
-          Flipper.enable :rrd_asthma_compensation
-        end
-
-        it 'calls start_rrd_job with the job and backup job classes' do
-          expect(form_for_hypertension).to receive(:start_rrd_job)
-            .with(RapidReadyForDecision::Form526BaseJob,
-                  { use_backup_job: true })
-          form_for_hypertension.start
-        end
-
-        context 'when RRD job class has failed all retries and Sidekiq::Batch calls rrd_processor_failed_handler' do
-          # Sidekiq::Batch creates a new Form526Submission in order to call *_handler methods
-          let(:sidekiq_submission) { Form526Submission.new }
-          let(:backup_sidekiq_job) { RapidReadyForDecision::DisabilityCompensationJob }
-
-          before do
-            # return this exact instance to avoid flakey tests due to returning another instance of the same record
-            allow(Form526Submission).to receive(:find).with(form_for_hypertension.id).and_return(form_for_hypertension)
-          end
-
-          it 'calls start_rrd_job with the backup job class if use_backup_job=true' do
-            expect(form_for_hypertension).to receive(:start_rrd_job).with(backup_sidekiq_job)
-            expect(form_for_hypertension).to receive(:send_rrd_alert_email)
-              .with('RRD Processor Selector alert - backup job',
-                    "Restarting with backup #{backup_sidekiq_job} for submission #{form_for_hypertension.id}.")
-            sidekiq_submission.rrd_processor_failed_handler('ignored Sidekiq::Batch::Status',
-                                                            'submission_id' => form_for_hypertension.id,
-                                                            'use_backup_job' => true)
-          end
-
-          it 'calls start_evss_submission_job if use_backup_job=false' do
-            expect(form_for_hypertension).to receive(:start_evss_submission_job)
-            sidekiq_submission.rrd_processor_failed_handler('ignored Sidekiq::Batch::Status',
-                                                            'submission_id' => form_for_hypertension.id,
-                                                            'use_backup_job' => false)
-          end
-
-          context 'when an error is raised within rrd_processor_failed_handler' do
-            before do
-              allow_any_instance_of(RapidReadyForDecision::SidekiqJobSelector)
-                .to receive(:sidekiq_job).and_raise('Any error')
-            end
-
-            it 'calls start_evss_submission_job and sends a alert' do
-              expect(form_for_hypertension).to receive(:start_evss_submission_job)
-              expect(form_for_hypertension).to receive(:send_rrd_alert_email)
-                .with('RRD Processor Selector alert',
-                      /RRD was skipped for submission #{form_for_hypertension.id} due to an error./, anything)
-              sidekiq_submission.rrd_processor_failed_handler('ignored Sidekiq::Batch::Status',
-                                                              'submission_id' => form_for_hypertension.id,
-                                                              'use_backup_job' => true)
-            end
-          end
-        end
-
-        it 'queues a new RapidReadyForDecision::Form526BaseJob worker' do
-          expect do
-            form_for_hypertension.start
-          end.to change(RapidReadyForDecision::Form526BaseJob.jobs, :size).by(1)
-        end
-
-        it_behaves_like '#start_evss_submission'
-
-        context 'an exception is raised in the start method' do
-          it 'calls start_evss_submission_job' do
-            allow(Sidekiq::Batch).to receive(:new).and_raise(NoMethodError)
-
-            expect(Rails.logger).to receive(:error)
-            expect(form_for_hypertension).to receive(:start_evss_submission_job)
-            form_for_hypertension.start
-          end
-        end
+      it 'does NOT queue a new RapidReadyForDecision::Form526BaseJob worker' do
+        expect { subject.start }.to change(RapidReadyForDecision::Form526BaseJob.jobs, :size).by(0)
       end
 
-      context 'Flipper is disabled' do
-        before do
-          Flipper.disable :rrd_hypertension_compensation
-          Flipper.disable :rrd_asthma_compensation
-        end
-
-        it 'does NOT queue a new RapidReadyForDecision::Form526BaseJob worker' do
-          expect { subject.start }.to change(RapidReadyForDecision::Form526BaseJob.jobs, :size).by(0)
-        end
-
-        it_behaves_like '#start_evss_submission'
-      end
+      it_behaves_like '#start_evss_submission'
     end
 
     context 'the submission is NOT for hypertension' do
