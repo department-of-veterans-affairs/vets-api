@@ -9,6 +9,7 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
   before do
     Sidekiq::Worker.clear_all
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
   end
 
   before(:all) do
@@ -17,6 +18,7 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
   end
 
   after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
+  after { allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::NullStore.new) }
 
   describe '.perform_async' do
     before { Timecop.freeze(Time.zone.parse('2022-01-01T19:25:00Z')) }
