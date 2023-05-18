@@ -75,7 +75,7 @@ module Mobile
               requested_decision: attributes['evidenceWaiverSubmitted5103'],
               claim_type: attributes['claimType'],
               contention_list: attributes['contentionList'],
-              va_representative: 'Not available',
+              va_representative: "We can't get this information.",
               events_timeline:,
               updated_at: nil
             }
