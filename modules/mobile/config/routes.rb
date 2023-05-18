@@ -86,5 +86,13 @@ Mobile::Engine.routes.draw do
   namespace :v1 do
     get '/health/immunizations', to: 'immunizations#index'
     get '/user', to: 'users#show'
+
+    scope :messaging do
+      scope :health do
+        resources :messages, only: %i[], defaults: { format: :json } do
+          get :thread, on: :member
+        end
+      end
+    end
   end
 end
