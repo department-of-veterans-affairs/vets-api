@@ -46,12 +46,12 @@
       "middle": "Middle",
       "last": "Witness"
   },
-  "witness_relationship_to_veteran": {
+  "witness_relationship_to_claimant": {
       "served_with": true,
       "family_or_friend": true,
       "coworker_or_supervisor": true
   },
-  "witness_other_relationship_to_veteran": "Other text",
+  "witness_other_relationship_to_claimant": "Other text",
   "claimant_type": "non-veteran",
   "claim_ownership": "third-party"
 }
