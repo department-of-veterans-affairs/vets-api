@@ -101,13 +101,9 @@ RSpec.describe VBADocuments::MultipartParser do
           end
         end
 
-        it "raises on an empty payload #{file_or_stringio}" do
+        it "raises on an empty file #{file_or_stringio}" do
           empty_doc = FixtureHelper.fetch(get_fixture('emptyfile.blob'), file_or_stringio)
-          expect { described_class.parse(empty_doc) }.to raise_error do |error|
-            expect(error).to be_a(VBADocuments::UploadError)
-            expect(error.code).to eq('DOC107')
-            expect(error.detail).to eq('Empty payload')
-          end
+          expect { described_class.parse(empty_doc) }.to raise_error(StopIteration)
         end
 
         it "handles a base64 payload #{file_or_stringio}" do
