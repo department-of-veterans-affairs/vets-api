@@ -27,6 +27,11 @@ APPEALS_API_DOCS = [
     pattern: "#{APPEALS_API_DOCS_DIR}/decision_reviews"
   },
   {
+    name: 'higher_level_reviews',
+    version: 'v0',
+    pattern: "#{APPEALS_API_DOCS_DIR}/higher_level_reviews/v0_spec.rb"
+  },
+  {
     name: 'legacy_appeals',
     version: 'v0',
     pattern: "#{APPEALS_API_DOCS_DIR}/legacy_appeals/v0_spec.rb"
@@ -35,6 +40,10 @@ APPEALS_API_DOCS = [
     name: 'notice_of_disagreements',
     version: 'v0',
     pattern: "#{APPEALS_API_DOCS_DIR}/notice_of_disagreements/v0_spec.rb"
+  }, {
+    name: 'supplemental_claims',
+    version: 'v0',
+    pattern: "#{APPEALS_API_DOCS_DIR}/supplemental_claims/v0_spec.rb"
   }
 ] + SEGMENTED_DECISION_REVIEWS_API_NAMES.map do |api_name|
   {

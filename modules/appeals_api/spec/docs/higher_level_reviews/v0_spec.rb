@@ -107,7 +107,7 @@ RSpec.describe 'Higher-Level Reviews', swagger_doc:, type: :request do
           request_body
         end
 
-        it_behaves_like 'rswag example', desc: 'Returns a 422 response', extract_desc: true, scopes:
+        it_behaves_like 'rswag example', desc: 'Returns a 422 response', scopes:
       end
 
       it_behaves_like 'rswag 500 response'
