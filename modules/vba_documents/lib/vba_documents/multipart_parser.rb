@@ -25,9 +25,8 @@ module VBADocuments
                 else
                   infile
                 end
-        validate_size(input)
         lines = input.each_line(LINE_BREAK).lazy.each_with_index
-        separator = lines.next[0].chomp(LINE_BREAK)
+        separator = consume_first_line(lines)
         loop do
           headers = consume_headers(lines, separator)
           partname = get_partname(headers)
@@ -42,6 +41,13 @@ module VBADocuments
       parts
     end
     # rubocop:enable Metrics/MethodLength
+
+    def self.consume_first_line(lines)
+      lines.next[0].chomp(LINE_BREAK)
+    rescue StopIteration
+      Rails.logger.error('Tempfile was found empty')
+      raise
+    end
 
     def self.base64_encoded?(infile)
       if infile.is_a? StringIO
@@ -76,13 +82,6 @@ module VBADocuments
       Rails.logger.info("#{self} finished writing Base64-decoded file")
 
       parse(decoded_file)
-    end
-
-    def self.validate_size(infile)
-      unless infile.size.positive?
-        raise VBADocuments::UploadError.new(code: 'DOC107',
-                                            detail: VBADocuments::UploadError::DOC107)
-      end
     end
 
     def self.get_partname(headers)

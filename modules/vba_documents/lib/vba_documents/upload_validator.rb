@@ -112,28 +112,26 @@ module VBADocuments
     end
 
     def validate_document(file_path, part_name, pdf_validator_options = {})
-      result = PDFValidator::Validator.new(file_path, pdf_validator_options).validate
+      validation_result = PDFValidator::Validator.new(file_path, pdf_validator_options).validate
 
-      unless result.valid_pdf?
-        errors = result.errors
+      unless validation_result.valid_pdf?
+        raise_validation_error(validation_result.errors, part_name, pdf_validator_options)
+      end
+    end
 
-        if errors.grep(/#{PDFValidator::FILE_SIZE_LIMIT_EXCEEDED_MSG}/).any?
-          code = 'DOC106'
-          detail = CentralMail::UploadError.default_message(code, pdf_validator_options)
-          raise VBADocuments::UploadError.new(code:, detail:, pdf_validator_options:)
-        end
-
-        if errors.grep(/#{PDFValidator::USER_PASSWORD_MSG}|#{PDFValidator::INVALID_PDF_MSG}/).any?
-          raise VBADocuments::UploadError.new(code: 'DOC103',
-                                              detail: "Invalid PDF content, part #{part_name}",
-                                              pdf_validator_options:)
-        end
-
-        if errors.grep(/#{PDFValidator::PAGE_SIZE_LIMIT_EXCEEDED_MSG}/).any?
-          code = 'DOC108'
-          detail = CentralMail::UploadError.default_message(code, pdf_validator_options)
-          raise VBADocuments::UploadError.new(code:, detail:, pdf_validator_options:)
-        end
+    def raise_validation_error(errors, part_name, pdf_validator_options)
+      if errors.grep(/#{PDFValidator::FILE_SIZE_LIMIT_EXCEEDED_MSG}/).any?
+        code = 'DOC106'
+        detail = CentralMail::UploadError.default_message(code, pdf_validator_options)
+        raise VBADocuments::UploadError.new(code:, detail:, pdf_validator_options:)
+      elsif errors.grep(/#{PDFValidator::PAGE_SIZE_LIMIT_EXCEEDED_MSG}/).any?
+        code = 'DOC108'
+        detail = CentralMail::UploadError.default_message(code, pdf_validator_options)
+        raise VBADocuments::UploadError.new(code:, detail:, pdf_validator_options:)
+      else
+        raise VBADocuments::UploadError.new(code: 'DOC103',
+                                            detail: "Invalid PDF content, part #{part_name}",
+                                            pdf_validator_options:)
       end
     end
 
