@@ -10,23 +10,14 @@ tags:
   - name: check_in
     description: Check-in
 servers:
-  - url: http://localhost:3000/check_in/{version}
+  - url: http://localhost:3000/check_in
     description: VA.gov API local environment
-    variables:
-      version:
-        default: v2
-  - url: https://staging-api.va.gov/check_in/{version}
+  - url: https://staging-api.va.gov/check_in
     description: VA.gov API staging environment
-    variables:
-      version:
-        default: v2
-  - url: https://api.va.gov/check_in/{version}
+  - url: https://api.va.gov/check_in
     description: VA.gov API production environment
-    variables:
-      version:
-        default: v2
 paths:
-  /sessions/{uuid}:
+  /v2/sessions/{uuid}:
     get:
       tags:
         - Get session for patient check-in
@@ -62,7 +53,7 @@ paths:
                   value:
                     error: true
                     message: 'Invalid last4 or last name!'
-  /sessions:
+  /v2/sessions:
     post:
       tags:
         - Create session for Check-in
@@ -87,7 +78,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CreateSessionError'
-  /patient_check_ins/${uuid}:
+  /v2/patient_check_ins/${uuid}:
     get:
       tags:
         - Get Check-in
@@ -161,7 +152,7 @@ paths:
                 data:
                   error: true
                   message: 'Internal service error message'
-  /patient_check_ins:
+  /v2/patient_check_ins:
     post:
       tags:
         - Create Check-in
@@ -210,7 +201,7 @@ paths:
                     data:
                       error: true
                       message: 'Veteran check in failed'
-  /pre_check_ins/${uuid}:
+  /v2/pre_check_ins/${uuid}:
     get:
       tags:
         - Get PreCheck-in
@@ -284,7 +275,7 @@ paths:
                 data:
                   error: true
                   message: 'Internal service error message'
-  /pre_check_ins:
+  /v2/pre_check_ins:
     post:
       tags:
         - Create PreCheck-in
@@ -334,6 +325,37 @@ paths:
                     data:
                       error: true
                       message: 'Pre check-in failed'
+  /v0/travel_claims:
+    post:
+      tags:
+        - Submit Travel Claims
+      summary: Submit Travel Claims
+      operationId: submit_travel_claims
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TravelClaimsBody'
+      responses:
+        '202':
+          description: Submitted travel claims successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessfulTravelClaim'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadPermission'
+              examples:
+                UnauthorizedReadPermission:
+                  value:
+                    permissions: 'read.none'
+                    status: 'success'
+                    uuid: 'e602d9eb-8a31-384f-1637-33ab0b507e0d'
 
 components:
   schemas:
@@ -412,6 +434,21 @@ components:
             checkInType:
               type: string
               example: 'preCheckIn'
+    TravelClaimsBody:
+      type: object
+      properties:
+        travel_claims:
+          type: object
+          required:
+            - uuid
+            - appointmentDate
+          properties:
+            uuid:
+              type: string
+              example: 'e602d9eb-8a31-384f-1637-33ab0b507e0d'
+            appointmentDate:
+              type: string
+              example: '2022-10-22'
     AuthorisedReadSession:
       type: object
       properties:
@@ -452,6 +489,12 @@ components:
       required:
         - data
         - status
+    SuccessfulTravelClaim:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 202
     GetCheckInData:
       type: object
       properties:
