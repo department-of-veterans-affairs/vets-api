@@ -54,7 +54,7 @@ module Mobile
         def time_is_valid?(time)
           return false unless time
 
-          DateTime.parse(time)
+          DateTime.parse(time) unless time.is_a?(DateTime)
           true
         rescue => e
           Rails.logger.error("Invalid appointment time received: #{time}", e.message)

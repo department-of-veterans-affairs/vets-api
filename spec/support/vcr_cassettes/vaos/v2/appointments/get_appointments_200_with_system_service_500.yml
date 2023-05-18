@@ -16,7 +16,7 @@ http_interactions:
       Referer:
       - https://review-instance.va.gov
       X-Vamf-Jwt:
-      - eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYyODYxMDkzNSwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYyODYxMTgzNiwianRpIjoiYjQxMWM0NjgtZmZhYS00M2I4LTgwYmQtM2E5NDgxODhkOWI4IiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjI4NjEwNzU2LCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.LtO3ITwRj4PGlYkwwrb2ICKuzWdCn1C9r4OgqSoKqVbizM1t2QSwv__VDJjV9sgjnb6ohvO4Ho8MAY0u45WXPe24Zje4lnNkm-TFHyFIKL--ptU1AL-IQf69EcciAfNjmxVqHuKxXRoomD9wfZrH8Nu-kdYXnL3E5z3F-TCOlQ3dFcvEub7n_JCib_sGIi9E1m7e2VCHXuMGQlPijuHms2m1DuGlmNLoTQu6Pnr2FfAEQ5Qq1PajX9X2k9wfNMLiXGXIaRyzkL2_eWzQGnszDlB1ze3DFuWfLeLZRNEjtP7GnnyO3lwSe93vzdae_jl0NqCtyvS0ku6saOjrb6qShA
+      - stubbed_token
       X-Request-Id:
       - ''
       Accept-Encoding:
@@ -66,6 +66,178 @@ http_interactions:
   recorded_at: Tue, 10 Aug 2021 15:55:41 GMT
 - request:
     method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 09 Aug 2021 17:48:58 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1114'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.8.0
+      B3:
+      - 531af1d2054d758c-b79b44f980a35120-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - '6026315'
+      X-Vamf-Timestamp:
+      - '2021-07-06T17:59:37+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id" : "983",
+          "vistaSite" : "983",
+          "vastParent" : "983",
+          "type" : "va_facilities",
+          "name" : "Cheyenne VA Medical Center",
+          "classification" : "VA Medical Center (VAMC)",
+          "timezone": {
+            "zoneId": "America/New_York",
+            "abbreviation": "EDT"
+          },
+          "lat" : 39.744507,
+          "long" : -104.830956,
+          "website" : "https://www.denver.va.gov/locations/directions.asp",
+          "phone" : {
+            "main" : "307-778-7550",
+            "fax" : "307-778-7381",
+            "pharmacy" : "866-420-6337",
+            "afterHours" : "307-778-7550",
+            "patientAdvocate" : "307-778-7550 x7517",
+            "mentalHealthClinic" : "307-778-7349",
+            "enrollmentCoordinator" : "307-778-7550 x7579"
+          },
+          "physicalAddress" : {
+            "type" : "physical",
+            "line" : [ "2360 East Pershing Boulevard" ],
+            "city" : "Cheyenne",
+            "state" : "WY",
+            "postalCode" : "82001-5356"
+          },
+          "mobile" : false,
+          "healthService" : [ "Audiology", "Cardiology", "DentalServices", "EmergencyCare", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "UrgentCare", "Urology", "WomensHealth" ],
+          "operatingStatus" : {
+            "code" : "NORMAL"
+          }
+        }
+  recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/984
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 09 Aug 2021 17:48:58 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1114'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.8.0
+      B3:
+      - 531af1d2054d758c-b79b44f980a35120-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - '6026315'
+      X-Vamf-Timestamp:
+      - '2021-07-06T17:59:37+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+            "id" : "984",
+            "vistaSite" : "984",
+            "vastParent" : "984",
+            "type" : "va_health_facility",
+            "name" : "Dayton VA Medical Center",
+            "classification" : "VA Medical Center (VAMC)",
+            "timezone": {
+              "zoneId": "America/New_York",
+              "abbreviation": "EDT"
+            },
+            "website" : "https://www.dayton.va.gov/locations/directions.asp",
+            "phone" : {
+              "main" : "937-268-6511"
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "4100 West Third Street" ],
+              "city" : "Dayton",
+              "state" : "OH",
+              "postalCode" : "45428-9000"
+            },
+            "healthService" : [ "Audiology", "Cardiology", "DentalServices", "Dermatology", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "Urology", "WomensHealth" ]
+          }
+  recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
+- request:
+    method: get
     uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=1081
     body:
       encoding: US-ASCII
@@ -103,7 +275,7 @@ http_interactions:
       Set-Cookie:
       - TS016f4012=01c8917e48e63286b7f10c28b2377be94dc8e3abca4b09a4105fcf7db6ff2be68f7a5b816a03f40b8abb39c051cb9ffea872cbb175;
           Max-Age=900; Path=/
-      - vamfjwtv3=eyJ6aXAiOiJERUYiLCJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.BCHgAvtMSivXONJX23QY7k2bRmzgnXgIjJsI3VbH99Kxw3LAA-9QQTwZVsvwBfK2cd2Q29RyoOIaTlkvdt9ycXsY0Wyc0LU4CckWEvZNIW76oGwTSSoQRiWxsbgm3UikU77iJFhvfosIX8Vo5l9UQSzLup61Xf23aELbZqI-RVntrfew51miLh52rz5NXuRfy654CCdbS_3QKhT7dG1s_ifmdRaXbEhsgDbHSBX10db_hgK8mqkrV0Y957r5fVxLV36DZXlM02kPxzKHfAJ8HAaUezCRcHl9Q7A7b-mj09JwKbcwFDZxeQA1vH08d_0BZ_59lyzym67Jr99DrCV3bg.x3enidMbgKhjgNMw7lizGQ.YcRMrrjsXyJXGTKOgbhz0q9mX9PftWl9RECngUivM9S7I82U9mOylfEXE22OJ2aNUV5h6iKgCjAySMdiZHrLquuAB_Qq60sZm9chXoDz0pH7F8L853Vcgu27sL8J7Ho0FPlmr25SY9Pg9CsJ4skDe45gJlSdvmxGIutxvCpkhh1wUGuocOaRbtoDWC3LEbEmS9ozugNYPY5gYAJUnrCVWWg44nsvP6t_Flg6tnCDMTtOa4oB6vBXxyLjznoolCVW6XnPpfwWWlIyoMdNbRDozO9FUpoV0f9OiBYR2_tcTyiZWcIdUp8L8HKAsG9qCocTQpG_CcFq-vkTH_WVvkLKvlTctFKyQgITXxSWCp7V6UOW4-FIZjlujACyOoz3hHcxokT4Qsx3u-S-qyPVSqCSLNlihFykaNZa6HzizG0nHeTi88qvD224o-MJenihXFTmCmycTnzTKyf-eizt2m9aeJLauHXEhM1gzhrop9ro3KV7rzQLI3s2Mf2uPSxjXOy-DDPC1Dur-dy-40q7pMFy447J2Jnu3X04eeTGz44KRrlx9MJ7362z2j36l-5ILtuMrOvVkYxRNI0VaLhAUYKxCAZnwklD82M5d_Qh9ha6Cli4N8wJ2EQujaviC4FwSN4ULJUvO_SpuhvSTK9LJHeXDwx_xpVeU0qPTZvho7hqaUmAtk5uTf4e-2haccgVI6YQ7dEC13XIrK4sXcAertO8Tg.jY-TmqOGP8pKAksGmOvp--mdID1SKPe8IpUUAWYJA3g;
+      - stubbed_token
           path=/; SameSite=Lax; HttpOnly
       - vamftimeoutv1=1619637737; SameSite=Lax; path=/
     body:

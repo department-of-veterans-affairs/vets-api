@@ -49,7 +49,7 @@ module Mobile
         end
 
         def get_facility(location_id)
-          vaos_mobile_facility_service.get_facility(location_id)
+          vaos_mobile_facility_service.get_facility_with_cache(location_id)
         rescue Common::Exceptions::BackendServiceException => e
           Rails.logger.error(
             "Error fetching facility details for location_id #{location_id}",

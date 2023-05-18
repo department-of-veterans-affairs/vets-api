@@ -1,0 +1,143 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012846043V576341/appointments/72106
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 11 Jan 2022 18:33:11 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '493'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 1.15.0
+      B3:
+      - a1b5d9edd27c686160b2d83d66558b53-bc32d4655f9987a5-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 6a7a966
+      X-Vamf-Timestamp:
+      - '2021-12-21T15:40:26+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '544'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{"data":{"id":"72106","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/hsrm/id","value":"256471||180||1"}],"kind":"cc","status":"booked","patientIcn":"1012846043V576341","locationId":"984","start":"2022-01-11T15:00:00Z","created":"2022-01-10T22:02:08Z","cancellationReason":{"code":"other"},"cancellable":true,"extension":{"ccLocation":{"address":{"line":["1601
+        Needmore Rd Ste 1"],"city":"Dayton","state":"OH","postalCode":"45414","text":"1601
+        Needmore Rd Ste 1\nDayton OH 45414"}}}}}'
+  recorded_at: Tue, 11 Jan 2022 18:33:11 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/984
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 09 Aug 2021 17:48:58 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1114'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.8.0
+      B3:
+      - 531af1d2054d758c-b79b44f980a35120-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - '6026315'
+      X-Vamf-Timestamp:
+      - '2021-07-06T17:59:37+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+            "id" : "984",
+            "vistaSite" : "984",
+            "vastParent" : "984",
+            "type" : "va_health_facility",
+            "name" : "Dayton VA Medical Center",
+            "classification" : "VA Medical Center (VAMC)",
+            "timezone": {
+              "zoneId": "America/New_York",
+              "abbreviation": "EDT"
+            },
+            "website" : "https://www.dayton.va.gov/locations/directions.asp",
+            "phone" : {
+              "main" : "937-268-6511"
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "4100 West Third Street" ],
+              "city" : "Dayton",
+              "state" : "OH",
+              "postalCode" : "45428-9000"
+            },
+            "healthService" : [ "Audiology", "Cardiology", "DentalServices", "Dermatology", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "Urology", "WomensHealth" ]
+          }
+  recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
+recorded_with: VCR 6.0.0

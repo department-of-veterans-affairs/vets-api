@@ -81,4 +81,692 @@ http_interactions:
         Issue","requestedPeriods":[{"start":"2021-09-13T00:00:00Z","end":"2021-09-13T11:59:59.999Z"}],"contact":{"telecom":[{"type":"email","value":"marcy.nadeau@va.gov"},{"type":"phone","value":"7175555555"}]},"preferredTimesForPhoneCall":["Afternoon"],"cancellationReason":{"code":"other"},"cancellable":false},{"id":"50067","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/ars/id","value":"8a48b4ef7ba184d5017ba68a3bd70010"}],"kind":"phone","status":"cancelled","serviceType":"primaryCare","patientIcn":"1012845331V153043","locationId":"983","reason":"New
         Issue","requestedPeriods":[{"start":"2021-09-07T00:00:00Z","end":"2021-09-07T11:59:59.999Z"}],"contact":{"telecom":[{"type":"email","value":"marcy.nadeau@va.gov"},{"type":"phone","value":"7175555555"}]},"preferredTimesForPhoneCall":["Afternoon"],"cancellationReason":{"code":"other"},"cancellable":false}]}'
   recorded_at: Thu, 04 Nov 2021 19:56:46 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 09 Aug 2021 17:48:58 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1114'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.8.0
+      B3:
+      - 531af1d2054d758c-b79b44f980a35120-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - '6026315'
+      X-Vamf-Timestamp:
+      - '2021-07-06T17:59:37+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id" : "983",
+          "vistaSite" : "983",
+          "vastParent" : "983",
+          "type" : "va_facilities",
+          "name" : "Cheyenne VA Medical Center",
+          "classification" : "VA Medical Center (VAMC)",
+          "timezone": {
+              "zoneId": "America/New_York",
+              "abbreviation": "EDT"
+          },
+          "lat" : 39.744507,
+          "long" : -104.830956,
+          "website" : "https://www.denver.va.gov/locations/directions.asp",
+          "phone" : {
+            "main" : "307-778-7550",
+            "fax" : "307-778-7381",
+            "pharmacy" : "866-420-6337",
+            "afterHours" : "307-778-7550",
+            "patientAdvocate" : "307-778-7550 x7517",
+            "mentalHealthClinic" : "307-778-7349",
+            "enrollmentCoordinator" : "307-778-7550 x7579"
+          },
+          "physicalAddress" : {
+            "type" : "physical",
+            "line" : [ "2360 East Pershing Boulevard" ],
+            "city" : "Cheyenne",
+            "state" : "WY",
+            "postalCode" : "82001-5356"
+          },
+          "mobile" : false,
+          "healthService" : [ "Audiology", "Cardiology", "DentalServices", "EmergencyCare", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "UrgentCare", "Urology", "WomensHealth" ],
+          "operatingStatus" : {
+            "code" : "NORMAL"
+          }
+        }
+  recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/984
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 09 Aug 2021 17:48:58 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1114'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.8.0
+      B3:
+      - 531af1d2054d758c-b79b44f980a35120-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - '6026315'
+      X-Vamf-Timestamp:
+      - '2021-07-06T17:59:37+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+            "id" : "984",
+            "vistaSite" : "984",
+            "vastParent" : "984",
+            "type" : "va_health_facility",
+            "name" : "Dayton VA Medical Center",
+            "classification" : "VA Medical Center (VAMC)",
+            "timezone": {
+              "zoneId": "America/New_York",
+              "abbreviation": "EDT"
+            },
+            "website" : "https://www.dayton.va.gov/locations/directions.asp",
+            "phone" : {
+              "main" : "937-268-6511"
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "4100 West Third Street" ],
+              "city" : "Dayton",
+              "state" : "OH",
+              "postalCode" : "45428-9000"
+            },
+            "healthService" : [ "Audiology", "Cardiology", "DentalServices", "Dermatology", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "Urology", "WomensHealth" ]
+          }
+  recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/984GA
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 09 Aug 2021 17:48:58 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1114'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.8.0
+      B3:
+      - 531af1d2054d758c-b79b44f980a35120-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - '6026315'
+      X-Vamf-Timestamp:
+      - '2021-07-06T17:59:37+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id" : "984GA",
+          "vistaSite" : "984GA",
+          "vastParent" : "984GA",
+          "type" : "va_facilities",
+          "name" : "Cheyenne VA Medical Center",
+          "classification" : "VA Medical Center (VAMC)",
+          "timezone": {
+              "zoneId": "America/New_York",
+              "abbreviation": "EDT"
+          },
+          "lat" : 39.744507,
+          "long" : -104.830956,
+          "website" : "https://www.denver.va.gov/locations/directions.asp",
+          "phone" : {
+            "main" : "307-778-7550",
+            "fax" : "307-778-7381",
+            "pharmacy" : "866-420-6337",
+            "afterHours" : "307-778-7550",
+            "patientAdvocate" : "307-778-7550 x7517",
+            "mentalHealthClinic" : "307-778-7349",
+            "enrollmentCoordinator" : "307-778-7550 x7579"
+          },
+          "physicalAddress" : {
+            "type" : "physical",
+            "line" : [ "2360 East Pershing Boulevard" ],
+            "city" : "Cheyenne",
+            "state" : "WY",
+            "postalCode" : "82001-5356"
+          },
+          "mobile" : false,
+          "healthService" : [ "Audiology", "Cardiology", "DentalServices", "EmergencyCare", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "UrgentCare", "Urology", "WomensHealth" ],
+          "operatingStatus" : {
+            "code" : "NORMAL"
+          }
+        }
+  recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/984GB
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 09 Aug 2021 17:48:58 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1114'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.8.0
+      B3:
+      - 531af1d2054d758c-b79b44f980a35120-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - '6026315'
+      X-Vamf-Timestamp:
+      - '2021-07-06T17:59:37+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+            "id" : "984GB",
+            "vistaSite" : "984GB",
+            "vastParent" : "984GB",
+            "type" : "va_health_facility",
+            "name" : "Dayton VA Medical Center",
+            "classification" : "VA Medical Center (VAMC)",
+            "timezone": {
+              "zoneId": "America/New_York",
+              "abbreviation": "EDT"
+            },
+            "website" : "https://www.dayton.va.gov/locations/directions.asp",
+            "phone" : {
+              "main" : "937-268-6511"
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "4100 West Third Street" ],
+              "city" : "Dayton",
+              "state" : "OH",
+              "postalCode" : "45428-9000"
+            },
+            "healthService" : [ "Audiology", "Cardiology", "DentalServices", "Dermatology", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "Urology", "WomensHealth" ]
+          }
+  recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983GB
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 09 Aug 2021 17:48:58 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1114'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.8.0
+      B3:
+      - 531af1d2054d758c-b79b44f980a35120-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - '6026315'
+      X-Vamf-Timestamp:
+      - '2021-07-06T17:59:37+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id" : "983GB",
+          "vistaSite" : "983GB",
+          "vastParent" : "983GB",
+          "type" : "va_facilities",
+          "name" : "Cheyenne VA Medical Center",
+          "classification" : "VA Medical Center (VAMC)",
+          "timezone": {
+              "zoneId": "America/New_York",
+              "abbreviation": "EDT"
+          },
+          "lat" : 39.744507,
+          "long" : -104.830956,
+          "website" : "https://www.denver.va.gov/locations/directions.asp",
+          "phone" : {
+            "main" : "307-778-7550",
+            "fax" : "307-778-7381",
+            "pharmacy" : "866-420-6337",
+            "afterHours" : "307-778-7550",
+            "patientAdvocate" : "307-778-7550 x7517",
+            "mentalHealthClinic" : "307-778-7349",
+            "enrollmentCoordinator" : "307-778-7550 x7579"
+          },
+          "physicalAddress" : {
+            "type" : "physical",
+            "line" : [ "2360 East Pershing Boulevard" ],
+            "city" : "Cheyenne",
+            "state" : "WY",
+            "postalCode" : "82001-5356"
+          },
+          "mobile" : false,
+          "healthService" : [ "Audiology", "Cardiology", "DentalServices", "EmergencyCare", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "UrgentCare", "Urology", "WomensHealth" ],
+          "operatingStatus" : {
+            "code" : "NORMAL"
+          }
+        }
+  recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983GC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 09 Aug 2021 17:48:58 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1114'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.8.0
+      B3:
+      - 531af1d2054d758c-b79b44f980a35120-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - '6026315'
+      X-Vamf-Timestamp:
+      - '2021-07-06T17:59:37+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+            "id" : "983GC",
+            "vistaSite" : "983GC",
+            "vastParent" : "983GC",
+            "type" : "va_health_facility",
+            "name" : "Dayton VA Medical Center",
+            "classification" : "VA Medical Center (VAMC)",
+            "timezone": {
+              "zoneId": "America/New_York",
+              "abbreviation": "EDT"
+            },
+            "website" : "https://www.dayton.va.gov/locations/directions.asp",
+            "phone" : {
+              "main" : "937-268-6511"
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "4100 West Third Street" ],
+              "city" : "Dayton",
+              "state" : "OH",
+              "postalCode" : "45428-9000"
+            },
+            "healthService" : [ "Audiology", "Cardiology", "DentalServices", "Dermatology", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "Urology", "WomensHealth" ]
+          }
+  recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983GD
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 09 Aug 2021 17:48:58 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1114'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.8.0
+      B3:
+      - 531af1d2054d758c-b79b44f980a35120-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - '6026315'
+      X-Vamf-Timestamp:
+      - '2021-07-06T17:59:37+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id" : "983GD",
+          "vistaSite" : "983GD",
+          "vastParent" : "983GD",
+          "type" : "va_facilities",
+          "name" : "Cheyenne VA Medical Center",
+          "classification" : "VA Medical Center (VAMC)",
+          "timezone": {
+              "zoneId": "America/New_York",
+              "abbreviation": "EDT"
+          },
+          "lat" : 39.744507,
+          "long" : -104.830956,
+          "website" : "https://www.denver.va.gov/locations/directions.asp",
+          "phone" : {
+            "main" : "307-778-7550",
+            "fax" : "307-778-7381",
+            "pharmacy" : "866-420-6337",
+            "afterHours" : "307-778-7550",
+            "patientAdvocate" : "307-778-7550 x7517",
+            "mentalHealthClinic" : "307-778-7349",
+            "enrollmentCoordinator" : "307-778-7550 x7579"
+          },
+          "physicalAddress" : {
+            "type" : "physical",
+            "line" : [ "2360 East Pershing Boulevard" ],
+            "city" : "Cheyenne",
+            "state" : "WY",
+            "postalCode" : "82001-5356"
+          },
+          "mobile" : false,
+          "healthService" : [ "Audiology", "Cardiology", "DentalServices", "EmergencyCare", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "UrgentCare", "Urology", "WomensHealth" ],
+          "operatingStatus" : {
+            "code" : "NORMAL"
+          }
+        }
+  recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983HK
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 09 Aug 2021 17:48:58 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1114'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.8.0
+      B3:
+      - 531af1d2054d758c-b79b44f980a35120-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - '6026315'
+      X-Vamf-Timestamp:
+      - '2021-07-06T17:59:37+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+            "id" : "983HK",
+            "vistaSite" : "983HK",
+            "vastParent" : "983HK",
+            "type" : "va_health_facility",
+            "name" : "Dayton VA Medical Center",
+            "classification" : "VA Medical Center (VAMC)",
+            "timezone": {
+              "zoneId": "America/New_York",
+              "abbreviation": "EDT"
+            },
+            "website" : "https://www.dayton.va.gov/locations/directions.asp",
+            "phone" : {
+              "main" : "937-268-6511"
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "4100 West Third Street" ],
+              "city" : "Dayton",
+              "state" : "OH",
+              "postalCode" : "45428-9000"
+            },
+            "healthService" : [ "Audiology", "Cardiology", "DentalServices", "Dermatology", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "Urology", "WomensHealth" ]
+          }
+  recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
 recorded_with: VCR 6.0.00

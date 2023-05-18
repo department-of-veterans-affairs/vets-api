@@ -189,7 +189,7 @@ module Mobile
             date, time = if reason_code_contains_embedded_data?
                            period.split(' ')
                          else
-                           start_date = DateTime.parse(period[:start])
+                           start_date = time_to_datetime(period[:start])
                            date = start_date.strftime('%m/%d/%Y')
                            time = start_date.hour.zero? ? 'AM' : 'PM'
                            [date, time]
@@ -223,11 +223,11 @@ module Mobile
           @start_date_utc ||= begin
             start = appointment[:start]
             if start.nil?
-              sorted_dates = requested_periods.map { |period| DateTime.parse(period[:start]) }.sort
+              sorted_dates = requested_periods.map { |period| time_to_datetime(period[:start]) }.sort
               future_dates = sorted_dates.select { |period| period > DateTime.now }
               future_dates.any? ? future_dates.first : sorted_dates.first
             else
-              DateTime.parse(start)
+              time_to_datetime(start)
             end
           end
         end
@@ -423,6 +423,10 @@ module Mobile
           return nil unless match
 
           match[2].strip.presence
+        end
+
+        def time_to_datetime(time)
+          time.is_a?(DateTime) ? time : DateTime.parse(time)
         end
       end
     end
