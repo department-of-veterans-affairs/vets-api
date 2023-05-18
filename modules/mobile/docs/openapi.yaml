@@ -2952,8 +2952,8 @@ paths:
   /v0/messaging/health/messages/{id}/thread:
     get:
       description: |
-        Gets a list of message summaries that are related to the message of the passed id.
-        Does <strong>not</strong> include the message of the passed id itself.
+        Gets a list of message summaries that are related to the message of the passed id and older than the message of 
+        the id provided. Does <strong>not</strong> include the message of the passed id itself.
       operationId: get_message_history
       responses:
         '200':
@@ -2977,6 +2977,34 @@ paths:
       security:
         - Bearer: []
       summary: /v0/messaging/health/messages/{id}/thread
+  /v1/messaging/health/messages/{id}/thread:
+    get:
+      description: |
+        Gets a list of message summaries that are related to the message of the passed id regardless of their age in 
+        relation to the message of the id provided. Does <strong>not</strong> include the message of the passed id itself.
+      operationId: get_message_thread
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/SecureMessageList.yml
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      security:
+        - Bearer: []
+      summary: /v1/messaging/health/messages/{id}/thread
   /v0/messaging/health/recipients:
     get:
       description: List available recipients to which messages may be sent
