@@ -37,6 +37,7 @@ module Mobile
 
           raw_claim = claims_service.find_claim_with_docs_by_id(claim.evss_id).body.fetch('claim', {})
           claim.update(data: raw_claim)
+          claim['updated_at'] = claim['updated_at'].to_time.iso8601
           EVSSClaimDetailSerializer.new(claim)
         rescue EVSS::ErrorMiddleware::EVSSError => e
           handle_middleware_error(e)
