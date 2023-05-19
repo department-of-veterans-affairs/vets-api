@@ -169,3 +169,8 @@ VRE::CreateCh31SubmissionsReportJob:
 Webhooks::SchedulerJob:
   at: "<%=Settings.vba_documents.v2_enabled ? 0.seconds.from_now : 100.years.from_now%>"
   description: Starts off webhook based notifications
+
+SidekiqAlive::CleanupQueues:
+  cron: "*/30 * * * * America/New_York"
+  class: SidekiqAlive::CleanupQueues
+  description: "Cleanup Sidekiq Alive Zombie Queues"
