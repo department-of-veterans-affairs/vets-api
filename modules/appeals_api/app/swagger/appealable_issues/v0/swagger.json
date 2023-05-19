@@ -135,7 +135,7 @@
                 "example": {
                   "data": [
                     {
-                      "type": "contestableIssue",
+                      "type": "appealableIssue",
                       "attributes": {
                         "ratingIssueSubjectText": "right knee",
                         "ratingIssuePercentNumber": "10",
@@ -160,7 +160,7 @@
                       }
                     },
                     {
-                      "type": "contestableIssue",
+                      "type": "appealableIssue",
                       "attributes": {
                         "ratingIssueSubjectText": "ptsd",
                         "ratingIssueReferenceId": "826209441170",
@@ -184,7 +184,7 @@
                       }
                     },
                     {
-                      "type": "contestableIssue",
+                      "type": "appealableIssue",
                       "attributes": {
                         "ratingIssueSubjectText": "left knee",
                         "ratingIssueReferenceId": "826209597423",
@@ -210,7 +210,7 @@
                   ]
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/contestableIssues"
+                  "$ref": "#/components/schemas/appealableIssues"
                 }
               }
             }
@@ -394,14 +394,14 @@
       }
     },
     "schemas": {
-      "contestableIssue": {
+      "appealableIssue": {
         "type": "object",
-        "description": "A contestable issue (to contest this, you include it as a RequestIssue when creating a HigherLevelReview, SupplementalClaim, or Appeal)",
+        "description": "An appealable issue (to appeal this, you include it as a RequestIssue when creating a HigherLevelReview, SupplementalClaim, or Appeal)",
         "properties": {
           "type": {
             "type": "string",
             "enum": [
-              "contestableIssue"
+              "appealableIssue"
             ]
           },
           "id": {
@@ -433,7 +433,7 @@
               "ratingDecisionReferenceId": {
                 "type": "string",
                 "nullable": true,
-                "description": "The BGS ID for the contested rating decision. This may be populated while ratingIssueReferenceId is nil",
+                "description": "The BGS ID for the appealable rating decision. This may be populated while ratingIssueReferenceId is nil",
                 "example": null
               },
               "decisionIssueId": {
@@ -480,7 +480,7 @@
               },
               "latestIssuesInChain": {
                 "type": "array",
-                "description": "Shows the chain of decision and rating issues that preceded this issue. Only the most recent issue can be contested (the object itself that contains the latestIssuesInChain attribute).",
+                "description": "Shows the chain of decision and rating issues that preceded this issue. Only the most recent issue can be appealed (the object itself that contains the latestIssuesInChain attribute).",
                 "items": {
                   "type": "object",
                   "properties": {
@@ -526,13 +526,13 @@
           }
         }
       },
-      "contestableIssues": {
+      "appealableIssues": {
         "type": "object",
         "properties": {
           "data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/contestableIssue"
+              "$ref": "#/components/schemas/appealableIssue"
             }
           }
         }
@@ -628,7 +628,7 @@
         "pattern": "^[0-9]{10}V[0-9]{6}$"
       },
       "X-VA-Receipt-Date": {
-        "description": "(yyyy-mm-dd) Date to limit the contestable issues",
+        "description": "(yyyy-mm-dd) Date to limit the appealable issues",
         "type": "string",
         "format": "date"
       },

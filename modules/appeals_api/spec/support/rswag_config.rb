@@ -7,12 +7,12 @@ class AppealsApi::RswagConfig
   include DocHelpers
 
   def rswag_doc_config(
-    base_path_template: DocHelpers.api_base_path_template,
-    description_file_path: DocHelpers.api_description_file_path,
-    name: DocHelpers.api_name,
-    tags: DocHelpers.api_tags,
-    title: DocHelpers.api_title,
-    version: DocHelpers.api_version
+    base_path_template:,
+    description_file_path:,
+    name:,
+    tags:,
+    title:,
+    version:
   )
     {
       # FIXME: The Lighthouse docs UI code does not yet support openapi versions above 3.0.z
@@ -53,14 +53,13 @@ class AppealsApi::RswagConfig
     return {} if DocHelpers.running_rake_task? && ENV['RAILS_MODULE'] != 'appeals_api'
 
     {
-      DocHelpers.output_json_path => rswag_doc_config,
       "modules/appeals_api/app/swagger/appealable_issues/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
         title: 'Appealable Issues',
         version: 'v0',
         description_file_path: AppealsApi::Engine.root.join("app/swagger/appealable_issues/v0/api_description#{DocHelpers.doc_suffix}.md"),
         base_path_template: '/services/appeals/appealable-issues/{version}',
         name: 'appealable_issues',
-        tags: [{ name: 'Appealable Issues', description: '' }]
+        tags: api_tags(:appealable_issues)
       ),
       "modules/appeals_api/app/swagger/appeals_status/v1/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
         title: 'Appeals Status',
@@ -68,7 +67,15 @@ class AppealsApi::RswagConfig
         description_file_path: AppealsApi::Engine.root.join("app/swagger/appeals_status/v1/api_description#{DocHelpers.doc_suffix}.md"),
         base_path_template: '/services/appeals/appeals-status/{version}',
         name: 'appeals_status',
-        tags: [{ name: 'Appeals Status', description: '' }]
+        tags: api_tags(:appeals_status)
+      ),
+      "modules/appeals_api/app/swagger/decision_reviews/v2/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
+        title: 'Decision Reviews',
+        version: 'v2',
+        description_file_path: AppealsApi::Engine.root.join("app/swagger/decision_reviews/v2/api_description#{DocHelpers.doc_suffix}.md"),
+        base_path_template: '/services/appeals/{version}/decision_reviews',
+        name: 'decision_reviews',
+        tags: api_tags(*%i[higher_level_reviews notice_of_disagreements supplemental_claims contestable_issues legacy_appeals])
       ),
       "modules/appeals_api/app/swagger/higher_level_reviews/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
         title: 'Higher-Level Reviews',
@@ -76,7 +83,7 @@ class AppealsApi::RswagConfig
         description_file_path: AppealsApi::Engine.root.join("app/swagger/higher_level_reviews/v0/api_description#{DocHelpers.doc_suffix}.md"),
         base_path_template: '/services/appeals/higher-level-reviews/{version}',
         name: 'higher_level_reviews',
-        tags: [{ name: 'Higher-Level Reviews', description: '' }]
+        tags: api_tags(:higher_level_reviews)
       ),
       "modules/appeals_api/app/swagger/legacy_appeals/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
         title: 'Legacy Appeals',
@@ -84,7 +91,7 @@ class AppealsApi::RswagConfig
         description_file_path: AppealsApi::Engine.root.join("app/swagger/legacy_appeals/v0/api_description#{DocHelpers.doc_suffix}.md"),
         base_path_template: '/services/appeals/legacy-appeals/{version}',
         name: 'legacy_appeals',
-        tags: [{ name: 'Legacy Appeals', description: '' }]
+        tags: api_tags(:legacy_appeals)
       ),
       "modules/appeals_api/app/swagger/notice_of_disagreements/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
         title: 'Notice of Disagreements',
@@ -92,7 +99,7 @@ class AppealsApi::RswagConfig
         description_file_path: AppealsApi::Engine.root.join("app/swagger/notice_of_disagreements/v0/api_description#{DocHelpers.doc_suffix}.md"),
         base_path_template: '/services/appeals/notice-of-disagreements/{version}',
         name: 'notice_of_disagreements',
-        tags: [{ name: 'Notice of Disagreements', description: '' }]
+        tags: api_tags(:notice_of_disagreements)
       ),
       "modules/appeals_api/app/swagger/supplemental_claims/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
         title: 'Supplemental Claims',
@@ -100,7 +107,7 @@ class AppealsApi::RswagConfig
         description_file_path: AppealsApi::Engine.root.join("app/swagger/supplemental_claims/v0/api_description#{DocHelpers.doc_suffix}.md"),
         base_path_template: '/services/appeals/supplemental-claims/{version}',
         name: 'supplemental_claims',
-        tags: [{ name: 'Supplemental Claims', description: '' }]
+        tags: api_tags(:supplemental_claims)
       )
     }
   end
@@ -163,6 +170,20 @@ class AppealsApi::RswagConfig
       'system/SupplementalClaims.write': 'Allows a system to submit Supplemental Claims for a veteran'
     }
   }.freeze
+
+  def api_tags(*api_names)
+    api_names.map { |api_name| { name: DocHelpers::ALL_DOC_TITLES[api_name.to_sym], description: '' } }
+  end
+
+  def decision_reviews_security_schemes
+    {
+      apikey: {
+        type: :apiKey,
+        name: :apikey,
+        in: :header
+      }
+    }
+  end
 
   def security_schemes(api_name = DocHelpers.api_name)
     if api_name == 'decision_reviews'
