@@ -36,10 +36,21 @@ RSpec.describe VAForms::FormBuilder, type: :job do
 
     it 'fails to update the sha256 when forms are submitted' do
       VCR.use_cassette('va_forms/fails') do
-        form = VAForms::Form.new(url: 'http://www.vba.va.gov/pubs/forms/26-85992.pdf')
+        form = VAForms::Form.new(url: 'http://www.vba.va.gov/pubs/forms/26-85992.pdf', valid_pdf: true)
         form = form_builder.update_sha256(form)
         expect(form.valid_pdf).to eq(false)
         expect(form.sha256).to eq(nil)
+        expect(slack_messenger).to have_received(:notify!)
+      end
+    end
+
+    it 'only sends slack notification when valid_pdf turns invalid' do
+      VCR.use_cassette('va_forms/fails') do
+        form = VAForms::Form.new(url: 'http://www.vba.va.gov/pubs/forms/26-85992.pdf', valid_pdf: false)
+        form = form_builder.update_sha256(form)
+        expect(form.valid_pdf).to eq(false)
+        expect(form.sha256).to eq(nil)
+        expect(slack_messenger).not_to have_received(:notify!)
       end
     end
 
