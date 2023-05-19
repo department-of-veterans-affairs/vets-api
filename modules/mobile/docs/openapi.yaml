@@ -2988,7 +2988,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ./schemas/SecureMessageList.yml
+                $ref: ./schemas/v1/SecureMessageList.yml
           description: OK
         '401':
           content:
