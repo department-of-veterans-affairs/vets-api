@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'bgs/service'
 require 'common/models/concerns/cache_aside'
 
 class BankName < Common::RedisStore
