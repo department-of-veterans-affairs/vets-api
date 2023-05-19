@@ -19,7 +19,7 @@ RSpec.describe 'lighthouse individual claim', type: :request do
   describe 'GET /v0/claim/:id with lighthouse upstream service' do
     before do
       token = 'abcdefghijklmnop'
-      allow_any_instance_of(Mobile::V0::LighthouseClaims::Configuration).to receive(:access_token).and_return(token)
+      allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
       Flipper.enable(:mobile_lighthouse_claims)
       iam_sign_in
     end
