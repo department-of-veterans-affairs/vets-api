@@ -167,15 +167,19 @@ describe VAOS::V2::AppointmentsService do
       end
     end
 
-    context 'when there are CnP appointments in the list' do
-      it 'changes the cancellable status to false for CnP appointments only' do
-        VCR.use_cassette('vaos/v2/appointments/get_appointments_single_status_200',
+    context 'when there are CnP and covid appointments in the list' do
+      it 'changes the cancellable status to false for CnP and covid appointments only' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_cnp_covid',
                          allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
           response = subject.get_appointments(start_date2, end_date2, 'proposed')
-          # non CnP appointment, cancellable left as is
+          # non CnP or covid appointment, cancellable left as is
           expect(response[:data][0][:cancellable]).to eq(true)
-          # CnP appointment, cancellable changed to false
+          # CnP appointments, cancellable changed to false
           expect(response[:data][4][:cancellable]).to eq(false)
+          # covid appointments, cancellable changed to false
+          expect(response[:data][5][:cancellable]).to eq(false)
+          expect(response[:data][6][:cancellable]).to eq(false)
+          expect(response[:data][7][:cancellable]).to eq(false)
         end
       end
     end
@@ -349,6 +353,49 @@ describe VAOS::V2::AppointmentsService do
         expect do
           subject.send(:convert_utc_to_local_time, nil, 'America/New_York')
         end.to raise_error(Common::Exceptions::ParameterMissing)
+      end
+    end
+  end
+
+  describe '#codes' do
+    context 'when nil is passed in' do
+      it 'returns an empty array' do
+        expect(subject.send(:codes, nil)).to eq([])
+      end
+    end
+
+    context 'when no codable concept code is present' do
+      it 'returns an empty array' do
+        x = [{ coding: [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', display: 'REGULAR' }],
+               text: 'REGULAR' }]
+        expect(subject.send(:codes, x)).to eq([])
+      end
+    end
+
+    context 'when a codable concept code is present' do
+      it 'returns an array of codable concept codes' do
+        x = [{ coding: [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'REGULAR' }],
+               text: 'REGULAR' }]
+        expect(subject.send(:codes, x)).to eq(['REGULAR'])
+      end
+    end
+
+    context 'when multiple codable concept codes are present' do
+      it 'returns an array of codable concept codes' do
+        x = [{ coding: [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'REGULAR' },
+                        { system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'TELEHEALTH' }],
+               text: 'REGULAR' }]
+        expect(subject.send(:codes, x)).to eq(%w[REGULAR TELEHEALTH])
+      end
+    end
+
+    context 'when multiple codable concepts with single codes are present' do
+      it 'returns an array of codable concept codes' do
+        x = [{ coding: [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'REGULAR' }],
+               text: 'REGULAR' },
+             { coding: [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'TELEHEALTH' }],
+               text: 'TELEHEALTH' }]
+        expect(subject.send(:codes, x)).to eq(%w[REGULAR TELEHEALTH])
       end
     end
   end
