@@ -8,67 +8,24 @@ module Mobile
       before_action { authorize :mhv_prescriptions, :access? }
 
       def index
-        begin
-          resource = client.get_history_rxs
-
-          # Temporary logging for prescription bug investigation
-          # resource.attributes.each do |p|
-          #   Rails.logger.info('MHV Prescription Response',
-          #                     user: @current_user.uuid,
-          #                     params:, id: p[:prescription_id],
-          #                     prescription: p)
-          # end
-        rescue => e
-          Rails.logger.error(
-            'Mobile Prescription Upstream Index Error',
-            resource:, error: e, message: e.message, backtrace: e.backtrace
-          )
-          raise e
-        end
-
+        resource = client.get_history_rxs
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
         resource = resource.sort(params[:sort])
         page_resource, page_meta_data = paginate(resource.attributes)
 
-        serialized_prescription = Mobile::V0::PrescriptionsSerializer.new(page_resource, page_meta_data)
-
-        # Temporary logging for prescription bug investigation
-        # serialized_prescription.to_hash[:data].each do |p|
-        #   Rails.logger.info('Mobile Prescription Response', user: @current_user.uuid, id: p[:id], prescription: p)
-        # end
-
-        render json: serialized_prescription
+        render json: Mobile::V0::PrescriptionsSerializer.new(page_resource, page_meta_data)
       end
 
       def refill
         resource = client.post_refill_rxs(ids)
 
-        # Temporary logging for prescription bug investigation
-        # Rails.logger.info('MHV Prescription Refill Response', user: @current_user.uuid, ids:, response: resource)
-
         render json: Mobile::V0::PrescriptionsRefillsSerializer.new(@current_user.uuid, resource.body)
-      rescue => e
-        Rails.logger.error(
-          'Mobile Prescription Refill Error',
-          resource:, error: e, message: e.message, backtrace: e.backtrace
-        )
-        raise e
       end
 
       def tracking
         resource = client.get_tracking_history_rx(params[:id])
 
-        # Temporary logging for prescription bug investigation
-        # Rails.logger.info('MHV Prescription Tracking Response', user: @current_user.uuid, id: params[:id],
-        #                                                         response: resource)
-
         render json: Mobile::V0::PrescriptionTrackingSerializer.new(resource.data)
-      rescue => e
-        Rails.logger.error(
-          'Mobile Prescription Tracking Error',
-          resource:, error: e, message: e.message, backtrace: e.backtrace
-        )
-        raise e
       end
 
       private

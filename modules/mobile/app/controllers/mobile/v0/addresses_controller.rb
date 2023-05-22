@@ -40,14 +40,6 @@ module Mobile
                          ))
         end
 
-        # No domestic or military addresses should have a province but some have been coming in as a string 'null'
-        suggested_addresses.each do |sa|
-          if sa['address_type'].in?(['DOMESTIC', 'OVERSEAS MILITARY']) && sa['province'].present?
-            Rails.logger.info('Mobile Suggested Address - Province in domestic or military address',
-                              province: sa['province'])
-          end
-        end
-
         render json: Mobile::V0::SuggestedAddressSerializer.new(suggested_addresses)
       end
 

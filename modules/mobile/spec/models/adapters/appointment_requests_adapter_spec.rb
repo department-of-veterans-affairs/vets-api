@@ -201,7 +201,6 @@ describe Mobile::V0::Adapters::AppointmentRequests do
       it 'is CANCELLED - OTHER and logs error' do
         cc_request_data[:appointment_request_detail_code][0][:detail_code][:code] = 'DETCODE9000'
 
-        expect(Rails.logger).to receive(:error)
         _, results = subject.parse([cc_request_data])
         expect(results.first.status_detail).to eq('CANCELLED - OTHER')
       end
@@ -234,7 +233,6 @@ describe Mobile::V0::Adapters::AppointmentRequests do
 
       it 'is VA and logs to sentry for any other visit type' do
         va_request_data.visit_type = 'Unexpected type'
-        expect(Rails.logger).to receive(:error)
         va_results, = subject.parse([va_request_data])
         expect(va_results.first.appointment_type).to eq('VA')
       end
@@ -289,21 +287,18 @@ describe Mobile::V0::Adapters::AppointmentRequests do
 
       it 'is COMMUNITY_CARE and logs for express care visits' do
         cc_request_data.visit_type = 'Express Care'
-        expect(Rails.logger).to receive(:error)
         _, cc_results = subject.parse([cc_request_data])
         expect(cc_results.first.appointment_type).to eq('COMMUNITY_CARE')
       end
 
       it 'is COMMUNITY_CARE and logs for video conference visits' do
         cc_request_data.visit_type = 'Video Conference'
-        expect(Rails.logger).to receive(:error)
         _, cc_results = subject.parse([cc_request_data])
         expect(cc_results.first.appointment_type).to eq('COMMUNITY_CARE')
       end
 
       it 'is COMMUNITY_CARE and logs to sentry for any other visit type' do
         cc_request_data.visit_type = 'Unexpected type'
-        expect(Rails.logger).to receive(:error)
         _, cc_results = subject.parse([cc_request_data])
         expect(cc_results.first.appointment_type).to eq('COMMUNITY_CARE')
       end
@@ -344,12 +339,10 @@ describe Mobile::V0::Adapters::AppointmentRequests do
     end
 
     describe 'error handling' do
-      it 'catches and logs any adaption errors and omits the problem record from the results' do
+      it 'will bubble up any errors encountered' do
         allow_any_instance_of(Mobile::V0::Templates::CommunityCareAppointment)
           .to receive(:appointment).and_raise(StandardError)
-        expect(Rails.logger).to receive(:error).with('Error adapting appointment request', any_args)
-        expect(cc_appointment_requests).to eq([])
-        expect(va_appointment_requests).to eq([adapted_va_appt_request])
+        expect { adapted_appointment_requests }.to raise_error(StandardError)
       end
     end
   end

@@ -20,7 +20,6 @@ module Mobile
                                                                   errors:)
         else
           Mobile::V0::ClaimOverview.set_cached(user, data)
-          Rails.logger.info('mobile claims pre-cache set succeeded', user_uuid: uuid)
         end
       end
 

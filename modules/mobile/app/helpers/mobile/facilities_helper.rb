@@ -8,10 +8,6 @@ module Mobile
 
     def fetch_facilities_from_ids(user, facility_ids, include_children)
       ids = facility_ids.join(',')
-
-      facility_ids.each do |facility_id|
-        Rails.logger.info('metric.mobile.appointment.facility', facility_id:)
-      end
       vaos_facilities = VAOS::V2::MobileFacilityService.new(user).get_facilities(ids:, children: include_children,
                                                                                  type: nil)
       vaos_facilities[:data]

@@ -6,8 +6,6 @@ module Mobile
       SORT_METHODS = %w[home current alphabetical appointments].freeze
 
       def index
-        Rails.logger.info('Facilities info call start', { sort_method: params[:sort], user_uuid: @current_user.uuid })
-
         raise_invalid_sort_method_error unless SORT_METHODS.include?(params[:sort])
 
         facility_ids = @current_user.va_treatment_facility_ids + @current_user.cerner_facility_ids

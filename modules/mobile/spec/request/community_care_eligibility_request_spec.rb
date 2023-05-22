@@ -46,12 +46,6 @@ RSpec.describe 'Community Care Eligibility', type: :request do
         it 'returns expected schema' do
           expect(response.body).to match_json_schema('cc_eligibility')
         end
-
-        it 'logs service_type and user_uuid' do
-          expect(Rails.logger).to have_received(:info).with('CC eligibility service call start',
-                                                            { service_type: 'primaryCare',
-                                                              user_uuid: '3097e489-ad75-5746-ab1a-e0aabc1b426a' })
-        end
       end
 
       context 'non-eligible service type' do
