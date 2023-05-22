@@ -35,13 +35,18 @@ module VBADocuments
       log_invalid_parts(model, invalid_parts) if invalid_parts.any?
     end
 
-    def validate_metadata(metadata_input, submission_version:)
+    def validate_metadata(metadata_input, submission_version:, consumer_name: '')
       metadata = JSON.parse(metadata_input)
       raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object') unless metadata.is_a?(Hash)
 
       missing_keys = REQUIRED_KEYS - metadata.keys
       if missing_keys.present?
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: "Missing required keys: #{missing_keys.join(',')}")
+      end
+
+      unexpected_keys = metadata.keys - consumer_meta_field_names_allowed(consumer_name)
+      if unexpected_keys.present?
+        raise VBADocuments::UploadError.new(code: 'DOC102', detail: "Invalid keys provided: #{unexpected_keys.join(',')}")
       end
 
       rejected = REQUIRED_KEYS.reject { |k| metadata[k].is_a? String }

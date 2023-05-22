@@ -660,6 +660,19 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.detail).to match(/DROC/)
     end
 
+    it 'sets error status for invalid metadata keys' do
+      md = JSON.parse(valid_metadata)
+      md['unknown_key'] = 'bad key'
+      allow(VBADocuments::MultipartParser).to receive(:parse) {
+        { 'metadata' => md.to_json, 'content' => valid_doc }
+      }
+      described_class.new.perform(upload.guid, test_caller)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.status).to eq('error')
+      expect(updated.code).to eq('DOC102')
+      expect(updated.detail).to start_with('Invalid keys provided')
+    end
+
     it 'sets error status and records missing lines of business for V2' do
       md = JSON.parse(invalid_metadata_missing_lob)
       allow(VBADocuments::MultipartParser).to receive(:parse) {

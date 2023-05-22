@@ -3,6 +3,7 @@
 require 'zip'
 require 'common/exceptions'
 require 'vba_documents/payload_manager'
+require 'vba_documents/pdf_inspector'
 require 'vba_documents/upload_validator'
 require './lib/webhooks/utilities'
 

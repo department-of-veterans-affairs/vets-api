@@ -3,12 +3,18 @@
 module CentralMail
   module Utilities
     RETRIES = 3
+
     META_PART_NAME = 'metadata'
     DOC_PART_NAME = 'content'
     SUBMIT_DOC_PART_NAME = 'document'
     VALID_LOB = { 'CMP' => 'CMP', 'PMC' => 'PMC', 'INS' => 'INS', 'EDU' => 'EDU', 'VRE' => 'VRE', 'BVA' => 'BVA',
                   'FID' => 'FID', 'NCA' => 'NCA', 'OTH' => 'CMP' }.freeze
+
+    # Required Metadata fields
     REQUIRED_KEYS = %w[veteranFirstName veteranLastName fileNumber zipCode].freeze
+    # Supported fields that all consumers are permitted to provide
+    META_FIELD_NAMES_ALL_CONSUMERS = REQUIRED_KEYS + %w[source docType businessLine].freeze
+
     FILE_NUMBER_REGEX = /^\d{8,9}$/
     INVALID_ZIP_CODE_ERROR_REGEX = /Invalid zipCode/
     MISSING_ZIP_CODE_ERROR_REGEX = /Missing zipCode/
@@ -17,6 +23,22 @@ module CentralMail
                                  'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
     MISSING_ZIP_CODE_ERROR_MSG = 'Missing ZIP Code. ZIP Code must be 5 digits, ' \
                                  'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
+
+    def consumer_meta_field_names_allowed(consumer_name)
+      meta_fields_config_path = VBADocuments::Engine.root.join('config', 'metadata', 'internal_consumer_fields.yml')
+
+      consumer_metadata_fields = {}
+      if File.exist?(meta_fields_config_path)
+        consumer_metadata_fields = YAML.load_file(meta_fields_config_path) || {}
+      else
+        VBADocuments::Slack::Messager.new(
+          { warning: ":warning: #{self.class.name} consumer metadata fields config file does not exist",
+            recipient_file: recipient_file_path.to_s }
+        ).notify!
+      end
+      # combine the consumer specific meta field names with the field names all consumers are allowed
+      consumer_metadata_fields.fetch(consumer_name, []) + META_FIELD_NAMES_ALL_CONSUMERS
+    end
 
     def log_submission(uploaded_object, metadata)
       number_pages = metadata.select { |k, _| k.to_s.start_with?('numberPages') }
