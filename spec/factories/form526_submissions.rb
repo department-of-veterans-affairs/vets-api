@@ -183,6 +183,12 @@ FactoryBot.define do
     end
   end
 
+  trait :without_diagnostic_code do
+    form_json do
+      File.read("#{submissions_path}/526_bdd.json")
+    end
+  end
+
   trait :with_one_succesful_job do
     after(:create) do |submission|
       create(:form526_job_status, form526_submission: submission)

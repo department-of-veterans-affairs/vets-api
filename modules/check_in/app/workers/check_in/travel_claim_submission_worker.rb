@@ -47,13 +47,15 @@ module CheckIn
 
       logger.info("Sending notification to (phone last four): #{opts[:mobile_phone].delete('^0-9').last(4)}," \
                   " using template_id: #{opts[:template_id]}")
+      appt_date_in_mmm_dd_format = DateTime.strptime(opts[:appointment_date], '%Y-%m-%d').to_date.strftime('%b %d')
+
       notify_client.send_sms(
         phone_number: opts[:mobile_phone],
         template_id: opts[:template_id],
         sms_sender_id: SMS_SENDER_ID,
         personalisation: {
           claim_number: opts[:claim_number],
-          appt_date: opts[:appointment_date]
+          appt_date: appt_date_in_mmm_dd_format
         }
       )
     rescue => e

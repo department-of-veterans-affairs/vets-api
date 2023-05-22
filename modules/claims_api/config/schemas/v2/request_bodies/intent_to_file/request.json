@@ -2,21 +2,32 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "description": "Intent To File",
   "type": "object",
-  "required": ["type"],
+  "required": ["data"],
   "properties": {
-    "type": {
-      "type": "string",
-      "example": "compensation",
-      "description": "Type of Intent To File being submitted. For type \"survivor\", the request must include claimantSsn and be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
-      "enum": ["compensation", "pension", "survivor"]
-    },
-    "claimantSsn": {
-      "type": "string",
-      "example": "001122334",
-      "description": "SSN of the Claimant."
+    "data": {
+      "type":"object",
+      "required":["attributes"],
+      "properties": {
+        "attributes": {
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "example": "compensation",
+              "description": "Type of Intent To File being submitted. For type \"survivor\", the request must include claimantSsn and be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
+              "enum": ["compensation", "pension", "survivor"]
+            },
+            "claimantSsn": {
+              "type": "string",
+              "example": "001122334",
+              "description": "SSN of the Claimant."
+            }
+          },
+          "example": {
+            "type": "compensation"
+          }
+        }
+      }
     }
-  },
-  "example": {
-    "type": "compensation"
   }
 }

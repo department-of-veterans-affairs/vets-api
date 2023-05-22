@@ -1,3 +1,8 @@
 {
-  "type": "compensation"
+  "data": {
+    "type": "intent_to_file",
+    "attributes": {
+      "type": "compensation"
+    }
+  }
 }

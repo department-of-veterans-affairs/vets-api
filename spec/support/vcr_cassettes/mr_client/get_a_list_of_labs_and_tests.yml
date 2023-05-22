@@ -1,0 +1,791 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/baseR4/DiagnosticReport?category=LAB&patient=258974"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/fhir+json
+      User-Agent:
+      - Ruby FHIR Client
+      Accept-Charset:
+      - utf-8
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Host:
+      - hapi.fhir.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.18.0 (Ubuntu)
+      Date:
+      - Fri, 19 May 2023 17:42:02 GMT
+      Content-Type:
+      - application/fhir+json;charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      X-Powered-By:
+      - HAPI FHIR 6.7.3-SNAPSHOT/d94627c382/2023-05-18 REST Server (FHIR Server; FHIR
+        4.0.1/R4)
+      X-Request-Id:
+      - 1qFsIymSUCuUprAc
+      Last-Modified:
+      - Fri, 19 May 2023 17:42:02 GMT
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "resourceType": "Bundle",
+          "id": "e0d74d78-4529-4050-adc7-bf1360641636",
+          "meta": {
+            "lastUpdated": "2023-05-19T17:42:02.131+00:00"
+          },
+          "type": "searchset",
+          "total": 11,
+          "link": [ {
+            "relation": "self",
+            "url": "<MHV_MR_HOST>/baseR4/DiagnosticReport?category=LAB&patient=258974"
+          } ],
+          "entry": [ {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/DiagnosticReport/259057",
+            "resource": {
+              "resourceType": "DiagnosticReport",
+              "id": "259057",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-12-12T14:31:00.393+00:00",
+                "source": "#TQ5q9rFig5QUIR8M"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div class=\"hapiHeaderText\"> Basic Metabolic Panel </div><table class=\"hapiPropertyTable\"><tbody><tr><td>Status</td><td>FINAL</td></tr><tr><td>Issued</td><td> 19 January 2011 04:03:27</td></tr></tbody></table></div>"
+              },
+              "status": "final",
+              "category": [ {
+                "coding": [ {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB",
+                  "display": "Laboratory"
+                } ]
+              } ],
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "51990-0",
+                  "display": "Basic Metabolic Panel"
+                } ],
+                "text": "Basic Metabolic Panel"
+              },
+              "subject": {
+                "reference": "Patient/258974"
+              },
+              "encounter": {
+                "reference": "Encounter/259028"
+              },
+              "effectiveDateTime": "2011-01-19T05:03:27+01:00",
+              "issued": "2011-01-19T05:03:27.853+01:00",
+              "result": [ {
+                "reference": "Observation/259034",
+                "display": "Glucose"
+              }, {
+                "reference": "Observation/259035",
+                "display": "Urea Nitrogen"
+              }, {
+                "reference": "Observation/259036",
+                "display": "Creatinine"
+              }, {
+                "reference": "Observation/259037",
+                "display": "Calcium"
+              }, {
+                "reference": "Observation/259038",
+                "display": "Sodium"
+              }, {
+                "reference": "Observation/259039",
+                "display": "Potassium"
+              }, {
+                "reference": "Observation/259040",
+                "display": "Chloride"
+              }, {
+                "reference": "Observation/259041",
+                "display": "Carbon Dioxide"
+              } ]
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/DiagnosticReport/259058",
+            "resource": {
+              "resourceType": "DiagnosticReport",
+              "id": "259058",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-12-12T14:31:00.393+00:00",
+                "source": "#TQ5q9rFig5QUIR8M"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div class=\"hapiHeaderText\"> Complete blood count (hemogram) panel - Blood by Automated count </div><table class=\"hapiPropertyTable\"><tbody><tr><td>Status</td><td>FINAL</td></tr><tr><td>Issued</td><td> 19 January 2011 04:03:27</td></tr></tbody></table></div>"
+              },
+              "status": "final",
+              "category": [ {
+                "coding": [ {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB",
+                  "display": "Laboratory"
+                } ]
+              } ],
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "58410-2",
+                  "display": "Complete blood count (hemogram) panel - Blood by Automated count"
+                } ],
+                "text": "Complete blood count (hemogram) panel - Blood by Automated count"
+              },
+              "subject": {
+                "reference": "Patient/258974"
+              },
+              "encounter": {
+                "reference": "Encounter/259028"
+              },
+              "effectiveDateTime": "2011-01-19T05:03:27+01:00",
+              "issued": "2011-01-19T05:03:27.853+01:00",
+              "result": [ {
+                "reference": "Observation/259042",
+                "display": "Leukocytes [#/volume] in Blood by Automated count"
+              }, {
+                "reference": "Observation/259043",
+                "display": "Erythrocytes [#/volume] in Blood by Automated count"
+              }, {
+                "reference": "Observation/259044",
+                "display": "Hemoglobin [Mass/volume] in Blood"
+              }, {
+                "reference": "Observation/259045",
+                "display": "Hematocrit [Volume Fraction] of Blood by Automated count"
+              }, {
+                "reference": "Observation/259046",
+                "display": "MCV [Entitic volume] by Automated count"
+              }, {
+                "reference": "Observation/259047",
+                "display": "MCH [Entitic mass] by Automated count"
+              }, {
+                "reference": "Observation/259048",
+                "display": "MCHC [Mass/volume] by Automated count"
+              }, {
+                "reference": "Observation/259049",
+                "display": "Erythrocyte distribution width [Entitic volume] by Automated count"
+              }, {
+                "reference": "Observation/259050",
+                "display": "Platelets [#/volume] in Blood by Automated count"
+              }, {
+                "reference": "Observation/259051",
+                "display": "Platelet distribution width [Entitic volume] in Blood by Automated count"
+              }, {
+                "reference": "Observation/259052",
+                "display": "Platelet mean volume [Entitic volume] in Blood by Automated count"
+              } ]
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/DiagnosticReport/259125",
+            "resource": {
+              "resourceType": "DiagnosticReport",
+              "id": "259125",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-12-12T14:31:00.393+00:00",
+                "source": "#TQ5q9rFig5QUIR8M"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div class=\"hapiHeaderText\"> Basic Metabolic Panel </div><table class=\"hapiPropertyTable\"><tbody><tr><td>Status</td><td>FINAL</td></tr><tr><td>Issued</td><td> 23 January 2013 04:03:27</td></tr></tbody></table></div>"
+              },
+              "status": "final",
+              "category": [ {
+                "coding": [ {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB",
+                  "display": "Laboratory"
+                } ]
+              } ],
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "51990-0",
+                  "display": "Basic Metabolic Panel"
+                } ],
+                "text": "Basic Metabolic Panel"
+              },
+              "subject": {
+                "reference": "Patient/258974"
+              },
+              "encounter": {
+                "reference": "Encounter/259101"
+              },
+              "effectiveDateTime": "2013-01-23T05:03:27+01:00",
+              "issued": "2013-01-23T05:03:27.853+01:00",
+              "result": [ {
+                "reference": "Observation/259107",
+                "display": "Glucose"
+              }, {
+                "reference": "Observation/259108",
+                "display": "Urea Nitrogen"
+              }, {
+                "reference": "Observation/259109",
+                "display": "Creatinine"
+              }, {
+                "reference": "Observation/259110",
+                "display": "Calcium"
+              }, {
+                "reference": "Observation/259111",
+                "display": "Sodium"
+              }, {
+                "reference": "Observation/259112",
+                "display": "Potassium"
+              }, {
+                "reference": "Observation/259113",
+                "display": "Chloride"
+              }, {
+                "reference": "Observation/259114",
+                "display": "Carbon Dioxide"
+              } ]
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/DiagnosticReport/259126",
+            "resource": {
+              "resourceType": "DiagnosticReport",
+              "id": "259126",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-12-12T14:31:00.393+00:00",
+                "source": "#TQ5q9rFig5QUIR8M"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div class=\"hapiHeaderText\"> Lipid Panel </div><table class=\"hapiPropertyTable\"><tbody><tr><td>Status</td><td>FINAL</td></tr><tr><td>Issued</td><td> 23 January 2013 04:03:27</td></tr></tbody></table></div>"
+              },
+              "status": "final",
+              "category": [ {
+                "coding": [ {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB",
+                  "display": "Laboratory"
+                } ]
+              } ],
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "57698-3",
+                  "display": "Lipid Panel"
+                } ],
+                "text": "Lipid Panel"
+              },
+              "subject": {
+                "reference": "Patient/258974"
+              },
+              "encounter": {
+                "reference": "Encounter/259101"
+              },
+              "effectiveDateTime": "2013-01-23T05:03:27+01:00",
+              "issued": "2013-01-23T05:03:27.853+01:00",
+              "result": [ {
+                "reference": "Observation/259115",
+                "display": "Total Cholesterol"
+              }, {
+                "reference": "Observation/259116",
+                "display": "Triglycerides"
+              }, {
+                "reference": "Observation/259117",
+                "display": "Low Density Lipoprotein Cholesterol"
+              }, {
+                "reference": "Observation/259118",
+                "display": "High Density Lipoprotein Cholesterol"
+              } ]
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/DiagnosticReport/259166",
+            "resource": {
+              "resourceType": "DiagnosticReport",
+              "id": "259166",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-12-12T14:31:00.393+00:00",
+                "source": "#TQ5q9rFig5QUIR8M"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div class=\"hapiHeaderText\"> Basic Metabolic Panel </div><table class=\"hapiPropertyTable\"><tbody><tr><td>Status</td><td>FINAL</td></tr><tr><td>Issued</td><td> 12 June 2013 04:03:27</td></tr></tbody></table></div>"
+              },
+              "status": "final",
+              "category": [ {
+                "coding": [ {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB",
+                  "display": "Laboratory"
+                } ]
+              } ],
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "51990-0",
+                  "display": "Basic Metabolic Panel"
+                } ],
+                "text": "Basic Metabolic Panel"
+              },
+              "subject": {
+                "reference": "Patient/258974"
+              },
+              "encounter": {
+                "reference": "Encounter/259146"
+              },
+              "effectiveDateTime": "2013-06-12T06:03:27+02:00",
+              "issued": "2013-06-12T06:03:27.853+02:00",
+              "result": [ {
+                "reference": "Observation/259153",
+                "display": "Glucose"
+              }, {
+                "reference": "Observation/259154",
+                "display": "Urea Nitrogen"
+              }, {
+                "reference": "Observation/259155",
+                "display": "Creatinine"
+              }, {
+                "reference": "Observation/259156",
+                "display": "Calcium"
+              }, {
+                "reference": "Observation/259157",
+                "display": "Sodium"
+              }, {
+                "reference": "Observation/259158",
+                "display": "Potassium"
+              }, {
+                "reference": "Observation/259159",
+                "display": "Chloride"
+              }, {
+                "reference": "Observation/259160",
+                "display": "Carbon Dioxide"
+              } ]
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/DiagnosticReport/259446",
+            "resource": {
+              "resourceType": "DiagnosticReport",
+              "id": "259446",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-12-12T14:31:00.393+00:00",
+                "source": "#TQ5q9rFig5QUIR8M"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div class=\"hapiHeaderText\"> Basic Metabolic Panel </div><table class=\"hapiPropertyTable\"><tbody><tr><td>Status</td><td>FINAL</td></tr><tr><td>Issued</td><td> 28 January 2015 04:03:27</td></tr></tbody></table></div>"
+              },
+              "status": "final",
+              "category": [ {
+                "coding": [ {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB",
+                  "display": "Laboratory"
+                } ]
+              } ],
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "51990-0",
+                  "display": "Basic Metabolic Panel"
+                } ],
+                "text": "Basic Metabolic Panel"
+              },
+              "subject": {
+                "reference": "Patient/258974"
+              },
+              "encounter": {
+                "reference": "Encounter/259428"
+              },
+              "effectiveDateTime": "2015-01-28T05:03:27+01:00",
+              "issued": "2015-01-28T05:03:27.853+01:00",
+              "result": [ {
+                "reference": "Observation/259434",
+                "display": "Glucose"
+              }, {
+                "reference": "Observation/259435",
+                "display": "Urea Nitrogen"
+              }, {
+                "reference": "Observation/259436",
+                "display": "Creatinine"
+              }, {
+                "reference": "Observation/259437",
+                "display": "Calcium"
+              }, {
+                "reference": "Observation/259438",
+                "display": "Sodium"
+              }, {
+                "reference": "Observation/259439",
+                "display": "Potassium"
+              }, {
+                "reference": "Observation/259440",
+                "display": "Chloride"
+              }, {
+                "reference": "Observation/259441",
+                "display": "Carbon Dioxide"
+              } ]
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/DiagnosticReport/259560",
+            "resource": {
+              "resourceType": "DiagnosticReport",
+              "id": "259560",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-12-12T14:31:00.393+00:00",
+                "source": "#TQ5q9rFig5QUIR8M"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div class=\"hapiHeaderText\"> Basic Metabolic Panel </div><table class=\"hapiPropertyTable\"><tbody><tr><td>Status</td><td>FINAL</td></tr><tr><td>Issued</td><td> 01 February 2017 04:03:27</td></tr></tbody></table></div>"
+              },
+              "status": "final",
+              "category": [ {
+                "coding": [ {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB",
+                  "display": "Laboratory"
+                } ]
+              } ],
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "51990-0",
+                  "display": "Basic Metabolic Panel"
+                } ],
+                "text": "Basic Metabolic Panel"
+              },
+              "subject": {
+                "reference": "Patient/258974"
+              },
+              "encounter": {
+                "reference": "Encounter/259528"
+              },
+              "effectiveDateTime": "2017-02-01T05:03:27+01:00",
+              "issued": "2017-02-01T05:03:27.853+01:00",
+              "result": [ {
+                "reference": "Observation/259534",
+                "display": "Glucose"
+              }, {
+                "reference": "Observation/259535",
+                "display": "Urea Nitrogen"
+              }, {
+                "reference": "Observation/259536",
+                "display": "Creatinine"
+              }, {
+                "reference": "Observation/259537",
+                "display": "Calcium"
+              }, {
+                "reference": "Observation/259538",
+                "display": "Sodium"
+              }, {
+                "reference": "Observation/259539",
+                "display": "Potassium"
+              }, {
+                "reference": "Observation/259540",
+                "display": "Chloride"
+              }, {
+                "reference": "Observation/259541",
+                "display": "Carbon Dioxide"
+              } ]
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/DiagnosticReport/259561",
+            "resource": {
+              "resourceType": "DiagnosticReport",
+              "id": "259561",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-12-12T14:31:00.393+00:00",
+                "source": "#TQ5q9rFig5QUIR8M"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div class=\"hapiHeaderText\"> Lipid Panel </div><table class=\"hapiPropertyTable\"><tbody><tr><td>Status</td><td>FINAL</td></tr><tr><td>Issued</td><td> 01 February 2017 04:03:27</td></tr></tbody></table></div>"
+              },
+              "status": "final",
+              "category": [ {
+                "coding": [ {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB",
+                  "display": "Laboratory"
+                } ]
+              } ],
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "57698-3",
+                  "display": "Lipid Panel"
+                } ],
+                "text": "Lipid Panel"
+              },
+              "subject": {
+                "reference": "Patient/258974"
+              },
+              "encounter": {
+                "reference": "Encounter/259528"
+              },
+              "effectiveDateTime": "2017-02-01T05:03:27+01:00",
+              "issued": "2017-02-01T05:03:27.853+01:00",
+              "result": [ {
+                "reference": "Observation/259542",
+                "display": "Total Cholesterol"
+              }, {
+                "reference": "Observation/259543",
+                "display": "Triglycerides"
+              }, {
+                "reference": "Observation/259544",
+                "display": "Low Density Lipoprotein Cholesterol"
+              }, {
+                "reference": "Observation/259545",
+                "display": "High Density Lipoprotein Cholesterol"
+              } ]
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/DiagnosticReport/259562",
+            "resource": {
+              "resourceType": "DiagnosticReport",
+              "id": "259562",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-12-12T14:31:00.393+00:00",
+                "source": "#TQ5q9rFig5QUIR8M"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div class=\"hapiHeaderText\"> Complete blood count (hemogram) panel - Blood by Automated count </div><table class=\"hapiPropertyTable\"><tbody><tr><td>Status</td><td>FINAL</td></tr><tr><td>Issued</td><td> 01 February 2017 04:03:27</td></tr></tbody></table></div>"
+              },
+              "status": "final",
+              "category": [ {
+                "coding": [ {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB",
+                  "display": "Laboratory"
+                } ]
+              } ],
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "58410-2",
+                  "display": "Complete blood count (hemogram) panel - Blood by Automated count"
+                } ],
+                "text": "Complete blood count (hemogram) panel - Blood by Automated count"
+              },
+              "subject": {
+                "reference": "Patient/258974"
+              },
+              "encounter": {
+                "reference": "Encounter/259528"
+              },
+              "effectiveDateTime": "2017-02-01T05:03:27+01:00",
+              "issued": "2017-02-01T05:03:27.853+01:00",
+              "result": [ {
+                "reference": "Observation/259546",
+                "display": "Leukocytes [#/volume] in Blood by Automated count"
+              }, {
+                "reference": "Observation/259547",
+                "display": "Erythrocytes [#/volume] in Blood by Automated count"
+              }, {
+                "reference": "Observation/259548",
+                "display": "Hemoglobin [Mass/volume] in Blood"
+              }, {
+                "reference": "Observation/259549",
+                "display": "Hematocrit [Volume Fraction] of Blood by Automated count"
+              }, {
+                "reference": "Observation/259550",
+                "display": "MCV [Entitic volume] by Automated count"
+              }, {
+                "reference": "Observation/259551",
+                "display": "MCH [Entitic mass] by Automated count"
+              }, {
+                "reference": "Observation/259552",
+                "display": "MCHC [Mass/volume] by Automated count"
+              }, {
+                "reference": "Observation/259553",
+                "display": "Erythrocyte distribution width [Entitic volume] by Automated count"
+              }, {
+                "reference": "Observation/259554",
+                "display": "Platelets [#/volume] in Blood by Automated count"
+              }, {
+                "reference": "Observation/259555",
+                "display": "Platelet distribution width [Entitic volume] in Blood by Automated count"
+              }, {
+                "reference": "Observation/259556",
+                "display": "Platelet mean volume [Entitic volume] in Blood by Automated count"
+              } ]
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/DiagnosticReport/259625",
+            "resource": {
+              "resourceType": "DiagnosticReport",
+              "id": "259625",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-12-12T14:31:00.393+00:00",
+                "source": "#TQ5q9rFig5QUIR8M"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div class=\"hapiHeaderText\"> Basic Metabolic Panel </div><table class=\"hapiPropertyTable\"><tbody><tr><td>Status</td><td>FINAL</td></tr><tr><td>Issued</td><td> 21 February 2018 04:03:27</td></tr></tbody></table></div>"
+              },
+              "status": "final",
+              "category": [ {
+                "coding": [ {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB",
+                  "display": "Laboratory"
+                } ]
+              } ],
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "51990-0",
+                  "display": "Basic Metabolic Panel"
+                } ],
+                "text": "Basic Metabolic Panel"
+              },
+              "subject": {
+                "reference": "Patient/258974"
+              },
+              "encounter": {
+                "reference": "Encounter/259607"
+              },
+              "effectiveDateTime": "2018-02-21T05:03:27+01:00",
+              "issued": "2018-02-21T05:03:27.853+01:00",
+              "result": [ {
+                "reference": "Observation/259613",
+                "display": "Glucose"
+              }, {
+                "reference": "Observation/259614",
+                "display": "Urea Nitrogen"
+              }, {
+                "reference": "Observation/259615",
+                "display": "Creatinine"
+              }, {
+                "reference": "Observation/259616",
+                "display": "Calcium"
+              }, {
+                "reference": "Observation/259617",
+                "display": "Sodium"
+              }, {
+                "reference": "Observation/259618",
+                "display": "Potassium"
+              }, {
+                "reference": "Observation/259619",
+                "display": "Chloride"
+              }, {
+                "reference": "Observation/259620",
+                "display": "Carbon Dioxide"
+              } ]
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/DiagnosticReport/259676",
+            "resource": {
+              "resourceType": "DiagnosticReport",
+              "id": "259676",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-12-12T14:31:00.393+00:00",
+                "source": "#TQ5q9rFig5QUIR8M"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div class=\"hapiHeaderText\"> Basic Metabolic Panel </div><table class=\"hapiPropertyTable\"><tbody><tr><td>Status</td><td>FINAL</td></tr><tr><td>Issued</td><td> 06 February 2019 04:03:27</td></tr></tbody></table></div>"
+              },
+              "status": "final",
+              "category": [ {
+                "coding": [ {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                  "code": "LAB",
+                  "display": "Laboratory"
+                } ]
+              } ],
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "51990-0",
+                  "display": "Basic Metabolic Panel"
+                } ],
+                "text": "Basic Metabolic Panel"
+              },
+              "subject": {
+                "reference": "Patient/258974"
+              },
+              "encounter": {
+                "reference": "Encounter/259659"
+              },
+              "effectiveDateTime": "2019-02-06T05:03:27+01:00",
+              "issued": "2019-02-06T05:03:27.853+01:00",
+              "result": [ {
+                "reference": "Observation/259665",
+                "display": "Glucose"
+              }, {
+                "reference": "Observation/259666",
+                "display": "Urea Nitrogen"
+              }, {
+                "reference": "Observation/259667",
+                "display": "Creatinine"
+              }, {
+                "reference": "Observation/259668",
+                "display": "Calcium"
+              }, {
+                "reference": "Observation/259669",
+                "display": "Sodium"
+              }, {
+                "reference": "Observation/259670",
+                "display": "Potassium"
+              }, {
+                "reference": "Observation/259671",
+                "display": "Chloride"
+              }, {
+                "reference": "Observation/259672",
+                "display": "Carbon Dioxide"
+              } ]
+            },
+            "search": {
+              "mode": "match"
+            }
+          } ]
+        }
+  recorded_at: Fri, 19 May 2023 17:42:02 GMT
+recorded_with: VCR 6.1.0

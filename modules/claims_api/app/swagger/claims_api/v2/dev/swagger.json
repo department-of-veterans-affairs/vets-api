@@ -2339,36 +2339,16 @@
                           "alternateNames": {
                             "description": "List any other names under which the Veteran served, if applicable.",
                             "type": "array",
-                            "minItems": 1,
                             "maxItems": 100,
                             "uniqueItems": true,
                             "items": {
-                              "type": "object",
+                              "type": "string",
                               "additionalProperties": false,
-                              "required": [
-                                "firstName",
-                                "lastName"
-                              ],
-                              "properties": {
-                                "firstName": {
-                                  "type": "string",
-                                  "min": 1,
-                                  "max": 30,
-                                  "pattern": "^([-a-zA-Z0-9/']+( ?))+$"
-                                },
-                                "middleName": {
-                                  "type": "string",
-                                  "min": 1,
-                                  "max": 30,
-                                  "pattern": "^([-a-zA-Z0-9/']+( ?))+$"
-                                },
-                                "lastName": {
-                                  "type": "string",
-                                  "min": 1,
-                                  "max": 30,
-                                  "pattern": "^([-a-zA-Z0-9/']+( ?))+$"
-                                }
-                              }
+                              "examples": [
+                                "jane",
+                                "janey lee",
+                                "jane lee MacDonald"
+                              ]
                             }
                           },
                           "servedInActiveCombatSince911": {
@@ -2873,23 +2853,19 @@
                                 "example": "Jane Doe"
                               },
                               "pointOfContactNumber": {
-                                "type": "object",
-                                "additionalProperties": false,
                                 "properties": {
-                                    "telephone": {
-                                        "description": "Primary phone of Point of Contact.",
-                                        "type": "string",
-                                        "pattern": "^\\d{10}?$",
-                                        "example": "1231234",
-                                        "maxLength": 10
-                                        },
-                                    "internationalTelephone": {
-                                        "description": "international phone of Point of Contact.",
-                                        "type": "string",
-                                        "pattern": "^\\d{10}?$",
-                                        "example": "1231234",
-                                        "maxLength": 10   
-                                    }
+                                  "telephone": {
+                                    "description": "Primary phone of Point of Contact.",
+                                    "type": "string",
+                                    "example": "1231234",
+                                    "maxLength": 10
+                                  },
+                                  "internationalTelephone": {
+                                    "description": "international phone of Point of Contact.",
+                                    "type": "string",
+                                    "example": "1231234",
+                                    "maxLength": 10
+                                  }
                                 }
                               },
                               "currentlyHomeless": {
@@ -3512,36 +3488,16 @@
                               "alternateNames": {
                                 "description": "List any other names under which the Veteran served, if applicable.",
                                 "type": "array",
-                                "minItems": 1,
                                 "maxItems": 100,
                                 "uniqueItems": true,
                                 "items": {
-                                  "type": "object",
+                                  "type": "string",
                                   "additionalProperties": false,
-                                  "required": [
-                                    "firstName",
-                                    "lastName"
-                                  ],
-                                  "properties": {
-                                    "firstName": {
-                                      "type": "string",
-                                      "min": 1,
-                                      "max": 30,
-                                      "pattern": "^([-a-zA-Z0-9/']+( ?))+$"
-                                    },
-                                    "middleName": {
-                                      "type": "string",
-                                      "min": 1,
-                                      "max": 30,
-                                      "pattern": "^([-a-zA-Z0-9/']+( ?))+$"
-                                    },
-                                    "lastName": {
-                                      "type": "string",
-                                      "min": 1,
-                                      "max": 30,
-                                      "pattern": "^([-a-zA-Z0-9/']+( ?))+$"
-                                    }
-                                  }
+                                  "examples": [
+                                    "jane",
+                                    "janey lee",
+                                    "jane lee MacDonald"
+                                  ]
                                 }
                               },
                               "servedInActiveCombatSince911": {
@@ -3911,11 +3867,7 @@
                           "receivingInactiveDutyTrainingPay": true
                         },
                         "alternateNames": [
-                          {
-                            "firstName": "John",
-                            "lastName": "Jacob",
-                            "middleName": "Jingleheimer-Schmidt"
-                          }
+                          "John Jacob Jingleheimer-Schmidt"
                         ],
                         "servedInActiveCombatSince911": false
                       },
@@ -4872,27 +4824,50 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "type"
+                  "data"
                 ],
                 "properties": {
-                  "type": {
-                    "type": "string",
-                    "example": "compensation",
-                    "description": "Type of Intent To File being submitted. For type \"survivor\", the request must include claimantSsn and be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
-                    "enum": [
-                      "compensation",
-                      "pension",
-                      "survivor"
-                    ]
-                  },
-                  "claimantSsn": {
-                    "type": "string",
-                    "example": "001122334",
-                    "description": "SSN of the Claimant."
+                  "data": {
+                    "type": "object",
+                    "required": [
+                      "attributes"
+                    ],
+                    "properties": {
+                      "attributes": {
+                        "required": [
+                          "type"
+                        ],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "compensation",
+                            "description": "Type of Intent To File being submitted. For type \"survivor\", the request must include claimantSsn and be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
+                            "enum": [
+                              "compensation",
+                              "pension",
+                              "survivor"
+                            ]
+                          },
+                          "claimantSsn": {
+                            "type": "string",
+                            "example": "001122334",
+                            "description": "SSN of the Claimant."
+                          }
+                        },
+                        "example": {
+                          "type": "compensation"
+                        }
+                      }
+                    }
                   }
                 },
                 "example": {
-                  "type": "compensation"
+                  "data": {
+                    "type": "intent_to_file",
+                    "attributes": {
+                      "type": "compensation"
+                    }
+                  }
                 }
               }
             }
@@ -5158,27 +5133,50 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "type"
+                  "data"
                 ],
                 "properties": {
-                  "type": {
-                    "type": "string",
-                    "example": "compensation",
-                    "description": "Type of Intent To File being submitted. For type \"survivor\", the request must include claimantSsn and be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
-                    "enum": [
-                      "compensation",
-                      "pension",
-                      "survivor"
-                    ]
-                  },
-                  "claimantSsn": {
-                    "type": "string",
-                    "example": "001122334",
-                    "description": "SSN of the Claimant."
+                  "data": {
+                    "type": "object",
+                    "required": [
+                      "attributes"
+                    ],
+                    "properties": {
+                      "attributes": {
+                        "required": [
+                          "type"
+                        ],
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "example": "compensation",
+                            "description": "Type of Intent To File being submitted. For type \"survivor\", the request must include claimantSsn and be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.",
+                            "enum": [
+                              "compensation",
+                              "pension",
+                              "survivor"
+                            ]
+                          },
+                          "claimantSsn": {
+                            "type": "string",
+                            "example": "001122334",
+                            "description": "SSN of the Claimant."
+                          }
+                        },
+                        "example": {
+                          "type": "compensation"
+                        }
+                      }
+                    }
                   }
                 },
                 "example": {
-                  "type": "compensation"
+                  "data": {
+                    "type": "intent_to_file",
+                    "attributes": {
+                      "type": "compensation"
+                    }
+                  }
                 }
               }
             }

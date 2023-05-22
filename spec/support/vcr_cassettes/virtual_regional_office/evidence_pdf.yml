@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://sandbox.lighthouse.va.gov/abd-vro/v1/evidence-pdf
+    uri: http://localhost:8080/v3/evidence-pdf
     body:
       encoding: UTF-8
       string: '{"claimSubmissionId":"1234","diagnosticCode":"6602","veteranInfo":{"first":"Beyonce","middle":null,"last":"Knowles","suffix":null,"birthdate":"1809-02-12T00:00:00+00:00"},"evidence":{"medications":[]}}'

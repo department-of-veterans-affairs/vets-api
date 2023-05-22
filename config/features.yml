@@ -266,6 +266,10 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
+  disability_526_classifier:
+    actor_type: user
+    description: enables sending claims for increase to VRO Contention Classification service for more accurate classification entry.
+    enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.

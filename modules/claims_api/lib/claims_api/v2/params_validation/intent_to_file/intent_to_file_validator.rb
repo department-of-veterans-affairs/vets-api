@@ -12,7 +12,7 @@ module ClaimsApi
           private
 
           def validate_type(record)
-            value = record.data[:type]
+            value = record.data[:data] ? record.data[:data][:attributes][:type] : record.data[:type]
             (record.errors.add :type, 'blank') && return if value.blank?
 
             unless ClaimsApi::V2::IntentToFile::ITF_TYPES_TO_BGS_TYPES.keys.include?(value.downcase)

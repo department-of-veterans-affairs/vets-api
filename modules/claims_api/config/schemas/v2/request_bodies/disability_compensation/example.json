@@ -163,11 +163,7 @@
               "receivingInactiveDutyTrainingPay": true
           },
           "alternateNames": [
-              {
-                  "firstName": "John",
-                  "lastName": "Jacob",
-                  "middleName": "Jingleheimer-Schmidt"
-              }
+              "John Jacob Jingleheimer-Schmidt"
           ],
           "servedInActiveCombatSince911": false
       },

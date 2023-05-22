@@ -206,7 +206,11 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           let(:scopes) { %w[system/claim.write] }
           let(:data) do
             {
-              type: 'compensation'
+              data: {
+                attributes: {
+                  type: 'compensation'
+                }
+              }
             }
           end
           let(:stub_response) do
@@ -251,7 +255,11 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           let(:scopes) { %w[system/claim.write] }
           let(:data) do
             {
-              type: 'some-invalid-value'
+              data: {
+                attributes: {
+                  type: 'some-invalid-value'
+                }
+              }
             }
           end
 
@@ -315,7 +323,11 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           let(:scopes) { %w[system/claim.write] }
           let(:data) do
             {
-              type: 'compensation'
+              data: {
+                attributes: {
+                  type: 'compensation'
+                }
+              }
             }
           end
 
@@ -345,7 +357,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
                                                       'default.json')))
 
           let(:scopes) { %w[system/claim.write] }
-          let(:data) { { type: 'survivor', claimantSsn: '796111863' } }
+          let(:data) { { data: { attributes: { type: 'survivor', claimantSsn: '796111863' } } } }
           let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
 
           before do |example|
@@ -412,7 +424,11 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           let(:scopes) { %w[system/claim.write] }
           let(:data) do
             {
-              type: 'compensation'
+              data: {
+                attributes: {
+                  type: 'compensation'
+                }
+              }
             }
           end
           let(:stub_response) do
@@ -457,7 +473,11 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           let(:scopes) { %w[system/claim.write] }
           let(:data) do
             {
-              type: 'some-invalid-value'
+              data: {
+                attributes: {
+                  type: 'some-invalid-value'
+                }
+              }
             }
           end
 
@@ -489,7 +509,11 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           let(:scopes) { %w[system/claim.write] }
           let(:data) do
             {
-              type: 'compensation'
+              data: {
+                attributes: {
+                  type: 'compensation'
+                }
+              }
             }
           end
 
@@ -521,7 +545,11 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           let(:scopes) { %w[system/claim.write] }
           let(:data) do
             {
-              type: 'compensation'
+              data: {
+                attributes: {
+                  type: 'compensation'
+                }
+              }
             }
           end
 

@@ -20,8 +20,9 @@ RSpec.describe 'lighthouse individual claim', type: :request do
     before do
       token = 'abcdefghijklmnop'
       allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
-      Flipper.enable(:mobile_lighthouse_claims)
-      iam_sign_in
+      user = build(:iam_user)
+      iam_sign_in(user)
+      Flipper.enable(:mobile_lighthouse_claims, user)
     end
 
     after { Flipper.disable(:mobile_lighthouse_claims) }

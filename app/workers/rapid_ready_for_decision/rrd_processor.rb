@@ -42,7 +42,11 @@ module RapidReadyForDecision
 
     # Drop-in replacement for `assess_data` using new VRO service
     def assess_data_with_vro
-      response = vro_client.assess_claim(veteran_icn: claim_context.user_icn)
+      response = vro_client.assess_claim(
+        diagnostic_code: @claim_context.disability_struct[:code],
+        claim_submission_id: form526_submission.id,
+        veteran_icn: claim_context.user_icn
+      )
       claim_context.assessed_data = response.dig('body', 'evidence').transform_keys(&:to_sym)
       claim_context.sufficient_evidence = sufficient_evidence?
     end
@@ -55,8 +59,13 @@ module RapidReadyForDecision
 
     # Drop-in replacement for `generate_pdf.render` using new VRO service
     def generate_pdf_body_with_vro
-      vro_client.generate_summary(veteran_info: claim_context.patient_info, evidence: claim_context.assessed_data)
-      vro_client.download_summary.body
+      vro_client.generate_summary(
+        diagnostic_code: claim_context.disability_struct[:code],
+        claim_submission_id: form526_submission.id,
+        veteran_info: claim_context.patient_info,
+        evidence: claim_context.assessed_data
+      )
+      vro_client.download_summary(claim_submission_id: form526_submission.id).body
     end
 
     def upload_pdf(pdf)
@@ -83,10 +92,7 @@ module RapidReadyForDecision
     end
 
     def vro_client
-      @vro_client ||= VirtualRegionalOffice::Client.new(
-        diagnostic_code: @claim_context.disability_struct[:code],
-        claim_submission_id: form526_submission.id
-      )
+      @vro_client ||= VirtualRegionalOffice::Client.new
     end
   end
 end

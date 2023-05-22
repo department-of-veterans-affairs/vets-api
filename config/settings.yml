@@ -1146,6 +1146,13 @@ lighthouse:
       client_id: ~
       rsa_key: ~
     use_mocks: false
+    form526:
+      host: https://staging-api.va.gov
+      access_token:
+        aud_claim_url: https://deptva-eval.okta.com/oauth2/ausdg7guis2TYDlFe2p7/v1/token
+        client_id: ~
+        rsa_key: ~
+      use_mocks: false
   letters_generator:
     url: https://sandbox-api.va.gov
     path: /services/va-letter-generator/v1/
@@ -1498,10 +1505,11 @@ rrd:
       - fake_email
 
 virtual_regional_office:
-  url: https://sandbox.lighthouse.va.gov/abd-vro
+  url: http://localhost:8080
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
   health_assessment_path: health-data-assessment
   evidence_pdf_path: evidence-pdf
+  ctn_classification_path: contention-classification/classifier
 
 # Settings for Test User Dashboard modules
 test_user_dashboard:

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox.lighthouse.va.gov/abd-vro/v1/evidence-pdf/1234
+    uri: http://localhost:8080/v3/evidence-pdf/1234
     body:
       encoding: UTF-8
       string: ''
