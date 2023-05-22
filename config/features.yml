@@ -565,22 +565,6 @@ features:
     actor_type: user
     description: After authentication redirects a user to the My VA page if they are on the homepage
     enable_in_development: true
-  rrd_mas_all_claims_tracking:
-    actor_type: user
-    description: Enables Slack and other email notifications for all MAS-eligible claims
-    enable_in_development: true
-  rrd_mas_all_claims_notification:
-    actor_type: user
-    description: Notifies MAS service of all MAS-eligible claims that have come through
-    enable_in_development: true
-  rrd_hypertension_mas_notification:
-    actor_type: user
-    description: Notifies MAS service of single-issue hypertension claims
-    enable_in_development: true
-  rrd_call_vro_service:
-    actor_type: user
-    description: Enables the RRD flow to call VRO for assessing health data and generating RRD PDF
-    enable_in_development: true
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
