@@ -215,6 +215,15 @@ lighthouse:
         client_id: abc123456
         rsa_key: path/to/key
       use_mocks: false
+  benefits_claims:
+    host: https://sandbox-api.va.gov
+    aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3u00gw66b9Ojk2p7/v1/token
+    form526:
+      host: https://sandbox-api.va.gov
+      access_token:
+        client_id: abc123456
+        rsa_key: path/to/key
+      use_mocks: false
 
 rrd:
   alerts:

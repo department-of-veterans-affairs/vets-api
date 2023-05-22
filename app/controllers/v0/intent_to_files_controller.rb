@@ -14,8 +14,15 @@ module V0
     TYPES = %w[compensation].freeze
 
     def index
+      # TODO: Hard-coding 'form526' as the application that consumes this for now
+      # need whichever app that consumes this endpoint to switch to their credentials for Lighthouse API consumption
+      application = params['application'] || 'form526'
+      settings = Settings.lighthouse.benefits_claims[application]
+
       intent_to_file_service = ApiProviderFactory.intent_to_file_service_provider(@current_user)
-      response = intent_to_file_service.get_intent_to_file
+      type = params['itf_type'] || 'compensation'
+      response = intent_to_file_service.get_intent_to_file(type, settings.access_token.client_id,
+                                                           settings.access_token.rsa_key)
       render json: response,
              serializer: IntentToFileSerializer
     end

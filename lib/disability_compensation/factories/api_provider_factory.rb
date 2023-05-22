@@ -45,13 +45,11 @@ class ApiProviderFactory
 
     case api_provider
     when API_PROVIDER[:evss]
-      EvssIntentToFileProvider.new(current_user)
+      EvssIntentToFileProvider.new(current_user, nil)
     when API_PROVIDER[:lighthouse]
-      # TODO: Implement this
-      raise NotImplementedError, 'Not implemented yet'
-      # LighthouseIntentToFileProvider.new(current_user)
+      LighthouseIntentToFileProvider.new(current_user)
     else
-      raise NotImplementedError, 'No known Rated Disabilities Api Provider type provided'
+      raise NotImplementedError, 'No known Intent to File Api Provider type provided'
     end
   end
 end

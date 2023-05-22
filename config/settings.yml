@@ -1143,6 +1143,13 @@ lighthouse:
       client_id: ~
       rsa_key: ~
     use_mocks: false
+    form526:
+      host: https://staging-api.va.gov
+      access_token:
+        aud_claim_url: https://deptva-eval.okta.com/oauth2/ausdg7guis2TYDlFe2p7/v1/token
+        client_id: ~
+        rsa_key: ~
+      use_mocks: false
   letters_generator:
     url: https://sandbox-api.va.gov
     path: /services/va-letter-generator/v1/
