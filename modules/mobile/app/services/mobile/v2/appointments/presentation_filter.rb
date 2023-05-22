@@ -37,28 +37,18 @@ module Mobile
 
         def presentable_requested_appointment?(appointment)
           created_at = appointment[:created]
-          return false unless time_is_valid?(created_at)
+          return false unless created_at
 
           valid_appointment_request?(appointment) && appointment[:status].in?(%w[proposed cancelled]) &&
             created_at.between?(120.days.ago.beginning_of_day, 1.day.from_now.end_of_day)
         end
 
         def valid_appointment?(appointment)
-          !valid_appointment_request?(appointment) && time_is_valid?(appointment[:start])
+          !valid_appointment_request?(appointment) && appointment[:start].present?
         end
 
         def valid_appointment_request?(appointment)
           appointment[:requested_periods].present?
-        end
-
-        def time_is_valid?(time)
-          return false unless time
-
-          DateTime.parse(time) unless time.is_a?(DateTime)
-          true
-        rescue => e
-          Rails.logger.error("Invalid appointment time received: #{time}", e.message)
-          false
         end
       end
     end

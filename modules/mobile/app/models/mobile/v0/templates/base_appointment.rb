@@ -107,11 +107,8 @@ module Mobile
             'CANCELLED BY PATIENT'
           when 'DETCODE19'
             'CANCELLED BY CLINIC'
-          when 'DETCODE24'
-            'CANCELLED - OTHER'
           else
-            Rails.logger.error('Unknown appointment request cancellation code', :error,
-                               { appointment_request_id: @request[:appointment_request_id], detail: first_detail })
+            # the only other cancellation code we're aware of is 'DETCODE24'
             'CANCELLED - OTHER'
           end
         end

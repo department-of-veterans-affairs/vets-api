@@ -110,8 +110,6 @@ module Mobile
           }
 
           StatsD.increment('mobile.appointments.type', tags: ["type:#{appointment_type}"])
-          Rails.logger.info('metric.mobile.appointment.type', type: appointment_type)
-          Rails.logger.info('metric.mobile.appointment.upstream_status', status: appointment[:status])
 
           Mobile::V0::Appointment.new(adapted_appointment)
         end
@@ -345,19 +343,23 @@ module Mobile
           # and optional extension (until the end of the string) (?:\sx(\d*))?$
           phone_captures = phone&.match(/^\(?(\d{3})\)?.?(\d{3})-?(\d{4})(?:\sx(\d*))?$/)
 
-          if phone_captures.nil?
+          unless phone_captures.nil?
+            return {
+              area_code: phone_captures[1].presence,
+              number: "#{phone_captures[2].presence}-#{phone_captures[3].presence}",
+              extension: phone_captures[4].presence
+            }
+          end
+
+          unless phone.nil?
+            # this logging is intended to be temporary. Remove if it's not occurring
             Rails.logger.warn(
               'mobile appointments failed to parse VAOS V2 phone number',
               phone:
             )
-            return { area_code: nil, number: nil, extension: nil }
           end
 
-          {
-            area_code: phone_captures[1].presence,
-            number: "#{phone_captures[2].presence}-#{phone_captures[3].presence}",
-            extension: phone_captures[4].presence
-          }
+          { area_code: nil, number: nil, extension: nil }
         end
 
         def healthcare_service

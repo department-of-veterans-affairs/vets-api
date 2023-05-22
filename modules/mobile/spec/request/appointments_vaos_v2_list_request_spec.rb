@@ -280,9 +280,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           expect(appointment['attributes']['healthcareProvider']).to eq('DEHGHAN, AMIR')
         end
 
-        it 'logs error and falls back to nil when provider does not return provider data' do
-          expect(Rails.logger).to receive(:error).with('Mobile appointments provider not found', '1407938061')
-
+        it 'falls back to nil when provider does not return provider data' do
           VCR.use_cassette('appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
                            match_requests_on: %i[method uri]) do
             VCR.use_cassette('providers/get_provider_400', match_requests_on: %i[method uri], tag: :force_utf8) do
@@ -293,7 +291,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           expect(appointment['attributes']['healthcareProvider']).to be_nil
         end
 
-        it 'logs error and falls back to nil when provider service returns 500' do
+        it 'falls back to nil when provider service returns 500' do
           VCR.use_cassette('appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
                            match_requests_on: %i[method uri]) do
             VCR.use_cassette('providers/get_provider_500', match_requests_on: %i[method uri], tag: :force_utf8) do

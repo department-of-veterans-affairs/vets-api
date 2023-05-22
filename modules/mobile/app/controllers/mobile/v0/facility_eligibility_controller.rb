@@ -8,9 +8,6 @@ module Mobile
                          clinicalPharmacyPrimaryCare primaryCare homeSleepTesting socialWork].freeze
 
       def index
-        Rails.logger.info('Facility eligibility call start', service_type: params[:serviceType],
-                                                             facility_ids: params[:facilityIds],
-                                                             user_uuid: @current_user.uuid)
         unless SERVICE_TYPES.include?(service_type)
           raise Common::Exceptions::InvalidFieldValue.new('serviceType', service_type)
         end

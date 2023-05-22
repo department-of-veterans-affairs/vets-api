@@ -18,7 +18,6 @@ module Mobile
       }.with_indifferent_access.freeze
 
       def index
-        Rails.logger.info('CC providers call start', user_uuid: @current_user.uuid)
         community_care_providers = ppms_api.facility_service_locator(locator_params)
         page_records, page_meta_data = paginate(community_care_providers)
         serialized = Mobile::V0::CommunityCareProviderSerializer.new(page_records, page_meta_data)
@@ -52,8 +51,8 @@ module Mobile
         Mobile::FacilitiesHelper.user_address_coordinates(@current_user)
       end
 
+      # this doesn't appear to be in active use, presumably because the FE doesn't send the facility id
       def facility_coordinates
-        Rails.logger.info('CC providers call get facilities', facility_id: params[:facilityId])
         facility = Mobile::FacilitiesHelper.get_facilities(Array(params[:facilityId])).first
         raise Common::Exceptions::RecordNotFound, params[:facilityId] unless facility
 

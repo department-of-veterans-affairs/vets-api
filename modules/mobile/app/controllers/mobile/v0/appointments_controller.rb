@@ -26,13 +26,6 @@ module Mobile
       end
 
       def create
-        Rails.logger.info('mobile appointments create', user_uuid: @current_user.uuid,
-                                                        params: params.except(:description,
-                                                                              :comment,
-                                                                              :patient_instruction,
-                                                                              :contact,
-                                                                              :reason))
-
         new_appointment = appointments_helper.create_new_appointment(params)
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(new_appointment, 'appointment')
@@ -89,8 +82,6 @@ module Mobile
       # If we ever want to distinguish be VA and CC errors, it will require coordination with the front-end team
       def partial_errors(failures)
         if failures.present?
-          Rails.logger.info('Appointments has partial errors: ', failures)
-
           {
             errors: [{ source: 'VA Service' }]
           }

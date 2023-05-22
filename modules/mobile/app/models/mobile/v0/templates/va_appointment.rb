@@ -6,16 +6,9 @@ module Mobile
       class VAAppointment < BaseAppointment
         def appointment_type
           case @request[:visit_type]
-          when 'Office Visit', 'Express Care', 'Phone Call'
-            'VA'
           when 'Video Conference'
             'VA_VIDEO_CONNECT_HOME'
           else
-            Rails.logger.error(
-              'Unknown appointment request type',
-              { appointment_request_id: @request[:appointment_request_id], appointment_type: 'VA',
-                visit_type: @request[:visit_type] }
-            )
             'VA'
           end
         end

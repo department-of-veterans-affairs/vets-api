@@ -507,12 +507,6 @@ RSpec.describe 'user', type: :request do
 
       it 'returns an ok response with no directDepositBenefitsUpdate permission' do
         VCR.use_cassette('payment_information/service_error_500') do
-          expect(Rails.logger).to receive(:error)
-            .with('Error fetching user data from EVSS',
-                  { details: [{ 'key' => 'ppiu.paymenthistory.partner.service.exception',
-                                'severity' => 'FATAL',
-                                'text' => 'PaymentHistory partner service exception' }],
-                    user_uuid: '3097e489-ad75-5746-ab1a-e0aabc1b426a' })
           VCR.use_cassette('user/get_facilities') do
             VCR.use_cassette('va_profile/demographics/demographics') do
               get '/mobile/v1/user', headers: iam_headers
@@ -537,10 +531,6 @@ RSpec.describe 'user', type: :request do
     context 'when the ppiu service throws a 502' do
       before do
         VCR.use_cassette('payment_information/service_error_502') do
-          expect(Rails.logger).to receive(:error)
-            .with('Error fetching user data from EVSS',
-                  { details: 'BackendServiceException: {:source=>"EVSS::PPIU::Service", :code=>"EVSS502"}',
-                    user_uuid: '3097e489-ad75-5746-ab1a-e0aabc1b426a' })
           VCR.use_cassette('user/get_facilities') do
             VCR.use_cassette('va_profile/demographics/demographics') do
               get '/mobile/v1/user', headers: iam_headers
