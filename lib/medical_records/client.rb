@@ -55,5 +55,14 @@ module MedicalRecords
       fhir_client.search(FHIR::DocumentReference,
                          search: { parameters: { patient: patient_id, type: '83320-2,18842-5,11505-5' } }).resource
     end
+
+    def get_diagnostic_report(record_id)
+      fhir_client.search(FHIR::DiagnosticReport, search: { parameters: { _id: record_id, _include: '*' } }).resource
+    end
+
+    def list_labs_and_tests(patient_id)
+      fhir_client.search(FHIR::DiagnosticReport,
+                         search: { parameters: { patient: patient_id, category: 'LAB' } }).resource
+    end
   end
 end
