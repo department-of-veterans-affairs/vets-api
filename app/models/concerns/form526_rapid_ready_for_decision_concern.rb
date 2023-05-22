@@ -2,8 +2,11 @@
 
 require 'mail_automation/client'
 require 'lighthouse/veterans_health/client'
+require 'virtual_regional_office/client'
 
 # rubocop:disable Metrics/ModuleLength
+# For use with Form526Submission
+# TODO rename Form526RapidReadyForDecisionConcern to Form526ClaimFastTrackingConcern
 module Form526RapidReadyForDecisionConcern
   extend ActiveSupport::Concern
 
@@ -75,14 +78,47 @@ module Form526RapidReadyForDecisionConcern
     form.dig('form526', 'form526', 'disabilities')
   end
 
+  def increase_only?
+    disabilities.all? { |disability| disability['disabilityActionType']&.upcase == 'INCREASE' }
+  end
+
   def diagnostic_codes
     disabilities.map { |disability| disability['diagnosticCode'] }
   end
 
   def prepare_for_evss!
+    update_classification
     return if pending_eps? || disabilities_not_service_connected?
 
     save_metadata(forward_to_mas_all_claims: true)
+  end
+
+  def update_classification
+    return unless Flipper.enabled?(:disability_526_classifier)
+    return unless increase_only?
+    return unless disabilities.count == 1
+    return unless diagnostic_codes.count == 1
+
+    diagnostic_code = diagnostic_codes.first
+    params = {
+      diagnostic_code:,
+      claim_id: saved_claim_id,
+      form526_submission_id: id
+    }
+
+    classification = classify_by_diagnostic_code(params)
+    update_form_with_classification(classification['classification_code']) if classification.present?
+  end
+
+  # check claims
+  def classify_by_diagnostic_code(params)
+    vro_client = VirtualRegionalOffice::Client.new
+    response = vro_client.classify_contention_by_diagnostic_code(params)
+    response.body
+  end
+
+  def update_form_with_classification(_classification_code)
+    # TODO: update form[FORM_526] to include the classification code
   end
 
   def send_post_evss_notifications!

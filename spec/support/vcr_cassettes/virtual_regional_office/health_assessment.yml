@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://sandbox.lighthouse.va.gov/abd-vro/v1/health-data-assessment
+    uri: http://localhost:8080/v3/health-data-assessment
     body:
       encoding: UTF-8
       string: '{"veteranIcn":"9000682","diagnosticCode":"7101","claimSubmissionId":"1234"}'

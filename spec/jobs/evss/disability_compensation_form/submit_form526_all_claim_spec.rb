@@ -8,6 +8,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
   before do
     Sidekiq::Worker.clear_all
+    Flipper.disable(:disability_526_classifier)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -49,6 +50,27 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end.to raise_error(error_class).and not_change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
     end
 
+    context 'with contention classification enabled' do
+      before { Flipper.enable(:disability_526_classifier) }
+      after { Flipper.disable(:disability_526_classifier) }
+
+      context 'when diagnostic code is not set' do
+        let(:submission) do
+          create(:form526_submission,
+                 :without_diagnostic_code,
+                 user_uuid: user.uuid,
+                 auth_headers_json: auth_headers.to_json,
+                 saved_claim_id: saved_claim.id)
+        end
+
+        it 'does not call contention classification endpoint' do
+          subject.perform_async(submission.id)
+          expect(submission).not_to receive(:classify_by_diagnostic_code)
+          described_class.drain
+        end
+      end
+    end
+
     context 'with a successful submission job' do
       it 'queues a job for submit' do
         expect do
@@ -60,6 +82,22 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         subject.perform_async(submission.id)
         expect { described_class.drain }.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
         expect(Form526JobStatus.last.status).to eq 'success'
+      end
+
+      it 'submits successfully without calling classification service' do
+        subject.perform_async(submission.id)
+        expect do
+          VCR.use_cassette('virtual_regional_office/contention_classification') do
+            described_class.drain
+          end
+        end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+        expect(Form526JobStatus.last.status).to eq 'success'
+      end
+
+      it 'does not call contention classification endpoint' do
+        subject.perform_async(submission.id)
+        expect(submission).not_to receive(:classify_by_diagnostic_code)
+        described_class.drain
       end
 
       context 'with an MAS-related diagnostic code' do

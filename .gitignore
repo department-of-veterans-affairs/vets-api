@@ -87,3 +87,6 @@ test_users.csv
 
 # Ignore irb history
 .irb_history
+
+# Ignore .DS_STORE files created by Mac OS
+**/.DS_STORE

@@ -5,18 +5,19 @@ require 'virtual_regional_office/client'
 
 # rubocop:disable RSpec/FilePath
 RSpec.describe VirtualRegionalOffice::Client, :vcr do
-  describe '#assess_claim' do
-    context 'with a sleep apnea request' do
+  describe '#classify_contention_by_diagnostic_code' do
+    context 'with a contention classification request' do
       subject(:client) do
-        described_class.new({
-                              diagnostic_code: '7101',
-                              claim_submission_id: '1234'
-                            }).assess_claim(veteran_icn: '9000682')
+        described_class.new.classify_contention_by_diagnostic_code(
+          diagnostic_code: 5235,
+          claim_id: 190,
+          form526_submission_id: 179
+        )
       end
 
-      it 'returns an assessment' do
-        VCR.use_cassette('virtual_regional_office/health_assessment') do
-          expect(subject.body['veteranIcn']).to eq('9000682')
+      it 'returns a classification' do
+        VCR.use_cassette('virtual_regional_office/contention_classification') do
+          expect(subject.body['responseBody']['classification_name']).to eq('asthma')
         end
       end
     end
