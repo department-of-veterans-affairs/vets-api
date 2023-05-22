@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'rapid_ready_for_decision/disability_compensation_job'
 
 RSpec.describe RapidReadyForDecision::FastTrackPdfUploadManager do
   let(:form526_submission) { create(:form526_submission, :hypertension_claim_for_increase_with_uploads) }
