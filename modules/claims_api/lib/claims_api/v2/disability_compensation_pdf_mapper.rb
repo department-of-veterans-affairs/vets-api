@@ -16,6 +16,8 @@ module ClaimsApi
         veteran_info
         disability_attributes
 
+        treatment_centers
+
         @pdf_data
       end
 
@@ -150,6 +152,32 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:exposureInformation][:hasConditionsRelatedToToxicExposures] = has_conditions
 
         @pdf_data
+      end
+
+      def treatment_centers
+        @pdf_data[:data][:attributes][:claimInformation].merge!(
+          treatments: []
+        )
+        treatments = get_treatments
+
+        treatment_details = treatments.map(&:deep_symbolize_keys)
+        @pdf_data[:data][:attributes][:claimInformation][:treatments] = treatment_details
+
+        @pdf_data
+      end
+
+      def get_treatments
+        @auto_claim['treatments'].map do |tx|
+          center = "#{tx['center']['name']}, #{tx['center']['city']}, #{tx['center']['state']}"
+          details = "#{tx['treatedDisabilityName']} - #{center}"
+          tx['treatmentDetails'] = details
+          tx['dateOfTreatment'] = tx['startDate']
+          tx['doNotHaveDate'] = tx['startDate'].nil?
+          tx.delete('center')
+          tx.delete('treatedDisabilityName')
+          tx.delete('startDate')
+          tx
+        end
       end
     end
   end
