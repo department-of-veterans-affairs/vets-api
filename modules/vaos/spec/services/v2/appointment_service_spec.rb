@@ -61,8 +61,6 @@ describe VAOS::V2::AppointmentsService do
           allow(Rails.logger).to receive(:info).at_least(:once)
           response = subject.post_appointment(va_booked_request_body)
           expect(response[:id]).to be_a(String)
-          expect(Rails.logger).to have_received(:info).with('VAOS appointment service category and type',
-                                                            any_args).at_least(:once)
           expect(Rails.logger).to have_received(:info).with('VAOS telehealth atlas details',
                                                             any_args).at_least(:once)
         end
@@ -131,25 +129,13 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
-      it 'logs the service categories of the returned appointments' do
+      it 'logs the VAOS telehealth atlas details of the returned appointments' do
         VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200_and_log_data',
                          allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
           allow(Rails.logger).to receive(:info).at_least(:once)
 
-          telehealth_log_body = '{"VAOSServiceTypesAndCategory":{"vaos_appointment_kind":"telehealth",' \
-                                '"vaos_service_type":"ServiceTypeNotFound","vaos_service_types":' \
-                                '"ServiceTypesNotFound","vaos_service_category":"ServiceCategoryNotFound"}}'
-
-          clinic_log_body = '{"VAOSServiceTypesAndCategory":{"vaos_appointment_kind":"clinic",' \
-                            '"vaos_service_type":"optometry","vaos_service_types":"optometry",' \
-                            '"vaos_service_category":"REGULAR"}}'
-
           response = subject.get_appointments(start_date3, end_date3)
           expect(response[:data].size).to eq(163)
-          expect(Rails.logger).to have_received(:info).with('VAOS appointment service category and type',
-                                                            telehealth_log_body).at_least(:once)
-          expect(Rails.logger).to have_received(:info).with('VAOS appointment service category and type',
-                                                            clinic_log_body).at_least(:once)
           expect(Rails.logger).to have_received(:info).with('VAOS telehealth atlas details',
                                                             any_args).at_least(:once)
         end
