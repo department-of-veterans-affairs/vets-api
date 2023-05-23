@@ -833,6 +833,325 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
       end
+
+      describe 'Validation of treament elements' do
+        context 'when treatment startDate is included and in the correct pattern' do
+          it 'returns a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+        end
+
+        context 'when treatment startDate is in the wrong pattern' do
+          let(:treatment_start_date) { '12/01/1999' }
+
+          it 'returns a 422' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  json = JSON.parse(data)
+                  json['data']['attributes']['treatments'][0]['startDate'] = treatment_start_date
+                  json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] =
+                    '1981-11-15'
+                  data = json.to_json
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'treatment.startDate' is not included" do
+          let(:treatments) do
+            [
+              {
+                center: {
+                  name: 'Center One',
+                  state: 'GA',
+                  city: 'Decatur'
+                },
+                treatedDisabilityNames: ['PTSD (post traumatic stress disorder)', 'Trauma']
+              }
+            ]
+          end
+
+          it 'returns a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  json = JSON.parse data
+                  json['data']['attributes']['treatments'] = treatments
+                  data = json.to_json
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+        end
+
+        context 'when treatedDisabilityName includes a name that is not in the list of declared disabilities' do
+          let(:not_treated_disability_name) { 'not included in submitted disabilities collection' }
+
+          it 'returns a 422' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                json['data']['attributes']['treatments'][0]['treatedDisabilityNames'][0] = not_treated_disability_name
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+
+        context 'when treatedDisabilityName includes a name that is declared only as a secondary disability' do
+          let(:treated_disability_name) { 'Secondary' }
+          let(:secondary_disability_name) { 'Secondary' }
+
+          it 'returns a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('brd/countries') do
+                json = JSON.parse(data)
+                attrs = json['data']['attributes']
+                attrs['disabilities'][0]['secondaryDisabilities'][0]['name'] = secondary_disability_name
+                attrs['treatments'][0]['treatedDisabilityNames'][0] = treated_disability_name
+                data = json.to_json
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:ok)
+              end
+            end
+          end
+        end
+
+        context 'when treatedDisabilityName has a match the list of declared disabilities' do
+          it 'returns a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('brd/countries') do
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response).to have_http_status(:ok)
+              end
+            end
+          end
+
+          context 'but has leading whitespace' do
+            let(:treated_disability_name) { '   PTSD (post traumatic stress disorder)' }
+
+            it 'returns a 200' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    json = JSON.parse(data)
+                    json['data']['attributes']['treatments'][0]['treatedDisabilityNames'][0] = treated_disability_name
+                    data = json.to_json
+                    post path, params: data, headers: headers.merge(auth_header)
+                    expect(response).to have_http_status(:ok)
+                  end
+                end
+              end
+            end
+          end
+
+          context 'but has trailing whitespace' do
+            let(:treated_disability_name) { 'PTSD (post traumatic stress disorder)   ' }
+
+            it 'returns a 200' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    json = JSON.parse(data)
+                    json['data']['attributes']['treatments'][0]['treatedDisabilityNames'][0] = treated_disability_name
+                    data = json.to_json
+                    post path, params: data, headers: headers.merge(auth_header)
+                    expect(response).to have_http_status(:ok)
+                  end
+                end
+              end
+            end
+          end
+
+          context 'but has different casing' do
+            let(:treated_disability_name) { 'PtSd (PoSt TrAuMaTiC StReSs DiSoRdEr)' }
+
+            it 'returns a 200' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    json = JSON.parse(data)
+                    json['data']['attributes']['treatments'][0]['treatedDisabilityNames'][0] = treated_disability_name
+                    data = json.to_json
+                    post path, params: data, headers: headers.merge(auth_header)
+                    expect(response).to have_http_status(:ok)
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        context 'validating treatment.centers' do
+          context 'when the treatments.center.name' do
+            context 'is missing' do
+              let(:treated_center_name) { nil }
+
+              it 'returns a 422' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      json = JSON.parse(data)
+                      json['data']['attributes']['treatments'][0]['center']['name'] = treated_center_name
+                      data = json.to_json
+                      post path, params: data, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:unprocessable_entity)
+                    end
+                  end
+                end
+              end
+            end
+
+            context 'is a single space' do
+              let(:treated_center_name) { ' ' }
+
+              it 'returns a 422' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      json = JSON.parse(data)
+                      json['data']['attributes']['treatments'][0]['center']['name'] = treated_center_name
+                      data = json.to_json
+                      post path, params: data, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:unprocessable_entity)
+                    end
+                  end
+                end
+              end
+            end
+
+            context 'has invalid characters in it' do
+              let(:treated_center_name) { 'Center//// this $' }
+
+              it 'returns a 422' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      json = JSON.parse(data)
+                      json['data']['attributes']['treatments'][0]['center']['name'] = treated_center_name
+                      data = json.to_json
+                      post path, params: data, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:unprocessable_entity)
+                    end
+                  end
+                end
+              end
+            end
+
+            context 'has more then 100 characters in it' do
+              let(:treated_center_name) { (0...102).map { ('a'..'z').to_a[rand(26)] }.join }
+
+              it 'returns a 422' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      json = JSON.parse(data)
+                      json['data']['attributes']['treatments'][0]['center']['name'] = treated_center_name
+                      data = json.to_json
+                      post path, params: data, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:unprocessable_entity)
+                    end
+                  end
+                end
+              end
+            end
+
+            context 'is a valid string of characters' do
+              it 'returns a 200' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      post path, params: data, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:ok)
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          context 'when the treatments.center.city' do
+            context 'is a valid string of characters' do
+              it 'returns a 200' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      post path, params: data, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:ok)
+                    end
+                  end
+                end
+              end
+            end
+
+            context 'has invalid characters in it' do
+              let(:treated_center_city) { 'LMNOP 6' }
+
+              it 'returns a 422' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      json = JSON.parse data
+                      json['data']['attributes']['treatments'][0]['center']['city'] = treated_center_city
+                      data = json.to_json
+                      post path, params: data, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:unprocessable_entity)
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          context 'when the treatments.center.state' do
+            context 'is in the correct 2 letter format' do
+              it 'returns a 200' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      post path, params: data, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:ok)
+                    end
+                  end
+                end
+              end
+            end
+
+            context 'is not in the correct 2 letter format' do
+              let(:treated_center_state) { 'LMNOP' }
+
+              it 'returns a 422' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      json = JSON.parse data
+                      json['data']['attributes']['treatments'][0]['center']['state'] = treated_center_state
+                      data = json.to_json
+                      post path, params: data, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:unprocessable_entity)
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
     end
 
     context 'validate' do

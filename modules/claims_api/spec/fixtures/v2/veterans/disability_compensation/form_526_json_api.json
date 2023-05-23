@@ -28,8 +28,8 @@
                 "servicePeriods": [
                     {
                         "serviceBranch": "Public Health Service",
-                        "activeDutyBeginDate": "0815-11-14",
-                        "activeDutyEndDate": "2343-11-30",
+                        "activeDutyBeginDate": "1980-11-14",
+                        "activeDutyEndDate": "1991-11-30",
                         "serviceComponent": "Active",
                         "separationLocationCode": "ABCDEFGHIJKLMN"
                     }
@@ -63,7 +63,7 @@
             "disabilities": [
                 {
                     "disabilityActionType": "REOPEN",
-                    "name": "ABCDEFGHIJKLMNOPQ",
+                    "name": "PTSD (post traumatic stress disorder)",
                     "classificationCode": "ABCDEFGHIJ",
                     "serviceRelevance": "ABCDEFG",
                     "approximateDate": "4592-11-04",
@@ -72,6 +72,27 @@
                     "secondaryDisabilities": [
                         {
                             "name": "ABCDEF",
+                            "disabilityActionType": "SECONDARY",
+                            "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
+                            "classificationCode": "ABCDEFGHIJKLMNO",
+                            "approximateDate": "9904-01-03",
+                            "exposureOrEventOrInjury": "EXPOSURE"
+                        }
+                    ],
+                    "isRelatedToToxicExposure": true,
+                    "exposureOrEventOrInjury": "EXPOSURE"
+                },
+                {
+                    "disabilityActionType": "REOPEN",
+                    "name": "Trauma",
+                    "classificationCode": "ABCDEFGHIJ",
+                    "serviceRelevance": "ABCDEFG",
+                    "approximateDate": "4592-11-04",
+                    "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                    "diagnosticCode": 0,
+                    "secondaryDisabilities": [
+                        {
+                            "name": "GHIJKLM",
                             "disabilityActionType": "SECONDARY",
                             "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
                             "classificationCode": "ABCDEFGHIJKLMNO",
@@ -146,22 +167,22 @@
             },
             "treatments": [
                 {
-                    "treatedDisabilityName": "PTSD (post traumatic stress disorder)",
+                    "treatedDisabilityNames": ["PTSD (post traumatic stress disorder)", "Trauma"],
                     "center": {
                         "name": "Center One",
                         "state": "GA",
                         "city": "Decatur"
                     },
-                    "startDate": "1985-03-07"
+                    "startDate": "03-1985"
                 },
                 {
-                    "treatedDisabilityName": "Trauma",
+                    "treatedDisabilityNames": ["Trauma"],
                     "center": {
                         "name": "Center One",
                         "state": "GA",
                         "city": "Decatur"
                     },
-                    "startDate": "1985-03-07"
+                    "startDate": "03-1985"
                 }
             ],
             "servicePay": {
