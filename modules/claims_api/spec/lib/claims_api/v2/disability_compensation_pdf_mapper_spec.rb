@@ -253,5 +253,24 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(has_conditions).to eq(false)
       end
     end
+
+    context '526 section 5, treatment centers' do
+      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
+      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data) }
+
+      it 'maps the attributes correctly' do
+        mapper.map_claim
+
+        tx_center_data = pdf_data[:data][:attributes][:claimInformation][:treatments]
+
+        start_date = tx_center_data[0][:dateOfTreatment]
+        no_date = tx_center_data[0][:doNotHaveDate]
+        treatment_details = tx_center_data[0][:treatmentDetails]
+
+        expect(start_date).to eq('1985-03-07')
+        expect(no_date).to eq(false)
+        expect(treatment_details).to eq('PTSD (post traumatic stress disorder) - Center One, Decatur, GA')
+      end
+    end
   end
 end
