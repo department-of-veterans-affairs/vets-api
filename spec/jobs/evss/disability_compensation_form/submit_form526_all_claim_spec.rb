@@ -69,6 +69,18 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           described_class.drain
         end
       end
+
+      context 'when diagnostic code is set' do
+        it 'still completes form 526 submission when CC fails' do
+          subject.perform_async(submission.id)
+          expect do
+            VCR.use_cassette('virtual_regional_office/contention_classification_failure') do
+              described_class.drain
+            end
+          end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+          expect(Form526JobStatus.last.status).to eq 'success'
+        end
+      end
     end
 
     context 'with a successful submission job' do
