@@ -2,24 +2,17 @@
 
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-# rubocop:disable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength, Metrics/ParameterLists
+# rubocop:disable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength
 class AppealsApi::RswagConfig
   include DocHelpers
 
-  def rswag_doc_config(
-    base_path_template:,
-    description_file_path:,
-    name:,
-    tags:,
-    title:,
-    version:
-  )
+  def rswag_doc_config(base_path_template:, description_file_path:, name:, tags:, version:)
     {
       # FIXME: The Lighthouse docs UI code does not yet support openapi versions above 3.0.z
       # This version should be updated to 3.1.0+ once that changes.
       openapi: '3.0.0',
       info: {
-        title:,
+        title: DOC_TITLES[name.to_sym],
         version:,
         contact: { name: 'developer.va.gov' },
         termsOfService: 'https://developer.va.gov/terms-of-service',
@@ -30,8 +23,8 @@ class AppealsApi::RswagConfig
       # basePath helps with rswag runs, but is not valid OAS v3. rswag.rake removes it from the output file.
       basePath: base_path_template.gsub('{version}', version),
       components: {
-        securitySchemes: security_schemes(name),
-        schemas: schemas(name)
+        securitySchemes: name == 'decision_reviews' ? decision_reviews_security_schemes : oauth_security_schemes(name),
+        schemas: schemas(api_name: name)
       },
       servers: [
         {
@@ -49,12 +42,8 @@ class AppealsApi::RswagConfig
   end
 
   def config
-    # Avoid trying to build this config when running a rake task for a non-appeals API (e.g. Claims)
-    return {} if DocHelpers.running_rake_task? && ENV['RAILS_MODULE'] != 'appeals_api'
-
     {
       "modules/appeals_api/app/swagger/appealable_issues/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
-        title: 'Appealable Issues',
         version: 'v0',
         description_file_path: AppealsApi::Engine.root.join("app/swagger/appealable_issues/v0/api_description#{DocHelpers.doc_suffix}.md"),
         base_path_template: '/services/appeals/appealable-issues/{version}',
@@ -62,7 +51,6 @@ class AppealsApi::RswagConfig
         tags: api_tags(:appealable_issues)
       ),
       "modules/appeals_api/app/swagger/appeals_status/v1/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
-        title: 'Appeals Status',
         version: 'v1',
         description_file_path: AppealsApi::Engine.root.join("app/swagger/appeals_status/v1/api_description#{DocHelpers.doc_suffix}.md"),
         base_path_template: '/services/appeals/appeals-status/{version}',
@@ -70,7 +58,6 @@ class AppealsApi::RswagConfig
         tags: api_tags(:appeals_status)
       ),
       "modules/appeals_api/app/swagger/decision_reviews/v2/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
-        title: 'Decision Reviews',
         version: 'v2',
         description_file_path: AppealsApi::Engine.root.join("app/swagger/decision_reviews/v2/api_description#{DocHelpers.doc_suffix}.md"),
         base_path_template: '/services/appeals/{version}/decision_reviews',
@@ -78,7 +65,6 @@ class AppealsApi::RswagConfig
         tags: api_tags(*%i[higher_level_reviews notice_of_disagreements supplemental_claims contestable_issues legacy_appeals])
       ),
       "modules/appeals_api/app/swagger/higher_level_reviews/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
-        title: 'Higher-Level Reviews',
         version: 'v0',
         description_file_path: AppealsApi::Engine.root.join("app/swagger/higher_level_reviews/v0/api_description#{DocHelpers.doc_suffix}.md"),
         base_path_template: '/services/appeals/higher-level-reviews/{version}',
@@ -86,7 +72,6 @@ class AppealsApi::RswagConfig
         tags: api_tags(:higher_level_reviews)
       ),
       "modules/appeals_api/app/swagger/legacy_appeals/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
-        title: 'Legacy Appeals',
         version: 'v0',
         description_file_path: AppealsApi::Engine.root.join("app/swagger/legacy_appeals/v0/api_description#{DocHelpers.doc_suffix}.md"),
         base_path_template: '/services/appeals/legacy-appeals/{version}',
@@ -94,7 +79,6 @@ class AppealsApi::RswagConfig
         tags: api_tags(:legacy_appeals)
       ),
       "modules/appeals_api/app/swagger/notice_of_disagreements/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
-        title: 'Notice of Disagreements',
         version: 'v0',
         description_file_path: AppealsApi::Engine.root.join("app/swagger/notice_of_disagreements/v0/api_description#{DocHelpers.doc_suffix}.md"),
         base_path_template: '/services/appeals/notice-of-disagreements/{version}',
@@ -102,7 +86,6 @@ class AppealsApi::RswagConfig
         tags: api_tags(:notice_of_disagreements)
       ),
       "modules/appeals_api/app/swagger/supplemental_claims/v0/swagger#{DocHelpers.doc_suffix}.json" => rswag_doc_config(
-        title: 'Supplemental Claims',
         version: 'v0',
         description_file_path: AppealsApi::Engine.root.join("app/swagger/supplemental_claims/v0/api_description#{DocHelpers.doc_suffix}.md"),
         base_path_template: '/services/appeals/supplemental-claims/{version}',
@@ -113,6 +96,17 @@ class AppealsApi::RswagConfig
   end
 
   private
+
+  DOC_TITLES = {
+    appealable_issues: 'Appealable Issues',
+    appeals_status: 'Appeals Status',
+    contestable_issues: 'Contestable Issues',
+    decision_reviews: 'Decision Reviews',
+    higher_level_reviews: 'Higher-Level Reviews',
+    legacy_appeals: 'Legacy Appeals',
+    notice_of_disagreements: 'Notice of Disagreements',
+    supplemental_claims: 'Supplemental Claims'
+  }.freeze
 
   DEFAULT_READ_SCOPE_DESCRIPTIONS = {
     'veteran/appeals.read': 'Allows a veteran to see all their own decision review or appeal data',
@@ -171,9 +165,7 @@ class AppealsApi::RswagConfig
     }
   }.freeze
 
-  def api_tags(*api_names)
-    api_names.map { |api_name| { name: DocHelpers::ALL_DOC_TITLES[api_name.to_sym], description: '' } }
-  end
+  def api_tags(*api_names) = api_names.map { |api_name| { name: DOC_TITLES[api_name.to_sym], description: '' } }
 
   def decision_reviews_security_schemes
     {
@@ -185,127 +177,115 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def security_schemes(api_name = DocHelpers.api_name)
-    if api_name == 'decision_reviews'
-      {
-        apikey: {
-          type: :apiKey,
-          name: :apikey,
-          in: :header
-        }
-      }
-    else
-      api_specific_scopes = OAUTH_SCOPE_DESCRIPTIONS[api_name.to_sym]
-      scope_descriptions = api_specific_scopes.merge(DEFAULT_READ_SCOPE_DESCRIPTIONS)
+  def oauth_security_schemes(api_name)
+    api_specific_scopes = OAUTH_SCOPE_DESCRIPTIONS[api_name.to_sym]
+    scope_descriptions = api_specific_scopes.merge(DEFAULT_READ_SCOPE_DESCRIPTIONS)
 
-      if api_specific_scopes.keys.any? { |name| name.end_with?('.write') }
-        scope_descriptions.merge!(DEFAULT_WRITE_SCOPE_DESCRIPTIONS)
-      end
-
-      {
-        bearer_token: {
-          type: :http,
-          scheme: :bearer,
-          bearerFormat: :JWT
-        },
-        productionOauth: {
-          type: :oauth2,
-          description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
-          flows: {
-            authorizationCode: {
-              authorizationUrl: 'https://api.va.gov/oauth2/authorization',
-              tokenUrl: 'https://api.va.gov/oauth2/token',
-              scopes: scope_descriptions
-            }
-          }
-        },
-        sandboxOauth: {
-          type: :oauth2,
-          description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
-          flows: {
-            authorizationCode: {
-              authorizationUrl: 'https://sandbox-api.va.gov/oauth2/authorization',
-              tokenUrl: 'https://sandbox-api.va.gov/oauth2/token',
-              scopes: scope_descriptions
-            }
-          }
-        }
-      }
+    if api_specific_scopes.keys.any? { |name| name.end_with?('.write') }
+      scope_descriptions.merge!(DEFAULT_WRITE_SCOPE_DESCRIPTIONS)
     end
+
+    {
+      bearer_token: {
+        type: :http,
+        scheme: :bearer,
+        bearerFormat: :JWT
+      },
+      productionOauth: {
+        type: :oauth2,
+        description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://api.va.gov/oauth2/authorization',
+            tokenUrl: 'https://api.va.gov/oauth2/token',
+            scopes: scope_descriptions
+          }
+        }
+      },
+      sandboxOauth: {
+        type: :oauth2,
+        description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
+        flows: {
+          authorizationCode: {
+            authorizationUrl: 'https://sandbox-api.va.gov/oauth2/authorization',
+            tokenUrl: 'https://sandbox-api.va.gov/oauth2/token',
+            scopes: scope_descriptions
+          }
+        }
+      }
+    }
   end
 
-  # rubocop:disable Metrics/AbcSize
-  def schemas(api_name = nil)
-    a = []
+  def merge_schemas(*schema_parts) = schema_parts.reduce(&:merge).sort_by { |k, _| k.to_s.downcase }.to_h
+
+  def schemas(api_name: nil)
+    nbs_key = api_name == 'decision_reviews' ? 'nonBlankString' : 'non_blank_string'
+
     case api_name
     when 'higher_level_reviews'
-      a << hlr_v2_create_schemas
-      a << hlr_v2_response_schemas('#/components/schemas')
-      a << generic_schemas('#/components/schemas').except(
-        *%i[
-          errorWithTitleAndDetail timeStamp X-Consumer-Username X-Consumer-ID
-        ]
+      merge_schemas(
+        hlr_create_schemas,
+        hlr_response_schemas,
+        generic_schemas.except(*%i[errorWithTitleAndDetail timeStamp X-Consumer-Username X-Consumer-ID documentUploadMetadata]),
+        shared_schemas
       )
-      a << shared_schemas
     when 'notice_of_disagreements'
-      a << nod_v2_create_schemas
-      a << nod_v2_response_schemas('#/components/schemas')
-      a << contestable_issues_schema('#/components/schemas').slice(*%i[contestableIssue])
-      a << generic_schemas('#/components/schemas').except(
-        *%i[
-          errorWithTitleAndDetail timeStamp X-Consumer-ID X-Consumer-Username X-VA-Insurance-Policy-Number
-          X-VA-NonVeteranClaimant-SSN X-VA-SSN
-        ]
+      merge_schemas(
+        nod_create_schemas,
+        nod_response_schemas,
+        contestable_issues_schema.slice(*%i[contestableIssue]),
+        generic_schemas.except(*%i[errorWithTitleAndDetail timeStamp X-Consumer-ID X-Consumer-Username X-VA-Insurance-Policy-Number X-VA-NonVeteranClaimant-SSN X-VA-SSN]),
+        shared_schemas.slice(*%W[address phone timezone #{nbs_key}])
       )
-      a << shared_schemas.slice(*%W[address phone timezone #{nbs_key}])
     when 'supplemental_claims'
-      a << sc_create_schemas
-      a << sc_response_schemas('#/components/schemas')
-      a << sc_alternate_signer_schemas('#/components/schemas')
-      a << contestable_issues_schema('#/components/schemas').slice(*%i[contestableIssue])
-      a << generic_schemas('#/components/schemas').except(
-        *%i[
-          errorWithTitleAndDetail timeStamp uuid X-Consumer-ID X-Consumer-Username X-VA-NonVeteranClaimant-SSN
-          X-VA-NonVeteranClaimant-Birth-Date
-        ]
+      merge_schemas(
+        sc_create_schemas,
+        sc_response_schemas,
+        sc_alt_signer_schemas,
+        contestable_issues_schema.slice(*%i[contestableIssue]),
+        generic_schemas.except(*%i[errorWithTitleAndDetail timeStamp uuid X-Consumer-ID X-Consumer-Username X-VA-NonVeteranClaimant-SSN X-VA-NonVeteranClaimant-Birth-Date]),
+        shared_schemas.slice(*%W[address phone timezone #{nbs_key}])
       )
-      a << shared_schemas.slice(*%W[address phone timezone #{nbs_key}])
     when 'appealable_issues'
-      a << appealable_issues_schema('#/components/schemas')
-      a << generic_schemas('#/components/schemas').slice(*%i[errorModel X-VA-SSN X-VA-File-Number X-VA-ICN])
-      a << shared_schemas.slice(*%W[#{nbs_key}])
+      merge_schemas(
+        appealable_issues_schema,
+        generic_schemas.slice(*%i[errorModel X-VA-SSN X-VA-File-Number X-VA-ICN]),
+        shared_schemas.slice(*%W[#{nbs_key}])
+      )
     when 'legacy_appeals'
-      a << legacy_appeals_schema('#/components/schemas')
-      a << generic_schemas('#/components/schemas').slice(*%i[errorModel X-VA-SSN X-VA-File-Number X-VA-ICN])
-      a << shared_schemas.slice(*%W[#{nbs_key}])
+      merge_schemas(
+        legacy_appeals_schema,
+        generic_schemas.slice(*%i[errorModel X-VA-SSN X-VA-File-Number X-VA-ICN]),
+        shared_schemas.slice(*%W[#{nbs_key}])
+      )
     when 'appeals_status'
-      a << appeals_status_response_schemas
-      a << generic_schemas('#/components/schemas').slice(*%i[errorModel X-VA-SSN])
+      merge_schemas(
+        appeals_status_response_schemas,
+        generic_schemas.slice(*%i[errorModel X-VA-SSN])
+      )
     when 'decision_reviews'
-      a << hlr_v2_create_schemas
-      a << hlr_v2_response_schemas('#/components/schemas')
-      a << nod_v2_create_schemas
-      a << nod_v2_response_schemas('#/components/schemas')
-      a << sc_create_schemas
-      a << sc_response_schemas('#/components/schemas')
-      a << sc_alternate_signer_schemas('#/components/schemas')
-      a << contestable_issues_schema('#/components/schemas')
-      a << legacy_appeals_schema('#/components/schemas')
-      a << generic_schemas('#/components/schemas')
-      tmp = shared_schemas.tap { |h| h['nonBlankString'] = h.delete('non_blank_string') }
-      a << tmp
+      merge_schemas(
+        decision_reviews_hlr_create_schemas,
+        decision_reviews_hlr_response_schemas,
+        decision_reviews_nod_create_schemas,
+        decision_reviews_nod_response_schemas,
+        decision_reviews_sc_create_schemas,
+        decision_reviews_sc_response_schemas,
+        decision_reviews_sc_alt_signer_schemas,
+        contestable_issues_schema,
+        legacy_appeals_schema,
+        generic_schemas(nbs_key:),
+        shared_schemas(nbs_key:)
+      )
     else
       raise "Don't know how to build schemas for '#{api_name}'"
     end
-
-    a.reduce(&:merge).sort_by { |k, _| k.to_s.downcase }.to_h
   end
-  # rubocop:enable Metrics/AbcSize
 
-  def generic_schemas(ref_root)
-    nbs_ref = "#{ref_root}/#{nbs_key}"
+  def generic_schemas(nbs_key: 'non_blank_string')
+    nbs_ref = "#/components/schemas/#{nbs_key}"
 
-    schemas = {
+    {
       'errorModel': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', 'default.json'))),
       'errorWithTitleAndDetail': {
         'type': 'array',
@@ -418,17 +398,12 @@ class AppealsApi::RswagConfig
       'timeStamp': {
         'type': 'string',
         'pattern': '\\d{4}(-\\d{2}){2}T\\d{2}(:\\d{2}){2}\\.\\d{3}Z'
-      }
+      },
+      'documentUploadMetadata': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'document_upload_metadata.json')))
     }
-
-    return schemas if ENV['API_NAME'].in?(%w[higher_level_reviews])
-
-    # Add in extra schemas for non-HLR api docs
-    schemas['documentUploadMetadata'] = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'document_upload_metadata.json')))
-    schemas
   end
 
-  def appealable_issues_schema(ref_root)
+  def appealable_issues_schema
     {
       'appealableIssues': {
         'type': 'object',
@@ -436,7 +411,7 @@ class AppealsApi::RswagConfig
           'data': {
             'type': 'array',
             'items': {
-              '$ref': "#{ref_root}/appealableIssue"
+              '$ref': '#/components/schemas/appealableIssue'
             }
           }
         }
@@ -450,7 +425,7 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def contestable_issues_schema(ref_root)
+  def contestable_issues_schema
     {
       'contestableIssues': {
         'type': 'object',
@@ -458,7 +433,7 @@ class AppealsApi::RswagConfig
           'data': {
             'type': 'array',
             'items': {
-              '$ref': "#{ref_root}/contestableIssue"
+              '$ref': '#/components/schemas/contestableIssue'
             }
           }
         }
@@ -472,63 +447,19 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def hlr_v2_create_schemas
-    if DocHelpers.decision_reviews?
-      parse_create_schema 'v2', '200996.json'
-    else
-      hlr_schema = parse_create_schema('v2', '200996_with_shared_refs.json', return_raw: true)
-      {
-        hlrCreate: { type: 'object' }.merge!(hlr_schema.slice(*%w[description properties required]))
-      }
-    end
+  def decision_reviews_hlr_create_schemas = parse_create_schema 'v2', '200996.json'
+
+  def hlr_create_schemas
+    hlr_schema = parse_create_schema('v2', '200996_with_shared_refs.json', return_raw: true)
+    {
+      hlrCreate: { type: 'object' }.merge!(hlr_schema.slice(*%w[description properties required]))
+    }
   end
 
-  def hlr_v2_response_schemas(ref_root)
-    schemas = {
-      'hlrShow': {
-        'type': 'object',
-        'properties': {
-          'data': {
-            'properties': {
-              'id': {
-                '$ref': "#{ref_root}/uuid"
-              },
-              'type': {
-                'type': 'string',
-                'enum': ['higherLevelReview']
-              },
-              'attributes': {
-                'properties': {
-                  'status': {
-                    'type': 'string',
-                    'example': AppealsApi::HlrStatus::V2_STATUSES.first,
-                    'enum': AppealsApi::HlrStatus::V2_STATUSES
-                  },
-                  'updatedAt': {
-                    'description': 'The last time the submission was updated',
-                    'type': 'string',
-                    'format': 'date-time',
-                    'example': '2018-07-30T17:31:15.958Z'
-                  },
-                  'createdAt': {
-                    'description': 'The last time the submission was updated',
-                    'type': 'string',
-                    'format': 'date-time',
-                    'example': '2018-07-30T17:31:15.958Z'
-                  }
-                }
-              }
-            },
-            'required': %w[id type attributes]
-          }
-        },
-        'required': ['data']
-      }
-    }
+  def decision_reviews_hlr_response_schemas
+    schemas = hlr_response_schemas
 
-    # ContestableIssuesShow is not part of the segmented HLR api, so skip it when we're generating segmented docs
-    return schemas unless DocHelpers.decision_reviews?
-
+    # ContestableIssuesShow is not part of the segmented HLR api, so we only add it for Decision Reviews
     schemas['hlrContestableIssuesShow'] = {
       'type': 'object',
       'properties': {
@@ -669,18 +600,60 @@ class AppealsApi::RswagConfig
     schemas
   end
 
-  def nod_v2_create_schemas
-    if DocHelpers.decision_reviews?
-      parse_create_schema 'v2', '10182.json'
-    else
-      nod_schema = parse_create_schema('v2', '10182_with_shared_refs.json', return_raw: true)
-      {
-        nodCreate: { type: 'object' }.merge!(nod_schema.slice(*%w[description properties required]))
+  def hlr_response_schemas
+    {
+      'hlrShow': {
+        'type': 'object',
+        'properties': {
+          'data': {
+            'properties': {
+              'id': {
+                '$ref': '#/components/schemas/uuid'
+              },
+              'type': {
+                'type': 'string',
+                'enum': ['higherLevelReview']
+              },
+              'attributes': {
+                'properties': {
+                  'status': {
+                    'type': 'string',
+                    'example': AppealsApi::HlrStatus::V2_STATUSES.first,
+                    'enum': AppealsApi::HlrStatus::V2_STATUSES
+                  },
+                  'updatedAt': {
+                    'description': 'The last time the submission was updated',
+                    'type': 'string',
+                    'format': 'date-time',
+                    'example': '2018-07-30T17:31:15.958Z'
+                  },
+                  'createdAt': {
+                    'description': 'The last time the submission was updated',
+                    'type': 'string',
+                    'format': 'date-time',
+                    'example': '2018-07-30T17:31:15.958Z'
+                  }
+                }
+              }
+            },
+            'required': %w[id type attributes]
+          }
+        },
+        'required': ['data']
       }
-    end
+    }
   end
 
-  def nod_v2_response_schemas(ref_root)
+  def decision_reviews_nod_create_schemas = parse_create_schema 'v2', '10182.json'
+
+  def nod_create_schemas
+    nod_schema = parse_create_schema('v2', '10182_with_shared_refs.json', return_raw: true)
+    {
+      nodCreate: { type: 'object' }.merge!(nod_schema.slice(*%w[description properties required]))
+    }
+  end
+
+  def decision_reviews_nod_response_schemas
     {
       'nodCreateResponse': {
         'description': 'Successful response of a 10182 form submission',
@@ -720,14 +693,14 @@ class AppealsApi::RswagConfig
                 }
               },
               'formData': {
-                '$ref': "#{ref_root}/nodCreate"
+                '$ref': '#/components/schemas/nodCreate'
               }
             }
           },
           'included': {
             'type': 'array',
             'items': {
-              '$ref': "#{ref_root}/contestableIssue"
+              '$ref': '#/components/schemas/contestableIssue'
             }
           }
         }
@@ -738,7 +711,7 @@ class AppealsApi::RswagConfig
           'data': {
             'properties': {
               'id': {
-                '$ref': "#{ref_root}/uuid"
+                '$ref': '#/components/schemas/uuid'
               },
               'type': {
                 'type': 'string',
@@ -844,37 +817,34 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def sc_create_schemas
-    # TODO: Return full schema after we've enabled potentialPactAct functionality
-    if DocHelpers.decision_reviews?
-      sc_schema = parse_create_schema 'v2', '200995.json'
-      return sc_schema if wip_doc_enabled?(:sc_v2_potential_pact_act)
+  def nod_response_schemas = decision_reviews_nod_response_schemas
 
-      # Removes 'potentialPactAct' from schema for production docs
-      sc_schema.tap do |s|
-        s.dig(*%w[scCreate properties data properties attributes properties])&.delete('potentialPactAct')
-      end
-    else
-      sc_schema = parse_create_schema('v2', '200995_with_shared_refs.json', return_raw: true)
+  def decision_reviews_sc_create_schemas
+    sc_schema = parse_create_schema 'v2', '200995.json'
+    return sc_schema if wip_doc_enabled?(:sc_v2_potential_pact_act)
 
-      # Removes 'potentialPactAct' from schema for production docs
-      unless wip_doc_enabled?(:sc_v2_potential_pact_act)
-        sc_schema.tap do |s|
-          s.dig(*%w[properties data properties attributes properties])&.delete('potentialPactAct')
-        end
-      end
-
-      {
-        scCreate: { type: 'object' }.merge!(sc_schema.slice(*%w[description properties required]))
-      }
+    # Removes 'potentialPactAct' from schema for production docs
+    sc_schema.tap do |s|
+      s.dig(*%w[scCreate properties data properties attributes properties])&.delete('potentialPactAct')
     end
   end
 
-  def nbs_key
-    DocHelpers.decision_reviews? ? 'nonBlankString' : 'non_blank_string'
+  def sc_create_schemas
+    sc_schema = parse_create_schema('v2', '200995_with_shared_refs.json', return_raw: true)
+
+    # Removes 'potentialPactAct' from schema for production docs
+    unless wip_doc_enabled?(:sc_v2_potential_pact_act)
+      sc_schema.tap do |s|
+        s.dig(*%w[properties data properties attributes properties])&.delete('potentialPactAct')
+      end
+    end
+
+    {
+      scCreate: { type: 'object' }.merge!(sc_schema.slice(*%w[description properties required]))
+    }
   end
 
-  def sc_response_schemas(ref_root)
+  def decision_reviews_sc_response_schemas
     {
       'scCreateResponse': {
         'description': 'Successful response of a 200995 form submission',
@@ -913,13 +883,13 @@ class AppealsApi::RswagConfig
                   }
                 }
               },
-              'formData': { '$ref': "#{ref_root}/scCreate" }
+              'formData': { '$ref': '#/components/schemas/scCreate' }
             }
           },
           'included': {
             'type': 'array',
             'items': {
-              '$ref': "#{ref_root}/contestableIssue"
+              '$ref': '#/components/schemas/contestableIssue'
             }
           }
         }
@@ -997,7 +967,9 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def sc_alternate_signer_schemas(ref_root)
+  def sc_response_schemas = decision_reviews_sc_response_schemas
+
+  def decision_reviews_sc_alt_signer_schemas(nbs_key: 'nonBlankString')
     # Taken from 200995_headers.json
     {
       'X-Alternate-Signer-First-Name': {
@@ -1010,18 +982,20 @@ class AppealsApi::RswagConfig
         'description': 'Alternate signer\'s middle initial',
         'minLength': 1,
         'maxLength': 1,
-        '$ref': "#{ref_root}/#{nbs_key}"
+        '$ref': "#/components/schemas/#{nbs_key}"
       },
       'X-Alternate-Signer-Last-Name': {
         'description': 'Alternate signer\'s last name',
         'minLength': 1,
         'maxLength': 40,
-        '$ref': "#{ref_root}/#{nbs_key}"
+        '$ref': "#/components/schemas/#{nbs_key}"
       }
     }
   end
 
-  def legacy_appeals_schema(ref_root)
+  def sc_alt_signer_schemas = decision_reviews_sc_alt_signer_schemas(nbs_key: 'non_blank_string')
+
+  def legacy_appeals_schema
     {
       'legacyAppeals': {
         'type': 'object',
@@ -1029,7 +1003,7 @@ class AppealsApi::RswagConfig
           'data': {
             'type': 'array',
             'items': {
-              '$ref': "#{ref_root}/legacyAppeal"
+              '$ref': '#/components/schemas/legacyAppeal'
             }
           }
         }
@@ -1158,11 +1132,11 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def shared_schemas
+  def shared_schemas(nbs_key: 'non_blank_string')
     # Keys are strings to override older, non-shared-schema definitions
     {
       'address' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'address.json')))['properties']['address'],
-      'non_blank_string' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'non_blank_string.json')))['properties']['nonBlankString'],
+      nbs_key => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'non_blank_string.json')))['properties']['nonBlankString'],
       'phone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'phone.json')))['properties']['phone'],
       'timezone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'timezone.json')))['properties']['timezone']
     }
@@ -1184,4 +1158,4 @@ class AppealsApi::RswagConfig
     return_raw ? schema : schema['definitions']
   end
 end
-# rubocop:enable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength, Metrics/ParameterLists
+# rubocop:enable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength

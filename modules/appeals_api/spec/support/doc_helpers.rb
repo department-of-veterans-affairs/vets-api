@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-# These default values are used when running docs specs alongside other kinds of specs via rspec.
-# When generating docs via rake tasks instead, we get these values from the environment set up in the rake task.
-DEFAULT_CONFIG_VALUES = { api_name: 'decision_reviews', api_version: 'v2' }.freeze
-
 # rubocop:disable Metrics/ModuleLength
 module DocHelpers
   # Makes UUIDs and timestamps constant, to reduce cognitive overhead when working with rswag output files
@@ -141,40 +137,6 @@ module DocHelpers
 
   def wip_doc_enabled?(sym)
     DocHelpers.wip_doc_enabled?(sym)
-  end
-
-  DECISION_REVIEWS_DOC_TITLES = {
-    higher_level_reviews: 'Higher-Level Reviews',
-    notice_of_disagreements: 'Notice of Disagreements',
-    supplemental_claims: 'Supplemental Claims',
-    contestable_issues: 'Contestable Issues',
-    legacy_appeals: 'Legacy Appeals'
-  }.freeze
-
-  ALL_DOC_TITLES = DECISION_REVIEWS_DOC_TITLES.merge(
-    {
-      appealable_issues: 'Appealable Issues',
-      appeals_status: 'Appeals Status',
-      decision_reviews: 'Decision Reviews'
-    }
-  ).freeze
-
-  def self.api_name
-    DocHelpers.running_rake_task? ? ENV['API_NAME'].presence : DEFAULT_CONFIG_VALUES[:api_name]
-  end
-
-  def self.decision_reviews?
-    DocHelpers.api_name == 'decision_reviews'
-  end
-
-  def self.running_rake_task?
-    # SWAGGER_DRY_RUN is set in the appeals rake tasks: if it's not set, it means the spec is running as part of
-    # a normal rspec suite instead.
-    ENV['SWAGGER_DRY_RUN'].present?
-  end
-
-  def self.api_version
-    DocHelpers.running_rake_task? ? ENV['API_VERSION'].presence : DEFAULT_CONFIG_VALUES[:api_version]
   end
 
   def self.doc_suffix
