@@ -51,7 +51,6 @@ module Mobile
         Mobile::FacilitiesHelper.user_address_coordinates(@current_user)
       end
 
-      # this doesn't appear to be in active use, presumably because the FE doesn't send the facility id
       def facility_coordinates
         facility = Mobile::FacilitiesHelper.get_facilities(Array(params[:facilityId])).first
         raise Common::Exceptions::RecordNotFound, params[:facilityId] unless facility
