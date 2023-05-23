@@ -5,44 +5,23 @@ require 'fileutils'
 APPEALS_API_DOCS_DIR = 'modules/appeals_api/spec/docs'
 
 APPEALS_API_DOCS = [
-  {
-    name: 'appealable_issues',
-    version: 'v0',
-    pattern: "#{APPEALS_API_DOCS_DIR}/appealable_issues/v0_spec.rb"
-  },
-  {
-    name: 'appeals_status',
-    version: 'v1',
-    pattern: "#{APPEALS_API_DOCS_DIR}/appeals_status/v1_spec.rb"
-  },
-  {
-    name: 'decision_reviews',
-    version: 'v2',
-    pattern: "#{APPEALS_API_DOCS_DIR}/decision_reviews"
-  },
-  {
-    name: 'higher_level_reviews',
-    version: 'v0',
-    pattern: "#{APPEALS_API_DOCS_DIR}/higher_level_reviews/v0_spec.rb"
-  },
-  {
-    name: 'legacy_appeals',
-    version: 'v0',
-    pattern: "#{APPEALS_API_DOCS_DIR}/legacy_appeals/v0_spec.rb"
-  },
-  {
-    name: 'notice_of_disagreements',
-    version: 'v0',
-    pattern: "#{APPEALS_API_DOCS_DIR}/notice_of_disagreements/v0_spec.rb"
-  },
-  {
-    name: 'supplemental_claims',
-    version: 'v0',
-    pattern: "#{APPEALS_API_DOCS_DIR}/supplemental_claims/v0_spec.rb"
-  }
+  { name: 'appealable_issues', version: 'v0' },
+  { name: 'appeals_status', version: 'v1' },
+  { name: 'decision_reviews', version: 'v2' },
+  { name: 'higher_level_reviews', version: 'v0' },
+  { name: 'legacy_appeals', version: 'v0' },
+  { name: 'notice_of_disagreements', version: 'v0' },
+  { name: 'supplemental_claims', version: 'v0' }
 ].freeze
 
 APPEALS_API_NAMES = APPEALS_API_DOCS.pluck(:name).freeze
+
+def appeals_api_output_files(dev: false)
+  suffix = dev ? '_dev' : ''
+  APPEALS_API_DOCS.map do |config|
+    "modules/appeals_api/app/swagger/#{config[:name]}/#{config[:version]}/swagger#{suffix}.json"
+  end
+end
 
 def run_tasks_in_parallel(task_names)
   Parallel.each(task_names) { |task_name| Rake::Task[task_name].invoke }
@@ -50,12 +29,6 @@ end
 
 def abbreviate_snake_case_name(name)
   name.scan(/(?<=^|_)(\S)/).join
-end
-
-def appeals_api_output_files(dev: false)
-  APPEALS_API_DOCS.map do |config|
-    "modules/appeals_api/app/swagger/#{config[:name]}/#{config[:version]}/swagger#{dev ? '_dev' : ''}.json"
-  end
 end
 
 namespace :rswag do
@@ -85,34 +58,43 @@ namespace :rswag do
   end
 
   namespace :appeals_api do
-    APPEALS_API_DOCS.each do |config|
-      namespace abbreviate_snake_case_name(config[:name]).to_sym do
-        desc "Generate all docs for the #{config[:name]} appeals API"
-        task all: :environment do
-          run_tasks_in_parallel(%w[dev prod].map do |env|
-            "rswag:appeals_api:#{abbreviate_snake_case_name(config[:name])}:#{env}"
-          end)
-        end
-
-        desc "Generate production docs for the #{config[:name]} appeals API"
-        task prod: :environment do
-          generate_appeals_doc(config[:name], config[:version])
-        end
-
-        desc "Generate development docs for the #{config[:name]} appeals API"
-        task dev: :environment do
-          generate_appeals_doc(config[:name], config[:version], dev: true)
-        end
-      end
+    desc 'Generate production docs for all appeals APIs'
+    task prod: :environment do
+      generate_appeals_docs
     end
 
-    desc 'Generate rswag docs for all appeals APIs'
+    desc 'Generate development docs for all appeals APIs'
+    task dev: :environment do
+      generate_appeals_docs(dev: true)
+    end
+
+    desc 'Generate all docs for all appeals APIs'
     task all: :environment do
-      run_tasks_in_parallel(APPEALS_API_NAMES.map do |api_name|
-        "rswag:appeals_api:#{abbreviate_snake_case_name(api_name)}:all"
-      end)
+      run_tasks_in_parallel(%w[rswag:appeals_api:prod rswag:appeals_api:dev])
     end
   end
+end
+
+def generate_appeals_docs(dev: false)
+  ENV['RAILS_MODULE'] = 'appeals_api'
+  ENV['SWAGGER_DRY_RUN'] = '0'
+  ENV['PATTERN'] = APPEALS_API_DOCS_DIR
+
+  if dev
+    ENV['RSWAG_ENV'] = 'dev'
+    ENV['WIP_DOCS_ENABLED'] = Settings.modules_appeals_api.documentation.wip_docs&.join(',') || ''
+  end
+
+  begin
+    Rake::Task['rswag:specs:swaggerize'].invoke
+  rescue => e
+    warn 'Rswag doc generation failed:'
+    puts e.full_message(highlight: true, order: :top)
+    exit 1
+  end
+
+  # Correct formatting on rswag output so that it matches the expected OAS format
+  appeals_api_output_files(dev:).each { |file_path| rswag_to_oas!(file_path) }
 end
 
 def strip_swagger_base_path(version, env = nil)
@@ -143,29 +125,4 @@ def rswag_to_oas!(filepath)
   end
 
   FileUtils.mv(temp_path, filepath)
-end
-
-def generate_appeals_doc(api_name, api_version, dev: false)
-  ENV['RAILS_MODULE'] = 'appeals_api'
-  ENV['SWAGGER_DRY_RUN'] = '0'
-  ENV['PATTERN'] = 'modules/appeals_api/spec/docs'
-  # FIXME: these two environment variables can be removed, but schema generation needs to be refactored first
-  ENV['API_NAME'] = api_name
-  ENV['API_VERSION'] = api_version
-
-  if dev
-    ENV['RSWAG_ENV'] = 'dev'
-    ENV['WIP_DOCS_ENABLED'] = Settings.modules_appeals_api.documentation.wip_docs&.join(',') || ''
-  end
-
-  begin
-    Rake::Task['rswag:specs:swaggerize'].invoke
-  rescue => e
-    warn "Rswag doc generation for #{api_name} #{api_version} #{dev ? '(dev) ' : ''}failed:"
-    puts e.full_message(highlight: true, order: :top)
-    exit 1
-  end
-
-  # Correct formatting on rswag output so that it matches the expected OAS format
-  appeals_api_output_files(dev:).each { |file_path| rswag_to_oas!(file_path) }
 end
