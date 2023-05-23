@@ -229,15 +229,15 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         has_conditions = pdf_data[:data][:attributes][:exposureInformation][:hasConditionsRelatedToToxicExposures]
 
         expect(has_conditions).to eq(true)
-        expect(name).to eq('ABCDEFGHIJKLMNOPQ')
+        expect(name).to eq('PTSD (post traumatic stress disorder)')
         expect(relevance).to eq('ABCDEFG')
         expect(date).to eq('4592-11-04')
         expect(event).to eq('EXPOSURE')
         expect(is_related).to eq(true)
         expect(attribut_count).to eq(5)
-        expect(secondary_name).to eq('ABCDEF')
+        expect(secondary_name).to eq('Trauma')
         expect(secondary_event).to eq('EXPOSURE')
-        expect(secondary_relevance).to eq('ABCDEFGHIJKLMNOPQ')
+        expect(secondary_relevance).to eq('ABCDEFG')
       end
     end
 
@@ -267,9 +267,9 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         no_date = tx_center_data[0][:doNotHaveDate]
         treatment_details = tx_center_data[0][:treatmentDetails]
 
-        expect(start_date).to eq('1985-03-07')
+        expect(start_date).to eq('03-1985')
         expect(no_date).to eq(false)
-        expect(treatment_details).to eq('PTSD (post traumatic stress disorder) - Center One, Decatur, GA')
+        expect(treatment_details).to eq('PTSD (post traumatic stress disorder), Trauma - Center One, Decatur, GA')
       end
     end
   end

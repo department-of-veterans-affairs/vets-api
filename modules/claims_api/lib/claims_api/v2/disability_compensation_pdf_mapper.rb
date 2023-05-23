@@ -169,7 +169,8 @@ module ClaimsApi
       def get_treatments
         @auto_claim['treatments'].map do |tx|
           center = "#{tx['center']['name']}, #{tx['center']['city']}, #{tx['center']['state']}"
-          details = "#{tx['treatedDisabilityName']} - #{center}"
+          name = tx['treatedDisabilityNames'].join(', ')
+          details = "#{name} - #{center}"
           tx['treatmentDetails'] = details
           tx['dateOfTreatment'] = tx['startDate']
           tx['doNotHaveDate'] = tx['startDate'].nil?
