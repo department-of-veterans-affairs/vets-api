@@ -87,7 +87,12 @@ module Form526RapidReadyForDecisionConcern
   end
 
   def prepare_for_evss!
-    update_classification
+    begin
+      update_classification
+    rescue => e
+      Rails.logger.error "Contention Classification failed #{e.message}.", backtrace: e.backtrace
+    end
+
     return if pending_eps? || disabilities_not_service_connected?
 
     save_metadata(forward_to_mas_all_claims: true)
