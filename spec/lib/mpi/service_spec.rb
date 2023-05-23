@@ -823,6 +823,23 @@ describe MPI::Service do
     end
   end
 
+  describe '#find_profile_by_facility' do
+    subject { mpi_service.find_profile_by_facility(facility_id:, vista_id:, search_type:) }
+
+    let(:statsd_caller) { 'find_profile_by_facility' }
+    let(:facility_id) { 'some-facility-id' }
+    let(:vista_id) { 'some-vista-id' }
+    let(:search_type) { 'some-search-type' }
+
+    context 'valid request' do
+      it_behaves_like 'find profile success response'
+    end
+
+    context 'invalid requests' do
+      it_behaves_like 'find profile invalid requests'
+    end
+  end
+
   describe '#find_profile_by_attributes_with_orch_search' do
     subject do
       mpi_service.find_profile_by_attributes_with_orch_search(first_name:,

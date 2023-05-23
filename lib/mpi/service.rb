@@ -12,6 +12,7 @@ require 'mpi/services/find_profile_response_creator'
 require 'mpi/messages/find_profile_by_attributes'
 require 'mpi/messages/find_profile_by_identifier'
 require 'mpi/messages/find_profile_by_edipi'
+require 'mpi/messages/find_profile_by_facility'
 require 'mpi/messages/update_profile_message'
 require 'mpi/responses/add_person_response'
 require 'mpi/responses/find_profile_response'
@@ -109,6 +110,20 @@ module MPI
       end
     rescue *CONNECTION_ERRORS => e
       MPI::Services::FindProfileResponseCreator.new(type: Constants::FIND_PROFILE_BY_EDIPI_TYPE, error: e).perform
+    end
+
+    def find_profile_by_facility(facility_id:, vista_id:, search_type: Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
+      with_monitoring do
+        raw_response = perform(:post, '',
+                               MPI::Messages::FindProfileByFacility.new(facility_id:,
+                                                                        vista_id:,
+                                                                        search_type:).perform,
+                               soapaction: Constants::FIND_PROFILE)
+        MPI::Services::FindProfileResponseCreator.new(type: Constants::FIND_PROFILE_BY_FACILITY_TYPE,
+                                                      response: raw_response).perform
+      end
+    rescue *CONNECTION_ERRORS => e
+      MPI::Services::FindProfileResponseCreator.new(type: Constants::FIND_PROFILE_BY_FACILITY_TYPE, error: e).perform
     end
 
     def find_profile_by_attributes_with_orch_search(first_name:,
