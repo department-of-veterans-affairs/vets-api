@@ -119,7 +119,7 @@
             "city": "Pueblo"
           },
           "startDate": "2014-03-07",
-          "treatedDisabilityName": "PTSD (post traumatic stress disorder)"
+          "treatedDisabilityNames": ["PTSD (post traumatic stress disorder)"]
         },
         {
           "center": {
@@ -128,7 +128,7 @@
             "city": "Seattle"
           },
           "startDate": null,
-          "treatedDisabilityName": "PTSD (post traumatic stress disorder)"
+          "treatedDisabilityNames": ["PTSD (post traumatic stress disorder)", "Trauma"]
         }
       ],
       "serviceInformation": {
