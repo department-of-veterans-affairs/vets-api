@@ -150,27 +150,37 @@ FailedClaimsReport:
   cron: "30 3 * * MON America/New_York"
   class: EVSS::FailedClaimsReport
   description: "Notify developers about EVSS claims which could not be uploaded"
+  
+GmtThresholdsImport:
+  cron: "0 0 1 */3 * America/New_York"
+  class: IncomeLimits::GmtThresholdsImport
+  description: "Import income limit data CSVs from S3"
 
 TestUserDashboard::DailyMaintenance:
   cron: "0 0 * * * America/New_York"
   class: TestUserDashboard::DailyMaintenance
   description: "Checks in TUD users that weren't properly checked in."
 
-StdIncomeThresholdImport:
+
+StdCountyImport:
   cron: "0 0 1 */3 * America/New_York"
   class: IncomeLimits::StdCountyImport
+  description: "Import income limit data CSVs from S3"
+
+StdIncomeThresholdImport:
+  cron: "0 0 1 */3 * America/New_York"
+  class: IncomeLimits::StdIncomeThresholdImport
   description: "Import income limit data CSVs from S3"
 
 StdStateImport:
   cron: "0 0 1 */3 * America/New_York"
-  class: IncomeLimits::StdCountyImport
+  class: IncomeLimits::StdStateImport
   description: "Import income limit data CSVs from S3"
 
 StdZipcodeImport:
   cron: "0 0 1 */3 * America/New_York"
-  class: IncomeLimits::StdCountyImport
+  class: IncomeLimits::StdZipcodeImport
   description: "Import income limit data CSVs from S3"
-
 
 VBADocuments::ReportMonthlySubmissions:
   cron: "0 2 1 * * America/New_York"
