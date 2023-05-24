@@ -1051,6 +1051,8 @@ flipper:
     - florence.mccafferty@agile6.com # Florence McCafferty - Agile 6 - Authenticated Experience
     - berni.xiong@agile6.com # Berni Xiong - Agile 6 - Authenticated Experience
     - liz.lantz@adhocteam.us # Liz Lantz - Ad Hoc - Authenticated Experience
+    - aaron.young@thoughtworks.com # Aaron Young - Virtual Agent Chatbot
+    - alex.person@thoughtworks.com # Alex Person - Virtual Agent Chatbot
     - seth.darr@agile6.com # Seth Darr - Engineer - Agile 6 - Benefits Delivery Experience Team 1
     - aurora.hampton@agile6.com # Aurora Hampton - Engineer - Agile 6 - Benefits Delivery Experience Team 1
     - christinec.fftc@gmail.com # Christine Cereca - Engineer - Friends From The City - Benefits Delivery Experience Team 1
@@ -1058,6 +1060,7 @@ flipper:
     - eddieglenn@navapbc.com # Eddie Glenn - Engineer - Nava - Benefits Delivery Experience Team 1
     - john.woolschlager@va.gov # John Woolschlager - CivicActions - Check In Experience
     - kevin.duensing@adhocteam.us # Kevin Duensing - Ad Hoc - Benefits Team 1, Management Tools
+
 
 bgs:
   application: ~

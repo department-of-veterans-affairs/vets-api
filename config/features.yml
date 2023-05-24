@@ -862,6 +862,9 @@ features:
   disability_compensation_lighthouse_intent_to_file_provider:
     actor_type: user
     description: If enabled uses the lighthouse intent to file endpoint
+  virtual_agent_fetch_jwt_token:
+    actor_type: user
+    description: Enable the fetching of a JWT token to access MAP environment
   income_limits_new:
     actor_type: user
     description: If enabled, shows the newly designed income limits application
