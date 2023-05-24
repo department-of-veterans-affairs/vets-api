@@ -17,7 +17,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
   mock_facility = {
     'test' => 'test',
     'timezone' => {
-      'zoneId' => 'America/New_York'
+      'timeZoneId' => 'America/New_York'
     }
   }
 

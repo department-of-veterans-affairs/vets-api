@@ -113,11 +113,11 @@ module VAOS
       def convert_appointment_time(appt)
         if !appt[:start].nil?
           facility_timezone = get_facility_timezone(appt[:location_id])
-          appt[:start] = convert_utc_to_local_time(appt[:start], facility_timezone)
+          appt[:local_start_time] = convert_utc_to_local_time(appt[:start], facility_timezone)
         elsif !appt.dig(:requested_periods, 0, :start).nil?
           appt[:requested_periods].each do |period|
             facility_timezone = get_facility_timezone(appt[:location_id])
-            period[:start] = convert_utc_to_local_time(period[:start], facility_timezone)
+            period[:local_start_time] = convert_utc_to_local_time(period[:start], facility_timezone)
           end
         end
         appt
@@ -134,7 +134,11 @@ module VAOS
       def convert_utc_to_local_time(date, tz)
         raise Common::Exceptions::ParameterMissing, 'date' if date.nil?
 
-        date.to_time.utc.in_time_zone(tz).to_datetime
+        if tz.nil?
+          'Unable to convert UTC to local time'
+        else
+          date.to_time.utc.in_time_zone(tz).to_datetime
+        end
       end
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
@@ -143,7 +147,7 @@ module VAOS
         if facility_info == FACILITY_ERROR_MSG || facility_info.nil?
           nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
         else
-          facility_info[:timezone]&.[](:zone_id)
+          facility_info[:timezone]&.[](:time_zone_id)
         end
       end
 

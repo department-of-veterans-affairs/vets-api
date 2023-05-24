@@ -32,7 +32,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
     mock_facility = { id: '983',
                       name: 'Cheyenne VA Medical Center',
                       timezone: {
-                        zoneId: 'America/Denver',
+                        time_zone_id: 'America/Denver',
                         abbreviation: 'MDT'
                       },
                       physical_address: { type: 'physical',
