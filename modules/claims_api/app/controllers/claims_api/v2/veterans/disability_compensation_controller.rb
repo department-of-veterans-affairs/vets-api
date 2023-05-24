@@ -4,6 +4,7 @@ require 'common/exceptions'
 require 'jsonapi/parser'
 require 'claims_api/v2/disability_compensation_validation'
 require 'claims_api/v2/disability_compensation_pdf_mapper'
+require 'evss_service/base'
 
 module ClaimsApi
   module V2
@@ -26,6 +27,8 @@ module ClaimsApi
           pdf_data = get_pdf_data
           pdf_mapper_service(form_attributes, pdf_data).map_claim
 
+          # evss_service.submit(auto_claim)
+
           render json: auto_claim
         end
 
@@ -46,6 +49,10 @@ module ClaimsApi
                 {}
             }
           }
+        end
+
+        def evss_service
+          ClaimsApi::EVSSService::Base.new(request)
         end
       end
     end

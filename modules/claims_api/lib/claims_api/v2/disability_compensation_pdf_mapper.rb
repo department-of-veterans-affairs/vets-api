@@ -12,7 +12,7 @@ module ClaimsApi
         claim_attributes
         toxic_exposure_attributes
         homeless_attributes
-        chg_addr_attributes
+        chg_addr_attributes if @auto_claim['changeOfAddress'].present?
         veteran_info
         disability_attributes
 
