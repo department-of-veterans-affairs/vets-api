@@ -156,6 +156,22 @@ TestUserDashboard::DailyMaintenance:
   class: TestUserDashboard::DailyMaintenance
   description: "Checks in TUD users that weren't properly checked in."
 
+StdIncomeThresholdImport:
+  cron: "0 0 1 */3 * America/New_York"
+  class: IncomeLimits::StdCountyImport
+  description: "Import income limit data CSVs from S3"
+
+StdStateImport:
+  cron: "0 0 1 */3 * America/New_York"
+  class: IncomeLimits::StdCountyImport
+  description: "Import income limit data CSVs from S3"
+
+StdZipcodeImport:
+  cron: "0 0 1 */3 * America/New_York"
+  class: IncomeLimits::StdCountyImport
+  description: "Import income limit data CSVs from S3"
+
+
 VBADocuments::ReportMonthlySubmissions:
   cron: "0 2 1 * * America/New_York"
   class: VBADocuments::ReportMonthlySubmissions
