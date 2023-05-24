@@ -4,6 +4,7 @@ VBADocuments::Engine.routes.draw do
   get '/metadata', to: 'metadata#index'
   match '/v1/*path', to: 'application#cors_preflight', via: [:options]
   get '/v1/healthcheck', to: 'metadata#healthcheck'
+  get '/v2/healthcheck', to: 'metadata#healthcheck'
   get '/v1/upstream_healthcheck', to: 'metadata#upstream_healthcheck'
 
   post '/v2/uploads/submit', to: 'v2/uploads#submit' if Settings.vba_documents.v2_upload_endpoint_enabled

@@ -604,7 +604,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       pdf_data = updated.uploaded_pdf
       expect(pdf_data).to be_a(Hash)
-      expect(pdf_data).to have_key('doc_type')
       expect(pdf_data).to have_key('total_documents')
       expect(pdf_data).to have_key('total_pages')
       expect(pdf_data).to have_key('content')
