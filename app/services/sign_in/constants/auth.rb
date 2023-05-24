@@ -25,12 +25,15 @@ module SignIn
       CODE_CHALLENGE_METHOD = 'S256'
       CSP_TYPES = [IDME = 'idme', LOGINGOV = 'logingov', DSLOGON = 'dslogon', MHV = 'mhv'].freeze
       GRANT_TYPE = 'authorization_code'
+      CLIENT_ASSERTION_TYPE = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+      CLIENT_ASSERTION_ENCODE_ALGORITHM = 'RS256'
       IAL = [IAL_ONE = 1, IAL_TWO = 2].freeze
       INFO_COOKIE_NAME = 'vagov_info_token'
       JWT_ENCODE_ALGORITHM = 'RS256'
       LOA = [LOA_ONE = 1, LOA_THREE = 3].freeze
       REFRESH_ROUTE_PATH = '/v0/sign_in/refresh'
       REFRESH_TOKEN_COOKIE_NAME = 'vagov_refresh_token'
+      TOKEN_ROUTE_PATH = '/v0/sign_in/token'
     end
   end
 end

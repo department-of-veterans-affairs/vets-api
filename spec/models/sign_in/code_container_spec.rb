@@ -18,20 +18,6 @@ RSpec.describe SignIn::CodeContainer, type: :model do
   let(:user_verification_id) { create(:user_verification).id }
 
   describe 'validations' do
-    describe '#code_challenge' do
-      subject { code_container.code_challenge }
-
-      context 'when code_challenge is nil' do
-        let(:code_challenge) { nil }
-        let(:expected_error) { Common::Exceptions::ValidationErrors }
-        let(:expected_error_message) { 'Validation error' }
-
-        it 'raises validation error' do
-          expect { subject }.to raise_error(expected_error, expected_error_message)
-        end
-      end
-    end
-
     describe '#code' do
       subject { code_container.code }
 

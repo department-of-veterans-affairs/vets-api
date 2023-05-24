@@ -14,7 +14,7 @@ module V0
       client_id = params[:client_id].presence
       acr = params[:acr].presence
 
-      validate_authorize_params(type, client_id, code_challenge, code_challenge_method, acr)
+      validate_authorize_params(type, client_id, acr)
 
       delete_cookies if token_cookies
 
@@ -81,15 +81,19 @@ module V0
       handle_pre_login_error(e, state_payload&.client_id)
     end
 
-    def token
+    def token # rubocop:disable Metrics/MethodLength
       code = params[:code].presence
       code_verifier = params[:code_verifier].presence
       grant_type = params[:grant_type].presence
+      client_assertion = params[:client_assertion].presence
+      client_assertion_type = params[:client_assertion_type].presence
 
-      validate_token_params(code, code_verifier, grant_type)
+      validate_token_params(code, grant_type)
 
       validated_credential = SignIn::CodeValidator.new(code:,
                                                        code_verifier:,
+                                                       client_assertion:,
+                                                       client_assertion_type:,
                                                        grant_type:).perform
       session_container = SignIn::SessionCreator.new(validated_credential:).perform
       serializer_response = SignIn::TokenSerializer.new(session_container:,
@@ -227,7 +231,7 @@ module V0
 
     private
 
-    def validate_authorize_params(type, client_id, code_challenge, code_challenge_method, acr)
+    def validate_authorize_params(type, client_id, acr)
       if client_config(client_id).blank?
         raise SignIn::Errors::MalformedParamsError.new message: 'Client id is not valid'
       end
@@ -237,10 +241,6 @@ module V0
       unless SignIn::Constants::Auth::ACR_VALUES.include?(acr)
         raise SignIn::Errors::MalformedParamsError.new message: 'ACR is not valid'
       end
-      raise SignIn::Errors::MalformedParamsError.new message: 'Code Challenge is not defined' unless code_challenge
-      unless code_challenge_method
-        raise SignIn::Errors::MalformedParamsError.new message: 'Code Challenge Method is not defined'
-      end
     end
 
     def validate_callback_params(code, state, error)
@@ -248,9 +248,8 @@ module V0
       raise SignIn::Errors::MalformedParamsError.new message: 'State is not defined' unless state
     end
 
-    def validate_token_params(code, code_verifier, grant_type)
+    def validate_token_params(code, grant_type)
       raise SignIn::Errors::MalformedParamsError.new message: 'Code is not defined' unless code
-      raise SignIn::Errors::MalformedParamsError.new message: 'Code Verifier is not defined' unless code_verifier
       raise SignIn::Errors::MalformedParamsError.new message: 'Grant Type is not defined' unless grant_type
     end
 
