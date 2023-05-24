@@ -29,20 +29,14 @@
             "productionOauth": [
               "veteran/AppealableIssues.read",
               "representative/AppealableIssues.read",
-              "system/AppealableIssues.read",
-              "veteran/ContestableIssues.read",
-              "representative/ContestableIssues.read",
-              "system/ContestableIssues.read"
+              "system/AppealableIssues.read"
             ]
           },
           {
             "sandboxOauth": [
               "veteran/AppealableIssues.read",
               "representative/AppealableIssues.read",
-              "system/AppealableIssues.read",
-              "veteran/ContestableIssues.read",
-              "representative/ContestableIssues.read",
-              "system/ContestableIssues.read"
+              "system/AppealableIssues.read"
             ]
           },
           {
@@ -358,11 +352,8 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "veteran/ContestableIssues.read": "Allows a veteran to see their own contestable issues",
               "veteran/AppealableIssues.read": "Allows a veteran to see their own appealable issues",
-              "representative/ContestableIssues.read": "Allows a veteran representative to see a veteran's contestable issues",
               "representative/AppealableIssues.read": "Allows a veteran representative to see a veteran's appealable issues",
-              "system/ContestableIssues.read": "Allows a system to see a veteran's contestable issues",
               "system/AppealableIssues.read": "Allows a system to see a veteran's appealable issues",
               "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
               "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
@@ -379,11 +370,8 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "veteran/ContestableIssues.read": "Allows a veteran to see their own contestable issues",
               "veteran/AppealableIssues.read": "Allows a veteran to see their own appealable issues",
-              "representative/ContestableIssues.read": "Allows a veteran representative to see a veteran's contestable issues",
               "representative/AppealableIssues.read": "Allows a veteran representative to see a veteran's appealable issues",
-              "system/ContestableIssues.read": "Allows a system to see a veteran's contestable issues",
               "system/AppealableIssues.read": "Allows a system to see a veteran's appealable issues",
               "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
               "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
