@@ -29,7 +29,9 @@ module V0
     end
 
     def send_statement_notifications
-      render json: vbs_service.send_statement_notifications(params[:statements])
+      vbs_service.send_statement_notifications(params[:statements])
+
+      render json: { message: 'Parsing and sending notifications' }, status: :ok
     end
 
     private
