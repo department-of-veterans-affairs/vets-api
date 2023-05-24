@@ -12,7 +12,7 @@ module SignIn
     attribute :user_verification_id, Integer
     attribute :credential_email, String
 
-    validates(:code_challenge, :code, :user_verification_id, presence: true)
+    validates(:code, :user_verification_id, presence: true)
 
     validate :confirm_client_id
 

@@ -30,6 +30,12 @@ module SignIn
     class StatePayloadMalformedJWTError < StandardError; end
     class AttributeMismatchError < StandardError; end
     class GrantTypeValueError < StandardError; end
+    class ClientAssertionTypeInvalidError < StandardError; end
+    class ClientAssertionInvalidError < StandardError; end
+    class ClientAssertionSignatureMismatchError < StandardError; end
+    class ClientAssertionExpiredError < StandardError; end
+    class ClientAssertionMalformedJWTError < StandardError; end
+    class ClientAssertionAttributesError < StandardError; end
     class CodeInvalidError < StandardError; end
     class MalformedParamsError < StandardError; end
     class AuthorizeInvalidType < StandardError; end

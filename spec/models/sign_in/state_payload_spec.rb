@@ -22,20 +22,6 @@ RSpec.describe SignIn::StatePayload, type: :model do
   let(:client_state) { SecureRandom.hex }
 
   describe 'validations' do
-    describe '#code_challenge' do
-      subject { state_payload.code_challenge }
-
-      context 'when code_challenge is nil' do
-        let(:code_challenge) { nil }
-        let(:expected_error) { ActiveModel::ValidationError }
-        let(:expected_error_message) { "Validation failed: Code challenge can't be blank" }
-
-        it 'raises validation error' do
-          expect { subject }.to raise_error(expected_error, expected_error_message)
-        end
-      end
-    end
-
     describe '#code' do
       subject { state_payload.code }
 

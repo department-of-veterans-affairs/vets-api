@@ -192,17 +192,17 @@ RSpec.describe SignIn::ClientConfig, type: :model do
     end
   end
 
-  describe '#ssl_certificates' do
-    subject { client_config.ssl_certificates }
+  describe '#client_assertion_public_keys' do
+    subject { client_config.client_assertion_public_keys }
 
     let(:certificate) do
       OpenSSL::X509::Certificate.new(File.read('spec/fixtures/sign_in/sample_client.crt'))
     end
     let(:certificates) { [certificate.to_s] }
-    let(:ssl_certificates) { [certificate] }
+    let(:client_assertion_public_keys) { [certificate.public_key] }
 
-    it 'expands all certificates in the client config with OpenSSL Certificate objects' do
-      expect(subject).to eq(ssl_certificates)
+    it 'expands all certificates in the client config to an array of public keys' do
+      expect(subject.first.to_s).to eq(client_assertion_public_keys.first.to_s)
     end
   end
 
