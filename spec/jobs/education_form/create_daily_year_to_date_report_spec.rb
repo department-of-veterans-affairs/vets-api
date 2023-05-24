@@ -111,7 +111,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       end
 
       after do
-        File.delete(filename)
+        FileUtils.rm_f(filename)
       end
 
       let(:filename) { "tmp/daily_reports/#{date}.csv" }

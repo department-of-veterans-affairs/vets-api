@@ -105,7 +105,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       )
     end
 
-    context 'with a form type of 1995' do
+    context 'with a form type of 1995 and benefit transfer of entitlement' do
       subject do
         create(:va1995)
       end
@@ -117,6 +117,40 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           submission_attributes.merge(
             'form_type' => '1995',
             'transfer_of_entitlement' => true
+          )
+        )
+      end
+    end
+
+    context 'with a form type of 1995 and benefit chapter33 post911' do
+      subject do
+        create(:va1995_ch33_post911)
+      end
+
+      it 'creates a submission' do
+        subject
+
+        expect(associated_submission).to eq(
+          submission_attributes.merge(
+            'form_type' => '1995',
+            'chapter33' => true
+          )
+        )
+      end
+    end
+
+    context 'with a form type of 1995 and benefit chapter33 fry scholarship' do
+      subject do
+        create(:va1995_ch33_fry)
+      end
+
+      it 'creates a submission' do
+        subject
+
+        expect(associated_submission).to eq(
+          submission_attributes.merge(
+            'form_type' => '1995',
+            'chapter33' => true
           )
         )
       end
