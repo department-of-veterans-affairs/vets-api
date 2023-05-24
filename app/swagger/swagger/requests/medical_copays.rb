@@ -271,7 +271,7 @@ module Swagger
               key :type, :object
 
               property :status, type: :integer, example: 200
-              property :message, type: :string, example: 'Successfully sent notifications'
+              property :message, type: :string, example: 'Parsing and sending notifications'
             end
           end
         end

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe McpNotificationEmailJob, skip_vet360: true, type: :worker do
+RSpec.describe CopayNotifications::McpNotificationEmailJob, skip_vet360: true, type: :worker do
   let(:template_id) { 'template_id' }
   let(:email) { 'person43@example.com' }
   let(:backup_email) { 'meepmorp@example.com' }
@@ -27,7 +27,7 @@ RSpec.describe McpNotificationEmailJob, skip_vet360: true, type: :worker do
           template_id:
         )
 
-        McpNotificationEmailJob.new.perform(vet_id, template_id)
+        CopayNotifications::McpNotificationEmailJob.new.perform(vet_id, template_id)
       end
     end
 
@@ -52,7 +52,7 @@ RSpec.describe McpNotificationEmailJob, skip_vet360: true, type: :worker do
         VCR.use_cassette('va_profile/contact_information/person_error', VCR::MATCH_EVERYTHING) do
           job = described_class.new
           expect(job).to receive(:log_exception_to_sentry).with(
-            instance_of(ProfileMissingEmail), {}, { error: :mcp_notification_email_job }
+            instance_of(CopayNotifications::ProfileMissingEmail), {}, { error: :mcp_notification_email_job }
           )
           job.perform(vet_id, template_id)
         end

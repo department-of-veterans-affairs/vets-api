@@ -1,0 +1,16 @@
+[
+  {
+    "veteranIdentifier": "492031291",
+    "identifierType": "edipi",
+    "facilityNum": "123",
+    "facilityName": "VA Medical Center",
+    "statementDate": "01/01/2023"
+  },
+  {
+    "veteranIdentifier": "492031291",
+    "identifierType": "edipi",
+    "facilityNum": "456",
+    "facilityName": "VA Clinic",
+    "statementDate": "01/01/2023"
+  }
+]
