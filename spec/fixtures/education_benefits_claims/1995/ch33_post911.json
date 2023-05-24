@@ -1,0 +1,75 @@
+{
+  "veteranFullName": {
+    "first": "first",
+    "middle": "middle",
+    "last": "last"
+  },
+  "veteranSocialSecurityNumber": "111223333",
+  "newSchool": {
+    "name": "school name",
+    "address": {
+      "city": "Milwaukee",
+      "country": "USA",
+      "postalCode": "53135",
+      "state": "WI",
+      "street": "111 Uni Drive"
+    }
+  },
+  "oldSchool": {
+    "name": "old school name",
+    "address": {
+      "city": "Anytown",
+      "country": "USA",
+      "postalCode": "41414",
+      "state": "MA",
+      "street": "2222 Uni Drive"
+    }
+  },
+  "preferredContactMethod": "email",
+  "trainingEndDate": "2007-06-XX",
+  "reasonForChange": "reason for change",
+  "vaFileNumber": "c12345678",
+  "homePhone": "5551110000",
+  "mobilePhone": "5551110001",
+  "veteranAddress": {
+    "city": "Milwaukee",
+    "country": "USA",
+    "postalCode": "53130",
+    "state": "WI",
+    "street": "123 Main St"
+  },
+  "civilianBenefitsAssistance": true,
+  "email": "test@sample.com",
+  "benefit": "chapter33Post911",
+  "educationType": "tuitionTopUp",
+  "educationObjective": "bachelor's degree",
+  "bankAccountChange": "startUpdate",
+  "bankAccount": {
+    "accountNumber": "88888888888",
+    "accountType": "checking",
+    "bankName": "First Bank of JSON",
+    "routingNumber": "123456789"
+  },
+  "serviceBefore1977": {
+    "haveDependents": true,
+    "married": true,
+    "parentDependent": false
+  },
+  "toursOfDuty": [{
+    "dateRange": {
+      "from": "2012-06-26",
+      "to": "2013-04-10"
+    },
+    "serviceBranch": "Army Reserve"
+  }, {
+    "dateRange": {
+      "from": "2013-04-22",
+      "to": "2013-06-14"
+    },
+    "serviceBranch": "navy"
+  }],
+  "nonVaAssistance": true,
+  "remarks": "remarks",
+  "programName": "program name",
+  "privacyAgreementAccepted": true
+}

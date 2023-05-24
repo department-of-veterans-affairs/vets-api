@@ -30,5 +30,13 @@ FactoryBot.define do
         )
       }
     end
+
+    factory :va1995_ch33_post911 do
+      form { File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'ch33_post911.json')) }
+    end
+
+    factory :va1995_ch33_fry do
+      form { File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'ch33_fry.json')) }
+    end
   end
 end

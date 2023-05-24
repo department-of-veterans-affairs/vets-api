@@ -10,7 +10,7 @@ RSpec.describe EducationForm::Forms::VA1995 do
   # For each sample application we have, format it and compare it against a 'known good'
   # copy of that submission. This technically covers all the helper logic found in the
   # `Form` specs, but are a good safety net for tracking how forms change over time.
-  %i[minimal kitchen_sink].each do |application_name|
+  %i[minimal kitchen_sink ch33_post911 ch33_fry].each do |application_name|
     test_spool_file('1995', application_name)
   end
 
