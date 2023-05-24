@@ -127,11 +127,8 @@ class AppealsApi::RswagConfig
       'system/AppealsStatus.read': "Allows a system to see the status of a veteran's decision reviews and appeals"
     },
     appealable_issues: {
-      'veteran/ContestableIssues.read': 'Allows a veteran to see their own contestable issues',
       'veteran/AppealableIssues.read': 'Allows a veteran to see their own appealable issues',
-      'representative/ContestableIssues.read': "Allows a veteran representative to see a veteran's contestable issues",
       'representative/AppealableIssues.read': "Allows a veteran representative to see a veteran's appealable issues",
-      'system/ContestableIssues.read': "Allows a system to see a veteran's contestable issues",
       'system/AppealableIssues.read': "Allows a system to see a veteran's appealable issues"
     },
     higher_level_reviews: {

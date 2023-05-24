@@ -12,10 +12,7 @@ module AppealsApi::AppealableIssues::V0
     )['definitions']['appealableIssuesIndexParameters']['properties'].keys
 
     OAUTH_SCOPES = {
-      GET: %w[
-        veteran/AppealableIssues.read representative/AppealableIssues.read system/AppealableIssues.read
-        veteran/ContestableIssues.read representative/ContestableIssues.read system/ContestableIssues.read
-      ]
+      GET: %w[veteran/AppealableIssues.read representative/AppealableIssues.read system/AppealableIssues.read]
     }.freeze
 
     def schema
