@@ -1,4 +1,13 @@
-The Appeals Status API allows you to request the statuses of all decision reviews for a Veteran, including decision reviews following the AMA process and legacy benefit appeals. The statuses are returned as read only. If you need to manage or submit a Veteran’s decision review request, use the [Decision Reviews API](/explore/appeals/docs/decision_reviews?version=current).
+The Appeals Status API allows you to request the statuses of all decision reviews for a Veteran, including decision reviews following the AMA process and legacy benefit appeals. The statuses are returned as read only.
+
+To retrieve a list of a claimant’s active contestable issues or legacy appeals, use one of these APIs:
+* [Appealable Issues API](https://dev-developer.va.gov/explore/appeals/docs/appealable_issues)
+* [Legacy Appeals API](https://dev-developer.va.gov/explore/appeals/docs/legacy_appeals)
+
+To file an appeal or decision review, use one of these APIs:
+* [Higher-Level Reviews API](https://dev-developer.va.gov/explore/appeals/docs/higher_level_reviews)
+* [Notice of Disagreements API](https://dev-developer.va.gov/explore/appeals/docs/notice_of_disagreements)
+* [Supplemental Claims API](https://dev-developer.va.gov/explore/appeals/docs/supplemental_claims)
 
 ## Background
 
@@ -6,15 +15,16 @@ The Appeals API passes data through to Caseflow, a case management system. Casef
 
 Because this application is designed to allow third-parties to request information on behalf of a Veteran, we are not using VA Authentication Federation Infrastructure (VAAFI) headers or Single Sign On External (SSOe).
 
+## Technical overview
 
-## Design
+### Authentication and Authorization
 
-### Authorization and Access
+The authentication model for the Appeals Status API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:
+* [Authorization code flow](https://dev-developer.va.gov/explore/authorization/docs/authorization-code?api=appeals)
+* [Client credentials grant](https://dev-developer.va.gov/explore/authorization/docs/client-credentials?api=appeals) (restricted access)
 
-To gain access to the Appeals Status API you must [request an API Key](/apply). API requests are authorized through a symmetric API token which is provided in an HTTP header named `apikey`.
+**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).
 
-1. Client Request: GET https://sandbox-api.va.gov/services/appeals/v1/appeals
-    * Provide the Veteran's SSN as the X-VA-SSN header
-    * Provide the VA username of the person requesting the appeals status as the X-VA-User header
+### Test data
 
-2. Service Response: A JSON API object with the current status of appeals
+The database powering our sandbox environment is populated with [Veteran test data](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/benefits_test_accounts.md). This sandbox data contains no PII or PHI, but mimics real Veteran account information.
