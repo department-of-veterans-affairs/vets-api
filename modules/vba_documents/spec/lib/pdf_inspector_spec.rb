@@ -31,7 +31,7 @@ RSpec.describe VBADocuments::PDFInspector do
 
       it 'has all expected keys' do
         expected_keys = {
-          pdf_keys: [%i[source doc_type total_documents total_pages content], subject],
+          pdf_keys: [%i[source total_documents total_pages content], subject],
           content_keys: [%i[page_count dimensions sha256_checksum attachments], subject[:content]],
           content_dimension_keys: [%i[height width oversized_pdf], subject[:content][:dimensions]],
           attachment_keys: [%i[page_count dimensions sha256_checksum], subject[:content][:attachments][0]],
