@@ -608,9 +608,11 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(pdf_data).to have_key('total_pages')
       expect(pdf_data).to have_key('content')
       content = pdf_data['content']
-      expect(content).to have_key('page_count')
-      expect(content).to have_key('dimensions')
-      expect(content).to have_key('attachments')
+      attachment = pdf_data.dig('content', 'attachments').first
+      %w[page_count dimensions file_size sha256_checksum].each do |metadata_key|
+        expect(content).to have_key(metadata_key)
+        expect(attachment).to have_key(metadata_key)
+      end
     end
 
     context 'with valid line of business' do

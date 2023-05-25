@@ -94,6 +94,7 @@ module VBADocuments
           width: dimensions[:width].round(2),
           oversized_pdf: dimensions[:height] > max_height || dimensions[:width] > max_width
         },
+        file_size: metadata.file_size,
         sha256_checksum: Digest::SHA256.file(pdf).hexdigest
       }
     end

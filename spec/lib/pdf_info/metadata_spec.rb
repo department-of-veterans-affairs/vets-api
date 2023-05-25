@@ -98,6 +98,13 @@ describe PdfInfo::Metadata do
     end
   end
 
+  describe '#file_size' do
+    it 'returns the file size in bytes' do
+      metadata = described_class.read('/tmp/file.pdf')
+      expect(metadata.file_size).to eq(1_099_807)
+    end
+  end
+
   describe '#encrypted?' do
     it 'returns encryption as a boolean' do
       metadata = described_class.read('/tmp/file.pdf')
