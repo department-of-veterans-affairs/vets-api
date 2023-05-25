@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+## If running clamav natively
+# ENV['CLAMD_UNIX_SOCKET'] = '/usr/local/etc/clamav/clamd.sock'
+
+## Comment the following out (everything below) if you are running clamav natively
+
 ## If running via docker
 if Rails.env.development?
   ENV['CLAMD_TCP_HOST'] = 'clamav'

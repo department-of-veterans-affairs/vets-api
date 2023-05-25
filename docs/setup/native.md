@@ -87,17 +87,7 @@ This file has the necessary configuration settings for local development as well
 
 Prior to EKS, ClamAV (the virus scanner) was deployed in the same process as Vets API. With EKS, ClamAV has been extracted out into it’s own service. Locally you can see the docker-compose.yml config for clamav.
 
-**TODO**: Running clamav natively, as we did in Vets API master still needs to be configured. For the time being, **please run via docker**:
 
-Please set the [clamav intitalizer](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/config/initializers/clamav.rb) initializers/clamav.rb file to the following:
-
-``` 
-# ## If running hybrid
-if Rails.env.development?
-   ENV["CLAMD_TCP_HOST"] = "0.0.0.0"
-   ENV["CLAMD_TCP_PORT"] = "33100"
- end
-```
 
 ### Options
 #### Option 1: Run ONLY clamav via Docker
@@ -109,20 +99,34 @@ After that, follow the native instructions and run `foreman start -m all=1`
 
 #### Option 2: [See hybrid setup](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/docs/setup/hybrid.md)
 
-<!-- 
-In many cases, there in no need to run ClamAV for local development, even if you are working with uploaded files since the scanning functionality is already built into our CarrierWave and Shrine file upload base classes.
+Please set the [clamav intitalizer](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/config/initializers/clamav.rb) initializers/clamav.rb file to the following:
 
-If you would like to run a fake ClamAV "scanner" that will quickly produce a virus-free scan, you can configure the application to use the executable bash script `bin/fake_clamd`. This configuration is commented out in `config/settings.local.yml`
+``` 
+####  Important: If running hybrid
+if Rails.env.development?
+   ENV["CLAMD_TCP_HOST"] = "0.0.0.0"
+   ENV["CLAMD_TCP_PORT"] = "33100"
+ end
+```
 
-```yaml
-binaries:
-  # For NATIVE and DOCKER installation
-  # A "virus scanner" that always returns success for development purposes
-  # NOTE: You may need to specify a full path instead of a relative path
-  clamdscan: ./bin/fake_clamdscan
-``` -->
+#### Option 3: Run Clamav Natively (OSX):
+ 
+If you wish to run ClamAV natively, you'll need to check the platform specific notes. This section will detail the steps of how to run clamav on OSX.
 
-If you wish to run ClamAV, you'll need to check the platform specific notes.
+1. `brew install clamav`
+2. `brew info clamav`
+
+3. NOTE: See the "Caveats" section: "To finish installation & run clamav you will need to edit the example conf files at `your_directory_here` e.g. `/usr/local/etc/clamav/` - Make note of this directory for following steps.
+
+4. cd into `your_directory_here` from step above (e.g. `/usr/local/etc/clamav/`)
+
+5. In clamd.conf add `LocalSocket your_directory_here/clamd.sock` (e.g. `/usr/local/etc/clamav/clamd.sock`)
+6. In freshclam.conf add `DatabaseMirror database.clamav.net`
+7. Update the local ClamAV database via `freshclam -v`
+8. Run with `/usr/local/sbin/clamd -c your_directory_here/clamd.conf`
+9. Comment out EVERYTHING in the [clamav.rb initializer](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/config/initializers/clamav.rb#L3-L13)
+10. Add `ENV['CLAMD_UNIX_SOCKET'] = 'your_directory_here/clamd.sock'` to [config/intializers/clamav.rb](https://github.com/department-of-veterans-affairs/vets-api/blob/k8s/config/initializers/clamav.rb) - (e.g. `/usr/local/etc/clamav/clamd.sock`)
+11. Test if working via `rails c` and [ping command](https://github.com/franckverrot/clamav-client#ping--boolean)
 
 ## Platform Specific Notes
 
@@ -162,20 +166,8 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
     brew bundle
     ```
 
-4. Among other things, the above `brew bundle` command installs ClamAV, but does not enable it. To enable ClamAV:
-
-   ```bash
-   brew info clamav
-   # See the "Caveats" section: "To finish installation & run clamav you will need to edit the example conf files at `${conf_files_dir}`"
-   cd $(brew --prefix clamav)
-   touch clamd.sock
-   echo "LocalSocket $(brew --prefix clamav)" > clamd.conf
-   echo "DatabaseMirror database.clamav.net" > freshclam.conf
-   # Update the local ClamAV database
-   freshclam -v
-   ```
-
-   NOTE: Run with `/usr/local/sbin/clamd -c /usr/local/etc/clamav/clamd.conf` and you will also have to override (temporarily) the `config/clamd.conf` file with `-LocalSocket /usr/local/etc/clamav/clamd.sock`
+4. Among other things, the above `brew bundle` command installs ClamAV, but does not enable it. To enable ClamAV: See "Option 3: Run Clamav Natively (OSX) above"
+	 
 
 5. Install [pdftk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg)
 
