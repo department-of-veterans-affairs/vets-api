@@ -59,9 +59,11 @@ module DirectDeposit
     def connection
       @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use :breakers
+        faraday.use Faraday::Response::RaiseError
         faraday.request :json
 
         faraday.response :betamocks if use_mocks?
+        faraday.response :snakecase, symbolize: false
         faraday.response :json
 
         faraday.adapter Faraday.default_adapter
