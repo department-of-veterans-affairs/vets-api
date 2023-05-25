@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/1008709396V637156/claims
+    uri: https://sandbox-api.va.gov/services/claims/v2/veterans/123498767V234859/claims
     body:
       encoding: US-ASCII
       string: ''
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Bearer abcdefghijklmnop
+      - Bearer fake_access_token
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -175,6 +175,63 @@ http_interactions:
                           "evidenceWaiverSubmitted5103":true,
                           "lighthouseId":null,
                           "status":"INITIAL_REVIEW"
+                       }
+                    },
+                    {
+                       "id":"600229969",
+                       "type":"claim",
+                       "attributes":{
+                          "claimDate":"2021-04-22",
+                          "claimPhaseDates":{
+                             "phaseChangeDate":"2022-05-22"
+                          },
+                          "claimType":"Compensation",
+                          "closeDate":null,
+                          "decisionLetterSent":false,
+                          "developmentLetterSent":false,
+                          "documentsNeeded":false,
+                          "endProductCode":"110",
+                          "evidenceWaiverSubmitted5103":true,
+                          "lighthouseId":null,
+                          "status":"CANCELED"
+                       }
+                    },
+                    {
+                       "id":"600229970",
+                       "type":"claim",
+                       "attributes":{
+                          "claimDate":"2021-01-22",
+                          "claimPhaseDates":{
+                             "phaseChangeDate":"2023-01-01"
+                          },
+                          "claimType":"Compensation",
+                          "closeDate":null,
+                          "decisionLetterSent":false,
+                          "developmentLetterSent":false,
+                          "documentsNeeded":false,
+                          "endProductCode":"110",
+                          "evidenceWaiverSubmitted5103":true,
+                          "lighthouseId":null,
+                          "status":"ERRORED"
+                       }
+                    },
+                    {
+                       "id":"600229971",
+                       "type":"claim",
+                       "attributes":{
+                          "claimDate":"2022-04-22",
+                          "claimPhaseDates":{
+                             "phaseChangeDate":"2023-05-22"
+                          },
+                          "claimType":"Compensation",
+                          "closeDate":null,
+                          "decisionLetterSent":false,
+                          "developmentLetterSent":false,
+                          "documentsNeeded":false,
+                          "endProductCode":"110",
+                          "evidenceWaiverSubmitted5103":true,
+                          "lighthouseId":null,
+                          "status":"PENDING"
                        }
                     }
                  ]

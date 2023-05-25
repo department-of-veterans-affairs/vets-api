@@ -10,13 +10,19 @@ module BenefitsClaims
     configuration BenefitsClaims::Configuration
     STATSD_KEY_PREFIX = 'api.benefits_claims'
 
+    FILTERED_STATUSES = %w[CANCELED ERRORED PENDING].freeze
+
     def initialize(icn)
       @icn = icn
       raise ArgumentError, 'no ICN passed in for LH API request.' if icn.blank?
+
+      super()
     end
 
     def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options).body
+      claims = config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options).body
+      claims['data'] = filter_by_status(claims['data'])
+      claims
     rescue Faraday::ClientError => e
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
@@ -33,6 +39,12 @@ module BenefitsClaims
       config.get(path, lighthouse_client_id, lighthouse_rsa_key_path, options).body
     rescue Faraday::ClientError => e
       handle_error(e, lighthouse_client_id, endpoint)
+    end
+
+    private
+
+    def filter_by_status(items)
+      items.reject { |item| FILTERED_STATUSES.include?(item.dig('attributes', 'status')) }
     end
 
     def handle_error(error, lighthouse_client_id, endpoint)

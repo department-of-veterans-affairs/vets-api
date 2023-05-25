@@ -3,12 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe V0::BenefitsClaimsController, type: :controller do
-  let(:user) { create(:user, :loa3, :accountable, icn: '1008709396V637156') }
+  let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
 
   before do
     sign_in_as(user)
 
-    token = 'abcdefghijklmnop'
+    token = 'fake_access_token'
 
     allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
   end
