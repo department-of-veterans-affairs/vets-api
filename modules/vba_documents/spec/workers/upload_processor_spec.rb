@@ -517,80 +517,38 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     context 'with invalid sizes' do
-      context 'when vba_documents_larger_page_size_limit flag is off' do
-        before { Flipper.disable(:vba_documents_larger_page_size_limit) }
-
-        %w[18x22 22x18].each do |invalid_size|
-          it "sets an error status for invalid size of #{invalid_size}" do
-            allow(VBADocuments::MultipartParser).to receive(:parse) {
-              { 'metadata' => valid_metadata, 'content' => get_fixture("#{invalid_size}.pdf") }
-            }
-            described_class.new.perform(upload.guid, test_caller)
-            updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-            expect(updated.status).to eq('error')
-            expect(updated.code).to eq('DOC108')
-          end
-        end
-
-        context 'when metadata.json contains skipDimensionCheck = true' do
-          let(:special_metadata) { JSON.parse(valid_metadata).merge({ 'skipDimensionCheck' => true }).to_json }
-          let(:content) { get_fixture('18x22.pdf') }
-
-          before do
-            allow(CentralMail::Service).to receive(:new) { client_stub }
-            allow(faraday_response).to receive(:status).and_return(200)
-            allow(faraday_response).to receive(:body).and_return('')
-            allow(faraday_response).to receive(:success?).and_return(true)
-            allow(client_stub).to receive(:upload).and_return(faraday_response)
-          end
-
-          it 'allows the upload' do
-            allow(VBADocuments::MultipartParser).to receive(:parse) do
-              { 'metadata' => special_metadata, 'content' => content }
-            end
-            described_class.new.perform(upload.guid, test_caller)
-            updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-            expect(updated.uploaded_pdf.dig('content', 'dimensions', 'oversized_pdf')).to eq(true)
-            expect(updated.status).to eq('received')
-          end
+      %w[10x102 79x10].each do |invalid_size|
+        it "sets an error status for invalid size of #{invalid_size}" do
+          allow(VBADocuments::MultipartParser).to receive(:parse) {
+            { 'metadata' => valid_metadata, 'content' => get_fixture("#{invalid_size}.pdf") }
+          }
+          described_class.new.perform(upload.guid, test_caller)
+          updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+          expect(updated.status).to eq('error')
+          expect(updated.code).to eq('DOC108')
         end
       end
 
-      context 'when vba_documents_larger_page_size_limit flag is on' do
+      context 'when metadata.json contains skipDimensionCheck = true' do
+        let(:special_metadata) { JSON.parse(valid_metadata).merge({ 'skipDimensionCheck' => true }).to_json }
+        let(:content) { get_fixture('10x102.pdf') }
+
         before do
-          Flipper.enable(:vba_documents_larger_page_size_limit)
           allow(CentralMail::Service).to receive(:new) { client_stub }
           allow(faraday_response).to receive(:status).and_return(200)
           allow(faraday_response).to receive(:body).and_return('')
           allow(faraday_response).to receive(:success?).and_return(true)
           allow(client_stub).to receive(:upload).and_return(faraday_response)
-          allow(VBADocuments::MultipartParser).to receive(:parse) {
-            { 'metadata' => valid_metadata, 'content' => content }
-          }
         end
 
-        context 'with large but not-too-large PDF' do
-          let(:content) { get_fixture('18x22.pdf') }
-
-          it 'allows the upload' do
-            described_class.new.perform(upload.guid, test_caller)
-            updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-            expect(updated.uploaded_pdf.dig('content', 'dimensions', 'oversized_pdf')).to eq(false)
-            expect(updated.status).to eq('received')
+        it 'allows the upload' do
+          allow(VBADocuments::MultipartParser).to receive(:parse) do
+            { 'metadata' => special_metadata, 'content' => content }
           end
-        end
-
-        context 'with a too large PDF' do
-          %w[10x102 79x10].each do |invalid_size|
-            let(:content) { get_fixture("#{invalid_size}.pdf") }
-
-            it "sets an error status for an invalid size of #{invalid_size}" do
-              described_class.new.perform(upload.guid, test_caller)
-              updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-              expect(updated.status).to eq('error')
-              expect(updated.code).to eq('DOC108')
-            end
-          end
+          described_class.new.perform(upload.guid, test_caller)
+          updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+          expect(updated.uploaded_pdf.dig('content', 'dimensions', 'oversized_pdf')).to eq(true)
+          expect(updated.status).to eq('received')
         end
       end
     end

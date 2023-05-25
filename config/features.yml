@@ -764,9 +764,6 @@ features:
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
-  vba_documents_larger_page_size_limit:
-    actor_type: user
-    description: Allows Benefits Intake to accept PDFs up to 78x101 inches (instead of the default 21x21)
   yellow_ribbon_mvp_enhancement:
     actor_type: user
     description: Enhances Yellow Ribbon MVP.
