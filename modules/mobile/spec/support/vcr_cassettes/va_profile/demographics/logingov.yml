@@ -1,11 +1,11 @@
 ---
 http_interactions:
   - request:
-      method: post
-      uri: https://int.vet360.va.gov/demographics/demographics/v1/2.16.840.1.113883.4.349//preferred-name
+      method: get
+      uri: https://int.vet360.va.gov/demographics/demographics/v1/2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200VLGN%5EUSDVA
       body:
-        encoding: UTF-8
-        string: '{"bio":{"preferredName":"Pat","sourceDate":"2022-04-08T15:09:23.000Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859"}}'
+        encoding: US-ASCII
+        string: ''
       headers:
         Accept:
           - application/json
@@ -20,10 +20,10 @@ http_interactions:
     response:
       status:
         code: 200
-        message: OK
+        message: ''
       headers:
         Vaprofiletxauditid:
-          - 05e880cd-8637-407e-8fc7-a828ab6aa435
+          - 1fedcd51-15fe-4598-8d96-7fbc12fcd19f
         X-Content-Type-Options:
           - nosniff
         X-Xss-Protection:
@@ -42,16 +42,15 @@ http_interactions:
           - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
         about: blob: ws: wss:'
         Content-Type:
-          - application/json;charset=UTF-8
+          - application/json
         Date:
-          - Fri, 08 Apr 2022 15:09:25 GMT
+          - Fri, 25 Mar 2022 20:55:01 GMT
         Content-Length:
-          - '2'
+          - '125'
         Referrer-Policy:
           - no-referrer
       body:
         encoding: UTF-8
-        string: "{}"
-      http_version:
-    recorded_at: Fri, 08 Apr 2022 15:09:25 GMT
-recorded_with: VCR 5.0.0
+        string: '{"bio":{"genderIdentity":[{"genderIdentityCode":"F","genderIdentityName":"Female"}],"preferredName":{"preferredName":"SAM"}}}'
+    recorded_at: Fri, 25 Mar 2022 20:55:01 GMT
+recorded_with: VCR 6.1.0
