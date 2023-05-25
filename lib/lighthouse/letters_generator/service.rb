@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'lighthouse/letters_generator/configuration'
+require 'lighthouse/letters_generator/service_error'
 
 module Lighthouse
   module LettersGenerator
