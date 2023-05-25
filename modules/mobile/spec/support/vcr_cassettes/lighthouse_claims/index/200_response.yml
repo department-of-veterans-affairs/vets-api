@@ -176,6 +176,25 @@ http_interactions:
                           "lighthouseId":null,
                           "status":"COMPLETE"
                        }
+                    },
+                    {
+                       "id":"600229123",
+                       "type":"claim",
+                       "attributes":{
+                          "claimDate":null,
+                          "claimPhaseDates":{
+                             "phaseChangeDate":null
+                          },
+                          "claimType":"Compensation",
+                          "closeDate":"2023-03-22",
+                          "decisionLetterSent":false,
+                          "developmentLetterSent":false,
+                          "documentsNeeded":false,
+                          "endProductCode":"110",
+                          "evidenceWaiverSubmitted5103":true,
+                          "lighthouseId":null,
+                          "status":"COMPLETE"
+                       }
                     }
                  ]
               }'
