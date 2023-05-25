@@ -9,29 +9,13 @@ module V0
       class DisabilityCompensationsController < ApplicationController
         before_action :controller_enabled?
         before_action { authorize :lighthouse, :access_disability_compensations? }
-        before_action :validate_payment_account, only: :update
 
         def show
-          response = client.get_payment_information
-          if response.ok?
-            render status: response.status,
-                   json: response.body,
-                   serializer: DisabilityCompensationsSerializer
-          else
-            render status: response.status, json: response.body
-          end
-        end
+          response = client.get_payment_info
 
-        def update
-          response = client.update_payment_information(payment_account_params)
-          if response.ok?
-            send_confirmation_email
-            render status: response.status,
-                   json: response.body,
-                   serializer: DisabilityCompensationsSerializer
-          else
-            render status: response.status, json: response.body
-          end
+          render status: response.status,
+                 json: response.body,
+                 serializer: DisabilityCompensationsSerializer
         end
 
         private
@@ -50,13 +34,6 @@ module V0
 
         def payment_account
           @payment_account ||= Lighthouse::DirectDeposit::PaymentAccount.new(payment_account_params)
-        end
-
-        def validate_payment_account
-          unless payment_account.valid?
-            Raven.tags_context(validation: 'direct_deposit')
-            raise Common::Exceptions::ValidationErrors, payment_account
-          end
         end
 
         def send_confirmation_email
