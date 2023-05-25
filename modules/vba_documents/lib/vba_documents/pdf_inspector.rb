@@ -13,7 +13,6 @@ module VBADocuments
     attr_accessor :file, :pdf_data, :parts
 
     module Constants
-      DOC_TYPE_KEY = :doc_type
       SOURCE_KEY = :source
     end
     include Constants
