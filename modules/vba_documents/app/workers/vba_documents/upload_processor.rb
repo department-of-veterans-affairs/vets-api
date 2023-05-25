@@ -70,8 +70,6 @@ module VBADocuments
         validate_metadata(parts[META_PART_NAME], submission_version: @upload.metadata['version'].to_i,
                                                  consumer_name: @upload.consumer_name)
 
-        validate_metadata(parts[META_PART_NAME], submission_version: @upload.metadata['version'].to_i)
-
         metadata = perfect_metadata(@upload, parts, timestamp)
 
         pdf_validator_options = VBADocuments::DocumentRequestValidator.pdf_validator_options

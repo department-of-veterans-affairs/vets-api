@@ -203,8 +203,20 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.status).to eq('received')
     end
 
-    it 'parses and uploads a valid multipart payload with attachments' do
-      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
+    it 'parses and uploads a valid multipart payload with attachments and custom client metadata key' do
+      # add a new consumer specific key to meta data request
+      md = JSON.parse(valid_metadata)
+      md['test_consumer_key'] = 'test consumer data'
+
+      # Mock yaml consumer specific metada key config file read to return/allow consumer specific key
+      allow(YAML).to receive(:load_file).with(anything).and_return(
+        { 'test consumer' => ['test_consumer_key'] }
+      )
+
+      puts "Valid mets type: #{valid_metadata.class.name}"
+      allow(VBADocuments::MultipartParser).to receive(:parse) {
+        { 'metadata' => md.to_json, 'content' => valid_doc, 'attachment1' => valid_doc }
+      }
       allow(CentralMail::Service).to receive(:new) { client_stub }
       allow(faraday_response).to receive(:status).and_return(200)
       allow(faraday_response).to receive(:body).and_return('')
@@ -222,6 +234,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       metadata = JSON.parse(capture_body['metadata'])
       expect(metadata['uuid']).to eq(upload.guid)
       expect(metadata['source']).to eq('test consumer via VA API')
+      expect(metadata['test_consumer_key']).to eq('test consumer data')
       expect(metadata['numberAttachments']).to eq(1)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('received')
@@ -545,6 +558,9 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
           end
 
           it 'allows the upload' do
+            # permit skipDimensionCheck custom metadata key for test consumer
+            allow(YAML).to receive(:load_file).with(anything).and_return('test consumer' => ['skipDimensionCheck'])
+            
             allow(VBADocuments::MultipartParser).to receive(:parse) do
               { 'metadata' => special_metadata, 'content' => content }
             end
@@ -661,8 +677,14 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     it 'sets error status for invalid metadata keys' do
+      # Inject a custom metadata key to request.
       md = JSON.parse(valid_metadata)
       md['unknown_key'] = 'bad key'
+
+      # Mock yaml consumer specific metada key, but not for current consumer.  Still expect a fail,
+      # since the new custom metadata key should NOT be associated with the current test consumer
+      allow(YAML).to receive(:load_file).with(anything).and_return('!test consumer' => ['unknown_key'])
+
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => md.to_json, 'content' => valid_doc }
       }
@@ -670,7 +692,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to start_with('Invalid keys provided')
+      expect(updated.detail).to eq('Invalid keys provided: unknown_key')
     end
 
     it 'sets error status and records missing lines of business for V2' do

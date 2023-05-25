@@ -40,13 +40,11 @@ module VBADocuments
       raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object') unless metadata.is_a?(Hash)
 
       missing_keys = REQUIRED_KEYS - metadata.keys
+      extra_keys = metadata.keys - consumer_meta_field_names_allowed(consumer_name)
       if missing_keys.present?
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: "Missing required keys: #{missing_keys.join(',')}")
-      end
-
-      unexpected_keys = metadata.keys - consumer_meta_field_names_allowed(consumer_name)
-      if unexpected_keys.present?
-        raise VBADocuments::UploadError.new(code: 'DOC102', detail: "Invalid keys provided: #{unexpected_keys.join(',')}")
+      elsif extra_keys.present?
+        raise VBADocuments::UploadError.new(code: 'DOC102', detail: "Invalid keys provided: #{extra_keys.join(',')}")
       end
 
       rejected = REQUIRED_KEYS.reject { |k| metadata[k].is_a? String }
