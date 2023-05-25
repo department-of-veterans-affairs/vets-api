@@ -173,6 +173,8 @@ RSpec.describe 'user', type: :request do
             paymentHistory
             userProfileUpdate
             scheduleAppointments
+            preferredName
+            genderIdentity
             directDepositBenefitsUpdate
           ]
         )
@@ -193,6 +195,8 @@ RSpec.describe 'user', type: :request do
             secureMessaging
             scheduleAppointments
             prescriptions
+            preferredName
+            genderIdentity
           ]
         )
       end
@@ -258,6 +262,8 @@ RSpec.describe 'user', type: :request do
               militaryServiceHistory
               paymentHistory
               userProfileUpdate
+              preferredName
+              genderIdentity
             ]
           )
         end
@@ -288,6 +294,8 @@ RSpec.describe 'user', type: :request do
               paymentHistory
               userProfileUpdate
               scheduleAppointments
+              preferredName
+              genderIdentity
             ]
           )
         end
@@ -320,6 +328,8 @@ RSpec.describe 'user', type: :request do
               userProfileUpdate
               scheduleAppointments
               prescriptions
+              preferredName
+              genderIdentity
             ]
           )
         end
@@ -345,6 +355,8 @@ RSpec.describe 'user', type: :request do
               appointments
               militaryServiceHistory
               userProfileUpdate
+              preferredName
+              genderIdentity
             ]
           )
         end
@@ -524,7 +536,9 @@ RSpec.describe 'user', type: :request do
                                              militaryServiceHistory
                                              paymentHistory
                                              userProfileUpdate
-                                             scheduleAppointments])
+                                             scheduleAppointments
+                                             preferredName
+                                             genderIdentity])
       end
     end
 
@@ -552,7 +566,9 @@ RSpec.describe 'user', type: :request do
                                              militaryServiceHistory
                                              paymentHistory
                                              userProfileUpdate
-                                             scheduleAppointments])
+                                             scheduleAppointments
+                                             preferredName
+                                             genderIdentity])
       end
     end
 
@@ -625,9 +641,12 @@ RSpec.describe 'user', type: :request do
     context 'with no upstream errors for logingov user' do
       before do
         iam_sign_in(FactoryBot.build(:iam_user, :logingov))
+        allow_any_instance_of(IAMUser).to receive(:idme_uuid).and_return(nil)
+        allow_any_instance_of(IAMUser).to receive(:logingov_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
+
         VCR.use_cassette('payment_information/payment_information') do
           VCR.use_cassette('user/get_facilities') do
-            VCR.use_cassette('va_profile/demographics/demographics') do
+            VCR.use_cassette('va_profile/demographics/logingov') do
               get '/mobile/v1/user', headers: iam_headers
             end
           end
@@ -647,6 +666,41 @@ RSpec.describe 'user', type: :request do
       it 'includes sign-in service' do
         expect(attributes['profile']['signinService']).to eq('LOGINGOV')
       end
+
+      it 'includes the service the user has access to' do
+        expect(attributes['authorizedServices']).to eq(
+          %w[
+            appeals
+            appointments
+            claims
+            directDepositBenefits
+            disabilityRating
+            lettersAndDocuments
+            militaryServiceHistory
+            paymentHistory
+            userProfileUpdate
+            scheduleAppointments
+            preferredName
+            genderIdentity
+            directDepositBenefitsUpdate
+          ]
+        )
+      end
+    end
+
+    context 'no idme_uuid or logingov_uuid' do
+      before do
+        allow_any_instance_of(IAMUser).to receive(:idme_uuid).and_return(nil)
+        allow_any_instance_of(IAMUser).to receive(:logingov_uuid).and_return(nil)
+
+        VCR.use_cassette('payment_information/payment_information') do
+          VCR.use_cassette('user/get_facilities') do
+            get '/mobile/v1/user', headers: iam_headers
+          end
+        end
+      end
+
+      let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
       it 'includes the service the user has access to' do
         expect(attributes['authorizedServices']).to eq(

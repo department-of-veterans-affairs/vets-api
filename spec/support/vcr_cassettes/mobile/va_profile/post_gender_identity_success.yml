@@ -1,0 +1,57 @@
+---
+http_interactions:
+  - request:
+      method: post
+      uri: https://int.vet360.va.gov/demographics/demographics/v1/2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200V<%= login_uri %>%5EUSDVA/gender-identity
+      body:
+        encoding: UTF-8
+        string: '{"bio":{"genderIdentity": ["genderIdentityCode":"F"],"sourceDate":"2022-04-08T15:09:23.000Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859"}}'
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Cufsystemname:
+          - VETSGOV
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Vaprofiletxauditid:
+          - 05e880cd-8637-407e-8fc7-a828ab6aa435
+        X-Content-Type-Options:
+          - nosniff
+        X-Xss-Protection:
+          - 1; mode=block
+        Cache-Control:
+          - no-cache, no-store, max-age=0, must-revalidate
+        Pragma:
+          - no-cache
+        Expires:
+          - '0'
+        Strict-Transport-Security:
+          - max-age=31536000 ; includeSubDomains
+        X-Frame-Options:
+          - DENY
+        Content-Security-Policy:
+          - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+        Content-Type:
+          - application/json;charset=UTF-8
+        Date:
+          - Fri, 08 Apr 2022 15:09:25 GMT
+        Content-Length:
+          - '2'
+        Referrer-Policy:
+          - no-referrer
+      body:
+        encoding: UTF-8
+        string: "{}"
+      http_version:
+    recorded_at: Fri, 08 Apr 2022 15:09:25 GMT
+recorded_with: VCR 5.0.0
