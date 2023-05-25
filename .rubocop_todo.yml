@@ -241,7 +241,6 @@ Lint/MissingSuper:
     - 'lib/json_schema/json_api_missing_attribute.rb'
     - 'lib/json_schema/missing_schema.rb'
     - 'lib/lgy/service.rb'
-    - 'lib/lighthouse/benefits_claims/service.rb'
     - 'lib/lighthouse/veterans_health/client.rb'
     - 'lib/mail_automation/client.rb'
     - 'lib/mdot/client.rb'
