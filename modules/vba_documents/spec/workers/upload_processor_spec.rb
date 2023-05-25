@@ -560,7 +560,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
           it 'allows the upload' do
             # permit skipDimensionCheck custom metadata key for test consumer
             allow(YAML).to receive(:load_file).with(anything).and_return('test consumer' => ['skipDimensionCheck'])
-            
+
             allow(VBADocuments::MultipartParser).to receive(:parse) do
               { 'metadata' => special_metadata, 'content' => content }
             end
