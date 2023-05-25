@@ -233,7 +233,7 @@ module VAOS
         if facility_info == FACILITY_ERROR_MSG
           nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
         else
-          facility_info[:timezone]&.[](:zone_id)
+          facility_info[:timezone]&.[](:time_zone_id)
         end
       end
 

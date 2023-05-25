@@ -118,6 +118,10 @@ class EducationBenefitsClaim < ApplicationRecord
       benefits['vettec'] = true
     when '1990s'
       benefits['vrrap'] = true
+    when '1995'
+      benefit = parsed_form['benefit']&.underscore
+      benefits['chapter33'] = true if benefit.present? && benefit.start_with?('chapter33')
+      benefits[benefit] = true if benefit.present? && !benefit.start_with?('chapter33')
     else
       benefit = parsed_form['benefit']&.underscore
       benefits[benefit] = true if benefit.present?

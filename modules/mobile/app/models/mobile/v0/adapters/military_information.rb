@@ -10,7 +10,7 @@ module Mobile
           military_information.each do |service_period|
             if service_period[:service_type] == 'Military Service'
               service_period = format_service_period(service_period)
-              formatted_result.push(service_period) unless service_period.nil?
+              formatted_result.push(service_period)
             end
           end
           OpenStruct.new({ id: user_uuid, service_history: formatted_result })
@@ -19,13 +19,6 @@ module Mobile
         private
 
         def format_service_period(service_period)
-          if service_period[:branch_of_service].nil?
-            Rails.logger.warn(
-              'mobile military information missing service period details', service_period:
-            )
-            return nil
-          end
-
           Mobile::V0::MilitaryInformation.new(
             branch_of_service: "United States #{service_period[:branch_of_service].titleize}",
             begin_date: service_period[:begin_date],

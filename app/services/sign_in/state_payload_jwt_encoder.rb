@@ -16,7 +16,7 @@ module SignIn
     # rubocop:enable Metrics/ParameterLists
 
     def perform
-      check_code_challenge_method
+      validate_pkce_params if client_config.pkce?
       validate_state_payload
       save_state_code
       jwt_encode_state_payload
@@ -24,10 +24,19 @@ module SignIn
 
     private
 
-    def check_code_challenge_method
+    def validate_pkce_params
+      validate_code_challenge_method
+      validate_code_challenge
+    end
+
+    def validate_code_challenge_method
       if code_challenge_method != Constants::Auth::CODE_CHALLENGE_METHOD
         raise Errors::CodeChallengeMethodMismatchError.new message: 'Code Challenge Method is not valid'
       end
+    end
+
+    def validate_code_challenge
+      raise Errors::CodeChallengeMalformedError.new message: 'Code Challenge is not valid' if code_challenge.blank?
     end
 
     def validate_state_payload
@@ -69,6 +78,8 @@ module SignIn
     end
 
     def remove_base64_padding(data)
+      return unless client_config.pkce? && data
+
       Base64.urlsafe_encode64(Base64.urlsafe_decode64(data.to_s), padding: false)
     rescue ArgumentError
       raise Errors::CodeChallengeMalformedError.new message: 'Code Challenge is not valid'

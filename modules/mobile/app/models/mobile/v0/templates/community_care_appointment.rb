@@ -5,13 +5,6 @@ module Mobile
     module Templates
       class CommunityCareAppointment < BaseAppointment
         def appointment_type
-          # if cc video conferences are possible, they will need a new appointment type
-          unless @request[:visit_type].in?(['Office Visit', 'Phone Call'])
-            Rails.logger.error(
-              'Unknown appointment request type',
-              { appointment_type: 'COMMUNITY_CARE', visit_type: @request[:visit_type] }
-            )
-          end
           'COMMUNITY_CARE'
         end
 

@@ -20,13 +20,7 @@ module Mobile
 
           claims[:errors].nil? ? full_list.push(*claims[:list]) : errors.push(claims[:errors])
           appeals[:errors].nil? ? full_list.push(*appeals[:list]) : errors.push(appeals[:errors])
-
           data = claims_adapter.parse(full_list)
-
-          errors.each do |error|
-            Rails.logger.error("Mobile Claims and Appeals: error received from #{error[:service]} service",
-                               error_details: error[:error_details])
-          end
 
           [data, errors]
         end
@@ -37,6 +31,7 @@ module Mobile
 
           raw_claim = claims_service.find_claim_with_docs_by_id(claim.evss_id).body.fetch('claim', {})
           claim.update(data: raw_claim)
+          claim['updated_at'] = claim['updated_at'].to_time.iso8601
           EVSSClaimDetailSerializer.new(claim)
         rescue EVSS::ErrorMiddleware::EVSSError => e
           handle_middleware_error(e)
@@ -58,10 +53,6 @@ module Mobile
         def request_decision(id)
           claim = EVSSClaim.for_user(@user).find_by(evss_id: id)
           jid = evss_claim_service.request_decision(claim)
-          Rails.logger.info('Mobile Request', {
-                              claim_id: id,
-                              job_id: jid
-                            })
           claim.update(requested_decision: true)
           jid
         end
@@ -103,9 +94,7 @@ module Mobile
                                                 document_type:, password:)
           raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
-          jid = evss_claim_service.upload_document(document_data)
-          Rails.logger.info('Mobile Request', { claim_id:, job_id: jid })
-          jid
+          evss_claim_service.upload_document(document_data)
         end
 
         def claims_adapter

@@ -1051,6 +1051,8 @@ flipper:
     - florence.mccafferty@agile6.com # Florence McCafferty - Agile 6 - Authenticated Experience
     - berni.xiong@agile6.com # Berni Xiong - Agile 6 - Authenticated Experience
     - liz.lantz@adhocteam.us # Liz Lantz - Ad Hoc - Authenticated Experience
+    - aaron.young@thoughtworks.com # Aaron Young - Virtual Agent Chatbot
+    - alex.person@thoughtworks.com # Alex Person - Virtual Agent Chatbot
     - seth.darr@agile6.com # Seth Darr - Engineer - Agile 6 - Benefits Delivery Experience Team 1
     - aurora.hampton@agile6.com # Aurora Hampton - Engineer - Agile 6 - Benefits Delivery Experience Team 1
     - christinec.fftc@gmail.com # Christine Cereca - Engineer - Friends From The City - Benefits Delivery Experience Team 1
@@ -1058,6 +1060,7 @@ flipper:
     - eddieglenn@navapbc.com # Eddie Glenn - Engineer - Nava - Benefits Delivery Experience Team 1
     - john.woolschlager@va.gov # John Woolschlager - CivicActions - Check In Experience
     - kevin.duensing@adhocteam.us # Kevin Duensing - Ad Hoc - Benefits Team 1, Management Tools
+
 
 bgs:
   application: ~
@@ -1143,6 +1146,13 @@ lighthouse:
       client_id: ~
       rsa_key: ~
     use_mocks: false
+    form526:
+      host: https://staging-api.va.gov
+      access_token:
+        aud_claim_url: https://deptva-eval.okta.com/oauth2/ausdg7guis2TYDlFe2p7/v1/token
+        client_id: ~
+        rsa_key: ~
+      use_mocks: false
   letters_generator:
     url: https://sandbox-api.va.gov
     path: /services/va-letter-generator/v1/
@@ -1495,10 +1505,11 @@ rrd:
       - fake_email
 
 virtual_regional_office:
-  url: https://sandbox.lighthouse.va.gov/abd-vro
+  url: http://localhost:8080
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
   health_assessment_path: health-data-assessment
   evidence_pdf_path: evidence-pdf
+  ctn_classification_path: contention-classification/classifier
 
 # Settings for Test User Dashboard modules
 test_user_dashboard:

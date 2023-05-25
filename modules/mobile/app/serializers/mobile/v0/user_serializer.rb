@@ -67,22 +67,10 @@ module Mobile
         @user = user
         fetch_additional_resources
         resource = UserStruct.new(user.uuid, profile, authorized_services, health)
-        province_log(profile)
         super(resource, options)
       end
 
       private
-
-      # No domestic or military addresses should have a province but some have been coming in as a string 'null'
-      def province_log(profile)
-        address_type = profile.dig(:residential_address, :address_type)
-        province = profile.dig(:residential_address, :province)
-        if address_type.in?(['DOMESTIC', 'OVERSEAS MILITARY']) && province.present?
-          Rails.logger.info('Mobile User Address - Province in domestic or military address',
-                            province:,
-                            address_type:)
-        end
-      end
 
       def filter_keys(value, keys)
         value&.to_h&.slice(*keys)
@@ -120,9 +108,7 @@ module Mobile
 
       def direct_deposit_update_access?
         user.authorize(:ppiu, :access_update?)
-      rescue => e
-        message = e.respond_to?(:messages) ? e.messages : e.message
-        Rails.logger.error('Error fetching user data from EVSS', user_uuid: user.uuid, details: message)
+      rescue
         false
       end
 

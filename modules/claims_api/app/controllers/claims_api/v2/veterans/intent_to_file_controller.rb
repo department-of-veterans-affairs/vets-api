@@ -8,6 +8,7 @@ module ClaimsApi
     module Veterans
       class IntentToFileController < ClaimsApi::V2::ApplicationController
         before_action :verify_access!
+        before_action :validate_request_format, only: %i[submit validate]
 
         # GET to fetch active intent to file by type
         #
@@ -40,6 +41,7 @@ module ClaimsApi
         def submit
           validate_request!(ClaimsApi::V2::ParamsValidation::IntentToFile)
           type = get_bgs_type(params)
+
           options = build_options_and_validate(type)
 
           bgs_response = local_bgs_service.insert_intent_to_file(options)
@@ -65,6 +67,13 @@ module ClaimsApi
 
         private
 
+        def validate_request_format
+          if params[:data].nil? || params[:data][:attributes].nil?
+            message = 'Request body is not in the correct format.'
+            raise ::Common::Exceptions::BadRequest.new(detail: message)
+          end
+        end
+
         def build_options_and_validate(type)
           options = build_intent_to_file_options(type)
           check_for_invalid_survivor_submission(options) if type == 'S'
@@ -84,7 +93,7 @@ module ClaimsApi
 
         # BGS requires at least 1 of 'participant_claimant_id' or 'claimant_ssn'
         def handle_claimant_fields(options:, params:, target_veteran:)
-          claimant_ssn = params[:claimantSsn]
+          claimant_ssn = params[:data][:attributes][:claimantSsn]
           if claimant_ssn.present?
             claimant_ssn = claimant_ssn.delete('^0-9')
             validate_ssn(claimant_ssn)
@@ -133,7 +142,7 @@ module ClaimsApi
         end
 
         def get_bgs_type(params)
-          itf_types[params[:type].downcase]
+          params[:data] ? itf_types[params[:data][:attributes][:type].downcase] : itf_types[params[:type].downcase]
         end
 
         def itf_types

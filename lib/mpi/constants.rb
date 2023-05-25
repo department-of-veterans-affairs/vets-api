@@ -25,6 +25,8 @@ module MPI
     LOGINGOV_FULL_IDENTIFIER = 'PN^200VLGN^USDVA^A'
     DSLOGON_FULL_IDENTIFIER = 'NI^200DOD^USDOD^A'
 
+    ACTIVE_VHA_IDENTIFIER = 'USVHA^A'
+
     DOD_ROOT_OID = '2.16.840.1.113883.3.42.10001.100001.12'
     VA_ROOT_OID = '2.16.840.1.113883.4.349'
 
@@ -38,6 +40,7 @@ module MPI
     FIND_PROFILE_BY_EDIPI_TYPE = 'find_profile_by_edipi'
     FIND_PROFILE_BY_ATTRIBUTES_TYPE = 'find_profile_by_attributes'
     FIND_PROFILE_BY_ATTRIBUTES_ORCH_SEARCH_TYPE = 'find_profile_by_attributes_orch_search'
+    FIND_PROFILE_BY_FACILITY_TYPE = 'find_profile_by_facility'
 
     QUERY_IDENTIFIERS = [ICN = 'ICN', IDME_UUID = 'idme', LOGINGOV_UUID = 'logingov'].freeze
   end

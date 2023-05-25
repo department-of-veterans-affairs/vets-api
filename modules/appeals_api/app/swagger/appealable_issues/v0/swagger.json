@@ -29,20 +29,14 @@
             "productionOauth": [
               "veteran/AppealableIssues.read",
               "representative/AppealableIssues.read",
-              "system/AppealableIssues.read",
-              "veteran/ContestableIssues.read",
-              "representative/ContestableIssues.read",
-              "system/ContestableIssues.read"
+              "system/AppealableIssues.read"
             ]
           },
           {
             "sandboxOauth": [
               "veteran/AppealableIssues.read",
               "representative/AppealableIssues.read",
-              "system/AppealableIssues.read",
-              "veteran/ContestableIssues.read",
-              "representative/ContestableIssues.read",
-              "system/ContestableIssues.read"
+              "system/AppealableIssues.read"
             ]
           },
           {
@@ -135,7 +129,7 @@
                 "example": {
                   "data": [
                     {
-                      "type": "contestableIssue",
+                      "type": "appealableIssue",
                       "attributes": {
                         "ratingIssueSubjectText": "right knee",
                         "ratingIssuePercentNumber": "10",
@@ -160,7 +154,7 @@
                       }
                     },
                     {
-                      "type": "contestableIssue",
+                      "type": "appealableIssue",
                       "attributes": {
                         "ratingIssueSubjectText": "ptsd",
                         "ratingIssueReferenceId": "826209441170",
@@ -184,7 +178,7 @@
                       }
                     },
                     {
-                      "type": "contestableIssue",
+                      "type": "appealableIssue",
                       "attributes": {
                         "ratingIssueSubjectText": "left knee",
                         "ratingIssueReferenceId": "826209597423",
@@ -210,7 +204,7 @@
                   ]
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/contestableIssues"
+                  "$ref": "#/components/schemas/appealableIssues"
                 }
               }
             }
@@ -358,11 +352,8 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "veteran/ContestableIssues.read": "Allows a veteran to see their own contestable issues",
               "veteran/AppealableIssues.read": "Allows a veteran to see their own appealable issues",
-              "representative/ContestableIssues.read": "Allows a veteran representative to see a veteran's contestable issues",
               "representative/AppealableIssues.read": "Allows a veteran representative to see a veteran's appealable issues",
-              "system/ContestableIssues.read": "Allows a system to see a veteran's contestable issues",
               "system/AppealableIssues.read": "Allows a system to see a veteran's appealable issues",
               "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
               "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
@@ -379,11 +370,8 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "veteran/ContestableIssues.read": "Allows a veteran to see their own contestable issues",
               "veteran/AppealableIssues.read": "Allows a veteran to see their own appealable issues",
-              "representative/ContestableIssues.read": "Allows a veteran representative to see a veteran's contestable issues",
               "representative/AppealableIssues.read": "Allows a veteran representative to see a veteran's appealable issues",
-              "system/ContestableIssues.read": "Allows a system to see a veteran's contestable issues",
               "system/AppealableIssues.read": "Allows a system to see a veteran's appealable issues",
               "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
               "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
@@ -394,14 +382,14 @@
       }
     },
     "schemas": {
-      "contestableIssue": {
+      "appealableIssue": {
         "type": "object",
-        "description": "A contestable issue (to contest this, you include it as a RequestIssue when creating a HigherLevelReview, SupplementalClaim, or Appeal)",
+        "description": "An appealable issue (to appeal this, you include it as a RequestIssue when creating a HigherLevelReview, SupplementalClaim, or Appeal)",
         "properties": {
           "type": {
             "type": "string",
             "enum": [
-              "contestableIssue"
+              "appealableIssue"
             ]
           },
           "id": {
@@ -433,7 +421,7 @@
               "ratingDecisionReferenceId": {
                 "type": "string",
                 "nullable": true,
-                "description": "The BGS ID for the contested rating decision. This may be populated while ratingIssueReferenceId is nil",
+                "description": "The BGS ID for the appealable rating decision. This may be populated while ratingIssueReferenceId is nil",
                 "example": null
               },
               "decisionIssueId": {
@@ -480,7 +468,7 @@
               },
               "latestIssuesInChain": {
                 "type": "array",
-                "description": "Shows the chain of decision and rating issues that preceded this issue. Only the most recent issue can be contested (the object itself that contains the latestIssuesInChain attribute).",
+                "description": "Shows the chain of decision and rating issues that preceded this issue. Only the most recent issue can be appealed (the object itself that contains the latestIssuesInChain attribute).",
                 "items": {
                   "type": "object",
                   "properties": {
@@ -526,13 +514,13 @@
           }
         }
       },
-      "contestableIssues": {
+      "appealableIssues": {
         "type": "object",
         "properties": {
           "data": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/contestableIssue"
+              "$ref": "#/components/schemas/appealableIssue"
             }
           }
         }
@@ -628,7 +616,7 @@
         "pattern": "^[0-9]{10}V[0-9]{6}$"
       },
       "X-VA-Receipt-Date": {
-        "description": "(yyyy-mm-dd) Date to limit the contestable issues",
+        "description": "(yyyy-mm-dd) Date to limit the appealable issues",
         "type": "string",
         "format": "date"
       },

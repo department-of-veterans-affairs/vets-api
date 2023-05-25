@@ -64,8 +64,7 @@ describe Mobile::V2::Appointments::ProviderNames do
       expect(subject.form_names_from_appointment_practitioners_list([])).to be_nil
     end
 
-    it 'logs an error and returns nil when provided an input that is not an array or nil' do
-      expect(Rails.logger).to receive(:error).with('Mobile appointments provider invalid input', {})
+    it 'returns nil when provided an input that is not an array or nil' do
       expect(subject.form_names_from_appointment_practitioners_list({})).to be_nil
     end
 
@@ -119,10 +118,9 @@ describe Mobile::V2::Appointments::ProviderNames do
       subject.form_names_from_appointment_practitioners_list(practitioner_without_name)
     end
 
-    it 'logs an error and returns nil when the ppms service raises an error' do
+    it 'returns nil when the ppms service raises an error' do
       allow_any_instance_of(VAOS::V2::MobilePPMSService).to\
         receive(:get_provider).and_raise(Common::Exceptions::BackendServiceException)
-      expect(Rails.logger).to receive(:error).with('Mobile appointments provider not found', '1407938061')
       name = subject.form_names_from_appointment_practitioners_list(practitioner_without_name)
       expect(name).to be_nil
     end

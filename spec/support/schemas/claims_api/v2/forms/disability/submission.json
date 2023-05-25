@@ -902,38 +902,14 @@
           "alternateNames": {
             "description": "List any other names under which the Veteran served, if applicable.",
             "type": "array",
-            "minItems": 1,
             "maxItems": 100,
             "uniqueItems": true,
             "items": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": [
-                "firstName",
-                "lastName"
-              ],
-              "properties": {
-                "firstName": {
-                  "type": "string",
-                  "min": 1,
-                  "max": 30,
-                  "pattern": "^([-a-zA-Z0-9/']+( ?))+$"
-                },
-                "middleName": {
-                  "type": "string",
-                  "min": 1,
-                  "max": 30,
-                  "pattern": "^([-a-zA-Z0-9/']+( ?))+$"
-                },
-                "lastName": {
-                  "type": "string",
-                  "min": 1,
-                  "max": 30,
-                  "pattern": "^([-a-zA-Z0-9/']+( ?))+$"
+                "type": "string",
+                "additionalProperties": false,
+                "examples": ["jane", "janey lee", "jane lee MacDonald"]
                 }
-              }
-            }
-          },
+        },
           "servedInActiveCombatSince911": {
             "type": "boolean",
             "description": "Did Veteran serve in a combat zone since 9-11-2001?",

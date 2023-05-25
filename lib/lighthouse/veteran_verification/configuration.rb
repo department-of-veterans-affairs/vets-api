@@ -106,8 +106,7 @@ module VeteranVerification
           lighthouse_rsa_key_path,
           options[:aud_claim_url],
           options[:host]
-        )
-          .get_token(options[:auth_params])
+        ).get_token(options[:auth_params])
       end
     end
 

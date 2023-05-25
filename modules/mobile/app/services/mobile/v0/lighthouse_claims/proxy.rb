@@ -17,7 +17,7 @@ module Mobile
         end
 
         def claims_service
-          @claims_service ||= Mobile::V0::LighthouseClaims::Service.new(@user.icn)
+          @claims_service ||= BenefitsClaims::Service.new(@user.icn)
         end
 
         def get_all_claims

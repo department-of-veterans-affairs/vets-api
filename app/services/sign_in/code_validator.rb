@@ -2,11 +2,13 @@
 
 module SignIn
   class CodeValidator
-    attr_reader :code, :code_verifier, :grant_type
+    attr_reader :code, :code_verifier, :client_assertion, :client_assertion_type, :grant_type
 
-    def initialize(code:, code_verifier:, grant_type:)
+    def initialize(code:, code_verifier:, client_assertion:, client_assertion_type:, grant_type:)
       @code = code
       @code_verifier = code_verifier
+      @client_assertion = client_assertion
+      @client_assertion_type = client_assertion_type
       @grant_type = grant_type
     end
 
@@ -20,10 +22,30 @@ module SignIn
     private
 
     def validations
+      validate_code_container
+      validate_grant_type
+      if client_config.pkce?
+        validate_code_challenge
+      else
+        validate_client_assertion
+      end
+    end
+
+    def validate_client_assertion
+      SignIn::ClientAssertionValidator.new(client_assertion:, client_assertion_type:, client_config:).perform
+    end
+
+    def validate_code_container
       raise Errors::CodeInvalidError.new message: 'Code is not valid' unless code_container
+    end
+
+    def validate_code_challenge
       if code_challenge != code_container.code_challenge
         raise Errors::CodeChallengeMismatchError.new message: 'Code Verifier is not valid'
       end
+    end
+
+    def validate_grant_type
       if grant_type != Constants::Auth::GRANT_TYPE
         raise Errors::GrantTypeValueError.new message: 'Grant Type is not valid'
       end

@@ -10,7 +10,7 @@ RSpec.describe V0::SignInController, type: :controller do
       get(:authorize, params: authorize_params)
     end
 
-    let!(:client_config) { create(:client_config, authentication:) }
+    let!(:client_config) { create(:client_config, authentication:, pkce:) }
     let(:authorize_params) do
       {}.merge(type).merge(code_challenge).merge(code_challenge_method).merge(client_state).merge(client_id).merge(acr)
     end
@@ -19,6 +19,7 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:code_challenge) { { code_challenge: 'some-code-challenge' } }
     let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
     let(:client_id) { { client_id: client_id_value } }
+    let(:pkce) { true }
     let(:client_id_value) { client_config.client_id }
     let(:authentication) { SignIn::Constants::Auth::COOKIE }
     let(:client_state) { {} }
@@ -141,6 +142,67 @@ RSpec.describe V0::SignInController, type: :controller do
     context 'when client_id maps to a client configuration' do
       let(:client_id_value) { client_config.client_id }
 
+      shared_context 'successful response' do
+        it 'returns ok status' do
+          expect(subject).to have_http_status(:ok)
+        end
+
+        it 'renders expected state' do
+          expect(subject.body).to match(state)
+        end
+
+        it 'renders expected redirect_uri in template' do
+          expect(subject.body).to match(expected_redirect_uri)
+        end
+
+        it 'logs the authentication attempt' do
+          expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
+          subject
+        end
+
+        it 'updates StatsD with a auth request success' do
+          expect { subject }.to trigger_statsd_increment(statsd_auth_success, tags: statsd_tags)
+        end
+      end
+
+      shared_context 'expected response with optional client state' do
+        let(:state) { 'some-state' }
+        let(:statsd_auth_success) { SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SUCCESS }
+        let(:expected_log) { '[SignInService] [V0::SignInController] authorize' }
+        let(:expected_logger_context) do
+          {
+            type: type[:type],
+            client_id: client_id_value,
+            acr: acr_value
+          }
+        end
+
+        before { allow(JWT).to receive(:encode).and_return(state) }
+
+        context 'and client_state is not given' do
+          let(:client_state) { {} }
+
+          it_behaves_like 'successful response'
+        end
+
+        context 'and client_state is greater than minimum client state length' do
+          let(:client_state) do
+            { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH + 1) }
+          end
+
+          it_behaves_like 'successful response'
+        end
+
+        context 'and client_state is less than minimum client state length' do
+          let(:client_state) do
+            { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH - 1) }
+          end
+          let(:expected_error) { 'Attributes are not valid' }
+
+          it_behaves_like 'error response'
+        end
+      end
+
       context 'when type param is not given' do
         let(:type) { {} }
         let(:type_value) { nil }
@@ -159,6 +221,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
       context 'when type param is logingov' do
         let(:type_value) { SignIn::Constants::Auth::LOGINGOV }
+        let(:expected_redirect_uri) { Settings.logingov.redirect_uri }
 
         context 'and acr param is not given' do
           let(:acr) { {} }
@@ -187,9 +250,19 @@ RSpec.describe V0::SignInController, type: :controller do
 
           context 'and code_challenge_method is not given' do
             let(:code_challenge_method) { {} }
-            let(:expected_error) { 'Code Challenge Method is not defined' }
 
-            it_behaves_like 'error response'
+            context 'and client is configured with pkce enabled' do
+              let(:pkce) { true }
+              let(:expected_error) { 'Code Challenge Method is not valid' }
+
+              it_behaves_like 'error response'
+            end
+
+            context 'and client is configured with pkce disabled' do
+              let(:pkce) { false }
+
+              it_behaves_like 'expected response with optional client state'
+            end
           end
 
           context 'and code_challenge_method is S256' do
@@ -197,95 +270,66 @@ RSpec.describe V0::SignInController, type: :controller do
 
             context 'and code_challenge is not given' do
               let(:code_challenge) { {} }
-              let(:expected_error) { 'Code Challenge is not defined' }
 
-              it_behaves_like 'error response'
+              context 'and client is configured with pkce enabled' do
+                let(:pkce) { true }
+                let(:expected_error) { 'Code Challenge is not valid' }
+
+                it_behaves_like 'error response'
+              end
+
+              context 'and client is configured with pkce disabled' do
+                let(:pkce) { false }
+
+                it_behaves_like 'expected response with optional client state'
+              end
             end
 
             context 'and code_challenge is not properly URL encoded' do
               let(:code_challenge) { { code_challenge: '///some+unsafe code+challenge//' } }
-              let(:expected_error) { 'Code Challenge is not valid' }
-              let(:expected_error_json) { { 'errors' => expected_error } }
 
-              it_behaves_like 'error response'
+              context 'and client is configured with pkce enabled' do
+                let(:pkce) { true }
+                let(:expected_error) { 'Code Challenge is not valid' }
+                let(:expected_error_json) { { 'errors' => expected_error } }
+
+                it_behaves_like 'error response'
+              end
+
+              context 'and client is configured with pkce disabled' do
+                let(:pkce) { false }
+
+                it_behaves_like 'expected response with optional client state'
+              end
             end
 
             context 'and code_challenge is properly URL encoded' do
               let(:code_challenge) { { code_challenge: Base64.urlsafe_encode64('some-safe-code-challenge') } }
-              let(:state) { 'some-state' }
-              let(:expected_redirect_uri) { Settings.logingov.redirect_uri }
-              let(:statsd_auth_success) { SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SUCCESS }
-              let(:expected_log) { '[SignInService] [V0::SignInController] authorize' }
-              let(:expected_logger_context) do
-                {
-                  type: type[:type],
-                  client_id: client_id_value,
-                  acr: acr_value
-                }
-              end
 
-              before do
-                allow(JWT).to receive(:encode).and_return(state)
-              end
-
-              shared_context 'successful response' do
-                it 'returns ok status' do
-                  expect(subject).to have_http_status(:ok)
-                end
-
-                it 'renders expected state' do
-                  expect(subject.body).to match(state)
-                end
-
-                it 'renders expected redirect_uri in template' do
-                  expect(subject.body).to match(expected_redirect_uri)
-                end
-
-                it 'logs the authentication attempt' do
-                  expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
-                  subject
-                end
-
-                it 'updates StatsD with a auth request success' do
-                  expect { subject }.to trigger_statsd_increment(statsd_auth_success, tags: statsd_tags)
-                end
-              end
-
-              context 'and client_state is not given' do
-                let(:client_state) { {} }
-
-                it_behaves_like 'successful response'
-              end
-
-              context 'and client_state is greater than minimum client state length' do
-                let(:client_state) do
-                  { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH + 1) }
-                end
-
-                it_behaves_like 'successful response'
-              end
-
-              context 'and client_state is less than minimum client state length' do
-                let(:client_state) do
-                  { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH - 1) }
-                end
-                let(:expected_error) { 'Attributes are not valid' }
-
-                it_behaves_like 'error response'
-              end
+              it_behaves_like 'expected response with optional client state'
             end
           end
 
           context 'and code_challenge_method is not S256' do
-            let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
-            let(:expected_error) { 'Code Challenge Method is not valid' }
+            context 'and client is configured with pkce enabled' do
+              let(:pkce) { true }
+              let(:expected_error) { 'Code Challenge Method is not valid' }
 
-            it_behaves_like 'error response'
+              it_behaves_like 'error response'
+            end
+
+            context 'and client is configured with pkce disabled' do
+              let(:pkce) { false }
+
+              it_behaves_like 'expected response with optional client state'
+            end
           end
         end
       end
 
       shared_context 'an idme authentication service interface' do
+        let(:expected_redirect_uri) { Settings.idme.redirect_uri }
+
         context 'and acr param is not given' do
           let(:acr) { {} }
           let(:acr_value) { nil }
@@ -313,9 +357,19 @@ RSpec.describe V0::SignInController, type: :controller do
 
           context 'and code_challenge_method is not given' do
             let(:code_challenge_method) { {} }
-            let(:expected_error) { 'Code Challenge Method is not defined' }
 
-            it_behaves_like 'error response'
+            context 'and client is configured with pkce enabled' do
+              let(:pkce) { true }
+              let(:expected_error) { 'Code Challenge Method is not valid' }
+
+              it_behaves_like 'error response'
+            end
+
+            context 'and client is configured with pkce disabled' do
+              let(:pkce) { false }
+
+              it_behaves_like 'expected response with optional client state'
+            end
           end
 
           context 'and code_challenge_method is S256' do
@@ -323,89 +377,60 @@ RSpec.describe V0::SignInController, type: :controller do
 
             context 'and code_challenge is not given' do
               let(:code_challenge) { {} }
-              let(:expected_error) { 'Code Challenge is not defined' }
 
-              it_behaves_like 'error response'
+              context 'and client is configured with pkce enabled' do
+                let(:pkce) { true }
+                let(:expected_error) { 'Code Challenge is not valid' }
+
+                it_behaves_like 'error response'
+              end
+
+              context 'and client is configured with pkce disabled' do
+                let(:pkce) { false }
+
+                it_behaves_like 'expected response with optional client state'
+              end
             end
 
             context 'and code_challenge is not properly URL encoded' do
               let(:code_challenge) { { code_challenge: '///some+unsafe code+challenge//' } }
-              let(:expected_error) { 'Code Challenge is not valid' }
 
-              it_behaves_like 'error response'
+              context 'and client is configured with pkce enabled' do
+                let(:pkce) { true }
+                let(:expected_error) { 'Code Challenge is not valid' }
+
+                it_behaves_like 'error response'
+              end
+
+              context 'and client is configured with pkce disabled' do
+                let(:pkce) { false }
+
+                it_behaves_like 'expected response with optional client state'
+              end
             end
 
             context 'and code_challenge is properly URL encoded' do
               let(:code_challenge) { { code_challenge: Base64.urlsafe_encode64('some-safe-code-challenge') } }
-              let(:state) { 'some-state' }
-              let(:statsd_auth_success) { SignIn::Constants::Statsd::STATSD_SIS_AUTHORIZE_SUCCESS }
-              let(:expected_log) { '[SignInService] [V0::SignInController] authorize' }
-              let(:expected_redirect_uri) { Settings.idme.redirect_uri }
-              let(:expected_logger_context) do
-                {
-                  type: type_value,
-                  acr: acr_value,
-                  client_id: client_id_value
-                }
-              end
 
-              before do
-                allow(JWT).to receive(:encode).and_return(state)
-              end
-
-              shared_context 'successful response' do
-                it 'returns ok status' do
-                  expect(subject).to have_http_status(:ok)
-                end
-
-                it 'renders expected state in template' do
-                  expect(subject.body).to match(state)
-                end
-
-                it 'renders expected redirect_uri in template' do
-                  expect(subject.body).to match(expected_redirect_uri)
-                end
-
-                it 'logs the authentication attempt' do
-                  expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
-                  subject
-                end
-
-                it 'updates StatsD with a auth request success' do
-                  expect { subject }.to trigger_statsd_increment(statsd_auth_success, tags: statsd_tags)
-                end
-              end
-
-              context 'and client_state is not given' do
-                let(:client_state) { {} }
-
-                it_behaves_like 'successful response'
-              end
-
-              context 'and client_state is greater than minimum client state length' do
-                let(:client_state) do
-                  { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH + 1) }
-                end
-
-                it_behaves_like 'successful response'
-              end
-
-              context 'and client_state is less than minimum client state length' do
-                let(:client_state) do
-                  { state: SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH - 1) }
-                end
-                let(:expected_error) { 'Attributes are not valid' }
-
-                it_behaves_like 'error response'
-              end
+              it_behaves_like 'expected response with optional client state'
             end
           end
 
           context 'and code_challenge_method is not S256' do
             let(:code_challenge_method) { { code_challenge_method: 'some-code-challenge-method' } }
-            let(:expected_error) { 'Code Challenge Method is not valid' }
 
-            it_behaves_like 'error response'
+            context 'and client is configured with pkce enabled' do
+              let(:pkce) { true }
+              let(:expected_error) { 'Code Challenge Method is not valid' }
+
+              it_behaves_like 'error response'
+            end
+
+            context 'and client is configured with pkce disabled' do
+              let(:pkce) { false }
+
+              it_behaves_like 'expected response with optional client state'
+            end
           end
         end
       end
@@ -1236,7 +1261,15 @@ RSpec.describe V0::SignInController, type: :controller do
   end
 
   describe 'POST token' do
-    subject { get(:token, params: {}.merge(code).merge(code_verifier).merge(grant_type)) }
+    subject do
+      get(:token,
+          params: {}
+                  .merge(code)
+                  .merge(code_verifier)
+                  .merge(grant_type)
+                  .merge(client_assertion)
+                  .merge(client_assertion_type))
+    end
 
     let(:user_verification) { create(:user_verification) }
     let(:user_verification_id) { user_verification.id }
@@ -1248,10 +1281,18 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:code_value) { 'some-code' }
     let(:code_verifier_value) { 'some-code-verifier' }
     let(:grant_type_value) { 'some-grant-type' }
+    let(:client_assertion) { { client_assertion: client_assertion_value } }
+    let(:client_assertion_type) { { client_assertion_type: client_assertion_type_value } }
+    let(:client_assertion_value) { 'some-client-assertion' }
+    let(:client_assertion_type_value) { 'some-client-assertion-type' }
     let(:type) { nil }
     let(:client_id) { client_config.client_id }
     let(:authentication) { SignIn::Constants::Auth::API }
-    let!(:client_config) { create(:client_config, authentication:, anti_csrf:) }
+    let!(:client_config) do
+      create(:client_config, authentication:, anti_csrf:, pkce:, certificates: [client_assertion_certificate])
+    end
+    let(:client_assertion_certificate) { nil }
+    let(:pkce) { true }
     let(:anti_csrf) { false }
     let(:loa) { nil }
 
@@ -1289,53 +1330,37 @@ RSpec.describe V0::SignInController, type: :controller do
       it_behaves_like 'error response'
     end
 
-    context 'when code_verifier param is not given' do
-      let(:code_verifier) { {} }
-      let(:expected_error) { 'Code Verifier is not defined' }
+    context 'when code is given' do
+      let(:code_value) { 'some-code' }
 
-      it_behaves_like 'error response'
-    end
-
-    context 'when grant_type param is not given' do
-      let(:grant_type) { {} }
-      let(:expected_error) { 'Grant Type is not defined' }
-
-      it_behaves_like 'error response'
-    end
-
-    context 'when code, code_verifier, and grant_type params are defined' do
-      context 'and code does not match an existing code container' do
-        let(:code) { { code: 'some-arbitrary-code' } }
-        let(:expected_error) { 'Code is not valid' }
+      context 'and grant_type param is not given' do
+        let(:grant_type) { {} }
+        let(:expected_error) { 'Grant Type is not defined' }
 
         it_behaves_like 'error response'
       end
 
-      context 'and code param does match an existing code container' do
-        let(:code) { { code: code_value } }
-        let(:code_value) { 'some-code-value' }
-        let!(:code_container) do
-          create(:code_container,
-                 code: code_value,
-                 code_challenge:,
-                 client_id:,
-                 user_verification_id:)
-        end
-        let(:code_challenge) { 'some-code-challenge' }
+      context 'and grant_type param is given' do
+        let(:grant_type_value) { 'some-grant-type' }
 
-        context 'and code_verifier does not match expected code_challenge value' do
-          let(:code_verifier_value) { 'some-arbitrary-code-verifier-value' }
-          let(:expected_error) { 'Code Verifier is not valid' }
+        context 'and code does not match an existing code container' do
+          let(:code) { { code: 'some-arbitrary-code' } }
+          let(:expected_error) { 'Code is not valid' }
 
           it_behaves_like 'error response'
         end
 
-        context 'and code_verifier does match expected code_challenge value' do
-          let(:code_verifier_value) { 'some-code-verifier-value' }
-          let(:code_challenge) do
-            hashed_code_challenge = Digest::SHA256.base64digest(code_verifier_value)
-            Base64.urlsafe_encode64(Base64.urlsafe_decode64(hashed_code_challenge.to_s), padding: false)
+        context 'and code does match an existing code container' do
+          let(:code) { { code: code_value } }
+          let(:code_value) { 'some-code-value' }
+          let!(:code_container) do
+            create(:code_container,
+                   code: code_value,
+                   code_challenge:,
+                   client_id:,
+                   user_verification_id:)
           end
+          let(:code_challenge) { 'some-code-challenge' }
 
           context 'and grant_type does not match supported grant type value' do
             let(:grant_type_value) { 'some-arbitrary-grant-type-value' }
@@ -1346,87 +1371,236 @@ RSpec.describe V0::SignInController, type: :controller do
 
           context 'and grant_type does match supported grant type value' do
             let(:grant_type_value) { SignIn::Constants::Auth::GRANT_TYPE }
-            let(:user_verification_id) { user_verification.id }
-            let(:user_verification) { create(:user_verification) }
-            let(:statsd_token_success) { SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS }
-            let(:expected_log) { '[SignInService] [V0::SignInController] token' }
 
-            before { allow(Rails.logger).to receive(:info) }
+            context 'and client is configured with pkce authentication type' do
+              let(:pkce) { true }
 
-            it 'creates an OAuthSession' do
-              expect { subject }.to change(SignIn::OAuthSession, :count).by(1)
-            end
+              context 'and code_verifier does not match expected code_challenge value' do
+                let(:code_verifier_value) { 'some-arbitrary-code-verifier-value' }
+                let(:expected_error) { 'Code Verifier is not valid' }
 
-            it 'returns ok status' do
-              expect(subject).to have_http_status(:ok)
-            end
-
-            context 'and authentication is for a session that is configured as api auth' do
-              let!(:user) { create(:user, :api_auth, uuid: user_uuid) }
-              let(:authentication) { SignIn::Constants::Auth::API }
-
-              it 'returns expected body with access token' do
-                expect(JSON.parse(subject.body)['data']).to have_key('access_token')
+                it_behaves_like 'error response'
               end
 
-              it 'returns expected body with refresh token' do
-                expect(JSON.parse(subject.body)['data']).to have_key('refresh_token')
-              end
+              context 'and code_verifier does match expected code_challenge value' do
+                let(:code_verifier_value) { 'some-code-verifier-value' }
+                let(:code_challenge) do
+                  hashed_code_challenge = Digest::SHA256.base64digest(code_verifier_value)
+                  Base64.urlsafe_encode64(Base64.urlsafe_decode64(hashed_code_challenge.to_s), padding: false)
+                end
+                let(:user_verification_id) { user_verification.id }
+                let(:user_verification) { create(:user_verification) }
+                let(:statsd_token_success) { SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS }
+                let(:expected_log) { '[SignInService] [V0::SignInController] token' }
 
-              it 'logs the successful token request' do
-                access_token = JWT.decode(JSON.parse(subject.body)['data']['access_token'], nil, false).first
-                logger_context = {
-                  user_uuid:,
-                  session_id: access_token['session_handle'],
-                  token_uuid: access_token['jti']
-                }
-                expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
-              end
+                before { allow(Rails.logger).to receive(:info) }
 
-              it 'updates StatsD with a token request success' do
-                expect { subject }.to trigger_statsd_increment(statsd_token_success)
-              end
-            end
+                it 'creates an OAuthSession' do
+                  expect { subject }.to change(SignIn::OAuthSession, :count).by(1)
+                end
 
-            context 'and authentication is for a session that is configured as cookie auth' do
-              let(:authentication) { SignIn::Constants::Auth::COOKIE }
-              let(:access_token_cookie_name) { SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME }
-              let(:refresh_token_cookie_name) { SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME }
+                it 'returns ok status' do
+                  expect(subject).to have_http_status(:ok)
+                end
 
-              it 'returns empty hash for body' do
-                expect(JSON.parse(subject.body)).to eq({})
-              end
+                context 'and authentication is for a session that is configured as api auth' do
+                  let!(:user) { create(:user, :api_auth, uuid: user_uuid) }
+                  let(:authentication) { SignIn::Constants::Auth::API }
 
-              it 'sets access token cookie' do
-                expect(subject.cookies).to have_key(access_token_cookie_name)
-              end
+                  it 'returns expected body with access token' do
+                    expect(JSON.parse(subject.body)['data']).to have_key('access_token')
+                  end
 
-              it 'sets refresh token cookie' do
-                expect(subject.cookies).to have_key(refresh_token_cookie_name)
-              end
+                  it 'returns expected body with refresh token' do
+                    expect(JSON.parse(subject.body)['data']).to have_key('refresh_token')
+                  end
 
-              context 'and session is configured as anti csrf enabled' do
-                let(:anti_csrf) { true }
-                let(:anti_csrf_token_cookie_name) { SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME }
+                  it 'logs the successful token request' do
+                    access_token = JWT.decode(JSON.parse(subject.body)['data']['access_token'], nil, false).first
+                    logger_context = {
+                      user_uuid:,
+                      session_id: access_token['session_handle'],
+                      token_uuid: access_token['jti']
+                    }
+                    expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
+                  end
 
-                it 'returns expected body with refresh token' do
-                  expect(subject.cookies).to have_key(anti_csrf_token_cookie_name)
+                  it 'updates StatsD with a token request success' do
+                    expect { subject }.to trigger_statsd_increment(statsd_token_success)
+                  end
+                end
+
+                context 'and authentication is for a session that is configured as cookie auth' do
+                  let(:authentication) { SignIn::Constants::Auth::COOKIE }
+                  let(:access_token_cookie_name) { SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME }
+                  let(:refresh_token_cookie_name) { SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME }
+
+                  it 'returns empty hash for body' do
+                    expect(JSON.parse(subject.body)).to eq({})
+                  end
+
+                  it 'sets access token cookie' do
+                    expect(subject.cookies).to have_key(access_token_cookie_name)
+                  end
+
+                  it 'sets refresh token cookie' do
+                    expect(subject.cookies).to have_key(refresh_token_cookie_name)
+                  end
+
+                  context 'and session is configured as anti csrf enabled' do
+                    let(:anti_csrf) { true }
+                    let(:anti_csrf_token_cookie_name) { SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME }
+
+                    it 'returns expected body with refresh token' do
+                      expect(subject.cookies).to have_key(anti_csrf_token_cookie_name)
+                    end
+                  end
+
+                  it 'logs the successful token request' do
+                    access_token_cookie = subject.cookies[access_token_cookie_name]
+                    access_token = JWT.decode(access_token_cookie, nil, false).first
+                    logger_context = {
+                      user_uuid:,
+                      session_id: access_token['session_handle'],
+                      token_uuid: access_token['jti']
+                    }
+                    expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
+                  end
+
+                  it 'updates StatsD with a token request success' do
+                    expect { subject }.to trigger_statsd_increment(statsd_token_success)
+                  end
                 end
               end
+            end
 
-              it 'logs the successful token request' do
-                access_token_cookie = subject.cookies[access_token_cookie_name]
-                access_token = JWT.decode(access_token_cookie, nil, false).first
-                logger_context = {
-                  user_uuid:,
-                  session_id: access_token['session_handle'],
-                  token_uuid: access_token['jti']
-                }
-                expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
+            context 'and client is configured with private key jwt authentication type' do
+              let(:pkce) { false }
+
+              context 'and client_assertion_type does not match expected value' do
+                let(:client_assertion_type_value) { 'some-client-assertion-type' }
+                let(:expected_error) { 'Client assertion type is not valid' }
+
+                it_behaves_like 'error response'
               end
 
-              it 'updates StatsD with a token request success' do
-                expect { subject }.to trigger_statsd_increment(statsd_token_success)
+              context 'and client_assertion_type matches expected value' do
+                let(:client_assertion_type_value) { SignIn::Constants::Auth::CLIENT_ASSERTION_TYPE }
+
+                context 'and client_assertion is not a valid jwt' do
+                  let(:client_assertion_value) { 'some-client-assertion' }
+                  let(:expected_error) { 'Client assertion is malformed' }
+
+                  it_behaves_like 'error response'
+                end
+
+                context 'and client_assertion is a valid jwt' do
+                  let(:private_key) { OpenSSL::PKey::RSA.new(File.read(private_key_path)) }
+                  let(:private_key_path) { 'spec/fixtures/sign_in/sample_client.pem' }
+                  let(:client_assertion_payload) do
+                    {
+                      iss:,
+                      aud:,
+                      sub:,
+                      jti:,
+                      exp:
+                    }
+                  end
+                  let(:iss) { client_id }
+                  let(:aud) { "https://#{Settings.hostname}#{SignIn::Constants::Auth::TOKEN_ROUTE_PATH}" }
+                  let(:sub) { client_id }
+                  let(:jti) { 'some-jti' }
+                  let(:exp) { 1.month.since.to_i }
+                  let(:client_assertion_encode_algorithm) { SignIn::Constants::Auth::CLIENT_ASSERTION_ENCODE_ALGORITHM }
+                  let(:client_assertion_value) do
+                    JWT.encode(client_assertion_payload, private_key, client_assertion_encode_algorithm)
+                  end
+                  let(:certificate_path) { 'spec/fixtures/sign_in/sample_client.crt' }
+                  let(:client_assertion_certificate) { File.read(certificate_path) }
+                  let(:user_verification_id) { user_verification.id }
+                  let(:user_verification) { create(:user_verification) }
+                  let(:statsd_token_success) { SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS }
+                  let(:expected_log) { '[SignInService] [V0::SignInController] token' }
+
+                  before { allow(Rails.logger).to receive(:info) }
+
+                  it 'creates an OAuthSession' do
+                    expect { subject }.to change(SignIn::OAuthSession, :count).by(1)
+                  end
+
+                  it 'returns ok status' do
+                    expect(subject).to have_http_status(:ok)
+                  end
+
+                  context 'and authentication is for a session that is configured as api auth' do
+                    let!(:user) { create(:user, :api_auth, uuid: user_uuid) }
+                    let(:authentication) { SignIn::Constants::Auth::API }
+
+                    it 'returns expected body with access token' do
+                      expect(JSON.parse(subject.body)['data']).to have_key('access_token')
+                    end
+
+                    it 'returns expected body with refresh token' do
+                      expect(JSON.parse(subject.body)['data']).to have_key('refresh_token')
+                    end
+
+                    it 'logs the successful token request' do
+                      access_token = JWT.decode(JSON.parse(subject.body)['data']['access_token'], nil, false).first
+                      logger_context = {
+                        user_uuid:,
+                        session_id: access_token['session_handle'],
+                        token_uuid: access_token['jti']
+                      }
+                      expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
+                    end
+
+                    it 'updates StatsD with a token request success' do
+                      expect { subject }.to trigger_statsd_increment(statsd_token_success)
+                    end
+                  end
+
+                  context 'and authentication is for a session that is configured as cookie auth' do
+                    let(:authentication) { SignIn::Constants::Auth::COOKIE }
+                    let(:access_token_cookie_name) { SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME }
+                    let(:refresh_token_cookie_name) { SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME }
+
+                    it 'returns empty hash for body' do
+                      expect(JSON.parse(subject.body)).to eq({})
+                    end
+
+                    it 'sets access token cookie' do
+                      expect(subject.cookies).to have_key(access_token_cookie_name)
+                    end
+
+                    it 'sets refresh token cookie' do
+                      expect(subject.cookies).to have_key(refresh_token_cookie_name)
+                    end
+
+                    context 'and session is configured as anti csrf enabled' do
+                      let(:anti_csrf) { true }
+                      let(:anti_csrf_token_cookie_name) { SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME }
+
+                      it 'returns expected body with refresh token' do
+                        expect(subject.cookies).to have_key(anti_csrf_token_cookie_name)
+                      end
+                    end
+
+                    it 'logs the successful token request' do
+                      access_token_cookie = subject.cookies[access_token_cookie_name]
+                      access_token = JWT.decode(access_token_cookie, nil, false).first
+                      logger_context = {
+                        user_uuid:,
+                        session_id: access_token['session_handle'],
+                        token_uuid: access_token['jti']
+                      }
+                      expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
+                    end
+
+                    it 'updates StatsD with a token request success' do
+                      expect { subject }.to trigger_statsd_increment(statsd_token_success)
+                    end
+                  end
+                end
               end
             end
           end

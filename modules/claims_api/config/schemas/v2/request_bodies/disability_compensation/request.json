@@ -1,3 +1,4 @@
+
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "description": "Claims API 526 Schema",
@@ -639,7 +640,7 @@
                   "type": "object",
                   "additionalProperties": false,
                   "required": [
-                    "treatedDisabilityName",
+                    "treatedDisabilityNames",
                     "center"
                   ],
                     "properties": {
@@ -649,16 +650,18 @@
                             "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                             "example": "2018-03-02"
                         },
-                        "treatedDisabilityName": {
-                            "description": "Disabilities treated in this time frame.",
-                            "type": "string",
+                        "treatedDisabilityNames": {
+                            "description": "Name(s) of Disabilities treated in this time frame.",
+                            "type": "array",
                             "minItems": 1,
                             "maxItems": 101,
-                            "uniqueItems": true,
                             "items": {
-                              "description": "Name of Disabilities Veteran was Treated for.",
-                              "type": "string",
-                              "example": "PTSD (post traumatic stress disorder)"
+                                "type": "string",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "type": "string",
+                                    "example": ["PTSD (post traumatic stress disorder)","Trauma"]
+                                }
                             }
                         },
                         "center": {
@@ -670,7 +673,7 @@
                                 "name": {
                                       "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                                       "type": "string",
-                                      "pattern": "([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                      "pattern": "(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                                       "example": "Private Facility 2",
                                       "minLength": 1,
                                       "maxLength": 100
@@ -875,34 +878,13 @@
                     "alternateNames": {
                         "description": "List any other names under which the Veteran served, if applicable.",
                         "type": "array",
-                        "minItems": 1,
                         "maxItems": 100,
                         "uniqueItems": true,
                         "items": {
-                            "type": "object",
+                            "type": "string",
                             "additionalProperties": false,
-                            "required": ["firstName", "lastName"],
-                            "properties": {
-                              "firstName": {
-                                "type": "string",
-                                "min": 1,
-                                "max": 30,
-                                "pattern": "^([-a-zA-Z0-9/']+( ?))+$"
-                              },
-                              "middleName": {
-                                "type": "string",
-                                "min": 1,
-                                "max": 30,
-                                "pattern": "^([-a-zA-Z0-9/']+( ?))+$"
-                              },
-                              "lastName": {
-                                "type": "string",
-                                "min": 1,
-                                "max": 30,
-                                "pattern": "^([-a-zA-Z0-9/']+( ?))+$"
-                              }
+                            "examples": ["jane", "janey lee", "jane lee MacDonald"]
                             }
-                        }
                     },
                     "servedInActiveCombatSince911": {
                         "type": "boolean",

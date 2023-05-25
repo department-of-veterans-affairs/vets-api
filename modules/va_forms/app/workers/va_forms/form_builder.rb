@@ -99,7 +99,11 @@ module VAForms
       form_data = { form_name: form.form_name, form_url: form.url }.to_s
 
       Rails.logger.error("#{message}: #{form_data}", e)
-      VAForms::Slack::Messenger.new({ class: self.class.name, message:, exception: e, form_data: }).notify!
+
+      # Only alert to slack when a formerly-valid PDF turns false
+      if form.valid_pdf?
+        VAForms::Slack::Messenger.new({ class: self.class.name, message:, exception: e, form_data: }).notify!
+      end
 
       form.valid_pdf = false
       form

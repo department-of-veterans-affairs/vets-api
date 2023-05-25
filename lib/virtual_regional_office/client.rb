@@ -7,33 +7,24 @@ module VirtualRegionalOffice
     include Common::Client::Concerns::Monitoring
     configuration VirtualRegionalOffice::Configuration
 
-    # Initializes the VRO client.
-    #
-    # @example
-    #
-    # VirtualRegionalOffice::Client.new(diagnostic_code: 7101, claim_submission_id: 1234)
-    def initialize(params)
-      @diagnostic_code = params[:diagnostic_code].to_s
-      @claim_submission_id = params[:claim_submission_id].to_s
-
-      raise ArgumentError, 'no diagnostic_code passed in for request.' if @diagnostic_code.blank?
-      raise ArgumentError, 'no claim_submission_id passed in for request.' if @claim_submission_id.blank?
-    end
-
-    def assess_claim(veteran_icn:)
+    def assess_claim(diagnostic_code:, claim_submission_id:, veteran_icn:)
       params = {
         veteranIcn: veteran_icn,
-        diagnosticCode: @diagnostic_code,
-        claimSubmissionId: @claim_submission_id
+        diagnosticCode: diagnostic_code,
+        claimSubmissionId: claim_submission_id
       }
 
       perform(:post, Settings.virtual_regional_office.health_assessment_path, params.to_json.to_s, headers_hash)
     end
 
-    def generate_summary(veteran_info:, evidence:)
+    def classify_contention_by_diagnostic_code(params)
+      perform(:post, Settings.virtual_regional_office.ctn_classification_path, params.to_json.to_s, headers_hash)
+    end
+
+    def generate_summary(claim_submission_id:, diagnostic_code:, veteran_info:, evidence:)
       params = {
-        claimSubmissionId: @claim_submission_id,
-        diagnosticCode: @diagnostic_code,
+        claimSubmissionId: claim_submission_id,
+        diagnosticCode: diagnostic_code,
         veteranInfo: veteran_info,
         evidence:
       }
@@ -41,8 +32,8 @@ module VirtualRegionalOffice
       perform(:post, Settings.virtual_regional_office.evidence_pdf_path, params.to_json.to_s, headers_hash)
     end
 
-    def download_summary
-      path = "#{Settings.virtual_regional_office.evidence_pdf_path}/#{@claim_submission_id}"
+    def download_summary(claim_submission_id:)
+      path = "#{Settings.virtual_regional_office.evidence_pdf_path}/#{claim_submission_id}"
       perform(:get, path, {}, headers_hash.merge(Accept: 'application/pdf'))
     end
 

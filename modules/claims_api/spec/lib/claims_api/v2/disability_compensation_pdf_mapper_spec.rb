@@ -29,6 +29,21 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       )
     end
 
+    let(:claim_without_exposure) do
+      JSON.parse(
+        Rails.root.join(
+          'modules',
+          'claims_api',
+          'config',
+          'schemas',
+          'v2',
+          'request_bodies',
+          'disability_compensation',
+          'example.json'
+        ).read
+      )
+    end
+
     context '526 section 0, claim attributes' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
       let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data) }
@@ -190,6 +205,71 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(multi_exp_end_date).to eq('5517-07-27')
         expect(multi_exp_location).to eq('ABCDEFGHIJKLMN')
         expect(multi_exp_hazard).to eq('ABCDEFGHIJKLMNO')
+      end
+    end
+
+    context '526 section 5, claim info: disabilities' do
+      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
+      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data) }
+
+      it 'maps the attributes correctly' do
+        mapper.map_claim
+
+        claim_info = pdf_data[:data][:attributes][:claimInformation]
+
+        name = claim_info[:disabilities][0][:disability]
+        relevance = claim_info[:disabilities][0][:serviceRelevance]
+        date = claim_info[:disabilities][0][:approximateDate]
+        is_related = claim_info[:disabilities][0][:isRelatedToToxicExposure]
+        event = claim_info[:disabilities][0][:exposureOrEventOrInjury]
+        attribut_count = claim_info[:disabilities][0].count
+        secondary_name = claim_info[:disabilities][1][:disability]
+        secondary_event = claim_info[:disabilities][1][:exposureOrEventOrInjury]
+        secondary_relevance = claim_info[:disabilities][1][:serviceRelevance]
+        has_conditions = pdf_data[:data][:attributes][:exposureInformation][:hasConditionsRelatedToToxicExposures]
+
+        expect(has_conditions).to eq(true)
+        expect(name).to eq('PTSD (post traumatic stress disorder)')
+        expect(relevance).to eq('ABCDEFG')
+        expect(date).to eq('4592-11-04')
+        expect(event).to eq('EXPOSURE')
+        expect(is_related).to eq(true)
+        expect(attribut_count).to eq(5)
+        expect(secondary_name).to eq('Trauma')
+        expect(secondary_event).to eq('EXPOSURE')
+        expect(secondary_relevance).to eq('ABCDEFG')
+      end
+    end
+
+    context '526 section 5, claim info: disabilities, & has conditions attribute' do
+      let(:form_attributes) { claim_without_exposure.dig('data', 'attributes') || {} }
+      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data) }
+
+      it 'maps the has_condition related to exposure method correctly' do
+        mapper.map_claim
+
+        has_conditions = pdf_data[:data][:attributes][:exposureInformation][:hasConditionsRelatedToToxicExposures]
+
+        expect(has_conditions).to eq(false)
+      end
+    end
+
+    context '526 section 5, treatment centers' do
+      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
+      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data) }
+
+      it 'maps the attributes correctly' do
+        mapper.map_claim
+
+        tx_center_data = pdf_data[:data][:attributes][:claimInformation][:treatments]
+
+        start_date = tx_center_data[0][:dateOfTreatment]
+        no_date = tx_center_data[0][:doNotHaveDate]
+        treatment_details = tx_center_data[0][:treatmentDetails]
+
+        expect(start_date).to eq('03-1985')
+        expect(no_date).to eq(false)
+        expect(treatment_details).to eq('PTSD (post traumatic stress disorder), Trauma - Center One, Decatur, GA')
       end
     end
   end

@@ -324,7 +324,7 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
       scopes = AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController::OAUTH_SCOPES[:PUT]
       tags 'Notice of Disagreements'
       operationId 'putNoticeOfDisagreementEvidenceSubmission'
-      description File.read('modules/appeals_api/app/swagger/notice_of_disagreements/v0/put_description.md')
+      description File.read(AppealsApi::Engine.root.join('app', 'swagger', 'notice_of_disagreements', 'v0', 'put_description.md'))
       security DocHelpers.oauth_security_config(scopes)
       parameter name: :'Content-MD5', in: :header, type: :string, description: 'Base64-encoded 128-bit MD5 digest of the message. Use for integrity control.'
       let(:'Content-MD5') { nil }

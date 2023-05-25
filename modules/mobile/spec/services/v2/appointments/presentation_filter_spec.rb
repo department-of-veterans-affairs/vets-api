@@ -86,24 +86,12 @@ describe Mobile::V2::Appointments::PresentationFilter do
             expect(Rails.logger).not_to receive(:error)
             expect(filterer.user_facing?(cancelled)).to be false
           end
-
-          it 'logs an error and returns false when appointment has an invalid start date' do
-            upcoming[:start] = 'NOTADATE'
-            expect(Rails.logger).to receive(:error).with('Invalid appointment time received: NOTADATE', 'invalid date')
-            expect(filterer.user_facing?(upcoming)).to be false
-          end
         end
 
         context 'for appointment requests' do
           it 'returns false but does not raise an error if created date is empty' do
             request[:created] = nil
             expect(Rails.logger).not_to receive(:error)
-            expect(filterer.user_facing?(request)).to be false
-          end
-
-          it 'logs an error and returns false when appointment has an invalid created date' do
-            request[:created] = 'NOTADATE'
-            expect(Rails.logger).to receive(:error).with('Invalid appointment time received: NOTADATE', 'invalid date')
             expect(filterer.user_facing?(request)).to be false
           end
         end

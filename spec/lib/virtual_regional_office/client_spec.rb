@@ -4,44 +4,10 @@ require 'rails_helper'
 require 'virtual_regional_office/client'
 
 RSpec.describe VirtualRegionalOffice::Client do
-  before(:all) do
-    @client = VirtualRegionalOffice::Client.new({
-                                                  diagnostic_code: '7101',
-                                                  claim_submission_id: '1234'
-                                                })
-  end
-
-  context 'initialization' do
-    describe 'when the caller passes a valid diagnostic code' do
-      it 'initializes the client with the diagnostic code set' do
-        expect(@client.instance_variable_get(:@diagnostic_code)).to eq '7101'
-      end
-    end
-
-    describe 'when the caller passes no diagnostic code' do
-      it 'raises an ArgumentError to the caller' do
-        expect do
-          VirtualRegionalOffice::Client.new({
-                                              claim_submission_id: '1234'
-                                            })
-        end.to raise_error(ArgumentError, 'no diagnostic_code passed in for request.')
-      end
-    end
-
-    describe 'when the caller passes a blank icn' do
-      it 'raises an ArgumentError to the caller' do
-        expect do
-          VirtualRegionalOffice::Client.new({
-                                              diagnostic_code: '',
-                                              claim_submission_id: '1234'
-                                            })
-        end.to raise_error(ArgumentError, 'no diagnostic_code passed in for request.')
-      end
-    end
-  end
+  let(:client) { VirtualRegionalOffice::Client.new }
 
   describe 'making requests' do
-    subject { @client.assess_claim(veteran_icn: '9000682') }
+    subject { client.assess_claim(diagnostic_code: 1234, claim_submission_id: 1, veteran_icn: '9000682') }
 
     context 'valid requests' do
       describe 'when requesting health-data-assessment' do
@@ -50,7 +16,7 @@ RSpec.describe VirtualRegionalOffice::Client do
         end
 
         before do
-          allow(@client).to receive(:perform).and_return generic_response
+          allow(client).to receive(:perform).and_return generic_response
         end
 
         it 'returns the api response' do
@@ -65,7 +31,7 @@ RSpec.describe VirtualRegionalOffice::Client do
       end
 
       before do
-        allow(@client).to receive(:perform).and_return error_state
+        allow(client).to receive(:perform).and_return error_state
       end
 
       it 'handles an error' do

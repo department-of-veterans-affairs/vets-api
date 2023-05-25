@@ -1,0 +1,83 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://localhost:8080/v3/contention-classification/classifier
+    body:
+      encoding: UTF-8
+      string: '{"diagnostic_code":5235,"claim_id":190,"form526_submission_id":179}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      X-Api-Key:
+      - 9d3868d1-ec15-4889-8002-2bff1b50ba62
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Thu, 11 May 2023 23:33:43 GMT
+    body:
+      encoding: UTF-8
+      string: '{"statusCode":200,"responseBody":{"classification_code":6602,"classification_name":"asthma"}}'
+  recorded_at: Thu, 11 May 2023 23:33:43 GMT
+- request:
+    method: post
+    uri: https://viccs-api-test.ibm-intelligent-automation.com/pca/api/test/token
+    body:
+      encoding: US-ASCII
+      string: grant_type=client_credentials&scope=openid&client_id=va_gov_test&client_<DMC_TOKEN>=<LIGHTHOUSE_API_KEY>
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 11 May 2023 23:33:43 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '93'
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - no-store
+      X-Xss-Protection:
+      - 1; mode=block
+      Pragma:
+      - no-cache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Referrer-Policy:
+      - no-referrer
+      Apigw-Requestid:
+      - EyA1xjuYPHMEPZg=
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      X-Content-Type-Options:
+      - nosniff
+    body:
+      encoding: UTF-8
+      string: '{"statusCode":200,"responseBody":{"classification_code":6602,"classification_name":"asthma"}}'
+  recorded_at: Thu, 11 May 2023 23:33:43 GMT
+recorded_with: VCR 6.1.0

@@ -51,6 +51,7 @@ module Auth
       # @return [Hash] body of request to get access token
       #
       def build_request_body(assertion, scopes, auth_params = {})
+        auth_params = {} if auth_params.nil?
         {
           grant_type: 'client_credentials',
           client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',

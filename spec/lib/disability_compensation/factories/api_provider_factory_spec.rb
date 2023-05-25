@@ -50,22 +50,14 @@ RSpec.describe ApiProviderFactory do
     end
 
     it 'provides a Lighthouse intent to file provider' do
-      # TODO: update when lighthouse provider is implemented
-      # provider = ApiProviderFactory.intent_to_file_service_provider(current_user, :lighthouse)
-      # expect(provider.class).to equal(LighthouseIntentToFileProvider)
-      expect do
-        ApiProviderFactory.intent_to_file_service_provider(current_user, :lighthouse)
-      end.to raise_error NotImplementedError
+      provider = ApiProviderFactory.intent_to_file_service_provider(current_user, :lighthouse)
+      expect(provider.class).to equal(LighthouseIntentToFileProvider)
     end
 
     it 'provides intent to file provider based on Flipper' do
       Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE)
-      # TODO: update when lighthouse provider is implemented
-      # provider = ApiProviderFactory.intent_to_file_service_provider(current_user)
-      # expect(provider.class).to equal(LighthouseIntentToFileProvider)
-      expect do
-        ApiProviderFactory.intent_to_file_service_provider(current_user, :lighthouse)
-      end.to raise_error NotImplementedError
+      provider = ApiProviderFactory.intent_to_file_service_provider(current_user)
+      expect(provider.class).to equal(LighthouseIntentToFileProvider)
 
       Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE)
       provider = ApiProviderFactory.intent_to_file_service_provider(current_user)

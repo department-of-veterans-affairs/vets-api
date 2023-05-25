@@ -46,18 +46,10 @@ RSpec.describe Form526Submission do
         )
       end
 
-      it 'does NOT queue a new RapidReadyForDecision::Form526BaseJob worker' do
-        expect { subject.start }.to change(RapidReadyForDecision::Form526BaseJob.jobs, :size).by(0)
-      end
-
       it_behaves_like '#start_evss_submission'
     end
 
     context 'the submission is NOT for hypertension' do
-      it 'Does NOT queue a new RapidReadyForDecision::Form526BaseJob' do
-        expect { subject.start }.to change(RapidReadyForDecision::Form526BaseJob.jobs, :size).by(0)
-      end
-
       it_behaves_like '#start_evss_submission'
     end
   end

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'ostruct'
-require 'rapid_ready_for_decision/disability_compensation_job'
+require 'lighthouse/veterans_health/client'
 
 medication_response = {
   'resourceType' => 'Bundle',

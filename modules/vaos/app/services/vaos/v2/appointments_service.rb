@@ -21,10 +21,11 @@ module VAOS
         with_monitoring do
           response = perform(:get, appointments_base_url, params, headers)
           response.body[:data].each do |appt|
-            # set cancellable to false per GH#57824 for CnP appointments
-            set_cancellable_false(appt) if appt.dig(:service_category, 0, :coding, 0, :code) == 'COMPENSATION & PENSION'
+            # for CnP appointments set cancellable to false per GH#57824
+            set_cancellable_false(appt) if cnp?(appt)
+            # for covid appointments set cancellable to false per GH#58690
+            set_cancellable_false(appt) if covid?(appt)
 
-            find_service_type_and_category(appt)
             log_telehealth_data(appt[:telehealth]&.[](:atlas)) unless appt[:telehealth]&.[](:atlas).nil?
             convert_appointment_time(appt)
           end
@@ -40,11 +41,11 @@ module VAOS
         with_monitoring do
           response = perform(:get, get_appointment_base_url(appointment_id), params, headers)
           convert_appointment_time(response.body[:data])
+          # for CnP appointments set cancellable to false per GH#57824
+          set_cancellable_false(response.body[:data]) if cnp?(response.body[:data])
+          # for covid appointments set cancellable to false per GH#58690
+          set_cancellable_false(response.body[:data]) if covid?(response.body[:data])
           OpenStruct.new(response.body[:data])
-          appt = OpenStruct.new(response.body[:data])
-          # set cancellable to false per GH#57824 for CnP appointments
-          set_cancellable_false(appt) if appt.dig(:service_category, 0, :coding, 0, :code) == 'COMPENSATION & PENSION'
-          appt
         end
       end
 
@@ -53,7 +54,6 @@ module VAOS
         params.compact_blank!
         with_monitoring do
           response = perform(:post, appointments_base_url, params, headers)
-          find_service_type_and_category(response.body)
           log_telehealth_data(response.body[:telehealth]&.[](:atlas)) unless response.body[:telehealth]&.[](:atlas).nil?
           OpenStruct.new(response.body)
         rescue Common::Exceptions::BackendServiceException => e
@@ -78,17 +78,46 @@ module VAOS
           VAOS::V2::MobileFacilityService.new(user)
       end
 
+      # Get codes from a list of codeable concepts.
+      #
+      # @param input [Array<Hash>] An array of codeable concepts.
+      # @return [Array<String>] An array of codes.
+      #
+      def codes(input)
+        return [] if input.nil?
+
+        input.flat_map { |codeable_concept| codeable_concept[:coding]&.pluck(:code) }.compact
+      end
+
+      # Returns true if the appointment is for compensation and pension, false otherwise.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is for compensation and pension, false otherwise
+      #
+      def cnp?(appt)
+        codes(appt[:service_category]).include? 'COMPENSATION & PENSION'
+      end
+
+      # Returns true if the appointment is for covid, false otherwise.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is for covid, false otherwise
+      #
+      def covid?(appt)
+        codes(appt[:service_types]).include?('covid') || appt[:service_type] == 'covid'
+      end
+
       # Entry point for processing appointment responses for converting their times from UTC to local.
       # Uses the location_id from the appt body to fetch the facility's timezone that is then passed along
       # with the appointment time to the convert_utc_to_local_time method which does the actual conversion.
       def convert_appointment_time(appt)
         if !appt[:start].nil?
           facility_timezone = get_facility_timezone(appt[:location_id])
-          appt[:start] = convert_utc_to_local_time(appt[:start], facility_timezone)
+          appt[:local_start_time] = convert_utc_to_local_time(appt[:start], facility_timezone)
         elsif !appt.dig(:requested_periods, 0, :start).nil?
           appt[:requested_periods].each do |period|
             facility_timezone = get_facility_timezone(appt[:location_id])
-            period[:start] = convert_utc_to_local_time(period[:start], facility_timezone)
+            period[:local_start_time] = convert_utc_to_local_time(period[:start], facility_timezone)
           end
         end
         appt
@@ -105,7 +134,11 @@ module VAOS
       def convert_utc_to_local_time(date, tz)
         raise Common::Exceptions::ParameterMissing, 'date' if date.nil?
 
-        date.to_time.utc.in_time_zone(tz).to_datetime
+        if tz.nil?
+          'Unable to convert UTC to local time'
+        else
+          date.to_time.utc.in_time_zone(tz).to_datetime
+        end
       end
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
@@ -114,7 +147,7 @@ module VAOS
         if facility_info == FACILITY_ERROR_MSG || facility_info.nil?
           nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
         else
-          facility_info[:timezone]&.[](:zone_id)
+          facility_info[:timezone]&.[](:time_zone_id)
         end
       end
 
@@ -135,7 +168,7 @@ module VAOS
 
       # Modifies the appointment, setting the cancellable flag to false
       #
-      # @param appointment [OpenStruct] the appointment to modify
+      # @param appointment [Hash] the appointment to modify
       def set_cancellable_false(appointment)
         appointment[:cancellable] = false
       end
@@ -157,41 +190,6 @@ module VAOS
           siteCode: atlas_data&.[](:site_code),
           address: atlas_data&.[](:address)
         }
-      end
-
-      def find_service_type_and_category(appt)
-        appointment_kind = appt&.[](:kind)
-        service_category_found = if appt.dig(:service_category, 0, :coding, 0,
-                                             :code).nil?
-                                   'ServiceCategoryNotFound'
-                                 else
-                                   appt.dig(:service_category, 0, :coding, 0,
-                                            :code)
-                                 end
-        service_types_found = if appt.dig(:service_types, 0, :coding, 0,
-                                          :code).nil?
-                                'ServiceTypesNotFound'
-                              else
-                                appt.dig(:service_types, 0, :coding, 0,
-                                         :code)
-                              end
-        service_type_found = appt[:service_type].nil? ? 'ServiceTypeNotFound' : appt[:service_type]
-        log_service_type_and_category(type_and_category_data(appointment_kind, service_type_found, service_types_found,
-                                                             service_category_found))
-      end
-
-      def type_and_category_data(kind, type, types, category)
-        {
-          vaos_appointment_kind: kind,
-          vaos_service_type: type,
-          vaos_service_types: types,
-          vaos_service_category: category
-        }
-      end
-
-      def log_service_type_and_category(service_data)
-        service_log_entry = { VAOS_SERVICE_DATA_KEY => service_data }
-        Rails.logger.info('VAOS appointment service category and type', service_log_entry.to_json)
       end
 
       def deserialized_appointments(appointment_list)

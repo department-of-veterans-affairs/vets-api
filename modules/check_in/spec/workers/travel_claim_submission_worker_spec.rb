@@ -10,6 +10,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
     let(:mobile_phone_last_four) { '4566' }
     let(:redis_token) { '123-456' }
     let(:icn) { '123456' }
+    let(:notify_appt_date) { 'Sep 01' }
 
     before do
       redis_client = double
@@ -25,13 +26,14 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
       it 'sends notification with success template' do
         worker = described_class.new
         notify_client = double
+
         expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
                                                   .and_return(notify_client)
         expect(notify_client).to receive(:send_sms).with(
           phone_number: mobile_phone,
           template_id: 'fake_success_template_id',
           sms_sender_id: 'fake_sms_sender_id',
-          personalisation: { claim_number: 'TC202207000011666', appt_date: }
+          personalisation: { claim_number: 'TC202207000011666', appt_date: notify_appt_date }
         )
         expect(worker).not_to receive(:log_exception_to_sentry)
 
@@ -44,7 +46,9 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         end
 
         expect(StatsD).to have_received(:increment)
-          .with('worker.checkin.travel_claim.success').exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_SUCCESS).exactly(1).time
+        expect(StatsD).to have_received(:increment)
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
       end
     end
 
@@ -58,7 +62,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
           phone_number: mobile_phone,
           template_id: 'fake_duplicate_template_id',
           sms_sender_id: 'fake_sms_sender_id',
-          personalisation: { claim_number: nil, appt_date: }
+          personalisation: { claim_number: nil, appt_date: notify_appt_date }
         )
         expect(worker).not_to receive(:log_exception_to_sentry)
 
@@ -71,7 +75,9 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         end
 
         expect(StatsD).to have_received(:increment)
-          .with('worker.checkin.travel_claim.success').exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_DUPLICATE).exactly(1).time
+        expect(StatsD).to have_received(:increment)
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
       end
     end
 
@@ -85,7 +91,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
           phone_number: mobile_phone,
           template_id: 'fake_error_template_id',
           sms_sender_id: 'fake_sms_sender_id',
-          personalisation: { claim_number: nil, appt_date: }
+          personalisation: { claim_number: nil, appt_date: notify_appt_date }
         )
         expect(worker).not_to receive(:log_exception_to_sentry)
 
@@ -98,7 +104,9 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         end
 
         expect(StatsD).to have_received(:increment)
-          .with('worker.checkin.travel_claim.success').exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_ERROR).exactly(1).time
+        expect(StatsD).to have_received(:increment)
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
       end
     end
 
@@ -111,8 +119,10 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
             claim_number: 'TC202207000011666' },
           { error: :check_in_va_notify_job, team: 'check-in' }
         )
+        expect(StatsD).not_to receive(:increment)
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS)
         expect(StatsD).to receive(:increment)
-          .with('worker.checkin.travel_claim.error').exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_ERROR).exactly(1).time
 
         Sidekiq::Testing.inline! do
           VCR.use_cassette('check_in/vanotify/send_sms_403_forbidden', match_requests_on: [:host]) do

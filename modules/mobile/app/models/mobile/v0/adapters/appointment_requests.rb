@@ -19,12 +19,6 @@ module Mobile
             else
               va_appointments << Templates::VAAppointment.new(request).appointment
             end
-          rescue => e
-            Rails.logger.error(
-              'Error adapting appointment request',
-              appointment_request: request, error: e.message, backtrace: e.backtrace
-            )
-            next
           end
 
           [va_appointments, cc_appointments]
