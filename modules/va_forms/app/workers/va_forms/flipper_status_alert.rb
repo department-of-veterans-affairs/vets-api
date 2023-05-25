@@ -3,6 +3,7 @@
 require 'sidekiq'
 require 'sidekiq/benchmark_logging_worker'
 require 'flipper/utilities/bulk_feature_checker'
+require 'sidekiq/middleware/benchmark_logging_middleware'
 
 module VAForms
   class FlipperStatusAlert
