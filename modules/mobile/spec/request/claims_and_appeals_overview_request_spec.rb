@@ -46,13 +46,16 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body['data']
             if lighthouse_flag
-              expect(parsed_response_contents.length).to eq(10)
+              expect(parsed_response_contents.length).to eq(11)
               expect(response.parsed_body.dig('meta', 'pagination', 'totalPages')).to eq(1)
               open_claim = parsed_response_contents.select { |entry| entry['id'] == '600383363' }[0]
               closed_claim = parsed_response_contents.select { |entry| entry['id'] == '600229968' }[0]
               decision_letter_sent_claim = parsed_response_contents.select { |entry| entry['id'] == '600323434' }[0]
+              nil_dates_claim = parsed_response_contents.last
               expect(open_claim.dig('attributes', 'updatedAt')).to eq('2022-09-30')
               expect(closed_claim.dig('attributes', 'updatedAt')).to eq('2021-03-22')
+              expect(nil_dates_claim.dig('attributes', 'updatedAt')).to eq(nil)
+              expect(nil_dates_claim.dig('attributes', 'dateFiled')).to eq(nil)
             else
               expect(parsed_response_contents.length).to eq(60)
               expect(response.parsed_body.dig('meta', 'pagination', 'totalPages')).to eq(3)

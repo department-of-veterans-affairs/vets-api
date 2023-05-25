@@ -138,6 +138,9 @@ module Mobile
       def filter_by_date(start_date, end_date, list)
         list.filter do |entry|
           updated_at = entry[:updated_at]
+
+          next(true) unless updated_at
+
           updated_at >= start_date && updated_at <= end_date
         end
       end
