@@ -51,7 +51,9 @@ module Mobile
         userProfileUpdate: :vet360,
         secureMessaging: :mhv_messaging,
         scheduleAppointments: :schedule_appointment,
-        prescriptions: :mhv_prescriptions
+        prescriptions: :mhv_prescriptions,
+        preferredName: :demographics,
+        genderIdentity: :demographics
       }.freeze
 
       set_type :user

@@ -22,6 +22,22 @@ RSpec.describe BenefitsClaims::Service do
           end
         end
       end
+
+      describe 'when requesting a list of benefits claims' do
+        it 'retrieves a list of benefits claims from the Lighthouse API' do
+          VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+            response = @service.get_claims
+            expect(response.dig('data', 0, 'id')).to eq('600383363')
+          end
+        end
+
+        it 'filters out claims with certain statuses' do
+          VCR.use_cassette('lighthouse/benefits_claims/index/200_response') do
+            response = @service.get_claims
+            expect(response['data'].length).to eq(5)
+          end
+        end
+      end
     end
   end
 end

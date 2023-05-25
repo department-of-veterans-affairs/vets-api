@@ -192,6 +192,11 @@ VRE::CreateCh31SubmissionsReportJob:
   include_metadata: true
   description: "Send a daily report to the VRE team about Chapter 31 submissions"
 
+Mobile::WeeklyMaintenanceWindowLogger:
+  cron: "0 13 * * 1 America/New_York"
+  class: Mobile::V0::WeeklyMaintenanceWindowLogger
+  description: "Weekly logs of maintenance windows"
+
 Webhooks::SchedulerJob:
   at: "<%=Settings.vba_documents.v2_enabled ? 0.seconds.from_now : 100.years.from_now%>"
   description: Starts off webhook based notifications

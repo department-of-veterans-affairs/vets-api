@@ -1,6 +1,6 @@
 data:
   - type: appointment
-    id: '8a48e8db6d70a38a016d72b354240002'
+    id: '68254'
     attributes:
       appointmentType: VA
       cancelId: null

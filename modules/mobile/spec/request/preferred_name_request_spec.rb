@@ -7,53 +7,115 @@ require 'va_profile/demographics/service'
 RSpec.describe 'preferred_name', type: :request do
   include SchemaMatchers
 
-  let(:user) { FactoryBot.build(:iam_user) }
+  describe 'logingov user' do
+    let(:login_uri) { 'LGN' }
 
-  before do
-    iam_sign_in(user)
-    allow_any_instance_of(VAProfile::Demographics::Service).to receive(:identifier_present?).and_return(true)
-  end
+    before do
+      iam_sign_in(FactoryBot.build(:iam_user, :logingov))
+      allow_any_instance_of(User).to receive(:logingov_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
+    end
 
-  before(:all) do
-    @original_cassette_dir = VCR.configure(&:cassette_library_dir)
-    VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
-  end
+    describe 'PUT /mobile/v0/profile/preferred_names' do
+      context 'when text is valid' do
+        it 'returns 204', :aggregate_failures do
+          preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
+          VCR.use_cassette('mobile/va_profile/post_preferred_name_success', erb: { login_uri: }) do
+            VCR.use_cassette('mobile/demographics/logingov') do
+              put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
 
-  after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
+              expect(response).to have_http_status(:no_content)
+            end
+          end
+        end
+      end
 
-  describe 'PUT /mobile/v0/profile/preferred_names' do
-    context 'when text is valid' do
-      it 'returns 204', :aggregate_failures do
-        preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
-        VCR.use_cassette('va_profile/post_preferred_name_success') do
+      context 'when text is blank' do
+        it 'matches the errors schema', :aggregate_failures do
+          preferred_name = VAProfile::Models::PreferredName.new(text: nil)
+
           put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
 
-          expect(response).to have_http_status(:no_content)
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to match_response_schema('errors')
+          expect(errors_for(response)).to include "text - can't be blank"
+        end
+      end
+
+      context 'when text is too long' do
+        it 'matches the errors schema', :aggregate_failures do
+          preferred_name = VAProfile::Models::PreferredName.new(text: 'A' * 26)
+
+          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to match_response_schema('errors')
+          expect(errors_for(response)).to include 'text - is too long (maximum is 25 characters)'
         end
       end
     end
+  end
 
-    context 'when text is blank' do
-      it 'matches the errors schema', :aggregate_failures do
-        preferred_name = VAProfile::Models::PreferredName.new(text: nil)
+  describe 'idme user' do
+    let(:login_uri) { 'IDM' }
 
-        put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
-
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(response).to match_response_schema('errors')
-        expect(errors_for(response)).to include "text - can't be blank"
-      end
+    before do
+      iam_sign_in(FactoryBot.build(:iam_user))
+      allow_any_instance_of(User).to receive(:idme_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
     end
 
-    context 'when text is too long' do
-      it 'matches the errors schema', :aggregate_failures do
-        preferred_name = VAProfile::Models::PreferredName.new(text: 'A' * 26)
+    describe 'PUT /mobile/v0/profile/preferred_names' do
+      context 'when text is valid' do
+        it 'returns 204', :aggregate_failures do
+          preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
+          VCR.use_cassette('mobile/va_profile/post_preferred_name_success', erb: { login_uri: }) do
+            VCR.use_cassette('va_profile/demographics/demographics') do
+              put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
 
-        put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
+              expect(response).to have_http_status(:no_content)
+            end
+          end
+        end
+      end
 
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(response).to match_response_schema('errors')
-        expect(errors_for(response)).to include 'text - is too long (maximum is 25 characters)'
+      context 'when text is blank' do
+        it 'matches the errors schema', :aggregate_failures do
+          preferred_name = VAProfile::Models::PreferredName.new(text: nil)
+
+          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to match_response_schema('errors')
+          expect(errors_for(response)).to include "text - can't be blank"
+        end
+      end
+
+      context 'when text is too long' do
+        it 'matches the errors schema', :aggregate_failures do
+          preferred_name = VAProfile::Models::PreferredName.new(text: 'A' * 26)
+
+          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to match_response_schema('errors')
+          expect(errors_for(response)).to include 'text - is too long (maximum is 25 characters)'
+        end
+      end
+    end
+  end
+
+  describe 'unauthorized user' do
+    before do
+      iam_sign_in(FactoryBot.build(:iam_user))
+    end
+
+    describe 'PUT /mobile/v0/profile/preferred_names' do
+      context 'when text is valid' do
+        it 'returns 402', :aggregate_failures do
+          preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
+          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
+
+          expect(response).to have_http_status(:forbidden)
+        end
       end
     end
   end

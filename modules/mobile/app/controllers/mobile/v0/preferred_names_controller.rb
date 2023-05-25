@@ -5,6 +5,7 @@ require 'va_profile/demographics/service'
 module Mobile
   module V0
     class PreferredNamesController < ApplicationController
+      before_action { authorize :demographics, :access_update? }
       before_action { authorize :mpi, :queryable? }
 
       def update
