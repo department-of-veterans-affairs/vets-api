@@ -213,7 +213,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         { 'test consumer' => ['test_consumer_key'] }
       )
 
-      puts "Valid mets type: #{valid_metadata.class.name}"
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => md.to_json, 'content' => valid_doc, 'attachment1' => valid_doc }
       }
