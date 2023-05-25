@@ -8,6 +8,8 @@ module VBADocuments
 
     SUPPORTED_CONTENT_TYPES = %w[application/pdf].freeze
     MAX_FILE_SIZE_IN_BYTES = 100_000_000 # 100 MB
+    MAX_PAGE_WIDTH = 78
+    MAX_PAGE_HEIGHT = 101
     DOCUMENT_NOT_PROVIDED_MSG = 'Document was not provided'
     DOCUMENT_NOT_A_PDF_MSG = 'Document is not a PDF'
     FILE_SIZE_LIMIT_EXCEEDED_MSG = \
@@ -17,13 +19,11 @@ module VBADocuments
     attr_accessor :result
 
     def self.pdf_validator_options
-      larger_limit = Flipper.enabled?(:vba_documents_larger_page_size_limit)
-
       {
         check_encryption: false, # Owner passwords are allowed, user passwords are not
         size_limit_in_bytes: MAX_FILE_SIZE_IN_BYTES,
-        width_limit_in_inches: larger_limit ? 78 : 21,
-        height_limit_in_inches: larger_limit ? 101 : 21
+        width_limit_in_inches: MAX_PAGE_WIDTH,
+        height_limit_in_inches: MAX_PAGE_HEIGHT
       }
     end
 

@@ -81,7 +81,7 @@ describe PDFUtilities::PDFValidator::Validator do
       let(:page_size_error) { "#{PDFUtilities::PDFValidator::PAGE_SIZE_LIMIT_EXCEEDED_MSG} of 21 in. x 21 in." }
 
       context 'when the check_page_dimensions option is true' do
-        %w[18x22 22x18].each do |file_name|
+        %w[10x102 79x10].each do |file_name|
           let(:file) { "#{fixture_path}/#{file_name}.pdf" }
 
           it 'returns the page size limit error' do
@@ -92,7 +92,7 @@ describe PDFUtilities::PDFValidator::Validator do
 
       context 'when the check_page_dimensions option is false' do
         let(:options) { { check_page_dimensions: false } }
-        let(:file) { "#{fixture_path}/18x22.pdf" }
+        let(:file) { "#{fixture_path}/10x102.pdf" }
 
         it 'returns no errors' do
           expect(validator.result.errors).to be_empty
