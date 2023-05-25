@@ -3,6 +3,7 @@
 require 'sidekiq'
 require 'vba_documents/object_store'
 require 'vba_documents/payload_manager'
+require 'vba_documents/pdf_inspector'
 require 'vba_documents/upload_error'
 require 'central_mail/utilities'
 require 'vba_documents/upload_validator'

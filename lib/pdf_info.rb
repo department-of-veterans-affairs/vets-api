@@ -55,6 +55,10 @@ module PdfInfo
       }
     end
 
+    def file_size
+      self['File size'].scan(/\d+/).first.to_i
+    end
+
     private
 
     def convert_pts_to_inches(dimension)
