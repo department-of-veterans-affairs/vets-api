@@ -1299,7 +1299,7 @@ vanotify:
       api_key: fake_secret
       template_id:
         fsr_confirmation_email: fake_template_id
-        vha_fsr_confirmation_email: fake_template_id
+        vha_new_copay_statement_email: fake_template_id
     check_in:
       api_key: fake_secret
       sms_sender_id: fake_secret

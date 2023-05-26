@@ -11,7 +11,7 @@ RSpec.describe CopayNotifications::McpNotificationEmailJob, skip_vet360: true, t
   before do
     allow_any_instance_of(VaNotify::Configuration).to receive(:base_path).and_return('http://fakeapi.com')
 
-    allow(Settings.vanotify.services.va_gov).to receive(:api_key).and_return(
+    allow(Settings.vanotify.services.dmc).to receive(:api_key).and_return(
       'test-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
     )
   end
@@ -20,7 +20,7 @@ RSpec.describe CopayNotifications::McpNotificationEmailJob, skip_vet360: true, t
     it 'sends an email using the template id' do
       VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
         client = double
-        expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.va_gov.api_key).and_return(client)
+        expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.dmc.api_key).and_return(client)
 
         expect(client).to receive(:send_email).with(
           email_address: email,
@@ -38,7 +38,7 @@ RSpec.describe CopayNotifications::McpNotificationEmailJob, skip_vet360: true, t
         VCR.use_cassette('va_profile/contact_information/person_error', VCR::MATCH_EVERYTHING) do
           job = described_class.new
           client = double
-          expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.va_gov.api_key).and_return(client)
+          expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.dmc.api_key).and_return(client)
 
           expect(client).to receive(:send_email).with(
             email_address: backup_email,
