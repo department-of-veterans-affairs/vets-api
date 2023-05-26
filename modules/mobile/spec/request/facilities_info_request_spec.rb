@@ -18,9 +18,9 @@ RSpec.describe 'facilities info', type: :request do
   end
 
   va_path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures',
-                            'va_appointments_for_facility_info.json')
+                            'VAOS_v2_appointments_facilities.json')
   va_json = File.read(va_path)
-  va_appointments = Mobile::V0::Adapters::VAAppointments.new.parse(
+  va_appointments = Mobile::V0::Adapters::VAOSV2Appointments.new.parse(
     JSON.parse(va_json, symbolize_names: true)
   )
 
@@ -157,6 +157,7 @@ RSpec.describe 'facilities info', type: :request do
           get('/mobile/v0/facilities-info/appointments', headers: iam_headers, params:)
           facilities = response.parsed_body.dig('data', 'attributes', 'facilities')
           expect(response).to have_http_status(:ok)
+
           expect(facilities[0]['name']).to eq('Cheyenne VA Medical Center')
           expect(facilities[1]['name']).to eq('American Lake VA Medical Center')
           expect(facilities[2]['name']).to eq('Ayton VA Medical Center')
