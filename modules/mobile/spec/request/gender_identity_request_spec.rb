@@ -135,10 +135,10 @@ RSpec.describe 'gender identity', type: :request do
     end
 
     describe 'GET /mobile/v0/gender_identity/edit' do
-      context 'returns 403' do
-        it 'returns 402', :aggregate_failures do
+      context 'returns 200' do
+        it 'returns 200', :aggregate_failures do
           get('/mobile/v0/user/gender_identity/edit', headers: iam_headers_no_camel)
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:ok)
         end
       end
     end
