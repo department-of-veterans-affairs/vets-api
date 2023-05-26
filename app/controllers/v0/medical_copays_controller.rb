@@ -5,6 +5,8 @@ module V0
     before_action(except: :send_statement_notifications) { authorize :medical_copays, :access? }
     before_action(only: :send_statement_notifications) { authorize :medical_copays, :access_notifications? }
 
+    before_action :authorize_vbs_api, only: [:send_statement_notifications]
+
     skip_before_action :verify_authenticity_token, only: [:send_statement_notifications]
     skip_before_action :authenticate, only: [:send_statement_notifications]
     skip_after_action :set_csrf_header, only: [:send_statement_notifications]
@@ -35,6 +37,17 @@ module V0
     end
 
     private
+
+    def authorization_error
+      Common::Exceptions::Unauthorized.new(detail: 'Invalid API key')
+    end
+
+    def authorize_vbs_api
+      request_key = request.headers['apiKey']
+      raise authorization_error if request_key.blank?
+
+      raise authorization_error unless request_key == Settings.mcp.vbs_client_key
+    end
 
     def statement_params
       params.permit(:file_name)
