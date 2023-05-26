@@ -33,6 +33,18 @@ RSpec.describe EvssIntentToFileProvider do
     end
   end
 
+  it 'creates intent to file from the EVSS API' do
+    VCR.use_cassette('evss/intent_to_file/create_compensation') do
+      provider = EvssIntentToFileProvider.new(nil, auth_headers)
+      response = provider.create_intent_to_file('compensation', '', '')
+      expect(response).to be_an_instance_of(EVSS::IntentToFile::IntentToFileResponse)
+      expect(response['intent_to_file']['type']).to eq('compensation')
+
+      # No ActiveRecord inheritance; verify the id as a workaround
+      expect(response['intent_to_file']['id']).to be_present
+    end
+  end
+
   it 'raises an exception if there is an error from EVSS' do
     allow_any_instance_of(Common::Client::Base).to(
       receive(:perform).and_raise(Common::Client::Errors::ClientError)
