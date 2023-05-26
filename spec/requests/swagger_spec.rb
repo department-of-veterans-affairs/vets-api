@@ -670,6 +670,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       context 'medical copays send_statement_notifications' do
+        let(:headers) do
+          { '_headers' => { 'apiKey' => 'abcd1234abcd1234abcd1234abcd1234abcd1234' } }
+        end
+
         it 'validates the route' do
           expect(subject).to validate(
             :post,
