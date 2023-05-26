@@ -17,15 +17,15 @@ module CopayNotifications
 
     sidekiq_options retry: false
 
-    MCP_NOTIFICATION_TEMPLATE = ''
+    MCP_NOTIFICATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.vha_new_copay_statement_email
 
     def perform(statement)
       mpi_response = if statement['identifierType'] == 'edipi'
-                       MPI::Service.new.find_profile_by_edipi(edipi: statement['identifier'])
+                       MPI::Service.new.find_profile_by_edipi(edipi: statement['veteranIdentifier'])
                      else
                        MPI::Service.new.find_profile_by_facility(
                          facility_id: statement['facilityNum'],
-                         vista_id: statement['identifier']
+                         vista_id: statement['veteranIdentifier']
                        )
                      end
 

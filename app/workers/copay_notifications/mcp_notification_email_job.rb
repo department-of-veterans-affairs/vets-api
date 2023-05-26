@@ -35,7 +35,7 @@ module CopayNotifications
     end
 
     def send_email(email, template_id, personalisation)
-      notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
+      notify_client = VaNotify::Service.new(Settings.vanotify.services.dmc.api_key)
       notify_client.send_email(
         **{
           email_address: email,
