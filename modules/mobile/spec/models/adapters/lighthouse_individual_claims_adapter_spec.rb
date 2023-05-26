@@ -88,6 +88,8 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, aggregate_failures: t
     it 'returns expected fields' do
       expect(under_review_claim[:phase]).to eq(2)
       expect(under_review_claim[:open]).to eq(true)
+      expect(under_review_claim[:contention_list]).to eq(['Post Traumatic Stress Disorder (PTSD) ' \
+                                                          'Combat - Mental Disorders (New)'])
     end
   end
 
@@ -128,6 +130,9 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, aggregate_failures: t
     it 'returns expected fields' do
       expect(complete_claim[:phase]).to eq(8)
       expect(complete_claim[:open]).to eq(false)
+      expect(complete_claim[:contention_list]).to eq(['Abdominal pain, etiology unknown (New)',
+                                                      'Post Traumatic Stress Disorder (PTSD) ' \
+                                                      'Combat - Mental Disorders (New)'])
     end
   end
 end
