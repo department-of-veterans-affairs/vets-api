@@ -59,8 +59,14 @@ module BenefitsClaims
     ##
     # @return [Faraday::Response] response from POST request
     #
-    def post(path, body = {})
-      connection.post(path, body, { Authorization: "Bearer #{access_token}" })
+    def post(path, body, lighthouse_client_id, lighthouse_rsa_key_path, options = {})
+      connection.post(path, body, { Authorization: "Bearer #{
+        access_token(
+          lighthouse_client_id,
+          lighthouse_rsa_key_path,
+          options
+        )
+      }" })
     end
 
     ##
