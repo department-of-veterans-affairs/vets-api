@@ -94,49 +94,6 @@ module Mobile
         return id.sub(match[0], '983') if match[0] == '442'
         return id.sub(match[0], '984') if match[0] == '552'
       end
-
-      # VAOS appointments aren't cancelled by id but instead by a combination
-      # of clinic_id, facility_id, time, and service. The first half of the
-      # encoded string matches VEText cancel ids.
-      #
-      # @start_date_local DateTime the times of the appointment
-      # @clinic_id String the id of the clinic within the facility the appointment is scheduled at
-      # @facility_id the id of the facility the appointment is scheduled at
-      # @healthcare_service String the name of the service within the clinic
-      #
-      # @return String the combined cancel id
-      #
-      def self.encode_cancel_id(start_date_local:, clinic_id:, facility_id:, healthcare_service:)
-        string = "#{clinic_id};#{start_date_local.strftime('%Y%m%d.%H%S%M')};#{facility_id};#{healthcare_service}"
-        Base64.encode64(string)
-      end
-
-      # Takes an encoded cancel id and decodes it into a hash of params
-      # that can be used to perform the cancellation
-      #
-      # @cancel_id String the encoded cancel params
-      #
-      # @return Hash the decoded params
-      #
-      def self.decode_cancel_id(cancel_id)
-        decoded = Base64.decode64(cancel_id)
-        clinic_id, start_date_local, facility_id, healthcare_service = decoded.split(';')
-
-        {
-          appointmentTime: DateTime.strptime(start_date_local, '%Y%m%d.%H%S%M'),
-          clinicId: clinic_id,
-          facilityId: facility_id,
-          healthcareService: healthcare_service
-        }
-      rescue ArgumentError, TypeError
-        raise Mobile::V0::Exceptions::ValidationErrors, OpenStruct.new(
-          { errors: { cancelId: 'invalid cancel id' } }
-        )
-      end
-
-      def id_for_address
-        sta6aid || facility_id
-      end
     end
   end
 end
