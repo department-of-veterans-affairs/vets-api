@@ -528,28 +528,26 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
           expect(updated.code).to eq('DOC108')
         end
       end
+    end
 
-      context 'when metadata.json contains skipDimensionCheck = true' do
-        let(:special_metadata) { JSON.parse(valid_metadata).merge({ 'skipDimensionCheck' => true }).to_json }
-        let(:content) { get_fixture('10x102.pdf') }
+    context 'when metadata.json contains an unrecognized key/value pair' do
+      let(:special_metadata) { JSON.parse(valid_metadata).merge({ 'unrecognized' => true }).to_json }
 
-        before do
-          allow(CentralMail::Service).to receive(:new) { client_stub }
-          allow(faraday_response).to receive(:status).and_return(200)
-          allow(faraday_response).to receive(:body).and_return('')
-          allow(faraday_response).to receive(:success?).and_return(true)
-          allow(client_stub).to receive(:upload).and_return(faraday_response)
+      before do
+        allow(CentralMail::Service).to receive(:new) { client_stub }
+        allow(faraday_response).to receive(:status).and_return(200)
+        allow(faraday_response).to receive(:body).and_return('')
+        allow(faraday_response).to receive(:success?).and_return(true)
+        allow(client_stub).to receive(:upload).and_return(faraday_response)
+      end
+
+      it 'ignores the unrecognized key/value pair' do
+        allow(VBADocuments::MultipartParser).to receive(:parse) do
+          { 'metadata' => special_metadata, 'content' => valid_doc }
         end
-
-        it 'allows the upload' do
-          allow(VBADocuments::MultipartParser).to receive(:parse) do
-            { 'metadata' => special_metadata, 'content' => content }
-          end
-          described_class.new.perform(upload.guid, test_caller)
-          updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-          expect(updated.uploaded_pdf.dig('content', 'dimensions', 'oversized_pdf')).to eq(true)
-          expect(updated.status).to eq('received')
-        end
+        described_class.new.perform(upload.guid, test_caller)
+        updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+        expect(updated.status).to eq('received')
       end
     end
 
