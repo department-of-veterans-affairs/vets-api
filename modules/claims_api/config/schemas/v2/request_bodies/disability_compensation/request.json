@@ -785,18 +785,27 @@
                         }
                     },
                     "confinements": {
-                        "type": "object",
+                        "type": "array",
                         "description": "",
-                        "properties": {
-                            "approximateBeginDate": {
-                                "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
-                                "type": "string",
-                                "example": "2018-06-04"
-                            },
-                            "approximateEndDate": {
-                                "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
-                                "type": "string",
-                                "example": "2018-06-04"
+                        "uniqueItems": true,
+                        "items": {
+                            "additionalProperties": false,
+                            "type": "object",
+                            "required": [
+                                "approximateBeginDate",
+                                "approximateEndDate"
+                            ],
+                            "properties": {
+                                "approximateBeginDate": {
+                                    "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "type": "string",
+                                    "example": "2018-06-04"
+                                },
+                                "approximateEndDate": {
+                                    "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "type": "string",
+                                    "example": "2018-08-04"
+                                }
                             }
                         }
                     },

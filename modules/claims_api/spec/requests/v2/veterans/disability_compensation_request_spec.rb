@@ -1152,6 +1152,231 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
       end
+
+      describe 'Validation of service information elements' do
+        context 'when the serviceBranch is empty' do
+          let(:service_branch) { '' }
+
+          it 'responds with a 422' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  json = JSON.parse(data)
+                  json['data']['attributes']['serviceInformation']['servicePeriods'][0]['serviceBranch'] =
+                    service_branch
+                  data = json
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
+
+        context 'when the activeDutyBeginDate is after the activeDutyEndDate' do
+          let(:active_duty_end_date) { '1979-01-02' }
+
+          it 'responds with a 422' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  json = JSON.parse(data)
+                  json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                    active_duty_end_date
+                  data = json
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
+
+        context 'when the activeDutyBeginDate is not formatted correctly' do
+          let(:active_duty_begin_date) { '25-06-1979' }
+
+          it 'responds with a 422' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  json = JSON.parse(data)
+                  json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                    active_duty_begin_date
+                  data = json
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
+
+        context 'when the activeDutyEndDate is not formatted correctly' do
+          let(:active_duty_end_date) { '28-07-1995' }
+
+          it 'responds with a 422' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  json = JSON.parse(data)
+                  json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                    active_duty_end_date
+                  data = json.to_json
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
+
+        context 'when the activeDutyEndDate is in the future' do
+          let(:active_duty_end_date) { 2.months.from_now.strftime('%Y-%m-%d') }
+
+          context 'and the seperationLocationCode is present' do
+            it 'responds with a 200' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    json = JSON.parse(data)
+                    json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                      active_duty_end_date
+                    data = json.to_json
+                    post path, params: data, headers: headers.merge(auth_header)
+                    expect(response).to have_http_status(:ok)
+                  end
+                end
+              end
+            end
+
+            context 'and the seperationLocationCode is blank' do
+              let(:separation_location_code) { nil }
+
+              it 'responds with a 422' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      json = JSON.parse(data)
+                      service_period = json['data']['attributes']['serviceInformation']['servicePeriods'][0]
+                      service_period['activeDutyEndDate'] = active_duty_end_date
+                      service_period['separationLocationCode'] = separation_location_code
+                      data = json.to_json
+                      post path, params: data, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:unprocessable_entity)
+                    end
+                  end
+                end
+              end
+            end
+
+            context 'and the seperationLocationCode is an empty string' do
+              let(:separation_location_code) { '' }
+
+              it 'responds with a 422' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      json = JSON.parse(data)
+                      service_period = json['data']['attributes']['serviceInformation']['servicePeriods'][0]
+                      service_period['activeDutyEndDate'] = active_duty_end_date
+                      service_period['separationLocationCode'] = separation_location_code
+                      data = json.to_json
+                      post path, params: data, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:unprocessable_entity)
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        context 'when there are mutiple confinements' do
+          let(:confinements) do
+            [
+              {
+                approximateBeginDate: '2016-01-01',
+                approximateEndDate: '2016-01-06'
+              },
+              {
+                approximateBeginDate: '2017-01-01',
+                approximateEndDate: '2017-01-06'
+              }
+            ]
+          end
+
+          it 'responds with a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  json = JSON.parse(data)
+                  json['data']['attributes']['serviceInformation']['confinements'] = confinements
+                  data = json.to_json
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                end
+              end
+            end
+          end
+        end
+
+        context 'when confinements.confinement.approximateBeginDate is formatted incorrectly' do
+          let(:approximate_begin_date) { '11-24-2021' }
+
+          it 'responds with a 422' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  json = JSON.parse(data)
+                  confinement = json['data']['attributes']['serviceInformation']['confinements'][0]
+                  confinement['approximateBeginDate'] = approximate_begin_date
+                  data = json.to_json
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
+
+        context 'when confinements.confinement.approximateEndDate is formatted incorrectly' do
+          let(:approximate_end_date) { '11-24-2022' }
+
+          it 'responds with a 422' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  json = JSON.parse(data)
+                  confinement = json['data']['attributes']['serviceInformation']['confinements'][0]
+                  confinement['approximateEndDate'] = approximate_end_date
+                  data = json.to_json
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
+
+        context 'when confinements.confinement.approximateBeginDate is after approximateEndDate' do
+          let(:approximate_end_date) { '2017-05-06' }
+
+          it 'responds with a 422' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  json = JSON.parse(data)
+                  confinement = json['data']['attributes']['serviceInformation']['confinements'][0]
+                  confinement['approximateEndDate'] = approximate_end_date
+                  data = json.to_json
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
+      end
     end
 
     context 'validate' do
