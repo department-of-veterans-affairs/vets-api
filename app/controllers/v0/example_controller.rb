@@ -18,5 +18,13 @@ module V0
       msg = "You are logged in as #{@current_user.email}"
       render json: { message: msg }
     end
+
+    def healthcheck
+      render status: :ok
+    end
+
+    def startup_healthcheck
+      render status: :ok
+    end
   end
 end
