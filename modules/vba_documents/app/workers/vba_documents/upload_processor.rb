@@ -72,7 +72,6 @@ module VBADocuments
         metadata = perfect_metadata(@upload, parts, timestamp)
 
         pdf_validator_options = VBADocuments::DocumentRequestValidator.pdf_validator_options
-        pdf_validator_options[:check_page_dimensions] = false if metadata['skipDimensionCheck'].present?
         validate_documents(parts, pdf_validator_options)
 
         response = submit(metadata, parts)
