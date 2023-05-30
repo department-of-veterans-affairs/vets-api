@@ -97,7 +97,8 @@ module VBADocuments
 
           # Validations
           validate_parts(upload_model, parts)
-          validate_metadata(parts[META_PART_NAME], submission_version: upload_model.metadata['version'].to_i)
+          validate_metadata(parts[META_PART_NAME], submission_version: upload_model.metadata['version'].to_i,
+                                                   consumer_name: upload_model.consumer_name)
           validate_documents(parts)
 
           perfect_metadata(upload_model, parts, Time.zone.now)

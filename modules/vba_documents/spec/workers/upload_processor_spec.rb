@@ -554,6 +554,9 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         end
 
         it 'allows the upload' do
+          # skipDimensionCheck is a metadata key that is only supported for specific API consumers
+          allow(YAML).to receive(:load_file).with(anything).and_return('test consumer' => ['skipDimensionCheck'])
+
           allow(VBADocuments::MultipartParser).to receive(:parse) do
             { 'metadata' => special_metadata, 'content' => content }
           end

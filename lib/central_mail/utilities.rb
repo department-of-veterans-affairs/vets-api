@@ -33,7 +33,7 @@ module CentralMail
       else
         VBADocuments::Slack::Messager.new(
           { warning: ":warning: #{self.class.name} consumer metadata fields config file does not exist",
-            recipient_file: recipient_file_path.to_s }
+            consumer_metadata: meta_fields_config_path.to_s }
         ).notify!
       end
       # combine the consumer specific meta field names with the field names all consumers are allowed
