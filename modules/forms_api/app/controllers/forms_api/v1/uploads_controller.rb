@@ -17,7 +17,7 @@ module FormsApi
       }.freeze
 
       def submit
-        Datadog::Tracing.active_span&.set_tag('form_id', params[:form_number])
+        Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
         form_id = FORM_NUMBER_MAP[params[:form_number]]
         filler = FormsApi::PdfFiller.new(form_number: form_id, data: JSON.parse(params.to_json))
