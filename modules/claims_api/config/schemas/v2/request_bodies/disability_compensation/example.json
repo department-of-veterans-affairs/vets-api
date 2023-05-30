@@ -141,10 +141,16 @@
                 "separationLocationCode": "V01D"
               }
           ],
-          "confinements": {
+          "confinements": [
+            {
               "approximateBeginDate": "2016-11-06",
               "approximateEndDate": "2016-11-09"
-          },
+            },
+            {
+              "approximateBeginDate": "2019-11-06",
+              "approximateEndDate": "2019-11-09"
+            }
+          ],
           "reservesNationalGuardService": {
               "obligationTermsOfService": {
                 "startDate":"2016-11-24",
@@ -163,7 +169,8 @@
               "receivingInactiveDutyTrainingPay": true
           },
           "alternateNames": [
-              "John Jacob Jingleheimer-Schmidt"
+            "John Jacob Jingleheimer-Schmidt",
+            "Johnathon"
           ],
           "servedInActiveCombatSince911": false
       },

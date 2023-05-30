@@ -16,6 +16,8 @@ module ClaimsApi
         validate_form_526_veteran_homelessness!
         # ensure treament centers information is valid
         validate_form_526_treatments!
+        # ensure service information is valid
+        validate_form_526_service_information!
       end
 
       def validate_form_526_submission_claim_date!
@@ -164,6 +166,51 @@ module ClaimsApi
           end
         end
         names
+      end
+
+      def validate_form_526_service_information!
+        service_information = form_attributes['serviceInformation']
+
+        if service_information.blank?
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'Service information is required'
+          )
+        end
+
+        validate_service_periods!
+        validate_confinements!
+      end
+
+      def validate_service_periods!
+        service_information = form_attributes['serviceInformation']
+
+        service_information['servicePeriods'].each do |sp|
+          if Date.parse(sp['activeDutyBeginDate']) > Date.parse(sp['activeDutyEndDate'])
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: 'Active Duty End Date needs to be after Active Duty Start Date'
+            )
+          end
+
+          if Date.parse(sp['activeDutyEndDate']) > Time.zone.now && sp['separationLocationCode'].empty?
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: 'If Active Duty End Date is in the future a Separation Location Code is required.'
+            )
+          end
+        end
+      end
+
+      def validate_confinements!
+        service_information = form_attributes['serviceInformation']
+
+        service_information['confinements'].each do |confinement|
+          approximate_begin_date = confinement['approximateBeginDate']
+          approximate_end_date = confinement['approximateEndDate']
+          if Date.parse(approximate_begin_date) > Date.parse(approximate_end_date)
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: 'Approximate end date must be after approximate begin date.'
+            )
+          end
+        end
       end
     end
   end
