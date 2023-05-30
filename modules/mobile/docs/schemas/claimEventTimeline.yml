@@ -1,0 +1,51 @@
+type: object
+properties:
+  type:
+    type: string
+    example: 'received_from_you_list'
+  tracked_item_id:
+    type: integer
+    example: 360_052
+  description:
+    type: string
+    example: 'The information provided concerning your prior marital history is inconsistent. In order to resolve these inconsistencies you should submit certified copies of the public record of the termination (death, divorce or annulment) for each of your prior marriages.'
+  display_name:
+    type: string
+    example: 'Claimant marital history inconsistent - need proof'
+  overdue:
+    type: boolean
+    example: true
+  status:
+    type: string
+    example: 'NEEDED'
+  uploaded:
+    type: boolean
+    example: true
+  uploads_allowed:
+    type: boolean
+    example: true
+  opened_date:
+    type: string
+    example: '2022-09-30'
+  requested_date:
+    type: string
+    example: '2022-09-30'
+  received_date:
+    type: string
+    example: '2023-10-30'
+  closed_date:
+    type: string
+    example: '2023-11-30'
+  suspense_date:
+    type: string
+    example: '2023-05-30'
+  documents:
+    type: array
+    items:
+      $ref: "./claimDocument.yml"
+  upload_date:
+    type: string
+    example: '2023-05-30'
+  date:
+    type: string
+    example: '2023-05-30'

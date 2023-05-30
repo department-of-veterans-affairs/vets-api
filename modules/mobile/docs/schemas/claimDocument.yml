@@ -1,0 +1,17 @@
+type: object
+properties:
+  tracked_item_id:
+    type: integer
+    example: 360_052
+  file_type:
+    type: integer
+    example: 'Civilian Police Reports'
+  document_type:
+    type: null
+    example: null
+  filename:
+    type: string
+    example: '7B434B58-477C-4379-816F-05E6D3A10487.pdf'
+  upload_date:
+    type: string
+    example: '2023-03-01'

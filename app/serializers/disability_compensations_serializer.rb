@@ -8,15 +8,15 @@ class DisabilityCompensationsSerializer < ActiveModel::Serializer
   end
 
   def payment_account
-    return unless object[:payment_account]
+    return unless object.key?(:payment_account)
 
     payment_account = object[:payment_account]
 
-    account_number = payment_account&.account_number
-    payment_account.account_number = StringHelpers.mask_sensitive(account_number) if account_number
+    account_number = payment_account&.dig(:account_number)
+    payment_account[:account_number] = StringHelpers.mask_sensitive(account_number) if account_number
 
-    routing_number = payment_account&.routing_number
-    payment_account.routing_number = StringHelpers.mask_sensitive(routing_number) if routing_number
+    routing_number = payment_account&.dig(:routing_number)
+    payment_account[:routing_number] = StringHelpers.mask_sensitive(routing_number) if routing_number
 
     payment_account
   end

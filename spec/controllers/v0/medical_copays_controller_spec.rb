@@ -77,9 +77,33 @@ RSpec.describe V0::MedicalCopaysController, type: :controller do
   end
 
   describe '#send_statement_notifications' do
-    it 'returns a success message when notifications are sent' do
-      post(:send_statement_notifications, params: { statements: [] })
-      expect(response).to have_http_status(:ok)
+    context 'client api is authorized' do
+      before do
+        request.headers['apiKey'] = 'abcd1234abcd1234abcd1234abcd1234abcd1234'
+      end
+
+      it 'returns a success message when notifications are sent' do
+        post(:send_statement_notifications, params: { statements: [] })
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'client api is unauthorzied' do
+      before do
+        request.headers['apiKey'] = 'bad-key'
+      end
+
+      it 'returns an unauthorized message when endpoint is reached' do
+        post(:send_statement_notifications, params: { statements: [] })
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'request is missing api key header' do
+      it 'returns an unauthorized message when endpoint is reached' do
+        post(:send_statement_notifications, params: { statements: [] })
+        expect(response).to have_http_status(:unauthorized)
+      end
     end
   end
 end

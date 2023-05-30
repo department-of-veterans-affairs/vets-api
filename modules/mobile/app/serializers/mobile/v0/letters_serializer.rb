@@ -27,17 +27,17 @@ module Mobile
 
       def lighthouse_letters_serializer(letters)
         letters.map do |letter|
-          letter[:letter_type] = letter[:letter_type].downcase
-          letter[:letter_name] = case letter[:letter_type]
-                                 when 'benefit_summary'
-                                   'Benefit Summary and Service Verification Letter'
-                                 when 'benefit_summary_dependent'
-                                   'Dependent Benefit Summary and Service Verification Letter'
-                                 else
-                                   letter[:letter_name]
-                                 end
+          letter[:letterType] = letter[:letterType].downcase
+          letter[:name] = case letter[:letterType]
+                          when 'benefit_summary'
+                            'Benefit Summary and Service Verification Letter'
+                          when 'benefit_summary_dependent'
+                            'Dependent Benefit Summary and Service Verification Letter'
+                          else
+                            letter[:name]
+                          end
 
-          Mobile::V0::Letter.new(name: letter[:letter_name], letter_type: letter[:letter_type])
+          Mobile::V0::Letter.new(name: letter[:name], letter_type: letter[:letterType])
         end
       end
     end

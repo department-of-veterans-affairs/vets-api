@@ -670,6 +670,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       context 'medical copays send_statement_notifications' do
+        let(:headers) do
+          { '_headers' => { 'apiKey' => 'abcd1234abcd1234abcd1234abcd1234abcd1234' } }
+        end
+
         it 'validates the route' do
           expect(subject).to validate(
             :post,
@@ -2261,13 +2265,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           end
         end
 
-        it 'returns a 403' do
-          headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          VCR.use_cassette('lighthouse/direct_deposit/show/403_response') do
-            expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 403, headers)
-          end
-        end
-
         it 'returns a 404' do
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
           VCR.use_cassette('lighthouse/direct_deposit/show/404_response') do
@@ -2279,30 +2276,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
           VCR.use_cassette('lighthouse/direct_deposit/show/502_response') do
             expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 502, headers)
-          end
-        end
-      end
-
-      context 'PUT' do
-        it 'returns a 200' do
-          headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          params = { account_number: '1234567890', account_type: 'CHECKING', routing_number: '031000503' }
-          VCR.use_cassette('lighthouse/direct_deposit/update/200_response') do
-            expect(subject).to validate(:put,
-                                        '/v0/profile/direct_deposits/disability_compensations',
-                                        200,
-                                        headers.merge('_data' => params))
-          end
-        end
-
-        it 'returns a 400' do
-          headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          params = { account_number: '1234567890', account_type: 'CHECKING', routing_number: '031000503' }
-          VCR.use_cassette('lighthouse/direct_deposit/update/400_response') do
-            expect(subject).to validate(:put,
-                                        '/v0/profile/direct_deposits/disability_compensations',
-                                        400,
-                                        headers.merge('_data' => params))
           end
         end
       end
@@ -3108,6 +3081,11 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'when MVI returns an unexpected response body' do
       it 'supports returning a custom 502 response' do
+        allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return({
+                                                                              service_name: 'oauth_IDME',
+                                                                              auth_broker: 'IDME'
+                                                                            })
+
         allow_any_instance_of(MPI::Models::MviProfile).to receive(:gender).and_return(nil)
         allow_any_instance_of(MPI::Models::MviProfile).to receive(:birth_date).and_return(nil)
 

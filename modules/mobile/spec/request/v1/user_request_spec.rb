@@ -10,7 +10,6 @@ RSpec.describe 'user', type: :request do
 
   describe 'GET /mobile/v1/user' do
     before do
-      allow_any_instance_of(IAMUser).to receive(:idme_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
       iam_sign_in(build(:iam_user))
     end
 
@@ -294,8 +293,6 @@ RSpec.describe 'user', type: :request do
               paymentHistory
               userProfileUpdate
               scheduleAppointments
-              preferredName
-              genderIdentity
             ]
           )
         end
@@ -328,8 +325,6 @@ RSpec.describe 'user', type: :request do
               userProfileUpdate
               scheduleAppointments
               prescriptions
-              preferredName
-              genderIdentity
             ]
           )
         end
@@ -690,8 +685,7 @@ RSpec.describe 'user', type: :request do
 
     context 'no idme_uuid or logingov_uuid' do
       before do
-        allow_any_instance_of(IAMUser).to receive(:idme_uuid).and_return(nil)
-        allow_any_instance_of(IAMUser).to receive(:logingov_uuid).and_return(nil)
+        iam_sign_in(FactoryBot.build(:iam_user, :no_multifactor))
 
         VCR.use_cassette('payment_information/payment_information') do
           VCR.use_cassette('user/get_facilities') do
@@ -708,14 +702,12 @@ RSpec.describe 'user', type: :request do
             appeals
             appointments
             claims
-            directDepositBenefits
             disabilityRating
             lettersAndDocuments
             militaryServiceHistory
             paymentHistory
             userProfileUpdate
             scheduleAppointments
-            directDepositBenefitsUpdate
           ]
         )
       end

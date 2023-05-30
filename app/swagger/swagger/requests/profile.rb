@@ -81,7 +81,7 @@ module Swagger
               property :errors do
                 key :type, :array
                 items do
-                  key :required, %i[title detail code status source]
+                  key :required, %i[title detail code status]
                   property :title, type: :string,
                                    example: 'Invalid field value',
                                    description: 'Error title'
@@ -91,11 +91,8 @@ module Swagger
                   property :code, type: :string,
                                   example: 'LIGHTHOUSE_DIRECT_DEPOSIT400',
                                   description: 'Service name with code appended'
-                  property :source, type: %i[string object],
-                                    example: 'Lighthouse Direct Deposit',
-                                    description: 'Service name'
-                  property :status, type: :integer,
-                                    example: 400,
+                  property :status, type: :string,
+                                    example: '400',
                                     description: 'http status code'
                 end
               end
@@ -110,69 +107,12 @@ module Swagger
               property :errors do
                 key :type, :array
                 items do
-                  key :required, %i[title detail code status source]
+                  key :required, %i[title detail code status]
                   property :title, type: :string, example: 'Invalid token.', description: 'Error title'
                   property :detail, type: %i[string null], description: 'Description of error (optional)'
                   property :code, type: :string, example: 'LIGHTHOUSE_DIRECT_DEPOSIT401',
                                   description: 'Service name with code appended'
-                  property :source, type: %i[string object], example: 'Lighthouse Direct Deposit',
-                                    description: 'Service name'
-                  property :status, type: :integer, example: 401, description: 'http status code'
-                end
-              end
-            end
-          end
-
-          response 403 do
-            key :description, 'Forbidden'
-            schema do
-              key :type, :object
-              property(:data) do
-                key :type, :object
-                property :id, type: :string
-                property :type, type: :string
-                property :attributes do
-                  key :type, :object
-
-                  property :control_information do
-                    key :required, %i[
-                      can_update_direct_deposit
-                      is_corp_available
-                      is_corp_rec_found
-                      has_no_bdn_payments
-                      has_identity
-                      has_index
-                      is_competent
-                      has_mailing_address
-                      has_no_fiduciary_assigned
-                      is_not_deceased
-                      has_payment_address
-                    ]
-                    property :can_update_direct_deposit, type: :boolean, example: false, description: ''
-                    property :is_corp_available, type: :boolean, example: false, description: ''
-                    property :is_corp_rec_found, type: :boolean, example: false, description: ''
-                    property :has_no_bdn_payments, type: :boolean, example: false, description: ''
-                    property :has_identity, type: :boolean, example: false, description: ''
-                    property :has_index, type: :boolean, example: false, description: ''
-                    property :is_competent, type: :boolean, example: false, description: ''
-                    property :has_mailing_addres, type: :boolean, example: false, description: ''
-                    property :has_no_fiduciary_assigne, type: :boolean, example: false, description: ''
-                    property :is_not_decease, type: :boolean, example: false, description: ''
-                    property :has_payment_address, type: :boolean, example: false, description: ''
-                  end
-
-                  property :payment_account do
-                    key :required, %i[
-                      name
-                      account_type
-                      account_number
-                      routing_number
-                    ]
-                    property :name, type: :string, example: 'WELLS FARGO BANK', description: 'Bank name'
-                    property :account_type, type: :string, enum: %w[CHECKING SAVINGS], example: 'CHECKING', description: 'Bank account type'
-                    property :account_number, type: :string, example: '******7890', description: 'Bank account number (masked)'
-                    property :routing_number, type: :string, example: '*****0503', description: 'Bank routing number (masked)'
-                  end
+                  property :status, type: :string, example: '401', description: 'http status code'
                 end
               end
             end
@@ -186,14 +126,12 @@ module Swagger
               property :errors do
                 key :type, :array
                 items do
-                  key :required, %i[title detail code status source]
+                  key :required, %i[title detail code status]
                   property :title, type: :string, example: 'Person for ICN not found', description: 'Error title'
                   property :detail, type: :string, example: 'No data found for ICN', description: 'Description of error (optional)'
                   property :code, type: :string, example: 'LIGHTHOUSE_DIRECT_DEPOSIT404',
                                   description: 'Service name with code appended'
-                  property :source, type: %i[string object], example: 'Lighthouse Direct Deposit',
-                                    description: 'Service name'
-                  property :status, type: :integer, example: 404, description: 'http status code'
+                  property :status, type: :string, example: '404', description: 'http status code'
                 end
               end
             end
@@ -207,112 +145,12 @@ module Swagger
               property :errors do
                 key :type, :array
                 items do
-                  key :required, %i[title detail code status source]
+                  key :required, %i[title detail code status]
                   property :title, type: :string, example: 'Required Backend Connection Error', description: 'Error title'
                   property :detail, type: :string, example: 'e9e04329-b211-11ed-9449-732003342465', description: 'Description of error (optional)'
                   property :code, type: :string, example: 'LIGHTHOUSE_DIRECT_DEPOSIT502',
                                   description: 'Service name with code appended'
-                  property :source, type: %i[string object], example: 'Lighthouse Direct Deposit',
-                                    description: 'Service name'
-                  property :status, type: :integer, example: 502, description: 'http status code'
-                end
-              end
-            end
-          end
-        end
-
-        operation :put do
-          key :produces, ['application/json']
-          key :consumes, ['application/json']
-          key :description, 'Update a veterans direct deposit information for compensation and pension benefits'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          parameter do
-            key :name, :body
-            key :in, :body
-            key :description, 'Attributes to update a payment account.'
-            key :required, true
-
-            schema do
-              property :account_number, type: :string, example: '1234567890'
-              property :account_type, type: :string, example: 'Checking'
-              property :routing_number, type: :string, example: '031000503'
-            end
-          end
-
-          response 200 do
-            key :description, 'Direct deposit information for a users compensation and pension benefits.'
-            schema do
-              key :type, :object
-              property(:data) do
-                key :type, :object
-                property :id, type: :string
-                property :type, type: :string
-                property :attributes do
-                  key :type, :object
-
-                  property :control_information do
-                    key :required, %i[
-                      can_update_direct_deposit
-                      is_corp_available
-                      is_corp_rec_found
-                      has_no_bdn_payments
-                      has_identity
-                      has_index
-                      is_competent
-                      has_mailing_address
-                      has_no_fiduciary_assigned
-                      is_not_deceased
-                      has_payment_address
-                    ]
-                    property :can_update_direct_deposit, type: :boolean, example: true, description: 'Must be true to view payment account information'
-                    property :is_corp_available, type: :boolean, example: true, description: ''
-                    property :is_corp_rec_found, type: :boolean, example: true, description: ''
-                    property :has_no_bdn_payments, type: :boolean, example: true, description: ''
-                    property :has_identity, type: :boolean, example: true, description: ''
-                    property :has_index, type: :boolean, example: true, description: ''
-                    property :is_competent, type: :boolean, example: true, description: ''
-                    property :has_mailing_addres, type: :boolean, example: true, description: ''
-                    property :has_no_fiduciary_assigne, type: :boolean, example: true, description: ''
-                    property :is_not_decease, type: :boolean, example: true, description: ''
-                    property :has_payment_address, type: :boolean, example: true, description: ''
-                  end
-
-                  property :payment_account do
-                    key :required, %i[
-                      name
-                      account_type
-                      account_number
-                      routing_number
-                    ]
-                    property :name, type: :string, example: 'WELLS FARGO BANK', description: 'Bank name'
-                    property :account_type, type: :string, enum: %w[CHECKING SAVINGS], example: 'CHECKING', description: 'Bank account type'
-                    property :account_number, type: :string, example: '******7890', description: 'Bank account number (masked)'
-                    property :routing_number, type: :string, example: '*****0503', description: 'Bank routing number (masked)'
-                  end
-                end
-              end
-            end
-          end
-
-          response 400 do
-            key :description, 'Routing number related to fraud'
-            schema do
-              key :required, [:errors]
-
-              property :errors do
-                key :type, :array
-                items do
-                  key :required, %i[title detail code status source]
-                  property :title, type: :string, example: 'Bad Request', description: 'Error title'
-                  property :detail, type: :string, example: 'Routing number related to potential fraud', description: 'Description of error (optional)'
-                  property :code, type: :string, example: 'cnp.payment.routing.number.fraud.message', description: 'Service name with code appended'
-                  property :source, type: %i[string object], example: 'Lighthouse Direct Deposit', description: 'Service name'
-                  property :status, type: :integer, example: 400, description: 'http status code'
+                  property :status, type: :string, example: '502', description: 'http status code'
                 end
               end
             end

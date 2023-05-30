@@ -13,7 +13,6 @@ module VBADocuments
     attr_accessor :file, :pdf_data, :parts
 
     module Constants
-      DOC_TYPE_KEY = :doc_type
       SOURCE_KEY = :source
     end
     include Constants
@@ -94,6 +93,7 @@ module VBADocuments
           width: dimensions[:width].round(2),
           oversized_pdf: dimensions[:height] > max_height || dimensions[:width] > max_width
         },
+        file_size: metadata.file_size,
         sha256_checksum: Digest::SHA256.file(pdf).hexdigest
       }
     end

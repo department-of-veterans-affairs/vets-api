@@ -74,8 +74,8 @@ module Mobile
               current_phase_back: attributes.dig('claimPhaseDates', 'currentPhaseBack'),
               requested_decision: attributes['evidenceWaiverSubmitted5103'],
               claim_type: attributes['claimType'],
-              contention_list: attributes['contentionList'],
-              va_representative: 'Contact your VA regional office for this information.',
+              contention_list: attributes['contentions'].pluck('name'),
+              va_representative: 'Contact your VA regional office for more information.',
               events_timeline:,
               updated_at: nil
             }

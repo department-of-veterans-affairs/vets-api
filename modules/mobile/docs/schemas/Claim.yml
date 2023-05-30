@@ -56,10 +56,11 @@ properties:
             type: array
             items:
               type: string
+              example: 'Abdominal pain, etiology unknown (New)'
           eventsTimeline:
             type: array
             items:
-              type: object
+              $ref: "./claimEventTimeline.yml"
           phaseChangeDate:
             type: string, null
             example: "2017-12-08"
