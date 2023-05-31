@@ -663,7 +663,7 @@ GEM
     operating_hours (0.1.0)
     optimist (3.0.1)
     os (1.1.4)
-    ox (2.14.14)
+    ox (2.14.16)
     paper_trail (14.0.0)
       activerecord (>= 6.0)
       request_store (~> 1.4)
