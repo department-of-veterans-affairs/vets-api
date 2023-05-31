@@ -24,6 +24,15 @@ module DirectDeposit
       handle_error(e, config.settings.client_id, config.base_path)
     end
 
+    def update_payment_info(params)
+      body = build_request_body(params)
+
+      response = config.put("?icn=#{@icn}", body)
+      handle_response(response)
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      handle_error(e, config.settings.client_id, config.base_path)
+    end
+
     private
 
     def handle_response(response)
@@ -37,6 +46,17 @@ module DirectDeposit
         lighthouse_client_id,
         base_path
       )
+    end
+
+    def build_request_body(payment_account)
+      {
+        'paymentAccount' =>
+        {
+          'accountNumber' => payment_account.account_number,
+          'accountType' => payment_account.account_type,
+          'financialInstitutionRoutingNumber' => payment_account.routing_number
+        }
+      }.to_json
     end
   end
 end

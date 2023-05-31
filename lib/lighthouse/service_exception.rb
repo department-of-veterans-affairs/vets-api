@@ -73,7 +73,12 @@ module Lighthouse
     def self.error_object_details(error_body, error_status)
       status = error_status&.to_s
       title = error_body['title'] || error_class(status.to_sym).to_s
-      detail = error_body['detail'] || error_body['message'] || error_body['error'] || 'No details provided'
+      detail = error_body['detail'] ||
+               error_body['message'] ||
+               error_body['error'] ||
+               error_body['error_description'] ||
+               'No details provided'
+
       code = error_body['code'] || error_status&.to_s
 
       [status, title, detail, code]
