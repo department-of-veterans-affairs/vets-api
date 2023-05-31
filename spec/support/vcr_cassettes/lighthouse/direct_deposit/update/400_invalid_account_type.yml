@@ -19,43 +19,54 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 401
-      message: Unauthorized
+      code: 400
+      message: ''
     headers:
       Date:
-      - Fri, 19 May 2023 20:51:03 GMT
+      - Mon, 20 Feb 2023 18:45:14 GMT
       Content-Type:
       - application/json
       Connection:
       - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
       X-Ratelimit-Limit-Minute:
       - '60'
       Ratelimit-Remaining:
-      - '57'
-      Ratelimit-Reset:
-      - '58'
+      - '59'
       Ratelimit-Limit:
       - '60'
-      X-Ratelimit-Remaining-Minute:
-      - '57'
-      Www-Authenticate:
-      - Bearer
-      X-Kong-Response-Latency:
-      - '86'
-      Strict-Transport-Security:
-      - max-age=16000000; includeSubDomains; preload;
-      - max-age=31536000; includeSubDomains; preload
+      Ratelimit-Reset:
+      - '47'
+      Content-Language:
+      - en-US
+      X-Kong-Upstream-Latency:
+      - '735'
+      X-Kong-Proxy-Latency:
+      - '0'
+      Via:
+      - kong/3.0.2
       Access-Control-Allow-Origin:
       - "*"
       Cache-Control:
       - ''
-      X-Frame-Options:
-      - SAMEORIGIN
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
-      string: "{ \n  \"status\": 401,\n  \"error\": \"Invalid token.\",\n  \"path\":
-        \"/direct-deposit-management/v1/direct-deposit\"\n}\n"
-  recorded_at: Fri, 19 May 2023 20:51:03 GMT
+      string: '{
+                "type": "https://api.va.gov/direct-deposit-management/errors/bad-request",
+                "title": "Bad Request",
+                "status": 400,
+                "detail": "accountType must be defined as either checking or savings",
+                "instance": "984d674e-b969-496c-8db9-1266d3ec5454",
+                "errorCodes": [
+                  {
+                    "errorCode": "payment.accountType.invalid"
+                  }
+                ]
+              }'
+  recorded_at: Mon, 20 Feb 2023 18:45:14 GMT
 recorded_with: VCR 6.1.0

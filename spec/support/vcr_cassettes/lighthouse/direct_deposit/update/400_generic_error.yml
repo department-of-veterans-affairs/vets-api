@@ -1,11 +1,11 @@
 ---
 http_interactions:
 - request:
-    method: get
+    method: put
     uri: https://sandbox-api.va.gov/services/direct-deposit-management/v1/direct-deposit?icn=1012666073V986297
     body:
       encoding: US-ASCII
-      string: ''
+      string: '{"paymentAccount":{"accountType":"CHECKING","accountNumber":"1234567890","financialInstitutionRoutingNumber":"031000503"}}'
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -17,47 +17,56 @@ http_interactions:
       - sandbox-api.va.gov
       Authorization:
       - Bearer abcdefghijklmnop
+      Content-Type:
+      - application/json
   response:
     status:
-      code: 502
+      code: 400
       message: ''
     headers:
       Date:
-      - Tue, 21 Feb 2023 18:02:36 GMT
+      - Thu, 23 Feb 2023 21:47:59 GMT
       Content-Type:
       - application/json;charset=UTF-8
       Connection:
       - keep-alive
-      Ratelimit-Reset:
-      - '29'
       X-Ratelimit-Limit-Minute:
       - '60'
-      X-Ratelimit-Remaining-Minute:
-      - '59'
+      Ratelimit-Remaining:
+      - '58'
+      Ratelimit-Reset:
+      - '7'
       Ratelimit-Limit:
       - '60'
-      Ratelimit-Remaining:
-      - '59'
+      X-Ratelimit-Remaining-Minute:
+      - '58'
       Content-Language:
       - en-US
+      Pragma:
+      - no-cache
+      - no-cache
       X-Kong-Upstream-Latency:
-      - '4450'
+      - '5345'
       X-Kong-Proxy-Latency:
-      - '9'
+      - '2'
       Via:
       - kong/3.0.2
       Access-Control-Allow-Origin:
       - "*"
-      Cache-Control:
-      - ''
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
       Transfer-Encoding:
       - chunked
     body:
-      encoding: UTF-8
-      string: '{"type":"https://api.va.gov/services/direct-deposit-management/errors/required-connection-exception","title":"Required
-        Backend Connection Error","status":502,"detail":"e9e04329-b211-11ed-9449-732003342465","instance":"Backend
-        Connection Error - Failed to retrieve data from MPI","debuggingPayload":"kiosrLjDAAIH8t/GfzCb1tQ+YT0ivptTY4u8gmkhZyr6KOzoSWZ6yaqh9u/9xpLsPEbTG2cHqdcHKjIe6Gcf+R/7ea+HR41Fk4dzeEHQAtYS3+RXg1SkWDVpz7xVPdsBZkiJM5KvA968ynE2RaNDEv0nIQtUR+nG8SQC61TNWaYiVNMA4C6gwgvJi8Ne0h3Vh7bDCbmLmRDBfa6QtYd9CQ=="}'
-  recorded_at: Tue, 21 Feb 2023 18:02:36 GMT
+      encoding: ASCII-8BIT
+      string: '{
+        "type": "https://api.va.gov/direct-deposit-management/errors/bad-request",
+        "title": "Bad Request",
+        "status": 400,
+        "detail": "Something unknown went wrong. Please try again later.",
+        "instance": "06ef48e9-f0c2-11ed-8091-578ca955e798",
+        "errorCodes": []}'
+  recorded_at: Thu, 23 Feb 2023 21:47:59 GMT
 recorded_with: VCR 6.1.0

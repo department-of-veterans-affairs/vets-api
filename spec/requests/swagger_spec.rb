@@ -2246,36 +2246,53 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       context 'GET' do
         it 'returns a 200' do
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          VCR.use_cassette('lighthouse/direct_deposit/show/200_response') do
+          VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
             expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 200, headers)
           end
         end
 
         it 'returns a 400' do
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          VCR.use_cassette('lighthouse/direct_deposit/show/400_response') do
+          VCR.use_cassette('lighthouse/direct_deposit/show/400_invalid_icn') do
             expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 400, headers)
           end
         end
 
         it 'returns a 401' do
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          VCR.use_cassette('lighthouse/direct_deposit/show/401_response') do
+          VCR.use_cassette('lighthouse/direct_deposit/show/401_invalid_token') do
             expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 401, headers)
           end
         end
 
         it 'returns a 404' do
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          VCR.use_cassette('lighthouse/direct_deposit/show/404_response') do
+          VCR.use_cassette('lighthouse/direct_deposit/show/404_icn_not_found') do
             expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 404, headers)
           end
         end
+      end
 
-        it 'returns a 502' do
+      context 'PUT' do
+        it 'returns a 200' do
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          VCR.use_cassette('lighthouse/direct_deposit/show/502_response') do
-            expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 502, headers)
+          params = { account_number: '1234567890', account_type: 'CHECKING', routing_number: '031000503' }
+          VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
+            expect(subject).to validate(:put,
+                                        '/v0/profile/direct_deposits/disability_compensations',
+                                        200,
+                                        headers.merge('_data' => params))
+          end
+        end
+
+        it 'returns a 400' do
+          headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
+          params = { account_number: '1234567890', account_type: 'CHECKING', routing_number: '031000503' }
+          VCR.use_cassette('lighthouse/direct_deposit/update/400_routing_number_fraud') do
+            expect(subject).to validate(:put,
+                                        '/v0/profile/direct_deposits/disability_compensations',
+                                        400,
+                                        headers.merge('_data' => params))
           end
         end
       end
