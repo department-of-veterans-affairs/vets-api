@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 # rubocop:disable Metrics/BlockLength
-namespace :temp do
-  namespace :vba_documents do
+namespace :vba_documents do
+  namespace :data_migration do
     desc(
       'An upstream DB is out of sync. That upstream partner has asked us if we could' \
       'update some statuses manually to vbms status. 2020-09-14'
