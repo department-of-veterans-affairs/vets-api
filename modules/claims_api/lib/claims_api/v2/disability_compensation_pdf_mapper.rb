@@ -65,6 +65,10 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:changeOfAddress] =
           @auto_claim&.dig('changeOfAddress')&.deep_symbolize_keys
 
+        country = @pdf_data[:data][:attributes][:changeOfAddress][:country]
+        abbr_country = country == 'USA' ? 'US' : country
+        @pdf_data[:data][:attributes][:changeOfAddress][:country] = abbr_country
+
         chg_addr_zip
 
         @pdf_data
@@ -90,6 +94,11 @@ module ClaimsApi
         @pdf_data[:data][:attributes].merge!(
           identificationInformation: @auto_claim&.dig('veteranIdentification')&.deep_symbolize_keys
         )
+
+        country = @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:country]
+        abbr_country = country == 'USA' ? 'US' : country
+        @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:country] = abbr_country
+
         zip
 
         @pdf_data
