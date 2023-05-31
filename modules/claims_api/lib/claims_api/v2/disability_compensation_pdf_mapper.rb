@@ -14,8 +14,8 @@ module ClaimsApi
         homeless_attributes
         chg_addr_attributes if @auto_claim['changeOfAddress'].present?
         veteran_info
+        service_info
         disability_attributes
-
         treatment_centers
 
         @pdf_data
@@ -175,10 +175,108 @@ module ClaimsApi
           tx['dateOfTreatment'] = tx['startDate']
           tx['doNotHaveDate'] = tx['startDate'].nil?
           tx.delete('center')
-          tx.delete('treatedDisabilityName')
+          tx.delete('treatedDisabilityNames')
           tx.delete('startDate')
           tx
         end
+      end
+
+      def service_info
+        symbolize_service_info
+        most_recent_service_period
+        array_of_remaining_service_date_objects
+        confinements
+        national_guard
+        service_info_other_names
+        fed_activation
+
+        @pdf_data
+      end
+
+      def symbolize_service_info
+        @pdf_data[:data][:attributes][:serviceInformation].merge!(
+          @auto_claim['serviceInformation'].deep_symbolize_keys
+        )
+
+        @pdf_data
+      end
+
+      def most_recent_service_period
+        @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService] = {}
+        most_recent_period = @pdf_data[:data][:attributes][:serviceInformation][:servicePeriods].max_by do |sp|
+          sp[:activeDutyEndDate]
+        end
+
+        @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService][:startDate] =
+          most_recent_period[:activeDutyBeginDate]
+        @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService][:endDate] =
+          most_recent_period[:activeDutyEndDate]
+        @pdf_data[:data][:attributes][:serviceInformation][:placeOfLastOrAnticipatedSeparation] =
+          most_recent_period[:separationLocationCode]
+        @pdf_data[:data][:attributes][:serviceInformation][:branchOfService] = most_recent_period[:serviceBranch]
+        @pdf_data[:data][:attributes][:serviceInformation][:serviceComponent] = most_recent_period[:serviceComponent]
+
+        @pdf_data
+      end
+
+      def array_of_remaining_service_date_objects
+        arr = []
+        @pdf_data[:data][:attributes][:serviceInformation][:servicePeriods].each do |sp|
+          arr.push({ startDate: sp[:activeDutyBeginDate], endDate: sp[:activeDutyEndDate] })
+        end
+        sorted = arr.sort_by { |sp| sp[:activeDutyEndDate] }
+        sorted.pop if sorted.count > 1
+        @pdf_data[:data][:attributes][:serviceInformation][:additionalPeriodsOfService] = sorted
+        @pdf_data[:data][:attributes][:serviceInformation].delete(:servicePeriods)
+        @pdf_data
+      end
+
+      def confinements
+        si = []
+        @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement] = { confinementDates: [] }
+        @pdf_data[:data][:attributes][:serviceInformation][:confinements].map do |confinement|
+          start = confinement[:approximateBeginDate]
+          end_date = confinement[:approximateEndDate]
+          si.push({
+                    startDate: start, endDate: end_date
+                  })
+          si
+        end
+        pow = si.present?
+        @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement][:confinementDates] = si
+        @pdf_data[:data][:attributes][:serviceInformation][:confinedAsPrisonerOfWar] = pow
+        @pdf_data
+      end
+
+      def national_guard
+        si = {}
+        reserves = @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
+        si[:servedInReservesOrNationalGuard] = true if reserves[:obligationTermsOfService][:startDate]
+        @pdf_data[:data][:attributes][:serviceInformation].merge!(si)
+
+        @pdf_data
+      end
+
+      def service_info_other_names
+        other_names = @pdf_data[:data][:attributes][:serviceInformation][:alternateNames].present?
+        names = @pdf_data[:data][:attributes][:serviceInformation][:alternateNames].join(', ')
+        @pdf_data[:data][:attributes][:serviceInformation][:servedUnderAnotherName] = true if other_names
+        @pdf_data[:data][:attributes][:serviceInformation][:alternateNames] = names
+      end
+
+      def fed_activation
+        @pdf_data[:data][:attributes][:serviceInformation][:federalActivation] = {}
+        ten = @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:title10Activation]
+        activation_date = ten[:title10ActivationDate]
+        @pdf_data[:data][:attributes][:serviceInformation][:federalActivation][:activationDate] = activation_date
+
+        anticipated_sep_date = ten[:anticipatedSeparationDate]
+        @pdf_data[:data][:attributes][:serviceInformation][:federalActivation][:anticipatedSeparationDate] =
+          anticipated_sep_date
+        @pdf_data[:data][:attributes][:serviceInformation][:activatedOnFederalOrders] = true if activation_date
+        @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService].delete(:title10Activation)
+
+        @pdf_data
       end
     end
   end

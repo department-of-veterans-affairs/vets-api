@@ -157,6 +157,7 @@
                 "endDate":"2017-11-17"
               },
               "unitName": "DonkeyPants",
+              "unitAddress": "1243 pine court",
               "component": "National Guard",
               "title10Activation": {
                   "anticipatedSeparationDate": "2017-10-03",
