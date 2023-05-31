@@ -1,14 +1,11 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'sidekiq/benchmark_logging_worker'
 require 'flipper/utilities/bulk_feature_checker'
-require 'sidekiq/middleware/benchmark_logging_middleware'
 
 module VBADocuments
   class FlipperStatusAlert
     include Sidekiq::Worker
-    include Sidekiq::BenchmarkLoggingWorker
 
     WARNING_EMOJI = ':warning:'
     DISABLED_FLAG_EMOJI = ':vertical_traffic_light:'
