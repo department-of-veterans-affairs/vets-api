@@ -1,0 +1,153 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012846043V576341/appointments/70060
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 13 Dec 2021 23:28:26 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '653'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 1.14.1
+      B3:
+      - 8c17e441da8d346f6934d442b0a0ac7c-e1581452019f7fc4-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 20a82ca
+      X-Vamf-Timestamp:
+      - '2021-11-26T16:29:10+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '424'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{"data":{"id":"70060","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/ars/id","value":"8a4890c47da65e2b017db59b20500000"}],"kind":"clinic","status":"proposed","serviceType":"socialWork","reasonCode":{"text":"PAP COMPLIANCE/TELE"},"patientIcn":"1012846043V576341","locationId":"983GB","created":"2021-12-13T14:03:02Z","requestedPeriods":[{"start":"2021-12-20T00:00:00Z","end":"2021-12-20T11:59:59.999Z"}],"contact":{"telecom":[{"type":"email","value":"C_Natalie.Yun@cerner.com"},{"type":"phone","value":"2566832029"}]},"preferredTimesForPhoneCall":["Morning"],"cancellationReason":{"code":"other"},"cancellable":true,"extension":{"ccLocation":{"address":{}}}}}'
+  recorded_at: Mon, 13 Dec 2021 23:28:26 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983GB
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 09 Aug 2021 17:48:58 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1114'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.8.0
+      B3:
+      - 531af1d2054d758c-b79b44f980a35120-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - '6026315'
+      X-Vamf-Timestamp:
+      - '2021-07-06T17:59:37+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id" : "983GB",
+          "vistaSite" : "983",
+          "vastParent" : "983",
+          "type" : "va_facilities",
+          "name" : "Cheyenne VA Medical Center",
+          "classification" : "VA Medical Center (VAMC)",
+          "timezone": {
+              "zoneId": "America/New_York",
+              "abbreviation": "EDT"
+          },
+          "lat" : 39.744507,
+          "long" : -104.830956,
+          "website" : "https://www.denver.va.gov/locations/directions.asp",
+          "phone" : {
+            "main" : "307-778-7550",
+            "fax" : "307-778-7381",
+            "pharmacy" : "866-420-6337",
+            "afterHours" : "307-778-7550",
+            "patientAdvocate" : "307-778-7550 x7517",
+            "mentalHealthClinic" : "307-778-7349",
+            "enrollmentCoordinator" : "307-778-7550 x7579"
+          },
+          "physicalAddress" : {
+            "type" : "physical",
+            "line" : [ "2360 East Pershing Boulevard" ],
+            "city" : "Cheyenne",
+            "state" : "WY",
+            "postalCode" : "82001-5356"
+          },
+          "mobile" : false,
+          "healthService" : [ "Audiology", "Cardiology", "DentalServices", "EmergencyCare", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "UrgentCare", "Urology", "WomensHealth" ],
+          "operatingStatus" : {
+            "code" : "NORMAL"
+          }
+        }
+  recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
+recorded_with: VCR 6.0.0

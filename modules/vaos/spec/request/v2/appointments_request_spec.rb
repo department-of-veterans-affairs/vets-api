@@ -106,6 +106,18 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
         end
       end
+
+      it 'creates the va appointment and logs appointment details when there is a PAP COMPLIANCE comment' do
+        VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_and_log_facility',
+                         match_requests_on: %i[method path query]) do
+          allow(Rails.logger).to receive(:info).at_least(:once)
+          post '/vaos/v2/appointments', params: va_booked_request_body, headers: inflection_header
+          expect(response).to have_http_status(:created)
+          expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+          expect(Rails.logger).to have_received(:info).with('Details for PAP COMPLIANCE/TELE appointment',
+                                                            any_args).at_least(:once)
+        end
+      end
     end
 
     describe 'GET appointments' do
@@ -173,6 +185,19 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(data.size).to eq(16)
             expect(data[0]['attributes']['serviceName']).to eq(nil)
             expect(data[0]['attributes']['location']).to eq(nil)
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+          end
+        end
+
+        it 'returns va appointments and logs details when there is a PAP COMPLIANCE comment' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_with_facilities_200_and_log_pap_comp',
+                           match_requests_on: %i[method path query], allow_playback_repeats: true) do
+            allow(Rails.logger).to receive(:info).at_least(:once)
+            get '/vaos/v2/appointments', params:, headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(Rails.logger).to have_received(:info).with('Details for PAP COMPLIANCE/TELE appointment',
+                                                              any_args).at_least(:once)
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
           end
         end
@@ -316,6 +341,23 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(data['id']).to eq('70060')
             expect(data['attributes']['kind']).to eq('clinic')
             expect(data['attributes']['status']).to eq('proposed')
+          end
+        end
+
+        it 'returns appointment and logs PAP COMPLIANCE details' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment_200_with_facility_200_and_log_pap_comp',
+                           match_requests_on: %i[method path query]) do
+            allow(Rails.logger).to receive(:info).at_least(:once)
+            get '/vaos/v2/appointments/70060', headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+            data = JSON.parse(response.body)['data']
+
+            expect(data['id']).to eq('70060')
+            expect(data['attributes']['kind']).to eq('clinic')
+            expect(data['attributes']['status']).to eq('proposed')
+            expect(Rails.logger).to have_received(:info).with('Details for PAP COMPLIANCE/TELE appointment',
+                                                              any_args).at_least(:once)
           end
         end
 
