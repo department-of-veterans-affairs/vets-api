@@ -658,9 +658,7 @@
                             "items": {
                                 "type": "string",
                                 "additionalProperties": false,
-                                "properties": {
-                                    "type": "string",
-                                    "example": ["PTSD (post traumatic stress disorder)","Trauma"]
+                                "examples": ["PTSD (post traumatic stress disorder)","Trauma"]
                                 }
                             }
                         },
@@ -693,7 +691,6 @@
                             }
                         }
                     }
-                }
             },
             "serviceInformation": {
                 "type": "object",
@@ -807,8 +804,9 @@
                                     "example": "2018-08-04"
                                 }
                             }
+                          }
                         }
-                    },
+                      },
                     "reservesNationalGuardService": {
                         "type": "object",
                         "additionalProperties": false,
@@ -864,6 +862,10 @@
                                 "type": "string",
                                 "pattern": "([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$"
                               },
+                              "unitAddress": {
+                                  "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$"
+                              },
                               "unitPhone": {
                                 "type": "object",
                                 "additionalProperties": false,
@@ -900,7 +902,6 @@
                         "description": "Did Veteran serve in a combat zone since 9-11-2001?",
                         "example": true
                     }
-                }
             },
             "servicePay": {
                 "type": "object",
