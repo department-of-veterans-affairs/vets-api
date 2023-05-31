@@ -26,6 +26,9 @@ module VAOS
             # for covid appointments set cancellable to false per GH#58690
             set_cancellable_false(appt) if covid?(appt)
 
+            # remove service type(s) for non-medical non-CnP appointments per GH#56197
+            remove_service_type(appt) unless medical?(appt) || cnp?(appt) || no_service_cat?(appt)
+
             log_telehealth_data(appt[:telehealth]&.[](:atlas)) unless appt[:telehealth]&.[](:atlas).nil?
             convert_appointment_time(appt)
           end
@@ -41,10 +44,17 @@ module VAOS
         with_monitoring do
           response = perform(:get, get_appointment_base_url(appointment_id), params, headers)
           convert_appointment_time(response.body[:data])
+
           # for CnP appointments set cancellable to false per GH#57824
           set_cancellable_false(response.body[:data]) if cnp?(response.body[:data])
           # for covid appointments set cancellable to false per GH#58690
           set_cancellable_false(response.body[:data]) if covid?(response.body[:data])
+
+          # remove service type(s) for non-medical non-CnP appointments per GH#56197
+          unless medical?(response.body[:data]) || cnp?(response.body[:data]) || no_service_cat?(response.body[:data])
+            remove_service_type(response.body[:data])
+          end
+
           OpenStruct.new(response.body[:data])
         end
       end
@@ -89,22 +99,70 @@ module VAOS
         input.flat_map { |codeable_concept| codeable_concept[:coding]&.pluck(:code) }.compact
       end
 
-      # Returns true if the appointment is for compensation and pension, false otherwise.
+      # Determines if the appointment is for compensation and pension.
       #
       # @param appt [Hash] the appointment to check
       # @return [Boolean] true if the appointment is for compensation and pension, false otherwise
       #
+      # @raise [ArgumentError] if the appointment is nil
+      #
       def cnp?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
         codes(appt[:service_category]).include? 'COMPENSATION & PENSION'
       end
 
-      # Returns true if the appointment is for covid, false otherwise.
+      # Determines if the appointment is for covid.
       #
       # @param appt [Hash] the appointment to check
       # @return [Boolean] true if the appointment is for covid, false otherwise
       #
+      # @raise [ArgumentError] if the appointment is nil
+      #
       def covid?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
         codes(appt[:service_types]).include?('covid') || appt[:service_type] == 'covid'
+      end
+
+      # Determines if the appointment is a medical appointment.
+      #
+      # @param appt [Hash] The hash object containing appointment details.
+      # @return [Boolean] true if the appointment is a medical appointment, false otherwise.
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def medical?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        codes(appt[:service_category]).include?('REGULAR')
+      end
+
+      # Determines if the appointment does not have a service category.
+      #
+      # @param appt [Hash] The hash object containing appointment details.
+      # @return [Boolean] true if the appointment does not have a service category, false otherwise.
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def no_service_cat?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        codes(appt[:service_category]).empty?
+      end
+
+      # Modifies the appointment removing the service types and service type elements.
+      #
+      # @param appt [Hash] The hash object containing appointment details.
+      #
+      # @raises [ArgumentError] if the given appointment is nil.
+      #
+      def remove_service_type(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt.delete(:service_type)
+        appt.delete(:service_types)
+        nil
       end
 
       # Entry point for processing appointment responses for converting their times from UTC to local.
