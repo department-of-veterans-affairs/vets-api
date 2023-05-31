@@ -1,0 +1,62 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012846043V576341/appointments
+    body:
+      encoding: UTF-8
+      string: '{"kind":"clinic","status":"booked","locationId":"983","clinic":"999","slot":{"id":"3230323231313330323034353A323032323131333032313030"},"reasonCode":{"text":"testing","coding":[{"code":"Routine
+        Follow-up"}]},"extension":{"desiredDate":"2022-11-29T17:00:00-07:00"},"patientIcn":"1012846043V576341"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - 6abdafd2-d7e8-40e2-9485-aeadad4fde5f
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 20 Oct 2022 22:21:59 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '616'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 1.23.1
+      B3:
+      - 9386e780c6e24ce819013350157327bc-3637f2cce7a14a9d-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 31af686
+      X-Vamf-Timestamp:
+      - '2022-10-20T16:55:11+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '1454'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{"id":"139064","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/vista/983/appointment/id","value":"999;20221130.134500"}],"kind":"clinic","status":"booked","serviceType":"optometry","serviceCategory":[{"coding":[{"system":"http://www.va.gov/Terminology/VistADefinedTerms/409_1","code":"REGULAR","display":"REGULAR"}],"text":"REGULAR"}],"reasonCode":{"text":"PAP COMPLIANCE/TELE"},"patientIcn":"1012846043V576341","locationId":"983","clinic":"999","start":"2022-11-30T20:45:00Z","end":"2022-11-30T21:00:00Z","minutesDuration":15,"slot":{"id":"3230323231313330323034353A323032323131333032313030","start":"2022-11-30T20:45:00Z","end":"2022-11-30T21:00:00Z"},"comment":"PAP COMPLIANCE/TELE","cancellable":true,"extension":{"ccLocation":{"address":{}}}}'
+  recorded_at: Thu, 20 Oct 2022 22:21:59 GMT
+recorded_with: VCR 6.1.0
