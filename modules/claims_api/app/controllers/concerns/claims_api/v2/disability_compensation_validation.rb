@@ -12,6 +12,8 @@ module ClaimsApi
         validate_form_526_claimant_certification!
         # ensure mailing address country is valid
         validate_form_526_current_mailing_address_country!
+        # ensure disabilities are valid
+        validate_form_526_disabilities!
         # ensure homeless information is valid
         validate_form_526_veteran_homelessness!
         # ensure military service pay information is valid
@@ -47,6 +49,170 @@ module ClaimsApi
 
       def valid_countries
         @valid_countries ||= ClaimsApi::BRD.new(request).countries
+      end
+
+      def validate_form_526_disabilities!
+        validate_form_526_disability_classification_code!
+        validate_form_526_diagnostic_code!
+        validate_form_526_toxic_exposure!
+        validate_form_526_disability_approximate_begin_date!
+        validate_form_526_disability_secondary_disabilities!
+      end
+
+      def validate_form_526_disability_classification_code!
+        return if (form_attributes['disabilities'].pluck('classificationCode') - [nil]).blank?
+
+        form_attributes['disabilities'].each do |disability|
+          next if disability['classificationCode'].blank?
+
+          if brd_classification_ids.include?(disability['classificationCode'].to_i)
+            validate_form_526_disability_name!(disability['classificationCode'].to_i, disability['name'])
+          else
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: "'disabilities.classificationCode' must match the associated id " \
+                      'value returned from the /disabilities endpoint of the Benefits ' \
+                      'Reference Data API.'
+            )
+          end
+        end
+      end
+
+      def validate_form_526_disability_name!(classification_code, disability_name)
+        if disability_name.blank?
+          raise ::Common::Exceptions::InvalidFieldValue.new('disabilities.name',
+                                                            disability['name'])
+        end
+        reference_disability = brd_disabilities.find { |x| x[:id] == classification_code }
+        return if reference_disability[:name] == disability_name
+
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: "'disabilities.name' must match the name value associated " \
+                  "with 'disabilities.classificationCode' as returned from the " \
+                  '/disabilities endpoint of the Benefits Reference Data API.'
+        )
+      end
+
+      def brd_classification_ids
+        return @brd_classification_ids if @brd_classification_ids.present?
+
+        brd_disabilities_arry = ClaimsApi::BRD.new(request).disabilities
+        @brd_classification_ids = brd_disabilities_arry.pluck(:id)
+      end
+
+      def brd_disabilities
+        return @brd_disabilities if @brd_disabilities.present?
+
+        @brd_disabilities = ClaimsApi::BRD.new(request).disabilities
+      end
+
+      def validate_form_526_disability_approximate_begin_date!
+        disabilities = form_attributes['disabilities']
+        return if disabilities.blank?
+
+        disabilities.each do |disability|
+          approx_begin_date = disability['approximateDate']
+          next if approx_begin_date.blank?
+
+          next if Date.parse(approx_begin_date) < Time.zone.today
+
+          raise ::Common::Exceptions::InvalidFieldValue.new('disability.approximateDate', approx_begin_date)
+        end
+      end
+
+      def validate_form_526_diagnostic_code!
+        form_attributes['disabilities'].each do |disability|
+          next unless disability['disabilityActionType'] == 'NONE' && disability['secondaryDisabilities'].present?
+
+          if disability['diagnosticCode'].blank?
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: "'disabilities.diagnosticCode' is required if 'disabilities.disabilityActionType' " \
+                      "is 'NONE' and there are secondary disbilities included with the primary."
+            )
+          end
+        end
+      end
+
+      def validate_form_526_toxic_exposure!
+        form_attributes['disabilities'].each do |disability|
+          next unless disability['isRelatedToToxicExposure'] == true
+
+          if disability['exposureOrEventOrInjury'].blank?
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: "If disability is related to toxic exposure a value for 'disabilities.exposureOrEventOrInjury' " \
+                      'is required.'
+            )
+          end
+        end
+      end
+
+      def validate_form_526_disability_secondary_disabilities!
+        form_attributes['disabilities'].each do |disability|
+          validate_form_526_disability_secondary_disability_disability_action_type!(disability)
+          next if disability['secondaryDisabilities'].blank?
+
+          disability['secondaryDisabilities'].each do |secondary_disability|
+            if secondary_disability['classificationCode'].present?
+              validate_form_526_disability_secondary_disability_classification_code!(secondary_disability)
+              validate_form_526_disability_secondary_disability_classification_code_matches_name!(
+                secondary_disability
+              )
+            end
+
+            if secondary_disability['approximateDate'].present?
+              validate_form_526_disability_secondary_disability_approximate_begin_date!(secondary_disability)
+            end
+          end
+        end
+      end
+
+      def validate_form_526_disability_secondary_disability_disability_action_type!(disability)
+        return unless disability['disabilityActionType'] == 'NONE' && disability['secondaryDisabilities'].present?
+
+        if disability['diagnosticCode'].blank?
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: "'disabilities.diagnosticCode' is required if 'disabilities.disabilityActionType' " \
+                    "is 'NONE' and there are secondary disbilities included with the primary."
+          )
+        end
+      end
+
+      def validate_form_526_disability_secondary_disability_classification_code!(secondary_disability)
+        return if brd_classification_ids.include?(secondary_disability['classificationCode'].to_i)
+
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: "'disabilities.secondaryDisabilities.classificationCode' must match the associated id " \
+                  'value returned from the /disabilities endpoint of the Benefits ' \
+                  'Reference Data API.'
+        )
+      end
+
+      def validate_form_526_disability_secondary_disability_classification_code_matches_name!(secondary_disability)
+        if secondary_disability['name'].blank?
+          raise ::Common::Exceptions::InvalidFieldValue.new('disabilities.secondaryDisabilities.name',
+                                                            secondary_disability['name'])
+        end
+        reference_disability = brd_disabilities.find { |x| x[:id] == secondary_disability['classificationCode'].to_i }
+        return if reference_disability[:name] == secondary_disability['name']
+
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: "'disabilities.secondaryDisabilities.name' must match the name value associated " \
+                  "with 'disabilities.secondaryDisabilities.classificationCode' as returned from the " \
+                  '/disabilities endpoint of the Benefits Reference Data API.'
+        )
+      end
+
+      def validate_form_526_disability_secondary_disability_approximate_begin_date!(secondary_disability)
+        return if Date.parse(secondary_disability['approximateDate']) < Time.zone.today
+
+        raise ::Common::Exceptions::InvalidFieldValue.new(
+          'disabilities.secondaryDisabilities.approximateDate',
+          secondary_disability['approximateDate']
+        )
+      rescue ArgumentError
+        raise ::Common::Exceptions::InvalidFieldValue.new(
+          'disabilities.secondaryDisabilities.approximateDate',
+          secondary_disability['approximateDate']
+        )
       end
 
       def validate_form_526_veteran_homelessness!
