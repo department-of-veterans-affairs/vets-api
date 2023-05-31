@@ -87,7 +87,7 @@ module VBADocuments
     def self.get_partname(headers)
       headers.each do |header|
         name, _, value = header.partition(':')
-        if name == 'Content-Disposition'
+        if name.downcase == 'content-disposition'
           value.split(';').each do |param|
             k, _, v = param.strip.partition('=')
             return v.tr('"', '') if k == 'name'
@@ -101,7 +101,7 @@ module VBADocuments
     def self.get_content_type(headers)
       headers.each do |header|
         name, _, value = header.partition(':')
-        return value.split(';')[0].strip if name == 'Content-Type'
+        return value.split(';')[0].strip if name.downcase == 'content-type'
       end
       raise VBADocuments::UploadError.new(code: 'DOC101',
                                           detail: 'Missing content-type header')
