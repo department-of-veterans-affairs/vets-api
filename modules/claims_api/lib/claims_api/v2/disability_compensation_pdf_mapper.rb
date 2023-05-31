@@ -17,6 +17,7 @@ module ClaimsApi
         service_info
         disability_attributes
         treatment_centers
+        direct_deposit_information
 
         @pdf_data
       end
@@ -284,6 +285,13 @@ module ClaimsApi
           anticipated_sep_date
         @pdf_data[:data][:attributes][:serviceInformation][:activatedOnFederalOrders] = true if activation_date
         @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService].delete(:title10Activation)
+
+        @pdf_data
+      end
+
+      def direct_deposit_information
+        @pdf_data[:data][:attributes][:directDepositInformation] = @pdf_data[:data][:attributes][:directDeposit]
+        @pdf_data[:data][:attributes].delete(:directDeposit)
 
         @pdf_data
       end

@@ -338,5 +338,28 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(served_after_nine_eleven).to eq(false)
       end
     end
+
+    context '526 section 8, direct deposot' do
+      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
+      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data) }
+
+      it 'maps the attributes correctly' do
+        mapper.map_claim
+
+        dir_deposit = pdf_data[:data][:attributes][:directDepositInformation]
+
+        account_type = dir_deposit[:accountType]
+        account_number = dir_deposit[:accountNumber]
+        routing_number = dir_deposit[:routingNumber]
+        financial_institution_name = dir_deposit[:financialInstitutionName]
+        no_account = dir_deposit[:noAccount]
+
+        expect(account_type).to eq('CHECKING')
+        expect(account_number).to eq('ABCDEF')
+        expect(routing_number).to eq('123123123')
+        expect(financial_institution_name).to eq('Some Bank')
+        expect(no_account).to eq(false)
+      end
+    end
   end
 end
