@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'action_controller/log_subscriber'
+
 # tricky bit of code that removes existing subcribers
 def unsubscribe(log_subscriber, event_component)
   ActiveSupport::LogSubscriber.log_subscribers.each do |subscriber|
