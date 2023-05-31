@@ -52,7 +52,7 @@ module ClaimsApi
           @documents ||= params.slice(*document_keys).values.map do |document|
             case document
             when String
-              decode_document(document)
+              document.blank? ? nil : decode_document(document)
             when ActionDispatch::Http::UploadedFile
               document.original_filename = create_unique_filename(doc: document)
               document
