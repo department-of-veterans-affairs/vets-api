@@ -23,6 +23,10 @@ module ClaimsApi
       client.get('intake-sites').body[:items]
     end
 
+    def disabilities
+      client.get('disabilities').body[:items]
+    end
+
     private
 
     def client

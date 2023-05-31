@@ -555,7 +555,9 @@
                               "name": {
                                   "description": "What the Disability is called.",
                                   "type": "string",
-                                  "example": "PTSD (post traumatic stress disorder)"
+                                    "pattern": "([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                  "example": "PTSD (post traumatic stress disorder)",
+                                    "maxLength" : 255
                               },
                               "disabilityActionType": {
                                   "description": "The status of the secondary disability.",

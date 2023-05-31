@@ -231,11 +231,11 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(has_conditions).to eq(true)
         expect(name).to eq('PTSD (post traumatic stress disorder)')
         expect(relevance).to eq('ABCDEFG')
-        expect(date).to eq('4592-11-04')
+        expect(date).to eq('2018-03-02')
         expect(event).to eq('EXPOSURE')
         expect(is_related).to eq(true)
         expect(attribut_count).to eq(5)
-        expect(secondary_name).to eq('Trauma')
+        expect(secondary_name).to eq('Traumatic Brain Injury')
         expect(secondary_event).to eq('EXPOSURE')
         expect(secondary_relevance).to eq('ABCDEFG')
       end
@@ -269,7 +269,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
         expect(start_date).to eq('03-1985')
         expect(no_date).to eq(false)
-        expect(treatment_details).to eq('PTSD (post traumatic stress disorder), Trauma - Center One, Decatur, GA')
+        expect(treatment_details).to eq('PTSD (post traumatic stress disorder) - Center One, Decatur, GA')
       end
     end
 
