@@ -77,7 +77,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(number_and_street).to eq('1234 Couch Street')
         expect(apartment_or_unit_number).to eq('22')
         expect(city).to eq('Portland')
-        expect(country).to eq('USA')
+        expect(country).to eq('US')
         expect(zip).to eq('417261234')
         expect(state).to eq('OR')
       end
@@ -127,7 +127,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(number_and_street).to eq('10 Peach St')
         expect(apartment_or_unit_number).to eq('Apt 1')
         expect(city).to eq('Atlanta')
-        expect(country).to eq('USA')
+        expect(country).to eq('US')
         expect(zip).to eq('422209897')
         expect(state).to eq('GA')
       end
