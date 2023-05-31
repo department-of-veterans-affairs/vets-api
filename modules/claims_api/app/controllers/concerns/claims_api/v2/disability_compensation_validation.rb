@@ -14,6 +14,8 @@ module ClaimsApi
         validate_form_526_current_mailing_address_country!
         # ensure homeless information is valid
         validate_form_526_veteran_homelessness!
+        # ensure military service pay information is valid
+        validate_form_526_service_pay!
         # ensure treament centers information is valid
         validate_form_526_treatments!
         # ensure service information is valid
@@ -117,6 +119,50 @@ module ClaimsApi
 
         # 'pointOfContact' is required when either currentlyHomeless or homelessnessRisk is provided
         homelessness_poc_attr.blank? && (currently_homeless_attr.present? || homelessness_risk_attr.present?)
+      end
+
+      def validate_form_526_service_pay!
+        validate_form_526_military_retired_pay!
+        validate_form_526_future_military_retired_pay!
+        validate_form_526_separation_pay_received_date!
+      end
+
+      def validate_form_526_military_retired_pay!
+        receiving_attr = form_attributes.dig('servicePay', 'receivingMilitaryRetiredPay')
+        future_attr = form_attributes.dig('servicePay', 'futureMilitaryRetiredPay')
+
+        return if receiving_attr.nil? || future_attr.nil?
+        return unless receiving_attr == future_attr
+
+        # EVSS does not allow both attributes to be the same value (unless that value is nil)
+        raise ::Common::Exceptions::InvalidFieldValue.new(
+          'servicePay.militaryRetiredPay',
+          form_attributes['servicePay']['militaryRetiredPay']
+        )
+      end
+
+      def validate_form_526_future_military_retired_pay!
+        future_attr = form_attributes.dig('servicePay', 'futureMilitaryRetiredPay')
+        future_explanation_attr = form_attributes.dig('servicePay', 'futureMilitaryRetiredPayExplanation')
+        return if future_attr.nil?
+
+        if future_attr == true && future_explanation_attr.blank?
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: "If 'servicePay.futureMilitaryRetiredPay' is true, then " \
+                    "'servicePay.futureMilitaryRetiredPayExplanation' is required"
+          )
+        end
+      end
+
+      def validate_form_526_separation_pay_received_date!
+        separation_pay_received_date = form_attributes.dig('servicePay', 'separationSeverancePay',
+                                                           'datePaymentReceived')
+        return if separation_pay_received_date.blank?
+
+        return if Date.parse(separation_pay_received_date) < Time.zone.today
+
+        raise ::Common::Exceptions::InvalidFieldValue.new('separationSeverancePay.datePaymentReceived',
+                                                          separation_pay_received_date)
       end
 
       def validate_form_526_treatments!

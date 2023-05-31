@@ -16,7 +16,6 @@ RSpec.describe 'Disability Claims', type: :request do
 
   before do
     stub_poa_verification
-    stub_mpi
     Timecop.freeze(Time.zone.now)
   end
 
@@ -828,6 +827,337 @@ RSpec.describe 'Disability Claims', type: :request do
                 data = json.to_json
                 post path, params: data, headers: headers.merge(auth_header)
                 expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+      end
+
+      describe "'servicePay validations'" do
+        describe 'retired pay validations' do
+          describe "'receivingMilitaryRetiredPay' and 'futureMilitaryRetiredPay' validations" do
+            let(:service_pay_attribute) do
+              {
+                receivingMilitaryRetiredPay: receiving,
+                futureMilitaryRetiredPay: future,
+                futureMilitaryRetiredPayExplanation: 'Some explanation',
+                militaryRetiredPay: {
+                  branchOfService: 'Air Force'
+                }
+              }
+            end
+
+            context "when 'receivingMilitaryRetiredPay' and 'futureMilitaryRetiredPay' are equal but not 'nil'" do
+              context "when both are 'true'" do
+                let(:receiving) { true }
+                let(:future) { true }
+
+                it 'responds with a bad request' do
+                  with_okta_user(scopes) do |auth_header|
+                    VCR.use_cassette('evss/claims/claims') do
+                      VCR.use_cassette('brd/countries') do
+                        json_data = JSON.parse data
+                        params = json_data
+                        params['data']['attributes']['servicePay'] = service_pay_attribute
+                        post path, params: params.to_json, headers: headers.merge(auth_header)
+                        expect(response).to have_http_status(:bad_request)
+                      end
+                    end
+                  end
+                end
+              end
+
+              context "when both are 'false'" do
+                let(:receiving) { false }
+                let(:future) { false }
+
+                it 'responds with a bad request' do
+                  with_okta_user(scopes) do |auth_header|
+                    VCR.use_cassette('brd/countries') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      params['data']['attributes']['servicePay'] = service_pay_attribute
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:bad_request)
+                    end
+                  end
+                end
+              end
+            end
+
+            context "when 'receivingMilitaryRetiredPay' and 'futureMilitaryRetiredPay' are not equal" do
+              context "when 'receivingMilitaryRetiredPay' is 'false' and 'futureMilitaryRetiredPay' is 'true'" do
+                let(:receiving) { false }
+                let(:future) { true }
+
+                it 'responds with a 200' do
+                  with_okta_user(scopes) do |auth_header|
+                    VCR.use_cassette('evss/claims/claims') do
+                      VCR.use_cassette('brd/countries') do
+                        json_data = JSON.parse data
+                        params = json_data
+                        params['data']['attributes']['servicePay'] = service_pay_attribute
+                        post path, params: params.to_json, headers: headers.merge(auth_header)
+                        expect(response).to have_http_status(:ok)
+                      end
+                    end
+                  end
+                end
+              end
+
+              context "when 'receivingMilitaryRetiredPay' is 'true' and 'futureMilitaryRetiredPay' is 'false'" do
+                let(:receiving) { true }
+                let(:future) { false }
+
+                it 'responds with a 200' do
+                  with_okta_user(scopes) do |auth_header|
+                    VCR.use_cassette('evss/claims/claims') do
+                      VCR.use_cassette('brd/countries') do
+                        json_data = JSON.parse data
+                        params = json_data
+                        params['data']['attributes']['servicePay'] = service_pay_attribute
+                        post path, params: params.to_json, headers: headers.merge(auth_header)
+                        expect(response).to have_http_status(:ok)
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          describe "'payment'" do
+            let(:service_pay_attribute) do
+              {
+                receivingMilitaryRetiredPay: true,
+                futureMilitaryRetiredPay: false,
+                militaryRetiredPay: {
+                  branchOfService: 'Air Force',
+                  monthlyAmount: military_retired_payment_amount
+                }
+              }
+            end
+
+            context "when 'monthlyAmount' is below the minimum" do
+              let(:military_retired_payment_amount) { 0 }
+
+              it 'responds with an unprocessible entity' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('brd/countries') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    params['data']['attributes']['servicePay'] = service_pay_attribute
+                    post path, params: params.to_json, headers: headers.merge(auth_header)
+                    expect(response).to have_http_status(:unprocessable_entity)
+                  end
+                end
+              end
+            end
+
+            context "when 'monthlyAmount' is above the maximum" do
+              let(:military_retired_payment_amount) { 1_000_000 }
+
+              it 'responds with an unprocessible entity' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      params['data']['attributes']['servicePay'] = service_pay_attribute
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:unprocessable_entity)
+                    end
+                  end
+                end
+              end
+            end
+
+            context "when 'monthlyAmount' is within limits" do
+              let(:military_retired_payment_amount) { 100 }
+
+              it 'responds with a 200' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      params['data']['attributes']['servicePay'] = service_pay_attribute
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:ok)
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          describe "'futurePayExplanation'" do
+            context "when 'futureMilitaryRetiredPay' is 'true'" do
+              let(:future_military_retired_pay) { true }
+
+              context "when 'futureMilitaryRetiredPayExplanation' is not provided" do
+                let(:service_pay_attribute) do
+                  {
+                    receivingMilitaryRetiredPay: false,
+                    futureMilitaryRetiredPay: future_military_retired_pay,
+                    militaryRetiredPay: {
+                      branchOfService: 'Air Force'
+                    }
+                  }
+                end
+
+                it 'responds with an unprocessible entity' do
+                  with_okta_user(scopes) do |auth_header|
+                    VCR.use_cassette('brd/countries') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      params['data']['attributes']['servicePay'] = service_pay_attribute
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:unprocessable_entity)
+                    end
+                  end
+                end
+              end
+
+              context "when 'futureMilitaryRetiredPayExplanation' is provided" do
+                let(:service_pay_attribute) do
+                  {
+                    receivingMilitaryRetiredPay: false,
+                    futureMilitaryRetiredPay: future_military_retired_pay,
+                    futureMilitaryRetiredPayExplanation: 'Retiring soon.',
+                    militaryRetiredPay: {
+                      branchOfService: 'Air Force'
+                    }
+                  }
+                end
+
+                it 'responds with a 200' do
+                  with_okta_user(scopes) do |auth_header|
+                    VCR.use_cassette('evss/claims/claims') do
+                      VCR.use_cassette('brd/countries') do
+                        json_data = JSON.parse data
+                        params = json_data
+                        params['data']['attributes']['servicePay'] = service_pay_attribute
+                        post path, params: params.to_json, headers: headers.merge(auth_header)
+                        expect(response).to have_http_status(:ok)
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        describe "'servicePay.separationSeverancePay' validations" do
+          describe "'payment'" do
+            let(:service_pay_attribute) do
+              {
+                receivedSeparationOrSeverancePay: true,
+                separationSeverancePay: {
+                  datePaymentReceived: (Time.zone.today - 1.year).to_s,
+                  branchOfService: 'Air Force',
+                  preTaxAmountReceived: separation_payment_amount
+                }
+              }
+            end
+
+            context "when 'preTaxAmountReceived' is below the minimum" do
+              let(:separation_payment_amount) { 0 }
+
+              it 'responds with an unprocessible entity' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('brd/countries') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    params['data']['attributes']['servicePay'] = service_pay_attribute
+                    post path, params: params.to_json, headers: headers.merge(auth_header)
+                    expect(response).to have_http_status(:unprocessable_entity)
+                  end
+                end
+              end
+            end
+
+            context "when 'preTaxAmountReceived' is above the maximum" do
+              let(:separation_payment_amount) { 1_000_000 }
+
+              it 'responds with an unprocessible entity' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      params['data']['attributes']['servicePay'] = service_pay_attribute
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:unprocessable_entity)
+                    end
+                  end
+                end
+              end
+            end
+
+            context "when 'preTaxAmountReceived' is within limits" do
+              let(:separation_payment_amount) { 100 }
+
+              it 'responds with a 200' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      params['data']['attributes']['servicePay'] = service_pay_attribute
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:ok)
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          describe "'datePaymentReceived'" do
+            let(:service_pay_attribute) do
+              {
+                receivedSeparationOrSeverancePay: true,
+                separationSeverancePay: {
+                  datePaymentReceived: received_date,
+                  branchOfService: 'Air Force',
+                  preTaxAmountReceived: 100
+                }
+              }
+            end
+
+            context "when 'datePaymentReceived' is not in the past" do
+              let(:received_date) { (Time.zone.today + 1.day).to_s }
+
+              it 'responds with a bad request' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('brd/countries') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    params['data']['attributes']['servicePay'] = service_pay_attribute
+                    post path, params: params.to_json, headers: headers.merge(auth_header)
+                    expect(response).to have_http_status(:bad_request)
+                  end
+                end
+              end
+            end
+
+            context "when 'datePaymentReceived' is in the past" do
+              let(:received_date) { (Time.zone.today - 1.year).to_s }
+
+              it 'responds with a 200' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      params['data']['attributes']['servicePay'] = service_pay_attribute
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:ok)
+                    end
+                  end
+                end
               end
             end
           end

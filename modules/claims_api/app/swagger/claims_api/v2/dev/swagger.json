@@ -3938,9 +3938,7 @@
                           "branchOfService": "Army",
                           "monthlyAmount": 840.75
                         },
-                        "retiredStatus": [
-
-                        ],
+                        "retiredStatus": "RETIRED",
                         "receivedSeparationOrSeverancePay": false,
                         "separationSeverancePay": {
                           "datePaymentReceived": "2018-07-31",
@@ -4594,8 +4592,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-05-24",
-                      "expirationDate": "2024-05-24",
+                      "creationDate": "2023-05-26",
+                      "expirationDate": "2024-05-26",
                       "type": "compensation",
                       "status": "active"
                     }

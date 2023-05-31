@@ -184,7 +184,7 @@
             "branchOfService": "Army",
             "monthlyAmount": 840.75
         },
-        "retiredStatus": [],
+        "retiredStatus": "RETIRED",
         "receivedSeparationOrSeverancePay": false,
         "separationSeverancePay": {
           "datePaymentReceived": "2018-07-31",
