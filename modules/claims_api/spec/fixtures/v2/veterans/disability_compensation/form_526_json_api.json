@@ -204,7 +204,7 @@
                 "retiredStatus": "RETIRED",
                 "receivedSeparationOrSeverancePay": false,
                 "separationSeverancePay": {
-                    "datePaymentReceived": "7169-07-31",
+                    "datePaymentReceived": "2022-03-01",
                     "branchOfService": "Naval Academy",
                     "preTaxAmountReceived": 379.25
                 }
