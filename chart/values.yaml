@@ -48,6 +48,7 @@ web:
     successThreshold: ""
     requestPath: ""
   startupProbe:
+    enabled: false
     port: ""
     initialDelaySeconds: ""
     failureThreshold: ""
