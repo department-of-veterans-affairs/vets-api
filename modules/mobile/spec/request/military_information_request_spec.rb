@@ -1,18 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/iam_session_helper'
+require_relative '../support/helpers/iam_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'military_information', type: :request do
   include JsonSchemaMatchers
-
-  before(:all) do
-    @original_cassette_dir = VCR.configure(&:cassette_library_dir)
-    VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
-  end
-
-  after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
 
   describe 'GET /mobile/v0/military-service-history' do
     context 'with a user who has a cached iam session' do
@@ -123,7 +116,7 @@ RSpec.describe 'military_information', type: :request do
 
       context 'with multiple military service episodes' do
         it 'matches the mobile service history schema' do
-          VCR.use_cassette('va_profile/post_read_service_histories_200') do
+          VCR.use_cassette('mobile/va_profile/post_read_service_histories_200') do
             get '/mobile/v0/military-service-history', headers: iam_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_body_multi)
@@ -134,7 +127,7 @@ RSpec.describe 'military_information', type: :request do
 
       context 'with one military service episode' do
         it 'matches the mobile service history schema' do
-          VCR.use_cassette('va_profile/post_read_service_history_200') do
+          VCR.use_cassette('mobile/va_profile/post_read_service_history_200') do
             get '/mobile/v0/military-service-history', headers: iam_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_body_single)
@@ -145,7 +138,7 @@ RSpec.describe 'military_information', type: :request do
 
       context 'military service episode with no end date' do
         it 'matches the mobile service history schema' do
-          VCR.use_cassette('va_profile/post_read_service_histories_200_no_end_date') do
+          VCR.use_cassette('mobile/va_profile/post_read_service_histories_200_no_end_date') do
             get '/mobile/v0/military-service-history', headers: iam_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_body_no_end_date)
@@ -156,7 +149,7 @@ RSpec.describe 'military_information', type: :request do
 
       context 'with an empty military service episode' do
         it 'matches the mobile service history schema' do
-          VCR.use_cassette('va_profile/post_read_service_history_200_empty') do
+          VCR.use_cassette('mobile/va_profile/post_read_service_history_200_empty') do
             get '/mobile/v0/military-service-history', headers: iam_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_body_empty)

@@ -1,22 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/iam_session_helper'
+require_relative '../support/helpers/iam_session_helper'
 
 RSpec.describe Mobile::V0::Vet360LinkingJob, type: :job do
   let(:user) { create(:user, :loa3) }
 
-  before(:all) do
-    @original_cassette_dir = VCR.configure(&:cassette_library_dir)
-    VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
-  end
-
-  after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
-
   context 'when linking succeeds' do
     it 'logs the completed transaction id that linked an account with vet360' do
-      VCR.use_cassette('profile/init_vet360_id_status_complete') do
-        VCR.use_cassette('profile/init_vet360_id_success') do
+      VCR.use_cassette('mobile/profile/init_vet360_id_status_complete') do
+        VCR.use_cassette('mobile/profile/init_vet360_id_success') do
           allow(Rails.logger).to receive(:info).with(
             'mobile syncronous profile update complete',
             { transaction_id: 'd8951c96-5b8c-42ea-9fbe-e656941b7236' }
@@ -33,7 +26,7 @@ RSpec.describe Mobile::V0::Vet360LinkingJob, type: :job do
 
   context 'when linking fails' do
     it 'logs the failure with the user uuid' do
-      VCR.use_cassette('profile/init_vet360_id_status_400') do
+      VCR.use_cassette('mobile/profile/init_vet360_id_status_400') do
         expect(Rails.logger).to receive(:error).with(
           'Mobile Vet360 account linking failed for user with uuid', { user_uuid: user.uuid }
         )
@@ -48,8 +41,8 @@ RSpec.describe Mobile::V0::Vet360LinkingJob, type: :job do
     before { iam_sign_in(FactoryBot.build(:iam_user, :no_vet360_id)) }
 
     it 'works as expected' do
-      VCR.use_cassette('profile/init_vet360_id_status_complete') do
-        VCR.use_cassette('profile/init_vet360_id_success') do
+      VCR.use_cassette('mobile/profile/init_vet360_id_status_complete') do
+        VCR.use_cassette('mobile/profile/init_vet360_id_success') do
           allow(Rails.logger).to receive(:info).with(
             'mobile syncronous profile update complete',
             { transaction_id: 'd8951c96-5b8c-42ea-9fbe-e656941b7236' }

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/iam_session_helper'
+require_relative '../support/helpers/iam_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'fake_vbms.rb')
 
@@ -64,8 +64,8 @@ RSpec.describe 'decision letters', type: :request do
     it 'retrieves a single letter based on document id' do
       doc_id = '{27832B64-2D88-4DEE-9F6F-DF80E4CAAA87}'
 
-      VCR.use_cassette('bgs/uploaded_document_service/uploaded_document_data') do
-        VCR.use_cassette('bgs/people_service/person_data') do
+      VCR.use_cassette('mobile/bgs/uploaded_document_service/uploaded_document_data') do
+        VCR.use_cassette('mobile/bgs/people_service/person_data') do
           get "/mobile/v0/claims/decision-letters/#{CGI.escape(doc_id)}/download", headers: iam_headers
           expect(response).to have_http_status(:ok)
         end
@@ -75,8 +75,8 @@ RSpec.describe 'decision letters', type: :request do
     it 'raises a RecordNotFound exception when it cannot find a document' do
       doc_id = '{37832B64-2D88-4DEE-9F6F-DF80E4CAAA87}'
 
-      VCR.use_cassette('bgs/uploaded_document_service/uploaded_document_data') do
-        VCR.use_cassette('bgs/people_service/person_data') do
+      VCR.use_cassette('mobile/bgs/uploaded_document_service/uploaded_document_data') do
+        VCR.use_cassette('mobile/bgs/people_service/person_data') do
           get "/mobile/v0/decision-letters/#{CGI.escape(doc_id)}", headers: iam_headers
           expect(response).to have_http_status(:not_found)
         end

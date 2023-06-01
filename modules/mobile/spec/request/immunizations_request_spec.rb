@@ -1,20 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/iam_session_helper'
+require_relative '../support/helpers/iam_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'immunizations', type: :request do
   include JsonSchemaMatchers
 
   let(:rsa_key) { OpenSSL::PKey::RSA.generate(2048) }
-
-  before(:all) do
-    @original_cassette_dir = VCR.configure(&:cassette_library_dir)
-    VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
-  end
-
-  after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
 
   before do
     allow(File).to receive(:read).and_return(rsa_key.to_s)
@@ -28,7 +21,7 @@ RSpec.describe 'immunizations', type: :request do
   describe 'GET /mobile/v0/health/immunizations' do
     context 'when the expected fields have data' do
       before do
-        VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
           get '/mobile/v0/health/immunizations', headers: iam_headers, params: nil
         end
       end
@@ -452,7 +445,7 @@ RSpec.describe 'immunizations', type: :request do
 
     context 'when entry is missing' do
       before do
-        VCR.use_cassette('lighthouse_health/get_immunizations_no_entry', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/lighthouse_health/get_immunizations_no_entry', match_requests_on: %i[method uri]) do
           get '/mobile/v0/health/immunizations', headers: iam_headers, params: nil
         end
       end
@@ -465,7 +458,7 @@ RSpec.describe 'immunizations', type: :request do
 
     context 'when the note is null or an empty array' do
       before do
-        VCR.use_cassette('lighthouse_health/get_immunizations_blank_note', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/lighthouse_health/get_immunizations_blank_note', match_requests_on: %i[method uri]) do
           get '/mobile/v0/health/immunizations', headers: iam_headers, params: nil
         end
       end
@@ -491,7 +484,7 @@ RSpec.describe 'immunizations', type: :request do
 
     describe 'vaccine group name and manufacturer population' do
       let(:immunizations_request) do
-        VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
           get '/mobile/v0/health/immunizations', headers: iam_headers, params: nil
         end
       end
@@ -587,7 +580,8 @@ RSpec.describe 'immunizations', type: :request do
 
       context 'when cvx_code is missing' do
         let(:immunizations_request_missing_cvx) do
-          VCR.use_cassette('lighthouse_health/get_immunizations_cvx_code_missing', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/lighthouse_health/get_immunizations_cvx_code_missing',
+                           match_requests_on: %i[method uri]) do
             get '/mobile/v0/health/immunizations', headers: iam_headers, params: nil
           end
         end
@@ -613,7 +607,8 @@ RSpec.describe 'immunizations', type: :request do
 
       context 'when date is missing' do
         let(:immunizations_request_missing_date) do
-          VCR.use_cassette('lighthouse_health/get_immunizations_date_missing', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/lighthouse_health/get_immunizations_date_missing',
+                           match_requests_on: %i[method uri]) do
             get '/mobile/v0/health/immunizations', headers: iam_headers, params: nil
           end
         end
@@ -637,7 +632,8 @@ RSpec.describe 'immunizations', type: :request do
 
       context 'when group name is missing' do
         it 'returns a 200' do
-          VCR.use_cassette('lighthouse_health/get_immunizations_blank_group_name', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/lighthouse_health/get_immunizations_blank_group_name',
+                           match_requests_on: %i[method uri]) do
             get '/mobile/v0/health/immunizations', headers: iam_headers, params: nil
             expect(response).to have_http_status(:ok)
           end
@@ -648,7 +644,7 @@ RSpec.describe 'immunizations', type: :request do
     describe 'order' do
       context 'date is available' do
         it 'is sorted by descending date, then alphabetically by group name within a date' do
-          VCR.use_cassette('lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/lighthouse_health/get_immunizations', match_requests_on: %i[method uri]) do
             get '/mobile/v0/health/immunizations', headers: iam_headers, params: nil
           end
           dates = response.parsed_body['data'].map { |imm| imm['attributes']['date'] }
@@ -664,7 +660,8 @@ RSpec.describe 'immunizations', type: :request do
 
       context 'date is missing' do
         it 'is sorted by descending date, then alphabetically by group name within a date, with nil dates last' do
-          VCR.use_cassette('lighthouse_health/get_immunizations_date_missing', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/lighthouse_health/get_immunizations_date_missing',
+                           match_requests_on: %i[method uri]) do
             get '/mobile/v0/health/immunizations', headers: iam_headers, params: nil
           end
           dates = response.parsed_body['data'].map { |imm| imm['attributes']['date'] }

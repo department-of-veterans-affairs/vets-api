@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/iam_session_helper'
+require_relative '../support/helpers/iam_session_helper'
 require 'va_profile/demographics/service'
 
 RSpec.describe 'preferred_name', type: :request do
@@ -66,7 +66,7 @@ RSpec.describe 'preferred_name', type: :request do
         it 'returns 204', :aggregate_failures do
           preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
           VCR.use_cassette('mobile/va_profile/post_preferred_name_success') do
-            VCR.use_cassette('va_profile/demographics/demographics') do
+            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
               put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
 
               expect(response).to have_http_status(:no_content)

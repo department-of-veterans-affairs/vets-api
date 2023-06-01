@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/iam_session_helper'
+require_relative '../support/helpers/iam_session_helper'
 
 RSpec.describe 'claims decision request', type: :request do
   describe 'GET /v0/claim/:id/request-decision' do
