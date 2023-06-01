@@ -244,8 +244,7 @@ module DecisionReviewV1
         'zipCode' => zip,
         'fileNumber' => user.ssn.to_s.strip,
         'source' => 'va.gov',
-        'businessLine' => 'BVA',
-        'skipDimensionCheck' => true
+        'businessLine' => 'BVA'
       }.to_json
     end
 
