@@ -57,23 +57,23 @@ RSpec.describe 'letters', type: :request do
     { 'data' =>
        { 'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
          'type' => 'LettersBeneficiaryResponses',
-         'attributes' => {
-           'benefitInformation' =>
-              { 'awardEffectiveDate' => '2016-02-04T17:51:56Z',
-                'hasChapter35Eligibility' => true,
-                'monthlyAwardAmount' => 2673.0,
-                'serviceConnectedPercentage' => 2,
-                'hasDeathResultOfDisability' => false,
-                'hasSurvivorsIndemnityCompensationAward' => false,
-                'hasSurvivorsPensionAward' => false,
-                'hasAdaptedHousing' => false,
-                'hasIndividualUnemployabilityGranted' => false,
-                'hasNonServiceConnectedPension' => false,
-                'hasServiceConnectedDisabilities' => true,
-                'hasSpecialMonthlyCompensation' => false },
-           'militaryService' => [{ 'branch' => 'Army', 'characterOfService' => 'HONORABLE',
-                                   'enteredDate' => '2016-02-04T17:51:56Z', 'releasedDate' => '2016-02-04T17:51:56Z' }]
-         } } }
+         'attributes' =>
+          { 'benefitInformation' =>
+             { 'awardEffectiveDate' => '2016-02-04T17:51:56Z',
+               'hasChapter35Eligibility' => true,
+               'monthlyAwardAmount' => 2673.0,
+               'serviceConnectedPercentage' => 2,
+               'hasDeathResultOfDisability' => false,
+               'hasSurvivorsIndemnityCompensationAward' => false,
+               'hasSurvivorsPensionAward' => false,
+               'hasAdaptedHousing' => false,
+               'hasIndividualUnemployabilityGranted' => false,
+               'hasNonServiceConnectedPension' => false,
+               'hasServiceConnectedDisabilities' => true,
+               'hasSpecialMonthlyCompensation' => false },
+            'militaryService' =>
+              [{ 'branch' => 'Army', 'characterOfService' => 'HONORABLE',
+                 'enteredDate' => '2016-02-04T17:51:56Z', 'releasedDate' => '2016-02-04T17:51:56Z' }] } } }
   end
 
   before do
