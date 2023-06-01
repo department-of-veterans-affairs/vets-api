@@ -542,10 +542,6 @@ features:
     description: "Use an accessible component for Profile application information card sections"
     enable_in_development: true
     actor_type: user
-  profile_use_vaos_v2_api:
-    description: "Use the new VAOS v2 API endpoints"
-    enable_in_development: true
-    actor_type: user
   profile_use_vafsc:
     description: "Use VA Forms System Core for forms instead of schema based forms"
     actor_type: user
