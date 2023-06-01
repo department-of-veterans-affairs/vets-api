@@ -2256,28 +2256,22 @@
                             "description": "",
                             "uniqueItems": true,
                             "items": {
-                              "type": "object",
                               "additionalProperties": false,
+                              "type": "object",
+                              "required": [
+                                "approximateBeginDate",
+                                "approximateEndDate"
+                              ],
                               "properties": {
-                                "confinement": {
-                                  "type": "object",
-                                  "additionalProperties": false,
-                                  "required": [
-                                    "approximateBeginDate",
-                                    "approximateEndDate"
-                                  ],
-                                  "properties": {
-                                    "approximateBeginDate": {
-                                      "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
-                                      "type": "string",
-                                      "example": "2018-06-04"
-                                    },
-                                    "approximateEndDate": {
-                                      "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
-                                      "type": "string",
-                                      "example": "2018-08-04"
-                                    }
-                                  }
+                                "approximateBeginDate": {
+                                  "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                  "type": "string",
+                                  "example": "2018-06-04"
+                                },
+                                "approximateEndDate": {
+                                  "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                  "type": "string",
+                                  "example": "2018-08-04"
                                 }
                               }
                             }
@@ -2354,11 +2348,15 @@
                                 "properties": {
                                   "areaCode": {
                                     "type": "string",
-                                    "maxLength": 3
+                                    "maxLength": 3,
+                                    "pattern": "^\\d{3}$",
+                                    "example": "688"
                                   },
                                   "phoneNumber": {
                                     "type": "string",
-                                    "maxLength": 7
+                                    "maxLength": 7,
+                                    "pattern": "^\\d{7}$",
+                                    "example": "8675309"
                                   }
                                 }
                               },
@@ -3286,44 +3284,41 @@
                                   "items": {
                                     "type": "string",
                                     "additionalProperties": false,
-                                    "properties": {
-                                      "type": "string",
-                                      "example": [
-                                        "PTSD (post traumatic stress disorder)",
-                                        "Trauma"
-                                      ]
-                                    }
+                                    "examples": [
+                                      "PTSD (post traumatic stress disorder)",
+                                      "Trauma"
+                                    ]
                                   }
-                                },
-                                "center": {
-                                  "description": "VA Medical Center(s) and Department of Defense Military Treatment Facilities where the Veteran received treatment after discharge for any claimed disabilities.",
-                                  "type": "object",
-                                  "additionalProperties": false,
-                                  "required": [
-                                    "name",
-                                    "state"
-                                  ],
-                                  "properties": {
-                                    "name": {
-                                      "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
-                                      "type": "string",
-                                      "pattern": "(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
-                                      "example": "Private Facility 2",
-                                      "minLength": 1,
-                                      "maxLength": 100
-                                    },
-                                    "city": {
-                                      "description": "City of treatment facility.",
-                                      "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
-                                      "example": "Portland"
-                                    },
-                                    "state": {
-                                      "description": "State of treatment facility.",
-                                      "type": "string",
-                                      "pattern": "^[a-z,A-Z]{2}$",
-                                      "example": "OR"
-                                    }
+                                }
+                              },
+                              "center": {
+                                "description": "VA Medical Center(s) and Department of Defense Military Treatment Facilities where the Veteran received treatment after discharge for any claimed disabilities.",
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "name",
+                                  "state"
+                                ],
+                                "properties": {
+                                  "name": {
+                                    "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
+                                    "type": "string",
+                                    "pattern": "(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                    "example": "Private Facility 2",
+                                    "minLength": 1,
+                                    "maxLength": 100
+                                  },
+                                  "city": {
+                                    "description": "City of treatment facility.",
+                                    "type": "string",
+                                    "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                    "example": "Portland"
+                                  },
+                                  "state": {
+                                    "description": "State of treatment facility.",
+                                    "type": "string",
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "OR"
                                   }
                                 }
                               }
@@ -3507,6 +3502,10 @@
                                     "type": "string",
                                     "pattern": "([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$"
                                   },
+                                  "unitAddress": {
+                                    "type": "string",
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$"
+                                  },
                                   "unitPhone": {
                                     "type": "object",
                                     "additionalProperties": false,
@@ -3517,11 +3516,15 @@
                                     "properties": {
                                       "areaCode": {
                                         "type": "string",
-                                        "maxLength": 3
+                                        "maxLength": 3,
+                                        "pattern": "^\\d{3}?$",
+                                        "example": "688"
                                       },
                                       "phoneNumber": {
                                         "type": "string",
-                                        "maxLength": 7
+                                        "maxLength": 7,
+                                        "pattern": "^\\d{7}$",
+                                        "example": "8675309"
                                       }
                                     }
                                   },
@@ -3911,6 +3914,7 @@
                             "endDate": "2017-11-17"
                           },
                           "unitName": "DonkeyPants",
+                          "unitAddress": "1243 pine court",
                           "component": "National Guard",
                           "title10Activation": {
                             "anticipatedSeparationDate": "2017-10-03",
@@ -3918,7 +3922,7 @@
                           },
                           "unitPhone": {
                             "areaCode": "123",
-                            "phoneNumber": "456-7890"
+                            "phoneNumber": "4567890"
                           },
                           "receivingInactiveDutyTrainingPay": true
                         },
@@ -4592,8 +4596,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-05-26",
-                      "expirationDate": "2024-05-26",
+                      "creationDate": "2023-05-31",
+                      "expirationDate": "2024-05-31",
                       "type": "compensation",
                       "status": "active"
                     }
