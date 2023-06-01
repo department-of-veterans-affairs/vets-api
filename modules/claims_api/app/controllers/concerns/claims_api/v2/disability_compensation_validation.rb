@@ -388,9 +388,17 @@ module ClaimsApi
             detail: 'Service information is required'
           )
         end
+        if activation_date_not_afterduty_begin_date?
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'The title 10 activation date must be after the earliest service period active duty begin date.'
+          )
+        end
 
         validate_service_periods!
         validate_confinements!
+        validate_anticipated_seperation_date!
+        validate_alternate_names!
+        validate_reserves_tos_dates!
       end
 
       def validate_service_periods!
@@ -422,6 +430,60 @@ module ClaimsApi
               detail: 'Approximate end date must be after approximate begin date.'
             )
           end
+        end
+      end
+
+      def validate_anticipated_seperation_date!
+        service_information = form_attributes['serviceInformation']
+
+        anticipated_seperation_date =
+          service_information['reservesNationalGuardService']['title10Activation']['anticipatedSeparationDate']
+
+        if Date.parse(anticipated_seperation_date) < Time.zone.now
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'The anticipated separation date must be a date in the future.'
+          )
+        end
+      end
+
+      def validate_alternate_names!
+        alternate_names = form_attributes['serviceInformation']['alternateNames']
+        return if alternate_names.blank?
+
+        # clean them up to compare
+        alternate_names = alternate_names.map(&:strip).map(&:downcase)
+
+        # returns nil unless there are duplicate names
+        duplicate_names_check = alternate_names.detect { |e| alternate_names.rindex(e) != alternate_names.index(e) }
+
+        unless duplicate_names_check.nil?
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'Names entered as an alternate name must be unique.'
+          )
+        end
+      end
+
+      def activation_date_not_afterduty_begin_date?
+        service_information = form_attributes['serviceInformation']
+        service_periods = service_information['servicePeriods']
+        activation_date =
+          service_information['reservesNationalGuardService']['title10Activation']['title10ActivationDate']
+
+        earliest_active_duty_begin_date = service_periods.max_by { |a| Date.parse(a['activeDutyBeginDate']) }
+
+        # return true if activationDate is an earlier date
+        Date.parse(activation_date) < Date.parse(earliest_active_duty_begin_date['activeDutyBeginDate'])
+      end
+
+      def validate_reserves_tos_dates!
+        service_information = form_attributes['serviceInformation']
+
+        tos_start_date = service_information['reservesNationalGuardService']['obligationTermsOfService']['startDate']
+        tos_end_date = service_information['reservesNationalGuardService']['obligationTermsOfService']['endDate']
+        if Date.parse(tos_start_date) > Date.parse(tos_end_date)
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'Terms of service Start date must be before the terms of service end date.'
+          )
         end
       end
     end

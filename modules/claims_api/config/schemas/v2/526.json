@@ -873,11 +873,15 @@
                           "properties": {
                             "areaCode": {
                               "type": "string",
-                              "maxLength": 3
+                                "pattern": "^\\d{3}?$",
+                                "maxLength": 3,
+                                "example": "688"
                             },
                             "phoneNumber": {
                               "type": "string",
-                              "maxLength": 7
+                                "pattern": "^\\d{7}$",
+                                "maxLength": 7,
+                                "example": "8675309"
                             }
                           }
                         },

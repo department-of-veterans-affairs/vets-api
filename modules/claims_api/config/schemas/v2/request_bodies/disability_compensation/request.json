@@ -805,8 +805,7 @@
                                 }
                             }
                           }
-                        }
-                      },
+                        },
                     "reservesNationalGuardService": {
                         "type": "object",
                         "additionalProperties": false,
@@ -873,11 +872,15 @@
                                 "properties": {
                                   "areaCode": {
                                     "type": "string",
-                                    "maxLength": 3
+                                    "maxLength": 3,
+                                    "pattern": "^\\d{3}?$",
+                                    "example": "688"
                                   },
                                   "phoneNumber": {
                                     "type": "string",
-                                    "maxLength": 7
+                                    "maxLength": 7,
+                                    "pattern": "^\\d{7}$",
+                                    "example": "8675309"
                                   }
                                 }
                               },
@@ -902,6 +905,7 @@
                         "description": "Did Veteran serve in a combat zone since 9-11-2001?",
                         "example": true
                     }
+                }
             },
             "servicePay": {
                 "type": "object",
