@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../support/iam_session_helper'
-require_relative '../../support/mobile_sm_client_helper'
+require_relative '../../support/helpers/iam_session_helper'
+require_relative '../../support/helpers/mobile_sm_client_helper'
 require_relative '../../support/matchers/json_schema_matcher'
 
 RSpec.describe 'Mobile Messages V1 Integration', type: :request do

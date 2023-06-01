@@ -2,6 +2,8 @@
 
 module IAMSessionHelper
   DEFAULT_ACCESS_TOKEN = 'ypXeAwQedpmAy5xFD2u5'
+  OPENSSL_X509_CERTIFICATE = 'OpenSSL::X509::Certificate'
+  OPENSSL_PKEY_RSA = 'OpenSSL::PKey::RSA'
 
   def access_token
     DEFAULT_ACCESS_TOKEN
@@ -24,9 +26,9 @@ module IAMSessionHelper
 
   def stub_iam_certs
     allow(IAMSSOeOAuth::Configuration.instance).to receive(:ssl_cert)
-      .and_return(instance_double('OpenSSL::X509::Certificate'))
+      .and_return(instance_double(OPENSSL_X509_CERTIFICATE))
     allow(IAMSSOeOAuth::Configuration.instance).to receive(:ssl_key)
-      .and_return(instance_double('OpenSSL::PKey::RSA'))
+      .and_return(instance_double(OPENSSL_PKEY_RSA))
   end
 
   def iam_sign_in(iam_user = FactoryBot.build(:iam_user), access_token = nil)

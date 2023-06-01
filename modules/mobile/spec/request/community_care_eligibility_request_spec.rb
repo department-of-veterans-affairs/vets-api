@@ -1,20 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/iam_session_helper'
+require_relative '../support/helpers/iam_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'Community Care Eligibility', type: :request do
   include JsonSchemaMatchers
 
   let(:rsa_key) { OpenSSL::PKey::RSA.generate(2048) }
-
-  before(:all) do
-    @original_cassette_dir = VCR.configure(&:cassette_library_dir)
-    VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
-  end
-
-  after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
 
   before do
     allow_any_instance_of(IAMUser).to receive(:icn).and_return('9000682')
@@ -29,7 +22,7 @@ RSpec.describe 'Community Care Eligibility', type: :request do
 
         before do
           allow(Rails.logger).to receive(:info)
-          VCR.use_cassette('cc_eligibility/get_eligibility_true', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/cc_eligibility/get_eligibility_true', match_requests_on: %i[method uri]) do
             get "/mobile/v0/appointments/community_care/eligibility/#{service_type}", headers: iam_headers
           end
         end
@@ -52,7 +45,7 @@ RSpec.describe 'Community Care Eligibility', type: :request do
         let(:service_type) { 'optometry' }
 
         before do
-          VCR.use_cassette('cc_eligibility/get_eligibility_false', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/cc_eligibility/get_eligibility_false', match_requests_on: %i[method uri]) do
             get "/mobile/v0/appointments/community_care/eligibility/#{service_type}", headers: iam_headers
           end
         end
@@ -76,7 +69,7 @@ RSpec.describe 'Community Care Eligibility', type: :request do
       let(:service_type) { 'NotAType' }
 
       before do
-        VCR.use_cassette('cc_eligibility/get_eligibility_400', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/cc_eligibility/get_eligibility_400', match_requests_on: %i[method uri]) do
           get "/mobile/v0/appointments/community_care/eligibility/#{service_type}", headers: iam_headers
         end
       end

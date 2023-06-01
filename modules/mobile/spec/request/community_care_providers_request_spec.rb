@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/iam_session_helper'
+require_relative '../support/helpers/iam_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'community care providers', type: :request do
@@ -13,15 +13,8 @@ RSpec.describe 'community care providers', type: :request do
   let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
   describe 'GET providers', :aggregate_failures do
-    before(:all) do
-      @original_cassette_dir = VCR.configure(&:cassette_library_dir)
-      VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
-    end
-
-    after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
-
     it 'returns 200 with paginated results' do
-      VCR.use_cassette('facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
+      VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
         params = { serviceType: 'podiatry' }
         get('/mobile/v0/community-care-providers', headers: iam_headers, params:)
 
@@ -31,7 +24,7 @@ RSpec.describe 'community care providers', type: :request do
     end
 
     it 'matches schema' do
-      VCR.use_cassette('facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
+      VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
         params = { serviceType: 'podiatry' }
         get('/mobile/v0/community-care-providers', headers: iam_headers, params:)
 
@@ -40,8 +33,8 @@ RSpec.describe 'community care providers', type: :request do
     end
 
     it 'forms meta data' do
-      VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
-        VCR.use_cassette('facilities/ppms/community_clinics_near_facility', match_requests_on: %i[method uri]) do
+      VCR.use_cassette('mobile/appointments/get_facilities', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_facility', match_requests_on: %i[method uri]) do
           params = { serviceType: 'podiatry', facilityId: '442' }
           get('/mobile/v0/community-care-providers', headers: iam_headers, params:)
 
@@ -72,7 +65,7 @@ RSpec.describe 'community care providers', type: :request do
 
     context 'when no providers are within the search parameters' do
       it 'returns an empty list' do
-        VCR.use_cassette('facilities/ppms/community_clinics_empty_search', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/facilities/ppms/community_clinics_empty_search', match_requests_on: %i[method uri]) do
           params = { serviceType: 'podiatry' }
           get('/mobile/v0/community-care-providers', headers: iam_headers, params:)
           expect(response).to have_http_status(:success)
@@ -83,7 +76,7 @@ RSpec.describe 'community care providers', type: :request do
 
     context 'when no facility id is provided' do
       it 'returns a list of providers based on the user\'s home address' do
-        VCR.use_cassette('facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
           params = { serviceType: 'podiatry' }
           get('/mobile/v0/community-care-providers', headers: iam_headers, params:)
           expect(response).to have_http_status(:success)
@@ -93,7 +86,7 @@ RSpec.describe 'community care providers', type: :request do
 
       context 'when the user has no home address' do
         it 'returns 422 with error message' do
-          VCR.use_cassette('facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
             address = user.vet360_contact_info.residential_address
             address.latitude = nil
             address.longitude = nil
@@ -109,8 +102,9 @@ RSpec.describe 'community care providers', type: :request do
 
     context 'when a facility id is provided' do
       it 'requests community care clinics near the facility' do
-        VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
-          VCR.use_cassette('facilities/ppms/community_clinics_near_facility', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/appointments/get_facilities', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_facility',
+                           match_requests_on: %i[method uri]) do
             params = { facilityId: '442', serviceType: 'podiatry' }
             get('/mobile/v0/community-care-providers', headers: iam_headers, params:)
             expect(response).to have_http_status(:success)
@@ -120,8 +114,9 @@ RSpec.describe 'community care providers', type: :request do
 
       context 'when facility id is not found' do
         it 'returns not found with a helpful error message' do
-          VCR.use_cassette('lighthouse_health/get_facilities_empty', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('facilities/ppms/community_clinics_near_facility', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/lighthouse_health/get_facilities_empty', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_facility',
+                             match_requests_on: %i[method uri]) do
               params = { facilityId: '442', serviceType: 'podiatry' }
               get('/mobile/v0/community-care-providers', headers: iam_headers, params:)
 

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'mobile/v0/vaos_appointments/appointments_helper'
-require_relative '../support/iam_session_helper'
+require_relative '../support/helpers/iam_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
@@ -27,14 +27,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
     # rubocop:enable Layout/LineLength
   end
 
-  before(:all) do
-    @original_cassette_dir = VCR.configure(&:cassette_library_dir)
-    VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
-  end
-
   after(:all) do
-    VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir }
-
     Flipper.disable('va_online_scheduling')
   end
 
@@ -52,13 +45,14 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
     it 'clears the cache' do
       expect(Mobile::V0::Appointment).to receive(:clear_cache).once
 
-      VCR.use_cassette('appointments/post_appointments_va_proposed_clinic_200', match_requests_on: %i[method uri]) do
+      VCR.use_cassette('mobile/appointments/post_appointments_va_proposed_clinic_200',
+                       match_requests_on: %i[method uri]) do
         post '/mobile/v0/appointment', params: va_proposed_request_body, headers: iam_headers
       end
     end
 
     it 'returns a descriptive 400 error when given invalid params' do
-      VCR.use_cassette('appointments/post_appointments_400', match_requests_on: %i[method uri]) do
+      VCR.use_cassette('mobile/appointments/post_appointments_400', match_requests_on: %i[method uri]) do
         post '/mobile/v0/appointment', params: {}, headers: iam_headers
         expect(response).to have_http_status(:bad_request)
         expect(JSON.parse(response.body)['errors'][0]['status']).to eq('400')
@@ -70,7 +64,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
     context 'for CC facility' do
       it 'creates the cc appointment' do
-        VCR.use_cassette('appointments/post_appointments_cc_200_2222022', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/appointments/post_appointments_cc_200_2222022', match_requests_on: %i[method uri]) do
           post '/mobile/v0/appointment', params: community_cares_request_body, headers: iam_headers
           expect(response).to have_http_status(:created)
           expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
@@ -80,7 +74,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
     context 'for va facility' do
       it 'creates the va appointment - proposed' do
-        VCR.use_cassette('appointments/post_appointments_va_proposed_clinic_200', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/appointments/post_appointments_va_proposed_clinic_200',
+                         match_requests_on: %i[method uri]) do
           post '/mobile/v0/appointment', params: {}, headers: iam_headers
 
           expect(response).to have_http_status(:created)
@@ -89,7 +84,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       end
 
       it 'creates the va appointment - booked' do
-        VCR.use_cassette('appointments/post_appointments_va_booked_200_JACQUELINE_M',
+        VCR.use_cassette('mobile/appointments/post_appointments_va_booked_200_JACQUELINE_M',
                          match_requests_on: %i[method uri]) do
           post '/mobile/v0/appointment', params: {}, headers: iam_headers
           expect(response).to have_http_status(:created)

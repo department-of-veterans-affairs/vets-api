@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/iam_session_helper'
+require_relative '../support/helpers/iam_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'payment_information', type: :request do
@@ -74,13 +74,6 @@ RSpec.describe 'payment_information', type: :request do
     end
 
     context 'with a user who is not authorized to update payment information' do
-      before do
-        @original_cassette_dir = VCR.configure(&:cassette_library_dir)
-        VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
-      end
-
-      after { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
-
       let(:get_payment_info_body) do
         {
           'data' => {
@@ -111,7 +104,7 @@ RSpec.describe 'payment_information', type: :request do
       end
 
       it 'has canUpdatePayment as false' do
-        VCR.use_cassette('/payment_information/payment_information_unauthorized_to_update') do
+        VCR.use_cassette('mobile/payment_information/payment_information_unauthorized_to_update') do
           get '/mobile/v0/payment-information/benefits', headers: iam_headers
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(get_payment_info_body)

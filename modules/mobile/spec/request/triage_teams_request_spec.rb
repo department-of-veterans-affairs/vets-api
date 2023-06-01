@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/iam_session_helper'
-require_relative '../support/mobile_sm_client_helper'
+require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/mobile_sm_client_helper'
 
 RSpec.describe 'Mobile Triage Teams Integration', type: :request do
   include Mobile::MessagingClientHelper

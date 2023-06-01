@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../support/iam_session_helper'
+require_relative '../../support/helpers/iam_session_helper'
 require_relative '../../support/matchers/json_schema_matcher'
 require 'common/client/errors'
 
@@ -13,18 +13,11 @@ RSpec.describe 'user', type: :request do
       iam_sign_in(build(:iam_user))
     end
 
-    before(:all) do
-      @original_cassette_dir = VCR.configure(&:cassette_library_dir)
-      VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
-    end
-
-    after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
-
     context 'with no upstream errors' do
       before do
-        VCR.use_cassette('payment_information/payment_information') do
-          VCR.use_cassette('user/get_facilities') do
-            VCR.use_cassette('va_profile/demographics/demographics') do
+        VCR.use_cassette('mobile/payment_information/payment_information') do
+          VCR.use_cassette('mobile/user/get_facilities') do
+            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
               get '/mobile/v1/user', headers: iam_headers
             end
           end
@@ -223,9 +216,9 @@ RSpec.describe 'user', type: :request do
       context 'when user object birth_date is nil' do
         before do
           iam_sign_in(FactoryBot.build(:iam_user, :no_birth_date))
-          VCR.use_cassette('payment_information/payment_information') do
-            VCR.use_cassette('user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('va_profile/demographics/demographics') do
+          VCR.use_cassette('mobile/payment_information/payment_information') do
+            VCR.use_cassette('mobile/user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
                 get '/mobile/v1/user', headers: iam_headers
               end
             end
@@ -244,9 +237,9 @@ RSpec.describe 'user', type: :request do
         before do
           Flipper.disable(:mobile_lighthouse_letters)
           iam_sign_in(FactoryBot.build(:iam_user, :no_edipi_id))
-          VCR.use_cassette('payment_information/payment_information') do
-            VCR.use_cassette('user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('va_profile/demographics/demographics') do
+          VCR.use_cassette('mobile/payment_information/payment_information') do
+            VCR.use_cassette('mobile/user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
                 get '/mobile/v1/user', headers: iam_headers
               end
             end
@@ -272,9 +265,9 @@ RSpec.describe 'user', type: :request do
         before do
           user = FactoryBot.build(:iam_user, :no_multifactor)
           iam_sign_in(user)
-          VCR.use_cassette('payment_information/payment_information') do
-            VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('va_profile/demographics/demographics') do
+          VCR.use_cassette('mobile/payment_information/payment_information') do
+            VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
                 get '/mobile/v1/user', headers: iam_headers
               end
             end
@@ -303,9 +296,9 @@ RSpec.describe 'user', type: :request do
           allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
           current_user = build(:iam_user, :mhv)
           iam_sign_in(current_user)
-          VCR.use_cassette('payment_information/payment_information') do
-            VCR.use_cassette('user/get_facilities') do
-              VCR.use_cassette('va_profile/demographics/demographics') do
+          VCR.use_cassette('mobile/payment_information/payment_information') do
+            VCR.use_cassette('mobile/user/get_facilities') do
+              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
                 get '/mobile/v0/user', headers: iam_headers
               end
             end
@@ -334,9 +327,9 @@ RSpec.describe 'user', type: :request do
         before do
           Flipper.disable(:mobile_lighthouse_letters)
           iam_sign_in(FactoryBot.build(:iam_user, :no_participant_id))
-          VCR.use_cassette('payment_information/payment_information') do
-            VCR.use_cassette('user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('va_profile/demographics/demographics') do
+          VCR.use_cassette('mobile/payment_information/payment_information') do
+            VCR.use_cassette('mobile/user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
                 get '/mobile/v1/user', headers: iam_headers
               end
             end
@@ -361,9 +354,9 @@ RSpec.describe 'user', type: :request do
         context 'due to not having any registered faclities' do
           let(:user_request) do
             iam_sign_in(FactoryBot.build(:iam_user, :no_vha_facilities))
-            VCR.use_cassette('payment_information/payment_information') do
-              VCR.use_cassette('user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
-                VCR.use_cassette('va_profile/demographics/demographics') do
+            VCR.use_cassette('mobile/payment_information/payment_information') do
+              VCR.use_cassette('mobile/user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
+                VCR.use_cassette('mobile/va_profile/demographics/demographics') do
                   get '/mobile/v0/user', headers: iam_headers
                 end
               end
@@ -385,9 +378,9 @@ RSpec.describe 'user', type: :request do
         context 'due to not being LOA3' do
           let(:user_request) do
             iam_sign_in(FactoryBot.build(:iam_user, :loa2))
-            VCR.use_cassette('payment_information/payment_information') do
-              VCR.use_cassette('user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
-                VCR.use_cassette('va_profile/demographics/demographics') do
+            VCR.use_cassette('mobile/payment_information/payment_information') do
+              VCR.use_cassette('mobile/user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
+                VCR.use_cassette('mobile/va_profile/demographics/demographics') do
                   get '/mobile/v0/user', headers: iam_headers
                 end
               end
@@ -409,9 +402,9 @@ RSpec.describe 'user', type: :request do
 
       context 'with a user who does have access to schedule appointments' do
         let(:user_request) do
-          VCR.use_cassette('payment_information/payment_information') do
-            VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('va_profile/demographics/demographics') do
+          VCR.use_cassette('mobile/payment_information/payment_information') do
+            VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
                 get '/mobile/v0/user', headers: iam_headers
               end
             end
@@ -439,7 +432,7 @@ RSpec.describe 'user', type: :request do
       end
 
       it 'returns a service unavailable error' do
-        VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
           get '/mobile/v1/user', headers: iam_headers
         end
 
@@ -456,7 +449,7 @@ RSpec.describe 'user', type: :request do
       end
 
       it 'returns a record not found error' do
-        VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
           get '/mobile/v1/user', headers: iam_headers
         end
 
@@ -500,7 +493,7 @@ RSpec.describe 'user', type: :request do
       end
 
       it 'returns a bad gateway error' do
-        VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
           get '/mobile/v1/user', headers: iam_headers
         end
 
@@ -513,9 +506,9 @@ RSpec.describe 'user', type: :request do
       let(:authorized_services) { response.parsed_body.dig('data', 'attributes', 'authorizedServices') }
 
       it 'returns an ok response with no directDepositBenefitsUpdate permission' do
-        VCR.use_cassette('payment_information/service_error_500') do
-          VCR.use_cassette('user/get_facilities') do
-            VCR.use_cassette('va_profile/demographics/demographics') do
+        VCR.use_cassette('mobile/payment_information/service_error_500') do
+          VCR.use_cassette('mobile/user/get_facilities') do
+            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
               get '/mobile/v1/user', headers: iam_headers
             end
           end
@@ -539,9 +532,9 @@ RSpec.describe 'user', type: :request do
 
     context 'when the ppiu service throws a 502' do
       before do
-        VCR.use_cassette('payment_information/service_error_502') do
-          VCR.use_cassette('user/get_facilities') do
-            VCR.use_cassette('va_profile/demographics/demographics') do
+        VCR.use_cassette('mobile/payment_information/service_error_502') do
+          VCR.use_cassette('mobile/user/get_facilities') do
+            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
               get '/mobile/v1/user', headers: iam_headers
             end
           end
@@ -573,9 +566,9 @@ RSpec.describe 'user', type: :request do
 
         it 'kicks off a pre cache appointments job' do
           expect(Mobile::V0::PreCacheAppointmentsJob).to receive(:perform_async).once
-          VCR.use_cassette('payment_information/payment_information') do
-            VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('va_profile/demographics/demographics') do
+          VCR.use_cassette('mobile/payment_information/payment_information') do
+            VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
                 get '/mobile/v1/user', headers: iam_headers
               end
             end
@@ -590,8 +583,8 @@ RSpec.describe 'user', type: :request do
 
         it 'does not kick off a pre cache appointments job' do
           expect(Mobile::V0::PreCacheAppointmentsJob).not_to receive(:perform_async)
-          VCR.use_cassette('payment_information/payment_information') do
-            VCR.use_cassette('user/get_facilities', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/payment_information/payment_information') do
+            VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
               get '/mobile/v1/user', headers: iam_headers
             end
           end
@@ -601,9 +594,9 @@ RSpec.describe 'user', type: :request do
 
     context 'empty get_facility test' do
       before do
-        VCR.use_cassette('payment_information/payment_information') do
-          VCR.use_cassette('user/get_facilities_empty', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('va_profile/demographics/demographics') do
+        VCR.use_cassette('mobile/payment_information/payment_information') do
+          VCR.use_cassette('mobile/user/get_facilities_empty', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/va_profile/demographics/demographics') do
               get '/mobile/v1/user', headers: iam_headers
             end
           end
@@ -639,9 +632,9 @@ RSpec.describe 'user', type: :request do
         allow_any_instance_of(IAMUser).to receive(:idme_uuid).and_return(nil)
         allow_any_instance_of(IAMUser).to receive(:logingov_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
 
-        VCR.use_cassette('payment_information/payment_information') do
-          VCR.use_cassette('user/get_facilities') do
-            VCR.use_cassette('va_profile/demographics/logingov') do
+        VCR.use_cassette('mobile/payment_information/payment_information') do
+          VCR.use_cassette('mobile/user/get_facilities') do
+            VCR.use_cassette('mobile/va_profile/demographics/logingov') do
               get '/mobile/v1/user', headers: iam_headers
             end
           end
@@ -687,8 +680,8 @@ RSpec.describe 'user', type: :request do
       before do
         iam_sign_in(FactoryBot.build(:iam_user, :no_multifactor))
 
-        VCR.use_cassette('payment_information/payment_information') do
-          VCR.use_cassette('user/get_facilities') do
+        VCR.use_cassette('mobile/payment_information/payment_information') do
+          VCR.use_cassette('mobile/user/get_facilities') do
             get '/mobile/v1/user', headers: iam_headers
           end
         end
