@@ -116,7 +116,7 @@
             "claimDate": "2023-02-18",
             "changeOfAddress": {
                 "dates": {
-                    "beginningDate": "2012-11-31",
+                    "beginningDate": "2012-11-30",
                     "endingDate": "2013-10-11"
                   },
                   "typeOfAddressChange": "TEMPORARY",

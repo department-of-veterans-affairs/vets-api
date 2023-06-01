@@ -372,10 +372,90 @@ RSpec.describe 'Disability Claims', type: :request do
         end
       end
 
+      describe 'validation of claimant change of address elements' do
+        context 'when the country is valid' do
+          let(:country) { 'USA' }
+
+          it 'responds with a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  VCR.use_cassette('brd/disabilities') do
+                    json = JSON.parse(data)
+                    json['data']['attributes']['changeOfAddress']['country'] = country
+                    data = json.to_json
+                    post path, params: data, headers: headers.merge(auth_header)
+                    expect(response).to have_http_status(:ok)
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        context 'when the country is invalid' do
+          let(:country) { 'United States of Nada' }
+
+          it 'responds with bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  VCR.use_cassette('brd/disabilities') do
+                    json = JSON.parse(data)
+                    json['data']['attributes']['changeOfAddress']['country'] = country
+                    data = json.to_json
+                    post path, params: data, headers: headers.merge(auth_header)
+                    expect(response).to have_http_status(:bad_request)
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        context 'when no mailing address data is found' do
+          it 'responds with bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  json = JSON.parse(data)
+                  json['data']['attributes']['changeOfAddress'] = {}
+                  data = json.to_json
+                  post path, params: data, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
+
+        context 'when the begin date is after the end date' do
+          let(:begin_date) { '2023-01-01' }
+          let(:end_date) { '2022-01-01' }
+
+          it 'responds with bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  VCR.use_cassette('brd/disabilities') do
+                    json = JSON.parse(data)
+                    json['data']['attributes']['changeOfAddress']['dates']['beginningDate'] = begin_date
+                    json['data']['attributes']['changeOfAddress']['dates']['endingDate'] = end_date
+                    data = json.to_json
+                    post path, params: data, headers: headers.merge(auth_header)
+                    expect(response).to have_http_status(:bad_request)
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
       context 'when the phone has non-digits included' do
         let(:telephone) { '123456789X' }
 
-        it 'responds with bad request' do
+        it 'responds with unprocessable request' do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
               VCR.use_cassette('brd/countries') do

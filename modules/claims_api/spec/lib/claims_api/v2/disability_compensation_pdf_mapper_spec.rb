@@ -121,7 +121,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         zip = pdf_data[:data][:attributes][:changeOfAddress][:zip]
         state = pdf_data[:data][:attributes][:changeOfAddress][:state]
 
-        expect(beginning_date).to eq('2012-11-31')
+        expect(beginning_date).to eq('2012-11-30')
         expect(ending_date).to eq('2013-10-11')
         expect(type_of_addr_change).to eq('TEMPORARY')
         expect(number_and_street).to eq('10 Peach St')
