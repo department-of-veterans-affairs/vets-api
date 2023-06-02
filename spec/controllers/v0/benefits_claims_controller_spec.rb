@@ -76,4 +76,22 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       end
     end
   end
+
+  describe '#submit5103' do
+    it 'returns a status of 200' do
+      VCR.use_cassette('lighthouse/benefits_claims/submit5103/200_response') do
+        post(:submit5103, params: { id: '600397108' })
+      end
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns a status of 404' do
+      VCR.use_cassette('lighthouse/benefits_claims/submit5103/404_response') do
+        post(:submit5103, params: { id: '600397108' })
+      end
+
+      expect(response).to have_http_status(:not_found)
+    end
+  end
 end

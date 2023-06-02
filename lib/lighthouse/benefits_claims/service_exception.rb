@@ -20,6 +20,8 @@ module BenefitsClaims
         raise Common::Exceptions::Forbidden
       when 401
         raise Common::Exceptions::Unauthorized
+      when 400
+        raise Common::Exceptions::BadRequest
       else
         raise e
       end

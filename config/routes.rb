@@ -135,7 +135,9 @@ Rails.application.routes.draw do
       resources :burial_claims, only: %i[create show]
     end
 
-    resources :benefits_claims, only: %i[index show]
+    resources :benefits_claims, only: %i[index show] do
+      post :submit5103, on: :member
+    end
 
     get 'claim_letters', to: 'claim_letters#index'
     get 'claim_letters/:document_id', to: 'claim_letters#show'
