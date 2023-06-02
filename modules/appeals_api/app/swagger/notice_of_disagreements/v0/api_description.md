@@ -12,6 +12,8 @@ The authentication model for the Notice of Disagreements API uses OAuth 2.0/Open
 
 To use this API, you must first [request sandbox access](https://developer.va.gov/onboarding/request-sandbox-access). Then, follow our authentication process for [authorization code flow](https://developer.va.gov/explore/authorization/docs/authorization-code) or [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials).
 
+**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).
+
 ### Submission statuses
 Use the correct GET endpoint to check the status of a Notice of Disagreement submission. 
 
@@ -86,5 +88,3 @@ Due to system limitations, status attribute data for these endpoints is cached f
 * GET `/evidence_submission/{uuid}`
 
 The updated_at field indicates the last time the status for a given GUID was updated.
-
-[Terms of service](https://developer.va.gov/terms-of-service)

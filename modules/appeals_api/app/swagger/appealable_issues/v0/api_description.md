@@ -16,3 +16,5 @@ The authentication model for the Appealable Issues API uses OAuth 2.0/OpenID Con
 * [Client Credentials Grant (CCG)](https://developer.va.gov/explore/authorization/docs/client-credentials)
 
 To use this API, you must first [request sandbox access](https://developer.va.gov/onboarding/request-sandbox-access). Then, follow our authentication process for [authorization code flow](https://developer.va.gov/explore/authorization/docs/authorization-code) or [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials).
+
+**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).
