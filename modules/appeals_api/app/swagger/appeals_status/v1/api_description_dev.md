@@ -23,7 +23,7 @@ The authentication model for the Appeals Status API uses OAuth 2.0/OpenID Connec
 * [Authorization code flow](https://dev-developer.va.gov/explore/authorization/docs/authorization-code?api=appeals)
 * [Client credentials grant](https://dev-developer.va.gov/explore/authorization/docs/client-credentials?api=appeals) (restricted access)
 
-**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).
+**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://dev-developer.va.gov/support/contact-us).
 
 ### Test data
 
