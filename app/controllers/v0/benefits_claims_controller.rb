@@ -18,6 +18,12 @@ module V0
       render json: claim
     end
 
+    def submit5103
+      res = service.submit5103(params[:id])
+
+      render json: res
+    end
+
     private
 
     def service

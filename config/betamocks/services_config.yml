@@ -852,5 +852,5 @@
       :file_path: "/lighthouse/benefits_claims/submit_5103"
       :cache_multiple_responses:
         :uid_location: "url"
-        :uid_locator: "\/services/claims/v2/veterans\/(?:.+)\/claims\/(?:.+)/5103"
+        :uid_locator: "\/services/claims/v2/veterans\/(?:.+)\/claims\/(.+)/5103"
 
