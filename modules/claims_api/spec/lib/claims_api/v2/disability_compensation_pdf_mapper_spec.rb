@@ -98,8 +98,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(va_file_number).to eq('AB123CDEF')
         expect(email).to eq('valid@somedomain.com')
         expect(agree_to_email).to eq(true)
-        expect(telephone).to eq('1234567890')
-        expect(international_telephone).to eq('1234567890')
+        expect(telephone).to eq('5555555555')
+        expect(international_telephone).to eq('5555555555')
       end
     end
 
@@ -125,7 +125,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(ending_date).to eq('2013-10-11')
         expect(type_of_addr_change).to eq('TEMPORARY')
         expect(number_and_street).to eq('10 Peach St')
-        expect(apartment_or_unit_number).to eq('Apt 1')
+        expect(apartment_or_unit_number).to eq('22')
         expect(city).to eq('Atlanta')
         expect(country).to eq('US')
         expect(zip).to eq('422209897')
@@ -151,8 +151,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless][:otherDescription]
 
         expect(homeless_point_of_contact).to eq('john stewart')
-        expect(homeless_telephone).to eq('7028901212')
-        expect(homeless_international_telephone).to eq('1234567890')
+        expect(homeless_telephone).to eq('5555555555')
+        expect(homeless_international_telephone).to eq('5555555555')
         expect(homeless_currently).to eq(true) # can't be both homess & at risk
         expect(homeless_situation_options).to eq('FLEEING_CURRENT_RESIDENCE')
         expect(homeless_currently_other_description).to eq('ABCDEFGHIJKLM')
@@ -197,7 +197,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(herb_end_date).to eq('9754-10-31')
 
         expect(additional_exposures).to eq(%w[ASBESTOS SHAD])
-        expect(specify_other_exp).to eq('ABCD')
+        expect(specify_other_exp).to eq('Other exposure details')
         expect(exp_start_date).to eq('4520-07-30')
         expect(exp_end_date).to eq('3405-10-03')
 
@@ -250,7 +250,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
         has_conditions = pdf_data[:data][:attributes][:exposureInformation][:hasConditionsRelatedToToxicExposures]
 
-        expect(has_conditions).to eq(false)
+        expect(has_conditions).to eq(true)
       end
     end
 
@@ -325,7 +325,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(natl_guard_comp).to eq('Active')
         expect(obl_start).to eq('2019-06-04')
         expect(obl_end).to eq('2020-06-04')
-        expect(unit_name).to eq("''c'5'l'#l#2z")
+        expect(unit_name).to eq('National Guard Unit Name')
         expect(unit_address).to eq('1243 pine court')
         expect(unit_phone[:areaCode]).to eq('555')
         expect(unit_phone[:phoneNumber]).to eq('5555555')
@@ -357,7 +357,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(account_type).to eq('CHECKING')
         expect(account_number).to eq('ABCDEF')
         expect(routing_number).to eq('123123123')
-        expect(financial_institution_name).to eq('Some Bank')
+        expect(financial_institution_name).to eq('Chase')
         expect(no_account).to eq(false)
       end
     end

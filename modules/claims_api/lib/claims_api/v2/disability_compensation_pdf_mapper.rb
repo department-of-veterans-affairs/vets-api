@@ -168,11 +168,12 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:claimInformation].merge!(
           treatments: []
         )
-        treatments = get_treatments
+        if @auto_claim&.dig('treatments').present?
+          treatments = get_treatments
 
-        treatment_details = treatments.map(&:deep_symbolize_keys)
-        @pdf_data[:data][:attributes][:claimInformation][:treatments] = treatment_details
-
+          treatment_details = treatments.map(&:deep_symbolize_keys)
+          @pdf_data[:data][:attributes][:claimInformation][:treatments] = treatment_details
+        end
         @pdf_data
       end
 
