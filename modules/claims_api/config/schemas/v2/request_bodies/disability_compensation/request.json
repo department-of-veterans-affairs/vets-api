@@ -43,12 +43,12 @@
             "veteranIdentification": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["mailingAddress", "currentlyVaEmployee"],
+                "required": ["mailingAddress"],
                 "properties": {
                   "currentlyVaEmployee": {
                     "type": "boolean",
                     "description": "Set to true if Veteran is a VA employee.",
-                    "example": false
+                    "default": false
                   },
                   "serviceNumber": {
                     "type": "string",
