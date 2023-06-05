@@ -1328,6 +1328,21 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
+        context 'it gets the signature from the headers and MPI' do
+          it 'returns a 200, and gets the signature' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  VCR.use_cassette('brd/disabilities') do
+                    post submit_path, params: data, headers: auth_header
+                    expect(response).to have_http_status(:ok)
+                  end
+                end
+              end
+            end
+          end
+        end
+
         context 'when treatment startDate is in the wrong pattern' do
           let(:treatment_start_date) { '12/01/1999' }
 
