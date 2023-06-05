@@ -392,6 +392,9 @@ features:
     actor_type: user
     description: Enables secure messaging
     enable_in_development: true
+  injected_header_web_components:
+    actor_type: user
+    description: Enable/disable import of web components to the injected header
   in_progress_form_custom_expiration:
     actor_type: user
     description: Enable/disable custom expiration dates for forms
