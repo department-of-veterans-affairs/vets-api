@@ -408,6 +408,8 @@ evss:
   disability_compensation_form:
     timeout: 55 # ~1 minute
     submit_timeout: 355 # ~6 minutes
+  dvp:
+    url: <%= ENV['EVSS_DVP_URL'] %>
   letters:
     url: https://csraciapp6.evss.srarad.com
     timeout: 55
@@ -621,6 +623,8 @@ vba_documents:
 
 #Settings for Claims Api Module
 claims_api:
+  pdf_generator_526:
+    service_name: form-526ez-pdf-generator
   report_enabled: false
   audit_enabled: false
   s3:
