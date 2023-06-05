@@ -31,7 +31,7 @@
           "currentlyVaEmployee": {
             "type": "boolean",
             "description": "Flag if Veteran is VA Employee.",
-            "example": false
+            "default": false
           },
           "serviceNumber": {
             "type": "string",
