@@ -69,11 +69,11 @@ module SignIn
     end
 
     def validate_request_ip
-      return if @current_user.fingerprint == request.ip
+      return if @current_user.fingerprint == request.remote_ip
 
-      log_context = { request_ip: request.ip, fingerprint: @current_user.fingerprint }
+      log_context = { request_ip: request.remote_ip, fingerprint: @current_user.fingerprint }
       Rails.logger.warn('[SignIn][Authentication] fingerprint mismatch', log_context)
-      @current_user.fingerprint = request.ip
+      @current_user.fingerprint = request.remote_ip
       @current_user.save
     end
   end

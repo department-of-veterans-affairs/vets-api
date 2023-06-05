@@ -723,7 +723,7 @@ RSpec.describe V0::SignInController, type: :controller do
                     birth_date: Formatters::DateFormatter.format_date(user_info.birthdate),
                     first_name: user_info.given_name,
                     last_name: user_info.family_name,
-                    fingerprint: request.ip
+                    fingerprint: request.remote_ip
                   }
                 end
                 let(:mpi_profile) do

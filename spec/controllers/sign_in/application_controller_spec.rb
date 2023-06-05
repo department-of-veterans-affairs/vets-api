@@ -67,19 +67,19 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       context 'user.fingerprint matches request IP' do
         it 'passes fingerprint validation and does not create a log' do
           expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(:warn)
-          expect(subject.request.ip).to eq(user.fingerprint)
+          expect(subject.request.remote_ip).to eq(user.fingerprint)
         end
       end
 
       context 'user.fingerprint does not match request IP' do
         let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
         let(:expected_error) { '[SignIn][Authentication] fingerprint mismatch' }
-        let(:log_context) { { request_ip: request.ip, fingerprint: user.fingerprint } }
+        let(:log_context) { { request_ip: request.remote_ip, fingerprint: user.fingerprint } }
 
         it 'fails fingerprint validation and creates a log' do
           expect(Rails.logger).to receive(:warn).with(expected_error, log_context)
 
-          expect(subject.request.ip).not_to eq(user.fingerprint)
+          expect(subject.request.remote_ip).not_to eq(user.fingerprint)
         end
 
         it 'does not prevent authentication' do
@@ -133,7 +133,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
           let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
           let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
           let!(:user) do
-            create(:user, :loa3, uuid: access_token_object.user_uuid, fingerprint: request.ip)
+            create(:user, :loa3, uuid: access_token_object.user_uuid, fingerprint: request.remote_ip)
           end
           let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
           let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
@@ -185,7 +185,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
         let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
         let!(:user) do
-          create(:user, :loa3, uuid: access_token_object.user_uuid, fingerprint: request.ip)
+          create(:user, :loa3, uuid: access_token_object.user_uuid, fingerprint: request.remote_ip)
         end
         let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
         let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
@@ -212,18 +212,18 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       context 'user.fingerprint matches request IP' do
         it 'passes fingerprint validation and does not create a log' do
           expect_any_instance_of(SentryLogging).not_to receive(:log_message_to_sentry).with(:warn)
-          expect(subject.request.ip).to eq(user.fingerprint)
+          expect(subject.request.remote_ip).to eq(user.fingerprint)
         end
       end
 
       context 'user.fingerprint does not match request IP' do
         let!(:user) { create(:user, :loa3, uuid: access_token_object.user_uuid) }
         let(:expected_error) { '[SignIn][Authentication] fingerprint mismatch' }
-        let(:log_context) { { request_ip: request.ip, fingerprint: user.fingerprint } }
+        let(:log_context) { { request_ip: request.remote_ip, fingerprint: user.fingerprint } }
 
         it 'fails fingerprint validation and creates a log' do
           expect(Rails.logger).to receive(:warn).with(expected_error, log_context)
-          expect(subject.request.ip).not_to eq(user.fingerprint)
+          expect(subject.request.remote_ip).not_to eq(user.fingerprint)
         end
 
         it 'does not prevent authentication' do
@@ -276,7 +276,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
           let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
           let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
           let!(:user) do
-            create(:user, :loa3, uuid: access_token_object.user_uuid, fingerprint: request.ip)
+            create(:user, :loa3, uuid: access_token_object.user_uuid, fingerprint: request.remote_ip)
           end
           let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
           let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
@@ -332,7 +332,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
         let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
         let!(:user) do
-          create(:user, :loa3, uuid: access_token_object.user_uuid, fingerprint: request.ip)
+          create(:user, :loa3, uuid: access_token_object.user_uuid, fingerprint: request.remote_ip)
         end
         let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
         let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
@@ -404,7 +404,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
                     loa:,
                     authn_context:,
                     mhv_icn: user_account.icn,
-                    fingerprint: request.ip)
+                    fingerprint: request.remote_ip)
     end
     let(:expected_error) { 'Service unavailable' }
 
