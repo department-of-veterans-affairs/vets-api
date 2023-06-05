@@ -87,12 +87,16 @@ RSpec.describe InProgressForm, type: :model do
                                                           errorMessage: 'bar' } })
     end
     let!(:second_record) { create(:in_progress_form, metadata: { submission: { hasAttemptedSubmit: false } }) }
+    let!(:third_record) do
+      create(:in_progress_form, form_id: '5655', metadata: { submission: { hasAttemptedSubmit: true, status: false } })
+    end
 
     it 'includes records within scope' do
       expect(described_class.has_attempted_submit).to include(first_record)
       expect(described_class.has_errors).to include(first_record)
       expect(described_class.has_error_message).to include(first_record)
       expect(described_class.has_no_errors).to include(second_record)
+      expect(described_class.unsubmitted_fsr).to include(third_record)
     end
   end
 
