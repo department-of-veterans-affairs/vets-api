@@ -17,6 +17,7 @@ module ClaimsApi
         service_info
         disability_attributes
         treatment_centers
+        get_service_pay
         direct_deposit_information
 
         @pdf_data
@@ -293,6 +294,15 @@ module ClaimsApi
       def direct_deposit_information
         @pdf_data[:data][:attributes][:directDepositInformation] = @pdf_data[:data][:attributes][:directDeposit]
         @pdf_data[:data][:attributes].delete(:directDeposit)
+
+        @pdf_data
+      end
+
+      def get_service_pay
+        @pdf_data[:data][:attributes].merge!(
+          servicePay: @auto_claim&.dig('servicePay')&.deep_symbolize_keys
+        )
+        zip
 
         @pdf_data
       end

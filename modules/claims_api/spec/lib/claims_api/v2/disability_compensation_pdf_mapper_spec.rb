@@ -339,6 +339,24 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       end
     end
 
+    context '526 section 7, service pay' do
+      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
+      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data) }
+
+      it 'maps the attributes correctly' do
+        mapper.map_claim
+
+        service_pay_data = pdf_data[:data][:attributes][:servicePay]
+        favor_mil_retired_pay = service_pay_data[:favorMilitaryRetiredPay]
+        receiving_mil_retired_pay = service_pay_data[:receivingMilitaryRetiredPay]
+        branch_of_service = service_pay_data[:militaryRetiredPay][:branchOfService]
+
+        expect(favor_mil_retired_pay).to eq(false)
+        expect(receiving_mil_retired_pay).to eq(false)
+        expect(branch_of_service).to eq('Army')
+      end
+    end
+
     context '526 section 8, direct deposot' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
       let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data) }
