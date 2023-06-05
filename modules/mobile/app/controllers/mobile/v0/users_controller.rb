@@ -4,6 +4,7 @@ module Mobile
   module V0
     class UsersController < ApplicationController
       after_action :pre_cache_resources, only: :show
+      after_action :link_user_with_vet360, only: :show, if: -> { @current_user.vet360_id.blank? }
 
       def show
         map_logingov_to_idme
@@ -39,6 +40,10 @@ module Mobile
         if @current_user.identity.sign_in[:service_name].include? 'LOGINGOV'
           @current_user.identity.sign_in[:service_name] = 'oauth_IDME'
         end
+      end
+
+      def link_user_with_vet360
+        Mobile::V0::Vet360LinkingJob.perform_async(@current_user.uuid)
       end
     end
   end

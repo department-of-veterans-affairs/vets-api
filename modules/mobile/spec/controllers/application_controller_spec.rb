@@ -101,22 +101,6 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
         end
       end
 
-      context 'with a user without vet360 id' do
-        before { iam_sign_in(FactoryBot.build(:iam_user, :no_vet360_id)) }
-
-        it 'returns returns ok' do
-          get :index
-          expect(response).to have_http_status(:ok)
-        end
-
-        it 'calls async linking job on first call and does not on second after redis lock is in place' do
-          expect(Mobile::V0::Vet360LinkingJob).to receive(:perform_async)
-          get :index
-          expect(Mobile::V0::Vet360LinkingJob).not_to receive(:perform_async)
-          get :index
-        end
-      end
-
       context 'with a user with id theft flag set' do
         before { FactoryBot.create(:iam_user, :id_theft_flag) }
 
