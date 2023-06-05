@@ -164,8 +164,8 @@
                   "title10ActivationDate": "2018-02-11"
               },
               "unitPhone": {
-                  "areaCode": "123",
-                  "phoneNumber": "4567890"
+                  "areaCode": "555",
+                  "phoneNumber": "5555555"
               },
               "receivingInactiveDutyTrainingPay": true
           },
@@ -195,9 +195,9 @@
       },
       "directDeposit": {
         "accountType": "CHECKING",
-        "accountNumber": "123456789",
+        "accountNumber": "123123123123",
         "routingNumber": "123456789",
-        "financialInstituteName": "Chase",
+        "financialInstitutionName": "Chase",
         "noAccount": false
       }
     }
