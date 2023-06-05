@@ -98,7 +98,8 @@ Rails.application.reloader.to_prepare do
         mgr.register('* * * * *', 'ExternalServicesStatusJob')
         mgr.register('* * * * *', 'ExportBreakerStatus')
 
-        mgr.register('0 0 * * *', 'FeatureCleanerJob')
+        # Disable FeatureCleanerJob. https://github.com/department-of-veterans-affairs/va.gov-team/issues/53538
+        # mgr.register('0 0 * * *', 'FeatureCleanerJob')
         mgr.register('0 0 * * *', 'Form1010cg::DeleteOldUploadsJob')
         mgr.register('0 1 * * *', 'TransactionalEmailAnalyticsJob')
       end
