@@ -1,0 +1,102 @@
+type: object
+required:
+  - id
+  - type
+  - attributes
+  - links
+properties:
+  id:
+    type: string
+    example: 0
+  type:
+    type: string
+    example: "message_threads"
+  attributes:
+    type: object
+    required:
+      - threadId
+      - folderId
+      - messageId
+      - threadPageSize
+      - messageCount
+      - category
+      - subject
+      - triageGroupName
+      - sentDate
+      - draftDate
+      - senderId
+      - senderName
+      - recipientName
+      - recipientId
+      - proxySenderName
+      - hasAttachment
+      - unsentDrafts
+      - unreadMessages
+    properties:
+      threadId:
+        type: integer
+        example: 1234567
+      folderId:
+        type: integer
+        example: 0
+      messageId:
+        type: integer
+        example: 1234567
+      threadPageSize:
+        type: integer
+        example: 123
+      messageCount:
+        type: integer
+        example: 123
+      category:
+        type: string
+        enum: [OTHERS, COVID, APPOINTMENTS, MEDICATIONS, TEST_RESULT, EDUCATION]
+        example: MEDICATIONS
+      subject:
+        type: string
+        example: Medication Inquiry
+      triageGroupName:
+        type: string
+        nullable: true
+        example: "Triage_Group_5"
+      sentDate:
+        type: string
+        nullable: true
+        example: 2017-09-01T16:09:56.000Z
+      draftDate:
+        type: string
+        nullable: true
+        example: 2017-09-01T16:09:56.000Z
+      senderId:
+        type: integer
+        example: 541200
+      senderName:
+        type: string
+        example: "DOE, JANE"
+      recipientId:
+        type: integer
+        example: 399955
+      recipientName:
+        type: string
+        example: "ROE, RICHARD"
+      proxySenderName:
+        type: string
+        nullable: true
+        example: "SMITH, JOHN"
+      hasAttachment:
+        type: boolean
+        example: false
+      unsentDrafts:
+        type: boolean
+        example: false
+      unreadMessages:
+        type: boolean
+        example: true
+  links:
+    type: object
+    required:
+      - self
+    properties:
+      self:
+        type: string
+        example: http://www.example.com/my_health/v1/messaging/threads/7298505"
