@@ -496,6 +496,8 @@ module ClaimsApi
         def build_supporting_docs(bgs_claim)
           return [] if bgs_claim.nil?
 
+          @supporting_documents = []
+
           docs = if sandbox?
                    { documents: ClaimsApi::V2::MockDocumentsService.new.generate_documents }.with_indifferent_access
                  else
