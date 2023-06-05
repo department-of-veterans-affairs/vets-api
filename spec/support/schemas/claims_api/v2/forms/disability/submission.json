@@ -907,13 +907,13 @@
                     "type": "string",
                     "maxLength": 3,
                     "pattern": "^\\d{3}$",
-                    "example": "688"
+                    "example": "555"
                   },
                   "phoneNumber": {
                     "type": "string",
                     "maxLength": 7,
                     "pattern": "^\\d{7}$",
-                    "example": "8675309"
+                    "example": "5555555"
                   }
                 }
               },
@@ -1088,32 +1088,36 @@
         "description": "Financial Direct Deposit information for Veteran.",
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "accountType",
-          "accountNumber",
-          "routingNumber"
-        ],
         "properties": {
           "accountType": {
-            "description": "Veteran Account Type (value is case insensitive).",
+            "description": "Account type for the direct deposit.",
             "type": "string",
-            "enum": [
-              "CHECKING",
-              "SAVINGS"
-            ],
-            "example": "CHECKING"
+            "example": "CHECKING",
+            "properties": {
+              "result": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "enum": ["CHECKING", "SAVINGS"]
+                  },
+                  {
+                    "type": "string",
+                    "enum": [""]
+                  }
+                ]
+              }
+            }
           },
           "accountNumber": {
-            "description": "Veteran Bank Account Number.",
-            "minLength": 4,
-            "maxLength": 17,
+            "description": "Account number for the direct deposit.",
+            "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
             "type": "string",
             "example": "123123123123"
           },
-          "routngNumber": {
-            "description": "Veteran Bank Routing Number.",
+          "routingNumber": {
+            "description": "Routing number for the direct deposit.",
             "type": "string",
-            "pattern": "^\\d{9}$",
+            "pattern": "^(?:\\d{9})?$",
             "example": "123123123"
           },
           "financialInstitutionName": {
@@ -1124,7 +1128,7 @@
           },
           "noAccount": {
             "type": "boolean",
-            "description": "Box 29 is checked if directDeposit is missing in the JSON request.",
+            "description": "Claimant certifies that they do not have an account with a financial institution or certified payment agent.",
             "default": false
           }
         }

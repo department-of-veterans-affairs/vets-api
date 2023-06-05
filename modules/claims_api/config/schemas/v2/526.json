@@ -871,18 +871,18 @@
                           "additionalProperties": false,
                           "required": ["areaCode", "phoneNumber"],
                           "properties": {
-                            "areaCode": {
-                              "type": "string",
-                                "pattern": "^\\d{3}?$",
+                              "areaCode": {
+                                "type": "string",
                                 "maxLength": 3,
-                                "example": "688"
-                            },
-                            "phoneNumber": {
-                              "type": "string",
-                                "pattern": "^\\d{7}$",
+                                "pattern": "^\\d{3}$",
+                                "example": "555"
+                              },
+                              "phoneNumber": {
+                                "type": "string",
                                 "maxLength": 7,
-                                "example": "8675309"
-                            }
+                                "pattern": "^\\d{7}$",
+                                "example": "5555555"
+                              }
                           }
                         },
                         "receivingInactiveDutyTrainingPay": {
@@ -1051,42 +1051,53 @@
               }
           }
       },
-      "directDeposit": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["accountType", "accountNumber", "routingNumber"],
-          "properties": {
-              "accountType": {
-                  "description": "Account type for the direct deposit.",
-                  "type": "string",
-                  "enum": ["CHECKING", "SAVINGS"],
-                  "example": "CHECKING"
-              },
-              "accountNumber": {
-                  "description": "Account number for the direct deposit.",
-                  "minLength": 4,
-                  "maxLength": 17,
-                  "type": "string",
-                  "example": "123123123123"
-              },
-              "routingNumber": {
-                  "description": "Routing number for the direct deposit.",
-                  "type": "string",
-                  "pattern": "^\\d{9}$",
-                  "example": "123123123"
-              },
-              "financialInstitutionName": {
-                  "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
-                  "maxLength": 35,
-                  "type": "string",
-                  "example": "Some Bank"
-              },
-              "noAccount": {
-                  "type": "boolean",
-                  "description": "Claimant certifies that they do not have an account with a financial institution or certified payment agent.",
-                  "default": false
-              }
-          }
-      }
-  }
+        "directDeposit": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "accountType": {
+                    "description": "Account type for the direct deposit.",
+                    "type": "string",
+                    "example": "CHECKING",
+                    "properties": {
+                        "result": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": ["CHECKING", "SAVINGS"]
+                                },
+                                {
+                                    "type": "string",
+                                    "enum": [""]
+                                }
+                            ]
+                        }
+                    }
+                },
+                "accountNumber": {
+                    "description": "Account number for the direct deposit.",
+                    "pattern": "^(?:[a-zA-Z0-9]{4,17})?$",
+                    "type": "string",
+                    "example": "123123123123"
+                },
+                "routingNumber": {
+                    "description": "Routing number for the direct deposit.",
+                    "type": "string",
+                    "pattern": "^(?:\\d{9})?$",
+                    "example": "123123123"
+                },
+                "financialInstitutionName": {
+                    "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
+                    "maxLength": 35,
+                    "type": "string",
+                    "example": "Some Bank"
+                },
+                "noAccount": {
+                    "type": "boolean",
+                    "description": "Claimant certifies that they do not have an account with a financial institution or certified payment agent.",
+                    "default": false
+                }
+            }
+        }
+    }
 }

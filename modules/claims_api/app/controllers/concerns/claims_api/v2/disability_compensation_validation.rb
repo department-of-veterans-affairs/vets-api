@@ -24,6 +24,8 @@ module ClaimsApi
         validate_form_526_treatments!
         # ensure service information is valid
         validate_form_526_service_information!
+        # ensure direct deposit information is valid
+        validate_form_526_direct_deposit!
       end
 
       def validate_form_526_change_of_address!
@@ -526,6 +528,53 @@ module ClaimsApi
             detail: 'Terms of service Start date must be before the terms of service end date.'
           )
         end
+      end
+
+      def validate_form_526_direct_deposit!
+        direct_deposit = form_attributes['directDeposit']
+        return if direct_deposit.blank?
+
+        account_check = direct_deposit&.dig('noAccount')
+
+        account_check.present? && account_check == true ? validate_no_account! : validate_account_values!
+      end
+
+      def validate_no_account!
+        acc_vals = form_attributes['directDeposit']
+
+        raise_exception_on_invalid_account_values('account type') if acc_vals['accountType'].present?
+        raise_exception_on_invalid_account_values('account number') if acc_vals['accountNumber'].present?
+        raise_exception_on_invalid_account_values('routing number') if acc_vals['routingNumber'].present?
+        if acc_vals['financialInstitutionName'].present?
+          raise_exception_on_invalid_account_values('financial institution name')
+        end
+      end
+
+      def raise_exception_on_invalid_account_values(account_detail)
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: "If the claimant has no account the #{account_detail} field must be left empty."
+        )
+      end
+
+      def validate_account_values!
+        direct_deposit_account_vals = form_attributes['directDeposit']
+
+        valid_account_types = %w[CHECKING SAVINGS]
+        account_type = direct_deposit_account_vals&.dig('accountType')
+        account_number = direct_deposit_account_vals&.dig('accountNumber')
+        routing_number = direct_deposit_account_vals&.dig('routingNumber')
+
+        if account_type.blank? || valid_account_types.exclude?(account_type)
+          raise_exception_if_value_present('account type (CHECKING/SAVINGS)')
+        end
+        raise_exception_if_value_present('account number') if account_number.blank?
+        raise_exception_if_value_present('routing number') if routing_number.blank?
+      end
+
+      def raise_exception_if_value_present(val)
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: "The #{val} is required for direct deposit."
+        )
       end
     end
   end
