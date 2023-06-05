@@ -754,6 +754,42 @@ RSpec.describe 'user', type: :request do
         )
       end
     end
+
+    describe 'vet360 linking' do
+      context 'when user has a vet360_id' do
+        before { iam_sign_in(FactoryBot.build(:iam_user)) }
+
+        it 'does not enqueue vet360 linking job' do
+          expect(Mobile::V0::Vet360LinkingJob).not_to receive(:perform_async)
+
+          VCR.use_cassette('mobile/payment_information/payment_information') do
+            VCR.use_cassette('mobile/user/get_facilities') do
+              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+                get '/mobile/v0/user', headers: iam_headers
+              end
+            end
+          end
+          expect(response).to have_http_status(:ok)
+        end
+      end
+
+      context 'when user does not have a vet360_id' do
+        before { iam_sign_in(FactoryBot.build(:iam_user, :no_vet360_id)) }
+
+        it 'enqueues vet360 linking job' do
+          expect(Mobile::V0::Vet360LinkingJob).to receive(:perform_async)
+
+          VCR.use_cassette('mobile/payment_information/payment_information') do
+            VCR.use_cassette('mobile/user/get_facilities_no_ids') do
+              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+                get '/mobile/v0/user', headers: iam_headers
+              end
+            end
+          end
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
   end
 
   describe 'GET /mobile/v0/user/logout' do
