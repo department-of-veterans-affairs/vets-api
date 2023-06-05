@@ -14,6 +14,8 @@ module ClaimsApi
 
         FORM_NUMBER = '526'
 
+        before_action :verify_access!
+
         def submit
           validate_json_schema
           validate_form_526_submission_values!

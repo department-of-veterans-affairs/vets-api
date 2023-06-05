@@ -19,8 +19,8 @@
                     "agreeToEmailRelatedToClaim": true
                 },
                 "veteranNumber": {
-                    "telephone": "1234567890",
-                    "internationalTelephone": "1234567890"
+                    "telephone": "5555555555",
+                    "internationalTelephone": "5555555555"
                 },
                 "vaFileNumber": "AB123CDEF"
             },
@@ -49,7 +49,7 @@
                         "startDate":"2019-06-04",
                         "endDate":"2020-06-04"
                     },
-                    "unitName": "''c'5'l'#l#2z",
+                    "unitName": "National Guard Unit Name",
                     "unitAddress": "1243 pine court",
                     "component": "Active",
                     "title10Activation": {
@@ -121,7 +121,7 @@
                   },
                   "typeOfAddressChange": "TEMPORARY",
                   "numberAndStreet": "10 Peach St",
-                  "apartmentOrUnitNumber": "Apt 1",
+                  "apartmentOrUnitNumber": "22",
                   "city": "Atlanta",
                   "zipFirstFive": "42220",
                   "zipLastFour": "9897",
@@ -131,8 +131,8 @@
             "homeless": {
                 "pointOfContact": "john stewart",
                 "pointOfContactNumber": {
-                    "telephone": "7028901212",
-                    "internationalTelephone": "1234567890"
+                    "telephone": "5555555555",
+                    "internationalTelephone": "5555555555"
                 },
                 "currentlyHomeless": {
                     "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
@@ -157,7 +157,7 @@
                 },
                 "additionalHazardExposures": {
                     "additionalExposures": ["ASBESTOS", "SHAD"],
-                    "specifyOtherExposures": "ABCD",
+                    "specifyOtherExposures": "Other exposure details",
                     "exposureDates": {
                         "startDate": "4520-07-30",
                         "endDate": "3405-10-03"
@@ -193,7 +193,7 @@
                     "branchOfService": "Army",
                     "monthlyAmount": 840.75
                 },
-                "retiredStatus": "RETIRED",
+                "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
                 "receivedSeparationOrSeverancePay": false,
                 "separationSeverancePay": {
                     "datePaymentReceived": "2022-03-01",
@@ -205,7 +205,7 @@
                 "accountType": "CHECKING",
                 "accountNumber": "ABCDEF",
                 "routingNumber": "123123123",
-                "financialInstitutionName": "Some Bank",
+                "financialInstitutionName": "Chase",
                 "noAccount": false
             }
         }

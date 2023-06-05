@@ -2894,13 +2894,13 @@
                                   "telephone": {
                                     "description": "Primary phone of Point of Contact.",
                                     "type": "string",
-                                    "example": "1231234",
+                                    "example": "5555555555",
                                     "maxLength": 10
                                   },
                                   "internationalTelephone": {
                                     "description": "international phone of Point of Contact.",
                                     "type": "string",
-                                    "example": "1231234",
+                                    "example": "5555555555",
                                     "maxLength": 10
                                   }
                                 }
@@ -2936,18 +2936,18 @@
                                 "properties": {
                                   "livingSituationOptions": {
                                     "type": "string",
-                                    "default": "other",
+                                    "default": "OTHER",
                                     "enum": [
-                                      "losingHousing",
-                                      "leavingShelter",
-                                      "other"
+                                      "HOUSING_WILL_BE_LOST_IN_30_DAYS",
+                                      "LEAVING_PUBLICLY_FUNDED_SYSTEM_OF_CARE",
+                                      "OTHER"
                                     ]
                                   },
                                   "otherDescription": {
                                     "description": "For a 'livingSituationOptions' of value 'other', please provide additional comments on the living situation.",
                                     "type": "string",
                                     "maxLength": 500,
-                                    "example": "other living situation"
+                                    "example": "OTHER"
                                   }
                                 }
                               }
@@ -3039,9 +3039,10 @@
                                       ]
                                     }
                                   },
-                                  "specifiyOtherExposures": {
+                                  "specifyOtherExposures": {
                                     "type": "string",
-                                    "description": "Other exposure incidents."
+                                    "description": "Other exposure details.",
+                                    "example": "Exposure to asbestos"
                                   },
                                   "exposureDates": {
                                     "type": "object",
@@ -3508,7 +3509,8 @@
                                   },
                                   "unitName": {
                                     "type": "string",
-                                    "pattern": "([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$"
+                                    "pattern": "([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$",
+                                    "example": "National Guard Unit Name"
                                   },
                                   "unitAddress": {
                                     "type": "string",
@@ -3645,7 +3647,8 @@
                                   "RETIRED",
                                   "TEMPORARY_DISABILITY_RETIRED_LIST",
                                   "PERMANENT_DISABILITY_RETIRED_LIST"
-                                ]
+                                ],
+                                "example": "PERMANENT_DISABILITY_RETIRED_LIST"
                               },
                               "receivedSeparationOrSeverancePay": {
                                 "description": "Has the Veteran ever received separation pay, disability severance pay, or any other lump sum payment from their branch of service?",
@@ -3754,7 +3757,7 @@
                                 "description": "Provide the name of the financial institution where the Veteran wants the direct deposit.",
                                 "maxLength": 35,
                                 "type": "string",
-                                "example": "Some Bank"
+                                "example": "Chase"
                               },
                               "noAccount": {
                                 "type": "boolean",
@@ -3776,53 +3779,50 @@
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
                       "claimDate": "2020-12-18",
                       "veteranIdentification": {
+                        "currentlyVaEmployee": false,
                         "mailingAddress": {
                           "numberAndStreet": "1234 Couch Street",
-                          "apartmentOrUnitNumber": "Apt. 22",
+                          "apartmentOrUnitNumber": "22",
                           "city": "Portland",
                           "country": "USA",
-                          "zipFirstFive": "12345",
-                          "zipLastFour": "6789",
+                          "zipFirstFive": "41726",
+                          "zipLastFour": "1234",
                           "state": "OR"
                         },
-                        "currentlyVAEmployee": false,
                         "serviceNumber": "123456789",
                         "emailAddress": {
-                          "email": "claimant@example.com",
+                          "email": "valid@somedomain.com",
                           "agreeToEmailRelatedToClaim": true
                         },
                         "veteranNumber": {
-                          "telephone": "555-5555",
-                          "internationalTelephone": "555-5555"
+                          "telephone": "5555555555",
+                          "internationalTelephone": "5555555555"
                         },
-                        "vaFileNumber": "12345678"
+                        "vaFileNumber": "AB123CDEF"
                       },
                       "changeOfAddress": {
-                        "country": "USA",
-                        "type": "INTERNATIONAL",
-                        "addressLine1": "1234 Couch Street",
                         "dates": {
-                          "beginningDate": "2018-11-31",
-                          "endingDate": "2019-07-11"
+                          "beginningDate": "2012-11-31",
+                          "endingDate": "2013-10-11"
                         },
-                        "typeOfAddressChange": "Permanent",
-                        "numberAndStreet": "1234 Couch Street",
-                        "apartmentOrUnitNumber": "Apt. 22",
-                        "city": "Portland",
-                        "zipFirstFive": "12345",
-                        "zipLastFour": "1234",
-                        "state": "OR"
+                        "typeOfAddressChange": "TEMPORARY",
+                        "numberAndStreet": "10 Peach St",
+                        "apartmentOrUnitNumber": "22",
+                        "city": "Atlanta",
+                        "zipFirstFive": "42220",
+                        "zipLastFour": "9897",
+                        "state": "GA",
+                        "country": "USA"
                       },
                       "homeless": {
-                        "pointOfContact": "Jane Doe",
-                        "pointOfContactNumber": "123-456-7890",
+                        "pointOfContact": "john stewart",
+                        "pointOfContactNumber": {
+                          "telephone": "5555555555",
+                          "internationalTelephone": "5555555555"
+                        },
                         "currentlyHomeless": {
                           "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
-                          "otherDescription": ""
-                        },
-                        "riskOfBecomingHomeless": {
-                          "livingSituationOptions": "other living situation",
-                          "otherDescription": ""
+                          "otherDescription": "ABCDEFGHIJKLM"
                         }
                       },
                       "toxicExposure": {
@@ -3846,7 +3846,7 @@
                             "ASBESTOS",
                             "SHAD"
                           ],
-                          "specifiyOtherExposures": "",
+                          "specifyOtherExposures": "Other exposure details",
                           "exposureDates": {
                             "startDate": "2011-07-30",
                             "endDate": "2013-10-03"
@@ -3865,48 +3865,69 @@
                         {
                           "disabilityActionType": "REOPEN",
                           "name": "PTSD (post traumatic stress disorder)",
-                          "classificationCode": "249470",
-                          "serviceRelevance": "Heavy equipment operator in service.",
-                          "approximateDate": "2019-11-04",
-                          "ratedDisabilityId": "1100583",
-                          "diagnosticCode": 9999,
+                          "classificationCode": "ABCDEFGHIJ",
+                          "serviceRelevance": "ABCDEFG",
+                          "approximateDate": "4592-11-04",
+                          "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                          "diagnosticCode": 0,
                           "secondaryDisabilities": [
                             {
-                              "name": "PTSD personal trauma",
+                              "name": "ABCDEF",
                               "disabilityActionType": "SECONDARY",
-                              "serviceRelevance": "Caused by a service-connected disability\\nLengthy description",
-                              "classificationCode": "249470",
-                              "approximateDate": "2018-01-03",
-                              "exposureOrEventOrInjury": ""
+                              "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
+                              "classificationCode": "ABCDEFGHIJKLMNO",
+                              "approximateDate": "9904-01-03",
+                              "exposureOrEventOrInjury": "EXPOSURE"
                             }
                           ],
-                          "isRelatedToToxicExposure": false,
-                          "exposureOrEventOrInjury": ""
+                          "isRelatedToToxicExposure": true,
+                          "exposureOrEventOrInjury": "EXPOSURE"
+                        },
+                        {
+                          "disabilityActionType": "REOPEN",
+                          "name": "Trauma",
+                          "classificationCode": "ABCDEFGHIJ",
+                          "serviceRelevance": "ABCDEFG",
+                          "approximateDate": "4592-11-04",
+                          "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+                          "diagnosticCode": 0,
+                          "secondaryDisabilities": [
+                            {
+                              "name": "GHIJKLM",
+                              "disabilityActionType": "SECONDARY",
+                              "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
+                              "classificationCode": "ABCDEFGHIJKLMNO",
+                              "approximateDate": "9904-01-03",
+                              "exposureOrEventOrInjury": "EXPOSURE"
+                            }
+                          ],
+                          "isRelatedToToxicExposure": true,
+                          "exposureOrEventOrInjury": "EXPOSURE"
                         }
                       ],
                       "treatments": [
                         {
-                          "center": {
-                            "name": "Private Facility 2",
-                            "state": "CO",
-                            "city": "Pueblo"
-                          },
-                          "startDate": "2014-03-07",
-                          "treatedDisabilityNames": [
-                            "PTSD (post traumatic stress disorder)"
-                          ]
-                        },
-                        {
-                          "center": {
-                            "name": "Private Facility 3",
-                            "state": "WA",
-                            "city": "Seattle"
-                          },
-                          "startDate": null,
                           "treatedDisabilityNames": [
                             "PTSD (post traumatic stress disorder)",
                             "Trauma"
-                          ]
+                          ],
+                          "center": {
+                            "name": "Center One",
+                            "state": "GA",
+                            "city": "Decatur"
+                          },
+                          "startDate": "03-1985"
+                        },
+                        {
+                          "treatedDisabilityNames": [
+                            "Trauma"
+                          ],
+                          "center": {
+                            "name": "Center One",
+                            "state": "GA",
+                            "city": "Decatur"
+                          },
+                          "startDate": "03-1985"
                         }
                       ],
                       "serviceInformation": {
@@ -3934,7 +3955,7 @@
                             "startDate": "2016-11-24",
                             "endDate": "2017-11-17"
                           },
-                          "unitName": "DonkeyPants",
+                          "unitName": "National Guard Unit Name",
                           "unitAddress": "1243 pine court",
                           "component": "National Guard",
                           "title10Activation": {
@@ -3963,7 +3984,7 @@
                           "branchOfService": "Army",
                           "monthlyAmount": 840.75
                         },
-                        "retiredStatus": "RETIRED",
+                        "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
                         "receivedSeparationOrSeverancePay": false,
                         "separationSeverancePay": {
                           "datePaymentReceived": "2018-07-31",
@@ -4617,8 +4638,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-06-01",
-                      "expirationDate": "2024-06-01",
+                      "creationDate": "2023-06-05",
+                      "expirationDate": "2024-06-05",
                       "type": "compensation",
                       "status": "active"
                     }
