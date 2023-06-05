@@ -27,7 +27,7 @@ module ClaimsApi
             veteran_icn: target_veteran.mpi.icn
           )
           pdf_data = get_pdf_data
-          pdf_mapper_service(form_attributes, pdf_data).map_claim
+          pdf_mapper_service(form_attributes, pdf_data, target_veteran).map_claim
 
           # evss_service.submit(auto_claim)
 
@@ -40,8 +40,8 @@ module ClaimsApi
 
         private
 
-        def pdf_mapper_service(auto_claim, pdf_data)
-          ClaimsApi::V2::DisabilityCompensationPdfMapper.new(auto_claim, pdf_data)
+        def pdf_mapper_service(auto_claim, pdf_data, target_veteran)
+          ClaimsApi::V2::DisabilityCompensationPdfMapper.new(auto_claim, pdf_data, target_veteran)
         end
 
         def get_pdf_data

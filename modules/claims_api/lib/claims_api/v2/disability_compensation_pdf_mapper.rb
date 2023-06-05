@@ -3,9 +3,10 @@
 module ClaimsApi
   module V2
     class DisabilityCompensationPdfMapper
-      def initialize(auto_claim, pdf_data)
+      def initialize(auto_claim, pdf_data, target_veteran)
         @auto_claim = auto_claim
         @pdf_data = pdf_data
+        @target_veteran = target_veteran
       end
 
       def map_claim
@@ -25,17 +26,8 @@ module ClaimsApi
 
       def claim_attributes
         @pdf_data[:data][:attributes] = @auto_claim&.deep_symbolize_keys
-        claim_date
+        claim_date_and_signature
         veteran_info
-
-        @pdf_data
-      end
-
-      def claim_date
-        @pdf_data[:data][:attributes].merge!(claimCertificationAndSignature: {
-                                               dateSigned: @auto_claim&.dig('claimDate')
-                                             })
-        @pdf_data[:data][:attributes].delete(:claimDate)
 
         @pdf_data
       end
@@ -296,6 +288,15 @@ module ClaimsApi
         @pdf_data[:data][:attributes].delete(:directDeposit)
 
         @pdf_data
+      end
+
+      def claim_date_and_signature
+        name = "#{@target_veteran[:first_name]} #{@target_veteran[:last_name]}"
+        @pdf_data[:data][:attributes].merge!(claimCertificationAndSignature: {
+                                               dateSigned: @auto_claim&.dig('claimDate'),
+                                               signature: name
+                                             })
+        @pdf_data[:data][:attributes].delete(:claimDate)
       end
 
       def get_service_pay
