@@ -31,10 +31,11 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
   end
 
   context 'summary notification' do
+    let(:upload_submission) { VBADocuments::UploadSubmission.create(status: 'received') }
+
     before do
-      u = VBADocuments::UploadSubmission.create(status: 'received')
-      u.metadata['status']['received']['start'] = 15.minutes.ago.to_i
-      u.save!
+      upload_submission.metadata['status']['received']['start'] = 15.minutes.ago.to_i
+      upload_submission.save!
     end
 
     it 'notifies on every run' do
@@ -43,7 +44,7 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
         {
           class: 'VBADocuments::SlackNotifier',
           alert: 'Status Report (worst offenders over past week)',
-          details: "\n\tStatus 'received' for 15 minutes"
+          details: "\n\tStatus 'received' for 15 minutes (GUID: #{upload_submission.guid})"
         }
       )
       expect(slack_messenger).to have_received(:notify!).once

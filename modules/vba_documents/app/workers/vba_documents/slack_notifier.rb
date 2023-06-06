@@ -47,7 +47,7 @@ module VBADocuments
 
         start_time = model.metadata['status'][status]['start']
         duration = distance_of_time_in_words(Time.now.to_i - start_time)
-        results += "\n\tStatus \'#{status}\' for #{duration}"
+        results += "\n\tStatus \'#{status}\' for #{duration} (GUID: #{model.guid})"
       end
 
       notify_slack('Status Report (worst offenders over past week)', results)
