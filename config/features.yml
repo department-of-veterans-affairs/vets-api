@@ -680,9 +680,6 @@ features:
     actor_type: user
     description: Enable showing Supplemental Claim form 0995
     enable_in_development: true
-  va_home_preview_modal:
-    actor_type: user
-    description: Allows user testing for Homepage redesign soft launch modal
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
