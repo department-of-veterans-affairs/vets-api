@@ -19,7 +19,7 @@
 ## Testing done
 
 - *Describe what the old behavior was prior to the change*
-- *Describe the steps required to verify your changes are working as expected*
+- *Describe the steps required to verify your changes are working as expected. Exclusively stating 'Specs run' is NOT acceptable as appropriate testing*
 - *Describe the tests completed and the results*
 
 ## Screenshots
