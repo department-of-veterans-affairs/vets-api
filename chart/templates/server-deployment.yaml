@@ -8,8 +8,6 @@ metadata:
     app: {{ $name }}
   name: {{ $name }}
   namespace: {{ $root.Release.Namespace }}
-  annotations:
-    manualRoll: {{ $root.Values.manualRoll }}
 spec:
   revisionHistoryLimit: 1
   selector:
@@ -25,6 +23,7 @@ spec:
       labels:
         app: {{ $name }}
       annotations:
+        manualRoll: {{ $root.Values.manualRoll }}
 {{ toYaml $root.Values.annotations | indent 8 }}
     spec:
       affinity:
