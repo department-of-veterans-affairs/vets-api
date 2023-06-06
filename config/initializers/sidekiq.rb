@@ -40,69 +40,15 @@ Rails.application.reloader.to_prepare do
         # history is captured every 30 seconds by default
         config.retain_history(30)
       end
+
+      if defined?(Sidekiq::Enterprise)
+        require 'periodic_jobs'
+        config.periodic(&PERIODIC_JOBS)
+      end
     end
 
     config.client_middleware do |chain|
       chain.add SidekiqStatsInstrumentation::ClientMiddleware
-    end
-
-    if defined?(Sidekiq::Enterprise)
-      config.periodic do |mgr|
-        mgr.register('0 5 * * 1', 'AppealsApi::WeeklyErrorReport')
-
-        mgr.register('5 * * * *', 'AppealsApi::HigherLevelReviewUploadStatusBatch')
-        # Update HigherLevelReview statuses with their Central Mail status
-        mgr.register('10 * * * *', 'AppealsApi::NoticeOfDisagreementUploadStatusBatch')
-        # Update NoticeOfDisagreement statuses with their Central Mail status
-        mgr.register('15 * * * *', 'AppealsApi::SupplementalClaimUploadStatusBatch')
-        # Update SupplementalClaim statuses with their Central Mail status
-        mgr.register('0 2,9,16 * * MON-FRI', 'AppealsApi::FlipperStatusAlert')
-        # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled"
-
-        mgr.register('35 * * * *', 'AppsApi::FetchConnections')
-        # "Fetches and handles notifications for recent application connections and disconnections
-
-        mgr.register('0 2,9,16 * * MON-FRI', 'VBADocuments::FlipperStatusAlert')
-        mgr.register('0 2,9,16 * * MON-FRI', 'VBADocuments::SlackNotifier')
-        # Notifies slack channel if certain benefits states get stuck
-        mgr.register('5 */2 * * *', 'VBADocuments::RunUnsuccessfulSubmissions')
-        # Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status
-        mgr.register('0 0 * * MON-FRI', 'VBADocuments::ReportUnsuccessfulSubmissions')
-        # Daily report of unsuccessful benefits intake submissions
-        mgr.register('*/2 * * * *', 'VBADocuments::UploadRemover')
-        # Clean up submitted documents from S3
-        mgr.register('*/2 * * * *', 'VBADocuments::UploadScanner')
-        # Poll upload bucket for unprocessed uploads
-        mgr.register('45 * * * *', 'VBADocuments::UploadStatusBatch')
-        # Request updated statuses for benefits intake submissions
-
-        mgr.register('0 2,9,16 * * MON-FRI', 'VAForms::FlipperStatusAlert')
-        mgr.register('0 2 * * *', 'VAForms::FetchLatest')
-
-        mgr.register('0 16 * * *', 'VANotify::InProgressForms')
-        mgr.register('0 1 * * *', 'VANotify::ClearStaleInProgressRemindersSent')
-        mgr.register('0 * * * *', 'VANotify::InProgress1880Form')
-
-        mgr.register('0 * * * *', 'PagerDuty::CacheGlobalDowntime')
-        mgr.register('*/3 * * * *', 'PagerDuty::PollMaintenanceWindows')
-
-        mgr.register('0 2 * * *', 'InProgressFormCleaner')
-        mgr.register('0 */4 * * *', 'MHV::AccountStatisticsJob')
-        mgr.register('0 3 * * *', 'Form1095::New1095BsJob')
-        mgr.register('0 2 * * *', 'Veteran::VSOReloader')
-        mgr.register('30 2 * * *', 'Identity::UserAcceptableVerifiedCredentialTotalsJob')
-        mgr.register('* 7 * * *', 'SignIn::DeleteExpiredSessionsJob')
-        mgr.register('15 2 * * *', 'Preneeds::DeleteOldUploads')
-
-        mgr.register('* * * * *', 'SidekiqStatsJob')
-        mgr.register('* * * * *', 'ExternalServicesStatusJob')
-        mgr.register('* * * * *', 'ExportBreakerStatus')
-
-        # Disable FeatureCleanerJob. https://github.com/department-of-veterans-affairs/va.gov-team/issues/53538
-        # mgr.register('0 0 * * *', 'FeatureCleanerJob')
-        mgr.register('0 0 * * *', 'Form1010cg::DeleteOldUploadsJob')
-        mgr.register('0 1 * * *', 'TransactionalEmailAnalyticsJob')
-      end
     end
   end
 

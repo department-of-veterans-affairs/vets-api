@@ -6,7 +6,7 @@ module CovidVaccine
   class ExpandedScheduledSubmissionJob
     include Sidekiq::Worker
     include SentryLogging
-    sidekiq_options retry: false
+    sidekiq_options(unique_for: 5.minutes, retry: false)
 
     def perform
       Rails.logger.info('Covid_Vaccine Expanded_Scheduled_Submission: Start')
