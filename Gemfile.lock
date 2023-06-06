@@ -290,7 +290,7 @@ GEM
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     colored2 (3.1.2)
-    combine_pdf (1.0.22)
+    combine_pdf (1.0.23)
       matrix
       ruby-rc4 (>= 0.1.5)
     concurrent-ruby (1.2.2)
