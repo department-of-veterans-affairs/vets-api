@@ -14,12 +14,12 @@ module VAOS
       # @return [OpenStruct] An OpenStruct object containing information about the clinic.
       #
       def get_clinic(station_id:, clinic_id:)
-        params = {}
+        params = { clinicIds: clinic_id }
         parent_site_id = station_id[0, 3]
-        clinic_path = "/facilities/v2/facilities/#{parent_site_id}/clinics/#{clinic_id}"
+        clinic_path = "/vaos/v1/locations/#{parent_site_id}/clinics"
         with_monitoring do
           response = perform(:get, clinic_path, params, headers)
-          OpenStruct.new(response[:body][:data])
+          OpenStruct.new(response[:body][:data]&.first) # only one clinic is returned
         end
       end
 

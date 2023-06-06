@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri:  https://veteran.apps.va.gov/facilities/v2/facilities/983/clinics/455
+    uri:  https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=455
     body:
       encoding: US-ASCII
       string: ''
@@ -58,36 +58,26 @@ http_interactions:
       encoding: UTF-8
       string: |-
         {
-          "data" : {
+          "data" :[{
            "vistaSite" : 983,
-            "clinicId" : "455",
+            "id" : "455",
             "serviceName" : "MTZ-LAB (BLOOD WORK)",
-            "friendlyName" : "LAB BLOOD WORK",
-            "medicalService" : "NONE",
             "physicalLocation" : "MTZ OPC, LAB",
             "phoneNumber" : "800-382-8387",
             "stationId" : "983",
-            "institutionId" : "983",
             "stationName" : "Martinez VA Medical Center",
             "primaryStopCode" : 108,
             "primaryStopCodeName" : "LABORATORY",
             "secondaryStopCodeName" : "*Missing*",
-            "appointmentLength" : 20,
-            "variableAppointmentLength" : true,
             "patientDirectScheduling" : false,
             "patientDisplay" : true,
-            "institutionName" : "MARTINEZ VA MEDICAL CENTER",
-            "institutionIEN" : "400",
-            "institutionSID" : "660938",
-            "inactivationDate" : "2022-06-08T00:00:00",
-            "reactivationDate" : "2022-06-09T00:00:00",
             "futureBookingMaximumDays" : 390
-          }
+          }]
         }
   recorded_at: Tue, 30 Aug 2022 22:37:16 GMT
 - request:
     method: get
-    uri: https://host.va.gov/facilities/v2/facilities/983/clinics/1053
+    uri: https://host.va.gov/vaos/v1/locations/983/clinics?clinicIds=1053
     body:
       encoding: US-ASCII
       string: ''
@@ -143,31 +133,21 @@ http_interactions:
       encoding: UTF-8
       string: |-
         {
-          "data" : {
+          "data" : [{
             "vistaSite" : 983,
-            "clinicId" : "455",
-            "serviceName" : "MTZ-LAB (BLOOD WORK)",
-            "friendlyName" : "LAB BLOOD WORK",
-            "medicalService" : "NONE",
+            "id" : "455",
+            "serviceName" : "LAB BLOOD WORK",
             "physicalLocation" : "MTZ OPC, LAB",
             "phoneNumber" : "800-382-8387",
             "stationId" : "983",
-            "institutionId" : "983",
             "stationName" : "Martinez VA Medical Center",
             "primaryStopCode" : 108,
             "primaryStopCodeName" : "LABORATORY",
             "secondaryStopCodeName" : "*Missing*",
-            "appointmentLength" : 20,
-            "variableAppointmentLength" : true,
             "patientDirectScheduling" : false,
             "patientDisplay" : true,
-            "institutionName" : "MARTINEZ VA MEDICAL CENTER",
-            "institutionIEN" : "400",
-            "institutionSID" : "660938",
-            "inactivationDate" : "2022-06-08T00:00:00",
-            "reactivationDate" : "2022-06-09T00:00:00",
             "futureBookingMaximumDays" : 390
-          }
+          }]
         }
   recorded_at: Tue, 30 Aug 2022 22:46:53 GMT
 recorded_with: VCR 6.1.0

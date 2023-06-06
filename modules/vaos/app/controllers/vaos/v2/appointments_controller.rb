@@ -57,7 +57,7 @@ module VAOS
           clinic = get_clinic(appointment[:location_id], appointment[:clinic])
           appointment[:service_name] = clinic&.[](:service_name)
           appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
-          appointment[:friendly_name] = clinic&.[](:friendly_name) if clinic&.[](:friendly_name)
+          appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
         end
 
         appointment[:location] = get_facility(appointment[:location_id]) unless appointment[:location_id].nil?
@@ -81,7 +81,7 @@ module VAOS
           clinic = get_clinic(new_appointment[:location_id], new_appointment[:clinic])
           new_appointment[:service_name] = clinic&.[](:service_name)
           new_appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
-          new_appointment[:friendly_name] = clinic&.[](:friendly_name) if clinic&.[](:friendly_name)
+          new_appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
         end
 
         unless new_appointment[:location_id].nil?
@@ -103,7 +103,7 @@ module VAOS
           clinic = get_clinic(updated_appointment[:location_id], updated_appointment[:clinic])
           updated_appointment[:service_name] = clinic&.[](:service_name)
           updated_appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
-          updated_appointment[:friendly_name] = clinic&.[](:friendly_name) if clinic&.[](:friendly_name)
+          updated_appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
         end
 
         unless updated_appointment[:location_id].nil?
@@ -263,12 +263,13 @@ module VAOS
             end
             if cached_clinics[appt[:clinic]]&.[](:service_name)
               appt[:service_name] = cached_clinics[appt[:clinic]][:service_name]
+              # In VAOS Service there is no dedicated clinic friendlyName field.
+              # If the clinic is configured with a patient-friendly name then that will be the value
+              # in the clinic service name; otherwise it will be the internal clinic name.
+              appt[:friendly_name] = cached_clinics[appt[:clinic]][:service_name]
             end
             if cached_clinics[appt[:clinic]]&.[](:physical_location)
               appt[:physical_location] = cached_clinics[appt[:clinic]][:physical_location]
-            end
-            if cached_clinics[appt[:clinic]]&.[](:friendly_name)
-              appt[:friendly_name] = cached_clinics[appt[:clinic]][:friendly_name]
             end
           end
         end

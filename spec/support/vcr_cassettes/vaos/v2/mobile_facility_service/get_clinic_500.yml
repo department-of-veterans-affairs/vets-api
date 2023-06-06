@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://host.va.gov/facilities/v2/facilities/983/clinics/does_not_exist
+    uri: https://host.va.gov/vaos/v1/locations/983/clinics?clinicIds=does_not_exist
     body:
       encoding: US-ASCII
       string: ''

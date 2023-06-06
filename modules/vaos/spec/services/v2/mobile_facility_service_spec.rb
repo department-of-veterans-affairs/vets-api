@@ -118,7 +118,7 @@ describe VAOS::V2::MobileFacilityService do
                          match_requests_on: %i[method path query]) do
           clinic = subject.get_clinic(station_id: '983', clinic_id: '455')
           expect(clinic[:station_id]).to eq('983')
-          expect(clinic[:clinic_id]).to eq('455')
+          expect(clinic[:id]).to eq('455')
         end
       end
     end
@@ -129,7 +129,7 @@ describe VAOS::V2::MobileFacilityService do
                          match_requests_on: %i[method path query]) do
           clinic = subject.get_clinic(station_id: '983GB', clinic_id: '1053')
           expect(clinic[:station_id]).to eq('983GB')
-          expect(clinic[:clinic_id]).to eq('1053')
+          expect(clinic[:id]).to eq('1053')
         end
       end
     end
@@ -154,7 +154,7 @@ describe VAOS::V2::MobileFacilityService do
           expect(Rails.cache.exist?('vaos_clinic_983_455')).to eq(false)
           clinic = subject.get_clinic_with_cache(station_id: '983', clinic_id: '455')
           expect(clinic[:station_id]).to eq('983')
-          expect(clinic[:clinic_id]).to eq('455')
+          expect(clinic[:id]).to eq('455')
           expect(Rails.cache.exist?('vaos_clinic_983_455')).to eq(true)
         end
       end
