@@ -10,17 +10,18 @@ module V0
     DOWNLOAD_PARAMS = %i[
       id
       format
-      militaryService
-      serviceConnectedDisabilities
-      serviceConnectedEvaluation
-      nonServiceConnectedPension
-      monthlyAward
+      military_service
+      service_connected_disabilities
+      service_connected_evaluation
+      non_service_connected_pension
+      monthly_award
       unemployable
-      specialMonthlyCompensation
-      adaptedHousing
-      chapter35Eligibility
-      deathResultOfDisability
-      survivorsAward
+      special_monthly_compensation
+      adapted_housing
+      chapter35_eligibility
+      death_result_of_disability
+      survivors_award
+      letters_generator
     ].freeze
 
     def index
@@ -32,8 +33,9 @@ module V0
       permitted_params = params.permit(DOWNLOAD_PARAMS)
       letter_options =
         permitted_params.to_h
-                        .select { |_, v| v == 'true' }
+                        .except('id')
                         .transform_values { |v| ActiveModel::Type::Boolean.new.cast(v) }
+                        .transform_keys { |k| k.camelize(:lower) }
       response = service.download_letter(@current_user.icn, params[:id], letter_options)
       send_data response,
                 filename: "#{params[:id]}.pdf",

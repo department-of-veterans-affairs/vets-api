@@ -132,14 +132,13 @@ module Lighthouse
         end
 
         endpoint = "letters/#{letter_type}/letter"
-        letter_options = options.select { |_, v| v == true }
 
         begin
           log = "Retrieving benefit information from #{config.generator_url}/#{endpoint}"
           response = Lighthouse::LettersGenerator.measure_time(log) do
             config.connection.get(
               endpoint,
-              { icn: }.merge(letter_options),
+              { icn: }.merge(options),
               { Authorization: "Bearer #{config.get_access_token}" }
             )
           end

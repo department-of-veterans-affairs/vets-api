@@ -69,7 +69,7 @@ Rails.application.routes.draw do
     resources :letters_generator, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters_generator#beneficiary'
-        get 'download/:id', to: 'letters_generator#download'
+        post 'download/:id', to: 'letters_generator#download'
       end
     end
 
