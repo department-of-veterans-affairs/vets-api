@@ -152,6 +152,7 @@ clamav:
   ports: {}
   probes: {}
   resources: {}
+  command: []
 # Common configuration
 common:
   socatProxy: {}
