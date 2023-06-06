@@ -6,7 +6,7 @@ module CovidVaccine
   class ScheduledBatchJob
     include Sidekiq::Worker
     include SentryLogging
-    sidekiq_options retry: false
+    sidekiq_options(unique_for: 5.minutes, retry: false)
 
     STATSD_ERROR_NAME = 'worker.covid_vaccine_schedule_batch.error'
     STATSD_SUCCESS_NAME = 'worker.covid_vaccine_schedule_batch.success'
