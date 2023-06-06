@@ -8,8 +8,6 @@ metadata:
     app: {{ $name }}
   name: {{ $name }}
   namespace: {{ $root.Release.Namespace }}
-  annotations:
-    manualRoll: {{ $root.Values.manualRoll }}
 spec:
   revisionHistoryLimit: 1
   selector:

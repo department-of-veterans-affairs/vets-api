@@ -8,8 +8,6 @@ metadata:
     app: {{ .Values.appName }}-sidekiq
   name: {{ .Values.appName }}-sidekiq
   namespace: {{ .Release.Namespace }}
-  annotations:
-    manualRoll: {{ $root.Values.manualRoll }}
 spec:
   revisionHistoryLimit: 1
   selector:

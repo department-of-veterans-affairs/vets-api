@@ -1,6 +1,5 @@
 appName: ""
 target_env: ""
-manualRoll: ""
 image:
   value: ""
   tag: ""
