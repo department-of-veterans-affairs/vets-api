@@ -6,8 +6,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
   include SchemaMatchers
   mock_clinic = {
     'service_name': 'service_name',
-    'physical_location': 'physical_location',
-    'friendly_name': 'friendly_name'
+    'physical_location': 'physical_location'
   }
 
   mock_clinic_without_physical_location = {
@@ -137,7 +136,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(data.size).to eq(16)
             expect(data[0]['attributes']['serviceName']).to eq('service_name')
             expect(data[0]['attributes']['physicalLocation']).to eq('physical_location')
-            expect(data[0]['attributes']['friendlyName']).to eq('friendly_name')
+            expect(data[0]['attributes']['friendlyName']).to eq('service_name')
             expect(data[0]['attributes']['location']).to eq(mock_facility)
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
           end

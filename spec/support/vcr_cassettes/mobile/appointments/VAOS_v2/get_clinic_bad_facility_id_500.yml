@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri:  https://veteran.apps.va.gov/facilities/v2/facilities/999/clinics/999
+    uri:  https://veteran.apps.va.gov/vaos/v1/locations/999/clinics?clinicIds=999
     body:
       encoding: US-ASCII
       string: ''
