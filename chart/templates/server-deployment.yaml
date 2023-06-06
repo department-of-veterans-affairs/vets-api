@@ -128,6 +128,9 @@ spec:
           volumeMounts:
 {{ toYaml $root.Values.clamav.volumeMounts | indent 12 }}
         {{- end }}
+        {{- if $root.Values.web.clamavMirror.enabled }}
+{{ toYaml $root.Values.common.clamavMirror | indent 8 }}
+        {{- end }}
         {{- if $root.Values.web.socatProxyEnabled }}
 {{ toYaml $root.Values.common.socatProxy | indent 8 }}
         {{- end }}

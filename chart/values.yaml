@@ -99,6 +99,8 @@ web:
     envSecrets:
       - name: DD_APM_ENABLED
         value: false
+  clamavMirror:
+    enabled: false
 #Worker Configuration
 worker:
   enabled: false
@@ -135,6 +137,8 @@ worker:
     requests:
       cpu: ""
       memory: ""
+  clamavMirror:
+    enabled: false
 # cronJobs configuration
 cronJobs: {}
 # clamav configuration
@@ -150,6 +154,7 @@ clamav:
 # Common configuration
 common:
   socatProxy: {}
+  clamavMirror: {}
   lighthousePreConfigs:
     name: ""
     data: ""
