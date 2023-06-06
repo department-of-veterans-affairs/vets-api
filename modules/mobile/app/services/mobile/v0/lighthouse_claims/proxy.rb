@@ -24,6 +24,10 @@ module Mobile
           [data, errors]
         end
 
+        def request_decision(id)
+          claims_service.submit5103(id)
+        end
+
         private
 
         def claims_adapter

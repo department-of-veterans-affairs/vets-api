@@ -12,7 +12,7 @@ module Mobile
   module V0
     class ClaimsAndAppealsController < ApplicationController
       include IgnoreNotFound
-      before_action(only: %i[index get_claim]) do
+      before_action(only: %i[index get_claim request_decision]) do
         if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
           authorize :lighthouse, :access?
         else
@@ -20,7 +20,7 @@ module Mobile
         end
       end
 
-      before_action(except: %i[index get_claim]) do
+      before_action(except: %i[index get_claim request_decision]) do
         authorize :evss, :access?
       end
 
@@ -50,7 +50,11 @@ module Mobile
       end
 
       def request_decision
-        jid = evss_claims_proxy.request_decision(params[:id])
+        jid = if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
+                lighthouse_claims_proxy.request_decision(params[:id])
+              else
+                evss_claims_proxy.request_decision(params[:id])
+              end
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
