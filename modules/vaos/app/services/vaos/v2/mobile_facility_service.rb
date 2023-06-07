@@ -6,7 +6,7 @@ require 'common/client/errors'
 module VAOS
   module V2
     class MobileFacilityService < VAOS::SessionService
-      # Retrieves information about a VA clinic from the Mobile Facility Service.
+      # Retrieves information about a VA clinic from the VAOS Service.
       #
       # @param station_id [String] the ID of the VA facility where the clinic is located
       # @param clinic_id [String] the ID of the clinic to retrieve
@@ -23,13 +23,13 @@ module VAOS
         end
       end
 
-      # Retrieves a clinic from the cache if it exists, otherwise retrieves the clinic from the Mobile Facility Service.
+      # Retrieves a clinic from the cache if it exists, otherwise retrieves the clinic from the VAOS Service.
       #
       # @param station_id [String] the ID of the VA facility where the clinic is located
       # @param clinic_id [String] the ID of the clinic to retrieve
       #
       # @return [OpenStruct] an OpenStruct containing information about the clinic,
-      #         retrieved from either the cache or the Mobile Facility Service.
+      #         retrieved from either the cache or the VAOS Service.
       #
       def get_clinic_with_cache(station_id:, clinic_id:)
         Rails.cache.fetch("vaos_clinic_#{station_id}_#{clinic_id}", expires_in: 12.hours) do
