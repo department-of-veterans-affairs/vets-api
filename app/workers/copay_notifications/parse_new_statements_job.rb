@@ -9,8 +9,7 @@ module CopayNotifications
     def self.throttle
       return Sidekiq::Limiter.unlimited if Rails.env.test?
 
-      Sidekiq::Limiter.concurrent('new-copay-statements', 8, wait_timeout: 259_200,
-                                                             lock_timeout: 120)
+      Sidekiq::Limiter.window('new-copay-statements', 1000, 60)
     end
 
     LIMITER = throttle
