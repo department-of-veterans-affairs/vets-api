@@ -13,13 +13,10 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
     timezone
   ].freeze
 
-  SCHEMA_METADATA = {
-    'contestable_issues_v0' => { shared_schema_version: 'v1', form: 'headers' },
-    'legacy_appeals_v0' => { shared_schema_version: 'v1', form: 'headers' },
-    'notice_of_disagreements_v1' => { shared_schema_version: 'v1', form: '10182' },
-    'notice_of_disagreements_v0' => { shared_schema_version: 'v1', form: '10182' },
-    'higher_level_reviews_v0' => { shared_schema_version: 'v1', form: '200996' },
-    'supplemental_claims_v0' => { shared_schema_version: 'v1', form: '200995' }
+  FORM_NUMBERS = {
+    'notice_of_disagreements' => '10182',
+    'higher_level_reviews' => '200996',
+    'supplemental_claims' => '200995'
   }.freeze
 
   def show
@@ -32,16 +29,16 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
     @uri ||= URI(request.path)
   end
 
-  def appeal_type_with_version
-    "#{uri.path.split('/')[3]}_#{uri.path.split('/')[4]}".tr('-', '_')
+  def api_name
+    uri.path.split('/')[3].tr('-', '_')
   end
 
-  def schema_version
-    SCHEMA_METADATA[appeal_type_with_version][:shared_schema_version]
+  def api_version
+    uri.path.split('/')[4]
   end
 
-  def schema_form
-    SCHEMA_METADATA[appeal_type_with_version][:form]
+  def schema_form_name
+    FORM_NUMBERS[api_name] || 'headers'
   end
 
   def schema_type
@@ -49,7 +46,7 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
   end
 
   def shared_schemas_file
-    Rails.root.join('modules', 'appeals_api', 'config', 'schemas', 'shared', schema_version, "#{schema_type}.json")
+    Rails.root.join('modules', 'appeals_api', 'config', 'schemas', 'shared', api_version, "#{schema_type}.json")
   end
 
   def file_as_json
@@ -70,7 +67,7 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
       code: 'InvalidSchemaType',
       status: '404',
       source: { parameter: schema_type },
-      meta: { 'available_options': [schema_form] + ACCEPTED_SCHEMA_TYPES }
+      meta: { 'available_options': [schema_form_name] + ACCEPTED_SCHEMA_TYPES }
     }
   end
 end

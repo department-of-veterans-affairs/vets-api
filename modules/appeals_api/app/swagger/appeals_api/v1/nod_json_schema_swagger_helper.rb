@@ -53,11 +53,11 @@ class AppealsApi::V1::NodJsonSchemaSwaggerHelper
   end
 
   def headers_json_schema
-    @headers_json_schema ||= read_json(['config', 'schemas', 'v1', '10182_headers.json'])
+    @headers_json_schema ||= read_json(['config', 'schemas', 'decision_reviews', 'v1', '10182_headers.json'])
   end
 
   def nod_create_json_schema
-    @nod_create_json_schema ||= read_json(['config', 'schemas', 'v1', '10182.json'])
+    @nod_create_json_schema ||= read_json(['config', 'schemas', 'decision_reviews', 'v1', '10182.json'])
   end
 
   def example_min_fields_used

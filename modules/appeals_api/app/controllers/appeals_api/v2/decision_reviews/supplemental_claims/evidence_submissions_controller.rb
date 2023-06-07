@@ -7,14 +7,12 @@ module AppealsApi::V2
         include AppealsApi::StatusSimulation
         include SentryLogging
         include AppealsApi::CharacterUtilities
+        include AppealsApi::Schemas
 
         class EvidenceSubmissionRequestValidatorError < StandardError; end
 
-        HEADERS = JSON.parse(
-          File.read(
-            AppealsApi::Engine.root.join('config/schemas/v2/200995_headers.json')
-          )
-        )['definitions']['scCreateParameters']['properties'].keys
+        SCHEMA_OPTIONS = { schema_version: 'v2', api_name: 'decision_reviews' }.freeze
+        FORM_NUMBER = AppealsApi::V2::DecisionReviews::SupplementalClaimsController::FORM_NUMBER
 
         skip_before_action :authenticate
         before_action :supplemental_claim_uuid?, only: :create
@@ -53,6 +51,8 @@ module AppealsApi::V2
 
         private
 
+        def header_names = headers_schema['definitions']['scCreateParameters']['properties'].keys
+
         def supplemental_claim_uuid?
           uuid_missing_error unless params[:sc_uuid]
         end
@@ -78,7 +78,7 @@ module AppealsApi::V2
         end
 
         def request_headers
-          HEADERS.index_with { |key| request.headers[key] }.compact
+          header_names.index_with { |key| request.headers[key] }.compact
         end
 
         def log_error(error_detail)

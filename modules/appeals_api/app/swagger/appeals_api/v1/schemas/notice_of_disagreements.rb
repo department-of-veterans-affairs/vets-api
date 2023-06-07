@@ -8,7 +8,9 @@ module AppealsApi::V1
       def self.nod_json_schemas
         read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
 
-        read_json_schema = ->(filename) { JSON.parse read_file[['config', 'schemas', 'v1', filename]] }
+        read_json_schema = lambda do |filename|
+          JSON.parse read_file[['config', 'schemas', 'decision_reviews', 'v1', filename]]
+        end
 
         nod_create_schemas = AppealsApi::JsonSchemaToSwaggerConverter.new(
           read_json_schema['10182.json']

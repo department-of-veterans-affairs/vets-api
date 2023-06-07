@@ -80,7 +80,7 @@ describe AppealsApi::PdfConstruction::Generator do
           let(:fixture_name) { 'expected_10182_maxlength.pdf' }
           let(:nod) do
             build(:extra_notice_of_disagreement_v2, created_at: '2021-02-03T14:15:16Z') do |appeal|
-              appeal.form_data = override_max_lengths(appeal, read_schema('10182.json', 'v2'))
+              appeal.form_data = override_max_lengths(appeal, read_schema('10182.json', 'decision_reviews', 'v2'))
               appeal.auth_headers.merge!(
                 {
                   'X-VA-SSN' => 'W' * 9,
@@ -158,7 +158,7 @@ describe AppealsApi::PdfConstruction::Generator do
             end
 
             create(:extra_higher_level_review_v2, created_at:) do |appeal|
-              appeal.form_data = override_max_lengths(appeal, read_schema('200996.json', 'v2'))
+              appeal.form_data = override_max_lengths(appeal, read_schema('200996.json', 'decision_reviews', 'v2'))
               # TODO: update countryCodeISO2 in expected_200996_maxlength.pdf with expected override_max_lengths values
               appeal.form_data['data']['attributes']['veteran']['address']['countryCodeISO2'] = 'US'
               appeal.form_data['data']['attributes']['claimant']['address']['countryCodeISO2'] = 'US'
@@ -308,7 +308,7 @@ describe AppealsApi::PdfConstruction::Generator do
             end
 
             create(:extra_supplemental_claim, created_at:) do |appeal|
-              appeal.form_data = override_max_lengths(appeal, read_schema('200995.json', 'v2'))
+              appeal.form_data = override_max_lengths(appeal, read_schema('200995.json', 'decision_reviews', 'v2'))
               appeal.auth_headers.merge!(
                 'X-VA-First-Name' => 'W' * 30,
                 'X-VA-Last-Name' => 'W' * 40,

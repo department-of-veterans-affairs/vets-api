@@ -7,7 +7,7 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
   include SchemaHelpers
   include FixtureHelpers
 
-  let(:json_schema) { read_schema '200996.json', 'v2' }
+  let(:json_schema) { read_schema '200996.json', 'decision_reviews', 'v2' }
 
   let(:errors) { validator.validate(json).to_a }
   let(:errors_minimal) { validator.validate(json_minimal).to_a }
