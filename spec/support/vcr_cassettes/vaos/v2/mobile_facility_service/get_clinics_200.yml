@@ -1,0 +1,57 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=455,16
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 07 Jun 2023 15:08:03 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '626'
+      Server:
+      - openresty
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '7'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"vistaSite":983,"id":"16","serviceName":"CHY LAB OUTPATIENT","stationId":"983","stationName":"CHYSHR-Cheyenne
+        VA Medical Center","primaryStopCode":674,"primaryStopCodeName":"ADMIN PAT
+        ACTIVTIES (MASNONCT)","secondaryStopCode":108,"secondaryStopCodeName":"LABORATORY","futureBookingMaximumDays":365},{"vistaSite":983,"id":"455","serviceName":"CHY
+        PC CASSIDY","stationId":"983","stationName":"CHYSHR-Cheyenne VA Medical Center","primaryStopCode":323,"primaryStopCodeName":"PRIMARY
+        CARE/MEDICINE","secondaryStopCodeName":"*Missing*","patientDirectScheduling":true,"patientDisplay":true,"futureBookingMaximumDays":365}]}'
+  recorded_at: Wed, 07 Jun 2023 15:08:03 GMT
+recorded_with: VCR 6.1.0
