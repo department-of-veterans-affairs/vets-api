@@ -16,9 +16,8 @@ module VAOS
       def get_clinic(station_id:, clinic_id:)
         params = { clinicIds: clinic_id }
         parent_site_id = station_id[0, 3]
-        clinic_path = "/vaos/v1/locations/#{parent_site_id}/clinics"
         with_monitoring do
-          response = perform(:get, clinic_path, params, headers)
+          response = perform(:get, clinic_url(parent_site_id), params, headers)
           OpenStruct.new(response[:body][:data]&.first) # only one clinic is returned
         end
       end
@@ -34,6 +33,34 @@ module VAOS
       def get_clinic_with_cache(station_id:, clinic_id:)
         Rails.cache.fetch("vaos_clinic_#{station_id}_#{clinic_id}", expires_in: 12.hours) do
           get_clinic(station_id:, clinic_id:)
+        end
+      end
+
+      # Get clinic details for a given station and clinic ids from the VAOS Service
+      #
+      # @param station_id [String] The id of the station to get clinic details for
+      # @param clinic_ids [Array] A list of clinic ids to get details for
+      #
+      # @return [Array<OpenStruct>] - An array of OpenStruct objects containing clinic details
+      #
+      # @raise [Common::Exceptions::PrameterMissing] if station_id or clinic_ids are not provided
+      #
+      # @example
+      #   ids = %w[16, 455]
+      #   station_id = '983'
+      #   clinics = VAOS::V2::MobileFacilityService.new.get_clinics(station_id, ids)
+      #   or
+      #   clinics = VAOS::V2::MobileFacilityService.new(session: session).get_clinics(station_id, 16, 455)
+      #
+      def get_clinics(station_id, *clinic_ids)
+        raise Common::Exceptions::ParameterMissing, 'station_id' if station_id.blank?
+        raise Common::Exceptions::ParameterMissing, 'clinic_ids' if bad_arg?(clinic_ids)
+
+        params = { clinicIds: clinic_ids.join(',') }
+        parent_site_id = station_id[0, 3]
+        with_monitoring do
+          response = perform(:get, clinic_url(parent_site_id), params, headers)
+          response.body[:data]&.map { |clinic| OpenStruct.new(clinic) }
         end
       end
 
@@ -134,6 +161,10 @@ module VAOS
         facility_list.map { |facility| OpenStruct.new(facility) }
       end
 
+      def bad_arg?(arg)
+        (arg.length == 1 && arg[0].blank?) || arg.length.zero?
+      end
+
       def pagination(pagination_params)
         {
           pagination: {
@@ -151,6 +182,10 @@ module VAOS
         else
           { pageSize: pagination_params[:per_page] || 0 }
         end
+      end
+
+      def clinic_url(station_id)
+        "/vaos/v1/locations/#{station_id}/clinics"
       end
 
       def scheduling_url

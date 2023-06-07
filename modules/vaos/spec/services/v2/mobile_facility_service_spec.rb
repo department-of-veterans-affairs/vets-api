@@ -159,7 +159,7 @@ describe VAOS::V2::MobileFacilityService do
         end
       end
 
-      it "calls '#get_clinic' retrieving information from MFS" do
+      it "calls '#get_clinic' retrieving information from VAOS Service" do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200',
                          match_requests_on: %i[method path query]) do
           # rubocop:disable RSpec/SubjectStub
@@ -197,6 +197,58 @@ describe VAOS::V2::MobileFacilityService do
             Common::Exceptions::BackendServiceException
           )
           expect(Rails.cache.exist?('vaos_clinic_983_does_not_exist')).to eq(false)
+        end
+      end
+    end
+  end
+
+  describe '#get_clinics' do
+    context 'when no station_id is passed in' do
+      it 'raises ParameterMissing exception' do
+        expect { subject.get_clinics(nil, 455) }.to raise_error(Common::Exceptions::ParameterMissing)
+      end
+    end
+
+    context 'when no clinic_ids are passed in' do
+      it 'raises ParameterMissing exception' do
+        expect { subject.get_clinics(983, nil) }.to raise_error(Common::Exceptions::ParameterMissing)
+        expect { subject.get_clinics(983, []) }.to raise_error(Common::Exceptions::ParameterMissing)
+        expect { subject.get_clinics(983) }.to raise_error(Common::Exceptions::ParameterMissing)
+      end
+    end
+
+    context 'with a station id and single clinic id' do
+      it 'returns the clinic information as the only item in an array' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200',
+                         match_requests_on: %i[method path query]) do
+          clinic = subject.get_clinics('983', '455')
+          expect(clinic.length).to eq(1)
+          expect(clinic[0][:station_id]).to eq('983')
+          expect(clinic[0][:id]).to eq('455')
+        end
+      end
+    end
+
+    context 'with a station id and multiple clinic ids as an array' do
+      it 'returns an array with the information of all the clinics' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinics_200',
+                         match_requests_on: %i[method path query]) do
+          clinics = subject.get_clinics('983', %w[455 16])
+          expect(clinics.length).to eq(2)
+          expect(clinics[0][:id]).to eq('16')
+          expect(clinics[1][:id]).to eq('455')
+        end
+      end
+    end
+
+    context 'with a station id and multiple clinic ids as individual arguments' do
+      it 'returns an array with the information of all the clinics' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinics_200',
+                         match_requests_on: %i[method path query]) do
+          clinic = subject.get_clinics('983', '455', '16')
+          expect(clinic.size).to eq(2)
+          expect(clinic[0][:id]).to eq('16')
+          expect(clinic[1][:id]).to eq('455')
         end
       end
     end
