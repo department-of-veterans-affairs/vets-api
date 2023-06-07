@@ -69,7 +69,7 @@ module ClaimsApi
     end
 
     def mpi_record?(user_key: uuid)
-      mpi.mvi_response(user_key:).ok?
+      mpi&.mvi_response(user_key:)&.ok?
     end
 
     def ssn=(new_ssn)

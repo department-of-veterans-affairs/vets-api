@@ -3051,6 +3051,23 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
       end
+
+      describe 'Service returns resource not found' do
+        context 'when no ICN value is supplied' do
+          let(:veteran_id) { nil }
+
+          it 'responds with bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                json = JSON.parse(data)
+                data = json
+                post submit_path, params: data, headers: auth_header
+                expect(response).to have_http_status(:not_found)
+              end
+            end
+          end
+        end
+      end
     end
 
     context 'validate' do
