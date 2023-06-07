@@ -30,6 +30,8 @@ module AppealsApi
     # 503 Database Offline || SOLR Service Offline || Intake API is undergoing maintenance
     RETRYABLE_EMMS_RESP_STATUS_CODES = [401, 429, 500, 503].freeze
 
+    STATSD_DUPLICATE_UUID_KEY = 'api.appeals.document_upload.duplicate_uuid'
+
     # Retry for ~7 days
     sidekiq_options retry: 20, unique_for: 7.days
 
@@ -75,11 +77,22 @@ module AppealsApi
 
     def process_response(response, appeal, metadata)
       if response.success?
-        appeal.update_status!(status: 'submitted')
-        log_submission(appeal, metadata)
+        handle_successful_submission(appeal, metadata)
+      elsif response.status == 400 && response.body.match?(DUPLICATE_UUID_REGEX)
+        StatsD.increment(STATSD_DUPLICATE_UUID_KEY)
+        Rails.logger.warn("#{appeal.class.to_s.gsub('::', ' ')}: Duplicate UUID submitted to Central Mail",
+                          'uuid' => appeal.id)
+        # Treating these as a 'success' is intentional; we have confirmed that when we receive the 'duplicate UUID'
+        # response from Central Mail, this indicates that there was an earlier submission that was successful
+        handle_successful_submission(appeal, metadata)
       else
         map_error(response.status, response.body, AppealsApi::UploadError)
       end
+    end
+
+    def handle_successful_submission(appeal, metadata)
+      appeal.update_status!(status: 'submitted')
+      log_submission(appeal, metadata)
     end
 
     def log_upload_error(appeal, e)

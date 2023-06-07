@@ -226,6 +226,36 @@ RSpec.describe AppealsApi::PdfSubmitJob, type: :job do
     end
   end
 
+  context 'with a duplicate UUID response from Central Mail' do
+    before do
+      allow(CentralMail::Service).to receive(:new) { client_stub }
+      allow(faraday_response).to receive(:status).and_return(400)
+      allow(faraday_response).to receive(:body)
+        .and_return("Document already uploaded with uuid [uuid: #{higher_level_review.id}]")
+      allow(faraday_response).to receive(:success?).and_return(false)
+      expect(client_stub).to receive(:upload).and_return(faraday_response)
+      allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:warn)
+    end
+
+    it 'sets the appeal status to submitted' do
+      described_class.new.perform(higher_level_review.id, 'AppealsApi::HigherLevelReview', 'V2')
+      expect(higher_level_review.reload.status).to eq('submitted')
+    end
+
+    it 'increments the StatsD duplicate UUID counter' do
+      described_class.new.perform(higher_level_review.id, 'AppealsApi::HigherLevelReview', 'V2')
+      expect(StatsD).to have_received(:increment).with(described_class::STATSD_DUPLICATE_UUID_KEY)
+    end
+
+    it 'logs a duplicate UUID warning' do
+      described_class.new.perform(higher_level_review.id, 'AppealsApi::HigherLevelReview', 'V2')
+      expect(Rails.logger).to have_received(:warn)
+        .with('AppealsApi HlrPdfSubmitWrapper: Duplicate UUID submitted to Central Mail',
+              'uuid' => higher_level_review.id)
+    end
+  end
+
   context 'an error throws' do
     it 'updates the NOD status to reflect the error' do
       submit_job_worker = described_class.new

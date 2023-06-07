@@ -12,7 +12,7 @@ module CentralMail
     FILE_NUMBER_REGEX = /^\d{8,9}$/
     INVALID_ZIP_CODE_ERROR_REGEX = /Invalid zipCode/
     MISSING_ZIP_CODE_ERROR_REGEX = /Missing zipCode/
-    NON_FAILING_ERROR_REGEX = /Document already uploaded with uuid/
+    DUPLICATE_UUID_REGEX = /Document already uploaded with uuid/
     INVALID_ZIP_CODE_ERROR_MSG = 'Invalid ZIP Code. ZIP Code must be 5 digits, ' \
                                  'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
     MISSING_ZIP_CODE_ERROR_MSG = 'Missing ZIP Code. ZIP Code must be 5 digits, ' \

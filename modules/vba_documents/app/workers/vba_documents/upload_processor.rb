@@ -13,6 +13,8 @@ module VBADocuments
     include Sidekiq::Worker
     include VBADocuments::UploadValidations
 
+    STATSD_DUPLICATE_UUID_KEY = 'api.vba.document_upload.duplicate_uuid'
+
     # Ensure that multiple jobs for the same GUID aren't spawned,
     # to avoid race condition when parsing the multipart file
     sidekiq_options unique_for: 30.days
@@ -143,15 +145,25 @@ module VBADocuments
 
     def process_response(response)
       # record submission attempt, record time and success status to an array
-      if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX) # TODO: GovCIO needs to return this...
-        @upload.update(status: 'received')
-        @upload.track_uploaded_received(:cause, @cause)
+      if response.success?
+        handle_successful_submission
+      elsif response.status == 400 && response.body.match?(DUPLICATE_UUID_REGEX)
+        StatsD.increment(STATSD_DUPLICATE_UUID_KEY)
+        Rails.logger.warn("#{self.class.name}: Duplicate UUID submitted to Central Mail", 'uuid' => @upload.guid)
+        # Treating these as a 'success' is intentional; we have confirmed that when we receive the 'duplicate UUID'
+        # response from Central Mail, this indicates that there was an earlier submission that was successful
+        handle_successful_submission
       elsif response.status == 429 && response.body =~ /UUID already in cache/
         @upload.track_uploaded_received(:uuid_already_in_cache_cause, @cause)
         @upload.track_concurrent_duplicate
       else
         map_error(response.status, response.body, VBADocuments::UploadError)
       end
+    end
+
+    def handle_successful_submission
+      @upload.update(status: 'received')
+      @upload.track_uploaded_received(:cause, @cause)
     end
   end
 end
