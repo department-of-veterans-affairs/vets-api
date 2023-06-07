@@ -444,10 +444,10 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def decision_reviews_hlr_create_schemas = parse_create_schema 'v2', '200996.json'
+  def decision_reviews_hlr_create_schemas = parse_create_schema('decision_reviews', 'v2', '200996.json')
 
   def hlr_create_schemas
-    hlr_schema = parse_create_schema('v2', '200996_with_shared_refs.json', return_raw: true)
+    hlr_schema = parse_create_schema('higher_level_reviews', 'v0', '200996.json', return_raw: true)
     {
       hlrCreate: { type: 'object' }.merge!(hlr_schema.slice(*%w[description properties required]))
     }
@@ -641,10 +641,10 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def decision_reviews_nod_create_schemas = parse_create_schema 'v2', '10182.json'
+  def decision_reviews_nod_create_schemas = parse_create_schema('decision_reviews', 'v2', '10182.json')
 
   def nod_create_schemas
-    nod_schema = parse_create_schema('v2', '10182_with_shared_refs.json', return_raw: true)
+    nod_schema = parse_create_schema('notice_of_disagreements', 'v0', '10182.json', return_raw: true)
     {
       nodCreate: { type: 'object' }.merge!(nod_schema.slice(*%w[description properties required]))
     }
@@ -817,7 +817,7 @@ class AppealsApi::RswagConfig
   def nod_response_schemas = decision_reviews_nod_response_schemas
 
   def decision_reviews_sc_create_schemas
-    sc_schema = parse_create_schema 'v2', '200995.json'
+    sc_schema = parse_create_schema('decision_reviews', 'v2', '200995.json')
     return sc_schema if wip_doc_enabled?(:sc_v2_potential_pact_act)
 
     # Removes 'potentialPactAct' from schema for production docs
@@ -827,7 +827,7 @@ class AppealsApi::RswagConfig
   end
 
   def sc_create_schemas
-    sc_schema = parse_create_schema('v2', '200995_with_shared_refs.json', return_raw: true)
+    sc_schema = parse_create_schema('supplemental_claims', 'v0', '200995.json', return_raw: true)
 
     # Removes 'potentialPactAct' from schema for production docs
     unless wip_doc_enabled?(:sc_v2_potential_pact_act)
@@ -1132,15 +1132,15 @@ class AppealsApi::RswagConfig
   def shared_schemas(nbs_key: 'non_blank_string')
     # Keys are strings to override older, non-shared-schema definitions
     {
-      'address' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'address.json')))['properties']['address'],
-      nbs_key => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'non_blank_string.json')))['properties']['nonBlankString'],
-      'phone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'phone.json')))['properties']['phone'],
-      'timezone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v1', 'timezone.json')))['properties']['timezone']
+      'address' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'address.json')))['properties']['address'],
+      nbs_key => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'non_blank_string.json')))['properties']['nonBlankString'],
+      'phone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'phone.json')))['properties']['phone'],
+      'timezone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'timezone.json')))['properties']['timezone']
     }
   end
 
-  def parse_create_schema(version, schema_file, return_raw: false)
-    file = File.read(AppealsApi::Engine.root.join('config', 'schemas', version, schema_file))
+  def parse_create_schema(api_name, api_version, schema_file, return_raw: false)
+    file = File.read(AppealsApi::Engine.root.join('config', 'schemas', api_name, api_version, schema_file))
     file.gsub! '#/definitions/', '#/components/schemas/'
     schema = JSON.parse file
 

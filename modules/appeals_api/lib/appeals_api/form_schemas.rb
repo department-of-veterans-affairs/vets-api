@@ -4,19 +4,20 @@ require 'json_schema/form_schemas'
 
 module AppealsApi
   class FormSchemas < JsonSchema::FormSchemas
-    def initialize(error_type = JsonSchema::JsonApiMissingAttribute, schema_version: 'v1')
+    def initialize(error_type = JsonSchema::JsonApiMissingAttribute, api_name: 'decision_reviews', schema_version: 'v1')
+      @api_name = api_name
       @error_type = error_type
       @schema_version = schema_version
     end
 
-    attr_accessor :schema_version
+    attr_accessor :schema_version, :api_name
 
     def base_dir
-      Rails.root.join('modules', 'appeals_api', Settings.modules_appeals_api.schema_dir, schema_version)
+      Rails.root.join('modules', 'appeals_api', Settings.modules_appeals_api.schema_dir, api_name, schema_version)
     end
 
     def shared_dir(file)
-      Rails.root.join('modules', 'appeals_api', Settings.modules_appeals_api.schema_dir, 'shared', 'v1', file)
+      Rails.root.join('modules', 'appeals_api', Settings.modules_appeals_api.schema_dir, 'shared', schema_version, file)
     end
 
     def validate!(form, payload)

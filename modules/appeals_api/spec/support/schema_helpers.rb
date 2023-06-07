@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SchemaHelpers
-  def read_schema(filename, schema_version = 'v1')
+  def read_schema(filename, api_name = 'decision_reviews', schema_version = 'v1')
     JSON.parse(
       File.read(
         Rails.root.join(
@@ -9,6 +9,7 @@ module SchemaHelpers
           'appeals_api',
           'config',
           'schemas',
+          api_name,
           schema_version,
           filename
         )

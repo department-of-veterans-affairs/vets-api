@@ -5,13 +5,13 @@ require 'common/exceptions'
 require 'appeals_api/form_schemas'
 
 class AppealsApi::V2::DecisionReviews::LegacyAppealsController < AppealsApi::ApplicationController
-  FORM_NUMBER = 'LEGACY_APPEALS_HEADERS'
-  HEADERS = JSON.parse(
-    File.read(
-      AppealsApi::Engine.root.join('config/schemas/v2/legacy_appeals_headers.json')
-    )
-  )['definitions']['legacyAppealsIndexParameters']['properties'].keys
-  SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
+  include AppealsApi::Schemas
+
+  SCHEMA_OPTIONS = {
+    schema_version: 'v2',
+    api_name: 'decision_reviews',
+    headers_schema_name: 'legacy_appeals_headers'
+  }.freeze
 
   UNUSABLE_RESPONSE_ERROR = {
     errors: [
@@ -39,10 +39,12 @@ class AppealsApi::V2::DecisionReviews::LegacyAppealsController < AppealsApi::App
 
   private
 
+  def header_names = headers_schema['definitions']['legacyAppealsIndexParameters']['properties'].keys
+
   attr_reader :caseflow_response, :caseflow_exception_response
 
   def request_headers
-    self.class::HEADERS.index_with { |key| request.headers[key] }.compact
+    header_names.index_with { |key| request.headers[key] }.compact
   end
 
   def caseflow_request_headers
@@ -50,14 +52,7 @@ class AppealsApi::V2::DecisionReviews::LegacyAppealsController < AppealsApi::App
   end
 
   def validate_json_schema
-    validate_json_schema_for_headers
-  end
-
-  def validate_json_schema_for_headers
-    AppealsApi::FormSchemas.new(
-      SCHEMA_ERROR_TYPE,
-      schema_version: 'v2'
-    ).validate!(self.class::FORM_NUMBER, request_headers)
+    validate_headers(request_headers)
   end
 
   def get_legacy_appeals_from_caseflow

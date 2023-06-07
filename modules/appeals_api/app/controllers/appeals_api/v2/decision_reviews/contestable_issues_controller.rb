@@ -7,18 +7,19 @@ require 'appeals_api/form_schemas'
 module AppealsApi::V2
   module DecisionReviews
     class ContestableIssuesController < AppealsApi::ApplicationController
-      FORM_NUMBER = 'CONTESTABLE_ISSUES_HEADERS'
-      HEADERS = JSON.parse(
-        File.read(
-          AppealsApi::Engine.root.join('config/schemas/v2/contestable_issues_headers.json')
-        )
-      )['definitions']['contestableIssuesIndexParameters']['properties'].keys
-      SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
+      include AppealsApi::Schemas
+
       skip_before_action :authenticate
       before_action :validate_json_schema, only: %i[index]
       before_action :validate_params, only: %i[index]
 
       VALID_DECISION_REVIEW_TYPES = %w[higher_level_reviews notice_of_disagreements supplemental_claims].freeze
+
+      SCHEMA_OPTIONS = {
+        api_name: 'decision_reviews',
+        headers_schema_name: 'contestable_issues_headers',
+        schema_version: 'v2'
+      }.freeze
 
       UNUSABLE_RESPONSE_ERROR = {
         errors: [
@@ -42,6 +43,8 @@ module AppealsApi::V2
       end
 
       private
+
+      def header_names = headers_schema['definitions']['contestableIssuesIndexParameters']['properties'].keys
 
       attr_reader :caseflow_response, :backend_service_exception
 
@@ -157,7 +160,7 @@ module AppealsApi::V2
       end
 
       def request_headers
-        self.class::HEADERS.index_with { |key| request.headers[key] }.compact
+        header_names.index_with { |key| request.headers[key] }.compact
       end
 
       def caseflow_request_headers
@@ -165,15 +168,8 @@ module AppealsApi::V2
       end
 
       def validate_json_schema
-        validate_json_schema_for_headers
+        validate_headers(request_headers)
         validate_params
-      end
-
-      def validate_json_schema_for_headers
-        AppealsApi::FormSchemas.new(
-          SCHEMA_ERROR_TYPE,
-          schema_version: 'v2'
-        ).validate!(self.class::FORM_NUMBER, request_headers)
       end
 
       def caseflow_benefit_type_mapping
