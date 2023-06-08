@@ -15,6 +15,7 @@ module CopayNotifications
     LIMITER = throttle
 
     def perform(statements_json_byte)
+      StatsD.increment('api.copay_notifications.json_file.total')
       # Decode and parse large json file (~60-90k objects)
       statements_json = Oj.load(Base64.decode64(statements_json_byte))
       unique_statements = statements_json.uniq { |statement| statement['veteranIdentifier'] }
