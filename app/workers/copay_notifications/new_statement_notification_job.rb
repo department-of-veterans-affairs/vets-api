@@ -17,21 +17,30 @@ module CopayNotifications
 
     sidekiq_options retry: false
 
+    def self.throttle
+      return Sidekiq::Limiter.unlimited if Rails.env.test?
+
+      Sidekiq::Limiter.bucket('new-copay-statements', 1000, :second, wait_timeout: 60)
+    end
+
+    LIMITER = throttle
     MCP_NOTIFICATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.vha_new_copay_statement_email
     STATSD_KEY_PREFIX = 'api.copay_notifications.new_statement'
 
     def perform(statement)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.total")
-      mpi_response = get_mpi_profile(identifier: statement['veteranIdentifier'],
-                                     identifier_type: statement['identifierType'],
-                                     facility_id: statement['facilityNum'])
+      LIMITER.within_limit do
+        StatsD.increment("#{STATSD_KEY_PREFIX}.total")
+        mpi_response = get_mpi_profile(identifier: statement['veteranIdentifier'],
+                                       identifier_type: statement['identifierType'],
+                                       facility_id: statement['facilityNum'])
 
-      if mpi_response.ok?
-        StatsD.increment("#{STATSD_KEY_PREFIX}.mpi.success")
-        create_notification_email_job(vet360_id: mpi_response.profile.vet360_id, icn: mpi_response.profile.icn)
-      else
-        StatsD.increment("#{STATSD_KEY_PREFIX}.mpi.failure")
-        raise mpi_response.error
+        if mpi_response.ok?
+          StatsD.increment("#{STATSD_KEY_PREFIX}.mpi.success")
+          create_notification_email_job(vet360_id: mpi_response.profile.vet360_id, icn: mpi_response.profile.icn)
+        else
+          StatsD.increment("#{STATSD_KEY_PREFIX}.mpi.failure")
+          raise mpi_response.error
+        end
       end
     end
 
