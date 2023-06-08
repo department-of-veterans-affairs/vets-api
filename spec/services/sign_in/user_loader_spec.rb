@@ -52,6 +52,22 @@ RSpec.describe SignIn::UserLoader do
           stub_mpi(build(:mpi_profile, edipi:, icn: user_icn))
         end
 
+        context 'and user is authenticated with dslogon' do
+          let(:user_verification) { create(:dslogon_user_verification, user_account:) }
+
+          it 'reloads user object with expected backing idme uuid' do
+            expect(subject.idme_uuid).to eq user_verification.backing_idme_uuid
+          end
+        end
+
+        context 'and user is authenticated with mhv' do
+          let(:user_verification) { create(:mhv_user_verification, user_account:) }
+
+          it 'reloads user object with expected backing idme uuid' do
+            expect(subject.idme_uuid).to eq user_verification.backing_idme_uuid
+          end
+        end
+
         it 'reloads user object with expected attributes' do
           reloaded_user = subject
 
