@@ -18,27 +18,44 @@ module CopayNotifications
     sidekiq_options retry: false
 
     MCP_NOTIFICATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.vha_new_copay_statement_email
+    STATSD_KEY_PREFIX = 'api.copay_notifications.new_statement'
 
     def perform(statement)
-      mpi_response = if statement['identifierType'] == 'edipi'
-                       MPI::Service.new.find_profile_by_edipi(edipi: statement['veteranIdentifier'])
-                     else
-                       MPI::Service.new.find_profile_by_facility(
-                         facility_id: statement['facilityNum'],
-                         vista_id: statement['veteranIdentifier']
-                       )
-                     end
+      StatsD.increment("#{STATSD_KEY_PREFIX}.total")
+      mpi_response = get_mpi_profile(identifier: statement['veteranIdentifier'],
+                                     identifier_type: statement['identifierType'],
+                                     facility_id: statement['facilityNum'])
 
       if mpi_response.ok?
-        if mpi_response.profile.vet360_id
-          CopayNotifications::McpNotificationEmailJob.perform_async(mpi_response.profile.vet360_id,
-                                                                    MCP_NOTIFICATION_TEMPLATE)
-        else
-          log_exception_to_sentry(CopayNotifications::Vet360IdNotFound.new(mpi_response.profile.icn), {},
-                                  { error: :new_statement_notification_job_error })
-        end
+        StatsD.increment("#{STATSD_KEY_PREFIX}.mpi.success")
+        create_notification_email_job(vet360_id: mpi_response.profile.vet360_id, icn: mpi_response.profile.icn)
       else
+        StatsD.increment("#{STATSD_KEY_PREFIX}.mpi.failure")
         raise mpi_response.error
+      end
+    end
+
+    def create_notification_email_job(vet360_id:, icn:)
+      if vet360_id
+        CopayNotifications::McpNotificationEmailJob.perform_async(vet360_id,
+                                                                  MCP_NOTIFICATION_TEMPLATE)
+      else
+        StatsD.increment("#{STATSD_KEY_PREFIX}.mpi.vet360_not_found")
+        log_exception_to_sentry(CopayNotifications::Vet360IdNotFound.new(icn), {},
+                                { error: :new_statement_notification_job_error })
+      end
+    end
+
+    def get_mpi_profile(identifier:, identifier_type:, facility_id:)
+      if identifier_type == 'edipi'
+        StatsD.increment("#{STATSD_KEY_PREFIX}.edipi")
+        MPI::Service.new.find_profile_by_edipi(edipi: identifier)
+      else
+        StatsD.increment("#{STATSD_KEY_PREFIX}.vista")
+        MPI::Service.new.find_profile_by_facility(
+          facility_id:,
+          vista_id: identifier
+        )
       end
     end
   end
