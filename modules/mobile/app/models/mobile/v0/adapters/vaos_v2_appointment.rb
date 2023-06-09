@@ -92,7 +92,7 @@ module Mobile
             location:,
             minutes_duration: minutes_duration(appointment[:minutes_duration]),
             phone_only: appointment[:kind] == PHONE_KIND,
-            start_date_local: start_date_utc&.in_time_zone(timezone),
+            start_date_local:,
             start_date_utc:,
             status:,
             status_detail: cancellation_reason(appointment[:cancelation_reason]),
@@ -227,6 +227,14 @@ module Mobile
             else
               time_to_datetime(start)
             end
+          end
+        end
+
+        def start_date_local
+          @start_date_local ||= begin
+            DateTime.parse(appointment[:local_start_time])
+          rescue
+            start_date_utc&.in_time_zone(timezone)
           end
         end
 
