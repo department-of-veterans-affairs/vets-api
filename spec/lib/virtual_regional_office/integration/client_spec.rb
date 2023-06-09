@@ -17,7 +17,7 @@ RSpec.describe VirtualRegionalOffice::Client, :vcr do
 
       it 'returns a classification' do
         VCR.use_cassette('virtual_regional_office/contention_classification') do
-          expect(subject.body['responseBody']['classification_name']).to eq('asthma')
+          expect(subject.body['classification_name']).to eq('asthma')
         end
       end
     end

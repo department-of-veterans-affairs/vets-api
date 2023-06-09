@@ -111,19 +111,24 @@ module Form526RapidReadyForDecisionConcern
       form526_submission_id: id
     }
 
+    Rails.logger.info('classifying 526Submission', id:, saved_claim_id:)
     classification = classify_by_diagnostic_code(params)
-    update_form_with_classification(classification['classification_code']) if classification.present?
+    update_form_with_classification_code(classification['classification_code']) if classification.present?
   end
 
-  # check claims
   def classify_by_diagnostic_code(params)
     vro_client = VirtualRegionalOffice::Client.new
     response = vro_client.classify_contention_by_diagnostic_code(params)
     response.body
   end
 
-  def update_form_with_classification(_classification_code)
-    # TODO: update form[FORM_526] to include the classification code
+  def update_form_with_classification_code(classification_code)
+    form[Form526Submission::FORM_526]['form526']['disabilities'].each do |disability|
+      disability['classificationCode'] = classification_code
+    end
+
+    update!(form_json: form.to_json)
+    invalidate_form_hash
   end
 
   def send_post_evss_notifications!
