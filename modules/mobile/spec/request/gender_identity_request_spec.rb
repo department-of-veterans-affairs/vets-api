@@ -8,10 +8,11 @@ RSpec.describe 'gender identity', type: :request do
   include SchemaMatchers
 
   describe 'logingov user' do
-    let(:login_uri) { 'LGN' }
+    let(:csd) { 'LGN' }
 
     before do
       iam_sign_in(FactoryBot.build(:iam_user, :logingov))
+      allow_any_instance_of(IAMUser).to receive(:logingov_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
     end
 
     describe 'GET /mobile/v0/gender_identity/edit' do
@@ -37,7 +38,7 @@ RSpec.describe 'gender identity', type: :request do
         it 'returns a 201' do
           gender_identity = VAProfile::Models::GenderIdentity.new(code: 'F')
 
-          VCR.use_cassette('mobile/va_profile/post_gender_identity_success') do
+          VCR.use_cassette('mobile/va_profile/post_gender_identity_success', erb: { csd: }) do
             put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: iam_headers)
             expect(response).to have_http_status(:no_content)
           end
@@ -69,10 +70,11 @@ RSpec.describe 'gender identity', type: :request do
   end
 
   describe 'idme user' do
-    let(:login_uri) { 'IDM' }
+    let(:csd) { 'IDM' }
 
     before do
       iam_sign_in(FactoryBot.build(:iam_user))
+      allow_any_instance_of(IAMUser).to receive(:idme_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
     end
 
     describe 'GET /mobile/v0/gender_identity/edit' do
@@ -98,7 +100,7 @@ RSpec.describe 'gender identity', type: :request do
         it 'returns a 201' do
           gender_identity = VAProfile::Models::GenderIdentity.new(code: 'F')
 
-          VCR.use_cassette('mobile/va_profile/post_gender_identity_success') do
+          VCR.use_cassette('mobile/va_profile/post_gender_identity_success', erb: { csd: }) do
             put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: iam_headers)
             expect(response).to have_http_status(:no_content)
           end

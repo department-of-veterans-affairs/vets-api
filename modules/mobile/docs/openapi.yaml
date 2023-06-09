@@ -4400,7 +4400,7 @@ paths:
       summary: /v0/user/emails
   /v0/user/gender_identity:
     put:
-      description: Updates a user's gender identity. Only id.me or login.gov users may use this
+      description: Updates a user's gender identity. Only users with id.me or login.gov accounts may use this
       operationId: user.updateGenderIdentity
       parameters:
         - in: header
@@ -4432,7 +4432,7 @@ paths:
       summary: /v0/user/gender_identity
   /v0/user/gender_identity/edit:
     get:
-      description: Retrieves a list of valid gender identity keys. Note that this endpoint does not use the camel case key inflection header like most other mobile endpoints to keep the keys upcase. Only id.me or login.gov users may use this
+      description: Retrieves a list of valid gender identity keys. Note that this endpoint does not use the camel case key inflection header like most other mobile endpoints to keep the keys upcase. 
       operationId: user.editGenderIdentity
       responses:
         '200':
@@ -4512,7 +4512,7 @@ paths:
       summary: /v0/user/logout
   /v0/user/preferred_name:
     put:
-      description: Updates a user's preferred name. Only id.me or login.gov users may use this
+      description: Updates a user's preferred name. Only users with id.me or login.gov accounts may use this
       operationId: user.updatePreferredName
       parameters:
         - in: header
