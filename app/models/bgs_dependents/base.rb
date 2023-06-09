@@ -96,29 +96,41 @@ module BGSDependents
         address['military_post_office_type_code'] = address.delete('city')
       end
 
-      if address['veteran_address']
-        vet_address = address['veteran_address']
-        adjust_address_lines(vet_address)
-      end
+      adjust_address_lines_for!(address: address['veteran_address']) if address['veteran_address']
 
-      adjust_address_lines(address)
-
-      if address['international_postal_code'].present?
-        country = address['country_name']
-        address['country_name'] = IsoCountryCodes.find(country).name if country.present? && country.size == 3
-      end
+      adjust_address_lines_for!(address:)
+      adjust_country_name_for!(address:)
 
       address
     end
 
-    #  BGS will not accept address lines longer than 20 characters
-    def adjust_address_lines(address)
+    # BGS will not accept address lines longer than 20 characters
+    def adjust_address_lines_for!(address:)
       all_lines = "#{address['address_line1']} #{address['address_line2']} #{address['address_line3']}"
       new_lines = all_lines.gsub(/\s+/, ' ').scan(/.{1,19}(?: |$)/).map(&:strip)
 
       address['address_line1'] = new_lines[0]
       address['address_line2'] = new_lines[1]
       address['address_line3'] = new_lines[2]
+    end
+
+    # This method converts ISO 3166-1 Alpha-3 country codes to ISO 3166-1 country names.
+    def adjust_country_name_for!(address:)
+      return if address['international_postal_code'].blank?
+
+      country_name = address['country_name']
+      return if country_name.blank? || country_name.size != 3
+
+      # The ISO 3166-1 country name for GBR exceeds BIS's (formerly, BGS) 50 char limit. No other country name exceeds
+      # this limit. For GBR, BIS expects "United Kingdom" instead. BIS has suggested using one of their web services
+      # to get the correct country names, rather than relying on the IsoCountryCodes gem below. It may be worth
+      # pursuing that some day. Until then, the following short-term improvement suffices.
+      address['country_name'] =
+        if country_name.to_s == 'GBR'
+          'United Kingdom'
+        else
+          IsoCountryCodes.find(country_name).name
+        end
     end
 
     def create_address_params(proc_id, participant_id, payload)
