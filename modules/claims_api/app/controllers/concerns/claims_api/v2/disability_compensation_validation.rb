@@ -156,7 +156,7 @@ module ClaimsApi
           approx_begin_date = disability['approximateDate']
           next if approx_begin_date.blank?
 
-          next if date_is_valid_against_current_time_after_check_on_format?(approx_begin_date)
+          next if Date.parse(approx_begin_date) < Time.zone.today
 
           raise ::Common::Exceptions::InvalidFieldValue.new('disability.approximateDate', approx_begin_date)
         end
@@ -245,7 +245,7 @@ module ClaimsApi
       end
 
       def validate_form_526_disability_secondary_disability_approximate_begin_date!(secondary_disability)
-        return if date_is_valid_against_current_time_after_check_on_format?(secondary_disability['approximateDate'])
+        return if Date.parse(secondary_disability['approximateDate']) < Time.zone.today
 
         raise ::Common::Exceptions::InvalidFieldValue.new(
           'disabilities.secondaryDisabilities.approximateDate',
@@ -368,7 +368,7 @@ module ClaimsApi
                                                            'datePaymentReceived')
         return if separation_pay_received_date.blank?
 
-        return if date_is_valid_against_current_time_after_check_on_format?(separation_pay_received_date)
+        return if Date.parse(separation_pay_received_date) < Time.zone.today
 
         raise ::Common::Exceptions::InvalidFieldValue.new('separationSeverancePay.datePaymentReceived',
                                                           separation_pay_received_date)
@@ -468,8 +468,7 @@ module ClaimsApi
         service_information['confinements'].each do |confinement|
           approximate_begin_date = confinement['approximateBeginDate']
           approximate_end_date = confinement['approximateEndDate']
-
-          if begin_date_is_not_after_end_date?(approximate_begin_date, approximate_end_date)
+          if Date.parse(approximate_begin_date) > Date.parse(approximate_end_date)
             raise ::Common::Exceptions::UnprocessableEntity.new(
               detail: 'Approximate end date must be after approximate begin date.'
             )
@@ -576,55 +575,6 @@ module ClaimsApi
         raise ::Common::Exceptions::UnprocessableEntity.new(
           detail: "The #{val} is required for direct deposit."
         )
-      end
-
-      private
-
-      def begin_date_is_not_after_end_date?(begin_date, end_date)
-        # see what format each date is in
-        begin_date_has_day = date_has_day?(begin_date)
-        end_date_has_day = date_has_day?(end_date)
-        # determine how to compare, being = is ok
-        if (begin_date_has_day && end_date_has_day) || (!begin_date_has_day && !end_date_has_day) # same format
-          begin_date > end_date
-        else # mixed formats on dates
-          begin_date_not_after_end_date_with_mixed_format_dates?(begin_date, end_date)
-        end
-      end
-
-      # Either date could be in MM-YYYY or MM-DD-YYYY format
-      def begin_date_not_after_end_date_with_mixed_format_dates?(begin_date, end_date)
-        # figure out which one has the day and remove it
-        if date_has_day?(begin_date)
-          begin_date = remove_chars(begin_date.dup)
-        elsif date_has_day?(end_date)
-          end_date = remove_chars(end_date.dup)
-        end
-        Date.strptime(begin_date, '%m-%Y') > Date.strptime(end_date, '%m-%Y') # = is ok
-      end
-
-      def date_is_valid_against_current_time_after_check_on_format?(date)
-        if date_has_day?(date)
-          param_date = Date.strptime(date, '%m-%d-%Y')
-          now_date = Date.strptime(Time.zone.today.strftime('%m-%d-%Y'), '%m-%d-%Y')
-        else
-          param_date = Date.strptime(date, '%m-%Y')
-          now_date = Date.strptime(Time.zone.today.strftime('%m-%Y'), '%m-%Y')
-        end
-        param_date <= now_date # Since it is approximate we go with <=
-      end
-
-      # just need to know if day is present or not
-      def date_has_day?(date)
-        date.length == 10
-      end
-
-      # making date approximate to compare
-      def remove_chars(str)
-        indices = [2, 3, 4] # MM| -DD |-YYYY
-        sz = str.size
-        indices.map { |i| i >= 0 ? i : sz + i }.sort.reverse_each { |i| str[i] = '' }
-        str
       end
     end
   end

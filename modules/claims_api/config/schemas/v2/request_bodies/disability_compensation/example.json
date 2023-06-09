@@ -56,30 +56,30 @@
           "gulfWarHazard": {
               "servedInGulfWarHazardLocations": true,
               "serviceDates": {
-                  "startDate": "07-1999",
-                  "endDate": "01-2005"
+                  "startDate": "1999-07-21",
+                  "endDate": "2005-01-21"
               }
           },
           "herbicideHazardService": {
               "servedInHerbicideHazardLocations": true,
               "otherLocationsServed": "Guam",
               "serviceDates": {
-                  "startDate": "03-2002",
-                  "endDate": "10-2004"
+                  "startDate": "2002-03-07",
+                  "endDate": "2004-10-31"
               }
           },
           "additionalHazardExposures": {
               "additionalExposures": ["ASBESTOS","SHAD"],
               "specifyOtherExposures": "Other exposure details",
               "exposureDates": {
-                  "startDate": "07-2011",
-                  "endDate": "10-2013"
+                  "startDate": "2011-07-30",
+                  "endDate": "2013-10-03"
               }
           },
           "multipleExposures": {
               "exposureDates": {
-                  "startDate": "12-2012",
-                  "endDate": "07-2013"
+                  "startDate": "2012-12-09",
+                  "endDate": "2013-07-27"
               },
               "exposureLocation": "Guam",
               "hazardExposedTo": "RADIATION"
@@ -87,36 +87,25 @@
       },
       "disabilities": [
         {
-          "disabilityActionType": "REOPEN",
-          "name": "PTSD (post traumatic stress disorder)",
-          "classificationCode": "249470",
-          "serviceRelevance": "Heavy equipment operator in service.",
-          "approximateDate": "04-11-2019",
-          "ratedDisabilityId": "1100583",
-          "diagnosticCode": 9999,
-          "secondaryDisabilities": [
-            {
-              "name": "PTSD personal trauma",
-              "disabilityActionType": "SECONDARY",
-              "serviceRelevance": "Caused by a service-connected disability\\nLengthy description",
-              "classificationCode": "249470",
-              "approximateDate": "03-01-2018",
-              "exposureOrEventOrInjury": ""
-            }
-          ],
-          "isRelatedToToxicExposure": true,
-          "exposureOrEventOrInjury": ""
-        }
-      ],
-      "treatments": [
-        {
-          "center": {
-            "name": "Private Facility 2",
-            "state": "CO",
-            "city": "Pueblo"
-          },
-          "startDate": "03-2014",
-          "treatedDisabilityNames": ["PTSD (post traumatic stress disorder)"]
+            "disabilityActionType": "REOPEN",
+            "name": "PTSD (post traumatic stress disorder)",
+            "classificationCode": "ABCDEFGHIJ",
+            "serviceRelevance": "ABCDEFG",
+            "approximateDate": "4592-11-04",
+            "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+            "diagnosticCode": 0,
+            "secondaryDisabilities": [
+                {
+                    "name": "ABCDEF",
+                    "disabilityActionType": "SECONDARY",
+                    "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
+                    "classificationCode": "ABCDEFGHIJKLMNO",
+                    "approximateDate": "9904-01-03",
+                    "exposureOrEventOrInjury": "EXPOSURE"
+                }
+            ],
+            "isRelatedToToxicExposure": true,
+            "exposureOrEventOrInjury": "EXPOSURE"
         },
         {
             "disabilityActionType": "REOPEN",
@@ -172,12 +161,12 @@
           ],
           "confinements": [
             {
-              "approximateBeginDate": "06-11-2016",
-              "approximateEndDate": "09-11-2016"
+              "approximateBeginDate": "2016-11-06",
+              "approximateEndDate": "2016-11-09"
             },
             {
-              "approximateBeginDate": "06-2019",
-              "approximateEndDate": "07-2019"
+              "approximateBeginDate": "2019-11-06",
+              "approximateEndDate": "2019-11-09"
             }
           ],
           "reservesNationalGuardService": {
