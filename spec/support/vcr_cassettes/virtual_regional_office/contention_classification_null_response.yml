@@ -5,7 +5,7 @@ http_interactions:
     uri: http://localhost:8120/classifier
     body:
       encoding: UTF-8
-      string: '{"diagnostic_code":5235,"claim_id":190,"form526_submission_id":179}'
+      string: '{"diagnostic_code":5235,"claim_id":738,"form526_submission_id":696}'
     headers:
       Accept:
       - application/json
@@ -19,19 +19,21 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 200
-      message: ''
+      code: 201
+      message: Created
     headers:
+      Date:
+      - Thu, 08 Jun 2023 19:37:40 GMT
+      Server:
+      - uvicorn
+      Content-Length:
+      - '4'
       Content-Type:
       - application/json
-      Transfer-Encoding:
-      - chunked
-      Date:
-      - Thu, 11 May 2023 23:33:43 GMT
     body:
       encoding: UTF-8
-      string: '{"classification_code":6602,"classification_name":"asthma"}'
-  recorded_at: Thu, 11 May 2023 23:33:43 GMT
+      string: 'null'
+  recorded_at: Thu, 08 Jun 2023 19:37:41 GMT
 - request:
     method: post
     uri: https://viccs-api-test.ibm-intelligent-automation.com/pca/api/test/token
@@ -49,15 +51,15 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 200
-      message: OK
+      code: 401
+      message: Unauthorized
     headers:
       Date:
-      - Thu, 11 May 2023 23:33:43 GMT
+      - Thu, 08 Jun 2023 19:37:42 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '93'
+      - '75'
       Connection:
       - keep-alive
       Cache-Control:
@@ -71,13 +73,14 @@ http_interactions:
       Referrer-Policy:
       - no-referrer
       Apigw-Requestid:
-      - EyA1xjuYPHMEPZg=
+      - GNwg_jF9PHMEJGQ=
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
       X-Content-Type-Options:
       - nosniff
     body:
       encoding: UTF-8
-      string: '{"classification_code":6602,"classification_name":"asthma"}'
-  recorded_at: Thu, 11 May 2023 23:33:43 GMT
+      string: '{"error":"unauthorized_client","error_description":"Invalid client
+        <DMC_TOKEN>"}'
+  recorded_at: Thu, 08 Jun 2023 19:37:42 GMT
 recorded_with: VCR 6.1.0

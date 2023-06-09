@@ -3,6 +3,10 @@
 require 'rails_helper'
 require 'disability_compensation/factories/api_provider_factory'
 
+ASTHMA_CLASSIFICATION_CODE = 6602
+# pulled from vets-api/spec/support/disability_compensation_form/submissions/only_526.json
+ONLY_526_JSON_CLASSIFICATION_CODE = 'string'
+
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :job do
   subject { described_class }
 
@@ -79,6 +83,35 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             end
           end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
           expect(Form526JobStatus.last.status).to eq 'success'
+        end
+
+        it 'handles null response gracefully' do
+          subject.perform_async(submission.id)
+          expect do
+            VCR.use_cassette('virtual_regional_office/contention_classification_null_response') do
+              described_class.drain
+              submission.reload
+
+              final_classification_code = submission.form['form526']['form526']['disabilities'][0]['classificationCode']
+              expect(final_classification_code).to eq(ONLY_526_JSON_CLASSIFICATION_CODE)
+            end
+          end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+          expect(Form526JobStatus.last.status).to eq 'success'
+        end
+
+        it 'updates Form526Submission form with id' do
+          expect(described_class).to be < EVSS::DisabilityCompensationForm::SubmitForm526
+          subject.perform_async(submission.id)
+
+          expect do
+            VCR.use_cassette('virtual_regional_office/contention_classification') do
+              described_class.drain
+              submission.reload
+
+              final_classification_code = submission.form['form526']['form526']['disabilities'][0]['classificationCode']
+              expect(final_classification_code).to eq(ASTHMA_CLASSIFICATION_CODE)
+            end
+          end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
         end
       end
     end
