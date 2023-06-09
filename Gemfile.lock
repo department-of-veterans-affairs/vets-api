@@ -563,8 +563,8 @@ GEM
       activesupport (>= 4.2)
     jwe (0.4.0)
     jwt (2.7.0)
-    kms_encrypted (1.4.0)
-      activesupport (>= 5.2)
+    kms_encrypted (1.5.0)
+      activesupport (>= 6)
     kramdown (2.4.0)
       rexml
     kramdown-parser-gfm (1.1.0)
