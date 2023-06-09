@@ -36,12 +36,12 @@
                 ],
                 "confinements": [
                     {
-                        "approximateBeginDate": "06-04-2018",
-                        "approximateEndDate": "06-04-2018"
+                        "approximateBeginDate": "2018-06-04",
+                        "approximateEndDate": "2018-07-04"
                     } ,
                     {
-                        "approximateBeginDate": "06-2020",
-                        "approximateEndDate": "06-2020"
+                        "approximateBeginDate": "2020-06-04",
+                        "approximateEndDate": "2020-07-04"
                     } 
                 ],
                 "reservesNationalGuardService": {
@@ -73,7 +73,7 @@
                     "name": "PTSD (post traumatic stress disorder)",
                     "classificationCode": "5420",
                     "serviceRelevance": "ABCDEFG",
-                    "approximateDate": "03-11-2018",
+                    "approximateDate": "2018-03-02",
                     "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
                     "diagnosticCode": 9999,
                     "secondaryDisabilities": [
@@ -82,7 +82,7 @@
                             "disabilityActionType": "SECONDARY",
                             "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
                             "classificationCode": "249470",
-                            "approximateDate": "03-12-2018",
+                            "approximateDate": "2018-03-02",
                             "exposureOrEventOrInjury": "EXPOSURE"
                         }
                     ],
@@ -94,7 +94,7 @@
                     "name": "Traumatic Brain Injury",
                     "classificationCode": "9020",
                     "serviceRelevance": "ABCDEFG",
-                    "approximateDate": "03-02-2018",
+                    "approximateDate": "2018-03-02",
                     "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
                     "diagnosticCode": 0,
                     "secondaryDisabilities": [
@@ -103,7 +103,7 @@
                             "disabilityActionType": "SECONDARY",
                             "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
                             "classificationCode": "249470",
-                            "approximateDate": "03-12-2018",
+                            "approximateDate": "2018-03-02",
                             "exposureOrEventOrInjury": "EXPOSURE"
                         }
                     ],
@@ -143,30 +143,30 @@
                 "gulfWarHazardService": {
                     "servedInGulfWarHazardLocations": true,
                     "serviceDates": {
-                        "startDate": "07-2018",
-                        "endDate": "08-2018"
+                        "startDate": "2523-07-21",
+                        "endDate": "1540-01-21"
                     }
                 },
                 "herbicideHazardService": {
                     "servedInHerbicideHazardLocations": true,
                     "otherLocationsServed": "ABCDEFGHIJKLM",
                     "serviceDates": {
-                        "startDate": "07-2018",
-                        "endDate": "08-2018"
+                        "startDate": "0401-03-07",
+                        "endDate": "9754-10-31"
                     }
                 },
                 "additionalHazardExposures": {
                     "additionalExposures": ["ASBESTOS", "SHAD"],
                     "specifyOtherExposures": "Other exposure details",
                     "exposureDates": {
-                        "startDate": "07-2018",
-                        "endDate": "08-2018"
+                        "startDate": "4520-07-30",
+                        "endDate": "3405-10-03"
                     }
                 },
                 "multipleExposures": {
                     "exposureDates": {
-                        "startDate": "07-2018",
-                        "endDate": "08-2018"
+                        "startDate": "8697-12-09",
+                        "endDate": "5517-07-27"
                     },
                     "exposureLocation": "ABCDEFGHIJKLMN",
                     "hazardExposedTo": "ABCDEFGHIJKLMNO"
@@ -196,7 +196,7 @@
                 "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
                 "receivedSeparationOrSeverancePay": false,
                 "separationSeverancePay": {
-                    "datePaymentReceived": "03-12-2022",
+                    "datePaymentReceived": "2022-03-01",
                     "branchOfService": "Naval Academy",
                     "preTaxAmountReceived": 379.25
                 }

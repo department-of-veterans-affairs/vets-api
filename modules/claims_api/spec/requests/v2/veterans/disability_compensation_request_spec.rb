@@ -871,14 +871,12 @@ RSpec.describe 'Disability Claims', type: :request do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
               VCR.use_cassette('brd/countries') do
-                VCR.use_cassette('brd/disabilities') do
-                  json = JSON.parse(data)
-                  json['data']['attributes']['toxicExposure']['herbicideHazardService']['otherLocationsServed'] =
-                    other_locations_served
-                  data = json.to_json
-                  post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
-                end
+                json = JSON.parse(data)
+                json['data']['attributes']['toxicExposure']['herbicideHazardService']['otherLocationsServed'] =
+                  other_locations_served
+                data = json.to_json
+                post submit_path, params: data, headers: auth_header
+                expect(response).to have_http_status(:unprocessable_entity)
               end
             end
           end
@@ -892,14 +890,12 @@ RSpec.describe 'Disability Claims', type: :request do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
               VCR.use_cassette('brd/countries') do
-                VCR.use_cassette('brd/disabilities') do
-                  json = JSON.parse(data)
-                  json['data']['attributes']['toxicExposure']['additionalHazardExposures']['additionalExposures'] =
-                    additional_exposures
-                  data = json.to_json
-                  post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
-                end
+                json = JSON.parse(data)
+                json['data']['attributes']['toxicExposure']['additionalHazardExposures']['additionalExposures'] =
+                  additional_exposures
+                data = json.to_json
+                post submit_path, params: data, headers: auth_header
+                expect(response).to have_http_status(:unprocessable_entity)
               end
             end
           end
@@ -934,14 +930,12 @@ RSpec.describe 'Disability Claims', type: :request do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
               VCR.use_cassette('brd/countries') do
-                VCR.use_cassette('brd/disabilities') do
-                  json = JSON.parse(data)
-                  json['data']['attributes']['toxicExposure']['multipleExposures']['exposureLocation'] =
-                    exposure_location
-                  data = json.to_json
-                  post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
-                end
+                json = JSON.parse(data)
+                json['data']['attributes']['toxicExposure']['multipleExposures']['exposureLocation'] =
+                  exposure_location
+                data = json.to_json
+                post submit_path, params: data, headers: auth_header
+                expect(response).to have_http_status(:unprocessable_entity)
               end
             end
           end
@@ -955,14 +949,12 @@ RSpec.describe 'Disability Claims', type: :request do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
               VCR.use_cassette('brd/countries') do
-                VCR.use_cassette('brd/disabilities') do
-                  json = JSON.parse(data)
-                  json['data']['attributes']['toxicExposure']['multipleExposures']['hazardExposedTo'] =
-                    hazard_exposed_to
-                  data = json.to_json
-                  post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
-                end
+                json = JSON.parse(data)
+                json['data']['attributes']['toxicExposure']['multipleExposures']['hazardExposedTo'] =
+                  hazard_exposed_to
+                data = json.to_json
+                post submit_path, params: data, headers: auth_header
+                expect(response).to have_http_status(:unprocessable_entity)
               end
             end
           end
@@ -1205,7 +1197,7 @@ RSpec.describe 'Disability Claims', type: :request do
               {
                 receivedSeparationOrSeverancePay: true,
                 separationSeverancePay: {
-                  datePaymentReceived: (Time.zone.today - 1.year).strftime('%m-%d-%Y'),
+                  datePaymentReceived: (Time.zone.today - 1.year).to_s,
                   branchOfService: 'Air Force',
                   preTaxAmountReceived: separation_payment_amount
                 }
@@ -1280,7 +1272,7 @@ RSpec.describe 'Disability Claims', type: :request do
             end
 
             context "when 'datePaymentReceived' is not in the past" do
-              let(:received_date) { (Time.zone.today + 1.day).strftime('%m-%d-%Y') }
+              let(:received_date) { (Time.zone.today + 1.day).to_s }
 
               it 'responds with a bad request' do
                 with_okta_user(scopes) do |auth_header|
@@ -1298,45 +1290,7 @@ RSpec.describe 'Disability Claims', type: :request do
             end
 
             context "when 'datePaymentReceived' is in the past" do
-              let(:received_date) { (Time.zone.today - 1.year).strftime('%m-%d-%Y') }
-
-              it 'responds with a 200' do
-                with_okta_user(scopes) do |auth_header|
-                  VCR.use_cassette('evss/claims/claims') do
-                    VCR.use_cassette('brd/countries') do
-                      VCR.use_cassette('brd/disabilities') do
-                        json_data = JSON.parse data
-                        params = json_data
-                        params['data']['attributes']['servicePay'] = service_pay_attribute
-                        post submit_path, params: params.to_json, headers: auth_header
-                        expect(response).to have_http_status(:ok)
-                      end
-                    end
-                  end
-                end
-              end
-            end
-
-            context "when 'datePaymentReceived' is not in the past but is approximate (MM-YYYY)" do
-              let(:received_date) { (Time.zone.today + 1.month).strftime('%m-%Y') }
-
-              it 'responds with a bad request' do
-                with_okta_user(scopes) do |auth_header|
-                  VCR.use_cassette('brd/countries') do
-                    VCR.use_cassette('brd/disabilities') do
-                      json_data = JSON.parse data
-                      params = json_data
-                      params['data']['attributes']['servicePay'] = service_pay_attribute
-                      post submit_path, params: params.to_json, headers: auth_header
-                      expect(response).to have_http_status(:bad_request)
-                    end
-                  end
-                end
-              end
-            end
-
-            context "when 'datePaymentReceived' is in the past but is approximate (MM-YYYY)" do
-              let(:received_date) { (Time.zone.today - 1.year).strftime('%m-%Y') }
+              let(:received_date) { (Time.zone.today - 1.year).to_s }
 
               it 'responds with a 200' do
                 with_okta_user(scopes) do |auth_header|
@@ -1737,7 +1691,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when the activeDutyBeginDate is after the activeDutyEndDate' do
-          let(:active_duty_end_date) { '1979-01-01' }
+          let(:active_duty_end_date) { '1979-01-02' }
 
           it 'responds with a 422' do
             with_okta_user(scopes) do |auth_header|
@@ -1756,7 +1710,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when the activeDutyBeginDate is not formatted correctly' do
-          let(:active_duty_begin_date) { '1979-01-01' }
+          let(:active_duty_begin_date) { '25-06-1979' }
 
           it 'responds with a 422' do
             with_okta_user(scopes) do |auth_header|
@@ -1775,7 +1729,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when the activeDutyEndDate is not formatted correctly' do
-          let(:active_duty_end_date) { '07-28-1995' }
+          let(:active_duty_end_date) { '28-07-1995' }
 
           it 'responds with a 422' do
             with_okta_user(scopes) do |auth_header|
@@ -1862,12 +1816,12 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:confinements) do
             [
               {
-                approximateBeginDate: '01-11-2016',
-                approximateEndDate: '01-13-2016'
+                approximateBeginDate: '2016-01-01',
+                approximateEndDate: '2016-01-06'
               },
               {
-                approximateBeginDate: '01-11-2017',
-                approximateEndDate: '01-13-2017'
+                approximateBeginDate: '2017-01-01',
+                approximateEndDate: '2017-01-06'
               }
             ]
           end
@@ -1882,64 +1836,6 @@ RSpec.describe 'Disability Claims', type: :request do
                     data = json.to_json
                     post submit_path, params: data, headers: auth_header
                     expect(response).to have_http_status(:ok)
-                  end
-                end
-              end
-            end
-          end
-        end
-
-        context 'when there are confinements with mixed date formatting and begin date is <= to end date' do
-          let(:confinements) do
-            [
-              {
-                approximateBeginDate: '01-11-2016',
-                approximateEndDate: '01-2016'
-              },
-              {
-                approximateBeginDate: '01-11-2017',
-                approximateEndDate: '02-2017'
-              }
-            ]
-          end
-
-          it 'responds with a 200' do
-            with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('brd/countries') do
-                  VCR.use_cassette('brd/disabilities') do
-                    json = JSON.parse(data)
-                    json['data']['attributes']['serviceInformation']['confinements'] = confinements
-                    data = json.to_json
-                    post submit_path, params: data, headers: auth_header
-                    expect(response).to have_http_status(:ok)
-                  end
-                end
-              end
-            end
-          end
-        end
-
-        context 'when there are confinements with mixed date formatting where begin date is after the end date' do
-          let(:confinements) do
-            [
-              {
-                approximateBeginDate: '02-11-2016',
-                approximateEndDate: '01-2016'
-              }
-            ]
-          end
-
-          it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('brd/countries') do
-                  VCR.use_cassette('brd/disabilities') do
-                    json = JSON.parse(data)
-                    json['data']['attributes']['serviceInformation']['confinements'] = confinements
-                    data = json.to_json
-                    post submit_path, params: data, headers: auth_header
-                    expect(response).to have_http_status(:unprocessable_entity)
                   end
                 end
               end
@@ -1948,7 +1844,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when confinements.confinement.approximateBeginDate is formatted incorrectly' do
-          let(:approximate_begin_date) { '2021-11-24' }
+          let(:approximate_begin_date) { '11-24-2021' }
 
           it 'responds with a 422' do
             with_okta_user(scopes) do |auth_header|
@@ -1967,7 +1863,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when confinements.confinement.approximateEndDate is formatted incorrectly' do
-          let(:approximate_end_date) { '2022-11-24' }
+          let(:approximate_end_date) { '11-24-2022' }
 
           it 'responds with a 422' do
             with_okta_user(scopes) do |auth_header|
@@ -1986,8 +1882,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when confinements.confinement.approximateBeginDate is after approximateEndDate' do
-          let(:approximate_end_date) { '05-06-2015' }
-          let(:approximate_begin_date) { '05-06-2016' }
+          let(:approximate_end_date) { '2017-05-06' }
 
           it 'responds with a 422' do
             with_okta_user(scopes) do |auth_header|
@@ -1997,7 +1892,6 @@ RSpec.describe 'Disability Claims', type: :request do
                     json = JSON.parse(data)
                     confinement = json['data']['attributes']['serviceInformation']['confinements'][0]
                     confinement['approximateEndDate'] = approximate_end_date
-                    confinement['approximateBeginDate'] = approximate_begin_date
                     data = json.to_json
                     post submit_path, params: data, headers: auth_header
                     expect(response).to have_http_status(:unprocessable_entity)
@@ -2230,7 +2124,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           context "when 'approximateDate' is in the future" do
-            let(:approximate_date) { (Time.zone.today + 1.year).strftime('%m-%d-%Y') }
+            let(:approximate_date) { (Time.zone.today + 1.year).to_s }
 
             it 'responds with a bad request' do
               with_okta_user(scopes) do |auth_header|
@@ -2246,7 +2140,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           context "when 'approximateDate' is in the past" do
-            let(:approximate_date) { (Time.zone.today - 1.year).strftime('%m-%d-%Y') }
+            let(:approximate_date) { (Time.zone.today - 1.year).to_s }
 
             it 'responds with a 200' do
               with_okta_user(scopes) do |auth_header|
@@ -2258,67 +2152,6 @@ RSpec.describe 'Disability Claims', type: :request do
                       params['data']['attributes']['disabilities'] = disabilities
                       post submit_path, params: params.to_json, headers: auth_header
                       expect(response).to have_http_status(:ok)
-                    end
-                  end
-                end
-              end
-            end
-          end
-
-          context 'when approximateDate is formatted MM-YYYY and is in the past' do
-            let(:approximate_date) { (Time.zone.today - 6.months).strftime('%m-%Y') }
-
-            it 'responds with a 200' do
-              with_okta_user(scopes) do |auth_header|
-                VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('brd/countries') do
-                    VCR.use_cassette('brd/disabilities') do
-                      json_data = JSON.parse data
-                      params = json_data
-                      params['data']['attributes']['disabilities'] = disabilities
-                      post submit_path, params: params.to_json, headers: auth_header
-                      expect(response).to have_http_status(:ok)
-                    end
-                  end
-                end
-              end
-            end
-          end
-
-          context 'when approximateDate is formatted MM-YYYY and is in the future' do
-            let(:approximate_date) { (Time.zone.today + 1.year).strftime('%m-%Y') }
-
-            it 'responds with a bad_request' do
-              with_okta_user(scopes) do |auth_header|
-                VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('brd/countries') do
-                    VCR.use_cassette('brd/disabilities') do
-                      json_data = JSON.parse data
-                      params = json_data
-                      params['data']['attributes']['disabilities'] = disabilities
-                      post submit_path, params: params.to_json, headers: auth_header
-                      expect(response).to have_http_status(:bad_request)
-                    end
-                  end
-                end
-              end
-            end
-          end
-
-          # because of the adjusted regex in the schema I wanted to lock this in
-          context 'when approximateDate is formatted YYYY' do
-            let(:approximate_date) { (Time.zone.today - 1.month).strftime('%Y') }
-
-            it 'responds with a 422' do
-              with_okta_user(scopes) do |auth_header|
-                VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('brd/countries') do
-                    VCR.use_cassette('brd/disabilities') do
-                      json_data = JSON.parse data
-                      params = json_data
-                      params['data']['attributes']['disabilities'] = disabilities
-                      post submit_path, params: params.to_json, headers: auth_header
-                      expect(response).to have_http_status(:unprocessable_entity)
                     end
                   end
                 end
@@ -2464,61 +2297,7 @@ RSpec.describe 'Disability Claims', type: :request do
                         disabilityActionType: 'SECONDARY',
                         name: 'PTSD',
                         serviceRelevance: 'Caused by a service-connected disability.',
-                        approximateDate: '02-30-2019'
-                      }
-                    ]
-                  }
-                ]
-                params['data']['attributes']['disabilities'] = disabilities
-                post submit_path, params: params.to_json, headers: auth_header
-                expect(response).to have_http_status(:bad_request)
-              end
-            end
-          end
-
-          it 'returns ok if date is approximate and in the past' do
-            with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('brd/countries') do
-                json_data = JSON.parse data
-                params = json_data
-                disabilities = [
-                  {
-                    disabilityActionType: 'NONE',
-                    name: 'PTSD (post traumatic stress disorder)',
-                    diagnosticCode: 9999,
-                    secondaryDisabilities: [
-                      {
-                        disabilityActionType: 'SECONDARY',
-                        name: 'PTSD',
-                        serviceRelevance: 'Caused by a service-connected disability.',
-                        approximateDate: '02-2019'
-                      }
-                    ]
-                  }
-                ]
-                params['data']['attributes']['disabilities'] = disabilities
-                post submit_path, params: params.to_json, headers: auth_header
-                expect(response).to have_http_status(:ok)
-              end
-            end
-          end
-
-          it 'returns an exception if date is approximate and in the future' do
-            with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('brd/countries') do
-                json_data = JSON.parse data
-                params = json_data
-                disabilities = [
-                  {
-                    disabilityActionType: 'NONE',
-                    name: 'PTSD (post traumatic stress disorder)',
-                    diagnosticCode: 9999,
-                    secondaryDisabilities: [
-                      {
-                        disabilityActionType: 'SECONDARY',
-                        name: 'PTSD',
-                        serviceRelevance: 'Caused by a service-connected disability.',
-                        approximateDate: "01-#{Time.zone.now.year + 1}"
+                        approximateDate: '2019-02-30'
                       }
                     ]
                   }
@@ -2545,7 +2324,7 @@ RSpec.describe 'Disability Claims', type: :request do
                         disabilityActionType: 'SECONDARY',
                         name: 'PTSD',
                         serviceRelevance: 'Caused by a service-connected disability.',
-                        approximateDate: "01-11-#{Time.zone.now.year + 1}"
+                        approximateDate: "#{Time.zone.now.year + 1}-01-01"
                       }
                     ]
                   }
