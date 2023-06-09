@@ -76,11 +76,12 @@ RSpec.describe 'letters', type: :request do
                  'enteredDate' => '2016-02-04T17:51:56Z', 'releasedDate' => '2016-02-04T17:51:56Z' }] } } }
   end
 
+  let(:user) { build(:iam_user) }
+
   before do
     token = 'abcdefghijklmnop'
     allow_any_instance_of(Lighthouse::LettersGenerator::Configuration).to receive(:get_access_token).and_return(token)
     allow_any_instance_of(IAMUser).to receive(:icn).and_return('24811694708759028')
-    user = build(:iam_user)
     iam_sign_in(user)
     Flipper.enable(:mobile_lighthouse_letters, user)
   end
@@ -157,6 +158,14 @@ RSpec.describe 'letters', type: :request do
   end
 
   describe 'Error Handling' do
+    context 'when user is not authorized authorized to use lighthouse' do
+      it 'returns 403 forbidden' do
+        allow_any_instance_of(IAMUser).to receive(:participant_id).and_return(nil)
+        get '/mobile/v0/letters', headers: iam_headers
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'when upstream is unavailable' do
       it 'returns internal service error' do
         VCR.use_cassette('mobile/lighthouse_letters/letters_503', match_requests_on: %i[method uri]) do
