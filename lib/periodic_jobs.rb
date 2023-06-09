@@ -91,7 +91,7 @@ PERIODIC_JOBS = lambda { |mgr|
   # Daily report of appeals errors
   mgr.register('5 */2 * * *', 'VBADocuments::RunUnsuccessfulSubmissions')
   # Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status
-  mgr.register('0 23 * * *', 'ClaimsApi::ReportUnsuccessfulSubmissions')
+  mgr.register('15 23 * * *', 'ClaimsApi::ReportUnsuccessfulSubmissions')
   # Weekly report of unsuccessful claims submissions
 
   mgr.register('30 2 * * *', 'Identity::UserAcceptableVerifiedCredentialTotalsJob')
