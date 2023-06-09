@@ -11,6 +11,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
     let(:redis_token) { '123-456' }
     let(:icn) { '123456' }
     let(:notify_appt_date) { 'Sep 01' }
+    let(:claim_last4) { '1666' }
 
     before do
       redis_client = double
@@ -33,7 +34,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
           phone_number: mobile_phone,
           template_id: 'fake_success_template_id',
           sms_sender_id: 'fake_sms_sender_id',
-          personalisation: { claim_number: 'TC202207000011666', appt_date: notify_appt_date }
+          personalisation: { claim_number: claim_last4, appt_date: notify_appt_date }
         )
         expect(worker).not_to receive(:log_exception_to_sentry)
 
@@ -116,7 +117,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         expect(worker).to receive(:log_exception_to_sentry).with(
           instance_of(Common::Exceptions::BackendServiceException),
           { phone_number: mobile_phone_last_four, template_id: 'fake_success_template_id',
-            claim_number: 'TC202207000011666' },
+            claim_number: claim_last4 },
           { error: :check_in_va_notify_job, team: 'check-in' }
         )
         expect(StatsD).not_to receive(:increment)

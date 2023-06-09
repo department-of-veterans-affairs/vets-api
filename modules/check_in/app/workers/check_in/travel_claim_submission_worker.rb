@@ -33,7 +33,7 @@ module CheckIn
         params: { appointment_date: }
       ).submit_claim
 
-      claim_number = claims_resp.dig(:data, :claimNumber)
+      claim_number = claims_resp.dig(:data, :claimNumber)&.last(4)
       template_id = handle_response(claims_resp:)
 
       send_notification(mobile_phone:, appointment_date:, template_id:, claim_number:)
