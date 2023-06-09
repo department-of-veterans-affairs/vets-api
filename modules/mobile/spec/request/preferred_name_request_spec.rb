@@ -8,17 +8,18 @@ RSpec.describe 'preferred_name', type: :request do
   include SchemaMatchers
 
   describe 'logingov user' do
-    let(:login_uri) { 'LGN' }
+    let(:csd) { 'LGN' }
 
     before do
       iam_sign_in(FactoryBot.build(:iam_user, :logingov))
+      allow_any_instance_of(IAMUser).to receive(:logingov_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
     end
 
     describe 'PUT /mobile/v0/profile/preferred_names' do
       context 'when text is valid' do
         it 'returns 204', :aggregate_failures do
           preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
-          VCR.use_cassette('mobile/va_profile/post_preferred_name_success') do
+          VCR.use_cassette('mobile/va_profile/post_preferred_name_success', erb: { csd: }) do
             VCR.use_cassette('mobile/demographics/logingov') do
               put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
 
@@ -55,17 +56,18 @@ RSpec.describe 'preferred_name', type: :request do
   end
 
   describe 'idme user' do
-    let(:login_uri) { 'IDM' }
+    let(:csd) { 'IDM' }
 
     before do
       iam_sign_in(FactoryBot.build(:iam_user))
+      allow_any_instance_of(IAMUser).to receive(:idme_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
     end
 
     describe 'PUT /mobile/v0/profile/preferred_names' do
       context 'when text is valid' do
         it 'returns 204', :aggregate_failures do
           preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
-          VCR.use_cassette('mobile/va_profile/post_preferred_name_success') do
+          VCR.use_cassette('mobile/va_profile/post_preferred_name_success', erb: { csd: }) do
             VCR.use_cassette('mobile/va_profile/demographics/demographics') do
               put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
 
