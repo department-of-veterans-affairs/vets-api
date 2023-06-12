@@ -1,4 +1,5 @@
-FROM ruby:3.2.2-slim-bullseye AS modules
+FROM ruby:3.2.2-slim-bullseye AS rubyimg
+FROM rubyimg AS modules
 
 WORKDIR /tmp
 
@@ -7,7 +8,7 @@ COPY modules/ modules/
 RUN find modules -type f ! \( -name Gemfile -o -name "*.gemspec" -o -path "*/lib/*/version.rb" \) -delete && \
     find modules -type d -empty -delete
 
-FROM ruby:3.2.2-slim-bullseye
+FROM rubyimg
 
 # Allow for setting ENV vars via --build-arg
 ARG BUNDLE_ENTERPRISE__CONTRIBSYS__COM \
