@@ -225,12 +225,12 @@ describe AppealsApi::PdfConstruction::Generator do
       end
 
       # context 'v3' do
-     #    include_examples 'shared HLR v2 and v3 generator examples', 'v3', {
-     #      veteran_international_phone: '+WWW-WWWWWWWWWWWWWWW',
-     #      claimant_international_phone: '+WWW-WWWWWWWWWWWWWWW',
-     #      rep_international_phone: '+WWW-WWWWWWWWWWWWWWW'
-     #    }
-     #  end
+      #    include_examples 'shared HLR v2 and v3 generator examples', 'v3', {
+      #      veteran_international_phone: '+WWW-WWWWWWWWWWWWWWW',
+      #      claimant_international_phone: '+WWW-WWWWWWWWWWWWWWW',
+      #      rep_international_phone: '+WWW-WWWWWWWWWWWWWWW'
+      #    }
+      #  end
     end
 
     context 'Supplemental Claim' do
