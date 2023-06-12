@@ -193,6 +193,10 @@ features:
   covid_volunteer_delivery:
     actor_type: cookie_id
     description: Toggles whether COVID Research volunteer submissions will be delivered to genISIS
+  claims_status_v1_bgs_enabled:
+    actor_type: user
+    description: enables calling BGS instead of EVSS for the claims status v1.
+    enable_in_development: false
   debt_letters_show_letters:
     actor_type: user
     description: Enables debt letters
