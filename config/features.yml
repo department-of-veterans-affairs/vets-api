@@ -837,6 +837,9 @@ features:
   mobile_lighthouse_claims:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our claims endpoints upstream service
+  mobile_lighthouse_disability_ratings:
+    actor_type: user
+    description: For mobile app, use Lighthouse instead of EVSS for our disability ratings endpoints upstream service
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
