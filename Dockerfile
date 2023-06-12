@@ -1,8 +1,11 @@
+ARG RELEASE=bullseye
+FROM ruby:3.2.2-slim-${RELEASE} as rubyimg
+
 # XXX: using stretch here for pdftk dep, which is not availible after
 #      stretch (or in alpine) and is switched automatically to pdftk-java in buster
 #      https://github.com/department-of-veterans-affairs/va.gov-team/issues/3032
 
-FROM ruby:3.2.2-slim-bullseye AS modules
+FROM rubyimg AS modules
 
 WORKDIR /tmp
 
@@ -14,18 +17,20 @@ RUN find modules -type f ! \( -name Gemfile -o -name "*.gemspec" -o -path "*/lib
 ###
 # shared build/settings for all child images, reuse these layers yo
 ###
-FROM ruby:3.2.2-slim-bullseye AS base
+FROM rubyimg AS base
+ARG RELEASE
+ENV RELEASE="$RELEASE"
 
 ARG userid=993
 SHELL ["/bin/bash", "-c"]
 RUN groupadd -g $userid -r vets-api && \
     useradd -u $userid -r -m -d /srv/vets-api -g vets-api vets-api
-RUN echo 'APT::Default-Release "stable";' >> /etc/apt/apt.conf.d/99defaultrelease
+RUN echo "APT::Default-Release \"${RELEASE}\";" >> /etc/apt/apt.conf.d/99defaultrelease
 RUN mv /etc/apt/sources.list /etc/apt/sources.list.d/stable.list
 RUN echo "deb http://ftp.debian.org/debian testing main contrib non-free" >> /etc/apt/sources.list.d/testing.list
 RUN echo "deb http://deb.debian.org/debian unstable main" >> /etc/apt/sources.list.d/unstable.list
 RUN apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -t stable \
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -t "${RELEASE}" \
     dumb-init imagemagick pdftk poppler-utils curl libpq5 vim libboost-all-dev
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -t unstable \
     clamav clamdscan clamav-daemon
