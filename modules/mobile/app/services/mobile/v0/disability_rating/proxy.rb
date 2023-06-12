@@ -6,52 +6,29 @@ module Mobile
   module V0
     module DisabilityRating
       class Proxy
-        def initialize(user)
-          @user = user
+        def initialize(icn)
+          @icn = icn
         end
 
-        def get_disability_ratings
-          combine_response, individual_response = Parallel.map([get_combine_rating, get_individual_ratings],
-                                                               in_threads: 2, &:call)
-          Mobile::V0::Adapters::Rating.new.disability_ratings(combine_response, individual_response)
-        rescue => e
-          status_code = e.respond_to?('response') ? e.response[:status] : e.status_code
-          case status_code
-          when 400
-            raise Common::Exceptions::BackendServiceException, 'MOBL_404_rating_not_found'
-          when 502
-            raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
-          when 403
-            raise Common::Exceptions::BackendServiceException, 'MOBL_403_rating_forbidden'
-          else
-            raise e
-          end
+        def get_rated_disabilities
+          auth_params = {
+            launch: Base64.encode64(JSON.generate({ patient: @icn }))
+          }
+          settings = Settings.lighthouse.veteran_verification['form526']
+
+          data = veteran_vertification_service.get_rated_disabilities(
+            settings.access_token.client_id,
+            settings.access_token.rsa_key,
+            { auth_params: }
+          )
+
+          data['data']['attributes']
         end
 
         private
 
-        def common_service
-          EVSS::CommonService.new(auth_headers)
-        end
-
-        def compensation_service
-          EVSS::DisabilityCompensationForm::Service.new(auth_headers)
-        end
-
-        def auth_headers
-          EVSS::DisabilityCompensationAuthHeaders.new(@user).add_headers(EVSS::AuthHeaders.new(@user).to_h)
-        end
-
-        def get_combine_rating
-          lambda {
-            common_service.get_rating_info
-          }
-        end
-
-        def get_individual_ratings
-          lambda {
-            compensation_service.get_rated_disabilities
-          }
+        def veteran_vertification_service
+          VeteranVerification::Service.new
         end
       end
     end

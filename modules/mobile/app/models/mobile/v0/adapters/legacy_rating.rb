@@ -6,7 +6,7 @@ require 'date'
 module Mobile
   module V0
     module Adapters
-      class Rating
+      class LegacyRating
         def disability_ratings(combine_response, individual_response)
           Mobile::V0::Rating.new(
             id: 0,

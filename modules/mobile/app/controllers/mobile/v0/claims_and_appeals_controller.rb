@@ -51,10 +51,12 @@ module Mobile
 
       def request_decision
         jid = if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
-                lighthouse_claims_proxy.request_decision(params[:id])
+                response = lighthouse_claims_proxy.request_decision(params[:id])
+                adapt_response(response)
               else
                 evss_claims_proxy.request_decision(params[:id])
               end
+
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
@@ -153,6 +155,10 @@ module Mobile
         list.filter do |entry|
           entry[:completed] == ActiveRecord::Type::Boolean.new.deserialize(filter)
         end
+      end
+
+      def adapt_response(response)
+        response['success'] ? 'success' : 'failure'
       end
     end
   end

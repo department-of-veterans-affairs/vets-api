@@ -1,0 +1,64 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/veteran_verification/v2/disability_rating
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Bearer blahblech
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Not Authorized
+    headers:
+      Date:
+      - Wed, 03 May 2023 17:30:43 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      Ratelimit-Remaining:
+      - '119'
+      Ratelimit-Reset:
+      - '17'
+      Ratelimit-Limit:
+      - '120'
+      X-Ratelimit-Remaining-Minute:
+      - '119'
+      Www-Authenticate:
+      - Bearer
+      X-Kong-Response-Latency:
+      - '82'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{
+  "status": "401",
+  "error": "Invalid Token.",
+  "path": "/veteran_verification/v2/disability_rating"
+}'
+  recorded_at: Wed, 03 May 2023 17:30:12 GMT
+recorded_with: VCR 6.1.0
