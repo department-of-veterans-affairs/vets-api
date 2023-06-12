@@ -1,0 +1,41 @@
+{
+  "form_number": "21P-0847",
+  "preparer_name": {
+    "first": "Arthur",
+    "middle": "C",
+    "last": "Preparer"
+  },
+  "preparer_ssn": "222668888",
+  "preparer_home_phone": "1234567890",
+  "preparer_mobile_phone": "1234567890",
+  "preparer_email": "preparer_address@email.com",
+  "preparer_address": {
+    "country": "USA",
+    "street": "124 Main St",
+    "street2": "Apt #44",
+    "city": "Anytown",
+    "state": "CA",
+    "postal_code": "12345"
+  },
+  "veteran_full_name": {
+    "first": "Ursula",
+    "middle": "K",
+    "last": "Veteran"
+  },
+  "veteran_date_of_birth": "1929-10-21",
+  "veteran_date_of_death": "2018-01-22",
+  "veteran_ssn": "999442222",
+  "veteran_va_file_number": "111776666",
+  "deceased_claimant_name": {
+    "first": "Philip",
+    "middle": "K",
+    "last": "Deceased"
+  },
+  "deceased_claimant_date_of_birth": "1928-12-16",
+  "deceased_claimant_date_of_death": "1982-03-12",
+  "deceased_claimant_ssn": "666117777",
+  "deceased_claimant_va_file_number": "777992222",
+  "relationship_to_deceased_claimant": "other",
+  "other_relationship_to_deceased_claimant": "friend",
+  "additional_information": "Lots of extra stuff here"
+}
