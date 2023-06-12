@@ -38,6 +38,10 @@ module ClaimsApi
 
         def attachments; end
 
+        def get_pdf
+          # Returns filled out 526EZ form as PDF
+        end
+
         private
 
         def pdf_mapper_service(auto_claim, pdf_data, target_veteran)
