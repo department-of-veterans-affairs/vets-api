@@ -1,4 +1,4 @@
-name: Build & Push to ECR & Update Manifests
+name: Test, Lint, Build & Push to ECR & Update Manifests
 # IMPORTANT: REFACTOR BACK TO SEPARARATE JOBS AFTER K8s is merged to master and uncomment the deploy.yml
 on:
   workflow_call:
