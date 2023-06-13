@@ -351,6 +351,11 @@ paths:
           schema:
             type: boolean
           description: Indicates whether child facilities should be returned for matching parent facilities.
+        - in: query
+          name: schedulable
+          schema:
+            type: boolean
+          description: Filters facilities based on their schedulability, will return schedulable ones if true and non schedulable ones if false.
       responses:
         '200':
           description: Success

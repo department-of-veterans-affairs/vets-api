@@ -76,11 +76,12 @@ module VAOS
       #   - :data: A hash containing information about the facilities
       #   - :meta: A hash containing pagination information
       #
-      def get_facilities(ids:, children: nil, type: nil, pagination_params: {})
+      def get_facilities(ids:, children: nil, type: nil, schedulable: nil, pagination_params: {})
         params = {
           ids:,
           children:,
-          type:
+          type:,
+          schedulable:
         }.merge(page_params(pagination_params)).compact
         with_monitoring do
           options = { params_encoder: Faraday::FlatParamsEncoder }

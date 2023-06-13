@@ -1,0 +1,62 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities?children=true&ids=688&pageSize=0&schedulable=true
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Fri, 09 Jun 2023 20:06:55 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '85'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.21.0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 766d2f9
+      X-Vamf-Timestamp:
+      - '2023-06-02T17:17:53+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '2'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "message" : "children param is only allowed in conjunction with the ids param."
+        }
+  recorded_at: Fri, 09 Jun 2023 20:06:55 GMT
+recorded_with: VCR 6.1.0

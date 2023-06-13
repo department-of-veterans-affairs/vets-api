@@ -54,6 +54,61 @@ RSpec.describe 'facilities', type: :request do
         end
       end
 
+      context 'on successful query for facilities given schedulable true' do
+        it 'returns schedulable facilities' do
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200_schedulable_true',
+                           match_requests_on: %i[method path query]) do
+            get '/vaos/v2/facilities?ids=983,%20983GB,%20983GC,%20983GD&pageSize=0&schedulable=true',
+                headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(JSON.parse(response.body)['data'].size).to eq(4)
+            expect(response).to match_camelized_response_schema('vaos/v2/get_facilities', { strict: false })
+          end
+        end
+      end
+
+      context 'on successful query for facilities given schedulable false' do
+        it 'filters out schedulable facilities' do
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200_schedulable_false',
+                           match_requests_on: %i[method path query]) do
+            get '/vaos/v2/facilities?ids=983,%20983GB,%20983GC,%20983GD&pageSize=0&schedulable=false',
+                headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(JSON.parse(response.body)['data'].size).to eq(0)
+            expect(response).to match_camelized_response_schema('vaos/v2/get_facilities', { strict: false })
+          end
+        end
+      end
+
+      context 'on successful query for facilities given schedulable not passed' do
+        it 'returns unfiltered facilities' do
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200_schedulable_not_passed',
+                           match_requests_on: %i[method path query]) do
+            get '/vaos/v2/facilities?ids=983,%20983GB,%20983GC,%20983GD&pageSize=0',
+                headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(JSON.parse(response.body)['data'].size).to eq(4)
+            expect(response).to match_camelized_response_schema('vaos/v2/get_facilities', { strict: false })
+          end
+        end
+      end
+
+      context 'on sending request with schedulable and children params' do
+        it 'returns a 400 http status' do
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_with_children_and_schedulable_true_400',
+                           match_requests_on: %i[method path query]) do
+            get '/vaos/v2/facilities?children=true&ids=688&pageSize=0&schedulable=true'
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.body)['errors'][0]['code']).to eq('VAOS_400')
+            expect(JSON.parse(response.body)['errors'][0]['detail']).to eq('children param is only allowed ' \
+                                                                           'in conjunction with the ids param.')
+          end
+        end
+      end
+
       context 'on sending a bad request to the VAOS Service' do
         it 'returns a 400 http status' do
           VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_400',
