@@ -1,27 +1,45 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
 PERIODIC_JOBS = lambda { |mgr|
   mgr.tz = ActiveSupport::TimeZone.new('America/New_York')
-  mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')
-  # Clear out processed 22-1990 applications that are older than 1 month
+
+  # AppealsApi Module
   mgr.register('5 * * * *', 'AppealsApi::HigherLevelReviewUploadStatusBatch')
   # Update HigherLevelReview statuses with their Central Mail status
   mgr.register('10 * * * *', 'AppealsApi::NoticeOfDisagreementUploadStatusBatch')
   # Update NoticeOfDisagreement statuses with their Central Mail status
   mgr.register('15 * * * *', 'AppealsApi::SupplementalClaimUploadStatusBatch')
   # Update SupplementalClaim statuses with their Central Mail status
+  mgr.register('45 0 * * *', 'AppealsApi::HigherLevelReviewCleanUpWeekOldPii')
+  # Remove PII of HigherLevelReviews that have 1) reached one of the 'completed' statuses and 2) are a week old
+  mgr.register('45 0 * * *', 'AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii')
+  # Remove PII of NoticeOfDisagreements that have 1) reached one of the 'completed' statuses and 2) are a week old
+  mgr.register('45 0 * * *', 'AppealsApi::SupplementalClaimCleanUpPii')
+  # Remove PII of SupplementalClaims that have 1) reached one of the 'completed' statuses and 2) are a week old
+  mgr.register('0 23 * * 1-5', 'AppealsApi::DecisionReviewReportDaily')
+  # Daily report of appeals submissions
+  mgr.register('0 23 * * 1-5', 'AppealsApi::DailyErrorReport')
+  # Daily report of appeals errors
+  mgr.register('0 8 * * 1-5', 'AppealsApi::DailyStuckRecordsReport')
+  # Daily report of all stuck appeals submissions
+  mgr.register('0 23 * * 7', 'AppealsApi::DecisionReviewReportWeekly')
+  # Weekly report of appeals submissions
+  mgr.register('0 5 * * 1', 'AppealsApi::WeeklyErrorReport')
+  # Weekly CSV report of errored appeal submissions
+  mgr.register('0 0 1 * *', 'AppealsApi::MonthlyStatsReport')
+  # Email a decision reviews stats report for the past month to configured recipients first of the month
+  mgr.register('0 2,9,16 * * 1-5', 'AppealsApi::FlipperStatusAlert')
+  # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
+
+  mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')
+  # Clear out processed 22-1990 applications that are older than 1 month
 
   mgr.register('35 * * * *', 'AppsApi::FetchConnections')
   # "Fetches and handles notifications for recent application connections and disconnections
 
   mgr.register('20 0 * * *', 'TestUserDashboard::DailyMaintenance')
   # Checks in TUD users that weren't properly checked in.
-  mgr.register('45 0 * * *', 'AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii')
-  # Remove PII of NoticeOfDisagreements that have 1) reached one of the 'completed' statuses and 2) are a week old
-  mgr.register('45 0 * * *', 'AppealsApi::SupplementalClaimCleanUpPii')
-  # Remove PII of SupplementalClaims that have 1) reached one of the 'completed' statuses and 2) are a week ol
-  mgr.register('0 0 1 * *', 'AppealsApi::MonthlyStatsReport')
-  # Email a decision reviews stats report for the past month to configured recipients first of the month
   mgr.register('0 0 1 */3 *', 'IncomeLimits::GmtThresholdsImport')
   # Import income limit data CSVs from S3
   mgr.register('0 0 1 */3 *', 'IncomeLimits::StdCountyImport')
@@ -32,11 +50,6 @@ PERIODIC_JOBS = lambda { |mgr|
   # Import income limit data CSVs from S3
   mgr.register('0 0 1 */3 *', 'IncomeLimits::StdZipcodeImport')
   # Import income limit data CSVs from S3
-  mgr.register('0 2,9,16 * * MON-FRI', 'AppealsApi::FlipperStatusAlert')
-  # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled"
-
-  mgr.register('0 2,9,16 * * MON-FRI', 'VBADocuments::SlackNotifier')
-  # Notifies slack channel if certain benefits states get stuck
 
   mgr.register('0 2 * * *', 'EVSS::DeleteOldClaims')
   # Clear out EVSS disability claims that have not been updated in 24 hours
@@ -44,8 +57,6 @@ PERIODIC_JOBS = lambda { |mgr|
   # Clear out old personal information logs
   mgr.register('30 2 * * *', 'CentralMail::DeleteOldClaims')
   # Clear out central mail claims older than 2 months
-  mgr.register('0 2 1 * *', 'VBADocuments::ReportMonthlySubmissions')
-  # Monthly report of benefits intake submissions
 
   mgr.register('0 3 * * *', 'DeleteOldTransactionsJob')
   # Deletes old, completed AsyncTransaction records
@@ -67,7 +78,6 @@ PERIODIC_JOBS = lambda { |mgr|
   # Download and cache facility access-to-care metric data
   mgr.register('55 4 * * *', 'Facilities::PSSGDownload')
   # Download and store drive time bands
-  mgr.register('0 5 * * 1', 'AppealsApi::WeeklyErrorReport')
 
   mgr.register('0 6 * * *', 'AccountLoginStatisticsJob')
   # Gather account login statistics for statsd
@@ -75,35 +85,22 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('* 7 * * *', 'SignIn::DeleteExpiredSessionsJob')
   # Delete expired sessions
 
-  mgr.register('0 8 * * 1-5', 'AppealsApi::DailyStuckRecordsReport')
-  # Daily report of all stuck appeals submissions
   mgr.register('0 12 3 * *', 'CypressViewportUpdater::UpdateCypressViewportsJob')
   # Updates Cypress files in vets-website with data from Google Analytics.
   mgr.register('0 13 * * 1', 'Mobile::V0::WeeklyMaintenanceWindowLogger')
   # Weekly logs of maintenance windows
   mgr.register('0 20 * * *', 'ClaimsApi::ClaimAuditor')
   # Daily alert of pending claims longer than acceptable threshold
-  mgr.register('0 23 * * 1-5', 'AppealsApi::DecisionReviewReportDaily')
-  # Daily report of appeals submissions
-  mgr.register('0 23 * * 7', 'AppealsApi::DecisionReviewReportWeekly')
-  # Weekly report of appeals submissions
-  mgr.register('30 23 * * 1-5', 'AppealsApi::DailyErrorReport')
-  # Daily report of appeals errors
-  mgr.register('5 */2 * * *', 'VBADocuments::RunUnsuccessfulSubmissions')
-  # Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status
   mgr.register('15 23 * * *', 'ClaimsApi::ReportUnsuccessfulSubmissions')
   # Weekly report of unsuccessful claims submissions
 
   mgr.register('30 2 * * *', 'Identity::UserAcceptableVerifiedCredentialTotalsJob')
 
-  mgr.register('*/2 * * * *', 'VBADocuments::UploadRemover')
-  # Clean up submitted documents from S3
-  mgr.register('*/2 * * * *', 'VBADocuments::UploadScanner')
-  # Poll upload bucket for unprocessed uploads
-  mgr.register('45 * * * *', 'VBADocuments::UploadStatusBatch')
-  # Request updated statuses for benefits intake submissions
-
+  # VAForms Module
   mgr.register('0 2 * * *', 'VAForms::FetchLatest')
+  # Fetches latest VA forms from Drupal database and updates vets-api forms database
+  mgr.register('0 2,9,16 * * 1-5', 'VAForms::FlipperStatusAlert')
+  # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
 
   mgr.register('0 16 * * *', 'VANotify::InProgressForms')
   mgr.register('0 1 * * *', 'VANotify::ClearStaleInProgressRemindersSent')
@@ -125,4 +122,23 @@ PERIODIC_JOBS = lambda { |mgr|
   # mgr.register('0 0 * * *', 'FeatureCleanerJob')
   mgr.register('0 0 * * *', 'Form1010cg::DeleteOldUploadsJob')
   mgr.register('0 1 * * *', 'TransactionalEmailAnalyticsJob')
+
+  # VBADocuments Module
+  mgr.register('45 * * * *', 'VBADocuments::UploadStatusBatch')
+  # Request updated statuses for benefits intake submissions
+  mgr.register('5 */2 * * *', 'VBADocuments::RunUnsuccessfulSubmissions')
+  # Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status
+  mgr.register('*/2 * * * *', 'VBADocuments::UploadScanner')
+  # Poll upload bucket for unprocessed uploads
+  mgr.register('*/2 * * * *', 'VBADocuments::UploadRemover')
+  # Clean up submitted documents from S3
+  mgr.register('0 0 * * 1-5', 'VBADocuments::ReportUnsuccessfulSubmissions')
+  # Daily/weekly report of unsuccessful benefits intake submissions
+  mgr.register('0 2 1 * *', 'VBADocuments::ReportMonthlySubmissions')
+  # Monthly report of benefits intake submissions
+  mgr.register('0 2,9,16 * * 1-5', 'VBADocuments::SlackNotifier')
+  # Notifies slack channel if certain benefits states get stuck
+  mgr.register('0 2,9,16 * * 1-5', 'VBADocuments::FlipperStatusAlert')
+  # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
 }
+# rubocop:enable Metrics/BlockLength
