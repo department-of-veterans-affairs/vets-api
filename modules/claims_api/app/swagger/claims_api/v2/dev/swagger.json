@@ -1418,7 +1418,7 @@
             ]
           }
         ],
-        "description": "The below 526 schema is in a draft state representing the attributes we are currently planning to support. Changes are expected as we continue development. \n",
+        "description": "Automatically establishes a disability compensation claim (21-526EZ) in Veterans Benefits Management System (VBMS). \nThis endpoint generates a filled and electronically signed 526EZ form, establishes the disability claim in VBMS, and \nsubmits the form to the Veteran's eFolder.\n\nA 200 response indicates the API submission was successful. The claim has not reached VBMS until it has a CLAIM_RECEIVED status. \nCheck claim status using the GET veterans/{veteranId}/claims/{id} endpoint.\n\n**A substantially complete 526EZ claim must include:**\n* Veteran's name\n* Sufficient service information for VA to verify the claimed service, if applicable\n* At least one claimed disability or medical condition and how it relates to service\n* Veteran and/or Representative signature\n\n**Standard and fully developed claims (FDCs)**\n\n[Fully developed claims (FDCs)](https://www.va.gov/disability/how-to-file-claim/evidence-needed/fully-developed-claims/)\nare claims certified by the submitter to include all information needed for processing. These claims process faster \nthan claims submitted through the standard claim process. If a claim is certified for the FDC, but is missing needed information, \nit will be processed as a standard claim.\n\nTo certify a claim for the FDC process, set the claimProcessType to FDC_PROGRAM.\n",
         "parameters": [
           {
             "name": "veteranId",
@@ -4635,8 +4635,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-06-05",
-                      "expirationDate": "2024-06-05",
+                      "creationDate": "2023-06-12",
+                      "expirationDate": "2024-06-12",
                       "type": "compensation",
                       "status": "active"
                     }
