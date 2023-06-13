@@ -80,7 +80,7 @@ jobs:
       - name: Run Specs
         run: |
           docker-compose run web bash \
-          -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 8 -o '--color --tty'"
+          -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 13 -o '--color --tty'"
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v3
