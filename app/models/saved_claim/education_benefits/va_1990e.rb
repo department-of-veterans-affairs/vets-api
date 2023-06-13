@@ -6,8 +6,12 @@ class SavedClaim::EducationBenefits::VA1990e < SavedClaim::EducationBenefits
   def after_submit(user)
     return unless Flipper.enabled?(:form1990e_confirmation_email)
 
-    # only sending to unauthenticated users at this time
-    return if user.present?
+    if Flipper.enabled?(:form1990e_auth_confirmation_email)
+      # allow for phased rollout of authenticated users
+    elsif user.present?
+      # skip sending to authenticated users
+      return
+    end
 
     parsed_form_data ||= JSON.parse(form)
     email = parsed_form_data['email']
