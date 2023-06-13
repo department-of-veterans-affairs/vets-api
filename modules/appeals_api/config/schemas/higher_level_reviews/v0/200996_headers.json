@@ -27,12 +27,12 @@
         "X-VA-Middle-Initial": {
           "allOf": [
             { "description": "Veteran's middle initial", "maxLength": 1 },
-            { "$ref": "non_blank_string.json" }
+            { "$ref": "nonBlankString.json" }
           ]
         },
         "X-VA-Last-Name": { "allOf": [
           { "description": "Veteran's last name", "maxLength": 40 },
-          { "$ref": "non_blank_string.json" }
+          { "$ref": "nonBlankString.json" }
         ] },
         "X-VA-Birth-Date": {
           "description": "Veteran's birth date",
@@ -40,11 +40,11 @@
         },
         "X-VA-File-Number": { "allOf": [
           { "description": "Veteran's file number", "maxLength":  9 },
-          { "$ref": "non_blank_string.json" }
+          { "$ref": "nonBlankString.json" }
         ] },
         "X-VA-Insurance-Policy-Number": { "allOf": [
           { "description": "Veteran's insurance policy number", "maxLength": 18 },
-          { "$ref": "non_blank_string.json" }
+          { "$ref": "nonBlankString.json" }
         ] },
         "X-VA-NonVeteranClaimant-SSN": {
           "type": "string",
@@ -60,12 +60,12 @@
         "X-VA-NonVeteranClaimant-Middle-Initial": {
           "allOf": [
             { "description": "Non-Veteran claimant's middle initial", "maxLength": 1 },
-            { "$ref": "non_blank_string.json" }
+            { "$ref": "nonBlankString.json" }
           ]
         },
         "X-VA-NonVeteranClaimant-Last-Name": { "allOf": [
           { "description": "Non-Veteran claimant's last name", "maxLength": 40 },
-          { "$ref": "non_blank_string.json" }
+          { "$ref": "nonBlankString.json" }
         ] },
         "X-VA-NonVeteranClaimant-Birth-Date": {
           "description": "Non-Veteran claimant's birth date",
@@ -74,12 +74,12 @@
         "X-Consumer-Username": {
           "allOf": [
             { "description": "Consumer User Name (passed from Kong)" },
-            { "$ref": "non_blank_string.json" }
+            { "$ref": "nonBlankString.json" }
           ]
         },
         "X-Consumer-ID": { "allOf": [
           { "description": "Consumer GUID" },
-          { "$ref": "non_blank_string.json" }
+          { "$ref": "nonBlankString.json" }
         ] }
       },
       "additionalProperties": false,

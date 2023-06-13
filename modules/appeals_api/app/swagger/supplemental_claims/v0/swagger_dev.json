@@ -921,7 +921,7 @@
           {
             "name": "schema_type",
             "in": "path",
-            "description": "Schema type. Can be: `200995`, `address`, `non_blank_string`, `phone`, `timezone`",
+            "description": "Schema type. Can be: `200995`, `address`, `nonBlankString`, `phone`, `timezone`",
             "required": true,
             "examples": {
               "200995": {
@@ -930,8 +930,8 @@
               "address": {
                 "value": "address"
               },
-              "non_blank_string": {
-                "value": "non_blank_string"
+              "nonBlankString": {
+                "value": "nonBlankString"
               },
               "phone": {
                 "value": "phone"
@@ -1425,7 +1425,7 @@
                       }
                     }
                   },
-                  "non_blank_string": {
+                  "nonBlankString": {
                     "value": {
                       "$schema": "http://json-schema.org/draft-2020-12/schema#",
                       "description": "JSON Schema for VA Decision Review Forms: 'nonBlankString'",
@@ -2256,7 +2256,7 @@
                         "available_options": [
                           "200995",
                           "address",
-                          "non_blank_string",
+                          "nonBlankString",
                           "phone",
                           "timezone"
                         ]
@@ -3634,7 +3634,7 @@
           }
         }
       },
-      "non_blank_string": {
+      "nonBlankString": {
         "type": "string",
         "pattern": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]"
       },
@@ -4922,13 +4922,13 @@
         "description": "Alternate signer's last name",
         "minLength": 1,
         "maxLength": 40,
-        "$ref": "#/components/schemas/non_blank_string"
+        "$ref": "#/components/schemas/nonBlankString"
       },
       "X-Alternate-Signer-Middle-Initial": {
         "description": "Alternate signer's middle initial",
         "minLength": 1,
         "maxLength": 1,
-        "$ref": "#/components/schemas/non_blank_string"
+        "$ref": "#/components/schemas/nonBlankString"
       },
       "X-VA-Birth-Date": {
         "description": "Veteran's birth date",
@@ -4944,7 +4944,7 @@
             "maxLength": 9
           },
           {
-            "$ref": "#/components/schemas/non_blank_string"
+            "$ref": "#/components/schemas/nonBlankString"
           }
         ]
       },
@@ -4972,7 +4972,7 @@
             "maxLength": 18
           },
           {
-            "$ref": "#/components/schemas/non_blank_string"
+            "$ref": "#/components/schemas/nonBlankString"
           }
         ]
       },
@@ -4982,7 +4982,7 @@
             "description": "last name"
           },
           {
-            "$ref": "#/components/schemas/non_blank_string"
+            "$ref": "#/components/schemas/nonBlankString"
           }
         ]
       },
@@ -4992,7 +4992,7 @@
             "description": "middle initial"
           },
           {
-            "$ref": "#/components/schemas/non_blank_string"
+            "$ref": "#/components/schemas/nonBlankString"
           }
         ]
       },
@@ -5002,7 +5002,7 @@
             "description": "first name"
           },
           {
-            "$ref": "#/components/schemas/non_blank_string"
+            "$ref": "#/components/schemas/nonBlankString"
           }
         ]
       },
@@ -5012,7 +5012,7 @@
             "description": "last name"
           },
           {
-            "$ref": "#/components/schemas/non_blank_string"
+            "$ref": "#/components/schemas/nonBlankString"
           }
         ]
       },
@@ -5022,7 +5022,7 @@
             "description": "middle initial"
           },
           {
-            "$ref": "#/components/schemas/non_blank_string"
+            "$ref": "#/components/schemas/nonBlankString"
           }
         ]
       },

@@ -521,7 +521,7 @@
           }
         }
       },
-      "non_blank_string": {
+      "nonBlankString": {
         "type": "string",
         "pattern": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]"
       },
@@ -534,7 +534,7 @@
             "maxLength": 9
           },
           {
-            "$ref": "#/components/schemas/non_blank_string"
+            "$ref": "#/components/schemas/nonBlankString"
           }
         ]
       },

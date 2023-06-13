@@ -5,6 +5,7 @@ module AppealsApi
     skip_before_action :verify_authenticity_token
     skip_after_action :set_csrf_header
     before_action :deactivate_endpoint
+    before_action :set_default_headers
 
     def render_response(response)
       render json: response.body, status: response.status
@@ -29,6 +30,12 @@ module AppealsApi
 
     def sunset_date
       nil
+    end
+
+    DEFAULT_HEADERS = { 'Content-Language' => 'en-US' }.freeze
+
+    def set_default_headers
+      DEFAULT_HEADERS.each { |k, v| response.headers[k] = v }
     end
 
     def set_tags_and_extra_context

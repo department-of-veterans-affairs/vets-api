@@ -216,8 +216,6 @@ class AppealsApi::RswagConfig
   def merge_schemas(*schema_parts) = schema_parts.reduce(&:merge).sort_by { |k, _| k.to_s.downcase }.to_h
 
   def schemas(api_name: nil)
-    nbs_key = api_name == 'decision_reviews' ? 'nonBlankString' : 'non_blank_string'
-
     case api_name
     when 'higher_level_reviews'
       merge_schemas(
@@ -232,7 +230,7 @@ class AppealsApi::RswagConfig
         nod_response_schemas,
         contestable_issues_schema.slice(*%i[contestableIssue]),
         generic_schemas.except(*%i[errorWithTitleAndDetail timeStamp X-Consumer-ID X-Consumer-Username X-VA-Insurance-Policy-Number X-VA-NonVeteranClaimant-SSN X-VA-SSN]),
-        shared_schemas.slice(*%W[address phone timezone #{nbs_key}])
+        shared_schemas.slice(*%w[address phone timezone nonBlankString])
       )
     when 'supplemental_claims'
       merge_schemas(
@@ -241,19 +239,19 @@ class AppealsApi::RswagConfig
         sc_alt_signer_schemas,
         contestable_issues_schema.slice(*%i[contestableIssue]),
         generic_schemas.except(*%i[errorWithTitleAndDetail timeStamp uuid X-Consumer-ID X-Consumer-Username X-VA-NonVeteranClaimant-SSN X-VA-NonVeteranClaimant-Birth-Date]),
-        shared_schemas.slice(*%W[address phone timezone #{nbs_key}])
+        shared_schemas.slice(*%w[address phone timezone nonBlankString])
       )
     when 'appealable_issues'
       merge_schemas(
         appealable_issues_schema,
         generic_schemas.slice(*%i[errorModel X-VA-SSN X-VA-File-Number X-VA-ICN]),
-        shared_schemas.slice(*%W[#{nbs_key}])
+        shared_schemas.slice(*%w[nonBlankString])
       )
     when 'legacy_appeals'
       merge_schemas(
         legacy_appeals_schema,
         generic_schemas.slice(*%i[errorModel X-VA-SSN X-VA-File-Number X-VA-ICN]),
-        shared_schemas.slice(*%W[#{nbs_key}])
+        shared_schemas.slice(*%w[nonBlankString])
       )
     when 'appeals_status'
       merge_schemas(
@@ -271,16 +269,16 @@ class AppealsApi::RswagConfig
         decision_reviews_sc_alt_signer_schemas,
         contestable_issues_schema,
         legacy_appeals_schema,
-        generic_schemas(nbs_key:),
-        shared_schemas(nbs_key:)
+        generic_schemas,
+        shared_schemas
       )
     else
       raise "Don't know how to build schemas for '#{api_name}'"
     end
   end
 
-  def generic_schemas(nbs_key: 'non_blank_string')
-    nbs_ref = "#/components/schemas/#{nbs_key}"
+  def generic_schemas
+    nbs_ref = '#/components/schemas/nonBlankString'
 
     {
       'errorModel': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', 'default.json'))),
@@ -966,7 +964,7 @@ class AppealsApi::RswagConfig
 
   def sc_response_schemas = decision_reviews_sc_response_schemas
 
-  def decision_reviews_sc_alt_signer_schemas(nbs_key: 'nonBlankString')
+  def decision_reviews_sc_alt_signer_schemas
     # Taken from 200995_headers.json
     {
       'X-Alternate-Signer-First-Name': {
@@ -979,18 +977,18 @@ class AppealsApi::RswagConfig
         'description': 'Alternate signer\'s middle initial',
         'minLength': 1,
         'maxLength': 1,
-        '$ref': "#/components/schemas/#{nbs_key}"
+        '$ref': '#/components/schemas/nonBlankString'
       },
       'X-Alternate-Signer-Last-Name': {
         'description': 'Alternate signer\'s last name',
         'minLength': 1,
         'maxLength': 40,
-        '$ref': "#/components/schemas/#{nbs_key}"
+        '$ref': '#/components/schemas/nonBlankString'
       }
     }
   end
 
-  def sc_alt_signer_schemas = decision_reviews_sc_alt_signer_schemas(nbs_key: 'non_blank_string')
+  def sc_alt_signer_schemas = decision_reviews_sc_alt_signer_schemas
 
   def legacy_appeals_schema
     {
@@ -1129,11 +1127,11 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def shared_schemas(nbs_key: 'non_blank_string')
+  def shared_schemas
     # Keys are strings to override older, non-shared-schema definitions
     {
       'address' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'address.json')))['properties']['address'],
-      nbs_key => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'non_blank_string.json')))['properties']['nonBlankString'],
+      'nonBlankString' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'nonBlankString.json')))['properties']['nonBlankString'],
       'phone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'phone.json')))['properties']['phone'],
       'timezone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'timezone.json')))['properties']['timezone']
     }
