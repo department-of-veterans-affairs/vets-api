@@ -131,7 +131,7 @@ module ClaimsApi
           disability.delete('ratedDisabilityId')
           disability.delete('diagnosticCode')
           disability.delete('disabilityActionType')
-          sec_dis = disability['secondaryDisabilities'].map do |secondary_disability|
+          sec_dis = disability['secondaryDisabilities']&.map do |secondary_disability|
             secondary_disability['disability'] = secondary_disability['name']
             secondary_disability
           end
