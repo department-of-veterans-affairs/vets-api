@@ -536,7 +536,6 @@
                         "enum": [
                             "NONE", 
                             "NEW",
-                            "SECONDARY",
                             "REOPEN",
                             "INCREASE"
                         ],
