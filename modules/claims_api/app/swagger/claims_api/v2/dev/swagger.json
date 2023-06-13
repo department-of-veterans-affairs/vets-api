@@ -3863,53 +3863,50 @@
                       },
                       "disabilities": [
                         {
-                          "disabilityActionType": "REOPEN",
-                          "name": "PTSD (post traumatic stress disorder)",
-                          "classificationCode": "ABCDEFGHIJ",
-                          "serviceRelevance": "ABCDEFG",
-                          "approximateDate": "4592-11-04",
-                          "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
-                          "diagnosticCode": 0,
-                          "secondaryDisabilities": [
-                            {
-                              "name": "ABCDEF",
-                              "disabilityActionType": "SECONDARY",
-                              "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
-                              "classificationCode": "ABCDEFGHIJKLMNO",
-                              "approximateDate": "9904-01-03",
-                              "exposureOrEventOrInjury": "EXPOSURE"
-                            }
-                          ],
-                          "isRelatedToToxicExposure": true,
-                          "exposureOrEventOrInjury": "EXPOSURE"
+                          "disabilityActionType": "NEW",
+                          "name": "Hearing Loss",
+                          "classificationCode": "3140",
+                          "serviceRelevance": "Heavy equipment operator in service",
+                          "approximateDate": "07-1968",
+                          "isRelatedToToxicExposure": false,
+                          "exposureOrEventOrInjury": "Noise"
                         },
                         {
-                          "disabilityActionType": "REOPEN",
-                          "name": "Trauma",
-                          "classificationCode": "ABCDEFGHIJ",
-                          "serviceRelevance": "ABCDEFG",
-                          "approximateDate": "4592-11-04",
-                          "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
-                          "diagnosticCode": 0,
+                          "disabilityActionType": "INCREASE",
+                          "name": "diabetes, adult-onset",
+                          "classificationCode": "2065",
+                          "serviceRelevance": "Service in Vietnam War",
+                          "approximateDate": "12-1972",
+                          "ratedDisabilityId": "1234567",
+                          "diagnosticCode": 9999,
+                          "isRelatedToToxicExposure": true,
+                          "exposureOrEventOrInjury": "Agent Orange"
+                        },
+                        {
+                          "disabilityActionType": "NONE",
+                          "name": "knee condition, right",
+                          "classificationCode": "3710",
+                          "serviceRelevance": "Explanation of service connection",
+                          "approximateDate": "11-04-2019",
+                          "ratedDisabilityId": "1234567",
+                          "diagnosticCode": 9999,
+                          "isRelatedToToxicExposure": false,
                           "secondaryDisabilities": [
                             {
-                              "name": "GHIJKLM",
+                              "name": "knee condition, left",
                               "disabilityActionType": "SECONDARY",
-                              "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
-                              "classificationCode": "ABCDEFGHIJKLMNO",
-                              "approximateDate": "9904-01-03",
-                              "exposureOrEventOrInjury": "EXPOSURE"
+                              "classificationCode": "3700",
+                              "serviceRelevance": "Injured left knee when brace on right knee failed",
+                              "approximateDate": "06-11-2008"
                             }
-                          ],
-                          "isRelatedToToxicExposure": true,
-                          "exposureOrEventOrInjury": "EXPOSURE"
+                          ]
                         }
                       ],
                       "treatments": [
                         {
                           "treatedDisabilityNames": [
-                            "PTSD (post traumatic stress disorder)",
-                            "Trauma"
+                            "Hearing Loss",
+                            "diabetes, adult-onset"
                           ],
                           "center": {
                             "name": "Center One",
@@ -3920,7 +3917,7 @@
                         },
                         {
                           "treatedDisabilityNames": [
-                            "Trauma"
+                            "knee condition, right"
                           ],
                           "center": {
                             "name": "Center One",
