@@ -4054,7 +4054,7 @@
         }
       }
     },
-    "/veterans/{veteranId}/526/attachments": {
+    "/veterans/{veteranId}/526/{id}/attachments": {
       "post": {
         "summary": "Upload documents supporting a 526 claim",
         "tags": [
@@ -4080,7 +4080,7 @@
             ]
           }
         ],
-        "description": "Used to attach supporting documents for a 526 claim. For wet-signature PDFs, use the PUT /forms/526/{id} endpoint.\n\n<br/><br/>\nThis endpoint accepts a document binary PDF as part of a multi-part payload (for example, attachment1, attachment2, attachment3).\n\n",
+        "description": "Uploads supporting documents related to a disability compensation claim. This endpoint accepts a document binary PDF as part of a multi-part payload.\n",
         "parameters": [
           {
             "name": "veteranId",

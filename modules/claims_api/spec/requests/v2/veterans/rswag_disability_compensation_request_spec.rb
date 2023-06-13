@@ -147,7 +147,7 @@ describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers
     end
   end
 
-  path '/veterans/{veteranId}/526/attachments' do
+  path '/veterans/{veteranId}/526/{id}/attachments' do
     post 'Upload documents supporting a 526 claim' do
       tags 'Disability'
       operationId 'upload526Attachments'
@@ -159,8 +159,7 @@ describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers
       consumes 'multipart/form-data'
       produces 'application/json'
       put_description = <<~VERBIAGE
-        Used to attach supporting documents for a 526 claim. For wet-signature PDFs, use the PUT /forms/526/{id} endpoint.\n
-        <br/><br/>\nThis endpoint accepts a document binary PDF as part of a multi-part payload (for example, attachment1, attachment2, attachment3).\n
+        Uploads supporting documents related to a disability compensation claim. This endpoint accepts a document binary PDF as part of a multi-part payload.
       VERBIAGE
       description put_description
 
