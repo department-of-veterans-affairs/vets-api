@@ -112,8 +112,8 @@ describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers
       consumes 'application/json'
       produces 'application/json'
       validate_description = <<~VERBIAGE
-        Test to make sure the form submission works with your parameters.
-        Submission validates against the schema returned by the GET /forms/526 endpoint.
+        Validates a request for a disability compensation claim submission (21-526EZ).
+        This endpoint can be used to test the request parameters for your /526 submission.
       VERBIAGE
       description validate_description
 
