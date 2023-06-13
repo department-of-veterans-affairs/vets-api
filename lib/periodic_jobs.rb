@@ -97,7 +97,7 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('30 2 * * *', 'Identity::UserAcceptableVerifiedCredentialTotalsJob')
 
   # VAForms Module
-  mgr.register('0 2 * * *', 'VAForms::FetchLatest')
+  mgr.register('0 2 * * *', 'VAForms::FormReloader')
   # Fetches latest VA forms from Drupal database and updates vets-api forms database
   mgr.register('0 2,9,16 * * 1-5', 'VAForms::FlipperStatusAlert')
   # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
