@@ -15,16 +15,16 @@ module ClaimsApi
         @auth_headers = {}
       end
 
-      def submit(claim)
+      def submit(claim, data)
         @auth_headers = claim.auth_headers
 
-        client.post('submit', body: claim.form_data).body
+        client.post('submit', data).body
       end
 
       private
 
       def client
-        base_name = Settings.dvp&.url
+        base_name = Settings.evss&.dvp&.url
         service_name = Settings.evss&.service_name
         raise StandardError, 'DVP URL missing' if base_name.blank?
 
