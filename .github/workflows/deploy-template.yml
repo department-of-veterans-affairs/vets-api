@@ -37,7 +37,7 @@ jobs:
     if: github.ref == 'refs/heads/k8s'
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1-node16
@@ -64,7 +64,7 @@ jobs:
           sudo apt install yq -y
 
       - name: Check out Manifest Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: department-of-veterans-affairs/vsp-infra-application-manifests
           token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
@@ -85,7 +85,7 @@ jobs:
           git diff
 
       - name: Add and Commit file
-        uses: EndBug/add-and-commit@v7
+        uses: EndBug/add-and-commit@v9
         with:
           branch: main
           add: "*"
