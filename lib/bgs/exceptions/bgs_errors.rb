@@ -27,6 +27,7 @@ module BGS
 
         return log_message_to_sentry(msg, :warn, context, tags) if status == :warn
 
+        log_oracle_errors!(error:)
         log_exception_to_sentry(error, context, tags)
         raise_backend_exception('BGS_686c_SERVICE_403', self.class, error)
       end
@@ -40,6 +41,25 @@ module BGS
         )
 
         raise exception
+      end
+
+      private
+
+      # BGS sometimes returns errors containing an enormous stacktrace with an oracle error. This method logs the oracle
+      # error message and excludes everything else. These oracle errors start with the signature `ORA-` and are
+      # bookended by a `prepstmnt` clause. See `spec/fixtures/bgs/bgs_oracle_error.txt` for an example. We want to log
+      # these errors separately because the original error message is so long that it obscures its only relevant
+      # information and actually breaks Sentry's UI.
+      def log_oracle_errors!(error:)
+        oracle_error_match_data = error.message.match(/ORA-.+?(?=\s*{prepstmnt)/m)
+        if oracle_error_match_data&.length&.positive?
+          log_message_to_sentry(
+            oracle_error_match_data[0],
+            :error,
+            { icn: @user[:icn] },
+            { team: 'vfs-ebenefits' }
+          )
+        end
       end
     end
   end
