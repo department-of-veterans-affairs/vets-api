@@ -493,6 +493,14 @@ module ClaimsApi
           date_present(item[:date_open] || tracked_item[:req_dt] || tracked_item[:create_dt])
         end
 
+        def get_evss_documents(claim_id)
+          evss_docs_service.get_claim_documents(claim_id).body
+        rescue => e
+          log_message_to_sentry('Error in Claims v2 show calling EVSS Doc Service',
+                                :error,
+                                body: e.message)
+        end
+
         def build_supporting_docs(bgs_claim)
           return [] if bgs_claim.nil?
 
@@ -501,7 +509,7 @@ module ClaimsApi
           docs = if sandbox?
                    { documents: ClaimsApi::V2::MockDocumentsService.new.generate_documents }.with_indifferent_access
                  else
-                   evss_docs_service.get_claim_documents(bgs_claim[:benefit_claim_details_dto][:benefit_claim_id]).body
+                   get_evss_documents(bgs_claim[:benefit_claim_details_dto][:benefit_claim_id])
                  end
           return [] if docs.nil? || docs['documents'].blank?
 

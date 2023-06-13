@@ -156,6 +156,8 @@ module ClaimsApi
         found_record = target_veteran.mpi_record?(user_key: veteran_id)
 
         unless found_record
+          log_message_to_sentry("Claims v2 Veteran record not found - Veteran ICN: #{veteran_id}",
+                                :warning)
           raise ::Common::Exceptions::ResourceNotFound.new(detail:
             "Unable to locate Veteran's ID/ICN in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
@@ -164,6 +166,8 @@ module ClaimsApi
         mpi_profile = target_veteran&.mpi&.mvi_response&.profile || {}
 
         if mpi_profile[:participant_id].blank?
+          log_message_to_sentry("Claims v2 Veteran PID not found - Veteran ICN: #{veteran_id}",
+                                :warning)
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
             "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
@@ -171,6 +175,8 @@ module ClaimsApi
 
         target_veteran[:first_name] = mpi_profile[:given_names]&.first
         if target_veteran[:first_name].nil?
+          log_message_to_sentry("Claims v2 Veteran First Name not found - Veteran ICN: #{veteran_id}",
+                                :warning)
           raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'Missing first name')
         end
 
