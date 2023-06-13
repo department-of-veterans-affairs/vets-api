@@ -14,13 +14,24 @@ RSpec.describe SavedClaim::EducationBenefits::VA1990e do
     let(:user) { create(:user) }
 
     describe 'confirmation email for the 1990e' do
-      it 'is skipped when user is present' do
+      it 'is skipped when user is present and feature flag is turned off' do
+        Flipper.disable(:form1990e_auth_confirmation_email)
         allow(VANotify::EmailJob).to receive(:perform_async)
 
         subject = create(:va1990e_with_email)
         subject.after_submit(user)
 
         expect(VANotify::EmailJob).not_to have_received(:perform_async)
+        Flipper.enable(:form1990e_auth_confirmation_email)
+      end
+
+      it 'is enabled when user is present and feature flag is turned on' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
+
+        subject = create(:va1990e_with_email)
+        subject.after_submit(user)
+
+        expect(VANotify::EmailJob).to have_received(:perform_async)
       end
 
       it 'sends if no user is present' do
