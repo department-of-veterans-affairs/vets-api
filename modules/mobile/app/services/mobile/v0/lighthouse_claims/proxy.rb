@@ -10,20 +10,6 @@ module Mobile
       class Proxy < Mobile::V0::Claims::Proxy
         delegate :get_claim, to: :claims_service
 
-        def get_claims_and_appeals
-          claims = get_all_claims
-          appeals = get_all_appeals
-
-          full_list = []
-          errors = []
-
-          claims[:errors].nil? ? full_list.push(*claims[:list]) : errors.push(claims[:errors])
-          appeals[:errors].nil? ? full_list.push(*appeals[:list]) : errors.push(appeals[:errors])
-          data = claims_adapter.parse(full_list)
-
-          [data, errors]
-        end
-
         def request_decision(id)
           claims_service.submit5103(id)
         end
@@ -39,19 +25,17 @@ module Mobile
         end
 
         def get_all_claims
-          claims_list = claims_service.get_claims
-          {
-            list: claims_list['data'],
-            errors: nil
+          lambda {
+            begin
+              claims_list = claims_service.get_claims
+              {
+                list: claims_list['data'],
+                errors: nil
+              }
+            rescue => e
+              { list: nil, errors: Mobile::V0::Adapters::ClaimsOverviewErrors.new.parse(e, 'claims') }
+            end
           }
-        rescue => e
-          { list: nil, errors: Mobile::V0::Adapters::ClaimsOverviewErrors.new.parse(e, 'claims') }
-        end
-
-        def get_all_appeals
-          { list: appeals_service.get_appeals(@user).body['data'], errors: nil }
-        rescue => e
-          { list: nil, errors: Mobile::V0::Adapters::ClaimsOverviewErrors.new.parse(e, 'appeals') }
         end
       end
     end
