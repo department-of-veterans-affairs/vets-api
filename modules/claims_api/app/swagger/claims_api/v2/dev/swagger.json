@@ -4031,7 +4031,7 @@
             ]
           }
         ],
-        "description": "Test to make sure the form submission works with your parameters.\nSubmission validates against the schema returned by the GET /forms/526 endpoint.\n",
+        "description": "Validates a request for a disability compensation claim submission (21-526EZ).\nThis endpoint can be used to test the request parameters for your /526 submission.\n",
         "parameters": [
           {
             "name": "veteranId",
