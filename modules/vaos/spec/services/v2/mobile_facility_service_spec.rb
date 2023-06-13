@@ -68,6 +68,42 @@ describe VAOS::V2::MobileFacilityService do
       end
     end
 
+    context 'with facility ids and schedulable not passed' do
+      it 'returns configurations' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200_schedulable_not_passed',
+                         match_requests_on: %i[method path query]) do
+          response = subject.get_facilities(ids: '983, 983GB, 983GC, 983GD')
+          expect(response[:data][0][:classification]).to eq('Primary Care CBOC')
+          expect(response[:data][1][:classification]).to eq('Multi-Specialty CBOC')
+          expect(response[:data][2][:classification]).to eq('Other Outpatient Services (OOS)')
+          expect(response[:data][3][:classification]).to eq('VA Medical Center (VAMC)')
+        end
+      end
+    end
+
+    context 'with facility ids and schedulable false' do
+      it 'filters out schedulable configurations' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200_schedulable_false',
+                         match_requests_on: %i[method path query]) do
+          response = subject.get_facilities(ids: '983, 983GB, 983GC, 983GD', schedulable: false)
+          expect(response[:data].size).to eq(0)
+        end
+      end
+    end
+
+    context 'with facility ids and schedulable true' do
+      it 'returns schedulable configurations' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200_schedulable_true',
+                         match_requests_on: %i[method path query]) do
+          response = subject.get_facilities(ids: '983, 983GB, 983GC, 983GD', schedulable: true)
+          expect(response[:data][0][:classification]).to eq('Primary Care CBOC')
+          expect(response[:data][1][:classification]).to eq('Multi-Specialty CBOC')
+          expect(response[:data][2][:classification]).to eq('Other Outpatient Services (OOS)')
+          expect(response[:data][3][:classification]).to eq('VA Medical Center (VAMC)')
+        end
+      end
+    end
+
     context 'with multiple facility ids' do
       it 'returns a configuration' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200',
@@ -84,6 +120,17 @@ describe VAOS::V2::MobileFacilityService do
                          match_requests_on: %i[method path query]) do
           response = subject.get_facilities(children: true, ids: '688')
           expect(response[:data].size).to eq(8)
+        end
+      end
+    end
+
+    context 'with a facility id and children true and facilities true' do
+      it 'raises bad request error - children param is only allowed in conjunction with the ids param' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_with_children_and_schedulable_true_400',
+                         match_requests_on: %i[method path query]) do
+          expect { subject.get_facilities(children: true, schedulable: true, ids: '688') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
         end
       end
     end
