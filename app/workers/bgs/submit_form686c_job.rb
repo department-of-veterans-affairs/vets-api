@@ -17,6 +17,7 @@ module BGS
       in_progress_form = InProgressForm.find_by(form_id: FORM_ID, user_uuid:)
       in_progress_copy = in_progress_form_copy(in_progress_form)
       claim_data = valid_claim_data(saved_claim_id, vet_info)
+      normalize_names_and_addresses!(claim_data)
 
       BGS::Form686c.new(user).submit(claim_data)
 
