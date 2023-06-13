@@ -19,7 +19,7 @@ describe AppealsApi::AppealableIssues::V0::AppealableIssuesController, type: :re
 
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body)['description']).to eq('JSON Schema for Appealable Issues endpoint headers')
-      expect(response.body).to include('{"$ref":"non_blank_string.json"}')
+      expect(response.body).to include('{"$ref":"nonBlankString.json"}')
     end
 
     it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:GET]) do

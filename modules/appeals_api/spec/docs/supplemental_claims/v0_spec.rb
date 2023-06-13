@@ -176,7 +176,7 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
       examples = {
         '200995': { value: '200995' },
         address: { value: 'address' },
-        non_blank_string: { value: 'non_blank_string' },
+        nonBlankString: { value: 'nonBlankString' },
         phone: { value: 'phone' },
         timezone: { value: 'timezone' }
       }

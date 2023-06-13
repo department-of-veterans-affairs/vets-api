@@ -146,7 +146,7 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
       examples = {
         '10182': { value: '10182' },
         address: { value: 'address' },
-        non_blank_string: { value: 'non_blank_string' },
+        nonBlankString: { value: 'nonBlankString' },
         phone: { value: 'phone' },
         timezone: { value: 'timezone' }
       }

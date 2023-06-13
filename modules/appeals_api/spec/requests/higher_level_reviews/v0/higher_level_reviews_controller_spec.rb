@@ -23,7 +23,7 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
 
       expect(response.status).to eq(200)
       expect(parsed_response['description']).to eq('JSON Schema for VA Form 20-0996')
-      expect(response.body).to include('{"$ref":"non_blank_string.json"}')
+      expect(response.body).to include('{"$ref":"nonBlankString.json"}')
       expect(response.body).to include('{"$ref":"address.json"}')
       expect(response.body).to include('{"$ref":"phone.json"}')
     end

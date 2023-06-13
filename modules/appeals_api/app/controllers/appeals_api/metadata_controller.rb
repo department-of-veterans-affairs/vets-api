@@ -7,6 +7,7 @@ module AppealsApi
     skip_before_action :verify_authenticity_token
     skip_after_action :set_csrf_header
     skip_before_action(:authenticate)
+    before_action :set_default_headers
 
     def decision_reviews
       render json: {
@@ -86,6 +87,10 @@ module AppealsApi
     end
 
     private
+
+    def set_default_headers
+      AppealsApi::ApplicationController::DEFAULT_HEADERS.each { |k, v| response.headers[k] = v }
+    end
 
     def health_checker
       @health_checker ||= AppealsApi::HealthChecker.new

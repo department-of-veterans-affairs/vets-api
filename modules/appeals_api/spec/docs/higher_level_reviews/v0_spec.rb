@@ -163,7 +163,7 @@ RSpec.describe 'Higher-Level Reviews', swagger_doc:, type: :request do
       examples = {
         '200996': { value: '200996' },
         address: { value: 'address' },
-        non_blank_string: { value: 'non_blank_string' },
+        nonBlankString: { value: 'nonBlankString' },
         phone: { value: 'phone' },
         timezone: { value: 'timezone' }
       }

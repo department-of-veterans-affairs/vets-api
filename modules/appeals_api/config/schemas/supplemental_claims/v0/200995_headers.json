@@ -60,7 +60,7 @@
     "X-VA-First-Name": {
       "allOf": [
         { "description": "Veteran's first name", "minLength": 1, "maxLength": 30 },
-        { "$ref": "non_blank_string.json" },
+        { "$ref": "nonBlankString.json" },
         { "$comment":  "can be whitespace, to accommodate those with 1 legal name" }
       ]
     },
@@ -68,14 +68,14 @@
     "X-VA-Middle-Initial": {
       "allOf": [
         { "description": "Veteran's middle initial", "minLength": 1, "maxLength": 1 },
-        { "$ref": "non_blank_string.json" }
+        { "$ref": "nonBlankString.json" }
       ]
     },
 
     "X-VA-Last-Name": {
       "allOf": [
         { "description":  "Veteran's last name", "minLength": 1, "maxLength": 40 },
-        { "$ref":  "non_blank_string.json" }
+        { "$ref":  "nonBlankString.json" }
       ]
     },
 
@@ -87,7 +87,7 @@
     "X-VA-NonVeteranClaimant-First-Name": {
       "allOf": [
         { "description": "Non-Veteran Claimant's first name", "minLength": 1, "maxLength": 30 },
-        { "$ref": "non_blank_string.json" },
+        { "$ref": "nonBlankString.json" },
         { "$comment":  "can be whitespace, to accommodate those with 1 legal name" }
       ]
     },
@@ -95,56 +95,56 @@
     "X-VA-NonVeteranClaimant-Middle-Initial": {
       "allOf": [
         { "description": "Non-Veteran Claimant's middle initial", "minLength": 1, "maxLength": 1 },
-        { "$ref": "non_blank_string.json" }
+        { "$ref": "nonBlankString.json" }
       ]
     },
 
     "X-VA-NonVeteranClaimant-Last-Name": {
       "allOf": [
         { "description":  "Non-Veteran's Claimaint's last name", "minLength": 1, "maxLength": 40 },
-        { "$ref":  "non_blank_string.json" }
+        { "$ref":  "nonBlankString.json" }
       ]
     },
 
     "X-VA-File-Number": {
       "allOf": [
         { "description": "Veteran's VA file number (c-file / css)", "minLength": 1, "maxLength": 9 },
-        { "$ref": "non_blank_string.json" }
+        { "$ref": "nonBlankString.json" }
       ]
     },
 
     "X-VA-Service-Number": {
       "allOf": [
         { "description":  "Veteran's service number", "minLength":  1, "maxLength":  9 },
-        { "$ref":  "non_blank_string.json" }
+        { "$ref":  "nonBlankString.json" }
       ]
     },
 
     "X-VA-Insurance-Policy-Number": {
       "allOf": [
         { "description": "Veteran's insurance policy number", "minLength": 1, "maxLength":  18 },
-        { "$ref": "non_blank_string.json" }
+        { "$ref": "nonBlankString.json" }
       ]
     },
 
     "X-Consumer-Username": {
       "allOf": [
         { "description": "Consumer User Name (passed from Kong)", "minLength": 1, "maxLength": 255 },
-        { "$ref": "non_blank_string.json" }
+        { "$ref": "nonBlankString.json" }
       ]
     },
 
     "X-Consumer-ID": {
       "allOf": [
         { "description": "Consumer GUID", "minLength": 1, "maxLength": 255 },
-        { "$ref": "non_blank_string.json" }
+        { "$ref": "nonBlankString.json" }
       ]
     },
 
     "X-Alternate-Signer-First-Name": {
       "allOf": [
         { "description": "Alternate signer's first name", "minLength": 1, "maxLength": 30 },
-        { "$ref": "non_blank_string.json" },
+        { "$ref": "nonBlankString.json" },
         { "$comment":  "can be whitespace, to accommodate those with 1 legal name" }
       ]
     },
@@ -152,14 +152,14 @@
     "X-Alternate-Signer-Middle-Initial": {
       "allOf": [
         { "description": "Alternate signer's middle initial", "minLength": 1, "maxLength": 1 },
-        { "$ref": "non_blank_string.json" }
+        { "$ref": "nonBlankString.json" }
       ]
     },
 
     "X-Alternate-Signer-Last-Name": {
       "allOf": [
         { "description":  "Alternate signer's last name", "minLength": 1, "maxLength": 40 },
-        { "$ref":  "non_blank_string.json" }
+        { "$ref":  "nonBlankString.json" }
       ]
     }
   }

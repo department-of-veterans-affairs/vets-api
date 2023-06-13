@@ -100,7 +100,7 @@
           "attributes": {
             "type": "object",
             "properties": {
-              "issue":                     { "allOf": [ { "$ref": "non_blank_string.json" }, { "minLength": 1, "maxLength": 140 } ] },
+              "issue":                     { "allOf": [ { "$ref": "nonBlankString.json" }, { "minLength": 1, "maxLength": 140 } ] },
               "decisionDate":              { "type": "string", "format": "date" },
               "decisionIssueId":           { "type": "integer" },
               "ratingIssueReferenceId":    { "type": "string" },

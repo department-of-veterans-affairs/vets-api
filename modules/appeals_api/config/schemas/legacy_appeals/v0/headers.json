@@ -15,7 +15,7 @@
         },
         "X-VA-File-Number": {
           "allOf": [
-            { "$ref": "non_blank_string.json" },
+            { "$ref": "nonBlankString.json" },
             { "description": "Veteran's file number", "minLength": 1, "maxLength": 9 }
           ]
         },

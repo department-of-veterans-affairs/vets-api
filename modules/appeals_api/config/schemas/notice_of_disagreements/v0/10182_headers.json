@@ -45,14 +45,14 @@
     "X-VA-Middle-Initial": {
       "allOf": [
         { "description": "Veteran's middle initial", "minLength": 1, "maxLength": 1 },
-        { "$ref": "non_blank_string.json" }
+        { "$ref": "nonBlankString.json" }
       ]
     },
 
     "X-VA-Last-Name": {
       "allOf": [
         { "description": "Veteran's last name", "minLength": 1, "maxLength": 255 },
-        { "$ref": "non_blank_string.json" }
+        { "$ref": "nonBlankString.json" }
       ]
     },
 
@@ -80,14 +80,14 @@
     "X-VA-NonVeteranClaimant-Middle-Initial": {
       "allOf": [
         { "description": "Non-Veteran claimant's middle initial", "minLength": 1, "maxLength": 1 },
-        { "$ref": "non_blank_string.json" }
+        { "$ref": "nonBlankString.json" }
       ]
     },
 
     "X-VA-NonVeteranClaimant-Last-Name": {
       "allOf": [
         { "description": "Non-Veteran claimant's last name", "minLength": 1, "maxLength": 255 },
-        { "$ref": "non_blank_string.json" }
+        { "$ref": "nonBlankString.json" }
       ]
     },
 
@@ -99,21 +99,21 @@
     "X-VA-File-Number": {
       "allOf": [
         { "description": "Veteran's VA file number (c-file / css)", "minLength": 1, "maxLength": 9 },
-        { "$ref": "non_blank_string.json" }
+        { "$ref": "nonBlankString.json" }
       ]
     },
 
     "X-Consumer-Username": {
       "allOf": [
         { "description": "Consumer Username (passed from Kong)", "minLength": 1, "maxLength": 255 },
-        { "$ref": "non_blank_string.json" }
+        { "$ref": "nonBlankString.json" }
       ]
     },
 
     "X-Consumer-ID": {
       "allOf": [
         { "description": "Consumer GUID", "minLength": 1, "maxLength": 255 },
-        { "$ref": "non_blank_string.json" }
+        { "$ref": "nonBlankString.json" }
       ]
     }
   }
