@@ -56,30 +56,30 @@
           "gulfWarHazard": {
               "servedInGulfWarHazardLocations": true,
               "serviceDates": {
-                  "startDate": "1999-07-21",
-                  "endDate": "2005-01-21"
+                  "startDate": "07-1999",
+                  "endDate": "01-2005"
               }
           },
           "herbicideHazardService": {
               "servedInHerbicideHazardLocations": true,
               "otherLocationsServed": "Guam",
               "serviceDates": {
-                  "startDate": "2002-03-07",
-                  "endDate": "2004-10-31"
+                  "startDate": "03-2002",
+                  "endDate": "10-2004"
               }
           },
           "additionalHazardExposures": {
               "additionalExposures": ["ASBESTOS","SHAD"],
               "specifyOtherExposures": "Other exposure details",
               "exposureDates": {
-                  "startDate": "2011-07-30",
-                  "endDate": "2013-10-03"
+                  "startDate": "07-2011",
+                  "endDate": "10-2013"
               }
           },
           "multipleExposures": {
               "exposureDates": {
-                  "startDate": "2012-12-09",
-                  "endDate": "2013-07-27"
+                  "startDate": "12-2012",
+                  "endDate": "07-2013"
               },
               "exposureLocation": "Guam",
               "hazardExposedTo": "RADIATION"
@@ -158,12 +158,12 @@
           ],
           "confinements": [
             {
-              "approximateBeginDate": "2016-11-06",
-              "approximateEndDate": "2016-11-09"
+              "approximateBeginDate": "06-11-2016",
+              "approximateEndDate": "09-11-2016"
             },
             {
-              "approximateBeginDate": "2019-11-06",
-              "approximateEndDate": "2019-11-09"
+              "approximateBeginDate": "06-2019",
+              "approximateEndDate": "07-2019"
             }
           ],
           "reservesNationalGuardService": {

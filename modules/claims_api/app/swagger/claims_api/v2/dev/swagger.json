@@ -1791,7 +1791,7 @@
                             "properties": {
                               "servedInGulfWarHazardLocations": {
                                 "type": "boolean",
-                                "description": "Did the Veteran serve in any of the following Gulf War hazard locations?",
+                                "description": "Did the Veteran serve in any of the following Gulf War hazard locations? Iraq; Kuwait; Saudi Arabia; the neutral zone between Iraq and Saudi Arabia; Bahrain; Qatar; the United Arab Emirates; Oman; Yemen; Lebanon; Somalia; Afghanistan; Israel; Egypt; Turkey; Syria; Jordan; Djibouti; Uzbekistan; the Gulf of Aden; the Gulf of Oman; the Persian Gulf; the Arabian Sea; and the Red Sea.",
                                 "example": true
                               },
                               "serviceDates": {
@@ -1799,16 +1799,16 @@
                                 "description": "Date range for when the exposure happened.",
                                 "properties": {
                                   "startDate": {
-                                    "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                     "type": "string",
                                     "description": "Approximate start date for serving in Gulf War hazard location.",
-                                    "example": "2018-06-04"
+                                    "example": "06-2018"
                                   },
                                   "endDate": {
-                                    "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                     "type": "string",
                                     "description": "Approximate end date for serving in Gulf War hazard location.",
-                                    "example": "2018-06-04"
+                                    "example": "06-2018"
                                   }
                                 }
                               }
@@ -1831,16 +1831,16 @@
                                 "description": "Date range for when the exposure happened.",
                                 "properties": {
                                   "startDate": {
-                                    "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                     "type": "string",
                                     "description": "Approximate start date for serving in herbicide location.",
-                                    "example": "2018-06-04"
+                                    "example": "06-2018"
                                   },
                                   "endDate": {
-                                    "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                     "type": "string",
                                     "description": "Approximate end date for serving in herbicide location.",
-                                    "example": "2018-06-04"
+                                    "example": "06-2018"
                                   }
                                 }
                               }
@@ -1872,16 +1872,16 @@
                                 "description": "Date range for when the exposure happened.",
                                 "properties": {
                                   "startDate": {
-                                    "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                     "type": "string",
                                     "description": "Approximate start date for exposure.",
-                                    "example": "2018-06-04"
+                                    "example": "06-2018"
                                   },
                                   "endDate": {
-                                    "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                     "type": "string",
                                     "description": "Approximate end date for exposure.",
-                                    "example": "2018-06-04"
+                                    "example": "06-2018"
                                   }
                                 }
                               }
@@ -1896,16 +1896,16 @@
                                 "description": "Date range for when the exposure happened.",
                                 "properties": {
                                   "startDate": {
-                                    "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                     "type": "string",
                                     "description": "Approximate start date for exposure.",
-                                    "example": "2018-06-04"
+                                    "example": "06-2018"
                                   },
                                   "endDate": {
-                                    "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                     "type": "string",
                                     "description": "Approximate end date for exposure.",
-                                    "example": "2018-06-04"
+                                    "example": "06-2018"
                                   }
                                 }
                               },
@@ -1950,10 +1950,10 @@
                               "example": "Heavy equipment operator in service."
                             },
                             "approximateDate": {
-                              "description": "Approximate date disability began. Date must be in the past.",
+                              "description": "Approximate date disability began. Date must be in the past. \n Format can be either MM-DD-YYYY or MM-YYYY",
                               "type": "string",
-                              "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
-                              "example": "2018-03-02"
+                              "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
+                              "example": "03-12-2019 or 03-2019"
                             },
                             "ratedDisabilityId": {
                               "description": "When submitting a contention with action type INCREASE, the previously rated disability id may be included.",
@@ -2014,10 +2014,10 @@
                                     "example": "249470"
                                   },
                                   "approximateDate": {
-                                    "description": "Approximate date disability began.",
+                                    "description": "Approximate date disability began. \n Format can be either MM-DD-YYYY or MM-YYYY",
                                     "type": "string",
-                                    "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
-                                    "example": "2018-03-02"
+                                    "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
+                                    "example": "03-12-2019 or 03-2019"
                                   },
                                   "exposureOrEventOrInjury": {
                                     "type": "array",
@@ -2105,8 +2105,8 @@
                                 "null",
                                 "string"
                               ],
-                              "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
-                              "example": "2018-03-02"
+                              "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                              "example": "03-2018"
                             },
                             "treatedDisabilityNames": {
                               "description": "Name(s) of Disabilities treated in this time frame.",
@@ -2264,14 +2264,14 @@
                               ],
                               "properties": {
                                 "approximateBeginDate": {
-                                  "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                  "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
                                   "type": "string",
-                                  "example": "2018-06-04"
+                                  "example": "06-12-2019 or 06-2019"
                                 },
                                 "approximateEndDate": {
-                                  "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                  "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
                                   "type": "string",
-                                  "example": "2018-08-04"
+                                  "example": "07-12-2019 or 07-2019"
                                 }
                               }
                             }
@@ -2483,10 +2483,10 @@
                             "description": "",
                             "properties": {
                               "datePaymentReceived": {
-                                "description": "Approximate date separation pay was received.",
+                                "description": "Approximate date separation pay was received. \n Format can be either MM-DD-YYYY or MM-YYYY",
                                 "type": "string",
-                                "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
-                                "example": "2018-03-02"
+                                "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
+                                "example": "03-02-2018 or 03-2018"
                               },
                               "branchOfService": {
                                 "description": "Branch of Service making payments.",
@@ -2970,16 +2970,16 @@
                                     "description": "Date range for when the exposure happened.",
                                     "properties": {
                                       "startDate": {
-                                        "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                         "type": "string",
                                         "description": "Approximate start date for serving in Gulf War hazard location.",
-                                        "example": "2018-06-04"
+                                        "example": "06-2018"
                                       },
                                       "endDate": {
-                                        "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                         "type": "string",
                                         "description": "Approximate end date for serving in Gulf War hazard location.",
-                                        "example": "2018-06-04"
+                                        "example": "06-2018"
                                       }
                                     }
                                   }
@@ -3002,16 +3002,16 @@
                                     "description": "Date range for when the exposure happened.",
                                     "properties": {
                                       "startDate": {
-                                        "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                         "type": "string",
                                         "description": "Approximate start date for serving in herbicide location.",
-                                        "example": "2018-06-04"
+                                        "example": "06-2018"
                                       },
                                       "endDate": {
-                                        "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                         "type": "string",
                                         "description": "Approximate end date for serving in herbicide location.",
-                                        "example": "2018-06-04"
+                                        "example": "06-2018"
                                       }
                                     }
                                   }
@@ -3049,16 +3049,16 @@
                                     "description": "Date range for when the exposure happened.",
                                     "properties": {
                                       "startDate": {
-                                        "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                         "type": "string",
                                         "description": "Approximate start date for exposure.",
-                                        "example": "2018-06-04"
+                                        "example": "06-2018"
                                       },
                                       "endDate": {
-                                        "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                         "type": "string",
                                         "description": "Approximate end date for exposure.",
-                                        "example": "2018-06-04"
+                                        "example": "06-2018"
                                       }
                                     }
                                   }
@@ -3073,16 +3073,16 @@
                                     "description": "Date range for when the exposure happened.",
                                     "properties": {
                                       "startDate": {
-                                        "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                         "type": "string",
                                         "description": "Approximate start date for exposure.",
-                                        "example": "2018-06-04"
+                                        "example": "06-2018"
                                       },
                                       "endDate": {
-                                        "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                         "type": "string",
                                         "description": "Approximate end date for exposure.",
-                                        "example": "2018-06-04"
+                                        "example": "06-2018"
                                       }
                                     }
                                   },
@@ -3127,10 +3127,10 @@
                                   "example": "Heavy equipment operator in service."
                                 },
                                 "approximateDate": {
-                                  "description": "Approximate date disability began. Date must be in the past.",
+                                  "description": "Approximate date disability began. Date must be in the past. \n Format can be either MM-DD-YYYY or MM-YYYY",
                                   "type": "string",
-                                  "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
-                                  "example": "2018-03-02"
+                                  "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
+                                  "example": "03-12-2019 or 03-2019"
                                 },
                                 "ratedDisabilityId": {
                                   "description": "When submitting a contention with action type INCREASE, the previously rated disability id may be included.",
@@ -3190,10 +3190,10 @@
                                         "example": "249470"
                                       },
                                       "approximateDate": {
-                                        "description": "Approximate date disability began.",
+                                        "description": "Approximate date disability began. \n Format can be either MM-DD-YYYY or MM-YYYY",
                                         "type": "string",
-                                        "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
-                                        "example": "2018-03-02"
+                                        "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
+                                        "example": "03-12-2019 or 03-2019"
                                       },
                                       "exposureOrEventOrInjury": {
                                         "type": "string",
@@ -3281,8 +3281,8 @@
                                     "null",
                                     "string"
                                   ],
-                                  "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
-                                  "example": "2018-03-02"
+                                  "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                  "example": "02-2018"
                                 },
                                 "treatedDisabilityNames": {
                                   "description": "Name(s) of Disabilities treated in this time frame.",
@@ -3297,36 +3297,36 @@
                                       "Trauma"
                                     ]
                                   }
-                                }
-                              },
-                              "center": {
-                                "description": "VA Medical Center(s) and Department of Defense Military Treatment Facilities where the Veteran received treatment after discharge for any claimed disabilities.",
-                                "type": "object",
-                                "additionalProperties": false,
-                                "required": [
-                                  "name",
-                                  "state"
-                                ],
-                                "properties": {
-                                  "name": {
-                                    "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
-                                    "type": "string",
-                                    "pattern": "(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
-                                    "example": "Private Facility 2",
-                                    "minLength": 1,
-                                    "maxLength": 100
-                                  },
-                                  "city": {
-                                    "description": "City of treatment facility.",
-                                    "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
-                                    "example": "Portland"
-                                  },
-                                  "state": {
-                                    "description": "State of treatment facility.",
-                                    "type": "string",
-                                    "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR"
+                                },
+                                "center": {
+                                  "description": "VA Medical Center(s) and Department of Defense Military Treatment Facilities where the Veteran received treatment after discharge for any claimed disabilities.",
+                                  "type": "object",
+                                  "additionalProperties": false,
+                                  "required": [
+                                    "name",
+                                    "state"
+                                  ],
+                                  "properties": {
+                                    "name": {
+                                      "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
+                                      "type": "string",
+                                      "pattern": "(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                      "example": "Private Facility 2",
+                                      "minLength": 1,
+                                      "maxLength": 100
+                                    },
+                                    "city": {
+                                      "description": "City of treatment facility.",
+                                      "type": "string",
+                                      "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                      "example": "Portland"
+                                    },
+                                    "state": {
+                                      "description": "State of treatment facility.",
+                                      "type": "string",
+                                      "pattern": "^[a-z,A-Z]{2}$",
+                                      "example": "OR"
+                                    }
                                   }
                                 }
                               }
@@ -3436,14 +3436,14 @@
                                   ],
                                   "properties": {
                                     "approximateBeginDate": {
-                                      "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                      "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
                                       "type": "string",
-                                      "example": "2018-06-04"
+                                      "example": "06-12-2019 or 06-2019"
                                     },
                                     "approximateEndDate": {
-                                      "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                      "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
                                       "type": "string",
-                                      "example": "2018-08-04"
+                                      "example": "07-12-2019 or 07-2019"
                                     }
                                   }
                                 }
@@ -3660,10 +3660,10 @@
                                 "description": "",
                                 "properties": {
                                   "datePaymentReceived": {
-                                    "description": "Approximate date separation pay was received.",
+                                    "description": "Approximate date separation pay was received. \n Format can be either MM-DD-YYYY or MM-YYYY",
                                     "type": "string",
-                                    "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
-                                    "example": "2018-03-02"
+                                    "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
+                                    "example": "03-02-2018 or 03-2018"
                                   },
                                   "branchOfService": {
                                     "description": "Branch of Service making payments.",
@@ -3828,16 +3828,16 @@
                         "gulfWarHazard": {
                           "servedInGulfWarHazardLocations": true,
                           "serviceDates": {
-                            "startDate": "1999-07-21",
-                            "endDate": "2005-01-21"
+                            "startDate": "07-1999",
+                            "endDate": "01-2005"
                           }
                         },
                         "herbicideHazardService": {
                           "servedInHerbicideHazardLocations": true,
                           "otherLocationsServed": "Guam",
                           "serviceDates": {
-                            "startDate": "2002-03-07",
-                            "endDate": "2004-10-31"
+                            "startDate": "03-2002",
+                            "endDate": "10-2004"
                           }
                         },
                         "additionalHazardExposures": {
@@ -3847,14 +3847,14 @@
                           ],
                           "specifyOtherExposures": "Other exposure details",
                           "exposureDates": {
-                            "startDate": "2011-07-30",
-                            "endDate": "2013-10-03"
+                            "startDate": "07-2011",
+                            "endDate": "10-2013"
                           }
                         },
                         "multipleExposures": {
                           "exposureDates": {
-                            "startDate": "2012-12-09",
-                            "endDate": "2013-07-27"
+                            "startDate": "12-2012",
+                            "endDate": "07-2013"
                           },
                           "exposureLocation": "Guam",
                           "hazardExposedTo": "RADIATION"
@@ -3938,12 +3938,12 @@
                         ],
                         "confinements": [
                           {
-                            "approximateBeginDate": "2016-11-06",
-                            "approximateEndDate": "2016-11-09"
+                            "approximateBeginDate": "06-11-2016",
+                            "approximateEndDate": "09-11-2016"
                           },
                           {
-                            "approximateBeginDate": "2019-11-06",
-                            "approximateEndDate": "2019-11-09"
+                            "approximateBeginDate": "06-2019",
+                            "approximateEndDate": "07-2019"
                           }
                         ],
                         "reservesNationalGuardService": {
@@ -4634,8 +4634,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-06-12",
-                      "expirationDate": "2024-06-12",
+                      "creationDate": "2023-06-13",
+                      "expirationDate": "2024-06-13",
                       "type": "compensation",
                       "status": "active"
                     }
