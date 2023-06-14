@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_05_12_221434) do
+ActiveRecord::Schema.define(version: 2023_06_13_132004) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -899,7 +899,7 @@ ActiveRecord::Schema.define(version: 2023_05_12_221434) do
   end
 
   create_table "std_zipcodes", force: :cascade do |t|
-    t.integer "zip_code", null: false
+    t.string "zip_code", null: false
     t.integer "zip_classification_id"
     t.integer "preferred_zip_place_id"
     t.integer "state_id", null: false
