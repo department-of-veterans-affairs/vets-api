@@ -1589,23 +1589,22 @@
                         "additionalProperties": false,
                         "required": [
                           "country",
-                          "type",
-                          "addressLine1",
-                          "addressChangeType",
-                          "beginningDate"
+                          "typeOfAddressChange",
+                          "numberAndStreet",
+                          "dates"
                         ],
                         "properties": {
                           "dates": {
                             "type": "object",
                             "description": "Important dates for the change of address action.",
                             "properties": {
-                              "beginningDate": {
+                              "beginDate": {
                                 "description": "Date in YYYY-MM-DD the Veteran changed address. Date must be in the future if change is temporary.",
                                 "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                 "type": "string",
                                 "example": "2018-06-04"
                               },
-                              "endingDate": {
+                              "endDate": {
                                 "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
                                 "type": "string",
                                 "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
@@ -1785,7 +1784,7 @@
                         "type": "object",
                         "description": "Toxic exposures incidents and details.",
                         "properties": {
-                          "gulfWarHazard": {
+                          "gulfWarHazardService": {
                             "type": "object",
                             "description": "Toxic exposure related to the Gulf war.",
                             "properties": {
@@ -1798,10 +1797,10 @@
                                 "type": "object",
                                 "description": "Date range for when the exposure happened.",
                                 "properties": {
-                                  "startDate": {
+                                  "beginDate": {
                                     "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                     "type": "string",
-                                    "description": "Approximate start date for serving in Gulf War hazard location.",
+                                    "description": "Approximate begin date for serving in Gulf War hazard location.",
                                     "example": "06-2018"
                                   },
                                   "endDate": {
@@ -1830,10 +1829,10 @@
                                 "type": "object",
                                 "description": "Date range for when the exposure happened.",
                                 "properties": {
-                                  "startDate": {
+                                  "beginDate": {
                                     "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                     "type": "string",
-                                    "description": "Approximate start date for serving in herbicide location.",
+                                    "description": "Approximate begin date for serving in herbicide location.",
                                     "example": "06-2018"
                                   },
                                   "endDate": {
@@ -1871,10 +1870,10 @@
                                 "type": "object",
                                 "description": "Date range for when the exposure happened.",
                                 "properties": {
-                                  "startDate": {
+                                  "beginDate": {
                                     "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                     "type": "string",
-                                    "description": "Approximate start date for exposure.",
+                                    "description": "Approximate begin date for exposure.",
                                     "example": "06-2018"
                                   },
                                   "endDate": {
@@ -1895,10 +1894,10 @@
                                 "type": "object",
                                 "description": "Date range for when the exposure happened.",
                                 "properties": {
-                                  "startDate": {
+                                  "beginDate": {
                                     "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                     "type": "string",
-                                    "description": "Approximate start date for exposure.",
+                                    "description": "Approximate begin date for exposure.",
                                     "example": "06-2018"
                                   },
                                   "endDate": {
@@ -2099,8 +2098,8 @@
                             "center"
                           ],
                           "properties": {
-                            "startDate": {
-                              "description": "Start date for treatment. If treatment began from 2005 to present, you do not need to provide dates.",
+                            "beginDate": {
+                              "description": "Begin date for treatment. If treatment began from 2005 to present, you do not need to provide dates.",
                               "type": [
                                 "null",
                                 "string"
@@ -2288,7 +2287,7 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "startDate",
+                                  "beginDate",
                                   "endDate"
                                 ],
                                 "properties": {
@@ -2778,13 +2777,13 @@
                               "dates": {
                                 "type": "object",
                                 "properties": {
-                                  "beginningDate": {
+                                  "beginDate": {
                                     "description": "Date in YYYY-MM-DD the Veteran changed address. Date must be in the future if change is temporary.",
                                     "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                     "type": "string",
                                     "example": "2018-06-04"
                                   },
-                                  "endingDate": {
+                                  "endDate": {
                                     "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
                                     "type": "string",
                                     "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
@@ -2956,7 +2955,7 @@
                           "toxicExposure": {
                             "type": "object",
                             "properties": {
-                              "gulfWarHazard": {
+                              "gulfWarHazardService": {
                                 "type": "object",
                                 "description": "Toxic exposure related to the Gulf war.",
                                 "properties": {
@@ -2969,10 +2968,10 @@
                                     "type": "object",
                                     "description": "Date range for when the exposure happened.",
                                     "properties": {
-                                      "startDate": {
+                                      "beginDate": {
                                         "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                         "type": "string",
-                                        "description": "Approximate start date for serving in Gulf War hazard location.",
+                                        "description": "Approximate begin date for serving in Gulf War hazard location.",
                                         "example": "06-2018"
                                       },
                                       "endDate": {
@@ -3001,10 +3000,10 @@
                                     "type": "object",
                                     "description": "Date range for when the exposure happened.",
                                     "properties": {
-                                      "startDate": {
+                                      "beginDate": {
                                         "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                         "type": "string",
-                                        "description": "Approximate start date for serving in herbicide location.",
+                                        "description": "Approximate begin date for serving in herbicide location.",
                                         "example": "06-2018"
                                       },
                                       "endDate": {
@@ -3048,10 +3047,10 @@
                                     "type": "object",
                                     "description": "Date range for when the exposure happened.",
                                     "properties": {
-                                      "startDate": {
+                                      "beginDate": {
                                         "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                         "type": "string",
-                                        "description": "Approximate start date for exposure.",
+                                        "description": "Approximate begin date for exposure.",
                                         "example": "06-2018"
                                       },
                                       "endDate": {
@@ -3072,10 +3071,10 @@
                                     "type": "object",
                                     "description": "Date range for when the exposure happened.",
                                     "properties": {
-                                      "startDate": {
+                                      "beginDate": {
                                         "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                         "type": "string",
-                                        "description": "Approximate start date for exposure.",
+                                        "description": "Approximate begin date for exposure.",
                                         "example": "06-2018"
                                       },
                                       "endDate": {
@@ -3275,8 +3274,8 @@
                                 "center"
                               ],
                               "properties": {
-                                "startDate": {
-                                  "description": "Start date for treatment. If treatment began from 2005 to present, you do not need to provide dates.",
+                                "beginDate": {
+                                  "description": "Begin date for treatment. If treatment began from 2005 to present, you do not need to provide dates.",
                                   "type": [
                                     "null",
                                     "string"
@@ -3460,11 +3459,11 @@
                                     "type": "object",
                                     "additionalProperties": false,
                                     "required": [
-                                      "startDate",
+                                      "beginDate",
                                       "endDate"
                                     ],
                                     "properties": {
-                                      "startDate": {
+                                      "beginDate": {
                                         "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                                         "type": "string",
                                         "example": "2018-06-04"
@@ -3801,8 +3800,8 @@
                       },
                       "changeOfAddress": {
                         "dates": {
-                          "beginningDate": "2012-11-31",
-                          "endingDate": "2013-10-11"
+                          "beginDate": "2012-11-31",
+                          "endDate": "2013-10-11"
                         },
                         "typeOfAddressChange": "TEMPORARY",
                         "numberAndStreet": "10 Peach St",
@@ -3825,10 +3824,10 @@
                         }
                       },
                       "toxicExposure": {
-                        "gulfWarHazard": {
+                        "gulfWarHazardService": {
                           "servedInGulfWarHazardLocations": true,
                           "serviceDates": {
-                            "startDate": "07-1999",
+                            "beginDate": "07-1999",
                             "endDate": "01-2005"
                           }
                         },
@@ -3836,7 +3835,7 @@
                           "servedInHerbicideHazardLocations": true,
                           "otherLocationsServed": "Guam",
                           "serviceDates": {
-                            "startDate": "03-2002",
+                            "beginDate": "03-2002",
                             "endDate": "10-2004"
                           }
                         },
@@ -3847,13 +3846,13 @@
                           ],
                           "specifyOtherExposures": "Other exposure details",
                           "exposureDates": {
-                            "startDate": "07-2011",
+                            "beginDate": "07-2011",
                             "endDate": "10-2013"
                           }
                         },
                         "multipleExposures": {
                           "exposureDates": {
-                            "startDate": "12-2012",
+                            "beginDate": "12-2012",
                             "endDate": "07-2013"
                           },
                           "exposureLocation": "Guam",
@@ -3912,7 +3911,7 @@
                             "state": "GA",
                             "city": "Decatur"
                           },
-                          "startDate": "03-1985"
+                          "beginDate": "03-1985"
                         },
                         {
                           "treatedDisabilityNames": [
@@ -3923,7 +3922,7 @@
                             "state": "GA",
                             "city": "Decatur"
                           },
-                          "startDate": "03-1985"
+                          "beginDate": "03-1985"
                         }
                       ],
                       "serviceInformation": {
@@ -3948,7 +3947,7 @@
                         ],
                         "reservesNationalGuardService": {
                           "obligationTermsOfService": {
-                            "startDate": "2016-11-24",
+                            "beginDate": "2016-11-24",
                             "endDate": "2017-11-17"
                           },
                           "unitName": "National Guard Unit Name",
