@@ -1614,61 +1614,140 @@ paths:
               schema:
                 $ref: ./schemas/DisabilityRating.yml
           description: OK
+        '400':
+          content:
+            application/json:
+              example:
+                errors:
+                  - timestamp: '2023-02-13T17:38:36.551+00:00'
+                    status: '400'
+                    error: 'Bad Request'
+                    path: '/veteran_verification/v2/disability_rating'
+                    code: '400'
+                    title: 'Common::Exceptions::BadRequest'
+                    detail: 'Bad Request'
+              schema:
+                $ref: ./schemas/LighthouseErrors.yml
+          description: Bad request. Server can't understand request.
         '401':
           content:
             application/json:
+              example:
+                errors:
+                  - status: '401'
+                    error: 'Invalid Token.'
+                    path: '/veteran_verification/v2/disability_rating'
+                    code: '401'
+                    title: 'Common::Exceptions::Unauthorized'
+                    detail: 'Invalid Token.'
               schema:
-                $ref: ./schemas/Errors.yml
+                $ref: ./schemas/LighthouseErrors.yml
           description: Authentication is possible but has failed or not yet been provided.
         '403':
           content:
             application/json:
+              example:
+                errors:
+                  - status: '403'
+                    error: 'Token not granted requested scope.'
+                    path: '/veteran_verification/v2/disability_rating'
+                    code: '403'
+                    title: 'Common::Exceptions::Forbidden'
+                    detail: 'Token not granted requested scope.'
               schema:
-                $ref: ./schemas/Errors.yml
+                $ref: ./schemas/LighthouseErrors.yml
           description: Client was forbidden from upstream resource.
         '404':
           content:
             application/json:
+              example:
+                errors:
+                  - title: 'Veteran not identifiable.'
+                    detail: 'No data found for ICN.'
+                    code: '404'
+                    status: '404'
               schema:
-                $ref: ./schemas/Errors.yml
+                $ref: ./schemas/LighthouseErrors.yml
           description: The requested resource could not be found.
-        '408':
+        '405':
           content:
             application/json:
+              example:
+                errors:
+                  - status: '405'
+                    error: 'Unknown.'
+                    path: '/veteran_verification/v2/disability_rating'
+                    code: '405'
+                    title: 'Common::Exceptions::ServiceError'
+                    detail: 'Unknown.'
               schema:
-                $ref: ./schemas/Errors.yml
-          description: The response from this API timed out.
-        '422':
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
+                $ref: ./schemas/LighthouseErrors.yml
           description: Failure in processing entity
+        '413':
+          content:
+            application/json:
+              example:
+                errors:
+                  - message: 'Request size limit exceeded'
+                    status: '413.'
+                    code: '413'
+                    title: 'Common::Exceptions::PayloadTooLarge'
+                    detail: 'Request size limit exceeded'
+              schema:
+                $ref: ./schemas/LighthouseErrors.yml
+          description: Failure in processing entity
+        '429':
+          content:
+            application/json:
+              example:
+                errors:
+                  - title: 'Too Many Requests'
+                    detail: 'The user has sent too many requests in a given amount of time'
+                    code: '429'
+                    status: '429'
+              schema:
+                $ref: ./schemas/LighthouseErrors.yml
+          description: Too Many Requests
         '500':
           content:
             application/json:
+              example:
+                errors:
+                  - timestamp: '2023-02-13T17:38:36.551+00:00'
+                    status: '500'
+                    error: 'Internal Server Error'
+                    path: '/veteran_verification/v2/disability_rating'
+                    code: '500'
+                    title: 'Common::Exceptions::ExternalServerInternalServerError'
+                    detail: 'Internal Server Error'
               schema:
-                $ref: ./schemas/Errors.yml
+                $ref: ./schemas/LighthouseErrors.yml
           description: An internal API error occured.
         '502':
           content:
             application/json:
+              example:
+                errors:
+                  - title: 'Unexpected Response Body'
+                    detail: 'EMIS service responded with something other than veteran status information.'
+                    code: 'EMIS_STATUS502'
+                    status: '502'
               schema:
-                $ref: ./schemas/Errors.yml
+                $ref: ./schemas/LighthouseErrors.yml
           description: An upstream service the API depends on returned an error.
         '503':
           content:
             application/json:
+              example:
+                errors:
+                  - title: 'Error title'
+                    detail: 'Detailed error message'
+                    code: '503'
+                    status: '503'
               schema:
-                $ref: ./schemas/Errors.yml
+                $ref: ./schemas/LighthouseErrors.yml
           description: An upstream service is unavailable, or its circuit breaker
             may have been tripped.
-        '504':
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: A response from an upstream service timed out.
       security:
         - Bearer: []
       summary: /v0/disability-rating
@@ -4432,7 +4511,7 @@ paths:
       summary: /v0/user/gender_identity
   /v0/user/gender_identity/edit:
     get:
-      description: Retrieves a list of valid gender identity keys. Note that this endpoint does not use the camel case key inflection header like most other mobile endpoints to keep the keys upcase. 
+      description: Retrieves a list of valid gender identity keys. Note that this endpoint does not use the camel case key inflection header like most other mobile endpoints to keep the keys upcase.
       operationId: user.editGenderIdentity
       responses:
         '200':
