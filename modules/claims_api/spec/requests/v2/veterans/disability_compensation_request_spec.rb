@@ -462,8 +462,8 @@ RSpec.describe 'Disability Claims', type: :request do
                 VCR.use_cassette('brd/countries') do
                   VCR.use_cassette('brd/disabilities') do
                     json = JSON.parse(data)
-                    json['data']['attributes']['changeOfAddress']['dates']['beginningDate'] = begin_date
-                    json['data']['attributes']['changeOfAddress']['dates']['endingDate'] = end_date
+                    json['data']['attributes']['changeOfAddress']['dates']['beginDate'] = begin_date
+                    json['data']['attributes']['changeOfAddress']['dates']['endDate'] = end_date
                     data = json.to_json
                     post submit_path, params: data, headers: auth_header
                     expect(response).to have_http_status(:bad_request)
@@ -1390,16 +1390,17 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when treatment startDate is in the wrong pattern' do
-          let(:treatment_start_date) { '12/01/1999' }
+          let(:treatment_begin_date) { '12/01/1999' }
+          let(:active_duty_begin_date) { '1981-11-15' }
 
           it 'returns a 422' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
                 VCR.use_cassette('brd/countries') do
                   json = JSON.parse(data)
-                  json['data']['attributes']['treatments'][0]['startDate'] = treatment_start_date
+                  json['data']['attributes']['treatments'][0]['beginDate'] = treatment_begin_date
                   json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] =
-                    '1981-11-15'
+                    active_duty_begin_date
                   data = json.to_json
                   post submit_path, params: data, headers: auth_header
                   expect(response).to have_http_status(:unprocessable_entity)
@@ -2622,9 +2623,9 @@ RSpec.describe 'Disability Claims', type: :request do
               VCR.use_cassette('evss/claims/claims') do
                 VCR.use_cassette('brd/countries') do
                   json = JSON.parse(data)
-                  tos =
-                    reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
-                  reserves['obligationTermsOfService'] # s['startDate'] = empty_date
+                  reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
+                  tos = reserves['obligationTermsOfService']
+                  tos['beginDate'] = empty_date
                   tos['endDate'] = empty_date
                   data = json.to_json
                   post submit_path, params: data, headers: auth_header
@@ -2635,8 +2636,8 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
-        context 'when obligationTermsOfService startDate is after endDate' do
-          let(:start_date) { '2022-09-04' }
+        context 'when obligationTermsOfService beginDate is after endDate' do
+          let(:begin_date) { '2022-09-04' }
           let(:end_date) { '2021-09-04' }
 
           it 'responds with a 422' do
@@ -2645,9 +2646,9 @@ RSpec.describe 'Disability Claims', type: :request do
                 VCR.use_cassette('brd/countries') do
                   VCR.use_cassette('brd/disabilities') do
                     json = JSON.parse(data)
-                    tos =
-                      reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
-                    reserves['obligationTermsOfService'] # tos['startDate'] = start_date
+                    reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
+                    tos = reserves['obligationTermsOfService']
+                    tos['beginDate'] = begin_date
                     tos['endDate'] = end_date
                     data = json.to_json
                     post submit_path, params: data, headers: auth_header
@@ -2659,8 +2660,8 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
-        context 'when obligationTermsOfService startDate is missing' do
-          let(:start_date) { nil }
+        context 'when obligationTermsOfService beginDate is missing' do
+          let(:begin_date) { nil }
 
           it 'responds with a 422' do
             with_okta_user(scopes) do |auth_header|
@@ -2668,7 +2669,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 VCR.use_cassette('brd/countries') do
                   json = JSON.parse(data)
                   reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
-                  reserves['obligationTermsOfService']['startDate'] = start_date
+                  reserves['obligationTermsOfService']['beginDate'] = begin_date
                   data = json.to_json
                   post submit_path, params: data, headers: auth_header
                   expect(response).to have_http_status(:unprocessable_entity)

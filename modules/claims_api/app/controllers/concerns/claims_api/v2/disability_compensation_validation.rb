@@ -38,26 +38,26 @@ module ClaimsApi
 
       def validate_form_526_change_of_address_beginning_date!
         change_of_address = form_attributes['changeOfAddress']
-        date = change_of_address.dig('dates', 'beginningDate')
+        date = change_of_address.dig('dates', 'beginDate')
         return unless 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange'])
 
         # If the date parse fails, then fall back to the InvalidFieldValue
         begin
           return if Date.parse(date) < Time.zone.now
         rescue
-          raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.beginningDate', date)
+          raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.beginDate', date)
         end
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.beginningDate', date)
+        raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.beginDate', date)
       end
 
       def validate_form_526_change_of_address_ending_date!
         change_of_address = form_attributes['changeOfAddress']
-        date = change_of_address.dig('dates', 'endingDate')
+        date = change_of_address.dig('dates', 'endDate')
         return unless 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange'])
-        return if Date.parse(date) > Date.parse(change_of_address.dig('dates', 'beginningDate'))
+        return if Date.parse(date) > Date.parse(change_of_address.dig('dates', 'beginDate'))
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.endingDate', date)
+        raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.endDate', date)
       end
 
       def validate_form_526_change_of_address_country!
@@ -522,7 +522,7 @@ module ClaimsApi
       def validate_reserves_tos_dates!
         service_information = form_attributes['serviceInformation']
 
-        tos_start_date = service_information['reservesNationalGuardService']['obligationTermsOfService']['startDate']
+        tos_start_date = service_information['reservesNationalGuardService']['obligationTermsOfService']['beginDate']
         tos_end_date = service_information['reservesNationalGuardService']['obligationTermsOfService']['endDate']
         if Date.parse(tos_start_date) > Date.parse(tos_end_date)
           raise ::Common::Exceptions::UnprocessableEntity.new(

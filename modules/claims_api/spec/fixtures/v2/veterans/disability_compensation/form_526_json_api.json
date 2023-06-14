@@ -46,7 +46,7 @@
                 ],
                 "reservesNationalGuardService": {
                     "obligationTermsOfService": {
-                        "startDate":"2019-06-04",
+                        "beginDate":"2019-06-04",
                         "endDate":"2020-06-04"
                     },
                     "unitName": "National Guard Unit Name",
@@ -116,8 +116,8 @@
             "claimDate": "2023-02-18",
             "changeOfAddress": {
                 "dates": {
-                    "beginningDate": "2012-11-30",
-                    "endingDate": "2013-10-11"
+                    "beginDate": "2012-11-30",
+                    "endDate": "2013-10-11"
                   },
                   "typeOfAddressChange": "TEMPORARY",
                   "numberAndStreet": "10 Peach St",
@@ -143,7 +143,7 @@
                 "gulfWarHazardService": {
                     "servedInGulfWarHazardLocations": true,
                     "serviceDates": {
-                        "startDate": "07-2018",
+                        "beginDate": "07-2018",
                         "endDate": "08-2018"
                     }
                 },
@@ -151,7 +151,7 @@
                     "servedInHerbicideHazardLocations": true,
                     "otherLocationsServed": "ABCDEFGHIJKLM",
                     "serviceDates": {
-                        "startDate": "07-2018",
+                        "beginDate": "07-2018",
                         "endDate": "08-2018"
                     }
                 },
@@ -159,13 +159,13 @@
                     "additionalExposures": ["ASBESTOS", "SHAD"],
                     "specifyOtherExposures": "Other exposure details",
                     "exposureDates": {
-                        "startDate": "07-2018",
+                        "beginDate": "07-2018",
                         "endDate": "08-2018"
                     }
                 },
                 "multipleExposures": {
                     "exposureDates": {
-                        "startDate": "07-2018",
+                        "beginDate": "07-2018",
                         "endDate": "08-2018"
                     },
                     "exposureLocation": "ABCDEFGHIJKLMN",
@@ -180,7 +180,7 @@
                         "state": "GA",
                         "city": "Decatur"
                     },
-                    "startDate": "03-1985"
+                    "beginDate": "03-1985"
                 }
             ],
             "servicePay": {
