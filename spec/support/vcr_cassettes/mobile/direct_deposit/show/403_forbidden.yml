@@ -1,0 +1,68 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: https://sandbox-api.va.gov/services/direct-deposit-management/v1/direct-deposit?icn=1012666073V986297
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Authorization:
+          - Bearer abcdefghijklmnop
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 403
+        message: Forbidden
+      headers:
+        Date:
+          - Mon, 20 Feb 2023 18:45:14 GMT
+        Content-Type:
+          - application/json
+        Connection:
+          - keep-alive
+        X-Ratelimit-Remaining-Minute:
+          - '59'
+        X-Ratelimit-Limit-Minute:
+          - '60'
+        Ratelimit-Remaining:
+          - '59'
+        Ratelimit-Limit:
+          - '60'
+        Ratelimit-Reset:
+          - '47'
+        Content-Language:
+          - en-US
+        X-Kong-Upstream-Latency:
+          - '735'
+        X-Kong-Proxy-Latency:
+          - '0'
+        Via:
+          - kong/3.0.2
+        Access-Control-Allow-Origin:
+          - "*"
+        Cache-Control:
+          - ''
+        Strict-Transport-Security:
+          - max-age=31536000; includeSubDomains; preload
+        Transfer-Encoding:
+          - chunked
+      body:
+        encoding: UTF-8
+        string: '{
+        "errors": [
+          {
+            "title": "Forbidden",
+            "detail": "Forbidden"
+          }
+        ]
+      }'
+    recorded_at: Mon, 20 Feb 2023 18:45:14 GMT
+recorded_with: VCR 6.1.0
