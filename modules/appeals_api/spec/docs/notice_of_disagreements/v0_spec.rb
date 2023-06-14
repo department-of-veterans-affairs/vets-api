@@ -14,6 +14,7 @@ end
 # rubocop:disable RSpec/VariableName, RSpec/RepeatedExample, Layout/LineLength
 RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
   include DocHelpers
+  include FixtureHelpers
   let(:Authorization) { 'Bearer TEST_TOKEN' }
 
   path '/forms/10182' do
@@ -29,12 +30,8 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
       produces 'application/json'
       parameter name: :nod_body, in: :body, schema: { '$ref' => '#/components/schemas/nodCreate' }
       parameter in: :body, examples: {
-        'minimum fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_10182_minimum.json')))
-        },
-        'all fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_10182_extra.json')))
-        }
+        'minimum fields used' => { value: FixtureHelpers.fixture_as_json('notice_of_disagreements/v0/valid_10182_minimum.json') },
+        'all fields used' => { value: FixtureHelpers.fixture_as_json('notice_of_disagreements/v0/valid_10182_extra.json') }
       }
       file_number_header_params = AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
       file_number_header_params[:required] = true
@@ -55,9 +52,7 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_birth_date_header]
 
       response '200', 'Info about a single Notice of Disagreement' do
-        let(:nod_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_10182_minimum.json')))
-        end
+        let(:nod_body) { fixture_as_json('notice_of_disagreements/v0/valid_10182_minimum.json') }
 
         schema '$ref' => '#/components/schemas/nodCreateResponse'
 
@@ -70,10 +65,7 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
 
       response '200', 'Info about a single Notice of Disagreement' do
         schema '$ref' => '#/components/schemas/nodCreateResponse'
-        let(:nod_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_10182_extra.json')))
-        end
-
+        let(:nod_body) { fixture_as_json('notice_of_disagreements/v0/valid_10182_extra.json') }
         let(:'X-VA-NonVeteranClaimant-First-Name') { 'first' }
         let(:'X-VA-NonVeteranClaimant-Last-Name') { 'last' }
         let(:'X-VA-NonVeteranClaimant-Birth-Date') { '1921-08-08' }
@@ -88,7 +80,7 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
       response '422', 'Violates JSON schema' do
         schema '$ref' => '#/components/schemas/errorModel'
         let(:nod_body) do
-          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_10182.json')))
+          request_body = fixture_as_json('notice_of_disagreements/v0/valid_10182.json')
           request_body['data']['attributes'].delete('boardReviewOption')
           request_body
         end
@@ -188,12 +180,8 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
       produces 'application/json'
       parameter name: :nod_body, in: :body, schema: { '$ref' => '#/components/schemas/nodCreate' }
       parameter in: :body, examples: {
-        'minimum fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_10182_minimum.json')))
-        },
-        'all fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_10182_extra.json')))
-        }
+        'minimum fields used' => { value: FixtureHelpers.fixture_as_json('notice_of_disagreements/v0/valid_10182_minimum.json') },
+        'all fields used' => { value: FixtureHelpers.fixture_as_json('notice_of_disagreements/v0/valid_10182_extra.json') }
       }
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
       let(:'X-VA-File-Number') { '987654321' }
@@ -208,9 +196,7 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
       let(:'X-VA-Birth-Date') { '1900-01-01' }
 
       response '200', 'Valid' do
-        let(:nod_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_10182_minimum.json')))
-        end
+        let(:nod_body) { fixture_as_json('notice_of_disagreements/v0/valid_10182_minimum.json') }
 
         schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'nod_validate.json')))
 
@@ -221,10 +207,9 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
       end
 
       response '200', 'Info about a single Notice of Disagreement' do
+        let(:nod_body) { fixture_as_json('notice_of_disagreements/v0/valid_10182.json') }
+
         schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'nod_validate.json')))
-        let(:nod_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_10182.json')))
-        end
 
         it_behaves_like 'rswag example',
                         desc: 'all fields used',
@@ -235,7 +220,7 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
       response '422', 'Error' do
         schema '$ref' => '#/components/schemas/errorModel'
         let(:nod_body) do
-          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_10182_minimum.json')))
+          request_body = fixture_as_json('notice_of_disagreements/v0/valid_10182_minimum.json')
           request_body['data']['attributes'].delete('boardReviewOption')
           request_body
         end

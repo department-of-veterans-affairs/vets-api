@@ -40,11 +40,9 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
       parameter name: :sc_body, in: :body, schema: { '$ref' => '#/components/schemas/scCreate' }
 
       parameter in: :body, examples: {
-        'minimum fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995.json')))
-        },
+        'minimum fields used' => { value: FixtureHelpers.fixture_as_json('supplemental_claims/v0/valid_200995.json') },
         'all fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
+          value: FixtureHelpers.fixture_as_json('supplemental_claims/v0/valid_200995_extra.json').tap do |data|
             data.dig('data', 'attributes')&.delete('potentialPactAct') unless DocHelpers.wip_doc_enabled?(:sc_v2_potential_pact_act)
           end
         }
@@ -78,9 +76,7 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
       parameter AppealsApi::SwaggerSharedComponents.header_params[:alternate_signer_last_name_header]
 
       response '200', 'Info about a single Supplemental Claim' do
-        let(:sc_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995.json')))
-        end
+        let(:sc_body) { fixture_as_json('supplemental_claims/v0/valid_200995.json') }
 
         schema '$ref' => '#/components/schemas/scCreateResponse'
 
@@ -96,7 +92,7 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
         let(:'X-VA-NonVeteranClaimant-Last-Name') { 'last' }
 
         let(:sc_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
+          fixture_as_json('supplemental_claims/v0/valid_200995_extra.json').tap do |data|
             data.dig('data', 'attributes')&.delete('potentialPactAct') unless DocHelpers.wip_doc_enabled?(:sc_v2_potential_pact_act)
           end
         end
@@ -113,7 +109,7 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
         schema '$ref' => '#/components/schemas/errorModel'
 
         let(:sc_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
+          fixture_as_json('supplemental_claims/v0/valid_200995_extra.json').tap do |data|
             data.dig('data', 'attributes')&.delete('form5103Acknowledged')
             data.dig('data', 'attributes')&.delete('potentialPactAct') unless DocHelpers.wip_doc_enabled?(:sc_v2_potential_pact_act)
           end
@@ -218,11 +214,9 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
       parameter name: :sc_body, in: :body, schema: { '$ref' => '#/components/schemas/scCreate' }
 
       parameter in: :body, examples: {
-        'minimum fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995.json')))
-        },
+        'minimum fields used' => { value: FixtureHelpers.fixture_as_json('supplemental_claims/v0/valid_200995.json') },
         'all fields used' => {
-          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
+          value: FixtureHelpers.fixture_as_json('supplemental_claims/v0/valid_200995_extra.json').tap do |data|
             data.dig('data', 'attributes')&.delete('potentialPactAct') unless DocHelpers.wip_doc_enabled?(:sc_v2_potential_pact_act)
           end
         }
@@ -256,9 +250,7 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
       parameter AppealsApi::SwaggerSharedComponents.header_params[:alternate_signer_last_name_header]
 
       response '200', 'Valid Minimum' do
-        let(:sc_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995.json')))
-        end
+        let(:sc_body) { fixture_as_json('supplemental_claims/v0/valid_200995.json') }
 
         schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'sc_validate.json')))
 
@@ -267,7 +259,7 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
 
       response '200', 'Valid maximum' do
         let(:sc_body) do
-          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995_extra.json'))).tap do |data|
+          fixture_as_json('supplemental_claims/v0/valid_200995_extra.json').tap do |data|
             data.dig('data', 'attributes')&.delete('potentialPactAct') unless DocHelpers.wip_doc_enabled?(:sc_v2_potential_pact_act)
           end
         end
@@ -284,7 +276,7 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
         schema '$ref' => '#/components/schemas/errorModel'
 
         let(:sc_body) do
-          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'v2', 'valid_200995.json')))
+          request_body = fixture_as_json('supplemental_claims/v0/valid_200995.json')
           request_body['data']['attributes'].delete('veteran')
           request_body
         end
