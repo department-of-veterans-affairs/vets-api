@@ -1,0 +1,28 @@
+{
+  "data": {
+    "type": "higherLevelReview",
+    "attributes": {
+      "informalConference": false,
+      "benefitType": "lifeInsurance",
+      "veteran": {
+        "homeless": false,
+        "address": {
+          "addressLine1": "123 Some St.",
+          "city": "Sometown",
+          "countryCodeISO2": "US",
+          "zipCode5": "12345"
+        }
+      },
+      "socOptIn": true
+    }
+  },
+  "included": [
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "left shoulder",
+        "decisionDate": "1920-12-01"
+      }
+    }
+  ]
+}

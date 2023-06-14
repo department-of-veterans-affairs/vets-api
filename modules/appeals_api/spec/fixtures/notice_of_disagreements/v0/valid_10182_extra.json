@@ -1,0 +1,112 @@
+{
+  "data": {
+    "type": "noticeOfDisagreement",
+    "attributes": {
+      "veteran": {
+        "homeless": false,
+        "address": {
+          "addressLine1": "123 Main St",
+          "addressLine2": "Suite #1200",
+          "addressLine3": "Box 4",
+          "city": "North Pole",
+          "countryCodeISO2": "CA",
+          "zipCode5": "00000",
+          "internationalPostalCode": "A1B 23C"
+        },
+        "phone": {
+          "countryCode": "6",
+          "areaCode": "555",
+          "phoneNumber": "8001111",
+          "phoneNumberExt": "2"
+        },
+        "email": "bob@bobbytablesemail.com",
+        "timezone": "America/Chicago"
+      },
+      "claimant": {
+        "homeless": false,
+        "address": {
+          "addressLine1": "456 First St",
+          "addressLine2": "Apt 5",
+          "addressLine3": "Box 1",
+          "city": "Detroit",
+          "countryCodeISO2": "US",
+          "stateCode": "MI",
+          "zipCode5": "48070"
+        },
+        "phone": {
+          "countryCode": "1",
+          "areaCode": "555",
+          "phoneNumber": "8111100",
+          "phoneNumberExt": "4"
+        },
+        "email": "bob@email.com",
+        "timezone": "America/Detroit"
+      },
+      "representative": {
+        "name": "Tony Danza"
+      },
+      "boardReviewOption": "hearing",
+      "hearingTypePreference": "central_office",
+      "requestingExtension": true,
+      "extensionReason": "good cause substantive reason",
+      "appealingVhaDenial": true
+    }
+  },
+  "included": [
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "tinnitus",
+        "decisionDate": "1900-01-01",
+        "decisionIssueId": 1,
+        "ratingIssueReferenceId": "2",
+        "ratingDecisionReferenceId": "3",
+        "disagreementArea": "Effective Date"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "left knee",
+        "decisionDate": "1900-01-02",
+        "decisionIssueId": 4,
+        "ratingIssueReferenceId": "5"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "123456789",
+        "decisionDate": "1900-01-03",
+        "ratingIssueReferenceId": "6",
+        "ratingDecisionReferenceId": "7",
+        "disagreementArea": "Service"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "PTSD",
+        "decisionDate": "1900-01-04",
+        "decisionIssueId": 8,
+        "ratingDecisionReferenceId": "9"
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "Traumatic Brain Injury",
+        "decisionDate": "1900-01-05",
+        "decisionIssueId": 10
+      }
+    },
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "right shoulder",
+        "decisionDate": "1900-01-06",
+        "disagreementArea": "Effective Date"
+      }
+    }
+  ]
+}

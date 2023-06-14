@@ -1,0 +1,36 @@
+{
+  "data": {
+    "type": "supplementalClaim",
+    "attributes": {
+      "benefitType": "fiduciary",
+      "claimantType": "veteran",
+      "veteran": {
+        "address": {
+          "addressLine1": "123 Main St",
+          "city": "New York",
+          "countryCodeISO2": "US",
+          "zipCode5": "30012"
+        },
+        "phone": {
+          "areaCode": "555",
+          "phoneNumber": "8001111"
+        },
+        "email": "josie@example.com",
+        "timezone": "America/Chicago"
+      },
+      "socOptIn": false,
+      "evidenceSubmission": {
+        "evidenceType": ["upload"]
+      }
+    }
+  },
+  "included": [
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "right shoulder",
+        "decisionDate": "1900-01-06"
+      }
+    }
+  ]
+}

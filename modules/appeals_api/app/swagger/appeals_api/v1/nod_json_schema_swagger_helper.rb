@@ -53,19 +53,19 @@ class AppealsApi::V1::NodJsonSchemaSwaggerHelper
   end
 
   def headers_json_schema
-    @headers_json_schema ||= read_json(['config', 'schemas', 'decision_reviews', 'v1', '10182_headers.json'])
+    @headers_json_schema ||= read_json(%w[config schemas decision_reviews v1 10182_headers.json])
   end
 
   def nod_create_json_schema
-    @nod_create_json_schema ||= read_json(['config', 'schemas', 'decision_reviews', 'v1', '10182.json'])
+    @nod_create_json_schema ||= read_json(%w[config schemas decision_reviews v1 10182.json])
   end
 
   def example_min_fields_used
-    @example_min_fields_used ||= read_json(['spec', 'fixtures', 'v1', 'valid_10182_minimum.json'])
+    @example_min_fields_used ||= read_json(%w[spec fixtures decision_reviews v1 valid_10182_minimum.json])
   end
 
   def example_all_fields_used
-    @example_all_fields_used ||= read_json(['spec', 'fixtures', 'v1', 'valid_10182.json'])
+    @example_all_fields_used ||= read_json(%w[spec fixtures decision_reviews v1 valid_10182.json])
   end
 
   # rubocop:disable Metrics/MethodLength

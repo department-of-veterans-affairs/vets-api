@@ -26,7 +26,7 @@ describe AppealsApi::PdfConstruction::Generator do
 
           it 'generates the expected pdf' do
             generated_pdf = described_class.new(notice_of_disagreement).generate
-            expected_pdf = fixture_filepath('expected_10182_minimum.pdf', version: 'v1')
+            expected_pdf = fixture_filepath('pdfs/v1/expected_10182_minimum.pdf')
             expect(generated_pdf).to match_pdf expected_pdf
             File.delete(generated_pdf) if File.exist?(generated_pdf)
           end
@@ -37,7 +37,7 @@ describe AppealsApi::PdfConstruction::Generator do
 
           it 'generates the expected pdf' do
             generated_pdf = described_class.new(notice_of_disagreement).generate
-            expected_pdf = fixture_filepath('expected_10182_extra.pdf', version: 'v1')
+            expected_pdf = fixture_filepath('pdfs/v1/expected_10182_extra.pdf')
             expect(generated_pdf).to match_pdf expected_pdf
             File.delete(generated_pdf) if File.exist?(generated_pdf)
           end
@@ -48,7 +48,7 @@ describe AppealsApi::PdfConstruction::Generator do
         let(:fixture_name) { 'expected_10182.pdf' }
         let(:nod) { create(:notice_of_disagreement_v2, created_at: '2021-02-03T14:15:16Z') }
         let(:generated_pdf) { described_class.new(nod, pdf_version:).generate }
-        let(:expected_pdf) { fixture_filepath(fixture_name, version: pdf_version) }
+        let(:expected_pdf) { fixture_filepath("pdfs/#{pdf_version}/#{fixture_name}") }
 
         after do
           File.delete(generated_pdf) if File.exist?(generated_pdf)
@@ -122,7 +122,7 @@ describe AppealsApi::PdfConstruction::Generator do
 
         let(:created_at) { '2021-02-03T14:15:16Z' }
         let(:generated_pdf) { described_class.new(hlr, pdf_version:).generate }
-        let(:expected_pdf) { fixture_filepath(fixture_name, version: pdf_version) }
+        let(:expected_pdf) { fixture_filepath("pdfs/#{pdf_version}/#{fixture_name}") }
         let(:fixture_name) { 'expected_200996.pdf' }
         let(:hlr) { create(:higher_level_review_v2, created_at:) }
 
@@ -237,7 +237,7 @@ describe AppealsApi::PdfConstruction::Generator do
       shared_examples 'shared SC v2 and v3 generator examples' do |pdf_version, max_content_form_data|
         let(:created_at) { '2021-02-03T14:15:16Z' }
         let(:generated_pdf) { described_class.new(sc, pdf_version:).generate }
-        let(:expected_pdf) { fixture_filepath(fixture_name, version: pdf_version) }
+        let(:expected_pdf) { fixture_filepath("pdfs/#{pdf_version}/#{fixture_name}") }
         let(:fixture_name) { 'expected_200995.pdf' }
         let(:sc) { create(:supplemental_claim, evidence_submission_indicated: true, created_at:) }
 

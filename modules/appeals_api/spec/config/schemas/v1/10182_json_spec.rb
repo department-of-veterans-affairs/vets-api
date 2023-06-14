@@ -7,10 +7,9 @@ describe 'VA Form 10182 JSON Schema', type: :request do
   include SchemaHelpers
   include FixtureHelpers
 
-  let(:json_schema) { read_schema '10182.json' }
-
+  let(:json_schema) { read_schema '10182.json', 'decision_reviews', 'v1' }
   let(:errors) { validator.validate(json).to_a }
-  let(:json) { fixture_as_json 'valid_10182.json', version: 'v1' }
+  let(:json) { fixture_as_json 'decision_reviews/v1/valid_10182.json' }
   let(:validator) { JSONSchemer.schema(json_schema) }
 
   it('JSON is valid') { expect(json_schema).to be_a Hash }

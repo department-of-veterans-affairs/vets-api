@@ -6,12 +6,14 @@ FactoryBot.define do
     id { SecureRandom.uuid }
     api_version { 'V1' }
     auth_headers do
-      JSON.parse(File
-        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v1/valid_200996_headers.json'.split('/')).to_s))
+      JSON.parse(File.read(::Rails.root.join(
+        *'/modules/appeals_api/spec/fixtures/decision_reviews/v1/valid_200996_headers.json'.split('/')
+      ).to_s))
     end
     form_data do
-      JSON.parse(File
-        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v1/valid_200996.json'.split('/')).to_s))
+      JSON.parse(File.read(::Rails.root.join(
+        *'/modules/appeals_api/spec/fixtures/decision_reviews/v1/valid_200996.json'.split('/')
+      ).to_s))
     end
   end
 
@@ -19,12 +21,14 @@ FactoryBot.define do
     id { SecureRandom.uuid }
     api_version { 'V2' }
     auth_headers do
-      JSON.parse(File
-        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_200996_headers.json'.split('/')).to_s))
+      JSON.parse(File.read(::Rails.root.join(
+        *'/modules/appeals_api/spec/fixtures/decision_reviews/v2/valid_200996_headers.json'.split('/')
+      ).to_s))
     end
     form_data do
-      JSON.parse(File
-        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_200996.json'.split('/')).to_s))
+      JSON.parse(File.read(::Rails.root.join(
+        *'/modules/appeals_api/spec/fixtures/decision_reviews/v2/valid_200996.json'.split('/')
+      ).to_s))
     end
 
     trait :status_error do
@@ -36,13 +40,14 @@ FactoryBot.define do
     id { SecureRandom.uuid }
     api_version { 'V2' }
     auth_headers do
-      JSON.parse(File
-        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_200996_headers_extra.json'.split('/'))
-              .to_s)).transform_values(&:strip)
+      JSON.parse(File.read(::Rails.root.join(
+        *'/modules/appeals_api/spec/fixtures/decision_reviews/v2/valid_200996_headers_extra.json'.split('/')
+      ).to_s)).transform_values(&:strip)
     end
     form_data do
-      JSON.parse(File
-        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_200996_extra.json'.split('/')).to_s))
+      JSON.parse(File.read(::Rails.root.join(
+        *'/modules/appeals_api/spec/fixtures/decision_reviews/v2/valid_200996_extra.json'.split('/')
+      ).to_s))
     end
   end
 
@@ -50,28 +55,60 @@ FactoryBot.define do
     id { SecureRandom.uuid }
     api_version { 'V2' }
     auth_headers do
-      JSON.parse(File
-        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_200996_headers_minimum.json'.split('/'))
-              .to_s))
+      JSON.parse(File.read(::Rails.root.join(
+        *'/modules/appeals_api/spec/fixtures/decision_reviews/v2/valid_200996_headers_minimum.json'.split('/')
+      ).to_s))
     end
     form_data do
-      JSON.parse(File
-        .read(::Rails.root.join(*'/modules/appeals_api/spec/fixtures/v2/valid_200996_minimum.json'.split('/')).to_s))
+      JSON.parse(File.read(::Rails.root.join(
+        *'/modules/appeals_api/spec/fixtures/decision_reviews/v2/valid_200996_minimum.json'.split('/')
+      ).to_s))
     end
   end
 
   factory :higher_level_review_v0,
           class: 'AppealsApi::HigherLevelReview', parent: :higher_level_review_v2 do
     api_version { 'V0' }
+    auth_headers do
+      JSON.parse(File.read(::Rails.root.join(
+        *'/modules/appeals_api/spec/fixtures/higher_level_reviews/v0/valid_200996_headers.json'.split('/')
+      ).to_s))
+    end
+    form_data do
+      JSON.parse(File.read(::Rails.root.join(
+        *'/modules/appeals_api/spec/fixtures/higher_level_reviews/v0/valid_200996.json'.split('/')
+      ).to_s))
+    end
   end
 
   factory :extra_higher_level_review_v0,
           class: 'AppealsApi::HigherLevelReview', parent: :extra_higher_level_review_v2 do
     api_version { 'V0' }
+    auth_headers do
+      JSON.parse(File.read(::Rails.root.join(
+        *'/modules/appeals_api/spec/fixtures/higher_level_reviews/v0/valid_200996_headers_extra.json'.split('/')
+      ).to_s))
+    end
+    form_data do
+      JSON.parse(File.read(::Rails.root.join(
+        *'/modules/appeals_api/spec/fixtures/higher_level_reviews/v0/valid_200996_extra.json'.split('/')
+      ).to_s))
+    end
   end
 
   factory :minimal_higher_level_review_v0,
           class: 'AppealsApi::HigherLevelReview', parent: :minimal_higher_level_review_v2 do
     api_version { 'V0' }
+    auth_headers do
+      JSON.parse(File.read(::Rails.root.join(
+        *'/modules/appeals_api/spec/fixtures/higher_level_reviews/v0/valid_200996_headers_minimum.json'
+           .split('/')
+      ).to_s))
+    end
+    form_data do
+      JSON.parse(File.read(::Rails.root.join(
+        *'/modules/appeals_api/spec/fixtures/higher_level_reviews/v0/valid_200996_minimum.json'.split('/')
+      ).to_s))
+    end
   end
 end
