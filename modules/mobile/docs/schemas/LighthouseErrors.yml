@@ -1,0 +1,23 @@
+type: object
+required:
+  - errors
+properties:
+  errors:
+    type: array
+    items:
+      type: object
+      properties:
+        status:
+          type: string
+        code:
+          type: string
+        title:
+          type: string
+        detail:
+          type: string
+        error:
+          type: string
+        path:
+          type: string
+        timestamp:
+          type: string
