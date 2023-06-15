@@ -416,7 +416,7 @@ module ClaimsApi
         names = []
         disabilities.each do |disability|
           names << disability['name'].strip.downcase
-          disability['secondaryDisabilities'].each do |secondary|
+          disability['secondaryDisabilities']&.each do |secondary|
             names << secondary['name'].strip.downcase
           end
         end
