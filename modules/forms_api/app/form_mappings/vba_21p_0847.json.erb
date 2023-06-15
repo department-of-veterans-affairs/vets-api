@@ -32,7 +32,7 @@
   "F[0].Page_2[0].CellPhone[0]": "<%= data['preparer_mobile_phone'] %>",
   "F[0].Page_2[0].EmailAddress[0]": "<%= data['preparer_email'] %>",
   "F[0].Page_2[0].FaxNumber[0]": "<%= %>",
-  "F[0].Page_2[0].Remarks[0]": "<%= data.dig('deceased_claimant_name', 'first') ? 'Deceased claimant info: ' : '' %><%= data.dig('deceased_claimant_name', 'first') %> <%= data.dig('deceased_claimant_name', 'middle') %> <%= data.dig('deceased_claimant_name', 'last') %> <%= data['deceased_claimant_date_of_birth'] ? 'dob: ' : '' %><%= data['deceased_claimant_date_of_birth'] %> <%= data['deceased_claimant_date_of_death'] ? 'dod:' : '' %> <%= data['deceased_claimant_date_of_death'] %> <%= data['deceased_claimant_ssn'] ? 'ssn: ' : '' %><%= data['deceased_claimant_ssn'] %> <%= data['deceased_claimant_va_file_number'] ? 'va file number: ' : '' %><%= data['deceased_claimant_va_file_number'] %> <%= data['additional_information'] ? 'Remarks: ' : '' %><%= data['additional_information'] %>",
+  "F[0].Page_2[0].Remarks[0]": "<%= data['additional_information'] %>",
   "F[0].Page_2[0].SignatureField1[0]": "<%= data.dig('preparer_name', 'first') %> <%= data.dig('preparer_name', 'middle') %> <%= data.dig('preparer_name', 'last') %>",
   "F[0].Page_2[0].DateSigned[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%m/%d/%Y') %>",
   "F[0]": "<%= data.dig('F') %>"
