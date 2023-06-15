@@ -499,6 +499,7 @@ module ClaimsApi
           log_message_to_sentry('Error in Claims v2 show calling EVSS Doc Service',
                                 :error,
                                 body: e.message)
+          {}
         end
 
         def build_supporting_docs(bgs_claim)
@@ -511,7 +512,7 @@ module ClaimsApi
                  else
                    get_evss_documents(bgs_claim[:benefit_claim_details_dto][:benefit_claim_id])
                  end
-          return [] if docs.nil? || docs['documents'].blank?
+          return [] if docs.nil? || docs&.dig('documents').blank?
 
           @supporting_documents = docs['documents']
 
