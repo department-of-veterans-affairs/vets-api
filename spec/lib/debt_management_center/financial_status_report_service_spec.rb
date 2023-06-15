@@ -317,4 +317,24 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
         .to(2)
     end
   end
+
+  describe '#send_vha_confirmation_email' do
+    it 'creates a va notify job' do
+      email = 'foo@bar.com'
+      email_personalization_info = {
+        'name' => 'Joe',
+        'time' => '48 hours',
+        'date' => Time.zone.now.strftime('%m/%d/%Y')
+      }
+      service = described_class.new
+      expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
+        email,
+        described_class::VHA_CONFIRMATION_TEMPLATE,
+        email_personalization_info
+      )
+      service.send_vha_confirmation_email('ok',
+                                          { 'email' => email,
+                                            'email_personalization_info' => email_personalization_info })
+    end
+  end
 end

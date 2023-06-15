@@ -151,6 +151,16 @@ module DebtManagementCenter
       { status: vbs_response.status }
     end
 
+    def send_vha_confirmation_email(_status, options)
+      return if options['email'].blank?
+
+      DebtManagementCenter::VANotifyEmailJob.perform_async(
+        options['email'],
+        VHA_CONFIRMATION_TEMPLATE,
+        options['email_personalization_info']
+      )
+    end
+
     private
 
     def raise_client_error
@@ -180,7 +190,9 @@ module DebtManagementCenter
       submission_batch = Sidekiq::Batch.new
       submission_batch.on(
         :success,
-        'DebtManagementCenter::FinancialStatusReportService#send_vha_confirmation_email'
+        'DebtManagementCenter::FinancialStatusReportService#send_vha_confirmation_email',
+        'email' => @user.email&.downcase,
+        'email_personalization_info' => email_personalization_info
       )
       submission_batch.jobs do
         vha_submissions.map(&:submit_to_vha)
@@ -263,10 +275,6 @@ module DebtManagementCenter
       return if email.blank?
 
       DebtManagementCenter::VANotifyEmailJob.perform_async(email, template_id, email_personalization_info)
-    end
-
-    def send_vha_confirmation_email
-      send_confirmation_email(VHA_CONFIRMATION_TEMPLATE)
     end
 
     def email_personalization_info
