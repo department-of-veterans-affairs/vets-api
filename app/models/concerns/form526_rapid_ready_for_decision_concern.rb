@@ -111,8 +111,8 @@ module Form526RapidReadyForDecisionConcern
       form526_submission_id: id
     }
 
-    Rails.logger.info('classifying 526Submission', id:, saved_claim_id:)
     classification = classify_by_diagnostic_code(params)
+    Rails.logger.info('CLassified 526Submission', id:, saved_claim_id:, classification:)
     update_form_with_classification_code(classification['classification_code']) if classification.present?
   end
 
@@ -133,6 +133,7 @@ module Form526RapidReadyForDecisionConcern
 
   def send_post_evss_notifications!
     conditionally_notify_mas
+    Rails.logger.info('Submitted 526Submission to eVSS', id:, saved_claim_id:, submitted_claim_id:)
   end
 
   # return whether all disabilities on this form are rated as not service-connected
