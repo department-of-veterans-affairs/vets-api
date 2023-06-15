@@ -1,0 +1,65 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: https://sandbox-api.va.gov/services/direct-deposit-management/v1/direct-deposit?icn=1012666073V986297
+    body:
+      encoding: UTF-8
+      string: '{"paymentAccount":{"accountType":"SAVINGS","accountNumber":"1234566464","financialInstitutionRoutingNumber":"031202083"}}'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - sandbox-api.va.gov
+      Authorization:
+      - Bearer abcdefghijklmnop
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 400
+      message: ''
+    headers:
+      Date:
+      - Wed, 14 Jun 2023 19:15:52 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Ratelimit-Reset:
+      - '9'
+      Content-Language:
+      - en-US
+      Pragma:
+      - no-cache
+      X-Kong-Upstream-Latency:
+      - '9'
+      X-Kong-Proxy-Latency:
+      - '380'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"type":"https://api.va.gov/direct-deposit-management/errors/bad-request","title":"Bad
+        Request","status":400,"detail":"Invalid routing number checksum.","instance":"e0d4f55b-0ae7-11ee-aa58-45667b2e3fa5","errorCodes":[{"errorCode":"payment.accountRoutingNumber.invalidCheckSum"}]}'
+  recorded_at: Wed, 14 Jun 2023 19:15:52 GMT
+recorded_with: VCR 6.1.0

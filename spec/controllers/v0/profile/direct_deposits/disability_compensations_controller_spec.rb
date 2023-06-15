@@ -265,7 +265,55 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
 
         expect(e).not_to be_nil
         expect(e['title']).to eq('Bad Request')
-        expect(e['code']).to eq('cnp.payment.accounting.number.fraud')
+        expect(e['code']).to eq('cnp.payment.account.number.fraud')
+        expect(e['source']).to eq('Lighthouse Direct Deposit')
+      end
+
+      it 'returns a day phone number error' do
+        VCR.use_cassette('lighthouse/direct_deposit/update/400_invalid_day_phone_number') do
+          put(:update, params:)
+        end
+
+        expect(response).to have_http_status(:bad_request)
+
+        json = JSON.parse(response.body)
+        e = json['errors'].first
+
+        expect(e).not_to be_nil
+        expect(e['title']).to eq('Bad Request')
+        expect(e['code']).to eq('cnp.payment.day.phone.number.invalid')
+        expect(e['source']).to eq('Lighthouse Direct Deposit')
+      end
+
+      it 'returns an mailing address error' do
+        VCR.use_cassette('lighthouse/direct_deposit/update/400_invalid_mailing_address') do
+          put(:update, params:)
+        end
+
+        expect(response).to have_http_status(:bad_request)
+
+        json = JSON.parse(response.body)
+        e = json['errors'].first
+
+        expect(e).not_to be_nil
+        expect(e['title']).to eq('Bad Request')
+        expect(e['code']).to eq('cnp.payment.mailing.address.invalid')
+        expect(e['source']).to eq('Lighthouse Direct Deposit')
+      end
+
+      it 'returns a routing number checksum error' do
+        VCR.use_cassette('lighthouse/direct_deposit/update/400_routing_number_checksum') do
+          put(:update, params:)
+        end
+
+        expect(response).to have_http_status(:bad_request)
+
+        json = JSON.parse(response.body)
+        e = json['errors'].first
+
+        expect(e).not_to be_nil
+        expect(e['title']).to eq('Bad Request')
+        expect(e['code']).to eq('cnp.payment.routing.number.invalid.checksum')
         expect(e['source']).to eq('Lighthouse Direct Deposit')
       end
     end
