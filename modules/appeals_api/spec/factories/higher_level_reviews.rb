@@ -1,35 +1,21 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
+  # Decision Reviews API v1 HLRs
   # HLRv1 may be all-but-removed, but records still exist in prod and we want to ensure it's represented in specs
   factory :higher_level_review_v1, class: 'AppealsApi::HigherLevelReview' do
     id { SecureRandom.uuid }
     api_version { 'V1' }
-    auth_headers do
-      JSON.parse(File.read(::Rails.root.join(
-        *'/modules/appeals_api/spec/fixtures/decision_reviews/v1/valid_200996_headers.json'.split('/')
-      ).to_s))
-    end
-    form_data do
-      JSON.parse(File.read(::Rails.root.join(
-        *'/modules/appeals_api/spec/fixtures/decision_reviews/v1/valid_200996.json'.split('/')
-      ).to_s))
-    end
+    auth_headers { FixtureHelpers.fixture_as_json 'decision_reviews/v1/valid_200996_headers.json' }
+    form_data { FixtureHelpers.fixture_as_json 'decision_reviews/v1/valid_200996.json' }
   end
 
+  # Decision Reviews API v2 HLRs
   factory :higher_level_review_v2, class: 'AppealsApi::HigherLevelReview' do
     id { SecureRandom.uuid }
     api_version { 'V2' }
-    auth_headers do
-      JSON.parse(File.read(::Rails.root.join(
-        *'/modules/appeals_api/spec/fixtures/decision_reviews/v2/valid_200996_headers.json'.split('/')
-      ).to_s))
-    end
-    form_data do
-      JSON.parse(File.read(::Rails.root.join(
-        *'/modules/appeals_api/spec/fixtures/decision_reviews/v2/valid_200996.json'.split('/')
-      ).to_s))
-    end
+    auth_headers { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_200996_headers.json' }
+    form_data { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_200996.json' }
 
     trait :status_error do
       status { 'error' }
@@ -40,75 +26,38 @@ FactoryBot.define do
     id { SecureRandom.uuid }
     api_version { 'V2' }
     auth_headers do
-      JSON.parse(File.read(::Rails.root.join(
-        *'/modules/appeals_api/spec/fixtures/decision_reviews/v2/valid_200996_headers_extra.json'.split('/')
-      ).to_s)).transform_values(&:strip)
+      FixtureHelpers.fixture_as_json('decision_reviews/v2/valid_200996_headers_extra.json')
+                    .transform_values(&:strip)
     end
-    form_data do
-      JSON.parse(File.read(::Rails.root.join(
-        *'/modules/appeals_api/spec/fixtures/decision_reviews/v2/valid_200996_extra.json'.split('/')
-      ).to_s))
-    end
+    form_data { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_200996_extra.json' }
   end
 
   factory :minimal_higher_level_review_v2, class: 'AppealsApi::HigherLevelReview' do
     id { SecureRandom.uuid }
     api_version { 'V2' }
-    auth_headers do
-      JSON.parse(File.read(::Rails.root.join(
-        *'/modules/appeals_api/spec/fixtures/decision_reviews/v2/valid_200996_headers_minimum.json'.split('/')
-      ).to_s))
-    end
-    form_data do
-      JSON.parse(File.read(::Rails.root.join(
-        *'/modules/appeals_api/spec/fixtures/decision_reviews/v2/valid_200996_minimum.json'.split('/')
-      ).to_s))
-    end
+    auth_headers { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_200996_headers_minimum.json' }
+    form_data { FixtureHelpers.fixture_as_json 'decision_reviews/v2/valid_200996_minimum.json' }
   end
 
+  # Higher-Level Reviews API v0 HLRs
   factory :higher_level_review_v0,
           class: 'AppealsApi::HigherLevelReview', parent: :higher_level_review_v2 do
     api_version { 'V0' }
-    auth_headers do
-      JSON.parse(File.read(::Rails.root.join(
-        *'/modules/appeals_api/spec/fixtures/higher_level_reviews/v0/valid_200996_headers.json'.split('/')
-      ).to_s))
-    end
-    form_data do
-      JSON.parse(File.read(::Rails.root.join(
-        *'/modules/appeals_api/spec/fixtures/higher_level_reviews/v0/valid_200996.json'.split('/')
-      ).to_s))
-    end
+    auth_headers { FixtureHelpers.fixture_as_json 'higher_level_reviews/v0/valid_200996_headers.json' }
+    form_data { FixtureHelpers.fixture_as_json 'higher_level_reviews/v0/valid_200996.json' }
   end
 
   factory :extra_higher_level_review_v0,
           class: 'AppealsApi::HigherLevelReview', parent: :extra_higher_level_review_v2 do
     api_version { 'V0' }
-    auth_headers do
-      JSON.parse(File.read(::Rails.root.join(
-        *'/modules/appeals_api/spec/fixtures/higher_level_reviews/v0/valid_200996_headers_extra.json'.split('/')
-      ).to_s))
-    end
-    form_data do
-      JSON.parse(File.read(::Rails.root.join(
-        *'/modules/appeals_api/spec/fixtures/higher_level_reviews/v0/valid_200996_extra.json'.split('/')
-      ).to_s))
-    end
+    auth_headers { FixtureHelpers.fixture_as_json 'higher_level_reviews/v0/valid_200996_headers_extra.json' }
+    form_data { FixtureHelpers.fixture_as_json 'higher_level_reviews/v0/valid_200996_extra.json' }
   end
 
   factory :minimal_higher_level_review_v0,
           class: 'AppealsApi::HigherLevelReview', parent: :minimal_higher_level_review_v2 do
     api_version { 'V0' }
-    auth_headers do
-      JSON.parse(File.read(::Rails.root.join(
-        *'/modules/appeals_api/spec/fixtures/higher_level_reviews/v0/valid_200996_headers_minimum.json'
-           .split('/')
-      ).to_s))
-    end
-    form_data do
-      JSON.parse(File.read(::Rails.root.join(
-        *'/modules/appeals_api/spec/fixtures/higher_level_reviews/v0/valid_200996_minimum.json'.split('/')
-      ).to_s))
-    end
+    auth_headers { FixtureHelpers.fixture_as_json 'higher_level_reviews/v0/valid_200996_headers_minimum.json' }
+    form_data { FixtureHelpers.fixture_as_json 'higher_level_reviews/v0/valid_200996_minimum.json' }
   end
 end
