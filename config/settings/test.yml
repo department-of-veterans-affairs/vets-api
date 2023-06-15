@@ -304,6 +304,9 @@ mcp:
     base_path: /base/path
     service_name: VBS
     mock: true
+  notifications:
+    job_interval: 90
+    batch_size: 100
 dgi:
   jwt:
     public_key_path: modules/meb_api/spec/fixtures/dgi_public_test.pem
