@@ -27,9 +27,12 @@ module Lighthouse
       end
 
       def self.parse_detail(body)
-        return parse_first_error_code(body) if error_codes?(body)
+        messages = []
+        messages.push(body[:error_codes][0][:error_code]) if body[:error_codes].present?
+        messages.push(body[:error_codes][0][:detail]) if body[:error_codes].present?
+        messages.push(body[:error_description] || body[:error] || body[:detail] || body[:message] || 'Unknown error')
 
-        body[:error_description] || body[:error] || body[:detail] || body[:message] || 'Unknown error'
+        messages.compact.join(': ')
       end
 
       def self.parse_code(detail)
@@ -40,12 +43,17 @@ module Lighthouse
         return 'cnp.payment.icn.not.found' if detail.include? 'No data found for ICN'
         return 'cnp.payment.icn.invalid' if detail.include? 'getDirectDeposit.icn size'
         return 'cnp.payment.account.number.invalid' if detail.include? 'payment.accountNumber.invalid'
-        return 'cnp.payment.routing.number.invalid' if detail.include? 'payment.accountRoutingNumber.invalid'
         return 'cnp.payment.account.type.invalid' if detail.include? 'payment.accountType.invalid'
+        return 'cnp.payment.account.number.fraud' if detail.include? 'Flashes on record'
         return 'cnp.payment.routing.number.invalid.checksum' if detail.include? 'accountRoutingNumber.invalidCheckSum'
-        return 'cnp.payment.restriction.indicators.present'  if detail.include? 'restriction.indicators.present'
+        return 'cnp.payment.routing.number.invalid' if detail.include? 'payment.accountRoutingNumber.invalid'
         return 'cnp.payment.routing.number.fraud' if detail.include? 'Routing number related to potential fraud'
-        return 'cnp.payment.accounting.number.fraud' if detail.include? 'Flashes on record'
+        return 'cnp.payment.restriction.indicators.present'  if detail.include? 'restriction.indicators.present'
+        return 'cnp.payment.day.phone.number.invalid' if detail.include? 'Day phone number is invalid'
+        return 'cnp.payment.day.area.number.invalid' if detail.include? 'Day area number is invalid'
+        return 'cnp.payment.night.phone.number.invalid' if detail.include? 'Night phone number is invalid'
+        return 'cnp.payment.night.area.number.invalid' if detail.include? 'Night area number is invalid'
+        return 'cnp.payment.mailing.address.invalid' if detail.include? 'field not entered for mailing address update'
         return 'cnp.payment.unspecified.error' if detail.include? 'GUIE50022'
 
         'cnp.payment.generic.error'
@@ -53,18 +61,6 @@ module Lighthouse
 
       def self.data_source
         'Lighthouse Direct Deposit'
-      end
-
-      def self.parse_first_error_code(body)
-        body[:error_codes][0][:error_code]
-      end
-
-      def self.parse_first_error_detail(body)
-        body[:error_codes][0][:detail]
-      end
-
-      def self.error_codes?(body)
-        body[:error_codes].present?
       end
 
       def self.status_message_from(code)
