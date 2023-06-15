@@ -26,23 +26,25 @@ module IncomeLimits
           CSV.parse(data, headers: true) do |row|
             created = DateTime.strptime(row['CREATED'], '%m/%d/%Y %l:%M:%S.%N %p').to_s
             updated = DateTime.strptime(row['UPDATED'], '%m/%d/%Y %l:%M:%S.%N %p').to_s if row['UPDATED']
-            std_zipcode = StdZipcode.find_or_initialize_by(id: row['ID'].to_i)
-            next unless std_zipcode.new_record?
-
-            std_zipcode.assign_attributes(
-              id: row['ID'].to_i,
-              zip_code: row['ZIPCODE'].to_i,
-              zip_classification_id: row['ZIPCLASSIFICATION_ID']&.to_i,
-              preferred_zip_place_id: row['PREFERREDZIPPLACE_ID']&.to_i,
-              state_id: row['STATE_ID'].to_i,
-              county_number: row['COUNTYNUMBER'].to_i,
-              version: row['VERSION'].to_i,
-              created:,
-              updated:,
-              created_by: row['CREATEDBY'],
-              updated_by: row['UPDATEDBY']
-            )
-            std_zipcode.save!
+            std_zipcode = StdZipcode.find_by(id: row['ID'].to_i)
+            if std_zipcode
+              std_zipcode.update(zip_code: row['ZIPCODE'].to_s) if std_zipcode.zip_code != row['ZIPCODE'].to_s
+            else
+              std_zipcode = StdZipcode.find_or_initialize_by(zip_code: row['ZIPCODE'].to_s)
+              std_zipcode.assign_attributes(
+                id: row['ID'].to_i,
+                zip_classification_id: row['ZIPCLASSIFICATION_ID']&.to_i,
+                preferred_zip_place_id: row['PREFERREDZIPPLACE_ID']&.to_i,
+                state_id: row['STATE_ID'].to_i,
+                county_number: row['COUNTYNUMBER'].to_i,
+                version: row['VERSION'].to_i,
+                created:,
+                updated:,
+                created_by: row['CREATEDBY'],
+                updated_by: row['UPDATEDBY']
+              )
+              std_zipcode.save!
+            end
           end
         else
           raise 'Failed to fetch CSV data'
