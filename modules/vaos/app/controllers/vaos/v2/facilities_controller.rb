@@ -6,8 +6,7 @@ module VAOS
       def index
         response = mobile_facility_service.get_facilities(ids:,
                                                           children:,
-                                                          type:,
-                                                          schedulable:)
+                                                          type:)
         render json: VAOS::V2::FacilitiesSerializer.new(response[:data], meta: response[:meta])
       end
 
@@ -43,10 +42,6 @@ module VAOS
 
       def type
         params[:type]
-      end
-
-      def schedulable
-        params[:schedulable]
       end
     end
   end
