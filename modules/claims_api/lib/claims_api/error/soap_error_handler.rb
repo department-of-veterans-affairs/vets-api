@@ -26,7 +26,12 @@ module ClaimsApi
       fault_string = hash&.dig('Envelope', 'Body', 'Fault', 'faultstring')
       return {} if fault_string.include?('IntentToFileWebService') && fault_string.include?('not found')
 
-      return 'not_found' if fault_string.include?('could not be converted') || fault_string.include?('not found')
+      if fault_string.include?('No BnftClaim found')
+        return {}
+      elsif fault_string.include?('could not be converted') ||
+            fault_string.include?('not found')
+        return 'not_found'
+      end
       return 'unprocessable' if fault_string.include?('does not have necessary info')
     end
 
