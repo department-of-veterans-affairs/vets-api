@@ -100,8 +100,6 @@ web:
     envSecrets:
       - name: DD_APM_ENABLED
         value: false
-  clamavMirror:
-    enabled: false
 #Worker Configuration
 worker:
   enabled: false
@@ -138,8 +136,6 @@ worker:
     requests:
       cpu: ""
       memory: ""
-  clamavMirror:
-    enabled: false
 # cronJobs configuration
 cronJobs: {}
 # clamav configuration
@@ -153,10 +149,25 @@ clamav:
   probes: {}
   resources: {}
   command: []
+clamavMirror:
+  name: ""
+  enabled: false
+  service:
+    enabled: false
+  ports: {}
+  type: ""
+  resources: {}
+  volumeMounts: {}
+  probes: {}
+  image:
+    tag: ""
+    value: ""
+  annotations:
+    ad.datadoghq.com/clamav-miror.checks: {}
+
 # Common configuration
 common:
   socatProxy: {}
-  clamavMirror: {}
   lighthousePreConfigs:
     name: ""
     data: ""

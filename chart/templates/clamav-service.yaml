@@ -1,0 +1,21 @@
+{{- $root := . -}}
+{{- if $root.Values.clamavMirror.service.enabled }}
+{{- $name := $root.Values.clamavMirror.name }}
+# Source: confluence/templates/service.yaml
+# Documentation: https://kubernetes.io/docs/concepts/services-networking/service/
+# Worker env: tracks pods that deployment has
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  namespace: {{ $root.Release.Namespace }}
+  labels:
+    app_name: {{ $name }}
+spec:
+  ports:
+{{ toYaml $root.Values.clamavMirror.ports | indent 4 }}
+  type: {{ $root.Values.clamavMirror.type }}
+  selector:
+    app: {{ $name }}
+{{- end }}
