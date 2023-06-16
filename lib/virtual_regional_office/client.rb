@@ -7,16 +7,6 @@ module VirtualRegionalOffice
     include Common::Client::Concerns::Monitoring
     configuration VirtualRegionalOffice::Configuration
 
-    def assess_claim(diagnostic_code:, claim_submission_id:, veteran_icn:)
-      params = {
-        veteranIcn: veteran_icn,
-        diagnosticCode: diagnostic_code,
-        claimSubmissionId: claim_submission_id
-      }
-
-      perform(:post, Settings.virtual_regional_office.health_assessment_path, params.to_json.to_s, headers_hash)
-    end
-
     def classify_contention_by_diagnostic_code(params)
       perform(:post, Settings.virtual_regional_office.ctn_classification_path, params.to_json.to_s, headers_hash)
     end
