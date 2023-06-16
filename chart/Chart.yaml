@@ -66,7 +66,8 @@ type: application
 # 0.12.00 - ClamAV Mirror service and deployment.
 # 0.12.01 - ClamAV Mirror Network Policy
 # 0.12.02 - Fixed clamav mirror bugs
-version: 0.12.02
+# 0.12.03 - Removed clamav mirror volume mounts
+version: 0.12.03
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
