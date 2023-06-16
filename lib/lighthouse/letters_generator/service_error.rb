@@ -30,8 +30,8 @@ module Lighthouse
           @status ||= exception['status'].to_i
           @title ||= exception['title']
           @message = exception['detail'] || exception['message']
-          @key ||= error_key
         end
+        @key ||= error_key
       end
 
       def errors
