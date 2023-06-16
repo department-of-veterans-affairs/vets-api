@@ -1525,7 +1525,6 @@ rrd:
 virtual_regional_office:
   url: http://localhost:8120
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
-  health_assessment_path: health-data-assessment
   evidence_pdf_path: evidence-pdf
   # ctn_classification_path: contention-classification/classifier
   ctn_classification_path: classifier
