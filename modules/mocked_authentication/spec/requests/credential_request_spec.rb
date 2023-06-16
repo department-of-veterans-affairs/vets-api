@@ -136,16 +136,28 @@ RSpec.describe 'Mocked Authentication Mock Credential', type: :request do
       File.join(MockedAuthentication::Engine.root, 'spec', 'fixtures', 'credential_mock_data')
     end
     let(:mock_creds_filepath) { File.join(vets_api_mockdata_stub, 'credentials', credential_type) }
-    let(:mock_user_zero) { File.read("#{mock_creds_filepath}/vetsgovuser0.json") }
-    let(:mock_user_one) { File.read("#{mock_creds_filepath}/vetsgovuser1.json") }
-    let(:mock_user_two_two_eight) { File.read("#{mock_creds_filepath}/vetsgovuser228.json") }
+
+    let(:mock_user_zero) { File.read("#{mock_creds_filepath}/#{mock_user_zero_identifier}.json") }
+    let(:mock_user_zero_identifier) { 'vetsgovuser0' }
+    let(:mock_user_zero_mpi_mock_exists) { true }
+
+    let(:mock_user_one) { File.read("#{mock_creds_filepath}/#{mock_user_one_identifier}.json") }
+    let(:mock_user_one_identifier) { 'vetsgovuser1' }
+    let(:mock_user_one_mpi_mock_exists) { false }
+
     let(:expected_mock_data) do
-      { 'vetsgovuser0' => { 'credential_payload' => JSON.parse(mock_user_zero),
-                            'encoded_credential' => Base64.encode64(mock_user_zero) },
-        'vetsgovuser1' => { 'credential_payload' => JSON.parse(mock_user_one),
-                            'encoded_credential' => Base64.encode64(mock_user_one) },
-        'vetsgovuser228' => { 'credential_payload' => JSON.parse(mock_user_two_two_eight),
-                              'encoded_credential' => Base64.encode64(mock_user_two_two_eight) } }
+      {
+        mock_user_zero_identifier => {
+          encoded_credential: Base64.encode64(mock_user_zero),
+          credential_payload: JSON.parse(mock_user_zero),
+          mpi_mock_exists: mock_user_zero_mpi_mock_exists
+        },
+        mock_user_one_identifier => {
+          encoded_credential: Base64.encode64(mock_user_one),
+          credential_payload: JSON.parse(mock_user_one),
+          mpi_mock_exists: mock_user_one_mpi_mock_exists
+        }
+      }
     end
 
     before { allow(Settings.betamocks).to receive(:cache_dir).and_return(vets_api_mockdata_stub) }
@@ -177,13 +189,6 @@ RSpec.describe 'Mocked Authentication Mock Credential', type: :request do
         subject
         mock_data = JSON.parse(response.body)['mock_profiles']
         expect(mock_data).to eq(expected_mock_data.with_indifferent_access)
-      end
-
-      it 'returns an encoded_credential that equals the credential payload' do
-        subject
-        JSON.parse(response.body)['mock_profiles'].each do |id, profile|
-          expect(profile['encoded_credential']).to eq(expected_mock_data[id]['encoded_credential'])
-        end
       end
     end
 
