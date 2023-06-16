@@ -64,7 +64,9 @@ type: application
 # 0.11.54 - Fix pod roll annotation
 # 0.11.55 - ClamAV Command. Removed roll annotation.
 # 0.12.00 - ClamAV Mirror service and deployment.
-version: 0.12.00
+# 0.12.01 - ClamAV Mirror Network Policy
+
+version: 0.12.01
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to

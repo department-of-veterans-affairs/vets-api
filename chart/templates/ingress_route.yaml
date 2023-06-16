@@ -29,6 +29,32 @@ spec:
         - name: traefik-real-ip
     {{- end }}
     {{- end }}
+
+{{- if $root.Values.clamavMirror.network.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $root.Values.clamavMirror.name }}
+  namespace: {{ $root.Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      name: {{ $root.Values.clamavMirror.name }}
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          name: {{ $root.Values.clamavMirror.name }}
+    ports:
+    {{- range $key := $root.Values.clamavMirror.ports }}
+    - protocol: { $key.protocol }}
+      port: {{ $key.targetPort }}
+    {{- end }}
+  egress:
+{{ toYaml .Values.clamavMirror.egress | indent 2 }}
+{{- end }}
+
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware

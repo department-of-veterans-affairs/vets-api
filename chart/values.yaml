@@ -162,8 +162,10 @@ clamavMirror:
   image:
     tag: ""
     value: ""
-  annotations:
-    ad.datadoghq.com/clamav-miror.checks: {}
+  annotations: {}
+  network:
+    enabled: false
+  egress: {}
 
 # Common configuration
 common:
