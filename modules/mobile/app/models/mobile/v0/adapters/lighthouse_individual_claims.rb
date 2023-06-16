@@ -75,7 +75,7 @@ module Mobile
               requested_decision: attributes['evidenceWaiverSubmitted5103'],
               claim_type: attributes['claimType'],
               contention_list: attributes['contentions'].pluck('name'),
-              va_representative: 'Contact your VA regional office for more information.',
+              va_representative: nil,
               events_timeline:,
               updated_at: nil
             }
