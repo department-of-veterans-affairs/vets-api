@@ -162,7 +162,7 @@ clamavMirror:
   image:
     tag: ""
     value: ""
-  annotations: {}
+    pullPolicy: ""
   network:
     enabled: false
   egress: {}

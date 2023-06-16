@@ -48,7 +48,7 @@ spec:
           name: {{ $root.Values.clamavMirror.name }}
     ports:
     {{- range $key := $root.Values.clamavMirror.ports }}
-    - protocol: { $key.protocol }}
+    - protocol: {{ $key.protocol }}
       port: {{ $key.targetPort }}
     {{- end }}
   egress:

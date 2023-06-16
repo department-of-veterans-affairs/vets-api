@@ -23,8 +23,6 @@ spec:
     metadata:
       labels:
         app: {{ $name }}
-      annotations:
-{{ toYaml $root.Values.clamavMirror.annotations | indent 8 }}
     spec:
       affinity:
         podAntiAffinity:
