@@ -166,6 +166,7 @@ clamavMirror:
   network:
     enabled: false
   egress: {}
+  socatProxyEnabled: false
 
 # Common configuration
 common:

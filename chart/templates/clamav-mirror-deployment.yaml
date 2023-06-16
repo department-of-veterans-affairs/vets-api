@@ -51,7 +51,7 @@ spec:
 {{ toYaml $root.Values.clamavMirror.probes | indent 10 }}
           resources:
 {{ toYaml $root.Values.clamavMirror.resources | indent 12 }}
-        {{- if $root.Values.web.socatProxyEnabled }}
+        {{- if $root.Values.clamavMirror.socatProxyEnabled }}
 {{ toYaml $root.Values.common.socatProxy | indent 8 }}
         {{- end }}
       serviceAccountName: {{ $root.Values.serviceAccount.name }}
