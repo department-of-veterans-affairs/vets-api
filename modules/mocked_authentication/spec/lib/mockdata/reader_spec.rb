@@ -14,28 +14,34 @@ describe MockedAuthentication::Mockdata::Reader do
       File.join(MockedAuthentication::Engine.root, 'spec', 'fixtures', 'credential_mock_data')
     end
     let(:mock_creds_filepath) { File.join(vets_api_mockdata_stub, 'credentials', credential_type) }
-    let(:mock_user_zero) { File.read("#{mock_creds_filepath}/vetsgovuser0.json") }
-    let(:mock_user_one) { File.read("#{mock_creds_filepath}/vetsgovuser1.json") }
-    let(:mock_user_two_two_eight) { File.read("#{mock_creds_filepath}/vetsgovuser228.json") }
-    let(:expected_mock_data) do
-      { 'vetsgovuser0' => { 'credential_payload' => JSON.parse(mock_user_zero),
-                            'encoded_credential' => Base64.encode64(mock_user_zero) },
-        'vetsgovuser1' => { 'credential_payload' => JSON.parse(mock_user_one),
-                            'encoded_credential' => Base64.encode64(mock_user_one) },
-        'vetsgovuser228' => { 'credential_payload' => JSON.parse(mock_user_two_two_eight),
-                              'encoded_credential' => Base64.encode64(mock_user_two_two_eight) } }
+
+    let(:mock_user_zero) { File.read("#{mock_creds_filepath}/#{mock_user_zero_identifier}.json") }
+    let(:mock_user_zero_identifier) { 'vetsgovuser0' }
+    let(:mock_user_zero_mpi_mock_exists) { true }
+
+    let(:mock_user_one) { File.read("#{mock_creds_filepath}/#{mock_user_one_identifier}.json") }
+    let(:mock_user_one_identifier) { 'vetsgovuser1' }
+    let(:mock_user_one_mpi_mock_exists) { false }
+
+    let(:expected_hash) do
+      {
+        mock_user_zero_identifier => {
+          encoded_credential: Base64.encode64(mock_user_zero),
+          credential_payload: JSON.parse(mock_user_zero),
+          mpi_mock_exists: mock_user_zero_mpi_mock_exists
+        },
+        mock_user_one_identifier => {
+          encoded_credential: Base64.encode64(mock_user_one),
+          credential_payload: JSON.parse(mock_user_one),
+          mpi_mock_exists: mock_user_one_mpi_mock_exists
+        }
+      }
     end
 
     before { allow(Settings.betamocks).to receive(:cache_dir).and_return(vets_api_mockdata_stub) }
 
-    it 'creates a mocked_data hash with payloads from read files' do
-      read_data = subject
-      read_data.each do |user_identifier, payload|
-        expected_data = expected_mock_data[user_identifier]
-
-        expect(payload[:encoded_credential]).to eq(expected_data['encoded_credential'])
-        expect(payload[:credential_payload]).to eq(expected_data['credential_payload'])
-      end
+    it 'returns a hash of mocked credential data for expected users' do
+      expect(subject).to eq(expected_hash)
     end
   end
 end
