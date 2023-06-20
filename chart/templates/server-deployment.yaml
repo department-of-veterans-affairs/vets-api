@@ -120,8 +120,6 @@ spec:
         - name: clamav
           image: "{{ $root.Values.clamav.image.value }}:{{ $root.Values.clamav.image.tag }}"
           imagePullPolicy: {{ $root.Values.image.pullPolicy }}
-          command:
-{{ toYaml $root.Values.clamav.command | indent 12 }}
           ports:
 {{ toYaml $root.Values.clamav.ports | indent 12 }}
 {{ toYaml $root.Values.clamav.probes | indent 10 }}

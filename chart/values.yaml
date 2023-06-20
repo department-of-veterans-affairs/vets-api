@@ -148,7 +148,6 @@ clamav:
   ports: {}
   probes: {}
   resources: {}
-  command: []
 clamavMirror:
   name: ""
   enabled: false
@@ -157,7 +156,6 @@ clamavMirror:
   ports: {}
   type: ""
   resources: {}
-  volumeMounts: {}
   probes: {}
   image:
     tag: ""
