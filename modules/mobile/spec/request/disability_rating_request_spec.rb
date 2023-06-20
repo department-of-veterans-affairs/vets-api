@@ -52,6 +52,18 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       }
     }
   end
+  let(:expected_no_individual_rating_response) do
+    {
+      'data' => {
+        'id' => '0',
+        'type' => 'disabilityRating',
+        'attributes' => {
+          'combinedDisabilityRating' => 0,
+          'individualRatings' => []
+        }
+      }
+    }
+  end
 
   before do
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
@@ -86,6 +98,19 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
               get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
               expect(response).to have_http_status(:ok)
               expect(JSON.parse(response.body)).to eq(expected_multiple_response)
+              expect(response.body).to match_json_schema('disability_rating_response')
+            end
+          end
+        end
+      end
+
+      context 'with a no individual rating' do
+        it 'matches the rated disabilities schema' do
+          VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
+            VCR.use_cassette('mobile/lighthouse_disability_rating/200_no_individual_response') do
+              get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+              expect(response).to have_http_status(:ok)
+              expect(JSON.parse(response.body)).to eq(expected_no_individual_rating_response)
               expect(response.body).to match_json_schema('disability_rating_response')
             end
           end

@@ -18,6 +18,8 @@ module Mobile
         private
 
         def individual_ratings(response)
+          return [] unless response['individual_ratings']
+
           response['individual_ratings'].map do |rating|
             Mobile::V0::IndividualRating.new(
               decision: rating['decision'],
