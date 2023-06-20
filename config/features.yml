@@ -881,6 +881,3 @@ features:
   drupal_footer:
     actor_type: user
     description: If enabled, pulls Drupal data to populate most of the global footer
-  hlr_disable_submit:
-    actor_type: user
-    description: If enabled, the HLR submit button will be disabled to prevent user testing submission in production
