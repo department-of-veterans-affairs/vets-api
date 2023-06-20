@@ -682,7 +682,7 @@ GEM
     prawn (2.4.0)
       pdf-core (~> 0.9.0)
       ttfunk (~> 1.7)
-    prawn-markup (0.3.7)
+    prawn-markup (1.0.0)
       nokogiri
       prawn
       prawn-table
@@ -706,8 +706,8 @@ GEM
     pundit (2.3.0)
       activesupport (>= 3.0.0)
     raabro (1.4.0)
-    racc (1.7.0)
-    racc (1.7.0-java)
+    racc (1.7.1)
+    racc (1.7.1-java)
     rack (2.2.7)
     rack-attack (6.6.1)
       rack (>= 1.0, < 3)
