@@ -68,7 +68,8 @@ type: application
 # 0.12.02 - Fixed clamav mirror bugs
 # 0.12.03 - Removed clamav mirror volume mounts
 # 0.12.04 - Allow to disable clamav mirror socat proxy
-version: 0.12.04
+# 0.12.05 - Remove clamav mirror volumes
+version: 0.12.05
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to

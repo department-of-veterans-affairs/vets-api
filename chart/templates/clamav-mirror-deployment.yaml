@@ -38,7 +38,6 @@ spec:
                 topologyKey: {{ $root.Values.topologyKey }}
       securityContext:
         fsGroup: {{ $root.Values.fsGroup }}
-      volumes:
       containers:
         - image: "{{ $root.Values.clamavMirror.image.value }}:{{ $root.Values.clamavMirror.image.tag }}"
           imagePullPolicy: {{ $root.Values.clamavMirror.image.pullPolicy }}
