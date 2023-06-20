@@ -14,17 +14,25 @@ class LighthouseRatedDisabilitiesProvider
 
   # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
   # @param [string] lighthouse_rsa_key_path: path to the private RSA key used to create the lighthouse_client_id
-  def get_rated_disabilities(lighthouse_client_id, lighthouse_rsa_key_path)
-    auth_params = {
-      launch: Base64.encode64(JSON.generate({ patient: @icn }))
-    }
-    data = @service.get_rated_disabilities(
-      lighthouse_client_id,
-      lighthouse_rsa_key_path,
-      { auth_params: }
-    )
+  # @return [integer] the combined disability rating
+  def get_combined_disability_rating(lighthouse_client_id, lighthouse_rsa_key_path)
+    data = get_data(lighthouse_client_id, lighthouse_rsa_key_path)
+    data.dig('data', 'attributes', 'combined_disability_rating')
+  end
 
+  # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
+  # @param [string] lighthouse_rsa_key_path: path to the private RSA key used to create the lighthouse_client_id
+  # @return [Array<DisabilityCompensation::ApiProvider::RatedDisability>] a list of individual disability ratings
+  def get_rated_disabilities(lighthouse_client_id, lighthouse_rsa_key_path)
+    data = get_data(lighthouse_client_id, lighthouse_rsa_key_path)
     transform(data['data']['attributes']['individual_ratings'])
+  end
+
+  # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
+  # @param [string] lighthouse_rsa_key_path: path to the private RSA key used to create the lighthouse_client_id
+  def get_data(lighthouse_client_id, lighthouse_rsa_key_path)
+    auth_params = { launch: Base64.encode64(JSON.generate({ patient: @icn })) }
+    @service.get_rated_disabilities(lighthouse_client_id, lighthouse_rsa_key_path, { auth_params: })
   end
 
   def transform(data)

@@ -1088,11 +1088,19 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'supports getting rating info' do
-        expect(subject).to validate(:get, '/v0/disability_compensation_form/rating_info', 401)
+      context 'when calling EVSS' do
+        before do
+          # TODO: remove Flipper feature toggle when lighthouse provider is implemented
+          allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, instance_of(User))
+                                              .and_return(false)
+        end
 
-        VCR.use_cassette('evss/disability_compensation_form/rating_info') do
-          expect(subject).to validate(:get, '/v0/disability_compensation_form/rating_info', 200, headers)
+        it 'supports getting rating info' do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/rating_info', 401)
+
+          VCR.use_cassette('evss/disability_compensation_form/rating_info') do
+            expect(subject).to validate(:get, '/v0/disability_compensation_form/rating_info', 200, headers)
+          end
         end
       end
     end

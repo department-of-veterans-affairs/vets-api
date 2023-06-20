@@ -11,6 +11,9 @@
             },
             "user_percent_of_disability": {
               "type": "integer"
+            },
+            "source_system": {
+              "type": "string"
             }
           },
           "type": "object"

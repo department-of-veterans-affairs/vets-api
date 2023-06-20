@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
 class RatingInfoSerializer < ActiveModel::Serializer
-  attribute :user_percent_of_disability
+  attributes :user_percent_of_disability, :source_system
 
   def id
     nil
+  end
+
+  def source_system
+    'EVSS'
   end
 end

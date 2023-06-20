@@ -26,4 +26,44 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
       end
     end
   end
+
+  describe '#rating_info' do
+    context 'retrieve from Lighthouse' do
+      before do
+        allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
+
+        allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, instance_of(User))
+                                            .and_return(true)
+      end
+
+      it 'returns disability rating' do
+        VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+          get(:rating_info)
+          expect(response).to have_http_status(:ok)
+
+          data = JSON.parse(response.body)['data']['attributes']
+          expect(data['user_percent_of_disability']).to eq(100)
+          expect(data['source_system']).to eq('Lighthouse')
+        end
+      end
+    end
+
+    context 'retrieve from EVSS' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_rating_info, instance_of(User))
+                                            .and_return(false)
+      end
+
+      it 'returns disability rating' do
+        VCR.use_cassette('evss/disability_compensation_form/rating_info') do
+          get(:rating_info)
+          expect(response).to have_http_status(:ok)
+
+          data = JSON.parse(response.body)['data']['attributes']
+          expect(data['user_percent_of_disability']).to eq(100)
+          expect(data['source_system']).to eq('EVSS')
+        end
+      end
+    end
+  end
 end
