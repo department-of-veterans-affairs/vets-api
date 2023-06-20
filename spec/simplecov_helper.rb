@@ -65,7 +65,7 @@ class SimpleCovHelper
     add_group 'DebtsApi', 'modules/debts_api/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
-    add_group 'FormsApi', 'modules/forms_api/'
+    add_group 'SimpleFormsApi', 'modules/simple_forms_api/'
     add_group 'HealthQuest', 'modules/health_quest'
     add_group 'IncomeLimits', 'modules/income_limits/'
     add_group 'MebApi', 'modules/meb_api/'

@@ -169,7 +169,6 @@ PATH
     debts_api (0.1.0)
     dhp_connected_devices (0.1.0)
     facilities_api (0.1.0)
-    forms_api (0.1.0)
     health_quest (0.1.0)
     income_limits (0.1.0)
     meb_api (0.1.0)
@@ -180,6 +179,7 @@ PATH
     my_health (0.1.0)
       rails (~> 6.1.4, >= 6.1.4.7)
     openid_auth (0.0.1)
+    simple_forms_api (0.1.0)
     test_user_dashboard (0.1.0)
       rails (~> 6.1.5)
     va_forms (0.0.1)
@@ -1063,7 +1063,6 @@ DEPENDENCIES
   flipper-active_support_cache_store
   flipper-ui (= 0.22.0)
   foreman
-  forms_api!
   fuubar
   google-api-client
   google-apis-core
@@ -1162,6 +1161,7 @@ DEPENDENCIES
   sidekiq-pro!
   sidekiq-scheduler
   sidekiq_alive
+  simple_forms_api!
   simplecov
   slack-notify
   staccato
