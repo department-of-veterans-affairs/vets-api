@@ -8,9 +8,9 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
     "/services/appeals/notice-of-disagreements/v0/#{path}"
   end
 
-  let(:minimum_data) { fixture_to_s 'valid_10182_minimum.json', version: 'v2' }
-  let(:max_data) { fixture_to_s 'valid_10182_extra.json', version: 'v2' }
-  let(:max_headers) { fixture_as_json 'valid_10182_headers_extra.json', version: 'v2' }
+  let(:minimum_data) { fixture_to_s 'notice_of_disagreements/v0/valid_10182_minimum.json' }
+  let(:max_data) { fixture_to_s 'notice_of_disagreements/v0/valid_10182_extra.json' }
+  let(:max_headers) { fixture_as_json 'notice_of_disagreements/v0/valid_10182_headers_extra.json' }
   let(:parsed_response) { JSON.parse(response.body) }
 
   describe '#schema' do
@@ -37,10 +37,16 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
   describe '#create' do
     let(:path) { base_path 'forms/10182' }
 
+    it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:POST]) do
+      def make_request(auth_header) = post(path, params: max_data, headers: max_headers.merge(auth_header))
+    end
+
     it 'creates an NOD record having api_version: "V0"' do
       with_openid_auth(described_class::OAUTH_SCOPES[:POST]) do |auth_header|
         post(path, params: max_data, headers: max_headers.merge(auth_header))
       end
+
+      expect(response).to have_http_status(:ok)
 
       nod_guid = JSON.parse(response.body)['data']['id']
       nod = AppealsApi::NoticeOfDisagreement.find(nod_guid)
@@ -61,8 +67,21 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
     end
   end
 
+  describe '#show' do
+    let(:uuid) { create(:notice_of_disagreement_v0).id }
+    let(:path) { base_path "forms/10182/#{uuid}" }
+
+    it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:GET]) do
+      def make_request(auth_header) = get(path, headers: auth_header)
+    end
+  end
+
   describe '#validate' do
     let(:path) { base_path 'forms/10182/validate' }
+
+    it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:POST]) do
+      def make_request(auth_header) = post(path, params: max_data, headers: max_headers.merge(auth_header))
+    end
 
     context 'when icn header is not provided' do
       it 'returns a 422 error with details' do

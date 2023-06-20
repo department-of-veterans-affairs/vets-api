@@ -10,14 +10,11 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
     "/services/appeals/v1/decision_reviews/#{path}"
   end
 
-  before do
-    @data = fixture_to_s 'valid_10182.json', version: 'v1'
-    @minimum_valid_data = fixture_to_s 'valid_10182_minimum.json', version: 'v1'
-    @invalid_data = fixture_to_s 'invalid_10182.json', version: 'v1'
-    @headers = fixture_as_json 'valid_10182_headers.json', version: 'v1'
-    @minimum_required_headers = fixture_as_json 'valid_10182_headers_minimum.json', version: 'v1'
-  end
-
+  let(:data) { fixture_to_s 'decision_reviews/v1/valid_10182.json' }
+  let(:minimum_valid_data) { fixture_to_s 'decision_reviews/v1/valid_10182_minimum.json' }
+  let(:invalid_data) { fixture_to_s 'decision_reviews/v1/invalid_10182.json' }
+  let(:headers) { fixture_as_json 'decision_reviews/v1/valid_10182_headers.json' }
+  let(:minimum_required_headers) { fixture_as_json 'decision_reviews/v1/valid_10182_headers_minimum.json' }
   let(:parsed) { JSON.parse(response.body) }
 
   describe '#create' do
@@ -25,7 +22,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
 
     context 'when all headers are present and valid' do
       it 'creates an NOD and persists the data' do
-        post(path, params: @data, headers: @headers)
+        post(path, params: data, headers:)
         nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
 
         expect(nod.source).to eq('va.gov')
@@ -37,23 +34,23 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
 
     context 'with minimum valid headers' do
       it 'creates an NOD and persists the data' do
-        post(path, params: @minimum_valid_data, headers: @minimum_required_headers)
+        post(path, params: minimum_valid_data, headers: minimum_required_headers)
         expect(parsed['data']['type']).to eq('noticeOfDisagreement')
       end
     end
 
     context 'when a required headers is missing' do
       it 'returns an error' do
-        post(path, params: @data, headers: @minimum_required_headers.except('X-VA-SSN'))
+        post(path, params: data, headers: minimum_required_headers.except('X-VA-SSN'))
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
       end
     end
 
     it 'errors when included issue text is too long' do
-      mod_data = fixture_as_json 'valid_10182.json', version: 'v1'
+      mod_data = fixture_as_json('decision_reviews/v1/valid_10182.json')
       mod_data['included'][0]['attributes']['issue'] = Faker::Lorem.characters(number: 500)
-      post(path, params: JSON.dump(mod_data), headers: @minimum_required_headers)
+      post(path, params: JSON.dump(mod_data), headers: minimum_required_headers)
       expect(response.status).to eq 422
       expect(parsed['errors'][0]['title']).to eq 'Invalid length'
       expect(parsed['errors'][0]['source']['pointer']).to eq '/included/0/attributes/issue'
@@ -75,7 +72,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
         allow(client).to receive(:send_email)
 
         Sidekiq::Testing.inline! do
-          post(path, params: @data, headers: @headers)
+          post(path, params: data, headers:)
         end
 
         nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
@@ -87,14 +84,14 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       let(:path) { base_path('notice_of_disagreements') }
 
       it 'evidence_submission' do
-        post(path, params: @minimum_valid_data, headers: @minimum_required_headers)
+        post(path, params: minimum_valid_data, headers: minimum_required_headers)
         nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
 
         expect(nod.board_review_option).to eq('evidence_submission')
       end
 
       it 'hearing' do
-        post(path, params: @data, headers: @headers)
+        post(path, params: data, headers:)
         nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
 
         expect(nod.board_review_option).to eq('hearing')
@@ -107,8 +104,8 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       end
 
       it 'when given a string for the birth date ' do
-        @headers.merge!('X-VA-Birth-Date' => 'apricot')
-        post(path, params: @data.to_json, headers: @headers)
+        headers.merge!('X-VA-Birth-Date' => 'apricot')
+        post(path, params: data.to_json, headers:)
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
       end
@@ -120,9 +117,9 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       end
 
       it 'when given a string for the contestable issues decision date ' do
-        data = JSON.parse(@data)
-        data['included'][0]['attributes'].merge!('decisionDate' => 'banana')
-        post(path, params: data.to_json, headers: @headers)
+        params = JSON.parse(data)
+        params['included'][0]['attributes'].merge!('decisionDate' => 'banana')
+        post(path, params: params.to_json, headers:)
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
         expect(parsed['errors'][0]['title']).to include('Invalid format')
@@ -134,7 +131,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       it 'V1' do
         path = base_path('notice_of_disagreements')
 
-        post(path, params: @minimum_valid_data, headers: @minimum_required_headers)
+        post(path, params: minimum_valid_data, headers: minimum_required_headers)
         nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
 
         expect(nod.api_version).to eq('V1')
@@ -147,14 +144,14 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
 
     context 'when validation passes' do
       it 'returns a valid response' do
-        post(path, params: @data, headers: @headers)
+        post(path, params: data, headers:)
         expect(parsed['data']['attributes']['status']).to eq('valid')
         expect(parsed['data']['type']).to eq('noticeOfDisagreementValidation')
       end
     end
 
     context 'when validation fails due to invalid data' do
-      before { post(path, params: @invalid_data, headers: @headers) }
+      before { post(path, params: invalid_data, headers:) }
 
       it 'returns an error response' do
         expect(response.status).to eq(422)
@@ -179,7 +176,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
         let(:json) { '"Hello!"' }
 
         it 'responds with a properly formed error object' do
-          post(path, params: @data, headers: @headers)
+          post(path, params: data, headers:)
           body = JSON.parse(response.body)
           expect(response.status).to eq 422
           expect(body['errors']).to be_an Array
@@ -191,7 +188,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
         let(:json) { '66' }
 
         it 'responds with a properly formed error object' do
-          post(path, params: @data, headers: @headers)
+          post(path, params: data, headers:)
           body = JSON.parse(response.body)
           expect(response.status).to eq 422
           expect(body['errors']).to be_an Array
@@ -244,12 +241,12 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
   # rubocop:disable Layout/LineLength
   describe '#render_model_errors' do
     let(:path) { base_path 'notice_of_disagreements' }
-    let(:data) { JSON.parse(@minimum_valid_data) }
+    let(:data) { JSON.parse(minimum_valid_data) }
 
     it 'returns model errors in JSON API 1.1 ErrorObject format' do
       data['data']['attributes']['boardReviewOption'] = 'hearing'
 
-      post(path, params: data.to_json, headers: @headers)
+      post(path, params: data.to_json, headers:)
 
       expect(response.status).to eq(422)
       expect(parsed['errors'][0]['source']['pointer']).to eq('/data/attributes/hearingTypePreference')
