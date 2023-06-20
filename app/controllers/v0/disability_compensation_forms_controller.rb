@@ -64,10 +64,23 @@ module V0
     end
 
     def rating_info
-      rating_info_service = EVSS::CommonService.new(auth_headers)
-      response = rating_info_service.get_rating_info
-      render json: response,
-             serializer: RatingInfoSerializer
+      if Flipper.enabled?(:profile_lighthouse_rating_info, @current_user)
+        service = LighthouseRatedDisabilitiesProvider.new(@current_user.icn)
+
+        settings = Settings.lighthouse.veteran_verification.form526
+        disability_rating = service.get_combined_disability_rating(
+          settings.access_token.client_id,
+          settings.access_token.rsa_key
+        )
+
+        render json: { user_percent_of_disability: disability_rating },
+               serializer: LighthouseRatingInfoSerializer
+      else
+        rating_info_service = EVSS::CommonService.new(auth_headers)
+        response = rating_info_service.get_rating_info
+
+        render json: response, serializer: RatingInfoSerializer
+      end
     end
 
     private

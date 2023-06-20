@@ -110,7 +110,7 @@ http_interactions:
             }
           },
           "serviceConnectedCombinedDegree" : "",
-          "userPercentOfDisability" : ""
+          "userPercentOfDisability" : "100"
         }
     http_version: 
   recorded_at: Fri, 22 Nov 2019 01:31:37 GMT
