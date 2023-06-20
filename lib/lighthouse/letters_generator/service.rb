@@ -31,6 +31,16 @@ module Lighthouse
         service_verification
       ].to_set.freeze
 
+      BENEFICIARY_KEY_TRANFORMS = {
+        awardEffectiveDateTime: :awardEffectiveDate,
+        chapter35Eligibility: :hasChapter35Eligibility,
+        nonServiceConnectedPension: :hasNonServiceConnectedPension,
+        serviceConnectedDisabilities: :hasServiceConnectedDisabilities,
+        adaptedHousing: :hasAdaptedHousing,
+        individualUnemployabilityGranted: :hasIndividualUnemployabilityGranted,
+        specialMonthlyCompensation: :hasSpecialMonthlyCompensation
+      }.freeze
+
       configuration Lighthouse::LettersGenerator::Configuration
 
       def get_letter(icn, letter_type, options = {})
@@ -116,31 +126,23 @@ module Lighthouse
       end
 
       def transform_benefit_information(info)
-        transform_targets = {
-          awardEffectiveDateTime: :awardEffectiveDate,
-          chapter35Eligibility: :hasChapter35Eligibility,
-          nonServiceConnectedPension: :hasNonServiceConnectedPension,
-          serviceConnectedDisabilities: :hasServiceConnectedDisabilities,
-          adaptedHousing: :hasAdaptedHousing,
-          individualUnemployabilityGranted: :hasIndividualUnemployabilityGranted,
-          specialMonthlyCompensation: :hasSpecialMonthlyCompensation
-        }
-
         symbolized_info = info.deep_transform_keys(&:to_sym)
 
         transformed_info = symbolized_info.reduce({}) do |acc, (k, v)|
-          if transform_targets.key? k
-            acc.merge({ transform_targets[k] => v })
+          if BENEFICIARY_KEY_TRANFORMS.key? k
+            acc.merge({ BENEFICIARY_KEY_TRANFORMS[k] => v })
           else
             acc.merge({ k => v })
           end
         end
 
+        monthly_award_amount = symbolized_info[:monthlyAwardAmount] ? symbolized_info[:monthlyAwardAmount][:value] : 0
+
         # Don't return chapter35EligibilityDateTime
-        # It's not used on the frontend, and in fact causes problems
-        transformed_info.merge(
-          { monthlyAwardAmount: symbolized_info[:monthlyAwardAmount][:value] }
-        ).except(:chapter35EligibilityDateTime)
+        # It's not currently (June 2023) used on the frontend, and in fact causes problems
+        transformed_info
+          .merge({ monthlyAwardAmount: monthly_award_amount })
+          .except(:chapter35EligibilityDateTime)
       end
 
       def create_invalid_type_error(letter_type)

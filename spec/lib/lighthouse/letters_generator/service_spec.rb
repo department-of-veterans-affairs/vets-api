@@ -256,6 +256,28 @@ RSpec.describe Lighthouse::LettersGenerator::Service do
       expect(response[:benefitInformation]).not_to be_nil
     end
 
+    it 'handles a missing monthlyAwardAmount' do
+      expect_any_instance_of(Lighthouse::LettersGenerator::Configuration)
+        .to receive(:get_access_token)
+        .once
+        .and_return('faketoken')
+
+      fake_response_json = File.read("#{FAKE_RESPONSES_PATH}/fakeResponse_no_award.json")
+      fake_response_body = JSON.parse(fake_response_json)
+
+      @stubs.get('/eligible-letters?icn=DOLLYPARTON') do
+        [200, {}, fake_response_body]
+      end
+
+      client = Lighthouse::LettersGenerator::Service.new
+
+      response = client.get_benefit_information('DOLLYPARTON')
+
+      expect(response).to have_key(:benefitInformation)
+      expect(response[:benefitInformation]).not_to be_nil
+      expect(response[:benefitInformation][:monthlyAwardAmount]).to be(0)
+    end
+
     context 'Transformation' do
       it 'performs transformation on benefit info' do
         expect_any_instance_of(Lighthouse::LettersGenerator::Configuration)
