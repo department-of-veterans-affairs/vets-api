@@ -19,11 +19,16 @@ module Mobile
       # returns list of letters available for a given user. List includes letter display name and letter type
       def index
         response = if Flipper.enabled?(:mobile_lighthouse_letters, @current_user)
-                     lighthouse_service.get_eligible_letter_types(icn)[:letters]
+                     letters = lighthouse_service.get_eligible_letter_types(icn)[:letters]
+                     letters.map do |letter|
+                       Mobile::V0::Letter.new(letter_type: letter[:letterType], name: letter[:name])
+                     end
                    else
-                     evss_service.get_letters.letters
+                     letters = evss_service.get_letters.letters
+                     letters.map { |letter| Mobile::V0::Letter.new(letter_type: letter.letter_type, name: letter.name) }
                    end
-        render json: Mobile::V0::LettersSerializer.new(@current_user, response)
+
+        render json: Mobile::V0::LettersSerializer.new(@current_user, response.select(&:displayable?))
       end
 
       # returns options and info needed to create user form required for benefit letter download

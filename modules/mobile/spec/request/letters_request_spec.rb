@@ -96,6 +96,16 @@ RSpec.describe 'letters', type: :request do
           expect(response.body).to match_json_schema('letters')
         end
       end
+
+      it 'filters unlisted letter types' do
+        VCR.use_cassette('mobile/lighthouse_letters/letters_with_extra_types_200',
+                         match_requests_on: %i[method uri]) do
+          get '/mobile/v0/letters', headers: iam_headers
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)).to eq(letters_body)
+          expect(response.body).to match_json_schema('letters')
+        end
+      end
     end
   end
 
