@@ -43,6 +43,16 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(response).to have_http_status(:not_found)
       end
     end
+
+    context 'when there is a gateway timeout' do
+      it 'returns a status of 504' do
+        VCR.use_cassette('lighthouse/benefits_claims/index/504_response') do
+          get(:index)
+        end
+
+        expect(response).to have_http_status(:gateway_timeout)
+      end
+    end
   end
 
   describe '#show' do
@@ -73,6 +83,16 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         end
 
         expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'when there is a gateway timeout' do
+      it 'returns a status of 504' do
+        VCR.use_cassette('lighthouse/benefits_claims/show/504_response') do
+          get(:show, params: { id: '60038334' })
+        end
+
+        expect(response).to have_http_status(:gateway_timeout)
       end
     end
   end

@@ -8,23 +8,29 @@ module BenefitsClaims
   class ServiceException
     include SentryLogging
 
+    ERROR_MAP = {
+      504 => Common::Exceptions::GatewayTimeout,
+      503 => Common::Exceptions::ServiceUnavailable,
+      502 => Common::Exceptions::BadGateway,
+      500 => Common::Exceptions::ExternalServerInternalServerError,
+      429 => Common::Exceptions::TooManyRequests,
+      404 => Common::Exceptions::ResourceNotFound,
+      403 => Common::Exceptions::Forbidden,
+      401 => Common::Exceptions::Unauthorized,
+      400 => Common::Exceptions::BadRequest
+    }.freeze
+
     def initialize(e)
       raise e unless e.key?(:status)
 
-      case e[:status].to_i
-      when 429
-        raise Common::Exceptions::TooManyRequests
-      when 404
-        raise Common::Exceptions::ResourceNotFound
-      when 403
-        raise Common::Exceptions::Forbidden
-      when 401
-        raise Common::Exceptions::Unauthorized
-      when 400
-        raise Common::Exceptions::BadRequest
-      else
-        raise e
-      end
+      status = e[:status].to_i
+      raise_exception(status)
+    end
+
+    def raise_exception(status)
+      raise e unless ERROR_MAP.include?(status)
+
+      raise ERROR_MAP[status]
     end
   end
 end
