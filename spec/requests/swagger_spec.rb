@@ -728,6 +728,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       let(:fsr_data) { get_fixture('dmc/fsr_submission') }
 
       context 'financial status report create' do
+        before do
+          allow_any_instance_of(Form5655Submission).to receive(:user_cache_id).and_return('12345')
+        end
+
         it 'validates the route' do
           pdf_stub = class_double('PdfFill::Filler').as_stubbed_const
           allow(pdf_stub).to receive(:fill_ancillary_form).and_return(::Rails.root.join(

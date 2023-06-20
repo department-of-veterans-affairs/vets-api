@@ -14,6 +14,9 @@ development: &defaults
     namespace: user_identities
     each_ttl: 1800
   # DO NOT CHANGE ABOVE TTL
+  user_profile_attributes:
+    namespace: user-profile-attributes
+    each_ttl: 86400
   statsd_roster:
     namespace: statsd-roster
     each_ttl: 604800

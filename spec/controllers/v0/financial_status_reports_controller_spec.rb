@@ -13,6 +13,7 @@ RSpec.describe V0::FinancialStatusReportsController, type: :controller do
   before do
     sign_in_as(user)
     mock_pdf_fill
+    allow_any_instance_of(Form5655Submission).to receive(:user_cache_id).and_return('12345')
   end
 
   def mock_pdf_fill

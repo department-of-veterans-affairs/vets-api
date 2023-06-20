@@ -3,6 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe Form5655Submission do
+  before do
+    allow_any_instance_of(Form5655Submission).to receive(:user_cache_id).and_return('12345')
+  end
+
   describe '.submit_to_vba' do
     let(:form5655_submission) { create(:form5655_submission) }
 
