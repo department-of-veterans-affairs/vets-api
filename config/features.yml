@@ -770,6 +770,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for the Acheron service changes
+  va_online_scheduling_breadcrumb_url_update:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for the breadcrumb and url changes for mhv
   va_online_scheduling_use_dsot:
     actor_type: user
     enable_in_development: true
