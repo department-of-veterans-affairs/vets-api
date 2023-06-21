@@ -169,10 +169,9 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
 4. Among other things, the above `brew bundle` command installs ClamAV, but does not enable it. To enable ClamAV: See "Option 3: Run Clamav Natively (OSX) above"
 	 
 
-5. Install [pdftk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg)
+5. Install pdftk
 
-   - `curl -o ~/Downloads/pdftk_download.pkg https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg`
-   - `sudo installer -pkg ~/Downloads/pdftk_download.pkg -target /`
+   - `brew install pdftk-java`
 
 6. continue with [Base setup](native.md#base-setup)
 
