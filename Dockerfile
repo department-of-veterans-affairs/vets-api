@@ -1,4 +1,4 @@
-FROM ruby:3.2.2-slim-bullseye AS rubyimg
+FROM ruby:3.2.2-slim-bookworm AS rubyimg
 FROM rubyimg AS modules
 
 WORKDIR /tmp
@@ -31,7 +31,6 @@ RUN apt-get install -y ca-certificates-java \
 
 # Relax ImageMagick PDF security. See https://stackoverflow.com/a/59193253.
 RUN sed -i '/rights="none" pattern="PDF"/d' /etc/ImageMagick-6/policy.xml
-
 
 # Install fwdproxy.crt into trust store
 # Relies on update-ca-certificates being run in following step
