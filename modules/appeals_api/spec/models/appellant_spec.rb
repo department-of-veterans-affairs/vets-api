@@ -6,8 +6,8 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::Appellant, type: :model do
   include FixtureHelpers
 
-  let(:auth_headers) { fixture_as_json 'valid_200996_headers_extra.json', version: 'v2' }
-  let(:form_data) { (fixture_as_json 'valid_200996_extra.json', version: 'v2') }
+  let(:auth_headers) { fixture_as_json 'decision_reviews/v2/valid_200996_headers_extra.json' }
+  let(:form_data) { fixture_as_json 'decision_reviews/v2/valid_200996_extra.json' }
   let(:veteran_form_data) { form_data.dig('data', 'attributes', 'veteran') }
   let(:claimant_form_data) { form_data.dig('data', 'attributes', 'claimant') }
 
@@ -91,8 +91,8 @@ describe AppealsApi::Appellant, type: :model do
   end
 
   describe '#international_postal_code' do
-    let(:auth_headers) { fixture_as_json 'valid_200995_headers_extra.json', version: 'v2' }
-    let(:form_data) { (fixture_as_json 'valid_200995_extra.json', version: 'v2') }
+    let(:auth_headers) { fixture_as_json 'decision_reviews/v2/valid_200995_headers_extra.json' }
+    let(:form_data) { fixture_as_json 'decision_reviews/v2/valid_200995_extra.json' }
     let(:claimant_form_data) { form_data.dig('data', 'attributes', 'claimant') }
 
     let(:claimant_appellant) do

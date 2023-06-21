@@ -6,8 +6,8 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::SupplementalClaim, type: :model do
   include FixtureHelpers
 
-  let(:default_auth_headers) { fixture_as_json 'valid_200995_headers.json', version: 'v2' }
-  let(:default_form_data) { fixture_as_json 'valid_200995.json', version: 'v2' }
+  let(:default_auth_headers) { fixture_as_json 'decision_reviews/v2/valid_200995_headers.json' }
+  let(:default_form_data) { fixture_as_json 'decision_reviews/v2/valid_200995.json' }
 
   let(:supplemental_claim_veteran_only) { create(:supplemental_claim) }
   let(:sc_with_nvc) { create(:extra_supplemental_claim) }
@@ -214,8 +214,8 @@ describe AppealsApi::SupplementalClaim, type: :model do
   end
 
   describe '#stamp_text' do
-    let(:default_auth_headers) { fixture_as_json 'valid_200995_headers.json', version: 'v2' }
-    let(:form_data) { fixture_as_json 'valid_200995.json', version: 'v2' }
+    let(:default_auth_headers) { fixture_as_json 'decision_reviews/v2/valid_200995_headers.json' }
+    let(:form_data) { fixture_as_json 'decision_reviews/v2/valid_200995.json' }
 
     it { expect(sc_with_nvc.stamp_text).to eq 'Doé - 6789' }
 

@@ -10,15 +10,11 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
     "/services/appeals/v2/decision_reviews/#{path}"
   end
 
-  def new_base_path(path)
-    "/services/appeals/supplemental-claims/v0/#{path}"
-  end
-
-  let(:minimum_data) { fixture_to_s 'valid_200995.json', version: 'v2' }
-  let(:data) { fixture_to_s 'valid_200995.json', version: 'v2' }
-  let(:extra_data) { fixture_to_s 'valid_200995_extra.json', version: 'v2' }
-  let(:headers) { fixture_as_json 'valid_200995_headers.json', version: 'v2' }
-  let(:max_headers) { fixture_as_json 'valid_200995_headers_extra.json', version: 'v2' }
+  let(:minimum_data) { fixture_to_s 'decision_reviews/v2/valid_200995.json' }
+  let(:data) { fixture_to_s 'decision_reviews/v2/valid_200995.json' }
+  let(:extra_data) { fixture_to_s 'decision_reviews/v2/valid_200995_extra.json' }
+  let(:headers) { fixture_as_json 'decision_reviews/v2/valid_200995_headers.json' }
+  let(:max_headers) { fixture_as_json 'decision_reviews/v2/valid_200995_headers_extra.json' }
 
   let(:parsed) { JSON.parse(response.body) }
 
@@ -314,8 +310,8 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       end
 
       it 'without upload' do
-        headers_with_nvc = JSON.parse(fixture_to_s('valid_200995_headers_extra.json', version: 'v2'))
-        mod_data = JSON.parse(fixture_to_s('valid_200995_extra.json', version: 'v2'))
+        headers_with_nvc = JSON.parse(fixture_to_s('decision_reviews/v2/valid_200995_headers_extra.json'))
+        mod_data = JSON.parse(fixture_to_s('decision_reviews/v2/valid_200995_extra.json'))
         # manually setting this to simulate a submission without upload indicated
         mod_data['data']['attributes']['evidenceSubmission']['evidenceType'] = ['retrieval']
 
@@ -328,8 +324,8 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       end
 
       it 'with both retrieval and upload evidence' do
-        headers_with_nvc = JSON.parse(fixture_to_s('valid_200995_headers_extra.json', version: 'v2'))
-        mod_data = JSON.parse(fixture_to_s('valid_200995_extra.json', version: 'v2'))
+        headers_with_nvc = JSON.parse(fixture_to_s('decision_reviews/v2/valid_200995_headers_extra.json'))
+        mod_data = JSON.parse(fixture_to_s('decision_reviews/v2/valid_200995_extra.json'))
         mod_data['data']['attributes']['evidenceSubmission']['evidenceType'] = %w[retrieval upload]
         post(path, params: mod_data.to_json, headers: headers_with_nvc)
 
@@ -411,45 +407,11 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         expect(sc.status).to eq('submitted')
       end
     end
-
-    context 'with oauth' do
-      let(:oauth_path) { new_base_path 'forms/200995' }
-
-      it_behaves_like(
-        'an endpoint with OpenID auth',
-        scopes: AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST]
-      ) do
-        def make_request(auth_header)
-          post(oauth_path, params: data, headers: headers.merge(auth_header))
-        end
-      end
-
-      it 'behaves the same as the equivalent decision reviews route' do
-        Timecop.freeze(Time.current) do
-          post(path, params: data, headers:)
-          orig_status = response.status
-          orig_body = JSON.parse(response.body)
-          orig_body['data']['id'] = 'ignored'
-
-          with_openid_auth(
-            AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST]
-          ) do |auth_header|
-            post(oauth_path, params: data, headers: headers.merge(auth_header))
-          end
-          oauth_status = response.status
-          oauth_body = JSON.parse(response.body)
-          oauth_body['data']['id'] = 'ignored'
-
-          expect(oauth_status).to eq(orig_status)
-          expect(oauth_body).to eq(orig_body)
-        end
-      end
-    end
   end
 
   describe '#validate' do
     let(:path) { base_path 'supplemental_claims/validate' }
-    let(:extra_headers) { fixture_as_json 'valid_200995_headers_extra.json', version: 'v2' }
+    let(:extra_headers) { fixture_as_json 'decision_reviews/v2/valid_200995_headers_extra.json' }
 
     context 'when validation passes' do
       it 'returns a valid response' do
@@ -535,36 +497,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
         expect(error['detail']).to include("'#{icn}' did not match the defined pattern")
       end
     end
-
-    context 'with oauth' do
-      let(:oauth_path) { new_base_path 'forms/200995/validate' }
-
-      it_behaves_like(
-        'an endpoint with OpenID auth',
-        scopes: AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST]
-      ) do
-        def make_request(auth_header)
-          post(oauth_path, params: data, headers: headers.merge(auth_header))
-        end
-      end
-
-      it 'behaves the same as the equivalent decision reviews route' do
-        post(path, params: data, headers:)
-        orig_status = response.status
-        orig_body = JSON.parse(response.body)
-
-        with_openid_auth(
-          AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST]
-        ) do |auth_header|
-          post(oauth_path, params: data, headers: headers.merge(auth_header))
-        end
-        oauth_status = response.status
-        oauth_body = JSON.parse(response.body)
-
-        expect(oauth_status).to eq(orig_status)
-        expect(oauth_body).to eq(orig_body)
-      end
-    end
   end
 
   describe '#schema' do
@@ -624,38 +556,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       expect(response.status).to eq(404)
       expect(parsed['errors']).to be_an Array
       expect(parsed['errors']).not_to be_empty
-    end
-
-    context 'with oauth' do
-      let(:uuid) { create(:supplemental_claim).id }
-      let(:orig_path) { "#{path}#{uuid}" }
-      let(:oauth_path) { new_base_path("forms/200995/#{uuid}") }
-
-      it_behaves_like(
-        'an endpoint with OpenID auth',
-        scopes: AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:GET]
-      ) do
-        def make_request(auth_header)
-          get(oauth_path, headers: auth_header)
-        end
-      end
-
-      it 'behaves the same as the equivalent decision reviews route' do
-        get(orig_path)
-        orig_status = response.status
-        orig_body = JSON.parse(response.body)
-
-        with_openid_auth(
-          AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:GET]
-        ) do |auth_header|
-          get(oauth_path, headers: auth_header)
-        end
-        oauth_status = response.status
-        oauth_body = JSON.parse(response.body)
-
-        expect(oauth_status).to eq(orig_status)
-        expect(oauth_body).to eq(orig_body)
-      end
     end
   end
 end

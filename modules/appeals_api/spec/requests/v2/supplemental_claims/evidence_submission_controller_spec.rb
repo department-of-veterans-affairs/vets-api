@@ -9,8 +9,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
   let(:headers) { fixture_as_json 'valid_200995_headers.json', version: 'v2' }
   let(:evidence_submissions) { create_list(:evidence_submission, 3, supportable: supplemental_claim) }
   let(:path) { '/services/appeals/v2/decision_reviews/supplemental_claims/evidence_submissions/' }
-  let(:oauth_path) { '/services/appeals/supplemental-claims/v0/evidence-submissions/' }
-
   let(:parsed) { JSON.parse(response.body) }
 
   def stub_upload_location(expected_location = 'http://some.fakesite.com/path/uuid')
@@ -92,44 +90,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
       record = AppealsApi::EvidenceSubmission.find_by(guid: data['id'])
       expect(record.source).to eq headers['X-Consumer-Username']
     end
-
-    context 'with oauth' do
-      let(:params) { { sc_uuid: supplemental_claim.id } }
-
-      before do
-        stub_upload_location
-      end
-
-      it_behaves_like(
-        'an endpoint with OpenID auth',
-        # rubocop:disable Layout/LineLength
-        scopes: AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmissionsController::OAUTH_SCOPES[:POST],
-        # rubocop:enable Layout/LineLength
-        success_status: :accepted
-      ) do
-        def make_request(auth_header)
-          post(oauth_path, params:, headers: headers.merge(auth_header))
-        end
-      end
-
-      it 'behaves the same as the equivalent decision reviews route' do
-        Timecop.freeze(Time.current) do
-          post(path, params:, headers:)
-          orig_body = JSON.parse(response.body)
-          orig_body['data']['id'] = 'ignored'
-
-          with_openid_auth(
-            AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmissionsController::OAUTH_SCOPES[:POST]
-          ) do |auth_header|
-            post(oauth_path, params:, headers: headers.merge(auth_header))
-          end
-          oauth_body = JSON.parse(response.body)
-          oauth_body['data']['id'] = 'ignored'
-
-          expect(oauth_body).to eq(orig_body)
-        end
-      end
-    end
   end
 
   describe '#show' do
@@ -167,23 +127,6 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaims::EvidenceSubmission
       get "#{path}/bueller"
       expect(response.status).to eq 404
       expect(response.body).to include 'Record not found'
-    end
-
-    context 'with oauth' do
-      before do
-        stub_upload_location
-      end
-
-      it_behaves_like(
-        'an endpoint with OpenID auth',
-        # rubocop:disable Layout/LineLength
-        scopes: AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmissionsController::OAUTH_SCOPES[:GET]
-        # rubocop:enable Layout/LineLength
-      ) do
-        def make_request(auth_header)
-          get("#{oauth_path}#{evidence_submissions.sample.guid}", headers: auth_header)
-        end
-      end
     end
   end
 end
