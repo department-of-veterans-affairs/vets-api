@@ -3,6 +3,8 @@
 require 'user_profile_attribute_service'
 
 class Form5655Submission < ApplicationRecord
+  class StaleUserError < StandardError; end
+
   validates :user_uuid, presence: true
   belongs_to :user_account, dependent: nil, optional: true
   has_kms_key
@@ -13,7 +15,10 @@ class Form5655Submission < ApplicationRecord
   end
 
   def user_cache_id
-    UserProfileAttributeService.new(@user).cache_profile_attributes
+    user = User.find(user_uuid)
+    raise StaleUserError, user_uuid unless user
+
+    UserProfileAttributeService.new(user).cache_profile_attributes
   end
 
   def submit_to_vba
