@@ -17,7 +17,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<LIGHTHOUSE_API_KEY>') { Settings.lighthouse.facilities.api_key }
   c.filter_sensitive_data('<MDOT_KEY>') { Settings.mdot.api_key }
   c.filter_sensitive_data('<MHV_HOST>') { Settings.mhv.rx.host }
-  c.filter_sensitive_data('<MHV_MR_HOST>') { Settings.mhv.medical_records&.host }
+  c.filter_sensitive_data('<MHV_MR_HOST>') { Settings.mhv.medical_records.host }
   c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { Settings.mhv.sm.app_token }
   c.filter_sensitive_data('<MHV_SM_HOST>') { Settings.mhv.sm.host }
   c.filter_sensitive_data('<MPI_URL>') { Settings.mvi.url }

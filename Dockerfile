@@ -1,4 +1,4 @@
-FROM ruby:3.2.2-slim-bookworm AS rubyimg
+FROM ruby:3.2.2-slim-bullseye AS rubyimg
 FROM rubyimg AS modules
 
 WORKDIR /tmp
@@ -23,14 +23,16 @@ RUN groupadd --gid $USER_ID nonroot \
 
 WORKDIR /app
 
-RUN apt-get update --fix-missing
-RUN apt-get install -y ca-certificates-java \
-  && apt-get install -y build-essential libpq-dev git imagemagick curl wget pdftk file poppler-utils \
+RUN echo "deb http://ftp.debian.org/debian testing main contrib non-free" >> /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get install -y -t testing poppler-utils
+RUN apt-get install -y ca-certificates-java && dpkg --configure -a && apt-get install -y build-essential libpq-dev git imagemagick curl wget ca-certificates-java pdftk file \
   && apt-get clean \
   && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Relax ImageMagick PDF security. See https://stackoverflow.com/a/59193253.
 RUN sed -i '/rights="none" pattern="PDF"/d' /etc/ImageMagick-6/policy.xml
+
 
 # Install fwdproxy.crt into trust store
 # Relies on update-ca-certificates being run in following step
