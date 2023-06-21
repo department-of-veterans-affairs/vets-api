@@ -222,7 +222,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
       allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post)
         .and_return(response)
       mock_sharepoint_upload
-      allow_any_instance_of(Form5655Submission).to receive(:user_cache_id).and_return(user.uuid)
+      allow(User).to receive(:find).with(user.uuid).and_return(user)
     end
 
     it 'enqueues a VBA submission job' do
@@ -295,7 +295,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
       })
       allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post).and_return(response)
       mock_sharepoint_upload
-      allow_any_instance_of(Form5655Submission).to receive(:user_cache_id).and_return(user.uuid)
+      allow(User).to receive(:find).with(user.uuid).and_return(user)
     end
 
     it 'creates multiple jobs with multiple stations' do
