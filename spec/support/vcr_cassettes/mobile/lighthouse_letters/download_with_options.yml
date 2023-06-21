@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/va-letter-generator/v1/letters/benefit_summary/letter?icn=24811694708759028
+    uri: https://sandbox-api.va.gov/services/va-letter-generator/v1/letters/benefit_summary/letter?adaptedHousing=false&chapter35Eligibility=false&deathResultOfDisability=false&icn=24811694708759028&militaryService=false&monthlyAward=false&nonServiceConnectedPension=false&serviceConnectedDisabilities=false&serviceConnectedEvaluation=false&specialMonthlyCompensation=false&survivorsAward=false&unemployable=false
     body:
       encoding: US-ASCII
       string: ''
