@@ -126,6 +126,9 @@ development: &defaults
   iam_user_identity:
     namespace: iam-user-identity
     each_ttl: 1800
+  lighthouse_ccg:
+    namespace: lighthouse-ccg
+    each_ttl: 300
   mobile_app_appointments_store:
     namespace: mobile-app-appointments-store
     each_ttl: 1800
