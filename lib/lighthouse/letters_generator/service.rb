@@ -82,7 +82,7 @@ module Lighthouse
         validate_downloadable_letter_type(letter_type)
 
         endpoint = "letters/#{letter_type}/letter"
-        log = "Retrieving benefit information from #{config.generator_url}/#{endpoint}"
+        log = "Downloading letter from #{config.generator_url}/#{endpoint}"
         params = { icn: }.merge(options)
 
         response = get_from_lighthouse(endpoint, params, log)
