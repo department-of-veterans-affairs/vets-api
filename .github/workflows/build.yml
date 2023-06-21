@@ -167,13 +167,13 @@ jobs:
           cache-from: type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY
           cache-to: type=inline
 
-  # deploy: # REMOVE THIS AFTER K8s is merged to master and uncomment the deploy.yml
-  #   needs: [tests, linting_and_security, build_and_push]
-  #   uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@k8s #change to master after testing is successful
-  #   with:
-  #     ecr_repository: "vets-api"
-  #     manifests_directory: "vets-api"
-  #     auto_deploy_envs: "dev staging prod sandbox"
-  #   secrets:
-  #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #     aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  deploy: # REMOVE THIS AFTER K8s is merged to master and uncomment the deploy.yml
+    needs: [tests, linting_and_security, build_and_push]
+    uses: department-of-veterans-affairs/vets-api/.github/workflows/deploy-template.yml@k8s #change to master after testing is successful
+    with:
+      ecr_repository: "vets-api"
+      manifests_directory: "vets-api"
+      auto_deploy_envs: "dev staging prod sandbox"
+    secrets:
+      aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
