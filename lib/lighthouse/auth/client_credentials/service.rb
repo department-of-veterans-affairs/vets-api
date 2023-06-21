@@ -69,7 +69,7 @@ module Auth
         config.get_access_token(@url, request_body)
       end
 
-      def log_info(message:, service_name:)
+      def log_info(message:, service_name:, uuid:)
         ::Rails.logger.info({ message_type: 'Lighthouse CCG access token', message:, service_name:, uuid: })
       end
 
