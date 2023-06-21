@@ -19,7 +19,7 @@ module Sidekiq
       extend ActiveSupport::Concern
       include SentryLogging
       include Sidekiq::Worker
-      sidekiq_options retry: 0
+      sidekiq_options retry: 3
 
       def perform(form526_submission_id)
         return unless Settings.form526_backup.enabled
