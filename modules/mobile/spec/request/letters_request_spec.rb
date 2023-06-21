@@ -8,6 +8,46 @@ require 'lighthouse/letters_generator/configuration'
 RSpec.describe 'letters', type: :request do
   include JsonSchemaMatchers
 
+  let(:letter_json) do
+    {
+      'data' =>
+        {
+          'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
+          'type' => 'letter',
+          'attributes' => {
+            'letter' =>
+            {
+              'letterDescription' => 'This card verifies that you served honorably in the Armed Forces.',
+              'letterContent' => [
+                { 'contentKey' => 'front-of-card',
+                  'contentTitle' => '<front of card>',
+                  'content' =>
+                  "This card is to serve as proof the individual listed below served honorably in the Uniformed \
+Services of the United States. Jesse Gray 1708 Tiburon Blvd Tiburon, CA 94921 Effective as of: June 08, 2023 DoD \
+ID Number: 1293307390 Date of Birth: December 15, 1954 Branch Of Service: Army"},
+                {
+                  'contentKey' => 'back-of-card',
+                  'contentTitle' => '<back of card>',
+                  'content' =>
+                  "United States of America Department of Veterans Affairs General Benefit Information 1-800-827-1000 \
+Health Care Information 1-877-222-VETS (8387) This card does not reflect entitlement to any benefits administered by \
+the Department of Veterans Affairs or serve as proof of receiving such benefits."
+                },
+                {
+                  'contentKey' => 'contact-us',
+                  'contentTitle' => 'How You Can Contact Us',
+                  'content' =>
+                  "If you need general information about benefits and eligibility, please visit us at \
+https://www.va.gov. Call us at 1-800-827-1000. Contact us using Telecommunications Relay Services (TTY) at 711 24/7. \
+Send electronic inquiries through the Internet at https://www.va.gov/contact-us."
+                }
+              ]
+            }
+          }
+        }
+    }
+  end
+
   let(:letters_body) do
     {
       'data' => {
@@ -53,6 +93,7 @@ RSpec.describe 'letters', type: :request do
       }
     }
   end
+
   let(:beneficiary_body) do
     { 'data' =>
        { 'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
@@ -123,11 +164,46 @@ RSpec.describe 'letters', type: :request do
   end
 
   describe 'POST /mobile/v0/letters/:type/download' do
-    context 'with no options' do
-      it 'downloads a PDF' do
-        VCR.use_cassette('mobile/lighthouse_letters/download') do
-          post '/mobile/v0/letters/benefit_summary/download', headers: iam_headers
-          expect(response).to have_http_status(:ok)
+    describe 'formats' do
+      context 'when format is unspecified' do
+        it 'downloads a PDF' do
+          VCR.use_cassette('mobile/lighthouse_letters/download') do
+            post '/mobile/v0/letters/benefit_summary/download', headers: iam_headers
+            expect(response).to have_http_status(:ok)
+            expect(response.media_type).to eq('application/pdf')
+          end
+        end
+      end
+
+      context 'when format is pdf' do
+        it 'downloads a PDF' do
+          VCR.use_cassette('mobile/lighthouse_letters/download') do
+            post '/mobile/v0/letters/benefit_summary/download', headers: iam_headers, params: { format: 'pdf' }
+            expect(response).to have_http_status(:ok)
+            expect(response.media_type).to eq('application/pdf')
+          end
+        end
+      end
+
+      context 'when format is json' do
+        it 'returns json that matches the letter schema' do
+          VCR.use_cassette('mobile/lighthouse_letters/download_as_json', match_requests_on: %i[method uri]) do
+            post '/mobile/v0/letters/proof_of_service/download', headers: iam_headers, params: { format: 'json' }
+
+            expect(response).to have_http_status(:ok)
+            expect(response.media_type).to eq('application/json')
+            expect(JSON.parse(response.body)).to eq(letter_json)
+            expect(response.body).to match_json_schema('letter')
+          end
+        end
+      end
+
+      context 'when format is something else' do
+        it 'returns unprocessable entity' do
+          VCR.use_cassette('mobile/lighthouse_letters/download') do
+            post '/mobile/v0/letters/benefit_summary/download', headers: iam_headers, params: { format: 'floormat' }
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
         end
       end
     end
@@ -153,6 +229,20 @@ RSpec.describe 'letters', type: :request do
         VCR.use_cassette('mobile/lighthouse_letters/download_with_options') do
           post '/mobile/v0/letters/benefit_summary/download', params: options, headers: iam_headers
           expect(response).to have_http_status(:ok)
+          expect(response.media_type).to eq('application/pdf')
+        end
+      end
+
+      it 'downloads json' do
+        VCR.use_cassette('mobile/lighthouse_letters/download_as_json_with_options',
+                         match_requests_on: %i[method uri]) do
+          post '/mobile/v0/letters/proof_of_service/download', headers: iam_headers,
+                                                               params: options.merge({ format: 'json' })
+
+          expect(response).to have_http_status(:ok)
+          expect(response.media_type).to eq('application/json')
+          expect(JSON.parse(response.body)).to eq(letter_json)
+          expect(response.body).to match_json_schema('letter')
         end
       end
     end
@@ -165,10 +255,32 @@ RSpec.describe 'letters', type: :request do
         end
       end
     end
+
+    context 'with an invalid letter type' do
+      it 'matches the letters schema' do
+        post '/mobile/v0/letters/not_real/download', headers: iam_headers
+
+        expect(response).to have_http_status(:internal_server_error)
+        expect(response.parsed_body).to eq(
+          {
+            'errors' => [
+              {
+                'title' => 'Invalid letter type',
+                'detail' => 'Invalid letter type',
+                'code' => '500',
+                'source' => 'Lighthouse::LettersGenerator::Service',
+                'status' => '500',
+                'meta' => { 'message' => 'Letter type of not_real is not one of the expected options' }
+              }
+            ]
+          }
+        )
+      end
+    end
   end
 
   describe 'Error Handling' do
-    context 'when user is not authorized authorized to use lighthouse' do
+    context 'when user is not authorized to use lighthouse' do
       it 'returns 403 forbidden' do
         allow_any_instance_of(IAMUser).to receive(:participant_id).and_return(nil)
         get '/mobile/v0/letters', headers: iam_headers
