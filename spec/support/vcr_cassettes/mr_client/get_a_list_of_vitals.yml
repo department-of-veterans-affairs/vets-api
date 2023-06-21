@@ -1,0 +1,742 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/baseR4/Observation?code=8302-2,8310-5,8867-4,9279-1,85354-9,29463-7&patient=30163"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/fhir+json
+      User-Agent:
+      - Ruby FHIR Client
+      Accept-Charset:
+      - utf-8
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Host:
+      - hapi.fhir.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.18.0 (Ubuntu)
+      Date:
+      - Wed, 21 Jun 2023 02:54:56 GMT
+      Content-Type:
+      - application/fhir+json;charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      X-Powered-By:
+      - HAPI FHIR 6.7.6-SNAPSHOT/1d548abc8b/2023-06-14 REST Server (FHIR Server; FHIR
+        4.0.1/R4)
+      X-Request-Id:
+      - s39FWGPv7JvwH7Gf
+      Last-Modified:
+      - Wed, 21 Jun 2023 02:54:56 GMT
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "resourceType": "Bundle",
+          "id": "f193dd4b-afab-42c7-9c29-66c7fec7d817",
+          "meta": {
+            "lastUpdated": "2023-06-21T02:54:56.572+00:00"
+          },
+          "type": "searchset",
+          "link": [ {
+            "relation": "self",
+            "url": "<MHV_MR_HOST>/baseR4/Observation?code=8302-2%2C8310-5%2C8867-4%2C9279-1%2C85354-9%2C29463-7&patient=30163"
+          }, {
+            "relation": "next",
+            "url": "<MHV_MR_HOST>/baseR4?_getpages=f193dd4b-afab-42c7-9c29-66c7fec7d817&_getpagesoffset=20&_count=20&_pretty=true&_bundletype=searchset"
+          } ],
+          "entry": [ {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30189",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30189",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Body Temperature, 36.2 C</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "8310-5"
+                } ],
+                "text": "Body Temperature"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-09-26T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 36.2,
+                "unit": "C"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30190",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30190",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Heart Rate, 73 bpm</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "8867-4"
+                } ],
+                "text": "Heart Rate"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-09-26T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 73,
+                "unit": "bpm"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30191",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30191",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Respiratory Rate, 34 resp/min</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "9279-1"
+                } ],
+                "text": "Respiratory Rate"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-09-26T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 34,
+                "unit": "resp/min"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30192",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30192",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Height, 90 cm</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "8302-2"
+                } ],
+                "text": "Height"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-09-26T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 90,
+                "unit": "cm"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30194",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30194",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Body Temperature, 36.5 C</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "8310-5"
+                } ],
+                "text": "Body Temperature"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-09-19T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 36.5,
+                "unit": "C"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30195",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30195",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Heart Rate, 78 bpm</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "8867-4"
+                } ],
+                "text": "Heart Rate"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-09-19T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 78,
+                "unit": "bpm"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30196",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30196",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Respiratory Rate, 26 resp/min</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "9279-1"
+                } ],
+                "text": "Respiratory Rate"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-09-19T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 26,
+                "unit": "resp/min"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30197",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30197",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Height, 90 cm</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "8302-2"
+                } ],
+                "text": "Height"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-09-19T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 90,
+                "unit": "cm"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30199",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30199",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Body Temperature, 36.3 C</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "8310-5"
+                } ],
+                "text": "Body Temperature"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-09-12T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 36.3,
+                "unit": "C"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30200",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30200",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Heart Rate, 72 bpm</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "8867-4"
+                } ],
+                "text": "Heart Rate"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-09-12T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 72,
+                "unit": "bpm"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30201",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30201",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Respiratory Rate, 29 resp/min</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "9279-1"
+                } ],
+                "text": "Respiratory Rate"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-09-12T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 29,
+                "unit": "resp/min"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30202",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30202",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Height, 90 cm</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "8302-2"
+                } ],
+                "text": "Height"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-09-12T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 90,
+                "unit": "cm"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30204",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30204",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Body Temperature, 36.2 C</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "8310-5"
+                } ],
+                "text": "Body Temperature"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-09-05T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 36.2,
+                "unit": "C"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30205",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30205",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Heart Rate, 84 bpm</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "8867-4"
+                } ],
+                "text": "Heart Rate"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-09-05T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 84,
+                "unit": "bpm"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30206",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30206",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Respiratory Rate, 27 resp/min</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "9279-1"
+                } ],
+                "text": "Respiratory Rate"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-09-05T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 27,
+                "unit": "resp/min"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30207",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30207",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Height, 90 cm</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "8302-2"
+                } ],
+                "text": "Height"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-09-05T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 90,
+                "unit": "cm"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30209",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30209",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Body Temperature, 36.4 C</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "8310-5"
+                } ],
+                "text": "Body Temperature"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-08-29T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 36.4,
+                "unit": "C"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30210",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30210",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Heart Rate, 83 bpm</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "8867-4"
+                } ],
+                "text": "Heart Rate"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-08-29T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 83,
+                "unit": "bpm"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30211",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30211",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Respiratory Rate, 31 resp/min</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "9279-1"
+                } ],
+                "text": "Respiratory Rate"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-08-29T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 31,
+                "unit": "resp/min"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30212",
+            "resource": {
+              "resourceType": "Observation",
+              "id": "30212",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-09-26T14:34:43.313+00:00",
+                "source": "#d0126f9b8578248b"
+              },
+              "text": {
+                "status": "generated",
+                "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Height, 90 cm</div>"
+              },
+              "status": "final",
+              "code": {
+                "coding": [ {
+                  "system": "http://loinc.org",
+                  "code": "8302-2"
+                } ],
+                "text": "Height"
+              },
+              "subject": {
+                "reference": "Patient/30163"
+              },
+              "effectiveDateTime": "2019-08-29T16:34:42+02:00",
+              "valueQuantity": {
+                "value": 90,
+                "unit": "cm"
+              }
+            },
+            "search": {
+              "mode": "match"
+            }
+          } ]
+        }
+  recorded_at: Wed, 21 Jun 2023 02:54:56 GMT
+recorded_with: VCR 6.1.0
