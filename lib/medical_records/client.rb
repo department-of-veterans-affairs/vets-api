@@ -64,5 +64,11 @@ module MedicalRecords
       fhir_client.search(FHIR::DiagnosticReport,
                          search: { parameters: { patient: patient_id, category: 'LAB' } }).resource
     end
+
+    def list_vitals(patient_id)
+      fhir_client.search(FHIR::Observation,
+                         search: { parameters: { patient: patient_id,
+                                                 code: '8302-2,8310-5,8867-4,9279-1,85354-9,29463-7' } }).resource
+    end
   end
 end
