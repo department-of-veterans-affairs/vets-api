@@ -1,0 +1,49 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: object
+    required:
+      - type
+      - id
+      - attributes
+    properties:
+      type:
+        type: string
+        example: letter
+      id:
+        type: string
+        example: abe3f152-90b0-45cb-8776-4958bad0e0ef
+      attributes:
+        type: object
+        required:
+          - letter
+        properties:
+          letter:
+            type: object
+            required:
+              - letterDescription
+              - letterContent
+            properties:
+              letterDescription:
+                type: string
+                example: This card verifies that you served honorably in the Armed Forces.
+              letterContent:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - contentKey
+                    - contentTitle
+                    - content
+                  properties:
+                    contentKey:
+                      type: string
+                      example: front-of-card
+                    contentTitle:
+                      type: string
+                      example: <front of card>
+                    content:
+                      type: string
+                      example: This card is to serve as proof the individual listed below served honorably in the Uniformed Services of the United States.
