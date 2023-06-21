@@ -57,8 +57,10 @@ module Form526RapidReadyForDecisionConcern
     read_metadata(:pdf_guid).present?
   end
 
-  Uploader = RapidReadyForDecision::FastTrackPdfUploadManager
-  PDF_FILENAME_REGEX = /#{Uploader::DOCUMENT_NAME_PREFIX}.*#{Uploader::DOCUMENT_NAME_SUFFIX}/
+  DOCUMENT_NAME_PREFIX = 'VAMC'
+  DOCUMENT_NAME_SUFFIX = 'Rapid_Decision_Evidence'
+  PDF_FILENAME_REGEX = /#{DOCUMENT_NAME_PREFIX}.*#{DOCUMENT_NAME_SUFFIX}/
+  RRD_CODE = 'RRD'
 
   # @return if an RRD pdf has been included as a file to upload
   def rrd_pdf_added_for_uploading?
@@ -70,7 +72,7 @@ module Form526RapidReadyForDecisionConcern
   def rrd_special_issue_set?
     disabilities = form.dig('form526', 'form526', 'disabilities')
     disabilities.any? do |disability|
-      disability['specialIssues']&.include?(RapidReadyForDecision::RrdSpecialIssueManager::RRD_CODE)
+      disability['specialIssues']&.include?(RRD_CODE)
     end
   end
 
