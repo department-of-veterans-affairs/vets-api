@@ -1538,16 +1538,32 @@ paths:
               schema:
                 $ref: ./schemas/Letters.yml
           description: OK
+        '400':
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
           $ref: '#/components/responses/403'
         '404':
           $ref: '#/components/responses/404'
+        '406':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not acceptable.
         '408':
           $ref: '#/components/responses/408'
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Payload too large.
         '422':
           $ref: '#/components/responses/422'
+        '429':
+          $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -1573,16 +1589,32 @@ paths:
               schema:
                 $ref: ./schemas/LettersBeneficiaryInfo.yml
           description: OK
+        '400':
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
           $ref: '#/components/responses/403'
         '404':
           $ref: '#/components/responses/404'
+        '406':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not acceptable.
         '408':
           $ref: '#/components/responses/408'
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Payload too large.
         '422':
           $ref: '#/components/responses/422'
+        '429':
+          $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -1596,7 +1628,7 @@ paths:
       summary: /v0/letters/beneficiary
   /v0/letters/{type}/download:
     post:
-      description: Returns requested letter for download
+      description: Returns requested letter for download. Downloads as either PDF or JSON, dependent upon format param. Defaults to PDF when format is not specified.
       operationId: download
       parameters:
         - description: letter type
@@ -1605,6 +1637,14 @@ paths:
           required: true
           schema:
             type: string
+            enum: [benefit_summary, benefit_summary_dependent, benefit_verification, certificate_of_eligibility, civil_service, commissary, medicare_partd, minimum_essential_coverage, proof_of_service, service_verification]
+        - description: format
+          in: query
+          name: format
+          required: false
+          schema:
+            type: string
+            enum: [ pdf, json ]
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
         content:
@@ -1619,7 +1659,12 @@ paths:
               schema:
                 format: binary
                 type: string
+            application/json:
+              schema:
+                $ref: ./schemas/Letter.yml
           description: OK
+        '400':
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -1628,8 +1673,16 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Payload too large.
         '422':
           $ref: '#/components/responses/422'
+        '429':
+          $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -3474,11 +3527,7 @@ paths:
         '200':
           description: OK
         '400':
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/Errors.yml
-          description: Bad Request.
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -3713,6 +3762,12 @@ components:
         default: snake
       description: Allows the API to return camelCase keys rather than snake_case
   responses:
+    '400':
+      content:
+        application/json:
+          schema:
+            $ref: ./schemas/Errors.yml
+      description: Bad request.
     '401':
       content:
         application/json:
@@ -3743,6 +3798,12 @@ components:
           schema:
             $ref: ./schemas/Errors.yml
       description: Failure in processing entity
+    '429':
+      content:
+        application/json:
+          schema:
+            $ref: ./schemas/Errors.yml
+      description: Too many requests.
     '500':
       content:
         application/json:
