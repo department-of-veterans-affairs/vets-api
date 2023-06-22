@@ -1,4 +1,4 @@
-FROM ruby:3.2.2-slim-bookworm AS rubyimg
+FROM ruby:3.2.2-slim-bullseye AS rubyimg
 FROM rubyimg AS modules
 
 WORKDIR /tmp
@@ -23,9 +23,10 @@ RUN groupadd --gid $USER_ID nonroot \
 
 WORKDIR /app
 
-RUN apt-get update --fix-missing
-RUN apt-get install -y ca-certificates-java \
-  && apt-get install -y build-essential libpq-dev git imagemagick curl wget ca-certificates-java pdftk file poppler-utils \
+RUN echo "deb http://ftp.debian.org/debian testing main contrib non-free" >> /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get install -y -t testing poppler-utils
+RUN apt-get install -y ca-certificates-java && dpkg --configure -a && apt-get install -y build-essential libpq-dev git imagemagick curl wget ca-certificates-java pdftk file \
   && apt-get clean \
   && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -46,6 +47,7 @@ COPY config/clamd.conf /etc/clamav/clamd.conf
 RUN mkdir -p /clamav_tmp && \
     chown -R nonroot:nonroot /clamav_tmp && \
     chmod 777 /clamav_tmp
+
 
 ENV LANG=C.UTF-8 \
    BUNDLE_JOBS=4 \
