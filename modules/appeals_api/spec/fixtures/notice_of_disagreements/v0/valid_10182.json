@@ -27,7 +27,7 @@
   },
   "included": [
     {
-      "type": "contestableIssue",
+      "type": "appealableIssue",
       "attributes": {
         "issue": "tinnitus",
         "decisionDate": "1900-01-01",
@@ -38,7 +38,7 @@
       }
     },
     {
-      "type": "contestableIssue",
+      "type": "appealableIssue",
       "attributes": {
         "issue": "left knee",
         "decisionDate": "1900-01-02",

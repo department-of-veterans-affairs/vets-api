@@ -18,7 +18,7 @@
   },
   "included": [
     {
-      "type": "contestableIssue",
+      "type": "appealableIssue",
       "attributes": {
         "issue": "tinnitus",
         "decisionDate": "1900-01-01",
