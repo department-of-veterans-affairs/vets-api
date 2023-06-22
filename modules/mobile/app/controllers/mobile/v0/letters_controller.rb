@@ -8,7 +8,7 @@ require 'lighthouse/letters_generator/service'
 module Mobile
   module V0
     class LettersController < ApplicationController
-      DOWNLOAD_PARAMS = %i[
+      DOWNLOAD_PARAMS = %w[
         militaryService
         serviceConnectedDisabilities
         serviceConnectedEvaluation
@@ -106,11 +106,12 @@ module Mobile
         )
       end
 
+      # body params appear in the params hash in specs but not in actual requests
       def download_options_hash
-        permitted_params = params.permit(DOWNLOAD_PARAMS)
-        permitted_params.to_h
-                        .transform_values { |v| ActiveModel::Type::Boolean.new.cast(v) }
-                        .transform_keys { |k| k.camelize(:lower) }
+        body_params = Rack::Utils.parse_nested_query(request.body.string)
+        body_params.keep_if { |k, _| k.in? DOWNLOAD_PARAMS }
+                   .transform_values { |v| ActiveModel::Type::Boolean.new.cast(v) }
+                   .transform_keys { |k| k.camelize(:lower) }
       end
 
       def letter_info_adapter
