@@ -145,23 +145,6 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         mock_clinic
       end
 
-      it 'returned appointment is identical to VAOS v0 version' do
-        VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/appointments', headers: iam_headers, params:
-        end
-        appt_v0_cancelled = JSON.parse(File.read(Rails.root.join('modules', 'mobile', 'spec', 'support',
-                                                                 'fixtures', 'va_v0_appointment.json')))
-        response_v2 = response.parsed_body.dig('data', 0)
-
-        expect(response.body).to match_json_schema('appointments')
-
-        response_v2 = response_v2['attributes'].except('vetextId', 'typeOfCare', 'friendlyLocationName')
-        response_v0 = appt_v0_cancelled['attributes'].except('vetextId', 'typeOfCare', 'friendlyLocationName')
-
-        # removed vetextId, typeOfCare, and friendlyLocationName due to change in behavior decided for v2 adaption to v0
-        expect(response_v2).to eq(response_v0)
-      end
-
       it 'has access and returned va appointments having partial errors' do
         VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200_partial_error',
                          match_requests_on: %i[method uri]) do

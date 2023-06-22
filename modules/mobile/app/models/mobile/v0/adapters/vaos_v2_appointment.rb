@@ -106,7 +106,8 @@ module Mobile
             patient_phone_number:,
             patient_email:,
             best_time_to_call: appointment[:preferred_times_for_phone_call],
-            friendly_location_name:
+            friendly_location_name:,
+            service_category_name: appointment.dig(:service_category, 0, :text)
           }
 
           StatsD.increment('mobile.appointments.type', tags: ["type:#{appointment_type}"])

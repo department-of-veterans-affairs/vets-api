@@ -85,7 +85,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                            'patient_phone_number' => nil,
                                            'patient_email' => nil,
                                            'best_time_to_call' => nil,
-                                           'friendly_location_name' => 'Cheyenne VA Medical Center' })
+                                           'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                           'service_category_name' => nil })
     end
   end
 
@@ -139,7 +140,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                         'patient_phone_number' => nil,
                                         'patient_email' => nil,
                                         'best_time_to_call' => nil,
-                                        'friendly_location_name' => 'Cheyenne VA Medical Center'
+                                        'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                        'service_category_name' => nil
                                       })
     end
   end
@@ -198,7 +200,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                         'patient_phone_number' => nil,
                                         'patient_email' => nil,
                                         'best_time_to_call' => nil,
-                                        'friendly_location_name' => 'CC practice name'
+                                        'friendly_location_name' => 'CC practice name',
+                                        'service_category_name' => nil
                                       })
     end
   end
@@ -263,7 +266,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           'best_time_to_call' => [
                                             'Morning'
                                           ],
-                                          'friendly_location_name' => nil
+                                          'friendly_location_name' => nil,
+                                          'service_category_name' => nil
                                         })
     end
   end
@@ -326,7 +330,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                           'best_time_to_call' => [
                                             'Evening'
                                           ],
-                                          'friendly_location_name' => 'Cheyenne VA Medical Center'
+                                          'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                          'service_category_name' => nil
                                         })
     end
   end
@@ -385,7 +390,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                        'best_time_to_call' => [
                                          'Morning'
                                        ],
-                                       'friendly_location_name' => 'Cheyenne VA Medical Center'
+                                       'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                       'service_category_name' => nil
                                      })
     end
   end
@@ -433,7 +439,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                       'patient_phone_number' => '999-999-9992',
                                       'patient_email' => nil,
                                       'best_time_to_call' => nil,
-                                      'friendly_location_name' => 'Cheyenne VA Medical Center' })
+                                      'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                      'service_category_name' => nil })
     end
   end
 
@@ -488,7 +495,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                        'patient_phone_number' => '999-999-9992',
                                        'patient_email' => nil,
                                        'best_time_to_call' => nil,
-                                       'friendly_location_name' => 'Cheyenne VA Medical Center' })
+                                       'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                       'service_category_name' => nil })
     end
   end
 
@@ -534,7 +542,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                      'patient_phone_number' => '999-999-9992',
                                      'patient_email' => nil,
                                      'best_time_to_call' => nil,
-                                     'friendly_location_name' => 'Cheyenne VA Medical Center' })
+                                     'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                     'service_category_name' => nil })
     end
   end
 
@@ -596,7 +605,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                           'best_time_to_call' => [
                                                             'Afternoon'
                                                           ],
-                                                          'friendly_location_name' => 'Cheyenne VA Medical Center'
+                                                          'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                                          'service_category_name' => nil
                                                         })
     end
   end
@@ -759,7 +769,8 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
           'patient_phone_number' => '317-448-5062',
           'patient_email' => 'melissa.gra@va.gov',
           'best_time_to_call' => nil,
-          'friendly_location_name' => 'Dayton VA Medical Center'
+          'friendly_location_name' => 'Dayton VA Medical Center',
+          'service_category_name' => 'REGULAR'
         }
       )
     end

@@ -169,3 +169,6 @@ properties:
       friendlyLocationName:
         type: string
         example: "CHYSHR-Cheyenne VA Medical Center"
+      serviceCategoryName:
+        type: string
+        example: "COMPENSATION & PENSION"
