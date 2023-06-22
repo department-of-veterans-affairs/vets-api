@@ -21,7 +21,7 @@ Because this application is designed to allow third-parties to request informati
 
 The authentication model for the Appeals Status API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:
 * [Authorization code flow](https://developer.va.gov/explore/authorization/docs/authorization-code?api=appeals)
-* [Client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials?api=appeals) (restricted access)
+* [Client Credentials Grant (CCG)](https://developer.va.gov/explore/authorization/docs/client-credentials?api=appeals)
 
 **Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).
 

@@ -10,8 +10,6 @@ The authentication model for the Supplemental Claims API uses OAuth 2.0/OpenID C
 * [Authorization code flow](https://dev-developer.va.gov/explore/authorization/docs/authorization-code)
 * [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/authorization/docs/client-credentials)
 
-To use this API, you must first [request sandbox access](https://dev-developer.va.gov/onboarding/request-sandbox-access). Then, follow our authentication process for [authorization code flow](https://dev-developer.va.gov/explore/authorization/docs/authorization-code) or [client credentials grant](https://dev-developer.va.gov/explore/authorization/docs/client-credentials).
-
 **Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://dev-developer.va.gov/support/contact-us).
 
 ### Submission statuses
