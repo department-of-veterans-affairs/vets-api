@@ -373,12 +373,6 @@ coe:
 adapted_housing:
   prefill: true
 
-medical_release:
-  prefill: true
-
-lay_witness:
-  prefill: true
-
 # Settings for Expiry Scanner
 expiry_scanner:
   slack:
