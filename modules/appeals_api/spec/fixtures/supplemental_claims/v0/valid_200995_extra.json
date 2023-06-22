@@ -43,7 +43,6 @@
         "email": "joe@email.com",
         "timezone": "America/Detroit"
       },
-      "socOptIn": true,
       "form5103Acknowledged": true,
       "evidenceSubmission": {
         "evidenceType": ["upload", "retrieval"],

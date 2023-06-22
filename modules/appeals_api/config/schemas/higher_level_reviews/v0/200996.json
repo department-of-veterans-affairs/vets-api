@@ -76,14 +76,12 @@
                 }
               },
               "required": [ "firstName", "lastName", "phone" ]
-            },
-            "socOptIn": { "type": "boolean" }
+            }
           },
           "required": [
             "informalConference",
             "benefitType",
-            "veteran",
-            "socOptIn"
+            "veteran"
           ],
           "if": { "properties": { "informalConference": { "const":  true } } },
           "then": { "required":  ["informalConferenceContact", "informalConferenceTime"] }

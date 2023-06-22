@@ -204,7 +204,6 @@
                                   "email": "josie@example.com",
                                   "timezone": "America/Chicago"
                                 },
-                                "socOptIn": false,
                                 "evidenceSubmission": {
                                   "evidenceType": [
                                     "upload"
@@ -280,7 +279,6 @@
                                   "email": "joe@email.com",
                                   "timezone": "America/Detroit"
                                 },
-                                "socOptIn": true,
                                 "form5103Acknowledged": true,
                                 "evidenceSubmission": {
                                   "evidenceType": [
@@ -539,7 +537,6 @@
                           "email": "josie@example.com",
                           "timezone": "America/Chicago"
                         },
-                        "socOptIn": false,
                         "evidenceSubmission": {
                           "evidenceType": [
                             "upload"
@@ -604,7 +601,6 @@
                           "email": "joe@email.com",
                           "timezone": "America/Detroit"
                         },
-                        "socOptIn": true,
                         "form5103Acknowledged": true,
                         "evidenceSubmission": {
                           "evidenceType": [
@@ -1161,9 +1157,6 @@
                                 "form5103Acknowledged": {
                                   "type": "boolean",
                                   "description": "The 5103 Notice regarding new & relevant evidence must be acknowledged when the issue(s) being contested is a Disability Compensation issue. The notice can be found here: http://www.va.gov/disability/how-to-file-claim/evidence-needed. If the issue(s) being submitted are Disability Compensation and 'No' is selected, the API will return an error.  Please ensure the Veteran reviews the content about the 5103 Notice at the link above."
-                                },
-                                "socOptIn": {
-                                  "type": "boolean"
                                 }
                               },
                               "allOf": [
@@ -1172,8 +1165,7 @@
                                     "veteran",
                                     "benefitType",
                                     "claimantType",
-                                    "evidenceSubmission",
-                                    "socOptIn"
+                                    "evidenceSubmission"
                                   ]
                                 },
                                 {
@@ -2566,7 +2558,6 @@
                           "email": "josie@example.com",
                           "timezone": "America/Chicago"
                         },
-                        "socOptIn": false,
                         "evidenceSubmission": {
                           "evidenceType": [
                             "upload"
@@ -2631,7 +2622,6 @@
                           "email": "joe@email.com",
                           "timezone": "America/Detroit"
                         },
-                        "socOptIn": true,
                         "form5103Acknowledged": true,
                         "evidenceSubmission": {
                           "evidenceType": [
@@ -3882,9 +3872,6 @@
                   "form5103Acknowledged": {
                     "type": "boolean",
                     "description": "The 5103 Notice regarding new & relevant evidence must be acknowledged when the issue(s) being contested is a Disability Compensation issue. The notice can be found here: http://www.va.gov/disability/how-to-file-claim/evidence-needed. If the issue(s) being submitted are Disability Compensation and 'No' is selected, the API will return an error.  Please ensure the Veteran reviews the content about the 5103 Notice at the link above."
-                  },
-                  "socOptIn": {
-                    "type": "boolean"
                   }
                 },
                 "allOf": [
@@ -3893,8 +3880,7 @@
                       "veteran",
                       "benefitType",
                       "claimantType",
-                      "evidenceSubmission",
-                      "socOptIn"
+                      "evidenceSubmission"
                     ]
                   },
                   {
