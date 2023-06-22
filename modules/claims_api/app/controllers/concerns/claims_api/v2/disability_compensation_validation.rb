@@ -109,30 +109,27 @@ module ClaimsApi
           next if disability['classificationCode'].blank?
 
           if brd_classification_ids.include?(disability['classificationCode'].to_i)
-            validate_form_526_disability_name!(disability['classificationCode'].to_i, disability['name'])
+            validate_form_526_disability_code_enddate!(disability['classificationCode'].to_i)
           else
             raise ::Common::Exceptions::UnprocessableEntity.new(
-              detail: "'disabilities.classificationCode' must match the associated id " \
-                      'value returned from the /disabilities endpoint of the Benefits ' \
+              detail: "'disabilities.classificationCode' must match an active code " \
+                      'returned from the /disabilities endpoint of the Benefits ' \
                       'Reference Data API.'
             )
           end
         end
       end
 
-      def validate_form_526_disability_name!(classification_code, disability_name)
-        if disability_name.blank?
-          raise ::Common::Exceptions::InvalidFieldValue.new('disabilities.name',
-                                                            disability['name'])
-        end
+      def validate_form_526_disability_code_enddate!(classification_code)
         reference_disability = brd_disabilities.find { |x| x[:id] == classification_code }
-        return if reference_disability[:name] == disability_name
+        end_date_time = reference_disability[:endDateTime]
+        return if end_date_time.nil?
 
-        raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "'disabilities.name' must match the name value associated " \
-                  "with 'disabilities.classificationCode' as returned from the " \
-                  '/disabilities endpoint of the Benefits Reference Data API.'
-        )
+        if Date.parse(end_date_time) < Time.zone.today
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: "'disabilities.classificationCode' is no longer active."
+          )
+        end
       end
 
       def brd_classification_ids
@@ -196,9 +193,7 @@ module ClaimsApi
           disability['secondaryDisabilities'].each do |secondary_disability|
             if secondary_disability['classificationCode'].present?
               validate_form_526_disability_secondary_disability_classification_code!(secondary_disability)
-              validate_form_526_disability_secondary_disability_classification_code_matches_name!(
-                secondary_disability
-              )
+              validate_form_526_disability_code_enddate!(secondary_disability['classificationCode'].to_i)
             end
 
             if secondary_disability['approximateDate'].present?
@@ -223,24 +218,8 @@ module ClaimsApi
         return if brd_classification_ids.include?(secondary_disability['classificationCode'].to_i)
 
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "'disabilities.secondaryDisabilities.classificationCode' must match the associated id " \
-                  'value returned from the /disabilities endpoint of the Benefits ' \
-                  'Reference Data API.'
-        )
-      end
-
-      def validate_form_526_disability_secondary_disability_classification_code_matches_name!(secondary_disability)
-        if secondary_disability['name'].blank?
-          raise ::Common::Exceptions::InvalidFieldValue.new('disabilities.secondaryDisabilities.name',
-                                                            secondary_disability['name'])
-        end
-        reference_disability = brd_disabilities.find { |x| x[:id] == secondary_disability['classificationCode'].to_i }
-        return if reference_disability[:name] == secondary_disability['name']
-
-        raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "'disabilities.secondaryDisabilities.name' must match the name value associated " \
-                  "with 'disabilities.secondaryDisabilities.classificationCode' as returned from the " \
-                  '/disabilities endpoint of the Benefits Reference Data API.'
+          detail: "'disabilities.secondaryDisabilities.classificationCode' must match an active code " \
+                  'returned from the /disabilities endpoint of the Benefits Reference Data API.'
         )
       end
 

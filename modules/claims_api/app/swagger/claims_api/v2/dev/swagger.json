@@ -1934,14 +1934,14 @@
                           ],
                           "properties": {
                             "name": {
-                              "description": "If classificationCode is included, the disability name is required to match the associated name value returned in the Benefits Reference Data /disabilities service.",
+                              "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
                               "type": "string",
-                              "example": "PTSD (post traumatic stress disorder)"
+                              "example": "Traumatic Brain Injury"
                             },
                             "classificationCode": {
                               "type": "string",
-                              "description": "The contention classification code can be retrieved from the Benefits Refence Data API. This code aligns with the id returned by the /disabilities service. If classificationCode is included, the disability name is required to match the associated name value returned in the /disabilities service.",
-                              "example": "249470"
+                              "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the Benefits Reference Data API.",
+                              "example": "9020"
                             },
                             "serviceRelevance": {
                               "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
@@ -1991,9 +1991,9 @@
                                 ],
                                 "properties": {
                                   "name": {
-                                    "description": "What the Disability is called.",
+                                    "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
                                     "type": "string",
-                                    "example": "PTSD (post traumatic stress disorder)"
+                                    "example": "Cancer - Musculoskeletal - Elbow"
                                   },
                                   "disabilityActionType": {
                                     "description": "The status of the secondary disability.",
@@ -2009,6 +2009,7 @@
                                     "example": "Heavy equipment operator in service."
                                   },
                                   "classificationCode": {
+                                    "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the Benefits Reference Data API.",
                                     "type": "string",
                                     "example": "249470"
                                   },
@@ -2118,8 +2119,8 @@
                                 "properties": {
                                   "type": "string",
                                   "example": [
-                                    "PTSD (post traumatic stress disorder)",
-                                    "Trauma"
+                                    "Traumatic Brain Injury",
+                                    "Cancer - Musculoskeletal - Elbow"
                                   ]
                                 }
                               }
@@ -3111,13 +3112,13 @@
                               ],
                               "properties": {
                                 "name": {
-                                  "description": "If 'classificationCode' is included, the disability 'name' must match the associated name value returned in the /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                                  "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
                                   "type": "string",
                                   "example": "PTSD (post traumatic stress disorder)"
                                 },
                                 "classificationCode": {
                                   "type": "string",
-                                  "description": "The contention classification code must match the associated id value returned in the /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current). If 'classificationCode' is included, the disability 'name' must match the associated name value returned in the /disabilities endpoint.",
+                                  "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the Benefits Reference Data API.",
                                   "example": "249470"
                                 },
                                 "serviceRelevance": {
@@ -3167,7 +3168,7 @@
                                     ],
                                     "properties": {
                                       "name": {
-                                        "description": "What the Disability is called.",
+                                        "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
                                         "type": "string",
                                         "example": "PTSD (post traumatic stress disorder)"
                                       },
@@ -3185,6 +3186,7 @@
                                         "example": "Heavy equipment operator in service."
                                       },
                                       "classificationCode": {
+                                        "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the Benefits Reference Data API.",
                                         "type": "string",
                                         "example": "249470"
                                       },
@@ -3871,8 +3873,8 @@
                         },
                         {
                           "disabilityActionType": "INCREASE",
-                          "name": "diabetes, adult-onset",
-                          "classificationCode": "2065",
+                          "name": "Musculoskeletal - Foot",
+                          "classificationCode": "8994",
                           "serviceRelevance": "Service in Vietnam War",
                           "approximateDate": "12-1972",
                           "ratedDisabilityId": "1234567",
@@ -3882,8 +3884,8 @@
                         },
                         {
                           "disabilityActionType": "NONE",
-                          "name": "knee condition, right",
-                          "classificationCode": "3710",
+                          "name": "Traumatic Brain Injury",
+                          "classificationCode": "9020",
                           "serviceRelevance": "Explanation of service connection",
                           "approximateDate": "11-04-2019",
                           "ratedDisabilityId": "1234567",
@@ -3891,9 +3893,9 @@
                           "isRelatedToToxicExposure": false,
                           "secondaryDisabilities": [
                             {
-                              "name": "knee condition, left",
+                              "name": "Cancer - Musculoskeletal - Elbow",
                               "disabilityActionType": "SECONDARY",
-                              "classificationCode": "3700",
+                              "classificationCode": "249470",
                               "serviceRelevance": "Injured left knee when brace on right knee failed",
                               "approximateDate": "06-11-2008"
                             }
@@ -3904,7 +3906,7 @@
                         {
                           "treatedDisabilityNames": [
                             "Hearing Loss",
-                            "diabetes, adult-onset"
+                            "Traumatic Brain Injury"
                           ],
                           "center": {
                             "name": "Center One",
@@ -3915,7 +3917,7 @@
                         },
                         {
                           "treatedDisabilityNames": [
-                            "knee condition, right"
+                            "Musculoskeletal - Foot"
                           ],
                           "center": {
                             "name": "Center One",
@@ -4633,8 +4635,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-06-15",
-                      "expirationDate": "2024-06-15",
+                      "creationDate": "2023-06-21",
+                      "expirationDate": "2024-06-21",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -5282,6 +5284,7 @@
       }
     }
   },
+  "basePath": "/services/claims/v2",
   "servers": [
     {
       "url": "https://sandbox-api.va.gov/services/claims/{version}",

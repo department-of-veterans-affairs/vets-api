@@ -1419,7 +1419,7 @@ RSpec.describe 'Disability Claims', type: :request do
                   state: 'GA',
                   city: 'Decatur'
                 },
-                treatedDisabilityNames: ['PTSD (post traumatic stress disorder)', 'Traumatic Brain Injury']
+                treatedDisabilityNames: ['Musculoskeletal - Foot', 'Traumatic Brain Injury']
               }
             ]
           end
@@ -1493,7 +1493,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           context 'but has leading whitespace' do
-            let(:treated_disability_name) { '   PTSD (post traumatic stress disorder)' }
+            let(:treated_disability_name) { '   Musculoskeletal - Foot' }
 
             it 'returns a 200' do
               with_okta_user(scopes) do |auth_header|
@@ -1513,7 +1513,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           context 'but has trailing whitespace' do
-            let(:treated_disability_name) { 'PTSD (post traumatic stress disorder)   ' }
+            let(:treated_disability_name) { 'Musculoskeletal - Foot   ' }
 
             it 'returns a 200' do
               with_okta_user(scopes) do |auth_header|
@@ -1533,7 +1533,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           context 'but has different casing' do
-            let(:treated_disability_name) { 'PtSd (PoSt TrAuMaTiC StReSs DiSoRdEr)' }
+            let(:treated_disability_name) { 'MUsCuLoSkElEtAl - FooT' }
 
             it 'returns a 200' do
               with_okta_user(scopes) do |auth_header|
@@ -2023,11 +2023,11 @@ RSpec.describe 'Disability Claims', type: :request do
                       disabilities = [
                         {
                           disabilityActionType: 'NEW',
-                          name: 'PTSD (post traumatic stress disorder)',
-                          classificationCode: '5420',
+                          name: 'Traumatic Brain Injury',
+                          classificationCode: '9020',
                           secondaryDisabilities: [
                             {
-                              name: 'PTSD personal trauma',
+                              name: 'Neurological other System',
                               disabilityActionType: 'SECONDARY',
                               serviceRelevance: 'Caused by a service-connected disability\\nLengthy description'
                             }
@@ -2105,10 +2105,10 @@ RSpec.describe 'Disability Claims', type: :request do
                           diagnosticCode: 123,
                           ratedDisabilityId: '1100583',
                           disabilityActionType: 'INCREASE',
-                          name: 'PTSD (post traumatic stress disorder)',
+                          name: 'Traumatic Brain Injury',
                           secondaryDisabilities: [
                             {
-                              name: 'PTSD personal trauma',
+                              name: 'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders',
                               disabilityActionType: 'SECONDARY',
                               serviceRelevance: 'Caused by a service-connected disability\\nLengthy description'
                             }
@@ -2191,7 +2191,7 @@ RSpec.describe 'Disability Claims', type: :request do
                         {
                           diagnosticCode: 123,
                           disabilityActionType: 'NEW',
-                          name: 'PTSD (post traumatic stress disorder)',
+                          name: 'Traumatic Brain Injury',
                           secondaryDisabilities: [
                             {
                               name: 'PTSD personal trauma',
@@ -2217,7 +2217,7 @@ RSpec.describe 'Disability Claims', type: :request do
             [
               {
                 disabilityActionType: 'NEW',
-                name: 'PTSD (post traumatic stress disorder)',
+                name: 'Traumatic Brain Injury',
                 approximateDate: approximate_date,
                 secondaryDisabilities: [
                   {
@@ -2485,7 +2485,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 disabilities = [
                   {
                     disabilityActionType: 'NONE',
-                    name: 'PTSD (post traumatic stress disorder)',
+                    name: 'Traumatic Brain Injury',
                     diagnosticCode: 9999,
                     secondaryDisabilities: [
                       {

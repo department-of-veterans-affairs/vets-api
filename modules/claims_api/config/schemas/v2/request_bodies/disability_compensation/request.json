@@ -501,13 +501,13 @@
                     "required": ["disabilityActionType", "name"],
                     "properties": {
                         "name": {
-                            "description": "If 'classificationCode' is included, the disability 'name' must match the associated name value returned in the /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
+                            "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
                             "type": "string",
                             "example": "PTSD (post traumatic stress disorder)" 
                         },
                         "classificationCode": {
                             "type": "string",
-                            "description": "The contention classification code must match the associated id value returned in the /disabilities endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current). If 'classificationCode' is included, the disability 'name' must match the associated name value returned in the /disabilities endpoint.",
+                            "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the Benefits Reference Data API.",
                             "example": "249470"
                         },
                         "serviceRelevance": {
@@ -553,7 +553,7 @@
                             "required": ["name", "disabilityActionType", "serviceRelevance"],
                                 "properties": {
                                     "name": {
-                                        "description": "What the Disability is called.",
+                                        "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
                                         "type": "string",
                                         "example": "PTSD (post traumatic stress disorder)"
                                     },
@@ -569,6 +569,7 @@
                                         "example": "Heavy equipment operator in service."
                                     },
                                     "classificationCode": {
+                                        "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the Benefits Reference Data API.",
                                         "type": "string",
                                         "example": "249470"
                                     },

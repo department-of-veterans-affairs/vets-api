@@ -53,8 +53,8 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
         secondary = disability[:secondaryDisabilities][0]
 
         expect(disability[:disabilityActionType]).to eq('REOPEN')
-        expect(disability[:name]).to eq('PTSD (post traumatic stress disorder)')
-        expect(disability[:classificationCode]).to eq('5420')
+        expect(disability[:name]).to eq('Musculoskeletal - Foot')
+        expect(disability[:classificationCode]).to eq('8994')
         expect(disability[:serviceRelevance]).to eq('ABCDEFG')
         expect(disability[:ratedDisabilityId]).to eq('ABCDEFGHIJKLMNOPQRSTUVWX')
         expect(disability[:diagnosticCode]).to eq(9999)
