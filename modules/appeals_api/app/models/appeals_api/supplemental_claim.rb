@@ -192,8 +192,10 @@ module AppealsApi
     end
 
     def soc_opt_in
-      # This is no longer optional as of v3 of the PDF
-      pdf_version&.downcase == 'v3' || data_attributes&.dig('socOptIn')
+      # This was removed from the form in PDF version v3 - it is no longer optional.
+      # - In Decision Reviews APIs, it can only be false if the pdf version is older than v3
+      # - In the Supplemental Claims API v0, it is no longer part of the schema
+      pdf_version&.downcase == 'v3' || api_version&.downcase == 'v0' || data_attributes&.dig('socOptIn')
     end
 
     def new_evidence

@@ -42,7 +42,6 @@
           "email": "claimant@email.com",
           "timezone": "America/Detroit"
         },
-        "socOptIn": true,
         "informalConference": true,
         "informalConferenceContact": "veteran",
         "informalConferenceTime": "800-1200 ET",

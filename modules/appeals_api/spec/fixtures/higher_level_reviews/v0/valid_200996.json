@@ -20,7 +20,6 @@
         "timezone": "America/Chicago",
         "homeless": false
       },
-      "socOptIn": true,
       "informalConferenceContact": "veteran",
       "informalConferenceTime": "800-1200 ET",
       "informalConferenceRep": {
