@@ -10,20 +10,13 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     "/services/appeals/v2/decision_reviews/#{path}"
   end
 
-  def new_base_path(path)
-    "/services/appeals/higher-level-reviews/v0/#{path}"
-  end
-
-  before do
-    @data = fixture_to_s 'valid_200996_minimum.json', version: 'v2'
-    @data_extra = fixture_to_s 'valid_200996_extra.json', version: 'v2'
-    @invalid_data = fixture_to_s 'invalid_200996.json', version: 'v2'
-    @headers = fixture_as_json 'valid_200996_headers.json', version: 'v2'
-    @minimum_required_headers = fixture_as_json 'valid_200996_headers_minimum.json', version: 'v2'
-    @headers_extra = fixture_as_json 'valid_200996_headers_extra.json', version: 'v2'
-    @invalid_headers = fixture_as_json 'invalid_200996_headers.json', version: 'v2'
-  end
-
+  let(:data_default) { fixture_to_s 'decision_reviews/v2/valid_200996_minimum.json' }
+  let(:data_extra) { fixture_to_s 'decision_reviews/v2/valid_200996_extra.json' }
+  let(:data_invalid) { fixture_to_s 'decision_reviews/v2/invalid_200996.json' }
+  let(:headers_default) { fixture_as_json 'decision_reviews/v2/valid_200996_headers.json' }
+  let(:headers_extra) { fixture_as_json 'decision_reviews/v2/valid_200996_headers_extra.json' }
+  let(:headers_minimum) { fixture_as_json 'decision_reviews/v2/valid_200996_headers_minimum.json' }
+  let(:headers_invalid) { fixture_as_json 'decision_reviews/v2/invalid_200996_headers.json' }
   let(:parsed) { JSON.parse(response.body) }
 
   describe '#index' do
@@ -59,7 +52,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
     context 'when no ICN is provided' do
       it 'returns a 422 error' do
-        get(path, headers: @headers_extra.except('X-VA-ICN'))
+        get(path, headers: headers_extra.except('X-VA-ICN'))
 
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
@@ -83,7 +76,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
     context 'with all headers' do
       it 'creates an HLR and persists the data' do
-        post(path, params: @data, headers: @headers)
+        post(path, params: data_default, headers: headers_default)
         hlr_guid = JSON.parse(response.body)['data']['id']
         hlr = AppealsApi::HigherLevelReview.find(hlr_guid)
         expect(hlr.source).to eq('va.gov')
@@ -96,7 +89,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
     context 'with minimum required headers' do
       it 'creates an HLR and persists the data' do
-        post(path, params: @data, headers: @minimum_required_headers)
+        post(path, params: data_default, headers: headers_minimum)
         expect(parsed['data']['type']).to eq('higherLevelReview')
         expect(parsed['data']['attributes']['formData']['data']['attributes']['benefitType']).to eq('lifeInsurance')
         expect(parsed['data']['attributes']['status']).to eq('pending')
@@ -105,7 +98,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
     context 'with optional claimant headers' do
       it 'creates an HLR and persists the data' do
-        post(path, params: @data_extra, headers: @headers_extra)
+        post(path, params: data_extra, headers: headers_extra)
         expect(parsed['data']['type']).to eq('higherLevelReview')
         expect(parsed['data']['attributes']['status']).to eq('pending')
       end
@@ -120,7 +113,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       end
 
       it 'adds header ICN' do
-        post(path, params: @data_extra, headers: @headers_extra)
+        post(path, params: data_extra, headers: headers_extra)
         hlr_guid = JSON.parse(response.body)['data']['id']
         hlr = AppealsApi::HigherLevelReview.find(hlr_guid)
 
@@ -135,7 +128,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       let(:icn) { '1393231' }
 
       it 'returns a 422 error with details' do
-        post(path, params: @data_extra, headers: @minimum_required_headers.merge({ 'X-VA-ICN' => icn }))
+        post(path, params: data_extra, headers: headers_minimum.merge({ 'X-VA-ICN' => icn }))
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors'][0]['title']).to eql('Invalid length')
@@ -147,7 +140,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       let(:icn) { '49392810394830103' }
 
       it 'returns a 422 error with details' do
-        post(path, params: @data_extra, headers: @minimum_required_headers.merge({ 'X-VA-ICN' => icn }))
+        post(path, params: data_extra, headers: headers_minimum.merge({ 'X-VA-ICN' => icn }))
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors'][0]['title']).to eql('Invalid pattern')
@@ -157,7 +150,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
     context 'when header is missing' do
       it 'responds with status :unprocessable_entity' do
-        post(path, params: @data, headers: @minimum_required_headers.except('X-VA-SSN'))
+        post(path, params: data_default, headers: headers_minimum.except('X-VA-SSN'))
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
       end
@@ -169,22 +162,22 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       end
 
       it 'responds with status :unprocessable_entity ' do
-        data = JSON.parse(@data)
+        data = JSON.parse(data_default)
         data['data']['attributes']['veteran'].merge!(
           { 'phone' => { 'areaCode' => '999', 'phoneNumber' => '1234567890', 'phoneNumberExt' => '1234567890' } }
         )
 
-        post(path, params: data.to_json, headers: @minimum_required_headers)
+        post(path, params: data.to_json, headers: headers_minimum)
         expect(response.status).to eq(422)
         expect(parsed['errors']).to include(error_content)
       end
 
       it 'fails when homeless is false but no address is provided' do
-        data = JSON.parse(@data)
+        data = JSON.parse(data_default)
         data['data']['attributes']['veteran']['homeless'] = false
         data['data']['attributes']['veteran'].delete('address')
 
-        post(path, params: data.to_json, headers: @minimum_required_headers)
+        post(path, params: data.to_json, headers: headers_minimum)
         expect(response.status).to eq(422)
 
         error = parsed['errors'][0]
@@ -196,10 +189,10 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
     context 'returns 422 when birth date is not a date' do
       it 'when given a string for the birth date ' do
-        headers = @minimum_required_headers
+        headers = headers_minimum
         headers['X-VA-Birth-Date'] = 'apricot'
 
-        post(path, params: @data.to_json, headers:)
+        post(path, params: data_default.to_json, headers:)
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
       end
@@ -207,10 +200,10 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
     context 'returns 422 when decison date is not a date' do
       it 'when given a string for the contestable issues decision date' do
-        data = JSON.parse(@data)
+        data = JSON.parse(data_default)
         data['included'][0]['attributes'].merge!('decisionDate' => 'banana')
 
-        post(path, params: data.to_json, headers: @minimum_required_headers)
+        post(path, params: data.to_json, headers: headers_minimum)
 
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
@@ -235,7 +228,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         allow(client).to receive(:send_email)
 
         Sidekiq::Testing.inline! do
-          post(path, params: @data, headers: @headers)
+          post(path, params: data_default, headers: headers_default)
         end
 
         hlr = AppealsApi::HigherLevelReview.find_by(id: parsed['data']['id'])
@@ -245,7 +238,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
     context 'when invalid headers supplied' do
       it 'returns an error' do
-        post(path, params: @data, headers: @invalid_headers)
+        post(path, params: data_default, headers: headers_invalid)
         expect(response.status).to eq(422)
         expect(parsed['errors'][0]['detail']).to eq 'Date must be in the past: 3000-12-31'
       end
@@ -262,7 +255,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         allow_any_instance_of(ActionDispatch::Request).to(
           receive(:body).and_return(fake_puma_null_io_object)
         )
-        post(path, params: @data, headers: @headers)
+        post(path, params: data_default, headers: headers_default)
         expect(response.status).to eq 422
         expect(JSON.parse(response.body)['errors']).to be_an Array
       end
@@ -278,7 +271,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         let(:json) { '"Hello!"' }
 
         it 'responds with a properly formed error object' do
-          post(path, params: @data, headers: @headers)
+          post(path, params: data_default, headers: headers_default)
           body = JSON.parse(response.body)
           expect(response.status).to eq 422
           expect(body['errors']).to be_an Array
@@ -290,45 +283,11 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         let(:json) { '66' }
 
         it 'responds with a properly formed error object' do
-          post(path, params: @data, headers: @headers)
+          post(path, params: data_default, headers: headers_default)
           body = JSON.parse(response.body)
           expect(response.status).to eq 422
           expect(body['errors']).to be_an Array
           expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
-        end
-      end
-    end
-
-    context 'with oauth' do
-      let(:oauth_path) { new_base_path 'forms/200996' }
-
-      it_behaves_like(
-        'an endpoint with OpenID auth',
-        scopes: AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController::OAUTH_SCOPES[:POST]
-      ) do
-        def make_request(auth_header)
-          post(oauth_path, params: @data, headers: @headers.merge(auth_header))
-        end
-      end
-
-      it 'behaves the same as the equivalent decision reviews route' do
-        Timecop.freeze(Time.current) do
-          post(path, params: @data, headers: @headers)
-          orig_status = response.status
-          orig_body = JSON.parse(response.body)
-          orig_body['data']['id'] = 'ignored'
-
-          with_openid_auth(
-            AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController::OAUTH_SCOPES[:POST]
-          ) do |auth_header|
-            post(oauth_path, params: @data, headers: @headers.merge(auth_header))
-          end
-          oauth_status = response.status
-          oauth_body = JSON.parse(response.body)
-          oauth_body['data']['id'] = 'ignored'
-
-          expect(oauth_status).to eq(orig_status)
-          expect(oauth_body).to eq(orig_body)
         end
       end
     end
@@ -338,13 +297,13 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
     let(:path) { base_path 'higher_level_reviews/validate' }
 
     it 'returns a response when minimal data valid' do
-      post(path, params: @data, headers: @headers)
+      post(path, params: data_default, headers: headers_default)
       expect(parsed['data']['attributes']['status']).to eq('valid')
       expect(parsed['data']['type']).to eq('higherLevelReviewValidation')
     end
 
     it 'returns a response when extra data valid' do
-      post(path, params: @data_extra, headers: @headers_extra)
+      post(path, params: data_extra, headers: headers_extra)
 
       expect(parsed['data']['attributes']['status']).to eq('valid')
       expect(parsed['data']['type']).to eq('higherLevelReviewValidation')
@@ -352,7 +311,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
     context 'when validation fails due to invalid data' do
       before do
-        post(path, params: @invalid_data, headers: @headers)
+        post(path, params: data_invalid, headers: headers_default)
       end
 
       it 'returns an error response' do
@@ -378,7 +337,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         let(:json) { '"Poodles!"' }
 
         it 'responds with a properly formed error object' do
-          post(path, params: @data, headers: @headers)
+          post(path, params: data_default, headers: headers_default)
           body = JSON.parse(response.body)
           expect(response.status).to eq 422
           expect(body['errors']).to be_an Array
@@ -390,7 +349,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
         let(:json) { '33' }
 
         it 'responds with a properly formed error object' do
-          post(path, params: @data, headers: @headers)
+          post(path, params: data_default, headers: headers_default)
           body = JSON.parse(response.body)
           expect(response.status).to eq 422
           expect(body['errors']).to be_an Array
@@ -403,7 +362,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       let(:icn) { '1393231' }
 
       it 'returns a 422 error with details' do
-        post(path, params: @data_extra, headers: @minimum_required_headers.merge({ 'X-VA-ICN' => icn }))
+        post(path, params: data_extra, headers: headers_minimum.merge({ 'X-VA-ICN' => icn }))
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors'][0]['title']).to eql('Invalid length')
@@ -415,41 +374,11 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       let(:icn) { '49392810394830103' }
 
       it 'returns a 422 error with details' do
-        post(path, params: @data_extra, headers: @minimum_required_headers.merge({ 'X-VA-ICN' => icn }))
+        post(path, params: data_extra, headers: headers_minimum.merge({ 'X-VA-ICN' => icn }))
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(parsed['errors'][0]['title']).to eql('Invalid pattern')
         expect(parsed['errors'][0]['detail']).to include("'#{icn}' did not match the defined pattern")
-      end
-    end
-
-    context 'with oauth' do
-      let(:oauth_path) { new_base_path 'forms/200996/validate' }
-
-      it_behaves_like(
-        'an endpoint with OpenID auth',
-        scopes: AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController::OAUTH_SCOPES[:POST]
-      ) do
-        def make_request(auth_header)
-          post(oauth_path, params: @data, headers: @headers.merge(auth_header))
-        end
-      end
-
-      it 'behaves the same as the equivalent decision reviews route' do
-        post(path, params: @data, headers: @headers)
-        orig_status = response.status
-        orig_body = JSON.parse(response.body)
-
-        with_openid_auth(
-          AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController::OAUTH_SCOPES[:POST]
-        ) do |auth_header|
-          post(oauth_path, params: @data, headers: @headers.merge(auth_header))
-        end
-        oauth_status = response.status
-        oauth_body = JSON.parse(response.body)
-
-        expect(oauth_status).to eq(orig_status)
-        expect(oauth_body).to eq(orig_body)
       end
     end
   end
@@ -491,38 +420,6 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       expect(response.status).to eq(404)
       expect(parsed['errors']).to be_an Array
       expect(parsed['errors']).not_to be_empty
-    end
-  end
-
-  context 'with oauth' do
-    let(:uuid) { create(:higher_level_review_v2).id }
-    let(:orig_path) { base_path "higher_level_reviews/#{uuid}" }
-    let(:oauth_path) { new_base_path("forms/200996/#{uuid}") }
-
-    it_behaves_like(
-      'an endpoint with OpenID auth',
-      scopes: AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController::OAUTH_SCOPES[:GET]
-    ) do
-      def make_request(auth_header)
-        get(oauth_path, headers: auth_header)
-      end
-    end
-
-    it 'behaves the same as the equivalent decision reviews route' do
-      get(orig_path)
-      orig_status = response.status
-      orig_body = JSON.parse(response.body)
-
-      with_openid_auth(
-        AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController::OAUTH_SCOPES[:GET]
-      ) do |auth_header|
-        get(oauth_path, headers: auth_header)
-      end
-      oauth_status = response.status
-      oauth_body = JSON.parse(response.body)
-
-      expect(oauth_status).to eq(orig_status)
-      expect(oauth_body).to eq(orig_body)
     end
   end
 end

@@ -9,9 +9,9 @@ describe AppealsApi::HigherLevelReview, type: :model do
   let(:higher_level_review) { default_higher_level_review }
   let(:default_higher_level_review) { create :higher_level_review_v2, status: 'pending' }
   let(:auth_headers) { default_auth_headers }
-  let(:default_auth_headers) { fixture_as_json 'valid_200996_headers.json', version: 'v2' }
+  let(:default_auth_headers) { fixture_as_json 'decision_reviews/v2/valid_200996_headers.json' }
   let(:form_data) { default_form_data }
-  let(:default_form_data) { fixture_as_json 'valid_200996.json', version: 'v2' }
+  let(:default_form_data) { fixture_as_json 'decision_reviews/v2/valid_200996.json' }
   let(:form_data_attributes) { form_data.dig('data', 'attributes') }
 
   describe '#first_name' do
@@ -215,8 +215,8 @@ describe AppealsApi::HigherLevelReview, type: :model do
     let(:appeal) do # appeal is used here since the shared example expects it
       described_class.new(form_data:, auth_headers:, api_version: 'V2')
     end
-    let(:auth_headers) { fixture_as_json 'valid_200996_headers_extra.json', version: 'v2' }
-    let(:form_data) { fixture_as_json 'valid_200996_extra.json', version: 'v2' }
+    let(:auth_headers) { fixture_as_json 'decision_reviews/v2/valid_200996_headers_extra.json' }
+    let(:form_data) { fixture_as_json 'decision_reviews/v2/valid_200996_extra.json' }
 
     it_behaves_like 'shared model validations', validations: %i[veteran_birth_date_is_in_the_past
                                                                 contestable_issue_dates_are_in_the_past
@@ -343,8 +343,8 @@ describe AppealsApi::HigherLevelReview, type: :model do
   end
 
   context 'PdfOutputPrep concern' do
-    let(:auth_headers) { fixture_as_json 'invalid_200996_headers_characters.json', version: 'v2' }
-    let(:form_data) { fixture_as_json 'invalid_200996_characters.json', version: 'v2' }
+    let(:auth_headers) { fixture_as_json 'decision_reviews/v2/invalid_200996_headers_characters.json' }
+    let(:form_data) { fixture_as_json 'decision_reviews/v2/invalid_200996_characters.json' }
 
     describe '#pdf_output_prep' do
       it 'clears memoized values' do

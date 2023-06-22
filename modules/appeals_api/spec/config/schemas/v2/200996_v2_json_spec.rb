@@ -12,9 +12,9 @@ describe 'VA Form 20-0996 JSON Schema', type: :request do
   let(:errors) { validator.validate(json).to_a }
   let(:errors_minimal) { validator.validate(json_minimal).to_a }
   let(:errors_extra) { validator.validate(json_extra).to_a }
-  let(:json) { fixture_as_json 'valid_200996.json', version: 'v2' }
-  let(:json_minimal) { fixture_as_json 'valid_200996_minimum.json', version: 'v2' }
-  let(:json_extra) { fixture_as_json 'valid_200996_extra.json', version: 'v2' }
+  let(:json) { fixture_as_json 'decision_reviews/v2/valid_200996.json' }
+  let(:json_minimal) { fixture_as_json 'decision_reviews/v2/valid_200996_minimum.json' }
+  let(:json_extra) { fixture_as_json 'decision_reviews/v2/valid_200996_extra.json' }
   let(:validator) { JSONSchemer.schema(json_schema, ref_resolver: schema_ref_resolver) }
 
   it('JSON is valid') { expect(json_schema).to be_a Hash }
