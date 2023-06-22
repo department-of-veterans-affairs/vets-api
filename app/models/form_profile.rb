@@ -106,9 +106,7 @@ class FormProfile
     vre_counseling: ['28-8832'],
     vre_readiness: ['28-1900'],
     coe: ['26-1880'],
-    adapted_housing: ['26-4555'],
-    medical_release: ['21-4142'],
-    lay_witness: ['21-10210']
+    adapted_housing: ['26-4555']
   }.freeze
 
   FORM_ID_TO_CLASS = {
@@ -142,9 +140,7 @@ class FormProfile
     '28-1900' => ::FormProfiles::VA281900,
     '22-1990EZ' => ::FormProfiles::VA1990ez,
     '26-1880' => ::FormProfiles::VA261880,
-    '26-4555' => ::FormProfiles::VA264555,
-    '21-4142' => ::FormProfiles::VA214142,
-    '21-10210' => ::FormProfiles::VA2110210
+    '26-4555' => ::FormProfiles::VA264555
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
