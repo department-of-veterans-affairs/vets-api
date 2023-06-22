@@ -12,6 +12,9 @@
 # Sorted using http://yaml-sorter.herokuapp.com/
 
 features:
+  this_is_only_a_test:
+    actor_type: user
+    description: used in feature_toggles_controller_spec.
   bcas_letters_use_lighthouse:
     actor_type: user
     description: Use lighthouse instead of EVSS to view/download benefit letters.
