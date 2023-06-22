@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe V0::FeatureTogglesController, type: :controller do
   before(:all) do
-    @feature_name = 'facility_locator_show_community_cares'
+    @feature_name = 'this_is_only_a_test'
     @feature_name_camel = @feature_name.camelize(:lower)
     @cached_enabled_val = Flipper.enabled?(@feature_name)
     Flipper.enable(@feature_name)
