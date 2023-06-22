@@ -204,7 +204,7 @@
                             },
                             "included": [
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "left shoulder",
                                   "decisionDate": "1920-12-01"
@@ -288,7 +288,7 @@
                             },
                             "included": [
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "123456789",
                                   "decisionDate": "1900-01-01",
@@ -300,7 +300,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "left eyee",
                                   "decisionDate": "1900-01-02",
@@ -308,14 +308,14 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "right eye",
                                   "decisionDate": "1900-01-03"
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "left ear",
                                   "decisionDate": "1900-01-04",
@@ -324,7 +324,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "right ear",
                                   "decisionDate": "1900-01-05",
@@ -332,7 +332,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "migraines",
                                   "decisionDate": "1900-01-06",
@@ -340,7 +340,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "left knee",
                                   "decisionDate": "1900-01-07",
@@ -348,7 +348,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "right knee",
                                   "decisionDate": "1900-01-08",
@@ -356,7 +356,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "left foot",
                                   "decisionDate": "1900-01-09",
@@ -364,7 +364,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "right foot",
                                   "decisionDate": "1900-01-10",
@@ -373,7 +373,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "left hand",
                                   "decisionDate": "1900-01-11",
@@ -381,7 +381,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "right hand",
                                   "decisionDate": "1900-01-12",
@@ -389,7 +389,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "fever",
                                   "decisionDate": "1900-01-13",
@@ -397,7 +397,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "lupus",
                                   "decisionDate": "1900-01-14",
@@ -405,7 +405,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "cooties",
                                   "decisionDate": "1900-01-15",
@@ -502,7 +502,7 @@
                     },
                     "included": [
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left shoulder",
                           "decisionDate": "1920-12-01"
@@ -575,7 +575,7 @@
                     },
                     "included": [
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "123456789",
                           "decisionDate": "1900-01-01",
@@ -587,7 +587,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left eyee",
                           "decisionDate": "1900-01-02",
@@ -595,14 +595,14 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right eye",
                           "decisionDate": "1900-01-03"
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left ear",
                           "decisionDate": "1900-01-04",
@@ -611,7 +611,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right ear",
                           "decisionDate": "1900-01-05",
@@ -619,7 +619,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "migraines",
                           "decisionDate": "1900-01-06",
@@ -627,7 +627,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left knee",
                           "decisionDate": "1900-01-07",
@@ -635,7 +635,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right knee",
                           "decisionDate": "1900-01-08",
@@ -643,7 +643,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left foot",
                           "decisionDate": "1900-01-09",
@@ -651,7 +651,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right foot",
                           "decisionDate": "1900-01-10",
@@ -660,7 +660,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left hand",
                           "decisionDate": "1900-01-11",
@@ -668,7 +668,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right hand",
                           "decisionDate": "1900-01-12",
@@ -676,7 +676,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "fever",
                           "decisionDate": "1900-01-13",
@@ -684,7 +684,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "lupus",
                           "decisionDate": "1900-01-14",
@@ -692,7 +692,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "cooties",
                           "decisionDate": "1900-01-15",
@@ -1055,7 +1055,7 @@
                               "type": {
                                 "type": "string",
                                 "enum": [
-                                  "contestableIssue"
+                                  "appealableIssue"
                                 ]
                               },
                               "attributes": {
@@ -2410,7 +2410,7 @@
                     },
                     "included": [
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left shoulder",
                           "decisionDate": "1920-12-01"
@@ -2483,7 +2483,7 @@
                     },
                     "included": [
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "123456789",
                           "decisionDate": "1900-01-01",
@@ -2495,7 +2495,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left eyee",
                           "decisionDate": "1900-01-02",
@@ -2503,14 +2503,14 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right eye",
                           "decisionDate": "1900-01-03"
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left ear",
                           "decisionDate": "1900-01-04",
@@ -2519,7 +2519,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right ear",
                           "decisionDate": "1900-01-05",
@@ -2527,7 +2527,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "migraines",
                           "decisionDate": "1900-01-06",
@@ -2535,7 +2535,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left knee",
                           "decisionDate": "1900-01-07",
@@ -2543,7 +2543,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right knee",
                           "decisionDate": "1900-01-08",
@@ -2551,7 +2551,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left foot",
                           "decisionDate": "1900-01-09",
@@ -2559,7 +2559,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right foot",
                           "decisionDate": "1900-01-10",
@@ -2568,7 +2568,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left hand",
                           "decisionDate": "1900-01-11",
@@ -2576,7 +2576,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right hand",
                           "decisionDate": "1900-01-12",
@@ -2584,7 +2584,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "fever",
                           "decisionDate": "1900-01-13",
@@ -2592,7 +2592,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "lupus",
                           "decisionDate": "1900-01-14",
@@ -2600,7 +2600,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "cooties",
                           "decisionDate": "1900-01-15",
@@ -3033,7 +3033,7 @@
                 "type": {
                   "type": "string",
                   "enum": [
-                    "contestableIssue"
+                    "appealableIssue"
                   ]
                 },
                 "attributes": {

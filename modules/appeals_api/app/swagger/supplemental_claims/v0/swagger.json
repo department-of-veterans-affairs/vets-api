@@ -214,7 +214,7 @@
                             },
                             "included": [
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "right shoulder",
                                   "decisionDate": "1900-01-06"
@@ -377,7 +377,7 @@
                             },
                             "included": [
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "right shoulder",
                                   "decisionDate": "2000-01-08",
@@ -385,7 +385,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "lower back",
                                   "decisionDate": "1900-01-06",
@@ -393,7 +393,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "torn rotator cuff",
                                   "decisionDate": "1989-03-07",
@@ -401,7 +401,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "hearing loss",
                                   "decisionDate": "1930-10-20",
@@ -409,7 +409,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "sciatica",
                                   "decisionDate": "2007-01-19",
@@ -417,7 +417,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "bowel obstruction",
                                   "decisionDate": "1999-12-29",
@@ -425,7 +425,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "right eye",
                                   "decisionDate": "1920-04-02",
@@ -433,7 +433,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "left index finger",
                                   "decisionDate": "2018-08-17",
@@ -441,7 +441,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "spinal compression",
                                   "decisionDate": "2013-09-11",
@@ -548,7 +548,7 @@
                     },
                     "included": [
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right shoulder",
                           "decisionDate": "1900-01-06"
@@ -700,7 +700,7 @@
                     },
                     "included": [
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right shoulder",
                           "decisionDate": "2000-01-08",
@@ -708,7 +708,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "lower back",
                           "decisionDate": "1900-01-06",
@@ -716,7 +716,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "torn rotator cuff",
                           "decisionDate": "1989-03-07",
@@ -724,7 +724,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "hearing loss",
                           "decisionDate": "1930-10-20",
@@ -732,7 +732,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "sciatica",
                           "decisionDate": "2007-01-19",
@@ -740,7 +740,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "bowel obstruction",
                           "decisionDate": "1999-12-29",
@@ -748,7 +748,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right eye",
                           "decisionDate": "1920-04-02",
@@ -756,7 +756,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left index finger",
                           "decisionDate": "2018-08-17",
@@ -764,7 +764,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "spinal compression",
                           "decisionDate": "2013-09-11",
@@ -1241,7 +1241,7 @@
                               "type": {
                                 "type": "string",
                                 "enum": [
-                                  "contestableIssue"
+                                  "appealableIssue"
                                 ]
                               },
                               "attributes": {
@@ -2571,7 +2571,7 @@
                     },
                     "included": [
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right shoulder",
                           "decisionDate": "1900-01-06"
@@ -2723,7 +2723,7 @@
                     },
                     "included": [
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right shoulder",
                           "decisionDate": "2000-01-08",
@@ -2731,7 +2731,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "lower back",
                           "decisionDate": "1900-01-06",
@@ -2739,7 +2739,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "torn rotator cuff",
                           "decisionDate": "1989-03-07",
@@ -2747,7 +2747,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "hearing loss",
                           "decisionDate": "1930-10-20",
@@ -2755,7 +2755,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "sciatica",
                           "decisionDate": "2007-01-19",
@@ -2763,7 +2763,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "bowel obstruction",
                           "decisionDate": "1999-12-29",
@@ -2771,7 +2771,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right eye",
                           "decisionDate": "1920-04-02",
@@ -2779,7 +2779,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left index finger",
                           "decisionDate": "2018-08-17",
@@ -2787,7 +2787,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "spinal compression",
                           "decisionDate": "2013-09-11",
@@ -3958,7 +3958,7 @@
                 "type": {
                   "type": "string",
                   "enum": [
-                    "contestableIssue"
+                    "appealableIssue"
                   ]
                 },
                 "attributes": {

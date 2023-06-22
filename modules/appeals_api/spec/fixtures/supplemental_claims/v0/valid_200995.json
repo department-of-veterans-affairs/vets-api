@@ -26,7 +26,7 @@
   },
   "included": [
     {
-      "type": "contestableIssue",
+      "type": "appealableIssue",
       "attributes": {
         "issue": "right shoulder",
         "decisionDate": "1900-01-06"

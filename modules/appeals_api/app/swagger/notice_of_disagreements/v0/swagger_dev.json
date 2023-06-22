@@ -176,7 +176,7 @@
                             },
                             "included": [
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "tinnitus",
                                   "decisionDate": "1900-01-01",
@@ -255,7 +255,7 @@
                             },
                             "included": [
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "tinnitus",
                                   "decisionDate": "1900-01-01",
@@ -266,7 +266,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "left knee",
                                   "decisionDate": "1900-01-02",
@@ -275,7 +275,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "123456789",
                                   "decisionDate": "1900-01-03",
@@ -285,7 +285,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "PTSD",
                                   "decisionDate": "1900-01-04",
@@ -294,7 +294,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "Traumatic Brain Injury",
                                   "decisionDate": "1900-01-05",
@@ -302,7 +302,7 @@
                                 }
                               },
                               {
-                                "type": "contestableIssue",
+                                "type": "appealableIssue",
                                 "attributes": {
                                   "issue": "right shoulder",
                                   "decisionDate": "1900-01-06",
@@ -399,7 +399,7 @@
                     },
                     "included": [
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "tinnitus",
                           "decisionDate": "1900-01-01",
@@ -467,7 +467,7 @@
                     },
                     "included": [
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "tinnitus",
                           "decisionDate": "1900-01-01",
@@ -478,7 +478,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left knee",
                           "decisionDate": "1900-01-02",
@@ -487,7 +487,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "123456789",
                           "decisionDate": "1900-01-03",
@@ -497,7 +497,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "PTSD",
                           "decisionDate": "1900-01-04",
@@ -506,7 +506,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "Traumatic Brain Injury",
                           "decisionDate": "1900-01-05",
@@ -514,7 +514,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right shoulder",
                           "decisionDate": "1900-01-06",
@@ -870,7 +870,7 @@
                               "type": {
                                 "type": "string",
                                 "enum": [
-                                  "contestableIssue"
+                                  "appealableIssue"
                                 ]
                               },
                               "attributes": {
@@ -2156,7 +2156,7 @@
                     },
                     "included": [
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "tinnitus",
                           "decisionDate": "1900-01-01",
@@ -2224,7 +2224,7 @@
                     },
                     "included": [
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "tinnitus",
                           "decisionDate": "1900-01-01",
@@ -2235,7 +2235,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "left knee",
                           "decisionDate": "1900-01-02",
@@ -2244,7 +2244,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "123456789",
                           "decisionDate": "1900-01-03",
@@ -2254,7 +2254,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "PTSD",
                           "decisionDate": "1900-01-04",
@@ -2263,7 +2263,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "Traumatic Brain Injury",
                           "decisionDate": "1900-01-05",
@@ -2271,7 +2271,7 @@
                         }
                       },
                       {
-                        "type": "contestableIssue",
+                        "type": "appealableIssue",
                         "attributes": {
                           "issue": "right shoulder",
                           "decisionDate": "1900-01-06",
@@ -3259,7 +3259,7 @@
                 "type": {
                   "type": "string",
                   "enum": [
-                    "contestableIssue"
+                    "appealableIssue"
                   ]
                 },
                 "attributes": {
