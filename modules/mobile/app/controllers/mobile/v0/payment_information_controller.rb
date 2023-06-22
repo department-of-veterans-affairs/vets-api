@@ -2,6 +2,7 @@
 
 require 'evss/ppiu/service'
 require 'lighthouse/direct_deposit/client'
+require 'lighthouse/direct_deposit/payment_account'
 require 'lighthouse/direct_deposit/error_parser'
 require_relative '../concerns/sso_logging'
 

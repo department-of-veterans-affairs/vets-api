@@ -87,7 +87,7 @@ RSpec.shared_examples 'payment information' do |lighthouse_flag|
               'canUpdatePayment' => true
             },
             'paymentAccount' => {
-              'accountType' => 'CHECKING',
+              'accountType' => 'Checking',
               'financialInstitutionName' => 'WELLS FARGO BANK',
               'accountNumber' => '******7890',
               'financialInstitutionRoutingNumber' => '031000503'
@@ -178,7 +178,7 @@ RSpec.shared_examples 'payment information' do |lighthouse_flag|
                   'canUpdatePayment' => false
                 },
                 'paymentAccount' => {
-                  'accountType' => 'CHECKING',
+                  'accountType' => 'Checking',
                   'financialInstitutionName' => 'WELLS FARGO BANK',
                   'accountNumber' => '******7890',
                   'financialInstitutionRoutingNumber' => '031000503'
@@ -269,7 +269,7 @@ RSpec.shared_examples 'payment information' do |lighthouse_flag|
                 'canUpdatePayment' => true
               },
               'paymentAccount' => {
-                'accountType' => 'CHECKING',
+                'accountType' => 'Checking',
                 'financialInstitutionName' => 'WELLS FARGO BANK',
                 'accountNumber' => '******7890',
                 'financialInstitutionRoutingNumber' => '031000503'

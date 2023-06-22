@@ -64,7 +64,7 @@ module Swagger
                       routing_number
                     ]
                     property :name, type: :string, example: 'WELLS FARGO BANK', description: 'Bank name'
-                    property :account_type, type: :string, enum: %w[CHECKING SAVINGS], example: 'CHECKING', description: 'Bank account type'
+                    property :account_type, type: :string, enum: %w[Checking Savings], example: 'Checking', description: 'Bank account type'
                     property :account_number, type: :string, example: '******7890', description: 'Bank account number (masked)'
                     property :routing_number, type: :string, example: '*****0503', description: 'Bank routing number (masked)'
                   end
@@ -209,7 +209,7 @@ module Swagger
                       routing_number
                     ]
                     property :name, type: :string, example: 'WELLS FARGO BANK', description: 'Bank name'
-                    property :account_type, type: :string, enum: %w[CHECKING SAVINGS], example: 'CHECKING', description: 'Bank account type'
+                    property :account_type, type: :string, enum: %w[Checking Savings], example: 'Checking', description: 'Bank account type'
                     property :account_number, type: :string, example: '******7890', description: 'Bank account number (masked)'
                     property :routing_number, type: :string, example: '*****0503', description: 'Bank routing number (masked)'
                   end
