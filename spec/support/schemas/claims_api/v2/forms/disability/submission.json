@@ -492,14 +492,14 @@
           ],
           "properties": {
             "name": {
-              "description": "If classificationCode is included, the disability name is required to match the associated name value returned in the Benefits Reference Data /disabilities service.",
+              "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
               "type": "string",
-              "example": "PTSD (post traumatic stress disorder)"
+              "example": "Traumatic Brain Injury"
             },
             "classificationCode": {
               "type": "string",
-              "description": "The contention classification code can be retrieved from the Benefits Refence Data API. This code aligns with the id returned by the /disabilities service. If classificationCode is included, the disability name is required to match the associated name value returned in the /disabilities service.",
-              "example": "249470"
+              "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the Benefits Reference Data API.",
+              "example": "9020"
             },
             "serviceRelevance": {
               "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
@@ -549,9 +549,9 @@
                 ],
                 "properties": {
                   "name": {
-                    "description": "What the Disability is called.",
+                    "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
                     "type": "string",
-                    "example": "PTSD (post traumatic stress disorder)"
+                    "example": "Cancer - Musculoskeletal - Elbow"
                   },
                   "disabilityActionType": {
                     "description": "The status of the secondary disability.",
@@ -567,6 +567,7 @@
                     "example": "Heavy equipment operator in service."
                   },
                   "classificationCode": {
+                    "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the Benefits Reference Data API.",
                     "type": "string",
                     "example": "249470"
                   },
@@ -675,7 +676,7 @@
                 "additionalProperties": false,
                 "properties": {
                   "type": "string",
-                  "example": ["PTSD (post traumatic stress disorder)","Trauma"]
+                  "example": ["Traumatic Brain Injury","Cancer - Musculoskeletal - Elbow"]
                 }
               }
             },

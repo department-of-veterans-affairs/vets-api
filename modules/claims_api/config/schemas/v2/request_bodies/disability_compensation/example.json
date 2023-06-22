@@ -97,8 +97,8 @@
         },
         {
            "disabilityActionType": "INCREASE",
-           "name": "diabetes, adult-onset",
-           "classificationCode": "2065",
+           "name": "Musculoskeletal - Foot",
+           "classificationCode": "8994",
            "serviceRelevance": "Service in Vietnam War",
            "approximateDate": "12-1972",
            "ratedDisabilityId": "1234567",
@@ -108,8 +108,8 @@
         },
         {
            "disabilityActionType": "NONE",
-           "name": "knee condition, right",
-           "classificationCode": "3710",
+           "name": "Traumatic Brain Injury",
+           "classificationCode": "9020",
            "serviceRelevance": "Explanation of service connection",
            "approximateDate": "11-04-2019",
            "ratedDisabilityId": "1234567",
@@ -117,9 +117,9 @@
            "isRelatedToToxicExposure": false,
            "secondaryDisabilities": [
               {
-                 "name": "knee condition, left",
+                 "name": "Cancer - Musculoskeletal - Elbow",
                  "disabilityActionType": "SECONDARY",
-                 "classificationCode": "3700",
+                 "classificationCode": "249470",
                  "serviceRelevance": "Injured left knee when brace on right knee failed",
                  "approximateDate": "06-11-2008"
               }
@@ -128,7 +128,7 @@
       ],
       "treatments": [
         {
-            "treatedDisabilityNames": ["Hearing Loss", "diabetes, adult-onset"],
+            "treatedDisabilityNames": ["Hearing Loss", "Traumatic Brain Injury"],
             "center": {
                 "name": "Center One",
                 "state": "GA",
@@ -137,7 +137,7 @@
             "beginDate": "03-1985"
         },
         {
-            "treatedDisabilityNames": ["knee condition, right"],
+            "treatedDisabilityNames": ["Musculoskeletal - Foot"],
             "center": {
                 "name": "Center One",
                 "state": "GA",

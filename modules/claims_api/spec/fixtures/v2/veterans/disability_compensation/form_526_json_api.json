@@ -70,8 +70,8 @@
             "disabilities": [
                 {
                     "disabilityActionType": "REOPEN",
-                    "name": "PTSD (post traumatic stress disorder)",
-                    "classificationCode": "5420",
+                    "name": "Musculoskeletal - Foot",
+                    "classificationCode": "8994",
                     "serviceRelevance": "ABCDEFG",
                     "approximateDate": "03-11-2018",
                     "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
@@ -174,7 +174,7 @@
             },
             "treatments": [
                 {
-                    "treatedDisabilityNames": ["PTSD (post traumatic stress disorder)"],
+                    "treatedDisabilityNames": ["Traumatic Brain Injury"],
                     "center": {
                         "name": "Center One",
                         "state": "GA",
