@@ -27,7 +27,7 @@ module Lighthouse
 
         {
           name: payment_account['financial_institution_name'],
-          account_type: payment_account['account_type'],
+          account_type: payment_account['account_type']&.capitalize,
           account_number: payment_account['account_number'],
           routing_number: payment_account['financial_institution_routing_number']
         }

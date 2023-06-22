@@ -30,7 +30,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
         payment_account = json['data']['attributes']['payment_account']
 
         expect(payment_account['name']).to eq('WELLS FARGO BANK')
-        expect(payment_account['account_type']).to eq('CHECKING')
+        expect(payment_account['account_type']).to eq('Checking')
         expect(payment_account['account_number']).to eq('******7890')
         expect(payment_account['routing_number']).to eq('*****0503')
       end
@@ -136,6 +136,19 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
         end
 
         expect(response).to have_http_status(:ok)
+      end
+
+      it 'capitalizes account type' do
+        params = { account_number: '1234567890', account_type: 'CHECKING', routing_number: '031000503' }
+
+        VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
+          put(:update, params:)
+        end
+
+        body = JSON.parse(response.body)
+        payment_account = body['data']['attributes']['payment_account']
+
+        expect(payment_account['account_type']).to eq('Checking')
       end
     end
 
@@ -267,6 +280,16 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
         expect(e['title']).to eq('Bad Request')
         expect(e['code']).to eq('cnp.payment.account.number.fraud')
         expect(e['source']).to eq('Lighthouse Direct Deposit')
+      end
+    end
+
+    context 'when user profile info is invalid' do
+      let(:params) do
+        {
+          account_type: 'CHECKING',
+          account_number: '1234567890',
+          routing_number: '031000503'
+        }
       end
 
       it 'returns a day phone number error' do
