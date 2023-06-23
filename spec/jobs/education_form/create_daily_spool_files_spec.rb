@@ -30,15 +30,16 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
 
       before do
-        yaml = YAML.load_file(Rails.root.join('config', 'sidekiq_scheduler.yml'))
-        cron = yaml['CreateDailySpoolFiles']['cron']
+        sidekiq_file = Rails.root.join('lib', 'periodic_jobs.rb')
+        lines = File.readlines(sidekiq_file).grep(/EducationForm::CreateDailySpoolFiles/i)
+        cron = lines.first.gsub("  mgr.register('", '').gsub("', 'EducationForm::CreateDailySpoolFiles')\n", '')
         scheduler.schedule_cron(cron) {} # schedule_cron requires a block
       end
 
       it 'is only triggered by sidekiq-scheduler on weekdays' do
-        upcoming_runs = scheduler.timeline(Time.zone.now, 1.week.from_now).map(&:first)
-        expected_runs = possible_runs.keys.map { |d| EtOrbi.parse(d.to_s) }
-        expect(upcoming_runs.map(&:seconds)).to eq(expected_runs.map(&:seconds))
+        scheduler_data = scheduler.jobs.first.cron_line
+        expect(scheduler_data.hours).to eq([3])
+        expect(scheduler_data.weekdays).to eq([[1], [2], [3], [4], [5]])
       end
 
       it 'skips observed holidays' do

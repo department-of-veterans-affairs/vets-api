@@ -6,11 +6,13 @@ RSpec.describe CovidVaccine::ExpandedSubmissionStateJob, type: :worker do
   subject { described_class.new }
 
   describe 'schedule' do
-    sidekiq_file = Rails.root.join('config', 'sidekiq_scheduler.yml')
-    schedule = YAML.load_file(sidekiq_file)['CovidVaccine::ExpandedSubmissionStateJob']
+    sidekiq_file = Rails.root.join('lib', 'periodic_jobs.rb')
+    lines = File.readlines(sidekiq_file).grep(/CovidVaccine::ExpandedSubmissionStateJob/i)
+    schedule = lines.first.gsub("  mgr.register('", '').gsub("', 'CovidVaccine::ExpandedSubmissionStateJob')\n", '')
+    let(:parsed_schedule) { Fugit.do_parse(schedule) }
 
-    it 'has a job class' do
-      expect { schedule['class'].constantize }.not_to raise_error
+    it 'is scheduled to run every hour' do
+      expect(parsed_schedule.minutes).to eq([0])
     end
   end
 
