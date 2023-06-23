@@ -24,7 +24,7 @@ module CopayNotifications
       else
         StatsD.increment('api.copay_notifications.new_statement.vet_360.failure')
         log_exception_to_sentry(CopayNotifications::ProfileMissingEmail.new(vet360_id), {},
-                                { error: :mcp_notification_email_job })
+                                { error: :mcp_notification_email_job }, 'info')
       end
     rescue Common::Exceptions::BackendServiceException => e
       if e.status_code == 400
