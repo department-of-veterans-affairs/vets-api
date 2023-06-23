@@ -4,7 +4,10 @@
 PERIODIC_JOBS = lambda { |mgr|
   mgr.tz = ActiveSupport::TimeZone.new('America/New_York')
 
-  # AppealsApi Module
+  mgr.register('*/15 * * * *', 'CovidVaccine::ScheduledBatchJob')
+  mgr.register('*/15 * * * *', 'CovidVaccine::ExpandedScheduledSubmissionJob')
+  mgr.register('*/30 * * * *', 'SidekiqAlive::CleanupQueues')
+
   mgr.register('5 * * * *', 'AppealsApi::HigherLevelReviewUploadStatusBatch')
   # Update HigherLevelReview statuses with their Central Mail status
   mgr.register('10 * * * *', 'AppealsApi::NoticeOfDisagreementUploadStatusBatch')
@@ -32,6 +35,8 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 2,9,16 * * 1-5', 'AppealsApi::FlipperStatusAlert')
   # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
 
+  # mgr.register('0 0 * * *', 'VRE::CreateCh31SubmissionsReportJob')
+
   mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')
   # Clear out processed 22-1990 applications that are older than 1 month
 
@@ -58,6 +63,8 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('30 2 * * *', 'CentralMail::DeleteOldClaims')
   # Clear out central mail claims older than 2 months
 
+  mgr.register('0 3 * * MON-FRI', 'EducationForm::CreateDailySpoolFiles')
+
   mgr.register('0 3 * * *', 'DeleteOldTransactionsJob')
   # Deletes old, completed AsyncTransaction records
 
@@ -82,6 +89,8 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 6 * * *', 'AccountLoginStatisticsJob')
   # Gather account login statistics for statsd
 
+  mgr.register('0 6-18/6 * * *', 'EducationForm::Process10203Submissions')
+
   mgr.register('* 7 * * *', 'SignIn::DeleteExpiredSessionsJob')
   # Delete expired sessions
 
@@ -105,6 +114,8 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 16 * * *', 'VANotify::InProgressForms')
   mgr.register('0 1 * * *', 'VANotify::ClearStaleInProgressRemindersSent')
   mgr.register('0 * * * *', 'VANotify::InProgress1880Form')
+
+  mgr.register('0 * * * *', 'CovidVaccine::ExpandedSubmissionStateJob')
 
   mgr.register('0 * * * *', 'PagerDuty::CacheGlobalDowntime')
   mgr.register('*/3 * * * *', 'PagerDuty::PollMaintenanceWindows')

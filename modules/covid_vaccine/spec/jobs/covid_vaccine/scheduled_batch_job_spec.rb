@@ -5,17 +5,10 @@ require 'fugit'
 
 RSpec.describe CovidVaccine::ScheduledBatchJob, type: :worker do
   describe 'schedule' do
-    sidekiq_file = Rails.root.join('config', 'sidekiq_scheduler.yml')
-    schedule = YAML.load_file(sidekiq_file)['CovidVaccine::ScheduledBatchJob']
-    let(:parsed_schedule) { Fugit.do_parse(schedule['cron']) }
-
-    it 'has a job class' do
-      expect { schedule['class'].constantize }.not_to raise_error
-    end
-
-    it 'is scheduled in the eastern time zone' do
-      expect(parsed_schedule.zone).to eq('America/New_York')
-    end
+    sidekiq_file = Rails.root.join('lib', 'periodic_jobs.rb')
+    lines = File.readlines(sidekiq_file).grep(/CovidVaccine::ScheduledBatchJob/i)
+    schedule = lines.first.gsub("  mgr.register('", '').gsub("', 'CovidVaccine::ScheduledBatchJob')\n", '')
+    let(:parsed_schedule) { Fugit.do_parse(schedule) }
 
     it 'is scheduled to run every 15 min' do
       expect(parsed_schedule.minutes).to eq([0, 15, 30, 45])

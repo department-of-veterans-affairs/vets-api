@@ -1,11 +1,17 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'fugit'
 
 RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :education_benefits do
   subject { described_class.new }
 
+  sidekiq_file = Rails.root.join('lib', 'periodic_jobs.rb')
+  lines = File.readlines(sidekiq_file).grep(/EducationForm::Process10203Submissions/i)
+  cron = lines.first.gsub("  mgr.register('", '').gsub("', 'EducationForm::Process10203Submissions')\n", '')
+
   let(:evss_user) { create(:evss_user) }
+  let(:parsed_schedule) { Fugit.do_parse(cron) }
   let(:evss_user2) { create(:evss_user, uuid: '87ebe3da-36a3-4c92-9a73-61e9d700f6ea') }
   let(:no_edipi_evss_user) { create(:unauthorized_evss_user) }
   let(:evss_response_with_poa) { OpenStruct.new(body: get_fixture('json/evss_with_poa')) }
@@ -16,23 +22,9 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
     end
 
     context 'job only runs between 6-18 every 6 hours', run_at: '2017-01-01 00:00:00 EDT' do
-      let(:scheduler) { Rufus::Scheduler.new }
-      let(:possible_runs) do
-        ['2017-01-01 06:00:00 -0500',
-         '2017-01-01 12:00:00 -0500',
-         '2017-01-01 18:00:00 -0500']
-      end
-
-      before do
-        yaml = YAML.load_file(Rails.root.join('config', 'sidekiq_scheduler.yml'))
-        cron = yaml['EducationForm::Process10203Submissions']['cron']
-        scheduler.schedule_cron(cron) {} # schedule_cron requires a block
-      end
-
-      it 'is only triggered by sidekiq-scheduler every 6 hours between 6-18' do
-        upcoming_runs = scheduler.timeline(Time.zone.now, 1.day.from_now).map(&:first)
-        expected_runs = possible_runs.map { |d| EtOrbi.parse(d.to_s) }
-        expect(upcoming_runs.map(&:seconds)).to eq(expected_runs.map(&:seconds))
+      it 'is only triggered by sidekiq periodic jobs every 6 hours between 6-18' do
+        expect(parsed_schedule.original).to eq('0 6-18/6 * * *')
+        expect(parsed_schedule.hours).to eq([6, 12, 18])
       end
     end
   end
