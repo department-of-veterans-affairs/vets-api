@@ -52,7 +52,7 @@ RSpec.describe CopayNotifications::McpNotificationEmailJob, skip_vet360: true, t
         VCR.use_cassette('va_profile/contact_information/person_error', VCR::MATCH_EVERYTHING) do
           job = described_class.new
           expect(job).to receive(:log_exception_to_sentry).with(
-            instance_of(CopayNotifications::ProfileMissingEmail), {}, { error: :mcp_notification_email_job }
+            instance_of(CopayNotifications::ProfileMissingEmail), {}, { error: :mcp_notification_email_job }, 'info'
           )
           job.perform(vet_id, template_id)
         end
