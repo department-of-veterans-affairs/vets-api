@@ -25,7 +25,7 @@ http_interactions:
       Server:
       - nginx/1.18.0 (Ubuntu)
       Date:
-      - Mon, 15 May 2023 14:44:39 GMT
+      - Thu, 22 Jun 2023 23:03:54 GMT
       Content-Type:
       - application/fhir+json;charset=utf-8
       Transfer-Encoding:
@@ -33,12 +33,12 @@ http_interactions:
       Connection:
       - keep-alive
       X-Powered-By:
-      - HAPI FHIR 6.7.1-SNAPSHOT/a64f0e3e5b/2023-05-15 REST Server (FHIR Server; FHIR
+      - HAPI FHIR 6.7.8-SNAPSHOT/b985091c2c/2023-06-21 REST Server (FHIR Server; FHIR
         4.0.1/R4)
       Etag:
       - W/"1"
       X-Request-Id:
-      - gyndlMKW0SzUGWNY
+      - jZaiHxZ4X076BzP6
       Content-Location:
       - "<MHV_MR_HOST>/baseR4/DocumentReference/1175305/_history/1"
       Last-Modified:
@@ -114,5 +114,5 @@ http_interactions:
             }
           }
         }
-  recorded_at: Mon, 15 May 2023 14:44:39 GMT
+  recorded_at: Thu, 22 Jun 2023 23:03:54 GMT
 recorded_with: VCR 6.1.0

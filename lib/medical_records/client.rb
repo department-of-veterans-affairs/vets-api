@@ -10,6 +10,18 @@ module MedicalRecords
   # Core class responsible for Medical Records API interface operations
   #
   class Client < Common::Client::Base
+    # loinc codes for clinical notes
+    PHYSICIAN_PROCEDURE_NOTE = '11505-5' # Physician procedure note
+    DISCHARGE_SUMMARY = '18842-5' # Discharge summary
+
+    # loinc codes for vitals
+    BLOOD_PRESSURE = '85354-9' # Blood Pressure
+    BREATHING_RATE = '9279-1' # Breathing Rate
+    HEART_RATE = '8867-4' # Heart Rate
+    HEIGHT = '8302-2' # Height
+    TEMPERATURE = '8310-5' # Temperature
+    WEIGHT = '29463-7' # Weight
+
     configuration MedicalRecords::Configuration
 
     ##
@@ -52,8 +64,9 @@ module MedicalRecords
     end
 
     def list_clinical_notes(patient_id)
+      loinc_codes = "#{PHYSICIAN_PROCEDURE_NOTE},#{DISCHARGE_SUMMARY}"
       fhir_client.search(FHIR::DocumentReference,
-                         search: { parameters: { patient: patient_id, type: '83320-2,18842-5,11505-5' } }).resource
+                         search: { parameters: { patient: patient_id, type: loinc_codes } }).resource
     end
 
     def get_diagnostic_report(record_id)
@@ -66,9 +79,16 @@ module MedicalRecords
     end
 
     def list_vitals(patient_id)
-      fhir_client.search(FHIR::Observation,
-                         search: { parameters: { patient: patient_id,
-                                                 code: '8302-2,8310-5,8867-4,9279-1,85354-9,29463-7' } }).resource
+      loinc_codes = "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT}"
+      fhir_client.search(FHIR::Observation, search: { parameters: { patient: patient_id, code: loinc_codes } }).resource
+    end
+
+    def get_condition(condition_id)
+      fhir_client.search(FHIR::Condition, search: { parameters: { _id: condition_id, _include: '*' } }).resource
+    end
+
+    def list_conditions(patient_id)
+      fhir_client.search(FHIR::Condition, search: { parameters: { patient: patient_id } }).resource
     end
   end
 end

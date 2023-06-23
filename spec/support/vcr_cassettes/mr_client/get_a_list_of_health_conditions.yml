@@ -1,0 +1,702 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/baseR4/Condition?patient=39254"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/fhir+json
+      User-Agent:
+      - Ruby FHIR Client
+      Accept-Charset:
+      - utf-8
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Host:
+      - hapi.fhir.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.18.0 (Ubuntu)
+      Date:
+      - Thu, 22 Jun 2023 00:14:16 GMT
+      Content-Type:
+      - application/fhir+json;charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      X-Powered-By:
+      - HAPI FHIR 6.7.8-SNAPSHOT/b985091c2c/2023-06-21 REST Server (FHIR Server; FHIR
+        4.0.1/R4)
+      X-Request-Id:
+      - gfQV44LaAvUW8usB
+      Last-Modified:
+      - Thu, 22 Jun 2023 00:14:16 GMT
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "resourceType": "Bundle",
+          "id": "7ea8ba1a-6d82-4178-9b2d-7caae1d9fcf8",
+          "meta": {
+            "lastUpdated": "2023-06-22T00:14:16.570+00:00"
+          },
+          "type": "searchset",
+          "link": [ {
+            "relation": "self",
+            "url": "<MHV_MR_HOST>/baseR4/Condition?patient=39254"
+          }, {
+            "relation": "next",
+            "url": "<MHV_MR_HOST>/baseR4?_getpages=7ea8ba1a-6d82-4178-9b2d-7caae1d9fcf8&_getpagesoffset=20&_count=20&_pretty=true&_bundletype=searchset"
+          } ],
+          "entry": [ {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39238",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39238",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-01T11:52:50.769+00:00",
+                "source": "#501b627f9543171f"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "resolved",
+                  "display": "Resolved"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "11101003",
+                  "display": "PTCA"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1999-03"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39239",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39239",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-01T11:52:50.769+00:00",
+                "source": "#501b627f9543171f"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "resolved",
+                  "display": "Resolved"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "22298006",
+                  "display": "Myocardial infarction"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1997-01"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39256",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39256",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-01T11:55:45.788+00:00",
+                "source": "#a0a73b22a745cf5f"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "active",
+                  "display": "Active"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "195967001",
+                  "display": "Asthma"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1950"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39257",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39257",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-01T11:55:45.788+00:00",
+                "source": "#a0a73b22a745cf5f"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "resolved",
+                  "display": "Resolved"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "233604007",
+                  "display": "Pneumonia"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1997-01"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39258",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39258",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-01T11:55:45.788+00:00",
+                "source": "#a0a73b22a745cf5f"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "resolved",
+                  "display": "Resolved"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "11101003",
+                  "display": "PTCA"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1999-03"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39259",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39259",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-01T11:55:45.788+00:00",
+                "source": "#a0a73b22a745cf5f"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "resolved",
+                  "display": "Resolved"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "22298006",
+                  "display": "Myocardial infarction"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1997-01"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39274",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39274",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-01T11:57:08.886+00:00",
+                "source": "#b56fd535cd79f195"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "active",
+                  "display": "Active"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "195967001",
+                  "display": "Asthma"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1950"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39275",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39275",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-01T11:57:08.886+00:00",
+                "source": "#b56fd535cd79f195"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "resolved",
+                  "display": "Resolved"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "233604007",
+                  "display": "Pneumonia"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1997-01"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39276",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39276",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-01T11:57:08.886+00:00",
+                "source": "#b56fd535cd79f195"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "resolved",
+                  "display": "Resolved"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "11101003",
+                  "display": "PTCA"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1999-03"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39277",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39277",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-01T11:57:08.886+00:00",
+                "source": "#b56fd535cd79f195"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "resolved",
+                  "display": "Resolved"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "22298006",
+                  "display": "Myocardial infarction"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1997-01"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39539",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39539",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-03T08:23:16.555+00:00",
+                "source": "#16603bb923676fa5"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "active",
+                  "display": "Active"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "195967001",
+                  "display": "Asthma"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1950"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39540",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39540",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-03T08:23:16.555+00:00",
+                "source": "#16603bb923676fa5"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "resolved",
+                  "display": "Resolved"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "233604007",
+                  "display": "Pneumonia"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1997-01"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39541",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39541",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-03T08:23:16.555+00:00",
+                "source": "#16603bb923676fa5"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "resolved",
+                  "display": "Resolved"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "11101003",
+                  "display": "PTCA"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1999-03"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39542",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39542",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-03T08:23:16.555+00:00",
+                "source": "#16603bb923676fa5"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "resolved",
+                  "display": "Resolved"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "22298006",
+                  "display": "Myocardial infarction"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1997-01"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39558",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39558",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-03T08:30:04.246+00:00",
+                "source": "#64536d0ed0d7983b"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "active",
+                  "display": "Active"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "195967001",
+                  "display": "Asthma"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1950"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39559",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39559",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-03T08:30:04.246+00:00",
+                "source": "#64536d0ed0d7983b"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "resolved",
+                  "display": "Resolved"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "233604007",
+                  "display": "Pneumonia"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1997-01"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39560",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39560",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-03T08:30:04.246+00:00",
+                "source": "#64536d0ed0d7983b"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "resolved",
+                  "display": "Resolved"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "11101003",
+                  "display": "PTCA"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1999-03"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39561",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39561",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-03T08:30:04.246+00:00",
+                "source": "#64536d0ed0d7983b"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "resolved",
+                  "display": "Resolved"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "22298006",
+                  "display": "Myocardial infarction"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1997-01"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39592",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39592",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-03T08:45:43.722+00:00",
+                "source": "#0ccfbe60777867f4"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "active",
+                  "display": "Active"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "195967001",
+                  "display": "Asthma"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1950"
+            },
+            "search": {
+              "mode": "match"
+            }
+          }, {
+            "fullUrl": "<MHV_MR_HOST>/baseR4/Condition/39593",
+            "resource": {
+              "resourceType": "Condition",
+              "id": "39593",
+              "meta": {
+                "versionId": "1",
+                "lastUpdated": "2019-10-03T08:45:43.722+00:00",
+                "source": "#0ccfbe60777867f4"
+              },
+              "clinicalStatus": {
+                "coding": [ {
+                  "system": "http://hl7.org/fhir/condition-clinical",
+                  "code": "resolved",
+                  "display": "Resolved"
+                } ]
+              },
+              "code": {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "233604007",
+                  "display": "Pneumonia"
+                } ]
+              },
+              "subject": {
+                "reference": "Patient/39254"
+              },
+              "onsetDateTime": "1997-01"
+            },
+            "search": {
+              "mode": "match"
+            }
+          } ]
+        }
+  recorded_at: Thu, 22 Jun 2023 00:14:16 GMT
+recorded_with: VCR 6.1.0

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_MR_HOST>/baseR4/Observation?code=8302-2,8310-5,8867-4,9279-1,85354-9,29463-7&patient=30163"
+    uri: "<MHV_MR_HOST>/baseR4/Observation?code=85354-9,9279-1,8867-4,8302-2,8310-5,29463-7&patient=30163"
     body:
       encoding: US-ASCII
       string: ''
@@ -25,7 +25,7 @@ http_interactions:
       Server:
       - nginx/1.18.0 (Ubuntu)
       Date:
-      - Wed, 21 Jun 2023 02:54:56 GMT
+      - Thu, 22 Jun 2023 21:28:35 GMT
       Content-Type:
       - application/fhir+json;charset=utf-8
       Transfer-Encoding:
@@ -33,28 +33,28 @@ http_interactions:
       Connection:
       - keep-alive
       X-Powered-By:
-      - HAPI FHIR 6.7.6-SNAPSHOT/1d548abc8b/2023-06-14 REST Server (FHIR Server; FHIR
+      - HAPI FHIR 6.7.8-SNAPSHOT/b985091c2c/2023-06-21 REST Server (FHIR Server; FHIR
         4.0.1/R4)
       X-Request-Id:
-      - s39FWGPv7JvwH7Gf
+      - YoNLtxIUf0pFXU71
       Last-Modified:
-      - Wed, 21 Jun 2023 02:54:56 GMT
+      - Thu, 22 Jun 2023 21:28:35 GMT
     body:
       encoding: UTF-8
       string: |-
         {
           "resourceType": "Bundle",
-          "id": "f193dd4b-afab-42c7-9c29-66c7fec7d817",
+          "id": "e4d1f6b8-9665-482f-a381-798c060d6f2d",
           "meta": {
-            "lastUpdated": "2023-06-21T02:54:56.572+00:00"
+            "lastUpdated": "2023-06-22T21:28:35.131+00:00"
           },
           "type": "searchset",
           "link": [ {
             "relation": "self",
-            "url": "<MHV_MR_HOST>/baseR4/Observation?code=8302-2%2C8310-5%2C8867-4%2C9279-1%2C85354-9%2C29463-7&patient=30163"
+            "url": "<MHV_MR_HOST>/baseR4/Observation?code=85354-9%2C9279-1%2C8867-4%2C8302-2%2C8310-5%2C29463-7&patient=30163"
           }, {
             "relation": "next",
-            "url": "<MHV_MR_HOST>/baseR4?_getpages=f193dd4b-afab-42c7-9c29-66c7fec7d817&_getpagesoffset=20&_count=20&_pretty=true&_bundletype=searchset"
+            "url": "<MHV_MR_HOST>/baseR4?_getpages=e4d1f6b8-9665-482f-a381-798c060d6f2d&_getpagesoffset=20&_count=20&_pretty=true&_bundletype=searchset"
           } ],
           "entry": [ {
             "fullUrl": "<MHV_MR_HOST>/baseR4/Observation/30189",
@@ -738,5 +738,5 @@ http_interactions:
             }
           } ]
         }
-  recorded_at: Wed, 21 Jun 2023 02:54:56 GMT
+  recorded_at: Thu, 22 Jun 2023 21:28:35 GMT
 recorded_with: VCR 6.1.0

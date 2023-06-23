@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_MR_HOST>/baseR4/DocumentReference?patient=1174378&type=83320-2,18842-5,11505-5"
+    uri: "<MHV_MR_HOST>/baseR4/DocumentReference?patient=1174378&type=11505-5,18842-5"
     body:
       encoding: US-ASCII
       string: ''
@@ -25,34 +25,36 @@ http_interactions:
       Server:
       - nginx/1.18.0 (Ubuntu)
       Date:
-      - Mon, 15 May 2023 14:44:39 GMT
+      - Thu, 22 Jun 2023 23:03:53 GMT
       Content-Type:
       - application/fhir+json;charset=utf-8
       Transfer-Encoding:
       - chunked
       Connection:
       - keep-alive
+      X-Cache:
+      - HIT from <MHV_MR_HOST>/baseR4
       X-Powered-By:
-      - HAPI FHIR 6.7.1-SNAPSHOT/a64f0e3e5b/2023-05-15 REST Server (FHIR Server; FHIR
+      - HAPI FHIR 6.7.8-SNAPSHOT/b985091c2c/2023-06-21 REST Server (FHIR Server; FHIR
         4.0.1/R4)
       X-Request-Id:
-      - dZpHwBjPazdMKG3g
+      - 0Cwrj3qSSsxLO1Jk
       Last-Modified:
-      - Mon, 15 May 2023 14:44:39 GMT
+      - Thu, 22 Jun 2023 23:03:17 GMT
     body:
       encoding: UTF-8
       string: |-
         {
           "resourceType": "Bundle",
-          "id": "f44b8e5e-e1b8-40d0-a1bd-0790f1f34623",
+          "id": "e1feff56-10a6-4e51-a11a-2f2eb30603b5",
           "meta": {
-            "lastUpdated": "2023-05-15T14:44:39.710+00:00"
+            "lastUpdated": "2023-06-22T23:03:17.771+00:00"
           },
           "type": "searchset",
           "total": 11,
           "link": [ {
             "relation": "self",
-            "url": "<MHV_MR_HOST>/baseR4/DocumentReference?patient=1174378&type=83320-2%2C18842-5%2C11505-5"
+            "url": "<MHV_MR_HOST>/baseR4/DocumentReference?patient=1174378&type=11505-5%2C18842-5"
           } ],
           "entry": [ {
             "fullUrl": "<MHV_MR_HOST>/baseR4/DocumentReference/1175305",
@@ -859,5 +861,5 @@ http_interactions:
             }
           } ]
         }
-  recorded_at: Mon, 15 May 2023 14:44:40 GMT
+  recorded_at: Thu, 22 Jun 2023 23:03:53 GMT
 recorded_with: VCR 6.1.0
