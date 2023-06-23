@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/facilities?ids=688&pageSize=0
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities?children=true&ids=983,%20984&pageSize=0&schedulable=true
     body:
       encoding: US-ASCII
       string: ''
@@ -23,42 +23,43 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 400
-      message: Bad Request
+      code: 200
+      message: OK
     headers:
       Date:
-      - Fri, 21 May 2021 17:37:03 GMT
+      - Thu, 22 Jun 2023 17:33:02 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '120'
-      Server:
-      - openresty
+      - '3'
+      Connection:
+      - keep-alive
       X-Vamf-Version:
-      - 2.4.1
-      B3:
-      - 6026dc16944fc217-6516fde7c5515f93-0
+      - 2.21.1
       Access-Control-Allow-Headers:
       - x-vamf-jwt
       X-Vamf-Build:
-      - 3c19730
+      - 4d56ca5
       X-Vamf-Timestamp:
-      - '2021-04-07T15:14:08+0000'
+      - '2023-06-16T18:31:57+0000'
       Access-Control-Allow-Origin:
       - "*"
       Access-Control-Allow-Methods:
       - GET,OPTIONS
       Access-Control-Max-Age:
       - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '8'
+      Set-Cookie:
+      - TS016f4012=01c16e2d81474406e85283946cff1852cafff617d91202ec7c664a87432ee87eff124abedd2252a9b32c7e41a03639a572ecfc7787;
+        Max-Age=900; Path=/
+      - stubbed_cookie
+        path=/; SameSite=Lax; HttpOnly
+      - vamftimeoutv1=1687456082; SameSite=Lax; path=/
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
     body:
       encoding: UTF-8
-      string: |-
-        {
-          "code" : 400,
-          "message" : "missing required parameter",
-          "errorCode" : 1001,
-          "detail" : "ids",
-          "meta" : { }
-        }
-  recorded_at: Fri, 21 May 2021 17:37:03 GMT
-recorded_with: VCR 6.0.0
+      string: "{ }"
+  recorded_at: Thu, 22 Jun 2023 17:33:02 GMT
+recorded_with: VCR 6.1.0

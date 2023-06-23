@@ -351,6 +351,12 @@ paths:
           schema:
             type: boolean
           description: Indicates whether child facilities should be returned for matching parent facilities.
+        - in: query
+          name: schedulable
+          required: true
+          schema:
+            type: boolean
+          description: Indicates whether returned facilities should be filtered on those that are accepting appointments.
       responses:
         '200':
           description: Success

@@ -5,6 +5,7 @@ module VAOS
     class FacilitiesController < VAOS::BaseController
       def index
         response = mobile_facility_service.get_facilities(ids:,
+                                                          schedulable:,
                                                           children:,
                                                           type:)
         render json: VAOS::V2::FacilitiesSerializer.new(response[:data], meta: response[:meta])
@@ -42,6 +43,15 @@ module VAOS
 
       def type
         params[:type]
+      end
+
+      def schedulable
+        if Flipper.enabled?('va_online_scheduling_required_schedulable_param')
+          schedulable = params.require(:schedulable)
+          schedulable == 'true'
+        else
+          params[:schedulable]
+        end
       end
     end
   end
