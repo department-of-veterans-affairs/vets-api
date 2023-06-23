@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/facilities?ids=688&pageSize=0
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities?ids=983,%20983GB,%20983GC,%20983GD&pageSize=0
     body:
       encoding: US-ASCII
       string: ''
@@ -23,33 +23,35 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 400
-      message: Bad Request
+      code: 200
+      message: OK
     headers:
       Date:
-      - Fri, 21 May 2021 17:37:03 GMT
+      - Fri, 09 Jun 2023 17:10:11 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '120'
+      - '3477'
       Server:
       - openresty
       X-Vamf-Version:
-      - 2.4.1
-      B3:
-      - 6026dc16944fc217-6516fde7c5515f93-0
+      - 2.21.0
       Access-Control-Allow-Headers:
       - x-vamf-jwt
       X-Vamf-Build:
-      - 3c19730
+      - 766d2f9
       X-Vamf-Timestamp:
-      - '2021-04-07T15:14:08+0000'
+      - '2023-06-02T17:17:53+0000'
       Access-Control-Allow-Origin:
       - "*"
       Access-Control-Allow-Methods:
       - GET,OPTIONS
       Access-Control-Max-Age:
       - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '4'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
       string: |-
@@ -60,5 +62,5 @@ http_interactions:
           "detail" : "ids",
           "meta" : { }
         }
-  recorded_at: Fri, 21 May 2021 17:37:03 GMT
-recorded_with: VCR 6.0.0
+  recorded_at: Fri, 09 Jun 2023 17:10:11 GMT
+recorded_with: VCR 6.1.0

@@ -76,9 +76,10 @@ module VAOS
       #   - :data: A hash containing information about the facilities
       #   - :meta: A hash containing pagination information
       #
-      def get_facilities(ids:, children: nil, type: nil, pagination_params: {})
+      def get_facilities(ids:, schedulable:, children: nil, type: nil, pagination_params: {})
         params = {
           ids:,
+          schedulable:,
           children:,
           type:
         }.merge(page_params(pagination_params)).compact
