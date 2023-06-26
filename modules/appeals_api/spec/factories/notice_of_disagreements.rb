@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
+
 FactoryBot.define do
   # Decision Reviews API v1 NODs
   factory :notice_of_disagreement, class: 'AppealsApi::NoticeOfDisagreement' do

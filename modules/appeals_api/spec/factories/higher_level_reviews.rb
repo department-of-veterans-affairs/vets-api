@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
+
 FactoryBot.define do
   # Decision Reviews API v1 HLRs
   # HLRv1 may be all-but-removed, but records still exist in prod and we want to ensure it's represented in specs
