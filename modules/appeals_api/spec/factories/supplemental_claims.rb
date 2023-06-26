@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
+
 FactoryBot.define do
   # Decision Reviews API v2 SCs
   factory :supplemental_claim, class: 'AppealsApi::SupplementalClaim' do
