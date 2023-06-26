@@ -108,10 +108,15 @@ module Mobile
 
       # body params appear in the params hash in specs but not in actual requests
       def download_options_hash
-        body_params = Rack::Utils.parse_nested_query(request.body.string)
-        body_params.keep_if { |k, _| k.in? DOWNLOAD_PARAMS }
-                   .transform_values { |v| ActiveModel::Type::Boolean.new.cast(v) }
-                   .transform_keys { |k| k.camelize(:lower) }
+        body_string = request.body.string
+        body_params = Rack::Utils.parse_nested_query(body_string)
+        permitted_params = body_params.keep_if { |k, _| k.in? DOWNLOAD_PARAMS }
+                                      .transform_values { |v| ActiveModel::Type::Boolean.new.cast(v) }
+                                      .transform_keys { |k| k.camelize(:lower) }
+        # temporary logging to help debug
+        Rails.logger.info('Letters download params', params:)
+        Rails.logger.info('Letters download options', body_string:, body_params:, permitted_params:)
+        permitted_params
       end
 
       def letter_info_adapter
