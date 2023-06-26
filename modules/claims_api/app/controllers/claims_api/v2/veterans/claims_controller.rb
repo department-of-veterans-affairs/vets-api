@@ -41,7 +41,10 @@ module ClaimsApi
         private
 
         def evss_docs_service
-          EVSS::DocumentsService.new(auth_headers)
+          ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'starting service')
+          service = EVSS::DocumentsService.new(auth_headers)
+          ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'service started')
+          service
         end
 
         def bgs_phase_status_mapper
@@ -494,8 +497,12 @@ module ClaimsApi
         end
 
         def get_evss_documents(claim_id)
-          evss_docs_service.get_claim_documents(claim_id).body
+          ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'getting docs')
+          docs = evss_docs_service.get_claim_documents(claim_id).body
+          ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'got docs')
+          docs
         rescue => e
+          ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'getting docs failed', exception: e)
           log_message_to_sentry('Error in Claims v2 show calling EVSS Doc Service',
                                 :error,
                                 body: e.message)
@@ -512,6 +519,7 @@ module ClaimsApi
                  else
                    get_evss_documents(bgs_claim[:benefit_claim_details_dto][:benefit_claim_id])
                  end
+          ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'recieved docs from evss doc service')
           return [] if docs.nil? || docs&.dig('documents').blank?
 
           @supporting_documents = docs['documents']
