@@ -42,6 +42,18 @@ RSpec.describe 'facilities', type: :request do
         end
       end
 
+      context 'query for facilities and not passing in schedulable' do
+        it 'sets schedulable to true and returns facility details' do
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200',
+                           match_requests_on: %i[method path query]) do
+            get '/vaos/v2/facilities?ids[]=983&ids[]=984', headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)['data'].size).to eq(2)
+            expect(response).to match_camelized_response_schema('vaos/v2/get_facilities', { strict: false })
+          end
+        end
+      end
+
       context 'on successful query for a facility and children' do
         it 'returns facility details' do
           VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_with_children_schedulable_200',
@@ -55,11 +67,11 @@ RSpec.describe 'facilities', type: :request do
         end
       end
 
-      context 'on sending a bad request to the VAOS Service - missing schedulable param' do
+      context 'on sending a bad request to the VAOS Service - missing ids param' do
         it 'returns a 400 http status' do
           VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_400',
                            match_requests_on: %i[method path query]) do
-            get '/vaos/v2/facilities?ids=688'
+            get '/vaos/v2/facilities?schedulable=true'
             expect(response).to have_http_status(:bad_request)
             expect(JSON.parse(response.body)['errors'][0]['status']).to eq('400')
           end
