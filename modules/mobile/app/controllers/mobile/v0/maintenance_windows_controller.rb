@@ -5,19 +5,21 @@ module Mobile
     class MaintenanceWindowsController < ApplicationController
       skip_before_action :authenticate
 
-      # deers? vbms? vacols? corpDB?
+      # deers? vacols? corpDB?
       SERVICE_GRAPH = Mobile::V0::ServiceGraph.new(
-        %i[bgs evss],
-        %i[mpi evss],
+        %i[bgs lighthouse],
+        %i[mpi lighthouse],
+        %i[evss lighthouse],
         %i[bgs caseflow],
         %i[bgs payment_history],
         %i[arcgis facility_locator],
         %i[caseflow appeals],
         %i[vet360 military_service_history],
-        %i[evss claims],
-        %i[evss direct_deposit_benefits],
-        %i[evss disability_rating],
-        %i[evss letters_and_documents],
+        %i[vbms claims],
+        %i[lighthouse claims],
+        %i[lighthouse direct_deposit_benefits],
+        %i[lighthouse disability_rating],
+        %i[lighthouse letters_and_documents],
         %i[mhv secure_messaging],
         %i[vaos appointments],
         %i[vet360 user_profile_update],

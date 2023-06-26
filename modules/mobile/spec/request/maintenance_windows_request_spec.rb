@@ -6,6 +6,7 @@ require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'maintenance windows', type: :request do
   include JsonSchemaMatchers
+
   describe 'GET /v0/maintenance_windows' do
     context 'when no maintenance windows are active' do
       before { get '/mobile/v0/maintenance_windows', headers: { 'X-Key-Inflection' => 'camel' } }
@@ -25,6 +26,7 @@ RSpec.describe 'maintenance windows', type: :request do
         FactoryBot.create(:mobile_maintenance_evss)
         FactoryBot.create(:mobile_maintenance_mpi)
         FactoryBot.create(:mobile_maintenance_dslogon)
+        FactoryBot.create(:mobile_maintenance_vbms)
         get '/mobile/v0/maintenance_windows', headers: { 'X-Key-Inflection' => 'camel' }
       end
 
@@ -43,7 +45,7 @@ RSpec.describe 'maintenance windows', type: :request do
               'attributes' => {
                 'service' => 'claims',
                 'startTime' => '2021-05-25T21:33:39.000Z',
-                'endTime' => '2021-05-26T01:45:00.000Z'
+                'endTime' => '2021-05-27T01:45:00.000Z'
               }
             },
             {

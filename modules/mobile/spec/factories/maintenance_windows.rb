@@ -36,4 +36,12 @@ FactoryBot.define do
     created_at { '2021-05-24 12:15:17' }
     description { '' }
   end
+  factory :mobile_maintenance_vbms, class: '::MaintenanceWindow' do
+    pagerduty_id { 'PXF4P0E' }
+    external_service { 'vbms' }
+    start_time { '2021-05-25 23:33:39' }
+    end_time { '2021-05-27 01:45:00' }
+    created_at { '2021-05-22 12:01:15' }
+    description { '' }
+  end
 end
