@@ -262,6 +262,8 @@ module ClaimsApi
         def get_bgs_phase_completed_dates(data)
           lc_status_array =
             [data&.dig(:benefit_claim_details_dto, :bnft_claim_lc_status)].flatten.compact
+          return {} if lc_status_array.first.nil?
+
           max_completed_phase = lc_status_array.first[:phase_type_change_ind].split('').first
           return {} if max_completed_phase.downcase.eql?('n')
 
