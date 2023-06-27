@@ -13,6 +13,7 @@
 
 ### The Check-In Module Endpoints
 - /income_limits/v1/limitsByZipCode/
+- /income_limits/v1/validateZipCode/
 
 ### Data active_support_cache_store
 
