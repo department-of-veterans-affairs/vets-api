@@ -6,7 +6,7 @@ module IncomeLimits
       skip_before_action :authenticate
 
       def index
-        zip = params[:zip].to_s
+        zip = sanitized_zip_param
         benefit_year = params[:year].to_i
         dependents = params[:dependents].to_i
         return render_invalid_year_error unless valid_year?(benefit_year)
@@ -26,6 +26,13 @@ module IncomeLimits
         }
 
         render json: { data: response }
+      end
+
+      def validate_zip_code
+        zip = sanitized_zip_param
+        zipcode_data = find_zipcode_data(zip)
+        response = zipcode_data&.county_number ? true : false
+        render json: { zip_is_valid: response }
       end
 
       private
@@ -81,6 +88,10 @@ module IncomeLimits
         end
 
         gmt_value
+      end
+
+      def sanitized_zip_param
+        params[:zip].to_s
       end
 
       def find_zipcode_data(zip)
