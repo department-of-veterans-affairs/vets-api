@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_06_14_144145) do
+ActiveRecord::Schema.define(version: 2023_06_16_145330) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -268,6 +268,15 @@ ActiveRecord::Schema.define(version: 2023_06_14_144145) do
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
+  end
+
+  create_table "claims_api_claim_submissions", force: :cascade do |t|
+    t.uuid "claim_id", null: false
+    t.string "claim_type", null: false
+    t.string "consumer_label", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["claim_id"], name: "index_claims_api_claim_submissions_on_claim_id"
   end
 
   create_table "claims_api_evidence_waiver_submissions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1199,6 +1208,7 @@ ActiveRecord::Schema.define(version: 2023_06_14_144145) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeal_submissions", "user_accounts"
   add_foreign_key "async_transactions", "user_accounts"
+  add_foreign_key "claims_api_claim_submissions", "claims_api_auto_established_claims", column: "claim_id"
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
