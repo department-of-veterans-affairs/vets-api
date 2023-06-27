@@ -178,7 +178,8 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
       context 'when format is pdf' do
         it 'downloads a PDF' do
           VCR.use_cassette('mobile/lighthouse_letters/download') do
-            post '/mobile/v0/letters/benefit_summary/download', headers: iam_headers, params: { format: 'pdf' }
+            post '/mobile/v0/letters/benefit_summary/download', headers: iam_headers, params: { format: 'pdf' },
+                                                                as: :json
             expect(response).to have_http_status(:ok)
             expect(response.media_type).to eq('application/pdf')
           end
@@ -188,7 +189,8 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
       context 'when format is json' do
         it 'returns json that matches the letter schema' do
           VCR.use_cassette('mobile/lighthouse_letters/download_as_json', match_requests_on: %i[method uri]) do
-            post '/mobile/v0/letters/proof_of_service/download', headers: iam_headers, params: { format: 'json' }
+            post '/mobile/v0/letters/proof_of_service/download', headers: iam_headers, params: { format: 'json' },
+                                                                 as: :json
 
             expect(response).to have_http_status(:ok)
             expect(response.media_type).to eq('application/json')
@@ -201,7 +203,8 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
       context 'when format is something else' do
         it 'returns unprocessable entity' do
           VCR.use_cassette('mobile/lighthouse_letters/download') do
-            post '/mobile/v0/letters/benefit_summary/download', headers: iam_headers, params: { format: 'floormat' }
+            post '/mobile/v0/letters/benefit_summary/download', headers: iam_headers, params: { format: 'floormat' },
+                                                                as: :json
             expect(response).to have_http_status(:unprocessable_entity)
           end
         end
@@ -227,7 +230,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
 
       it 'downloads a PDF' do
         VCR.use_cassette('mobile/lighthouse_letters/download_with_options') do
-          post '/mobile/v0/letters/benefit_summary/download', params: options, headers: iam_headers
+          post '/mobile/v0/letters/benefit_summary/download', params: options, headers: iam_headers, as: :json
           expect(response).to have_http_status(:ok)
           expect(response.media_type).to eq('application/pdf')
         end
@@ -237,7 +240,8 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
         VCR.use_cassette('mobile/lighthouse_letters/download_as_json_with_options',
                          match_requests_on: %i[method uri]) do
           post '/mobile/v0/letters/proof_of_service/download', headers: iam_headers,
-                                                               params: options.merge({ format: 'json' })
+                                                               params: options.merge({ format: 'json' }),
+                                                               as: :json
 
           expect(response).to have_http_status(:ok)
           expect(response.media_type).to eq('application/json')
