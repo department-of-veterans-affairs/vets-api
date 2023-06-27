@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
+require_relative '../support/fixture_helpers'
 
 FactoryBot.define do
   # Decision Reviews API v2 SCs
