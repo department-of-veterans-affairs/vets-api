@@ -5,7 +5,7 @@ require 'okta/service'
 
 module Okta
   class DirectoryService < Common::Client::Base
-    DEFAULT_OKTA_SCOPES = %w[openid profile email address phone offline_access].freeze
+    DEFAULT_OKTA_SCOPES = %w[openid profile email address phone offline_access device_sso].freeze
 
     attr_accessor :okta_service
 
