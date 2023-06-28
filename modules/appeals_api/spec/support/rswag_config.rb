@@ -15,7 +15,6 @@ class AppealsApi::RswagConfig
         title: DOC_TITLES[name.to_sym],
         version:,
         contact: { name: 'developer.va.gov' },
-        termsOfService: 'https://developer.va.gov/terms-of-service',
         description: File.read(description_file_path)
       },
       tags:,
