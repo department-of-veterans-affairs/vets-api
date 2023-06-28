@@ -109,15 +109,10 @@ module Mobile
       # body params appear in the params hash in specs but not in actual requests
       def download_options_hash
         body_string = request.body.string
-        # temporary logging to help debug
-        Rails.logger.info('Letters download options string', body_string:)
         return {} if body_string.blank?
 
         body_params = JSON.parse(body_string)
-        Rails.logger.info('Letters download options json params', body_params:)
-        permitted_params = body_params.keep_if { |k, _| k.in? DOWNLOAD_PARAMS }
-        Rails.logger.info('Letters download options permitted params', permitted_params:)
-        permitted_params
+        body_params.keep_if { |k, _| k.in? DOWNLOAD_PARAMS }
       end
 
       def letter_info_adapter
