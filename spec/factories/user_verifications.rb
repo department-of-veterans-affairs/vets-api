@@ -33,6 +33,7 @@ FactoryBot.define do
 
   factory :dslogon_user_verification, class: 'UserVerification' do
     user_account { create(:user_account) }
+    user_credential_email { create(:user_credential_email) }
     idme_uuid { nil }
     logingov_uuid { nil }
     dslogon_uuid { Faker::Number.number(digits: 10) }
