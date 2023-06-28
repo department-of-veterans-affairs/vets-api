@@ -14,6 +14,9 @@ development: &defaults
     namespace: user_identities
     each_ttl: 1800
   # DO NOT CHANGE ABOVE TTL
+  identifier_store:
+    namespace: identifier_indexes
+    each_ttl: 2592000
   user_profile_attributes:
     namespace: user-profile-attributes
     each_ttl: 86400
