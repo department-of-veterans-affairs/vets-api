@@ -1,0 +1,23 @@
+#!/bin/bash
+
+echo "| Filename | Author 1 | Author 2 | Author 3 | Timestamp 1 | Timestamp 2 | Timestamp 3 |" > git_blame_report.md
+echo "|----------|----------|----------|----------|-------------|-------------|-------------|" >> git_blame_report.md
+
+for filename in $(git ls-files)
+do
+  # Extract the three most recent authors and timestamps
+  authors=($(git log -3 --pretty=format:'%an' -- "$filename"))
+  timestamps=($(git log -3 --pretty=format:'%cd' -- "$filename"))
+
+  # Assign the authors and timestamps to variables
+  author1=${authors[0]:-''}
+  author2=${authors[1]:-''}
+  author3=${authors[2]:-''}
+
+  timestamp1=${timestamps[0]:-''}
+  timestamp2=${timestamps[1]:-''}
+  timestamp3=${timestamps[2]:-''}
+
+  # Append the information to the markdown file
+  echo "| $filename | $author1 | $author2 | $author3 | $timestamp1 | $timestamp2 | $timestamp3 |" >> git_blame_report.md
+done
