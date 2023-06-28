@@ -781,6 +781,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for the print list initiative
+  va_online_scheduling_descriptive_back_link:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for the descriptive back link
   va_online_scheduling_use_dsot:
     actor_type: user
     enable_in_development: true
