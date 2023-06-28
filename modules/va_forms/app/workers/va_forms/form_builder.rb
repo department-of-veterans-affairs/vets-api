@@ -9,7 +9,7 @@ module VAForms
     include SentryLogging
     FORM_BASE_URL = 'https://www.va.gov'
 
-    sidekiq_options(retries: 6) # Try 6 times over ~20 minutes
+    sidekiq_options(retries: 7) # Try 7 times over ~46 minutes
 
     def perform(form)
       build_and_save_form(form)
@@ -84,15 +84,17 @@ module VAForms
       end
     end
 
+    def content(url) = URI.parse(url).open
+
     def update_sha256(form)
-      time_initial = Time.zone.now
+      original_sha256 = form.sha256
       if form.url.present? && (content = URI.parse(form.url).open)
         form.sha256 = get_sha256(content)
         form.valid_pdf = true
       else
         form.valid_pdf = false
       end
-      Rails.logger.info("Time to open #{form.url}: #{Time.zone.now - time_initial}")
+      notify_slack(form.form_name, form.url) if original_sha256 != form.sha256
       form
     rescue => e
       message = "#{self.class.name} failed to get SHA-256 hash from form"
@@ -115,13 +117,14 @@ module VAForms
       "#{FORM_BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.starts_with?('./va') || url.starts_with?('./medical')
     end
 
-    def notify_slack(old_form_url, new_form_url, form_name)
+    def notify_slack(form_name, form_url)
       return unless Settings.va_forms.slack.enabled
 
       begin
         slack_details = {
           class: self.class.name,
-          alert: "#{form_name} has changed from #{old_form_url} to #{new_form_url}"
+          alert: "#{form_name} has been updated.",
+          form_url:
         }
         VAForms::Slack::Messenger.new(slack_details).notify!
       rescue => e

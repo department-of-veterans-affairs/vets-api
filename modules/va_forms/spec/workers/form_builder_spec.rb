@@ -17,20 +17,23 @@ RSpec.describe VAForms::FormBuilder, type: :job do
   end
 
   describe 'importer' do
+    let(:url) { 'http://www.vba.va.gov/pubs/forms/26-8599.pdf' }
+    let(:sha) { 'f99d16fb94859065855dd71e3b253571229b31d4d46ca08064054b15207598bc' }
+    let(:original_form) { VAForms::Form.new(url:, form_name: '26-8599', title: '26-8599') }
+
     it 'gets the sha256 when contents are a Tempfile' do
       VCR.use_cassette('va_forms/tempfile') do
-        url = 'http://www.vba.va.gov/pubs/forms/26-8599.pdf'
-        sha256 = form_builder.get_sha256(URI.parse(url).open)
-        expect(sha256).to eq('f99d16fb94859065855dd71e3b253571229b31d4d46ca08064054b15207598bc')
+        new_sha = form_builder.get_sha256(URI.parse(url).open)
+        expect(new_sha).to eq(sha)
       end
     end
 
     it 'updates the sha256 when forms are submitted' do
       VCR.use_cassette('va_forms/stringio') do
-        form = VAForms::Form.new(url: 'http://www.vba.va.gov/pubs/forms/26-8599.pdf')
+        form = VAForms::Form.new(url:)
         form = form_builder.update_sha256(form)
         expect(form.valid_pdf).to eq(true)
-        expect(form.sha256).to eq('f99d16fb94859065855dd71e3b253571229b31d4d46ca08064054b15207598bc')
+        expect(form.sha256).to eq(sha)
       end
     end
 
@@ -46,7 +49,7 @@ RSpec.describe VAForms::FormBuilder, type: :job do
 
     it 'only sends slack notification when valid_pdf turns invalid' do
       VCR.use_cassette('va_forms/fails') do
-        form = VAForms::Form.new(url: 'http://www.vba.va.gov/pubs/forms/26-85992.pdf', valid_pdf: false)
+        form = VAForms::Form.new(url:, valid_pdf: false)
         form = form_builder.update_sha256(form)
         expect(form.valid_pdf).to eq(false)
         expect(form.sha256).to eq(nil)
