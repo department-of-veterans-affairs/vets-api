@@ -15,7 +15,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
       context 'using the Lighthouse Rated Disabilities Provider' do
         let(:rated_disabilities_from_lighthouse) do
           [{ 'name' => 'Diabetes mellitus0',
-             'ratedDisabilityId' => '0',
+             'ratedDisabilityId' => '1',
              'ratingDecisionId' => '0',
              'diagnosticCode' => 5238,
              'decisionCode' => 'SVCCONNCTED',
@@ -109,14 +109,14 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
         let(:user) { loa3_user }
         let(:rated_disabilities_from_evss) do
           [{ 'name' => 'Diabetes mellitus0',
-             'ratedDisabilityId' => '0',
+             'ratedDisabilityId' => '1',
              'ratingDecisionId' => '63655',
              'diagnosticCode' => 5238,
              'decisionCode' => 'SVCCONNCTED',
              'decisionText' => 'Service Connected',
              'ratingPercentage' => 100 },
            { 'name' => 'Diabetes mellitus1',
-             'ratedDisabilityId' => '1',
+             'ratedDisabilityId' => '2',
              'ratingDecisionId' => '63655',
              'diagnosticCode' => 5238,
              'decisionCode' => 'SVCCONNCTED',

@@ -14,15 +14,11 @@ module V0
     before_action :validate_name_part, only: [:suggested_conditions]
 
     def rated_disabilities
-      # TODO: Hard-coding 'form526' as the application that consumes this for now
-      # need whichever app that consumes this endpoint to switch to their credentials for Lighthouse API consumption
-      application = params['application'] || 'form526'
-      settings = Settings.lighthouse.veteran_verification[application]
       service = ApiProviderFactory.rated_disabilities_service_provider(
         { icn: @current_user.icn.to_s, auth_headers: }
       )
 
-      response = service.get_rated_disabilities(settings.access_token.client_id, settings.access_token.rsa_key)
+      response = service.get_rated_disabilities
 
       render json: response,
              serializer: RatedDisabilitiesSerializer
@@ -67,11 +63,7 @@ module V0
       if Flipper.enabled?(:profile_lighthouse_rating_info, @current_user)
         service = LighthouseRatedDisabilitiesProvider.new(@current_user.icn)
 
-        settings = Settings.lighthouse.veteran_verification.form526
-        disability_rating = service.get_combined_disability_rating(
-          settings.access_token.client_id,
-          settings.access_token.rsa_key
-        )
+        disability_rating = service.get_combined_disability_rating
 
         render json: { user_percent_of_disability: disability_rating },
                serializer: LighthouseRatingInfoSerializer
