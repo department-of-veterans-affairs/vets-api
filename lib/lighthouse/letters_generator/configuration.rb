@@ -55,7 +55,7 @@ module Lighthouse
         url = URI path_join(SETTINGS.url, token.path)
 
         @token_service ||= Auth::ClientCredentials::Service.new(
-          url, SCOPES, token.client_id, token.aud_claim_url, token.rsa_key
+          url, SCOPES, token.client_id, token.aud_claim_url, token.rsa_key, 'letters_generator'
         )
       end
     end
