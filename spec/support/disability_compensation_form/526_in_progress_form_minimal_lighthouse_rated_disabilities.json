@@ -22,7 +22,7 @@
     "ratedDisabilities": [
       {
         "name": "Diabetes mellitus0",
-        "ratedDisabilityId": "0",
+        "ratedDisabilityId": "1",
         "ratingDecisionId": "0",
         "diagnosticCode": 5238,
         "decisionCode": "SVCCONNCTED",

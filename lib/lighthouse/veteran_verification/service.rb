@@ -16,7 +16,7 @@ module VeteranVerification
     # @option options [string] :aud_claim_url option to override the aud_claim_url for LH Veteran Verification APIs
     # @option options [hash] :auth_params a hash to send in auth params to create the access token
     # @option options [string] :host a base host for the Lighthouse API call
-    def get_rated_disabilities(lighthouse_client_id, lighthouse_rsa_key_path, options = {})
+    def get_rated_disabilities(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       endpoint = 'disability_rating'
       config
         .get(

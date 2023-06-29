@@ -64,12 +64,12 @@ http_interactions:
         {
           "ratedDisabilities" : [ {
             "decisionCode" : "NOTSVCCON",
-            "decisionText" : "Service Connected",
+            "decisionText" : "Not Service Connected",
             "diagnosticCode" : 5238,
             "diagnosticText" : "Diabetes mellitus0",
             "effectiveDate" : "2018-03-27T21:00:41.000+0000",
             "ratedDisabilityDate" : "2018-03-27T21:00:41.000+0000",
-            "ratedDisabilityId" : "0",
+            "ratedDisabilityId" : "1",
             "ratingDecisionId" : "63655",
             "ratingPercentage" : 100,
             "relatedDisabilityDate" : "2018-03-27T21:00:41.000+0000",
@@ -84,7 +84,7 @@ http_interactions:
             "diagnosticText" : "Diabetes mellitus1",
             "effectiveDate" : null,
             "ratedDisabilityDate" : "2018-03-27T21:00:41.000+0000",
-            "ratedDisabilityId" : "1",
+            "ratedDisabilityId" : "2",
             "ratingDecisionId" : "63655",
             "ratingPercentage" : null,
             "relatedDisabilityDate" : null,

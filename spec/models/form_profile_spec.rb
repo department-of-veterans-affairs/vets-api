@@ -679,7 +679,7 @@ RSpec.describe FormProfile, type: :model do
           'decisionCode' => 'SVCCONNCTED',
           'decisionText' => 'Service Connected',
           'name' => 'Diabetes mellitus0',
-          'ratedDisabilityId' => '0',
+          'ratedDisabilityId' => '1',
           'ratingDecisionId' => '63655',
           'ratingPercentage' => 100
         },
@@ -688,7 +688,7 @@ RSpec.describe FormProfile, type: :model do
           'decisionCode' => 'SVCCONNCTED',
           'decisionText' => 'Service Connected',
           'name' => 'Diabetes mellitus1',
-          'ratedDisabilityId' => '1',
+          'ratedDisabilityId' => '2',
           'ratingDecisionId' => '63655',
           'ratingPercentage' => 100
         }

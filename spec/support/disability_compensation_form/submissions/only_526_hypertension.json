@@ -85,7 +85,7 @@
           "name": "Hypertension",
           "classificationCode": "string",
           "disabilityActionType": "INCREASE",
-          "ratedDisabilityId": "0",
+          "ratedDisabilityId": "1",
           "diagnosticCode": 7101,
           "secondaryDisabilities": []
         }

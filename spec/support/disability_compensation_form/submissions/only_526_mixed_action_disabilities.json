@@ -85,7 +85,7 @@
           "name": "Asthma, bronchial",
           "classificationCode": "string",
           "disabilityActionType": "INCREASE",
-          "ratedDisabilityId": "0",
+          "ratedDisabilityId": "1",
           "diagnosticCode": 6602,
           "secondaryDisabilities": []
         },

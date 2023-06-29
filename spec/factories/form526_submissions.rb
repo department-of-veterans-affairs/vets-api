@@ -80,7 +80,7 @@ FactoryBot.define do
                             'name' => 'Asthma',
                             'classificationCode' => '8935',
                             'disabilityActionType' => 'INCREASE',
-                            'ratedDisabilityId' => '0',
+                            'ratedDisabilityId' => '1',
                             'diagnosticCode' => 6602,
                             'secondaryDisabilities' => []
                           })
@@ -97,7 +97,7 @@ FactoryBot.define do
                             'name' => 'Non-RRD disability',
                             'classificationCode' => '8935',
                             'disabilityActionType' => 'INCREASE',
-                            'ratedDisabilityId' => '0',
+                            'ratedDisabilityId' => '1',
                             'diagnosticCode' => 1000,
                             'secondaryDisabilities' => []
                           })
@@ -113,7 +113,7 @@ FactoryBot.define do
       disabilities[0] = {
         'name' => 'Sleep Apnea',
         'disabilityActionType' => 'INCREASE',
-        'ratedDisabilityId' => '0',
+        'ratedDisabilityId' => '1',
         'diagnosticCode' => 6847,
         'secondaryDisabilities' => []
       }
@@ -130,7 +130,7 @@ FactoryBot.define do
         'name' => 'Sleep Apnea',
         'classificationCode' => '8935',
         'disabilityActionType' => 'INCREASE',
-        'ratedDisabilityId' => '0',
+        'ratedDisabilityId' => '1',
         'diagnosticCode' => 6847,
         'secondaryDisabilities' => []
       }
@@ -147,14 +147,14 @@ FactoryBot.define do
                             'name' => 'Sleep Apnea',
                             'classificationCode' => '8935',
                             'disabilityActionType' => 'INCREASE',
-                            'ratedDisabilityId' => '0',
+                            'ratedDisabilityId' => '2',
                             'diagnosticCode' => 6847,
                             'secondaryDisabilities' => []
                           }, {
                             'name' => 'Rhinitis',
                             'classificationCode' => '8935',
                             'disabilityActionType' => 'INCREASE',
-                            'ratedDisabilityId' => '0',
+                            'ratedDisabilityId' => '3',
                             'diagnosticCode' => 6522,
                             'secondaryDisabilities' => []
                           }])
@@ -175,7 +175,7 @@ FactoryBot.define do
                             'name' => 'Rhinitis',
                             'classificationCode' => 'string',
                             'disabilityActionType' => 'INCREASE',
-                            'ratedDisabilityId' => '0',
+                            'ratedDisabilityId' => '2',
                             'diagnosticCode' => 6522,
                             'secondaryDisabilities' => []
                           }])
