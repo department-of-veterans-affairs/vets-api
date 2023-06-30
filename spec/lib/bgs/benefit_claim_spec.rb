@@ -87,6 +87,25 @@ RSpec.describe BGS::BenefitClaim do
       end
     end
 
+    it 'removes apostrophes and other characters forbidden by BGS, from the names in the payload to BGS' do
+      user_object = FactoryBot.create(:evss_user, :loa3, first_name: "D'Añgelo", last_name: "O'Briën")
+      expect_any_instance_of(BGS::Service)
+        .to receive(:insert_benefit_claim)
+        .with(a_hash_including({ first_name: 'DAngelo', last_name: 'OBrien' }))
+        .and_return({})
+
+      BGS::BenefitClaim.new(
+        args: {
+          vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
+          veteran: vet_hash,
+          user: user_object,
+          proc_id:,
+          end_product_name: '130 - Automated Dependency 686c',
+          end_product_code: '130DPNEBNADJ'
+        }
+      ).create
+    end
+
     context 'error' do
       it 'handles error' do
         vet_hash[:file_number] = nil
