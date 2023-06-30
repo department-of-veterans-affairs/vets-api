@@ -926,6 +926,7 @@ flipper:
     - jennie.mcgibney@va.gov
     - jeremy.wu@oddball.io
     - jesse.cohn@adhocteam.us
+    - jesse.james@themostudio.com
     - jlinn@governmentcio.com
     - joe.hall@thoughtworks.com # Virtual Agent
     - joeyn414@gmail.com # Joe Niquette (Oddball), Identity, Sr Security Engineer
@@ -1299,6 +1300,7 @@ vanotify:
         covid_vaccine_expanded_registration: fake_template_id
         direct_deposit_edu: edu_template_id
         direct_deposit_comp_pen: comp_pen_template_id
+        login_reactivation_email: 08d9f04-ae3f-4b73-b932-3ad175d21ba9
     lighthouse:
       api_key: fake_secret
       template_id:

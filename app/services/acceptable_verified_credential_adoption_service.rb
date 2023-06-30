@@ -8,15 +8,34 @@
 class AcceptableVerifiedCredentialAdoptionService
   attr_accessor :user
 
+  REACTIVATION_TEMPLATE = Settings.vanotify.services.va_gov.template_id.login_reactivation_email
+  STATS_KEY = 'api.user_transition_availability'
+
   def initialize(user)
     @user = user
   end
 
   def perform
-    display_organic_modal_for_logingov_conversion
+    send_email if user_qualifies_for_reactivation? && Flipper.enabled?(:reactivation_experiment, user)
   end
 
   private
+
+  def send_email
+    email = user.email
+
+    return if email.blank?
+
+    VANotify::EmailJob.perform_async(
+      email,
+      REACTIVATION_TEMPLATE,
+      {
+        # personalization stuff goes here
+      }
+    )
+
+    log_results('reactivation_email')
+  end
 
   def result
     @result ||= {}
@@ -26,16 +45,8 @@ class AcceptableVerifiedCredentialAdoptionService
     @credential_type ||= user.identity.sign_in[:service_name]
   end
 
-  def display_organic_modal_for_logingov_conversion
-    result[:organic_modal] =
-      Flipper.enabled?(:organic_conversion_experiment, user) && user_qualifies_for_conversion?
-    result[:credential_type] = credential_type
-    log_results('organic_modal') if result[:organic_modal] == true
-    result
-  end
-
-  def user_qualifies_for_conversion?
-    (logged_in_with_dsl? || logged_in_with_mhv?) && !verified_credential_at?
+  def user_qualifies_for_reactivation?
+    (logged_in_with_dsl? || logged_in_with_mhv?) && verified_credential_at?
   end
 
   def logged_in_with_dsl?
@@ -52,10 +63,6 @@ class AcceptableVerifiedCredentialAdoptionService
   end
 
   def log_results(conversion_type)
-    StatsD.increment("#{stats_key}.#{conversion_type}.#{credential_type}")
-  end
-
-  def stats_key
-    'api.user_transition_availability'
+    StatsD.increment("#{STATS_KEY}.#{conversion_type}.#{credential_type}")
   end
 end
