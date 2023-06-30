@@ -344,6 +344,7 @@ ActiveRecord::Schema.define(version: 2023_06_16_145330) do
     t.text "logout_redirect_uri"
     t.boolean "pkce"
     t.string "certificates", array: true
+    t.string "refresh_token_path"
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
   end
 
