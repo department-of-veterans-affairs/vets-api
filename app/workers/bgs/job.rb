@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require 'bgs/utilities/helpers'
+
 module BGS
   class Job
+    include BGS::Utilities::Helpers
+
     def in_progress_form_copy(in_progress_form)
       return nil if in_progress_form.blank?
 
@@ -33,11 +37,8 @@ module BGS
         else
           is_name_key = %w[first middle last].include?(key)
           if val && (is_name_key || key.include?('address_line'))
-            # NFKD decomposes composite characters (e.g. ü, ñ) into their individual components, and here, `gsub`
-            # removes any non-ASCII components (e.g. ü -> u; ñ -> n).
-            val = val.unicode_normalize(:nfkd).gsub(/[^\p{ASCII}]/, '')
-            # Interestingly, BGS permits names with forward slashes and hyphens, but not apostrophes.
-            val.gsub!(%r{[^a-zA-Z\s/-]}, '') if is_name_key
+            val = normalize_composite_characters(val)
+            val = remove_special_characters_from_name(val) if is_name_key
             hash[key] = val
           end
         end
