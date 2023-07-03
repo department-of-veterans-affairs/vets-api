@@ -4,14 +4,14 @@ require 'rails_helper'
 require 'medical_records/client'
 
 describe MedicalRecords::Client do
-  # Fix when authentication is implemented
   before(:all) do
-    #   VCR.use_cassette 'mr_client/session', record: :new_episodes do
-    #   client =
-    @client ||= MedicalRecords::Client.new # (session: { user_id: '10616687' })
-    #   client.authenticate
-    #   client
-    #   end
+    VCR.use_cassette 'mr_client/session', record: :new_episodes do
+      @client ||= begin
+        client = MedicalRecords::Client.new(session: { user_id: '11898795' })
+        client.authenticate
+        client
+      end
+    end
   end
 
   let(:client) { @client }

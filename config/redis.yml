@@ -44,6 +44,9 @@ development: &defaults
   sm_store_mobile:
     namespace: sm-service-mobile
     each_ttl: 1200
+  medical_records_store:
+    namespace: mr-service
+    each_ttl: 1200
   mdot:
     namespace: mdot
     each_ttl: 1800

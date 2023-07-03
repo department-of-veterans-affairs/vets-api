@@ -1517,6 +1517,7 @@ ThreadSafety/InstanceVariableInClassMethod:
     - 'app/models/form_profile.rb'
     - 'lib/common/client/base.rb'
     - 'lib/common/client/concerns/mhv_session_based_client.rb'
+    - 'lib/common/client/concerns/mhv_jwt_session_client.rb'
     - 'lib/common/models/base.rb'
     - 'lib/common/models/collection.rb'
     - 'lib/common/models/redis_store.rb'

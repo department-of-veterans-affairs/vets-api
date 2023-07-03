@@ -497,6 +497,11 @@ en:
         code: 'SM99'
         detail: 'Something went wrong. Please try again later.'
         status: 502
+      MEDICALRECORDS_401:
+        <<: *external_defaults
+        code: "MEDICALRECORDS_401"
+        detail: "Application authentication failed"
+        status: 401
       HCA422:
         <<: *external_defaults
         code: 'HCA422'
