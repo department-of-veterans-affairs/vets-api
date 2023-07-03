@@ -76,9 +76,9 @@
             "maxLength": 9
           },
           "mailingAddress": {
-            "description": "Current Mailing Address Object being submitted.",
             "type": "object",
             "additionalProperties": false,
+            "required": ["numberAndStreet", "city", "state", "zipFirstFive", "country"],
             "properties": {
               "numberAndStreet": {
                 "description": "Address Veteran resides in.",
@@ -122,27 +122,7 @@
                 "pattern": "^[a-z,A-Z]{2}$",
                 "example": "OR"
               }
-            },
-            "allOf": [
-              {
-                "if": {
-                  "properties": {
-                    "type": {
-                      "const": "DOMESTIC"
-                    }
-                  }
-                },
-                "then": {
-                  "required": [
-                    "numberAndStreet",
-                    "city",
-                    "country",
-                    "zipFirstFive",
-                    "state"
-                  ]
-                }
-              }
-            ]
+            }
           }
         }
       },
@@ -150,7 +130,6 @@
         "description": "A Change of Address Object being submitted.",
         "type": "object",
         "additionalProperties": false,
-        "required": ["country", "typeOfAddressChange", "numberAndStreet", "dates"],
         "properties": {
           "dates": {
             "type": "object",
@@ -158,14 +137,14 @@
             "properties": {
               "beginDate": {
                 "description": "Date in YYYY-MM-DD the Veteran changed address. Date must be in the future if change is temporary.",
-                "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                "pattern": "^$|^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                 "type": "string",
                 "example": "2018-06-04"
               },
               "endDate": {
                 "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
                 "type": "string",
-                "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                "pattern": "^$|^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                 "example": "2018-06-04"
               }
             }
@@ -180,9 +159,9 @@
             "example": "PERMANENT"
           },
           "numberAndStreet": {
-            "description": "New Address Veteran resides in.",
+            "description": "Number and street, rural route, or P.O. Box for the Veteran's new address.",
             "type": "string",
-            "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+            "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
             "maxLength": 30,
             "example": "1234 Couch Street"
           },
@@ -193,9 +172,9 @@
             "example": "22"
           },
           "city": {
-            "description": "New city Veteran resides in.",
+            "description": "City for the Veteran's new address.",
             "type": "string",
-            "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+            "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
             "example": "Portland"
           },
           "country": {
@@ -204,56 +183,24 @@
             "example": "USA"
           },
           "zipFirstFive": {
-            "description": "New zipcode (First 5 digits) Veteran resides in.",
+            "description": "Zipcode (First 5 digits) for the Veteran's new address.",
             "type": "string",
-            "pattern": "^\\d{5}?$",
+            "pattern": "^$|^\\d{5}?$",
             "example": "12345"
           },
           "zipLastFour": {
-            "description": "New zipcode (Last 4 digits) Veteran resides in.",
+            "description": "Zipcode (Last 4 digits) for the Veteran's new address.",
             "type": "string",
-            "pattern": "^\\d{4}?$",
+            "pattern": "^$|^\\d{4}?$",
             "example": "6789"
           },
           "state": {
-            "description": "New state Veteran resides in.",
+            "description": "State for the Veteran's new address.",
             "type": "string",
-            "pattern": "^[a-z,A-Z]{2}$",
+            "pattern": "^$|^[a-z,A-Z]{2}$",
             "example": "OR"
           }
-        },
-        "allOf": [
-          {
-            "if": {
-              "properties": {
-                "type": {
-                  "const": "DOMESTIC"
-                }
-              }
-            },
-            "then": {
-              "required": [
-                "city",
-                "zipFirstFive",
-                "state"
-              ]
-            }
-          },
-          {
-            "if": {
-              "properties": {
-                "type": {
-                  "const": "MILITARY"
-                }
-              }
-            },
-            "then": {
-              "required": [
-                "zipFirstFive"
-              ]
-            }
-          }
-        ]
+        }
       },
       "homeless": {
         "description": "Object describing Veteran Homelessness if applicable.",
@@ -486,10 +433,7 @@
         "items": {
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "disabilityActionType",
-            "name"
-          ],
+          "required": ["disabilityActionType", "name", "serviceRelevance"],
           "properties": {
             "name": {
               "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
@@ -542,11 +486,6 @@
               "items": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": [
-                  "name",
-                  "disabilityActionType",
-                  "serviceRelevance"
-                ],
                 "properties": {
                   "name": {
                     "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
@@ -732,7 +671,8 @@
               "required": [
                 "serviceBranch",
                 "activeDutyBeginDate",
-                "activeDutyEndDate"
+                "activeDutyEndDate",
+                "serviceComponent"
               ],
               "properties": {
                 "serviceBranch": {
