@@ -89,6 +89,7 @@
           "mailingAddress": {
             "type": "object",
             "additionalProperties": false,
+            "required": ["numberAndStreet", "city", "state", "zipFirstFive", "country"],
             "properties": {
               "numberAndStreet": {
                 "description": "Number and street, rural route, or P.O. Box for the Veteran's current mailing address.",
@@ -133,48 +134,27 @@
                 "pattern": "^[a-z,A-Z]{2}$",
                 "example": "OR"
               }
-            },
-            "allOf": [
-              {
-                "if": {
-                  "properties": {
-                    "type": {
-                      "const": "DOMESTIC"
-                    }
-                  }
-                },
-                "then": {
-                  "required": [
-                    "numberAndStreet",
-                    "city",
-                    "country",
-                    "zipFirstFive",
-                    "state"
-                  ]
-                }
-              }
-            ]
+            }
           }
         }
     },
     "changeOfAddress": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["country", "typeOfAddressChange", "numberAndStreet", "dates"],
         "properties": {
             "dates": {
                 "type": "object",
                 "properties": {
                     "beginDate": {
                         "description": "Date in YYYY-MM-DD the Veteran changed address. Date must be in the future if change is temporary.",
-                        "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                        "pattern": "^$|^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                         "type": "string",
                         "example": "2018-06-04"
                     },
                     "endDate": {
                         "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
                         "type": "string",
-                        "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                        "pattern": "^$|^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
                         "example": "2018-06-04"
                     }
                 }
@@ -191,7 +171,7 @@
             "numberAndStreet": {
                 "description": "Number and street, rural route, or P.O. Box for the Veteran's new address.",
                 "type": "string",
-                "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
                 "maxLength": 30,
                 "example": "1234 Couch Street"
             },
@@ -204,7 +184,7 @@
             "city": {
                 "description": "City for the Veteran's new address.",
                 "type": "string",
-                "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                "pattern": "^$|^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
                 "example": "Portland"
             },
             "country": {
@@ -215,54 +195,22 @@
             "zipFirstFive": {
                 "description": "Zipcode (First 5 digits) for the Veteran's new address.",
                 "type": "string",
-                "pattern": "^\\d{5}?$",
+                "pattern": "^$|^\\d{5}?$",
                 "example": "12345"
             },
             "zipLastFour": {
                 "description": "Zipcode (Last 4 digits) for the Veteran's new address.",
                 "type": "string",
-                "pattern": "^\\d{4}?$",
+                "pattern": "^$|^\\d{4}?$",
                 "example": "6789"
             },
             "state": {
                 "description": "State for the Veteran's new address.",
                 "type": "string",
-                "pattern": "^[a-z,A-Z]{2}$",
+                "pattern": "^$|^[a-z,A-Z]{2}$",
                 "example": "OR"
             }
-        },
-        "allOf": [
-            {
-            "if": {
-                "properties": {
-                "type": {
-                    "const": "DOMESTIC"
-                }
-                }
-            },
-            "then": {
-                "required": [
-                "city",
-                "zipFirstFive",
-                "state"
-                ]
-            }
-            },
-            {
-            "if": {
-                "properties": {
-                "type": {
-                    "const": "MILITARY"
-                }
-                }
-            },
-            "then": {
-                "required": [
-                "zipFirstFive"
-                ]
-            }
-            }
-        ]
+        }
     },
     "homeless": {
         "type": "object",
@@ -496,7 +444,7 @@
         "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["disabilityActionType", "name"],
+            "required": ["disabilityActionType", "name", "serviceRelevance"],
             "properties": {
                 "name": {
                     "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
@@ -546,22 +494,21 @@
                     "minItems": 1,
                     "uniqueItems": true,
                     "items": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "required": ["name", "disabilityActionType", "serviceRelevance"],
+                        "type": "object",
+                        "additionalProperties": false,
                         "properties": {
                             "name": {
                                 "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
                                 "type": "string",
-                                "pattern": "([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                                 "example": "PTSD (post traumatic stress disorder)",
                                 "maxLength" : 255
                             },
                             "disabilityActionType": {
                                 "description": "The status of the secondary disability.",
                                 "type": "string",
-                                "enum": ["SECONDARY"],
-                                "example": "SECONDARY"
+                                "example": "SECONDARY",
+                                "enum": ["SECONDARY"]
                             },
                             "serviceRelevance": {
                                 "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
@@ -576,7 +523,7 @@
                             "approximateDate": {
                                 "description": "Approximate date disability began. \n Format can be either MM-DD-YYYY or MM-YYYY",
                                 "type": "string",
-                                "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
+                                "pattern": "^$|^((0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4})?$",
                                 "example": "03-12-2019 or 03-2019"
                             },
                             "exposureOrEventOrInjury": {
@@ -602,32 +549,32 @@
                     "examples": ["Agent Orange", "radiation", "burn pits"]
                 }
             },
-        "allOf": [
-            {
-                "if": {
-                "properties": {
-                    "disabilityActionType": {
-                    "enum": ["INCREASE"]
-                    }
-                }
-                },
-                "then": {
-                "required": ["ratedDisabilityId", "diagnosticCode"]
-                }
-            },
-            {
-                "if": {
-                "properties": {
-                    "disabilityActionType": {
-                    "enum": ["NONE"]
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "disabilityActionType": {
+                                "enum": ["INCREASE"]
+                            }
+                        }
+                    },
+                    "then": {
+                        "required": ["ratedDisabilityId", "diagnosticCode"]
                     }
                 },
-                "required": ["secondaryDisabilities"]
-                },
-                "then": {
-                "required": ["diagnosticCode"]
+                {
+                    "if": {
+                        "properties": {
+                            "disabilityActionType": {
+                                "enum": ["NONE"]
+                            }
+                        },
+                        "required": ["secondaryDisabilities"]
+                    },
+                    "then": {
+                        "required": ["diagnosticCode"]
+                    }
                 }
-            }
             ]
         }
     },
@@ -707,7 +654,8 @@
                         "required": [
                             "serviceBranch",
                             "activeDutyBeginDate",
-                            "activeDutyEndDate"
+                            "activeDutyEndDate",
+                            "serviceComponent"
                         ],
                         "properties": {
                             "serviceBranch": {

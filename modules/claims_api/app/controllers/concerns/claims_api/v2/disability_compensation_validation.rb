@@ -31,9 +31,28 @@ module ClaimsApi
       def validate_form_526_change_of_address!
         return if form_attributes['changeOfAddress'].blank?
 
+        validate_form_526_change_of_address_required_fields!
         validate_form_526_change_of_address_beginning_date!
         validate_form_526_change_of_address_ending_date!
         validate_form_526_change_of_address_country!
+      end
+
+      def validate_form_526_change_of_address_required_fields!
+        change_of_address = form_attributes['changeOfAddress']
+        coa_begin_date = change_of_address&.dig('dates', 'beginDate') # we can have a valid form without an endDate
+        coa_type_of_address_change = change_of_address&.dig('typeOfAddressChange')
+        coa_number_and_street = change_of_address&.dig('numberAndStreet')
+        coa_country = change_of_address&.dig('country')
+
+        form_obj_name = 'change of address'
+
+        raise_exception_if_value_present('begin date', form_obj_name) if coa_begin_date.blank?
+        if coa_type_of_address_change.blank?
+          raise_exception_if_value_present('type of address change',
+                                           form_obj_name)
+        end
+        raise_exception_if_value_present('number and street', form_obj_name) if coa_number_and_street.blank?
+        raise_exception_if_value_present('country', form_obj_name) if coa_country.blank?
       end
 
       def validate_form_526_change_of_address_beginning_date!
@@ -190,6 +209,8 @@ module ClaimsApi
           validate_form_526_disability_secondary_disability_disability_action_type!(disability)
           next if disability['secondaryDisabilities'].blank?
 
+          validate_form_526_disability_secondary_disability_required_fields!(disability)
+
           disability['secondaryDisabilities'].each do |secondary_disability|
             if secondary_disability['classificationCode'].present?
               validate_form_526_disability_secondary_disability_classification_code!(secondary_disability)
@@ -200,6 +221,20 @@ module ClaimsApi
               validate_form_526_disability_secondary_disability_approximate_begin_date!(secondary_disability)
             end
           end
+        end
+      end
+
+      def validate_form_526_disability_secondary_disability_required_fields!(disability)
+        disability['secondaryDisabilities'].each do |secondary_disability|
+          sd_name = secondary_disability&.dig('name')
+          sd_disability_action_type = secondary_disability&.dig('disabilityActionType')
+          sd_service_relevance = secondary_disability&.dig('serviceRelevance')
+
+          form_obj_name = 'secondary disability'
+
+          raise_exception_if_value_present('name', form_obj_name) if sd_name.blank?
+          raise_exception_if_value_present('disability action type', form_obj_name) if sd_disability_action_type.blank?
+          raise_exception_if_value_present('service relevance', form_obj_name) if sd_service_relevance.blank?
         end
       end
 
@@ -544,16 +579,18 @@ module ClaimsApi
         account_number = direct_deposit_account_vals&.dig('accountNumber')
         routing_number = direct_deposit_account_vals&.dig('routingNumber')
 
+        form_obj_name = 'direct deposit'
+
         if account_type.blank? || valid_account_types.exclude?(account_type)
-          raise_exception_if_value_present('account type (CHECKING/SAVINGS)')
+          raise_exception_if_value_present('account type (CHECKING/SAVINGS)', form_obj_name)
         end
-        raise_exception_if_value_present('account number') if account_number.blank?
-        raise_exception_if_value_present('routing number') if routing_number.blank?
+        raise_exception_if_value_present('account number', form_obj_name) if account_number.blank?
+        raise_exception_if_value_present('routing number', form_obj_name) if routing_number.blank?
       end
 
-      def raise_exception_if_value_present(val)
+      def raise_exception_if_value_present(val, form_obj)
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "The #{val} is required for direct deposit."
+          detail: "The #{val} is required for #{form_obj}."
         )
       end
 

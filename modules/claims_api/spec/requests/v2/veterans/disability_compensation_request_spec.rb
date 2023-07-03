@@ -325,7 +325,7 @@ RSpec.describe 'Disability Claims', type: :request do
         context 'when the cert is false' do
           let(:claimant_certification) { false }
 
-          it 'responds with a 200' do
+          it 'responds with a bad request' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
                 json = JSON.parse(data)
@@ -396,6 +396,195 @@ RSpec.describe 'Disability Claims', type: :request do
       end
 
       describe 'validation of claimant change of address elements' do
+        context "when any values present, 'dates','typeOfAddressChange','numberAndStreet','country' are required" do
+          context 'with the required values present' do
+            let(:valid_change_of_address) do
+              {
+                dates: {
+                  beginDate: '2012-11-31',
+                  endDate: ''
+                },
+                typeOfAddressChange: 'PERMANENT',
+                numberAndStreet: '10 Peach St',
+                apartmentOrUnitNumber: '22',
+                city: 'Atlanta',
+                zipFirstFive: '42220',
+                zipLastFour: '',
+                state: '',
+                country: 'USA'
+              }
+            end
+
+            it 'responds with a 200' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    VCR.use_cassette('brd/disabilities') do
+                      json = JSON.parse(data)
+                      json['data']['attributes']['changeOfAddress'] = valid_change_of_address
+                      data = json.to_json
+                      post submit_path, params: data, headers: auth_header
+                      expect(response).to have_http_status(:ok)
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          context 'without the required numberAndStreet value present' do
+            let(:invalid_change_of_address) do
+              {
+                dates: {
+                  beginDate: '2012-11-31',
+                  endDate: ''
+                },
+                typeOfAddressChange: 'PERMANENT',
+                numberAndStreet: '',
+                apartmentOrUnitNumber: '22',
+                city: '',
+                zipFirstFive: '42220',
+                zipLastFour: '',
+                state: '',
+                country: 'USA'
+              }
+            end
+
+            it 'responds with a 422' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    VCR.use_cassette('brd/disabilities') do
+                      json = JSON.parse(data)
+                      json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
+                      data = json.to_json
+                      post submit_path, params: data, headers: auth_header
+                      expect(response).to have_http_status(:unprocessable_entity)
+                      response_body = JSON.parse(response.body)
+                      expect(response_body['errors'][0]['detail']).to eq(
+                        'The number and street is required for change of address.'
+                      )
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          context 'without the required country value present' do
+            let(:invalid_change_of_address) do
+              {
+                dates: {
+                  beginDate: '2012-11-31',
+                  endDate: ''
+                },
+                typeOfAddressChange: 'PERMANENT',
+                numberAndStreet: '10 Peach St',
+                apartmentOrUnitNumber: '',
+                city: '',
+                zipFirstFive: '42220',
+                zipLastFour: '',
+                state: '',
+                country: ''
+              }
+            end
+
+            it 'responds with a 422' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    VCR.use_cassette('brd/disabilities') do
+                      json = JSON.parse(data)
+                      json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
+                      data = json.to_json
+                      post submit_path, params: data, headers: auth_header
+                      expect(response).to have_http_status(:unprocessable_entity)
+                      response_body = JSON.parse(response.body)
+                      expect(response_body['errors'][0]['detail']).to eq(
+                        'The country is required for change of address.'
+                      )
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          context 'without the required dates values present' do
+            let(:invalid_change_of_address) do
+              {
+                dates: {
+                  beginDate: '',
+                  endDate: ''
+                },
+                typeOfAddressChange: 'PERMANENT',
+                numberAndStreet: '10 Peach St',
+                apartmentOrUnitNumber: '22',
+                city: 'Atlanta',
+                zipFirstFive: '42220',
+                zipLastFour: '',
+                state: 'GA',
+                country: 'USA'
+              }
+            end
+
+            it 'responds with a 422' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    VCR.use_cassette('brd/disabilities') do
+                      json = JSON.parse(data)
+                      json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
+                      data = json.to_json
+                      post submit_path, params: data, headers: auth_header
+                      expect(response).to have_http_status(:unprocessable_entity)
+                      response_body = JSON.parse(response.body)
+                      expect(response_body['errors'][0]['detail']).to eq(
+                        'The begin date is required for change of address.'
+                      )
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          context 'without the required typeOfAddressChange values present' do
+            let(:invalid_change_of_address) do
+              {
+                dates: {
+                  beginDate: '2012-11-31',
+                  endDate: ''
+                },
+                typeOfAddressChange: '',
+                numberAndStreet: '10 Peach St',
+                apartmentOrUnitNumber: '22',
+                city: 'Atlanta',
+                zipFirstFive: '42220',
+                zipLastFour: '',
+                state: 'GA',
+                country: 'USA'
+              }
+            end
+
+            it 'responds with a 422' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    VCR.use_cassette('brd/disabilities') do
+                      json = JSON.parse(data)
+                      json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
+                      data = json.to_json
+                      post submit_path, params: data, headers: auth_header
+                      expect(response).to have_http_status(:unprocessable_entity)
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+
         context 'when the country is valid' do
           let(:country) { 'USA' }
 
@@ -430,22 +619,6 @@ RSpec.describe 'Disability Claims', type: :request do
                     post submit_path, params: data, headers: auth_header
                     expect(response).to have_http_status(:bad_request)
                   end
-                end
-              end
-            end
-          end
-        end
-
-        context 'when no mailing address data is found' do
-          it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('brd/countries') do
-                  json = JSON.parse(data)
-                  json['data']['attributes']['changeOfAddress'] = {}
-                  data = json.to_json
-                  post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
                 end
               end
             end
@@ -2025,6 +2198,7 @@ RSpec.describe 'Disability Claims', type: :request do
                           disabilityActionType: 'NEW',
                           name: 'Traumatic Brain Injury',
                           classificationCode: '9020',
+                          serviceRelevance: 'Heavy equipment operator in service.',
                           secondaryDisabilities: [
                             {
                               name: 'Neurological other System',
@@ -2055,6 +2229,7 @@ RSpec.describe 'Disability Claims', type: :request do
                       {
                         disabilityActionType: 'NEW',
                         name: 'PTSD (post traumatic stress disorder)',
+                        serviceRelevance: 'Heavy equipment operator in service.',
                         classificationCode: '1111'
                       }
                     ]
@@ -2081,6 +2256,7 @@ RSpec.describe 'Disability Claims', type: :request do
                         {
                           diagnosticCode: 123,
                           disabilityActionType: 'INCREASE',
+                          serviceRelevance: 'Heavy equipment operator in service.',
                           name: 'PTSD (post traumatic stress disorder)'
                         }
                       ]
@@ -2105,6 +2281,7 @@ RSpec.describe 'Disability Claims', type: :request do
                           diagnosticCode: 123,
                           ratedDisabilityId: '1100583',
                           disabilityActionType: 'INCREASE',
+                          serviceRelevance: 'Heavy equipment operator in service.',
                           name: 'Traumatic Brain Injury',
                           secondaryDisabilities: [
                             {
@@ -2134,6 +2311,7 @@ RSpec.describe 'Disability Claims', type: :request do
                       {
                         ratedDisabilityId: '1100583',
                         disabilityActionType: 'INCREASE',
+                        serviceRelevance: 'Heavy equipment operator in service.',
                         name: 'PTSD (post traumatic stress disorder)'
                       }
                     ]
@@ -2192,6 +2370,7 @@ RSpec.describe 'Disability Claims', type: :request do
                           diagnosticCode: 123,
                           disabilityActionType: 'NEW',
                           name: 'Traumatic Brain Injury',
+                          serviceRelevance: 'Heavy equipment operator in service.',
                           secondaryDisabilities: [
                             {
                               name: 'PTSD personal trauma',
@@ -2219,6 +2398,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 disabilityActionType: 'NEW',
                 name: 'Traumatic Brain Injury',
                 approximateDate: approximate_date,
+                serviceRelevance: 'Heavy equipment operator in service.',
                 secondaryDisabilities: [
                   {
                     name: 'PTSD personal trauma',
@@ -2330,6 +2510,118 @@ RSpec.describe 'Disability Claims', type: :request do
       end
 
       describe "'disabilities.secondaryDisabilities' validations" do
+        context 'when a secondaryDisability is added' do
+          context 'but name is not present' do
+            it 'returns a 422' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('brd/countries') do
+                  VCR.use_cassette('brd/disabilities') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    disabilities = [
+                      {
+                        disabilityActionType: 'NONE',
+                        name: 'PTSD (post traumatic stress disorder)',
+                        serviceRelevance: 'Heavy equipment operator in service.',
+                        diagnosticCode: 9999,
+                        secondaryDisabilities: [
+                          {
+                            disabilityActionType: 'SECONDARY',
+                            name: '',
+                            serviceRelevance: 'Caused by a service-connected disability.',
+                            classificationCode: '',
+                            approximateDate: ''
+                          }
+                        ]
+                      }
+                    ]
+                    params['data']['attributes']['disabilities'] = disabilities
+                    post submit_path, params: params.to_json, headers: auth_header
+                    expect(response).to have_http_status(:unprocessable_entity)
+                    response_body = JSON.parse(response.body)
+                    expect(response_body['errors'][0]['detail']).to eq(
+                      'The name is required for secondary disability.'
+                    )
+                  end
+                end
+              end
+            end
+          end
+
+          context 'but disabilityActionType is not present' do
+            it 'raises an exception' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('brd/countries') do
+                  VCR.use_cassette('brd/disabilities') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    disabilities = [
+                      {
+                        disabilityActionType: 'REOPEN',
+                        name: 'PTSD (post traumatic stress disorder)',
+                        serviceRelevance: 'Heavy equipment operator in service.',
+                        diagnosticCode: 9999,
+                        secondaryDisabilities: [
+                          {
+                            name: 'PTSD',
+                            serviceRelevance: 'Caused by a service-connected disability.',
+                            classificationCode: '',
+                            approximateDate: ''
+                          }
+                        ]
+                      }
+                    ]
+                    params['data']['attributes']['disabilities'] = disabilities
+                    post submit_path, params: params.to_json, headers: auth_header
+                    expect(response).to have_http_status(:unprocessable_entity)
+                    response_body = JSON.parse(response.body)
+                    expect(response_body['errors'][0]['detail']).to eq(
+                      'The disability action type is required for secondary disability.'
+                    )
+                  end
+                end
+              end
+            end
+          end
+
+          context 'but serviceRelevance is not present' do
+            it 'raises an exception' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('brd/countries') do
+                  VCR.use_cassette('brd/disabilities') do
+                    json_data = JSON.parse data
+                    params = json_data
+                    disabilities = [
+                      {
+                        disabilityActionType: 'NEW',
+                        name: 'PTSD (post traumatic stress disorder)',
+                        diagnosticCode: 9999,
+                        serviceRelevance: 'Heavy equipment operator in service.',
+                        secondaryDisabilities: [
+                          {
+                            disabilityActionType: 'SECONDARY',
+                            name: 'PTSD',
+                            serviceRelevance: '',
+                            classificationCode: '',
+                            approximateDate: ''
+                          }
+                        ]
+                      }
+                    ]
+                    params['data']['attributes']['disabilities'] = disabilities
+                    post submit_path, params: params.to_json, headers: auth_header
+                    expect(response).to have_http_status(:unprocessable_entity)
+                    response_body = JSON.parse(response.body)
+                    expect(response_body['errors'][0]['detail']).to eq(
+                      'The service relevance is required for secondary disability.'
+                    )
+                  end
+                end
+              end
+            end
+          end
+        end
+
         context 'when disabilityActionType is NONE with secondaryDisabilities but no diagnosticCode' do
           it 'raises an exception' do
             with_okta_user(scopes) do |auth_header|
@@ -2341,6 +2633,7 @@ RSpec.describe 'Disability Claims', type: :request do
                     {
                       disabilityActionType: 'NONE',
                       name: 'PTSD (post traumatic stress disorder)',
+                      serviceRelevance: 'Heavy equipment operator in service.',
                       secondaryDisabilities: [
                         {
                           disabilityActionType: 'NEW',
@@ -2370,6 +2663,7 @@ RSpec.describe 'Disability Claims', type: :request do
                     disabilityActionType: 'NONE',
                     name: 'PTSD (post traumatic stress disorder)',
                     diagnosticCode: 9999,
+                    serviceRelevance: 'Heavy equipment operator in service.',
                     secondaryDisabilities: [
                       {
                         disabilityActionType: 'NEW',
@@ -2399,6 +2693,7 @@ RSpec.describe 'Disability Claims', type: :request do
                       disabilityActionType: 'NONE',
                       name: 'PTSD (post traumatic stress disorder)',
                       diagnosticCode: 9999,
+                      serviceRelevance: 'Heavy equipment operator in service.',
                       secondaryDisabilities: [
                         {
                           disabilityActionType: 'SECONDARY',
@@ -2430,6 +2725,7 @@ RSpec.describe 'Disability Claims', type: :request do
                       disabilityActionType: 'NONE',
                       name: 'PTSD (post traumatic stress disorder)',
                       diagnosticCode: 9999,
+                      serviceRelevance: 'Heavy equipment operator in service.',
                       secondaryDisabilities: [
                         {
                           disabilityActionType: 'SECONDARY',
@@ -2460,6 +2756,7 @@ RSpec.describe 'Disability Claims', type: :request do
                     disabilityActionType: 'NONE',
                     name: 'PTSD (post traumatic stress disorder)',
                     diagnosticCode: 9999,
+                    serviceRelevance: 'Heavy equipment operator in service.',
                     secondaryDisabilities: [
                       {
                         disabilityActionType: 'SECONDARY',
@@ -2487,6 +2784,7 @@ RSpec.describe 'Disability Claims', type: :request do
                     disabilityActionType: 'NONE',
                     name: 'Traumatic Brain Injury',
                     diagnosticCode: 9999,
+                    serviceRelevance: 'Heavy equipment operator in service.',
                     secondaryDisabilities: [
                       {
                         disabilityActionType: 'SECONDARY',
@@ -2514,6 +2812,7 @@ RSpec.describe 'Disability Claims', type: :request do
                     disabilityActionType: 'NONE',
                     name: 'PTSD (post traumatic stress disorder)',
                     diagnosticCode: 9999,
+                    serviceRelevance: 'Heavy equipment operator in service.',
                     secondaryDisabilities: [
                       {
                         disabilityActionType: 'SECONDARY',
@@ -2541,6 +2840,7 @@ RSpec.describe 'Disability Claims', type: :request do
                     disabilityActionType: 'NONE',
                     name: 'PTSD (post traumatic stress disorder)',
                     diagnosticCode: 9999,
+                    serviceRelevance: 'Heavy equipment operator in service.',
                     secondaryDisabilities: [
                       {
                         disabilityActionType: 'SECONDARY',
@@ -2570,6 +2870,7 @@ RSpec.describe 'Disability Claims', type: :request do
                     disabilityActionType: 'NONE',
                     name: 'PTSD (post traumatic stress disorder)',
                     diagnosticCode: 9999,
+                    serviceRelevance: 'Heavy equipment operator in service.',
                     secondaryDisabilities: [
                       {
                         disabilityActionType: 'SECONDARY',
@@ -2597,6 +2898,7 @@ RSpec.describe 'Disability Claims', type: :request do
                       disabilityActionType: 'NONE',
                       name: 'PTSD (post traumatic stress disorder)',
                       diagnosticCode: 9999,
+                      serviceRelevance: 'Heavy equipment operator in service.',
                       secondaryDisabilities: [
                         {
                           disabilityActionType: 'SECONDARY',
