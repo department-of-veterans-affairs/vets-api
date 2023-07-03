@@ -1,86 +1,86 @@
 ---
 http_interactions:
-- request:
-    method: get
-    uri: "<MHV_MR_HOST>/baseR4/AllergyIntolerance/30242"
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/fhir+json
-      User-Agent:
-      - Ruby FHIR Client
-      Accept-Charset:
-      - utf-8
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Host:
-      - hapi.fhir.org
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Server:
-      - nginx/1.18.0 (Ubuntu)
-      Date:
-      - Tue, 09 May 2023 15:16:56 GMT
-      Content-Type:
-      - application/fhir+json;charset=utf-8
-      Transfer-Encoding:
-      - chunked
-      Connection:
-      - keep-alive
-      X-Powered-By:
-      - HAPI FHIR 6.7.0-SNAPSHOT/a3c33d2a53/2023-05-03 REST Server (FHIR Server; FHIR
-        4.0.1/R4)
-      Etag:
-      - W/"1"
-      X-Request-Id:
-      - zIxDx6aHp2K5nx9s
-      Content-Location:
-      - "<MHV_MR_HOST>/baseR4/AllergyIntolerance/30242/_history/1"
-      Last-Modified:
-      - Thu, 26 Sep 2019 14:34:45 GMT
-    body:
-      encoding: UTF-8
-      string: |-
-        {
-          "resourceType": "AllergyIntolerance",
-          "id": "30242",
-          "meta": {
-            "versionId": "1",
-            "lastUpdated": "2019-09-26T14:34:45.817+00:00",
-            "source": "#20aa30a88b86a8ed"
-          },
-          "text": {
-            "status": "generated",
-            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Ibuprofen causes urticaria</div>"
-          },
-          "type": "allergy",
-          "code": {
-            "coding": [ {
-              "system": "http://snomed.info/sct",
-              "code": "387207008",
-              "display": "Ibuprofen"
-            } ]
-          },
-          "patient": {
-            "reference": "Patient/30163"
-          },
-          "recorder": {
-            "reference": "Practitioner/30164"
-          },
-          "reaction": [ {
-            "manifestation": [ {
+  - request:
+      method: get
+      uri: "<MHV_MR_HOST>/fhir/AllergyIntolerance/30242"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/fhir+json
+        User-Agent:
+          - Ruby FHIR Client
+        Accept-Charset:
+          - utf-8
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Host:
+          - hapi.fhir.org
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Server:
+          - nginx/1.18.0 (Ubuntu)
+        Date:
+          - Tue, 09 May 2023 15:16:56 GMT
+        Content-Type:
+          - application/fhir+json;charset=utf-8
+        Transfer-Encoding:
+          - chunked
+        Connection:
+          - keep-alive
+        X-Powered-By:
+          - HAPI FHIR 6.7.0-SNAPSHOT/a3c33d2a53/2023-05-03 REST Server (FHIR Server; FHIR
+            4.0.1/R4)
+        Etag:
+          - W/"1"
+        X-Request-Id:
+          - zIxDx6aHp2K5nx9s
+        Content-Location:
+          - "<MHV_MR_HOST>/fhir/AllergyIntolerance/30242/_history/1"
+        Last-Modified:
+          - Thu, 26 Sep 2019 14:34:45 GMT
+      body:
+        encoding: UTF-8
+        string: |-
+          {
+            "resourceType": "AllergyIntolerance",
+            "id": "30242",
+            "meta": {
+              "versionId": "1",
+              "lastUpdated": "2019-09-26T14:34:45.817+00:00",
+              "source": "#20aa30a88b86a8ed"
+            },
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Ibuprofen causes urticaria</div>"
+            },
+            "type": "allergy",
+            "code": {
               "coding": [ {
                 "system": "http://snomed.info/sct",
-                "code": "126485001",
-                "display": "Urticaria"
+                "code": "387207008",
+                "display": "Ibuprofen"
+              } ]
+            },
+            "patient": {
+              "reference": "Patient/30163"
+            },
+            "recorder": {
+              "reference": "Practitioner/30164"
+            },
+            "reaction": [ {
+              "manifestation": [ {
+                "coding": [ {
+                  "system": "http://snomed.info/sct",
+                  "code": "126485001",
+                  "display": "Urticaria"
+                } ]
               } ]
             } ]
-          } ]
-        }
-  recorded_at: Tue, 09 May 2023 15:16:56 GMT
+          }
+    recorded_at: Tue, 09 May 2023 15:16:56 GMT
 recorded_with: VCR 6.1.0

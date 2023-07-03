@@ -1,56 +1,56 @@
 ---
 http_interactions:
-- request:
-    method: get
-    uri: "<MHV_MR_HOST>/baseR4/Condition?patient="
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/fhir+json
-      User-Agent:
-      - Ruby FHIR Client
-      Accept-Charset:
-      - utf-8
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Host:
-      - hapi.fhir.org
-  response:
-    status:
-      code: 400
-      message: Bad Request
-    headers:
-      Server:
-      - nginx/1.18.0 (Ubuntu)
-      Date:
-      - Fri, 23 Jun 2023 16:06:05 GMT
-      Content-Type:
-      - application/fhir+json;charset=utf-8
-      Transfer-Encoding:
-      - chunked
-      Connection:
-      - keep-alive
-      X-Powered-By:
-      - HAPI FHIR 6.7.8-SNAPSHOT/b985091c2c/2023-06-21 REST Server (FHIR Server; FHIR
-        4.0.1/R4)
-      X-Request-Id:
-      - tLkge9PtfRcBaW5K
-    body:
-      encoding: UTF-8
-      string: |-
-        {
-          "resourceType": "OperationOutcome",
-          "text": {
-            "status": "generated",
-            "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><h1>Operation Outcome</h1><table border=\"0\"><tr><td style=\"font-weight: bold;\">ERROR</td><td>[]</td><td>HAPI-1101: Parameter value missing in request</td></tr></table></div>"
-          },
-          "issue": [ {
-            "severity": "error",
-            "code": "processing",
-            "diagnostics": "HAPI-1101: Parameter value missing in request"
-          } ]
-        }
-  recorded_at: Fri, 23 Jun 2023 16:06:05 GMT
+  - request:
+      method: get
+      uri: "<MHV_MR_HOST>/fhir/Condition?patient="
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/fhir+json
+        User-Agent:
+          - Ruby FHIR Client
+        Accept-Charset:
+          - utf-8
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Host:
+          - hapi.fhir.org
+    response:
+      status:
+        code: 400
+        message: Bad Request
+      headers:
+        Server:
+          - nginx/1.18.0 (Ubuntu)
+        Date:
+          - Fri, 23 Jun 2023 16:06:05 GMT
+        Content-Type:
+          - application/fhir+json;charset=utf-8
+        Transfer-Encoding:
+          - chunked
+        Connection:
+          - keep-alive
+        X-Powered-By:
+          - HAPI FHIR 6.7.8-SNAPSHOT/b985091c2c/2023-06-21 REST Server (FHIR Server; FHIR
+            4.0.1/R4)
+        X-Request-Id:
+          - tLkge9PtfRcBaW5K
+      body:
+        encoding: UTF-8
+        string: |-
+          {
+            "resourceType": "OperationOutcome",
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><h1>Operation Outcome</h1><table border=\"0\"><tr><td style=\"font-weight: bold;\">ERROR</td><td>[]</td><td>HAPI-1101: Parameter value missing in request</td></tr></table></div>"
+            },
+            "issue": [ {
+              "severity": "error",
+              "code": "processing",
+              "diagnostics": "HAPI-1101: Parameter value missing in request"
+            } ]
+          }
+    recorded_at: Fri, 23 Jun 2023 16:06:05 GMT
 recorded_with: VCR 6.1.0
