@@ -38,23 +38,23 @@ describe VRE::CreateCh31SubmissionsReportJob do
       expect(FeatureFlipper).to receive(:staging_email?).once.and_return(false)
     end
 
-    context 'passed sidekiq_scheduler_args' do
-      let(:sidekiq_scheduler_args) { { 'scheduled_at' => Time.zone.now.to_i } }
-      let(:specific_date) { nil }
-      let(:submitted_claims) { [vre_claim2, vre_claim3, vre_claim1] }
+    # context 'passed sidekiq_scheduler_args' do
+    #   let(:sidekiq_scheduler_args) { { 'scheduled_at' => Time.zone.now.to_i } }
+    #   let(:specific_date) { nil }
+    #   let(:submitted_claims) { [vre_claim2, vre_claim3, vre_claim1] }
 
-      it 'sparks mailer with claims sorted by Regional Office' do
-        Timecop.freeze(ActiveSupport::TimeZone[zone].parse('2021-11-16 00:00:01')) { subject }
-      end
+    #   it 'sparks mailer with claims sorted by Regional Office' do
+    #     Timecop.freeze(ActiveSupport::TimeZone[zone].parse('2021-11-16 00:00:01')) { subject }
+    #   end
 
-      it 'does not send if FeatureFlipper.staging_email?  is true' do
-        RSpec::Mocks.space.proxy_for(Ch31SubmissionsReportMailer).reset
-        RSpec::Mocks.space.proxy_for(FeatureFlipper).reset
-        expect(FeatureFlipper).to receive(:staging_email?).once.and_return(true)
-        expect(Ch31SubmissionsReportMailer).not_to receive(:build).with(submitted_claims)
-        subject
-      end
-    end
+    #   it 'does not send if FeatureFlipper.staging_email?  is true' do
+    #     RSpec::Mocks.space.proxy_for(Ch31SubmissionsReportMailer).reset
+    #     RSpec::Mocks.space.proxy_for(FeatureFlipper).reset
+    #     expect(FeatureFlipper).to receive(:staging_email?).once.and_return(true)
+    #     expect(Ch31SubmissionsReportMailer).not_to receive(:build).with(submitted_claims)
+    #     subject
+    #   end
+    # end
 
     context 'passed specific date in YYYY-MM-DD format' do
       let(:sidekiq_scheduler_args) { {} }

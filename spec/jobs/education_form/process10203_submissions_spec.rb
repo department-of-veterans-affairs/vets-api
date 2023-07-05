@@ -9,14 +9,13 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
   sidekiq_file = Rails.root.join('lib', 'periodic_jobs.rb')
   lines = File.readlines(sidekiq_file).grep(/EducationForm::Process10203Submissions/i)
   cron = lines.first.gsub("  mgr.register('", '').gsub("', 'EducationForm::Process10203Submissions')\n", '')
-
   let(:evss_user) { create(:evss_user) }
   let(:parsed_schedule) { Fugit.do_parse(cron) }
   let(:evss_user2) { create(:evss_user, uuid: '87ebe3da-36a3-4c92-9a73-61e9d700f6ea') }
   let(:no_edipi_evss_user) { create(:unauthorized_evss_user) }
   let(:evss_response_with_poa) { OpenStruct.new(body: get_fixture('json/evss_with_poa')) }
 
-  context 'scheduling' do
+  describe 'scheduling' do
     before do
       allow(Rails.env).to receive('development?').and_return(true)
     end

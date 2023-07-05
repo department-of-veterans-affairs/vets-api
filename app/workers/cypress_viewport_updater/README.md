@@ -55,8 +55,6 @@ The updater is a Sidekiq job in `vets-api` that runs at 12pm EST on the 3rd of e
 
 * Job VCR cassettes: `spec/support/vcr_cassettes/cypress_viewport_updater`
 
-* Scheduled job: `config/sidekiq_scheduler.yml`
-
 The job is scheduled to run on the 3rd day of each month at noon because it apparently takes Google 24-48 hours to fully update Google Analytics data. Official documentation about how often Google updates Google Analytics data could not be found but this article recommends 24-48 hours, which is a common recommendation found on many websites:
 
 ```pt
@@ -101,10 +99,10 @@ The following failure was happening in Jenkins:
 
 ```pt
 [2021-02-09T22:12:49.377Z] Failures:
-[2021-02-09T22:12:49.377Z] 
+[2021-02-09T22:12:49.377Z]
 [2021-02-09T22:12:49.377Z]   1) EVSS::DisabilityCompensationForm::SubmitForm0781.perform_async with a successful submission job submits successfully
 [2021-02-09T22:12:49.377Z]      Failure/Error: if (match = interaction.request.body.match(/^grant_type.+/))
-[2021-02-09T22:12:49.377Z] 
+[2021-02-09T22:12:49.377Z]
 [2021-02-09T22:12:49.377Z]      ArgumentError:
 [2021-02-09T22:12:49.377Z]        invalid byte sequence in UTF-8
 [2021-02-09T22:12:49.377Z]      # ./spec/jobs/cypress_viewport_updater/google_analytics_reports_spec.rb:20:in `match'
