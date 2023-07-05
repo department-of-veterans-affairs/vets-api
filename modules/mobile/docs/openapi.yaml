@@ -1181,8 +1181,6 @@ paths:
               schema:
                 $ref: ./schemas/LighthouseErrors.yml
           description: Failure in processing entity
-        '422':
-          $ref: '#/components/responses/422'
         '429':
           content:
             application/json:
@@ -1465,8 +1463,6 @@ paths:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Record is locked by upstream server.
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -1512,8 +1508,6 @@ paths:
               schema:
                 $ref: ./schemas/Errors.yml
           description: Record is locked by upstream server.
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -1715,8 +1709,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -1749,8 +1741,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -1788,8 +1778,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -1822,8 +1810,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -1861,8 +1847,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -1935,8 +1919,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -1975,8 +1957,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -2019,8 +1999,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -2065,8 +2043,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -2115,8 +2091,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -2198,8 +2172,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -2232,8 +2204,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -2266,8 +2236,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -2314,8 +2282,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -2356,8 +2322,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -2397,8 +2361,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -2445,8 +2407,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -2526,8 +2486,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -2562,8 +2520,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -2598,8 +2554,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -2632,8 +2586,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -2666,8 +2618,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -2700,8 +2650,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -2990,8 +2938,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -3045,8 +2991,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -3471,8 +3415,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -3503,8 +3445,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -3536,8 +3476,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
@@ -3575,8 +3513,6 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
         '500':
           $ref: '#/components/responses/500'
         '502':
