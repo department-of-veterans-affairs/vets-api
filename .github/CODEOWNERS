@@ -83,6 +83,10 @@ spec/support/*/health_quest/ @department-of-veterans-affairs/vsa-healthcare-heal
 modules/check_in  @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/patient-check-in
 spec/support/*/check_in/ @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/patient-check-in
 
+# chip api
+lib/chip @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/patient-check-in
+spec/lib/chip @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/patient-check-in
+
 # facilities product
 modules/facilities_api @department-of-veterans-affairs/vsa-facilities-backend @department-of-veterans-affairs/backend-review-group
 spec/support/*/facilities @department-of-veterans-affairs/vsa-facilities-backend @department-of-veterans-affairs/backend-review-group
