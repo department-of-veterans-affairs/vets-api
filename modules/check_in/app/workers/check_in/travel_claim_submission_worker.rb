@@ -28,30 +28,38 @@ module CheckIn
 
       logger.info("Submitting travel claim for #{uuid}, #{appointment_date}")
 
-      claims_resp = TravelClaim::Service.build(
-        check_in: check_in_session,
-        params: { appointment_date: }
-      ).submit_claim
+      begin
+        claims_resp = TravelClaim::Service.build(
+          check_in: check_in_session,
+          params: { appointment_date: }
+        ).submit_claim
 
-      claim_number = claims_resp.dig(:data, :claimNumber)&.last(4)
-      template_id = handle_response(claims_resp:)
+        claim_number, template_id = handle_response(claims_resp:)
+      rescue Common::Exceptions::BackendServiceException => e
+        logger.error("Error calling BTSSS Service for: #{uuid}, #{appointment_date}. #{e.message}")
+        StatsD.increment(STATSD_BTSSS_ERROR)
+        template_id = ERROR_TEMPLATE_ID
+      end
 
       send_notification(mobile_phone:, appointment_date:, template_id:, claim_number:)
       StatsD.increment(STATSD_NOTIFY_SUCCESS)
     end
 
     def handle_response(claims_resp:)
-      case claims_resp.dig(:data, :code)
-      when TravelClaim::Response::CODE_SUCCESS
-        StatsD.increment(STATSD_BTSSS_SUCCESS)
-        SUCCESS_TEMPLATE_ID
-      when TravelClaim::Response::CODE_CLAIM_EXISTS
-        StatsD.increment(STATSD_BTSSS_DUPLICATE)
-        DUPLICATE_TEMPLATE_ID
-      else
-        StatsD.increment(STATSD_BTSSS_ERROR)
-        ERROR_TEMPLATE_ID
-      end
+      claim_number = claims_resp&.dig(:data, :claimNumber)&.last(4)
+      template_id =
+        case claims_resp&.dig(:data, :code)
+        when TravelClaim::Response::CODE_SUCCESS
+          StatsD.increment(STATSD_BTSSS_SUCCESS)
+          SUCCESS_TEMPLATE_ID
+        when TravelClaim::Response::CODE_CLAIM_EXISTS
+          StatsD.increment(STATSD_BTSSS_DUPLICATE)
+          DUPLICATE_TEMPLATE_ID
+        else
+          StatsD.increment(STATSD_BTSSS_ERROR)
+          ERROR_TEMPLATE_ID
+        end
+      [claim_number, template_id]
     end
 
     def send_notification(opts = {})
