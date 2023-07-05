@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'fugit'
 
 RSpec.describe CovidVaccine::ExpandedSubmissionStateJob, type: :worker do
   subject { described_class.new }

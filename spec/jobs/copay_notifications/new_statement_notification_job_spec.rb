@@ -76,5 +76,26 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
         end
       end
     end
+
+    context 'with retryable error' do
+      subject(:config) { described_class }
+
+      let(:error) { OpenStruct.new(message: 'oh shoot') }
+      let(:exception) { DebtManagementCenter::StatementIdentifierService::RetryableError.new(error) }
+
+      it 'sends job to retry queue' do
+        expect(config.sidekiq_retry_in_block.call(0, exception, nil)).to eq(10)
+      end
+    end
+
+    context 'with any other error' do
+      subject(:config) { described_class }
+
+      let(:exception) { DebtManagementCenter::StatementIdentifierService::UnableToSourceEmailForStatement.new(nil) }
+
+      it 'kills the job' do
+        expect(config.sidekiq_retry_in_block.call(0, exception, nil)).to eq(:kill)
+      end
+    end
   end
 end

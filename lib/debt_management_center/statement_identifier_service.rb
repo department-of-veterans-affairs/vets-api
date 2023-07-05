@@ -6,9 +6,22 @@ module DebtManagementCenter
   class StatementIdentifierService
     include SentryLogging
     STATSD_KEY_PREFIX = 'api.copay_notifications.new_statement'
+    RETRYABLE_ERRORS = [
+      Common::Exceptions::GatewayTimeout,
+      Breakers::OutageException,
+      Faraday::ConnectionFailed,
+      Common::Exceptions::BackendServiceException
+    ].freeze
 
     class MalformedMCPStatement < StandardError; end
+
     class UnableToSourceEmailForStatement < StandardError; end
+
+    class RetryableError < StandardError
+      def initialize(e)
+        super(e.message)
+      end
+    end
 
     class ProfileMissingEmail < StandardError
       def initialize(vet360_id)
@@ -45,6 +58,8 @@ module DebtManagementCenter
       raise UnableToSourceEmailForStatement, @statement unless email_address
 
       email_address
+    rescue *RETRYABLE_ERRORS => e
+      raise RetryableError, e
     end
 
     def vista_account_id

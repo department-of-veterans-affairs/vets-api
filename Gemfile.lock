@@ -890,10 +890,6 @@ GEM
       connection_pool (>= 2.2.5)
       rack (~> 2.0)
       redis (>= 4.5.0, < 5)
-    sidekiq-scheduler (5.0.3)
-      rufus-scheduler (~> 3.2)
-      sidekiq (>= 6, < 8)
-      tilt (>= 1.4.0)
     sidekiq_alive (2.2.2)
       rack (< 3)
       sidekiq (>= 5, < 8)
@@ -1158,6 +1154,7 @@ DEPENDENCIES
   rubocop-thread_safety
   ruby-saml
   rubyzip
+  rufus-scheduler
   savon
   seedbank
   sentry-raven
@@ -1165,7 +1162,6 @@ DEPENDENCIES
   sidekiq (>= 6.4.0)
   sidekiq-ent!
   sidekiq-pro!
-  sidekiq-scheduler
   sidekiq_alive
   simple_forms_api!
   simplecov

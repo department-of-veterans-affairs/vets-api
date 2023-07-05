@@ -440,7 +440,6 @@ Rails.application.routes.draw do
   # End Modules
 
   require 'sidekiq/web'
-  require 'sidekiq-scheduler/web'
   require 'sidekiq/pro/web' if Gem.loaded_specs.key?('sidekiq-pro')
   require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
   require 'github_authentication/sidekiq_web'

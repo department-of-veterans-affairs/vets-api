@@ -110,10 +110,25 @@ module ClaimsApi
 
       private
 
-      def claims_service
+      def claims_status_service
         edipi_check
 
+        if Flipper.enabled? :claims_status_v1_bgs_enabled
+          local_bgs_service
+        else
+          claims_service
+        end
+      end
+
+      def claims_service
         ClaimsApi::UnsynchronizedEVSSClaimService.new(target_veteran)
+      end
+
+      def local_bgs_service
+        @local_bgs_service ||= ClaimsApi::LocalBGS.new(
+          external_uid: target_veteran.participant_id,
+          external_key: target_veteran.participant_id
+        )
       end
 
       def header(key)

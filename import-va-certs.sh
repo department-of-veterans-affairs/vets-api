@@ -1,4 +1,6 @@
-#!/bin/bash
+#! /usr/bin/env bash
+
+set -euo pipefail
 
 (
     cd /usr/local/share/ca-certificates/
