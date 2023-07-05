@@ -237,6 +237,18 @@ module ClaimsApi
                    action: 'findIntentToFileByPtcpntIdItfTypeCd', body:, key: 'IntentToFileDTO')
     end
 
+    # BEGIN: switching v1 from evss to bgs. Delete after EVSS is no longer available. Fix controller first.
+    def update_from_remote(id)
+      bgs_claim = find_benefit_claim_details_by_benefit_claim_id(id)
+      transform_bgs_claim_to_evss(bgs_claim)
+    end
+
+    def all(id)
+      claims = find_benefit_claims_status_by_ptcpnt_id(id)
+      transform_bgs_claims_to_evss(claims)
+    end
+    # END: switching v1 from evss to bgs. Delete after EVSS is no longer available. Fix controller first.
+
     private
 
     def construct_itf_body(options)
@@ -267,6 +279,18 @@ module ClaimsApi
 
     def soap_error_handler
       ClaimsApi::SoapErrorHandler.new
+    end
+
+    def transform_bgs_claim_to_evss(claim)
+      bgs_claim = ClaimsApi::EvssBgsMapper.new(claim[:benefit_claim_details_dto])
+      bgs_claim.map_and_build_object
+    end
+
+    def transform_bgs_claims_to_evss(claims)
+      claims[:benefit_claims_dto][:benefit_claim].map do |claim|
+        bgs_claim = ClaimsApi::EvssBgsMapper.new(claim)
+        bgs_claim.map_and_build_object
+      end
     end
   end
 end

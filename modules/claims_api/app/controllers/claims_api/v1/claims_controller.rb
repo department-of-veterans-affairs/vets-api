@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'evss/error_middleware'
+require 'claims_api/evss_bgs_mapper'
 
 module ClaimsApi
   module V1
@@ -10,7 +11,7 @@ module ClaimsApi
       before_action :verify_power_of_attorney!, if: :header_request?
 
       def index
-        claims = claims_service.all
+        claims = claims_status_service.all(target_veteran.participant_id)
         render json: claims,
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: ClaimsApi::ClaimListSerializer
@@ -29,12 +30,12 @@ module ClaimsApi
         elsif claim && claim.evss_id.blank?
           render json: claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
         elsif claim && claim.evss_id.present?
-          evss_claim = claims_service.update_from_remote(claim.evss_id)
-          render json: evss_claim, serializer: ClaimsApi::ClaimDetailSerializer, uuid: claim.id
+          updated_claim = claims_status_service.update_from_remote(claim.evss_id)
+          render json: updated_claim, serializer: ClaimsApi::ClaimDetailSerializer, uuid: claim.id
         elsif /^\d{2,20}$/.match?(params[:id])
-          evss_claim = claims_service.update_from_remote(params[:id])
+          claim = claims_status_service.update_from_remote(params[:id])
           # NOTE: source doesn't seem to be accessible within a remote evss_claim
-          render json: evss_claim, serializer: ClaimsApi::ClaimDetailSerializer
+          render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
         else
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
         end

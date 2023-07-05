@@ -19,7 +19,7 @@ module ClaimsApi
       @raw_claims ||= client.all_claims.body
     end
 
-    def all
+    def all(_id = nil)
       EVSS_CLAIM_KEYS.each_with_object([]) do |key, claim_accum|
         next unless raw_claims[key]
 
