@@ -72,6 +72,39 @@ RSpec.describe DebtManagementCenter::StatementIdentifierService, skip_vet360: tr
           end
         end
 
+        context 'when MPI gets a GatewayTimeout' do
+          let(:address) { 'person43@example.com' }
+          let(:expected_error) { Common::Exceptions::GatewayTimeout }
+          let(:expected_error_message) { expected_error.new.message }
+
+          before { allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError) }
+
+          it 'recognizes this error is retryable' do
+            service = described_class.new(edipi_statement)
+            expect { service.derive_email_address }
+              .to raise_error(described_class::RetryableError)
+          end
+        end
+
+        context 'when MPI fails to breakers outage' do
+          let(:current_time) { Time.zone.now }
+          let(:expected_error) { Breakers::OutageException }
+          let(:expected_error_message) { "Outage detected on MVI beginning at #{current_time.to_i}" }
+
+          before do
+            Timecop.freeze
+            MPI::Configuration.instance.breakers_service.begin_forced_outage!
+          end
+
+          after { Timecop.return }
+
+          it 'recognizes this error is retryable' do
+            service = described_class.new(edipi_statement)
+            expect { service.derive_email_address }
+              .to raise_error(described_class::RetryableError)
+          end
+        end
+
         context 'without an icn related user verification' do
           let(:address) { 'person43@example.com' }
 
@@ -134,6 +167,17 @@ RSpec.describe DebtManagementCenter::StatementIdentifierService, skip_vet360: tr
               service = described_class.new(edipi_statement)
               expect { service.derive_email_address }.to raise_error do |error|
                 expect(error).to be_instance_of(described_class::UnableToSourceEmailForStatement)
+              end
+            end
+          end
+
+          context 'when contact info service returns a 503 error code' do
+            it 'recognizes this error is retryable' do
+              VCR.use_cassette('va_profile/contact_information/person_status_503', VCR::MATCH_EVERYTHING) do
+                service = described_class.new(edipi_statement)
+                expect { service.derive_email_address }.to raise_error do |error|
+                  expect(error).to be_instance_of(described_class::RetryableError)
+                end
               end
             end
           end
