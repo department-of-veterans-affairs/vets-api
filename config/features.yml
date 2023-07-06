@@ -908,3 +908,6 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to view benefit claims
     enable_in_development: true
+  virtual_agent_voice:
+    actor_type: user
+    description: Enable the voice feature of the VA Chatbot
