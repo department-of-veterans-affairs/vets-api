@@ -30,7 +30,7 @@ RSpec.describe 'IncomeLimits::V1::IncomeLimitsController', type: :request do
         allow(StdCounty).to receive(:where).and_return(double(first: county_data))
 
         allow(GmtThreshold).to receive(:where)
-          .with('lower(state_name) = ? AND lower(county_name) = ?', state_data.name.downcase, "#{county_data.name.downcase} county")
+          .with('lower(state_name) = ? AND lower(county_name) LIKE ?', state_data.name.downcase, "#{county_data.name.downcase}%")
           .and_return(GmtThreshold)
         allow(GmtThreshold).to receive(:where)
           .with(effective_year: income_threshold_data.income_threshold_year)
@@ -84,7 +84,7 @@ RSpec.describe 'IncomeLimits::V1::IncomeLimitsController', type: :request do
         allow(StdCounty).to receive(:where).and_return(double(first: county_data))
 
         allow(GmtThreshold).to receive(:where)
-          .with('lower(state_name) = ? AND lower(county_name) = ?', state_data.name.downcase, "#{county_data.name.downcase} county")
+          .with('lower(state_name) = ? AND lower(county_name) LIKE ?', state_data.name.downcase, "#{county_data.name.downcase}%")
           .and_return(GmtThreshold)
         allow(GmtThreshold).to receive(:where)
           .with(effective_year: income_threshold_data.income_threshold_year)
@@ -138,7 +138,7 @@ RSpec.describe 'IncomeLimits::V1::IncomeLimitsController', type: :request do
         allow(StdCounty).to receive(:where).and_return(double(first: county_data))
 
         allow(GmtThreshold).to receive(:where)
-          .with('lower(state_name) = ? AND lower(county_name) = ?', state_data.name.downcase, "#{county_data.name.downcase} county")
+          .with('lower(state_name) = ? AND lower(county_name) LIKE ?', state_data.name.downcase, "#{county_data.name.downcase}%")
           .and_return(GmtThreshold)
         allow(GmtThreshold).to receive(:where)
           .with(effective_year: income_threshold_data.income_threshold_year)
@@ -181,7 +181,7 @@ RSpec.describe 'IncomeLimits::V1::IncomeLimitsController', type: :request do
         allow(StdCounty).to receive(:where).and_return(double(first: county_data))
 
         allow(GmtThreshold).to receive(:where)
-          .with('lower(state_name) = ? AND lower(county_name) = ?', state_data.name.downcase, "#{county_data.name.downcase} county")
+          .with('lower(state_name) = ? AND lower(county_name) LIKE ?', state_data.name.downcase, "#{county_data.name.downcase}%")
           .and_return(GmtThreshold)
         allow(GmtThreshold).to receive(:where)
           .with(effective_year: income_threshold_data.income_threshold_year)
