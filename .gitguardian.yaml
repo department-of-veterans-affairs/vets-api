@@ -1,0 +1,5 @@
+version: 2
+
+​secret:
+  ignored-paths:
+    - 'spec/fixtures/sign_in/*'

@@ -24,7 +24,8 @@ module SignIn
       CLIENT_STATE_MINIMUM_LENGTH = 22
       CODE_CHALLENGE_METHOD = 'S256'
       CSP_TYPES = [IDME = 'idme', LOGINGOV = 'logingov', DSLOGON = 'dslogon', MHV = 'mhv'].freeze
-      GRANT_TYPE = 'authorization_code'
+      GRANT_TYPES = [AUTH_CODE = 'authorization_code',
+                     JWT_BEARER = 'urn:ietf:params:oauth:grant-type:jwt-bearer'].freeze
       CLIENT_ASSERTION_TYPE = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
       CLIENT_ASSERTION_ENCODE_ALGORITHM = 'RS256'
       IAL = [IAL_ONE = 1, IAL_TWO = 2].freeze
@@ -33,6 +34,7 @@ module SignIn
       LOA = [LOA_ONE = 1, LOA_THREE = 3].freeze
       REFRESH_ROUTE_PATH = '/v0/sign_in/refresh'
       REFRESH_TOKEN_COOKIE_NAME = 'vagov_refresh_token'
+      SERVICE_ACCOUNT_ACCESS_TOKEN_COOKIE_NAME = 'service_account_access_token'
       TOKEN_ROUTE_PATH = '/v0/sign_in/token'
     end
   end

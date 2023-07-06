@@ -55,7 +55,7 @@ RSpec.describe SignIn::CodeValidator do
       end
 
       context 'and grant type does match the supported grant type' do
-        let(:grant_type) { SignIn::Constants::Auth::GRANT_TYPE }
+        let(:grant_type) { SignIn::Constants::Auth::AUTH_CODE }
 
         context 'and client is configured with pkce authentication type' do
           let(:pkce) { true }

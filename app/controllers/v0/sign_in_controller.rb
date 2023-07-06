@@ -4,7 +4,9 @@ require 'sign_in/logger'
 
 module V0
   class SignInController < SignIn::ApplicationController
-    skip_before_action :authenticate, only: %i[authorize callback token refresh revoke logout logingov_logout_proxy]
+    skip_before_action :authenticate,
+                       only: %i[authorize callback token refresh revoke logout logingov_logout_proxy
+                                read_client_config]
 
     def authorize # rubocop:disable Metrics/MethodLength
       type = params[:type].presence
@@ -81,28 +83,22 @@ module V0
       handle_pre_login_error(e, state_payload&.client_id)
     end
 
-    def token # rubocop:disable Metrics/MethodLength
+    def token
       code = params[:code].presence
       code_verifier = params[:code_verifier].presence
       grant_type = params[:grant_type].presence
       client_assertion = params[:client_assertion].presence
       client_assertion_type = params[:client_assertion_type].presence
+      service_account_assertion = params[:service_account_assertion].presence
 
-      validate_token_params(code, grant_type)
-
-      validated_credential = SignIn::CodeValidator.new(code:,
-                                                       code_verifier:,
-                                                       client_assertion:,
-                                                       client_assertion_type:,
-                                                       grant_type:).perform
-      session_container = SignIn::SessionCreator.new(validated_credential:).perform
-      serializer_response = SignIn::TokenSerializer.new(session_container:,
-                                                        cookies: token_cookies).perform
-
-      sign_in_logger.token_log('token', session_container.access_token)
-      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
-
-      render json: serializer_response, status: :ok
+      validate_token_params(code, service_account_assertion, grant_type)
+      response_body =
+        if grant_type == SignIn::Constants::Auth::JWT_BEARER
+          generate_service_account_token(service_account_assertion, grant_type)
+        else
+          generate_user_token(code, code_verifier, client_assertion, client_assertion_type, grant_type)
+        end
+      render json: response_body, status: :ok
     rescue SignIn::Errors::StandardError => e
       sign_in_logger.info('token error', { errors: e.message })
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_FAILURE)
@@ -229,6 +225,11 @@ module V0
       render json: { errors: e }, status: :unauthorized
     end
 
+    # test method for Service Account access token auth
+    def read_client_config
+      authenticate_service_account
+    end
+
     private
 
     def validate_authorize_params(type, client_id, acr)
@@ -248,9 +249,44 @@ module V0
       raise SignIn::Errors::MalformedParamsError.new message: 'State is not defined' unless state
     end
 
-    def validate_token_params(code, grant_type)
-      raise SignIn::Errors::MalformedParamsError.new message: 'Code is not defined' unless code
+    def validate_token_params(code, service_account_assertion, grant_type)
       raise SignIn::Errors::MalformedParamsError.new message: 'Grant Type is not defined' unless grant_type
+
+      case grant_type
+      when SignIn::Constants::Auth::AUTH_CODE
+        raise SignIn::Errors::MalformedParamsError.new message: 'Code is not defined' unless code
+      when SignIn::Constants::Auth::JWT_BEARER
+        unless service_account_assertion
+          raise SignIn::Errors::MalformedParamsError.new message: 'Service Account Assertion is not defined'
+        end
+      else
+        raise SignIn::Errors::GrantTypeValueError.new message: 'Grant Type is not valid'
+      end
+    end
+
+    def generate_service_account_token(service_account_assertion, grant_type)
+      decoded_service_account_assertion =
+        SignIn::ServiceAccountValidator.new(service_account_assertion:, grant_type:).perform
+      service_account_access_token =
+        SignIn::ServiceAccountAccessTokenJwtEncoder.new(decoded_service_account_assertion:).perform
+
+      sign_in_logger.token_log('service_account token',
+                               service_account_access_token,
+                               { service_account_id: decoded_service_account_assertion.service_account_id })
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
+      { data: { service_account_access_token: } }
+    end
+
+    def generate_user_token(code, code_verifier, client_assertion, client_assertion_type, grant_type)
+      validated_credential = SignIn::CodeValidator.new(code:,
+                                                       code_verifier:,
+                                                       client_assertion:,
+                                                       client_assertion_type:,
+                                                       grant_type:).perform
+      session_container = SignIn::SessionCreator.new(validated_credential:).perform
+      sign_in_logger.token_log('token', session_container.access_token)
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
+      SignIn::TokenSerializer.new(session_container:, cookies: token_cookies).perform
     end
 
     def handle_pre_login_error(error, client_id)
