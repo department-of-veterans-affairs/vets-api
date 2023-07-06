@@ -38,7 +38,7 @@ module IncomeLimits
       private
 
       def valid_year?(year)
-        year.between?(2015, 2999)
+        year.between?(2001, 2999)
       end
 
       def valid_dependents?(dependents)
@@ -106,21 +106,18 @@ module IncomeLimits
         StdCounty.where(county_number: zipcode_data.county_number, state_id: zipcode_data.state_id).first
       end
 
-      # rubocop:disable Layout/LineLength
       def find_gmt_threshold_data(zipcode_data, year)
         state_data = StdState.find_by(id: zipcode_data.state_id)
         county_data = find_county_data(zipcode_data)
         state_name = state_data.name
         county_name = county_data.name
-
         GmtThreshold
-          .where('lower(state_name) = ? AND lower(county_name) = ?', state_name.downcase, "#{county_name.downcase} county")
+          .where('lower(state_name) = ? AND lower(county_name) LIKE ?', state_name.downcase, "#{county_name.downcase}%")
           .where(effective_year: year)
           .order(trhd1: :desc)
           .first
       end
 
-      # rubocop:enable Layout/LineLength
       def render_invalid_year_error
         render json: { error: 'Invalid year' }, status: :unprocessable_entity
       end
