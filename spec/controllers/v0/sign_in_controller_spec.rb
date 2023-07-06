@@ -1268,7 +1268,8 @@ RSpec.describe V0::SignInController, type: :controller do
                   .merge(code_verifier)
                   .merge(grant_type)
                   .merge(client_assertion)
-                  .merge(client_assertion_type))
+                  .merge(client_assertion_type)
+                  .merge(service_account_assertion))
     end
 
     let(:user_verification) { create(:user_verification) }
@@ -1280,11 +1281,13 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:grant_type) { { grant_type: grant_type_value } }
     let(:code_value) { 'some-code' }
     let(:code_verifier_value) { 'some-code-verifier' }
-    let(:grant_type_value) { 'some-grant-type' }
+    let(:grant_type_value) { SignIn::Constants::Auth::AUTH_CODE }
     let(:client_assertion) { { client_assertion: client_assertion_value } }
     let(:client_assertion_type) { { client_assertion_type: client_assertion_type_value } }
     let(:client_assertion_value) { 'some-client-assertion' }
     let(:client_assertion_type_value) { 'some-client-assertion-type' }
+    let(:service_account_assertion) { { service_account_assertion: service_account_assertion_value } }
+    let(:service_account_assertion_value) { nil }
     let(:type) { nil }
     let(:client_id) { client_config.client_id }
     let(:authentication) { SignIn::Constants::Auth::API }
@@ -1295,6 +1298,7 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:pkce) { true }
     let(:anti_csrf) { false }
     let(:loa) { nil }
+    let(:statsd_token_success) { SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS }
 
     before { allow(Rails.logger).to receive(:info) }
 
@@ -1341,8 +1345,6 @@ RSpec.describe V0::SignInController, type: :controller do
       end
 
       context 'and grant_type param is given' do
-        let(:grant_type_value) { 'some-grant-type' }
-
         context 'and code does not match an existing code container' do
           let(:code) { { code: 'some-arbitrary-code' } }
           let(:expected_error) { 'Code is not valid' }
@@ -1370,7 +1372,7 @@ RSpec.describe V0::SignInController, type: :controller do
           end
 
           context 'and grant_type does match supported grant type value' do
-            let(:grant_type_value) { SignIn::Constants::Auth::GRANT_TYPE }
+            let(:grant_type_value) { SignIn::Constants::Auth::AUTH_CODE }
 
             context 'and client is configured with pkce authentication type' do
               let(:pkce) { true }
@@ -1390,7 +1392,6 @@ RSpec.describe V0::SignInController, type: :controller do
                 end
                 let(:user_verification_id) { user_verification.id }
                 let(:user_verification) { create(:user_verification) }
-                let(:statsd_token_success) { SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS }
                 let(:expected_log) { '[SignInService] [V0::SignInController] token' }
 
                 before { allow(Rails.logger).to receive(:info) }
@@ -1519,7 +1520,6 @@ RSpec.describe V0::SignInController, type: :controller do
                   let(:client_assertion_certificate) { File.read(certificate_path) }
                   let(:user_verification_id) { user_verification.id }
                   let(:user_verification) { create(:user_verification) }
-                  let(:statsd_token_success) { SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS }
                   let(:expected_log) { '[SignInService] [V0::SignInController] token' }
 
                   before { allow(Rails.logger).to receive(:info) }
@@ -1601,6 +1601,111 @@ RSpec.describe V0::SignInController, type: :controller do
                     end
                   end
                 end
+              end
+            end
+          end
+        end
+      end
+
+      context 'when grant_type is jwt-bearer' do
+        let(:grant_type_value) { SignIn::Constants::Auth::JWT_BEARER }
+        let(:certificate_path) { 'spec/fixtures/sign_in/sample_service_account_public.pem' }
+        let(:service_account_assertion_certificate) { File.read(certificate_path) }
+        let(:service_account_config) do
+          build(:service_account_config, certificates: [service_account_assertion_certificate])
+        end
+
+        context 'and service_account_assertion is not a valid jwt' do
+          let(:service_account_assertion_value) { 'some-service-account-assertion-value' }
+          let(:expected_error) { 'Service account assertion is malformed' }
+
+          it_behaves_like 'error response'
+        end
+
+        context 'and service_account_assertion is a valid jwt' do
+          let(:private_key) { OpenSSL::PKey::RSA.new(File.read(private_key_path)) }
+          let(:private_key_path) { 'spec/fixtures/sign_in/sample_service_account.pem' }
+          let(:service_account_assertion_payload) do
+            { iss:, aud:, sub:, jti:, exp:, scopes:, service_account_id: }
+          end
+          let(:iss) { 'http://identity-dashboard-api-dev.vfs.va.gov' }
+          let(:scheme) { Settings.vsp_environment == 'localhost' ? 'http://' : 'https://' }
+          let(:aud) { "#{scheme}#{Settings.hostname}#{SignIn::Constants::Auth::TOKEN_ROUTE_PATH}" }
+          let(:sub) { 'some-user-email@va.gov' }
+          let(:jti) { 'some-jti' }
+          let(:exp) { 5.minutes.since.to_i }
+          let(:scopes) { ['https://dev-api.va.gov/v0/sign_in/client_config'] }
+          let(:service_account_id) { service_account_config.service_account_id }
+          let(:assertion_encode_algorithm) { SignIn::Constants::Auth::CLIENT_ASSERTION_ENCODE_ALGORITHM }
+          let(:service_account_assertion_value) do
+            JWT.encode(service_account_assertion_payload, private_key, assertion_encode_algorithm)
+          end
+
+          context 'and jwt does not contain a valid ServiceAccountConfig id' do
+            let(:expected_error) { 'Service account config not found' }
+
+            it_behaves_like 'error response'
+          end
+
+          context 'and jwt contains a valid ServiceAccountConfig id' do
+            before do
+              allow(SignIn::ServiceAccountConfig).to receive(:find_by).with(service_account_id:)
+                                                                      .and_return(service_account_config)
+            end
+
+            context 'and jwt issuer does not match service account config audience' do
+              let(:iss) { 'some-jwt-issuer' }
+              let(:expected_error) { 'Service account assertion issuer is not valid' }
+
+              it_behaves_like 'error response'
+            end
+
+            context 'and jwt audience does not match SiS token route' do
+              let(:aud) { 'some-jwt-aud' }
+              let(:expected_error) { 'Service account assertion audience is not valid' }
+
+              it_behaves_like 'error response'
+            end
+
+            context 'and jwt scopes are not present in service account config scopes' do
+              let(:scopes) { ['https://dev-api.va.gov/v0/sign_in/client_config', 'some-other-scope'] }
+              let(:expected_error) { 'Service account assertion scopes are not valid' }
+
+              it_behaves_like 'error response'
+            end
+
+            context 'and service_account_assertion jwt passes validation' do
+              let(:expected_log) { '[SignInService] [V0::SignInController] service_account token' }
+              let(:public_key) { OpenSSL::PKey::RSA.new(File.read(Settings.sign_in.jwt_encode_key)).public_key }
+
+              it 'returns ok status' do
+                expect(subject).to have_http_status(:ok)
+              end
+
+              it 'returns expected body with a signed service account access token' do
+                response = JSON.parse(subject.body)['data']['service_account_access_token']
+                access_token = JWT.decode(response,
+                                          public_key,
+                                          true,
+                                          { algorithm: SignIn::Constants::AccessToken::JWT_ENCODE_ALGORITHM }).first
+                expect(access_token['aud']).to eq(iss)
+                expect(access_token['scopes']).to eq(scopes)
+              end
+
+              it 'logs the successful token request' do
+                response = JSON.parse(subject.body)['data']['service_account_access_token']
+                access_token = JWT.decode(response, nil, false).first
+                logger_context = {
+                  service_account_id:,
+                  aud: access_token['aud'],
+                  sub: access_token['sub'],
+                  scopes: access_token['scopes']
+                }
+                expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
+              end
+
+              it 'updates StatsD with a token request success' do
+                expect { subject }.to trigger_statsd_increment(statsd_token_success)
               end
             end
           end

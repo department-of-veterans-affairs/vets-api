@@ -46,7 +46,7 @@ module SignIn
     end
 
     def validate_grant_type
-      if grant_type != Constants::Auth::GRANT_TYPE
+      if grant_type != Constants::Auth::AUTH_CODE
         raise Errors::GrantTypeValueError.new message: 'Grant Type is not valid'
       end
     end
