@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_06_16_145330) do
+ActiveRecord::Schema.define(version: 2023_07_05_144658) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -1083,6 +1083,15 @@ ActiveRecord::Schema.define(version: 2023_06_16_145330) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["notified", "label"], name: "index_vba_documents_git_items_on_notified_and_label"
     t.index ["url"], name: "index_vba_documents_git_items_on_url", unique: true
+  end
+
+  create_table "vba_documents_monthly_stats", force: :cascade do |t|
+    t.integer "month", null: false
+    t.integer "year", null: false
+    t.jsonb "stats", default: {}
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["month", "year"], name: "index_vba_documents_monthly_stats_uniqueness", unique: true
   end
 
   create_table "vba_documents_upload_submissions", id: :serial, force: :cascade do |t|
