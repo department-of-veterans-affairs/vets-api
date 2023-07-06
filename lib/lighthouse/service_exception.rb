@@ -9,6 +9,7 @@ module Lighthouse
     # a map of the known Lighthouse errors based on the documentation
     # https://developer.va.gov/
     ERROR_MAP = {
+      '504': Common::Exceptions::GatewayTimeout,
       '503': Common::Exceptions::ServiceUnavailable,
       '502': Common::Exceptions::BadGateway,
       '500': Common::Exceptions::ExternalServerInternalServerError,
@@ -24,7 +25,10 @@ module Lighthouse
     # raises an error based off of what the response status was
     # formats the Lighthouse exception for the controller ExceptionHandling to report out to the consumer
     def self.send_error(error, service_name, lighthouse_client_id, url)
+      raise error_class(:'504') if gateway_timeout?(error.response)
+
       error_response = error.response
+
       return error unless error_response&.key?(:status)
 
       send_error_logs(error, service_name, lighthouse_client_id, url)
@@ -108,6 +112,13 @@ module Lighthouse
         url:,
         client_id: lighthouse_client_id
       )
+    end
+
+    def self.gateway_timeout?(response)
+      return response.status == 504 if response.respond_to?(:status)
+      return response[:status] == 504 if response.instance_of?(Hash) && response&.key?(:status)
+
+      false
     end
   end
 end
