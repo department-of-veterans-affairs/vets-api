@@ -8,7 +8,7 @@ module Mobile
 
       def show
         map_logingov_to_idme
-        render json: Mobile::V0::UserSerializer.new(@current_user, options)
+        render json: Mobile::V0::UserSerializer.new(@current_user, user_accessible_services.authorized, options)
       end
 
       def logout
@@ -23,7 +23,7 @@ module Mobile
       def options
         {
           meta: {
-            available_services: Mobile::V0::UserSerializer::SERVICE_DICTIONARY.keys
+            available_services: user_accessible_services.available
           }
         }
       end
@@ -44,6 +44,10 @@ module Mobile
 
       def link_user_with_vet360
         Mobile::V0::Vet360LinkingJob.perform_async(@current_user.uuid)
+      end
+
+      def user_accessible_services
+        @user_accessible_services ||= Mobile::V0::UserAccessibleServices.new(current_user)
       end
     end
   end

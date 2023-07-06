@@ -5,6 +5,8 @@ require 'adapters/payment_history_adapter'
 module Mobile
   module V0
     class PaymentHistoryController < ApplicationController
+      before_action { authorize :bgs, :access? }
+
       def index
         validated_params = validate_params(params)
 

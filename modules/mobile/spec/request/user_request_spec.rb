@@ -156,16 +156,17 @@ RSpec.describe 'user', type: :request do
             appeals
             appointments
             claims
+            decisionLetters
             directDepositBenefits
+            directDepositBenefitsUpdate
             disabilityRating
+            genderIdentity
             lettersAndDocuments
             militaryServiceHistory
             paymentHistory
-            userProfileUpdate
-            scheduleAppointments
             preferredName
-            genderIdentity
-            directDepositBenefitsUpdate
+            scheduleAppointments
+            userProfileUpdate
           ]
         )
       end
@@ -176,17 +177,19 @@ RSpec.describe 'user', type: :request do
             appeals
             appointments
             claims
+            decisionLetters
             directDepositBenefits
+            directDepositBenefitsUpdate
             disabilityRating
+            genderIdentity
             lettersAndDocuments
             militaryServiceHistory
             paymentHistory
-            userProfileUpdate
-            secureMessaging
-            scheduleAppointments
-            prescriptions
             preferredName
-            genderIdentity
+            prescriptions
+            scheduleAppointments
+            secureMessaging
+            userProfileUpdate
           ]
         )
       end
