@@ -110,6 +110,21 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
       end
     end
 
+    context 'when there is a gateway timeout' do
+      it 'returns a status of 504' do
+        VCR.use_cassette('lighthouse/direct_deposit/show/504_gateway_timeout') do
+          get(:show)
+        end
+
+        expect(response).to have_http_status(:gateway_timeout)
+
+        json = JSON.parse(response.body)
+        e = json['errors'].first
+
+        expect(e['code']).to eq('cnp.payment.api.gateway.timeout')
+      end
+    end
+
     context 'when lighthouse direct deposit feature flag is disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:profile_lighthouse_direct_deposit, instance_of(User))
