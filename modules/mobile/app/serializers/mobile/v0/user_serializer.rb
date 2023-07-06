@@ -39,23 +39,6 @@ module Mobile
         phone_type
       ].freeze
 
-      SERVICE_DICTIONARY = {
-        appeals: :appeals,
-        appointments: :vaos,
-        claims: :evss,
-        directDepositBenefits: %i[evss ppiu],
-        disabilityRating: :evss,
-        lettersAndDocuments: :evss,
-        militaryServiceHistory: :vet360,
-        paymentHistory: :bgs,
-        userProfileUpdate: :vet360,
-        secureMessaging: :mhv_messaging,
-        scheduleAppointments: :schedule_appointment,
-        prescriptions: :mhv_prescriptions,
-        preferredName: :demographics,
-        genderIdentity: :demographics
-      }.freeze
-
       set_type :user
       attributes :profile, :authorized_services, :health
 
@@ -65,7 +48,7 @@ module Mobile
       #
       # @example initialization:
       #   Mobile::V0::UserSerializer.new(@current_user, options)
-      def initialize(user, options = {})
+      def initialize(user, authorized_services, options = {})
         @user = user
         fetch_additional_resources
         resource = UserStruct.new(user.uuid, profile, authorized_services, health)
@@ -97,33 +80,12 @@ module Mobile
         }
       end
 
-      def authorized_services
-        auth_services = SERVICE_DICTIONARY.filter { |_k, policies| authorized_for_service(policies) }.keys
-        if auth_services.include?(:directDepositBenefits) && direct_deposit_update_access?
-          auth_services.push(:directDepositBenefitsUpdate)
-        end
-        if Flipper.enabled?(:mobile_lighthouse_letters, @user) && auth_services.exclude?(:lettersAndDocuments)
-          auth_services.push(:lettersAndDocuments)
-        end
-        auth_services
-      end
-
-      def direct_deposit_update_access?
-        user.authorize(:ppiu, :access_update?)
-      rescue
-        false
-      end
-
       def health
         facility_ids = user.va_treatment_facility_ids
         {
           facilities: facility_ids.map.with_index { |id, index| facility(id, facility_names[index]) },
           is_cerner_patient: !user.cerner_id.nil?
         }
-      end
-
-      def authorized_for_service(policies)
-        [*policies].all? { |policy| user.authorize(policy, :access?) }
       end
 
       def facility(facility_id, facility_name)

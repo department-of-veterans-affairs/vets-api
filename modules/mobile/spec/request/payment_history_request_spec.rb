@@ -7,9 +7,21 @@ require_relative '../support/matchers/json_schema_matcher'
 RSpec.describe 'payment_history', type: :request do
   include JsonSchemaMatchers
 
-  before { iam_sign_in(FactoryBot.build(:iam_user, :no_email)) }
+  let(:user) { FactoryBot.build(:iam_user, :no_email) }
+
+  before { iam_sign_in(user) }
 
   describe 'GET /mobile/v0/payment-history' do
+    context 'without bgs access' do
+      let(:user) { FactoryBot.build(:iam_user, :no_participant_id) }
+
+      it 'returns 403' do
+        get '/mobile/v0/payment-history', headers: iam_headers, params: nil
+
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
     context 'with successful response with the default (no) parameters' do
       before do
         VCR.use_cassette('mobile/payment_history/retrieve_payment_summary_with_bdn',
