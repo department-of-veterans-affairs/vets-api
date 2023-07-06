@@ -38,16 +38,13 @@ module V0
                         .transform_values { |v| ActiveModel::Type::Boolean.new.cast(v) }
                         .transform_keys { |k| k.camelize(:lower) }
 
-      begin
-        icn = Lighthouse::LettersGenerator::VeteranSponsorResolver.get_icn(@current_user)
-        response = service.download_letter(icn, params[:id], letter_options)
-        send_data response,
-                  filename: "#{params[:id]}.pdf",
-                  type: 'application/pdf',
-                  disposition: 'attachment'
-      rescue ArgumentError
-        render nothing: true, status: :bad_request
-      end
+      # Throws an error if the current user is a dependent but has no sponsor
+      icn = Lighthouse::LettersGenerator::VeteranSponsorResolver.get_icn(@current_user)
+      response = service.download_letter(icn, params[:id], letter_options)
+      send_data response,
+                filename: "#{params[:id]}.pdf",
+                type: 'application/pdf',
+                disposition: 'attachment'
     end
 
     def beneficiary
