@@ -3,3 +3,5 @@ version: 2
 ​secret:
   ignored-paths:
     - 'spec/fixtures/sign_in/*'
+    - 'spec/support/vcr_cassettes/mr_client/session.yml'
+    - 'spec/support/mr_client_helpers.rb'
