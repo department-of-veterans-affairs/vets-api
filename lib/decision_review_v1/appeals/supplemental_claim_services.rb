@@ -52,17 +52,14 @@ module DecisionReviewV1
       ##
       # Creates a new 4142(a) PDF, and sends to central mail
       #
-      # @param request_body [JSON] JSON serialized version of a 4142/4142(a) form
-      # @param user [User] Veteran who the form is in regard to
-      # @param response [Faraday::Response] The response from creating the supplemental claim
+      # @param appeal_submission_id
+      # @param rejiggered_payload
       # @return [Faraday::Response]
       #
-      def process_form4142_submission(request_body:, form4142:, user:, response:)
-        appeal_submission_id = response.body['data']['id']
+      def process_form4142_submission(appeal_submission_id:, rejiggered_payload:)
         with_monitoring_and_error_handling do
           form4142_response, bm = run_and_benchmark_if_enabled do
-            new_body = get_and_rejigger_required_info(request_body:, form4142:, user:)
-            submit_form4142(form_data: new_body)
+            submit_form4142(form_data: rejiggered_payload)
           end
           form4142_submission_info_message = parse_form412_response_to_log_msg(
             appeal_submission_id:, data: form4142_response, bm:
@@ -159,6 +156,7 @@ module DecisionReviewV1
       # Returns an array of Job IDs (jids) of the queued evidence submission jobs
       #
       # @param sc_evidence [sc_evidence] supplemental Claim UUID Evidence Submission
+      # @param appeal_submission_id
       # @return [String]
       #
       def queue_submit_evidence_uploads(sc_evidences, appeal_submission_id)
@@ -168,6 +166,23 @@ module DecisionReviewV1
 
           DecisionReview::SubmitUpload.perform_async(asu.id)
         end
+      end
+
+      ##
+      # Returns a sidekiq Job ID (jid) of the queued form4142 generation
+      # Sidekiq job is queued with the payload encrypted so there are no plaintext PII in the sidekiq job args.
+      #
+      # @param appeal_submission_id
+      # @param rejiggered_payload
+      # @param submitted_appeal_uuid
+      # @return String
+      #
+      def queue_form4142(appeal_submission_id:, rejiggered_payload:, submitted_appeal_uuid:)
+        DecisionReview::Form4142Submit.perform_async(
+          appeal_submission_id,
+          payload_encrypted_string(rejiggered_payload),
+          submitted_appeal_uuid
+        )
       end
 
       private

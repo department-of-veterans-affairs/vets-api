@@ -5,6 +5,16 @@ require 'decision_review_v1/utilities/constants'
 module DecisionReviewV1
   module Appeals
     module Helpers
+      def middle_initial(user)
+        user.middle_name.to_s.strip.presence&.first&.upcase
+      end
+
+      # Takes original payload (or anything that responds to to_json)
+      # Then encrypts it so that there is no PII in the sidekiq args
+      def payload_encrypted_string(payload)
+        KmsEncrypted::Box.new.encrypt(payload.to_json)
+      end
+
       def get_and_rejigger_required_info(request_body:, form4142:, user:)
         data = request_body['data']
         attrs = data['attributes']

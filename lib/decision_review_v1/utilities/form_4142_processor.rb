@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/filler'
+require 'central_mail/datestamp_pdf'
 require 'decision_review_v1/utilities/constants'
 
 module DecisionReviewV1

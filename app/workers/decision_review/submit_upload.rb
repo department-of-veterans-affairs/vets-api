@@ -12,7 +12,7 @@ module DecisionReview
     # Make a request to lighthosue to get the URL where we can upload the file,
     # then get the file from S3 and send it to lighthouse
     #
-    # @param appeal_submission_id [String] UUID in response from Lighthouse upload
+    # @param appeal_submission_upload_id [String] UUID in response from Lighthouse upload
     # @param type [Symbol|String] type of submission one of 'SC','NOD' or :SC, :NOD (case insensitive) default: NOD
     def perform(appeal_submission_upload_id)
       appeal_submission_upload = AppealSubmissionUpload.find(appeal_submission_upload_id)

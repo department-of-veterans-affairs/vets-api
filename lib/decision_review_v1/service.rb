@@ -295,10 +295,6 @@ module DecisionReviewV1
       headers
     end
 
-    def middle_initial(user)
-      user.middle_name.to_s.strip.presence&.first&.upcase
-    end
-
     def get_contestable_issues_headers(user)
       raise Common::Exceptions::Forbidden.new source: "#{self.class}##{__method__}" unless user.ssn
 

@@ -63,17 +63,18 @@ RSpec.describe V1::SupplementalClaimsController do
            headers:
     end
 
-    it 'creates a supplemental claim and sends a 4142 form when 4142 info is provided' do
+    it 'creates a supplemental claim and queues a 4142 form when 4142 info is provided' do
       VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-4142-200_V1') do
         VCR.use_cassette('central_mail/submit_4142') do
           previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
-          subject
+          expect { subject }.to change(DecisionReview::Form4142Submit.jobs, :size).by(1)
           expect(response).to be_successful
           parsed_response = JSON.parse(response.body)
           id = parsed_response['data']['id']
           expect(previous_appeal_submission_ids).not_to include id
           appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
           expect(appeal_submission.type_of_appeal).to eq('SC')
+          expect { DecisionReview::Form4142Submit.drain }.to change(DecisionReview::Form4142Submit.jobs, :size).by(-1)
         end
       end
     end
