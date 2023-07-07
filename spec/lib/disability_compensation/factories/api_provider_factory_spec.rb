@@ -70,4 +70,44 @@ RSpec.describe ApiProviderFactory do
       end.to raise_error NotImplementedError
     end
   end
+
+  context 'ppiu direct deposit' do
+    it 'provides an evss ppiu provider' do
+      provider = ApiProviderFactory.ppiu_service_provider(current_user, :evss)
+      expect(provider.class).to equal(EvssPPIUProvider)
+    end
+
+    it 'provides a Lighthouse ppiu direct deposit provider' do
+      # TODO: Uncomment once Lighthouse provider is implemented in #59698
+      # provider = ApiProviderFactory.ppiu_service_provider(current_user, :lighthouse)
+      # expect(provider.class).to equal(LighthousePPIUProvider)
+
+      # TODO: Remove once Lighthouse provider is implemented in #59698
+      expect do
+        ApiProviderFactory.ppiu_service_provider(current_user, :lighthouse)
+      end.to raise_error NotImplementedError
+    end
+
+    it 'provides ppiu direct deposit provider based on Flipper' do
+      Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
+      # TODO: Uncomment once Lighthouse provider is implemented in #59698
+      # provider = ApiProviderFactory.ppiu_service_provider(current_user)
+      # expect(provider.class).to equal(LighthousePPIUProvider)
+
+      # TODO: Remove once Lighthouse provider is implemented in #59698
+      expect do
+        ApiProviderFactory.ppiu_service_provider(current_user)
+      end.to raise_error NotImplementedError
+
+      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
+      provider = ApiProviderFactory.ppiu_service_provider(current_user)
+      expect(provider.class).to equal(EvssPPIUProvider)
+    end
+
+    it 'throw error if provider unknown' do
+      expect do
+        ApiProviderFactory.ppiu_service_provider(current_user, :random)
+      end.to raise_error NotImplementedError
+    end
+  end
 end

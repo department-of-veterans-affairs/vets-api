@@ -6,6 +6,9 @@ require 'disability_compensation/providers/rated_disabilities/rated_disabilities
 require 'disability_compensation/providers/intent_to_file/evss_intent_to_file_provider'
 require 'disability_compensation/providers/intent_to_file/lighthouse_intent_to_file_provider'
 require 'disability_compensation/providers/intent_to_file/intent_to_file_provider'
+require 'disability_compensation/providers/ppiu_direct_deposit/ppiu_provider'
+require 'disability_compensation/providers/ppiu_direct_deposit/evss_ppiu_provider'
+require 'disability_compensation/providers/ppiu_direct_deposit/lighthouse_ppiu_provider'
 
 class ApiProviderFactory
   API_PROVIDER = {
@@ -15,6 +18,9 @@ class ApiProviderFactory
 
   FEATURE_TOGGLE_RATED_DISABILITIES = 'disability_compensation_lighthouse_rated_disabilities_provider'
   FEATURE_TOGGLE_INTENT_TO_FILE = 'disability_compensation_lighthouse_intent_to_file_provider'
+
+  # PPIU calls out to Direct Deposit APIs in Lighthouse
+  FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT = 'disability_compensation_lighthouse_ppiu_direct_deposit_provider'
 
   # @param [hash] options: options to provide auth_headers
   # @option options [hash] :auth_headers auth headers for the EVSS request
@@ -50,6 +56,25 @@ class ApiProviderFactory
       LighthouseIntentToFileProvider.new(current_user)
     else
       raise NotImplementedError, 'No known Intent to File Api Provider type provided'
+    end
+  end
+
+  def self.ppiu_service_provider(current_user, api_provider = nil)
+    api_provider ||= if Flipper.enabled?(FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
+                       API_PROVIDER[:lighthouse]
+                     else
+                       API_PROVIDER[:evss]
+                     end
+
+    case api_provider
+    when API_PROVIDER[:evss]
+      EvssPPIUProvider.new(current_user)
+    when API_PROVIDER[:lighthouse]
+      # TODO: Implement in #59698 - Lighthouse provider
+      # LighthousePPIUProvider.new(current_user)
+      raise NotImplementedError, 'Lighthouse PPIU Provider not implemented yet'
+    else
+      raise NotImplementedError, 'No known PPIU Api Provider type provided'
     end
   end
 end
