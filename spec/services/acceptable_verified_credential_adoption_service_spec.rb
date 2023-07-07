@@ -25,7 +25,11 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
             expect(VANotify::EmailJob).to receive(:perform_async).with(
               user.email,
               reactivation_template,
-              {}
+              {
+                'name' => user.first_name,
+                'legacy_credential' => 'DS Logon',
+                'modern_credential' => 'Login.gov'
+              }
             )
 
             service.perform
@@ -40,14 +44,19 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
 
         context 'When user has ivc' do
           let!(:user_acceptable_verified_credential) do
-            create(:user_acceptable_verified_credential, :with_ivc, user_account:)
+            create(:user_acceptable_verified_credential, :with_ivc, acceptable_verified_credential_at: nil,
+                                                                    user_account:)
           end
 
           it 'sends reactivation email' do
             expect(VANotify::EmailJob).to receive(:perform_async).with(
               user.email,
               reactivation_template,
-              {}
+              {
+                'name' => user.first_name,
+                'legacy_credential' => 'DS Logon',
+                'modern_credential' => 'ID.me'
+              }
             )
 
             service.perform
@@ -66,11 +75,7 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
           end
 
           it 'does not send an email' do
-            expect(VANotify::EmailJob).not_to receive(:perform_async).with(
-              user.email,
-              reactivation_template,
-              {}
-            )
+            expect(VANotify::EmailJob).not_to receive(:perform_async)
 
             service.perform
           end
@@ -90,11 +95,7 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
         end
 
         it 'does not send an email' do
-          expect(VANotify::EmailJob).not_to receive(:perform_async).with(
-            user.email,
-            reactivation_template,
-            {}
-          )
+          expect(VANotify::EmailJob).not_to receive(:perform_async)
 
           service.perform
         end
@@ -113,11 +114,7 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
         end
 
         it 'does not send an email' do
-          expect(VANotify::EmailJob).not_to receive(:perform_async).with(
-            user.email,
-            reactivation_template,
-            {}
-          )
+          expect(VANotify::EmailJob).not_to receive(:perform_async)
 
           service.perform
         end
@@ -140,7 +137,11 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
             expect(VANotify::EmailJob).to receive(:perform_async).with(
               user.email,
               reactivation_template,
-              {}
+              {
+                'name' => user.first_name,
+                'legacy_credential' => 'My HealtheVet',
+                'modern_credential' => 'Login.gov'
+              }
             )
 
             service.perform
@@ -158,14 +159,18 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
         let(:user) { create(:user, :mhv, authn_context: SAML::User::MHV_ORIGINAL_CSID) }
         let(:user_verification) { create(:mhv_user_verification, mhv_uuid: user.mhv_correlation_id) }
         let!(:user_acceptable_verified_credential) do
-          create(:user_acceptable_verified_credential, :with_ivc, user_account:)
+          create(:user_acceptable_verified_credential, :with_ivc, acceptable_verified_credential_at: nil, user_account:)
         end
 
         it 'sends reactivation email' do
           expect(VANotify::EmailJob).to receive(:perform_async).with(
             user.email,
             reactivation_template,
-            {}
+            {
+              'name' => user.first_name,
+              'legacy_credential' => 'My HealtheVet',
+              'modern_credential' => 'ID.me'
+            }
           )
 
           service.perform
@@ -186,11 +191,7 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
         end
 
         it 'does not send an email' do
-          expect(VANotify::EmailJob).not_to receive(:perform_async).with(
-            user.email,
-            reactivation_template,
-            {}
-          )
+          expect(VANotify::EmailJob).not_to receive(:perform_async)
 
           service.perform
         end
@@ -208,11 +209,7 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
       end
 
       it 'does not send an email' do
-        expect(VANotify::EmailJob).not_to receive(:perform_async).with(
-          user.email,
-          reactivation_template,
-          {}
-        )
+        expect(VANotify::EmailJob).not_to receive(:perform_async)
 
         service.perform
       end
