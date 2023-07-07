@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mobile/v0/vaos_appointments/appointments_helper'
 require_relative '../support/helpers/iam_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
@@ -21,10 +20,10 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
     allow_any_instance_of(IAMUser).to receive(:icn).and_return('1012846043V576341')
     iam_sign_in(build(:iam_user))
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
-    # rubocop:disable Layout/LineLength
-    allow_any_instance_of(Mobile::V0::VAOSAppointments::AppointmentsHelper).to receive(:get_clinic).and_return(mock_clinic)
-    allow_any_instance_of(Mobile::V0::VAOSAppointments::AppointmentsHelper).to receive(:get_facility).and_return(mock_facility)
-    # rubocop:enable Layout/LineLength
+    allow_any_instance_of(Mobile::AppointmentsHelper).to \
+      receive(:get_clinic).and_return(mock_clinic)
+    allow_any_instance_of(Mobile::AppointmentsHelper).to \
+      receive(:get_facility).and_return(mock_facility)
   end
 
   after(:all) do

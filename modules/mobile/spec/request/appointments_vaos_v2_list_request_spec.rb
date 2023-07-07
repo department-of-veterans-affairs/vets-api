@@ -15,10 +15,11 @@ RSpec.describe 'vaos v2 appointments', type: :request do
 
   let(:mock_clinic) do
     mock_clinic = {
-      service_name: 'Friendly Name Optometry'
+      service_name: 'MTZ-LAB (BLOOD WORK)'
     }
 
-    allow_any_instance_of(Mobile::V2::Appointments::Proxy).to receive(:get_clinic).and_return(mock_clinic)
+    allow_any_instance_of(Mobile::AppointmentsHelper).to \
+      receive(:get_clinic).and_return(mock_clinic)
   end
 
   let(:mock_facility) do
@@ -41,7 +42,8 @@ RSpec.describe 'vaos v2 appointments', type: :request do
                       url: nil,
                       code: nil }
 
-    allow_any_instance_of(Mobile::V2::Appointments::Proxy).to receive(:get_facility).and_return(mock_facility)
+    allow_any_instance_of(Mobile::AppointmentsHelper).to \
+      receive(:get_facility).and_return(mock_facility)
 
     known_ids.each do |facility_id|
       allow(Rails.cache).to receive(:fetch).with("vaos_facility_#{facility_id}",
@@ -49,6 +51,10 @@ RSpec.describe 'vaos v2 appointments', type: :request do
                                                    expires_in: 12.hours
                                                  }).and_return(mock_facility.merge(id: facility_id))
     end
+  end
+
+  let(:provider_response) do
+    OpenStruct.new({ 'providerIdentifier' => '1407938061', 'name' => 'DEHGHAN, AMIR' })
   end
 
   describe 'GET /mobile/v0/appointments' do
@@ -65,12 +71,12 @@ RSpec.describe 'vaos v2 appointments', type: :request do
     let(:params) { { startDate: start_date, endDate: end_date, include: ['pending'] } }
 
     context 'backfill facility service returns data' do
-      before { mock_clinic }
-
       it 'location is populated' do
-        VCR.use_cassette('mobile/appointments/VAOS_v2/get_facility_200', match_requests_on: %i[method uri]) do
-          VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
-            get '/mobile/v0/appointments', headers: iam_headers, params:
+        VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinic_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_facility_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params:
+            end
           end
         end
         location = response.parsed_body.dig('data', 0, 'attributes', 'location')
@@ -93,15 +99,13 @@ RSpec.describe 'vaos v2 appointments', type: :request do
     end
 
     context 'backfill facility service returns in error' do
-      before do
-        mock_clinic
-        mock_facility
-      end
-
       it 'location is nil' do
-        VCR.use_cassette('mobile/appointments/VAOS_v2/get_facility_500', match_requests_on: %i[method uri]) do
-          VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
-            get '/mobile/v0/appointments', headers: iam_headers, params:
+        VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinic_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_facility_500', match_requests_on: %i[method uri],
+                                                                           allow_playback_repeats: true) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params:
+            end
           end
         end
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
@@ -110,12 +114,12 @@ RSpec.describe 'vaos v2 appointments', type: :request do
     end
 
     context 'backfill clinic service returns data' do
-      before { mock_facility }
-
       it 'healthcareService is populated' do
         VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinic_200', match_requests_on: %i[method uri]) do
-          VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
-            get '/mobile/v0/appointments', headers: iam_headers, params:
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_facility_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params:
+            end
           end
         end
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
@@ -127,6 +131,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
       before { mock_facility }
 
       it 'healthcareService is nil' do
+        allow_any_instance_of(Mobile::AppointmentsHelper).to receive(:get_clinic).and_return(nil)
         VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinic_bad_facility_id_500',
                          match_requests_on: %i[method uri]) do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200_bad_facility_id',
@@ -139,16 +144,15 @@ RSpec.describe 'vaos v2 appointments', type: :request do
       end
     end
 
-    context 'request VAOS v2 VA appointment' do
-      before do
-        mock_facility
-        mock_clinic
-      end
-
+    context 'when partial appointments data is received' do
       it 'has access and returned va appointments having partial errors' do
-        VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200_partial_error',
-                         match_requests_on: %i[method uri]) do
-          get '/mobile/v0/appointments', headers: iam_headers, params:
+        VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinic_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_facility_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200_partial_error',
+                             match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params:
+            end
+          end
         end
 
         expect(response).to have_http_status(:multi_status)
@@ -175,6 +179,8 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         VCR.use_cassette('mobile/appointments/VAOS_v2/get_all_appointment_200_ruben',
                          match_requests_on: %i[method uri]) do
           VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri], tag: :force_utf8) do
+            allow_any_instance_of(Mobile::V2::Appointments::ProviderNames).to \
+              receive(:fetch_provider).and_return(provider_response)
             get '/mobile/v0/appointments', headers: iam_headers, params:
           end
         end
@@ -208,6 +214,8 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         VCR.use_cassette('mobile/appointments/VAOS_v2/get_all_appointment_200_ruben',
                          match_requests_on: %i[method uri]) do
           VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri], tag: :force_utf8) do
+            allow_any_instance_of(Mobile::V2::Appointments::ProviderNames).to \
+              receive(:fetch_provider).and_return(provider_response)
             get '/mobile/v0/appointments', headers: iam_headers, params:
           end
         end
@@ -238,6 +246,8 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
                          match_requests_on: %i[method uri]) do
           VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri], tag: :force_utf8) do
+            allow_any_instance_of(Mobile::V2::Appointments::ProviderNames).to \
+              receive(:fetch_provider).with('1407938061').and_return(provider_response)
             get '/mobile/v0/appointments', headers: iam_headers
           end
         end
@@ -264,6 +274,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
                            match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/providers/get_provider_400', match_requests_on: %i[method uri],
                                                                   tag: :force_utf8) do
+              allow_any_instance_of(Mobile::V2::Appointments::ProviderNames).to receive(:fetch_provider).and_return(nil)
               get '/mobile/v0/appointments', headers: iam_headers
             end
           end
@@ -276,6 +287,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
                            match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/providers/get_provider_500', match_requests_on: %i[method uri],
                                                                   tag: :force_utf8) do
+              allow_any_instance_of(Mobile::V2::Appointments::ProviderNames).to receive(:fetch_provider).and_return(nil)
               get '/mobile/v0/appointments', headers: iam_headers
             end
           end
