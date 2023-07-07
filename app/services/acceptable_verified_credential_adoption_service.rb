@@ -23,6 +23,8 @@ class AcceptableVerifiedCredentialAdoptionService
 
   def send_email
     email = user.email
+    legacy_credential = logged_in_with_dsl? ? 'DS Logon' : 'My HealtheVet'
+    modern_credential = user_avc&.acceptable_verified_credential_at ? 'Login.gov' : 'ID.me'
 
     return if email.blank?
 
@@ -30,7 +32,9 @@ class AcceptableVerifiedCredentialAdoptionService
       email,
       REACTIVATION_TEMPLATE,
       {
-        # personalization stuff goes here
+        'name' => user.first_name,
+        'legacy_credential' => legacy_credential,
+        'modern_credential' => modern_credential
       }
     )
 
@@ -57,8 +61,11 @@ class AcceptableVerifiedCredentialAdoptionService
     credential_type == SAML::User::MHV_ORIGINAL_CSID
   end
 
+  def user_avc
+    @user_avc ||= UserAcceptableVerifiedCredential.find_by(user_account: user.user_account)
+  end
+
   def verified_credential_at?
-    user_avc = UserAcceptableVerifiedCredential.find_by(user_account: user.user_account)
     user_avc&.acceptable_verified_credential_at || user_avc&.idme_verified_credential_at
   end
 
