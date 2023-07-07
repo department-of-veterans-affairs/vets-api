@@ -116,7 +116,9 @@ module EVSS
       def get_banking_info
         return {} unless @user.authorize :ppiu, :access?
 
-        service = EVSS::PPIU::Service.new(@user)
+        # Call to either EVSS or Lighthouse PPIU/Direct Deposit data provider
+        service = ApiProviderFactory.ppiu_service_provider(@user)
+
         response = service.get_payment_information
         account = response.responses.first.payment_account
 
