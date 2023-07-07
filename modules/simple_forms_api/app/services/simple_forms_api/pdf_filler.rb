@@ -14,10 +14,14 @@ module SimpleFormsApi
     def generate
       template_form_path = "#{TEMPLATE_BASE}/#{form_number}.pdf"
       generated_form_path = "tmp/#{form_number}-tmp.pdf"
+      stamped_template_path = "tmp/#{form_number}-stamped.pdf"
       pdftk = PdfForms.new(Settings.binaries.pdftk)
-      pdftk.fill_form(template_form_path, generated_form_path, mapped_data)
-      PdfStamper.stamp_pdf(generated_form_path, data)
+      FileUtils.copy(template_form_path, stamped_template_path)
+      PdfStamper.stamp_pdf(stamped_template_path, data)
+      pdftk.fill_form(stamped_template_path, generated_form_path, mapped_data, flatten: true)
       generated_form_path
+    ensure
+      Common::FileHelpers.delete_file_if_exists(stamped_template_path) if defined?(stamped_template_path)
     end
 
     def mapped_data

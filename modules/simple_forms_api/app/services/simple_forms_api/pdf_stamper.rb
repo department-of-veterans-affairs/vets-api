@@ -7,26 +7,26 @@ module SimpleFormsApi
     FORM_REQUIRES_STAMP = %w[26-4555 21-4142 21-10210 21P-0847].freeze
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
 
-    def self.stamp_pdf(generated_form_path, data)
+    def self.stamp_pdf(stamped_template_path, data)
       if FORM_REQUIRES_STAMP.include? data['form_number']
         stamp_method = "stamp#{data['form_number'].gsub('-', '')}".downcase
-        send(stamp_method, generated_form_path, data)
+        send(stamp_method, stamped_template_path, data)
       end
       current_time = Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')
       stamp_text = SUBMISSION_TEXT + current_time
       desired_stamps = [[10, 10, stamp_text]]
-      stamp(desired_stamps, generated_form_path, text_only: false)
+      stamp(desired_stamps, stamped_template_path, text_only: false)
     end
 
-    def self.stamp264555(generated_form_path, data)
+    def self.stamp264555(stamped_template_path, data)
       desired_stamps = []
       desired_stamps.append([73, 390, 'X']) if data['previous_sah_application']['has_previous_sah_application'] == false
       desired_stamps.append([73, 355, 'X']) if data['previous_hi_application']['has_previous_hi_application'] == false
       desired_stamps.append([73, 320, 'X']) if data['living_situation']['is_in_care_facility'] == false
-      stamp(desired_stamps, generated_form_path)
+      stamp(desired_stamps, stamped_template_path)
     end
 
-    def self.stamp214142(generated_form_path, data)
+    def self.stamp214142(stamped_template_path, data)
       desired_stamps = [[50, 560]]
       first_name = data.dig('preparer_identification', 'preparer_full_name', 'first')
       middle_name = data.dig('preparer_identification', 'preparer_full_name', 'middle')
@@ -39,10 +39,10 @@ module SimpleFormsApi
         { type: :new_page }
       ]
 
-      multistamp(generated_form_path, signature_text, page_configuration)
+      multistamp(stamped_template_path, signature_text, page_configuration)
     end
 
-    def self.stamp2110210(generated_form_path, data)
+    def self.stamp2110210(stamped_template_path, data)
       desired_stamps = [[50, 160]]
       first_name, middle_name, last_name = get_name_to_stamp10210(data)
       signature_text = "#{first_name} #{middle_name} #{last_name}"
@@ -52,10 +52,10 @@ module SimpleFormsApi
         { type: :text, position: desired_stamps[0] }
       ]
 
-      multistamp(generated_form_path, signature_text, page_configuration)
+      multistamp(stamped_template_path, signature_text, page_configuration)
     end
 
-    def self.stamp21p0847(generated_form_path, data)
+    def self.stamp21p0847(stamped_template_path, data)
       desired_stamps = [[50, 190]]
       first_name = data.dig('preparer_name', 'first')
       middle_name = data.dig('preparer_name', 'middle')
@@ -66,10 +66,10 @@ module SimpleFormsApi
         { type: :text, position: desired_stamps[0] }
       ]
 
-      multistamp(generated_form_path, signature_text, page_configuration)
+      multistamp(stamped_template_path, signature_text, page_configuration)
     end
 
-    def self.multistamp(generated_form_path, signature_text, page_configuration)
+    def self.multistamp(stamped_template_path, signature_text, page_configuration)
       stamp_path = Common::FileHelpers.random_file_path
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
         page_configuration.each do |config|
@@ -82,7 +82,7 @@ module SimpleFormsApi
         end
       end
 
-      perform_multistamp(generated_form_path, stamp_path)
+      perform_multistamp(stamped_template_path, stamp_path)
     rescue => e
       Rails.logger.error "Failed to generate stamped file: #{e.message}"
       raise
@@ -111,21 +111,21 @@ module SimpleFormsApi
       [first_name, middle_name, last_name]
     end
 
-    def self.stamp(desired_stamps, generated_form_path, text_only: true)
-      current_file_path = generated_form_path
+    def self.stamp(desired_stamps, stamped_template_path, text_only: true)
+      current_file_path = stamped_template_path
       desired_stamps.each do |x, y, text|
         out_path = CentralMail::DatestampPdf.new(current_file_path).run(text:, x:, y:, text_only:)
         current_file_path = out_path
       end
-      File.rename(current_file_path, generated_form_path)
+      File.rename(current_file_path, stamped_template_path)
     end
 
-    def self.perform_multistamp(generated_form_path, stamp_path)
+    def self.perform_multistamp(stamped_template_path, stamp_path)
       out_path = "#{Common::FileHelpers.random_file_path}.pdf"
       pdftk = PdfFill::Filler::PDF_FORMS
-      pdftk.multistamp(generated_form_path, stamp_path, out_path)
-      File.delete(generated_form_path)
-      File.rename(out_path, generated_form_path)
+      pdftk.multistamp(stamped_template_path, stamp_path, out_path)
+      File.delete(stamped_template_path)
+      File.rename(out_path, stamped_template_path)
     rescue
       Common::FileHelpers.delete_file_if_exists(out_path)
       raise
