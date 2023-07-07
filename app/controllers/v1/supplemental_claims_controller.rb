@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require 'decision_review_v1/utilities/constants'
+require 'decision_review_v1/utilities/helpers'
+
 module V1
   class SupplementalClaimsController < AppealsBaseControllerV1
-    FORM4142_ID = '4142'
-    SUPP_CLAIM_FORM_ID = '20-0995'
+    include DecisionReviewV1::Appeals::Helpers
 
     def show
       render json: decision_review_service.get_supplemental_claim(params[:id]).body
@@ -27,7 +29,7 @@ module V1
         ::Rails.logger.info(post_create_log_msg(appeal_submission_id:, submitted_appeal_uuid:))
         if form4142.present?
           handle_4142(request_body: req_body_obj,
-                      form4142:, response: sc_response,
+                      form4142:,
                       appeal_submission_id:, submitted_appeal_uuid:)
         end
         submit_evidence(sc_evidence, appeal_submission_id, submitted_appeal_uuid) if sc_evidence.present?
@@ -49,25 +51,23 @@ module V1
       }
     end
 
-    def handle_4142(request_body:, form4142:, response:, appeal_submission_id:, submitted_appeal_uuid:)
-      decision_review_service.process_form4142_submission(
-        request_body:, form4142:, user: @current_user, response:
-      )
-    rescue => e
-      handle_form4142_error(e, appeal_submission_id, submitted_appeal_uuid)
+    def handle_4142(request_body:, form4142:, appeal_submission_id:, submitted_appeal_uuid:)
+      rejiggered_payload = get_and_rejigger_required_info(request_body:, form4142:, user: @current_user)
+      jid = decision_review_service.queue_form4142(appeal_submission_id:, rejiggered_payload:, submitted_appeal_uuid:)
+      log_form4142_job_queued(appeal_submission_id, submitted_appeal_uuid, jid)
     end
 
-    def handle_form4142_error(e, appeal_submission_id, submitted_appeal_uuid)
-      ::Rails.logger.error({
-                             error_message: e.message,
-                             form_id: FORM4142_ID,
-                             parent_form_id: SUPP_CLAIM_FORM_ID,
-                             message: 'Supplemental Claim Form4142 Could not be created or sent.',
-                             appeal_submission_id:,
-                             lighthouse_submission: {
-                               id: submitted_appeal_uuid
-                             }
-                           })
+    def log_form4142_job_queued(appeal_submission_id, submitted_appeal_uuid, jid)
+      ::Rails.logger.info({
+                            form_id: DecisionReviewV1::FORM4142_ID,
+                            parent_form_id: DecisionReviewV1::SUPP_CLAIM_FORM_ID,
+                            message: 'Supplemental Claim Form4142 queued.',
+                            jid:,
+                            appeal_submission_id:,
+                            lighthouse_submission: {
+                              id: submitted_appeal_uuid
+                            }
+                          })
     end
 
     def submit_evidence(sc_evidence, appeal_submission_id, submitted_appeal_uuid)
@@ -75,7 +75,7 @@ module V1
       # replicating instead. There is some duplicate code but I want them jids in the logs.
       jids = decision_review_service.queue_submit_evidence_uploads(sc_evidence, appeal_submission_id)
       ::Rails.logger.info({
-                            form_id: SUPP_CLAIM_FORM_ID,
+                            form_id: DecisionReviewV1::SUPP_CLAIM_FORM_ID,
                             message: 'Supplemental Claim Evidence jobs created.',
                             appeal_submission_id:,
                             lighthouse_submission: {
