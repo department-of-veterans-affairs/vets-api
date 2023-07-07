@@ -66,8 +66,7 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
                 'threadId' => 2_800_585,
                 'folderId' => -2,
                 'draftDate' => '2023-05-16T14:55:01.000+00:00',
-                'toDate' => nil,
-                'hasAttachments' => false
+                'toDate' => nil
               },
               'links' => {
                 'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573052'
@@ -94,8 +93,7 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
                 'threadId' => 2_800_585,
                 'folderId' => -2,
                 'draftDate' => '2023-05-16T14:55:01.000+00:00',
-                'toDate' => nil,
-                'hasAttachments' => false
+                'toDate' => nil
               },
               'links' => {
                 'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573041'
