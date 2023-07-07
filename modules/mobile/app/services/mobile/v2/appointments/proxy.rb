@@ -16,7 +16,7 @@ module Mobile
           statuses = include_pending ? VAOS_STATUSES : VAOS_STATUSES.excluding('proposed')
 
           # VAOS V2 appointments service accepts pagination params but either it formats them incorrectly
-          # or the upstream serice does not use them.
+          # or the upstream service does not use them.
           response = vaos_v2_appointments_service.get_appointments(start_date, end_date, statuses.join(','),
                                                                    pagination_params)
 
@@ -42,21 +42,10 @@ module Mobile
             next unless facility_id
 
             cached = cached_facilities[facility_id]
-            cached_facilities[facility_id] = get_facility(facility_id) unless cached
+            cached_facilities[facility_id] = appointments_helper.get_facility(facility_id) unless cached
 
             appt[:location] = cached_facilities[facility_id]
           end
-        end
-
-        def get_facility(location_id)
-          vaos_mobile_facility_service.get_facility_with_cache(location_id)
-        rescue Common::Exceptions::BackendServiceException => e
-          Rails.logger.error(
-            "Error fetching facility details for location_id #{location_id}",
-            location_id:,
-            vamf_msg: e.original_body
-          )
-          nil
         end
 
         def merge_auxiliary_clinic_info(appointments)
@@ -66,7 +55,7 @@ module Mobile
             next unless clinic_id
 
             cached = cached_clinics[clinic_id]
-            cached_clinics[clinic_id] = get_clinic(appt[:location_id], clinic_id) unless cached
+            cached_clinics[clinic_id] = appointments_helper.get_clinic(appt[:location_id], clinic_id) unless cached
 
             service_name = cached_clinics.dig(clinic_id, :service_name)
             appt[:service_name] = service_name
@@ -74,18 +63,6 @@ module Mobile
             physical_location = cached_clinics.dig(clinic_id, :physical_location)
             appt[:physical_location] = physical_location
           end
-        end
-
-        def get_clinic(location_id, clinic_id)
-          vaos_mobile_facility_service.get_clinic(station_id: location_id, clinic_id:)
-        rescue Common::Exceptions::BackendServiceException => e
-          Rails.logger.error(
-            "Error fetching clinic #{clinic_id} for location #{location_id}",
-            clinic_id:,
-            location_id:,
-            vamf_msg: e.original_body
-          )
-          nil
         end
 
         def merge_provider_names(appointments)
@@ -97,8 +74,8 @@ module Mobile
           end
         end
 
-        def vaos_mobile_facility_service
-          VAOS::V2::MobileFacilityService.new(@user)
+        def appointments_helper
+          Mobile::AppointmentsHelper.new(@user)
         end
 
         def vaos_v2_appointments_service

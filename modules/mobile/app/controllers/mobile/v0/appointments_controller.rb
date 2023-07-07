@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'mobile/v0/vaos_appointments/appointments_helper'
-
 module Mobile
   module V0
     class AppointmentsController < ApplicationController
@@ -114,7 +112,7 @@ module Mobile
       end
 
       def appointments_helper
-        @appointments_helper ||= Mobile::V0::VAOSAppointments::AppointmentsHelper.new(@current_user)
+        @appointments_helper ||= Mobile::AppointmentsHelper.new(@current_user)
       end
 
       def appointments_cache_interface
