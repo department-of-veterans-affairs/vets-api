@@ -506,7 +506,7 @@ module ClaimsApi
         rescue => e
           ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'getting docs failed', exception: e)
           log_message_to_sentry('Error in Claims v2 show calling EVSS Doc Service',
-                                :error,
+                                :warning,
                                 body: e.message)
           {}
         end
