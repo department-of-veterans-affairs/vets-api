@@ -40,7 +40,7 @@ module EMISRedis
       last_service_branch
       currently_active_duty
       currently_active_duty_hash
-      tours_of_duty
+      tours_of_duty                                # Started by TT1
       last_entry_date                              # done by the 1010 team
       last_discharge_date                          # done by the 1010 team
       is_va_service_connected
@@ -48,7 +48,7 @@ module EMISRedis
       sw_asia_combat                               # done by the 1010 team
       compensable_va_service_connected
       discharge_type                               # done by the 1010 team
-      service_branches
+      service_branches                             # started by TT1
       va_compensation_type
       service_periods
       guard_reserve_service_history
