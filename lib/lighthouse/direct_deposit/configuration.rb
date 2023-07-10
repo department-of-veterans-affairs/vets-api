@@ -95,7 +95,7 @@ module DirectDeposit
       token = settings.access_token
 
       @token_service ||= Auth::ClientCredentials::Service.new(
-        url, API_SCOPES, token.client_id, token.aud_claim_url, token.rsa_key
+        url, API_SCOPES, token.client_id, token.aud_claim_url, token.rsa_key, 'direct-deposit'
       )
     end
   end
