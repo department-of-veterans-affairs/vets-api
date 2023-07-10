@@ -7,13 +7,17 @@ require 'dgi/status/service'
 module MebApi
   module V0
     class BaseController < ::ApplicationController
-      protected
+      before_action :authorize_access
+
+      private
+
+      def authorize_access
+        authorize(current_user, :access?, policy_class: MebPolicy)
+      end
 
       def check_forms_flipper
         routing_error unless Flipper.enabled?(:show_forms_app)
       end
-
-      private
 
       def claim_status_service
         MebApi::DGI::Status::Service.new(@current_user)
