@@ -15,6 +15,8 @@ class AppealsApi::MonthlyStatsReport
     recipients = load_recipients(:stats_report_monthly)
     return if recipients.empty?
 
+    friendly_env = (Settings.vsp_environment || Rails.env).titleize
+
     date_to = Time.zone.parse(end_date).beginning_of_day
     date_from = (date_to - 1.month).beginning_of_day
 
@@ -22,7 +24,7 @@ class AppealsApi::MonthlyStatsReport
       date_from:,
       date_to:,
       recipients:,
-      subject: "Lighthouse appeals stats report for month starting #{date_from.strftime('%Y-%m-%d')}"
+      subject: "Lighthouse appeals stats report for month starting #{date_from.strftime('%Y-%m-%d')} (#{friendly_env})"
     ).deliver_now
   end
 

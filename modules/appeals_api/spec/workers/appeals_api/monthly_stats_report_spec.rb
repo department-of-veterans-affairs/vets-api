@@ -36,7 +36,7 @@ describe AppealsApi::MonthlyStatsReport do
             date_from: (end_date - 1.month).beginning_of_day,
             date_to: end_date.beginning_of_day,
             recipients:,
-            subject: 'Lighthouse appeals stats report for month starting 2021-12-02'
+            subject: 'Lighthouse appeals stats report for month starting 2021-12-02 (Test)'
           ).and_call_original
 
           described_class.new.perform
