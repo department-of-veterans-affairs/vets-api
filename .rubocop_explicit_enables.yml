@@ -278,11 +278,11 @@ RSpec/SubjectDeclaration: # new in 2.5
   Enabled: true
 RSpec/VerifiedDoubleReference: # new in 2.10.0
   Enabled: true
-RSpec/FactoryBot/ConsistentParenthesesStyle: # new in 2.14
+FactoryBot/ConsistentParenthesesStyle: # new in 2.14
   Enabled: true
-RSpec/FactoryBot/FactoryNameStyle: # new in 2.16
+FactoryBot/FactoryNameStyle: # new in 2.16
   Enabled: true
-RSpec/FactoryBot/SyntaxMethods: # new in 2.7
+FactoryBot/SyntaxMethods: # new in 2.7
   Enabled: true
 RSpec/Rails/AvoidSetupHook: # new in 2.4
   Enabled: true
