@@ -46,6 +46,34 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
       { 'data' =>
           [
             {
+              'id' => '573059',
+              'type' => 'message_thread_details',
+              'attributes' => {
+                'messageId' => 573_059,
+                'category' => 'OTHER',
+                'subject' => 'Release 16.2 - SM last login ',
+                'body' => 'Provider Reply',
+                'messageBody' => 'Provider Reply',
+                'attachment' => false,
+                'sentDate' => nil,
+                'senderId' => 257_555,
+                'senderName' => 'ISLAM, MOHAMMAD',
+                'recipientId' => 384_939,
+                'recipientName' => 'MVIONE, TEST',
+                'readReceipt' => 'READ',
+                'triageGroupName' => 'VA Flagship mobile applications interface 1_DAYT29',
+                'proxySenderName' => nil,
+                'threadId' => 2_800_585,
+                'folderId' => -2,
+                'draftDate' => '2023-05-16T14:55:01.000+00:00',
+                'toDate' => nil,
+                'hasAttachments' => false
+              },
+              'links' => {
+                'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573059'
+              }
+            },
+            {
               'id' => '573052',
               'type' => 'message_thread_details',
               'attributes' => {
@@ -66,7 +94,8 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
                 'threadId' => 2_800_585,
                 'folderId' => -2,
                 'draftDate' => '2023-05-16T14:55:01.000+00:00',
-                'toDate' => nil
+                'toDate' => nil,
+                'hasAttachments' => false
               },
               'links' => {
                 'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573052'
@@ -93,7 +122,8 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
                 'threadId' => 2_800_585,
                 'folderId' => -2,
                 'draftDate' => '2023-05-16T14:55:01.000+00:00',
-                'toDate' => nil
+                'toDate' => nil,
+                'hasAttachments' => false
               },
               'links' => {
                 'self' => 'http://www.example.com/mobile/v0/messaging/health/messages/573041'
@@ -105,13 +135,26 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
     describe '#thread' do
       let(:thread_id) { 573_059 }
 
-      it 'responds to GET #thread' do
+      it 'includes provided message' do
         VCR.use_cassette('mobile/messages/v1_get_thread') do
           get "/mobile/v1/messaging/health/messages/#{thread_id}/thread", headers: iam_headers
         end
 
         expect(response).to be_successful
         expect(response.parsed_body).to eq(thread_response)
+        expect(response.parsed_body['data'].any? { |m| m['id'] == thread_id.to_s }).to be true
+      end
+
+      it 'filters the provided message' do
+        VCR.use_cassette('mobile/messages/v1_get_thread') do
+          get "/mobile/v1/messaging/health/messages/#{thread_id}/thread",
+              headers: iam_headers,
+              params: { excludeProvidedMessage: true }
+        end
+
+        expect(response).to be_successful
+        expect(response.parsed_body['data']).to eq(thread_response['data'].filter { |m| m['id'] != thread_id.to_s })
+        expect(response.parsed_body['data'].any? { |m| m['id'] == thread_id.to_s }).to be false
       end
     end
   end

@@ -103,6 +103,9 @@ properties:
               type: string
               nullable: true
               example: 2017-09-01T16:09:56.000Z
+            hasAttachment:
+              type: boolean
+              example: false
         links:
           type: object
           required:

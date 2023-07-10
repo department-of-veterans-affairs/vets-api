@@ -2535,10 +2535,17 @@ paths:
     get:
       description: |
         Gets a list of message summaries that are related to the message of the passed id regardless of their age in 
-        relation to the message of the id provided. Does <strong>not</strong> include the message of the passed id itself.
+        relation to the message of the id provided. Unless specified in the query parameters, this <strong>does</strong> 
+        include the message of the passed id itself.
       operationId: get_message_thread
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+        - description: Excludes the message with the provided message id
+          in: query
+          name: 'excludeProvidedMessage'
+          required: false
+          schema:
+            type: boolean
       responses:
         '200':
           content:
