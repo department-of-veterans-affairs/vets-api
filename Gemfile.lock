@@ -623,7 +623,7 @@ GEM
     nio4r (2.5.9)
     nio4r (2.5.9-java)
     no_proxy_fix (0.1.2)
-    nokogiri (1.15.2)
+    nokogiri (1.15.3)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     nori (2.6.0)
