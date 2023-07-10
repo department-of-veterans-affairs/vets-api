@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: "<MHV_MR_HOST>/fhir/DiagnosticReport?category=LAB&patient=258974"
+      uri: "<MHV_MR_HOST>/fhir/DiagnosticReport?_count=100&category=LAB&patient=258974"
       body:
         encoding: US-ASCII
         string: ""

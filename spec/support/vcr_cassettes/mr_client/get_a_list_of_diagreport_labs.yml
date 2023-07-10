@@ -1,0 +1,327 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: "<MHV_MR_HOST>/fhir/DiagnosticReport?_count=100&code=79381-0,60567-5&patient=49006"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/fhir+json
+        User-Agent:
+          - Ruby FHIR Client
+        Accept-Charset:
+          - utf-8
+        Authorization:
+          - Bearer SESSION_TOKEN
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Host:
+          - localhost:2003
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Server:
+          - nginx/1.18.0 (Ubuntu)
+        Date:
+          - Fri, 19 May 2023 17:42:02 GMT
+        Content-Type:
+          - application/fhir+json;charset=utf-8
+        Transfer-Encoding:
+          - chunked
+        Connection:
+          - keep-alive
+        X-Powered-By:
+          - HAPI FHIR 6.7.3-SNAPSHOT/d94627c382/2023-05-18 REST Server (FHIR Server; FHIR
+            4.0.1/R4)
+        X-Request-Id:
+          - 1qFsIymSUCuUprAc
+        Last-Modified:
+          - Fri, 19 May 2023 17:42:02 GMT
+      body:
+        encoding: UTF-8
+        string: |-
+          {
+            "resourceType": "Bundle",
+            "id": "e0d74d78-4529-4050-adc7-bf1360641636",
+            "meta": {
+              "lastUpdated": "2023-05-19T17:42:02.131+00:00"
+            },
+            "type": "searchset",
+            "total": 2,
+            "link": [
+              {
+                "relation": "self",
+                "url": "<MHV_MR_HOST>/fhir/DiagnosticReport?category=LAB&patient=258974"
+              }
+            ],
+            "entry": [
+              {
+                "resourceType": "DiagnosticReport",
+                "id": "ex-MHV-labReport-1",
+                "meta": {
+                  "profile": [
+                    "https://johnmoehrke.github.io/MHV-PHR/StructureDefinition/VA.MHV.PHR.labReport"
+                  ]
+                },
+                "text": {
+                  "status": "generated",
+                  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><h2><span title=\"Codes: {http://loinc.org 79381-0}\">LR MICROBIOLOGY REPORT</span> (<span title=\"Codes: {http://terminology.hl7.org/CodeSystem/v2-0074 LAB}\">Laboratory</span>) </h2><table class=\"grid\"><tr><td>Subject</td><td><b>MTPZEROTWO,DAYTSHR</b> male, DoB Unknown ( id:\u00a01013699147\u00a0(use:\u00a0OFFICIAL))</td></tr><tr><td>When For</td><td>1995-08-03 14:49:00+0000</td></tr><tr><td>Reported</td><td>1995-08-03 14:49:00+0000</td></tr><tr><td>Identifier:</td><td> id:\u00a0LabReportTO.MI;7049269\u00a0(use:\u00a0USUAL)</td></tr></table><p><b>Report Details</b></p><table class=\"grid\"><tr><td><b>Code</b></td><td><b>Value</b></td><td><b>When For</b></td></tr><tr><td colspan=\"3\"><i>This Observation could not be resolved</i></td></tr></table><p>Accession [UID]: PARAS 95 264 []            Received: Aug 01, 1995@11:02\nCollection sample: STOOL               Collection date: Jul 30, 1995\nSite/Specimen: FECES\nProvider: MANGAS,PHYLLIS A\n\n* PARASITOLOGY FINAL REPORT =&gt; Aug 03, 1995   TECH CODE: 1003\nParasitology Remark(s):\nNO OVA OR PARASITES FOUND</p></div>"
+                },
+                "contained": [
+                  {
+                    "resourceType": "Observation",
+                    "id": "ex-MHV-labTest-1",
+                    "meta": {
+                      "profile": [
+                        "https://johnmoehrke.github.io/MHV-PHR/StructureDefinition/VA.MHV.PHR.labTest"
+                      ]
+                    },
+                    "identifier": [
+                      {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "LabTestTO.MI;7049269;1"
+                      }
+                    ],
+                    "status": "final",
+                    "category": [
+                      {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "laboratory"
+                          }
+                        ]
+                      }
+                    ],
+                    "code": {
+                      "text": "Parasitology Remark(s)"
+                    },
+                    "subject": {
+                      "reference": "Patient/ex-MHV-patient-1"
+                    },
+                    "effectiveDateTime": "1995-08-03T14:49:00Z",
+                    "performer": [
+                      {
+                        "reference": "Organization/ex-MHV-organization-989"
+                      }
+                    ],
+                    "valueString": "NO OVA OR PARASITES FOUND"
+                  },
+                  {
+                    "resourceType": "Specimen",
+                    "id": "ex-MHV-specimen-1",
+                    "meta": {
+                      "profile": [
+                        "https://johnmoehrke.github.io/MHV-PHR/StructureDefinition/VA.MHV.PHR.LabSpecimen"
+                      ]
+                    },
+                    "identifier": [
+                      {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "LabSpecimenTO.6Y100"
+                      }
+                    ],
+                    "accessionIdentifier": {
+                      "use": "usual",
+                      "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                      "value": "PARAS 95 264"
+                    },
+                    "status": "available",
+                    "type": {
+                      "text": "FECES"
+                    },
+                    "collection": {
+                      "collectedDateTime": "1995-07-30"
+                    }
+                  }
+                ],
+                "identifier": [
+                  {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                    "value": "LabReportTO.MI;7049269"
+                  }
+                ],
+                "status": "final",
+                "category": [
+                  {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                        "code": "LAB"
+                      }
+                    ]
+                  }
+                ],
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://loinc.org",
+                      "code": "79381-0"
+                    }
+                  ],
+                  "text": "LR MICROBIOLOGY REPORT"
+                },
+                "subject": {
+                  "reference": "Patient/ex-MHV-patient-1"
+                },
+                "effectiveDateTime": "1995-08-03T14:49:00Z",
+                "issued": "1995-08-03T14:49:00Z",
+                "performer": [
+                  {
+                    "reference": "Organization/ex-MHV-organization-989"
+                  }
+                ],
+                "specimen": [
+                  {
+                    "reference": "#ex-MHV-specimen-1"
+                  }
+                ],
+                "result": [
+                  {
+                    "reference": "#ex-MHV-labTest-1"
+                  }
+                ],
+                "conclusion": "Accession [UID]: PARAS 95 264 []            Received: Aug 01, 1995@11:02\nCollection sample: STOOL               Collection date: Jul 30, 1995\nSite/Specimen: FECES\nProvider: MANGAS,PHYLLIS A\n\n* PARASITOLOGY FINAL REPORT => Aug 03, 1995   TECH CODE: 1003\nParasitology Remark(s):\nNO OVA OR PARASITES FOUND"
+              },
+              {
+                "resourceType": "DiagnosticReport",
+                "id": "ex-MHV-labReport-1",
+                "meta": {
+                  "profile": [
+                    "https://johnmoehrke.github.io/MHV-PHR/StructureDefinition/VA.MHV.PHR.labReport"
+                  ]
+                },
+                "text": {
+                  "status": "generated",
+                  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><h2><span title=\"Codes: {http://loinc.org 79381-0}\">LR MICROBIOLOGY REPORT</span> (<span title=\"Codes: {http://terminology.hl7.org/CodeSystem/v2-0074 LAB}\">Laboratory</span>) </h2><table class=\"grid\"><tr><td>Subject</td><td><b>MTPZEROTWO,DAYTSHR</b> male, DoB Unknown ( id:\u00a01013699147\u00a0(use:\u00a0OFFICIAL))</td></tr><tr><td>When For</td><td>1995-08-03 14:49:00+0000</td></tr><tr><td>Reported</td><td>1995-08-03 14:49:00+0000</td></tr><tr><td>Identifier:</td><td> id:\u00a0LabReportTO.MI;7049269\u00a0(use:\u00a0USUAL)</td></tr></table><p><b>Report Details</b></p><table class=\"grid\"><tr><td><b>Code</b></td><td><b>Value</b></td><td><b>When For</b></td></tr><tr><td colspan=\"3\"><i>This Observation could not be resolved</i></td></tr></table><p>Accession [UID]: PARAS 95 264 []            Received: Aug 01, 1995@11:02\nCollection sample: STOOL               Collection date: Jul 30, 1995\nSite/Specimen: FECES\nProvider: MANGAS,PHYLLIS A\n\n* PARASITOLOGY FINAL REPORT =&gt; Aug 03, 1995   TECH CODE: 1003\nParasitology Remark(s):\nNO OVA OR PARASITES FOUND</p></div>"
+                },
+                "contained": [
+                  {
+                    "resourceType": "Observation",
+                    "id": "ex-MHV-labTest-1",
+                    "meta": {
+                      "profile": [
+                        "https://johnmoehrke.github.io/MHV-PHR/StructureDefinition/VA.MHV.PHR.labTest"
+                      ]
+                    },
+                    "identifier": [
+                      {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "LabTestTO.MI;7049269;1"
+                      }
+                    ],
+                    "status": "final",
+                    "category": [
+                      {
+                        "coding": [
+                          {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "laboratory"
+                          }
+                        ]
+                      }
+                    ],
+                    "code": {
+                      "text": "Parasitology Remark(s)"
+                    },
+                    "subject": {
+                      "reference": "Patient/ex-MHV-patient-1"
+                    },
+                    "effectiveDateTime": "1995-08-03T14:49:00Z",
+                    "performer": [
+                      {
+                        "reference": "Organization/ex-MHV-organization-989"
+                      }
+                    ],
+                    "valueString": "NO OVA OR PARASITES FOUND"
+                  },
+                  {
+                    "resourceType": "Specimen",
+                    "id": "ex-MHV-specimen-1",
+                    "meta": {
+                      "profile": [
+                        "https://johnmoehrke.github.io/MHV-PHR/StructureDefinition/VA.MHV.PHR.LabSpecimen"
+                      ]
+                    },
+                    "identifier": [
+                      {
+                        "use": "usual",
+                        "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                        "value": "LabSpecimenTO.6Y100"
+                      }
+                    ],
+                    "accessionIdentifier": {
+                      "use": "usual",
+                      "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                      "value": "PARAS 95 264"
+                    },
+                    "status": "available",
+                    "type": {
+                      "text": "FECES"
+                    },
+                    "collection": {
+                      "collectedDateTime": "1995-07-30"
+                    }
+                  }
+                ],
+                "identifier": [
+                  {
+                    "use": "usual",
+                    "system": "urn:oid:2.16.840.1.113883.4.349.4.989",
+                    "value": "LabReportTO.MI;7049269"
+                  }
+                ],
+                "status": "final",
+                "category": [
+                  {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                        "code": "LAB"
+                      }
+                    ]
+                  }
+                ],
+                "code": {
+                  "coding": [
+                    {
+                      "system": "http://loinc.org",
+                      "code": "79381-0"
+                    }
+                  ],
+                  "text": "LR MICROBIOLOGY REPORT"
+                },
+                "subject": {
+                  "reference": "Patient/ex-MHV-patient-1"
+                },
+                "effectiveDateTime": "1995-08-03T14:49:00Z",
+                "issued": "1995-08-03T14:49:00Z",
+                "performer": [
+                  {
+                    "reference": "Organization/ex-MHV-organization-989"
+                  }
+                ],
+                "specimen": [
+                  {
+                    "reference": "#ex-MHV-specimen-1"
+                  }
+                ],
+                "result": [
+                  {
+                    "reference": "#ex-MHV-labTest-1"
+                  }
+                ],
+                "conclusion": "Accession [UID]: PARAS 95 264 []            Received: Aug 01, 1995@11:02\nCollection sample: STOOL               Collection date: Jul 30, 1995\nSite/Specimen: FECES\nProvider: MANGAS,PHYLLIS A\n\n* PARASITOLOGY FINAL REPORT => Aug 03, 1995   TECH CODE: 1003\nParasitology Remark(s):\nNO OVA OR PARASITES FOUND"
+              }
+            ]
+          }
+    recorded_at: Wed, 05 Jul 2023 16:00:17 GMT
+recorded_with: VCR 6.2.0

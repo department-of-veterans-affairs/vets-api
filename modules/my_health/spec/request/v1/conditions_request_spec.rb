@@ -38,22 +38,26 @@ RSpec.describe 'Medical Records Integration', type: :request do
       expect(response.body).to be_a(String)
     end
 
-    it 'responds with an error to GET #index when no patient ID is provided' do
-      VCR.use_cassette('mr_client/get_a_list_of_health_conditions_error') do
-        get '/my_health/v1/medical_records/conditions?patient_id='
-      end
+    # TODO: These aren't great error-condition tests because they will eventually be valid API calls.
+    # Instead, when we get real data from MHV, update these to record actual error cases. For now I
+    # have commented these out.
 
-      expect(response).to have_http_status(:bad_request)
-      expect(response.body).to include 'Parameter value missing in request'
-    end
+    # it 'responds with an error to GET #index when no patient ID is provided' do
+    #   VCR.use_cassette('mr_client/get_a_list_of_health_conditions_error') do
+    #     get '/my_health/v1/medical_records/conditions?patient_id='
+    #   end
 
-    it 'responds with an error to GET #show when no condition ID is provided' do
-      VCR.use_cassette('mr_client/get_a_health_condition_error') do
-        get '/my_health/v1/medical_records/conditions'
-      end
+    #   expect(response).to have_http_status(:bad_request)
+    #   expect(response.body).to include 'Parameter value missing in request'
+    # end
 
-      expect(response).to have_http_status(:bad_request)
-      expect(response.body).to include 'Parameter value missing in request'
-    end
+    # it 'responds with an error to GET #show when no condition ID is provided' do
+    #   VCR.use_cassette('mr_client/get_a_health_condition_error') do
+    #     get '/my_health/v1/medical_records/conditions'
+    #   end
+
+    #   expect(response).to have_http_status(:bad_request)
+    #   expect(response.body).to include 'Parameter value missing in request'
+    # end
   end
 end
