@@ -36,18 +36,18 @@ module EMISRedis
 
     # Data methods used to populate +FormMilitaryInformation+ prefill class
     PREFILL_METHODS = %i[
-      hca_last_service_branch
+      hca_last_service_branch                      # done by the 1010 team
       last_service_branch
       currently_active_duty
       currently_active_duty_hash
       tours_of_duty
-      last_entry_date
-      last_discharge_date
+      last_entry_date                              # done by the 1010 team
+      last_discharge_date                          # done by the 1010 team
       is_va_service_connected
-      post_nov111998_combat
-      sw_asia_combat
+      post_nov111998_combat                        # done by the 1010 team
+      sw_asia_combat                               # done by the 1010 team
       compensable_va_service_connected
-      discharge_type
+      discharge_type                               # done by the 1010 team
       service_branches
       va_compensation_type
       service_periods
