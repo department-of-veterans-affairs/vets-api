@@ -47,8 +47,11 @@ module Common
           # req_headers = env.request_headers
           res_headers = env.response_headers
           jwt_token = res_headers['authorization'].sub('Bearer ', '')
+          expires = (DateTime.now + Rational(3600, 86_400)).rfc2822
           @session.class.new(user_id: session.user_id.to_s,
+                             # TODO: If MHV updates API to include this field, use the version from their headers
                              #  expires_at: res_headers['expires'],
+                             expires_at: expires,
                              token: jwt_token)
         end
 

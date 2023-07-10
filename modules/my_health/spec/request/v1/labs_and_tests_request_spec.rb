@@ -21,8 +21,12 @@ RSpec.describe 'Medical Records Integration', type: :request do
     let(:mhv_account_type) { 'Premium' }
 
     it 'responds to GET #index' do
-      VCR.use_cassette('mr_client/get_a_list_of_labs_and_tests') do
-        get '/my_health/v1/medical_records/labs_and_tests?patient_id=258974'
+      VCR.use_cassette('mr_client/get_a_list_of_chemhem_labs') do
+        VCR.use_cassette('mr_client/get_a_list_of_diagreport_labs') do
+          VCR.use_cassette('mr_client/get_a_list_of_docref_labs') do
+            get '/my_health/v1/medical_records/labs_and_tests?patient_id=49006'
+          end
+        end
       end
 
       expect(response).to be_successful
