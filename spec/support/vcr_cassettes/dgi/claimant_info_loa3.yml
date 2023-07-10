@@ -1,0 +1,42 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/claimType/Chapter33/claimants
+    body:
+      encoding: UTF-8
+      string: '{"ssn":"777097308"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - removed
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 201
+      message: ''
+    headers:
+      Server:
+      - nginx/1.21.6
+      Date:
+      - Thu, 06 Jul 2023 22:03:06 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+    body:
+      encoding: UTF-8
+      string: '{"claimant":{"claimantId":300000000000021,"suffix":null,"dateOfBirth":"1988-05-10","firstName":"Sona","lastName":"Koelpin","middleName":"Hermina","notificationMethod":"NONE","contactInfo":{"addressLine1":"2415
+        Wilkinson Valleys","addressLine2":"Apt. 869","city":"Prohaskaburgh","zipcode":"28177-3975","emailAddress":null,"addressType":"DOMESTIC","mobilePhoneNumber":"5401113334","homePhoneNumber":"5401114445","countryCode":"US","stateCode":"VA"},"preferredContact":null},"serviceData":[{"branchOfService":"Marine
+        Corps","beginDate":"2009-01-01","endDate":"2019-12-01","characterOfService":"Honorable","reasonForSeparation":"Expiration
+        Term Of Service","exclusionPeriods":[],"trainingPeriods":[]}],"toeSponsors":null}'
+  recorded_at: Thu, 06 Jul 2023 22:03:06 GMT
+recorded_with: VCR 6.2.0
