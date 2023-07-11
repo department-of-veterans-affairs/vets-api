@@ -10,7 +10,8 @@ module V0
     before_action :authenticate_jwt, only: [:create]
 
     def index
-      render(json: OnsiteNotification.for_user(current_user))
+      notifications = OnsiteNotification.for_user(current_user, include_dismissed: params[:include_dismissed])
+      render(json: notifications)
     end
 
     def update
