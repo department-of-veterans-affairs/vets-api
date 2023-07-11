@@ -8,6 +8,8 @@ module Mobile
         resource = client.get_messages_for_thread(message_id)
         raise Common::Exceptions::RecordNotFound, message_id if resource.blank?
 
+        resource.data = resource.data.filter { |m| m.message_id.to_s != params[:id] } if params[:excludeProvidedMessage]
+
         render json: resource.data,
                serializer: CollectionSerializer,
                each_serializer: Mobile::V1::MessagesSerializer,

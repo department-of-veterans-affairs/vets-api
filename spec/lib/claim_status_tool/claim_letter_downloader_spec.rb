@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'claim_letters/claim_letter_downloader'
 
 describe ClaimStatusTool::ClaimLetterDownloader do
-  let(:doc_type_allowlist) { ClaimStatusTool::ClaimLetterDownloader::DOC_TYPE_ALLOWLIST }
   let(:doc_id) { '{99DA7758-A10A-43F4-A056-C961C76A2DDF}' }
   let(:current_user) do
     create(:evss_user)
@@ -25,7 +24,7 @@ describe ClaimStatusTool::ClaimLetterDownloader do
       letters = @downloader.get_letters
       doc_types = letters.pluck(:doc_type).uniq
 
-      expect(doc_types).to match_array(doc_type_allowlist)
+      expect(doc_types).to match_array(@downloader.allowed_doctypes)
     end
   end
 

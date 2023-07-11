@@ -11,10 +11,6 @@ module Mobile
         object.message_body
       end
 
-      def attachment
-        object.has_attachments
-      end
-
       attribute :message_id
       attribute :body
       attribute :category
@@ -33,6 +29,7 @@ module Mobile
       attribute :folder_id
       attribute :draft_date
       attribute :to_date
+      attribute :has_attachments
 
       link(:self) { Mobile::UrlHelper.new.v0_message_url(object.message_id) }
     end
