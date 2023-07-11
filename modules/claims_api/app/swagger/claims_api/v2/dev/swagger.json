@@ -2033,15 +2033,10 @@
                       "treatments": {
                         "description": "Identifies the Service Treatment information of the Veteran.",
                         "type": "array",
-                        "minItems": 1,
                         "uniqueItems": true,
                         "items": {
                           "type": "object",
                           "additionalProperties": false,
-                          "required": [
-                            "treatedDisabilityNames",
-                            "center"
-                          ],
                           "properties": {
                             "beginDate": {
                               "description": "Begin date for treatment. If treatment began from 2005 to present, you do not need to provide dates.",
@@ -2049,8 +2044,8 @@
                                 "null",
                                 "string"
                               ],
-                              "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
-                              "example": "03-2018"
+                              "pattern": "^$|^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                              "example": "02-2018"
                             },
                             "treatedDisabilityNames": {
                               "description": "Name(s) of Disabilities treated in this time frame.",
@@ -2060,28 +2055,21 @@
                               "items": {
                                 "type": "string",
                                 "additionalProperties": false,
-                                "properties": {
-                                  "type": "string",
-                                  "example": [
-                                    "Traumatic Brain Injury",
-                                    "Cancer - Musculoskeletal - Elbow"
-                                  ]
-                                }
+                                "example": [
+                                  "PTSD (post traumatic stress disorder)",
+                                  "Trauma"
+                                ]
                               }
                             },
                             "center": {
                               "description": "VA Medical Center(s) and Department of Defense Military Treatment Facilities where the Veteran received treatment after discharge for any claimed disabilities.",
                               "type": "object",
                               "additionalProperties": false,
-                              "required": [
-                                "name",
-                                "state"
-                              ],
                               "properties": {
                                 "name": {
-                                  "description": "Name of facility Veteran was treated in.",
+                                  "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                                   "type": "string",
-                                  "pattern": "([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                  "pattern": "(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                                   "example": "Private Facility 2",
                                   "minLength": 1,
                                   "maxLength": 100
@@ -2089,7 +2077,7 @@
                                 "city": {
                                   "description": "City of treatment facility.",
                                   "type": "string",
-                                  "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                  "pattern": "^$|^([-a-zA-Z'.#]([-a-zA-Z'.# ])?)+$",
                                   "example": "Portland"
                                 },
                                 "state": {
@@ -2203,18 +2191,14 @@
                             "items": {
                               "additionalProperties": false,
                               "type": "object",
-                              "required": [
-                                "approximateBeginDate",
-                                "approximateEndDate"
-                              ],
                               "properties": {
                                 "approximateBeginDate": {
-                                  "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
+                                  "pattern": "^$|^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
                                   "type": "string",
                                   "example": "06-12-2019 or 06-2019"
                                 },
                                 "approximateEndDate": {
-                                  "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
+                                  "pattern": "^$|^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
                                   "type": "string",
                                   "example": "07-12-2019 or 07-2019"
                                 }
@@ -3156,15 +3140,10 @@
                           "treatments": {
                             "description": "Identifies the Service Treatment information of the Veteran.",
                             "type": "array",
-                            "minItems": 1,
                             "uniqueItems": true,
                             "items": {
                               "type": "object",
                               "additionalProperties": false,
-                              "required": [
-                                "treatedDisabilityNames",
-                                "center"
-                              ],
                               "properties": {
                                 "beginDate": {
                                   "description": "Begin date for treatment. If treatment began from 2005 to present, you do not need to provide dates.",
@@ -3172,7 +3151,7 @@
                                     "null",
                                     "string"
                                   ],
-                                  "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                  "pattern": "^$|^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
                                   "example": "02-2018"
                                 },
                                 "treatedDisabilityNames": {
@@ -3183,7 +3162,7 @@
                                   "items": {
                                     "type": "string",
                                     "additionalProperties": false,
-                                    "examples": [
+                                    "example": [
                                       "PTSD (post traumatic stress disorder)",
                                       "Trauma"
                                     ]
@@ -3193,10 +3172,6 @@
                                   "description": "VA Medical Center(s) and Department of Defense Military Treatment Facilities where the Veteran received treatment after discharge for any claimed disabilities.",
                                   "type": "object",
                                   "additionalProperties": false,
-                                  "required": [
-                                    "name",
-                                    "state"
-                                  ],
                                   "properties": {
                                     "name": {
                                       "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
@@ -3209,7 +3184,7 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$",
+                                      "pattern": "^$|^([-a-zA-Z'.#]([-a-zA-Z'.# ])?)+$",
                                       "example": "Portland"
                                     },
                                     "state": {
@@ -3322,18 +3297,14 @@
                                 "items": {
                                   "additionalProperties": false,
                                   "type": "object",
-                                  "required": [
-                                    "approximateBeginDate",
-                                    "approximateEndDate"
-                                  ],
                                   "properties": {
                                     "approximateBeginDate": {
-                                      "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
+                                      "pattern": "^$|^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
                                       "type": "string",
                                       "example": "06-12-2019 or 06-2019"
                                     },
                                     "approximateEndDate": {
-                                      "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
+                                      "pattern": "^$|^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
                                       "type": "string",
                                       "example": "07-12-2019 or 07-2019"
                                     }
@@ -4526,8 +4497,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-06-26",
-                      "expirationDate": "2024-06-26",
+                      "creationDate": "2023-07-03",
+                      "expirationDate": "2024-07-03",
                       "type": "compensation",
                       "status": "active"
                     }

@@ -1532,7 +1532,159 @@ RSpec.describe 'Disability Claims', type: :request do
       end
 
       describe 'Validation of treament elements' do
-        context 'when treatment startDate is included and in the correct pattern' do
+        context 'when treatments values are not submitted' do
+          it 'returns a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  VCR.use_cassette('brd/disabilities') do
+                    json = JSON.parse data
+                    json['data']['attributes']['treatments'] = []
+                    data = json.to_json
+                    post submit_path, params: data, headers: auth_header
+                    expect(response).to have_http_status(:ok)
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        context 'when treatments values are submitted' do
+          context 'and required field treatedDisabilityNames is not included' do
+            let(:treatments) do
+              [
+                {
+                  center: {
+                    name: 'Center One',
+                    state: 'GA',
+                    city: 'Decatur'
+                  }
+                }
+              ]
+            end
+
+            it 'returns a 422' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    VCR.use_cassette('brd/disabilities') do
+                      json = JSON.parse data
+                      json['data']['attributes']['treatments'] = treatments
+                      data = json.to_json
+                      post submit_path, params: data, headers: auth_header
+                      expect(response).to have_http_status(:unprocessable_entity)
+                      response_body = JSON.parse(response.body)
+                      expect(response_body['errors'][0]['detail']).to eq(
+                        'The treated disability name(s) is required for treatments.'
+                      )
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          context 'and required value center is not included' do
+            let(:treatments) do
+              [
+                {
+                  treatedDisabilityNames: ['PTSD (post traumatic stress disorder)', 'Traumatic Brain Injury']
+                }
+              ]
+            end
+
+            it 'returns a 422' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    VCR.use_cassette('brd/disabilities') do
+                      json = JSON.parse data
+                      json['data']['attributes']['treatments'] = treatments
+                      data = json.to_json
+                      post submit_path, params: data, headers: auth_header
+                      expect(response).to have_http_status(:unprocessable_entity)
+                      response_body = JSON.parse(response.body)
+                      expect(response_body['errors'][0]['detail']).to eq(
+                        'The treatment center is required for treatments.'
+                      )
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          context 'and required field center.name is not included' do
+            let(:treatments) do
+              [
+                {
+                  center: {
+                    state: 'GA',
+                    city: 'Decatur'
+                  },
+                  treatedDisabilityNames: ['PTSD (post traumatic stress disorder)', 'Traumatic Brain Injury']
+                }
+              ]
+            end
+
+            it 'returns a 422' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    VCR.use_cassette('brd/disabilities') do
+                      json = JSON.parse data
+                      json['data']['attributes']['treatments'] = treatments
+                      data = json.to_json
+                      post submit_path, params: data, headers: auth_header
+                      expect(response).to have_http_status(:unprocessable_entity)
+                      response_body = JSON.parse(response.body)
+                      expect(response_body['errors'][0]['detail']).to eq(
+                        'The treatment center name is required for treatments.'
+                      )
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          context 'and required field center.state is not included' do
+            let(:treatments) do
+              [
+                {
+                  center: {
+                    name: 'Center One',
+                    city: 'Decatur'
+                  },
+                  treatedDisabilityNames: ['PTSD (post traumatic stress disorder)', 'Traumatic Brain Injury']
+                }
+              ]
+            end
+
+            it 'returns a 422' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    VCR.use_cassette('brd/disabilities') do
+                      json = JSON.parse data
+                      json['data']['attributes']['treatments'] = treatments
+                      data = json.to_json
+                      post submit_path, params: data, headers: auth_header
+                      expect(response).to have_http_status(:unprocessable_entity)
+                      response_body = JSON.parse(response.body)
+                      expect(response_body['errors'][0]['detail']).to eq(
+                        'The treatment center state is required for treatments.'
+                      )
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        context 'when treatment beginDate is included and in the correct pattern' do
           it 'returns a 200' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
@@ -1562,7 +1714,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
-        context 'when treatment startDate is in the wrong pattern' do
+        context 'when treatment beginDate is in the wrong pattern' do
           let(:treatment_begin_date) { '12/01/1999' }
           let(:active_duty_begin_date) { '1981-11-15' }
 
@@ -1583,7 +1735,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
-        context "when 'treatment.startDate' is not included" do
+        context "when 'treatment.beginDate' is not included" do
           let(:treatments) do
             [
               {
@@ -2181,6 +2333,72 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
         end
+
+        context 'when confinements are not present in service Information' do
+          it 'responds with a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('brd/countries') do
+                  VCR.use_cassette('brd/disabilities') do
+                    json = JSON.parse(data)
+                    json['data']['attributes']['serviceInformation']['confinements'] = []
+                    data = json.to_json
+                    post submit_path, params: data, headers: auth_header
+                    expect(response).to have_http_status(:ok)
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        context 'when confinements are present in service Information but missing one of the date periods' do
+          context 'approximateBeginDate is present but approximateEndDate is not' do
+            it 'responds with a 422' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    VCR.use_cassette('brd/disabilities') do
+                      json = JSON.parse(data)
+                      confinement = json['data']['attributes']['serviceInformation']['confinements'][0]
+                      confinement['approximateEndDate'] = ''
+                      data = json.to_json
+                      post submit_path, params: data, headers: auth_header
+                      expect(response).to have_http_status(:unprocessable_entity)
+                      response_body = JSON.parse(response.body)
+                      expect(response_body['errors'][0]['detail']).to eq(
+                        'The approximate end date is required for a confinement period.'
+                      )
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          context 'approximateEndDate is present but approximateBeginDate is not' do
+            it 'responds with a 422' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    VCR.use_cassette('brd/disabilities') do
+                      json = JSON.parse(data)
+                      confinement = json['data']['attributes']['serviceInformation']['confinements'][0]
+                      confinement['approximateBeginDate'] = ''
+                      data = json.to_json
+                      post submit_path, params: data, headers: auth_header
+                      expect(response).to have_http_status(:unprocessable_entity)
+                      response_body = JSON.parse(response.body)
+                      expect(response_body['errors'][0]['detail']).to eq(
+                        'The approximate begin date is required for a confinement period.'
+                      )
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
       end
 
       describe "'disabilites' validations" do
@@ -2337,6 +2555,7 @@ RSpec.describe 'Disability Claims', type: :request do
                           {
                             disabilityActionType: 'NONE',
                             name: 'PTSD (post traumatic stress disorder)',
+                            serviceRelevance: 'Heavy equipment operator in service.',
                             secondaryDisabilities: [
                               {
                                 name: 'PTSD personal trauma',
