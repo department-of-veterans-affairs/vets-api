@@ -72,6 +72,13 @@ module Swagger
           key :produces, ['application/json']
 
           parameter :authorization
+          parameter do
+            key :name, :include_dismissed
+            key :in, :query
+            key :description, 'Whether to include dismissed notifications'
+            key :required, false
+            key :type, :boolean
+          end
 
           response 200 do
             key :description, 'Array of onsite notifications'

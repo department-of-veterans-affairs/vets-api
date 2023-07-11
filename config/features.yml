@@ -914,4 +914,7 @@ features:
   virtual_agent_voice:
     actor_type: user
     description: Enable the voice feature of the VA Chatbot
-
+  notification_center:
+    actor_type: user
+    description: Enable Notification Center
+    enable_in_development: true
