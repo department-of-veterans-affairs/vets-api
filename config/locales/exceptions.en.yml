@@ -2339,3 +2339,12 @@ en:
         detail: Order unable to be processed
         code: MDOT_unprocessable_entity
         status: 422
+
+  chip:
+    exceptions:
+      unmapped_service_exception:
+        <<: *defaults
+        title: 'Operation failed'
+        detail: The upstream server returned an error code that is unmapped
+        code: unmapped_service_exception
+        status: 400
