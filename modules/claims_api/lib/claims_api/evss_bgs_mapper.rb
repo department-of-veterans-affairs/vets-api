@@ -25,7 +25,10 @@ module ClaimsApi
       claim['data']['development_letter_sent'] = @data['development_letter_sent']
       claim['data']['decision_letter_sent'] = @data['decision_notification_sent']
       claim['data']['documents_needed'] = @data['wwsnfy'].present?
+
       claim['data']['waiver5103_submitted'] = @data['filed5103_waiver_ind'] == 'Y'
+      claim['data']['decision_requested'] = @data['filed5103_waiver_ind'] == 'Y'
+
       claim['data']['claim_type'] = @data['claim_status']
       claim['data']['date'] = format_bgs_date(@data&.dig('claim_dt'))
       claim['data']['min_est_claim_date'] = format_bgs_date(@data['min_est_claim_complete_dt'])
