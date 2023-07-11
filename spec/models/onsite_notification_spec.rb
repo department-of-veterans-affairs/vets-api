@@ -47,6 +47,12 @@ RSpec.describe OnsiteNotification, type: :model do
       end
     end
 
+    it 'returns all onsite_notifications for the user, including dismissed ones' do
+      notifications = described_class.for_user(user, include_dismissed: true)
+
+      expect(notifications.count).to eq(4)
+    end
+
     it 'returns onsite_notifications for the user in descending order' do
       notifications = described_class.for_user(user)
       notifications.zip([@n3, @n2, @n1]).each do |actual, expected|

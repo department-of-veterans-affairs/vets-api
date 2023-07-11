@@ -26,18 +26,30 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
   describe 'with a signed in user' do
     let(:user) { create(:user, :loa3) }
     let!(:onsite_notification) { create(:onsite_notification, va_profile_id: user.vet360_id) }
+    let!(:dismissed_onsite_notification) do
+      create(:onsite_notification, va_profile_id: user.vet360_id, dismissed: true)
+    end
 
     before do
       sign_in_as(user)
     end
 
     describe '#index' do
-      it 'returns the users onsite notifications' do
+      it "returns the user's undismissed onsite notifications" do
         get(:index)
 
         expect(response.status).to eq(200)
         expect(JSON.parse(response.body)['data'].map { |d| d['id'] }).to eq(
           [onsite_notification.id.to_s]
+        )
+      end
+
+      it "returns all of the user's onsite notifications, including dismissed ones" do
+        get :index, params: { include_dismissed: true }
+
+        expect(response.status).to eq(200)
+        expect(JSON.parse(response.body)['data'].map { |d| d['id'] }).to match_array(
+          [onsite_notification.id.to_s, dismissed_onsite_notification.id.to_s]
         )
       end
     end
