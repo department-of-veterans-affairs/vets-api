@@ -1,0 +1,36 @@
+name: Sync master -> preview_envs_k8s
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  sync-branch:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          aws-region: "us-gov-west-1"
+
+      - name: Get bot token from Parameter Store
+        uses: marvinpinto/action-inject-ssm-secrets@latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+      - name: Merge master -> preview_envs_k8s
+        uses: everlytic/branch-merge@1.1.2
+        with:
+          github_token: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+          source_ref: 'master'
+          target_branch: 'preview_envs_k8s'
+          commit_message_template: '[Automated] Merged {source_ref} into target {target_branch}'
+
+
