@@ -12,9 +12,11 @@ module Mobile
     #   Mobile::V0::Adapters::Appointment.new(appointment_hash)
     #
     class Appointment < Common::Resource
+      CACHE_VERSION = 1
+
       include Mobile::V0::Concerns::RedisCaching
 
-      redis_config REDIS_CONFIG[:mobile_app_appointments_store]
+      redis_config REDIS_CONFIG[:mobile_app_appointments_store], CACHE_VERSION
 
       APPOINTMENT_TYPE = Types::String.enum(
         'COMMUNITY_CARE',
