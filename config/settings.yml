@@ -1151,6 +1151,10 @@ hqva_mobile:
 
 # settings va.gov uses related to lighthouse api's
 lighthouse:
+  auth:
+    ccg:
+      client_id: ~
+      rsa_key: ~
   api_key: fake_key
   benefits_claims:
     host: https://sandbox-api.va.gov
@@ -1166,6 +1170,11 @@ lighthouse:
         client_id: ~
         rsa_key: ~
       use_mocks: false
+  benefits_documents:
+    host: https://sandbox-api.va.gov
+    access_token:
+      aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
+    use_mocks: false
   letters_generator:
     url: https://sandbox-api.va.gov
     path: /services/va-letter-generator/v1/
@@ -1215,6 +1224,10 @@ lighthouse:
         client_id: ~
         rsa_key: ~
       use_mocks: false
+  s3:
+    uploads_enabled: false
+    bucket: lighthouse_s3_bucket
+    region: lighthouse_s3_region
 
 mail_automation:
   url: https://viccs-api-test.ibm-intelligent-automation.com
