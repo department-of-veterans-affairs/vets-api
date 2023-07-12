@@ -854,3 +854,10 @@
         :uid_location: "url"
         :uid_locator: "\/services/claims/v2/veterans\/(?:.+)\/claims\/(.+)/5103"
 
+  # Lighthouse Benefits Documents API
+- :name: "Lighthouse Benefits Documents"
+  :base_uri: <%= "#{URI(Settings.lighthouse.benefits_documents.host).host}:#{URI(Settings.lighthouse.benefits_documents.host).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/benefits-documents/v1/documents"
+      :file_path: "/lighthouse/benefits_documents"
