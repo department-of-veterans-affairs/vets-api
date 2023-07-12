@@ -895,6 +895,9 @@ features:
   disability_compensation_lighthouse_intent_to_file_provider:
     actor_type: user
     description: If enabled uses the lighthouse intent to file endpoint
+  disability_compensation_lighthouse_ppiu_direct_deposit_provider:
+    actor_type: user
+    description: If enabled uses the lighthouse ppiu/direct deposit endpoint in the form526 submission workflow
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
