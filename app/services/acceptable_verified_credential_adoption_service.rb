@@ -50,7 +50,11 @@ class AcceptableVerifiedCredentialAdoptionService
   end
 
   def user_qualifies_for_reactivation?
-    (logged_in_with_dsl? || logged_in_with_mhv?) && verified_credential_at?
+    # uncomment after test is complete
+    # (logged_in_with_dsl? || logged_in_with_mhv?) && verified_credential_at?
+
+    # remove after test
+    logged_in_with_dsl? && verified_credential_at?
   end
 
   def logged_in_with_dsl?
@@ -66,7 +70,11 @@ class AcceptableVerifiedCredentialAdoptionService
   end
 
   def verified_credential_at?
-    user_avc&.acceptable_verified_credential_at || user_avc&.idme_verified_credential_at
+    # uncomment after test is complete
+    # user_avc&.acceptable_verified_credential_at || user_avc&.idme_verified_credential_at
+
+    # remove after test
+    user_avc&.acceptable_verified_credential_at
   end
 
   def log_results(conversion_type)
