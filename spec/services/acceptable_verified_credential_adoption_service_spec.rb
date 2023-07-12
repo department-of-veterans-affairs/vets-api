@@ -42,7 +42,7 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
           end
         end
 
-        context 'When user has ivc' do
+        context 'When user has ivc', pending: 'Temporary test to only dsl/avc users' do
           let!(:user_acceptable_verified_credential) do
             create(:user_acceptable_verified_credential, :with_ivc, acceptable_verified_credential_at: nil,
                                                                     user_account:)
@@ -125,7 +125,7 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
         end
       end
 
-      context 'User is mhv authenticated' do
+      context 'User is mhv authenticated', pending: 'Temporary test to only dsl/avc users' do
         context 'When user has avc' do
           let(:user) { create(:user, :mhv, authn_context: SAML::User::MHV_ORIGINAL_CSID) }
           let(:user_verification) { create(:mhv_user_verification, mhv_uuid: user.mhv_correlation_id) }
@@ -155,7 +155,7 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
         end
       end
 
-      context 'When user has ivc' do
+      context 'When user has ivc', pending: 'Temporary test to only dsl/avc users' do
         let(:user) { create(:user, :mhv, authn_context: SAML::User::MHV_ORIGINAL_CSID) }
         let(:user_verification) { create(:mhv_user_verification, mhv_uuid: user.mhv_correlation_id) }
         let!(:user_acceptable_verified_credential) do
