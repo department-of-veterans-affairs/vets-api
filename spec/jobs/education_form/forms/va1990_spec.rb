@@ -70,4 +70,13 @@ RSpec.describe EducationForm::Forms::VA1990, type: :model, form: :education_bene
       subject.disclosures(OpenStruct.new(chapter33: true, benefitsRelinquished: 'chapter1606'))
     end
   end
+
+  context 'spool_file tests with guardian' do
+    %w[
+      kitchen_sink_active_duty_guardian_graduated
+      kitchen_sink_active_duty_guardian_not_graduated
+    ].each do |test_application|
+      test_spool_file('1990', test_application)
+    end
+  end
 end
