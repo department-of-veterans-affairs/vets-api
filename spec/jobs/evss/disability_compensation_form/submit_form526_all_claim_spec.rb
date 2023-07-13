@@ -13,6 +13,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
   before do
     Sidekiq::Worker.clear_all
     Flipper.disable(:disability_526_classifier)
+    Flipper.disable(:disability_compensation_lighthouse_submit_migration)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
