@@ -56,7 +56,7 @@ module MedicalRecords
     end
 
     def get_vaccine(vaccine_id)
-      fhir_search(FHIR::Immunization, search: { parameters: { _id: vaccine_id, _include: '*' } })
+      fhir_read(FHIR::Immunization, vaccine_id)
     end
 
     def list_vaccines(patient_id)
