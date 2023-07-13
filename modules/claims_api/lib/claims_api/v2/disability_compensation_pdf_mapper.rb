@@ -13,8 +13,8 @@ module ClaimsApi
         claim_attributes
         toxic_exposure_attributes
         homeless_attributes
-        chg_addr_attributes if @auto_claim['changeOfAddress'].present?
         veteran_info
+        chg_addr_attributes if @auto_claim['changeOfAddress'].present?
         service_info
         disability_attributes
         treatment_centers
@@ -26,8 +26,8 @@ module ClaimsApi
 
       def claim_attributes
         @pdf_data[:data][:attributes] = @auto_claim&.deep_symbolize_keys
+        @pdf_data[:data][:attributes].delete(:claimantCertification)
         claim_date_and_signature
-        veteran_info
 
         @pdf_data
       end
@@ -62,8 +62,15 @@ module ClaimsApi
         country = @pdf_data[:data][:attributes][:changeOfAddress][:country]
         abbr_country = country == 'USA' ? 'US' : country
         @pdf_data[:data][:attributes][:changeOfAddress][:country] = abbr_country
-
+        begin_date = @pdf_data[:data][:attributes][:changeOfAddress][:dates][:beginDate]
+        @pdf_data[:data][:attributes][:changeOfAddress][:dates][:beginningDate] = begin_date
+        end_date = @pdf_data[:data][:attributes][:changeOfAddress][:dates][:endDate]
+        @pdf_data[:data][:attributes][:changeOfAddress][:dates][:endingDate] = end_date
         chg_addr_zip
+        @pdf_data[:data][:attributes][:changeOfAddress][:dates].delete(:beginDate)
+        @pdf_data[:data][:attributes][:changeOfAddress][:dates].delete(:endDate)
+        @pdf_data[:data][:attributes][:changeOfAddress].delete(:zipFirstFive)
+        @pdf_data[:data][:attributes][:changeOfAddress].delete(:zipLastFour)
 
         @pdf_data
       end
@@ -94,6 +101,7 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:country] = abbr_country
 
         zip
+        @pdf_data[:data][:attributes].delete(:veteranIdentification)
 
         @pdf_data
       end
@@ -103,6 +111,10 @@ module ClaimsApi
               (@auto_claim&.dig('veteranIdentification', 'mailingAddress', 'zipLastFour') || '')
         mailing_addr = @pdf_data&.dig(:data, :attributes, :identificationInformation, :mailingAddress).present?
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].merge!(zip:) if mailing_addr
+        @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:zipFirstFive)
+        @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:zipLastFour)
+
+        @pdf_data
       end
 
       def disability_attributes
@@ -118,6 +130,7 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:claimInformation][:disabilities] = details
 
         conditions_related_to_exposure?
+        @pdf_data[:data][:attributes].delete(:disabilities)
 
         @pdf_data
       end
@@ -249,6 +262,8 @@ module ClaimsApi
         pow = si.present?
         @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement][:confinementDates] = si
         @pdf_data[:data][:attributes][:serviceInformation][:confinedAsPrisonerOfWar] = pow
+        @pdf_data[:data][:attributes][:serviceInformation].delete(:confinements)
+
         @pdf_data
       end
 
