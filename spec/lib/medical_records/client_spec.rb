@@ -27,36 +27,36 @@ describe MedicalRecords::Client do
 
   it 'gets a list of vaccines', :vcr do
     VCR.use_cassette 'mr_client/get_a_list_of_vaccines' do
-      vaccine_list = client.list_vaccines(49_006)
+      vaccine_list = client.list_vaccines(2_952)
       expect(vaccine_list).to be_a(FHIR::Bundle)
     end
   end
 
   it 'gets a single vaccine', :vcr do
     VCR.use_cassette 'mr_client/get_a_vaccine' do
-      vaccine_list = client.get_vaccine(49_432)
-      expect(vaccine_list).to be_a(FHIR::Bundle)
+      vaccine_list = client.get_vaccine(2_954)
+      expect(vaccine_list).to be_a(FHIR::Immunization)
     end
   end
 
   it 'gets a list of chem/hem labs', :vcr do
     VCR.use_cassette 'mr_client/get_a_list_of_chemhem_labs' do
-      vaccine_list = client.list_labs_chemhem_diagnostic_report(49_006)
-      expect(vaccine_list).to be_a(FHIR::Bundle)
+      chemhem_list = client.list_labs_chemhem_diagnostic_report(49_006)
+      expect(chemhem_list).to be_a(FHIR::Bundle)
     end
   end
 
   it 'gets a list of other DiagnosticReport labs', :vcr do
     VCR.use_cassette 'mr_client/get_a_list_of_diagreport_labs' do
-      vaccine_list = client.list_labs_other_diagnostic_report(49_006)
-      expect(vaccine_list).to be_a(FHIR::Bundle)
+      other_lab_list = client.list_labs_other_diagnostic_report(49_006)
+      expect(other_lab_list).to be_a(FHIR::Bundle)
     end
   end
 
   it 'gets a list of other DocumentReference labs', :vcr do
     VCR.use_cassette 'mr_client/get_a_list_of_docref_labs' do
-      vaccine_list = client.list_labs_document_reference(49_006)
-      expect(vaccine_list).to be_a(FHIR::Bundle)
+      lab_doc_list = client.list_labs_document_reference(49_006)
+      expect(lab_doc_list).to be_a(FHIR::Bundle)
     end
   end
 
