@@ -67,15 +67,18 @@ module AppealsApi
             to: status_to,
             statusable_type:,
             status_update_time: date_from..date_to
-          ).order(:statusable_id).to_a
+          ).order(:statusable_id).select('distinct on (statusable_id) *')
 
           previous_records = AppealsApi::StatusUpdate.where(
             to: status_from,
             statusable_id: records.pluck(:statusable_id),
             statusable_type:
-          ).where.not(from: status_from).order(:statusable_id).to_a
+          ).where.not(from: status_from).order(:statusable_id).select('distinct on (statusable_id) *')
 
-          records.zip(previous_records)
+          # filter out records with no matching previous record
+          records = records.where(statusable_id: previous_records.pluck(:statusable_id))
+
+          records.to_a.zip(previous_records.to_a)
         end
     end
 
