@@ -363,14 +363,6 @@ features:
     actor_type: user
     description: Enables form 1990 email submission confirmation (VaNotify)
     enable_in_development: true
-  form1990_auth_confirmation_email:
-    actor_type: user
-    description: Enables form 1990 email submission confirmation for authenticated users (VaNotify)
-    enable_in_development: true
-  form1990e_auth_confirmation_email:
-    actor_type: user
-    description: Enables form 1990 email submission confirmation for authenticated users (VaNotify)
-    enable_in_development: true
   form1995_confirmation_email:
     actor_type: user
     description: Enables form 1995 email submission confirmation (VaNotify)
