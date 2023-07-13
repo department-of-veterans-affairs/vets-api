@@ -120,19 +120,24 @@ spec/support/medical_copays @department-of-veterans-affairs/vsa-debt-resolution 
 spec/fixtures/medical_copays @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/debts @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 
-# Benefits Intake API product
+# Lighthouse Benefits Intake API
 modules/vba_documents @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/backend-review-group
 
-# Benefits APIs shared services and utilities
+# Lighthouse Appeals APIs
+modules/appeals_api @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/backend-review-group
+
+# Lighthouse VA Forms API
+modules/va_forms @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/va_forms @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/backend-review-group
+
+# Lighthouse Benefits & Appeals APIs shared services and utilities
 lib/central_mail @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-banana-peels
 lib/pdf_info.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-banana-peels
 lib/pdf_utilities/pdf_validator.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-banana-peels
 spec/lib/central_mail @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-banana-peels
 spec/lib/pdf_info @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-banana-peels
 spec/lib/pdf_utilities/pdf_validator @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-banana-peels
-
-# Decision Reviews (Appeals) API product
-modules/appeals_api @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-banana-peels
+spec/support/vcr_cassettes/central_mail @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-banana-peels
 
 # Disability Benefits Experience support
 lib/disability_compensation @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/bdex
