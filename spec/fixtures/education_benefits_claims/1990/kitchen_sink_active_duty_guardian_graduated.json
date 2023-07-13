@@ -1,0 +1,161 @@
+{
+  "activeDutyKicker": true,
+  "additionalContributions": true,
+  "bankAccount": {
+    "accountNumber": "88888888888",
+    "accountType": "checking",
+    "bankName": "First Bank of JSON",
+    "routingNumber": "123456789"
+  },
+  "chapter1606": true,
+  "chapter33": true,
+  "chapter30": true,
+  "chapter32": true,
+  "benefitsRelinquished": "chapter1607",
+  "benefitsRelinquishedDate":"2016-12-15",
+  "civilianBenefitsAssistance": true,
+  "serviceAcademyGraduationYear": 2010,
+  "seniorRotc": {
+    "commissionYear": 1981,
+    "rotcScholarshipAmounts": [{
+      "year": 1999,
+      "amount": 99.99
+    },{
+      "year": 2000,
+      "amount": 199.99
+    },{
+      "year": 2001,
+      "amount": 299.99
+    }]
+  },
+  "seniorRotcScholarshipProgram": true,
+  "email": "test@sample.com",
+  "activeDutyRepayingPeriod": {
+      "from": "2012-09-09",
+      "to": "2013-10-10"
+  },
+  "preferredContactMethod": "email",
+  "educationStartDate": "1999-12-31",
+  "educationObjective": "Master’s in JSON document creation",
+  "educationProgram": {
+    "name": "\nFakeData University\n",
+    "address": {
+      "city": "Baltimore",
+      "country": "USA",
+      "postalCode": "21231",
+      "state": "MD",
+      "street": "111 Uni Drive"
+    },
+    "educationType": "flightTraining"
+  },
+  "nonMilitaryJobs": [
+    {
+      "name": "Clerk",
+      "months": 36,
+      "postMilitaryJob": false
+    },
+    {
+      "name": "Doer",
+      "licenseOrRating": "Higher Up",
+      "months": 18,
+      "postMilitaryJob": false
+    },
+    {
+      "name": "Manager",
+      "licenseOrRating": "Third Class",
+      "months": 8,
+      "postMilitaryJob": true
+    }
+  ],
+  "faaFlightCertificatesInformation": "cert1, cert2",
+  "gender": "M",
+  "highSchoolOrGedCompletionDate": "2010-06-XX",
+  "homePhone": "5551110000",
+  "reserveKicker": true,
+  "secondaryContact": {
+    "fullName": "Sibling Olson",
+    "sameAddress": false,
+    "address": {
+      "city": "Baltimore",
+      "country": "USA",
+      "postalCode": "23131",
+      "state": "MD",
+      "street": "222 Person Drive"
+    },
+    "phone": "5550001111"
+  },
+  "serviceBefore1977": {
+    "haveDependents": true,
+    "married": true,
+    "parentDependent": false
+  },
+  "toursOfDuty": [{
+    "dateRange": {
+      "from": "2012-06-26",
+      "to": "2013-04-10"
+    },
+    "involuntarilyCalledToDuty": "no",
+    "serviceBranch": "Army Reserve",
+    "applyPeriodToSelected": false,
+    "benefitsToApplyTo": "chapter32",
+    "serviceStatus": "ACTIVE DUTY TRAINING"
+  }, {
+    "dateRange": {
+      "from": "2013-04-22",
+      "to": "2013-06-14"
+    },
+    "involuntarilyCalledToDuty": "yes",
+    "serviceBranch": "Army Reserve",
+    "applyPeriodToSelected": true,
+    "serviceStatus": "ACTIVE DUTY"
+  }],
+  "postHighSchoolTrainings": [
+    {
+      "name": "OtherCollege Name",
+      "dateRange": {
+        "from": "1999-01-01",
+        "to": "2000-01-01"
+      },
+      "city": "New York",
+      "hours": 8,
+      "hoursType": "semester",
+      "state": "NY",
+      "degreeReceived": "BA",
+      "major": "History"
+    }
+  ],
+  "veteranAddress": {
+    "city": "Milwaukee",
+    "country": "USA",
+    "postalCode": "53130",
+    "state": "WI",
+    "street": "123 Main St"
+  },
+  "veteranDateOfBirth": "1985-03-07",
+  "veteranFullName": {
+    "first": "\nMark\n",
+    "last": "\nOlson\n"
+  },
+  "veteranSocialSecurityNumber": "111223333",
+  "privacyAgreementAccepted": true,
+  "minorHighSchoolQuestions":{
+    "minorHighSchoolQuestion":true,
+    "highSchoolGedGradDate":"2023-04-12"
+  },
+  "minorQuestions":{
+    "guardianFirstName":"Richard",
+    "guardianMiddleName":"D",
+    "guardianLastName":"Van Dyke",
+    "guardianAddress":{
+      "street":"456 oak blvd",
+      "street2":"apt 88",
+      "city":"Phoenix",
+      "country":"USA",
+      "state":"AZ",
+      "postalCode":"56432"
+    },
+    "guardianMobilePhone":"9999999999",
+    "guardianHomePhone":"8888888888",
+    "guardianEmail":"test84@test.com"
+  }
+}

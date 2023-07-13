@@ -10,7 +10,6 @@ FAKEDATA UNIVERSITY
 CH1606
 *START*
 VA Form 22-1990
-DEC 2016
 
                     APPLICATION FOR VA EDUCATION BENEFITS
                     -------------------------------------
@@ -72,31 +71,6 @@ Direct Deposit:     Type of Account: checking
 Name of Financial Inst.: First Bank of JSON
 Routing/Transit #: 123456789   Account #: 88888888888
 
-Name, Address, & Telephone Number of Contact:
-        Sibling Olson
-        222 PERSON DRIVE
-        BALTIMORE, MD, 23131
-        USA
-        Phone: 5550001111
-
-
-                  TYPE AND PROGRAM OF EDUCATION OR TRAINING
-                  -----------------------------------------
-
-Type of Education or Training: Flight Training
-
-Name and Address of School or Training Establishment:
-
-FakeData University
-
-        111 UNI DRIVE
-        BALTIMORE, MD, 21231
-        USA
-
-Date You Started or Will Start Training: 1999-12-31
-
-Education or Career Goal: Master's in JSON document creation
-
 
                        ACTIVE DUTY SERVICE INFORMATION
                        -------------------------------
@@ -118,43 +92,6 @@ Active Duty    From Active Duty
 chapter32, chapter30
 
 
-
-                    EDUCATION AND EMPLOYMENT INFORMATION
-                    ------------------------------------
-
-Date Received High School Diploma or Equivalency Certificate: 2010-06-XX
-
-FAA Flight Certificates:
-cert1, cert2
-
-      Education After High School
-      ---------------------------
-
-Name and Location of College or Training Provider:
-    OtherCollege Name
-    New York, NY
-Date of Training:     From: 1999-01-01 To: 2000-01-01
-Hours: 8 (semester)
-Degree/Diploma/Certificate: BA
-Major Field/Course of Study: History
-
-
-        Employment
-        ----------
-
-Before Entering Military Service
-        Principal Occupation: Clerk
-        Number of Months: 36
-        License or Rating:
-
-        Principal Occupation: Doer
-        Number of Months: 18
-        License or Rating: Higher Up
-
-After Leaving Military Service
-        Principal Occupation: Manager
-        Number of Months: 8
-        License or Rating: Third Class
 
 
           ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
@@ -209,12 +146,6 @@ have applied to the VA for Education Benefits?  If you receive such benefits
 during any part of your training, check 'Yes.' Note:  If you are only applying
 for Tuition Assistance Top-Up, check 'No' to this item.    N/A
 
-For Civilian Employees of the U.S. Federal Government Only. Are you receiving
-or do you anticipate receiving any money from your agency (including but not
-limited to the Government Employees Training Act) for the same period for
-which you have applied to the VA for Education Benefits? If you will receive
-such benefits during any part of your training, check Yes.    YES
-
 
                         MARITAL AND DEPENDENCY STATUS
            (For Applicants with Military Service Before Jan 1, 1977)
@@ -224,7 +155,6 @@ such benefits during any part of your training, check Yes.    YES
 Married: YES
 Has Dependents: YES
 Parent Dependent: NO
-
 
       Certification and Signature of Applicant
 Signature of Applicant                                               Date
