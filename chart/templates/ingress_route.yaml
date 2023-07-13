@@ -26,7 +26,7 @@ spec:
         {{- if $root.Values.web.ingress.headers.enabled }}
         - name: traefik-real-ip-headers
         {{- end }}
-        - name: traefik-real-ip
+        - name: {{ .Values.appName }}-traefik-real-ip
     {{- end }}
     {{- end }}
 
@@ -59,7 +59,7 @@ spec:
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
-  name: traefik-real-ip
+  name: {{ .Values.appName }}-traefik-real-ip
   namespace: {{ .Release.Namespace }}
 spec:
   plugin:
