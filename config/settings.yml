@@ -1458,6 +1458,14 @@ github_cvu:
   integration_id: ~
   private_pem: ~
 
+chip:
+  url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+  base_path: dev
+  tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
+  tmp_api_id: 2dcdrrn5zc
+  tmp_api_username: vetsapiTempUser
+  mock: true
+
 check_in:
   travel_reimbursement_api:
     auth_url: https://login.microsoftonline.us
