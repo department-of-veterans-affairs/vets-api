@@ -574,10 +574,6 @@ features:
     actor_type: user
     description: Use for experimental features for My VA application
     enable_in_development: true
-  my_va_redirect:
-    actor_type: user
-    description: After authentication redirects a user to the My VA page if they are on the homepage
-    enable_in_development: true
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
