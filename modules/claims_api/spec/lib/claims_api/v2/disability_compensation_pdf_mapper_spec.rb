@@ -123,8 +123,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       it 'maps the dates' do
         mapper.map_claim
 
-        begin_date = pdf_data[:data][:attributes][:changeOfAddress][:dates][:beginDate]
-        end_date = pdf_data[:data][:attributes][:changeOfAddress][:dates][:endDate]
+        begin_date = pdf_data[:data][:attributes][:changeOfAddress][:dates][:beginningDate]
+        end_date = pdf_data[:data][:attributes][:changeOfAddress][:dates][:endingDate]
         type_of_addr_change = pdf_data[:data][:attributes][:changeOfAddress][:typeOfAddressChange]
         number_and_street = pdf_data[:data][:attributes][:changeOfAddress][:numberAndStreet]
         apartment_or_unit_number =
