@@ -2,8 +2,9 @@
 <%= benefit_type(@applicant) %>
 *START*
 VA Form 22-1990
+<% if ENV['HOSTNAME'].eql?('api.va.gov') -%>
 DEC 2016
-
+<% end %>
                     APPLICATION FOR VA EDUCATION BENEFITS
                     -------------------------------------
 
@@ -15,6 +16,17 @@ DEC 2016
 
 <%= ssn_gender_dob %>
 
+<% unless ENV['HOSTNAME'].eql?('api.va.gov') -%>
+<% if @applicant.minorHighSchoolQuestions -%>
+Applicant has graduated high school or received GED? <%= @applicant.minorHighSchoolQuestions.minorHighSchoolQuestion %>
+
+<% grad_date = @applicant.minorHighSchoolQuestions.highSchoolGedGradDate if @applicant.minorHighSchoolQuestions.highSchoolGedGradDate -%>
+<% grad_date = @applicant.minorHighSchoolQuestions.highSchoolGedExpectedGradDate unless @applicant.minorHighSchoolQuestions.highSchoolGedGradDate -%>
+<% date_label = @applicant.minorHighSchoolQuestions.highSchoolGedGradDate ? "Date graduated:" : "Date expected to graduate:" -%>
+<%= date_label %> <%= grad_date %>
+
+<% end -%>
+<% end -%>
 Name:   <%= full_name(@applicant.veteranFullName) %>
 
 Address:
@@ -26,10 +38,10 @@ Email Address:  <%= @applicant.email %>
 Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
 
 <%= parse_with_template_path('bank_account') %>
-
-<%= parse_with_template_path('secondary_contact') %>
-
-
+<% if ENV['HOSTNAME'].eql?('api.va.gov') -%>
+<%= parse_with_template_path('secondary_contact') %> 
+<% end -%>
+<% if ENV['HOSTNAME'].eql?('api.va.gov') -%>
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
@@ -40,7 +52,7 @@ Type of Education or Training: <%= education_type&.titleize %>
 Date You Started or Will Start Training: <%= @applicant.educationStartDate %>
 
 Education or Career Goal: <%= @applicant.educationObjective %>
-
+<% end %>
 
                        ACTIVE DUTY SERVICE INFORMATION
                        -------------------------------
@@ -51,7 +63,7 @@ Are you Now On Terminal Leave Just Before Discharge? <%= yesno(@applicant.curren
 
 <%= parse_with_template_path('tours_of_duty') %>
 
-
+<% if ENV['HOSTNAME'].eql?('api.va.gov') -%>
                     EDUCATION AND EMPLOYMENT INFORMATION
                     ------------------------------------
 
@@ -61,7 +73,8 @@ FAA Flight Certificates:
 <%= @applicant.faaFlightCertificatesInformation %>
 
 <%= parse_with_template_path('post_high_school_trainings') %>
-
+<% end %>
+<% if ENV['HOSTNAME'].eql?('api.va.gov') -%>
         Employment
         ----------
 
@@ -70,7 +83,7 @@ Before Entering Military Service
 
 After Leaving Military Service
 <%= employment_history(@applicant.nonMilitaryJobs, post_military: true) %>
-
+<% end -%>
 
           ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
           ----------------------------------------------------------
@@ -103,9 +116,9 @@ Did you have a period of active duty that the Department of Defense counts for p
         End Date: <%= to_date(@applicant.activeDutyRepayingPeriod&.to) %>
 
 <%= parse_with_template_path('non_va_assistance') %>
-
+<% if ENV['HOSTNAME'].eql?('api.va.gov') -%>
 <%= parse_with_template_path('civilian_benefits_assistance') %>
-
+<% end %>
 
                         MARITAL AND DEPENDENCY STATUS
            (For Applicants with Military Service Before Jan 1, 1977)
@@ -120,7 +133,29 @@ Parent Dependent: <%= yesno(@applicant.serviceBefore1977.parentDependent) %>
 N/A
 <% end -%>
 
+<% unless ENV['HOSTNAME'].eql?('api.va.gov') -%>
+<% if @applicant.minorHighSchoolQuestions -%>
+          GUARDIAN INFORMATION
+          --------------------
+First name of Parent, Guardian or Custodian: <%= @applicant.minorQuestions.guardianFirstName %>
 
+Middle name of Parent, Guardian or Custodian: <%= @applicant.minorQuestions.guardianMiddleName %>
+
+Last name of Parent, Guardian or Custodian: <%= @applicant.minorQuestions.guardianLastName %>
+
+Address of Parent, Guardian or Custodian:
+  Country: <%= @applicant.minorQuestions.guardianAddress.country %>
+  Street: <%= @applicant.minorQuestions.guardianAddress.street %>
+  Street address line 2: <%= @applicant.minorQuestions.guardianAddress.street2 %>
+  City: <%= @applicant.minorQuestions.guardianAddress.city %>
+  State: <%= @applicant.minorQuestions.guardianAddress.state %>
+  Postal code: <%= @applicant.minorQuestions.guardianAddress.postalCode %>
+  Mobile phone number: <%= @applicant.minorQuestions.guardianMobilePhone %>
+  Home phone number: <%= @applicant.minorQuestions.guardianHomePhone %>
+  Email address: <%= @applicant.minorQuestions.guardianEmail %>
+
+<% end -%>
+<% end -%>
 <%= parse_with_template_path('signatures') %>
 
 <%= parse_with_template_path('footer') %>
