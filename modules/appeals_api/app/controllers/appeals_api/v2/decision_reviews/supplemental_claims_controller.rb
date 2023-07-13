@@ -10,7 +10,7 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
   include AppealsApi::Schemas
 
   skip_before_action :authenticate
-  before_action :validate_index_headers, only: %i[index]
+  before_action :validate_icn_header, only: %i[index]
   before_action :validate_json_format, if: -> { request.post? }
   before_action :validate_json_schema, only: %i[create validate]
 
@@ -80,7 +80,7 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
 
   def header_names = headers_schema['definitions']['scCreateParameters']['properties'].keys
 
-  def validate_index_headers
+  def validate_icn_header
     validation_errors = []
 
     if request_headers[ICN_HEADER].blank?

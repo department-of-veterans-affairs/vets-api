@@ -5,6 +5,9 @@ require 'appeals_api/form_schemas'
 module AppealsApi::NoticeOfDisagreements::V0
   class NoticeOfDisagreementsController < AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController
     include AppealsApi::OpenidAuth
+    include AppealsApi::PdfDownloads
+
+    before_action :validate_icn_header, only: %i[download]
 
     API_VERSION = 'V0'
     SCHEMA_OPTIONS = { schema_version: 'v0', api_name: 'notice_of_disagreements' }.freeze
@@ -26,6 +29,15 @@ module AppealsApi::NoticeOfDisagreements::V0
         system/NoticeOfDisagreements.write
       ]
     }.freeze
+
+    def download
+      @id = params[:id]
+      @notice_of_disagreement = AppealsApi::NoticeOfDisagreement.find(@id)
+
+      render_appeal_pdf_download(@notice_of_disagreement, "#{FORM_NUMBER}-notice-of-disagreement-#{@id}.pdf")
+    rescue ActiveRecord::RecordNotFound
+      render_notice_of_disagreement_not_found
+    end
 
     def schema
       render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(form_schema)

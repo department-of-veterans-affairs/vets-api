@@ -14,4 +14,7 @@ en:
         no_evidence_submission_accepted: "Corresponding Notice of Disagreement 'boardReviewOption' must be 'evidence_submission'"
         not_found: "%{type} with uuid %{id} not found"
         not_homeless_address_missing: "If not homeless, address must be provided: '/data/attributes/veteran/address'"
+        pdf_download_expired: "PDF for %{type} with id %{id} cannot be downloaded because the form data was deleted from the server after the PII retention period expired"
+        pdf_download_in_error: "PDF for %{type} with id %{id} cannot be downloaded because there was an error in the submission process"
+        pdf_download_not_ready: "PDF for %{type} with id %{id} cannot be downloaded yet because the appeal is still being submitted"
         invalid_schema_type: "The '%{schema_type}' request parameter is invalid"

@@ -119,6 +119,7 @@ AppealsApi::Engine.routes.draw do
         resources '10182', only: %i[create show], controller: controller_path do
           collection do
             post 'validate'
+            get '/:id/download', action: 'download'
           end
         end
       end
@@ -150,6 +151,7 @@ AppealsApi::Engine.routes.draw do
         resources '200996', only: %i[create show], controller: controller_path do
           collection do
             post 'validate'
+            get '/:id/download', action: 'download'
           end
         end
       end
@@ -176,6 +178,7 @@ AppealsApi::Engine.routes.draw do
         resources '200995', only: %i[create show], controller: controller_path do
           collection do
             post 'validate'
+            get '/:id/download', action: 'download'
           end
         end
       end
