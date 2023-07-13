@@ -20,7 +20,7 @@ module ClaimsApi
       claim['data'] = @data
 
       claim['evss_id'] = @data['benefit_claim_id']
-      claim['data']['contention_list'] = @data['contentions'] || []
+      claim['data']['contention_list'] = [@data['contentions']].compact.reject(&:empty?)
       claim['data']['va_representative'] = @data['poa']
       claim['data']['development_letter_sent'] = @data['development_letter_sent']
       claim['data']['decision_letter_sent'] = @data['decision_notification_sent']
@@ -73,13 +73,25 @@ module ClaimsApi
 
       obj = [@data['bnft_claim_lc_status']].flatten
       latest_phase_info = obj.max_by { |d| d['phase_chngd_dt'] }
-      phase_num = latest_phase_info['phase_type_change_ind'][0]
+      phases = phases(obj)
       {
         'latest_phase_type' => latest_phase_info['phase_type'],
         'phase_change_date' => format_bgs_date(latest_phase_info['phase_chngd_dt']),
-        'phase_type_change_ind' => latest_phase_info['phase_type_change_ind'],
-        "phase#{phase_num}_complete_date" => format_bgs_date(latest_phase_info['phase_chngd_dt'])
-      }
+        'phase_type_change_ind' => latest_phase_info['phase_type_change_ind']
+      }.merge(phases)
+    end
+
+    def phases(obj)
+      events = {}
+      sorted = obj.sort_by { |p| p['phase_chngd_dt'] }
+      sorted.each_with_index do |phase, index|
+        phase_num = phase['phase_type_change_ind'][0]
+        phase_date = format_bgs_date(phase['phase_chngd_dt'])
+        key = "phase#{phase_num}_complete_date"
+        events.delete(key) if phase_num.to_i != index && phase_num != 'N'
+        events[key] = phase_date
+      end
+      events
     end
   end
 end
