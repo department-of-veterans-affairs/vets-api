@@ -159,6 +159,8 @@ edu:
     pass: ~
     user: ~
     port: ~
+    relative_307_path: ~
+    relative_351_path: ~
   slack:
     webhook_url: https://example.com
   spool_error:
