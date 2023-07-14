@@ -65,3 +65,26 @@ sample_client_api.update!(authentication: SignIn::Constants::Auth::API,
                           access_token_audience: 'sample_client',
                           logout_redirect_uri: 'http://localhost:4567',
                           refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
+
+# Create Config for VA Identity Dashboard using cookie auth
+vaid_dash = SignIn::ClientConfig.find_or_initialize_by(client_id: 'identity_dashboard')
+vaid_dash.update!(authentication: SignIn::Constants::Auth::COOKIE,
+                  anti_csrf: true,
+                  pkce: true,
+                  redirect_uri: 'http://localhost:3001/auth/login/callback',
+                  access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
+                  access_token_audience: 'sample_client',
+                  logout_redirect_uri: 'http://localhost:3001',
+                  refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
+
+# Create Service Account Config for VA Identity Dashboard Service Account auth
+vaid_public_key = OpenSSL::PKey::RSA.new(File.read('spec/fixtures/identity_dashboard/public_key.pem'))
+vaid_service_account_id = '01b8ebaac5215f84640ade756b645f28'
+identity_dashboard_service_account_config =
+  SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: vaid_service_account_id)
+identity_dashboard_service_account_config.update!(service_account_id: vaid_service_account_id,
+                                                  description: 'VA Identity Dashboard API',
+                                                  scopes: ['http://localhost:3000/v0/sign_in/client_config'],
+                                                  access_token_audience: 'http://localhost:4000',
+                                                  access_token_duration: 5.minutes,
+                                                  certificates: [vaid_public_key])
