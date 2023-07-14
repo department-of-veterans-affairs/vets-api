@@ -45,6 +45,14 @@ Rails.application.routes.draw do
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
     resource :virtual_agent_jwt_token, only: [:create], controller: :virtual_agent_jwt_token
 
+    namespace :ask_va do
+      resources :static_data, only: [:index]
+      resources :static_data_auth, only: [:index]
+
+      get 'static_data', to: 'ask_va_static_data#index'
+      get 'static_data_auth', to: 'ask_va_static_data_auth#index'
+    end
+
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'
     get 'form1095_bs/available_forms', to: 'form1095_bs#available_forms'
