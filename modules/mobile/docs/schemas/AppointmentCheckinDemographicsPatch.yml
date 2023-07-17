@@ -1,0 +1,15 @@
+type: object
+required:
+  - contactNeedsUpdate
+  - emergencyContactNeedsUpdate
+  - nextOfKinNeedsUpdate
+properties:
+  contactNeedsUpdate:
+    type: boolean
+    example: false
+  emergencyContactNeedsUpdate:
+    type: boolean
+    example: false
+  nextOfKinNeedsUpdate:
+    type: boolean
+    example: false

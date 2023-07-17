@@ -1,0 +1,11 @@
+type: object
+required:
+  - code
+  - message
+properties:
+  code:
+    type: string
+    example: 'invalid-appointment'
+  message:
+    type: string
+    example: 'Details specific reasons the appointment is invalid (too-early, too-late, e-check-in-not-enabled, invalid-status, invalid-type)'
