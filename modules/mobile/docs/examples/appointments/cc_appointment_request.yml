@@ -44,5 +44,11 @@ data:
       best_time_to_call:
         - 'Morning'
       friendly_location_name: 'DAYTSHR -Dayton VA Medical Center'
+      appointmentIEN: null
+      locationId: '938'
+      eCheckinAllowed: false
 meta:
   errors: null
+  checkinWindow:
+    minutesBefore: 45
+    minutesAfter: 15
