@@ -269,6 +269,152 @@ paths:
       security:
         - Bearer: []
       summary: /v0/appointments/cancel/{cancelId}
+  /v0/appointments/check-in:
+    post:
+      description: Check into an appointment.
+      operationId: postCheckinAppointment
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                appointmentIEN:
+                  type: string
+                locationId:
+                  type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AppointmentCheckin.yml
+          description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: ./schemas/AppointmentCheckin400Insurance.yml
+                  - $ref: ./schemas/AppointmentCheckin400Demographics.yml
+                  - $ref: ./schemas/AppointmentCheckin400Appointment.yml
+
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/appointments/check-in (DRAFT)
+  /v0/appointments/check-in/demographics:
+    get:
+      description: Retrieves demographics confirmation information which includes a field indicating if insurance verification is needed, patient contact information, emergency contact information and next-of-kin contact information.
+      operationId: appointmentCheckinDemographics
+      parameters:
+        - description: Unique location identifier
+          in: query
+          name: locationId
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AppointmentCheckinDemographics.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/appointments/check-in/demographics (DRAFT)
+    patch:
+      description: Edit demographics confirmations.
+      operationId: appointmentCheckinDemographics
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                locationId:
+                  type: string
+                demographicConfirmations:
+                  type: object
+                  required:
+                    - contactNeedsUpdate
+                    - emergencyContactNeedsUpdate
+                    - nextOfKinNeedsUpdate
+                  properties:
+                    contactNeedsUpdate:
+                      type: boolean
+                      example: false
+                    emergencyContactNeedsUpdate:
+                      type: boolean
+                      example: false
+                    nextOfKinNeedsUpdate:
+                      type: boolean
+                      example: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AppointmentCheckinDemographicsPatch.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/appointments/check-in/demographics (DRAFT)
   /v0/appointments/community_care/eligibility/{service_type}:
     get:
       description: Checks if user is eligible to make an appointment with Community Care for a type of service. Checks if user is registered at a site that is marked as accepting community care requests and community care eligibility api says that they're eligible for the type of care they chose
