@@ -888,6 +888,9 @@ features:
   disability_compensation_lighthouse_rated_disabilities_provider:
     actor_type: user
     description: If enabled uses the lighthouse rated disabilities endpoint
+  disability_compensation_lighthouse_document_service_provider:
+    actor_type: user
+    description: If enabled uses the lighthouse documents service
   disability_compensation_lighthouse_submit_migration:
     actor_type: user
     description: If enabled uses the lighthouse submit endpoint
