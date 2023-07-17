@@ -55,6 +55,10 @@ module ClaimsApi
       header.to_s
     end
 
+    def bean_name
+      raise 'Not Implemented'
+    end
+
     def full_body(action:, body:, namespace:)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <?xml version="1.0" encoding="UTF-8"?>
@@ -291,6 +295,10 @@ module ClaimsApi
         bgs_claim = ClaimsApi::EvssBgsMapper.new(claim)
         bgs_claim.map_and_build_object
       end
+    end
+
+    def to_camelcase(claim:)
+      claim.deep_transform_keys { |k| k.to_s.camelize(:lower) }
     end
   end
 end
