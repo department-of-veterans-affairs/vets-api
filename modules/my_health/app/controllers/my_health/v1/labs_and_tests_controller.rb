@@ -4,8 +4,7 @@ module MyHealth
   module V1
     class LabsAndTestsController < MrController
       def index
-        patient_id = params[:patient_id]
-        resource = client.list_labs_and_tests(patient_id)
+        resource = client.list_labs_and_tests
         render json: resource.to_json
       end
 

@@ -1,268 +1,268 @@
 ---
 http_interactions:
-- request:
-    method: get
-    uri: "<MHV_MR_HOST>/fhir/Immunization?_count=100&patient=2952"
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/fhir+json
-      User-Agent:
-      - Ruby FHIR Client
-      Accept-Charset:
-      - utf-8
-      Authorization:
-      - Bearer <token>
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Host:
-      - localhost:2003
-  response:
-    status:
-      code: 200
-      message: ''
-    headers:
-      Date:
-      - Wed, 12 Jul 2023 20:15:03 GMT
-      Content-Type:
-      - application/fhir+json;charset=UTF-8
-      Transfer-Encoding:
-      - chunked
-      X-Powered-By:
-      - HAPI FHIR 6.2.2 REST Server (FHIR Server; FHIR 4.0.1/R4)
-      X-Request-Id:
-      - 99efa63aed07c43baa8440833bf6bde1
-      Last-Modified:
-      - Wed, 12 Jul 2023 20:15:03 GMT
-      Strict-Transport-Security:
-      - max-age=16000000; includeSubDomains; preload;
-    body:
-      encoding: UTF-8
-      string: |-
-        {
-          "resourceType": "Bundle",
-          "id": "4aba2339-2a6a-4de4-ac5e-1bc8076a60f6",
-          "meta": {
-            "lastUpdated": "2023-07-12T16:15:03.631-04:00"
-          },
-          "type": "searchset",
-          "total": 6,
-          "link": [ {
-            "relation": "self",
-            "url": "https://mhv-intb-api.myhealth.va.gov/fhir/Immunization?_count=100&patient=2952"
-          } ],
-          "entry": [ {
-            "fullUrl": "https://mhv-intb-api.myhealth.va.gov/fhir/Immunization/2955",
-            "resource": {
-              "resourceType": "Immunization",
-              "id": "2955",
-              "meta": {
-                "versionId": "1",
-                "lastUpdated": "2023-07-07T10:05:56.130-04:00",
-                "source": "#a9952b10e72d72b1"
-              },
-              "identifier": [ {
-                "system": "urn:oid:2.16.840.1.113883.4.349",
-                "value": "983.61067"
-              } ],
-              "status": "completed",
-              "vaccineCode": {
-                "coding": [ {
-                  "code": "90717",
-                  "display": "YELLOW FEVER VACCINE SUBQ"
+  - request:
+      method: get
+      uri: "<MHV_MR_HOST>/fhir/Immunization?_count=100&patient=2952"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/fhir+json
+        User-Agent:
+          - Ruby FHIR Client
+        Accept-Charset:
+          - utf-8
+        Authorization:
+          - Bearer <token>
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Host:
+          - localhost:2003
+    response:
+      status:
+        code: 200
+        message: ""
+      headers:
+        Date:
+          - Wed, 12 Jul 2023 20:15:03 GMT
+        Content-Type:
+          - application/fhir+json;charset=UTF-8
+        Transfer-Encoding:
+          - chunked
+        X-Powered-By:
+          - HAPI FHIR 6.2.2 REST Server (FHIR Server; FHIR 4.0.1/R4)
+        X-Request-Id:
+          - 99efa63aed07c43baa8440833bf6bde1
+        Last-Modified:
+          - Wed, 12 Jul 2023 20:15:03 GMT
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: UTF-8
+        string: |-
+          {
+            "resourceType": "Bundle",
+            "id": "4aba2339-2a6a-4de4-ac5e-1bc8076a60f6",
+            "meta": {
+              "lastUpdated": "2023-07-12T16:15:03.631-04:00"
+            },
+            "type": "searchset",
+            "total": 6,
+            "link": [ {
+              "relation": "self",
+              "url": "https://mhv-intb-api.myhealth.va.gov/fhir/Immunization?_count=100&patient=2952"
+            } ],
+            "entry": [ {
+              "fullUrl": "https://mhv-intb-api.myhealth.va.gov/fhir/Immunization/2955",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "2955",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2023-07-07T10:05:56.130-04:00",
+                  "source": "#a9952b10e72d72b1"
+                },
+                "identifier": [ {
+                  "system": "urn:oid:2.16.840.1.113883.4.349",
+                  "value": "983.61067"
                 } ],
-                "text": "YELLOW FEVER"
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "code": "90717",
+                    "display": "YELLOW FEVER VACCINE SUBQ"
+                  } ],
+                  "text": "YELLOW FEVER"
+                },
+                "patient": {
+                  "reference": "Patient/2952"
+                },
+                "occurrenceDateTime": "2023-03-17T10:05:00-04:00",
+                "location": {
+                  "reference": "Location/2220"
+                }
               },
-              "patient": {
-                "reference": "Patient/2952"
-              },
-              "occurrenceDateTime": "2023-03-17T10:05:00-04:00",
-              "location": {
-                "reference": "Location/2220"
+              "search": {
+                "mode": "match"
               }
-            },
-            "search": {
-              "mode": "match"
-            }
-          }, {
-            "fullUrl": "https://mhv-intb-api.myhealth.va.gov/fhir/Immunization/2953",
-            "resource": {
-              "resourceType": "Immunization",
-              "id": "2953",
-              "meta": {
-                "versionId": "1",
-                "lastUpdated": "2023-07-07T10:05:56.130-04:00",
-                "source": "#a9952b10e72d72b1"
-              },
-              "identifier": [ {
-                "system": "urn:oid:2.16.840.1.113883.4.349",
-                "value": "983.60919"
-              } ],
-              "status": "completed",
-              "vaccineCode": {
-                "coding": [ {
-                  "code": "91302",
-                  "display": "SARSCOV2 VAC 5X1010VP/.5MLIM"
+            }, {
+              "fullUrl": "https://mhv-intb-api.myhealth.va.gov/fhir/Immunization/2953",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "2953",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2023-07-07T10:05:56.130-04:00",
+                  "source": "#a9952b10e72d72b1"
+                },
+                "identifier": [ {
+                  "system": "urn:oid:2.16.840.1.113883.4.349",
+                  "value": "983.60919"
                 } ],
-                "text": "COVID-19 (ASTRAZENECA), VECTOR-NR, RS-CHADOX1, PF, 0.5 ML"
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "code": "91302",
+                    "display": "SARSCOV2 VAC 5X1010VP/.5MLIM"
+                  } ],
+                  "text": "COVID-19 (ASTRAZENECA), VECTOR-NR, RS-CHADOX1, PF, 0.5 ML"
+                },
+                "patient": {
+                  "reference": "Patient/2952"
+                },
+                "occurrenceDateTime": "2023-03-17T10:05:00-04:00",
+                "location": {
+                  "reference": "Location/2220"
+                },
+                "note": [ {
+                  "text": "test"
+                } ]
               },
-              "patient": {
-                "reference": "Patient/2952"
-              },
-              "occurrenceDateTime": "2023-03-17T10:05:00-04:00",
-              "location": {
-                "reference": "Location/2220"
-              },
-              "note": [ {
-                "text": "test"
-              } ]
-            },
-            "search": {
-              "mode": "match"
-            }
-          }, {
-            "fullUrl": "https://mhv-intb-api.myhealth.va.gov/fhir/Immunization/2954",
-            "resource": {
-              "resourceType": "Immunization",
-              "id": "2954",
-              "meta": {
-                "versionId": "1",
-                "lastUpdated": "2023-07-07T10:05:56.130-04:00",
-                "source": "#a9952b10e72d72b1"
-              },
-              "identifier": [ {
-                "system": "urn:oid:2.16.840.1.113883.4.349",
-                "value": "983.60992"
-              } ],
-              "status": "completed",
-              "vaccineCode": {
-                "coding": [ {
-                  "code": "90611",
-                  "display": "SMALLPOX&MONKEYPOX VAC 0.5ML"
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://mhv-intb-api.myhealth.va.gov/fhir/Immunization/2954",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "2954",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2023-07-07T10:05:56.130-04:00",
+                  "source": "#a9952b10e72d72b1"
+                },
+                "identifier": [ {
+                  "system": "urn:oid:2.16.840.1.113883.4.349",
+                  "value": "983.60992"
                 } ],
-                "text": "VACCINIA, SMALLPOX MPOX VACCINE LIVE, PF, SQ OR ID INJECTION"
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "code": "90611",
+                    "display": "SMALLPOX&MONKEYPOX VAC 0.5ML"
+                  } ],
+                  "text": "VACCINIA, SMALLPOX MPOX VACCINE LIVE, PF, SQ OR ID INJECTION"
+                },
+                "patient": {
+                  "reference": "Patient/2952"
+                },
+                "occurrenceDateTime": "2023-03-17T10:05:00-04:00",
+                "location": {
+                  "reference": "Location/2220"
+                },
+                "note": [ {
+                  "text": "Maruf's Immunization test"
+                } ]
               },
-              "patient": {
-                "reference": "Patient/2952"
-              },
-              "occurrenceDateTime": "2023-03-17T10:05:00-04:00",
-              "location": {
-                "reference": "Location/2220"
-              },
-              "note": [ {
-                "text": "Maruf's Immunization test"
-              } ]
-            },
-            "search": {
-              "mode": "match"
-            }
-          }, {
-            "fullUrl": "https://mhv-intb-api.myhealth.va.gov/fhir/Immunization/2957",
-            "resource": {
-              "resourceType": "Immunization",
-              "id": "2957",
-              "meta": {
-                "versionId": "1",
-                "lastUpdated": "2023-07-07T10:05:56.130-04:00",
-                "source": "#a9952b10e72d72b1"
-              },
-              "identifier": [ {
-                "system": "urn:oid:2.16.840.1.113883.4.349",
-                "value": "983.61066"
-              } ],
-              "status": "completed",
-              "vaccineCode": {
-                "coding": [ {
-                  "code": "90632",
-                  "display": "HEPA VACCINE ADULT IM"
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://mhv-intb-api.myhealth.va.gov/fhir/Immunization/2957",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "2957",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2023-07-07T10:05:56.130-04:00",
+                  "source": "#a9952b10e72d72b1"
+                },
+                "identifier": [ {
+                  "system": "urn:oid:2.16.840.1.113883.4.349",
+                  "value": "983.61066"
                 } ],
-                "text": "HEP A, ADULT"
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "code": "90632",
+                    "display": "HEPA VACCINE ADULT IM"
+                  } ],
+                  "text": "HEP A, ADULT"
+                },
+                "patient": {
+                  "reference": "Patient/2952"
+                },
+                "occurrenceDateTime": "2023-02-23T10:05:00-05:00",
+                "location": {
+                  "reference": "Location/2220"
+                },
+                "note": [ {
+                  "text": "Maruf's test data"
+                } ]
               },
-              "patient": {
-                "reference": "Patient/2952"
-              },
-              "occurrenceDateTime": "2023-02-23T10:05:00-05:00",
-              "location": {
-                "reference": "Location/2220"
-              },
-              "note": [ {
-                "text": "Maruf's test data"
-              } ]
-            },
-            "search": {
-              "mode": "match"
-            }
-          }, {
-            "fullUrl": "https://mhv-intb-api.myhealth.va.gov/fhir/Immunization/2956",
-            "resource": {
-              "resourceType": "Immunization",
-              "id": "2956",
-              "meta": {
-                "versionId": "1",
-                "lastUpdated": "2023-07-07T10:05:56.130-04:00",
-                "source": "#a9952b10e72d72b1"
-              },
-              "identifier": [ {
-                "system": "urn:oid:2.16.840.1.113883.4.349",
-                "value": "983.60920"
-              } ],
-              "status": "completed",
-              "vaccineCode": {
-                "text": "CHOLERA, BIVWC"
-              },
-              "patient": {
-                "reference": "Patient/2952"
-              },
-              "occurrenceDateTime": "2023-03-03T12:00:00-05:00",
-              "location": {
-                "reference": "Location/2220"
-              },
-              "note": [ {
-                "text": "Lot#: test Mfr: ADAMS LABORATORIES, INC."
-              } ]
-            },
-            "search": {
-              "mode": "match"
-            }
-          }, {
-            "fullUrl": "https://mhv-intb-api.myhealth.va.gov/fhir/Immunization/2958",
-            "resource": {
-              "resourceType": "Immunization",
-              "id": "2958",
-              "meta": {
-                "versionId": "1",
-                "lastUpdated": "2023-07-07T10:05:56.130-04:00",
-                "source": "#a9952b10e72d72b1"
-              },
-              "identifier": [ {
-                "system": "urn:oid:2.16.840.1.113883.4.349",
-                "value": "983.60921"
-              } ],
-              "status": "completed",
-              "vaccineCode": {
-                "coding": [ {
-                  "code": "90704",
-                  "display": "MUMPS VACCINE SC"
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://mhv-intb-api.myhealth.va.gov/fhir/Immunization/2956",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "2956",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2023-07-07T10:05:56.130-04:00",
+                  "source": "#a9952b10e72d72b1"
+                },
+                "identifier": [ {
+                  "system": "urn:oid:2.16.840.1.113883.4.349",
+                  "value": "983.60920"
                 } ],
-                "text": "MUMPS"
+                "status": "completed",
+                "vaccineCode": {
+                  "text": "CHOLERA, BIVWC"
+                },
+                "patient": {
+                  "reference": "Patient/2952"
+                },
+                "occurrenceDateTime": "2023-03-03T12:00:00-05:00",
+                "location": {
+                  "reference": "Location/2220"
+                },
+                "note": [ {
+                  "text": "Lot#: test Mfr: ADAMS LABORATORIES, INC."
+                } ]
               },
-              "patient": {
-                "reference": "Patient/2952"
+              "search": {
+                "mode": "match"
+              }
+            }, {
+              "fullUrl": "https://mhv-intb-api.myhealth.va.gov/fhir/Immunization/2958",
+              "resource": {
+                "resourceType": "Immunization",
+                "id": "2958",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2023-07-07T10:05:56.130-04:00",
+                  "source": "#a9952b10e72d72b1"
+                },
+                "identifier": [ {
+                  "system": "urn:oid:2.16.840.1.113883.4.349",
+                  "value": "983.60921"
+                } ],
+                "status": "completed",
+                "vaccineCode": {
+                  "coding": [ {
+                    "code": "90704",
+                    "display": "MUMPS VACCINE SC"
+                  } ],
+                  "text": "MUMPS"
+                },
+                "patient": {
+                  "reference": "Patient/2952"
+                },
+                "occurrenceDateTime": "2023-02-01T12:00:00-05:00",
+                "location": {
+                  "reference": "Location/2220"
+                },
+                "note": [ {
+                  "text": "Lot#: Maruf's test  Mfr: ASTRAZENECA Expiration Date: 9/11/24"
+                } ]
               },
-              "occurrenceDateTime": "2023-02-01T12:00:00-05:00",
-              "location": {
-                "reference": "Location/2220"
-              },
-              "note": [ {
-                "text": "Lot#: Maruf's test  Mfr: ASTRAZENECA Expiration Date: 9/11/24"
-              } ]
-            },
-            "search": {
-              "mode": "match"
-            }
-          } ]
-        }
-  recorded_at: Wed, 12 Jul 2023 20:15:03 GMT
+              "search": {
+                "mode": "match"
+              }
+            } ]
+          }
+    recorded_at: Wed, 12 Jul 2023 20:15:03 GMT
 recorded_with: VCR 6.2.0
