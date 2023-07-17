@@ -6,10 +6,12 @@ require 'medical_records/client'
 describe MedicalRecords::Client do
   before(:all) do
     VCR.use_cassette 'mr_client/session', record: :new_episodes do
-      @client ||= begin
-        client = MedicalRecords::Client.new(session: { user_id: '11898795' })
-        client.authenticate
-        client
+      VCR.use_cassette 'mr_client/get_a_patient_by_identifier', record: :new_episodes do
+        @client ||= begin
+          client = MedicalRecords::Client.new(session: { user_id: '5751733' })
+          client.authenticate
+          client
+        end
       end
     end
   end
@@ -25,9 +27,18 @@ describe MedicalRecords::Client do
   let(:client) { @client }
   let(:entries) { ['Entry 1', 'Entry 2', 'Entry 3', 'Entry 4', 'Entry 5'] }
 
+  it 'gets a patient by identifer', :vcr do
+    VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
+      patient_bundle = client.get_patient_by_identifier(client.fhir_client, 12_345)
+      expect(patient_bundle).to be_a(FHIR::Bundle)
+      expect(patient_bundle.entry[0].resource).to be_a(FHIR::Patient)
+      expect(patient_bundle.entry[0].resource.id).to eq('2952')
+    end
+  end
+
   it 'gets a list of vaccines', :vcr do
     VCR.use_cassette 'mr_client/get_a_list_of_vaccines' do
-      vaccine_list = client.list_vaccines(2_952)
+      vaccine_list = client.list_vaccines
       expect(vaccine_list).to be_a(FHIR::Bundle)
     end
   end
@@ -41,21 +52,21 @@ describe MedicalRecords::Client do
 
   it 'gets a list of chem/hem labs', :vcr do
     VCR.use_cassette 'mr_client/get_a_list_of_chemhem_labs' do
-      chemhem_list = client.list_labs_chemhem_diagnostic_report(49_006)
+      chemhem_list = client.list_labs_chemhem_diagnostic_report
       expect(chemhem_list).to be_a(FHIR::Bundle)
     end
   end
 
   it 'gets a list of other DiagnosticReport labs', :vcr do
     VCR.use_cassette 'mr_client/get_a_list_of_diagreport_labs' do
-      other_lab_list = client.list_labs_other_diagnostic_report(49_006)
+      other_lab_list = client.list_labs_other_diagnostic_report
       expect(other_lab_list).to be_a(FHIR::Bundle)
     end
   end
 
   it 'gets a list of other DocumentReference labs', :vcr do
     VCR.use_cassette 'mr_client/get_a_list_of_docref_labs' do
-      lab_doc_list = client.list_labs_document_reference(49_006)
+      lab_doc_list = client.list_labs_document_reference
       expect(lab_doc_list).to be_a(FHIR::Bundle)
     end
   end
@@ -64,7 +75,7 @@ describe MedicalRecords::Client do
     VCR.use_cassette('mr_client/get_a_list_of_chemhem_labs') do
       VCR.use_cassette('mr_client/get_a_list_of_diagreport_labs') do
         VCR.use_cassette('mr_client/get_a_list_of_docref_labs') do
-          combined_labs_bundle = client.list_labs_and_tests(49_006)
+          combined_labs_bundle = client.list_labs_and_tests
           expect(combined_labs_bundle).to be_a(FHIR::Bundle)
           expect(combined_labs_bundle.total).to eq(5)
           expect(combined_labs_bundle.entry.count { |entry| entry.is_a?(FHIR::DiagnosticReport) }).to eq(3)
