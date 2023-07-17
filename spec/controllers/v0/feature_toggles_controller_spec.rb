@@ -97,7 +97,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
     end
 
     it 'returns false for nonexistant flags' do
-      @feature_name =  'thisIsNotARealFlag'
+      @feature_name = 'thisIsNotARealFlag'
       get :index, params: { features: @feature_name }
 
       expect(response).to have_http_status(:ok)
