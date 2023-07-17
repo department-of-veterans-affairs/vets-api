@@ -242,13 +242,13 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         has_conditions = pdf_data[:data][:attributes][:exposureInformation][:hasConditionsRelatedToToxicExposures]
 
         expect(has_conditions).to eq(true)
-        expect(name).to eq('Musculoskeletal - Foot')
+        expect(name).to eq('Traumatic Brain Injury')
         expect(relevance).to eq('ABCDEFG')
         expect(date).to eq('03-11-2018')
         expect(event).to eq('EXPOSURE')
         expect(is_related).to eq(true)
         expect(attribut_count).to eq(5)
-        expect(secondary_name).to eq('Traumatic Brain Injury')
+        expect(secondary_name).to eq('Cancer - Musculoskeletal - Elbow')
         expect(secondary_event).to eq('EXPOSURE')
         expect(secondary_relevance).to eq('ABCDEFG')
       end
@@ -282,7 +282,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
         expect(start_date).to eq('03-1985')
         expect(no_date).to eq(false)
-        expect(treatment_details).to eq('Traumatic Brain Injury - Center One, Decatur, GA')
+        expect(treatment_details).to eq('Traumatic Brain Injury, Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders, Cancer - Musculoskeletal - Elbow - Center One, Decatur, GA') # rubocop:disable Layout/LineLength
       end
     end
 

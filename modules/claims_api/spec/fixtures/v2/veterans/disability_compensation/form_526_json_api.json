@@ -70,18 +70,18 @@
             "disabilities": [
                 {
                     "disabilityActionType": "REOPEN",
-                    "name": "Musculoskeletal - Foot",
-                    "classificationCode": "8994",
+                    "name": "Traumatic Brain Injury",
+                    "classificationCode": "9020",
                     "serviceRelevance": "ABCDEFG",
                     "approximateDate": "03-11-2018",
                     "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
-                    "diagnosticCode": 9999,
+                    "diagnosticCode": 9020,
                     "secondaryDisabilities": [
                         {
-                            "name": "Cancer - Musculoskeletal - Elbow",
+                            "name": "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
                             "disabilityActionType": "SECONDARY",
                             "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
-                            "classificationCode": "249470",
+                            "classificationCode": "9010",
                             "approximateDate": "03-12-2018",
                             "exposureOrEventOrInjury": "EXPOSURE"
                         }
@@ -91,22 +91,12 @@
                 },
                 {
                     "disabilityActionType": "REOPEN",
-                    "name": "Traumatic Brain Injury",
-                    "classificationCode": "9020",
+                    "name": "Cancer - Musculoskeletal - Elbow",
+                    "classificationCode": "249470",
                     "serviceRelevance": "ABCDEFG",
                     "approximateDate": "03-02-2018",
                     "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
-                    "diagnosticCode": 0,
-                    "secondaryDisabilities": [
-                        {
-                            "name": "Cancer - Musculoskeletal - Elbow",
-                            "disabilityActionType": "SECONDARY",
-                            "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
-                            "classificationCode": "249470",
-                            "approximateDate": "03-12-2018",
-                            "exposureOrEventOrInjury": "EXPOSURE"
-                        }
-                    ],
+                    "diagnosticCode": 249470,
                     "isRelatedToToxicExposure": true,
                     "exposureOrEventOrInjury": "EXPOSURE"
                 }
@@ -174,7 +164,7 @@
             },
             "treatments": [
                 {
-                    "treatedDisabilityNames": ["Traumatic Brain Injury"],
+                    "treatedDisabilityNames": ["Traumatic Brain Injury", "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders", "Cancer - Musculoskeletal - Elbow"],
                     "center": {
                         "name": "Center One",
                         "state": "GA",
