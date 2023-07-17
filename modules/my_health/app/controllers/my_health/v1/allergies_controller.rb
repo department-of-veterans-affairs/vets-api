@@ -4,8 +4,7 @@ module MyHealth
   module V1
     class AllergiesController < MrController
       def index
-        patient_id = params[:patient_id]
-        resource = client.list_allergies(patient_id)
+        resource = client.list_allergies
         render json: resource.to_json
       end
 

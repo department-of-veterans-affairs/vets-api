@@ -43,7 +43,7 @@ module MedicalRecords
       "#{Settings.mhv.medical_records.host}/fhir/"
     end
 
-    def fhir_client
+    def sessionless_fhir_client(bearer_token)
       # FHIR debug level is extremely verbose, printing the full contents of every response body.
       ::FHIR.logger.level = Logger::INFO
 
@@ -51,34 +51,45 @@ module MedicalRecords
         client.use_r4
         client.default_json
         client.use_minimal_preference
-        client.set_bearer_token(jwt_bearer_token)
+        client.set_bearer_token(bearer_token)
       end
+    end
+
+    def fhir_client
+      sessionless_fhir_client(jwt_bearer_token)
+    end
+
+    def get_patient_by_identifier(fhir_client, identifier)
+      result = fhir_client.search(FHIR::Patient, search: { parameters: { identifier: } })
+      resource = result.resource
+      handle_api_errors(result) if resource.nil?
+      resource
     end
 
     def get_vaccine(vaccine_id)
       fhir_read(FHIR::Immunization, vaccine_id)
     end
 
-    def list_vaccines(patient_id)
-      fhir_search(FHIR::Immunization, search: { parameters: { patient: patient_id } })
+    def list_vaccines
+      fhir_search(FHIR::Immunization, search: { parameters: { patient: patient_fhir_id } })
     end
 
     def get_allergy(allergy_id)
       fhir_read(FHIR::AllergyIntolerance, allergy_id)
     end
 
-    def list_allergies(patient_id)
-      fhir_search(FHIR::AllergyIntolerance, search: { parameters: { patient: patient_id } })
+    def list_allergies
+      fhir_search(FHIR::AllergyIntolerance, search: { parameters: { patient: patient_fhir_id } })
     end
 
     def get_clinical_note(note_id)
       fhir_read(FHIR::DocumentReference, note_id)
     end
 
-    def list_clinical_notes(patient_id)
+    def list_clinical_notes
       loinc_codes = "#{PHYSICIAN_PROCEDURE_NOTE},#{DISCHARGE_SUMMARY}"
       fhir_search(FHIR::DocumentReference,
-                  search: { parameters: { patient: patient_id, type: loinc_codes } })
+                  search: { parameters: { patient: patient_fhir_id, type: loinc_codes } })
     end
 
     def get_diagnostic_report(record_id)
@@ -91,14 +102,14 @@ module MedicalRecords
     # @param patient_id [Fixnum] MHV patient ID
     # @return [FHIR::Bundle]
     #
-    def list_labs_and_tests(patient_id, page_size = 999, page_num = 1)
+    def list_labs_and_tests(page_size = 999, page_num = 1)
       combined_bundle = FHIR::Bundle.new
       combined_bundle.type = 'searchset'
 
       # Make the individual API calls.
-      labs_diagrep_chemhem = list_labs_chemhem_diagnostic_report(patient_id)
-      labs_diagrep_other = list_labs_other_diagnostic_report(patient_id)
-      labs_docref = list_labs_document_reference(patient_id)
+      labs_diagrep_chemhem = list_labs_chemhem_diagnostic_report
+      labs_diagrep_other = list_labs_other_diagnostic_report
+      labs_docref = list_labs_document_reference
 
       # TODO: Figure out how to do this in threads.
       # labs_diagrep_chemhem_thread = Thread.new { list_labs_chemhem_diagnostic_report(patient_id) }
@@ -129,17 +140,17 @@ module MedicalRecords
       combined_bundle
     end
 
-    def list_vitals(patient_id)
+    def list_vitals
       loinc_codes = "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT}"
-      fhir_search(FHIR::Observation, search: { parameters: { patient: patient_id, code: loinc_codes } })
+      fhir_search(FHIR::Observation, search: { parameters: { patient: patient_fhir_id, code: loinc_codes } })
     end
 
     def get_condition(condition_id)
       fhir_search(FHIR::Condition, search: { parameters: { _id: condition_id, _include: '*' } })
     end
 
-    def list_conditions(patient_id)
-      fhir_search(FHIR::Condition, search: { parameters: { patient: patient_id } })
+    def list_conditions
+      fhir_search(FHIR::Condition, search: { parameters: { patient: patient_fhir_id } })
     end
 
     protected
@@ -150,9 +161,9 @@ module MedicalRecords
     # @param patient_id [Fixnum] MHV patient ID
     # @return [FHIR::Bundle]
     #
-    def list_labs_chemhem_diagnostic_report(patient_id)
+    def list_labs_chemhem_diagnostic_report
       fhir_search(FHIR::DiagnosticReport,
-                  search: { parameters: { patient: patient_id, category: 'LAB' } })
+                  search: { parameters: { patient: patient_fhir_id, category: 'LAB' } })
     end
 
     ##
@@ -161,9 +172,9 @@ module MedicalRecords
     # @param patient_id [Fixnum] MHV patient ID
     # @return [FHIR::Bundle]
     #
-    def list_labs_other_diagnostic_report(patient_id)
+    def list_labs_other_diagnostic_report
       loinc_codes = "#{MICROBIOLOGY},#{PATHOLOGY}"
-      fhir_search(FHIR::DiagnosticReport, search: { parameters: { patient: patient_id, code: loinc_codes } })
+      fhir_search(FHIR::DiagnosticReport, search: { parameters: { patient: patient_fhir_id, code: loinc_codes } })
     end
 
     ##
@@ -172,10 +183,10 @@ module MedicalRecords
     # @param patient_id [Fixnum] MHV patient ID
     # @return [FHIR::Bundle]
     #
-    def list_labs_document_reference(patient_id)
+    def list_labs_document_reference
       loinc_codes = "#{EKG},#{RADIOLOGY}"
       fhir_search(FHIR::DocumentReference,
-                  search: { parameters: { patient: patient_id, type: loinc_codes } })
+                  search: { parameters: { patient: patient_fhir_id, type: loinc_codes } })
     end
 
     def fhir_search(fhir_model, params)

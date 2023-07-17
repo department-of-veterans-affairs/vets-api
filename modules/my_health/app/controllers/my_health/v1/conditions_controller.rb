@@ -4,8 +4,7 @@ module MyHealth
   module V1
     class ConditionsController < MrController
       def index
-        patient_id = params[:patient_id]
-        resource = client.list_conditions(patient_id)
+        resource = client.list_conditions
         raise Common::Exceptions::InternalServerError if resource.blank?
 
         render json: resource.to_json
