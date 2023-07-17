@@ -24,7 +24,11 @@ module EVSS
         super(submission_id)
         with_tracking('Form526 Upload BDD instructions:', submission.saved_claim_id, submission.id) do
           file_body = File.read('lib/evss/disability_compensation_form/bdd_instructions.pdf')
-          client = EVSS::DocumentsService.new(submission.auth_headers)
+          if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
+            # TODO: create client from lighthouse document service
+          else
+            client = EVSS::DocumentsService.new(submission.auth_headers)
+          end
           client.upload(file_body, create_document_data)
         end
       rescue => e

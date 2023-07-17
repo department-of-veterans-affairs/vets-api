@@ -7,6 +7,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
 
   before do
     Sidekiq::Worker.clear_all
+    Flipper.disable(:disability_compensation_lighthouse_document_service_provider)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
