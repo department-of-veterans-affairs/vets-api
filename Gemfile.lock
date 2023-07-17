@@ -159,6 +159,7 @@ PATH
     apps_api (0.0.1)
       faraday
       sidekiq
+    ask_va_api (0.1.0)
     check_in (0.1.0)
     claims_api (0.0.1)
     covid_research (0.1.0)
@@ -1017,6 +1018,7 @@ DEPENDENCIES
   apivore!
   appeals_api!
   apps_api!
+  ask_va_api!
   awesome_print
   aws-sdk-kms
   aws-sdk-s3 (~> 1)
