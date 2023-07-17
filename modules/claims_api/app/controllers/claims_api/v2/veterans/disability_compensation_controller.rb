@@ -16,10 +16,9 @@ module ClaimsApi
         FORM_NUMBER = '526'
 
         before_action :verify_access!
+        before_action :shared_validation, only: %i[submit validate]
 
         def submit
-          validate_json_schema
-          validate_form_526_submission_values!
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:,
@@ -36,7 +35,9 @@ module ClaimsApi
           render json: auto_claim
         end
 
-        def validate; end
+        def validate
+          render json: valid_526_response
+        end
 
         def attachments; end
 
@@ -45,6 +46,22 @@ module ClaimsApi
         end
 
         private
+
+        def shared_validation
+          validate_json_schema
+          validate_form_526_submission_values!
+        end
+
+        def valid_526_response
+          {
+            data: {
+              type: 'claims_api_auto_established_claim_validation',
+              attributes: {
+                status: 'valid'
+              }
+            }
+          }
+        end
 
         def pdf_mapper_service(auto_claim, pdf_data, target_veteran)
           ClaimsApi::V2::DisabilityCompensationPdfMapper.new(auto_claim, pdf_data, target_veteran)
