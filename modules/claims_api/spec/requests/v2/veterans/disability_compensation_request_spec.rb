@@ -2043,6 +2043,129 @@ RSpec.describe 'Disability Claims', type: :request do
       end
 
       describe 'Validation of service information elements' do
+        context 'when elements are required conditionally' do
+          context 'when reserves values are present but obligationTermsOfService is empty' do
+            let(:empty_date) { '' }
+
+            it 'responds with a 422' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    VCR.use_cassette('brd/disabilities') do
+                      json = JSON.parse(data)
+                      reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
+                      tos = reserves['obligationTermsOfService']
+                      tos['beginDate'] = empty_date
+                      tos['endDate'] = empty_date
+                      data = json.to_json
+                      post submit_path, params: data, headers: auth_header
+                      expect(response).to have_http_status(:unprocessable_entity)
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          context 'obligationTermsOfService beginDate is required but not present' do
+            it 'returns a 422' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    VCR.use_cassette('brd/disabilities') do
+                      json = JSON.parse(data)
+                      reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
+                      tos = reserves['obligationTermsOfService']
+                      tos['beginDate'] = ''
+                      data = json.to_json
+                      post submit_path, params: data, headers: auth_header
+                      expect(response).to have_http_status(:unprocessable_entity)
+                      response_body = JSON.parse(response.body)
+                      expect(response_body['errors'][0]['detail']).to eq(
+                        'The begin date is required for obligation terms of service.'
+                      )
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          context 'obligationTermsOfService endDate is required but not present' do
+            it 'returns a 422' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('evss/claims/claims') do
+                  VCR.use_cassette('brd/countries') do
+                    VCR.use_cassette('brd/disabilities') do
+                      json = JSON.parse(data)
+                      reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
+                      tos = reserves['obligationTermsOfService']
+                      tos['endDate'] = ''
+                      data = json.to_json
+                      post submit_path, params: data, headers: auth_header
+                      expect(response).to have_http_status(:unprocessable_entity)
+                      response_body = JSON.parse(response.body)
+                      expect(response_body['errors'][0]['detail']).to eq(
+                        'The end date is required for obligation terms of service.'
+                      )
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          context 'when title10Activation is present anticipatedSeperationDate is required' do
+            context 'when anticipatedSeperationDate is missing' do
+              it 'returns a 422' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      VCR.use_cassette('brd/disabilities') do
+                        json = JSON.parse(data)
+                        reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
+                        reserves['title10Activation']['anticipatedSeparationDate'] = ''
+                        data = json.to_json
+                        post submit_path, params: data, headers: auth_header
+                        expect(response).to have_http_status(:unprocessable_entity)
+                        response_body = JSON.parse(response.body)
+                        expect(response_body['errors'][0]['detail']).to eq(
+                          'The anticipated seperation date is required for title 10 activation.'
+                        )
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          context 'when title10Activation is present title10ActivationDate is required' do
+            context 'when title10ActivationDate is missing' do
+              it 'returns a 422' do
+                with_okta_user(scopes) do |auth_header|
+                  VCR.use_cassette('evss/claims/claims') do
+                    VCR.use_cassette('brd/countries') do
+                      VCR.use_cassette('brd/disabilities') do
+                        json = JSON.parse(data)
+                        reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
+                        reserves['title10Activation']['title10ActivationDate'] = ''
+                        data = json.to_json
+                        post submit_path, params: data, headers: auth_header
+                        expect(response).to have_http_status(:unprocessable_entity)
+                        response_body = JSON.parse(response.body)
+                        expect(response_body['errors'][0]['detail']).to eq(
+                          'The title 10 activation date is required for title 10 activation.'
+                        )
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+
         context 'when the serviceBranch is empty' do
           let(:service_branch) { '' }
 
@@ -3143,14 +3266,16 @@ RSpec.describe 'Disability Claims', type: :request do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
                 VCR.use_cassette('brd/countries') do
-                  json = JSON.parse(data)
-                  reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
-                  tos = reserves['obligationTermsOfService']
-                  tos['beginDate'] = empty_date
-                  tos['endDate'] = empty_date
-                  data = json.to_json
-                  post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  VCR.use_cassette('brd/disabilities') do
+                    json = JSON.parse(data)
+                    reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
+                    tos = reserves['obligationTermsOfService']
+                    tos['beginDate'] = empty_date
+                    tos['endDate'] = empty_date
+                    data = json.to_json
+                    post submit_path, params: data, headers: auth_header
+                    expect(response).to have_http_status(:unprocessable_entity)
+                  end
                 end
               end
             end
@@ -3227,12 +3352,14 @@ RSpec.describe 'Disability Claims', type: :request do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
                   VCR.use_cassette('brd/countries') do
-                    json = JSON.parse(data)
-                    reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
-                    reserves['title10Activation']['anticipatedSeparationDate'] = anticipated_separation_date
-                    data = json.to_json
-                    post submit_path, params: data, headers: auth_header
-                    expect(response).to have_http_status(:unprocessable_entity)
+                    VCR.use_cassette('brd/disabilities') do
+                      json = JSON.parse(data)
+                      reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
+                      reserves['title10Activation']['anticipatedSeparationDate'] = anticipated_separation_date
+                      data = json.to_json
+                      post submit_path, params: data, headers: auth_header
+                      expect(response).to have_http_status(:unprocessable_entity)
+                    end
                   end
                 end
               end
@@ -3267,12 +3394,14 @@ RSpec.describe 'Disability Claims', type: :request do
               with_okta_user(scopes) do |auth_header|
                 VCR.use_cassette('evss/claims/claims') do
                   VCR.use_cassette('brd/countries') do
-                    json = JSON.parse(data)
-                    reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
-                    reserves['title10Activation']['title10ActivationDate'] = title_10_activation_date
-                    data = json.to_json
-                    post submit_path, params: data, headers: auth_header
-                    expect(response).to have_http_status(:unprocessable_entity)
+                    VCR.use_cassette('brd/disabilities') do
+                      json = JSON.parse(data)
+                      reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
+                      reserves['title10Activation']['title10ActivationDate'] = title_10_activation_date
+                      data = json.to_json
+                      post submit_path, params: data, headers: auth_header
+                      expect(response).to have_http_status(:unprocessable_entity)
+                    end
                   end
                 end
               end
@@ -3315,25 +3444,6 @@ RSpec.describe 'Disability Claims', type: :request do
                       expect(response).to have_http_status(:unprocessable_entity)
                     end
                   end
-                end
-              end
-            end
-          end
-        end
-
-        context 'when unitName is empty' do
-          let(:unit_name) { nil }
-
-          it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('brd/countries') do
-                  json = JSON.parse(data)
-                  reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
-                  reserves['unitName'] = unit_name
-                  data = json.to_json
-                  post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
                 end
               end
             end

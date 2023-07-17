@@ -77,6 +77,11 @@ module ClaimsApi
         change_of_address = form_attributes['changeOfAddress']
         date = change_of_address.dig('dates', 'endDate')
         return unless 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange'])
+
+        form_object_desc = 'a TEMPORARY change of address'
+
+        raise_exception_if_value_not_present('end date', form_object_desc) if date.blank?
+
         return if Date.parse(date) > Date.parse(change_of_address.dig('dates', 'beginDate'))
 
         raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.endDate', date)
@@ -479,17 +484,10 @@ module ClaimsApi
           )
         end
 
-        if activation_date_not_afterduty_begin_date?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'The title 10 activation date must be after the earliest service period active duty begin date.'
-          )
-        end
-
         validate_service_periods!
         validate_confinements!(service_information)
-        validate_anticipated_seperation_date!
         validate_alternate_names!(service_information)
-        validate_reserves_tos_dates!
+        validate_reserves_required_values!(service_information)
       end
 
       def validate_service_periods!
@@ -537,19 +535,6 @@ module ClaimsApi
         end
       end
 
-      def validate_anticipated_seperation_date!
-        service_information = form_attributes['serviceInformation']
-        reserves = service_information&.dig('reservesNationalGuardService')
-
-        anticipated_seperation_date = reserves&.dig('title10Activation', 'anticipatedSeparationDate')
-
-        if Date.parse(anticipated_seperation_date) < Time.zone.now
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'The anticipated separation date must be a date in the future.'
-          )
-        end
-      end
-
       def validate_alternate_names!(service_information)
         alternate_names = service_information&.dig('alternateNames')
         return if alternate_names.blank?
@@ -567,11 +552,67 @@ module ClaimsApi
         end
       end
 
-      def activation_date_not_afterduty_begin_date?
+      def validate_reserves_required_values!(service_information)
+        reserves = service_information&.dig('reservesNationalGuardService')
+
+        return if reserves.blank?
+
+        # if reserves is not empty the we require tos dates
+        validate_reserves_tos_dates!(reserves)
+        validate_title_ten_activiation_values!(reserves)
+        # validate_reserves_unit_information_values!(reserves)
+      end
+
+      def validate_reserves_tos_dates!(reserves)
+        tos = reserves&.dig('obligationTermsOfService')
+
+        tos_start_date = tos&.dig('beginDate')
+        tos_end_date = tos&.dig('endDate')
+
+        form_obj_desc = 'obligation terms of service'
+
+        # if one is present both need to be present
+        raise_exception_if_value_not_present('begin date', form_obj_desc) if tos_start_date.blank?
+        raise_exception_if_value_not_present('end date', form_obj_desc) if tos_end_date.blank?
+
+        if Date.parse(tos_start_date) > Date.parse(tos_end_date)
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'Terms of service begin date must be before the terms of service end date.'
+          )
+        end
+      end
+
+      def validate_title_ten_activiation_values!(reserves)
+        title_ten_activation = reserves&.dig('title10Activation')
+        title_ten_activation_date = title_ten_activation&.dig('title10ActivationDate')
+        anticipated_seperation_date = title_ten_activation&.dig('anticipatedSeparationDate')
+
+        return if title_ten_activation.blank?
+
+        form_obj_desc = 'title 10 activation'
+
+        if title_ten_activation_date.blank?
+          raise_exception_if_value_not_present('title 10 activation date',
+                                               form_obj_desc)
+        end
+
+        if anticipated_seperation_date.blank?
+          raise_exception_if_value_not_present('anticipated seperation date',
+                                               form_obj_desc)
+        end
+        # we know the dates are present
+        if activation_date_not_afterduty_begin_date?(title_ten_activation_date)
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'The title 10 activation date must be after the earliest service period active duty begin date.'
+          )
+        end
+
+        validate_anticipated_seperation_date_in_past!(anticipated_seperation_date)
+      end
+
+      def activation_date_not_afterduty_begin_date?(activation_date)
         service_information = form_attributes['serviceInformation']
         service_periods = service_information&.dig('servicePeriods')
-        reserves = service_information&.dig('reservesNationalGuardService')
-        activation_date = reserves&.dig('title10Activation', 'title10ActivationDate')
 
         earliest_active_duty_begin_date = service_periods.max_by { |a| Date.parse(a['activeDutyBeginDate']) }
 
@@ -579,16 +620,10 @@ module ClaimsApi
         Date.parse(activation_date) < Date.parse(earliest_active_duty_begin_date['activeDutyBeginDate'])
       end
 
-      def validate_reserves_tos_dates!
-        service_information = form_attributes['serviceInformation']
-        reserves = service_information&.dig('reservesNationalGuardService')
-
-        tos_start_date = reserves&.dig('obligationTermsOfService', 'beginDate')
-        tos_end_date = reserves&.dig('obligationTermsOfService', 'endDate')
-
-        if Date.parse(tos_start_date) > Date.parse(tos_end_date)
+      def validate_anticipated_seperation_date_in_past!(date)
+        if Date.parse(date) < Time.zone.now
           raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'Terms of service Start date must be before the terms of service end date.'
+            detail: 'The anticipated separation date must be a date in the future.'
           )
         end
       end
