@@ -130,7 +130,11 @@ module EVSS
 
         raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
-        client = EVSS::DocumentsService.new(auth_headers)
+        if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
+          # TODO: create client from lighthouse document service
+        else
+          client = EVSS::DocumentsService.new(auth_headers)
+        end
         file_body = File.open(pdf_path).read
         client.upload(file_body, document_data)
       ensure

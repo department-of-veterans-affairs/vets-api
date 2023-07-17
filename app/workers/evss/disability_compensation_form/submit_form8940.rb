@@ -49,7 +49,11 @@ module EVSS
       private
 
       def upload_to_vbms(auth_headers, document)
-        client = EVSS::DocumentsService.new(auth_headers)
+        if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
+          # TODO: create client from lighthouse document service
+        else
+          client = EVSS::DocumentsService.new(auth_headers)
+        end
         client.upload(document.file_body, document.data)
       ensure
         # Delete the temporary PDF file
