@@ -144,7 +144,7 @@ module Common
       filter.to_hash.all? do |attribute, predicates|
         actual_value = object.send(attribute)
         predicates.all? do |operator, expected_value|
-          valid_operation =  type.filterable_attributes[attribute].include?(operator.to_s)
+          valid_operation = type.filterable_attributes[attribute].include?(operator.to_s)
           raise Common::Exceptions::FilterNotAllowed, "#{operator} for #{attribute}" unless valid_operation
 
           op = OPERATIONS_MAP.fetch(operator)

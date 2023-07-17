@@ -305,7 +305,7 @@ module PdfFill
           format_incident_overflow(incident, index + 1)
           incident['incidentDate'] = expand_incident_date(incident)
           expand_unit_assigned_dates(incident)
-          incident['incidentLocation'] =  expand_incident_location(incident)
+          incident['incidentLocation'] = expand_incident_location(incident)
           incident['unitAssigned'] = expand_incident_unit_assignment(incident)
           combine_source_name_address(incident)
         end

@@ -24,7 +24,7 @@ module Chip
 
     def connection
       Faraday.new(url: server_url) do |conn|
-        conn.use     :breakers
+        conn.use :breakers
         conn.response :raise_error, error_prefix: service_name
         conn.response :betamocks if Settings.chip.mock?
 
