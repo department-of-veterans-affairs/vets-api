@@ -538,6 +538,9 @@ features:
     actor_type: user
     description: Hides disability comp and pen section of the Profile - Direct Deposit page during a service outage
     enable_in_development: false
+  profile_show_email_notification_settings:
+    actor_type: user
+    description: Show/Hide the email channel based notification settings in profile
   profile_show_payments_notification_setting:
     actor_type: user
     description: Show/Hide the payments section of notifications in profile
