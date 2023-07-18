@@ -1145,6 +1145,28 @@ RSpec.describe 'Disability Claims', type: :request do
         end
       end
 
+      context 'when is a PACT claim' do
+        let(:hazard_exposed_to) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
+
+        it 'tracks the claim count' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('brd/countries') do
+                VCR.use_cassette('brd/disabilities') do
+                  json = JSON.parse(data)
+                  json['data']['attributes']['disabilities'][0]['isRelatedToToxicExposure'] = true
+                  data = json.to_json
+                  post submit_path, params: data, headers: auth_header
+                  id = JSON.parse(response.body)['data']['id']
+                  submissions = ClaimsApi::AutoEstablishedClaim.find(id).submissions
+                  expect(submissions.size).to be <= 1
+                end
+              end
+            end
+          end
+        end
+      end
+
       describe "'servicePay validations'" do
         describe 'retired pay validations' do
           describe "'receivingMilitaryRetiredPay' and 'futureMilitaryRetiredPay' validations" do
