@@ -47,10 +47,27 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
         VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders') do
           get '/mobile/v0/messaging/health/folders', headers: iam_headers
         end
-
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_camelized_response_schema('folders')
+        expect(response.parsed_body['data'].size).to eq(11)
+        expect(response.parsed_body.dig('meta', 'pagination', 'perPage')).to eq(100)
+      end
+
+      context 'when there are pagination parameters' do
+        it 'returns expected number of pages and items per pages' do
+          VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders') do
+            get '/mobile/v0/messaging/health/folders', params: { page: 3, per_page: 5 }, headers: iam_headers
+          end
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_camelized_response_schema('folders')
+          expect(response.parsed_body['data'].size).to eq(1)
+          expect(response.parsed_body.dig('meta', 'pagination', 'currentPage')).to eq(3)
+          expect(response.parsed_body.dig('meta', 'pagination', 'perPage')).to eq(5)
+          expect(response.parsed_body.dig('meta', 'pagination', 'totalPages')).to eq(3)
+          expect(response.parsed_body.dig('meta', 'pagination', 'totalEntries')).to eq(11)
+        end
       end
 
       context 'when there are cached folders' do
@@ -143,6 +160,25 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
         expect(response).to be_successful
         expect(response).to have_http_status(:ok)
         expect(response).to match_camelized_response_schema('messages')
+        expect(response.parsed_body['data'].size).to eq(10)
+        expect(response.parsed_body.dig('meta', 'pagination', 'perPage')).to eq(100)
+      end
+
+      context 'when there are pagination parameters' do
+        it 'returns expected number of pages and items per pages' do
+          VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
+            get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", params: { page: 2, per_page: 6 },
+                                                                            headers: iam_headers
+          end
+          expect(response).to be_successful
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('messages')
+          expect(response.parsed_body['data'].size).to eq(4)
+          expect(response.parsed_body.dig('meta', 'pagination', 'currentPage')).to eq(2)
+          expect(response.parsed_body.dig('meta', 'pagination', 'perPage')).to eq(6)
+          expect(response.parsed_body.dig('meta', 'pagination', 'totalPages')).to eq(2)
+          expect(response.parsed_body.dig('meta', 'pagination', 'totalEntries')).to eq(10)
+        end
       end
 
       context 'when there are cached folder messages' do
