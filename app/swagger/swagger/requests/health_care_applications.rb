@@ -160,6 +160,7 @@ module Swagger
                        example: HCA::EnrollmentEligibility::Constants::ENROLLED,
                        enum: HCA::EnrollmentEligibility::StatusMatcher::ELIGIBLE_STATUS_CATEGORIES
               property :effective_date, type: :string, example: '2019-01-02T21:58:55.000-06:00'
+              property :priority_group, type: %i[string null], example: 'Group 3'
             end
           end
         end

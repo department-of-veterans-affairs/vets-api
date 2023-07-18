@@ -144,6 +144,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             preferred_facility: '988 - DAYT20',
             effective_date: '2019-01-02T21:58:55.000-06:00',
             primary_eligibility: 'SC LESS THAN 50%',
+            priority_group: 'Group 3',
             parsed_status: enrolled
           }
         end

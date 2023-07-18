@@ -21,7 +21,8 @@ describe HCA::EnrollmentEligibility::Service do
             ineligibility_reason: 'for testing',
             effective_date: '2019-01-25T09:04:04.000-06:00',
             primary_eligibility: 'HUMANITARIAN EMERGENCY',
-            veteran: 'false'
+            veteran: 'false',
+            priority_group: nil
           )
         end
       end
@@ -42,7 +43,8 @@ describe HCA::EnrollmentEligibility::Service do
           ineligibility_reason: nil,
           effective_date: '2019-01-02T21:58:55.000-06:00',
           primary_eligibility: 'SC LESS THAN 50%',
-          veteran: 'true'
+          veteran: 'true',
+          priority_group: 'Group 3'
         )
       end
     end
