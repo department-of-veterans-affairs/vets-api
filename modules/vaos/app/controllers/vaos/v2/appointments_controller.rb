@@ -333,6 +333,7 @@ module VAOS
       def appt_comment_log_details(appt, appt_method, comment_content, field_name)
         {
           endpoint_method: appt_method,
+          appointment_id: appt[:id],
           location_id: appt[:location_id],
           clinic: appt[:clinic],
           field_name:,
