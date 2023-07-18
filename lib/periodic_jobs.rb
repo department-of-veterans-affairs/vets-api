@@ -102,6 +102,8 @@ PERIODIC_JOBS = lambda { |mgr|
   # Daily alert of pending claims longer than acceptable threshold
   mgr.register('15 23 * * *', 'ClaimsApi::ReportUnsuccessfulSubmissions')
   # Weekly report of unsuccessful claims submissions
+  mgr.register('15 23 1 * *', 'ClaimsApi::ReportMonthlySubmissions')
+  # Weekly report of unsuccessful claims submissions
 
   mgr.register('30 2 * * *', 'Identity::UserAcceptableVerifiedCredentialTotalsJob')
 
