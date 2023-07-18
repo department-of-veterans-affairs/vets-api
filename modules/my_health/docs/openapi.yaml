@@ -9,6 +9,368 @@ info:
 servers:
   - url: https://api.va.gov/my_health
 paths:
+  /v1/medical_records/allergies:
+    get:
+      description: List patient allergies
+      operationId: list_allergies
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >
+                  FHIR Bundle containing AllergyIntolerance objects. The schema can be found at
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.allergyIntolerance.html'>Allergies</a>.
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/allergies
+  /v1/medical_records/allergies/{id}:
+    get:
+      description: Get a patient allergy
+      operationId: get_allergy
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >
+                  FHIR AllergyIntolerance. The schema can be found at
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.allergyIntolerance.html'>Allergies</a>.
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/allergies/{id}
+  /v1/medical_records/clinical_notes:
+    get:
+      description: List patient clinical notes
+      operationId: list_clinical_notes
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >
+                  FHIR Bundle containing DocumentReference objects. The schema can be found at
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.note.html'>Care Summaries and Notes</a>.
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/clinical_notes
+  /v1/medical_records/clinical_notes/{id}:
+    get:
+      description: Get a clinical note
+      operationId: get_clinical_note
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >
+                  FHIR DocumentReference. The schema can be found at
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.note.html'>Care Summaries and Notes</a>.
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/clinical_notes/{id}
+  /v1/medical_records/conditions:
+    get:
+      description: List patient health conditions
+      operationId: list_conditions
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >
+                  FHIR Bundle containing Condition objects. The schema can be found at
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.condition.html'>Health Conditions</a>.
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/conditions
+  /v1/medical_records/conditions/{id}:
+    get:
+      description: Get a patient health condition
+      operationId: get_condition
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >
+                  FHIR Condition. The schema can be found at
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.condition.html'>Health Conditions</a>.
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/conditions/{id}
+  /v1/medical_records/labs_and_tests:
+    get:
+      description: >
+        List patient labs and tests. This API call runs three separate backend calls, then merges the results. It
+        returns results for the Chemistry/Hematology, EKG, Microbiology, Pathology, and Radiology domains.
+      operationId: list_labs_and_tests
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >
+                  FHIR Bundle containing DiagnosticReport and DocumentReference objects. The schemas can be found at
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.chReport.html'>Chemistry/Hematology</a>,
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.ecg.html'>EKG</a>,
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.labReport.html'>Microbiology and Pathology</a>,
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.imaging.html'>Radiology</a>
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/labs_and_tests
+  /v1/medical_records/labs_and_tests/diagrep/{id}:
+    get:
+      description: |
+        Get a patient labs and tests record of type DiagnosticReport. This is for Chemistry/Hematology,
+        Microbiology, and Pathology results.
+      operationId: get_labs_and_tests_diagrep
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >
+                  FHIR DiagnosticReport. The schemas can be found at
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.chReport.html'>Chemistry/Hematology</a>,
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.labReport.html'>Microbiology and Pathology</a>
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/labs_and_tests/diagrep/{id}
+  /v1/medical_records/labs_and_tests/docref/{id}:
+    get:
+      description: |
+        Get a patient labs and tests record of type DocumentReference. This is for EKG and Radiolody results.
+      operationId: get_labs_and_tests_docref
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >
+                  FHIR DocumentReference. The schema can be found at
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.ecg.html'>EKG</a>,
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.imaging.html'>Radiology</a>
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/labs_and_tests/docref/{id}
+  /v1/medical_records/vaccines:
+    get:
+      description: List patient vaccines
+      operationId: list_vaccines
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >
+                  FHIR Bundle containing Immunization objects. The schema can be found at
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.immunization.html'>Immunization</a>
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/vaccines
+  /v1/medical_records/vaccines/{id}:
+    get:
+      description: Get a patient vaccine
+      operationId: get_vaccine
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >
+                  FHIR Immunization. The schema can be found at
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.immunization.html'>Immunization</a>
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/vaccines/{id}
+  /v1/medical_records/vitals:
+    get:
+      description: List patient vital records
+      operationId: list_vitals
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >
+                  FHIR Bundle containing Observation objects. The schema can be found at
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.vitals.html'>Vitals</a>
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/vitals
+  /v1/medical_records/vitals/{id}:
+    get:
+      description: Get a patient vital record
+      operationId: get_vaccine
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                description: >
+                  FHIR Observation. The schema can be found at
+                  <a href='https://johnmoehrke.github.io/MHV-PHR/StructureDefinition-VA.MHV.PHR.vitals.html'>Vitals</a>
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Forbidden
+      summary: /v1/medical_records/vitals/{id}
+
   /v1/messaging/folders:
     get:
       description: List available secure messaging folders
@@ -148,7 +510,7 @@ paths:
             type: string
         - description: The field to sort the results by
           in: query
-          name: sortField, 
+          name: sortField,
           required: true
           schema:
             type: string
