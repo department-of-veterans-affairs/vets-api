@@ -52,6 +52,10 @@ module HCA
           veteran: get_xpath(
             response,
             "#{XPATH_PREFIX}enrollmentDeterminationInfo/veteran"
+          ),
+          priority_group: get_xpath(
+            response,
+            "#{XPATH_PREFIX}enrollmentDeterminationInfo/priorityGroup"
           )
         }
       end

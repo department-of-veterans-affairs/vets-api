@@ -116,6 +116,15 @@ class HealthCareApplication < ApplicationRecord
     end
   end
 
+  EE_DATA_SELECTED_KEYS = %i[
+    application_date
+    enrollment_date
+    preferred_facility
+    effective_date
+    primary_eligibility
+    priority_group
+  ].freeze
+
   def self.parsed_ee_data(ee_data, loa3)
     if loa3
       parsed_status = HCA::EnrollmentEligibility::StatusMatcher.parse(
@@ -127,11 +136,7 @@ class HealthCareApplication < ApplicationRecord
         parsed_status
       )
 
-      ee_data.slice(
-        :application_date, :enrollment_date,
-        :preferred_facility, :effective_date,
-        :primary_eligibility
-      ).merge(parsed_status:)
+      ee_data.slice(*EE_DATA_SELECTED_KEYS).merge(parsed_status:)
     else
       { parsed_status: if ee_data[:enrollment_status].present?
                          HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED
