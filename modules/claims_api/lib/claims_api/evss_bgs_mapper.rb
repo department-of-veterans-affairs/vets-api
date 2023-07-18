@@ -20,14 +20,14 @@ module ClaimsApi
       claim['data'] = @data
 
       claim['evss_id'] = @data['benefit_claim_id']
-      claim['data']['contention_list'] = [@data['contentions']].compact.reject(&:empty?)
+      claim['data']['contention_list'] = contentions
       claim['data']['va_representative'] = @data['poa']
       claim['data']['development_letter_sent'] = @data['development_letter_sent']
       claim['data']['decision_letter_sent'] = @data['decision_notification_sent']
       claim['data']['documents_needed'] = @data['wwsnfy'].present?
 
       claim['data']['waiver5103_submitted'] = @data['filed5103_waiver_ind'] == 'Y'
-      claim['data']['decision_requested'] = @data['filed5103_waiver_ind'] == 'Y'
+      claim['data']['requested_decision'] = @data['filed5103_waiver_ind'] == 'Y'
 
       claim['data']['claim_type'] = @data['claim_status']
       claim['data']['date'] = format_bgs_date(@data&.dig('claim_dt'))
@@ -45,6 +45,13 @@ module ClaimsApi
     end
 
     private
+
+    def contentions
+      contentions = @data['contentions']&.split(/(?<=\)),/)
+      return [] if contentions.nil?
+
+      contentions
+    end
 
     def phase
       if @data['bnft_claim_lc_status']
