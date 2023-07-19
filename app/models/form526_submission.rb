@@ -5,7 +5,7 @@ require 'sidekiq/form526_backup_submission_process/submit'
 
 class Form526Submission < ApplicationRecord
   include SentryLogging
-  include Form526RapidReadyForDecisionConcern
+  include Form526ClaimFastTrackingConcern
 
   # A 526 disability compensation form record. This class is used to persist the post transformation form
   # and track submission workflow steps.
