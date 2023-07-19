@@ -35,7 +35,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     let(:open_claims_cassette) { 'evss/claims/claims_without_open_compensation_claims' }
     let(:rated_disabilities_cassette) { 'evss/disability_compensation_form/rated_disabilities' }
     let(:submit_form_cassette) { 'evss/disability_compensation_form/submit_form_v2' }
-    let(:cassettes) { [open_claims_cassette, rated_disabilities_cassette, submit_form_cassette] }
+    let(:lh_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload_location' }
+    let(:evss_get_pdf) { 'form526_backup/200_evss_get_pdf' }
+    let(:lh_intake_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload' }
+    let(:cassettes) do
+      [open_claims_cassette, rated_disabilities_cassette, submit_form_cassette, lh_upload, evss_get_pdf,
+       lh_intake_upload]
+    end
+    let(:backup_klass) { Sidekiq::Form526BackupSubmissionProcess::Submit }
 
     before do
       cassettes.each { |cassette| VCR.insert_cassette(cassette) }
@@ -52,7 +59,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       expect(Form526JobStatus).to receive(:upsert).twice
       expect do
         described_class.drain
-      end.to raise_error(error_class).and not_change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+      end.to raise_error(error_class).and not_change(backup_klass.jobs, :size)
     end
 
     context 'with contention classification enabled' do
@@ -82,7 +89,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             VCR.use_cassette('virtual_regional_office/contention_classification_failure') do
               described_class.drain
             end
-          end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+          end.not_to change(backup_klass.jobs, :size)
           expect(Form526JobStatus.last.status).to eq 'success'
         end
 
@@ -126,7 +133,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
       it 'submits successfully' do
         subject.perform_async(submission.id)
-        expect { described_class.drain }.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+        expect { described_class.drain }.not_to change(backup_klass.jobs, :size)
         expect(Form526JobStatus.last.status).to eq 'success'
       end
 
@@ -136,7 +143,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           VCR.use_cassette('virtual_regional_office/contention_classification') do
             described_class.drain
           end
-        end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+        end.not_to change(backup_klass.jobs, :size)
         expect(Form526JobStatus.last.status).to eq 'success'
       end
 
@@ -327,32 +334,25 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     context 'with a client error' do
       it 'sets the job_status to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_400') do
-          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
-            VCR.use_cassette('form526_backup/200_evss_get_pdf') do
-              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
-                backup_klass = Sidekiq::Form526BackupSubmissionProcess::Submit
-                expect_any_instance_of(described_class).to receive(:log_exception_to_sentry)
-                subject.perform_async(submission.id)
-                expect_any_instance_of(
-                  Sidekiq::Form526JobStatusTracker::Metrics
-                ).to receive(:increment_non_retryable).once
-                expect { described_class.drain }.to change(backup_klass.jobs, :size).by(1)
-                form_job_status = Form526JobStatus.last
-                expect(form_job_status.error_class).to eq 'EVSS::DisabilityCompensationForm::ServiceException'
-                expect(form_job_status.job_class).to eq 'SubmitForm526AllClaim'
-                expect(form_job_status.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
-                expect(form_job_status.error_message).to eq(
-                  '[{"key"=>"form526.serviceInformation.ConfinementPastActiveDutyDate", ' \
-                  '"severity"=>"ERROR", "text"=>"The ' \
-                  'confinement start date is too far in the past"}, {"key"=>"form526.serviceInformation.' \
-                  'ConfinementWithInServicePeriod", "severity"=>"ERROR", "text"=>"Your period of confinement must be ' \
-                  'within a single period of service"}, {"key"=>"form526.veteran.homelessness.pointOfContact.' \
-                  'pointOfContactName.Pattern", "severity"=>"ERROR", ' \
-                  '"text"=>"must match \\"([a-zA-Z0-9-/]+( ?))*$\\""}]'
-                )
-              end
-            end
-          end
+          expect_any_instance_of(described_class).to receive(:log_exception_to_sentry)
+          subject.perform_async(submission.id)
+          expect_any_instance_of(
+            Sidekiq::Form526JobStatusTracker::Metrics
+          ).to receive(:increment_non_retryable).once
+          expect { described_class.drain }.to change(backup_klass.jobs, :size).by(1)
+          form_job_status = Form526JobStatus.last
+          expect(form_job_status.error_class).to eq 'EVSS::DisabilityCompensationForm::ServiceException'
+          expect(form_job_status.job_class).to eq 'SubmitForm526AllClaim'
+          expect(form_job_status.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+          expect(form_job_status.error_message).to eq(
+            '[{"key"=>"form526.serviceInformation.ConfinementPastActiveDutyDate", ' \
+            '"severity"=>"ERROR", "text"=>"The ' \
+            'confinement start date is too far in the past"}, {"key"=>"form526.serviceInformation.' \
+            'ConfinementWithInServicePeriod", "severity"=>"ERROR", "text"=>"Your period of confinement must be ' \
+            'within a single period of service"}, {"key"=>"form526.veteran.homelessness.pointOfContact.' \
+            'pointOfContactName.Pattern", "severity"=>"ERROR", ' \
+            '"text"=>"must match \\"([a-zA-Z0-9-/]+( ?))*$\\""}]'
+          )
         end
       end
     end
@@ -389,8 +389,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         VCR.use_cassette('evss/disability_compensation_form/submit_200_with_ep_not_valid') do
           subject.perform_async(submission.id)
           expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_non_retryable).once
-          described_class.drain
+          expect { described_class.drain }.to change(backup_klass.jobs, :size).by(1)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+          expect(backup_klass.jobs.last['class']).to eq(backup_klass.to_s)
         end
       end
     end
@@ -400,8 +401,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_max_ep_code') do
           subject.perform_async(submission.id)
           expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_non_retryable).once
-          described_class.drain
+          expect { described_class.drain }.to change(backup_klass.jobs, :size).by(1)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+          expect(backup_klass.jobs.last['class']).to eq(backup_klass.to_s)
         end
       end
     end
@@ -409,10 +411,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     context 'with a unused [418] error' do
       it 'sets the transaction to "retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_200_with_418') do
+          backup_jobs_count = backup_klass.jobs.count
           subject.perform_async(submission.id)
           expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_retryable).once
           expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)
+                                          .and not_change(backup_klass.jobs, :size)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:retryable_error]
+          expect(backup_klass.jobs.count).to eq(backup_jobs_count)
         end
       end
     end
@@ -423,6 +428,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           subject.perform_async(submission.id)
           expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_retryable).once
           expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)
+                                          .and not_change(backup_klass.jobs, :size)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:retryable_error]
         end
       end
@@ -433,8 +439,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_pif_in_use') do
           subject.perform_async(submission.id)
           expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_non_retryable).once
-          described_class.drain
+          expect { described_class.drain }.to change(backup_klass.jobs, :size).by(1)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+          expect(backup_klass.jobs.last['class']).to eq(backup_klass.to_s)
         end
       end
     end
@@ -451,10 +458,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     end
 
     context 'with an error that is not mapped' do
-      it 'sets the transaction to "retrying"' do
+      it 'sets the transaction to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_unmapped') do
           subject.perform_async(submission.id)
-          described_class.drain
+          expect { described_class.drain }.to change(backup_klass.jobs, :size).by(1)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
         end
       end
@@ -467,7 +474,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
       it 'sets the transaction to "non_retryable_error"' do
         subject.perform_async(submission.id)
-        described_class.drain
+        expect { described_class.drain }.to change(backup_klass.jobs, :size).by(1)
         expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
       end
     end

@@ -26,14 +26,39 @@ describe Sidekiq::Form526JobStatusTracker::JobTracker do
         'error_class' => 'Common::Exceptions::GatewayTimeout'
       }
     end
+    let(:backup_klass) { Sidekiq::Form526BackupSubmissionProcess::Submit }
 
     before { allow(Settings.form526_backup).to receive(:enabled).and_return(true) }
 
-    it 'tracks an exhausted job' do
+    it 'tracks an exhausted job, with no remaining birls ids' do
+      allow_any_instance_of(Form526Submission).to receive(:birls_ids_that_havent_been_tried_yet).and_return([])
+      form526_submission.auth_headers.delete('va_eauth_birlsfilenumber')
+      form526_submission.save!
       expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_exhausted)
-      worker_class.job_exhausted(msg, 'stats_key')
+      expect do
+        # Expect that an exhausted job, ensures that a backup submission gets queued
+        worker_class.job_exhausted(msg, 'stats_key')
+        worker_class.drain
+      end.to change(backup_klass.jobs, :size).by(1)
       job_status = Form526JobStatus.last
+      expect(job_status.status).to eq 'exhausted'
+      expect(job_status.job_class).to eq 'SubmitForm526AllClaim'
+      expect(job_status.error_message).to eq msg['error_message']
+      expect(job_status.form526_submission_id).to eq form526_submission.id
 
+      expect(job_status.bgjob_errors).to be_a Hash
+      key = job_status.bgjob_errors.keys.first
+      expect(job_status.bgjob_errors[key].keys).to match_array %w[timestamp caller_method error_class error_message]
+      expect(job_status.bgjob_errors[key]['caller_method']).to match 'job_exhausted'
+    end
+
+    it 'tracks an exhausted job, with remaining birls ids' do
+      expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_exhausted)
+      expect do
+        worker_class.job_exhausted(msg, 'stats_key')
+        worker_class.drain
+      end.not_to change(backup_klass.jobs, :size)
+      job_status = Form526JobStatus.last
       expect(job_status.status).to eq 'exhausted'
       expect(job_status.job_class).to eq 'SubmitForm526AllClaim'
       expect(job_status.error_message).to eq msg['error_message']
@@ -57,8 +82,8 @@ describe Sidekiq::Form526JobStatusTracker::JobTracker do
             expect do
               worker_class.job_exhausted(msg, 'stats_key')
               worker_class.drain
-            end.to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size).by(1)
-            Sidekiq::Form526BackupSubmissionProcess::Submit.drain
+            end.to change(backup_klass.jobs, :size).by(1)
+            backup_klass.drain
             expect(Form526JobStatus.last.job_class).to eq('BackupSubmission')
           end
         end
