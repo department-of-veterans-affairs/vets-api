@@ -8,7 +8,7 @@
 class AcceptableVerifiedCredentialAdoptionService
   attr_accessor :user
 
-  REACTIVATION_TEMPLATE = Settings.vanotify.services.va_gov.template_id.login_reactivation_email
+  REACTIVATION_TEMPLATE_ID = '480270b2-d2c8-4048-91d7-aebc51a2f073'
   STATS_KEY = 'api.user_transition_availability'
 
   def initialize(user)
@@ -16,7 +16,7 @@ class AcceptableVerifiedCredentialAdoptionService
   end
 
   def perform
-    send_email if user_qualifies_for_reactivation? && Flipper.enabled?(:reactivation_experiment, user)
+    send_email if eligible_for_sending?
   end
 
   private
@@ -30,7 +30,7 @@ class AcceptableVerifiedCredentialAdoptionService
 
     VANotify::EmailJob.perform_async(
       email,
-      REACTIVATION_TEMPLATE,
+      REACTIVATION_TEMPLATE_ID,
       {
         'name' => user.first_name,
         'legacy_credential' => legacy_credential,
@@ -38,7 +38,8 @@ class AcceptableVerifiedCredentialAdoptionService
       }
     )
 
-    log_results('reactivation_email')
+    log_conversion_type_results('reactivation_email')
+    record_adoption_email_trigger_event
   end
 
   def result
@@ -77,7 +78,31 @@ class AcceptableVerifiedCredentialAdoptionService
     user_avc&.acceptable_verified_credential_at
   end
 
-  def log_results(conversion_type)
+  def log_conversion_type_results(conversion_type)
     StatsD.increment("#{STATS_KEY}.#{conversion_type}.#{credential_type}")
+  end
+
+  def record_adoption_email_trigger_event
+    CredentialAdoptionEmailRecord.create(
+      icn: user.icn,
+      email_address: user.email,
+      email_template_id: REACTIVATION_TEMPLATE_ID,
+      email_triggered_at: DateTime.now
+    )
+  end
+
+  def check_for_email_adoption_records
+    CredentialAdoptionEmailRecord.where('email_triggered_at > ?', DateTime.now.days_ago(7))
+                                 .where(icn: user.icn)
+  end
+
+  def recent_triggered_send?
+    check_for_email_adoption_records.any?
+  end
+
+  def eligible_for_sending?
+    user.email && user_qualifies_for_reactivation? && !recent_triggered_send? && Flipper.enabled?(
+      :reactivation_experiment, user
+    )
   end
 end
