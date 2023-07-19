@@ -33,9 +33,10 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
   end
 
   describe 'GET /v0/claims-and-appeals-overview' do
-    before { iam_sign_in }
-
+    let(:user) { FactoryBot.build(:iam_user) }
     let(:params) { { useCache: false, page: { size: 60 } } }
+
+    before { iam_sign_in(user) }
 
     describe '#index (all user claims) is polled' do
       it 'and a result that matches our schema is successfully returned with the 200 status ' do
@@ -217,6 +218,15 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
         end
       end
 
+      it 'caches response if both claims and appeals succeeds' do
+        VCR.use_cassette(good_claims_response_vcr_path) do
+          VCR.use_cassette('mobile/appeals/appeals') do
+            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
+            expect(Mobile::V0::ClaimOverview.get_cached(user)).not_to be_nil
+          end
+        end
+      end
+
       it 'both fail in upstream service' do
         VCR.use_cassette(error_claims_response_vcr_path) do
           VCR.use_cassette('mobile/appeals/server_error') do
@@ -226,6 +236,24 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
             expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('claims')
             expect(response.parsed_body.dig('meta', 'errors')[1]['service']).to eq('appeals')
             expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+          end
+        end
+      end
+
+      it 'does not cache the response if appeals fails and claims succeeds' do
+        VCR.use_cassette(good_claims_response_vcr_path) do
+          VCR.use_cassette('mobile/appeals/server_error') do
+            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
+            expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
+          end
+        end
+      end
+
+      it 'does not cache the response if claims fails and appeals succeeds' do
+        VCR.use_cassette(error_claims_response_vcr_path) do
+          VCR.use_cassette('mobile/appeals/appeals') do
+            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
+            expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
           end
         end
       end
