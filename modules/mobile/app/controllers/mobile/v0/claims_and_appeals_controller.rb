@@ -72,6 +72,7 @@ module Mobile
 
       private
 
+      # rubocop:disable Metrics/MethodLength
       def fetch_all_cached_or_service(validated_params, show_completed)
         list = nil
         list = Mobile::V0::ClaimOverview.get_cached(@current_user) if validated_params[:use_cache]
@@ -81,7 +82,12 @@ module Mobile
                          else
                            service_list, service_errors = evss_claims_proxy.get_claims_and_appeals
                          end
-                         Mobile::V0::ClaimOverview.set_cached(@current_user, list)
+
+                         if service_errors.blank?
+                           Mobile::V0::ClaimOverview.set_cached(@current_user,
+                                                                service_list)
+                         end
+
                          [service_list, service_errors]
                        else
                          [list, []]
@@ -97,6 +103,7 @@ module Mobile
 
         [Mobile::V0::ClaimOverviewSerializer.new(list, options), status]
       end
+      # rubocop:enable Metrics/MethodLength
 
       def lighthouse_claims_adapter
         Mobile::V0::Adapters::LighthouseIndividualClaims.new
