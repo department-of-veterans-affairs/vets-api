@@ -2,11 +2,11 @@
 
 require 'rails_helper'
 
-RSpec.describe RapidReadyForDecision::Constants do
+RSpec.describe ClaimFastTracking::Constants do
   let(:form526_submission) { create(:form526_submission, :hypertension_claim_for_increase) }
 
   describe 'sidekiq_job and backup_sidekiq_job' do
-    subject { RapidReadyForDecision::Constants::DISABILITIES }
+    subject { ClaimFastTracking::Constants::DISABILITIES }
 
     it 'all structs should have values for required keys' do
       expect(subject.values.pluck(:code).any?(nil)).to eq false

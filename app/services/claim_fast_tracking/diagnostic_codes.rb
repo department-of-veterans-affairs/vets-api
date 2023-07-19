@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module RapidReadyForDecision
+module ClaimFastTracking
   module DiagnosticCodes
     ASTHMA = 6602
     HYPERTENSION = 7101
