@@ -1,0 +1,36 @@
+{
+  "claimant_identification": "VETERAN",
+  "form_number": "21-0972",
+  "preparer_address": {
+    "city": "Anytown",
+    "country": "USA",
+    "postal_code": "12345",
+    "state": "CA",
+    "street": "124 Main St"
+  },
+  "preparer_full_name": {
+    "first": "Arthur",
+    "last": "Preparer"
+  },
+  "preparer_phone": "9876054321",
+  "preparer_qualifications": {
+    "court_appointed_rep": true,
+    "attorney": false,
+    "caregiver": false,
+    "manager": false
+  },
+  "preparer_signing_reason": {
+    "under18": true,
+    "mental_capacity": false,
+    "physical_capacity": false
+  },
+  "statement_of_truth_certified": true,
+  "statement_of_truth_signature": "Arthur Preparer",
+  "veteran_date_of_birth": "1950-10-25",
+  "veteran_full_name": {
+    "first": "Alex",
+    "last": "Veteran"
+  },
+  "veteran_has_filed_claim": true,
+  "veteran_ssn": "999442222"
+}
