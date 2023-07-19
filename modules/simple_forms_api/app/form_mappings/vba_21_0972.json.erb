@@ -1,0 +1,76 @@
+{
+  "F[0].#subform[1].Alternate_Signers_Name_First[0]": "<%= data.dig('preparer_full_name', 'first') %>",
+  "F[0].#subform[1].Claimants_Name_Middle_Initial[1]": "<%= data.dig('preparer_full_name', 'middle') %>",
+  "F[0].#subform[1].Alternate_Signer_Name_Last_Name[0]": "<%= data.dig('preparer_full_name', 'last') %>",
+
+  "F[0].#subform[1].CurrentMailingAddress_Country[1]": "<%= data.dig('preparer_address', 'country') %>",
+  "F[0].#subform[1].CurrentMailingAddress_NumberAndStreet[1]": "<%= data.dig('preparer_address', 'street') %>",
+  "F[0].#subform[1].CurrentMailingAddress_ApartmentOrUnitNumber[1]": "<%= data.dig('preparer_address', 'street2') %>",
+  "F[0].#subform[1].CurrentMailingAddress_City[1]": "<%= data.dig('preparer_address', 'city') %>",
+  "F[0].#subform[1].CurrentMailingAddress_StateOrProvince[1]": "<%= data.dig('preparer_address', 'state') %>",
+  "F[0].#subform[1].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[1]": "<%= data.dig('preparer_address', 'postal_code') %>",
+  "F[0].#subform[1].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[1]": "<%= data.dig('preparer_address', 'postal_code')&.[](5..9) %>",
+
+  "F[0].#subform[1].Telephone_Number_AreaCode[1]": "<%= data['preparer_phone']&.gsub('-', '')&.[](0..2) %>",
+  "F[0].#subform[1].Telephone_Number_MiddleThree[1]": "<%= data['preparer_phone']&.gsub('-', '')&.[](3..5) %>",
+  "F[0].#subform[1].Telephone_Number_LastFour[1]": "<%= data['preparer_phone']&.gsub('-', '')&.[](6..9) %>",
+  "F[0].#subform[1].Alternate_Signers_Email_Address[0]": "<%= data['preparer_email'] %>",
+
+  "F[0].#subform[1].Claimants_Name_First[0]": "<%= data.dig('claimant_full_name', 'first') %>",
+  "F[0].#subform[1].Claimants_Name_Middle_Initial[0]": "<%= data.dig('claimant_full_name', 'middle') %>",
+  "F[0].#subform[1].Claimants_Name_Last_Name[0]": "<%= data.dig('claimant_full_name', 'last') %>",
+
+  "F[0].#subform[1].Claimants_SocialSecurityNumber_FirstThreeNumbers[0]": "<%= data['claimant_ssn']&.[](0..2) %>",
+  "F[0].#subform[1].Claimants_SocialSecurityNumber_SecondTwoNumbers[0]": "<%= data['claimant_ssn']&.[](3..4) %>",
+  "F[0].#subform[1].Claimants_SocialSecurityNumber_LastFourNumbers[0]": "<%= data['claimant_ssn']&.[](5..8) %>",
+
+  "F[0].#subform[1].CurrentMailingAddress_Country[0]": "<%= data.dig('claimant_address', 'country') %>",
+  "F[0].#subform[1].CurrentMailingAddress_NumberAndStreet[0]": "<%= data.dig('claimant_address', 'street') %>",
+  "F[0].#subform[1].CurrentMailingAddress_ApartmentOrUnitNumber[0]": "<%= data.dig('claimant_address', 'street2') %>",
+  "F[0].#subform[1].CurrentMailingAddress_City[0]": "<%= data.dig('claimant_address', 'city') %>",
+  "F[0].#subform[1].CurrentMailingAddress_StateOrProvince[0]": "<%= data.dig('claimant_address', 'state') %>",
+  "F[0].#subform[1].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": "<%= data.dig('claimant_address', 'postal_code')&.[](0..4) %>",
+  "F[0].#subform[1].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": "<%= data.dig('claimant_address', 'postal_code')&.[](5..9) %>",
+
+  "F[0].#subform[1].Telephone_Number_AreaCode[0]": "<%= data['claimant_phone']&.gsub('-', '')&.[](0..2) %>",
+  "F[0].#subform[1].Telephone_Number_MiddleThree[0]": "<%= data['claimant_phone']&.gsub('-', '')&.[](3..5) %>",
+  "F[0].#subform[1].Telephone_Number_LastFour[0]": "<%= data['claimant_phone']&.gsub('-', '')&.[](6..9) %>",
+  "F[0].#subform[1].International_Telephone_Number_If_Applicable[0]": "<%= %>",
+  "F[0].#subform[1].International_Telephone_Number_If_Applicable[1]": "<%= %>",
+  "F[0].#subform[1].Email_Address[0]": "<%= data['claimant_email'] %>",
+
+  "F[0].#subform[1].A_COURT_APPOINTED_REPRESENTATIVE[0]": "<%= data.dig('preparer_qualifications', 'court_appointed_rep') ? 1 : 0 %>",
+  "F[0].#subform[1].AN_ATTORNEY_IN_FACT_OR_AGENT_AUTHORIZED_TO_ACT_ON_BEHALF_OF_THE_VETERAN_CLAIMANT_UNDER_DURABLE_POWER_OF_ATTORNEY[0]": "<%= data.dig('preparer_qualifications', 'attorney') ? 1 : 0 %>",
+  "F[0].#subform[1].A_PERSON_WHO_IS_RESPONSIBLE_FOR_THE_CARE_OF_THE_VETERAN_CLAIMANT_TO_INCLUDE_BUT_NOT_LIMITED_TO_A_SPOUSE_OR_OTHER_RELATIVE[0]": "<%= data.dig('preparer_qualifications', 'caregiver') ? 1 : 0 %>",
+  "F[0].#subform[1].A_MANAGER_OR_PRINCIPAL_OFFICER_ACTING_ON_BEHALF_OF_AN_INSTITUTION_WHICH_IS_RESPONSIBLE_FOR_THE_CARE_OF_THE_VETERAN_CLAIMANT[0]": "<%= data.dig('preparer_qualifications', 'manager') ? 1 : 0 %>",
+    "F[0].#subform[1].Veterans_Service_Number[0]": "<%= data['veteran_service_number'] %>",
+  "F[0].#subform[2].Checkbox_Under_18_Years_Of_Age[0]": "<%= data.dig('preparer_signing_reason', 'under18') ? 1 : 0 %>",
+  "F[0].#subform[2].Checkbox_Mentally_Incompetent_To_Provide_Substantially_Accurate_Information_Needed_To_Complete_The_Claims_Form_Or_To_Certify_That_Statements_Made_On_The_Form_Are_True_And_Complete_Or[0]": "<%= data.dig('preparer_signing_reason', 'mentally_incapable') ? 1 : 0 %>",
+  "F[0].#subform[2].Checkbox_Physically_Unable_To_Sign_The_Claims_Form[0]": "<%= data.dig('preparer_signing_reason', 'physically_incapable') ? 1 : 0 %>",
+
+  "F[0].#subform[1].Veteran_Name_First[0]": "<%= data.dig('veteran_full_name', 'first') %>",
+  "F[0].#subform[1].Veteran_Name_Middle_Initial[0]": "<%= data.dig('veteran_full_name', 'middle') %>",
+  "F[0].#subform[1].Veteran_Name_Last_Name[0]": "<%= data.dig('veteran_full_name', 'last') %>",
+  "F[0].#subform[1].Veterans_File_Number[0]": "<%= data['veteran_va_file_number'] %>",
+  "F[0].#subform[1].Date_Of_Birth_Month[0]": "<%= data['veteran_date_of_birth']&.[](5..6) %>",
+  "F[0].#subform[1].Date_Of_Birth_Day[0]": "<%= data['veteran_date_of_birth']&.[](8..9) %>",
+  "F[0].#subform[1].Date_Of_Birth_Year[0]": "<%= data['veteran_date_of_birth']&.[](0..3) %>",
+
+  "F[0].#subform[1].RadioButtonList[0]": "<%= {'SPOUSE' => 1, 'PARENT' => 2, 'CHILD' => 3}[data['claimant_identification']] %>",
+  "F[0].#subform[1].RadioButtonList[1]": "<%= data['veteran_has_filed_claim'] ? 0 : 1 %>",
+  "F[0].#subform[2].Veterans_SocialSecurityNumber_FirstThreeNumbers[1]": "<%= data['veteran_ssn']&.[](0..2) %>",
+  "F[0].#subform[2].Veterans_SocialSecurityNumber_SecondTwoNumbers[1]": "<%= data['veteran_ssn']&.[](3..4) %>",
+  "F[0].#subform[2].Veterans_SocialSecurityNumber_LastFourNumbers[1]": "<%= data['veteran_ssn']&.[](5..8) %>",
+
+  "F[0].#subform[2].Remarks[0]": "<%= data['additional_information'] %>",
+
+  "F[0].#subform[1].Veterans_SocialSecurityNumber_FirstThreeNumbers[0]": "<%= data['veteran_ssn']&.[](0..2) %>",
+  "F[0].#subform[1].Veterans_SocialSecurityNumber_SecondTwoNumbers[0]": "<%= data['veteran_ssn']&.[](3..4) %>",
+  "F[0].#subform[1].Veterans_SocialSecurityNumber_LastFourNumbers[0]": "<%= data['veteran_ssn']&.[](5..8) %>",
+
+  "F[0].#subform[2].Date_Signed_Month[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%m') %>",
+  "F[0].#subform[2].Date_Signed_Day[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%d') %>",
+  "F[0].#subform[2].Date_Signed_Year[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%Y') %>",
+  "F[0].#subform[2].Digital_Signature[0]": "<%= %>",
+  "F[0]": "<%= 'F' %>"
+}
