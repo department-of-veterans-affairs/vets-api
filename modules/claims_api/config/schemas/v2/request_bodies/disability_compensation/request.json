@@ -594,7 +594,6 @@
                         "treatedDisabilityNames": {
                             "description": "Name(s) of Disabilities treated in this time frame.",
                             "type": "array",
-                            "minItems": 1,
                             "maxItems": 101,
                             "items": {
                                 "type": "string",
@@ -610,9 +609,8 @@
                                   "name": {
                                       "description": "Name of facility Veteran was treated in. The /treatment-centers endpoint on the [Benefits Reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current) may be used to retrieve possible treatment center names.",
                                       "type": "string",
-                                      "pattern": "(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                      "pattern": "^$|(?!(?: )$)([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
                                       "example": "Private Facility 2",
-                                      "minLength": 1,
                                       "maxLength": 100
                                   },                            
                                   "city": {
@@ -624,7 +622,7 @@
                                   "state": {
                                       "description": "State of treatment facility.",
                                       "type": "string",
-                                      "pattern": "^[a-z,A-Z]{2}$",
+                                      "pattern": "^$|^[a-z,A-Z]{2}$",
                                       "example": "OR"
                                   }
                               }

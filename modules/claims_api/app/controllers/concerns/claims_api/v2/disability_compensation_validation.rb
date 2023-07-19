@@ -406,33 +406,7 @@ module ClaimsApi
         treatments = form_attributes['treatments']
         return if treatments.blank?
 
-        validate_form_526_treatments_required_fields!(treatments)
         validate_treated_disability_names!(treatments)
-      end
-
-      def validate_form_526_treatments_required_fields!(treatments)
-        treatments.each do |treatment|
-          treatment_treated_disability_names = treatment&.dig('treatedDisabilityNames')
-          treatment_center = treatment&.dig('center')
-          treatment_center_name = treatment&.dig('center', 'name')
-          treatment_center_state = treatment&.dig('center', 'state')
-
-          form_object_desc = 'treatments'
-
-          if treatment_treated_disability_names.blank?
-            raise_exception_if_value_not_present('treated disability name(s)',
-                                                 form_object_desc)
-          end
-          raise_exception_if_value_not_present('treatment center', form_object_desc) if treatment_center.blank?
-          if treatment_center_name.blank?
-            raise_exception_if_value_not_present('treatment center name',
-                                                 form_object_desc)
-          end
-          if treatment_center_state.blank?
-            raise_exception_if_value_not_present('treatment center state',
-                                                 form_object_desc)
-          end
-        end
       end
 
       def validate_treated_disability_names!(treatments)
@@ -451,12 +425,6 @@ module ClaimsApi
       def collect_treated_disability_names(treatments)
         names = []
         treatments.each do |treatment|
-          if treatment['treatedDisabilityNames'].blank?
-            raise ::Common::Exceptions::UnprocessableEntity.new(
-              detail: 'Treated disability names are required.'
-            )
-          end
-
           treatment['treatedDisabilityNames'].each do |disability_name|
             names << disability_name.strip.downcase
           end
