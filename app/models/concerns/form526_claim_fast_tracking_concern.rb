@@ -6,11 +6,10 @@ require 'virtual_regional_office/client'
 
 # rubocop:disable Metrics/ModuleLength
 # For use with Form526Submission
-# TODO rename Form526RapidReadyForDecisionConcern to Form526ClaimFastTrackingConcern
-module Form526RapidReadyForDecisionConcern
+module Form526ClaimFastTrackingConcern
   extend ActiveSupport::Concern
 
-  STATSD_KEY_PREFIX = 'worker.rapid_ready_for_decision'
+  RRD_STATSD_KEY_PREFIX = 'worker.rapid_ready_for_decision'
 
   def send_rrd_alert_email(subject, message, error = nil, to = Settings.rrd.alerts.recipients)
     RrdAlertMailer.build(self, subject, message, error, to).deliver_now
@@ -85,7 +84,7 @@ module Form526RapidReadyForDecisionConcern
   end
 
   def diagnostic_codes
-    disabilities.map { |disability| disability['diagnosticCode'] }
+    disabilities.pluck('diagnosticCode')
   end
 
   def prepare_for_evss!
@@ -187,11 +186,11 @@ module Form526RapidReadyForDecisionConcern
                                         })
     response = client.initiate_apcas_processing
     save_metadata(mas_packetId: response.dig('body', 'packetId'))
-    StatsD.increment("#{STATSD_KEY_PREFIX}.notify_mas.success")
+    StatsD.increment("#{RRD_STATSD_KEY_PREFIX}.notify_mas.success")
   rescue => e
     send_rrd_alert_email("Failure: MA claim - #{submitted_claim_id}", e.to_s, nil,
                          Settings.rrd.mas_tracking.recipients)
-    StatsD.increment("#{STATSD_KEY_PREFIX}.notify_mas.failure")
+    StatsD.increment("#{RRD_STATSD_KEY_PREFIX}.notify_mas.failure")
   end
 end
 # rubocop:enable Metrics/ModuleLength

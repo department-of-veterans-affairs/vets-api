@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module RapidReadyForDecision
+module ClaimFastTracking
   class Constants
     DISABILITIES = {
       hypertension: {
@@ -13,7 +13,7 @@ module RapidReadyForDecision
       }
     }.freeze
 
-    DISABILITIES_BY_CODE = DISABILITIES.map { |k, v| [v[:code], k] }.to_h
+    DISABILITIES_BY_CODE = DISABILITIES.to_h { |k, v| [v[:code], k] }
 
     # @return [Array] mapping submitted disabilities to symbols used as keys for DISABILITIES;
     #                 an element is nil when the disability is not supported by RRD
