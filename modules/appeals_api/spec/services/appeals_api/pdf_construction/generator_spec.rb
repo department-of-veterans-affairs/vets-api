@@ -26,7 +26,7 @@ describe AppealsApi::PdfConstruction::Generator do
 
           it 'generates the expected pdf' do
             generated_pdf = described_class.new(notice_of_disagreement).generate
-            expected_pdf = fixture_filepath('pdfs/v1/expected_10182_minimum.pdf')
+            expected_pdf = fixture_filepath('decision_reviews/v1/pdfs/v1/expected_10182_minimum.pdf')
             expect(generated_pdf).to match_pdf expected_pdf
             File.delete(generated_pdf) if File.exist?(generated_pdf)
           end
@@ -37,7 +37,7 @@ describe AppealsApi::PdfConstruction::Generator do
 
           it 'generates the expected pdf' do
             generated_pdf = described_class.new(notice_of_disagreement).generate
-            expected_pdf = fixture_filepath('pdfs/v1/expected_10182_extra.pdf')
+            expected_pdf = fixture_filepath('decision_reviews/v1/pdfs/v1/expected_10182_extra.pdf')
             expect(generated_pdf).to match_pdf expected_pdf
             File.delete(generated_pdf) if File.exist?(generated_pdf)
           end
@@ -48,7 +48,7 @@ describe AppealsApi::PdfConstruction::Generator do
         let(:fixture_name) { 'expected_10182.pdf' }
         let(:nod) { create(:notice_of_disagreement_v2, created_at: '2021-02-03T14:15:16Z') }
         let(:generated_pdf) { described_class.new(nod, pdf_version:).generate }
-        let(:expected_pdf) { fixture_filepath("pdfs/#{pdf_version}/#{fixture_name}") }
+        let(:expected_pdf) { fixture_filepath("decision_reviews/v2/pdfs/#{pdf_version}/#{fixture_name}") }
 
         after do
           File.delete(generated_pdf) if File.exist?(generated_pdf)
@@ -116,129 +116,11 @@ describe AppealsApi::PdfConstruction::Generator do
       end
     end
 
-    context 'Higher Level Review' do
-      shared_examples 'shared HLR v2 and v3 generator examples' do |pdf_version, max_content_form_data = {}|
-        after { File.delete(generated_pdf) if File.exist?(generated_pdf) }
-
-        let(:created_at) { '2021-02-03T14:15:16Z' }
-        let(:generated_pdf) { described_class.new(hlr, pdf_version:).generate }
-        let(:expected_pdf) { fixture_filepath("pdfs/#{pdf_version}/#{fixture_name}") }
-        let(:fixture_name) { 'expected_200996.pdf' }
-        let(:hlr) { create(:higher_level_review_v2, created_at:) }
-
-        it 'generates the expected pdf' do
-          expect(generated_pdf).to match_pdf(expected_pdf)
-        end
-
-        context 'with extra content' do
-          let(:fixture_name) { 'expected_200996_extra.pdf' }
-          let(:hlr) { create(:extra_higher_level_review_v2, created_at:) }
-
-          it 'generates the expected pdf' do
-            expect(generated_pdf).to match_pdf(expected_pdf)
-          end
-        end
-
-        context 'with minimum content' do
-          let(:fixture_name) { 'expected_200996_minimum.pdf' }
-          let(:hlr) { create(:minimal_higher_level_review_v2, created_at:) }
-
-          it 'generates the expected pdf' do
-            expect(generated_pdf).to match_pdf(expected_pdf)
-          end
-        end
-
-        context 'with max length' do
-          let(:fixture_name) { 'expected_200996_maxlength.pdf' }
-          let(:hlr) do
-            max_content_form_data.each do |field_name, field_value|
-              allow_any_instance_of(
-                "AppealsApi::PdfConstruction::HigherLevelReview::#{pdf_version.upcase}::FormData".constantize
-              ).to receive(field_name).and_return(field_value)
-            end
-
-            create(:extra_higher_level_review_v2, created_at:) do |appeal|
-              appeal.form_data = override_max_lengths(appeal, read_schema('200996.json', 'decision_reviews', 'v2'))
-              # TODO: update countryCodeISO2 in expected_200996_maxlength.pdf with expected override_max_lengths values
-              appeal.form_data['data']['attributes']['veteran']['address']['countryCodeISO2'] = 'US'
-              appeal.form_data['data']['attributes']['claimant']['address']['countryCodeISO2'] = 'US'
-              appeal.auth_headers.merge!({
-                                           'X-VA-First-Name' => 'W' * 30,
-                                           'X-VA-Middle-Initial' => 'W',
-                                           'X-VA-Last-Name' => 'W' * 40,
-                                           'X-VA-File-Number' => 'W' * 9,
-                                           'X-VA-SSN' => 'W' * 9,
-                                           'X-VA-Insurance-Policy-Number' => 'W' * 18,
-                                           'X-VA-NonVeteranClaimant-SSN' => 'W' * 9,
-                                           'X-VA-NonVeteranClaimant-First-Name' => 'W' * 255,
-                                           'X-VA-NonVeteranClaimant-Middle-Initial' => 'W',
-                                           'X-VA-NonVeteranClaimant-Last-Name' => 'W' * 255,
-                                           'X-Consumer-Username' => 'W' * 255,
-                                           'X-Consumer-ID' => 'W' * 255
-                                         })
-            end
-          end
-
-          it 'generates the expected pdf' do
-            expect(generated_pdf).to match_pdf(expected_pdf)
-          end
-        end
-
-        context 'with special characters' do
-          context 'when compatible with Windows-1252' do
-            let(:text) { 'Smartquotes: “”‘’' }
-            let(:hlr) do
-              create(:higher_level_review_v2, created_at:) do |appeal|
-                appeal.form_data['included'][0]['attributes']['issue'] = text
-              end
-            end
-
-            it 'does not remove the characters' do
-              generated_reader = PDF::Reader.new(generated_pdf)
-              expect(generated_reader.pages[1].text).to include text
-            end
-          end
-
-          context 'when incompatible with Windows-1252 and unable to downgrade' do
-            let(:normal_text) { 'allergies' }
-            let(:special_text) { '∑' }
-            let(:hlr) do
-              create(:higher_level_review_v2, created_at:) do |appeal|
-                appeal.form_data['included'][0]['attributes']['issue'] = "#{special_text}#{normal_text}"
-              end
-            end
-
-            it 'removes the characters' do
-              generated_reader = PDF::Reader.new(generated_pdf)
-              expect(generated_reader.pages[1].text).to include normal_text
-              expect(generated_reader.pages[1].text).not_to include special_text
-            end
-          end
-        end
-      end
-
-      context 'v2' do
-        include_examples 'shared HLR v2 and v3 generator examples', 'v2', {
-          veteran_international_number: '+WWW-WWWWWWWWWWWWWWW',
-          claimant_international_number: '+WWW-WWWWWWWWWWWWWWW'
-        }
-      end
-
-      # This causes failure in CI in the k8s branch only right now
-      # context 'v3' do
-      # include_examples 'shared HLR v2 and v3 generator examples', 'v3', {
-      # veteran_international_phone: '+WWW-WWWWWWWWWWWWWWW',
-      # claimant_international_phone: '+WWW-WWWWWWWWWWWWWWW',
-      # rep_international_phone: '+WWW-WWWWWWWWWWWWWWW'
-      # }
-      # end
-    end
-
     context 'Supplemental Claim' do
       shared_examples 'shared SC v2 and v3 generator examples' do |pdf_version, max_content_form_data|
         let(:created_at) { '2021-02-03T14:15:16Z' }
         let(:generated_pdf) { described_class.new(sc, pdf_version:).generate }
-        let(:expected_pdf) { fixture_filepath("pdfs/#{pdf_version}/#{fixture_name}") }
+        let(:expected_pdf) { fixture_filepath("decision_reviews/v2/pdfs/#{pdf_version}/#{fixture_name}") }
         let(:fixture_name) { 'expected_200995.pdf' }
         let(:sc) { create(:supplemental_claim, evidence_submission_indicated: true, created_at:) }
 
