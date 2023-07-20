@@ -12,7 +12,7 @@ describe AppealsApi::PdfDownloads do
   include FixtureHelpers
 
   describe '#watermark' do
-    let(:input_pdf_path) { fixture_filepath('pdfs/v3/expected_200996.pdf') }
+    let(:input_pdf_path) { fixture_filepath('higher_level_reviews/v0/pdfs/v3/expected_200996.pdf') }
     let!(:output_pdf_path) { described_class.watermark(input_pdf_path, 'output.pdf') }
 
     after do

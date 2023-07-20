@@ -14,7 +14,7 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
   before { allow(StatsD).to receive(:increment) }
 
   describe '.perform' do
-    context 'when Flipper reactivation_experiment is enabled' do
+    context 'when Flipper reactivation_experiment_rate_limit is enabled' do
       context 'User is dslogon authenticated' do
         context 'When user has avc' do
           let!(:user_acceptable_verified_credential) do
@@ -348,9 +348,9 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
       end
     end
 
-    context 'When Flipper reactivation_experiment is disabled' do
+    context 'When Flipper reactivation_experiment_rate_limit is disabled' do
       before do
-        Flipper.disable(:reactivation_experiment)
+        Flipper.disable(:reactivation_experiment_rate_limit)
       end
 
       it 'does not send an email' do

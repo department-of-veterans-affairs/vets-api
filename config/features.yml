@@ -505,9 +505,13 @@ features:
   organic_conversion_experiment:
     actor_type: user
     description: Toggle to enable login.gov create account experiment
-  reactivation_experiment:
+  reactivation_experiment_initial_gate:
     actor_type: user
-    description: Toggle to enable login.gov reactivate account experiment
+    description: Toggle to enable all users to enter the eligibility check portion of the flow.  This only be set to
+      enabled for one (1) week at the longest, starting 20JULY2023 or 21JULY2023 depending on deployment timing.
+  reactivation_experiment_rate_limit:
+    actor_type: user
+    description: Toggle to control the amount of eligible users entering the send_email portion of the flow.
   pdf_warning_banner:
     description: "When enabled, will allow display of PDF cert warnings in find-a-form"
     actor_type: user
