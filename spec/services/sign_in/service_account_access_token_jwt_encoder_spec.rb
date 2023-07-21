@@ -4,42 +4,36 @@ require 'rails_helper'
 
 RSpec.describe SignIn::ServiceAccountAccessTokenJwtEncoder do
   describe '#perform' do
-    subject do
-      SignIn::ServiceAccountAccessTokenJwtEncoder.new(decoded_service_account_assertion:).perform
-    end
+    subject { SignIn::ServiceAccountAccessTokenJwtEncoder.new(service_account_access_token:).perform }
 
-    let(:decoded_service_account_assertion) do
-      OpenStruct.new({ sub:, scopes:, service_account_id: })
-    end
-    let(:service_account_config) { create(:service_account_config) }
-    let(:service_account_id) { service_account_config.service_account_id }
-    let(:scopes) { service_account_config.scopes }
-    let(:expected_audience) { service_account_config.access_token_audience }
-    let(:sub) { 'some-user-email@va.gov' }
-    let(:public_key) { OpenSSL::PKey::RSA.new(File.read(Settings.sign_in.jwt_encode_key)).public_key }
-    let(:algorithm) { SignIn::Constants::ServiceAccountAccessToken::JWT_ENCODE_ALGORITHM }
+    let(:service_account_access_token) { create(:service_account_access_token) }
 
-    context 'without a Service Account configuration' do
-      let(:service_account_config) { nil }
-      let(:service_account_id) { SecureRandom.hex }
-      let(:scopes) { ['first-scope, second-scope'] }
-      let(:expected_audience) { 'some-expected-audience' }
-      let(:expected_error) { SignIn::Errors::ServiceAccountConfigNotFound }
-      let(:expected_error_message) { 'Service account config not found' }
+    context 'when input object is a service account access token' do
+      let(:expected_iss) { SignIn::Constants::AccessToken::ISSUER }
+      let(:expected_aud) { service_account_access_token.audience }
+      let(:expected_jti) { service_account_access_token.uuid }
+      let(:expected_sub) { service_account_access_token.user_identifier }
+      let(:expected_exp) { service_account_access_token.expiration_time.to_i }
+      let(:expected_iat) { service_account_access_token.created_time.to_i }
+      let(:expected_version) { service_account_access_token.version }
+      let(:expected_scopes) { service_account_access_token.scopes }
+      let(:expected_service_account_id) { service_account_access_token.service_account_id }
 
-      it 'raises a ServiceAccountConfig not found error' do
-        expect { subject }.to raise_error(expected_error, expected_error_message)
+      before do
+        allow(SecureRandom).to receive(:hex).and_return(expected_jti)
       end
-    end
 
-    context 'with a Service Account configuration' do
-      it 'returns a JWT that can be validated with the SiS public key and has expected values' do
-        decoded_jwt = OpenStruct.new(
-          JWT.decode(subject, public_key, true, { verify_expiration: true, algorithm: }).first
-        )
-        expect(decoded_jwt.sub).to eq(sub)
-        expect(decoded_jwt.scopes).to eq(scopes)
-        expect(decoded_jwt.aud).to eq(expected_audience)
+      it 'returns an encoded jwt with expected parameters' do
+        decoded_jwt = OpenStruct.new(JWT.decode(subject, false, nil).first)
+        expect(decoded_jwt.iss).to eq expected_iss
+        expect(decoded_jwt.aud).to eq expected_aud
+        expect(decoded_jwt.jti).to eq expected_jti
+        expect(decoded_jwt.sub).to eq expected_sub
+        expect(decoded_jwt.exp).to eq expected_exp
+        expect(decoded_jwt.iat).to eq expected_iat
+        expect(decoded_jwt.version).to eq expected_version
+        expect(decoded_jwt.scopes).to eq expected_scopes
+        expect(decoded_jwt.service_account_id).to eq expected_service_account_id
       end
     end
   end

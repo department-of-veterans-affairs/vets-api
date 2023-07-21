@@ -43,7 +43,7 @@ module SignIn
     rescue Errors::AccessTokenExpiredError => e
       render json: { errors: e }, status: :forbidden
     rescue Errors::StandardError => e
-      handle_authenticate_error(e, access_token_cookie_name: Constants::Auth::SERVICE_ACCOUNT_ACCESS_TOKEN_COOKIE_NAME)
+      handle_authenticate_error(e)
     end
 
     private
@@ -65,8 +65,7 @@ module SignIn
     end
 
     def authenticate_service_account_access_token
-      access_token_cookie_name = Constants::Auth::SERVICE_ACCOUNT_ACCESS_TOKEN_COOKIE_NAME
-      service_account_access_token_jwt = bearer_token || cookie_access_token(access_token_cookie_name:)
+      service_account_access_token_jwt = bearer_token
       ServiceAccountAccessTokenJwtDecoder.new(service_account_access_token_jwt:).perform
     end
 

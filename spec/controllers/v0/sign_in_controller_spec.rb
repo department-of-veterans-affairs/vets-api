@@ -1269,7 +1269,7 @@ RSpec.describe V0::SignInController, type: :controller do
                   .merge(grant_type)
                   .merge(client_assertion)
                   .merge(client_assertion_type)
-                  .merge(service_account_assertion))
+                  .merge(assertion))
     end
 
     let(:user_verification) { create(:user_verification) }
@@ -1279,6 +1279,8 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:code) { { code: code_value } }
     let(:code_verifier) { { code_verifier: code_verifier_value } }
     let(:grant_type) { { grant_type: grant_type_value } }
+    let(:assertion) { { assertion: assertion_value } }
+    let(:assertion_value) { nil }
     let(:code_value) { 'some-code' }
     let(:code_verifier_value) { 'some-code-verifier' }
     let(:grant_type_value) { SignIn::Constants::Auth::AUTH_CODE }
@@ -1286,8 +1288,6 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:client_assertion_type) { { client_assertion_type: client_assertion_type_value } }
     let(:client_assertion_value) { 'some-client-assertion' }
     let(:client_assertion_type_value) { 'some-client-assertion-type' }
-    let(:service_account_assertion) { { service_account_assertion: service_account_assertion_value } }
-    let(:service_account_assertion_value) { nil }
     let(:type) { nil }
     let(:client_id) { client_config.client_id }
     let(:authentication) { SignIn::Constants::Auth::API }
@@ -1327,24 +1327,121 @@ RSpec.describe V0::SignInController, type: :controller do
       end
     end
 
-    context 'when code param is not given' do
-      let(:code) { {} }
-      let(:expected_error) { 'Code is not defined' }
+    context 'when grant_type param is not given' do
+      let(:grant_type) { {} }
+      let(:expected_error) { 'Grant Type is not valid' }
 
       it_behaves_like 'error response'
     end
 
-    context 'when code is given' do
-      let(:code_value) { 'some-code' }
+    context 'when grant_type param is arbitrary' do
+      let(:grant_type_value) { 'some-grant-type' }
+      let(:expected_error) { 'Grant Type is not valid' }
 
-      context 'and grant_type param is not given' do
-        let(:grant_type) { {} }
-        let(:expected_error) { 'Grant Type is not defined' }
+      it_behaves_like 'error response'
+    end
+
+    context 'when grant_type is jwt-bearer' do
+      let(:grant_type_value) { SignIn::Constants::Auth::JWT_BEARER }
+      let(:assertion_value) { nil }
+
+      context 'and assertion is not a valid jwt' do
+        let(:assertion_value) { 'some-assertion-value' }
+        let(:expected_error) { 'Assertion is malformed' }
 
         it_behaves_like 'error response'
       end
 
-      context 'and grant_type param is given' do
+      context 'and assertion is a valid jwt' do
+        let(:private_key) { OpenSSL::PKey::RSA.new(File.read(private_key_path)) }
+        let(:private_key_path) { 'spec/fixtures/sign_in/sample_service_account.pem' }
+        let(:assertion_payload) do
+          {
+            iss:,
+            aud:,
+            sub:,
+            jti:,
+            exp:,
+            service_account_id:,
+            scopes:
+          }
+        end
+        let(:iss) { audience }
+        let(:aud) { "https://#{Settings.hostname}#{SignIn::Constants::Auth::TOKEN_ROUTE_PATH}" }
+        let(:sub) { user_identifier }
+        let(:jti) { 'some-jti' }
+        let(:exp) { 1.month.since.to_i }
+        let(:user_identifier) { 'some-user-identifier' }
+        let(:service_account_id) { service_account_config.service_account_id }
+        let(:scopes) { [service_account_config.scopes.first] }
+        let(:audience) { service_account_config.access_token_audience }
+        let(:expiration_time) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES.since.to_i }
+        let(:created_time) { Time.zone.now.to_i }
+        let(:uuid) { 'some-uuid' }
+        let(:certificate_path) { 'spec/fixtures/sign_in/sample_service_account.crt' }
+        let(:version) { SignIn::Constants::AccessToken::CURRENT_VERSION }
+        let(:assertion_certificate) { File.read(certificate_path) }
+        let(:service_account_config) { create(:service_account_config, certificates: [assertion_certificate]) }
+        let(:assertion_encode_algorithm) { SignIn::Constants::Auth::ASSERTION_ENCODE_ALGORITHM }
+        let(:assertion_value) do
+          JWT.encode(assertion_payload, private_key, assertion_encode_algorithm)
+        end
+        let(:expected_log) { '[SignInService] [V0::SignInController] token' }
+        let(:expected_log_values) do
+          {
+            uuid:,
+            service_account_id:,
+            user_identifier:,
+            scopes:,
+            audience:,
+            version:,
+            created_time:,
+            expiration_time:
+          }
+        end
+
+        before do
+          allow(Rails.logger).to receive(:info)
+          allow(SecureRandom).to receive(:uuid).and_return(uuid)
+          Timecop.freeze
+        end
+
+        after do
+          Timecop.return
+        end
+
+        it 'returns ok status' do
+          expect(subject).to have_http_status(:ok)
+        end
+
+        it 'returns expected body with access token' do
+          expect(JSON.parse(subject.body)['data']).to have_key('access_token')
+        end
+
+        it 'logs the successful token request' do
+          expect(Rails.logger).to receive(:info).with(expected_log, expected_log_values)
+          subject
+        end
+
+        it 'updates StatsD with a token request success' do
+          expect { subject }.to trigger_statsd_increment(statsd_token_success)
+        end
+      end
+    end
+
+    context 'when grant_type is authorization_code' do
+      let(:grant_type_value) { SignIn::Constants::Auth::AUTH_CODE }
+
+      context 'and code param is not given' do
+        let(:code) { {} }
+        let(:expected_error) { 'Code is not valid' }
+
+        it_behaves_like 'error response'
+      end
+
+      context 'and code is given' do
+        let(:code_value) { 'some-code' }
+
         context 'and code does not match an existing code container' do
           let(:code) { { code: 'some-arbitrary-code' } }
           let(:expected_error) { 'Code is not valid' }
@@ -1364,32 +1461,162 @@ RSpec.describe V0::SignInController, type: :controller do
           end
           let(:code_challenge) { 'some-code-challenge' }
 
-          context 'and grant_type does not match supported grant type value' do
-            let(:grant_type_value) { 'some-arbitrary-grant-type-value' }
-            let(:expected_error) { 'Grant Type is not valid' }
+          context 'and client is configured with pkce authentication type' do
+            let(:pkce) { true }
 
-            it_behaves_like 'error response'
+            context 'and code_verifier does not match expected code_challenge value' do
+              let(:code_verifier_value) { 'some-arbitrary-code-verifier-value' }
+              let(:expected_error) { 'Code Verifier is not valid' }
+
+              it_behaves_like 'error response'
+            end
+
+            context 'and code_verifier does match expected code_challenge value' do
+              let(:code_verifier_value) { 'some-code-verifier-value' }
+              let(:code_challenge) do
+                hashed_code_challenge = Digest::SHA256.base64digest(code_verifier_value)
+                Base64.urlsafe_encode64(Base64.urlsafe_decode64(hashed_code_challenge.to_s), padding: false)
+              end
+              let(:user_verification_id) { user_verification.id }
+              let(:user_verification) { create(:user_verification) }
+              let(:expected_log) { '[SignInService] [V0::SignInController] token' }
+
+              before { allow(Rails.logger).to receive(:info) }
+
+              it 'creates an OAuthSession' do
+                expect { subject }.to change(SignIn::OAuthSession, :count).by(1)
+              end
+
+              it 'returns ok status' do
+                expect(subject).to have_http_status(:ok)
+              end
+
+              context 'and authentication is for a session that is configured as api auth' do
+                let!(:user) { create(:user, :api_auth, uuid: user_uuid) }
+                let(:authentication) { SignIn::Constants::Auth::API }
+
+                it 'returns expected body with access token' do
+                  expect(JSON.parse(subject.body)['data']).to have_key('access_token')
+                end
+
+                it 'returns expected body with refresh token' do
+                  expect(JSON.parse(subject.body)['data']).to have_key('refresh_token')
+                end
+
+                it 'logs the successful token request' do
+                  access_token = JWT.decode(JSON.parse(subject.body)['data']['access_token'], nil, false).first
+                  logger_context = {
+                    uuid: access_token['jti'],
+                    user_uuid: access_token['sub'],
+                    session_handle: access_token['session_handle'],
+                    client_id: access_token['client_id'],
+                    audience: access_token['aud'],
+                    version: access_token['version'],
+                    last_regeneration_time: access_token['last_regeneration_time'],
+                    created_time: access_token['iat'],
+                    expiration_time: access_token['exp']
+                  }
+                  expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
+                end
+
+                it 'updates StatsD with a token request success' do
+                  expect { subject }.to trigger_statsd_increment(statsd_token_success)
+                end
+              end
+
+              context 'and authentication is for a session that is configured as cookie auth' do
+                let(:authentication) { SignIn::Constants::Auth::COOKIE }
+                let(:access_token_cookie_name) { SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME }
+                let(:refresh_token_cookie_name) { SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME }
+
+                it 'returns empty hash for body' do
+                  expect(JSON.parse(subject.body)).to eq({})
+                end
+
+                it 'sets access token cookie' do
+                  expect(subject.cookies).to have_key(access_token_cookie_name)
+                end
+
+                it 'sets refresh token cookie' do
+                  expect(subject.cookies).to have_key(refresh_token_cookie_name)
+                end
+
+                context 'and session is configured as anti csrf enabled' do
+                  let(:anti_csrf) { true }
+                  let(:anti_csrf_token_cookie_name) { SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME }
+
+                  it 'returns expected body with refresh token' do
+                    expect(subject.cookies).to have_key(anti_csrf_token_cookie_name)
+                  end
+                end
+
+                it 'logs the successful token request' do
+                  access_token_cookie = subject.cookies[access_token_cookie_name]
+                  access_token = JWT.decode(access_token_cookie, nil, false).first
+                  logger_context = {
+                    uuid: access_token['jti'],
+                    user_uuid: access_token['sub'],
+                    session_handle: access_token['session_handle'],
+                    client_id: access_token['client_id'],
+                    audience: access_token['aud'],
+                    version: access_token['version'],
+                    last_regeneration_time: access_token['last_regeneration_time'],
+                    created_time: access_token['iat'],
+                    expiration_time: access_token['exp']
+                  }
+                  expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
+                end
+
+                it 'updates StatsD with a token request success' do
+                  expect { subject }.to trigger_statsd_increment(statsd_token_success)
+                end
+              end
+            end
           end
 
-          context 'and grant_type does match supported grant type value' do
-            let(:grant_type_value) { SignIn::Constants::Auth::AUTH_CODE }
+          context 'and client is configured with private key jwt authentication type' do
+            let(:pkce) { false }
 
-            context 'and client is configured with pkce authentication type' do
-              let(:pkce) { true }
+            context 'and client_assertion_type does not match expected value' do
+              let(:client_assertion_type_value) { 'some-client-assertion-type' }
+              let(:expected_error) { 'Client assertion type is not valid' }
 
-              context 'and code_verifier does not match expected code_challenge value' do
-                let(:code_verifier_value) { 'some-arbitrary-code-verifier-value' }
-                let(:expected_error) { 'Code Verifier is not valid' }
+              it_behaves_like 'error response'
+            end
+
+            context 'and client_assertion_type matches expected value' do
+              let(:client_assertion_type_value) { SignIn::Constants::Auth::CLIENT_ASSERTION_TYPE }
+
+              context 'and client_assertion is not a valid jwt' do
+                let(:client_assertion_value) { 'some-client-assertion' }
+                let(:expected_error) { 'Client assertion is malformed' }
 
                 it_behaves_like 'error response'
               end
 
-              context 'and code_verifier does match expected code_challenge value' do
-                let(:code_verifier_value) { 'some-code-verifier-value' }
-                let(:code_challenge) do
-                  hashed_code_challenge = Digest::SHA256.base64digest(code_verifier_value)
-                  Base64.urlsafe_encode64(Base64.urlsafe_decode64(hashed_code_challenge.to_s), padding: false)
+              context 'and client_assertion is a valid jwt' do
+                let(:private_key) { OpenSSL::PKey::RSA.new(File.read(private_key_path)) }
+                let(:private_key_path) { 'spec/fixtures/sign_in/sample_client.pem' }
+                let(:client_assertion_payload) do
+                  {
+                    iss:,
+                    aud:,
+                    sub:,
+                    jti:,
+                    exp:
+                  }
                 end
+                let(:iss) { client_id }
+                let(:aud) { "https://#{Settings.hostname}#{SignIn::Constants::Auth::TOKEN_ROUTE_PATH}" }
+                let(:sub) { client_id }
+                let(:jti) { 'some-jti' }
+                let(:exp) { 1.month.since.to_i }
+                let(:client_assertion_encode_algorithm) { SignIn::Constants::Auth::ASSERTION_ENCODE_ALGORITHM }
+                let(:client_assertion_value) do
+                  JWT.encode(client_assertion_payload, private_key, client_assertion_encode_algorithm)
+                end
+                let(:certificate_path) { 'spec/fixtures/sign_in/sample_client.crt' }
+                let(:client_assertion_certificate) { File.read(certificate_path) }
                 let(:user_verification_id) { user_verification.id }
                 let(:user_verification) { create(:user_verification) }
                 let(:expected_log) { '[SignInService] [V0::SignInController] token' }
@@ -1419,9 +1646,15 @@ RSpec.describe V0::SignInController, type: :controller do
                   it 'logs the successful token request' do
                     access_token = JWT.decode(JSON.parse(subject.body)['data']['access_token'], nil, false).first
                     logger_context = {
-                      user_uuid:,
-                      session_id: access_token['session_handle'],
-                      token_uuid: access_token['jti']
+                      uuid: access_token['jti'],
+                      user_uuid: access_token['sub'],
+                      session_handle: access_token['session_handle'],
+                      client_id: access_token['client_id'],
+                      audience: access_token['aud'],
+                      version: access_token['version'],
+                      last_regeneration_time: access_token['last_regeneration_time'],
+                      created_time: access_token['iat'],
+                      expiration_time: access_token['exp']
                     }
                     expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
                   end
@@ -1461,9 +1694,15 @@ RSpec.describe V0::SignInController, type: :controller do
                     access_token_cookie = subject.cookies[access_token_cookie_name]
                     access_token = JWT.decode(access_token_cookie, nil, false).first
                     logger_context = {
-                      user_uuid:,
-                      session_id: access_token['session_handle'],
-                      token_uuid: access_token['jti']
+                      uuid: access_token['jti'],
+                      user_uuid: access_token['sub'],
+                      session_handle: access_token['session_handle'],
+                      client_id: access_token['client_id'],
+                      audience: access_token['aud'],
+                      version: access_token['version'],
+                      last_regeneration_time: access_token['last_regeneration_time'],
+                      created_time: access_token['iat'],
+                      expiration_time: access_token['exp']
                     }
                     expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
                   end
@@ -1472,240 +1711,6 @@ RSpec.describe V0::SignInController, type: :controller do
                     expect { subject }.to trigger_statsd_increment(statsd_token_success)
                   end
                 end
-              end
-            end
-
-            context 'and client is configured with private key jwt authentication type' do
-              let(:pkce) { false }
-
-              context 'and client_assertion_type does not match expected value' do
-                let(:client_assertion_type_value) { 'some-client-assertion-type' }
-                let(:expected_error) { 'Client assertion type is not valid' }
-
-                it_behaves_like 'error response'
-              end
-
-              context 'and client_assertion_type matches expected value' do
-                let(:client_assertion_type_value) { SignIn::Constants::Auth::CLIENT_ASSERTION_TYPE }
-
-                context 'and client_assertion is not a valid jwt' do
-                  let(:client_assertion_value) { 'some-client-assertion' }
-                  let(:expected_error) { 'Client assertion is malformed' }
-
-                  it_behaves_like 'error response'
-                end
-
-                context 'and client_assertion is a valid jwt' do
-                  let(:private_key) { OpenSSL::PKey::RSA.new(File.read(private_key_path)) }
-                  let(:private_key_path) { 'spec/fixtures/sign_in/sample_client.pem' }
-                  let(:client_assertion_payload) do
-                    {
-                      iss:,
-                      aud:,
-                      sub:,
-                      jti:,
-                      exp:
-                    }
-                  end
-                  let(:iss) { client_id }
-                  let(:aud) { "https://#{Settings.hostname}#{SignIn::Constants::Auth::TOKEN_ROUTE_PATH}" }
-                  let(:sub) { client_id }
-                  let(:jti) { 'some-jti' }
-                  let(:exp) { 1.month.since.to_i }
-                  let(:client_assertion_encode_algorithm) { SignIn::Constants::Auth::CLIENT_ASSERTION_ENCODE_ALGORITHM }
-                  let(:client_assertion_value) do
-                    JWT.encode(client_assertion_payload, private_key, client_assertion_encode_algorithm)
-                  end
-                  let(:certificate_path) { 'spec/fixtures/sign_in/sample_client.crt' }
-                  let(:client_assertion_certificate) { File.read(certificate_path) }
-                  let(:user_verification_id) { user_verification.id }
-                  let(:user_verification) { create(:user_verification) }
-                  let(:expected_log) { '[SignInService] [V0::SignInController] token' }
-
-                  before { allow(Rails.logger).to receive(:info) }
-
-                  it 'creates an OAuthSession' do
-                    expect { subject }.to change(SignIn::OAuthSession, :count).by(1)
-                  end
-
-                  it 'returns ok status' do
-                    expect(subject).to have_http_status(:ok)
-                  end
-
-                  context 'and authentication is for a session that is configured as api auth' do
-                    let!(:user) { create(:user, :api_auth, uuid: user_uuid) }
-                    let(:authentication) { SignIn::Constants::Auth::API }
-
-                    it 'returns expected body with access token' do
-                      expect(JSON.parse(subject.body)['data']).to have_key('access_token')
-                    end
-
-                    it 'returns expected body with refresh token' do
-                      expect(JSON.parse(subject.body)['data']).to have_key('refresh_token')
-                    end
-
-                    it 'logs the successful token request' do
-                      access_token = JWT.decode(JSON.parse(subject.body)['data']['access_token'], nil, false).first
-                      logger_context = {
-                        user_uuid:,
-                        session_id: access_token['session_handle'],
-                        token_uuid: access_token['jti']
-                      }
-                      expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
-                    end
-
-                    it 'updates StatsD with a token request success' do
-                      expect { subject }.to trigger_statsd_increment(statsd_token_success)
-                    end
-                  end
-
-                  context 'and authentication is for a session that is configured as cookie auth' do
-                    let(:authentication) { SignIn::Constants::Auth::COOKIE }
-                    let(:access_token_cookie_name) { SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME }
-                    let(:refresh_token_cookie_name) { SignIn::Constants::Auth::REFRESH_TOKEN_COOKIE_NAME }
-
-                    it 'returns empty hash for body' do
-                      expect(JSON.parse(subject.body)).to eq({})
-                    end
-
-                    it 'sets access token cookie' do
-                      expect(subject.cookies).to have_key(access_token_cookie_name)
-                    end
-
-                    it 'sets refresh token cookie' do
-                      expect(subject.cookies).to have_key(refresh_token_cookie_name)
-                    end
-
-                    context 'and session is configured as anti csrf enabled' do
-                      let(:anti_csrf) { true }
-                      let(:anti_csrf_token_cookie_name) { SignIn::Constants::Auth::ANTI_CSRF_COOKIE_NAME }
-
-                      it 'returns expected body with refresh token' do
-                        expect(subject.cookies).to have_key(anti_csrf_token_cookie_name)
-                      end
-                    end
-
-                    it 'logs the successful token request' do
-                      access_token_cookie = subject.cookies[access_token_cookie_name]
-                      access_token = JWT.decode(access_token_cookie, nil, false).first
-                      logger_context = {
-                        user_uuid:,
-                        session_id: access_token['session_handle'],
-                        token_uuid: access_token['jti']
-                      }
-                      expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
-                    end
-
-                    it 'updates StatsD with a token request success' do
-                      expect { subject }.to trigger_statsd_increment(statsd_token_success)
-                    end
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-
-      context 'when grant_type is jwt-bearer' do
-        let(:grant_type_value) { SignIn::Constants::Auth::JWT_BEARER }
-        let(:certificate_path) { 'spec/fixtures/sign_in/sample_service_account_public.pem' }
-        let(:service_account_assertion_certificate) { File.read(certificate_path) }
-        let(:service_account_config) do
-          build(:service_account_config, certificates: [service_account_assertion_certificate])
-        end
-
-        context 'and service_account_assertion is not a valid jwt' do
-          let(:service_account_assertion_value) { 'some-service-account-assertion-value' }
-          let(:expected_error) { 'Service account assertion is malformed' }
-
-          it_behaves_like 'error response'
-        end
-
-        context 'and service_account_assertion is a valid jwt' do
-          let(:private_key) { OpenSSL::PKey::RSA.new(File.read(private_key_path)) }
-          let(:private_key_path) { 'spec/fixtures/sign_in/sample_service_account.pem' }
-          let(:service_account_assertion_payload) do
-            { iss:, aud:, sub:, jti:, exp:, scopes:, service_account_id: }
-          end
-          let(:iss) { 'http://identity-dashboard-api-dev.vfs.va.gov' }
-          let(:scheme) { Settings.vsp_environment == 'localhost' ? 'http://' : 'https://' }
-          let(:aud) { "#{scheme}#{Settings.hostname}#{SignIn::Constants::Auth::TOKEN_ROUTE_PATH}" }
-          let(:sub) { 'some-user-email@va.gov' }
-          let(:jti) { 'some-jti' }
-          let(:exp) { 5.minutes.since.to_i }
-          let(:scopes) { ['https://dev-api.va.gov/v0/sign_in/client_config'] }
-          let(:service_account_id) { service_account_config.service_account_id }
-          let(:assertion_encode_algorithm) { SignIn::Constants::Auth::CLIENT_ASSERTION_ENCODE_ALGORITHM }
-          let(:service_account_assertion_value) do
-            JWT.encode(service_account_assertion_payload, private_key, assertion_encode_algorithm)
-          end
-
-          context 'and jwt does not contain a valid ServiceAccountConfig id' do
-            let(:expected_error) { 'Service account config not found' }
-
-            it_behaves_like 'error response'
-          end
-
-          context 'and jwt contains a valid ServiceAccountConfig id' do
-            before do
-              allow(SignIn::ServiceAccountConfig).to receive(:find_by).with(service_account_id:)
-                                                                      .and_return(service_account_config)
-            end
-
-            context 'and jwt issuer does not match service account config audience' do
-              let(:iss) { 'some-jwt-issuer' }
-              let(:expected_error) { 'Service account assertion issuer is not valid' }
-
-              it_behaves_like 'error response'
-            end
-
-            context 'and jwt audience does not match SiS token route' do
-              let(:aud) { 'some-jwt-aud' }
-              let(:expected_error) { 'Service account assertion audience is not valid' }
-
-              it_behaves_like 'error response'
-            end
-
-            context 'and jwt scopes are not present in service account config scopes' do
-              let(:scopes) { ['https://dev-api.va.gov/v0/sign_in/client_config', 'some-other-scope'] }
-              let(:expected_error) { 'Service account assertion scopes are not valid' }
-
-              it_behaves_like 'error response'
-            end
-
-            context 'and service_account_assertion jwt passes validation' do
-              let(:expected_log) { '[SignInService] [V0::SignInController] service_account token' }
-              let(:public_key) { OpenSSL::PKey::RSA.new(File.read(Settings.sign_in.jwt_encode_key)).public_key }
-
-              it 'returns ok status' do
-                expect(subject).to have_http_status(:ok)
-              end
-
-              it 'returns expected body with a signed service account access token' do
-                response = JSON.parse(subject.body)['data']['service_account_access_token']
-                access_token = JWT.decode(response,
-                                          public_key,
-                                          true,
-                                          { algorithm: SignIn::Constants::AccessToken::JWT_ENCODE_ALGORITHM }).first
-                expect(access_token['aud']).to eq(iss)
-                expect(access_token['scopes']).to eq(scopes)
-              end
-
-              it 'logs the successful token request' do
-                response = JSON.parse(subject.body)['data']['service_account_access_token']
-                access_token = JWT.decode(response, nil, false).first
-                logger_context = {
-                  service_account_id:,
-                  aud: access_token['aud'],
-                  sub: access_token['sub'],
-                  scopes: access_token['scopes']
-                }
-                expect(Rails.logger).to have_received(:info).with(expected_log, logger_context)
-              end
-
-              it 'updates StatsD with a token request success' do
-                expect { subject }.to trigger_statsd_increment(statsd_token_success)
               end
             end
           end
@@ -1914,9 +1919,15 @@ RSpec.describe V0::SignInController, type: :controller do
           it 'logs the successful refresh request' do
             access_token = JWT.decode(JSON.parse(subject.body)['data']['access_token'], nil, false).first
             logger_context = {
-              user_uuid:,
-              session_id: access_token['session_handle'],
-              token_uuid: access_token['jti']
+              uuid: access_token['jti'],
+              user_uuid: access_token['sub'],
+              session_handle: access_token['session_handle'],
+              client_id: access_token['client_id'],
+              audience: access_token['aud'],
+              version: access_token['version'],
+              last_regeneration_time: access_token['last_regeneration_time'],
+              created_time: access_token['iat'],
+              expiration_time: access_token['exp']
             }
             expect(Rails.logger).to have_received(:info).with(expected_log_message, logger_context)
           end
@@ -1956,9 +1967,15 @@ RSpec.describe V0::SignInController, type: :controller do
             access_token_cookie = subject.cookies[access_token_cookie_name]
             access_token = JWT.decode(access_token_cookie, nil, false).first
             logger_context = {
-              user_uuid:,
-              session_id: access_token['session_handle'],
-              token_uuid: access_token['jti']
+              uuid: access_token['jti'],
+              user_uuid: access_token['sub'],
+              session_handle: access_token['session_handle'],
+              client_id: access_token['client_id'],
+              audience: access_token['aud'],
+              version: access_token['version'],
+              last_regeneration_time: access_token['last_regeneration_time'],
+              created_time: access_token['iat'],
+              expiration_time: access_token['exp']
             }
             expect(Rails.logger).to have_received(:info).with(expected_log_message, logger_context)
           end
@@ -2070,9 +2087,10 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:statsd_revoke_success) { SignIn::Constants::Statsd::STATSD_SIS_REVOKE_SUCCESS }
       let(:expected_log_attributes) do
         {
-          session_id: expected_session_handle,
-          token_uuid: session_container.refresh_token.uuid,
-          user_uuid:
+          uuid: session_container.refresh_token.uuid,
+          user_uuid:,
+          session_handle: expected_session_handle,
+          version: session_container.refresh_token.version
         }
       end
 
@@ -2265,9 +2283,15 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:expected_log) { '[SignInService] [V0::SignInController] logout' }
       let(:expected_log_params) do
         {
+          uuid: access_token_object.uuid,
           user_uuid: access_token_object.user_uuid,
-          session_id: access_token_object.session_handle,
-          token_uuid: access_token_object.uuid
+          session_handle: access_token_object.session_handle,
+          client_id: access_token_object.client_id,
+          audience: access_token_object.audience,
+          version: access_token_object.version,
+          last_regeneration_time: access_token_object.last_regeneration_time.to_i,
+          created_time: access_token_object.created_time.to_i,
+          expiration_time: access_token_object.expiration_time.to_i
         }
       end
       let(:logingov_id_token) { 'some-logingov-id-token' }
@@ -2469,9 +2493,15 @@ RSpec.describe V0::SignInController, type: :controller do
       let(:expected_log) { '[SignInService] [V0::SignInController] revoke all sessions' }
       let(:expected_log_params) do
         {
-          user_uuid:,
-          session_id: access_token_object.session_handle,
-          token_uuid: access_token_object.uuid
+          uuid: access_token_object.uuid,
+          user_uuid: access_token_object.user_uuid,
+          session_handle: access_token_object.session_handle,
+          client_id: access_token_object.client_id,
+          audience: access_token_object.audience,
+          version: access_token_object.version,
+          last_regeneration_time: access_token_object.last_regeneration_time.to_i,
+          created_time: access_token_object.created_time.to_i,
+          expiration_time: access_token_object.expiration_time.to_i
         }
       end
       let(:expected_status) { :ok }

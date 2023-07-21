@@ -8,20 +8,28 @@ module SignIn
       @service_account_access_token_jwt = service_account_access_token_jwt
     end
 
-    def perform
-      jwt_decode_service_account_access_token
+    def perform(with_validation: true)
+      decoded_token = jwt_decode_service_account_access_token(with_validation)
+      ServiceAccountAccessToken.new(service_account_id: decoded_token.service_account_id,
+                                    audience: decoded_token.aud,
+                                    scopes: decoded_token.scopes,
+                                    user_identifier: decoded_token.sub,
+                                    uuid: decoded_token.jti,
+                                    version: decoded_token.version,
+                                    expiration_time: Time.zone.at(decoded_token.exp),
+                                    created_time: Time.zone.at(decoded_token.iat))
     end
 
     private
 
-    def jwt_decode_service_account_access_token
+    def jwt_decode_service_account_access_token(with_validation)
       decoded_jwt = JWT.decode(
         service_account_access_token_jwt,
         private_key,
-        true,
+        with_validation,
         {
-          verify_expiration: true,
-          algorithm: Constants::ServiceAccountAccessToken::JWT_ENCODE_ALGORITHM
+          verify_expiration: with_validation,
+          algorithm: Constants::AccessToken::JWT_ENCODE_ALGORITHM
         }
       )&.first
       OpenStruct.new(decoded_jwt)

@@ -29,7 +29,7 @@ module SignIn
       GRANT_TYPES = [AUTH_CODE = 'authorization_code',
                      JWT_BEARER = 'urn:ietf:params:oauth:grant-type:jwt-bearer'].freeze
       CLIENT_ASSERTION_TYPE = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
-      CLIENT_ASSERTION_ENCODE_ALGORITHM = 'RS256'
+      ASSERTION_ENCODE_ALGORITHM = 'RS256'
       IAL = [IAL_ONE = 1, IAL_TWO = 2].freeze
       INFO_COOKIE_NAME = 'vagov_info_token'
       JWT_ENCODE_ALGORITHM = 'RS256'

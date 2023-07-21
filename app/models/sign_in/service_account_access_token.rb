@@ -1,19 +1,15 @@
 # frozen_string_literal: true
 
 module SignIn
-  class AccessToken
+  class ServiceAccountAccessToken
     include ActiveModel::Validations
 
     attr_reader(
       :uuid,
-      :session_handle,
-      :client_id,
-      :user_uuid,
+      :service_account_id,
       :audience,
-      :refresh_token_hash,
-      :anti_csrf_token,
-      :last_regeneration_time,
-      :parent_refresh_token_hash,
+      :scopes,
+      :user_identifier,
       :version,
       :expiration_time,
       :created_time
@@ -21,13 +17,9 @@ module SignIn
 
     validates(
       :uuid,
-      :session_handle,
-      :client_id,
-      :user_uuid,
+      :service_account_id,
       :audience,
-      :refresh_token_hash,
-      :anti_csrf_token,
-      :last_regeneration_time,
+      :user_identifier,
       :version,
       :expiration_time,
       :created_time,
@@ -37,27 +29,19 @@ module SignIn
     validates :version, inclusion: Constants::AccessToken::VERSION_LIST
 
     # rubocop:disable Metrics/ParameterLists
-    def initialize(session_handle:,
-                   client_id:,
-                   user_uuid:,
+    def initialize(service_account_id:,
                    audience:,
-                   refresh_token_hash:,
-                   anti_csrf_token:,
-                   last_regeneration_time:,
+                   user_identifier:,
+                   scopes: [],
                    uuid: nil,
-                   parent_refresh_token_hash: nil,
                    version: nil,
                    expiration_time: nil,
                    created_time: nil)
       @uuid = uuid || create_uuid
-      @session_handle = session_handle
-      @client_id = client_id
-      @user_uuid = user_uuid
+      @service_account_id = service_account_id
+      @user_identifier = user_identifier
+      @scopes = scopes
       @audience = audience
-      @refresh_token_hash = refresh_token_hash
-      @anti_csrf_token = anti_csrf_token
-      @last_regeneration_time = last_regeneration_time
-      @parent_refresh_token_hash = parent_refresh_token_hash
       @version = version || Constants::AccessToken::CURRENT_VERSION
       @expiration_time = expiration_time || set_expiration_time
       @created_time = created_time || set_created_time
@@ -73,12 +57,11 @@ module SignIn
     def to_s
       {
         uuid:,
-        user_uuid:,
-        session_handle:,
-        client_id:,
+        service_account_id:,
+        user_identifier:,
+        scopes:,
         audience:,
         version:,
-        last_regeneration_time: last_regeneration_time.to_i,
         created_time: created_time.to_i,
         expiration_time: expiration_time.to_i
       }
@@ -99,11 +82,11 @@ module SignIn
     end
 
     def validity_length
-      client_config.access_token_duration
+      service_account_config.access_token_duration
     end
 
-    def client_config
-      @client_config ||= ClientConfig.find_by(client_id:)
+    def service_account_config
+      @service_account_config ||= ServiceAccountConfig.find_by(service_account_id:)
     end
   end
 end
