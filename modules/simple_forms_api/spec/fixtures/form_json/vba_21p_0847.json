@@ -17,16 +17,18 @@
     "state": "CA",
     "postal_code": "12345"
   },
-  "veteran_full_name": {
-    "first": "Ursula",
+  "deceased_claimant_full_name": {
+    "first": "Philip",
     "middle": "K",
-    "last": "Veteran"
+    "last": "DeClaimant"
   },
   "veteran_date_of_birth": "1929-10-21",
-  "veteran_date_of_death": "2018-01-22",
+  "deceased_claimant_date_of_death": "1982-03-02",
   "veteran_ssn": "999442222",
   "veteran_va_file_number": "111776666",
-  "relationship_to_deceased_claimant": "other",
-  "other_relationship_to_deceased_claimant": "friend",
+  "relationship_to_deceased_claimant": {
+    "relationship_to_veteran": "other",
+    "otherRelationship_to_veteran": "friend of a friend"
+  },
   "additional_information": "Lots of extra stuff here"
 }
