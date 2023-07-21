@@ -37,9 +37,9 @@ module SignIn
     class ClientAssertionMalformedJWTError < StandardError; end
     class ClientAssertionAttributesError < StandardError; end
     class ServiceAccountAssertionAttributesError < StandardError; end
-    class ServiceAccountAssertionSignatureMismatchError < StandardError; end
-    class ServiceAccountAssertionExpiredError < StandardError; end
-    class ServiceAccountAssertionMalformedJWTError < StandardError; end
+    class AssertionSignatureMismatchError < StandardError; end
+    class AssertionExpiredError < StandardError; end
+    class AssertionMalformedJWTError < StandardError; end
     class ServiceAccountConfigNotFound < StandardError; end
     class InvalidServiceAccountScope < StandardError; end
     class CodeInvalidError < StandardError; end
