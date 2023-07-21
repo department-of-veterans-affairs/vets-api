@@ -33,6 +33,15 @@ module SignIn
       false
     end
 
+    def to_s
+      {
+        uuid:,
+        user_uuid:,
+        session_handle:,
+        version:
+      }
+    end
+
     private
 
     def create_uuid

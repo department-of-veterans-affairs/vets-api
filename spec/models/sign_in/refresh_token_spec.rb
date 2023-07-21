@@ -144,4 +144,21 @@ RSpec.describe SignIn::RefreshToken, type: :model do
       expect(subject).to be_valid
     end
   end
+
+  describe '#to_s' do
+    subject { refresh_token.to_s }
+
+    let(:expected_hash) do
+      {
+        uuid: refresh_token.uuid,
+        user_uuid: refresh_token.user_uuid,
+        session_handle: refresh_token.session_handle,
+        version: refresh_token.version
+      }
+    end
+
+    it 'returns a hash of expected values' do
+      expect(subject).to eq(expected_hash)
+    end
+  end
 end

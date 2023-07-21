@@ -206,4 +206,26 @@ RSpec.describe SignIn::AccessToken, type: :model do
       end
     end
   end
+
+  describe '#to_s' do
+    subject { access_token.to_s }
+
+    let(:expected_hash) do
+      {
+        uuid: access_token.uuid,
+        user_uuid: access_token.user_uuid,
+        session_handle: access_token.session_handle,
+        client_id: access_token.client_id,
+        audience: access_token.audience,
+        version: access_token.version,
+        last_regeneration_time: access_token.last_regeneration_time.to_i,
+        created_time: access_token.created_time.to_i,
+        expiration_time: access_token.expiration_time.to_i
+      }
+    end
+
+    it 'returns a hash of expected values' do
+      expect(subject).to eq(expected_hash)
+    end
+  end
 end
