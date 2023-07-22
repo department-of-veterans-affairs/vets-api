@@ -1459,10 +1459,11 @@ github_cvu:
 chip:
   url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
   base_path: dev
-  tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
-  tmp_api_id: 2dcdrrn5zc
-  tmp_api_username: vetsapiTempUser
+  api_gtwy_id: 2dcdrrn5zc
+  redis_timeout: 30
   mock: true
+  mobile_app:
+    tenant_id: 6f1c8b41-9c77-469d-852d-269c51a7d380
 
 check_in:
   travel_reimbursement_api:

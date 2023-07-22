@@ -37,7 +37,7 @@ describe Chip::Service do
     let(:request_header) do
       {
         'Content-Type' => 'application/json',
-        'x-apigw-api-id' => Settings.chip.tmp_api_id.to_s,
+        'x-apigw-api-id' => Settings.chip.api_gtwy_id.to_s,
         'Authorization' => "Bearer #{token}"
       }
     end
@@ -61,11 +61,11 @@ describe Chip::Service do
   describe 'token' do
     let(:chip_token_response) { Faraday::Response.new(body: { 'token' => 'testToken' }, status: 200) }
     let(:path) { '/token' }
-    let(:claims_token) { Base64.encode64("#{Settings.chip.tmp_api_username}:#{Settings.chip.tmp_api_user}") }
+    let(:claims_token) { Base64.encode64('fake_api_user:fake_api_password') }
     let(:request_header) do
       {
         'Content-Type' => 'application/json',
-        'x-apigw-api-id' => Settings.chip.tmp_api_id.to_s,
+        'x-apigw-api-id' => Settings.chip.api_gtwy_id.to_s,
         'Authorization' => "Basic #{claims_token}"
       }
     end
