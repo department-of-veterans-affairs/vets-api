@@ -16,21 +16,9 @@ describe Chip::Configuration do
     end
   end
 
-  describe '#api_user' do
-    it 'has a api user' do
-      expect(Chip::Configuration.instance.api_user).to eq(Settings.chip.tmp_api_user)
-    end
-  end
-
-  describe '#api_id' do
-    it 'has a api id' do
-      expect(Chip::Configuration.instance.api_id).to eq(Settings.chip.tmp_api_id)
-    end
-  end
-
-  describe '#api_username' do
-    it 'has a api username' do
-      expect(Chip::Configuration.instance.api_username).to eq(Settings.chip.tmp_api_username)
+  describe '#api_gtwy_id' do
+    it 'has a api gateway id' do
+      expect(Chip::Configuration.instance.api_gtwy_id).to eq(Settings.chip.api_gtwy_id)
     end
   end
 

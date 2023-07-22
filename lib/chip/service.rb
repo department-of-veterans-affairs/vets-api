@@ -32,7 +32,8 @@ module Chip
     private
 
     def claims_token
-      @claims_token ||= Base64.encode64("#{config.api_username}:#{config.api_user}")
+      # TODO: create instance variable for api_user & api_password
+      @claims_token ||= Base64.encode64('fake_api_user:fake_api_password')
     end
 
     ##
@@ -43,7 +44,7 @@ module Chip
     def default_headers
       {
         'Content-Type' => 'application/json',
-        'x-apigw-api-id' => config.api_id
+        'x-apigw-api-id' => config.api_gtwy_id
       }
     end
   end
