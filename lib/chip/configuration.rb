@@ -6,16 +6,8 @@ module Chip
       "#{Settings.chip.url}/#{Settings.chip.base_path}"
     end
 
-    def api_user
-      Settings.chip.tmp_api_user
-    end
-
-    def api_id
-      Settings.chip.tmp_api_id
-    end
-
-    def api_username
-      Settings.chip.tmp_api_username
+    def api_gtwy_id
+      Settings.chip.api_gtwy_id
     end
 
     def service_name
