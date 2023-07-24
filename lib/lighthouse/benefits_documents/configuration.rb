@@ -21,7 +21,7 @@ module BenefitsDocuments
     # @return [Config::Options] Settings for benefits_claims API.
     #
     def documents_settings
-      Settings.lighthouse.benefits_settings
+      Settings.lighthouse.benefits_documents
     end
 
     def global_settings
