@@ -72,6 +72,8 @@ module Swagger
           key :produces, ['application/json']
 
           parameter :authorization
+          parameter :optional_page_number
+          parameter :optional_page_length
           parameter do
             key :name, :include_dismissed
             key :in, :query
@@ -93,6 +95,8 @@ module Swagger
                   key :'$ref', :OnsiteNotification
                 end
               end
+
+              property :meta, '$ref': :MetaPagination
             end
           end
         end
