@@ -7,11 +7,13 @@ require 'sentry_logging'
 require 'prawn'
 require 'fileutils'
 require 'mini_magick'
+require 'lighthouse/benefits_documents/service'
 
 module Mobile
   module V0
     class ClaimsAndAppealsController < ApplicationController
       include IgnoreNotFound
+
       before_action(only: %i[index get_claim request_decision]) do
         if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
           authorize :lighthouse, :access?
@@ -20,12 +22,24 @@ module Mobile
         end
       end
 
-      before_action(except: %i[index get_claim request_decision]) do
+      before_action(only: %i[get_appeal]) do
         authorize :evss, :access?
       end
 
+      before_action(only: %i[upload_document upload_multi_image_document]) do
+        if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
+          authorize :lighthouse, :access?
+        else
+          authorize :evss, :access?
+        end
+      end
+
       after_action only: :upload_multi_image_document do
-        evss_claims_proxy.cleanup_after_upload
+        if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
+          lighthouse_document_service.cleanup_after_upload
+        else
+          evss_claims_proxy.cleanup_after_upload
+        end
       end
 
       def index
@@ -61,12 +75,21 @@ module Mobile
       end
 
       def upload_document
-        jid = evss_claims_proxy.upload_document(params)
+        jid = if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
+                lighthouse_document_service.queue_document_upload(params)
+              else
+                evss_claims_proxy.upload_document(params)
+              end
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
       def upload_multi_image_document
-        jid = evss_claims_proxy.upload_multi_image(params)
+        jid = if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
+                lighthouse_document_service.queue_multi_image_upload_document(params)
+              else
+                evss_claims_proxy.upload_multi_image(params)
+              end
+
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
@@ -115,6 +138,10 @@ module Mobile
 
       def evss_claims_proxy
         @claims_proxy ||= Mobile::V0::Claims::Proxy.new(@current_user)
+      end
+
+      def lighthouse_document_service
+        @lighthouse_document_service ||= BenefitsDocuments::Service.new(@current_user.icn)
       end
 
       def validate_params
