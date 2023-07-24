@@ -53,14 +53,13 @@ FactoryBot.define do
   factory :extra_supplemental_claim_v0,
           class: 'AppealsApi::SupplementalClaim', parent: :extra_supplemental_claim do
     api_version { 'V0' }
-    auth_headers { FixtureHelpers.fixture_as_json 'supplemental_claims/v0/valid_200995_headers_extra.json' }
+    auth_headers { FixtureHelpers.fixture_as_json 'supplemental_claims/v0/valid_200995_headers.json' }
     form_data { FixtureHelpers.fixture_as_json 'supplemental_claims/v0/valid_200995_extra.json' }
   end
 
   factory :minimal_supplemental_claim_v0,
           class: 'AppealsApi::SupplementalClaim', parent: :minimal_supplemental_claim do
     api_version { 'V0' }
-    auth_headers { FixtureHelpers.fixture_as_json 'supplemental_claims/v0/valid_200995_headers_minimum.json' }
     form_data { FixtureHelpers.fixture_as_json 'supplemental_claims/v0/valid_200995.json' }
   end
 end

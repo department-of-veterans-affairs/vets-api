@@ -48,33 +48,6 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
         }
       }
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header]
-      let(:'X-VA-SSN') { '000000000' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header].merge({ required: true })
-      let(:'X-VA-ICN') { '1234567890V123456' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_first_name_header]
-      let(:'X-VA-First-Name') { 'first' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_middle_initial_header]
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_last_name_header]
-      let(:'X-VA-Last-Name') { 'last' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_birth_date_header]
-      let(:'X-VA-Birth-Date') { '1900-01-01' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_first_name_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_middle_initial_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:alternate_signer_first_name_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:alternate_signer_middle_initial_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:alternate_signer_last_name_header]
-
       response '200', 'Info about a single Supplemental Claim' do
         let(:sc_body) { fixture_as_json('supplemental_claims/v0/valid_200995.json') }
 
@@ -87,13 +60,10 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
       end
 
       response '200', 'Info about a single Supplemental Claim' do
-        let(:'X-VA-NonVeteranClaimant-First-Name') { 'first' }
-        let(:'X-VA-NonVeteranClaimant-Middle-Initial') { 'm' }
-        let(:'X-VA-NonVeteranClaimant-Last-Name') { 'last' }
-
         let(:sc_body) do
           fixture_as_json('supplemental_claims/v0/valid_200995_extra.json').tap do |data|
             data.dig('data', 'attributes')&.delete('potentialPactAct') unless DocHelpers.wip_doc_enabled?(:sc_v2_potential_pact_act)
+            data['data']['attributes']['claimant'].merge!({ firstName: 'first', middleInitial: 'm', lastName: 'last' })
           end
         end
 
@@ -141,7 +111,7 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
       response '200', 'Info about a single Supplemental Claim' do
         schema '$ref' => '#/components/schemas/scCreateResponse'
 
-        let(:uuid) { FactoryBot.create(:supplemental_claim).id }
+        let(:uuid) { FactoryBot.create(:supplemental_claim_v0).id }
 
         it_behaves_like 'rswag example', desc: 'returns a 200 response',
                                          response_wrapper: :normalize_appeal_response,
@@ -222,33 +192,6 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
         }
       }
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header]
-      let(:'X-VA-SSN') { '000000000' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header].merge({ required: true })
-      let(:'X-VA-ICN') { '1234567890V123456' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_first_name_header]
-      let(:'X-VA-First-Name') { 'first' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_middle_initial_header]
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_last_name_header]
-      let(:'X-VA-Last-Name') { 'last' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_birth_date_header]
-      let(:'X-VA-Birth-Date') { '1900-01-01' }
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_insurance_policy_number_header]
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_first_name_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
-
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:alternate_signer_first_name_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:alternate_signer_middle_initial_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:alternate_signer_last_name_header]
-
       response '200', 'Valid Minimum' do
         let(:sc_body) { fixture_as_json('supplemental_claims/v0/valid_200995.json') }
 
@@ -314,7 +257,7 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
       produces 'application/json'
 
       response '202', 'Accepted. Location generated' do
-        let(:sc_uuid) { FactoryBot.create(:supplemental_claim).id }
+        let(:sc_uuid) { FactoryBot.create(:supplemental_claim_v0).id }
 
         schema '$ref' => '#/components/schemas/scEvidenceSubmissionResponse'
 
@@ -368,7 +311,7 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
       end
 
       response '422', 'Validation errors' do
-        let(:sc_uuid) { FactoryBot.create(:supplemental_claim).id }
+        let(:sc_uuid) { FactoryBot.create(:supplemental_claim_v0).id }
         let(:'X-VA-SSN') { '000000000' }
 
         schema '$ref' => '#/components/schemas/errorModel'
@@ -380,7 +323,7 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
     end
   end
 
-  path '/sc_upload_path' do
+  path '/sc-upload-path' do
     put 'Accepts Supplemental Claim Evidence Submission document upload.' do
       scopes = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES[:POST]
       tags 'Supplemental Claims'

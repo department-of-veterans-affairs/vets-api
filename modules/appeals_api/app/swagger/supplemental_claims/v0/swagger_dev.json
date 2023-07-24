@@ -45,128 +45,7 @@
           }
         ],
         "parameters": [
-          {
-            "in": "header",
-            "name": "X-VA-SSN",
-            "required": true,
-            "description": "Veteran's SSN",
-            "example": "706547821",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-SSN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-ICN",
-            "required": true,
-            "description": "Veteran's ICN",
-            "example": "1013062086V794840",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-ICN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-First-Name",
-            "required": true,
-            "description": "Veteran's first name",
-            "example": "Cara",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-First-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Middle-Initial",
-            "required": false,
-            "description": "Veteran's middle initial",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Middle-Initial"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Last-Name",
-            "required": true,
-            "description": "Veteran's last name",
-            "example": "Bartlett",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Last-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Birth-Date",
-            "required": true,
-            "description": "Veteran's birth date",
-            "example": "1975-02-14",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Birth-Date"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-File-Number",
-            "required": false,
-            "description": "Veteran's file number",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-File-Number"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-First-Name",
-            "required": false,
-            "description": "Non-Veteran claimant's first name",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-First-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-Middle-Initial",
-            "required": false,
-            "description": "Non-Veteran claimant's middle initial",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Middle-Initial"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-Last-Name",
-            "required": false,
-            "description": "Non-Veteran claimant's last name",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Last-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-Alternate-Signer-First-Name",
-            "required": false,
-            "description": "Alternate signer's first name",
-            "schema": {
-              "$ref": "#/components/schemas/X-Alternate-Signer-First-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-Alternate-Signer-Middle-Initial",
-            "required": false,
-            "description": "Alternate signer's middle initial",
-            "schema": {
-              "$ref": "#/components/schemas/X-Alternate-Signer-Middle-Initial"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-Alternate-Signer-Last-Name",
-            "required": false,
-            "description": "Alternate signer's last name",
-            "schema": {
-              "$ref": "#/components/schemas/X-Alternate-Signer-Last-Name"
-            }
-          }
+
         ],
         "responses": {
           "200": {
@@ -190,6 +69,14 @@
                                 "benefitType": "fiduciary",
                                 "claimantType": "veteran",
                                 "veteran": {
+                                  "ssn": "123456789",
+                                  "icn": "1013062086V794840",
+                                  "firstName": "Jäñe",
+                                  "middleInitial": "ø",
+                                  "lastName": "Doé",
+                                  "birthDate": "1969-12-31",
+                                  "fileNumber": "987654321",
+                                  "insurancePolicyNumber": "987654321123456789",
                                   "address": {
                                     "addressLine1": "123 Main St",
                                     "city": "New York",
@@ -242,6 +129,14 @@
                                 "claimantTypeOtherValue": "Veteran Attorney",
                                 "potentialPactAct": true,
                                 "veteran": {
+                                  "ssn": "123456789",
+                                  "icn": "1013062086V794840",
+                                  "firstName": "Jäñe",
+                                  "middleInitial": "ø",
+                                  "lastName": "Doé",
+                                  "birthDate": "1969-12-31",
+                                  "fileNumber": "987654321",
+                                  "insurancePolicyNumber": "987654321123456789",
                                   "address": {
                                     "addressLine1": "123 Main St",
                                     "addressLine2": "Suite #1200",
@@ -260,6 +155,9 @@
                                   "timezone": "America/Chicago"
                                 },
                                 "claimant": {
+                                  "firstName": "first",
+                                  "middleInitial": "m",
+                                  "lastName": "last",
                                   "address": {
                                     "addressLine1": "456 First St",
                                     "addressLine2": "Apt 5",
@@ -523,6 +421,14 @@
                         "benefitType": "fiduciary",
                         "claimantType": "veteran",
                         "veteran": {
+                          "ssn": "123456789",
+                          "icn": "1013062086V794840",
+                          "firstName": "Jäñe",
+                          "middleInitial": "ø",
+                          "lastName": "Doé",
+                          "birthDate": "1969-12-31",
+                          "fileNumber": "987654321",
+                          "insurancePolicyNumber": "987654321123456789",
                           "address": {
                             "addressLine1": "123 Main St",
                             "city": "New York",
@@ -564,6 +470,14 @@
                         "claimantTypeOtherValue": "Veteran Attorney",
                         "potentialPactAct": true,
                         "veteran": {
+                          "ssn": "123456789",
+                          "icn": "1013062086V794840",
+                          "firstName": "Jäñe",
+                          "middleInitial": "ø",
+                          "lastName": "Doé",
+                          "birthDate": "1969-12-31",
+                          "fileNumber": "987654321",
+                          "insurancePolicyNumber": "987654321123456789",
                           "address": {
                             "addressLine1": "123 Main St",
                             "addressLine2": "Suite #1200",
@@ -582,6 +496,9 @@
                           "timezone": "America/Chicago"
                         },
                         "claimant": {
+                          "firstName": "joe",
+                          "middleInitial": "b",
+                          "lastName": "smart",
                           "address": {
                             "addressLine1": "456 First St",
                             "addressLine2": "Apt 5",
@@ -999,6 +916,95 @@
                                 "veteran": {
                                   "type": "object",
                                   "properties": {
+                                    "ssn": {
+                                      "type": "string",
+                                      "description": "Veteran's SSN",
+                                      "pattern": "^[0-9]{9}",
+                                      "minLength": 9,
+                                      "maxLength": 9
+                                    },
+                                    "icn": {
+                                      "$ref": "icn.json"
+                                    },
+                                    "firstName": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's first name",
+                                          "minLength": 1,
+                                          "maxLength": 30
+                                        },
+                                        {
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
+                                    "middleInitial": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's middle initial",
+                                          "minLength": 1,
+                                          "maxLength": 1
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
+                                    "lastName": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's last name",
+                                          "minLength": 1,
+                                          "maxLength": 40
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
+                                    "birthDate": {
+                                      "description": "Veteran's birth date",
+                                      "type": "string",
+                                      "format": "date"
+                                    },
+                                    "fileNumber": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's VA file number (c-file / css)",
+                                          "minLength": 1,
+                                          "maxLength": 9
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
+                                    "serviceNumber": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's service number",
+                                          "minLength": 1,
+                                          "maxLength": 9
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
+                                    "insurancePolicyNumber": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's insurance policy number",
+                                          "minLength": 1,
+                                          "maxLength": 18
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
                                     "address": {
                                       "$ref": "address.json"
                                     },
@@ -1017,6 +1023,11 @@
                                     }
                                   },
                                   "required": [
+                                    "ssn",
+                                    "icn",
+                                    "firstName",
+                                    "lastName",
+                                    "birthDate",
                                     "address",
                                     "phone",
                                     "email"
@@ -1026,6 +1037,44 @@
                                   "type": "object",
                                   "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
                                   "properties": {
+                                    "firstName": {
+                                      "allOf": [
+                                        {
+                                          "description": "Non-Veteran Claimant's first name",
+                                          "minLength": 1,
+                                          "maxLength": 30
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        },
+                                        {
+                                        }
+                                      ]
+                                    },
+                                    "middleInitial": {
+                                      "allOf": [
+                                        {
+                                          "description": "Non-Veteran Claimant's middle initial",
+                                          "minLength": 1,
+                                          "maxLength": 1
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
+                                    "lastName": {
+                                      "allOf": [
+                                        {
+                                          "description": "Non-Veteran Claimant's last name",
+                                          "minLength": 1,
+                                          "maxLength": 40
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
                                     "address": {
                                       "$ref": "address.json"
                                     },
@@ -1043,10 +1092,84 @@
                                       "$ref": "timezone.json"
                                     }
                                   },
+                                  "dependencies": {
+                                    "firstName": [
+                                      "lastName"
+                                    ],
+                                    "middleInitial": [
+                                      "firstName",
+                                      "lastName"
+                                    ],
+                                    "lastName": [
+                                      "firstName"
+                                    ]
+                                  },
                                   "required": [
+                                    "firstName",
+                                    "lastName",
                                     "address",
                                     "phone",
                                     "email"
+                                  ]
+                                },
+                                "alternateSigner": {
+                                  "description": "Alternate signer information",
+                                  "type": "object",
+                                  "properties": {
+                                    "firstName": {
+                                      "allOf": [
+                                        {
+                                          "description": "Alternate signer's first name",
+                                          "minLength": 1,
+                                          "maxLength": 30
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        },
+                                        {
+                                        }
+                                      ]
+                                    },
+                                    "middleInitial": {
+                                      "allOf": [
+                                        {
+                                          "description": "Alternate signer's middle initial",
+                                          "minLength": 1,
+                                          "maxLength": 1
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
+                                    "lastName": {
+                                      "allOf": [
+                                        {
+                                          "description": "Alternate signer's last name",
+                                          "minLength": 1,
+                                          "maxLength": 40
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "dependencies": {
+                                    "firstName": [
+                                      "lastName"
+                                    ],
+                                    "middleInitial": [
+                                      "firstName",
+                                      "lastName"
+                                    ],
+                                    "lastName": [
+                                      "firstName"
+                                    ]
+                                  },
+                                  "required": [
+                                    "firstName",
+                                    "lastName"
                                   ]
                                 },
                                 "evidenceSubmission": {
@@ -2314,128 +2437,7 @@
           }
         ],
         "parameters": [
-          {
-            "in": "header",
-            "name": "X-VA-SSN",
-            "required": true,
-            "description": "Veteran's SSN",
-            "example": "706547821",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-SSN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-ICN",
-            "required": true,
-            "description": "Veteran's ICN",
-            "example": "1013062086V794840",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-ICN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-First-Name",
-            "required": true,
-            "description": "Veteran's first name",
-            "example": "Cara",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-First-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Middle-Initial",
-            "required": false,
-            "description": "Veteran's middle initial",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Middle-Initial"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Last-Name",
-            "required": true,
-            "description": "Veteran's last name",
-            "example": "Bartlett",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Last-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Birth-Date",
-            "required": true,
-            "description": "Veteran's birth date",
-            "example": "1975-02-14",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Birth-Date"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-File-Number",
-            "required": false,
-            "description": "Veteran's file number",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-File-Number"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Insurance-Policy-Number",
-            "required": false,
-            "description": "Veteran's insurance policy number",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Insurance-Policy-Number"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-First-Name",
-            "required": false,
-            "description": "Non-Veteran claimant's first name",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-First-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-NonVeteranClaimant-Last-Name",
-            "required": false,
-            "description": "Non-Veteran claimant's last name",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-NonVeteranClaimant-Last-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-Alternate-Signer-First-Name",
-            "required": false,
-            "description": "Alternate signer's first name",
-            "schema": {
-              "$ref": "#/components/schemas/X-Alternate-Signer-First-Name"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-Alternate-Signer-Middle-Initial",
-            "required": false,
-            "description": "Alternate signer's middle initial",
-            "schema": {
-              "$ref": "#/components/schemas/X-Alternate-Signer-Middle-Initial"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-Alternate-Signer-Last-Name",
-            "required": false,
-            "description": "Alternate signer's last name",
-            "schema": {
-              "$ref": "#/components/schemas/X-Alternate-Signer-Last-Name"
-            }
-          }
+
         ],
         "responses": {
           "200": {
@@ -2544,6 +2546,14 @@
                         "benefitType": "fiduciary",
                         "claimantType": "veteran",
                         "veteran": {
+                          "ssn": "123456789",
+                          "icn": "1013062086V794840",
+                          "firstName": "Jäñe",
+                          "middleInitial": "ø",
+                          "lastName": "Doé",
+                          "birthDate": "1969-12-31",
+                          "fileNumber": "987654321",
+                          "insurancePolicyNumber": "987654321123456789",
                           "address": {
                             "addressLine1": "123 Main St",
                             "city": "New York",
@@ -2585,6 +2595,14 @@
                         "claimantTypeOtherValue": "Veteran Attorney",
                         "potentialPactAct": true,
                         "veteran": {
+                          "ssn": "123456789",
+                          "icn": "1013062086V794840",
+                          "firstName": "Jäñe",
+                          "middleInitial": "ø",
+                          "lastName": "Doé",
+                          "birthDate": "1969-12-31",
+                          "fileNumber": "987654321",
+                          "insurancePolicyNumber": "987654321123456789",
                           "address": {
                             "addressLine1": "123 Main St",
                             "addressLine2": "Suite #1200",
@@ -2603,6 +2621,9 @@
                           "timezone": "America/Chicago"
                         },
                         "claimant": {
+                          "firstName": "joe",
+                          "middleInitial": "b",
+                          "lastName": "smart",
                           "address": {
                             "addressLine1": "456 First St",
                             "addressLine2": "Apt 5",
@@ -2984,14 +3005,14 @@
         }
       }
     },
-    "/sc_upload_path": {
+    "/sc-upload-path": {
       "put": {
         "summary": "Accepts Supplemental Claim Evidence Submission document upload.",
         "tags": [
           "Supplemental Claims"
         ],
         "operationId": "putSupplementalClaimEvidenceSubmission",
-        "description": "Accepts document metadata, document binary, and attachment binaries. Full URL, including\nquery parameters, provided from POST `/*/evidence_submissions`.\nPlease see the `documentUploadMetadata` schema for the required payload schema.\n\n## Example Payload\n\nThe following demonstrates a (redacted) multipart payload suitable for submitting to the PUT\nendpoint. Most programming languages should have provisions for assembling a multipart\npayload like this without having to do so manually.\n\n```\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"metadata\"\nContent-Type: application/json\n\n{\"veteranFirstName\": \"Jane\",\n\"veteranLastName\": \"Doe\",\n\"fileNumber\": \"012345678\",\n\"zipCode\": \"94402\",\n\"source\": \"Vets.gov\",\n\"docType\": \"316\"\n\"businessLine\": \"BVA\"}\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"content\"\nContent-Type: application/pdf\n\n<Binary PDF contents>\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"attachment1\"\nContent-Type: application/pdf\n\n<Binary PDF attachment contents>\n--17de1ed8f01442b2a2d7a93506314b76--\n```\n\nThis PUT request would have an overall HTTP Content-Type header:\n\n```\nContent-Type: multipart/form-data; boundary=17de1ed8f01442b2a2d7a93506314b76\n```\n\nNote that the Content-Disposition parameter \"name\" in each part must be the expected values\n\"metadata\", \"content\", \"attachment1\"...\"attachmentN\"\n",
+        "description": "Accepts document metadata, document binary, and attachment binaries. Full URL, including\nquery parameters, provided from POST `/*/evidence-submissions`.\nPlease see the `documentUploadMetadata` schema for the required payload schema.\n\n## Example Payload\n\nThe following demonstrates a (redacted) multipart payload suitable for submitting to the PUT\nendpoint. Most programming languages should have provisions for assembling a multipart\npayload like this without having to do so manually.\n\n```\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"metadata\"\nContent-Type: application/json\n\n{\"veteranFirstName\": \"Jane\",\n\"veteranLastName\": \"Doe\",\n\"fileNumber\": \"012345678\",\n\"zipCode\": \"94402\",\n\"source\": \"Vets.gov\",\n\"docType\": \"316\"\n\"businessLine\": \"BVA\"}\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"content\"\nContent-Type: application/pdf\n\n<Binary PDF contents>\n--17de1ed8f01442b2a2d7a93506314b76\nContent-Disposition: form-data; name=\"attachment1\"\nContent-Type: application/pdf\n\n<Binary PDF attachment contents>\n--17de1ed8f01442b2a2d7a93506314b76--\n```\n\nThis PUT request would have an overall HTTP Content-Type header:\n\n```\nContent-Type: multipart/form-data; boundary=17de1ed8f01442b2a2d7a93506314b76\n```\n\nNote that the Content-Disposition parameter \"name\" in each part must be the expected values\n\"metadata\", \"content\", \"attachment1\"...\"attachmentN\"\n",
         "security": [
           {
             "productionOauth": [
@@ -3371,14 +3392,14 @@
           "zipCode5"
         ]
       },
-      "contestableIssue": {
+      "appealableIssue": {
         "type": "object",
-        "description": "A contestable issue (to contest this, you include it as a RequestIssue when creating a HigherLevelReview, SupplementalClaim, or Appeal)",
+        "description": "An appealable issue (to appeal this, you include it as a RequestIssue when creating a HigherLevelReview, SupplementalClaim, or Appeal)",
         "properties": {
           "type": {
             "type": "string",
             "enum": [
-              "contestableIssue"
+              "appealableIssue"
             ]
           },
           "id": {
@@ -3410,7 +3431,7 @@
               "ratingDecisionReferenceId": {
                 "type": "string",
                 "nullable": true,
-                "description": "The BGS ID for the contested rating decision. This may be populated while ratingIssueReferenceId is nil",
+                "description": "The BGS ID for the appealable rating decision. This may be populated while ratingIssueReferenceId is nil",
                 "example": null
               },
               "decisionIssueId": {
@@ -3457,7 +3478,7 @@
               },
               "latestIssuesInChain": {
                 "type": "array",
-                "description": "Shows the chain of decision and rating issues that preceded this issue. Only the most recent issue can be contested (the object itself that contains the latestIssuesInChain attribute).",
+                "description": "Shows the chain of decision and rating issues that preceded this issue. Only the most recent issue can be appealed (the object itself that contains the latestIssuesInChain attribute).",
                 "items": {
                   "type": "object",
                   "properties": {
@@ -3623,6 +3644,13 @@
           }
         }
       },
+      "icn": {
+        "type": "string",
+        "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
+        "pattern": "^[0-9]{10}V[0-9]{6}$",
+        "minLength": 17,
+        "maxLength": 17
+      },
       "nonBlankString": {
         "type": "string",
         "pattern": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]"
@@ -3712,6 +3740,96 @@
                   "veteran": {
                     "type": "object",
                     "properties": {
+                      "ssn": {
+                        "type": "string",
+                        "description": "Veteran's SSN",
+                        "pattern": "^[0-9]{9}",
+                        "minLength": 9,
+                        "maxLength": 9
+                      },
+                      "icn": {
+                        "$ref": "#/components/schemas/icn"
+                      },
+                      "firstName": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's first name",
+                            "minLength": 1,
+                            "maxLength": 30
+                          },
+                          {
+                            "$comment": "can be whitespace, to accommodate those with 1 legal name"
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
+                      "middleInitial": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's middle initial",
+                            "minLength": 1,
+                            "maxLength": 1
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
+                      "lastName": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's last name",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
+                      "birthDate": {
+                        "description": "Veteran's birth date",
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "fileNumber": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's VA file number (c-file / css)",
+                            "minLength": 1,
+                            "maxLength": 9
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
+                      "serviceNumber": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's service number",
+                            "minLength": 1,
+                            "maxLength": 9
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
+                      "insurancePolicyNumber": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's insurance policy number",
+                            "minLength": 1,
+                            "maxLength": 18
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
                       "address": {
                         "$ref": "#/components/schemas/address"
                       },
@@ -3731,6 +3849,11 @@
                       }
                     },
                     "required": [
+                      "ssn",
+                      "icn",
+                      "firstName",
+                      "lastName",
+                      "birthDate",
                       "address",
                       "phone",
                       "email"
@@ -3740,6 +3863,45 @@
                     "type": "object",
                     "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
                     "properties": {
+                      "firstName": {
+                        "allOf": [
+                          {
+                            "description": "Non-Veteran Claimant's first name",
+                            "minLength": 1,
+                            "maxLength": 30
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          },
+                          {
+                            "$comment": "Can be whitespace to accommodate those with 1 legal name"
+                          }
+                        ]
+                      },
+                      "middleInitial": {
+                        "allOf": [
+                          {
+                            "description": "Non-Veteran Claimant's middle initial",
+                            "minLength": 1,
+                            "maxLength": 1
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
+                      "lastName": {
+                        "allOf": [
+                          {
+                            "description": "Non-Veteran Claimant's last name",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
                       "address": {
                         "$ref": "#/components/schemas/address"
                       },
@@ -3758,10 +3920,85 @@
                         "$ref": "#/components/schemas/timezone"
                       }
                     },
+                    "dependencies": {
+                      "firstName": [
+                        "lastName"
+                      ],
+                      "middleInitial": [
+                        "firstName",
+                        "lastName"
+                      ],
+                      "lastName": [
+                        "firstName"
+                      ]
+                    },
                     "required": [
+                      "firstName",
+                      "lastName",
                       "address",
                       "phone",
                       "email"
+                    ]
+                  },
+                  "alternateSigner": {
+                    "description": "Alternate signer information",
+                    "type": "object",
+                    "properties": {
+                      "firstName": {
+                        "allOf": [
+                          {
+                            "description": "Alternate signer's first name",
+                            "minLength": 1,
+                            "maxLength": 30
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          },
+                          {
+                            "$comment": "Can be whitespace to accommodate those with 1 legal name"
+                          }
+                        ]
+                      },
+                      "middleInitial": {
+                        "allOf": [
+                          {
+                            "description": "Alternate signer's middle initial",
+                            "minLength": 1,
+                            "maxLength": 1
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
+                      "lastName": {
+                        "allOf": [
+                          {
+                            "description": "Alternate signer's last name",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      }
+                    },
+                    "dependencies": {
+                      "firstName": [
+                        "lastName"
+                      ],
+                      "middleInitial": [
+                        "firstName",
+                        "lastName"
+                      ],
+                      "lastName": [
+                        "firstName"
+                      ]
+                    },
+                    "required": [
+                      "firstName",
+                      "lastName"
                     ]
                   },
                   "evidenceSubmission": {
@@ -4014,12 +4251,12 @@
             "properties": {
               "id": {
                 "type": "string",
-                "description": "Unique ID of created SC",
+                "description": "Unique ID of created supplemental claim",
                 "example": "97751cb6-d06d-4179-87f6-75e3fc9d875c"
               },
               "type": {
                 "type": "string",
-                "description": "Name of record class",
+                "description": "Type of record",
                 "example": "supplementalClaim"
               },
               "attributes": {
@@ -4027,7 +4264,7 @@
                 "properties": {
                   "status": {
                     "type": "string",
-                    "description": "Status of SC",
+                    "description": "Status of created supplemental claim",
                     "example": "pending",
                     "enum": [
                       "pending",
@@ -4041,12 +4278,12 @@
                   },
                   "createdAt": {
                     "type": "string",
-                    "description": "Created timestamp of the SC",
+                    "description": "Created timestamp of the supplemental claim",
                     "example": "2020-12-16T19:52:23.909Z"
                   },
                   "updatedAt": {
                     "type": "string",
-                    "description": "Updated timestamp of the SC",
+                    "description": "Updated timestamp of the supplemental claim",
                     "example": "2020-12-16T19:52:23.909Z"
                   }
                 }
@@ -4059,7 +4296,7 @@
           "included": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/contestableIssue"
+              "$ref": "#/components/schemas/appealableIssue"
             }
           }
         }
@@ -4896,127 +5133,6 @@
           "Zulu",
           "Zurich"
         ]
-      },
-      "X-Alternate-Signer-First-Name": {
-        "description": "Alternate signer's first name",
-        "type": "string",
-        "minLength": 1,
-        "maxLength": 30
-      },
-      "X-Alternate-Signer-Last-Name": {
-        "description": "Alternate signer's last name",
-        "minLength": 1,
-        "maxLength": 40,
-        "$ref": "#/components/schemas/nonBlankString"
-      },
-      "X-Alternate-Signer-Middle-Initial": {
-        "description": "Alternate signer's middle initial",
-        "minLength": 1,
-        "maxLength": 1,
-        "$ref": "#/components/schemas/nonBlankString"
-      },
-      "X-VA-Birth-Date": {
-        "description": "Veteran's birth date",
-        "type": "string",
-        "format": "date"
-      },
-      "X-VA-File-Number": {
-        "allOf": [
-          {
-            "description": "VA file number (c-file / css)"
-          },
-          {
-            "maxLength": 9
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-First-Name": {
-        "allOf": [
-          {
-            "description": "first name"
-          },
-          {
-            "type": "string"
-          }
-        ]
-      },
-      "X-VA-ICN": {
-        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
-        "type": "string",
-        "minLength": 17,
-        "maxLength": 17,
-        "pattern": "^[0-9]{10}V[0-9]{6}$"
-      },
-      "X-VA-Insurance-Policy-Number": {
-        "allOf": [
-          {
-            "description": "Veteran's insurance policy number",
-            "maxLength": 18
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-Last-Name": {
-        "allOf": [
-          {
-            "description": "last name"
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-Middle-Initial": {
-        "allOf": [
-          {
-            "description": "middle initial"
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-NonVeteranClaimant-First-Name": {
-        "allOf": [
-          {
-            "description": "first name"
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-NonVeteranClaimant-Last-Name": {
-        "allOf": [
-          {
-            "description": "last name"
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-NonVeteranClaimant-Middle-Initial": {
-        "allOf": [
-          {
-            "description": "middle initial"
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-SSN": {
-        "description": "social security number",
-        "type": "string",
-        "minLength": 9,
-        "maxLength": 9,
-        "pattern": "^[0-9]{9}$"
       }
     }
   },

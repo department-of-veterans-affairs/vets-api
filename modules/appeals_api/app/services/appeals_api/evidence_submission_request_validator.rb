@@ -50,11 +50,13 @@ module AppealsApi
     end
 
     def veteran_identifier_match?
-      # if PII expunged not validating for matching SSNs or File-Numbers
-      return true unless appeal.auth_headers
+      appeal_identifier = appeal.auth_headers&.dig('X-VA-SSN') ||
+                          appeal.auth_headers&.dig('X-VA-File-Number') ||
+                          appeal.form_data&.dig('data', 'attributes', 'veteran', 'ssn') ||
+                          appeal.form_data&.dig('data', 'attributes', 'veteran', 'fileNumber')
 
-      identifier = appeal.auth_headers['X-VA-SSN'] || appeal.auth_headers['X-VA-File-Number']
-      @veteran_identifier == identifier
+      # if PII expunged not validating for matching SSNs or File-Numbers
+      appeal_identifier.blank? || appeal_identifier == @veteran_identifier
     end
 
     def record_not_found_error
@@ -76,7 +78,7 @@ module AppealsApi
     end
 
     def invalid_veteran_ssn_error
-      return unless appeal.auth_headers['X-VA-SSN']
+      return unless appeal.veteran&.ssn
 
       {
         title: 'unprocessable_entity',
@@ -87,7 +89,7 @@ module AppealsApi
     end
 
     def invalid_file_number_error
-      return unless appeal.auth_headers['X-VA-File-Number']
+      return unless appeal.veteran&.file_number
 
       {
         title: 'unprocessable_entity',
