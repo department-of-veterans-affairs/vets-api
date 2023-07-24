@@ -304,6 +304,67 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
         expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
       end
     end
+
+    context 'when user is only authorized to access claims, not appeals' do
+      before { allow_any_instance_of(IAMUser).to receive(:loa3?).and_return(nil) }
+
+      it 'and claims service succeed' do
+        VCR.use_cassette(good_claims_response_vcr_path) do
+          VCR.use_cassette('mobile/appeals/appeals') do
+            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
+            expect(response).to have_http_status(:multi_status)
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+          end
+        end
+      end
+
+      it 'and claims service fails' do
+        VCR.use_cassette(error_claims_response_vcr_path) do
+          VCR.use_cassette('mobile/appeals/appeals') do
+            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
+            expect(response).to have_http_status(:bad_gateway)
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+          end
+        end
+      end
+    end
+
+    context 'when user is only authorized to access appeals, not claims' do
+      before { iam_sign_in(FactoryBot.build(:iam_user, :no_participant_id)) }
+
+      it 'and appeals service succeed' do
+        VCR.use_cassette(good_claims_response_vcr_path) do
+          VCR.use_cassette('mobile/appeals/appeals') do
+            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
+            expect(response).to have_http_status(:multi_status)
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+          end
+        end
+      end
+
+      it 'and appeals service fails' do
+        VCR.use_cassette(good_claims_response_vcr_path) do
+          VCR.use_cassette('mobile/appeals/server_error') do
+            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
+            expect(response).to have_http_status(:bad_gateway)
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+          end
+        end
+      end
+    end
+
+    context 'when user is not authorized to access neither claims or appeals' do
+      before { iam_sign_in(FactoryBot.build(:iam_user, :no_participant_id, :loa2)) }
+
+      it 'returns 403 status' do
+        VCR.use_cassette(good_claims_response_vcr_path) do
+          VCR.use_cassette('mobile/appeals/appeals') do
+            get('/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params:)
+            expect(response).to have_http_status(:forbidden)
+          end
+        end
+      end
+    end
   end
 end
 

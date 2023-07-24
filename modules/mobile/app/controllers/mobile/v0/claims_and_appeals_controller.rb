@@ -13,17 +13,14 @@ module Mobile
   module V0
     class ClaimsAndAppealsController < ApplicationController
       include IgnoreNotFound
+      before_action(only: %i[get_appeal]) { authorize :appeals, :access? }
 
-      before_action(only: %i[index get_claim request_decision]) do
+      before_action(only: %i[get_claim request_decision]) do
         if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
           authorize :lighthouse, :access?
         else
           authorize :evss, :access?
         end
-      end
-
-      before_action(only: %i[get_appeal]) do
-        authorize :evss, :access?
       end
 
       before_action(only: %i[upload_document upload_multi_image_document]) do
@@ -95,16 +92,11 @@ module Mobile
 
       private
 
-      # rubocop:disable Metrics/MethodLength
       def fetch_all_cached_or_service(validated_params, show_completed)
         list = nil
         list = Mobile::V0::ClaimOverview.get_cached(@current_user) if validated_params[:use_cache]
         list, errors = if list.nil?
-                         if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
-                           service_list, service_errors = lighthouse_claims_proxy.get_claims_and_appeals
-                         else
-                           service_list, service_errors = evss_claims_proxy.get_claims_and_appeals
-                         end
+                         service_list, service_errors = get_accessible_claims_appeals
 
                          if service_errors.blank?
                            Mobile::V0::ClaimOverview.set_cached(@current_user,
@@ -126,7 +118,18 @@ module Mobile
 
         [Mobile::V0::ClaimOverviewSerializer.new(list, options), status]
       end
-      # rubocop:enable Metrics/MethodLength
+
+      def get_accessible_claims_appeals
+        if claims_access? && appeals_access?
+          service.get_claims_and_appeals
+        elsif claims_access?
+          service.get_claims
+        elsif appeals_access?
+          service.get_appeals
+        else
+          raise Pundit::NotAuthorizedError
+        end
+      end
 
       def lighthouse_claims_adapter
         Mobile::V0::Adapters::LighthouseIndividualClaims.new
@@ -193,6 +196,22 @@ module Mobile
 
       def adapt_response(response)
         response['success'] ? 'success' : 'failure'
+      end
+
+      def service
+        lighthouse? ? lighthouse_claims_proxy : evss_claims_proxy
+      end
+
+      def claims_access?
+        lighthouse? ? @current_user.authorize(:lighthouse, :access?) : @current_user.authorize(:evss, :access?)
+      end
+
+      def appeals_access?
+        @current_user.authorize(:appeals, :access?)
+      end
+
+      def lighthouse?
+        Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
       end
     end
   end
