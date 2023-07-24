@@ -18,28 +18,45 @@ module BenefitsDocuments
     end
 
     def queue_document_upload(params, lighthouse_client_id = nil)
-      start_timer = Time.zone.now
-      claim_id = params[:claimId]
-      raise Common::Exceptions::ArgumentError, claim_id unless claim_id
+      Rails.logger.info('Parameters for document upload', params)
 
-      jid = submit_document(params[:file], claim_id, params[:trackedItemId], params[:documentType], params[:password],
+      start_timer = Time.zone.now
+      claim_id = params[:claimId] || params[:claim_id]
+      tracked_item_ids = params[:trackedItemIds] || params[:tracked_item_ids]
+      document_type = params[:documentType] || params[:document_type]
+
+      unless claim_id
+        raise Common::Exceptions::InternalServerError,
+              ArgumentError.new("Claim with id #{claim_id} not found")
+      end
+
+      jid = submit_document(params[:file], claim_id, tracked_item_ids, document_type, params[:password],
                             lighthouse_client_id)
       StatsD.measure(STATSD_UPLOAD_LATENCY, Time.zone.now - start_timer, tags: ['is_multifile:false'])
-      cleanup_after_upload
       jid
     end
 
     def queue_multi_image_upload_document(params, lighthouse_client_id = nil)
+      Rails.logger.info('Parameters for document multi image upload', params)
+
       start_timer = Time.zone.now
-      claim_id = params[:claimId]
-      raise Common::Exceptions::ArgumentError, claim_id unless claim_id
+      claim_id = params[:claimId] || params[:claim_id]
+      tracked_item_ids = params[:trackedItemIds] || params[:tracked_item_ids]
+      document_type = params[:documentType] || params[:document_type]
+      unless claim_id
+        raise Common::Exceptions::InternalServerError,
+              ArgumentError.new("Claim with id #{claim_id} not found")
+      end
 
       file_to_upload = generate_multi_image_pdf(params[:files])
-      jid = submit_document(file_to_upload, claim_id, params[:trackedItemId], params[:documentType],
+      jid = submit_document(file_to_upload, claim_id, tracked_item_ids, document_type,
                             params[:password], lighthouse_client_id)
       StatsD.measure(STATSD_UPLOAD_LATENCY, Time.zone.now - start_timer, tags: ['is_multifile:true'])
-      cleanup_after_upload
       jid
+    end
+
+    def cleanup_after_upload
+      FileUtils.rm_rf(@base_path) if @base_path
     end
 
     private
@@ -57,7 +74,7 @@ module BenefitsDocuments
       document_data.file_name = uploader.final_filename
       Lighthouse::DocumentUpload.perform_async(@icn, document_data.to_serializable_hash)
     rescue CarrierWave::IntegrityError => e
-      handle_error(e, lighthouse_client_id, endpoint)
+      handle_error(e, lighthouse_client_id, uploader.store_dir)
     end
     # rubocop:enable Metrics/ParameterLists
 
@@ -91,10 +108,6 @@ module BenefitsDocuments
       temp_file = Tempfile.new(pdf_filename, encoding: 'ASCII-8BIT')
       temp_file.write(File.read(pdf_path))
       ActionDispatch::Http::UploadedFile.new(filename: pdf_filename, type: 'application/pdf', tempfile: temp_file)
-    end
-
-    def cleanup_after_upload
-      FileUtils.rm_rf(@base_path) if @base_path
     end
   end
 end
