@@ -18,6 +18,24 @@ module AppealsApi::SupplementalClaims::V0
       POST: %w[veteran/SupplementalClaims.write representative/SupplementalClaims.write system/SupplementalClaims.read]
     }.freeze
 
+    def create
+      sc = AppealsApi::SupplementalClaim.new(
+        auth_headers: request_headers,
+        form_data: @json_body,
+        source: request_headers['X-Consumer-Username'].presence&.strip,
+        evidence_submission_indicated: evidence_submission_indicated?,
+        api_version: self.class::API_VERSION,
+        veteran_icn: @json_body.dig('data', 'attributes', 'veteran', 'icn')
+      )
+
+      return render_model_errors(sc) unless sc.validate
+
+      sc.save
+      AppealsApi::PdfSubmitJob.perform_async(sc.id, 'AppealsApi::SupplementalClaim', 'v3')
+
+      render json: AppealsApi::SupplementalClaimSerializer.new(sc).serializable_hash
+    end
+
     def download
       id = params[:id]
       supplemental_claim = AppealsApi::SupplementalClaim.find(id)

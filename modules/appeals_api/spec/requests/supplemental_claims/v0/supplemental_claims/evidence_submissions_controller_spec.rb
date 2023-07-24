@@ -6,8 +6,7 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmissionsController, type: :request do
   include FixtureHelpers
   let(:supplemental_claim) { create(:supplemental_claim_v0) }
-  let(:headers) { fixture_as_json 'supplemental_claims/v0/valid_200995_headers.json' }
-  let(:evidence_submissions) { create_list(:evidence_submission, 3, supportable: supplemental_claim) }
+  let(:evidence_submissions) { create_list(:evidence_submission_v0, 3, supportable: supplemental_claim) }
   let(:path) { '/services/appeals/supplemental-claims/v0/evidence-submissions' }
   let(:parsed) { JSON.parse(response.body) }
 
@@ -26,7 +25,9 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmiss
       success_status: :accepted
     ) do
       def make_request(auth_header)
-        post(path, params:, headers: headers.merge(auth_header))
+        post(path,
+             params:, # TODO: read SSN from body instead:
+             headers: auth_header.merge({ 'X-VA-SSN' => supplemental_claim.veteran.ssn }))
       end
     end
   end
