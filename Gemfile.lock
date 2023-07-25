@@ -892,7 +892,7 @@ GEM
       connection_pool (>= 2.2.5)
       rack (~> 2.0)
       redis (>= 4.5.0, < 5)
-    sidekiq_alive (2.2.2)
+    sidekiq_alive (2.2.3)
       rack (< 3)
       sidekiq (>= 5, < 8)
       webrick (>= 1, < 2)
