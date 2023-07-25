@@ -79,6 +79,35 @@ module BB
       streaming_get(uri, token_headers, header_callback, yielder)
     end
 
+    ##
+    # Opt user in to VHIE sharing.
+    #
+    def post_opt_in
+      perform(:post, 'bluebutton/external/optinout/optin', nil, token_headers).body
+    rescue ServiceException => e
+      # Ignore the error that the user is already opted in to VHIE sharing.
+      raise unless e.message.include? 'already.opted.in'
+    end
+
+    ##
+    # Opt user out of VHIE sharing.
+    #
+    def post_opt_out
+      perform(:post, 'bluebutton/external/optinout/optout', nil, token_headers).body
+    rescue ServiceException => e
+      # Ignore the error that the user is already opted out of VHIE sharing.
+      raise unless e.message.include? 'Opt-out consent policy is already set'
+    end
+
+    ##
+    # Get current status of user's VHIE sharing.
+    #
+    # @return [Hash] an object containing the body of the response
+    #
+    def get_status
+      perform(:get, 'bluebutton/external/optinout/status', nil, token_headers).body
+    end
+
     private
 
     def cache_key(action)

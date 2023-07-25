@@ -55,6 +55,9 @@ MyHealth::Engine.routes.draw do
       get :refresh, to: 'health_records#refresh', on: :collection
       get :eligible_data_classes, to: 'health_records#eligible_data_classes', on: :collection
       get :show, controller: 'health_record_contents', on: :collection
+      post 'sharing/optin', to: 'health_records#optin', on: :collection
+      post 'sharing/optout', to: 'health_records#optout', on: :collection
+      get 'sharing/status', to: 'health_records#status', on: :collection
     end
   end
 

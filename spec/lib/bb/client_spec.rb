@@ -18,7 +18,7 @@ describe 'bb client' do
   before(:all) do
     VCR.use_cassette 'bb_client/session', record: :new_episodes do
       @client ||= begin
-        client = BB::Client.new(session: { user_id: '12210827' })
+        client = BB::Client.new(session: { user_id: '5751732' })
         client.authenticate
         client
       end
@@ -93,5 +93,48 @@ describe 'bb client' do
     end
     response_stream.each { |_| }
     expect(response_headers['Content-Type']).to eq('text/plain')
+  end
+
+  describe 'Opting in to VHIE sharing' do
+    context 'when the client is not already opted in', :vcr do
+      it 'opts in without raising an error' do
+        VCR.use_cassette('bb_client/opts_in_to_vhie_sharing') do
+          expect { client.post_opt_in }.not_to raise_error
+        end
+      end
+    end
+
+    context 'when the client is already opted in', :vcr do
+      it 'opts in again without raising an error' do
+        VCR.use_cassette('bb_client/opts_in_to_vhie_sharing_while_opted_in') do
+          expect { client.post_opt_in }.not_to raise_error
+        end
+      end
+    end
+  end
+
+  describe 'Opting out of VHIE sharing' do
+    context 'when the client is not already opted out', :vcr do
+      it 'opts out without raising an error' do
+        VCR.use_cassette('bb_client/opts_out_of_vhie_sharing') do
+          expect { client.post_opt_out }.not_to raise_error
+        end
+      end
+    end
+
+    context 'when the client is already opted out', :vcr do
+      it 'opts out again without raising an error' do
+        VCR.use_cassette('bb_client/opts_out_of_vhie_sharing_while_opted_out') do
+          expect { client.post_opt_out }.not_to raise_error
+        end
+      end
+    end
+  end
+
+  it 'gets vhie sharing status', :vcr do
+    client_response = client.get_status
+    expect(client_response).to be_a(Hash)
+    expect(client_response.key?(:consent_status)).to eq(true)
+    expect(client_response[:consent_status]).to eq('OPT-IN')
   end
 end
