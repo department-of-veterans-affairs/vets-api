@@ -54,7 +54,7 @@ RSpec.describe 'maintenance windows', type: :request do
               'attributes' => {
                 'service' => 'direct_deposit_benefits',
                 'startTime' => '2021-05-25T21:33:39.000Z',
-                'endTime' => '2021-05-26T01:45:00.000Z'
+                'endTime' => '2021-05-27T01:45:00.000Z'
               }
             },
             {
@@ -63,7 +63,7 @@ RSpec.describe 'maintenance windows', type: :request do
               'attributes' => {
                 'service' => 'disability_rating',
                 'startTime' => '2021-05-25T21:33:39.000Z',
-                'endTime' => '2021-05-26T01:45:00.000Z'
+                'endTime' => '2021-05-27T01:45:00.000Z'
               }
             },
             {
@@ -72,7 +72,7 @@ RSpec.describe 'maintenance windows', type: :request do
               'attributes' => {
                 'service' => 'letters_and_documents',
                 'startTime' => '2021-05-25T21:33:39.000Z',
-                'endTime' => '2021-05-26T01:45:00.000Z'
+                'endTime' => '2021-05-27T01:45:00.000Z'
               }
             }
           ]
