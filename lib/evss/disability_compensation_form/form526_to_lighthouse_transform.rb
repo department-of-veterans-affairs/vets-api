@@ -19,9 +19,14 @@ module EVSS
 
       # returns "STANDARD_CLAIM_PROCESS", "BDD_PROGRAM", or "FDC_PROGRAM"
       # based off of a few attributes in the evss data
-      def evss_claims_process_type(_form526)
-        # TODO: replace with implementation
-        'STANDARD_CLAIM_PROCESS'
+      def evss_claims_process_type(form526)
+        if form526['bddQualified']
+          return 'BDD_PROGRAM'
+        elsif form526['standardClaim']
+          return 'STANDARD_CLAIM_PROCESS'
+        end
+
+        'FDC_PROGRAM'
       end
     end
   end
