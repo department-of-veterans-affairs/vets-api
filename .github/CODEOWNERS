@@ -39,6 +39,7 @@ spec/models/user_spec.rb @department-of-veterans-affairs/vsp-identity
 app/models/user_identity.rb @department-of-veterans-affairs/vsp-identity
 app/models/user_session_form.rb @department-of-veterans-affairs/vsp-identity
 spec/models/user_session_form_spec.rb @department-of-veterans-affairs/vsp-identity
+app/services/login/ @department-of-veterans-affairs/vsp-identity
 
 lib/saml/ @department-of-veterans-affairs/vsp-identity
 spec/lib/saml/ @department-of-veterans-affairs/vsp-identity
