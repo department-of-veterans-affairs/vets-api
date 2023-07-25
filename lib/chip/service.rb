@@ -1,51 +1,29 @@
 # frozen_string_literal: true
 
-require 'common/client/base'
-require 'common/client/concerns/monitoring'
-require_relative 'configuration'
+require_relative 'client'
 
 module Chip
-  class Service < Common::Client::Base
-    include Common::Client::Concerns::Monitoring
-    STATSD_KEY_PREFIX = 'api.chip'
+  class Service
+    attr_reader :tenant_name, :tenant_id, :username, :password, :client
 
-    configuration Chip::Configuration
-
-    def perform_post_with_token(token:, path:)
-      config.connection.post(path) do |req|
-        req.headers = default_headers.merge('Authorization' => "Bearer #{token}")
-      end
-    end
-
-    def perform_get_with_token(token:, path:)
-      config.connection.get(path) do |req|
-        req.headers = default_headers.merge('Authorization' => "Bearer #{token}")
-      end
-    end
-
-    def token
-      config.connection.post('/token') do |req|
-        req.headers = default_headers.merge('Authorization' => "Basic #{claims_token}")
-      end
+    def initialize(opts)
+      @tenant_name = opts[:tenant_name]
+      @tenant_id = opts[:tenant_id]
+      @username = opts[:username]
+      @password = opts[:password]
+      @client = Chip::Client.new(username:, password:)
+      validate_arguments!
     end
 
     private
 
-    def claims_token
-      # TODO: create instance variable for api_user & api_password
-      @claims_token ||= Base64.encode64('fake_api_user:fake_api_password')
-    end
-
-    ##
-    # Build a hash of default headers for CHIP HTTP requests
-    #
-    # @return [Hash]
-    #
-    def default_headers
-      {
-        'Content-Type' => 'application/json',
-        'x-apigw-api-id' => config.api_gtwy_id
-      }
+    def validate_arguments!
+      raise ArgumentError, 'Invalid username' if username.blank?
+      raise ArgumentError, 'Invalid password' if password.blank?
+      raise ArgumentError, 'Invalid tenant parameters' if tenant_name.blank? || tenant_id.blank?
+      raise ArgumentError, 'Tenant parameters do not exist' unless Chip::Client.configuration.valid_tenant?(
+        tenant_name:, tenant_id:
+      )
     end
   end
 end
