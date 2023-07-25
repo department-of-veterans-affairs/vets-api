@@ -32,6 +32,9 @@ development: &defaults
   rx_store:
     namespace: rx-service
     each_ttl: 1200
+  chip:
+    namespace: chip
+    each_ttl: 1800
   gi_bill_feedback:
     namespace: gi_bill_feedback
     each_ttl: 86400
