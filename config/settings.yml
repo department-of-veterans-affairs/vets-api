@@ -88,6 +88,7 @@ dmc:
   mock_fsr: false
   url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/digital-services/
   debts_endpoint: debt-letter/get
+  fsr_payment_window: 30
 
 mcp:
   vbs_client_key: abcd1234abcd1234abcd1234abcd1234abcd1234
