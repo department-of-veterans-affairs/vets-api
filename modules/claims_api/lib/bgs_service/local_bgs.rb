@@ -249,6 +249,8 @@ module ClaimsApi
 
     def all(id)
       claims = find_benefit_claims_status_by_ptcpnt_id(id)
+      return [] if claims.count < 1
+
       transform_bgs_claims_to_evss(claims)
     end
     # END: switching v1 from evss to bgs. Delete after EVSS is no longer available. Fix controller first.
@@ -287,11 +289,13 @@ module ClaimsApi
 
     def transform_bgs_claim_to_evss(claim)
       bgs_claim = ClaimsApi::EvssBgsMapper.new(claim[:benefit_claim_details_dto])
+      return if bgs_claim.nil?
+
       bgs_claim.map_and_build_object
     end
 
     def transform_bgs_claims_to_evss(claims)
-      claims[:benefit_claims_dto][:benefit_claim].map do |claim|
+      claims[:benefit_claims_dto][:benefit_claim]&.map do |claim|
         bgs_claim = ClaimsApi::EvssBgsMapper.new(claim)
         bgs_claim.map_and_build_object
       end
