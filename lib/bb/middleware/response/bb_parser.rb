@@ -14,9 +14,13 @@ module BB
         #
         def on_complete(env)
           return unless env.response_headers['content-type']&.match?(/\bjson/)
+
           # If POST is successful message body is irrelevant
           # if it was not successul an exception would have already been raised
           return if env.method == :post
+
+          # Don't parse the VHIE sharing status calls.
+          return if env.url.to_s.include? 'optinout'
 
           env[:body] = parse(env.body) if env.body.present?
         end
