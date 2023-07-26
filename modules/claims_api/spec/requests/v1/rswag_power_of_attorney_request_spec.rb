@@ -6,13 +6,7 @@ require 'rails_helper'
 require_relative '../../support/swagger_shared_components/v1'
 
 describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
-  let(:pws) do
-    if Flipper.enabled? :bgs_via_faraday
-      ClaimsApi::LocalBGS
-    else
-      BGS::PersonWebService
-    end
-  end
+  let(:pws) { ClaimsApi::LocalBGS }
 
   path '/forms/2122' do
     get 'Gets schema for POA form.' do

@@ -193,6 +193,9 @@ features:
   claims_status_v1_bgs_enabled:
     actor_type: user
     description: enables calling BGS instead of EVSS for the claims status v1.
+  claims_status_v2_lh_benefits_docs_service_enabled:
+    actor_type: user
+    description: enable/disable the use of LH Benefits Documents API in our Claim Status v2 services.
     enable_in_development: false
   debt_letters_show_letters:
     actor_type: user
@@ -890,12 +893,6 @@ features:
   form526_backup_submission_force_offramp:
     actor_type: user
     description: If enabled add the "forceOfframp" flag to backup 526 submission metadata
-  bgs_via_faraday:
-    actor_type: user
-    description: If enabled uses the faraday connection to BGS as opposed to bgs-ext
-  bgs_via_faraday_file_number:
-    actor_type: user
-    description: If enabled uses the faraday connection to BGS to locate file_number
   virtual_agent_show_floating_chatbot:
     actor_type: user
     description: Enables a floating chatbot on the chatbot page - managed by virtual agent team

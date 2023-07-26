@@ -6,13 +6,7 @@ describe Veteran::User do
   context 'initialization' do
     let(:user) { FactoryBot.create(:user, :loa3) }
 
-    let(:ows) do
-      if Flipper.enabled? :bgs_via_faraday
-        ClaimsApi::LocalBGS
-      else
-        BGS::OrgWebService
-      end
-    end
+    let(:ows) { ClaimsApi::LocalBGS }
 
     it 'initializes from a user' do
       VCR.use_cassette('bgs/claimant_web_service/find_poa_by_participant_id') do
