@@ -32,6 +32,10 @@ module V1
         key :name, 'higher_level_reviews'
         key :description, 'Request a senior reviewer take a new look at a case'
       end
+      tag do
+        key :name, 'income_limits'
+        key :description, 'Get income limit thresholds for veteran benefits.'
+      end
       key :host, Settings.hostname
       key :schemes, %w[https http]
       key :basePath, '/'
@@ -67,6 +71,8 @@ module V1
     SWAGGERED_CLASSES = [
       Swagger::V1::Requests::Facilities,
       Swagger::V1::Schemas::Facilities,
+      Swagger::V1::Requests::IncomeLimits,
+      Swagger::V1::Schemas::IncomeLimits,
       Swagger::V1::Schemas::Errors,
       Swagger::V1::Requests::Appeals::Appeals,
       Swagger::V1::Schemas::Appeals::Requests,
