@@ -11,12 +11,13 @@
 ### Local Configuration
 - The Income Limits module is configured using the config gem in the `vets-api` repository.
 
-### The Check-In Module Endpoints
+### The Income Limits Module Endpoints
 - /income_limits/v1/limitsByZipCode/
 - /income_limits/v1/validateZipCode/
 
-### Data active_support_cache_store
+### Data
+To get data imported into the postgres database, SideKiq jobs have been created, one for each table in the database, for a total of 5 jobs. For more see /app/workers/income_limits. Each job pulls data down from an S3 location in a CSV format, and imports these records to postgres using ActiveRecord APIs. These jobs can be executed anytime to seed or refresh the postgres database with the CSV data.
 
-- The Income Limits application in vets-api will read data from PostgreSQL (part of the vets-api stack). To get data imported into the database, a cron-like script runner for Ruby on Rails, Sidekiq, will execute a script on a schedule. The script will pull data from one of two sources (CSV, or VES DB) in order to populate the PostgreSQL database.
-- While the upstream data will eventually be coming directly from the VES Oracle database, it is not natively accessible by vets-api. So while we work with ESECC and VES to establish a networking connection between vets-api private clouds and the VES private cloud, an alternative is needed.
-- The alternative upstream data source will be CSV files hosted on a public S3 bucket.
+The jobs are also scheduled to auto-run via cron on the 1st of every 3rd month, at midnight. See /config/sidekiq_scheduler.yml.
+
+[Click here](https://github.com/department-of-veterans-affairs/va.gov-team/tree/master/products/income-limits-app/data) to learn more about where the Income Limits data is ultimately sourced.
