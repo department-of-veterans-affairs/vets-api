@@ -643,6 +643,14 @@ claims_api:
     enabled: false
   token_validation:
     api_key:
+  benefits_documents:
+    auth:
+      ccg:
+        client_id: ~
+        rsa_key: ~
+        aud_claim_url: ~
+    host: https://sandbox-api.va.gov
+    use_mocks: false
 
 redis:
   host: localhost
