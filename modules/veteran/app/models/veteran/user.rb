@@ -26,21 +26,13 @@ module Veteran
     end
 
     def current_poa_information
-      @current_poa_information ||= if Flipper.enabled? :bgs_via_faraday
-                                     local_bgs_service.find_poa_by_participant_id(@user.participant_id)
-                                   else
-                                     bgs_service.claimant.find_poa_by_participant_id(@user.participant_id)
-                                   end
+      @current_poa_information ||= local_bgs_service.find_poa_by_participant_id(@user.participant_id)
     end
 
     def previous_poa_code
       return @previous_poa_code if @previous_poa_code.present?
 
-      poa_history = if Flipper.enabled? :bgs_via_faraday
-                      local_bgs_service.find_poa_history_by_ptcpnt_id(@user.participant_id)
-                    else
-                      bgs_service.org.find_poa_history_by_ptcpnt_id(@user.participant_id)
-                    end
+      poa_history = local_bgs_service.find_poa_history_by_ptcpnt_id(@user.participant_id)
       return nil if poa_history[:person_poa_history].blank?
 
       # Sorts previous power of attorneys by begin date
