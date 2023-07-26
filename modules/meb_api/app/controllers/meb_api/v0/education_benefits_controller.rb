@@ -4,6 +4,7 @@ require 'dgi/eligibility/service'
 require 'dgi/automation/service'
 require 'dgi/submission/service'
 require 'dgi/enrollment/service'
+require 'dgi/contact_info/service'
 
 module MebApi
   module V0
@@ -99,7 +100,16 @@ module MebApi
         end
       end
 
+      def duplicate_contact_info
+        response = contact_info_service.check_for_duplicates(params[:emails], params[:phones])
+        render json: response, serializer: ContactInfoSerializer
+      end
+
       private
+
+      def contact_info_service
+        MebApi::DGI::ContactInfo::Service.new(@current_user)
+      end
 
       def eligibility_service
         MebApi::DGI::Eligibility::Service.new(@current_user)
