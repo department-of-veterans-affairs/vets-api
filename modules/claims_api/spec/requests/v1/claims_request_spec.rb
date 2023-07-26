@@ -343,4 +343,19 @@ RSpec.describe 'BGS Claims management', type: :request do
       end
     end
   end
+
+  context 'events timeline' do
+    it 'maps BGS data to match previous logic with EVSS data' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('bgs/claims/claim') do
+          get "/services/claims/v1/claims/#{bgs_claim_id}", params: nil, headers: request_headers.merge(auth_header)
+          body = JSON.parse(response.body)
+          events_timeline = body['data']['attributes']['events_timeline']
+          expect(response.status).to eq(200)
+          expect(events_timeline[1]['type']).to eq('completed')
+          expect(events_timeline[2]['type']).to eq('filed')
+        end
+      end
+    end
+  end
 end
