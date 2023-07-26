@@ -2,9 +2,7 @@
 <%= benefit_type(@applicant) %>
 *START*
 VA Form 22-1990
-<% if ENV['HOSTNAME'].eql?('api.va.gov') -%>
-DEC 2016
-<% end %>
+
                     APPLICATION FOR VA EDUCATION BENEFITS
                     -------------------------------------
 
@@ -16,7 +14,6 @@ DEC 2016
 
 <%= ssn_gender_dob %>
 
-<% unless ENV['HOSTNAME'].eql?('api.va.gov') -%>
 <% if @applicant.minorHighSchoolQuestions -%>
 Applicant has graduated high school or received GED? <%= @applicant.minorHighSchoolQuestions.minorHighSchoolQuestion %>
 
@@ -25,7 +22,6 @@ Applicant has graduated high school or received GED? <%= @applicant.minorHighSch
 <% date_label = @applicant.minorHighSchoolQuestions.highSchoolGedGradDate ? "Date graduated:" : "Date expected to graduate:" -%>
 <%= date_label %> <%= grad_date %>
 
-<% end -%>
 <% end -%>
 Name:   <%= full_name(@applicant.veteranFullName) %>
 
@@ -38,21 +34,7 @@ Email Address:  <%= @applicant.email %>
 Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
 
 <%= parse_with_template_path('bank_account') %>
-<% if ENV['HOSTNAME'].eql?('api.va.gov') -%>
-<%= parse_with_template_path('secondary_contact') %> 
-<% end -%>
-<% if ENV['HOSTNAME'].eql?('api.va.gov') -%>
-                  TYPE AND PROGRAM OF EDUCATION OR TRAINING
-                  -----------------------------------------
 
-Type of Education or Training: <%= education_type&.titleize %>
-
-<%= parse_with_template_path('school') %>
-
-Date You Started or Will Start Training: <%= @applicant.educationStartDate %>
-
-Education or Career Goal: <%= @applicant.educationObjective %>
-<% end %>
 
                        ACTIVE DUTY SERVICE INFORMATION
                        -------------------------------
@@ -63,27 +45,7 @@ Are you Now On Terminal Leave Just Before Discharge? <%= yesno(@applicant.curren
 
 <%= parse_with_template_path('tours_of_duty') %>
 
-<% if ENV['HOSTNAME'].eql?('api.va.gov') -%>
-                    EDUCATION AND EMPLOYMENT INFORMATION
-                    ------------------------------------
 
-Date Received High School Diploma or Equivalency Certificate: <%= to_date(@applicant.highSchoolOrGedCompletionDate) %>
-
-FAA Flight Certificates:
-<%= @applicant.faaFlightCertificatesInformation %>
-
-<%= parse_with_template_path('post_high_school_trainings') %>
-<% end %>
-<% if ENV['HOSTNAME'].eql?('api.va.gov') -%>
-        Employment
-        ----------
-
-Before Entering Military Service
-<%= employment_history(@applicant.nonMilitaryJobs, post_military: false) %>
-
-After Leaving Military Service
-<%= employment_history(@applicant.nonMilitaryJobs, post_military: true) %>
-<% end -%>
 
           ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
           ----------------------------------------------------------
@@ -116,9 +78,7 @@ Did you have a period of active duty that the Department of Defense counts for p
         End Date: <%= to_date(@applicant.activeDutyRepayingPeriod&.to) %>
 
 <%= parse_with_template_path('non_va_assistance') %>
-<% if ENV['HOSTNAME'].eql?('api.va.gov') -%>
-<%= parse_with_template_path('civilian_benefits_assistance') %>
-<% end %>
+
 
                         MARITAL AND DEPENDENCY STATUS
            (For Applicants with Military Service Before Jan 1, 1977)
@@ -133,7 +93,6 @@ Parent Dependent: <%= yesno(@applicant.serviceBefore1977.parentDependent) %>
 N/A
 <% end -%>
 
-<% unless ENV['HOSTNAME'].eql?('api.va.gov') -%>
 <% if @applicant.minorHighSchoolQuestions -%>
           GUARDIAN INFORMATION
           --------------------
@@ -154,7 +113,6 @@ Address of Parent, Guardian or Custodian:
   Home phone number: <%= @applicant.minorQuestions.guardianHomePhone %>
   Email address: <%= @applicant.minorQuestions.guardianEmail %>
 
-<% end -%>
 <% end -%>
 <%= parse_with_template_path('signatures') %>
 
