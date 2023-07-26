@@ -166,7 +166,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(homeless_point_of_contact).to eq('john stewart')
         expect(homeless_telephone).to eq('5555555555')
         expect(homeless_international_telephone).to eq('5555555555')
-        expect(homeless_currently).to eq(true) # can't be both homess & at risk
+        expect(homeless_currently).to eq('YES') # can't be both homess & at risk
         expect(homeless_situation_options).to eq('FLEEING_CURRENT_RESIDENCE')
         expect(homeless_currently_other_description).to eq('ABCDEFGHIJKLM')
       end
@@ -200,11 +200,11 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         multi_exp_location = toxic_exp_data[:multipleExposures][:exposureLocation]
         multi_exp_hazard = toxic_exp_data[:multipleExposures][:hazardExposedTo]
 
-        expect(gulf_locations).to eq(true)
+        expect(gulf_locations).to eq('YES')
         expect(gulf_begin_date).to eq('07-2018')
         expect(gulf_end_date).to eq('08-2018')
 
-        expect(herbicide_locations).to eq(true)
+        expect(herbicide_locations).to eq('YES')
         expect(other_locations).to eq('ABCDEFGHIJKLM')
         expect(herb_begin_date).to eq('07-2018')
         expect(herb_end_date).to eq('08-2018')
@@ -241,7 +241,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         secondary_relevance = claim_info[:disabilities][1][:serviceRelevance]
         has_conditions = pdf_data[:data][:attributes][:exposureInformation][:hasConditionsRelatedToToxicExposures]
 
-        expect(has_conditions).to eq(true)
+        expect(has_conditions).to eq('YES')
         expect(name).to eq('Traumatic Brain Injury')
         expect(relevance).to eq('ABCDEFG')
         expect(date).to eq('03-11-2018')
@@ -263,7 +263,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
         has_conditions = pdf_data[:data][:attributes][:exposureInformation][:hasConditionsRelatedToToxicExposures]
 
-        expect(has_conditions).to eq(true)
+        expect(has_conditions).to eq('YES')
       end
     end
 
@@ -329,12 +329,12 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(addtl_start).to eq('1980-11-14')
         expect(addtl_end).to eq('1991-11-30')
         expect(last_sep).to eq('ABCDEFGHIJKLMN')
-        expect(pow).to eq(true)
+        expect(pow).to eq('YES')
         expect(pow_start).to eq('06-04-2018')
         expect(pow_end).to eq('06-04-2018')
         expect(pow_start_two).to eq('06-2020')
         expect(pow_end_two).to eq('06-2020')
-        expect(natl_guard).to eq(true)
+        expect(natl_guard).to eq('YES')
         expect(natl_guard_comp).to eq('Active')
         expect(obl_begin).to eq('2019-06-04')
         expect(obl_end).to eq('2020-06-04')
@@ -342,13 +342,13 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(unit_address).to eq('1243 pine court')
         expect(unit_phone[:areaCode]).to eq('555')
         expect(unit_phone[:phoneNumber]).to eq('5555555')
-        expect(act_duty_pay).to eq(true)
-        expect(other_name).to eq(true)
+        expect(act_duty_pay).to eq('YES')
+        expect(other_name).to eq('YES')
         expect(alt_names).to eq('john jacob, johnny smith')
-        expect(fed_orders).to eq(true)
+        expect(fed_orders).to eq('YES')
         expect(fed_act).to eq('3619-02-11')
         expect(fed_sep).to eq('6705-10-03')
-        expect(served_after_nine_eleven).to eq(false)
+        expect(served_after_nine_eleven).to eq('NO')
       end
     end
 
@@ -365,7 +365,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         branch_of_service = service_pay_data[:militaryRetiredPay][:branchOfService]
 
         expect(favor_mil_retired_pay).to eq(false)
-        expect(receiving_mil_retired_pay).to eq(false)
+        expect(receiving_mil_retired_pay).to eq('NO')
         expect(branch_of_service).to eq('Army')
       end
     end
