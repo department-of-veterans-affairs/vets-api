@@ -7,6 +7,7 @@ require 'claims_api/error/error_handler'
 require 'claims_api/claim_logger'
 require 'bgs_service/local_bgs'
 require 'claims_api/form_schemas'
+require 'claims_api/v2/benefits_documents/service'
 
 module ClaimsApi
   module V2
@@ -145,6 +146,11 @@ module ClaimsApi
           external_uid: target_veteran.participant_id,
           external_key: target_veteran.participant_id
         )
+      end
+
+      # Creates a token OR gets existing one
+      def get_benefits_documents_auth_token
+        @auth_token ||= ClaimsApi::V2::BenefitsDocuments::Service.new.get_auth_token
       end
 
       def build_target_veteran(veteran_id:, loa:) # rubocop:disable Metrics/MethodLength

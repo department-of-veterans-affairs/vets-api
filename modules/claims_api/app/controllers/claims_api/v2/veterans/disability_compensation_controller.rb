@@ -5,7 +5,6 @@ require 'jsonapi/parser'
 require 'claims_api/v2/disability_compensation_validation'
 require 'claims_api/v2/disability_compensation_pdf_mapper'
 require 'claims_api/v2/disability_compensation_evss_mapper'
-require 'evss_service/base'
 
 module ClaimsApi
   module V2
@@ -32,6 +31,8 @@ module ClaimsApi
 
           # evss_data = evss_mapper_service(auto_claim).map_claim
           # evss_claim = evss_service.submit(auto_claim, evss_data)
+
+          get_benefits_documents_auth_token unless Rails.env.test?
 
           render json: auto_claim
         end
@@ -91,10 +92,6 @@ module ClaimsApi
                 {}
             }
           }
-        end
-
-        def evss_service
-          ClaimsApi::EVSSService::Base.new(request)
         end
       end
     end
