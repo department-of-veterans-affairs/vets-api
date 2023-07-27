@@ -53,7 +53,7 @@ module EMISRedis
       service_periods
       guard_reserve_service_history
       latest_guard_reserve_service_period
-    ].freeze
+    ].freeze  # map all of these to VAProfile. 
 
     # Disability ratings counted as lower
     LOWER_DISABILITY_RATINGS = [10, 20, 30, 40].freeze

@@ -195,7 +195,7 @@ class FormProfile
   def prefill
     @identity_information = initialize_identity_information
     @contact_information = initialize_contact_information
-    @military_information = initialize_military_information
+    @military_information = initialize_military_information  # where we pull in emis
     mappings = self.class.mappings_for_form(form_id)
 
     form = form_id == '1010EZ' ? '1010ez' : form_id
@@ -225,10 +225,19 @@ class FormProfile
     end
   end
 
+  def initialize_military_information_vaprofile_prefill
+    # I started copying the method above, but for the rest of the prefill methods.
+    # not done.
+    military_information_data = {}
+    VAProfile::Prefill::MilitaryInformation::PREFILL_METHODS.each do |attr|
+      military_information_data[attr] = military_information.public_send(attr)
+    end
+  end
+
   def initialize_military_information
     return {} unless user.authorize :emis, :access?
 
-    military_information = user.military_information
+    military_information = user.military_information  # emis call
     military_information_data = {}
 
     military_information_data.merge!(initialize_military_information_vaprofile) if Flipper.enabled?(
