@@ -14,6 +14,10 @@ module Chip
       'Chip'
     end
 
+    def valid_tenant?(tenant_name:, tenant_id:)
+      Settings.chip[tenant_name]&.tenant_id == tenant_id
+    end
+
     def connection
       Faraday.new(url: server_url) do |conn|
         conn.use :breakers

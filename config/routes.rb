@@ -23,8 +23,13 @@ Rails.application.routes.draw do
   get '/v0/sign_in/logingov_logout_proxy', to: 'v0/sign_in#logingov_logout_proxy'
   get '/v0/sign_in/revoke_all_sessions', to: 'v0/sign_in#revoke_all_sessions'
 
-  get '/v0/sign_in/client_config', to: 'v0/sign_in#read_client_config'
   get '/sign_in/openid_connect/certs' => 'sign_in/openid_connect_certificates#index'
+
+  unless Settings.vsp_environment == 'production'
+    namespace :sign_in do
+      resources :client_configs
+    end
+  end
 
   get '/inherited_proofing/auth', to: 'inherited_proofing#auth'
   get '/inherited_proofing/user_attributes', to: 'inherited_proofing#user_attributes'
@@ -44,14 +49,7 @@ Rails.application.routes.draw do
     resources :veteran_readiness_employment_claims, only: :create
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
     resource :virtual_agent_jwt_token, only: [:create], controller: :virtual_agent_jwt_token
-
-    namespace :ask_va do
-      resources :static_data, only: [:index]
-      resources :static_data_auth, only: [:index]
-
-      get 'static_data', to: 'ask_va_static_data#index'
-      get 'static_data_auth', to: 'ask_va_static_data_auth#index'
-    end
+    resource :virtual_agent_speech_token, only: [:create], controller: :virtual_agent_speech_token
 
     get 'form1095_bs/download_pdf/:tax_year', to: 'form1095_bs#download_pdf'
     get 'form1095_bs/download_txt/:tax_year', to: 'form1095_bs#download_txt'

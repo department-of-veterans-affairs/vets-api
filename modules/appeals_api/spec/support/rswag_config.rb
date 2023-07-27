@@ -237,7 +237,7 @@ class AppealsApi::RswagConfig
         sc_response_schemas,
         appealable_issues_schema.slice(*%i[appealableIssue]),
         generic_schemas.slice(*%i[errorModel documentUploadMetadata]),
-        shared_schemas.slice(*%w[address icn phone timezone nonBlankString])
+        shared_schemas.slice(*%w[address icn phone ssn timezone nonBlankString])
       )
     when 'appealable_issues'
       merge_schemas(
@@ -833,7 +833,8 @@ class AppealsApi::RswagConfig
     end
 
     {
-      scCreate: { type: 'object' }.merge!(sc_schema.slice(*%w[description properties required]))
+      scCreate: { type: 'object' }.merge!(sc_schema.slice(*%w[description properties required])),
+      scEvidenceSubmissionCreate: parse_create_schema('supplemental_claims', 'v0', 'evidence_submission.json', return_raw: true)
     }
   end
 
@@ -1185,6 +1186,7 @@ class AppealsApi::RswagConfig
       'icn' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'icn.json')))['properties']['icn'],
       'nonBlankString' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'nonBlankString.json')))['properties']['nonBlankString'],
       'phone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'phone.json')))['properties']['phone'],
+      'ssn' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'ssn.json')))['properties']['ssn'],
       'timezone' => JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', 'timezone.json')))['properties']['timezone']
     }
   end

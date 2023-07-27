@@ -53,6 +53,8 @@ app/services/sign_in/ @department-of-veterans-affairs/vsp-identity
 spec/services/sign_in/ @department-of-veterans-affairs/vsp-identity
 app/controllers/v0/sign_in_controller.rb @department-of-veterans-affairs/vsp-identity
 spec/controllers/v0/sign_in_controller_spec.rb @department-of-veterans-affairs/vsp-identity
+app/controllers/sign_in/ @department-of-veterans-affairs/vsp-identity
+spec/controllers/sign_in/ @department-of-veterans-affairs/vsp-identity
 
 # mocked sign in service authentication
 modules/mocked_authentication/ @department-of-veterans-affairs/vsp-identity

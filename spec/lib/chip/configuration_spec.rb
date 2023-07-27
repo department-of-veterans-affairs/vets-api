@@ -27,4 +27,34 @@ describe Chip::Configuration do
       expect(Chip::Configuration.instance.connection).to be_an_instance_of(Faraday::Connection)
     end
   end
+
+  describe '#valid_tenant?' do
+    let(:test_tenant_name) { 'mobile_app' }
+    let(:test_tenant_id) { '6f1c8b41-9c77-469d-852d-269c51a7d380' }
+
+    it 'returns false for invalid tenant_name' do
+      expect(Chip::Configuration.instance.valid_tenant?(tenant_name: 'test_tenant_name',
+                                                        tenant_id: test_tenant_id)).to eq(false)
+    end
+
+    it 'returns false for nil tenant_name' do
+      expect(Chip::Configuration.instance.valid_tenant?(tenant_name: nil,
+                                                        tenant_id: test_tenant_id)).to eq(false)
+    end
+
+    it 'returns false for invalid tenant_id' do
+      expect(Chip::Configuration.instance.valid_tenant?(tenant_name: test_tenant_name,
+                                                        tenant_id: 'test_tenant_id')).to eq(false)
+    end
+
+    it 'returns false for nil tenant_id' do
+      expect(Chip::Configuration.instance.valid_tenant?(tenant_name: test_tenant_name,
+                                                        tenant_id: nil)).to eq(false)
+    end
+
+    it 'returns true for valid tenant parameters' do
+      expect(Chip::Configuration.instance.valid_tenant?(tenant_name: test_tenant_name,
+                                                        tenant_id: test_tenant_id)).to eq(true)
+    end
+  end
 end

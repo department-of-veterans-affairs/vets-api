@@ -4,84 +4,107 @@ require 'rails_helper'
 require 'chip/service'
 
 describe Chip::Service do
-  let(:service) { described_class.new }
+  describe '#initialize' do
+    let(:test_username) { 'test_user_name' }
+    let(:test_tenant_name) { 'mobile_app' }
+    let(:test_tenant_id) { '6f1c8b41-9c77-469d-852d-269c51a7d380' }
+    let(:test_password) { 'test_password' }
+    let(:expected_error) { ArgumentError }
 
-  describe 'configuration' do
-    it 'is of type Configuration' do
-      expect(service.class.configuration).to be_a(Chip::Configuration)
-    end
-  end
+    context 'When username does not exist' do
+      let(:expected_error_message) { 'Invalid username' }
 
-  describe 'perform_get_with_token' do
-    let(:response) { Faraday::Response.new(body: 'success', status: 200) }
-    let(:token) { 'testToken' }
-    let(:path) { '/testPath' }
+      it 'raises validation error nil username' do
+        expect do
+          described_class.new(tenant_id: :test_tenant_id, tenant_name: :test_tenant_name, username: nil,
+                              password: :test_password)
+        end.to raise_exception(expected_error, expected_error_message)
+      end
 
-    before do
-      allow_any_instance_of(Faraday::Connection).to receive(:get).with(anything).and_return(response)
-    end
-
-    it 'calls Faraday::Connection' do
-      expect_any_instance_of(Faraday::Connection).to receive(:get).with(path).and_yield(Faraday::Request.new)
-      service.perform_get_with_token(token:, path:)
-    end
-
-    it 'returns Faraday::Response' do
-      expect(service.perform_get_with_token(token:, path:)).to be_a(Faraday::Response)
-    end
-  end
-
-  describe 'perform_post_with_token' do
-    let(:response) { Faraday::Response.new(body: 'success', status: 200) }
-    let(:token) { 'testToken' }
-    let(:request_header) do
-      {
-        'Content-Type' => 'application/json',
-        'x-apigw-api-id' => Settings.chip.api_gtwy_id.to_s,
-        'Authorization' => "Bearer #{token}"
-      }
-    end
-    let(:request) { Faraday::Request.new(request_header) }
-    let(:path) { '/testPath' }
-
-    before do
-      allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(response)
+      it 'raises validation error for empty username' do
+        expect do
+          described_class.new(tenant_id: :test_tenant_id, tenant_name: :test_tenant_name, username: '',
+                              password: :test_password)
+        end.to raise_exception(expected_error, expected_error_message)
+      end
     end
 
-    it 'calls Faraday::Connection' do
-      expect_any_instance_of(Faraday::Connection).to receive(:post).with(path).and_yield(request)
-      service.perform_post_with_token(token:, path:)
+    context 'When password does not exist' do
+      let(:expected_error_message) { 'Invalid password' }
+
+      it 'raises validation error for nil password' do
+        expect do
+          described_class.new(tenant_id: :test_tenant_id, tenant_name: :test_tenant_name, username: :test_username,
+                              password: nil)
+        end.to raise_exception(expected_error, expected_error_message)
+      end
+
+      it 'raises validation error for empty password' do
+        expect do
+          described_class.new(tenant_id: :test_tenant_id, tenant_name: :test_tenant_name, username: :test_username,
+                              password: '')
+        end.to raise_exception(expected_error, expected_error_message)
+      end
     end
 
-    it 'returns Faraday::Response' do
-      expect(service.perform_post_with_token(token:, path:)).to be_a(Faraday::Response)
-    end
-  end
+    context 'When tenant_name is not valid' do
+      let(:expected_invalid_error_message) { 'Invalid tenant parameters' }
+      let(:expected_no_exist_error_message) { 'Tenant parameters do not exist' }
 
-  describe 'token' do
-    let(:chip_token_response) { Faraday::Response.new(body: { 'token' => 'testToken' }, status: 200) }
-    let(:path) { '/token' }
-    let(:claims_token) { Base64.encode64('fake_api_user:fake_api_password') }
-    let(:request_header) do
-      {
-        'Content-Type' => 'application/json',
-        'x-apigw-api-id' => Settings.chip.api_gtwy_id.to_s,
-        'Authorization' => "Basic #{claims_token}"
-      }
-    end
-    let(:request) { Faraday::Request.new(request_header) }
+      it 'raises validation error for nil tenant_name' do
+        expect do
+          described_class.new(tenant_id: test_tenant_id, tenant_name: nil, username: :test_username,
+                              password: :test_password)
+        end.to raise_exception(expected_error, expected_invalid_error_message)
+      end
 
-    before do
-      allow_any_instance_of(Faraday::Connection).to receive(:post).with('/token').and_return(chip_token_response)
+      it 'raises validation error for empty tenant_name' do
+        expect do
+          described_class.new(tenant_id: test_tenant_id, tenant_name: '', username: :test_username,
+                              password: :test_password)
+        end.to raise_exception(expected_error, expected_invalid_error_message)
+      end
+
+      it 'raises validation error for tenant_name that does not exist' do
+        expect do
+          described_class.new(tenant_id: test_tenant_id, tenant_name: 'test_tenant_name', username: :test_username,
+                              password: :test_password)
+        end.to raise_exception(expected_error, expected_no_exist_error_message)
+      end
     end
 
-    it 'calls Faraday::Connection' do
-      expect_any_instance_of(Faraday::Connection).to receive(:post).with(path).and_yield(request)
-      service.token
+    context 'When tenant_id is not valid' do
+      let(:expected_invalid_error_message) { 'Invalid tenant parameters' }
+      let(:expected_no_exist_error_message) { 'Tenant parameters do not exist' }
+
+      it 'raises validation error for nil tenant_id' do
+        expect do
+          described_class.new(tenant_id: nil, tenant_name: test_tenant_name, username: test_username,
+                              password: test_password)
+        end.to raise_exception(expected_error, expected_invalid_error_message)
+      end
+
+      it 'raises validation error for empty tenant_id' do
+        expect do
+          described_class.new(tenant_id: '', tenant_name: test_tenant_name, username: test_username,
+                              password: test_password)
+        end.to raise_exception(expected_error, expected_invalid_error_message)
+      end
+
+      it 'raises validation error invalid tenant_id that does not exist' do
+        expect do
+          described_class.new(tenant_id: 'test_tenant_id', tenant_name: test_tenant_name, username: test_username,
+                              password: test_password)
+        end.to raise_exception(expected_error, expected_no_exist_error_message)
+      end
     end
 
-    it 'returns token' do
-      expect(service.token).to eq(chip_token_response)
+    context 'When called with valid parameters' do
+      it 'creates service object' do
+        expect(described_class.new(tenant_id: test_tenant_id, tenant_name: test_tenant_name,
+                                   username: :test_username,
+                                   password: :test_password)).to be_a(Chip::Service)
+      end
     end
   end
 end

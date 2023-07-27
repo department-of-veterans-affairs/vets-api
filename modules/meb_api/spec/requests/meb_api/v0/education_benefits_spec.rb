@@ -117,5 +117,17 @@ Rspec.describe MebApi::V0::EducationBenefitsController, type: :request do
         end
       end
     end
+
+    describe 'POST /meb_api/v0/duplicate_contact_info' do
+      context 'retrieves data contact info ' do
+        it 'returns a 200 status when it' do
+          VCR.use_cassette('dgi/post_contact_info') do
+            post '/meb_api/v0/duplicate_contact_info',
+                 params: { "emails": [], "phones": [] }
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+    end
   end
 end

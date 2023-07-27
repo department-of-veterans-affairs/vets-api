@@ -82,7 +82,7 @@ module AppealsApi
 
       {
         title: 'unprocessable_entity',
-        detail: I18n.t('appeals_api.errors.mismatched_ssns'),
+        detail: I18n.t("appeals_api.errors.mismatched_ssns#{identifier_in_headers? ? '' : '_in_body'}"),
         code: 'DecisionReviewMismatchedSSN',
         status: '422'
       }
@@ -97,6 +97,12 @@ module AppealsApi
         code: 'DecisionReviewMismatchedFileNumber',
         status: '422'
       }
+    end
+
+    def identifier_in_headers?
+      # v0 APIs gather PII in the body, while decision reviews v2 uses headers.
+      # Determine where the identifier is on this appeal instance:
+      appeal.auth_headers&.dig('X-VA-SSN').present? || appeal.auth_headers&.dig('X-VA-File-Number').present?
     end
 
     def raise_unacceptable_appeal_type?

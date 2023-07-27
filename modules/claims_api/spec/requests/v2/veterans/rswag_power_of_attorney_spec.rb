@@ -9,21 +9,7 @@ require 'bgs_service/local_bgs'
 # doc generation for V2 ITFs temporarily disabled by API-13879
 describe 'PowerOfAttorney',
          swagger_doc: Rswag::TextHelpers.new.claims_api_docs, document: false do
-  let(:cws) do
-    if Flipper.enabled? :bgs_via_faraday
-      ClaimsApi::LocalBGS
-    else
-      BGS::ClaimantWebService
-    end
-  end
-
-  let(:ows) do
-    if Flipper.enabled? :bgs_via_faraday
-      ClaimsApi::LocalBGS
-    else
-      BGS::OrgWebService
-    end
-  end
+  let(:local_bgs) { ClaimsApi::LocalBGS }
 
   path '/veterans/{veteranId}/power-of-attorney' do
     get 'Find current Power of Attorney for a Veteran.' do
@@ -59,8 +45,8 @@ describe 'PowerOfAttorney',
                                                       'get.json')))
 
           before do |example|
-            expect_any_instance_of(cws).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-            allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
+            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             Veteran::Service::Representative.new(representative_id: '12345',
                                                  poa_codes: [poa_code],
@@ -92,8 +78,8 @@ describe 'PowerOfAttorney',
 
         response '204', 'Successful response with no current Power of Attorney' do
           before do |example|
-            expect_any_instance_of(cws).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-            allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
+            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             with_okta_user(scopes) do |auth_header|
               Authorization = auth_header # rubocop:disable Naming/ConstantName
@@ -221,8 +207,8 @@ describe 'PowerOfAttorney',
                                                       'get.json')))
 
           before do |example|
-            expect_any_instance_of(cws).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-            allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
+            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             Veteran::Service::Representative.new(representative_id: '67890',
                                                  poa_codes: [individual_poa_code],
@@ -309,7 +295,7 @@ describe 'PowerOfAttorney',
 
           before do |example|
             with_okta_user(scopes) do |auth_header|
-              allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
+              allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
               Authorization = auth_header # rubocop:disable Naming/ConstantName
               data[:serviceOrganization][:poaCode] = '083'
@@ -388,8 +374,8 @@ describe 'PowerOfAttorney',
                                                       'get.json')))
 
           before do |example|
-            expect_any_instance_of(cws).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-            allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
+            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             Veteran::Service::Representative.new(representative_id: '67890',
                                                  poa_codes: [organization_poa_code],
@@ -479,7 +465,7 @@ describe 'PowerOfAttorney',
 
           before do |example|
             with_okta_user(scopes) do |auth_header|
-              allow_any_instance_of(ows).to receive(:find_poa_history_by_ptcpnt_id)
+              allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
               Authorization = auth_header # rubocop:disable Naming/ConstantName
               data[:serviceOrganization][:poaCode] = individual_poa_code.to_s

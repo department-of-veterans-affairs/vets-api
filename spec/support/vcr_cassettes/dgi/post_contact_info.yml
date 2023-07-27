@@ -1,0 +1,45 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://jenkins.ld.afsp.io:32512/vets-service/v1/utility/checkDuplicateContacts
+    body:
+      encoding: UTF-8
+      string: '{"emails":["test@test.com"],"phones":["8013090123"]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - removed
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Server:
+      - nginx/1.21.6
+      Date:
+      - Fri, 23 Jun 2023 13:06:30 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Access-Control-Request-Headers
+      - Access-Control-Request-Method
+      - Origin
+    body:
+      encoding: UTF-8
+      string: '{"emails": [{ "address": "test@test.com", "dupe": "false" }], "phones": [{ "number": "8013090123", "dupe": "false" }]}'
+  recorded_at: Fri, 23 Jun 2023 13:06:30 GMT
+recorded_with: VCR 6.1.0
+
+

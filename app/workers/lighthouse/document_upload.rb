@@ -2,6 +2,7 @@
 
 require 'ddtrace'
 require 'timeout'
+require 'lighthouse/benefits_documents/worker_service'
 
 class Lighthouse::DocumentUpload
   include Sidekiq::Worker
@@ -23,7 +24,7 @@ class Lighthouse::DocumentUpload
       raise Common::Exceptions::ValidationErrors, document_data unless document.valid?
 
       client = BenefitsDocuments::WorkerService.new(user_icn)
-      uploader = LighthouseDocumentUploader.new(user_uuid, document.uploader_ids)
+      uploader = LighthouseDocumentUploader.new(user_icn, document.uploader_ids)
       uploader.retrieve_from_store!(document.file_name)
     end
     Datadog::Tracing.trace('Sidekiq read_for_upload') do

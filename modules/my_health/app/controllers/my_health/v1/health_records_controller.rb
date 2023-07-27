@@ -25,6 +25,19 @@ module MyHealth
 
         head :accepted
       end
+
+      def optin
+        client.post_opt_in
+      end
+
+      def optout
+        client.post_opt_out
+      end
+
+      def status
+        resource = client.get_status
+        render json: resource
+      end
     end
   end
 end

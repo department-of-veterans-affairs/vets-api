@@ -14,6 +14,8 @@ module AskVAApi
           Khoa: { 'data-info' => 'khoa.nguyen@oddball.io' }
         }
         render json: data, status: :ok
+      rescue => e
+        service_exception_handler(e)
       end
     end
   end

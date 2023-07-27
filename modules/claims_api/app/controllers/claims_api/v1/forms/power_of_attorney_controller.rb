@@ -235,18 +235,12 @@ module ClaimsApi
           end
         end
 
-        def select_service(ssn)
+        def find_by_ssn(ssn)
           # rubocop:disable Rails/DynamicFindBy
-          if Flipper.enabled? :bgs_via_faraday_file_number
-            ClaimsApi::Logger.log('poa', detail: 'local BGS service used to locate file_number')
-            ClaimsApi::LocalBGS.new(
-              external_uid: target_veteran.participant_id,
-              external_key: target_veteran.participant_id
-            ).find_by_ssn(ssn)
-          else
-            ClaimsApi::Logger.log('poa', detail: 'bgs-ext used to locate file_number')
-            bgs_service.people.find_by_ssn(ssn)
-          end
+          ClaimsApi::LocalBGS.new(
+            external_uid: target_veteran.participant_id,
+            external_key: target_veteran.participant_id
+          ).find_by_ssn(ssn)
           # rubocop:enable Rails/DynamicFindBy
         end
 
@@ -254,7 +248,7 @@ module ClaimsApi
           ssn = target_veteran.ssn
 
           begin
-            response = select_service(ssn)
+            response = find_by_ssn(ssn)
             ClaimsApi::Logger.log('poa', detail: 'file_number located')
             unless response && response[:file_nbr].present?
               error_message = "Unable to locate Veteran's File Number in Master Person Index (MPI)." \

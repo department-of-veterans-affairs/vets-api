@@ -5,6 +5,7 @@ en:
         hearing_type_preference_inclusion: "If '/data/attributes/boardReviewOption' 'direct_review' or 'evidence_submission' is selected, '/data/attributes/hearingTypePreference' must not be selected"
         hearing_type_preference_missing: "If '/data/attributes/boardReviewOption' 'hearing' is selected, '/data/attributes/hearingTypePreference' must also be present"
         mismatched_ssns: "Request header 'X-VA-SSN' does not match the associated appeal's SSN"
+        mismatched_ssns_in_body: "The provided 'ssn' value does not match the associated appeal's SSN"
         mismatched_file_numbers: "Request header 'X-VA-File-Number' does not match the associated appeal's file number"
         nod_requesting_extension_must_be_true: "If '/data/attributes/extensionReason' present, then '/data/attributes/requestingExtension' must equal true"
         nod_outside_legal_window: "This evidence submission is outside the 90 day legal window for submission."
