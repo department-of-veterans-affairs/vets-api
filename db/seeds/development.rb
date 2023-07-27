@@ -85,7 +85,7 @@ identity_dashboard_service_account_config =
   SignIn::ServiceAccountConfig.find_or_initialize_by(service_account_id: vaid_service_account_id)
 identity_dashboard_service_account_config.update!(service_account_id: vaid_service_account_id,
                                                   description: 'VA Identity Dashboard API',
-                                                  scopes: ['http://localhost:3000/v0/sign_in/client_config'],
+                                                  scopes: ['http://localhost:3000/sign_in/client_configs'],
                                                   access_token_audience: 'http://localhost:4000',
                                                   access_token_duration: vaid_access_token_duration,
                                                   certificates: [vaid_certificate])
