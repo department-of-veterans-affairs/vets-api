@@ -8,8 +8,10 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
 
   ACCEPTED_SCHEMA_TYPES = %w[
     address
+    icn
     nonBlankString
     phone
+    ssn
     timezone
   ].freeze
 

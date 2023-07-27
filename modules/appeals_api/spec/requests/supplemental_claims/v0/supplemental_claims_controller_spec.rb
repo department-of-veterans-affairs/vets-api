@@ -32,6 +32,17 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
     end
   end
 
+  describe '#show' do
+    let(:uuid) { create(:supplemental_claim_v0).id }
+    let(:path) { base_path "forms/200995/#{uuid}" }
+
+    it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:GET]) do
+      def make_request(auth_header)
+        get(path, headers: auth_header)
+      end
+    end
+  end
+
   describe '#create' do
     let(:path) { base_path 'forms/200995' }
     let(:data) { default_data }
@@ -126,17 +137,6 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
         expect(parsed_response['errors'][0]['detail']).to include('One or more expected fields were not found')
         expect(parsed_response['errors'][0]['source']['pointer']).to eq('/data/attributes/veteran')
         expect(parsed_response['errors'][0]['meta']['missing_fields']).to include('icn')
-      end
-    end
-  end
-
-  describe '#show' do
-    let(:uuid) { create(:supplemental_claim_v0).id }
-    let(:path) { base_path "forms/200995/#{uuid}" }
-
-    it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:GET]) do
-      def make_request(auth_header)
-        get(path, headers: auth_header)
       end
     end
   end
