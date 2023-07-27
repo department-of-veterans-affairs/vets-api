@@ -23,8 +23,13 @@ Rails.application.routes.draw do
   get '/v0/sign_in/logingov_logout_proxy', to: 'v0/sign_in#logingov_logout_proxy'
   get '/v0/sign_in/revoke_all_sessions', to: 'v0/sign_in#revoke_all_sessions'
 
-  get '/v0/sign_in/client_config', to: 'v0/sign_in#read_client_config'
   get '/sign_in/openid_connect/certs' => 'sign_in/openid_connect_certificates#index'
+
+  unless Settings.vsp_environment == 'production'
+    namespace :sign_in do
+      resources :client_configs
+    end
+  end
 
   get '/inherited_proofing/auth', to: 'inherited_proofing#auth'
   get '/inherited_proofing/user_attributes', to: 'inherited_proofing#user_attributes'
