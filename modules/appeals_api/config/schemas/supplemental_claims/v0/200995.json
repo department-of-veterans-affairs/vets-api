@@ -34,11 +34,10 @@
               "type": "object",
               "properties": {
                 "ssn": {
-                  "type": "string",
-                  "description": "Veteran's SSN",
-                  "pattern": "^[0-9]{9}",
-                  "minLength": 9,
-                  "maxLength": 9
+                  "allOf": [
+                    { "$ref": "ssn.json" },
+                    { "description": "Veteran's SSN" }
+                  ]
                 },
                 "icn": { "$ref": "icn.json" },
                 "firstName": {

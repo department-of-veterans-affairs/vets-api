@@ -2061,8 +2061,10 @@
                         "available_options": [
                           "200996",
                           "address",
+                          "icn",
                           "nonBlankString",
                           "phone",
+                          "ssn",
                           "timezone"
                         ]
                       }

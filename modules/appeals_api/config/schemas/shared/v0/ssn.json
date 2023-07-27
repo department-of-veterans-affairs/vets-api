@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-2020-12/schema#",
+  "description": "JSON Schema for VA Appeal Forms: 'ssn'",
+  "properties": {
+    "ssn": {
+      "type": "string",
+      "description": "Social Security Number",
+      "pattern": "^[0-9]{9}",
+      "minLength": 9,
+      "maxLength": 9
+    }
+  }
+}
