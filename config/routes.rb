@@ -44,6 +44,7 @@ Rails.application.routes.draw do
     resources :veteran_readiness_employment_claims, only: :create
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
     resource :virtual_agent_jwt_token, only: [:create], controller: :virtual_agent_jwt_token
+    resource :virtual_agent_speech_token, only: [:create], controller: :virtual_agent_speech_token
 
     namespace :ask_va do
       resources :static_data, only: [:index]

@@ -1,0 +1,25 @@
+---
+http_interactions:
+  - request:
+      method: post
+      uri: https://eastus.api.cognitive.microsoft.com/sts/v1.0/issuetoken
+      body:
+        encoding: UTF-8
+        string: ""
+      headers:
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Accept:
+          - "*/*"
+        User-Agent:
+          - Ruby
+        Host:
+          - eastus.api.cognitive.microsoft.com
+        Ocp-Apim-Subscription-Key:
+          - fake_speech_token_subscription_key
+    response:
+      status:
+        code: 503
+        message: Service Unavailable
+    recorded_at: Wed, 17 Mar 2021 16:50:13 GMT
+recorded_with: VCR 6.0.0
