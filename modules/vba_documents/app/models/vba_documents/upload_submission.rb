@@ -50,6 +50,8 @@ module VBADocuments
       # lambda above stops security scan from finding false positive sql injection!
     }
 
+    scope :for_consumer, ->(consumer) { where(consumer_name: consumer) }
+
     def initialize(attributes = nil)
       super
       @current_status = status
