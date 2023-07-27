@@ -28,14 +28,14 @@
             "productionOauth": [
               "veteran/SupplementalClaims.write",
               "representative/SupplementalClaims.write",
-              "system/SupplementalClaims.read"
+              "system/SupplementalClaims.write"
             ]
           },
           {
             "sandboxOauth": [
               "veteran/SupplementalClaims.write",
               "representative/SupplementalClaims.write",
-              "system/SupplementalClaims.read"
+              "system/SupplementalClaims.write"
             ]
           },
           {
@@ -912,11 +912,14 @@
                                   "type": "object",
                                   "properties": {
                                     "ssn": {
-                                      "type": "string",
-                                      "description": "Veteran's SSN",
-                                      "pattern": "^[0-9]{9}",
-                                      "minLength": 9,
-                                      "maxLength": 9
+                                      "allOf": [
+                                        {
+                                          "$ref": "ssn.json"
+                                        },
+                                        {
+                                          "description": "Veteran's SSN"
+                                        }
+                                      ]
                                     },
                                     "icn": {
                                       "$ref": "icn.json"
@@ -2365,8 +2368,10 @@
                         "available_options": [
                           "200995",
                           "address",
+                          "icn",
                           "nonBlankString",
                           "phone",
+                          "ssn",
                           "timezone"
                         ]
                       }
@@ -2415,14 +2420,14 @@
             "productionOauth": [
               "veteran/SupplementalClaims.write",
               "representative/SupplementalClaims.write",
-              "system/SupplementalClaims.read"
+              "system/SupplementalClaims.write"
             ]
           },
           {
             "sandboxOauth": [
               "veteran/SupplementalClaims.write",
               "representative/SupplementalClaims.write",
-              "system/SupplementalClaims.read"
+              "system/SupplementalClaims.write"
             ]
           },
           {
@@ -2821,41 +2826,19 @@
         ],
         "operationId": "postSupplementalClaimEvidenceSubmission",
         "description": "This is the first step to submitting supporting evidence for a Supplemental Claim.  (See the Evidence Uploads section above for additional information.)\nThe Supplemental Claim GUID that is returned when the SC is submitted, is supplied to this endpoint to ensure the SC is in a valid state for sending supporting evidence documents.\n\nEvidence may be uploaded up to 7 days from the 'created_at' date of the associated Supplemental Claim via 'supplemental_claims/evidence_submissions'.\n",
-        "parameters": [
-          {
-            "name": "sc_uuid",
-            "in": "query",
-            "required": true,
-            "description": "Associated Supplemental Claim UUID",
-            "example": "7efd87fc-fac1-4851-a4dd-b9aa2533f57f",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-SSN",
-            "required": true,
-            "description": "Veteran's SSN",
-            "example": "706547821",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-SSN"
-            }
-          }
-        ],
         "security": [
           {
             "productionOauth": [
               "veteran/SupplementalClaims.write",
               "representative/SupplementalClaims.write",
-              "system/SupplementalClaims.read"
+              "system/SupplementalClaims.write"
             ]
           },
           {
             "sandboxOauth": [
               "veteran/SupplementalClaims.write",
               "representative/SupplementalClaims.write",
-              "system/SupplementalClaims.read"
+              "system/SupplementalClaims.write"
             ]
           },
           {
@@ -2863,6 +2846,9 @@
 
             ]
           }
+        ],
+        "parameters": [
+
         ],
         "responses": {
           "202": {
@@ -2879,7 +2865,7 @@
                       "detail": null,
                       "appealType": "SupplementalClaim",
                       "appealId": "00000000-1111-2222-3333-444444444444",
-                      "location": "http://some.fakesite.com/path/uuid",
+                      "location": "http://path.to.upload/location/uuid",
                       "createdAt": "2020-01-02T03:04:05.067Z",
                       "updatedAt": "2020-01-02T03:04:05.067Z"
                     }
@@ -2898,40 +2884,18 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "not_found",
-                      "detail": "SupplementalClaim with uuid  not found",
-                      "code": "404",
-                      "status": "404"
+                      "title": "Invalid data type",
+                      "detail": "Expected string data",
+                      "code": "140",
+                      "source": {
+                        "pointer": "/sc_uuid"
+                      },
+                      "status": "422"
                     }
                   ]
                 },
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "example": "Bad request"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "example": "Must supply a corresponding SC id in order to submit evidence"
-                          },
-                          "code": {
-                            "type": "string",
-                            "example": "400"
-                          },
-                          "status": {
-                            "type": "string",
-                            "example": "400"
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/errorModel"
                 }
               }
             }
@@ -2944,7 +2908,7 @@
                   "errors": [
                     {
                       "title": "not_found",
-                      "detail": "SupplementalClaim with uuid  not found",
+                      "detail": "SupplementalClaim with uuid 00000000-0000-0000-0000-000000000000 not found",
                       "code": "404",
                       "status": "404"
                     }
@@ -2964,7 +2928,7 @@
                   "errors": [
                     {
                       "title": "unprocessable_entity",
-                      "detail": "Request header 'X-VA-SSN' does not match the associated appeal's SSN",
+                      "detail": "The provided 'ssn' value does not match the associated appeal's SSN",
                       "code": "DecisionReviewMismatchedSSN",
                       "status": "422"
                     }
@@ -2996,6 +2960,15 @@
               }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/scEvidenceSubmissionCreate"
+              }
+            }
+          }
         }
       }
     },
@@ -3012,14 +2985,14 @@
             "productionOauth": [
               "veteran/SupplementalClaims.write",
               "representative/SupplementalClaims.write",
-              "system/SupplementalClaims.read"
+              "system/SupplementalClaims.write"
             ]
           },
           {
             "sandboxOauth": [
               "veteran/SupplementalClaims.write",
               "representative/SupplementalClaims.write",
-              "system/SupplementalClaims.read"
+              "system/SupplementalClaims.write"
             ]
           },
           {
@@ -3732,11 +3705,14 @@
                     "type": "object",
                     "properties": {
                       "ssn": {
-                        "type": "string",
-                        "description": "Veteran's SSN",
-                        "pattern": "^[0-9]{9}",
-                        "minLength": 9,
-                        "maxLength": 9
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/ssn"
+                          },
+                          {
+                            "description": "Veteran's SSN"
+                          }
+                        ]
                       },
                       "icn": {
                         "$ref": "#/components/schemas/icn"
@@ -4292,6 +4268,32 @@
           }
         }
       },
+      "scEvidenceSubmissionCreate": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "description": "JSON Schema for evidence submissions for VA Form 20-0995",
+        "type": "object",
+        "properties": {
+          "sc_uuid": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Associated Supplemental Claim UUID"
+          },
+          "ssn": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ssn"
+              },
+              {
+                "description": "Veteran's SSN"
+              }
+            ]
+          }
+        },
+        "required": [
+          "sc_uuid",
+          "ssn"
+        ]
+      },
       "scEvidenceSubmissionResponse": {
         "type": "object",
         "properties": {
@@ -4376,6 +4378,13 @@
         "required": [
           "data"
         ]
+      },
+      "ssn": {
+        "type": "string",
+        "description": "Social Security Number",
+        "pattern": "^[0-9]{9}",
+        "minLength": 9,
+        "maxLength": 9
       },
       "timezone": {
         "type": "string",
