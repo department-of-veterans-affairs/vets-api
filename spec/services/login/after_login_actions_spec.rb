@@ -206,5 +206,30 @@ RSpec.describe Login::AfterLoginActions do
         it_behaves_like 'identity-mpi id validation'
       end
     end
+
+    context 'AcceptableVerifiedCredentialAdoptionService' do
+      let(:user) { create(:user, :dslogon) }
+      let(:user_verification) { create(:dslogon_user_verification, dslogon_uuid: user.edipi) }
+      let(:user_account) { user_verification.user_account }
+      let!(:user_acceptable_verified_credential) do
+        create(:user_acceptable_verified_credential, :with_avc, user_account:)
+      end
+
+      context 'when When Flipper reactivation_experiment_initial_gate is enabled' do
+        it 'sends an email' do
+          expect { described_class.new(user).perform }.to change(VANotify::EmailJob.jobs, :size).by(1)
+        end
+      end
+
+      context 'When Flipper reactivation_experiment_initial_gate is disabled' do
+        before do
+          Flipper.disable(:reactivation_experiment_initial_gate)
+        end
+
+        it 'does not send an email' do
+          expect { described_class.new(user).perform }.not_to change(VANotify::EmailJob.jobs, :size)
+        end
+      end
+    end
   end
 end

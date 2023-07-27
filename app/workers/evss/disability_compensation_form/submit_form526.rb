@@ -59,6 +59,7 @@ module EVSS
       #
       # @param submission_id [Integer] The {Form526Submission} id
       #
+      # rubocop:disable Metrics/MethodLength
       def perform(submission_id)
         Raven.tags_context(source: '526EZ-all-claims')
         super(submission_id)
@@ -67,7 +68,13 @@ module EVSS
         with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
           service = service(submission.auth_headers)
           submission.mark_birls_id_as_tried!
-          response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
+          if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration)
+            # TODO: call new service with submit from Lighthouse
+            # response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
+            # rm rubocop disable after this Flipper conditional removed
+          else
+            response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
+          end
           response_handler(response)
         end
         submission.send_post_evss_notifications!
@@ -82,6 +89,7 @@ module EVSS
       rescue => e
         non_retryable_error_handler(submission, e)
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 

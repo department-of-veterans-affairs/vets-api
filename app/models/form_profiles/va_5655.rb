@@ -61,9 +61,12 @@ class FormProfiles::VA5655 < FormProfile
   end
 
   def payment_amount(payments)
-    last_month = Time.zone.today - 30.days
+    return payments&.last&.[](:payment_amount) if Settings.dmc.fsr_payment_window.blank?
 
-    # Filter to only use recent payments from last 30 days
-    payments&.select { |payment| Date.parse(payment[:payment_date].to_s) > last_month }&.last&.[](:payment_amount)
+    # Window of time to consider included payments (in days)
+    window = Time.zone.today - Settings.dmc.fsr_payment_window.days
+
+    # Filter to only use recent payments from window of time
+    payments&.select { |payment| Date.parse(payment[:payment_date].to_s) > window }&.last&.[](:payment_amount)
   end
 end

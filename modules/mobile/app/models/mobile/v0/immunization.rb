@@ -5,9 +5,11 @@ require 'common/models/resource'
 module Mobile
   module V0
     class Immunization < Common::Resource
+      CACHE_VERSION = 1
+
       include Mobile::V0::Concerns::RedisCaching
 
-      redis_config REDIS_CONFIG[:mobile_app_immunizations_store]
+      redis_config REDIS_CONFIG[:mobile_app_immunizations_store], CACHE_VERSION
 
       attribute :id, Types::String
       attribute :cvx_code, Types::Coercible::Integer.optional

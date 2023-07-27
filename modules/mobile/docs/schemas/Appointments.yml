@@ -11,6 +11,20 @@ properties:
     type: object
     required:
       - errors
+      - minutesCheckinEarlyWindow
+      - minutesCheckinLateWindow
     properties:
       errors:
         type: [array, null]
+      checkinWindow:
+        type: object
+        required:
+          - minutesBefore
+          - minutesAfter
+        properties:
+          minutesBefore:
+            type: integer
+            example: 45
+          minutesAfter:
+            type: integer
+            example: 15

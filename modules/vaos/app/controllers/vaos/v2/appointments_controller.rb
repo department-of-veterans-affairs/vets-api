@@ -10,9 +10,12 @@ module VAOS
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
       PID = 'PID'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
-      APPT_INDEX = 'Appointment Index'
-      APPT_SHOW = 'Appointment Show'
-      APPT_CREATE = 'Appointment Create'
+      APPT_INDEX = "GET '/vaos/v1/patients/<icn>/appointments'"
+      APPT_SHOW = "GET '/vaos/v1/patients/<icn>/appointments/<id>'"
+      APPT_CREATE = "POST '/vaos/v1/patients/<icn>/appointments'"
+      REASON = 'reason'
+      REASON_CODE = 'reason_code'
+      COMMENT = 'comment'
 
       # cache utilized by the controller to store key/value pairs of provider name and npi
       # in order to prevent duplicate service call lookups during index/show/create
@@ -312,26 +315,29 @@ module VAOS
 
       def scrape_appt_comments_and_log_details(appt, appt_method, comment_key)
         if appt&.[](:reason)&.include? comment_key
-          log_appt_comment_data(appt, appt_method, appt&.[](:reason), comment_key)
+          log_appt_comment_data(appt, appt_method, appt&.[](:reason), comment_key, REASON)
         elsif appt&.[](:comment)&.include? comment_key
-          log_appt_comment_data(appt, appt_method, appt&.[](:comment), comment_key)
+          log_appt_comment_data(appt, appt_method, appt&.[](:comment), comment_key, COMMENT)
         elsif appt&.[](:reason_code)&.[](:text)&.include? comment_key
-          log_appt_comment_data(appt, appt_method, appt&.[](:reason_code)&.[](:text), comment_key)
+          log_appt_comment_data(appt, appt_method, appt&.[](:reason_code)&.[](:text), comment_key, REASON_CODE)
         end
       end
 
-      def log_appt_comment_data(appt, appt_method, comment_field, comment_key)
+      def log_appt_comment_data(appt, appt_method, comment_content, comment_key, field_name)
         appt_comment_data_entry = { "#{comment_key} appointment details" => appt_comment_log_details(appt, appt_method,
-                                                                                                     comment_field) }
+                                                                                                     comment_content,
+                                                                                                     field_name) }
         Rails.logger.info("Details for #{comment_key} appointment", appt_comment_data_entry.to_json)
       end
 
-      def appt_comment_log_details(appt, appt_method, comment_field)
+      def appt_comment_log_details(appt, appt_method, comment_content, field_name)
         {
           endpoint_method: appt_method,
+          appointment_id: appt[:id],
           location_id: appt[:location_id],
           clinic: appt[:clinic],
-          comment: comment_field
+          field_name:,
+          comment: comment_content
         }
       end
 

@@ -1,0 +1,64 @@
+{
+  "action": "submit",
+  "additional_information": "More information here!",
+  "claimant_address": {
+    "city": "Los Angeles",
+    "country": "USA",
+    "postal_code": "90210",
+    "state": "CA",
+    "street": "123 Fake St.",
+    "street2": "Line 2",
+    "street3": "Line3"
+  },
+  "claimant_email": "a@b.com",
+  "claimant_full_name": {
+    "first": "Claim",
+    "last": "Surname",
+    "middle": "Ant"
+  },
+  "claimant_identification": "CHILD",
+  "claimant_phone": "1231231233",
+  "claimant_ssn": "123123123",
+  "controller": "simple_forms_api/v1/uploads",
+  "form_number": "21-0972",
+  "format": "json",
+  "preparer_address": {
+    "city": "Anytown",
+    "country": "USA",
+    "postal_code": "12345",
+    "state": "CA",
+    "street": "124 Main St",
+    "street2": "Address line 2",
+    "street3": "Address line 3"
+  },
+  "preparer_email": "preparer@email.com",
+  "preparer_full_name": {
+    "first": "Prepare",
+    "last": "Surname",
+    "middle": "R"
+  },
+  "preparer_phone": "9876054321",
+  "preparer_qualifications": {
+    "court_appointed_rep": true,
+    "attorney": true,
+    "caregiver": true,
+    "manager": true
+  },
+  "preparer_signing_reason": {
+    "under18": true,
+    "mental_capacity": true,
+    "physical_capacity": true
+  },
+  "statement_of_truth_certified": true,
+  "statement_of_truth_signature": "Prepare R Surname",
+  "veteran_date_of_birth": "1950-10-25",
+  "veteran_full_name": {
+    "first": "Alex",
+    "last": "Veteran",
+    "middle": "B"
+  },
+  "veteran_has_filed_claim": true,
+  "veteran_service_number": "123123",
+  "veteran_ssn": "999442222",
+  "veteran_va_file_number": "121234321"
+}

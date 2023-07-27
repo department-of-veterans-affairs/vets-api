@@ -12,6 +12,18 @@
           "zipFirstFive": "12345",
           "zipLastFour": "6789"
         },
+        "daytimePhone": {
+          "areaCode": "603",
+          "phoneNumber": "5892689"
+        },
+        "eveningPhone": {
+          "areaCode": "603",
+          "phoneNumber": "5892600"
+        },
+        "cellPhone": {
+          "areaCode": "603",
+          "phoneNumber": "5892602"
+        },
         "changeOfAddress": {
           "country": "USA",
           "addressLine1": "5678 Couch Street",
@@ -35,6 +47,10 @@
           "currentlyHomeless": {
             "homelessSituationType": "FLEEING_CURRENT_RESIDENCE",
             "otherLivingSituation": "other living situation"
+          },
+          "homelessnessRisk": {
+            "homelessnessRiskSituationType": "HOUSING_WILL_BE_LOST_IN_30_DAYS",
+            "otherLivingSituation": "other living situation (at risk)"
           }
         },
         "currentlyVAEmployee": false

@@ -13,8 +13,8 @@ module ClaimsApi
         claim_attributes
         toxic_exposure_attributes
         homeless_attributes
-        chg_addr_attributes if @auto_claim['changeOfAddress'].present?
         veteran_info
+        chg_addr_attributes if @auto_claim['changeOfAddress'].present?
         service_info
         disability_attributes
         treatment_centers
@@ -26,8 +26,8 @@ module ClaimsApi
 
       def claim_attributes
         @pdf_data[:data][:attributes] = @auto_claim&.deep_symbolize_keys
+        @pdf_data[:data][:attributes].delete(:claimantCertification)
         claim_date_and_signature
-        veteran_info
 
         @pdf_data
       end
@@ -42,14 +42,14 @@ module ClaimsApi
       end
 
       def homeless_at_risk_or_currently
-        at_risk = @auto_claim&.dig('homeless', 'riskOfBecomingHomeless', 'otherDescription').present?
+        at_risk = @auto_claim&.dig('homeless', 'riskOfBecomingHomeless', 'livingSituationOptions').present?
         currently = @auto_claim&.dig('homeless', 'pointOfContact').present?
 
         if currently && !at_risk
-          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouCurrentlyHomeless: true)
+          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouCurrentlyHomeless: 'YES')
         else
           homeless = @pdf_data[:data][:attributes][:homelessInformation].present?
-          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouAtRiskOfBecomingHomeless: true) if homeless
+          @pdf_data[:data][:attributes][:homelessInformation].merge!(areYouAtRiskOfBecomingHomeless: 'YES') if homeless
         end
 
         @pdf_data
@@ -62,8 +62,15 @@ module ClaimsApi
         country = @pdf_data[:data][:attributes][:changeOfAddress][:country]
         abbr_country = country == 'USA' ? 'US' : country
         @pdf_data[:data][:attributes][:changeOfAddress][:country] = abbr_country
-
+        begin_date = @pdf_data[:data][:attributes][:changeOfAddress][:dates][:beginDate]
+        @pdf_data[:data][:attributes][:changeOfAddress][:dates][:beginningDate] = begin_date
+        end_date = @pdf_data[:data][:attributes][:changeOfAddress][:dates][:endDate]
+        @pdf_data[:data][:attributes][:changeOfAddress][:dates][:endingDate] = end_date
         chg_addr_zip
+        @pdf_data[:data][:attributes][:changeOfAddress][:dates].delete(:beginDate)
+        @pdf_data[:data][:attributes][:changeOfAddress][:dates].delete(:endDate)
+        @pdf_data[:data][:attributes][:changeOfAddress].delete(:zipFirstFive)
+        @pdf_data[:data][:attributes][:changeOfAddress].delete(:zipLastFour)
 
         @pdf_data
       end
@@ -75,10 +82,27 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:changeOfAddress].merge!(zip:) if addr
       end
 
+      # rubocop:disable Layout/LineLength
       def toxic_exposure_attributes
         @pdf_data[:data][:attributes].merge!(
           exposureInformation: { toxicExposure: @auto_claim&.dig('toxicExposure')&.deep_symbolize_keys }
         )
+        gulf = @pdf_data&.dig(:data, :attributes, :toxicExposure, :gulfWarHazardService).present?
+        if gulf
+          served_in_gulf_war_hazard_locations =
+            @pdf_data[:data][:attributes][:toxicExposure][:gulfWarHazardService][:servedInGulfWarHazardLocations]
+          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:servedInGulfWarHazardLocations] =
+            served_in_gulf_war_hazard_locations == true ? 'YES' : 'NO'
+        end
+        herb = @pdf_data&.dig(:data, :attributes, :toxicExposure, :herbicideHazardService).present?
+        if herb
+          served_in_herbicide_hazard_locations =
+            @pdf_data[:data][:attributes][:toxicExposure][:herbicideHazardService][:servedInHerbicideHazardLocations]
+          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:servedInHerbicideHazardLocations] =
+            served_in_herbicide_hazard_locations == true ? 'YES' : 'NO'
+        end
+        # rubocop:enable Layout/LineLength
+
         @pdf_data[:data][:attributes].delete(:toxicExposure)
 
         @pdf_data
@@ -94,6 +118,7 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:country] = abbr_country
 
         zip
+        @pdf_data[:data][:attributes].delete(:veteranIdentification)
 
         @pdf_data
       end
@@ -103,6 +128,10 @@ module ClaimsApi
               (@auto_claim&.dig('veteranIdentification', 'mailingAddress', 'zipLastFour') || '')
         mailing_addr = @pdf_data&.dig(:data, :attributes, :identificationInformation, :mailingAddress).present?
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].merge!(zip:) if mailing_addr
+        @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:zipFirstFive)
+        @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:zipLastFour)
+
+        @pdf_data
       end
 
       def disability_attributes
@@ -118,6 +147,7 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:claimInformation][:disabilities] = details
 
         conditions_related_to_exposure?
+        @pdf_data[:data][:attributes].delete(:disabilities)
 
         @pdf_data
       end
@@ -152,7 +182,8 @@ module ClaimsApi
         has_conditions = @pdf_data[:data][:attributes][:claimInformation][:disabilities].any? do |disabiity|
           disabiity[:isRelatedToToxicExposure] == true
         end
-        @pdf_data[:data][:attributes][:exposureInformation][:hasConditionsRelatedToToxicExposures] = has_conditions
+        @pdf_data[:data][:attributes][:exposureInformation][:hasConditionsRelatedToToxicExposures] =
+          has_conditions == true ? 'YES' : 'NO'
 
         @pdf_data
       end
@@ -201,6 +232,14 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:serviceInformation].merge!(
           @auto_claim['serviceInformation'].deep_symbolize_keys
         )
+        served_in_active_combat_since911 =
+          @pdf_data[:data][:attributes][:serviceInformation][:servedInActiveCombatSince911]
+        @pdf_data[:data][:attributes][:serviceInformation][:servedInActiveCombatSince911] =
+          served_in_active_combat_since911 == true ? 'YES' : 'NO'
+        served_in_reserves_or_national_guard =
+          @pdf_data[:data][:attributes][:serviceInformation][:servedInReservesOrNationalGuard]
+        @pdf_data[:data][:attributes][:serviceInformation][:servedInReservesOrNationalGuard] =
+          served_in_reserves_or_national_guard == true ? 'YES' : 'NO'
 
         @pdf_data
       end
@@ -248,23 +287,32 @@ module ClaimsApi
         end
         pow = si.present?
         @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement][:confinementDates] = si
-        @pdf_data[:data][:attributes][:serviceInformation][:confinedAsPrisonerOfWar] = pow
+        @pdf_data[:data][:attributes][:serviceInformation][:confinedAsPrisonerOfWar] = pow == true ? 'YES' : 'NO'
+        @pdf_data[:data][:attributes][:serviceInformation].delete(:confinements)
+
         @pdf_data
       end
 
+      # rubocop:disable Layout/LineLength
       def national_guard
         si = {}
         reserves = @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
-        si[:servedInReservesOrNationalGuard] = true if reserves[:obligationTermsOfService][:beginDate]
+        si[:servedInReservesOrNationalGuard] = 'YES' if reserves
         @pdf_data[:data][:attributes][:serviceInformation].merge!(si)
+
+        receiving_inactive_duty_training_pay =
+          @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:receivingInactiveDutyTrainingPay]
+        @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:receivingInactiveDutyTrainingPay] =
+          receiving_inactive_duty_training_pay == true ? 'YES' : 'NO'
 
         @pdf_data
       end
 
+      # rubocop:enable Layout/LineLength
       def service_info_other_names
         other_names = @pdf_data[:data][:attributes][:serviceInformation][:alternateNames].present?
         names = @pdf_data[:data][:attributes][:serviceInformation][:alternateNames].join(', ')
-        @pdf_data[:data][:attributes][:serviceInformation][:servedUnderAnotherName] = true if other_names
+        @pdf_data[:data][:attributes][:serviceInformation][:servedUnderAnotherName] = 'YES' if other_names
         @pdf_data[:data][:attributes][:serviceInformation][:alternateNames] = names
       end
 
@@ -277,7 +325,7 @@ module ClaimsApi
         anticipated_sep_date = ten[:anticipatedSeparationDate]
         @pdf_data[:data][:attributes][:serviceInformation][:federalActivation][:anticipatedSeparationDate] =
           anticipated_sep_date
-        @pdf_data[:data][:attributes][:serviceInformation][:activatedOnFederalOrders] = true if activation_date
+        @pdf_data[:data][:attributes][:serviceInformation][:activatedOnFederalOrders] = 'YES' if activation_date
         @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService].delete(:title10Activation)
 
         @pdf_data
@@ -303,6 +351,16 @@ module ClaimsApi
         @pdf_data[:data][:attributes].merge!(
           servicePay: @auto_claim&.dig('servicePay')&.deep_symbolize_keys
         )
+        receiving_military_retired_pay = @pdf_data[:data][:attributes][:servicePay][:receivingMilitaryRetiredPay]
+        @pdf_data[:data][:attributes][:servicePay][:futureMilitaryRetiredPay]
+        received_separation_or_severance_pay =
+          @pdf_data[:data][:attributes][:servicePay][:receivedSeparationOrSeverancePay]
+        @pdf_data[:data][:attributes][:servicePay][:receivingMilitaryRetiredPay] =
+          receiving_military_retired_pay == true ? 'YES' : 'NO'
+        @pdf_data[:data][:attributes][:servicePay][:futureMilitaryRetiredPay] =
+          receiving_military_retired_pay == true ? 'YES' : 'NO'
+        @pdf_data[:data][:attributes][:servicePay][:receivedSeparationOrSeverancePay] =
+          received_separation_or_severance_pay == true ? 'YES' : 'NO'
         zip
 
         @pdf_data

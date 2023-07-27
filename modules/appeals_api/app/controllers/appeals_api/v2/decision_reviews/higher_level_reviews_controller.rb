@@ -11,7 +11,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   include AppealsApi::Schemas
 
   skip_before_action :authenticate
-  before_action :validate_index_headers, only: %i[index]
+  before_action :validate_icn_header, only: %i[index]
   before_action :validate_json_format, if: -> { request.post? }
   before_action :validate_json_schema, only: %i[create validate]
   before_action :new_higher_level_review, only: %i[create validate]
@@ -60,7 +60,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
 
   def header_names = headers_schema['definitions']['hlrCreateParameters']['properties'].keys
 
-  def validate_index_headers
+  def validate_icn_header
     validation_errors = []
 
     if request_headers[ICN_HEADER].blank?

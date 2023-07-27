@@ -63,7 +63,7 @@ module SignIn
         with_validation,
         {
           verify_expiration: with_validation,
-          algorithm: Constants::Auth::CLIENT_ASSERTION_ENCODE_ALGORITHM
+          algorithm: Constants::Auth::ASSERTION_ENCODE_ALGORITHM
         }
       )&.first
       OpenStruct.new(decoded_jwt)

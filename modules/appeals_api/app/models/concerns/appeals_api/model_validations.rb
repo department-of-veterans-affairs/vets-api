@@ -18,25 +18,36 @@ module AppealsApi
       # validation (header)
       def veteran_birth_date_is_in_the_past
         # don't add more errors to veteran birth date if one already exists
-        return if errors.any? { |e| e.options.dig(:source, :header) == 'X-VA-Birth-Date' }
+        return if validation_error?(header: 'X-VA-Birth-Date', attribute: 'veteran/birthDate')
         return unless veteran_birth_date
         return if self.class.past?(veteran_birth_date)
 
-        add_date_error '', veteran_birth_date, source: { header: 'X-VA-Birth-Date' }
+        if should_validate_auth_headers?
+          add_date_error('', veteran_birth_date, source: { header: 'X-VA-Birth-Date' })
+        else
+          add_date_error('/data/attributes/veteran/birthDate', veteran_birth_date)
+        end
       end
 
       # validation (header)
       def claimant_birth_date_is_in_the_past
         # don't add more errors to claimant birth date if one already exists
-        return if errors.any? { |e| e.options.dig(:source, :header) == 'X-VA-NonVeteranClaimant-Birth-Date' }
+        return if validation_error?(header: 'X-VA-NonVeteranClaimant-Birth-Date', attribute: 'claimant/birthDate')
         return if claimant.birth_date.blank? || self.class.past?(claimant.birth_date)
 
-        add_date_error '', claimant.birth_date, source: { header: 'X-VA-NonVeteranClaimant-Birth-Date' }
+        if should_validate_auth_headers?
+          add_date_error '', claimant.birth_date, source: { header: 'X-VA-NonVeteranClaimant-Birth-Date' }
+        else
+          add_date_error('/data/attributes/claimant/birthDate', claimant.birth_date)
+        end
       end
 
       # validation (header & body)
       # Schemas take care of most of the requirements, but we need to check that both header & body data is provided
       def required_claimant_data_is_present
+        # If there are no headers to check, schema validations will have taken care of everything:
+        return unless should_validate_auth_headers?
+
         # Claimant First Name is always required if they've supplied any claimant headers
         has_claimant_headers = claimant.first_name.present?
         # form data that includes a claimant is also sufficient to know it's passed the schema
@@ -66,7 +77,7 @@ module AppealsApi
       # validation (body)
       def contestable_issue_dates_are_in_the_past
         # don't add any more errors to issue dates if one already exists
-        return if errors.any? { |e| e.attribute =~ /decisionDate/ }
+        return if validation_error?(attribute: 'decisionDate')
         return if contestable_issues.blank?
 
         contestable_issues.each_with_index do |issue, index|
@@ -113,5 +124,26 @@ module AppealsApi
       end
     end
     # rubocop:enable Metrics/BlockLength
+
+    private
+
+    # Determines where veteran/claimant data is expected to be found on the record:
+    # - If the record was created via Decision Reviews v2, it is expected to have some of the appeal's info in its
+    #   auth_headers and some in its form_data.
+    # - If it was created via one of the v0 segmented APIs, all info is expected to be in the form_data (no headers)
+    def should_validate_auth_headers?
+      if api_version.blank?
+        # api_version is set in controllers and has no default, so provide fallback logic:
+        return (auth_headers['X-VA-SSN'].present? || auth_headers['X-VA-File-Number'].present?)
+      end
+
+      api_version != 'V0'
+    end
+
+    def validation_error?(header: nil, attribute: nil)
+      errors.any? do |e|
+        e.options.dig(:source, :header) == header || e.attribute =~ /#{attribute}/
+      end
+    end
   end
 end

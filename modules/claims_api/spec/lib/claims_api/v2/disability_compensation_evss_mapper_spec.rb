@@ -53,18 +53,18 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
         secondary = disability[:secondaryDisabilities][0]
 
         expect(disability[:disabilityActionType]).to eq('REOPEN')
-        expect(disability[:name]).to eq('Musculoskeletal - Foot')
-        expect(disability[:classificationCode]).to eq('8994')
+        expect(disability[:name]).to eq('Traumatic Brain Injury')
+        expect(disability[:classificationCode]).to eq('9020')
         expect(disability[:serviceRelevance]).to eq('ABCDEFG')
         expect(disability[:ratedDisabilityId]).to eq('ABCDEFGHIJKLMNOPQRSTUVWX')
-        expect(disability[:diagnosticCode]).to eq(9999)
+        expect(disability[:diagnosticCode]).to eq(9020)
         expect(disability[:exposureOrEventOrInjury]).to eq('EXPOSURE')
         expect(disability[:approximateBeginDate]).to eq({ year: 2018, month: 11, day: 3 })
 
-        expect(secondary[:name]).to eq('Cancer - Musculoskeletal - Elbow')
+        expect(secondary[:name]).to eq('Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders')
         expect(secondary[:disabilityActionType]).to eq('SECONDARY')
         expect(secondary[:serviceRelevance]).to eq('ABCDEFGHIJKLMNOPQ')
-        expect(secondary[:classificationCode]).to eq('249470')
+        expect(secondary[:classificationCode]).to eq('9010')
         expect(secondary[:approximateBeginDate]).to eq({ year: 2018, month: 12, day: 3 })
       end
     end

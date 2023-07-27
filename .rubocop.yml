@@ -8,6 +8,7 @@ require:
   - rubocop-rails
   - rubocop-rspec
   - rubocop-thread_safety
+  - rubocop-factory_bot
 
 AllCops:
   NewCops: disable

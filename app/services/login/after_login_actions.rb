@@ -21,6 +21,9 @@ module Login
       update_account_login_stats(login_type)
       id_mismatch_validations
 
+      AcceptableVerifiedCredentialAdoptionService.new(current_user).perform if
+        Flipper.enabled?(:reactivation_experiment_initial_gate, current_user)
+
       if Settings.test_user_dashboard.env == 'staging'
         TestUserDashboard::UpdateUser.new(current_user).call(Time.current)
         TestUserDashboard::AccountMetrics.new(current_user).checkout

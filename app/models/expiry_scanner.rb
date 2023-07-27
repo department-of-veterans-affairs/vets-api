@@ -5,6 +5,8 @@ require 'find'
 require 'openssl'
 require 'date'
 
+# Adding comment to trigger manifest deployment
+
 class ExpiryScanner
   REMAINING_DAYS = 60
   URGENT_REMAINING_DAYS = 30

@@ -43,6 +43,6 @@ module SchemaHelpers
   private
 
   def shared_schema_dir(file)
-    Rails.root.join('modules', 'appeals_api', Settings.modules_appeals_api.schema_dir, 'shared', 'v1', file)
+    Rails.root.join('modules', 'appeals_api', Settings.modules_appeals_api.schema_dir, 'shared', 'v0', file)
   end
 end

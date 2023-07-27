@@ -31,7 +31,8 @@ http_interactions:
           - Access-Control-Request-Method
           - Origin
         Authorization:
-          - Bearer SESSION_TOKEN
+          # Basic JWT that only contains { "subjectId": "12345" } for decoding purposes
+          - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0SWQiOiIxMjM0NSJ9.WujYD8tr4-lBowBUNgW0oO679pk-7fQlgRHtZSJAyC0
         X-Content-Type-Options:
           - nosniff
         X-Xss-Protection:

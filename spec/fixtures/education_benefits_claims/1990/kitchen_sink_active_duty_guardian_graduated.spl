@@ -1,0 +1,191 @@
+*INIT*
+MARK
+
+OLSON
+111223333
+111223333
+V1990
+
+FAKEDATA UNIVERSITY
+CH1606
+*START*
+VA Form 22-1990
+
+                    APPLICATION FOR VA EDUCATION BENEFITS
+                    -------------------------------------
+
+EDUCATION BENEFIT BEING APPLIED FOR: Chapter 30
+
+******************************************************************************
+
+EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606
+
+******************************************************************************
+
+EDUCATION BENEFIT BEING APPLIED FOR: Chapter 32
+
+******************************************************************************
+
+EDUCATION BENEFIT BEING APPLIED FOR: Chapter 33 in Lieu of Chapter 1607 -
+Effective: 2016-12-15
+
+By electing Chapter 33, I acknowledge that I understand the following:
+* I may not receive more than a total of 48 months of benefits under two or
+more programs.
+* If electing chapter 33 in lieu of chapter 30, my months of entitlement under
+chapter 33 will be limited to the number of months of entitlement remaining
+under chapter 30 on the effective date of my election.
+* I will not receive a Montgomery GI Bill (Active Duty-Chapter 30 or Selected
+reserve-Chapter 1606) 'Kicker' under the Post-9/11 GI Bill, unless I was
+eligible for the kicker at the time I applied and I relinquished that benefit
+for the Post-9/11 GI Bill-Chapter 33.
+* When choosing the effective date, I understand that benefits for training
+under Chapter 33 are not payable prior to that date.
+* My election is irrevocable and may not be changed.
+
+
+
+                            APPLICANT INFORMATION
+                            ---------------------
+
+SSN: 111223333         Sex: M             Date of Birth: 1985-03-07
+
+Applicant has graduated high school or received GED? true
+
+Date graduated: 2023-04-12
+
+Name:
+Mark
+
+Olson
+
+
+Address:
+123 MAIN ST
+MILWAUKEE, WI, 53130
+USA
+
+Telephone Numbers:     Mobile:
+                       Home:    5551110000
+
+Email Address:  test@sample.com
+Preferred Method of Contact: email
+
+Direct Deposit:     Type of Account: checking
+Name of Financial Inst.: First Bank of JSON
+Routing/Transit #: 123456789   Account #: 88888888888
+
+
+                       ACTIVE DUTY SERVICE INFORMATION
+                       -------------------------------
+
+Are You Now On Active Duty?   N/A
+
+Are you Now On Terminal Leave Just Before Discharge? N/A
+
+Date Entered   Date Separated     Service Component
+Active Duty    From Active Duty
+2012-06-26     2013-04-10         Army Reserve
+                         Service Status:   ACTIVE DUTY TRAINING
+                         Involuntary Call: no
+                         Benefits to Apply to: chapter32
+2013-04-22     2013-06-14         Army Reserve
+                         Service Status:   ACTIVE DUTY
+                         Involuntary Call: yes
+                         Benefits to Apply to: chapter33, chapter1606,
+chapter32, chapter30
+
+
+
+
+          ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
+          ----------------------------------------------------------
+
+Did you make additional contributions (up to $600) to increase the amount
+of your monthly benefits?   YES
+
+Do you qualify for a Kicker (sometimes called a College Fund) based on
+your military service?
+
+    Active Duty Kicker:   YES
+
+    Reserve Kicker:    YES
+
+If you graduated from a military service academy, specify the year you
+graduated and received your commission: 2010
+
+ROTC Scholarship Program and Officer's Commission. Were you commissioned as
+the result of a Senior ROTC (Reserve Officers Training Corps) Scholarship
+Program?    YES
+
+        Year of Commission: 1981
+
+        Scholarship Amounts:
+            Year 1:          Amount: 99.99
+
+            Year 2:          Amount: 199.99
+
+            Year 3:          Amount: 299.99
+
+            Year 4:          Amount:
+
+            Year 5:          Amount:
+
+
+Senior ROTC Scholarship Program. Are you currently participating in a Senior
+ROTC Scholarship Program which pays for your tuition, fees, books and supplies
+under Section 2107, Title 10 U.S. Code?   YES
+
+Did you have a period of active duty that the Department of Defense counts for
+purposes of repaying an education loan?    YES
+
+        Start Date: 2012-09-09
+
+        End Date: 2013-10-10
+
+For Active Duty Claimants Only. Are you receiving or do you anticipate
+receiving any money (including but not limited to Federal Tuition Assistance)
+from the Armed Forces or Public Health Service for the course for which you
+have applied to the VA for Education Benefits?  If you receive such benefits
+during any part of your training, check 'Yes.' Note:  If you are only applying
+for Tuition Assistance Top-Up, check 'No' to this item.    N/A
+
+
+                        MARITAL AND DEPENDENCY STATUS
+           (For Applicants with Military Service Before Jan 1, 1977)
+           ---------------------------------------------------------
+
+
+Married: YES
+Has Dependents: YES
+Parent Dependent: NO
+
+          GUARDIAN INFORMATION
+          --------------------
+First name of Parent, Guardian or Custodian: Richard
+
+Middle name of Parent, Guardian or Custodian: D
+
+Last name of Parent, Guardian or Custodian: Van Dyke
+
+Address of Parent, Guardian or Custodian:
+  Country: USA
+  Street: 456 oak blvd
+  Street address line 2: apt 88
+  City: Phoenix
+  State: AZ
+  Postal code: 56432
+  Mobile phone number: 9999999999
+  Home phone number: 8888888888
+  Email address: test84@test.com
+
+      Certification and Signature of Applicant
+Signature of Applicant                                               Date
+
+      Certification for Persons on Active Duty
+Signature/Title/Branch of Armed Forces Education Service Officer     Date
+
+Electronically Received by VA:  2017-01-17
+Confirmation #:  V-EBC-1
+
+*END*

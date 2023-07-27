@@ -1,5 +1,5 @@
 Accepts document metadata, document binary, and attachment binaries. Full URL, including
-query parameters, provided from POST `/*/evidence_submissions`.
+query parameters, provided from POST `/*/evidence-submissions`.
 Please see the `documentUploadMetadata` schema for the required payload schema.
 
 ## Example Payload

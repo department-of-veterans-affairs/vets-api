@@ -9,9 +9,11 @@ module Mobile
     # (in seconds) of the expires_in attribute
     #
     class LighthouseSession < Common::Resource
+      CACHE_VERSION = 1
+
       include Mobile::V0::Concerns::RedisCaching
 
-      redis_config REDIS_CONFIG[:mobile_app_lighthouse_session_store]
+      redis_config REDIS_CONFIG[:mobile_app_lighthouse_session_store], CACHE_VERSION
 
       attribute :access_token, Types::Strict::String
       attribute :expires_in, Types::Coercible::Integer

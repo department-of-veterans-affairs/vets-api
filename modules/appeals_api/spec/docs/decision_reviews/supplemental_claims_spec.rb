@@ -359,7 +359,7 @@ describe 'Supplemental Claims', swagger_doc:, type: :request do
       tags 'Supplemental Claims'
       operationId 'putSupplementalClaimEvidenceSubmission'
 
-      description File.read(AppealsApi::Engine.root.join('app', 'swagger', 'supplemental_claims', 'v0', 'put_description.md'))
+      description File.read(AppealsApi::Engine.root.join('app', 'swagger', 'decision_reviews', 'v2', 'put_description.md'))
       security DocHelpers.decision_reviews_security_config
 
       parameter name: :'Content-MD5', in: :header, type: :string, description: 'Base64-encoded 128-bit MD5 digest of the message. Use for integrity control.'

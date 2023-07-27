@@ -7,6 +7,14 @@
       "claimantTypeOtherValue": "Veteran Attorney",
       "potentialPactAct": true,
       "veteran": {
+        "ssn": "123456789",
+        "icn": "1013062086V794840",
+        "firstName": "Jäñe",
+        "middleInitial": "ø",
+        "lastName": "Doé",
+        "birthDate": "1969-12-31",
+        "fileNumber": "987654321",
+        "insurancePolicyNumber": "987654321123456789",
         "address": {
           "addressLine1": "123 Main St",
           "addressLine2": "Suite #1200",
@@ -25,6 +33,9 @@
         "timezone": "America/Chicago"
       },
       "claimant": {
+        "firstName": "joe",
+        "middleInitial": "b",
+        "lastName": "smart",
         "address": {
           "addressLine1": "456 First St",
           "addressLine2": "Apt 5",

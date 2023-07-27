@@ -5,8 +5,7 @@ require 'sign_in/logger'
 module V0
   class SignInController < SignIn::ApplicationController
     skip_before_action :authenticate,
-                       only: %i[authorize callback token refresh revoke logout logingov_logout_proxy
-                                read_client_config]
+                       only: %i[authorize callback token refresh revoke logout logingov_logout_proxy]
 
     def authorize # rubocop:disable Metrics/MethodLength
       type = params[:type].presence
@@ -89,15 +88,18 @@ module V0
       grant_type = params[:grant_type].presence
       client_assertion = params[:client_assertion].presence
       client_assertion_type = params[:client_assertion_type].presence
-      service_account_assertion = params[:service_account_assertion].presence
+      assertion = params[:assertion].presence
 
-      validate_token_params(code, service_account_assertion, grant_type)
+      validate_token_params(grant_type)
+
       response_body =
         if grant_type == SignIn::Constants::Auth::JWT_BEARER
-          generate_service_account_token(service_account_assertion, grant_type)
+          generate_service_account_token(assertion)
         else
-          generate_user_token(code, code_verifier, client_assertion, client_assertion_type, grant_type)
+          generate_client_tokens(code, code_verifier, client_assertion, client_assertion_type)
         end
+
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
       render json: response_body, status: :ok
     rescue SignIn::Errors::StandardError => e
       sign_in_logger.info('token error', { errors: e.message })
@@ -117,7 +119,7 @@ module V0
       serializer_response = SignIn::TokenSerializer.new(session_container:,
                                                         cookies: token_cookies).perform
 
-      sign_in_logger.token_log('refresh', session_container.access_token)
+      sign_in_logger.info('refresh', session_container.access_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REFRESH_SUCCESS)
 
       render json: serializer_response, status: :ok
@@ -140,7 +142,7 @@ module V0
       decrypted_refresh_token = SignIn::RefreshTokenDecryptor.new(encrypted_refresh_token: refresh_token).perform
       SignIn::SessionRevoker.new(refresh_token: decrypted_refresh_token, anti_csrf_token:).perform
 
-      sign_in_logger.token_log('revoke', decrypted_refresh_token)
+      sign_in_logger.info('revoke', decrypted_refresh_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_SUCCESS)
 
       render status: :ok
@@ -159,7 +161,7 @@ module V0
     def revoke_all_sessions
       SignIn::RevokeSessionsForUser.new(user_account: @current_user.user_account).perform
 
-      sign_in_logger.token_log('revoke all sessions', @access_token)
+      sign_in_logger.info('revoke all sessions', @access_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS)
 
       render status: :ok
@@ -184,7 +186,7 @@ module V0
       SignIn::SessionRevoker.new(access_token: @access_token, anti_csrf_token:).perform
       delete_cookies if token_cookies
 
-      sign_in_logger.token_log('logout', @access_token)
+      sign_in_logger.info('logout', @access_token.to_s)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_SUCCESS)
 
       logout_redirect = SignIn::LogoutRedirectGenerator.new(user: @current_user,
@@ -225,11 +227,6 @@ module V0
       render json: { errors: e }, status: :unauthorized
     end
 
-    # test method for Service Account access token auth
-    def read_client_config
-      authenticate_service_account
-    end
-
     private
 
     def validate_authorize_params(type, client_id, acr)
@@ -249,43 +246,26 @@ module V0
       raise SignIn::Errors::MalformedParamsError.new message: 'State is not defined' unless state
     end
 
-    def validate_token_params(code, service_account_assertion, grant_type)
-      raise SignIn::Errors::MalformedParamsError.new message: 'Grant Type is not defined' unless grant_type
-
-      case grant_type
-      when SignIn::Constants::Auth::AUTH_CODE
-        raise SignIn::Errors::MalformedParamsError.new message: 'Code is not defined' unless code
-      when SignIn::Constants::Auth::JWT_BEARER
-        unless service_account_assertion
-          raise SignIn::Errors::MalformedParamsError.new message: 'Service Account Assertion is not defined'
-        end
-      else
-        raise SignIn::Errors::GrantTypeValueError.new message: 'Grant Type is not valid'
+    def validate_token_params(grant_type)
+      unless SignIn::Constants::Auth::GRANT_TYPES.include?(grant_type)
+        raise SignIn::Errors::MalformedParamsError.new message: 'Grant Type is not valid'
       end
     end
 
-    def generate_service_account_token(service_account_assertion, grant_type)
-      decoded_service_account_assertion =
-        SignIn::ServiceAccountValidator.new(service_account_assertion:, grant_type:).perform
-      service_account_access_token =
-        SignIn::ServiceAccountAccessTokenJwtEncoder.new(decoded_service_account_assertion:).perform
-
-      sign_in_logger.token_log('service_account token',
-                               service_account_access_token,
-                               { service_account_id: decoded_service_account_assertion.service_account_id })
-      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
-      { data: { service_account_access_token: } }
+    def generate_service_account_token(assertion)
+      service_account_access_token = SignIn::AssertionValidator.new(assertion:).perform
+      sign_in_logger.info('token', service_account_access_token.to_s)
+      serialized_access_token = SignIn::ServiceAccountAccessTokenJwtEncoder.new(service_account_access_token:).perform
+      { data: { access_token: serialized_access_token } }
     end
 
-    def generate_user_token(code, code_verifier, client_assertion, client_assertion_type, grant_type)
+    def generate_client_tokens(code, code_verifier, client_assertion, client_assertion_type)
       validated_credential = SignIn::CodeValidator.new(code:,
                                                        code_verifier:,
                                                        client_assertion:,
-                                                       client_assertion_type:,
-                                                       grant_type:).perform
+                                                       client_assertion_type:).perform
       session_container = SignIn::SessionCreator.new(validated_credential:).perform
-      sign_in_logger.token_log('token', session_container.access_token)
-      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_TOKEN_SUCCESS)
+      sign_in_logger.info('token', session_container.access_token.to_s)
       SignIn::TokenSerializer.new(session_container:, cookies: token_cookies).perform
     end
 

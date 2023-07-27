@@ -44,15 +44,18 @@ module ClaimsApi
         coa_number_and_street = change_of_address&.dig('numberAndStreet')
         coa_country = change_of_address&.dig('country')
 
-        form_obj_name = 'change of address'
+        form_object_desc = 'change of address'
 
-        raise_exception_if_value_present('begin date', form_obj_name) if coa_begin_date.blank?
+        raise_exception_if_value_not_present('begin date', form_object_desc) if coa_begin_date.blank?
         if coa_type_of_address_change.blank?
-          raise_exception_if_value_present('type of address change',
-                                           form_obj_name)
+          raise_exception_if_value_not_present('type of address change',
+                                               form_object_desc)
         end
-        raise_exception_if_value_present('number and street', form_obj_name) if coa_number_and_street.blank?
-        raise_exception_if_value_present('country', form_obj_name) if coa_country.blank?
+        if coa_number_and_street.blank?
+          raise_exception_if_value_not_present('number and street',
+                                               form_object_desc)
+        end
+        raise_exception_if_value_not_present('country', form_object_desc) if coa_country.blank?
       end
 
       def validate_form_526_change_of_address_beginning_date!
@@ -74,6 +77,11 @@ module ClaimsApi
         change_of_address = form_attributes['changeOfAddress']
         date = change_of_address.dig('dates', 'endDate')
         return unless 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange'])
+
+        form_object_desc = 'a TEMPORARY change of address'
+
+        raise_exception_if_value_not_present('end date', form_object_desc) if date.blank?
+
         return if Date.parse(date) > Date.parse(change_of_address.dig('dates', 'beginDate'))
 
         raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.endDate', date)
@@ -230,11 +238,17 @@ module ClaimsApi
           sd_disability_action_type = secondary_disability&.dig('disabilityActionType')
           sd_service_relevance = secondary_disability&.dig('serviceRelevance')
 
-          form_obj_name = 'secondary disability'
+          form_object_desc = 'secondary disability'
 
-          raise_exception_if_value_present('name', form_obj_name) if sd_name.blank?
-          raise_exception_if_value_present('disability action type', form_obj_name) if sd_disability_action_type.blank?
-          raise_exception_if_value_present('service relevance', form_obj_name) if sd_service_relevance.blank?
+          raise_exception_if_value_not_present('name', form_object_desc) if sd_name.blank?
+          if sd_disability_action_type.blank?
+            raise_exception_if_value_not_present('disability action type',
+                                                 form_object_desc)
+          end
+          if sd_service_relevance.blank?
+            raise_exception_if_value_not_present('service relevance',
+                                                 form_object_desc)
+          end
         end
       end
 
@@ -392,12 +406,10 @@ module ClaimsApi
         treatments = form_attributes['treatments']
         return if treatments.blank?
 
-        validate_treated_disability_names!
+        validate_treated_disability_names!(treatments)
       end
 
-      def validate_treated_disability_names!
-        treatments = form_attributes['treatments']
-
+      def validate_treated_disability_names!(treatments)
         treated_disability_names = collect_treated_disability_names(treatments)
         declared_disability_names = collect_primary_secondary_disability_names(form_attributes['disabilities'])
 
@@ -413,12 +425,6 @@ module ClaimsApi
       def collect_treated_disability_names(treatments)
         names = []
         treatments.each do |treatment|
-          if treatment['treatedDisabilityNames'].blank?
-            raise ::Common::Exceptions::UnprocessableEntity.new(
-              detail: 'Treated disability names are required.'
-            )
-          end
-
           treatment['treatedDisabilityNames'].each do |disability_name|
             names << disability_name.strip.downcase
           end
@@ -445,17 +451,11 @@ module ClaimsApi
             detail: 'Service information is required'
           )
         end
-        if activation_date_not_afterduty_begin_date?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'The title 10 activation date must be after the earliest service period active duty begin date.'
-          )
-        end
 
         validate_service_periods!
-        validate_confinements!
-        validate_anticipated_seperation_date!
-        validate_alternate_names!
-        validate_reserves_tos_dates!
+        validate_confinements!(service_information)
+        validate_alternate_names!(service_information)
+        validate_reserves_required_values!(service_information)
       end
 
       def validate_service_periods!
@@ -476,12 +476,24 @@ module ClaimsApi
         end
       end
 
-      def validate_confinements!
-        service_information = form_attributes['serviceInformation']
+      def validate_confinements!(service_information)
+        confinements = service_information&.dig('confinements')
 
-        service_information['confinements'].each do |confinement|
-          approximate_begin_date = confinement['approximateBeginDate']
-          approximate_end_date = confinement['approximateEndDate']
+        return if confinements.blank?
+
+        confinements.each do |confinement|
+          approximate_begin_date = confinement&.dig('approximateBeginDate')
+          approximate_end_date = confinement&.dig('approximateEndDate')
+
+          form_object_desc = 'a confinement period'
+          if approximate_begin_date.blank?
+            raise_exception_if_value_not_present('approximate begin date',
+                                                 form_object_desc)
+          end
+          if approximate_end_date.blank?
+            raise_exception_if_value_not_present('approximate end date',
+                                                 form_object_desc)
+          end
 
           if begin_date_is_not_after_end_date?(approximate_begin_date, approximate_end_date)
             raise ::Common::Exceptions::UnprocessableEntity.new(
@@ -491,21 +503,8 @@ module ClaimsApi
         end
       end
 
-      def validate_anticipated_seperation_date!
-        service_information = form_attributes['serviceInformation']
-
-        anticipated_seperation_date =
-          service_information['reservesNationalGuardService']['title10Activation']['anticipatedSeparationDate']
-
-        if Date.parse(anticipated_seperation_date) < Time.zone.now
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'The anticipated separation date must be a date in the future.'
-          )
-        end
-      end
-
-      def validate_alternate_names!
-        alternate_names = form_attributes['serviceInformation']['alternateNames']
+      def validate_alternate_names!(service_information)
+        alternate_names = service_information&.dig('alternateNames')
         return if alternate_names.blank?
 
         # clean them up to compare
@@ -521,11 +520,67 @@ module ClaimsApi
         end
       end
 
-      def activation_date_not_afterduty_begin_date?
+      def validate_reserves_required_values!(service_information)
+        reserves = service_information&.dig('reservesNationalGuardService')
+
+        return if reserves.blank?
+
+        # if reserves is not empty the we require tos dates
+        validate_reserves_tos_dates!(reserves)
+        validate_title_ten_activiation_values!(reserves)
+        # validate_reserves_unit_information_values!(reserves)
+      end
+
+      def validate_reserves_tos_dates!(reserves)
+        tos = reserves&.dig('obligationTermsOfService')
+
+        tos_start_date = tos&.dig('beginDate')
+        tos_end_date = tos&.dig('endDate')
+
+        form_obj_desc = 'obligation terms of service'
+
+        # if one is present both need to be present
+        raise_exception_if_value_not_present('begin date', form_obj_desc) if tos_start_date.blank?
+        raise_exception_if_value_not_present('end date', form_obj_desc) if tos_end_date.blank?
+
+        if Date.parse(tos_start_date) > Date.parse(tos_end_date)
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'Terms of service begin date must be before the terms of service end date.'
+          )
+        end
+      end
+
+      def validate_title_ten_activiation_values!(reserves)
+        title_ten_activation = reserves&.dig('title10Activation')
+        title_ten_activation_date = title_ten_activation&.dig('title10ActivationDate')
+        anticipated_seperation_date = title_ten_activation&.dig('anticipatedSeparationDate')
+
+        return if title_ten_activation.blank?
+
+        form_obj_desc = 'title 10 activation'
+
+        if title_ten_activation_date.blank?
+          raise_exception_if_value_not_present('title 10 activation date',
+                                               form_obj_desc)
+        end
+
+        if anticipated_seperation_date.blank?
+          raise_exception_if_value_not_present('anticipated seperation date',
+                                               form_obj_desc)
+        end
+        # we know the dates are present
+        if activation_date_not_afterduty_begin_date?(title_ten_activation_date)
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'The title 10 activation date must be after the earliest service period active duty begin date.'
+          )
+        end
+
+        validate_anticipated_seperation_date_in_past!(anticipated_seperation_date)
+      end
+
+      def activation_date_not_afterduty_begin_date?(activation_date)
         service_information = form_attributes['serviceInformation']
-        service_periods = service_information['servicePeriods']
-        activation_date =
-          service_information['reservesNationalGuardService']['title10Activation']['title10ActivationDate']
+        service_periods = service_information&.dig('servicePeriods')
 
         earliest_active_duty_begin_date = service_periods.max_by { |a| Date.parse(a['activeDutyBeginDate']) }
 
@@ -533,14 +588,10 @@ module ClaimsApi
         Date.parse(activation_date) < Date.parse(earliest_active_duty_begin_date['activeDutyBeginDate'])
       end
 
-      def validate_reserves_tos_dates!
-        service_information = form_attributes['serviceInformation']
-
-        tos_start_date = service_information['reservesNationalGuardService']['obligationTermsOfService']['beginDate']
-        tos_end_date = service_information['reservesNationalGuardService']['obligationTermsOfService']['endDate']
-        if Date.parse(tos_start_date) > Date.parse(tos_end_date)
+      def validate_anticipated_seperation_date_in_past!(date)
+        if Date.parse(date) < Time.zone.now
           raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'Terms of service Start date must be before the terms of service end date.'
+            detail: 'The anticipated separation date must be a date in the future.'
           )
         end
       end
@@ -579,18 +630,18 @@ module ClaimsApi
         account_number = direct_deposit_account_vals&.dig('accountNumber')
         routing_number = direct_deposit_account_vals&.dig('routingNumber')
 
-        form_obj_name = 'direct deposit'
+        form_object_desc = 'direct deposit'
 
         if account_type.blank? || valid_account_types.exclude?(account_type)
-          raise_exception_if_value_present('account type (CHECKING/SAVINGS)', form_obj_name)
+          raise_exception_if_value_not_present('account type (CHECKING/SAVINGS)', form_object_desc)
         end
-        raise_exception_if_value_present('account number', form_obj_name) if account_number.blank?
-        raise_exception_if_value_present('routing number', form_obj_name) if routing_number.blank?
+        raise_exception_if_value_not_present('account number', form_object_desc) if account_number.blank?
+        raise_exception_if_value_not_present('routing number', form_object_desc) if routing_number.blank?
       end
 
-      def raise_exception_if_value_present(val, form_obj)
+      def raise_exception_if_value_not_present(val, form_obj_description)
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "The #{val} is required for #{form_obj}."
+          detail: "The #{val} is required for #{form_obj_description}."
         )
       end
 

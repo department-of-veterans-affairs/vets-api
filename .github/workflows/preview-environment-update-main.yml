@@ -3,7 +3,7 @@ name: Preview Environment - Update main image
 on:
   push:
     branches:
-      - 'master'
+      - 'preview_envs_k8s'
 
 jobs:
   update-preview-environment-main-image:

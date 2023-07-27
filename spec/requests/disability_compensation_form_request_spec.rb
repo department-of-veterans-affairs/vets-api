@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'lighthouse/auth/client_credentials/service'
 require 'lighthouse/service_exception'
+require 'disability_compensation/factories/api_provider_factory'
 
 RSpec.describe 'Disability compensation form' do
   include SchemaMatchers
@@ -13,6 +14,7 @@ RSpec.describe 'Disability compensation form' do
   let(:feature_toggle_rated_disabilities) { 'disability_compensation_lighthouse_rated_disabilities_provider' }
 
   before do
+    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
     sign_in_as(user)
   end
 

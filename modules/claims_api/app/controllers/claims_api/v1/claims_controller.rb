@@ -12,6 +12,8 @@ module ClaimsApi
 
       def index
         claims = claims_status_service.all(target_veteran.participant_id)
+        raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claims not found') if claims == []
+
         render json: claims,
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: ClaimsApi::ClaimListSerializer

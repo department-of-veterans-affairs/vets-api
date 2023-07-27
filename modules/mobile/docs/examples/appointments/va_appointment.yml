@@ -39,5 +39,11 @@ data:
       patient_email: null
       best_time_to_call: null
       friendly_location_name: null
+      appointmentIEN: '123456'
+      locationId: '938'
+      eCheckinAllowed: true
 meta:
   errors: null
+  checkinWindow:
+    minutesBefore: 45
+    minutesAfter: 15

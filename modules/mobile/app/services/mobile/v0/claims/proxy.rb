@@ -25,6 +25,28 @@ module Mobile
           [data, errors]
         end
 
+        def get_claims
+          claims = get_all_claims.call
+          data = claims[:errors].nil? ? claims_adapter.parse(claims[:list]) : []
+
+          errors = []
+          errors.push(claims[:errors]) unless claims[:errors].nil?
+          errors.push({ service: 'appeals', error_details: 'Forbidden: User is not authorized for appeals' })
+
+          [data, errors]
+        end
+
+        def get_appeals
+          appeals = get_all_appeals.call
+          data = appeals[:errors].nil? ? claims_adapter.parse(appeals[:list]) : []
+
+          errors = []
+          errors.push(appeals[:errors]) unless appeals[:errors].nil?
+          errors.push({ service: 'claims', error_details: 'Forbidden: User is not authorized for claims' })
+
+          [data, errors]
+        end
+
         def get_claim(id)
           claim = claims_scope.find_by(evss_id: id)
           raise Common::Exceptions::RecordNotFound, id unless claim

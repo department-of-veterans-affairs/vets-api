@@ -53,7 +53,7 @@ module Lighthouse
         return 'cnp.payment.routing.number.invalid.checksum' if detail.include? 'accountRoutingNumber.invalidCheckSum'
         return 'cnp.payment.routing.number.invalid' if detail.include? 'payment.accountRoutingNumber.invalid'
         return 'cnp.payment.routing.number.fraud' if detail.include? 'Routing number related to potential fraud'
-        return 'cnp.payment.restriction.indicators.present'  if detail.include? 'restriction.indicators.present'
+        return 'cnp.payment.restriction.indicators.present' if detail.include? 'restriction.indicators.present'
         return 'cnp.payment.day.phone.number.invalid' if detail.include? 'Day phone number is invalid'
         return 'cnp.payment.day.area.number.invalid' if detail.include? 'Day area number is invalid'
         return 'cnp.payment.night.phone.number.invalid' if detail.include? 'Night phone number is invalid'

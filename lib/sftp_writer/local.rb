@@ -11,12 +11,12 @@ module SFTPWriter
       true
     end
 
-    def write_path
+    def write_path(_filename)
       Rails.root.join('tmp', @config.relative_path.to_s)
     end
 
     def write(contents, filename)
-      path = File.join(write_path, filename)
+      path = File.join(write_path(filename), filename)
       FileUtils.mkdir_p(File.dirname(path))
       File.open(path, 'wb') do |f|
         f.write(contents)

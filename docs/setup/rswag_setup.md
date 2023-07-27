@@ -1,3 +1,5 @@
+# Swagger implementation is recommended. See these docs: https://depo-platform-documentation.scrollhelp.site/developer-docs/swagger-implementation 
+
 ## Rswag setup for Rails engine
 
 To create a minimal implementation of Rswag in your team's Rails engine you will need to do the following (commented lines are only for explaining what specific things do and should be removed from your specific implementation):

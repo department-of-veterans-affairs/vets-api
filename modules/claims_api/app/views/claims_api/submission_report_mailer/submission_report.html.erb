@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <style>
+      body {
+        font-family: sans-serif;
+        font-size: smaller;
+        padding: 10px 0;
+      }
+      table {
+        border-collapse: collapse;
+      }
+      table tr th, table tr td {
+        border: 1px solid #d3d3d3;
+        padding: 10px;
+      }
+      table tr th {
+        padding: 5px 10px;
+        white-space: nowrap;
+        color: #808080;
+        font-size: smaller;
+        text-transform: uppercase;
+        font-weight: normal;
+        text-align: left;
+      }
+      table tr td {
+        padding: 5px 10px;
+        vertical-align: top;
+      }
+      table tr td.right-align {
+        text-align: right;
+      }
+      table tr td.left-align {
+        text-align: left;
+      }
+      h3 {
+        margin: 30px 0 2px;
+      }
+      h3 span.title {
+        color: #808080;
+      }
+      hr {
+        margin: 25px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1><%= @date_from %> - <%= @date_to %> (Eastern Time)</h1>
+    <hr>
+
+    <% @data[:month].keys.each do |kind| %>
+      <h2>Monthly 526EZ <%= kind %> Claim Submissions</h2>
+      <table>
+        <tr>
+          <th>Consumer</th>
+          <th><%= kind %> submissions</th>
+        </tr>
+        <% @data[:month][kind].keys.each do |label| %>
+          <tr>
+            <td><%= label %></td>
+            <td><%= @data[:month][kind][label] %></td>
+          </tr>
+        <% end %>
+      </table>
+    <% end %>
+
+    <br /><hr>
+
+    <% @data[:year].keys.each do |kind| %>
+      <h2>Yearly 526EZ <%= kind %> Claim Submissions</h2>
+      <table>
+        <tr>
+          <th>Consumer</th>
+          <th><%= kind %> submissions</th>
+        </tr>
+        <% @data[:year][kind].keys.each do |label| %>
+          <tr>
+            <td><%= label %></td>
+            <td><%= @data[:year][kind][label] %></td>
+          </tr>
+        <% end %>
+      </table>
+    <% end %>
+
+  </body>
+</html>

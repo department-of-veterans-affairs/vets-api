@@ -1,0 +1,86 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: "<MHV_MR_HOST>/fhir/Patient?identifier=12345"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/fhir+json
+        User-Agent:
+          - Ruby FHIR Client
+        Accept-Charset:
+          - utf-8
+        Authorization:
+          - Bearer eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI1NzUxNzMyIiwiYXVkIjoiMTAzLFZBLmdvdiBNZWRpY2FsIFJlY29yZHMiLCJuYmYiOjE2ODkyNjQzNzUsInJvbGVzIjoiUGF0aWVudCIsImlzcyI6Imh0dHBzOlwvXC93d3cubXloZWFsdGgudmEuZ292IiwiZXhwIjoxNjg5MjY3OTc1LCJpYXQiOjE2ODkyNjQzNzUsInN1YmplY3RUeXBlIjoiUEFUSUVOVCIsInN1YmplY3RJZCI6NTc1MTczM30.rnQQzNTSzcGF8B7HGEm2Mc3XMab27CqpF3jjC9D2-TOmqoYo-C2-u8zoR_LQzWMEIsp3jWE9dsf4--MY-rQfsvv25ynxuhIAzMIYsa7HQ18OjY44oUM8Q2YccFmUTL6vUX097PTBooYIW6TR-v9gsEtx4KaMB-iwKsUUPHWSNzJi0T69mNioyUXDtANEOLSeusZ0dUcapRf2dGxwn2CvMmRoqQnJ0bBYBLw186ZXgnt4VBjSuLbrzUtrkF11PWNn6G04K6c04lnnYZZjKNIOsjCqtqO5Hd9VHriRxmQRYklL6Gnh9t0lGrsb77bfM9TWDyLbSN7JBsvHpANNi1C-zRz-p47FLUdIOViAgilihiyA02vr_T9bgbNs0kGeRk_Lw5bLaheFh3OzB1dG4FoAOzrbceqAwML2qVDRU3QfaakMhOrmT61Xqfs4TFXDVjg0SmYrtG4xAoGPlr6v72hBcCp-A8eQP63eIpjERFHnBPvm0YXr-IiyYnW9XENSlsNPWtyxHh9PtMPKvTEoff3EqoT-h_Slm38ytXB76izTQh7wgzMgtp0J86f4IeJyzkVxQXqqJvJaXf7XHPeb6IzkKkLh3EiivyHr369ZI9sbyfpqdGyJ9nmXL7mcbrV1NDQ2P2XX-Yd5vTQF5jfz5utQ22b2tUqyH8kd1rtj4mYV07U
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Host:
+          - localhost:2003
+    response:
+      status:
+        code: 200
+        message: ""
+      headers:
+        Date:
+          - Thu, 13 Jul 2023 16:14:20 GMT
+        Content-Type:
+          - application/fhir+json;charset=UTF-8
+        Transfer-Encoding:
+          - chunked
+        X-Powered-By:
+          - HAPI FHIR 6.2.2 REST Server (FHIR Server; FHIR 4.0.1/R4)
+        X-Request-Id:
+          - 985f1a22d46ea8cd892d2764ca792742
+        Last-Modified:
+          - Thu, 13 Jul 2023 16:14:20 GMT
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: UTF-8
+        string: |-
+          {
+            "resourceType": "Bundle",
+            "id": "42ba2211-666f-468d-aa7c-cfe81874e2a7",
+            "meta": {
+              "lastUpdated": "2023-07-13T12:14:20.743-04:00"
+            },
+            "type": "searchset",
+            "total": 1,
+            "link": [ {
+              "relation": "self",
+              "url": "https://mhv-intb-api.myhealth.va.gov/fhir/Patient?identifier=5751733"
+            } ],
+            "entry": [ {
+              "fullUrl": "https://mhv-intb-api.myhealth.va.gov/fhir/Patient/2952",
+              "resource": {
+                "resourceType": "Patient",
+                "id": "2952",
+                "meta": {
+                  "versionId": "1",
+                  "lastUpdated": "2023-07-07T10:05:55.040-04:00",
+                  "source": "#008c27786f45e651"
+                },
+                "text": {
+                  "status": "generated",
+                  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><div class=\"hapiHeaderText\">MTPTWOFIRST MTPTWOLAST </div><table class=\"hapiPropertyTable\"><tbody><tr><td>Identifier</td><td>5751733</td></tr><tr><td>Date of birth</td><td><span>01 February 1987</span></td></tr></tbody></table></div>"
+                },
+                "identifier": [ {
+                  "system": "urn:oid:2.16.840.1.113883.4.349",
+                  "value": "5751733"
+                } ],
+                "active": true,
+                "name": [ {
+                  "given": [ "MTPTWOFIRST", "MTPTWOLAST" ]
+                } ],
+                "gender": "male",
+                "birthDate": "1987-02-01"
+              },
+              "search": {
+                "mode": "match"
+              }
+            } ]
+          }
+    recorded_at: Thu, 13 Jul 2023 16:14:20 GMT

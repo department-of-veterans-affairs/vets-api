@@ -10,7 +10,12 @@ module V0
     before_action :authenticate_jwt, only: [:create]
 
     def index
-      render(json: OnsiteNotification.for_user(current_user))
+      clean_pagination_params
+      notifications = OnsiteNotification
+                      .for_user(current_user, include_dismissed: params[:include_dismissed])
+                      .paginate(**pagination_params)
+
+      render(json: notifications, meta: pagination_meta(notifications))
     end
 
     def update
@@ -64,6 +69,25 @@ module V0
 
     def token_valid?(token)
       token.first['user'] == 'va_notify' && token.first['iat'].present? && token.first['exp'].present?
+    end
+
+    def clean_pagination_params
+      per_page = pagination_params[:per_page].to_i
+      params[:per_page] = WillPaginate.per_page if per_page < 1
+      WillPaginate::PageNumber(pagination_params[:page])
+    rescue WillPaginate::InvalidPage
+      params[:page] = 1
+    end
+
+    def pagination_meta(notifications)
+      {
+        pagination: {
+          current_page: notifications.current_page.to_i,
+          per_page: notifications.per_page,
+          total_pages: notifications.total_pages,
+          total_entries: notifications.total_entries
+        }
+      }
     end
   end
 end

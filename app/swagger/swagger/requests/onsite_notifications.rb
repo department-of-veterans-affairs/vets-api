@@ -72,6 +72,15 @@ module Swagger
           key :produces, ['application/json']
 
           parameter :authorization
+          parameter :optional_page_number
+          parameter :optional_page_length
+          parameter do
+            key :name, :include_dismissed
+            key :in, :query
+            key :description, 'Whether to include dismissed notifications'
+            key :required, false
+            key :type, :boolean
+          end
 
           response 200 do
             key :description, 'Array of onsite notifications'
@@ -86,6 +95,8 @@ module Swagger
                   key :'$ref', :OnsiteNotification
                 end
               end
+
+              property :meta, '$ref': :MetaPagination
             end
           end
         end

@@ -24,12 +24,63 @@
                 "nationalCemeteryAdministration"
               ]
             },
-            "claimantType": {"type": "string", "enum": [ "veteran", "spouse_of_veteran", "child_of_veteran", "parent_of_veteran", "other"] },
+            "claimantType": {
+              "type": "string",
+              "enum": [ "veteran", "spouse_of_veteran", "child_of_veteran", "parent_of_veteran", "other"]
+            },
             "claimantTypeOtherValue": { "type":  "string", "minLength": 1, "maxLength": 25 },
             "potentialPactAct": { "type": "boolean" },
             "veteran": {
               "type": "object",
               "properties": {
+                "ssn": {
+                  "allOf": [
+                    { "$ref": "ssn.json" },
+                    { "description": "Veteran's SSN" }
+                  ]
+                },
+                "icn": { "$ref": "icn.json" },
+                "firstName": {
+                  "allOf": [
+                    { "description": "Veteran's first name", "minLength": 1, "maxLength": 30 },
+                    { "$comment":  "can be whitespace, to accommodate those with 1 legal name" },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
+                "middleInitial": {
+                  "allOf": [
+                    { "description": "Veteran's middle initial", "minLength": 1, "maxLength": 1 },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
+                "lastName": {
+                  "allOf": [
+                    { "description":  "Veteran's last name", "minLength": 1, "maxLength": 40 },
+                    { "$ref":  "nonBlankString.json" }
+                  ]
+                },
+                "birthDate": {
+                  "description": "Veteran's birth date",
+                  "type": "string", "format": "date"
+                },
+                "fileNumber": {
+                  "allOf": [
+                    { "description": "Veteran's VA file number (c-file / css)", "minLength": 1, "maxLength": 9 },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
+                "serviceNumber": {
+                  "allOf": [
+                    { "description":  "Veteran's service number", "minLength":  1, "maxLength":  9 },
+                    { "$ref":  "nonBlankString.json" }
+                  ]
+                },
+                "insurancePolicyNumber": {
+                  "allOf": [
+                    { "description": "Veteran's insurance policy number", "minLength": 1, "maxLength":  18 },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
                 "address":{ "$ref": "address.json" },
                 "phone": {
                   "$ref": "phone.json",
@@ -41,12 +92,31 @@
                   "$ref": "timezone.json"
                 }
               },
-              "required": ["address", "phone", "email"]
+              "required": ["ssn", "icn", "firstName", "lastName", "birthDate", "address", "phone", "email"]
             },
             "claimant": {
               "type": "object",
               "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
               "properties": {
+                "firstName": {
+                  "allOf": [
+                    { "description": "Non-Veteran Claimant's first name", "minLength": 1, "maxLength": 30 },
+                    { "$ref": "nonBlankString.json" },
+                    { "$comment":  "Can be whitespace to accommodate those with 1 legal name" }
+                  ]
+                },
+                "middleInitial": {
+                  "allOf": [
+                    { "description": "Non-Veteran Claimant's middle initial", "minLength": 1, "maxLength": 1 },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
+                "lastName": {
+                  "allOf": [
+                    { "description": "Non-Veteran Claimant's last name", "minLength": 1, "maxLength": 40 },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
                 "address":{ "$ref": "address.json" },
                 "phone": {
                   "$ref": "phone.json",
@@ -58,7 +128,43 @@
                   "$ref": "timezone.json"
                 }
               },
-              "required": ["address", "phone", "email"]
+              "dependencies": {
+                "firstName": ["lastName"],
+                "middleInitial": ["firstName", "lastName"],
+                "lastName": ["firstName"]
+              },
+              "required": ["firstName", "lastName", "address", "phone", "email"]
+            },
+            "alternateSigner": {
+              "description": "Alternate signer information",
+              "type": "object",
+              "properties": {
+                "firstName": {
+                  "allOf": [
+                    { "description": "Alternate signer's first name", "minLength": 1, "maxLength": 30 },
+                    { "$ref": "nonBlankString.json" },
+                    { "$comment":  "Can be whitespace to accommodate those with 1 legal name" }
+                  ]
+                },
+                "middleInitial": {
+                  "allOf": [
+                    { "description": "Alternate signer's middle initial", "minLength": 1, "maxLength": 1 },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
+                "lastName": {
+                  "allOf": [
+                    { "description": "Alternate signer's last name", "minLength": 1, "maxLength": 40 },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                }
+              },
+              "dependencies": {
+                "firstName": ["lastName"],
+                "middleInitial": ["firstName", "lastName"],
+                "lastName": ["firstName"]
+              },
+              "required": ["firstName", "lastName"]
             },
             "evidenceSubmission": {
               "description": "Evidence may be uploaded up to 7 days from the 'created_at' date of the associated Supplemental Claim via 'supplemental_claims/evidence_submissions'.",

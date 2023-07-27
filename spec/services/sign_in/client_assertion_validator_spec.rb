@@ -22,7 +22,7 @@ RSpec.describe SignIn::ClientAssertionValidator do
     let(:sub) { 'some-sub' }
     let(:jti) { 'some-jti' }
     let(:exp) { 1.month.since.to_i }
-    let(:client_assertion_encode_algorithm) { SignIn::Constants::Auth::CLIENT_ASSERTION_ENCODE_ALGORITHM }
+    let(:client_assertion_encode_algorithm) { SignIn::Constants::Auth::ASSERTION_ENCODE_ALGORITHM }
     let(:client_assertion) { JWT.encode(client_assertion_payload, private_key, client_assertion_encode_algorithm) }
     let(:client_assertion_type) { 'some-client-assertion-type' }
     let(:client_id) { client_config.client_id }

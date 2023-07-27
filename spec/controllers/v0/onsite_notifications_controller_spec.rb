@@ -26,19 +26,97 @@ RSpec.describe V0::OnsiteNotificationsController, type: :controller do
   describe 'with a signed in user' do
     let(:user) { create(:user, :loa3) }
     let!(:onsite_notification) { create(:onsite_notification, va_profile_id: user.vet360_id) }
+    let!(:dismissed_onsite_notification) do
+      create(:onsite_notification, va_profile_id: user.vet360_id, dismissed: true)
+    end
 
     before do
       sign_in_as(user)
     end
 
     describe '#index' do
-      it 'returns the users onsite notifications' do
+      it "returns the user's undismissed onsite notifications" do
         get(:index)
 
         expect(response.status).to eq(200)
         expect(JSON.parse(response.body)['data'].map { |d| d['id'] }).to eq(
           [onsite_notification.id.to_s]
         )
+      end
+
+      it "returns all of the user's onsite notifications, including dismissed ones" do
+        get :index, params: { include_dismissed: true }
+
+        expect(response.status).to eq(200)
+        expect(JSON.parse(response.body)['data'].map { |d| d['id'] }).to match_array(
+          [onsite_notification.id.to_s, dismissed_onsite_notification.id.to_s]
+        )
+      end
+
+      describe 'pagination metadata' do
+        before do
+          4.times { create(:onsite_notification, va_profile_id: user.vet360_id) }
+        end
+
+        it 'generates correctly when given no pagination params' do
+          get :index
+
+          payload = JSON.parse(response.body)
+          pagination = payload['meta']['pagination']
+          expect(pagination['current_page']).to eq(1)
+          expect(pagination['per_page']).to eq(WillPaginate.per_page)
+          expect(pagination['total_pages']).to eq(1)
+          expect(pagination['total_entries']).to eq(5)
+        end
+
+        it 'generates correctly when given paging params' do
+          get :index, params: { page: 1, per_page: 2 }
+
+          payload = JSON.parse(response.body)
+          pagination = payload['meta']['pagination']
+          expect(pagination['current_page']).to eq(1)
+          expect(pagination['per_page']).to eq(2)
+          expect(pagination['total_pages']).to eq(3)
+          expect(pagination['total_entries']).to eq(5)
+        end
+
+        it 'returns the first page and default page size when given invalid paging params' do
+          default_per_page = WillPaginate.per_page
+          [{
+            page: -1,
+            per_page: default_per_page,
+            expected_page: 1
+          }, {
+            page: 0,
+            per_page: default_per_page,
+            expected_page: 1
+          }, {
+            page: 10,
+            per_page: default_per_page,
+            expected_page: 10
+          }, {
+            page: 1,
+            per_page: -1,
+            expected_page: 1
+          }, {
+            page: 0,
+            per_page: -1,
+            expected_page: 1
+          }, {
+            page: -1,
+            per_page: -1,
+            expected_page: 1
+          }].each do |params|
+            get :index, params: params.compact.except(:expected_page)
+
+            payload = JSON.parse(response.body)
+            pagination = payload['meta']['pagination']
+            expect(pagination['current_page']).to eq(params[:expected_page])
+            expect(pagination['per_page']).to eq(WillPaginate.per_page)
+            expect(pagination['total_pages']).to eq(1)
+            expect(pagination['total_entries']).to eq(5)
+          end
+        end
       end
     end
 

@@ -50,7 +50,7 @@ module ClaimsApi
       def disabilities
         @evss_claim[:disabilities] = @data[:disabilities].map do |disability|
           disability[:approximateBeginDate] = map_date_to_obj disability[:approximateDate]
-          disability[:secondaryDisabilities] = disability[:secondaryDisabilities].map do |secondary|
+          disability[:secondaryDisabilities] = disability[:secondaryDisabilities]&.map do |secondary|
             secondary[:approximateBeginDate] = map_date_to_obj secondary[:approximateDate]
             secondary.except(:exposureOrEventOrInjury, :approximateDate)
           end

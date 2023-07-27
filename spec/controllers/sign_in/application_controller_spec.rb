@@ -456,40 +456,19 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
   describe '#authenticate_service_account' do
     subject { get :service_account_auth }
 
-    let(:service_account_access_token) do
-      SignIn::ServiceAccountAccessTokenJwtEncoder.new(decoded_service_account_assertion:).perform
-    end
-    let(:decoded_service_account_assertion) do
-      OpenStruct.new({ sub:, scopes:, service_account_id: })
-    end
-    let(:service_account_id) { service_account_config.service_account_id }
-    let(:service_account_config) { create(:service_account_config, scopes:) }
-    let(:iss) { "http://#{Settings.hostname}#{SignIn::Constants::ServiceAccountAccessToken::ISSUER}" }
-    let(:iat) { Time.now.to_i }
-    let(:aud) { service_account_config.access_token_audience }
-    let(:sub) { 'some-user-email@va.gov' }
-    let(:scopes) { ["http://#{Settings.hostname}/service_account_auth"] }
-    let(:expected_error) { 'Service Account access token JWT is malformed' }
-    let(:expected_error_json) { { 'errors' => expected_error } }
-
-    before do
-      allow_any_instance_of(SignIn::ServiceAccountAccessTokenJwtEncoder).to receive(:issued_at_time).and_return(iat)
-    end
-
     shared_context 'error response' do
-      let(:expected_error_status) { :unauthorized }
+      let(:expected_error_json) { { 'errors' => expected_error } }
       let(:sentry_context) do
-        { access_token_authorization_header:,
-          access_token_cookie: }.compact
+        { access_token_authorization_header: access_token, access_token_cookie: nil }.compact
       end
       let(:sentry_log_level) { :error }
 
-      it 'renders an error' do
+      it 'renders Malformed Params error' do
         expect(JSON.parse(subject.body)).to eq(expected_error_json)
       end
 
-      it 'returns a status' do
-        expect(subject).to have_http_status(expected_error_status)
+      it 'returns unauthorized status' do
+        expect(subject).to have_http_status(:unauthorized)
       end
 
       it 'logs error to sentry' do
@@ -500,20 +479,35 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
     end
 
-    shared_context 'service account access_token validations' do
-      let(:access_token_cookie) { auth_type == 'cookie' ? service_account_access_token : nil }
-      let(:access_token_authorization_header) { auth_type == 'bearer' ? service_account_access_token : nil }
+    context 'when authorization header does not exist' do
+      let(:access_token) { nil }
+      let(:expected_error) { 'Service Account access token JWT is malformed' }
 
-      context 'and service_account access_token is some arbitrary value' do
-        let(:access_token_cookie) { auth_type == 'cookie' ? 'some-service-account-access-token' : nil }
-        let(:access_token_authorization_header) { auth_type == 'bearer' ? 'some-service-account-access-token' : nil }
+      it_behaves_like 'error response'
+    end
+
+    context 'when authorization header exists' do
+      let(:authorization) { "Bearer #{access_token}" }
+      let(:access_token) { 'some-access-token' }
+
+      before do
+        request.headers['Authorization'] = authorization
+      end
+
+      context 'and access_token is some arbitrary value' do
+        let(:access_token) { 'some-arbitrary-access-token' }
+        let(:expected_error) { 'Service Account access token JWT is malformed' }
+        let(:expected_error_json) { { 'errors' => expected_error } }
 
         it_behaves_like 'error response'
       end
 
-      context 'and service_account access_token is an expired JWT' do
-        let(:iat) { Time.new(2013, 1, 3).to_i }
+      context 'and access_token is an expired JWT' do
+        let(:access_token_object) { create(:access_token, expiration_time:) }
+        let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+        let(:expiration_time) { Time.zone.now - 1.day }
         let(:expected_error) { 'Service Account access token has expired' }
+        let(:expected_error_json) { { 'errors' => expected_error } }
 
         it 'renders Access Token Expired error' do
           expect(JSON.parse(subject.body)).to eq(expected_error_json)
@@ -524,74 +518,28 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         end
       end
 
-      context 'and service_account access_token is encoded with a different signature than expected' do
-        let(:access_token_cookie) { auth_type == 'cookie' ? wrong_signature_jwt : nil }
-        let(:access_token_authorization_header) { auth_type == 'bearer' ? wrong_signature_jwt : nil }
-        let(:service_account_access_token_payload) do
-          {
-            iss:,
-            aud:,
-            jti: SecureRandom.hex,
-            sub:,
-            iat: Time.now.to_i,
-            exp: Time.now.to_i + service_account_config.access_token_duration.to_i,
-            version: SignIn::Constants::ServiceAccountAccessToken::CURRENT_VERSION,
-            scopes:
-          }
+      context 'and access_token is an active JWT' do
+        let(:service_account_access_token) { create(:service_account_access_token, scopes: [scope]) }
+        let(:access_token) do
+          SignIn::ServiceAccountAccessTokenJwtEncoder.new(service_account_access_token:).perform
         end
-        let(:wrong_signature_jwt) do
-          JWT.encode(service_account_access_token_payload,
-                     OpenSSL::PKey::RSA.new(2048),
-                     SignIn::Constants::Auth::JWT_ENCODE_ALGORITHM)
-        end
-        let(:expected_error) { 'Service Account access token body does not match signature' }
 
-        it_behaves_like 'error response'
-      end
-
-      context 'and service_account access_token is an active, valid JWT' do
-        context 'and requested url is not within service_account access token scopes' do
-          let(:scopes) { ['some-service-account-access-token-scope'] }
+        context 'and scope does not match request url' do
+          let(:scope) { 'some-scope' }
           let(:expected_error) { 'Required scope for requested resource not found' }
+          let(:expected_error_json) { { 'errors' => expected_error } }
 
           it_behaves_like 'error response'
         end
 
-        context 'and requested url is within service_account access token scopes' do
+        context 'and scope matches request url' do
+          let(:scope) { 'http://www.example.com/service_account_auth' }
+
           it 'returns ok status' do
             expect(subject).to have_http_status(:ok)
           end
         end
       end
-    end
-
-    context 'when authorization header does not exist' do
-      let(:auth_type) { 'cookie' }
-      let(:access_token_authorization_header) { nil }
-
-      context 'and service_account access token cookie does not exist' do
-        let(:access_token_cookie) { nil }
-
-        it_behaves_like 'error response'
-      end
-
-      context 'and service_account access token cookie exists' do
-        before do
-          cookies[SignIn::Constants::Auth::SERVICE_ACCOUNT_ACCESS_TOKEN_COOKIE_NAME] = access_token_cookie
-        end
-
-        it_behaves_like 'service account access_token validations'
-      end
-    end
-
-    context 'when authorization header exists' do
-      let(:auth_type) { 'bearer' }
-      let(:access_token_authorization_header) { service_account_access_token }
-      let(:authorization) { "Bearer #{access_token_authorization_header}" }
-
-      before { request.headers['Authorization'] = authorization }
-
-      it_behaves_like 'service account access_token validations'
     end
   end
 end

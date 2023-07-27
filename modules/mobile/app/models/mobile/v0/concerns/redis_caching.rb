@@ -7,9 +7,10 @@ module Mobile
         extend ActiveSupport::Concern
 
         class_methods do
-          def redis_config(config)
-            @redis_namespace = config[:namespace]
+          def redis_config(config, version)
+            @redis_namespace = config[:namespace] + "-#{version}"
             @redis_ttl = config[:each_ttl]
+            @version = version
             @redis = Redis::Namespace.new(@redis_namespace, redis: $redis)
           end
 

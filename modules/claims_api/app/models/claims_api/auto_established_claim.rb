@@ -26,6 +26,8 @@ module ClaimsApi
     after_create :log_flashes
 
     has_many :supporting_documents, dependent: :destroy
+    has_many :submissions, class_name: 'ClaimSubmission', foreign_key: 'claim_id', dependent: :destroy,
+                           inverse_of: 'claim'
 
     PENDING = 'pending'
     SUBMITTED = 'submitted'

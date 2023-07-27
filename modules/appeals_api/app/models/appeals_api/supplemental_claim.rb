@@ -51,6 +51,7 @@ module AppealsApi
       :validate_claimant_type,
       :contestable_issue_dates_are_in_the_past,
       :validate_retrieve_from_date_range,
+      :claimant_birth_date_is_in_the_past,
       if: proc { |a| a.form_data.present? }
     )
 
@@ -147,15 +148,18 @@ module AppealsApi
     end
 
     def alternate_signer_first_name
-      auth_headers['X-Alternate-Signer-First-Name']&.strip
+      (auth_headers&.dig('X-Alternate-Signer-First-Name') || \
+        form_data&.dig('data', 'attributes', 'alternateSigner', 'firstName'))&.strip
     end
 
     def alternate_signer_middle_initial
-      auth_headers['X-Alternate-Signer-Middle-Initial']&.strip
+      (auth_headers&.dig('X-Alternate-Signer-Middle-Initial') || \
+        form_data&.dig('data', 'attributes', 'alternateSigner', 'middleInitial'))&.strip
     end
 
     def alternate_signer_last_name
-      auth_headers['X-Alternate-Signer-Last-Name']&.strip
+      (auth_headers&.dig('X-Alternate-Signer-Last-Name') || \
+        form_data&.dig('data', 'attributes', 'alternateSigner', 'lastName'))&.strip
     end
 
     def alternate_signer_full_name

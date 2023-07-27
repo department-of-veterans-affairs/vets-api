@@ -1,0 +1,192 @@
+type: object
+required:
+  - insuranceVerificationNeeded
+  - needsConfirmation
+  - mailingAddress
+  - residentialAddress
+  - homePhone
+  - officePhone
+  - cellPhone
+  - email
+  - emergencyContact
+  - nextOfKin
+properties:
+  insuranceVerificationNeeded:
+    type: boolean
+    example: true
+  needsConfirmation:
+    type: boolean
+    example: true
+  mailingAddress:
+    type: object
+    required:
+      - street1
+      - street2
+      - street3
+      - city
+      - county
+      - state
+      - zip
+      - zip4
+      - country
+    properties:
+      street1:
+        type: string
+      street2:
+        type: string
+      street3:
+        type: string
+      city:
+        type: string
+      county:
+        type: string
+      state:
+        type: string
+      zip:
+        type: string
+      zip4:
+        type: string
+      country:
+        type: string
+  residentialAddress:
+    type: object
+    required:
+      - street1
+      - street2
+      - street3
+      - city
+      - county
+      - state
+      - zip
+      - zip4
+      - country
+    properties:
+      street1:
+        type: string
+      street2:
+        type: string
+      street3:
+        type: string
+      city:
+        type: string
+      county:
+        type: string
+      state:
+        type: string
+      zip:
+        type: string
+      zip4:
+        type: string
+      country:
+        type: string
+  homePhone:
+    type: string
+  officePhone:
+    type: string
+  cellPhone:
+    type: string
+  email:
+    type: string
+  emergencyContact:
+    type: object
+    required:
+      - needsConfirmation
+      - name
+      - relationship
+      - phone
+      - workPhone
+      - address
+    properties:
+      needsConfirmation:
+        type: boolean
+      name:
+        type: string
+      relationship:
+        type: string
+      phone:
+        type: string
+      workPhone:
+        type: string
+      address:
+        type: object
+        required:
+          - street1
+          - street2
+          - street3
+          - city
+          - county
+          - state
+          - zip
+          - zip4
+          - country
+        properties:
+          street1:
+            type: string
+          street2:
+            type: string
+          street3:
+            type: string
+          city:
+            type: string
+          county:
+            type: string
+          state:
+            type: string
+          zip:
+            type: string
+          zip4:
+            type: string
+          country:
+            type: string
+  nextOfKin:
+    type: object
+    required:
+      - needsConfirmation
+      - name
+      - relationship
+      - phone
+      - workPhone
+      - address
+    properties:
+      needsConfirmation:
+        type: boolean
+      name:
+        type: string
+      relationship:
+        type: string
+      phone:
+        type: string
+      workPhone:
+        type: string
+      address:
+        type: object
+        required:
+          - street1
+          - street2
+          - street3
+          - city
+          - county
+          - state
+          - zip
+          - zip4
+          - country
+        properties:
+          street1:
+            type: string
+          street2:
+            type: string
+          street3:
+            type: string
+          city:
+            type: string
+          county:
+            type: string
+          state:
+            type: string
+          zip:
+            type: string
+          zip4:
+            type: string
+          country:
+            type: string
+

@@ -29,8 +29,8 @@
     },
     "changeOfAddress": {
       "dates": {
-          "beginDate": "2012-11-31",
-          "endDate": "2013-10-11"
+          "beginDate": "2013-11-29",
+          "endDate": "2025-10-11"
         },
         "typeOfAddressChange": "TEMPORARY",
         "numberAndStreet": "10 Peach St",
@@ -175,7 +175,7 @@
               "unitAddress": "1243 pine court",
               "component": "National Guard",
               "title10Activation": {
-                  "anticipatedSeparationDate": "2017-10-03",
+                  "anticipatedSeparationDate": "2025-10-03",
                   "title10ActivationDate": "2018-02-11"
               },
               "unitPhone": {
@@ -195,7 +195,7 @@
         "favorMilitaryRetiredPay": false,
         "receivingMilitaryRetiredPay": false,
         "futureMilitaryRetiredPay": true,
-        "futureMilitaryRetiredPayExplanation": "",
+        "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
         "militaryRetiredPay": {
             "branchOfService": "Army",
             "monthlyAmount": 840.75
@@ -203,7 +203,7 @@
         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
         "receivedSeparationOrSeverancePay": false,
         "separationSeverancePay": {
-          "datePaymentReceived": "2018-07-31",
+          "datePaymentReceived": "07-31-2018",
           "branchOfService": "Naval Academy",
           "preTaxAmountReceived": 379.25
         }

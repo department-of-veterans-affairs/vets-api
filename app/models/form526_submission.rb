@@ -5,7 +5,7 @@ require 'sidekiq/form526_backup_submission_process/submit'
 
 class Form526Submission < ApplicationRecord
   include SentryLogging
-  include Form526RapidReadyForDecisionConcern
+  include Form526ClaimFastTrackingConcern
 
   # A 526 disability compensation form record. This class is used to persist the post transformation form
   # and track submission workflow steps.
@@ -93,12 +93,7 @@ class Form526Submission < ApplicationRecord
   )
     untried_birls_id = birls_ids_that_havent_been_tried_yet.first
 
-    # If there are no more ids to try, queue backup (if enabled), and return. End of the road, do not retry.
-    unless untried_birls_id
-      # hits this when it has a non-retryable error and has exhausted all birls
-      queue_central_mail_backup_submission_for_non_retryable_error!
-      return
-    end
+    return unless untried_birls_id
 
     self.birls_id = untried_birls_id
     save!
@@ -110,11 +105,6 @@ class Form526Submission < ApplicationRecord
     # `sidekiq_retries_exhausted` block. It seems like the value of self for that block won't be the
     # Sidekiq job instance (so no access to the log_exception_to_sentry method). Also, rethrowing the error
     # (and letting it bubble up to Sidekiq) might trigger the current job to retry (which we don't want).
-
-    # If we error, we still need to attempt a backup submission, but we cannot use `ensure` here because
-    # we don't want to send a backup if it is proceeding on to trying the next birls id
-    queue_central_mail_backup_submission_for_non_retryable_error!(e)
-
     raise unless silence_errors_and_log_to_sentry
 
     log_exception_to_sentry e, extra_content_for_sentry

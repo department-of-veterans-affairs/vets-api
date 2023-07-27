@@ -193,6 +193,9 @@ features:
   claims_status_v1_bgs_enabled:
     actor_type: user
     description: enables calling BGS instead of EVSS for the claims status v1.
+  claims_status_v2_lh_benefits_docs_service_enabled:
+    actor_type: user
+    description: enable/disable the use of LH Benefits Documents API in our Claim Status v2 services.
     enable_in_development: false
   debt_letters_show_letters:
     actor_type: user
@@ -351,6 +354,10 @@ features:
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
+  financial_status_report_streamlined_waiver:
+    actor_type: user
+    description: Enables streamlined waiver flow for qualifying users completing the Financial Status Report (FSR) form
+    enable_in_development: true
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
@@ -362,14 +369,6 @@ features:
   form1990_confirmation_email:
     actor_type: user
     description: Enables form 1990 email submission confirmation (VaNotify)
-    enable_in_development: true
-  form1990_auth_confirmation_email:
-    actor_type: user
-    description: Enables form 1990 email submission confirmation for authenticated users (VaNotify)
-    enable_in_development: true
-  form1990e_auth_confirmation_email:
-    actor_type: user
-    description: Enables form 1990 email submission confirmation for authenticated users (VaNotify)
     enable_in_development: true
   form1995_confirmation_email:
     actor_type: user
@@ -509,9 +508,13 @@ features:
   organic_conversion_experiment:
     actor_type: user
     description: Toggle to enable login.gov create account experiment
-  reactivation_experiment:
+  reactivation_experiment_initial_gate:
     actor_type: user
-    description: Toggle to enable login.gov reactivate account experiment
+    description: Toggle to enable all users to enter the eligibility check portion of the flow.  This only be set to
+      enabled for one (1) week at the longest, starting 20JULY2023 or 21JULY2023 depending on deployment timing.
+  reactivation_experiment_rate_limit:
+    actor_type: user
+    description: Toggle to control the amount of eligible users entering the send_email portion of the flow.
   pdf_warning_banner:
     description: "When enabled, will allow display of PDF cert warnings in find-a-form"
     actor_type: user
@@ -542,6 +545,9 @@ features:
     actor_type: user
     description: Hides disability comp and pen section of the Profile - Direct Deposit page during a service outage
     enable_in_development: false
+  profile_show_email_notification_settings:
+    actor_type: user
+    description: Show/Hide the email channel based notification settings in profile
   profile_show_payments_notification_setting:
     actor_type: user
     description: Show/Hide the payments section of notifications in profile
@@ -581,10 +587,6 @@ features:
   my_va_experimental:
     actor_type: user
     description: Use for experimental features for My VA application
-    enable_in_development: true
-  my_va_redirect:
-    actor_type: user
-    description: After authentication redirects a user to the My VA page if they are on the homepage
     enable_in_development: true
   search_representative:
     actor_type: user
@@ -721,6 +723,10 @@ features:
   va_online_scheduling_requests:
     actor_type: user
     description: Allows veterans to submit requests for VA appointments
+    enable_in_development: true
+  va_online_scheduling_static_landing_page:
+    actor_type: user
+    description: Allows updates to the static landing widget on the Public Websites page
     enable_in_development: true
   va_online_scheduling_unenrolled_vaccine:
     actor_type: user
@@ -859,6 +865,10 @@ features:
     actor_type: user
     description: Provides a flag wrapper for minor code changes to be gated from Prod.
     enable_in_development: true
+  supply_reordering_sleep_apnea_enabled:
+    actor_type: user
+    description: Enables sleep apnea supplies to be ordered in the supply reorder tool / MDOT.
+    enable_in_development: true
   move_form_back_button:
     actor_type: user
     description: Test moving form back button to the top of the page
@@ -871,6 +881,9 @@ features:
   mobile_lighthouse_claims:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our claims endpoints upstream service
+  mobile_lighthouse_document_upload:
+    actor_type: user
+    description: For mobile app, use Lighthouse instead of EVSS for our document uploads
   mobile_lighthouse_disability_ratings:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our disability ratings endpoints upstream service
@@ -880,21 +893,24 @@ features:
   form526_backup_submission_force_offramp:
     actor_type: user
     description: If enabled add the "forceOfframp" flag to backup 526 submission metadata
-  bgs_via_faraday:
-    actor_type: user
-    description: If enabled uses the faraday connection to BGS as opposed to bgs-ext
-  bgs_via_faraday_file_number:
-    actor_type: user
-    description: If enabled uses the faraday connection to BGS to locate file_number
   virtual_agent_show_floating_chatbot:
     actor_type: user
     description: Enables a floating chatbot on the chatbot page - managed by virtual agent team
   disability_compensation_lighthouse_rated_disabilities_provider:
     actor_type: user
     description: If enabled uses the lighthouse rated disabilities endpoint
+  disability_compensation_lighthouse_document_service_provider:
+    actor_type: user
+    description: If enabled uses the lighthouse documents service
+  disability_compensation_lighthouse_submit_migration:
+    actor_type: user
+    description: If enabled uses the lighthouse submit endpoint
   disability_compensation_lighthouse_intent_to_file_provider:
     actor_type: user
     description: If enabled uses the lighthouse intent to file endpoint
+  disability_compensation_lighthouse_ppiu_direct_deposit_provider:
+    actor_type: user
+    description: If enabled uses the lighthouse ppiu/direct deposit endpoint in the form526 submission workflow
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
@@ -914,4 +930,14 @@ features:
   virtual_agent_voice:
     actor_type: user
     description: Enable the voice feature of the VA Chatbot
-
+  notification_center:
+    actor_type: user
+    description: Enable Notification Center
+    enable_in_development: true
+  nod_part3_update:
+    actor_type: user
+    description: NOD update to latest form, part III box 11
+    enable_in_development: true
+  nod_browser_monitoring_enabled:
+    actor_type: user
+    description: NOD Datadog RUM monitoring

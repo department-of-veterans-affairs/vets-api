@@ -1,0 +1,11 @@
+type: object
+required:
+  - code
+  - message
+properties:
+  code:
+    type: string
+    example: 'check-in-success'
+  message:
+    type: string
+    example: 'Check-In successful'

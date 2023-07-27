@@ -26,20 +26,18 @@ module Sidekiq
 
         job_status = Form526JobStatus.create!(job_class: 'BackupSubmission', status: 'pending',
                                               form526_submission_id:, job_id: jid)
-        begin
-          Processor.new(form526_submission_id).process!
-          job_status.update(status: Form526JobStatus::STATUS[:success])
-        rescue => e
-          ::Rails.logger.error(
-            message: "FORM526 BACKUP SUMBISSION FAILURE. Investigate immedietly: #{e.message}.",
-            backtrace: e.backtrace,
-            submission_id: form526_submission_id
-          )
-          bgjob_errors = job_status.bgjob_errors || {}
-          bgjob_errors.merge!(error_hash_for_job_status(e))
-          job_status.update(status: Form526JobStatus::STATUS[:exhausted], bgjob_errors:)
-          raise e
-        end
+        Processor.new(form526_submission_id).process!
+        job_status.update(status: Form526JobStatus::STATUS[:success])
+      rescue => e
+        ::Rails.logger.error(
+          message: "FORM526 BACKUP SUMBISSION FAILURE. Investigate immedietly: #{e.message}.",
+          backtrace: e.backtrace,
+          submission_id: form526_submission_id
+        )
+        bgjob_errors = job_status.bgjob_errors || {}
+        bgjob_errors.merge!(error_hash_for_job_status(e))
+        job_status.update(status: Form526JobStatus::STATUS[:exhausted], bgjob_errors:)
+        raise e
       end
 
       private

@@ -26,9 +26,7 @@ RSpec.describe 'facilities info', type: :request do
 
   appointments = va_appointments.sort_by(&:start_date_utc)
 
-  # temporarily skipping tests due to updated facilities calls per github issue #59503
-  # rubocop:disable RSpec/PendingWithoutReason
-  xdescribe 'GET /mobile/v0/facilities-info' do
+  describe 'GET /mobile/v0/facilities-info' do
     context 'when there are appointments' do
       before do
         Mobile::V0::Appointment.set_cached(user, appointments)
@@ -161,5 +159,4 @@ RSpec.describe 'facilities info', type: :request do
       end
     end
   end
-  # rubocop:enable RSpec/PendingWithoutReason
 end

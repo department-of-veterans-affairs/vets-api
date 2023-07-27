@@ -1,0 +1,11 @@
+type: object
+required:
+  - code
+  - message
+properties:
+  code:
+    type: string
+    example: 'invalid-demographics'
+  message:
+    type: string
+    example: 'A list of demographics that need to be confirmed. ie. Patient Information, Emergency Contact, Next-of-Kin'

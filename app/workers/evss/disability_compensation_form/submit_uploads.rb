@@ -34,7 +34,11 @@ module EVSS
           document_data = create_document_data(upload_data, sea.converted_filename)
           raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
-          client = EVSS::DocumentsService.new(submission.auth_headers)
+          if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
+            # TODO: create client from lighthouse document service
+          else
+            client = EVSS::DocumentsService.new(submission.auth_headers)
+          end
           client.upload(file_body, document_data)
         end
       rescue => e

@@ -12,7 +12,6 @@ paths:
   /:
     get:
       description: Returns a welcome message.
-      operationId: welcome
       responses:
         '200':
           content:
@@ -24,7 +23,6 @@ paths:
     post:
       description: Returns urls for app use based on app build number, environment,
         and OS
-      operationId: index
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -64,7 +62,6 @@ paths:
     get:
       description: Returns info on all user's claims and appeals for mobile overview
         page
-      operationId: get_appeal
       parameters:
         - description: Appeal Id
           in: path
@@ -119,7 +116,6 @@ paths:
         UTC date. The endpoint is paginated and call with no pagination params defaults
         to page 1 with a page size of 10. Requesting a page out of bounds
         will return an empty list.
-      operationId: getAppointments
       parameters:
         - description: The start date for the range of appointments in ISO 8601 UTC
             format
@@ -235,7 +231,6 @@ paths:
       description: Cancel an appointment by cancelId. Note only VA appointments can
         be cancelled online and some VA facilities do not support online cancellation.
         Only appointments that can be cancelled will have a cancelId.
-      operationId: putCancelAppointment
       parameters:
         - description: The cancel ID hash from an appointment returned in the GET appointments
             endpoint.
@@ -269,10 +264,152 @@ paths:
       security:
         - Bearer: []
       summary: /v0/appointments/cancel/{cancelId}
+  /v0/appointments/check-in:
+    post:
+      description: Check into an appointment.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                appointmentIEN:
+                  type: string
+                locationId:
+                  type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AppointmentCheckin.yml
+          description: OK
+        '400':
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: ./schemas/AppointmentCheckin400Insurance.yml
+                  - $ref: ./schemas/AppointmentCheckin400Demographics.yml
+                  - $ref: ./schemas/AppointmentCheckin400Appointment.yml
+
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/appointments/check-in (DRAFT)
+  /v0/appointments/check-in/demographics:
+    get:
+      description: Retrieves demographics confirmation information which includes a field indicating if insurance verification is needed, patient contact information, emergency contact information and next-of-kin contact information.
+      parameters:
+        - description: Unique location identifier
+          in: query
+          name: locationId
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AppointmentCheckinDemographics.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/appointments/check-in/demographics (DRAFT)
+    patch:
+      description: Edit demographics confirmations.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                locationId:
+                  type: string
+                demographicConfirmations:
+                  type: object
+                  required:
+                    - contactNeedsUpdate
+                    - emergencyContactNeedsUpdate
+                    - nextOfKinNeedsUpdate
+                  properties:
+                    contactNeedsUpdate:
+                      type: boolean
+                      example: false
+                    emergencyContactNeedsUpdate:
+                      type: boolean
+                      example: false
+                    nextOfKinNeedsUpdate:
+                      type: boolean
+                      example: false
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AppointmentCheckinDemographicsPatch.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/appointments/check-in/demographics (DRAFT)
   /v0/appointments/community_care/eligibility/{service_type}:
     get:
       description: Checks if user is eligible to make an appointment with Community Care for a type of service. Checks if user is registered at a site that is marked as accepting community care requests and community care eligibility api says that they're eligible for the type of care they chose
-      operationId: communityCareEligibility
       parameters:
         - description: Type of service to check eligibility for. Can only be one of following options primaryCare, nutrition, podiatry, optometry, audiology.
           in: path
@@ -312,7 +449,6 @@ paths:
   /v0/appointments/facility/eligibility:
     get:
       description: Checks if a list of facilities if they are eligible to create a appointment request to provide the given type of service at the facility.
-      operationId: facilityEligibility
       parameters:
         - description: Type of service to check eligibility for.
           in: path
@@ -380,7 +516,6 @@ paths:
   /v0/appointments/facilities/{facility_id}/clinics:
     get:
       description: Returns all available clinics at a facility for a given type of service.
-      operationId: clinic
       parameters:
         - description: Facility ID
           in: path
@@ -441,7 +576,6 @@ paths:
   /v0/appointments/facilities/{facility_id}/clinics/{clinic_id}/slots:
     get:
       description: Accepts date range for a clinic at a va facility and returns available slots for a a direct schedule appointment.
-      operationId: slot
       parameters:
         - description: The start date for the range of appointments slots in ISO 8601 UTC
             format. If not provided the start date will be considered now.
@@ -491,7 +625,6 @@ paths:
   /v0/appointments/preferences:
     get:
       description: Returns VAOS appointment contact preferences
-      operationId: appointment_preferences
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -524,7 +657,6 @@ paths:
       summary: /v0/appointments/preferences
     put:
       description: updates VAOS appointment preferences
-      operationId: appointment_preferences
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -565,7 +697,6 @@ paths:
   /v0/appointments/va/eligibility:
     get:
       description: Lists types of service. For each type of service, lists users registered facilities that support request and direct appointments.
-      operationId: serviceEligibility
       parameters:
         - description: Array of facilities to be checked for service eligibility
           in: query
@@ -605,7 +736,6 @@ paths:
   /v0/appointment:
     post:
       description: Creates a new appointment or appointment request.
-      operationId: CreateNewAppointment
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -663,7 +793,6 @@ paths:
     get:
       description: Returns info on all user's claims and appeals for mobile overview
         page
-      operationId: get_claim
       parameters:
         - description: Claim Id
           in: path
@@ -704,7 +833,6 @@ paths:
     post:
       description: Post tracked item document for upload, returns jobId for upload
         process
-      operationId: upload_document
       parameters:
         - description: Claim Id
           in: path
@@ -767,7 +895,6 @@ paths:
     post:
       description: Post multiple images to be combined into one pdf for upload, returns
         jobId for upload process
-      operationId: upload_documents
       parameters:
         - description: Claim Id
           in: path
@@ -813,7 +940,6 @@ paths:
   /v0/claim/{id}/request-decision:
     post:
       description: Request decision on a given claim, returns job id
-      operationId: request_decision
       parameters:
         - description: Claim Id
           in: path
@@ -853,7 +979,6 @@ paths:
   /v0/claims/decision-letters:
     get:
       description: Returns the list of claim decision letters for given user
-      operationId: decision-letters
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -887,7 +1012,6 @@ paths:
   /v0/claims/decision-letters/{document_id}/download:
     get:
       description: Downloads a decision letter
-      operationId: decision-letter-download
       parameters:
         - description: id of the document being downloaded
           in: path
@@ -927,7 +1051,6 @@ paths:
     get:
       description: Returns info on all user's claims and appeals for mobile overview
         page
-      operationId: claimsAndAppealsOverview
       parameters:
         - description: The start date for the range of appointments in ISO 8601 UTC
             format. If not provided the start date will be considered Jan. 1st 1700.
@@ -1014,7 +1137,6 @@ paths:
     get:
       description: Returns a list of community care providers who provide the requested medical specialty within
         a certain radius of the user (default) or facility (if facility id is provided in query params).
-      operationId: get_community_care_providers
       parameters:
         - description: The medical specialty the user is searching for formatted in camel case.
             Must be one of primaryCare, foodAndNutrition, podiatry, optometry, audiologyRoutineExam, audiologyHearingAidSupport.
@@ -1087,7 +1209,6 @@ paths:
   /v0/disability-rating:
     get:
       description: Returns the list of disability ratings for given user
-      operationId: disability-rating
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -1241,7 +1362,6 @@ paths:
   /v0/facilities-info/{sort_method}:
     get:
       description: Retrieves facilities info for a given user
-      operationId: GetFacilitiesInfo
       parameters:
         - description: Sort method (Closest to home or current location, alphabetical, or by most recent appointment location) Note - When most recent appointment is selected any facility that doesn't appear in the user's appointments will be sorted alphabetically after those that do appear in the appointments list
           in: path
@@ -1292,7 +1412,6 @@ paths:
   /v0/health/immunizations:
     get:
       description: Returns the list of immunization records for given user
-      operationId: immunizations
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -1326,7 +1445,6 @@ paths:
   /v0/health/locations/{id}:
     get:
       description: Returns location info based on location id from vaccine record
-      operationId: immunizations
       parameters:
         - description: location id from immunization info
           in: path
@@ -1366,7 +1484,6 @@ paths:
   /v0/health/rx/prescriptions:
     get:
       description: Returns the users prescriptions.
-      operationId: getPrescription
       parameters:
         - description: |
             what field to sort array of prescriptions by. fields that can be sorted: prescription_id, refill_status, refill_submit_date, refill_date, facility_name, ordered_date, prescription_name, dispensed_date. date fields sort by DESC by default while all others default to ASC. To get the opposite sort direction negate the field with a '-'. EX: -prescription_id
@@ -1432,7 +1549,6 @@ paths:
   /v0/health/rx/prescriptions/refill:
     put:
       description: Requests refill for prescriptions.
-      operationId: putPrescription
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -1477,7 +1593,6 @@ paths:
   /v0/health/rx/prescriptions/{id}/tracking:
     get:
       description: Requests list of tracking data for a prescription id
-      operationId: getRxTracking
       parameters:
         - description: id of the prescription tracking data is being requested for
           example: 13650545
@@ -1522,7 +1637,6 @@ paths:
   /v0/letters:
     get:
       description: Returns the list of letter names and types for the given user
-      operationId: letters
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -1573,7 +1687,6 @@ paths:
     get:
       description: Returns benefit info and options for the given user with or without
         a dependent
-      operationId: beneficiary
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -1623,7 +1736,6 @@ paths:
   /v0/letters/{type}/download:
     post:
       description: Returns requested letter for download. Downloads as either PDF or JSON, dependent upon format param. Defaults to PDF when format is not specified.
-      operationId: download
       parameters:
         - description: letter type
           in: path
@@ -1691,7 +1803,6 @@ paths:
   /v0/maintenance_windows:
     get:
       description: List maintenance windows
-      operationId: get_maintenance_windows
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -1723,7 +1834,6 @@ paths:
   /v0/messaging/health/folders:
     get:
       description: List available secure messaging folders
-      operationId: get_folders
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -1754,7 +1864,6 @@ paths:
       summary: /v0/messaging/health/folders
     post:
       description: Create a new secure messaging folder
-      operationId: post_create_folder
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -1792,7 +1901,6 @@ paths:
   /v0/messaging/health/folders/{id}:
     get:
       description: Get a secure messaging folder
-      operationId: get_folder
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -1829,7 +1937,6 @@ paths:
         When listing messages, the response for each message will include most but not all of the message attributes.
         Specifically, the message body and attachment information is not included. Those attributes can be obtained by
         getting the specific message resource.
-      operationId: get_folder_messages
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -1861,7 +1968,6 @@ paths:
   /v0/messaging/health/folders/{id}/threads:
     get:
       description: List of threads in a secure messaging folder
-      operationId: get_folder_threads
       parameters:
         - description: The id of the folder that threads are being retrieved from
           in: path
@@ -1933,7 +2039,6 @@ paths:
   /v0/messaging/health/message_drafts:
     post:
       description: Save a new draft message
-      operationId: post_create_message_draft
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -1971,7 +2076,6 @@ paths:
   /v0/messaging/health/message_drafts/{id}:
     put:
       description: Update an existing draft message
-      operationId: post_create_message_draft
       parameters:
         - description: The id of the draft that is to be updated
           in: path
@@ -2013,7 +2117,6 @@ paths:
   /v0/messaging/health/message_drafts/{reply_id}/replydraft:
     post:
       description: Save a new draft message as a reply to an existing message
-      operationId: post_create_message_draft_reply
       parameters:
         - description: The id of the message that will be replied to
           in: path
@@ -2057,7 +2160,6 @@ paths:
   /v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}:
     post:
       description: Edit a draft message that was a reply to an existing message
-      operationId: post_create_message_draft_reply
       parameters:
         - description: The id of the message that will be replied to
           in: path
@@ -2105,7 +2207,6 @@ paths:
   /v0/messaging/health/messages:
     post:
       description: Send a new secure message
-      operationId: post_create_message
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -2186,7 +2287,6 @@ paths:
   /v0/messaging/health/messages/categories:
     get:
       description: List available message categories
-      operationId: get_categories
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -2218,7 +2318,6 @@ paths:
   /v0/messaging/health/messages/signature:
     get:
       description: Gets user message signature preferences
-      operationId: get_signature
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -2250,7 +2349,6 @@ paths:
   /v0/messaging/health/messages/{id}:
     delete:
       description: Moves a secure message to the "Deleted" folder
-      operationId: delete_message
       parameters:
         - description: The id of the message that is to be deleted
           in: path
@@ -2304,7 +2402,6 @@ paths:
           <li>This GET operation is not fully idempotent and will set readReceipt field as 'READ'</li>
           <li>If message has an attachment included, attachmentSize is displayed in bytes</li>
         </ul>
-      operationId: get_message
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -2335,7 +2432,6 @@ paths:
       summary: /v0/messaging/health/messages/{id}
     patch:
       description: Moves a secure message to a specified folder
-      operationId: post_move_message
       parameters:
         - description: The id of the message that is to be moved
           in: path
@@ -2376,7 +2472,6 @@ paths:
     get:
       description: |
         Get a secure message attachment content as a direct binary download. Secure messaging supports the following file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.
-      operationId: get_attachment
       parameters:
         - description: ID of the message that we are retrieving attachments of
           in: path
@@ -2432,7 +2527,6 @@ paths:
           <li>Single attachment cannot exceed 3 MB</li>
           <li>Total attachment cannot exceed 6 MB</li>
         </ul>
-      operationId: post_create_message_reply
       parameters:
         - description: ID of the message that is being replied to
           in: path
@@ -2502,7 +2596,6 @@ paths:
       description: |
         Gets a list of message summaries that are related to the message of the passed id and older than the message of 
         the id provided. Does <strong>not</strong> include the message of the passed id itself.
-      operationId: get_message_history
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -2535,10 +2628,16 @@ paths:
     get:
       description: |
         Gets a list of message summaries that are related to the message of the passed id regardless of their age in 
-        relation to the message of the id provided. Does <strong>not</strong> include the message of the passed id itself.
-      operationId: get_message_thread
+        relation to the message of the id provided. Unless specified in the query parameters, this <strong>does</strong> 
+        include the message of the passed id itself.
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+        - description: Excludes the message with the provided message id
+          in: query
+          name: 'excludeProvidedMessage'
+          required: false
+          schema:
+            type: boolean
       responses:
         '200':
           content:
@@ -2568,7 +2667,6 @@ paths:
   /v0/messaging/health/recipients:
     get:
       description: List available recipients to which messages may be sent
-      operationId: get_triage_teams
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -2600,7 +2698,6 @@ paths:
   /v0/military-service-history:
     get:
       description: Returns user's service history
-      operationId: getServiceHistory
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -2632,7 +2729,6 @@ paths:
   /v0/payment-history:
     get:
       description: Returns user's payment history
-      operationId: getPaymentHistory
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -2664,7 +2760,6 @@ paths:
   /v0/payment-information/benefits:
     get:
       description: Returns direct deposit payment info
-      operationId: getPaymentInformation
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -2697,7 +2792,6 @@ paths:
       summary: /v0/payment-information/benefits
     put:
       description: Returns updated direct deposit payment info
-      operationId: updatePaymentInformation
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -2738,7 +2832,6 @@ paths:
   /v0/push/prefs/{endpointSid}:
     get:
       description: Get the user's push notification preferences
-      operationId: getPrefs
       parameters:
         - description: device endpointSid provided by the register endpoint
           in: path
@@ -2777,7 +2870,6 @@ paths:
       summary: /v0/push/prefs/{endpointSid}
     put:
       description: Set the user's push notification preferences
-      operationId: putPrefs
       parameters:
         - description: device endpointSid provided by the register endpoint
           in: path
@@ -2820,7 +2912,6 @@ paths:
   /v0/push/register:
     put:
       description: Allows a new app install to register to receive push notifications
-      operationId: register
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -2862,7 +2953,6 @@ paths:
     post:
       description: Allows client to trigger specified push notification to be sent
         to specified endpoint
-      operationId: sendNotification
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -2900,7 +2990,6 @@ paths:
     get:
       description: |
         Returns the user profile, including the user's addresses and the services the user has the requisite ids to access. Meta data for this endpoint returns all the services available in the API.
-      operationId: user.getProfile
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -2953,7 +3042,6 @@ paths:
     get:
       description: |
         Returns the user profile, including the user's addresses and the services the user has the requisite ids to access. Meta data for this endpoint returns all the services available in the API. v1 includes LOGINGOV as login type.
-      operationId: v1/user.getProfile
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -3005,7 +3093,6 @@ paths:
   /v0/user/addresses:
     delete:
       description: Deletes a user's address
-      operationId: user.deleteAddresses
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -3053,7 +3140,6 @@ paths:
         an 'invalid' address then the 'validationKey' should be passed along with
         the new address in the request body. This lets the underlying service know
         that an invalid address be passed through.
-      operationId: user.createAddress
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -3128,7 +3214,6 @@ paths:
         then the 'validationKey' should be passed along with the new address in the
         request body. This lets the underlying service know that an invalid address
         be passed through.
-      operationId: user.updateAddress
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -3205,7 +3290,6 @@ paths:
         then the 'validationKey' should be passed along with the new address in the
         request body. This lets the underlying service know that an invalid address
         be passed through.
-      operationId: user.validateAddress
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -3263,7 +3347,6 @@ paths:
   /v0/user/emails:
     delete:
       description: Deletes a user's email address
-      operationId: user.deleteEmailAddress
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -3306,7 +3389,6 @@ paths:
       summary: /v0/user/emails
     post:
       description: Creates a new email address
-      operationId: user.createEmailAddress
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -3348,7 +3430,6 @@ paths:
       summary: /v0/user/emails
     put:
       description: Updates a user's email address
-      operationId: user.updateEmailAddress
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -3392,7 +3473,6 @@ paths:
   /v0/user/gender_identity:
     put:
       description: Updates a user's gender identity. Only users with id.me or login.gov accounts may use this
-      operationId: user.updateGenderIdentity
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -3429,7 +3509,6 @@ paths:
   /v0/user/gender_identity/edit:
     get:
       description: Retrieves a list of valid gender identity keys. Note that this endpoint does not use the camel case key inflection header like most other mobile endpoints to keep the keys upcase.
-      operationId: user.editGenderIdentity
       responses:
         '200':
           content:
@@ -3460,7 +3539,6 @@ paths:
     get:
       description: |
         Logs the user out by revoking their access token from the IAM SSOe OAuth service and destroying the IAM user, user identity, and session objects from Redis.
-      operationId: user.logout
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:
@@ -3490,7 +3568,6 @@ paths:
   /v0/user/preferred_name:
     put:
       description: Updates a user's preferred name. Only users with id.me or login.gov accounts may use this
-      operationId: user.updatePreferredName
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -3527,7 +3604,6 @@ paths:
   /v0/user/phones:
     delete:
       description: Deletes one of a user's phone numbers
-      operationId: user.deletePhone
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -3567,7 +3643,6 @@ paths:
       summary: /v0/user/phones
     post:
       description: Creates a phone number for a user
-      operationId: user.createPhoneNumber
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -3607,7 +3682,6 @@ paths:
       summary: /v0/user/phones
     put:
       description: Updates a user's phone number
-      operationId: user.updatePhoneNumber
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       requestBody:
@@ -3648,7 +3722,6 @@ paths:
   /v1/health/immunizations:
     get:
       description: Returns a paginated list of immunization records for given user
-      operationId: v1/immunizations
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
       responses:

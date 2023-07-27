@@ -36,7 +36,7 @@ module SignIn
       when 'loa1'
         Constants::Auth::IDME_LOA1
       when 'loa3'
-        Constants::Auth::IDME_LOA3
+        Constants::Auth::IDME_LOA3_FORCE
       when 'min'
         uplevel ? Constants::Auth::IDME_LOA3 : Constants::Auth::IDME_LOA1
       else

@@ -2,13 +2,17 @@
 
 require 'sidekiq/form526_backup_submission_process/submit'
 require 'sidekiq/form526_job_status_tracker/metrics'
+require 'sidekiq/form526_job_status_tracker/backup_submission'
 
 module Sidekiq
   module Form526JobStatusTracker
     # rubocop:disable Metrics/ModuleLength
     module JobTracker
       extend ActiveSupport::Concern
+      extend BackupSubmission
       include SentryLogging
+
+      STATSD_KEY_PREFIX = 'worker.evss.submit_form526.job_status'
 
       class_methods do
         # Callback that fires when a job has exhausted its retries
@@ -46,44 +50,11 @@ module Sidekiq
           bgjob_errors.merge!(new_error)
           values[:bgjob_errors] = bgjob_errors
 
+          JobTracker.send_backup_submission_if_enabled(form526_submission_id:, job_class: values[:job_class], job_id:,
+                                                       error_message:, error_class:)
+
           # rubocop:disable Rails/SkipsModelValidations
           Form526JobStatus.upsert(values, unique_by: :job_id)
-          # rubocop:enable Rails/SkipsModelValidations
-          submission_obj ||= Form526Submission.find(form526_submission_id)
-          additional_birls_to_try = submission_obj.birls_ids_that_havent_been_tried_yet
-
-          backup_job_jid = nil
-          flipper_sym = :form526_backup_submission_temp_killswitch
-
-          # Entry-point for backup 526 CMP submission
-          #
-          # Required criteria to send a backup 526 submission from here:
-          # Enabled in settings and flipper
-          # Is an overall submission and NOT an upload attempt
-          # Does not have a valid claim ID (through RRD process or otherwise) (protect against dup submissions)
-          # Does not have a backup submission ID (protect against dup submissions)
-          # Does not have additional birls it is going to try and submit with
-          send_backup_submission = Settings.form526_backup.enabled && Flipper.enabled?(flipper_sym) &&
-                                   values[:job_class] == 'SubmitForm526AllClaim' &&
-                                   submission_obj.submitted_claim_id.nil? &&
-                                   additional_birls_to_try.empty? && submission_obj.backup_submitted_claim_id.nil?
-
-          if send_backup_submission
-            backup_job_jid = Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(form526_submission_id)
-          end
-
-          vagov_id = JSON.parse(submission_obj.auth_headers_json)['va_eauth_service_transaction_id']
-          log_message = {
-            submission_id: form526_submission_id,
-            job_id:,
-            job_class: values[:job_class],
-            error_class:,
-            error_message:,
-            remaining_birls: additional_birls_to_try,
-            va_eauth_service_transaction_id: vagov_id
-          }
-          log_message['backup_job_id'] = backup_job_jid unless backup_job_jid.nil?
-          ::Rails.logger.error('Form526 Exhausted or Errored (retryable-error-path)', log_message)
         rescue => e
           emsg = 'Form526 Exhausted, with error tracking job exhausted'
           error_details = {
@@ -138,7 +109,7 @@ module Sidekiq
         log_info('success')
         metrics.increment_success(@is_bdd)
       rescue => e
-        ::Rails.logger.error('error tracking job success', error: e, class: klass)
+        ::Rails.logger.error('error tracking job success', error: e, class: klass, trace: e.backtrace)
       end
 
       # Metrics and logging for any retryable errors that occurred.
@@ -155,6 +126,11 @@ module Sidekiq
       #
       def non_retryable_error_handler(error)
         upsert_job_status(Form526JobStatus::STATUS[:non_retryable_error], error)
+        error_class = error.class
+        error_message = error.message
+        JobTracker.send_backup_submission_if_enabled(form526_submission_id: @status_submission_id,
+                                                     job_class: klass, job_id: jid,
+                                                     error_class:, error_message:)
         log_exception_to_sentry(error, status: :non_retryable_error, jid:)
         log_error('non_retryable_error', error)
         metrics.increment_non_retryable(error, @is_bdd)
@@ -185,7 +161,6 @@ module Sidekiq
                                                              error_message:,
                                                              caller_method:,
                                                              timestamp:)
-        # rubocop:disable Rails/SkipsModelValidations
         Form526JobStatus.upsert(values, unique_by: :job_id)
         # rubocop:enable Rails/SkipsModelValidations
       end

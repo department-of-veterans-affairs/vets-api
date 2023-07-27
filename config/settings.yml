@@ -41,7 +41,7 @@ saml_ssoe:
   response_signing: false
   response_encryption: false
   identity_slack_webhook: ~
-  idp_sso_service_binding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST'
+  idp_sso_service_binding: "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
 
 ssoe_eauth_cookie:
   name: vagov_saml_request_localhost
@@ -52,7 +52,7 @@ session_cookie:
   secure: false
 
 sign_in:
-  jwt_encode_key: 'spec/fixtures/sign_in/privatekey.pem'
+  jwt_encode_key: "spec/fixtures/sign_in/privatekey.pem"
   cookies_secure: false
   info_cookie_domain: localhost
   auto_uplevel: true
@@ -88,6 +88,7 @@ dmc:
   mock_fsr: false
   url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/digital-services/
   debts_endpoint: debt-letter/get
+  fsr_payment_window: 30
 
 mcp:
   vbs_client_key: abcd1234abcd1234abcd1234abcd1234abcd1234
@@ -159,6 +160,8 @@ edu:
     pass: ~
     user: ~
     port: ~
+    relative_307_path: ~
+    relative_351_path: ~
   slack:
     webhook_url: https://example.com
   spool_error:
@@ -269,54 +272,54 @@ decision_review:
 dhp:
   mock: false
   fitbit:
-    client_id: ''
-    client_secret: ''
-    redirect_uri: 'http://localhost:3000/dhp_connected_devices/fitbit-callback'
-    scope: 'heartrate activity nutrition sleep'
-    code_challenge: ''
-    code_verifier: ''
+    client_id: ""
+    client_secret: ""
+    redirect_uri: "http://localhost:3000/dhp_connected_devices/fitbit-callback"
+    scope: "heartrate activity nutrition sleep"
+    code_challenge: ""
+    code_verifier: ""
   s3:
-    aws_access_key_id: ''
-    aws_secret_access_key: ''
-    bucket: ''
-    region: 'us-gov-west-1'
+    aws_access_key_id: ""
+    aws_secret_access_key: ""
+    bucket: ""
+    region: "us-gov-west-1"
 
 # Settings for modules/appeals_api
 modules_appeals_api:
   token_validation:
     appeals_status:
-      api_key: ''
+      api_key: ""
     contestable_issues:
-      api_key: ''
+      api_key: ""
     higher_level_reviews:
-      api_key: ''
+      api_key: ""
     legacy_appeals:
-      api_key: ''
+      api_key: ""
     notice_of_disagreements:
-      api_key: ''
+      api_key: ""
     supplemental_claims:
-      api_key: ''
+      api_key: ""
   # The token generation values below are only used for development rake tasks.
   token_generation:
     ccg:
-      config_uri: 'https://dev-api.va.gov/oauth2/appeals/system/v1/.well-known/openid-configuration'
+      config_uri: "https://dev-api.va.gov/oauth2/appeals/system/v1/.well-known/openid-configuration"
       # Get a client ID by submitting your public jwk here - make sure to check the boxes for the APIs under
       # "Client Credentials Grant APIs": https://developer.va.gov/onboarding/request-sandbox-access
-      client_id: ''
+      client_id: ""
       # Absolute path to the private key file matching the jwk:
-      private_key_path: ''
+      private_key_path: ""
     auth:
-      config_uri: 'https://dev-api.va.gov/oauth2/appeals/v1/.well-known/openid-configuration'
+      config_uri: "https://dev-api.va.gov/oauth2/appeals/v1/.well-known/openid-configuration"
       # Get a client ID/secret by submitting this form - make sure to check the boxes for the APIs under
       # "Authorization Code Flow APIs": https://developer.va.gov/onboarding/request-sandbox-access
-      client_id: ''
-      client_secret: ''
-      redirect_uri: ''
-      user_email: ''
-      user_password: ''
+      client_id: ""
+      client_secret: ""
+      redirect_uri: ""
+      user_email: ""
+      user_password: ""
   slack:
-    api_key: ''
-    appeals_channel_id: ''
+    api_key: ""
+    appeals_channel_id: ""
   documentation:
     path_enabled_flag: false
     wip_docs:
@@ -605,9 +608,9 @@ vba_documents:
       - vagov-arn
   slack:
     enabled: false
-    api_key: ''
-    channel_id: ''
-    default_alert_email: ''
+    api_key: ""
+    channel_id: ""
+    default_alert_email: ""
     in_flight_notification_hung_time_in_days: 14
     renotification_in_minutes: 240
     update_stalled_notification_in_minutes: 180
@@ -637,6 +640,14 @@ claims_api:
     enabled: false
   token_validation:
     api_key:
+  benefits_documents:
+    auth:
+      ccg:
+        client_id: ~
+        rsa_key: ~
+        aud_claim_url: ~
+    host: https://sandbox-api.va.gov
+    use_mocks: false
 
 redis:
   host: localhost
@@ -882,7 +893,7 @@ flipper:
     - alastair@adhocteam.us
     - alex.wilson@oddball.io # Alex Wilson - Oddball
     - andrew.herzberg@adhocteam.us
-    - anthony@themostudio.com
+    - anu@themostudio.com # Anu Das Full Stack Engineer, LGA
     - bill.ryan@adhocteam.us
     - bradley.gross@b3groupinc.com
     - brian.seek@civicactions.com # Brian Seek (Civic Actions), FE Engineer Health Care Experience/Check-In
@@ -935,7 +946,6 @@ flipper:
     - kabrown@thoughtworks.com
     - kadams@governmentcio.com
     - kathleen.crawford@gcio.com
-    - kcoulter@pluribusdigital.com
     - kenneth.gary@va.gov
     - kenneth.santiago2010@gmail.com
     - kevin.musiorski@gcio.com # Kevin Musiorski (GCIO), Engineer
@@ -962,8 +972,6 @@ flipper:
     - michael.chelen@va.gov
     - michael.pelz-sherman@gcio.com
     - michelle.middaugh@adhocteam.us
-    - mmiller@pluribusdigital.com
-    - mmiller+staging@pluribusdigital.com
     - n.ratana@gmail.com
     - nathan.wright@oddball.io # Nathan Wright (Oddball) - Eng lead - VANotify strike team
     - nathaniel.buck@gmail.com # AFS - My Education Benefits
@@ -997,8 +1005,9 @@ flipper:
     - trevor.bosaw@oddball.io # Trevor Bosaw (Oddball), Identity, Backend Engineer
     - tricia.baker@va.gov # Tricia Baker - Product Manager - VA Forms Team
     - tze@adhocteam.us
-    - yangyang@navapbc.com
-    - yoom@navapbc.com
+    - yangyang@navapbc.com # Yang Yang - Nava - Claims Fast Tracking / Employee Experience
+    - amylai@navapbc.com # Amy Lai - Nava - Claims Fast Tracking / Employee Experience
+    - yoom@navapbc.com # Yoom Lam - Nava - Virtual Regional Office
     - zmorel@governmentcio.com
     - kha.huynh@thoughtworks.com # Virtual Agent
     - zach.morel@gcio.com
@@ -1023,6 +1032,8 @@ flipper:
     - simi.adebowale@adhocteam.us
     - berni.xiong@agile6.com # Bernie Xiong - Agile 6
     - mcahill@gwu.edu # Travis Cahill - Agile 6
+    - pamela.drouin@a1msolutions.com # Pamela Drouin - A1M Solutions
+    - adrian.brewster@agile6.com # Adrian Brewster - Agile 6
     - tom.harrison@adhocteam.us # Tom Harrison - Ad Hoc
     - angela.agosto@adhocteam.us # Angela Agosto - Ad Hoc
     - ryan.koch@agile6.com
@@ -1073,6 +1084,7 @@ flipper:
     - adewitt@thoughtworks.com # Anita DeWitt - Virtual Agent Chatbot
     - maurice.okumu@thoughtworks.com # Maurice Okumu - Virtual Agent Chatbot
     - nichelous.herndon@thoughtworks.com # Nichelous Herndon - Virtual Agent Chatbot
+    - jason.conigliari@adhocteam.us # Jason Conigliari - Ad Hoc - Mobile Back End Engineer
 
 bgs:
   application: ~
@@ -1150,6 +1162,10 @@ hqva_mobile:
 
 # settings va.gov uses related to lighthouse api's
 lighthouse:
+  auth:
+    ccg:
+      client_id: ~
+      rsa_key: ~
   api_key: fake_key
   benefits_claims:
     host: https://sandbox-api.va.gov
@@ -1165,6 +1181,11 @@ lighthouse:
         client_id: ~
         rsa_key: ~
       use_mocks: false
+  benefits_documents:
+    host: https://sandbox-api.va.gov
+    access_token:
+      aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
+    use_mocks: false
   letters_generator:
     url: https://sandbox-api.va.gov
     path: /services/va-letter-generator/v1/
@@ -1214,6 +1235,10 @@ lighthouse:
         client_id: ~
         rsa_key: ~
       use_mocks: false
+  s3:
+    uploads_enabled: false
+    bucket: lighthouse_s3_bucket
+    region: lighthouse_s3_region
 
 mail_automation:
   url: https://viccs-api-test.ibm-intelligent-automation.com
@@ -1252,7 +1277,138 @@ google_analytics:
   tracking_id: ~
 
 covid_vaccine:
-  allowed_facilities: [402,405,436,437,438,442,459,460,463,501,502,503,504,506,508,509,512,515,516,517,518,519,520,521,523,526,528,529,531,534,537,538,539,540,541,542,544,546,548,549,550,552,553,554,556,557,558,561,562,564,565,568,570,573,575,578,580,581,583,585,586,589,590,593,595,596,598,600,603,605,607,608,610,612,613,614,618,619,620,621,623,626,629,630,631,632,635,636,637,640,642,644,646,648,649,650,652,653,654,655,656,657,658,659,660,662,663,664,666,667,668,671,672,673,674,675,676,678,679,687,688,689,691,692,693,695,740,756,757]
+  allowed_facilities:
+    [
+      402,
+      405,
+      436,
+      437,
+      438,
+      442,
+      459,
+      460,
+      463,
+      501,
+      502,
+      503,
+      504,
+      506,
+      508,
+      509,
+      512,
+      515,
+      516,
+      517,
+      518,
+      519,
+      520,
+      521,
+      523,
+      526,
+      528,
+      529,
+      531,
+      534,
+      537,
+      538,
+      539,
+      540,
+      541,
+      542,
+      544,
+      546,
+      548,
+      549,
+      550,
+      552,
+      553,
+      554,
+      556,
+      557,
+      558,
+      561,
+      562,
+      564,
+      565,
+      568,
+      570,
+      573,
+      575,
+      578,
+      580,
+      581,
+      583,
+      585,
+      586,
+      589,
+      590,
+      593,
+      595,
+      596,
+      598,
+      600,
+      603,
+      605,
+      607,
+      608,
+      610,
+      612,
+      613,
+      614,
+      618,
+      619,
+      620,
+      621,
+      623,
+      626,
+      629,
+      630,
+      631,
+      632,
+      635,
+      636,
+      637,
+      640,
+      642,
+      644,
+      646,
+      648,
+      649,
+      650,
+      652,
+      653,
+      654,
+      655,
+      656,
+      657,
+      658,
+      659,
+      660,
+      662,
+      663,
+      664,
+      666,
+      667,
+      668,
+      671,
+      672,
+      673,
+      674,
+      675,
+      676,
+      678,
+      679,
+      687,
+      688,
+      689,
+      691,
+      692,
+      693,
+      695,
+      740,
+      756,
+      757,
+    ]
   enrollment_service:
     job_enabled: false
     sftp:
@@ -1270,6 +1426,8 @@ virtual_agent:
   cxdw_app_uri: fake_app_uri
   cxdw_dataverse_uri: fake_dataverse_uri
   cxdw_table_prefix: fake_table_prefix
+  speech_token_request_uri: https://eastus.api.cognitive.microsoft.com/sts/v1.0/issuetoken
+  speech_token_subscription_key: fake_speech_token_subscription_key
 
 # Settings for notifications client
 vanotify:
@@ -1300,7 +1458,6 @@ vanotify:
         covid_vaccine_expanded_registration: fake_template_id
         direct_deposit_edu: edu_template_id
         direct_deposit_comp_pen: comp_pen_template_id
-        login_reactivation_email: 08d9f04-ae3f-4b73-b932-3ad175d21ba9
     lighthouse:
       api_key: fake_secret
       template_id:
@@ -1331,8 +1488,8 @@ va_forms:
   # A notification for when a forms url has changed
   slack:
     enabled: false
-    api_key: ''
-    channel_id: ''
+    api_key: ""
+    channel_id: ""
 
 # Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
 genisis:
@@ -1444,6 +1601,15 @@ github_cvu:
   integration_id: ~
   private_pem: ~
 
+chip:
+  url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+  base_path: dev
+  api_gtwy_id: 2dcdrrn5zc
+  redis_timeout: 30
+  mock: true
+  mobile_app:
+    tenant_id: 6f1c8b41-9c77-469d-852d-269c51a7d380
+
 check_in:
   travel_reimbursement_api:
     auth_url: https://login.microsoftonline.us
@@ -1536,18 +1702,18 @@ websockets:
   websocket_settings: false
 
 lighthouse_health_immunization:
-  client_id: '0oad0xggirKLf2ger2p7'
-  audience_claim_url: 'https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token'
+  client_id: "0oad0xggirKLf2ger2p7"
+  audience_claim_url: "https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token"
   key_path: ~
-  access_token_url: 'https://sandbox-api.va.gov/oauth2/health/system/v1/token'
-  api_url: 'https://sandbox-api.va.gov/services/fhir/v0/r4'
+  access_token_url: "https://sandbox-api.va.gov/oauth2/health/system/v1/token"
+  api_url: "https://sandbox-api.va.gov/services/fhir/v0/r4"
   scopes:
     - "launch launch/patient"
     - "patient/Immunization.read"
     - "patient/Location.read"
 
 mobile_lighthouse:
-  client_id: '0oajpx78t3M8kurld2p7'
+  client_id: "0oajpx78t3M8kurld2p7"
   rsa_key: ~
 
 token_validation:
@@ -1572,7 +1738,7 @@ lgy:
 form526_backup:
   enabled: true
   # Can be single or multi, to send 1 payload or many, to central mail
-  submission_method: 'single'
+  submission_method: "single"
   api_key: ~
   url: https://sandbox-api.va.gov/services/vba_documents/v1/
   aws:
@@ -1589,9 +1755,9 @@ form1095_b:
   s3:
     aws_access_key_id: ~
     aws_secret_access_key: ~
-    bucket: 'bucket'
+    bucket: "bucket"
     enabled: true
-    region: 'region'
+    region: "region"
 
 coverband:
   github_organization: ~
@@ -1599,7 +1765,6 @@ coverband:
   github_oauth_key: ~
   github_oauth_secret: ~
   github_api_key: ~
-
 
 dogstatsd:
   enabled: false

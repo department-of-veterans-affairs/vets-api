@@ -30,5 +30,9 @@ Datadog.configure do |c|
     # Enable ASM
     c.appsec.enabled = true
     c.appsec.instrument :rails
+
+  elsif Settings.vsp_environment == 'test'
+    # Set transport to no-op mode. Does not retain traces.
+    c.tracing.transport_options = ->(t) { t.adapter :test }
   end
 end

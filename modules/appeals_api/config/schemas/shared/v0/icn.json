@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-2020-12/schema#",
+  "description": "JSON Schema for VA Appeal Forms: 'icn'",
+  "properties": {
+    "icn": {
+      "type": "string",
+      "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
+      "pattern": "^[0-9]{10}V[0-9]{6}$",
+      "minLength": 17,
+      "maxLength": 17
+    }
+  }
+}

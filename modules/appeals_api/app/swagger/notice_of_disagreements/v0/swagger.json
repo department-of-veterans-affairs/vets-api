@@ -1879,8 +1879,10 @@
                         "available_options": [
                           "10182",
                           "address",
+                          "icn",
                           "nonBlankString",
                           "phone",
+                          "ssn",
                           "timezone"
                         ]
                       }

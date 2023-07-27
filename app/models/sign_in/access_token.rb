@@ -70,6 +70,20 @@ module SignIn
       false
     end
 
+    def to_s
+      {
+        uuid:,
+        user_uuid:,
+        session_handle:,
+        client_id:,
+        audience:,
+        version:,
+        last_regeneration_time: last_regeneration_time.to_i,
+        created_time: created_time.to_i,
+        expiration_time: expiration_time.to_i
+      }
+    end
+
     private
 
     def create_uuid

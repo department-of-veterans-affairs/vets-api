@@ -7,12 +7,15 @@ require 'sentry_logging'
 require 'prawn'
 require 'fileutils'
 require 'mini_magick'
+require 'lighthouse/benefits_documents/service'
 
 module Mobile
   module V0
     class ClaimsAndAppealsController < ApplicationController
       include IgnoreNotFound
-      before_action(only: %i[index get_claim request_decision]) do
+      before_action(only: %i[get_appeal]) { authorize :appeals, :access? }
+
+      before_action(only: %i[get_claim request_decision]) do
         if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
           authorize :lighthouse, :access?
         else
@@ -20,12 +23,20 @@ module Mobile
         end
       end
 
-      before_action(except: %i[index get_claim request_decision]) do
-        authorize :evss, :access?
+      before_action(only: %i[upload_document upload_multi_image_document]) do
+        if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
+          authorize :lighthouse, :access?
+        else
+          authorize :evss, :access?
+        end
       end
 
       after_action only: :upload_multi_image_document do
-        evss_claims_proxy.cleanup_after_upload
+        if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
+          lighthouse_document_service.cleanup_after_upload
+        else
+          evss_claims_proxy.cleanup_after_upload
+        end
       end
 
       def index
@@ -61,12 +72,21 @@ module Mobile
       end
 
       def upload_document
-        jid = evss_claims_proxy.upload_document(params)
+        jid = if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
+                lighthouse_document_service.queue_document_upload(params)
+              else
+                evss_claims_proxy.upload_document(params)
+              end
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
       def upload_multi_image_document
-        jid = evss_claims_proxy.upload_multi_image(params)
+        jid = if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
+                lighthouse_document_service.queue_multi_image_upload_document(params)
+              else
+                evss_claims_proxy.upload_multi_image(params)
+              end
+
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
@@ -76,12 +96,13 @@ module Mobile
         list = nil
         list = Mobile::V0::ClaimOverview.get_cached(@current_user) if validated_params[:use_cache]
         list, errors = if list.nil?
-                         if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
-                           service_list, service_errors = lighthouse_claims_proxy.get_claims_and_appeals
-                         else
-                           service_list, service_errors = evss_claims_proxy.get_claims_and_appeals
+                         service_list, service_errors = get_accessible_claims_appeals
+
+                         if service_errors.blank?
+                           Mobile::V0::ClaimOverview.set_cached(@current_user,
+                                                                service_list)
                          end
-                         Mobile::V0::ClaimOverview.set_cached(@current_user, list)
+
                          [service_list, service_errors]
                        else
                          [list, []]
@@ -98,6 +119,18 @@ module Mobile
         [Mobile::V0::ClaimOverviewSerializer.new(list, options), status]
       end
 
+      def get_accessible_claims_appeals
+        if claims_access? && appeals_access?
+          service.get_claims_and_appeals
+        elsif claims_access?
+          service.get_claims
+        elsif appeals_access?
+          service.get_appeals
+        else
+          raise Pundit::NotAuthorizedError
+        end
+      end
+
       def lighthouse_claims_adapter
         Mobile::V0::Adapters::LighthouseIndividualClaims.new
       end
@@ -108,6 +141,10 @@ module Mobile
 
       def evss_claims_proxy
         @claims_proxy ||= Mobile::V0::Claims::Proxy.new(@current_user)
+      end
+
+      def lighthouse_document_service
+        @lighthouse_document_service ||= BenefitsDocuments::Service.new(@current_user.icn)
       end
 
       def validate_params
@@ -159,6 +196,22 @@ module Mobile
 
       def adapt_response(response)
         response['success'] ? 'success' : 'failure'
+      end
+
+      def service
+        lighthouse? ? lighthouse_claims_proxy : evss_claims_proxy
+      end
+
+      def claims_access?
+        lighthouse? ? @current_user.authorize(:lighthouse, :access?) : @current_user.authorize(:evss, :access?)
+      end
+
+      def appeals_access?
+        @current_user.authorize(:appeals, :access?)
+      end
+
+      def lighthouse?
+        Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
       end
     end
   end

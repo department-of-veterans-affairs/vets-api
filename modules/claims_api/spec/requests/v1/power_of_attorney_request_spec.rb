@@ -15,13 +15,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       'X-VA-Gender': 'M' }
   end
   let(:scopes) { %w[claim.read claim.write] }
-  let(:pws) do
-    if Flipper.enabled? :bgs_via_faraday
-      ClaimsApi::LocalBGS
-    else
-      BGS::PersonWebService
-    end
-  end
+  let(:pws) { ClaimsApi::LocalBGS }
 
   before do
     stub_poa_verification
