@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../vba_documents/pdf_inspector'
+require_relative '../vba_documents/monthly_stats_generator'
 require 'yaml'
 
 namespace :vba_documents do
@@ -28,5 +29,16 @@ namespace :vba_documents do
       pdfs << "The file #{f} is not a valid PDF. Error: #{e.message}"
     end
     puts pdfs.to_yaml
+  end
+
+  desc 'Generates monthly stats data for a provided number of prior months'
+  task :generate_prior_month_stats_data, [:number_of_months] => [:environment] do |_, args|
+    number_of_months = args[:number_of_months].to_i
+    raise ArgumentError, 'A valid number of months was not provided' if number_of_months.zero?
+
+    number_of_months.times do |i|
+      date = (i + 1).months.ago
+      VBADocuments::MonthlyStatsGenerator.new(month: date.month, year: date.year).generate_and_save_stats
+    end
   end
 end
