@@ -422,7 +422,9 @@ RSpec.describe 'user', type: :request do
 
     describe 'vet360 linking' do
       context 'when user has a vet360_id' do
-        before { iam_sign_in(FactoryBot.build(:iam_user)) }
+        let(:user) { FactoryBot.build(:iam_user) }
+
+        before { iam_sign_in(user) }
 
         it 'does not enqueue vet360 linking job' do
           expect(Mobile::V0::Vet360LinkingJob).not_to receive(:perform_async)
@@ -431,6 +433,21 @@ RSpec.describe 'user', type: :request do
             VCR.use_cassette('mobile/user/get_facilities') do
               VCR.use_cassette('mobile/va_profile/demographics/demographics') do
                 get '/mobile/v0/user', headers: iam_headers
+              end
+            end
+          end
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'flips mobile user vet360_linked to true if record exists' do
+          Mobile::User.create(icn: user.icn, vet360_link_attempts: 1, vet360_linked: false)
+
+          VCR.use_cassette('mobile/payment_information/payment_information') do
+            VCR.use_cassette('mobile/user/get_facilities') do
+              VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+                get '/mobile/v0/user', headers: iam_headers
+
+                expect(Mobile::User.where(icn: user.icn, vet360_link_attempts: 1, vet360_linked: true)).to exist
               end
             end
           end
