@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_07_13_182204) do
+ActiveRecord::Schema.define(version: 2023_07_25_172333) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -752,6 +752,8 @@ ActiveRecord::Schema.define(version: 2023_07_13_182204) do
     t.string "icn", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "vet360_link_attempts"
+    t.boolean "vet360_linked"
     t.index ["icn"], name: "index_mobile_users_on_icn", unique: true
   end
 
