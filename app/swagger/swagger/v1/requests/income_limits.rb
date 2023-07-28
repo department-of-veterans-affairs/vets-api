@@ -43,14 +43,11 @@ class Swagger::V1::Requests::IncomeLimits
       response 200 do
         key :description, 'response'
         schema do
-          key :$ref, :IncomeLimits
+          key :$ref, :IncomeLimitThresholds
         end
       end
       response 422 do
         key :description, 'unprocessable_entity'
-        schema do
-          key :$ref, :IncomeLimits
-        end
       end
     end
   end
@@ -75,7 +72,7 @@ class Swagger::V1::Requests::IncomeLimits
       response 200 do
         key :description, 'response'
         schema do
-          key :$ref, :IncomeLimits
+          key :$ref, :ZipCodeIsValid
         end
       end
     end
