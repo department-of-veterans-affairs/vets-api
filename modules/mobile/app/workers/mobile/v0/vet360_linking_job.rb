@@ -25,10 +25,22 @@ module Mobile
       class MissingUserError < StandardError; end
 
       def perform(uuid)
-        user = IAMUser.find(uuid) || User.find(uuid)
+        user = IAMUser.find(uuid) || ::User.find(uuid)
         raise MissingUserError, uuid unless user
 
+        mobile_user = Mobile::User.find_or_create_by(icn: user.icn)
+        mobile_user.increment_vet360_link_attempts
+
+        if mobile_user.vet360_linked
+          Rails.logger.info('This User previously had a vet360 ID linked',
+                            { icn: mobile_user.icn, attempts: mobile_user.vet360_link_attempts })
+          mobile_user.vet360_linked = false
+        end
+
         result = VAProfile::Person::Service.new(user).init_vet360_id
+
+        mobile_user.save
+
         Rails.logger.info('Mobile Vet360 account linking request succeeded for user with uuid',
                           { user_uuid: uuid, transaction_id: result.transaction.id })
       rescue => e
