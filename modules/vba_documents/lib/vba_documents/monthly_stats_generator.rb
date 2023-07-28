@@ -30,6 +30,7 @@ module VBADocuments
       /^(?:19|20)\d{2}$/.match(@year.to_s)
     end
 
+    # rubocop:disable Metrics/MethodLength
     def generate_summary_stats
       expired = by_status('expired')
       errored = by_status('error')
@@ -38,15 +39,21 @@ module VBADocuments
       vbms = by_status('vbms')
       all = records_in_date_range
 
-      @stats['summary_stats'] = {
-        'expired_count' => expired.count,
-        'errored_count' => errored.count,
-        'processing_count' => processing.count,
-        'success_count' => success.count,
-        'vbms_count' => vbms.count,
-        'total' => all.count,
-        'error_percent' => (errored.count.to_f / all.count).round(2)
-      }
+      if all.count.zero?
+        @stats['summary_stats'] = { 'expired_count' => 0, 'errored_count' => 0, 'processing_count' => 0,
+                                    'success_count' => 0, 'vbms_count' => 0, 'total' => 0, 'error_percent' => 0 }
+      else
+        @stats['summary_stats'] = {
+          'expired_count' => expired.count,
+          'errored_count' => errored.count,
+          'processing_count' => processing.count,
+          'success_count' => success.count,
+          'vbms_count' => vbms.count,
+          'total' => all.count,
+          'error_percent' => (errored.count.to_f / all.count).round(2)
+        }
+      end
+      # rubocop:enable Metrics/MethodLength
 
       generate_consumer_stats(expired, errored, processing, success, vbms, all)
     end
@@ -55,7 +62,7 @@ module VBADocuments
     def generate_consumer_stats(expired, errored, processing, success, vbms, all)
       @stats['consumer_stats'] = []
 
-      all.pluck(:consumer_name).uniq.each do |consumer|
+      all.pluck(:consumer_name).uniq.sort.each do |consumer|
         errored_count = errored.for_consumer(consumer).count
         total = all.for_consumer(consumer).count
 
