@@ -2,7 +2,6 @@
 
 require 'central_mail/service'
 require 'common/exceptions'
-require 'vba_documents/sql_support'
 require 'vba_documents/upload_error'
 require 'vba_documents/webhooks_registrations'
 
@@ -11,7 +10,6 @@ module VBADocuments
     include SetGuid
     include SentryLogging
     include Webhooks
-    extend SQLSupport
     send(:validates_uniqueness_of, :guid)
     before_save :record_status_change, if: :status_changed?
     after_save :report_errors
@@ -130,20 +128,6 @@ module VBADocuments
     # base64_encoded metadata field was added in late 2022; recommend only using for records submitted 2023 or later
     def base64_encoded?
       metadata['base64_encoded'] || false
-    end
-
-    # data structure
-    # [{"status"=>"vbms", "min_secs"=>816, "max_secs"=>816, "avg_secs"=>816, "rowcount"=>1},
-    # {"status"=>"pending", "min_secs"=>0, "max_secs"=>23, "avg_secs"=>9, "rowcount"=>7},
-    # {"status"=>"processing", "min_secs"=>9, "max_secs"=>22, "avg_secs"=>16, "rowcount"=>2},
-    # {"status"=>"success", "min_secs"=>17, "max_secs"=>38, "avg_secs"=>26, "rowcount"=>3},
-    # {"status"=>"received", "min_secs"=>10, "max_secs"=>539681, "avg_secs"=>269846, "rowcount"=>2},
-    # {"status"=>"uploaded", "min_secs"=>0, "max_secs"=>21, "avg_secs"=>10, "rowcount"=>6}]
-    def self.status_elapsed_times(from, to, consumer_name = nil)
-      avg_status_sql = status_elapsed_time_sql(consumer_name)
-      ActiveRecord::Base.connection_pool.with_connection do |c|
-        c.raw_connection.exec_params(avg_status_sql, [from, to]).to_a
-      end
     end
 
     def track_uploaded_received(cause_key, cause)
