@@ -35,7 +35,7 @@ describe Shrine::Plugins::ValidateVirusFree do
       context 'while in development' do
         it 'logs an error message if clamd is not running' do
           expect(Rails.env).to receive(:development?).and_return(true)
-          expect(Shrine.logger).to receive(:error).with(/PLEASE START CLAMD/)
+          expect(Rails.logger).to receive(:error).with(/PLEASE START CLAMD/)
           allow(ClamScan::Client).to receive(:scan)
             .and_return(instance_double('ClamScan::Response',
                                         safe?: false,
