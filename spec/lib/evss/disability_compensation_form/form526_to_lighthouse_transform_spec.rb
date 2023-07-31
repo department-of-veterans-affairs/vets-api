@@ -109,4 +109,28 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.point_of_contact_number).not_to be_nil
     end
   end
+
+  describe 'transform service information' do
+    let(:submission) { create(:form526_submission, :with_everything) }
+    let(:data) { submission.form['form526']['form526']['serviceInformation'] }
+
+    it 'sets service information correctly' do
+      result = transformer.transform_service_information(data)
+      expect(result.service_periods).not_to be_nil
+      expect(result.confinements).not_to be_nil
+      expect(result.alternate_names).not_to be_nil
+      expect(result.reserves_national_guard_service).not_to be_nil
+      expect(result.service_periods.first.separation_location_code).to eq('OU812')
+      expect(result.reserves_national_guard_service.component).to eq('Reserves')
+    end
+
+    it 'converts service branch to service component correctly' do
+      result = transformer.send(:convert_to_service_component, 'Air Force Reserves')
+      expect(result).to eq('Reserves')
+      result = transformer.send(:convert_to_service_component, 'Army National Guard')
+      expect(result).to eq('National Guard')
+      result = transformer.send(:convert_to_service_component, 'Space Force')
+      expect(result).to eq('Active')
+    end
+  end
 end
