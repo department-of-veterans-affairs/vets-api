@@ -37,6 +37,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.veteran_identification.class).to eq(Requests::VeteranIdentification)
       expect(result.change_of_address.class).to eq(Requests::ChangeOfAddress)
       expect(result.homeless.class).to eq(Requests::Homeless)
+      expect(result.service_information.class).to eq(Requests::ServiceInformation)
+      expect(result.disabilities.first.class).to eq(Requests::Disability)
     end
   end
 
@@ -131,6 +133,24 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result).to eq('National Guard')
       result = transformer.send(:convert_to_service_component, 'Space Force')
       expect(result).to eq('Active')
+    end
+  end
+
+  describe 'transform disabilities' do
+    let(:submission) { create(:form526_submission, :with_everything) }
+    let(:data) { submission.form['form526']['form526']['disabilities'] }
+
+    it 'sets disabilities correctly' do
+      result = transformer.send(:transform_disabilities, data)
+      expect(result.length).to eq(1)
+    end
+
+    it 'converts approximate dates' do
+      result = transformer.send(:convert_approximate_date,
+                                JSON.parse({ month: '03', day: '22', year: '1973' }.to_json))
+      expect(result).to eq('03-22-1973')
+      result = transformer.send(:convert_approximate_date, JSON.parse({ month: '03', year: '1973' }.to_json))
+      expect(result).to eq('03-1973')
     end
   end
 end
