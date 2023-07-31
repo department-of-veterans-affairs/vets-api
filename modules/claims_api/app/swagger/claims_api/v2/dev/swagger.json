@@ -3947,6 +3947,55 @@
         }
       }
     },
+    "/veterans/{veteranId}/526/{id}/getPDF": {
+      "get": {
+        "summary": "Returns filled out 526EZ form as PDF",
+        "tags": [
+          "Disability"
+        ],
+        "operationId": "get526Pdf",
+        "security": [
+          {
+            "productionOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "example": "1012667145V762142",
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "description": "Returns a filled out 526EZ form for a disability compensation claim (21-526EZ).\n\nThis endpoint can be used to generate the PDF based on the request data in the case that the submission was not able to be successfully auto-established. The PDF can then be uploaded via the [Benefits Intake API](https://developer.va.gov/explore/api/benefits-intake) to digitally submit directly to the Veterans Benefits Administration's (VBA) claims intake process.\n",
+        "responses": {
+          "200": {
+            "description": "upload response"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/veterans/{veteranId}/claims/{id}/5103": {
       "post": {
         "summary": "Submit Evidence Waiver 5103",
@@ -4459,8 +4508,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-07-14",
-                      "expirationDate": "2024-07-14",
+                      "creationDate": "2023-07-27",
+                      "expirationDate": "2024-07-27",
                       "type": "compensation",
                       "status": "active"
                     }
