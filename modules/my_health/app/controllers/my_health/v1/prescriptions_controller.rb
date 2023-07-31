@@ -18,17 +18,17 @@ module MyHealth
         resource = resource.paginate(**pagination_params)
         render json: resource.data,
                serializer: CollectionSerializer,
-               each_serializer: PrescriptionSerializer,
+               each_serializer: PrescriptionDetailsSerializer,
                meta: resource.metadata
       end
 
       def show
         id = params[:id].try(:to_i)
-        resource = client.get_rx(id)
+        resource = client.get_rx_details(id)
         raise Common::Exceptions::RecordNotFound, id if resource.blank?
 
         render json: resource,
-               serializer: PrescriptionSerializer,
+               serializer: PrescriptionDetailsSerializer,
                meta: resource.metadata
       end
 
@@ -42,9 +42,9 @@ module MyHealth
       def collection_resource
         case params[:refill_status]
         when nil
-          client.get_history_rxs
+          client.get_all_rxs
         when 'active'
-          client.get_active_rxs
+          client.get_active_rxs_with_details
         end
       end
     end

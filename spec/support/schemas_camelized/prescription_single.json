@@ -1,0 +1,18 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["data", "meta"],
+  "properties": {
+    "data": {
+      "$ref": "prescription_details.json"
+    },
+    "meta": {
+      "type": "object",
+      "required": ["updatedAt", "failedStationList"],
+      "properties": {
+        "updatedAt": { },
+        "failedStationList": { }
+      }
+    }
+  }
+}
