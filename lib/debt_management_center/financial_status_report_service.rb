@@ -165,10 +165,14 @@ module DebtManagementCenter
 
     def streamline_adjustments(form)
       if form.key?('streamlined')
-        form['personalIdentification']['fsrReason'] = 'Automatically Approved' if form['streamlined']['value']
+        if form['streamlined']['value']
+          reasons_array = form['personalIdentification']['fsrReason'].split(',').map(&:strip)
+          reasons = reasons_array.push('Automatically Approved').uniq.join(', ')
+          form['personalIdentification']['fsrReason'] = reasons
+        end
         streamline_data = form.fetch('streamlined')
         form.reject! { |k, _v| k == 'streamlined' }
-        form['streamlined'] = streamline_data
+        form['streamlined'] = streamline_data['value']
       end
       form
     end
