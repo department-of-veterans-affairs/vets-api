@@ -7,7 +7,8 @@ module AppealsApi::SupplementalClaims::V0
     include AppealsApi::OpenidAuth
     include AppealsApi::PdfDownloads
 
-    before_action :validate_icn_header, only: %i[download]
+    skip_before_action :validate_icn_header, only: %i[index]
+    before_action :validate_icn_parameter, only: %i[index download]
 
     API_VERSION = 'V0'
     SCHEMA_OPTIONS = { schema_version: 'v0', api_name: 'supplemental_claims' }.freeze
@@ -17,6 +18,13 @@ module AppealsApi::SupplementalClaims::V0
       PUT: %w[veteran/SupplementalClaims.write representative/SupplementalClaims.write system/SupplementalClaims.write],
       POST: %w[veteran/SupplementalClaims.write representative/SupplementalClaims.write system/SupplementalClaims.write]
     }.freeze
+
+    def index
+      veteran_scs = AppealsApi::SupplementalClaim.select(ALLOWED_COLUMNS)
+                                                 .where(veteran_icn: params[:icn])
+                                                 .order(created_at: :desc)
+      render json: AppealsApi::SupplementalClaimSerializer.new(veteran_scs).serializable_hash
+    end
 
     def create
       sc = AppealsApi::SupplementalClaim.new(
@@ -46,6 +54,19 @@ module AppealsApi::SupplementalClaims::V0
     end
 
     private
+
+    def validate_icn_parameter
+      validation_errors = []
+
+      if params[:icn].blank?
+        validation_errors << { status: 422, detail: "'icn' parameter is required" }
+      elsif !ICN_REGEX.match?(params[:icn])
+        validation_errors << { status: 422,
+                               detail: "'icn' parameter has an invalid format. Pattern: #{ICN_REGEX.inspect}" }
+      end
+
+      render json: { errors: validation_errors }, status: :unprocessable_entity if validation_errors.present?
+    end
 
     def token_validation_api_key
       Settings.dig(:modules_appeals_api, :token_validation, :supplemental_claims, :api_key)

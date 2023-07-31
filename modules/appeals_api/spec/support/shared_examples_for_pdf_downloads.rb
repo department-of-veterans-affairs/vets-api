@@ -3,15 +3,16 @@
 shared_examples 'watermarked pdf download endpoint' do |opts|
   let(:created_at) { Time.current }
   let(:status) { 'pending' }
-  let(:appeal) { create(opts[:factory], created_at:, status:) }
+  let!(:appeal) { create(opts[:factory], created_at:, status:) }
   let(:uuid) { appeal.id }
+  let(:other_uuid) { '11111111-1111-1111-1111-111111111111' }
   let(:api_segment) { appeal.class.name.demodulize.underscore.dasherize }
   let(:form_number) { described_class::FORM_NUMBER }
   let(:path) { "/services/appeals/#{api_segment}s/v0/forms/#{form_number}/#{uuid}/download" }
   let(:pdf_version) { opts[:pdf_version] || 'v3' }
-  let(:veteran_icn) { '0000000000V000000' }
-  let(:headers) { { 'X-VA-ICN' => veteran_icn } }
-  let(:download_authorized) { true }
+  let(:veteran_icn) { appeal.veteran.icn }
+  let(:other_icn) { '1111111111V111111' }
+  let(:params) { { icn: veteran_icn } }
   let(:i18n_args) { { type: appeal.class.name.demodulize, id: appeal.id } }
   let(:expunged_attrs) do
     # opts[:expunged_attrs] should be any model attributes required to qualify an appeal record for the PII expunge job
@@ -19,26 +20,22 @@ shared_examples 'watermarked pdf download endpoint' do |opts|
   end
 
   before do
-    # See AppealsApi::PdfDownloads specs for tests of `download_authorized?`
-    allow_any_instance_of(AppealsApi::PdfDownloads)
-      .to receive(:download_authorized?).and_return(download_authorized)
-
     with_openid_auth(described_class::OAUTH_SCOPES[:GET]) do |auth_header|
-      get(path, headers: headers.merge(auth_header))
+      get(path, headers: auth_header, params:)
     end
   end
 
-  context 'without X-VA-ICN header' do
-    let(:headers) { {} }
+  context 'without icn parameter' do
+    let(:params) { {} }
 
     it 'returns a 422 error' do
       expect(response).to have_http_status(:unprocessable_entity)
-      expect(response.body).to include('X-VA-ICN is required')
+      expect(response.body).to include("'icn' parameter is required")
     end
   end
 
   context 'when appeal is not found' do
-    let(:uuid) { '11111111-1111-1111-1111-111111111111' }
+    let(:uuid) { other_uuid }
 
     it 'returns a 404 error' do
       expect(response).to have_http_status(:not_found)
@@ -54,8 +51,8 @@ shared_examples 'watermarked pdf download endpoint' do |opts|
     end
   end
 
-  context 'when unauthorized' do
-    let(:download_authorized) { false }
+  context 'when the provided ICN parameter does not match the veteran_icn on the appeal' do
+    let(:params) { { icn: other_icn } }
 
     it 'returns a 404 error' do
       expect(response).to have_http_status(:not_found)
@@ -76,8 +73,8 @@ shared_examples 'watermarked pdf download endpoint' do |opts|
       Timecop.freeze(1.year.ago) { create(opts[:factory], **appeal_attrs) }
     end
 
-    context 'when the current X-VA-ICN header does not match the veteran_icn recorded on the appeal' do
-      let(:appeal_attrs) { { pdf_version:, **expunged_attrs, veteran_icn: 'no-match' } }
+    context 'when the provided ICN parameter does not match the veteran_icn recorded on the appeal' do
+      let(:params) { { icn: other_icn } }
 
       it 'returns a 404 error' do
         expect(response).to have_http_status(:not_found)
@@ -85,16 +82,14 @@ shared_examples 'watermarked pdf download endpoint' do |opts|
       end
     end
 
-    context 'when the current X-VA-ICN header matches the veteran_icn recorded on the appeal' do
-      let(:appeal_attrs) { { pdf_version:, **expunged_attrs, veteran_icn: } }
-
+    context 'when the provided ICN parameter matches the veteran_icn recorded on the appeal' do
       it 'returns a 410 error' do
         expect(response).to have_http_status(:gone)
         expect(response.body).to include(I18n.t('appeals_api.errors.pdf_download_expired', **i18n_args))
       end
     end
 
-    context 'when the appeal has neither auth_headers nor recorded veteran_icn' do
+    context 'when the appeal has neither PII nor a recorded veteran_icn' do
       let(:appeal_attrs) { { pdf_version:, **expunged_attrs } }
 
       it 'returns a 410 error' do
