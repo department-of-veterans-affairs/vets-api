@@ -2,10 +2,24 @@
 
 require 'sentry_logging'
 require 'sidekiq/form526_backup_submission_process/submit'
+require 'logging/third_party_transaction'
 
 class Form526Submission < ApplicationRecord
+  extend Logging::ThirdPartyTransaction::MethodWrapper
+
   include SentryLogging
   include Form526ClaimFastTrackingConcern
+
+  wrap_with_logging(
+    :submit_form_4142,
+    additional_class_logs: {
+      action: 'Begin as anciliary 526 submission'
+    },
+    additional_instance_logs: {
+      saved_claim_id: %i[saved_claim id],
+      user_uuid: %i[user_uuid]
+    }
+  )
 
   # A 526 disability compensation form record. This class is used to persist the post transformation form
   # and track submission workflow steps.

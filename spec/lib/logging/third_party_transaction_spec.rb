@@ -3,7 +3,35 @@
 require 'rails_helper'
 require 'logging/third_party_transaction'
 
+module TestObjectContent
+  extend Logging::ThirdPartyTransaction::MethodWrapper
+
+  wrap_with_logging(
+    :method_to_wrap,
+    additional_class_logs: { foo: 'bar' },
+    additional_instance_logs: {
+      i_work: %i[happy_instance_method],
+      i_fail_silently: %i[happy_instance_method non_existent_method angry_instance_method]
+    }
+  )
+
+  def method_to_wrap
+    'return value'
+  end
+
+  def happy_instance_method
+    'happy value'
+  end
+
+  def angry_instance_method
+    raise 'hell'
+  end
+end
+
 RSpec.describe Logging::ThirdPartyTransaction do
+  let(:class_logs) { { foo: 'bar' } }
+  let(:instance_logs) { { i_work: 'happy value', i_fail_silently: nil } }
+
   # to use the shared examples defined in this group for your test:
   # 1. define variable test_object of desired type using a `let` block
   # 2. test_object must define an instance method `method_to_wrap`
@@ -13,7 +41,7 @@ RSpec.describe Logging::ThirdPartyTransaction do
   #    as our linter will reject this.
   shared_examples_for 'a third party transaction logger' do
     context 'happy path' do
-      it 'wraps a method in logging actions' do
+      it 'wraps a method in instnace and class level logging actions' do
         expect(test_object).to receive(:log_3pi_begin).at_least(:once)
         expect(test_object).to receive(:log_3pi_complete).at_least(:once)
 
@@ -28,7 +56,7 @@ RSpec.describe Logging::ThirdPartyTransaction do
     context 'when something goes wrong' do
       it 'fails quietly and logs the problem' do
         # Time is used in the logging methods
-        allow(Time).to receive(:current).and_raise(StandardError)
+        allow(Time).to receive(:current).and_raise(StandardError, 'your error, mlord')
         expect(Rails.logger).to receive(:error).and_call_original.at_least(:twice)
 
         test_object.method_to_wrap
@@ -39,13 +67,7 @@ RSpec.describe Logging::ThirdPartyTransaction do
   describe 'controller usage' do
     let!(:test_object) do
       class TestController < ApplicationController
-        extend Logging::ThirdPartyTransaction::MethodWrapper
-
-        wrap_with_logging :method_to_wrap
-
-        def method_to_wrap
-          'return value'
-        end
+        include TestObjectContent
 
         self
       end.new
@@ -57,14 +79,20 @@ RSpec.describe Logging::ThirdPartyTransaction do
   describe 'worker usage' do
     let!(:test_object) do
       class TestWorker
+        include TestObjectContent
         include Sidekiq::Worker
-        extend Logging::ThirdPartyTransaction::MethodWrapper
 
-        wrap_with_logging :method_to_wrap, additional_logs: { foo: 'bar' }
+        self
+      end.new
+    end
 
-        def method_to_wrap
-          'return value'
-        end
+    it_behaves_like 'a third party transaction logger'
+  end
+
+  describe 'PORO usage' do
+    let!(:test_object) do
+      class TestPoro
+        include TestObjectContent
 
         self
       end.new
