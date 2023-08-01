@@ -138,7 +138,11 @@ worker:
       memory: ""
 # cronJobs configuration
 cronJobs: {}
+
+
 # clamav configuration
+# Clamav is specific for vets-api helm charts. Please do not enable.
+# Setting up clamav incorrectly can lead to a PRODUCTION shut down.
 clamav:
   enabled: false
   image:
@@ -148,6 +152,10 @@ clamav:
   ports: {}
   probes: {}
   resources: {}
+
+# clamav-mirror configuration
+# Clamav-mirrror is specific for vets-api helm charts. Please do not enable.
+# Setting up clamavMirror incorrectly can lead to a PRODUCTION shut down.
 clamavMirror:
   name: ""
   enabled: false
