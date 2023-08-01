@@ -48,6 +48,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
          'phone' => nil,
          'posCodes' => '17',
          'prefContact' => nil,
+         'trainings' => [],
          'uniqueId' => '1225028293'
        }
     }
@@ -191,6 +192,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
               'phone' => nil,
               'posCodes' => nil,
               'prefContact' => nil,
+              'trainings' => [],
               'uniqueId' => '1154383230'
             }
           }
@@ -237,6 +239,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
               'phone' => nil,
               'posCodes' => nil,
               'prefContact' => nil,
+              'trainings' => [],
               'uniqueId' => '1225028293'
             }
           }
@@ -345,6 +348,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
             'phone' => nil,
             'posCodes' => nil,
             'prefContact' => nil,
+            'trainings' => [],
             'uniqueId' => '1154383230'
           }
         }
@@ -390,6 +394,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
             'phone' => nil,
             'posCodes' => nil,
             'prefContact' => nil,
+            'trainings' => [],
             'uniqueId' => '1225028293'
           }
         }
