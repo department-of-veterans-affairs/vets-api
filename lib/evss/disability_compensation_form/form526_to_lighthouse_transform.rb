@@ -16,14 +16,17 @@ module EVSS
 
         veteran = form526['veteran']
         lh_request_body.veteran_identification = transform_veteran(veteran)
-        lh_request_body.change_of_address = transform_change_of_address(veteran)
-        lh_request_body.homeless = transform_homeless(veteran)
+        lh_request_body.change_of_address = transform_change_of_address(veteran) if veteran['changeOfAddress'].present?
+        lh_request_body.homeless = transform_homeless(veteran) if veteran['homelessness'].present?
 
         service_information = form526['serviceInformation']
         lh_request_body.service_information = transform_service_information(service_information)
 
         disabilities = form526['disabilities']
         lh_request_body.disabilities = transform_disabilities(disabilities)
+
+        direct_deposit = form526['directDeposit']
+        lh_request_body.direct_deposit = transform_direct_deposit(direct_deposit) if direct_deposit.present?
 
         lh_request_body
       end
@@ -252,6 +255,18 @@ module EVSS
           end
           sd
         end
+      end
+
+      def transform_direct_deposit(direct_deposit_source)
+        direct_deposit = Requests::DirectDeposit.new
+        if direct_deposit_source['bankName']
+          direct_deposit.financial_institution_name = direct_deposit_source['bankName']
+        end
+        direct_deposit.account_type = direct_deposit_source['accountType'] if direct_deposit_source['accountType']
+        direct_deposit.account_number = direct_deposit_source['accountNumber'] if direct_deposit_source['accountNumber']
+        direct_deposit.routing_number = direct_deposit_source['routingNumber'] if direct_deposit_source['routingNumber']
+
+        direct_deposit
       end
     end
   end
