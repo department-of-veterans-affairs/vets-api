@@ -334,6 +334,7 @@ module VAOS
         {
           endpoint_method: appt_method,
           appointment_id: appt[:id],
+          appointment_status: appt[:status],
           location_id: appt[:location_id],
           clinic: appt[:clinic],
           field_name:,
