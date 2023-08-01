@@ -1750,6 +1750,13 @@ form526_backup:
     access_key_id: ~
     secret_access_key: ~
 
+form526_export:
+  aws:
+    bucket: ~
+    region: ~
+    access_key_id: ~
+    secret_access_key: ~
+
 forms_api_benefits_intake:
   api_key: ~
   url: https://sandbox-api.va.gov/services/vba_documents/v1/

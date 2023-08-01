@@ -91,3 +91,7 @@ test_users.csv
 
 # Ignore .DS_STORE files created by Mac OS
 **/.DS_STORE
+
+# Ignore VIM artifact files
+.ignore 
+*.swp

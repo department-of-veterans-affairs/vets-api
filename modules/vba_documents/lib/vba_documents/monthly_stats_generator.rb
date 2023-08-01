@@ -27,7 +27,7 @@ module VBADocuments
     end
 
     def valid_year?
-      /^(?:19|20)\d{2}$/.match(@year.to_s)
+      /^2\d{3}$/.match(@year.to_s)
     end
 
     # rubocop:disable Metrics/MethodLength

@@ -48,6 +48,17 @@ RSpec.describe DebtManagementCenter::DebtsService do
         end
       end
     end
+
+    context 'empty DMC response' do
+      it 'handles an empty payload' do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          VCR.use_cassette('debts/get_letters_empty_response', VCR::MATCH_EVERYTHING) do
+            res = described_class.new(user).get_debts
+            expect(JSON.parse(res.to_json)['debts']).to eq([])
+          end
+        end
+      end
+    end
   end
 
   describe '#get_debt_by_id' do

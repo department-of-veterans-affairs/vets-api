@@ -11,6 +11,62 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
     "/services/appeals/supplemental-claims/v0/#{path}"
   end
 
+  describe '#index', skip: 'Waiting for v0 release' do
+    let(:path) { base_path 'forms/200995' }
+    let(:veteran_icn) { '1013062086V794840' }
+    let!(:supplemental_claim1) { create(:supplemental_claim_v0, veteran_icn:) }
+    let!(:supplemental_claim2) { create(:supplemental_claim_v0, veteran_icn:) }
+    let!(:other_supplemental_claim) do
+      other_icn = '1111111111V111111'
+      sc = create(:extra_supplemental_claim_v0, veteran_icn: other_icn)
+      sc.form_data['data']['attributes']['veteran']['icn'] = other_icn
+      sc.save
+      sc
+    end
+    let(:params) { { icn: veteran_icn } }
+
+    describe 'responses' do
+      before do
+        with_openid_auth(described_class::OAUTH_SCOPES[:GET]) do |auth_header|
+          get(path, params:, headers: auth_header)
+        end
+      end
+
+      context 'when given a valid ICN parameter' do
+        let(:params) { { icn: veteran_icn } }
+
+        it 'returns a list of supplemental claims associated with the given ICN' do
+          expect(parsed_response['data'].pluck('id'))
+            .to match_array([supplemental_claim1.id, supplemental_claim2.id])
+        end
+      end
+
+      context 'when given an invalid ICN parameter' do
+        let(:params) { { icn: 'not-an-icn' } }
+
+        it 'returns a 422 error' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+
+      context 'when the ICN parameter is missing' do
+        let(:params) { {} }
+
+        it 'returns a 422 error' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+    end
+
+    describe 'auth behavior' do
+      it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:GET]) do
+        def make_request(auth_header)
+          get(path, headers: auth_header, params: { icn: veteran_icn })
+        end
+      end
+    end
+  end
+
   describe '#schema' do
     let(:path) { base_path 'schemas/200995' }
 
@@ -141,9 +197,7 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
     end
   end
 
-  # FIXME: these specs are skipped because the download endpoint has not yet been converted to stop using headers
-  # for the ICN, but the fixtures used to create supplemental claims have been updated. These will be re-enabled soon.
-  describe '#download', skip: 'Pending updates for API-28016' do
+  describe '#download', skip: 'Waiting for v0 release' do
     it_behaves_like 'watermarked pdf download endpoint', { factory: :supplemental_claim_v0 }
   end
 end
