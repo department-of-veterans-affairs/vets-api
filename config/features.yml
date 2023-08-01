@@ -19,20 +19,12 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to view/download benefit letters.
     enable_in_development: true
-  caregiver_sigi_enabled:
-    actor_type: user
-    description: Whether Self-Identifying Gender Identity is enabled for caregiver.
-    enable_in_development: true
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
-  hca_vaprofile_military_info:
-    actor_type: user
-    description: Enables prefilling 1010ez using VA profile military data
-    enable_in_development: false
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
@@ -40,9 +32,20 @@ features:
     actor_type: user
     description: Enables the optimized household section flow.
     enable_in_development: true
+  hca_remove_id_fields_enabled:
+    actor_type: user
+    description: Enables removal of duplicate identitiy fields when completing health care application as a guest.
+    enable_in_development: true
+  hca_sigi_enabled:
+    actor_type: user
+    description: Enables Self-Identifying Gender Identity question for health care applicants.
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
+  hca_vaprofile_military_info:
+    actor_type: user
+    description: Enables prefilling 1010ez using VA profile military data
+    enable_in_development: false
   cerner_allow_partial_facilities:
     actor_type: user
     description: This will allow cerner facilities to be set to partially cerner or all cerner.
