@@ -95,6 +95,15 @@ module MyHealth
                serializer: CategorySerializer
       end
 
+      def signature
+        resource = client.get_signature
+        if resource[:data].nil?
+          resource[:data] =
+            { signature_name: nil, include_signature: false, signature_title: nil }
+        end
+        render json: resource, each_serializer: MessageSignatureSerializer
+      end
+
       def move
         folder_id = params.require(:folder_id)
         client.post_move_message(params[:id], folder_id)
