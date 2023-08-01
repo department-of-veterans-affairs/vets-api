@@ -25,6 +25,7 @@ module FacilitiesApi
     attribute :provider_identifier, String
     attribute :provider_name, String
     attribute :provider_type, String
+    attribute :trainings, Array
 
     def initialize(attr = {})
       super(attr)
