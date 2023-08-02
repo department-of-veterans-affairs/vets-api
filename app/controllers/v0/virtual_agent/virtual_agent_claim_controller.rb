@@ -9,10 +9,13 @@ module V0
     class VirtualAgentClaimController < ApplicationController
       include IgnoreNotFound
       rescue_from 'EVSS::ErrorMiddleware::EVSSError', with: :service_exception_handler
-      unless Settings.vsp_environment == 'localhost' || Settings.vsp_environment == 'development'
-        before_action { authorize :evss, :access? }
+      unless Settings.vsp_environment.downcase == 'localhost' || Settings.vsp_environment.downcase == 'development'
+        if Flipper.enabled?(:virtual_agent_lighthouse_claims, @current_user)
+          before_action { authorize :lighthouse, :access? }
+        else
+          before_action { authorize :evss, :access? }
+        end
       end
-      before_action { authorize :lighthouse, :access? }
 
       def index
         if Flipper.enabled?(:virtual_agent_lighthouse_claims, @current_user)
