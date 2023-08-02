@@ -2143,6 +2143,10 @@ en:
         <<: *defaults
         code: LH_too_many_requests
         status: 429
+      gateway_timeout:
+        <<: *defaults
+        code: LH_gateway_timeout
+        status: 504
 
   evss:
     external_service_unavailable:
