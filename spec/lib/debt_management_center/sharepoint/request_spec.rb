@@ -6,6 +6,9 @@ require 'debt_management_center/sharepoint/request'
 RSpec.describe DebtManagementCenter::Sharepoint::Request do
   subject { described_class.new }
 
+  let(:mpi_profile) { build(:mpi_profile) }
+  let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
   def mock_faraday
     client_stub = instance_double('Faraday::Connection')
     faraday_response = instance_double('Faraday::Response')
@@ -14,6 +17,7 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
     allow(client_stub).to receive(:get).and_return(faraday_response)
     allow(faraday_response).to receive(:body).and_return(body)
     allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(file_path)
+    allow(File).to receive(:delete).and_return(nil)
 
     client_stub
   end
@@ -22,6 +26,7 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
     allow_any_instance_of(DebtManagementCenter::Sharepoint::Request)
       .to receive(:set_sharepoint_access_token)
       .and_return('123abc')
+    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile_response)
   end
 
   describe 'attributes' do
