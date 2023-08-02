@@ -32,6 +32,27 @@ RSpec.describe Lighthouse::LettersGenerator::Service do
       client.get_eligible_letter_types('DOLLYPARTON')
       client.get_eligible_letter_types('DOLLYPARTON')
     end
+
+    it 'returns a 504 on timeout' do
+      expect_any_instance_of(Lighthouse::LettersGenerator::Configuration)
+        .to receive(:get_access_token)
+        .and_return('faketoken')
+
+      fake_response_json = File.read("#{FAKE_RESPONSES_PATH}/fakeTimeout.json")
+      fake_response_body = JSON.parse(fake_response_json)
+
+      @stubs.get('/eligible-letters?icn=TIMEOUT_ICN') do
+        raise Faraday::TimeoutError.new('waiting waiting', { body: fake_response_body })
+      end
+
+      client = Lighthouse::LettersGenerator::Service.new
+
+      expect { client.get_eligible_letter_types('TIMEOUT_ICN') }.to raise_error do |error|
+        expect(error).to be_an_instance_of(Lighthouse::LettersGenerator::ServiceError)
+        expect(error.errors.first.status).to eq(fake_response_body['status'].to_s)
+        expect(error.errors.first.meta[:message]).to eq(fake_response_body['detail'])
+      end
+    end
   end
 
   describe '#get_letter' do
