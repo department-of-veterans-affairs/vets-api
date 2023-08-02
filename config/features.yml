@@ -591,6 +591,9 @@ features:
     actor_type: user
     description: Use for experimental features for My VA application
     enable_in_development: true
+  my_va_update_errors_warnings:
+    actor_type: user
+    description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released) 
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
