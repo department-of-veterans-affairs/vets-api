@@ -5,7 +5,7 @@ require 'rails_helper'
 require 'debt_management_center/vbs/request'
 require 'debt_management_center/workers/va_notify_email_job'
 
-RSpec.describe Form5655::VHAResubmissionJob, type: :worker do
+RSpec.describe Form5655::VHA::VBSSubmissionJob, type: :worker do
   before do
     Sidekiq::Worker.clear_all
   end
