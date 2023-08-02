@@ -12,6 +12,12 @@ class Form526Submission < ApplicationRecord
 
   wrap_with_logging(
     :submit_form_4142,
+    :submit_uploads,
+    :submit_form_0781,
+    :submit_form_8940,
+    :upload_bdd_instructions,
+    :submit_flashes,
+    :cleanup,
     additional_class_logs: {
       action: 'Begin as anciliary 526 submission'
     },
