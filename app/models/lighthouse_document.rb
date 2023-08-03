@@ -8,6 +8,7 @@ class LighthouseDocument < Common::Base
   include ActiveModel::Validations::Callbacks
   include SentryLogging
 
+  attribute :file_number, String
   attribute :claim_id, Integer
   attribute :tracked_item_id, Integer
   attribute :document_type, String
@@ -17,6 +18,7 @@ class LighthouseDocument < Common::Base
   attribute :password, String
 
   validates(:file_name, presence: true)
+  validates(:file_number, presence: true)
   validate :known_document_type?
   validate :unencrypted_pdf?
   before_validation :normalize_text, :convert_to_unlocked_pdf, :normalize_file_name
