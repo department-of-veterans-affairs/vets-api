@@ -6,7 +6,7 @@ module BGS
       def normalize_composite_characters(str)
         # NFKD decomposes composite characters (e.g. ü, ñ) into their individual components, and here, `gsub`
         # removes any non-ASCII components (e.g. ü -> u; ñ -> n).
-        str&.unicode_normalize(:nfkd)&.gsub(/[^\p{ASCII}]/, '')
+        str&.unicode_normalize(:nfkd)&.gsub(/[^\p{ASCII}]|[`!*%&@^]/, '')
       end
 
       def remove_special_characters_from_name(name)

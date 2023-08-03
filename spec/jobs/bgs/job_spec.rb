@@ -52,7 +52,7 @@ RSpec.describe BGS::Job, type: :job do
   describe '#normalize_names_and_addresses!(hash)' do
     it 'removes non-ASCII characters from name and address values in given hash, modifying the hash in-place' do
       # rubocop:disable Layout/LineLength
-      raw_string = "Téśt'-Strïñg/1"
+      raw_string = "Téśt'-Strïñg/1`"
       normalized_name_string = 'Test-String/'
       normalized_address_string = "Test'-String/1"
 
