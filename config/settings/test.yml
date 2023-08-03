@@ -91,6 +91,9 @@ modules_appeals_api:
     path_enabled_flag: true
   legacy_appeals_enabled: true
 
+bd:
+  base_name: staging-api.va.gov/services
+
 # Put a real api_key in the BRD_API_KEY environment variable to record VCR cassettes
 # Be sure to not commit the api key and the cassettes.
 # If used the tunnel and localhost for the base_name, then you don't need an api key
