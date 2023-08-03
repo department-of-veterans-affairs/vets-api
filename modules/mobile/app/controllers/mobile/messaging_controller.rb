@@ -20,6 +20,10 @@ module Mobile
     end
 
     def raise_access_denied
+      Rails.logger.info('SM ACCESS DENIED',
+                        account_type: current_user.mhv_account_type,
+                        mhv_id: current_user.mhv_correlation_id,
+                        sign_in_service: current_user.identity.sign_in[:service_name])
       raise Common::Exceptions::Forbidden, detail: 'You do not have access to messaging'
     end
 
