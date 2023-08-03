@@ -144,7 +144,7 @@ module Mobile
       end
 
       def lighthouse_document_service
-        @lighthouse_document_service ||= BenefitsDocuments::Service.new(@current_user.icn)
+        @lighthouse_document_service ||= BenefitsDocuments::Service.new(@current_user)
       end
 
       def validate_params

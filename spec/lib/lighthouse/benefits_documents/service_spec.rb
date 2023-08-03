@@ -6,7 +6,7 @@ require 'lighthouse_document'
 
 RSpec.describe BenefitsDocuments::Service do
   let(:user) { FactoryBot.create(:user, :loa3) }
-  let(:service) { BenefitsDocuments::Service.new(user.icn) }
+  let(:service) { BenefitsDocuments::Service.new(user) }
 
   describe '#queue_document_upload' do
     before do
@@ -31,6 +31,7 @@ RSpec.describe BenefitsDocuments::Service do
 
       let(:params) do
         {
+          file_number: 'xyz',
           claimId: 1,
           file: upload_file,
           trackedItemId: [1],
