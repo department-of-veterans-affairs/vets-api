@@ -140,11 +140,4 @@ describe HCA::MilitaryInformation do
       end
     end
   end
-
-  # obviously not going to pass. Just messing around.
-  describe 'service_branches' do
-    it 'returns the branches of military' do
-      expect(military_information.service_branches).to eq(2)
-    end
-  end
 end

@@ -7,35 +7,63 @@ module VAProfile
         last_service_branch
         currently_active_duty
         currently_active_duty_hash
-        tours_of_duty                                # Started by TT1
         is_va_service_connected
         compensable_va_service_connected
-        service_branches                             # started by TT1
         va_compensation_type
         service_periods
         guard_reserve_service_history
         latest_guard_reserve_service_period
       ].freeze  # map all of these to VAProfile.
 
-      # initialize (and other methods) inherited from HCA::MilitaryInformation
+      # Disability ratings counted as lower
+      LOWER_DISABILITY_RATINGS = [10, 20, 30, 40].freeze
+      # Disability ratings counted as higher
+      HIGHER_DISABILITY_RATING = 50
 
-      def service_branches
-        military_service_episodes.map(&:branch_of_service_code).uniq
+      # @return [String] Last service branch the veteran served under in
+      #  readable format
+      def last_service_branch
+        latest_service_episode&.branch_of_service
       end
-  
-      # @return [Array<Hash>] Data about the veteran's tours of duty
-      #  including service branch served under and date range of each tour
-      def tours_of_duty
-        military_service_episodes.map do |military_service_episode|
-          {
-            service_branch: military_service_episode.branch_of_service,
-            date_range: {
-              from: military_service_episode.begin_date.to_s,
-              to: military_service_episode.end_date.to_s
-            }
-          }
-        end
-      end      
+
+      def currently_active_duty
+        # we can get the dates and figure it out that way, or we can 
+        # make a separate call to a different bio path. 
+      end
+
+      def currently_active_duty_hash
+        # we can get the dates and figure it out that way, or we can 
+        # make a separate call to a different bio path. 
+      end
+
+      # @return [Boolean] true if veteran is paid for a disability
+      #  with a high disability percentage
+      def is_va_service_connected
+        combined_service_connected_rating_percentage >= HIGHER_DISABILITY_RATING
+      end
+
+      # @return [Boolean] true if veteran is paid for a disability
+      #  with a low disability percentage
+      def compensable_va_service_connected
+        LOWER_DISABILITY_RATINGS.include?(combined_service_connected_rating_percentage)
+      end
+
+      # @return [String] If veteran is paid for a disability, this method will
+      #  return which type of disability it is: highDisability or lowDisability
+      def va_compensation_type
+        # while supporting fallback support for the old fields,
+        # make a consistent number of calls to the properties to
+        # support specs that will be removed or updated
+        ## I DON'T UNDERSTAND THESE ^^ COMMENTS. TAKEN FROM EMIS SIDE.
+        high_disability = is_va_service_connected
+        low_disability = compensable_va_service_connected
+
+        if high_disability
+          'highDisability'
+        elsif low_disability
+          'lowDisability'
+        end          
+      end
     end
   end
 end
