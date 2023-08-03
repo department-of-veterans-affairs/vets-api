@@ -64,7 +64,7 @@ module BenefitsDocuments
         req.params['systemName'] = SYSTEM_NAME
         req.params['docType'] = document_data.document_type
         req.params['claimId'] = document_data.claim_id
-        req.params['fileNumber'] = @icn
+        req.params['fileNumber'] = document_data.file_number
         # In theory one document can correspond to multiple tracked items
         # To do that, add multiple query parameters
         req.params['trackedItemIds'] = document_data.tracked_item_id
