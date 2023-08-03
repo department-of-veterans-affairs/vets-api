@@ -160,16 +160,13 @@ module ClaimsApi
       end
 
       def brd_classification_ids
-        return @brd_classification_ids if @brd_classification_ids.present?
-
-        brd_disabilities_arry = ClaimsApi::BRD.new(request).disabilities
-        @brd_classification_ids = brd_disabilities_arry.pluck(:id)
+        @brd_classification_ids ||= brd_disabilities&.pluck(:id)
       end
 
       def brd_disabilities
         return @brd_disabilities if @brd_disabilities.present?
 
-        @brd_disabilities = ClaimsApi::BRD.new(request).disabilities
+        @brd_disabilities ||= ClaimsApi::BRD.new(request).disabilities
       end
 
       def validate_form_526_disability_approximate_begin_date!
