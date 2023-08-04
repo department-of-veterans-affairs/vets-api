@@ -745,10 +745,10 @@
 
 #CHIP
 - :name: "CHIP"
-  :base_uri: <%= "#{URI(Settings.check_in.chip_api_v2.url).host}:#{URI(Settings.check_in.chip_api_v2.url).port}" %>
+  :base_uri: <%= "#{URI(Settings.chip.url).host}:#{URI(Settings.chip.url).port}" %>
   :endpoints:
     - :method: :post
-      :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/token" %>
+      :path: <%= "/#{Settings.chip.base_path}/token" %>
       :file_path: "/chip/token/default"
       :response_delay: 0.2
     - :method: :post

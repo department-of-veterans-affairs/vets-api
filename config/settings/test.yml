@@ -242,6 +242,15 @@ sidekiq:
   github_oauth_key: xxx000
   github_oauth_secret: 000xxx
 
+chip:
+  url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+  base_path: dev
+  api_gtwy_id: fake_gtwy_id
+  redis_timeout: 30
+  mock: true
+  mobile_app:
+    tenant_id: 12345678-aaaa-bbbb-cccc-269c51a7d380
+
 check_in:
   travel_reimbursement_api:
     auth_url: https://login.microsoftonline.us
