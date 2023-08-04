@@ -12,22 +12,15 @@ module VAProfile
         body = raw_response&.body
         rating = get_rating(body)
 
-        # NOT SURE WHAT THIS IS DOING
         new(
           raw_response&.status,
           rating: rating
         )
-        # Below is the original code we copied.
-        # new(
-        #   raw_response&.status,
-        #   episodes: episodes ? sort_by_begin_date(episodes) : episodes
-        # )
       end
 
       def self.get_rating(body)
         return nil unless body
-        VAProfile::Models::Disability.build_from(rating)
-        
+
         rating = body&.dig(
           'profile',
           'disability_rating',
@@ -36,7 +29,6 @@ module VAProfile
 
         VAProfile::Models::Disability.build_from(rating)
       end
-
     end
   end
 end
