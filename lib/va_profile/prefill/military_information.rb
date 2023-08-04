@@ -1,8 +1,9 @@
-require 'hca/military_information'
+# require 'hca/military_information'
+require 'va_profile/military_personnel/service'
 
 module VAProfile
   module Prefill
-    class MilitaryInformation < HCA::MilitaryInformation
+    class MilitaryInformation
       PREFILL_METHODS = %i[
         last_service_branch
         currently_active_duty
@@ -17,13 +18,21 @@ module VAProfile
 
       # Disability ratings counted as lower
       LOWER_DISABILITY_RATINGS = [10, 20, 30, 40].freeze
+
       # Disability ratings counted as higher
       HIGHER_DISABILITY_RATING = 50
+
+      attr_accessor :military_personnel_service, ,:disability_service, :disability_data
+
+      def initialize(user)
+        @military_personnel_service = VAProfile::MilitaryPersonnel::Service.new(user)
+        @disability_service = VAProfile::Disability::Service.new(user)
+      end
 
       # @return [String] Last service branch the veteran served under in
       #  readable format
       def last_service_branch
-        latest_service_episode&.branch_of_service
+        military_personnel_service.latest_service_episode&.branch_of_service
       end
 
       def currently_active_duty
@@ -39,13 +48,13 @@ module VAProfile
       # @return [Boolean] true if veteran is paid for a disability
       #  with a high disability percentage
       def is_va_service_connected
-        combined_service_connected_rating_percentage >= HIGHER_DISABILITY_RATING
+        disability_data.combined_service_connected_rating_percentage >= HIGHER_DISABILITY_RATING
       end
 
       # @return [Boolean] true if veteran is paid for a disability
       #  with a low disability percentage
       def compensable_va_service_connected
-        LOWER_DISABILITY_RATINGS.include?(combined_service_connected_rating_percentage)
+        LOWER_DISABILITY_RATINGS.include?(disability_data.combined_service_connected_rating_percentage)
       end
 
       # @return [String] If veteran is paid for a disability, this method will
@@ -64,6 +73,12 @@ module VAProfile
           'lowDisability'
         end          
       end
+    end
+    
+    private
+    
+    def disability_data
+      @disability_data ||= disability_service.get_disability_data
     end
   end
 end
