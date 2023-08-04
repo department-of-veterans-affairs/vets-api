@@ -6,7 +6,7 @@ require 'va_profile/models/disability'
 module VAProfile
   module Disability
     class DisabilityResponse < VAProfile::Response
-      attribute :rating, String  # we think.
+      attribute :rating, String
 
       def self.from(current_user, raw_response = nil)
         body = raw_response&.body
