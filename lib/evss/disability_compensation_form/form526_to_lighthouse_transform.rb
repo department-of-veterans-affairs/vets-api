@@ -28,6 +28,9 @@ module EVSS
         direct_deposit = form526['directDeposit']
         lh_request_body.direct_deposit = transform_direct_deposit(direct_deposit) if direct_deposit.present?
 
+        treatments = form526['treatments']
+        lh_request_body.treatments = transform_treatments(treatments) if treatments.present?
+
         lh_request_body
       end
 
@@ -116,6 +119,23 @@ module EVSS
         end
 
         service_information
+      end
+
+      # Transforms EVSS treatments format into Lighthouse request treatments block format
+      # @param treatments_source Array[{}] accepts a list of treatments in the EVSS treatments format
+      def transform_treatments(treatments_source)
+        treatments_source.map do |treatment|
+          center = treatment['center']
+          Requests::Treatment.new(
+            treated_disability_names: treatment['treatedDisabilityNames'],
+            center: Requests::Center.new(
+              name: center['name'],
+              state: center['state'],
+              city: center['city']
+            ),
+            begin_date: convert_approximate_date(treatment['startDate'])
+          )
+        end
       end
 
       private

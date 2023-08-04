@@ -101,30 +101,6 @@
           }
         ]
       },
-      "treatments": [
-        {
-          "startDate": "2018-03-02",
-          "endDate": "2018-03-03",
-          "treatedDisabilityNames": [
-            "PTSD (post traumatic stress disorder)"
-          ],
-          "center": {
-            "name": "Private Facility 2",
-            "country": "USA"
-          }
-        },
-        {
-          "startDate": "2015-04-03",
-          "endDate": "2018-03-04",
-          "treatedDisabilityNames": [
-            "PTSD personal trauma"
-          ],
-          "center": {
-            "name": "Huntsville VA Facility",
-            "country": "USA"
-          }
-        }
-      ],
       "disabilities": [
         {
           "diagnosticCode": 9999,
