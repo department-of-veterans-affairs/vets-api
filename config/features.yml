@@ -357,6 +357,10 @@ features:
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
+  financial_status_report_debts_api_module:
+    actor_type: user
+    description: Points to debts-api module routes
+    enable_in_development: true
   financial_status_report_streamlined_waiver:
     actor_type: user
     description: Enables streamlined waiver flow for qualifying users completing the Financial Status Report (FSR) form
