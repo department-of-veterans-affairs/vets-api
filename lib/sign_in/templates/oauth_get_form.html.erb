@@ -22,7 +22,7 @@
     </noscript>
   <% end %>
 
-  <script nonce="**CSP_NONCE**">
+  <script nonce=<%= SecureRandom.base64(16) %> >
     (function() {
       document.getElementById("oauth-form").submit();
     })();
