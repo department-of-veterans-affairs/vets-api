@@ -8,13 +8,13 @@ module VAProfile
     class DisabilityResponse < VAProfile::Response
       attribute :rating, String
 
-      def self.from(current_user, raw_response = nil)
+      def self.from(_, raw_response = nil)
         body = raw_response&.body
         rating = get_rating(body)
 
         new(
           raw_response&.status,
-          rating: rating
+          rating
         )
       end
 
