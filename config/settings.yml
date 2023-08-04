@@ -1450,6 +1450,7 @@ vanotify:
         covid_vaccine_expanded_registration: fake_template_id
         direct_deposit_edu: edu_template_id
         direct_deposit_comp_pen: comp_pen_template_id
+        login_reactivation_email: reactivation_email_test_b
     lighthouse:
       api_key: fake_secret
       template_id:
