@@ -34,11 +34,9 @@ module SimpleFormsApi
             status: #{status}, uuid #{confirmation_number}"
         )
         render json: { confirmation_number: }, status:
-      rescue => e
-        # scrubs all user-entered info from the error message
-        param_hash = JSON.parse(params.to_json)
-        remove_words(param_hash, e.message)
-        raise e
+      rescue
+        raise "something has gone wrong with your form, #{params[:form_number]} and the entire " \
+              'error message has been redacted to keep PII from getting leaked'
       end
 
       private
@@ -62,27 +60,6 @@ module SimpleFormsApi
         )
 
         [response.status, uuid_and_location[:uuid]]
-      end
-
-      def aggregate_words(hash)
-        words = []
-        hash.each_value do |value|
-          case value
-          when Hash
-            words += aggregate_words(value)
-          when String
-            words += value.split
-          end
-        end
-        words.uniq.sort_by(&:length).reverse
-      end
-
-      def remove_words(hash, message)
-        words_to_remove = aggregate_words(hash)
-        words_to_remove.each do |word|
-          message.gsub!(word, '')
-        end
-        message
       end
     end
   end

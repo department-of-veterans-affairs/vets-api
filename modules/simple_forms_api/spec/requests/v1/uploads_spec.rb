@@ -39,16 +39,17 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
       it 'makes the request and expects a failure' do
         fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', test_payload)
         data = JSON.parse(fixture_path.read)
-        error_message = "JSON::ParserError: unexpected token at #{data}"
-        allow_any_instance_of(SimpleFormsApi::PdfFiller).to receive(:mapped_data).and_raise(RuntimeError, error_message)
         post '/simple_forms_api/v1/simple_forms', params: data
         expect(response).to have_http_status(:error)
-        expect(response).not_to include(data.dig('veteran', 'ssn'))
-        expect(response).not_to include(data.dig('veteran', 'date_of_birth'))
+        expect(response.body).to include('something has gone wrong with your form,')
+        expect(response.body).to include(
+          'and the entire error message has been redacted to keep PII from getting leaked'
+        )
+        expect(response.body).not_to include('ssn')
+        expect(response.body).not_to include('date_of_birth')
       end
     end
 
-    test_failed_request_scrubs_error_message 'vba_26_4555.json'
-    test_failed_request_scrubs_error_message 'vba_21_4142.json'
+    test_failed_request_scrubs_error_message 'form_with_dangerous_characters.json'
   end
 end
