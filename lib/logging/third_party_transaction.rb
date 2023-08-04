@@ -27,10 +27,11 @@ module Logging
           method_names.each do |method_name|
             # define patchable method(s) with the same name inside of a proxy module.
             define_method(method_name) do |*args, &block|
-              log_3pi_begin(method_name, additional_class_logs, additional_instance_logs, *args)
+              str_args = args.to_s
+              log_3pi_begin(method_name, additional_class_logs, additional_instance_logs, str_args)
               # delegate to the original behavior
               result = super(*args, &block)
-              log_3pi_complete(method_name, additional_class_logs, additional_instance_logs, *args)
+              log_3pi_complete(method_name, additional_class_logs, additional_instance_logs, str_args)
               result
             end
           end
@@ -44,7 +45,7 @@ module Logging
     # these will be included after instance instantiation, making them available
     # to the instance and retaining their scope.
     module ScopedInstanceMethods
-      def log_3pi_begin(method_name, additional_class_logs = {}, additional_instance_logs = {}, args = [])
+      def log_3pi_begin(method_name, additional_class_logs, additional_instance_logs, args)
         @start_time = Time.current
 
         log = {
@@ -53,7 +54,7 @@ module Logging
           action: 'Begin interaction with 3rd party API',
           wrapped_method: "#{self.class}##{method_name}",
           start_time: @start_time.to_s,
-          passed_args: args.to_s
+          passed_args: args
         }.merge(additional_class_logs).merge(parse_instance_logs(additional_instance_logs))
 
         Rails.logger.info(log)
@@ -61,7 +62,7 @@ module Logging
         Rails.logger.error(e)
       end
 
-      def log_3pi_complete(method_name, additional_class_logs = {}, additional_instance_logs = {}, args = [])
+      def log_3pi_complete(method_name, additional_class_logs, additional_instance_logs, args)
         now = Time.current
 
         log = {
