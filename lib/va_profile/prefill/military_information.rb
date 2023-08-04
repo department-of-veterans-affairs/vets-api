@@ -35,11 +35,14 @@ module VAProfile
         military_personnel_service.latest_service_episode&.branch_of_service
       end
 
+      # @return [Boolean] true if the user is currently
+      #  serving in active duty
       def currently_active_duty
         # we can get the dates and figure it out that way, or we can 
         # make a separate call to a different bio path. 
       end
 
+      # @return [Hash] currently active duty data in hash format
       def currently_active_duty_hash
         # we can get the dates and figure it out that way, or we can 
         # make a separate call to a different bio path. 
