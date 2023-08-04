@@ -21,14 +21,13 @@ module VAProfile
       # GET's a user's disability info from the VAProfile API
       # If a user is not found in VAProfile, an empty DisabilityResponse with a 404 status will be returned
       # @return [VAProfile::Disability::DisabilityResponse] response wrapper around an service_history object
-      ## double check that ^^^
       def get_disability_data
         with_monitoring do
           edipi_present!
 
           response = perform(:post, identity_path, VAProfile::Models::Disability.in_json)
 
-          DisabilityResponse.from(@current_user, response)  # this might be all I need.
+          DisabilityResponse.from(@current_user, response)
         end
       rescue Common::Client::Errors::ClientError => e
         if e.status == 404
