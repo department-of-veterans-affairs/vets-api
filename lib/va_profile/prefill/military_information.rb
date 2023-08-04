@@ -22,7 +22,7 @@ module VAProfile
       # Disability ratings counted as higher
       HIGHER_DISABILITY_RATING = 50
 
-      attr_accessor :military_personnel_service, ,:disability_service, :disability_data
+      attr_reader :military_personnel_service, ,:disability_service, :disability_data
 
       def initialize(user)
         @military_personnel_service = VAProfile::MilitaryPersonnel::Service.new(user)
