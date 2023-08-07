@@ -29,6 +29,7 @@ module DebtManagementCenter
     DATE_TIMEZONE = 'Central Time (US & Canada)'
     VBA_CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.fsr_confirmation_email
     VHA_CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.vha_fsr_confirmation_email
+    STREAMLINED_CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.fsr_streamlined_confirmation_email
     DEDUCTION_CODES = {
       '30' => 'Disability compensation and pension debt',
       '41' => 'Chapter 34 education debt',
@@ -156,7 +157,7 @@ module DebtManagementCenter
 
       DebtManagementCenter::VANotifyEmailJob.perform_async(
         options['email'],
-        VHA_CONFIRMATION_TEMPLATE,
+        options['template_id'],
         options['email_personalization_info']
       )
     end
@@ -201,12 +202,15 @@ module DebtManagementCenter
     def submit_vha_batch_job(vha_submissions)
       return unless defined?(Sidekiq::Batch)
 
+      template = vha_submissions.any?(&:streamlined?) ? STREAMLINED_CONFIRMATION_TEMPLATE : VHA_CONFIRMATION_TEMPLATE
+
       submission_batch = Sidekiq::Batch.new
       submission_batch.on(
         :success,
         'DebtManagementCenter::FinancialStatusReportService#send_vha_confirmation_email',
         'email' => @user.email&.downcase,
-        'email_personalization_info' => email_personalization_info
+        'email_personalization_info' => email_personalization_info,
+        'template_id' => template
       )
       submission_batch.jobs do
         vha_submissions.map(&:submit_to_vha)
