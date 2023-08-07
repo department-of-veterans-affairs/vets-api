@@ -11,6 +11,7 @@ RSpec.describe V0::FinancialStatusReportsController, type: :controller do
   let(:filenet_id) { '93631483-E9F9-44AA-BB55-3552376400D8' }
 
   before do
+    Flipper.disable(:financial_status_report_debts_api_module)
     sign_in_as(user)
     mock_pdf_fill
   end
@@ -44,6 +45,25 @@ RSpec.describe V0::FinancialStatusReportsController, type: :controller do
         VCR.use_cassette('bgs/people_service/person_data') do
           post(:create, params: valid_form_data.to_h, as: :json)
           expect(response.code).to eq('200')
+        end
+      end
+    end
+
+    context 'with module flipper on' do
+      before do
+        Flipper.enable(:financial_status_report_debts_api_module)
+      end
+
+      after do
+        Flipper.disable(:financial_status_report_debts_api_module)
+      end
+
+      it 'successfullfy redirects to debts-api module' do
+        VCR.use_cassette('dmc/submit_fsr') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            post(:create, params: valid_form_data.to_h, as: :json)
+            expect(response.code).to eq('302')
+          end
         end
       end
     end
