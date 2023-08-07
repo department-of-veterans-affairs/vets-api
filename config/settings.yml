@@ -1461,6 +1461,7 @@ vanotify:
       template_id:
         fsr_confirmation_email: fake_template_id
         vha_new_copay_statement_email: fake_template_id
+        fsr_streamlined_confirmation_email: fake_template_id
     check_in:
       api_key: fake_secret
       sms_sender_id: fake_secret

@@ -359,15 +359,17 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
         'time' => '48 hours',
         'date' => Time.zone.now.strftime('%m/%d/%Y')
       }
+      template_id = described_class::VHA_CONFIRMATION_TEMPLATE
       service = described_class.new
       expect(DebtManagementCenter::VANotifyEmailJob).to receive(:perform_async).with(
         email,
-        described_class::VHA_CONFIRMATION_TEMPLATE,
+        template_id,
         email_personalization_info
       )
       service.send_vha_confirmation_email('ok',
                                           { 'email' => email,
-                                            'email_personalization_info' => email_personalization_info })
+                                            'email_personalization_info' => email_personalization_info,
+                                            'template_id' => template_id })
     end
   end
 end

@@ -40,4 +40,22 @@ RSpec.describe Form5655Submission do
       end
     end
   end
+
+  describe '#streamlined?' do
+    let(:pre_feature_submission) { create(:form5655_submission) }
+    let(:streamlined_submission) { create(:sw_form5655_submission) }
+    let(:non_streamlined_submission) { create(:non_sw_form5655_submission) }
+
+    it 'returns false for submissions with feature off' do
+      expect(pre_feature_submission.streamlined?).to be false
+    end
+
+    it 'returns false for post feature non streamlined submissions' do
+      expect(non_streamlined_submission.streamlined?).to be false
+    end
+
+    it 'returns true for streamlined submissions' do
+      expect(streamlined_submission.streamlined?).to be true
+    end
+  end
 end

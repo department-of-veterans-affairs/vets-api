@@ -28,4 +28,10 @@ class Form5655Submission < ApplicationRecord
   def submit_to_vha
     Form5655::VHASubmissionJob.perform_async(id, user_cache_id)
   end
+
+  def streamlined?
+    return false unless form.key?('streamlined')
+
+    form['streamlined']['value']
+  end
 end
