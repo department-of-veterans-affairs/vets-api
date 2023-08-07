@@ -9,16 +9,24 @@ module V0
     rescue_from ::DebtManagementCenter::FinancialStatusReportService::FSRNotFoundInRedis, with: :render_not_found
 
     def create
-      render json: service.submit_financial_status_report(fsr_form)
+      if Flipper.enabled?(:financial_status_report_debts_api_module)
+        redirect_to debts_api.v0_financial_status_reports_path
+      else
+        render json: service.submit_financial_status_report(fsr_form)
+      end
     end
 
     def download_pdf
-      send_data(
-        service.get_pdf,
-        type: 'application/pdf',
-        filename: 'VA Form 5655 - Submitted',
-        disposition: 'attachment'
-      )
+      if Flipper.enabled?(:financial_status_report_debts_api_module)
+        redirect_to debts_api.download_pdf_v0_financial_status_reports_path
+      else
+        send_data(
+          service.get_pdf,
+          type: 'application/pdf',
+          filename: 'VA Form 5655 - Submitted',
+          disposition: 'attachment'
+        )
+      end
     end
 
     private
