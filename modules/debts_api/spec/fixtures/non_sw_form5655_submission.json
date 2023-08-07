@@ -1,0 +1,214 @@
+{
+  "facilityNum": "635",
+  "personalIdentification": {
+    "ssn": "7696608890",
+    "fileNumber": "3170033099",
+    "fsrReason": "et"
+  },
+  "personalData": {
+    "veteranFullName": {
+      "first": "Jamal",
+      "middle": "E",
+      "last": "Swaniawski"
+    },
+    "address": {
+      "addresslineOne": "874 Henrietta Oval",
+      "addresslineTwo": "Apt. 642",
+      "addresslineThree": "",
+      "city": "West Barbarafurt",
+      "stateOrProvince": "AL",
+      "zipOrPostalCode": "84864-0759",
+      "countryName": "Saint Kitts and Nevis"
+    },
+    "telephoneNumber": "1-675-138-4050",
+    "emailAddress": "latia@boyer.co",
+    "dateOfBirth": "8/8/1949",
+    "married": true,
+    "spouseFullName": {
+      "first": "Rene",
+      "middle": "W",
+      "last": "Hodkiewicz"
+    },
+    "agesOfOtherDependents": [
+      "10",
+      "6"
+    ],
+    "employmentHistory": [
+      {
+        "veteranOrSpouse": "VETERAN",
+        "occupationName": "Manufacturing Facilitator",
+        "from": "7/2019",
+        "to": "",
+        "present": true,
+        "employerName": "Morar, Mayer and Herzog",
+        "employerAddress": {
+          "addresslineOne": "480 Hudson River",
+          "addresslineTwo": "Apt. 466",
+          "addresslineThree": "",
+          "city": "South Joshualand",
+          "stateOrProvince": "MA",
+          "zipOrPostalCode": "22250",
+          "countryName": "Guernsey"
+        }
+      },
+      {
+        "veteranOrSpouse": "VETERAN",
+        "occupationName": "Accounting Agent",
+        "from": "2/2014",
+        "to": "7/2015",
+        "present": false,
+        "employerName": "Runte, Corkery and Nicolas",
+        "employerAddress": {
+          "addresslineOne": "262 Lakita Fall",
+          "addresslineTwo": "Apt. 847",
+          "addresslineThree": "",
+          "city": "West Helena",
+          "stateOrProvince": "ME",
+          "zipOrPostalCode": "40353",
+          "countryName": "Solomon Islands"
+        }
+      },
+      {
+        "veteranOrSpouse": "SPOUSE",
+        "occupationName": "Customer Associate",
+        "from": "7/2019",
+        "to": "",
+        "present": true,
+        "employerName": "Langworth-Franecki",
+        "employerAddress": {
+          "addresslineOne": "522 Vergie Junction",
+          "addresslineTwo": "Suite 697",
+          "addresslineThree": "",
+          "city": "Braunview",
+          "stateOrProvince": "TX",
+          "zipOrPostalCode": "42351-2497",
+          "countryName": "Guernsey"
+        }
+      }
+    ]
+  },
+  "income": [
+    {
+      "veteranOrSpouse": "VETERAN",
+      "monthlyGrossSalary": "2292",
+      "deductions": {
+        "taxes": "838",
+        "retirement": "843",
+        "socialSecurity": "167",
+        "otherDeductions": {
+          "name": "Amet modi error et.",
+          "amount": "406"
+        }
+      },
+      "totalDeductions": "376",
+      "netTakeHomePay": "65584",
+      "otherIncome": {
+        "name": "Dolorem in voluptatem suscipit.",
+        "amount": "797"
+      },
+      "totalMonthlyNetIncome": "5467"
+    },
+    {
+      "veteranOrSpouse": "SPOUSE",
+      "monthlyGrossSalary": "8710",
+      "deductions": {
+        "taxes": "546",
+        "retirement": "300",
+        "socialSecurity": "681",
+        "otherDeductions": {
+          "name": "Aut quisquam asperiores atque.",
+          "amount": "851"
+        }
+      },
+      "totalDeductions": "895",
+      "netTakeHomePay": "83098",
+      "otherIncome": {
+        "name": "Vitae laboriosam ducimus quis.",
+        "amount": "867"
+      },
+      "totalMonthlyNetIncome": "4063"
+    }
+  ],
+  "expenses": {
+    "rentOrMortgage": "238",
+    "food": "734",
+    "utilities": "284",
+    "otherLivingExpenses": {
+      "name": "Omnis qui rerum nihil.",
+      "amount": "977"
+    },
+    "expensesInstallmentContractsAndOtherDebts": "847",
+    "totalMonthlyExpenses": "6284"
+  },
+  "discretionaryIncome": {
+    "netMonthlyIncomeLessExpenses": "9301",
+    "amountCanBePaidTowardDebt": "478"
+  },
+  "assets": {
+    "cashInBank": "71249",
+    "cashOnHand": "442",
+    "automobiles": [
+      {
+        "make": "Lincoln",
+        "model": "Prius",
+        "year": "1975",
+        "resaleValue": "2146"
+      },
+      {}
+    ],
+    "trailersBoatsCampers": "264",
+    "usSavingsBonds": "925",
+    "stocksAndOtherBonds": "3282",
+    "realEstateOwned": "648499",
+    "otherAssets": [
+      {
+        "name": "impedit",
+        "amount": "310"
+      }
+    ],
+    "totalAssets": "434356"
+  },
+  "installmentContractsAndOtherDebts": [
+    {
+      "creditorName": "SANTANDER UK PLC",
+      "creditorAddress": {
+        "addresslineOne": "752 Gale Ferry",
+        "addresslineTwo": "Apt. 666",
+        "addresslineThree": "",
+        "city": "Dorethafurt",
+        "stateOrProvince": "RI",
+        "zipOrPostalCode": "67245-0745",
+        "countryName": "Gibraltar"
+      },
+      "dateStarted": "1/5/1992",
+      "purpose": "Qui rem rerum et.",
+      "originalAmount": "70655",
+      "unpaidBalance": "3095",
+      "amountDueMonthly": "464",
+      "amountPastDue": "64"
+    }
+  ],
+  "totalOfInstallmentContractsAndOtherDebts": {
+    "originalAmount": "22174",
+    "unpaidBalance": "6930",
+    "amountDueMonthly": "215",
+    "amountPastDue": "38"
+  },
+  "additionalData": {
+    "bankruptcy": {
+      "hasBeenAdjudicatedBankrupt": true,
+      "dateDischarged": "11/14/2015",
+      "courtLocation": "South Phylis",
+      "docketNumber": "45716485"
+    },
+    "additionalComments": "Architecto et quis. Quia esse hic. Perspiciatis corrupti numquam."
+  },
+  "applicantCertifications": {
+    "veteranSignature": "Booker Abshire V",
+    "veteranDateSigned": "10/13/2022"
+  },
+  "streamlined": {
+    "value": false,
+    "type": ""
+  }
+}
