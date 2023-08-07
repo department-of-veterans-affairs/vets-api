@@ -35,6 +35,8 @@ module Chip
     def connection
       @conn ||= Faraday.new(url:) do |faraday|
         faraday.use :breakers
+        faraday.request :json
+
         faraday.response :raise_error, error_prefix: service_name
         faraday.response :betamocks if settings.mock
 
