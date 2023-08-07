@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'chip/service'
+require 'chip/service_exception'
 
 describe Chip::Service do
   subject { described_class }
@@ -85,7 +86,7 @@ describe Chip::Service do
   end
 
   describe 'token' do
-    let(:service_obj) { described_class.build(options) }
+    let(:service_obj) { subject.build(options) }
     let(:redis_client) { double }
     let(:token) { '123' }
 
@@ -116,6 +117,49 @@ describe Chip::Service do
         expect(redis_client).to receive(:save).with(token:)
 
         expect(service_obj.send(:token)).to eq(token)
+      end
+    end
+  end
+
+  describe '#get_token' do
+    let(:service_obj) { subject.build(options) }
+    let(:response_body) { { 'token' => 'chip-123-abc' } }
+
+    context 'when chip returns successful response' do
+      before do
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_token.total')
+      end
+
+      it 'returns response' do
+        VCR.use_cassette('chip/token/token_200') do
+          response = service_obj.get_token
+
+          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)).to eq(response_body)
+        end
+      end
+    end
+
+    context 'when chip returns a failure' do
+      let(:key) { 'CHIP_500' }
+      let(:response_values) { { status: 500, detail: nil, code: key, source: nil } }
+      let(:original_body) { '{"status":"500", "title":"Could not retrieve a token from LoROTA"}' }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(key, response_values, 500, original_body) }
+
+      before do
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_token.fail', tags: ['error:ChipServiceException'])
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_token.total')
+      end
+
+      it 'throws exception' do
+        VCR.use_cassette('chip/token/token_500') do
+          expect { service_obj.get_token }.to raise_exception(Chip::ServiceException) { |error|
+            expect(error.key).to eq(key)
+            expect(error.response_values).to eq(response_values)
+            expect(error.original_body).to eq(original_body)
+            expect(error.original_status).to eq(500)
+          }
+        end
       end
     end
   end
