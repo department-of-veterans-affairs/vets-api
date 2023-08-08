@@ -9,6 +9,7 @@ require 'debt_management_center/workers/va_notify_email_job'
 require 'debt_management_center/vbs/request'
 require 'debt_management_center/sharepoint/request'
 require 'pdf_fill/filler'
+require 'sidekiq'
 require 'json'
 
 module DebtsApi
@@ -44,11 +45,7 @@ module DebtsApi
       with_monitoring_and_error_handling do
         form = add_personal_identification(form)
         validate_form_schema(form)
-        if Flipper.enabled?(:combined_financial_status_report, @user)
-          submit_combined_fsr(form)
-        else
-          submit_vba_fsr(form)
-        end
+        submit_combined_fsr(form)
       end
     end
 
@@ -75,6 +72,8 @@ module DebtsApi
       end
       create_vha_fsr(form) if selected_vha_copays(form['selectedDebtsAndCopays']).present?
 
+      aggregate_fsr_reasons(form, form['selectedDebtsAndCopays'])
+
       {
         content: Base64.encode64(
           File.read(
@@ -91,8 +90,8 @@ module DebtsApi
     def create_vba_fsr(form)
       debts = selected_vba_debts(form['selectedDebtsAndCopays'])
       if debts.present?
-        form['personalIdentification']['fsrReason'] = debts.pluck('resolutionOption').uniq.join(', ')
         add_compromise_amounts(form, debts)
+        aggregate_fsr_reasons(form, debts)
       end
       submission = persist_form_submission(form, debts)
       submission.submit_to_vba
@@ -104,9 +103,7 @@ module DebtsApi
       end
       submissions = []
       facility_copays.each do |facility_num, copays|
-        fsr_reason = copays.pluck('resolutionOption').uniq.join(', ')
         facility_form = form.deep_dup
-        facility_form['personalIdentification']['fsrReason'] = fsr_reason
         facility_form['facilityNum'] = facility_num
         facility_form['personalIdentification']['fileNumber'] = @user.ssn
         add_compromise_amounts(facility_form, copays)
@@ -135,7 +132,7 @@ module DebtsApi
       vha_form = form_submission.form
       vha_form['transactionId'] = form_submission.id
       vha_form['timestamp'] = DateTime.now.strftime('%Y%m%dT%H%M%S')
-
+      vha_form = streamline_adjustments(vha_form)
       vbs_request = DebtManagementCenter::VBS::Request.build
       sharepoint_request = DebtManagementCenter::Sharepoint::Request.new
       Rails.logger.info('5655 Form Submitting to VHA', submission_id: form_submission.id)
@@ -150,7 +147,31 @@ module DebtsApi
       { status: vbs_response.status }
     end
 
+    def send_vha_confirmation_email(_status, options)
+      return if options['email'].blank?
+
+      DebtManagementCenter::VANotifyEmailJob.perform_async(
+        options['email'],
+        VHA_CONFIRMATION_TEMPLATE,
+        options['email_personalization_info']
+      )
+    end
+
     private
+
+    def streamline_adjustments(form)
+      if form.key?('streamlined')
+        if form['streamlined']['value']
+          reasons_array = form['personalIdentification']['fsrReason'].split(',').map(&:strip)
+          reasons = reasons_array.push('Automatically Approved').uniq.join(', ')
+          form['personalIdentification']['fsrReason'] = reasons
+        end
+        streamline_data = form.fetch('streamlined')
+        form.reject! { |k, _v| k == 'streamlined' }
+        form['streamlined'] = streamline_data['value']
+      end
+      form
+    end
 
     def raise_client_error
       raise Common::Client::Errors::ClientError.new('malformed request', 400)
@@ -174,10 +195,14 @@ module DebtsApi
     end
 
     def submit_vha_batch_job(vha_submissions)
+      return unless defined?(Sidekiq::Batch)
+
       submission_batch = Sidekiq::Batch.new
       submission_batch.on(
         :success,
-        'DebtsApi::V0::FinancialStatusReportService#send_vha_confirmation_email'
+        'DebtsApi::V0::FinancialStatusReportService#send_vha_confirmation_email',
+        'email' => @user.email&.downcase,
+        'email_personalization_info' => email_personalization_info
       )
       submission_batch.jobs do
         vha_submissions.map(&:submit_to_vha)
@@ -218,6 +243,12 @@ module DebtsApi
       form
     end
 
+    def aggregate_fsr_reasons(form, debts)
+      return if debts.blank?
+
+      form['personalIdentification']['fsrReason'] = debts.pluck('resolutionOption').uniq.join(', ')
+    end
+
     def add_compromise_amounts(form, debts)
       form['additionalData']['additionalComments'] =
         "#{form['additionalData']['additionalComments']}#{get_compromise_amount_text(debts)}"
@@ -252,10 +283,6 @@ module DebtsApi
       return if email.blank?
 
       DebtManagementCenter::VANotifyEmailJob.perform_async(email, template_id, email_personalization_info)
-    end
-
-    def send_vha_confirmation_email
-      send_confirmation_email(VHA_CONFIRMATION_TEMPLATE)
     end
 
     def email_personalization_info
