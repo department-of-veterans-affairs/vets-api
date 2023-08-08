@@ -41,6 +41,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.disabilities.first.class).to eq(Requests::Disability)
       expect(result.direct_deposit.class).to eq(Requests::DirectDeposit)
       expect(result.treatments.first.class).to eq(Requests::Treatment)
+      expect(result.service_pay.class).to eq(Requests::ServicePay)
     end
   end
 
@@ -54,6 +55,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.homeless).to be_nil
       expect(result.direct_deposit).to be_nil
       expect(result.treatments).to eq([])
+      expect(result.service_pay).to be_nil
     end
   end
 
@@ -191,6 +193,32 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.length).to eq(2)
       expect(result.first.class).to eq(Requests::Treatment)
       expect(result.first.treated_disability_names).to eq(['PTSD (post traumatic stress disorder)'])
+    end
+  end
+
+  describe 'transform service pay' do
+    let(:submission) { create(:form526_submission, :with_everything) }
+    let(:data) { submission.form['form526']['form526']['servicePay'] }
+
+    it 'sets service pay correctly' do
+      result = transformer.send(:transform_service_pay, data)
+      expect(result.favor_training_pay).to eq(true)
+      expect(result.favor_military_retired_pay).to eq(false)
+      expect(result.receiving_military_retired_pay).to eq(true)
+      expect(result.future_military_retired_pay).to eq(true)
+
+      # military retired mappings
+      expect(result.military_retired_pay.class).to eq(Requests::MilitaryRetiredPay)
+      expect(result.military_retired_pay.branch_of_service).to eq('Air Force')
+      expect(result.military_retired_pay.monthly_amount).to eq(500.00)
+
+      # separation severance pay mappings
+      expect(result.retired_status).to eq('Retired')
+      expect(result.received_separation_or_severance_pay).to eq(true)
+      expect(result.separation_severance_pay.class).to eq(Requests::SeparationSeverancePay)
+      expect(result.separation_severance_pay.date_payment_received).to eq('2000')
+      expect(result.separation_severance_pay.branch_of_service).to eq('Air Force')
+      expect(result.separation_severance_pay.pre_tax_amount_received).to eq(1000.00)
     end
   end
 end

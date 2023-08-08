@@ -70,15 +70,19 @@
         "waiveVABenefitsToRetainTrainingPay": true,
         "waiveVABenefitsToRetainRetiredPay": false,
         "militaryRetiredPay": {
+          "willReceiveInFuture": true,
           "receiving": true,
           "payment": {
-            "serviceBranch": "Air Force"
+            "serviceBranch": "Air Force",
+            "amount": 500.00
           }
         },
+        "retiredStatus": "Retired",
         "separationPay": {
           "received": true,
           "payment": {
-            "serviceBranch": "Air Force"
+            "serviceBranch": "Air Force",
+            "amount": 1000.00
           },
           "receivedDate": {
             "year": "2000"
