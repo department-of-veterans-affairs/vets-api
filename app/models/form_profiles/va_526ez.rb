@@ -23,6 +23,7 @@ module VA526ez
     attribute :decision_code, String
     attribute :decision_text, String
     attribute :rating_percentage, Integer
+    attribute :maximum_rating_percentage, Integer
   end
 
   class FormRatedDisabilities
@@ -98,6 +99,7 @@ class FormProfiles::VA526ez < FormProfile
       }
     )
     response = service.get_rated_disabilities
+    ClaimFastTracking::MaxRatingAnnotator.annotate_disabilities(response)
 
     # Remap response object to schema fields
     VA526ez::FormRatedDisabilities.new(
