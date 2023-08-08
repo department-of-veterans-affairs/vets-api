@@ -4,9 +4,11 @@ require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require_relative 'configuration'
 require_relative 'redis_client'
+require_relative 'service_exception'
 
 module Chip
   class Service < Common::Client::Base
+    include SentryLogging
     include Common::Client::Concerns::Monitoring
 
     configuration Chip::Configuration
@@ -40,6 +42,20 @@ module Chip
       super()
     end
 
+    def get_demographics(patient_dfn:, station_no:)
+      perform(:get, '/actions/authenticated-demographics',
+              { patientDfn: patient_dfn, stationNo: station_no },
+              request_headers)
+    end
+
+    def update_demographics(patient_dfn:, station_no:, demographic_confirmations:)
+      with_monitoring_and_error_handling do
+        perform(:post, '/actions/authenticated-demographics',
+                { patientDfn: patient_dfn, stationNo: station_no, demographicConfirmations: demographic_confirmations },
+                request_headers)
+      end
+    end
+
     ##
     # Get the auth token from CHIP
     #
@@ -48,6 +64,19 @@ module Chip
     def get_token
       with_monitoring do
         perform(:post, "/#{config.base_path}/token", {}, token_headers)
+      end
+    end
+
+    ##
+    # Post the check-in status to CHIP
+    #
+    # @return [Faraday::Response] response from CHIP authenticated-check-in endpoint
+    #
+    def post_patient_check_in(appointment_ien, patient_dfn, station_no)
+      with_monitoring_and_error_handling do
+        perform(:post, "/#{config.base_path}/actions/authenticated-check-in",
+                { appointmentIen: appointment_ien, patientDfn: patient_dfn, stationNo: station_no },
+                request_headers)
       end
     end
 
@@ -82,6 +111,19 @@ module Chip
           end
         end
       end
+    end
+
+    def with_monitoring_and_error_handling(&)
+      with_monitoring(2, &)
+    rescue => e
+      log_exception_to_sentry(e,
+                              {
+                                url: "#{config.url}/#{config.base_path}",
+                                original_body: e.original_body,
+                                original_status: e.original_status
+                              },
+                              { external_service: self.class.to_s.underscore, team: 'check-in' })
+      raise e
     end
 
     def validate_arguments!
