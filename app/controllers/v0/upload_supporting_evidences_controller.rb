@@ -9,11 +9,17 @@ module V0
 
     FORM_ATTACHMENT_MODEL = SupportingEvidenceAttachment
 
-    wrap_with_logging :save_attachment_to_cloud!, additional_class_logs: {
-      form: '526ez supporting evidence attachment',
-      action: "upload: #{FORM_ATTACHMENT_MODEL}",
-      upstream: 'User provided file',
-      downstream: "S3 bucket: #{Settings.evss.s3.bucket}"
-    }
+    wrap_with_logging(
+      :save_attachment_to_cloud!,
+      additional_class_logs: {
+        form: '526ez supporting evidence attachment',
+        action: "upload: #{FORM_ATTACHMENT_MODEL}",
+        upstream: 'User provided file',
+        downstream: "S3 bucket: #{Settings.evss.s3.bucket}"
+      },
+      additional_instance_logs: {
+        user_uuid: %i[current_user account_uuid]
+      }
+    )
   end
 end
