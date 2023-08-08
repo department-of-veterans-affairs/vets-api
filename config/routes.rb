@@ -115,6 +115,7 @@ Rails.application.routes.draw do
         get(:healthcheck)
         get(:enrollment_status)
         get(:rating_info)
+        post(:download_pdf)
       end
     end
 
