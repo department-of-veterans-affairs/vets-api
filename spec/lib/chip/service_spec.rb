@@ -85,6 +85,85 @@ describe Chip::Service do
     end
   end
 
+  describe '#update_demographics' do
+    let(:service_obj) { subject.build(options) }
+    let(:patient_dfn) { 'patient_dfn_value' }
+    let(:station_no) { 'station_no_value' }
+    let(:demographic_confirmations) { 'demographic_confirmations_value' }
+
+    context 'when chip returns successful response' do
+      before do
+        expect(StatsD).to receive(:increment).once.with('api.chip.update_demographics.total')
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_token.total')
+      end
+
+      it 'returns response' do
+        VCR.use_cassette('chip/authenticated_demographics/update_demographics_200') do
+          VCR.use_cassette('chip/token/token_200') do
+            response = service_obj.update_demographics(patient_dfn:, station_no:, demographic_confirmations:)
+            expect(response.status).to eq 200
+            expect(JSON.parse(response.body)).to be_a Hash
+          end
+        end
+      end
+    end
+
+    context 'when chip returns a failure' do
+      let(:key) { 'CHIP_500' }
+      let(:response_values) { { status: 500, detail: nil, code: key, source: nil } }
+      let(:original_body) { '{ "title": "Problem getting token from VistA APIs" }' }
+
+      before do
+        expect(StatsD).to receive(:increment).once.with('api.chip.update_demographics.fail',
+                                                        tags: ['error:ChipServiceException'])
+        expect(StatsD).to receive(:increment).once.with('api.chip.update_demographics.total')
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_token.total')
+      end
+
+      it 'throws exception' do
+        VCR.use_cassette('chip/authenticated_demographics/update_demographics_500') do
+          VCR.use_cassette('chip/token/token_200') do
+            expect do
+              service_obj.update_demographics(patient_dfn:, station_no:, demographic_confirmations:)
+            end.to raise_exception(Chip::ServiceException) { |error|
+              expect(error.key).to eq(key)
+              expect(error.response_values).to eq(response_values)
+              expect(error.original_body).to eq(original_body)
+              expect(error.original_status).to eq(500)
+            }
+          end
+        end
+      end
+    end
+
+    context 'when token call returns a failure' do
+      let(:key) { 'CHIP_500' }
+      let(:response_values) { { status: 500, detail: nil, code: key, source: nil } }
+      let(:original_body) { '{"status":"500", "title":"Could not retrieve a token from LoROTA"}' }
+
+      before do
+        expect(StatsD).to receive(:increment).once.with('api.chip.update_demographics.fail',
+                                                        tags: ['error:ChipServiceException'])
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_token.fail', tags: ['error:ChipServiceException'])
+        expect(StatsD).to receive(:increment).once.with('api.chip.update_demographics.total')
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_token.total')
+      end
+
+      it 'throws exception' do
+        VCR.use_cassette('chip/token/token_500') do
+          expect do
+            service_obj.update_demographics(patient_dfn:, station_no:, demographic_confirmations:)
+          end.to raise_exception(Chip::ServiceException) { |error|
+            expect(error.key).to eq(key)
+            expect(error.response_values).to eq(response_values)
+            expect(error.original_body).to eq(original_body)
+            expect(error.original_status).to eq(500)
+          }
+        end
+      end
+    end
+  end
+
   describe 'token' do
     let(:service_obj) { subject.build(options) }
     let(:redis_client) { double }
@@ -144,7 +223,6 @@ describe Chip::Service do
       let(:key) { 'CHIP_500' }
       let(:response_values) { { status: 500, detail: nil, code: key, source: nil } }
       let(:original_body) { '{"status":"500", "title":"Could not retrieve a token from LoROTA"}' }
-      let(:exception) { Common::Exceptions::BackendServiceException.new(key, response_values, 500, original_body) }
 
       before do
         expect(StatsD).to receive(:increment).once.with('api.chip.get_token.fail', tags: ['error:ChipServiceException'])
@@ -154,6 +232,131 @@ describe Chip::Service do
       it 'throws exception' do
         VCR.use_cassette('chip/token/token_500') do
           expect { service_obj.get_token }.to raise_exception(Chip::ServiceException) { |error|
+            expect(error.key).to eq(key)
+            expect(error.response_values).to eq(response_values)
+            expect(error.original_body).to eq(original_body)
+            expect(error.original_status).to eq(500)
+          }
+        end
+      end
+    end
+  end
+
+  describe '#post_patient_check_in' do
+    let(:service_obj) { subject.build(options) }
+    let(:tenant_name) { 'mobile_app' }
+    let(:tenant_id) { Settings.chip[tenant_name].tenant_id }
+    let(:username) { 'test_username' }
+    let(:password) { 'test_password' }
+
+    context 'successful check-in' do
+      let(:response_message) do
+        'success with appointmentIen: test-appt-ien, patientDfn: test-patient-ien, stationNo: test-station-no'
+      end
+      let(:response_body) do
+        {
+          'data' => {
+            'attributes' => {
+              'message' => response_message
+            },
+            'type' => 'AuthenticatedCheckinResponse'
+          }
+        }
+      end
+
+      before do
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_token.total')
+        expect(StatsD).to receive(:increment).once.with('api.chip.post_patient_check_in.total')
+      end
+
+      it 'returns 200 with success message' do
+        VCR.use_cassette('chip/authenticated_check_in/post_check_in_200') do
+          VCR.use_cassette('chip/token/token_200') do
+            response = service_obj.post_patient_check_in('test-appt-ien', 'test-patient-ien', 'test-station-no')
+            expect(response.status).to be 200
+            expect(JSON.parse(response.body)).to eq(response_body)
+          end
+        end
+      end
+    end
+
+    context 'invalid appointment response' do
+      let(:response_message) do
+        'Check-in unsuccessful with appointmentIen: appt-ien, patientDfn: patient-ien, stationNo: station-no'
+      end
+      let(:invalid_appt_response) do
+        {
+          'data' => {
+            'attributes' => {
+              'errors' => ['e-check-in-not-allowed'],
+              'message' => response_message
+            },
+            'type' => 'AuthenticatedCheckinResponse'
+          }
+        }
+      end
+
+      before do
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_token.total')
+        expect(StatsD).to receive(:increment).once.with('api.chip.post_patient_check_in.total')
+      end
+
+      it 'returns 200 with error message' do
+        VCR.use_cassette('chip/authenticated_check_in/post_check_in_invalid_appointment_200') do
+          VCR.use_cassette('chip/token/token_200') do
+            response = service_obj.post_patient_check_in('test-appt-ien', 'test-patient-ien', 'test-station-no')
+            expect(response.status).to be 200
+            expect(JSON.parse(response.body)).to eq(invalid_appt_response)
+          end
+        end
+      end
+    end
+
+    context 'unknown server exception' do
+      let(:key) { 'CHIP_500' }
+      let(:response_values) { { status: 500, detail: nil, code: key, source: nil } }
+      let(:original_body) { '{ "title": "Error setting eCheckInStatus for station: 500 and ien test-appt-ien" }' }
+
+      before do
+        expect(StatsD).to receive(:increment).once.with('api.chip.post_patient_check_in.fail',
+                                                        tags: ['error:ChipServiceException'])
+        expect(StatsD).to receive(:increment).once.with('api.chip.post_patient_check_in.total')
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_token.total')
+      end
+
+      it 'returns 500 with error message' do
+        VCR.use_cassette('chip/authenticated_check_in/post_check_in_unknown_server_error_500') do
+          VCR.use_cassette('chip/token/token_200') do
+            expect do
+              service_obj.post_patient_check_in('test-appt-ien', 'test-patient-ien', 'test-station-no')
+            end.to raise_exception(Chip::ServiceException) { |error|
+              expect(error.response_values).to eq(response_values)
+              expect(error.original_body).to eq(original_body)
+              expect(error.original_status).to eq(500)
+            }
+          end
+        end
+      end
+    end
+
+    context 'when token call returns a failure' do
+      let(:key) { 'CHIP_500' }
+      let(:response_values) { { status: 500, detail: nil, code: key, source: nil } }
+      let(:original_body) { '{"status":"500", "title":"Could not retrieve a token from LoROTA"}' }
+
+      before do
+        expect(StatsD).to receive(:increment).once.with('api.chip.post_patient_check_in.fail',
+                                                        tags: ['error:ChipServiceException'])
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_token.fail', tags: ['error:ChipServiceException'])
+        expect(StatsD).to receive(:increment).once.with('api.chip.post_patient_check_in.total')
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_token.total')
+      end
+
+      it 'throws exception' do
+        VCR.use_cassette('chip/token/token_500') do
+          expect do
+            service_obj.post_patient_check_in('test-appt-ien', 'test-patient-ien', 'test-station-no')
+          end.to raise_exception(Chip::ServiceException) { |error|
             expect(error.key).to eq(key)
             expect(error.response_values).to eq(response_values)
             expect(error.original_body).to eq(original_body)
