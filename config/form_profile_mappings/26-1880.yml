@@ -1,8 +1,0 @@
-fullName: [identity_information, full_name]
-dateOfBirth: [identity_information, date_of_birth]
-applicantAddress: [contact_information, address]
-contactPhone: [contact_information, us_phone]
-contactEmail: [contact_information, email]
-periodsOfService: [military_information, tours_of_duty]
-currentlyActiveDuty: [military_information, currently_active_duty_hash]
-activeDuty: [military_information, currently_active_duty]

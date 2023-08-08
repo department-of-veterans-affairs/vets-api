@@ -1,8 +1,0 @@
-type: object
-required:
-  - data
-properties:
-  data:
-    type: array
-    items:
-      $ref: "./AppointmentRequestMessage.yml"

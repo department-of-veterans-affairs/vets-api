@@ -1,1 +1,0 @@
-{"resourceType":"Organization","id":"987654","text":{"status":"generated","div":"<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>{:text=>\"Received an an invalid response from the upstream server\"}</p></div>"},"issue":[{"severity":"error","code":"VAOS_502","details":{"text":"Received an an invalid response from the upstream server"},"diagnostics":"Klass"}]}

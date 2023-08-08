@@ -1,7 +1,0 @@
-type: object
-required:
-  - emailAddress
-properties:
-  emailAddress:
-    type: string
-    example: "person42@example.com"

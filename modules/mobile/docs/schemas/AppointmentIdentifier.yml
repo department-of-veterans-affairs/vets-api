@@ -1,9 +1,0 @@
-required:
-  - system
-  - value
-type: object
-properties:
-  system:
-    type: string
-  value:
-    type: string

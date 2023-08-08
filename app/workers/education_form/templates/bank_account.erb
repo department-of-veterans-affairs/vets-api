@@ -1,9 +1,0 @@
-<% bank_account_change = @applicant.bankAccountChange -%>
-<% if bank_account_change.present? -%>
-Direct Deposit: <%= direct_deposit_type(bank_account_change) %> EFT
-Type of Account: <%= @applicant.bankAccount&.accountType %>
-<% else -%>
-Direct Deposit:     Type of Account: <%= @applicant.bankAccount&.accountType %>
-<% end -%>
-Name of Financial Inst.: <%= @applicant.bankAccount&.bankName %>
-Routing/Transit #: <%= @applicant.bankAccount&.routingNumber %>   Account #: <%= @applicant.bankAccount&.accountNumber %>

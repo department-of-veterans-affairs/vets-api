@@ -1,9 +1,0 @@
-version: '3.4'
-services:
-  vets-api:
-    tmpfs:
-      - /tmp
-volumes:
-  test_bundle:
-    external: true
-    name: test_bundle_v2_7_6-cache-v3

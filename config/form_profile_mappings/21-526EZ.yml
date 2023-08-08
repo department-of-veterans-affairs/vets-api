@@ -1,9 +1,0 @@
-veteran: [veteran_contact_information, veteran]
-disabilities: [rated_disabilities_information, rated_disabilities]
-servicePeriods: [military_information, service_periods]
-reservesNationalGuardService:
-  obligationTermOfServiceDateRange: [military_information, latest_guard_reserve_service_period]
-bankAccountType: [payment_information, account_type]
-bankAccountNumber: [payment_information, account_number]
-bankRoutingNumber: [payment_information, routing_number]
-bankName: [payment_information, bank_name]

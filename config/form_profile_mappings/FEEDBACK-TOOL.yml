@@ -1,8 +1,0 @@
-address: [contact_information, address]
-serviceBranch: [military_information, last_service_branch]
-fullName: [identity_information, full_name]
-applicantEmail: [contact_information, email]
-phone: [contact_information, us_phone]
-serviceDateRange:
-  from: [military_information, last_entry_date]
-  to: [military_information, last_discharge_date]

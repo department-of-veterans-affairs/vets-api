@@ -1,9 +1,0 @@
-claimantAddress:
-  country: [contact_information, address, country]
-  street: [contact_information, address, street]
-  street2: [contact_information, address, street2]
-  city: [contact_information, address, city]
-  state: [contact_information, address, state]
-  postalCode: [contact_information, address, postal_code]
-claimantPhoneNumber: [contact_information, us_phone]
-claimantEmailAddress: [contact_information, email]

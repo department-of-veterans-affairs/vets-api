@@ -1,7 +1,0 @@
-# frozen_string_literal: true
-
-# Specify your gem's dependencies in my_health.gemspec.
-gemspec
-
-# To use a debugger
-# gem 'byebug', group: [:development, :test]

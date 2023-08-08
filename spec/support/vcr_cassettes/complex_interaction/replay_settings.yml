@@ -1,7 +1,0 @@
----
-:replay_settings:
-  :vcr_cassette_path: spec/support/vcr_cassettes
-  :internal_cassette: complex_interaction/internal_interactions
-  :external_cassette: complex_interaction/external_interactions
-  :insecure_random: true
-  :time_freeze: true

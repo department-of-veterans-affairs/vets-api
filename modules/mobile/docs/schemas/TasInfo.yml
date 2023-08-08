@@ -1,9 +1,0 @@
-type: object
-properties:
-  siteCode:
-    description: The telehealth access site (TAS) site ID.
-    type: string
-  confirmationCode:
-    type: string
-  address:
-    "$ref": ./TasAddress.yml

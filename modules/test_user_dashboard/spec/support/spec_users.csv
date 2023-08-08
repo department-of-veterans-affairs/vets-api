@@ -1,2 +1,0 @@
-first_name,middle_name,last_name,gender,birth_date,ssn,phone,email,password,mfa_code,id_types,loa,idme_uuid,logingov_uuid,services,notes
-MARK,,WEBB,M,1950-01-01T00:00:00-08:00,796104437,800-827-1000,vets.gov.user+228@gmail.com,200SsNrLgPv5,76VGIVP53QDPGZPNMJ6EZLE22X7O3IFK,"idme,logingov",3,6401bbf301eb4e6e95ccea7693eced6f,381cd98f-d604-43c9-9512-2388d0983e2d,"facilities,hca,edu_benefits,form-save-in-progress,form-prefill,user-profile,appeals-status,identity-proofed,vet360,claim_increase",This is a test string in the notes column.

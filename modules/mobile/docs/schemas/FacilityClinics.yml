@@ -1,9 +1,0 @@
-type: object
-required:
-  - data
-properties:
-  data:
-    type: array
-    items:
-      type: object
-      $ref: "./FacilityClinic.yml"

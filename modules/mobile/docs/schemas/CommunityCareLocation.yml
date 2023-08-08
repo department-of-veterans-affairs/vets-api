@@ -1,7 +1,0 @@
-type: object
-properties:
-  practiceName:
-    type: string
-  address:
-    $ref: ./AppointmentRequestAddress.yml
-description: Information about the location of a community care appointment.

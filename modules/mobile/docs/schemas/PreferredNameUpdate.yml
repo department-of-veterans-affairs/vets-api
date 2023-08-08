@@ -1,7 +1,0 @@
-type: object
-required:
-  - text
-properties:
-  text:
-    type: string
-    example: "New Preferred Name"

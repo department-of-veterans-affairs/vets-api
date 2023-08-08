@@ -1,8 +1,0 @@
-{
-  "X-VA-First-Name": "Jane",
-  "X-VA-Last-Name": "Doe",
-  "X-VA-SSN": "123456789",
-  "X-VA-Birth-Date": "1969-12-31",
-  "X-Consumer-Username": "va.gov",
-  "X-Consumer-ID": "some-guid"
-}

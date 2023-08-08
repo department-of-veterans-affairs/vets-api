@@ -1,9 +1,0 @@
-{
-  "additionalProperties": false,
-  "properties": {
-    "id": {
-      "type": "string",
-      "example": "1012667145V762142"
-    }
-  }
-}

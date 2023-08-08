@@ -1,8 +1,0 @@
-description: Details about a telehealth (virtual) meeting.
-type: object
-properties:
-  url:
-    description: The meeting URL.
-    type: string
-  atlas:
-    "$ref": ./TasInfo.yml
