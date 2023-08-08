@@ -51,10 +51,6 @@ module DebtsApi
       # rubocop:disable Metrics/MethodLength
       def fsr_form
         params.permit(
-          streamlined: %i[
-            value
-            type
-          ],
           personal_identification: %i[fsr_reason ssn file_number],
           personal_data: [
             :telephone_number,
