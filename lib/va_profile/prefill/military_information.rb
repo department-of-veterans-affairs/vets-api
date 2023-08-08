@@ -31,7 +31,7 @@ module VAProfile
       attr_reader :military_personnel_service, :disability_service, :disability_data
 
       def initialize(user)
-        @military_personnel_service = VAProfile::MilitaryPersonnel::Service.new(user)
+        @military_personnel_service = HCA::MilitaryInformation(user)
         @disability_service = VAProfile::Disability::Service.new(user)
       end
 
@@ -44,8 +44,14 @@ module VAProfile
       # @return [Boolean] true if the user is currently
       #  serving in active duty
       def currently_active_duty
-        # we can get the dates and figure it out that way, or we can 
-        # make a separate call to a different bio path. 
+        military_personnel_service.service_episodes_by_date.each do |episode|
+          if episode['period_of_service_end_date']
+            date = episode['period_of_service_end_date']
+            return date.empty? || DateTime.parse(date).to_date.future?
+          else
+            return false
+          end
+        end
       end
 
       # @return [Hash] currently active duty data in hash format
