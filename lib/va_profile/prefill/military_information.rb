@@ -1,5 +1,4 @@
-# require 'hca/military_information'
-require 'va_profile/military_personnel/service'
+require 'hca/military_information'
 
 module VAProfile
   module Prefill
@@ -14,13 +13,7 @@ module VAProfile
         service_periods
         guard_reserve_service_history
         latest_guard_reserve_service_period
-      ].freeze  # map all of these to VAProfile.
-
-      # The following methods have been implemented
-      # - last_service_branch
-      # - is_va_service_connected
-      # - compensable_va_service_connected
-      # - va_compensation_type
+      ].freeze
 
       # Disability ratings counted as lower
       LOWER_DISABILITY_RATINGS = [10, 20, 30, 40].freeze
@@ -68,7 +61,6 @@ module VAProfile
       'US Military Academy',
       "Women's Army Corps"
     ].freeze
-
 
       attr_reader :military_personnel_service, :disability_service, :disability_data
 
@@ -137,11 +129,6 @@ module VAProfile
     # @return [Array<Hash>] Data about the veteran's service periods
     #  including service branch served under and date range of each
     #  service period, used only for Form 526 - Disability form
-    #
-    # service_episodes_by_date returns and array of Military Services Episodes
-    #  and Service Academy Episodes. We're only interested in Military Service
-    #  Episodes, so we filter out the Service Academy Episodes by checking if
-    #  the episode has a period_of_service_end_date.
     def service_periods
         military_service_episodes(military_personnel_service.service_episodes_by_date).map do |military_service_episode|
         service_branch = service_branch_used_in_disability(military_service_episode)
@@ -207,17 +194,16 @@ module VAProfile
 
   private
   
-  # episodes returns an array of Military Services Episodes
-  #  and Service Academy Episodes. We're only interested in Military Service
-  #  Episodes, so we filter out the Service Academy Episodes by checking if
-  #  the episode has a period_of_service_end_date.
+  # episodes is an array of Military Services Episodes and Service Academy Episodes. We're only
+  #  interested in Military Service Episodes, so we filter out the Service Academy Episodes by checking
+  #  if the episode has a period_of_service_end_date.
   def military_service_episodes(episodes)
     service_episodes_by_date.select do |episode|
       episode['period_of_service_end_date']
     end
   end
 
-  # @return Array<Hash>
+  # @return [Array<Hash] array of veteran's Guard and reserve service periods by period of service end date, DESC
   def guard_reserve_service_by_date
     military_service_episodes(military_personnel_service.service_episodes_by_date).each_with_object([]) do |episode, guard_details|
       guard_details.concat(episode['guard_reserve_periods'])
