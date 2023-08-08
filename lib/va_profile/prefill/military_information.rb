@@ -16,6 +16,12 @@ module VAProfile
         latest_guard_reserve_service_period
       ].freeze  # map all of these to VAProfile.
 
+      # The following methods have been implemented
+      # - last_service_branch
+      # - is_va_service_connected
+      # - compensable_va_service_connected
+      # - va_compensation_type
+
       # Disability ratings counted as lower
       LOWER_DISABILITY_RATINGS = [10, 20, 30, 40].freeze
 
@@ -74,6 +80,12 @@ module VAProfile
         end          
       end
     end
+
+    def service_periods; end
+
+    def guard_reserve_service_history; end
+
+    def latest_guard_reserve_service_period; end
     
     private
     
