@@ -171,7 +171,7 @@ module EMISRedis
     #  Military service episode model
     # @return [String] Readable service branch name formatted for EVSS
     def service_branch_used_in_disability(military_service_episode)
-      category = case military_service_episode.personnel_category_type_code
+      category = case military_service_episode['period_of_service_type_code']
                  when 'A'
                    ''
                  when 'N'
