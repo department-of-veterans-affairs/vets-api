@@ -41,6 +41,16 @@ module VAProfile
         episodes&.map { |e| VAProfile::Models::ServiceHistory.build_from(e, episode_type) }
       end
 
+      def self.get_active_duty_status(body)
+        return nil unless body
+
+        active_duty_status = body&.dig(
+          'profile',
+          'military_person',
+          'military_service_history',
+          'release_from_active_duty_date')
+      end
+
       def self.sort_by_begin_date(service_episodes)
         service_episodes.sort_by { |se| se.begin_date || Time.zone.today + 3650 }
       end
