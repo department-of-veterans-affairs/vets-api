@@ -162,8 +162,8 @@ module VAProfile
     def guard_reserve_service_history
       guard_reserve_service_by_date.map do |period|
         {
-          from: period.begin_date,
-          to: period.end_date
+          from: period['period_of_service_begin_date']
+          to: period['period_of_service_end_date']
         }
       end
     end
@@ -208,7 +208,15 @@ module VAProfile
   #  Episodes, so we filter out the Service Academy Episodes by checking if
   #  the episode has a period_of_service_end_date.
   def military_service_episodes(episodes)
-  service_episodes_by_date.select do |episode|
-    episode['period_of_service_end_date']
+    service_episodes_by_date.select do |episode|
+      episode['period_of_service_end_date']
+    end
+  end
+
+  # @return Array<Hash>
+  def guard_reserve_service_by_date
+    military_service_episodes(military_personnel_service.service_episodes_by_date).each_with_object([]) do |episode, guard_details|
+      guard_details.concat(episode['guard_reserve_periods'])
+    end.sort_by { |guard_detail| guard_detail['period_of_service_end_date'] }
   end
 end
