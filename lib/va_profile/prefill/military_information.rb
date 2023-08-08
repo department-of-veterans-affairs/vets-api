@@ -137,6 +137,11 @@ module VAProfile
     # @return [Array<Hash>] Data about the veteran's service periods
     #  including service branch served under and date range of each
     #  service period, used only for Form 526 - Disability form
+    #
+    # service_episodes_by_date returns and array of Military Services Episodes
+    #  and Service Academy Episodes. We're only interested in Military Service
+    #  Episodes, so we filter out the Service Academy Episodes by checking if
+    #  the episode has a period_of_service_end_date.
     def service_periods
       service_episodes_by_date.select do |episode|
         episode['period_of_service_end_date']
