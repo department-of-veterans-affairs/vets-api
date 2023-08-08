@@ -168,7 +168,11 @@ module VAProfile
       end
     end
 
-    def latest_guard_reserve_service_period; end
+    # @return [Hash] Cached array of veteran's Guard and reserve service
+    # periods sorted by end date
+    def latest_guard_reserve_service_period
+      guard_reserve_service_history.try(:[], 0)
+    end
     
     private
     
@@ -217,6 +221,6 @@ module VAProfile
   def guard_reserve_service_by_date
     military_service_episodes(military_personnel_service.service_episodes_by_date).each_with_object([]) do |episode, guard_details|
       guard_details.concat(episode['guard_reserve_periods'])
-    end.sort_by { |guard_detail| guard_detail['period_of_service_end_date'] }
+    end.sort_by { |guard_detail| guard_detail['period_of_service_end_date'] }.reverse
   end
 end
