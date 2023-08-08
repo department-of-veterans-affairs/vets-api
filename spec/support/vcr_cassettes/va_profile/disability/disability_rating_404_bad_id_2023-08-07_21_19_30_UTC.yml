@@ -1,0 +1,59 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://localhost:4000/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/10051%5ENI%5E200DOD%5EUSDOD
+    body:
+      encoding: UTF-8
+      string: '{"bios":[{"bioPath":"disabilityRating"}]}'
+    headers:
+      User-Agent:
+      - Faraday v0.17.6
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1830768971", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - 11399a28-81d5-4531-b5c1-7760b20866e2
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Content-Type:
+      - application/json
+      Date:
+      - Mon, 07 Aug 2023 21:19:31 GMT
+      Content-Length:
+      - '184'
+      Referrer-Policy:
+      - no-referrer
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"code":"MVI201","key":"MviNotFound","text":"The person
+        with the identifier requested was not found in MVI.","severity":"ERROR","potentiallySelfCorrectingOnRetry":false}]}'
+  recorded_at: Mon, 07 Aug 2023 21:19:31 GMT
+recorded_with: VCR 6.2.0

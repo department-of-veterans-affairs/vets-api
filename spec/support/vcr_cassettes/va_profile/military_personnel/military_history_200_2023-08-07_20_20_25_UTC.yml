@@ -1,0 +1,78 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://localhost:4000/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/1005127153%5ENI%5E200DOD%5EUSDOD
+    body:
+      encoding: UTF-8
+      string: '{"bios":[{"bioPath":"militaryPerson.militaryServiceHistory","parameters":{"scope":"all"}}]}'
+    headers:
+      User-Agent:
+      - Faraday v0.17.6
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="854503767", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - a6e306d1-79fc-4cae-9683-09631b3618c9
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Content-Type:
+      - application/json
+      Date:
+      - Mon, 07 Aug 2023 20:20:25 GMT
+      Content-Length:
+      - '3137'
+      Referrer-Policy:
+      - no-referrer
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"profile":{"militaryPerson":{"militaryServiceHistory":{"releaseFromActiveDutyDate":"2007-01-17","militaryServiceEpisodes":[{"serviceEpisodeIdentifier":442544,"branchOfServiceText":"Army","branchOfServiceCode":"A","organizationText":"Army
+        MILPERCEN DEERS Population: Eligible Army Active Duty","organizationCode":"11","episodeSequenceNumber":1,"periodOfServiceTypeText":"Active
+        duty member","periodOfServiceTypeCode":"A","periodOfServiceBeginDate":"2000-04-03","periodOfServiceEndDate":"2007-01-17","characterOfDischargeText":"Under
+        honorable conditions (general)","characterOfDischargeCode":"B","narrativeReasonForSeparationText":"UNKNOWN","narrativeReasonForSeparationCode":"999","narrativeReasonForSeparationFamilyText":"Unknown/Not
+        Applicable","narrativeReasonForSeparationFamilyCode":"Z","projectedDateOfSeparationCertaintyText":"DoD
+        provided a NULL or blank value","projectedDateOfSeparationCertaintyCode":"DVN","terminationReasonText":"Separation
+        from personnel category or organization","terminationReasonCode":"S","enlistedServiceYears":1,"deployments":[{"deploymentSequenceNumber":1,"deploymentBeginDate":"2003-04-03","deploymentEndDate":"2004-04-01","deploymentProjectText":"Overseas
+        Contingency Operation (OCO)","deploymentProjectCode":"9GF","deploymentTerminationReasonText":"Separation
+        from personnel category or organization","deploymentTerminationReasonCode":"S","deploymentLocations":[{"deploymentLocationSequenceNumber":2,"deploymentCountryText":"Sierra
+        Leone","deploymentCountryCode":"SL","deploymentLocationBodyOfWaterText":"DoD
+        provided a NULL or blank value","deploymentLocationBodyOfWaterCode":"DVN","deploymentLocationBeginDate":"2003-12-30","deploymentLocationEndDate":"2004-04-01","deploymentLocationTerminationReasonText":"DoD
+        provided a NULL or blank value","deploymentLocationTerminationReasonCode":"DVN"},{"deploymentLocationSequenceNumber":1,"deploymentCountryText":"DoD
+        provided a NULL or blank value","deploymentCountryCode":"DVN","deploymentLocationBodyOfWaterText":"Baltic
+        Sea","deploymentLocationBodyOfWaterCode":"7B","deploymentLocationBeginDate":"2003-04-03","deploymentLocationEndDate":"2003-12-12","deploymentLocationTerminationReasonText":"DoD
+        provided a NULL or blank value","deploymentLocationTerminationReasonCode":"DVN"}]},{"deploymentSequenceNumber":2,"deploymentBeginDate":"2005-02-01","deploymentEndDate":"2006-01-17","deploymentProjectText":"Overseas
+        Contingency Operation (OCO)","deploymentProjectCode":"9GF","deploymentTerminationReasonText":"Separation
+        from personnel category or organization","deploymentTerminationReasonCode":"S","deploymentLocations":[{"deploymentLocationSequenceNumber":1,"deploymentCountryText":"DoD
+        provided a NULL or blank value","deploymentCountryCode":"DVN","deploymentLocationBodyOfWaterText":"Gulf
+        of Lion","deploymentLocationBodyOfWaterCode":"8X","deploymentLocationBeginDate":"2005-02-01","deploymentLocationEndDate":"2006-01-17","deploymentLocationTerminationReasonText":"DoD
+        provided a NULL or blank value","deploymentLocationTerminationReasonCode":"DVN"}]}],"serviceComponentCode":"DVN","serviceComponentText":"DoD
+        provided a NULL or blank value"}]}}}}'
+  recorded_at: Mon, 07 Aug 2023 20:20:26 GMT
+recorded_with: VCR 6.2.0
