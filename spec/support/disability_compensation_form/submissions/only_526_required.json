@@ -31,25 +31,6 @@
       "autoCestPDFGenerationDisabled": false,
       "bddQualified": true,
       "applicationExpirationDate": "2015-08-28T19:53:45+00:00",
-      "servicePay": {
-        "waiveVABenefitsToRetainTrainingPay": true,
-        "waiveVABenefitsToRetainRetiredPay": false,
-        "militaryRetiredPay": {
-          "receiving": true,
-          "payment": {
-            "serviceBranch": "Air Force"
-          }
-        },
-        "separationPay": {
-          "received": true,
-          "payment": {
-            "serviceBranch": "Air Force"
-          },
-          "receivedDate": {
-            "year": "2000"
-          }
-        }
-      },
       "serviceInformation": {
         "separationLocationCode": "OU812",
         "servicePeriods": [
