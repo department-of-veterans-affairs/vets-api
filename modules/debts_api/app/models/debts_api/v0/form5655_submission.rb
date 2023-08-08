@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'user_profile_attribute_service'
-
 module DebtsApi
   class V0::Form5655Submission < ApplicationRecord
     self.table_name = 'form5655_submissions'
@@ -12,13 +10,6 @@ module DebtsApi
 
     def form
       @form_hash ||= JSON.parse(form_json)
-    end
-
-    def user_cache_id
-      user = User.find(user_uuid)
-      raise StaleUserError, user_uuid unless user
-
-      UserProfileAttributeService.new(user).cache_profile_attributes
     end
 
     def submit_to_vba
