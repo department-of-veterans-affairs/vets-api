@@ -44,20 +44,22 @@ module VAProfile
       # @return [Boolean] true if the user is currently
       #  serving in active duty
       def currently_active_duty
-        military_personnel_service.service_episodes_by_date.each do |episode|
-          if episode['period_of_service_end_date']
-            date = episode['period_of_service_end_date']
-            return date.empty? || DateTime.parse(date).to_date.future?
-          else
-            return false
-          end
-        end
+        currently_active_duty_hash[:yes]
       end
 
       # @return [Hash] currently active duty data in hash format
       def currently_active_duty_hash
-        # we can get the dates and figure it out that way, or we can 
-        # make a separate call to a different bio path. 
+        military_personnel_service.service_episodes_by_date.each do |episode|
+          value =
+            if episode['period_of_service_end_date']
+              date = episode['period_of_service_end_date']
+              date.empty? || DateTime.parse(date).to_date.future?
+            else
+              false
+            end
+
+          return { yes: value }
+        end
       end
 
       # @return [Boolean] true if veteran is paid for a disability
