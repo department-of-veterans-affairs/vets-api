@@ -143,9 +143,7 @@ module VAProfile
     #  Episodes, so we filter out the Service Academy Episodes by checking if
     #  the episode has a period_of_service_end_date.
     def service_periods
-      service_episodes_by_date.select do |episode|
-        episode['period_of_service_end_date']
-      end.map do |military_service_episode|
+        military_service_episodes(military_personnel_service.service_episodes_by_date).map do |military_service_episode|
         service_branch = service_branch_used_in_disability(military_service_episode)
         return {} unless service_branch
 
@@ -159,7 +157,16 @@ module VAProfile
       end
     end
 
-    def guard_reserve_service_history; end
+    # @return [Array<Hash>] Veteran's guard and reserve service episode date
+    #  ranges sorted by end_date
+    def guard_reserve_service_history
+      guard_reserve_service_by_date.map do |period|
+        {
+          from: period.begin_date,
+          to: period.end_date
+        }
+      end
+    end
 
     def latest_guard_reserve_service_period; end
     
@@ -192,5 +199,16 @@ module VAProfile
       service_name.gsub!('Air Force National Guard', 'Air National Guard')
       service_name if COMBINED_SERVICE_BRANCHES.include? service_name
     end
+  end
+
+  private
+  
+  # episodes returns an array of Military Services Episodes
+  #  and Service Academy Episodes. We're only interested in Military Service
+  #  Episodes, so we filter out the Service Academy Episodes by checking if
+  #  the episode has a period_of_service_end_date.
+  def military_service_episodes(episodes)
+  service_episodes_by_date.select do |episode|
+    episode['period_of_service_end_date']
   end
 end
