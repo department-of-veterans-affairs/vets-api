@@ -39,7 +39,8 @@
           "currentlyVaEmployee": {
             "type": "boolean",
             "description": "Set to true if Veteran is a VA employee.",
-            "default": false
+            "default": false,
+            "nullable": false
           },
           "serviceNumber": {
             "type": "string",
@@ -59,7 +60,9 @@
                 "agreeToEmailRelatedToClaim": {
                     "type": "boolean",
                     "description": "Agreement to email information relating to this claim.",
-                    "example": true
+                    "example": true,
+                    "default": false,
+                    "nullable": false
                 }
             }
           },
@@ -298,7 +301,8 @@
                   "servedInGulfWarHazardLocations": {
                       "type": "boolean",
                       "description": "Did the Veteran serve in any of the following Gulf War hazard locations? Iraq; Kuwait; Saudi Arabia; the neutral zone between Iraq and Saudi Arabia; Bahrain; Qatar; the United Arab Emirates; Oman; Yemen; Lebanon; Somalia; Afghanistan; Israel; Egypt; Turkey; Syria; Jordan; Djibouti; Uzbekistan; the Gulf of Aden; the Gulf of Oman; the Persian Gulf; the Arabian Sea; and the Red Sea.",
-                      "example": true
+                      "example": "YES",
+                      "nullable": true 
                   },
                   "serviceDates": {
                       "type": "object",
@@ -326,8 +330,9 @@
                 "properties": {
                     "servedInHerbicideHazardLocations": {
                         "type": "boolean",
-                        "description": "Did the Veteran serve in any of the following Herbicide (e.g., Agent Orange) locations? These locations include: Republic of Vietnam to include the 12 nautical mile territorial waters; Thailand at any United States or Royal Thai base; Laos; Cambodia at Mimot or Krek; Kampong Cham Province; Guam or American Samoa; or in the territorial waters thereof; Johnston Atoll or a ship that called at Johnston Atoll; Korean demilitarized zone; aboard (to include repeated operations and maintenance with) a C-123 aircraft known to have been used to spray an herbicide agent (during service in the Air Force and Air Force Reserves)."
-                    },
+                        "description": "Did the Veteran serve in any of the following Herbicide (e.g., Agent Orange) locations? These locations include: Republic of Vietnam to include the 12 nautical mile territorial waters; Thailand at any United States or Royal Thai base; Laos; Cambodia at Mimot or Krek; Kampong Cham Province; Guam or American Samoa; or in the territorial waters thereof; Johnston Atoll or a ship that called at Johnston Atoll; Korean demilitarized zone; aboard (to include repeated operations and maintenance with) a C-123 aircraft known to have been used to spray an herbicide agent (during service in the Air Force and Air Force Reserves).",
+                        "example": "YES",
+                        "nullable": true                     },
                     "otherLocationsServed": {
                         "type": "string",
                         "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
@@ -540,7 +545,9 @@
                 "isRelatedToToxicExposure": {
                     "type": "boolean",
                     "description": "Is the disability related to toxic exposures? If so, include exposure information.",
-                    "example": true
+                    "example": true,
+                    "default": false,
+                    "nullable": false
                 },
                 "exposureOrEventOrInjury": {
                     "type": "string",
@@ -810,7 +817,9 @@
                           }
                         },
                         "receivingInactiveDutyTrainingPay": {
-                          "type": "boolean"
+                          "type": "boolean",
+                          "nullable": true,
+                          "example": "YES"
                         }
                   }
               },
@@ -827,8 +836,9 @@
               },
               "servedInActiveCombatSince911": {
                   "type": "boolean",
-                  "description": "Did Veteran serve in a combat zone since 9-11-2001?",
-                  "example": true
+                  "description": "Did Veteran serve in a combat zone since 9-11-2001?",                      
+                  "example": "YES",
+                  "nullable": true 
               }
           }
       },
@@ -839,23 +849,28 @@
               "favorTrainingPay": {
                   "description": "Is the Veteran waiving VA benefits to retain training pay? See item 28 on form 21-526EZ for more details. ",
                   "type": "boolean",
-                  "example": true
+                  "example": true,
+                  "default": false,
+                  "nullable": false
               },
               "favorMilitaryRetiredPay": {
                   "description": "Is the Veteran waiving VA benefits to retain military retired pay? See item 26 on form 21-526EZ for more details.",
                   "type": "boolean",
-                  "example": true
+                  "example": true,
+                  "default": false,
+                  "nullable": false
               },
               "receivingMilitaryRetiredPay": {
                   "description": "Is the Veteran receiving military retired pay?",
-                  "type": "boolean",
-                  "example": true
+                  "type": "boolean",                      
+                  "example": "YES",
+                  "nullable": true 
               },
               "futureMilitaryRetiredPay": {
                   "description": "Will the Veteran receive military retired pay pay in future? \n If true, then 'futurePayExplanation' is required.",
                   "type": "boolean",
-                  "default": false,
-                  "example": false
+                  "example": "YES",
+                  "nullable": true 
               },
               "futureMilitaryRetiredPayExplanation": {
                   "description": "Explains why future pay will be received.",
@@ -919,8 +934,8 @@
               "receivedSeparationOrSeverancePay": {
                   "description": "Has the Veteran ever received separation pay, disability severance pay, or any other lump sum payment from their branch of service?",
                   "type": "boolean",
-                  "example": true,
-                  "default": true
+                  "example": "YES",
+                  "nullable": true 
               },
               "separationSeverancePay": {
                   "type": "object",
@@ -1019,7 +1034,8 @@
                 "noAccount": {
                     "type": "boolean",
                     "description": "Claimant certifies that they do not have an account with a financial institution or certified payment agent.",
-                    "default": false
+                    "default": false,
+                    "nullable": false
                 }
             }
         }
