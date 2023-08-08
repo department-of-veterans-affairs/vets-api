@@ -21,6 +21,7 @@ module DisabilityCompensation
       attribute :rated_disability_id, String
       attribute :rating_decision_id, String
       attribute :rating_percentage, Integer
+      attribute :maximum_rating_percentage, Integer
       attribute :related_disability_date, DateTime
       attribute :special_issues, Array[DisabilityCompensation::ApiProvider::SpecialIssue]
     end

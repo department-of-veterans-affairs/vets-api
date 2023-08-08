@@ -37,6 +37,9 @@
     "ratingPercentage": {
       "type": "integer"
     },
+    "maximumRatingPercentage": {
+      "type": ["integer", "null"]
+    },
     "relatedDisabilityDate": {
       "type": "datetime"
     },

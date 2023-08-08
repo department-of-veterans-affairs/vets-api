@@ -20,7 +20,8 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
              'diagnosticCode' => 5238,
              'decisionCode' => 'SVCCONNCTED',
              'decisionText' => 'Service Connected',
-             'ratingPercentage' => 50 }]
+             'ratingPercentage' => 50,
+             'maximumRatingPercentage' => nil }]
         end
 
         let(:lighthouse_user) { build(:evss_user, uuid: SecureRandom.uuid) }
@@ -114,14 +115,16 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
              'diagnosticCode' => 5238,
              'decisionCode' => 'SVCCONNCTED',
              'decisionText' => 'Service Connected',
-             'ratingPercentage' => 100 },
+             'ratingPercentage' => 100,
+             'maximumRatingPercentage' => nil },
            { 'name' => 'Diabetes mellitus1',
              'ratedDisabilityId' => '2',
              'ratingDecisionId' => '63655',
              'diagnosticCode' => 5238,
              'decisionCode' => 'SVCCONNCTED',
              'decisionText' => 'Service Connected',
-             'ratingPercentage' => 100 }]
+             'ratingPercentage' => 100,
+             'maximumRatingPercentage' => nil }]
         end
         let!(:in_progress_form) do
           form_json = JSON.parse(
