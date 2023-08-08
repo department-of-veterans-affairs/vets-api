@@ -1,0 +1,30 @@
+---
+http_interactions:
+  - request:
+      method: post
+      uri: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com/dev/actions/authenticated-check-in
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Server:
+          - Server
+        Date:
+          - Mon, 29 Jun 2020 15:46:52 GMT
+        Content-Type:
+          - application/json
+      body:
+        encoding: UTF-8
+        string: |-
+          {
+            "data" : {
+              "attributes" : {
+                "errors": ["e-check-in-not-allowed"],
+                "message": "Check-in unsuccessful with appointmentIen: appt-ien, patientDfn: patient-ien, stationNo: station-no"
+              },
+              "type" : "AuthenticatedCheckinResponse"
+            }
+          }
+    recorded_at: Mon, 29 Jun 2020 15:46:52 GMT
+recorded_with: VCR 6.0.0
