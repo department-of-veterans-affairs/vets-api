@@ -49,13 +49,14 @@ module Logging
         @start_time = Time.current
 
         log = {
-          process_id: Process.pid,
-          user_uuid: try(:current_user).try(:account_uuid),
-          action: 'Begin interaction with 3rd party API',
-          wrapped_method: "#{self.class}##{method_name}",
           start_time: @start_time.to_s,
-          passed_args: args
-        }.merge(additional_class_logs).merge(parse_instance_logs(additional_instance_logs))
+          wrapped_method: "#{self.class}##{method_name}",
+          passed_args: args.to_s
+        }
+
+        log.merge!(default_logs)
+           .merge!(additional_class_logs)
+           .merge!(parse_instance_logs(additional_instance_logs))
 
         Rails.logger.info(log)
       rescue => e
@@ -66,18 +67,25 @@ module Logging
         now = Time.current
 
         log = {
-          process_id: Process.pid,
-          user_uuid: try(:current_user).try(:account_uuid),
-          action: 'Complete interaction with 3rd party API',
-          wrapped_method: "#{self.class}##{method_name}",
           upload_duration: (now - @start_time).to_f,
+          wrapped_method: "#{self.class}##{method_name}",
           end_time: now.to_s,
           passed_args: args.to_s
-        }.merge(additional_class_logs).merge(parse_instance_logs(additional_instance_logs))
+        }
+
+        log.merge!(default_logs)
+           .merge!(additional_class_logs)
+           .merge!(parse_instance_logs(additional_instance_logs))
 
         Rails.logger.info(log)
       rescue => e
         Rails.logger.error(e)
+      end
+
+      def default_logs
+        {
+          process_id: Process.pid
+        }
       end
 
       def parse_instance_logs(additional_instance_logs)
@@ -95,8 +103,20 @@ module Logging
         # { user_uuid: nil }
         {}.tap do |obj|
           additional_instance_logs.each do |key, method_chain|
-            # using :try ensures we can fail quietly
-            obj[key] = method_chain.inject(self, :try)
+            # call each method in the passed chain sequentially.  Each sequential
+            # method call is performed on the result of the previous method call
+            # The first method is called on `self`, which is the object context
+            # from which we are logging, thus performing this method chain at
+            # the instance level, with all of it's available context.
+            obj[key] = method_chain.inject(self) do |result, meth|
+              # we need to allow for silent failures if a method is not defined.
+              # `.try` would not work for private methods, such as `current_user`,
+              # so we use `.respond_to?(<method>, true)` where `true` indicates
+              # a check against both public and private methods.  This is
+              # logically equivalent to using `.try` for each method, however
+              # `.send` is required to fully access the instance context.
+              result.send(meth) if result.respond_to?(meth, true)
+            end
           end
         end
       end
