@@ -23,18 +23,24 @@ module BenefitsClaims
       claims = config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options).body
       claims['data'] = filter_by_status(claims['data'])
       claims
+    rescue Faraday::TimeoutError
+      raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
     rescue Faraday::ClientError => e
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
     def get_claim(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
+    rescue Faraday::TimeoutError
+      raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
     rescue Faraday::ClientError => e
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
     def submit5103(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       config.post("#{@icn}/claims/#{id}/5103", {}, lighthouse_client_id, lighthouse_rsa_key_path, options).body
+    rescue Faraday::TimeoutError
+      raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
     rescue Faraday::ClientError => e
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
