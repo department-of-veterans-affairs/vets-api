@@ -42,12 +42,23 @@ module Chip
       super()
     end
 
+    ##
+    # Get the auth demographics data from CHIP
+    #
+    # @return [Faraday::Response] response from CHIP authenticated-demographics endpoint
+    #
     def get_demographics(patient_dfn:, station_no:)
-      perform(:get, '/actions/authenticated-demographics',
-              { patientDfn: patient_dfn, stationNo: station_no },
-              request_headers)
+      with_monitoring_and_error_handling do
+        perform(:get, '/actions/authenticated-demographics',
+                { patientDfn: patient_dfn, stationNo: station_no }, request_headers)
+      end
     end
 
+    ##
+    # Post the demographics confirmation data to CHIP
+    #
+    # @return [Faraday::Response] response from CHIP authenticated-demographics endpoint
+    #
     def update_demographics(patient_dfn:, station_no:, demographic_confirmations:)
       with_monitoring_and_error_handling do
         perform(:post, '/actions/authenticated-demographics',
