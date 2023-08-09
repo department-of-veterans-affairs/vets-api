@@ -1,0 +1,154 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veterans.va.gov/vaos/v1/patients/1012845331V153043/appointments/180402
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 08 Aug 2023 20:19:59 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '938'
+      Server:
+      - openresty
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '956'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"data":{"id":"180402","identifier":[{"system":"urn:va.gov:masv2:cerner:appointment","value":"Appointment/52499028"}],"kind":"clinic","status":"booked","serviceTypes":[{"coding":[{"system":"https://fhir.cerner.com/d45741b3-8335-463d-ab16-8c5f0bcf78ed/codeSet/14249","code":"381456583"}]}],"description":"PC
+        Established Patient","patientIcn":"1012845331V153043","locationId":"757","practitioners":[{"name":{"family":"Everett","given":["Matthew","DO"]}}],"start":"2024-07-19T12:00:00Z","end":"2024-07-19T12:30:00Z","minutesDuration":30,"requestedPeriods":[{"start":"2024-07-19T12:00:00Z","end":"2024-07-19T12:30:00Z"}],"cancellable":false,"patientInstruction":"Preparations:\n-
+        If you have any new non-VA medical records since your last visit, please bring
+        them.\r\nIf you need to cancel or reschedule your appointment, please call
+        our Contact Center at 614-257-5200 or visit the patient portal.","extension":{"ccLocation":{"address":{}}}}}'
+  recorded_at: Tue, 08 Aug 2023 20:19:59 GMT
+- request:
+    method: get
+    uri: https://veterans.va.gov/facilities/v2/facilities/757
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 08 Aug 2023 20:19:59 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1319'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.21.2
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - e6edae5
+      X-Vamf-Timestamp:
+      - '2023-07-03T20:22:49+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '1'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id" : "757",
+          "facilitiesApiId" : "vha_757",
+          "vistaSite" : "757",
+          "vastParent" : "757",
+          "type" : "va_health_facility",
+          "name" : "Chalmers P. Wylie Veterans Outpatient Clinic",
+          "classification" : "Health Care Center (HCC)",
+          "timezone" : {
+            "timeZoneId" : "America/New_York"
+          },
+          "lat" : 39.98048,
+          "long" : -82.9123,
+          "website" : "https://www.va.gov/central-ohio-health-care/locations/chalmers-p-wylie-veterans-outpatient-clinic/",
+          "phone" : {
+            "main" : "614-257-5200",
+            "fax" : "614-257-5460",
+            "pharmacy" : "614-257-5230",
+            "afterHours" : "614-257-5512",
+            "patientAdvocate" : "614-257-5290",
+            "mentalHealthClinic" : "614-257-5631",
+            "enrollmentCoordinator" : "614-257-5628"
+          },
+          "mailingAddress" : {
+            "type" : "postal",
+            "line" : [ null, null, null ]
+          },
+          "physicalAddress" : {
+            "type" : "physical",
+            "line" : [ "420 North James Road", null, null ],
+            "city" : "Columbus",
+            "state" : "OH",
+            "postalCode" : "43219-1834"
+          },
+          "mobile" : false,
+          "healthService" : [ "Audiology", "Cardiology", "CaregiverSupport", "Covid19Vaccine", "Dermatology", "Gastroenterology", "Gynecology", "Nutrition", "Orthopedics", "Podiatry", "PrimaryCare", "UrgentCare", "Urology", "WomensHealth" ],
+          "operatingStatus" : {
+            "code" : "NORMAL"
+          },
+          "visn" : "10"
+        }
+  recorded_at: Tue, 08 Aug 2023 20:19:59 GMT
+recorded_with: VCR 6.2.0

@@ -227,6 +227,17 @@ describe VAOS::V2::AppointmentsService do
       end
     end
 
+    context 'when requesting a list of appointments containing a booked cerner appointment' do
+      it 'sets the requested periods to nil' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200_booked_cerner',
+                         allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
+          response = subject.get_appointments(start_date2, end_date2)
+          expect(response[:data][0][:requested_periods]).to be_nil
+          expect(response[:data][1][:requested_periods]).not_to be_nil
+        end
+      end
+    end
+
     context '400' do
       it 'raises a 400 error' do
         VCR.use_cassette('vaos/v2/appointments/get_appointments_400', match_requests_on: %i[method path query]) do
@@ -281,6 +292,19 @@ describe VAOS::V2::AppointmentsService do
             expect(response[:status]).to eq('proposed')
             expect(response[:requested_periods][0][:local_start_time]).to eq('Sun, 19 Dec 2021 19:00:00 -0500')
           end
+        end
+      end
+    end
+
+    context 'when requesting a booked cerner appointment' do
+      let(:user) { build(:user, :vaos) }
+
+      it 'returns a booked cerner appointment with the requested periods set to nil' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointment_200_booked_cerner',
+                         match_requests_on: %i[method path query]) do
+          resp = subject.get_appointment('180402')
+          expect(resp[:id]).to eq('180402')
+          expect(resp[:requested_periods]).to be_nil
         end
       end
     end
@@ -497,6 +521,89 @@ describe VAOS::V2::AppointmentsService do
       expect { subject.send(:remove_service_type, appt_non) }.to change(appt_non, :keys)
         .from(%i[kind service_category service_type service_types])
         .to(%i[kind service_category])
+    end
+  end
+
+  describe '#cerner?' do
+    it 'raises an ArgumentError if appt is nil' do
+      expect { subject.send(:cerner?, nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
+    end
+
+    it 'returns true when the appointment is cerner' do
+      appt = {
+        identifier: [
+          {
+            system: 'urn:va.gov:masv2:cerner:appointment',
+            value: 'Appointment/52499028'
+          }
+        ]
+      }
+
+      expect(subject.send(:cerner?, appt)).to eq(true)
+    end
+
+    it 'returns false when the appointment is not cerner' do
+      appt = {
+        identifier: [
+          {
+            system: 'someother system',
+            value: 'appointment/1'
+          }
+        ]
+      }
+
+      expect(subject.send(:cerner?, appt)).to eq(false)
+    end
+
+    it 'returns true when at least one identifier is cerner' do
+      appt = {
+        identifier: [
+          {
+            system: 'someother system',
+            value: 'appointment/1'
+          },
+          {
+            system: 'urn:va.gov:masv2:cerner:appointment',
+            value: 'Appointment/52499028'
+          }
+        ]
+      }
+
+      expect(subject.send(:cerner?, appt)).to eq(true)
+    end
+
+    it 'returns false when the appointment does not contain identifier(s)' do
+      appt = {}
+
+      expect(subject.send(:cerner?, appt)).to eq(false)
+    end
+  end
+
+  describe '#booked?' do
+    it 'returns true when the appointment status is booked' do
+      appt = {
+        status: 'booked'
+      }
+
+      expect(subject.send(:booked?, appt)).to eq(true)
+    end
+
+    it 'returns false when the appointment status is not booked' do
+      appt = {
+        status: 'cancelled'
+      }
+
+      expect(subject.send(:booked?, appt)).to eq(false)
+    end
+
+    it 'returns false when the appointment does not contain status' do
+      appt = {}
+
+      expect(subject.send(:booked?, appt)).to eq(false)
+    end
+
+    it 'raises an ArgumentError when the appointment nil' do
+      expect { subject.send(:booked?, nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
     end
   end
 end
