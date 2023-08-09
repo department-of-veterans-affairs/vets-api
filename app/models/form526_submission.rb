@@ -11,6 +11,7 @@ class Form526Submission < ApplicationRecord
   include Form526ClaimFastTrackingConcern
 
   wrap_with_logging(
+    :enqueue_backup_submission,
     :submit_form_4142,
     :submit_uploads,
     :submit_form_0781,
@@ -359,7 +360,8 @@ class Form526Submission < ApplicationRecord
                              Flipper.enabled?(flipper_sym) &&
                              submitted_claim_id.nil? &&
                              backup_submitted_claim_id.nil?
-    backup_job_jid = Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(id) if send_backup_submission
+
+    backup_job_jid = enqueue_backup_submission(id) if send_backup_submission
 
     log_message = {
       submission_id: id
@@ -368,6 +370,10 @@ class Form526Submission < ApplicationRecord
     log_message['error_message'] = e.message unless e.nil?
     log_message['backup_job_id'] = backup_job_jid unless backup_job_jid.nil?
     ::Rails.logger.error('Form526 Exhausted or Errored (non-retryable-error-path)', log_message)
+  end
+
+  def enqueue_backup_submission(id)
+    Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(id)
   end
 
   def submit_uploads
