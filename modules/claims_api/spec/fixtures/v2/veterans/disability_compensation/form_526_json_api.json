@@ -3,7 +3,7 @@
         "type": "form/526",
         "attributes": {
             "veteranIdentification": {
-                "currentlyVaEmployee": false,
+                "currentVaEmployee": false,
                 "mailingAddress": {
                     "numberAndStreet": "1234 Couch Street",
                     "apartmentOrUnitNumber": "22",
@@ -28,8 +28,8 @@
                 "servicePeriods": [
                     {
                         "serviceBranch": "Public Health Service",
-                        "activeDutyBeginDate": "1980-11-14",
-                        "activeDutyEndDate": "1991-11-30",
+                        "activeDutyBeginDate": "11-14-1980",
+                        "activeDutyEndDate": "11-30-1991",
                         "serviceComponent": "Active",
                         "separationLocationCode": "ABCDEFGHIJKLMN"
                     }
@@ -46,15 +46,15 @@
                 ],
                 "reservesNationalGuardService": {
                     "obligationTermsOfService": {
-                        "beginDate":"2019-06-04",
-                        "endDate":"2020-06-04"
+                        "beginDate":"06-04-2019",
+                        "endDate":"06-04-2020"
                     },
                     "unitName": "National Guard Unit Name",
                     "unitAddress": "1243 pine court",
-                    "component": "Active",
+                    "component": "National Guard",
                     "title10Activation": {
-                        "anticipatedSeparationDate": "6705-10-03",
-                        "title10ActivationDate": "3619-02-11"
+                        "anticipatedSeparationDate": "10-03-6705",
+                        "title10ActivationDate": "02-11-3619"
                     },
                     "unitPhone": {
                         "areaCode": "555",
@@ -106,8 +106,8 @@
             "claimDate": "2023-02-18",
             "changeOfAddress": {
                 "dates": {
-                    "beginDate": "2012-11-30",
-                    "endDate": "2013-10-11"
+                    "beginDate": "11-30-2012",
+                    "endDate": "10-11-2013"
                   },
                   "typeOfAddressChange": "TEMPORARY",
                   "numberAndStreet": "10 Peach St",
@@ -146,7 +146,7 @@
                     }
                 },
                 "additionalHazardExposures": {
-                    "additionalExposures": ["ASBESTOS", "SHAD"],
+                    "additionalExposures": ["ASBESTOS", "SHIPBOARD_HAZARD_AND_DEFENSE"],
                     "specifyOtherExposures": "Other exposure details",
                     "exposureDates": {
                         "beginDate": "07-2018",
