@@ -12,13 +12,16 @@ require 'form526_backup_submission/utilities/convert_to_pdf'
 require 'decision_review_v1/utilities/form_4142_processor'
 require 'central_mail/datestamp_pdf'
 require 'pdf_fill/filler'
+require 'logging/third_party_transaction'
 
 module Sidekiq
   module Form526BackupSubmissionProcess
     class Processor
+      extend Logging::ThirdPartyTransaction::MethodWrapper
+
       attr_reader :submission, :lighthouse_service, :zip, :initial_upload_location, :initial_upload_uuid,
                   :initial_upload, :docs_gathered, :initial_upload_fetched, :ignore_expiration
-      attr_accessor :docs
+      attr_accessor :docs, :submission_id
 
       FORM_526 = 'form526'
       FORM_526_DOC_TYPE = '21-526EZ'
@@ -48,9 +51,26 @@ module Sidekiq
 
       SUB_METHOD = (BKUP_SETTINGS.submission_method || 'single').to_sym
 
+      wrap_with_logging(
+        :get_form526_pdf,
+        :get_uploads,
+        :get_form4142_pdf,
+        :get_form0781_pdf,
+        :get_form8940_pdf,
+        :get_bdd_pdf,
+        :convert_docs_to_pdf,
+        additional_class_logs: {
+          action: 'Backup Submission processing'
+        },
+        additional_instance_logs: {
+          submission_id: %i[submission_id]
+        }
+      )
+
       # Takes a submission id, assembles all needed docs from its payload, then sends it to central mail via
       # lighthouse benefits intake API - https://developer.va.gov/explore/benefits/docs/benefits?version=current
       def initialize(submission_id, docs = [], get_upload_location_on_instantiation: true, ignore_expiration: false)
+        @submission_id = submission_id
         @submission = Form526Submission.find(submission_id)
         @docs = docs
         @docs_gathered = false
