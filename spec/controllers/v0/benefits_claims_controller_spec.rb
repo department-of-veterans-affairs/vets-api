@@ -53,6 +53,15 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(response).to have_http_status(:gateway_timeout)
       end
     end
+
+    context 'when LH takes too long to respond' do
+      it 'returns a status of 504' do
+        allow_any_instance_of(BenefitsClaims::Configuration).to receive(:get).and_raise(Faraday::TimeoutError)
+        get(:index)
+
+        expect(response).to have_http_status(:gateway_timeout)
+      end
+    end
   end
 
   describe '#show' do
@@ -95,6 +104,15 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
         expect(response).to have_http_status(:gateway_timeout)
       end
     end
+
+    context 'when LH takes too long to respond' do
+      it 'returns a status of 504' do
+        allow_any_instance_of(BenefitsClaims::Configuration).to receive(:get).and_raise(Faraday::TimeoutError)
+        get(:show, params: { id: '60038334' })
+
+        expect(response).to have_http_status(:gateway_timeout)
+      end
+    end
   end
 
   describe '#submit5103' do
@@ -112,6 +130,15 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
       end
 
       expect(response).to have_http_status(:not_found)
+    end
+
+    context 'when LH takes too long to respond' do
+      it 'returns a status of 504' do
+        allow_any_instance_of(BenefitsClaims::Configuration).to receive(:post).and_raise(Faraday::TimeoutError)
+        post(:submit5103, params: { id: '60038334' })
+
+        expect(response).to have_http_status(:gateway_timeout)
+      end
     end
   end
 end
