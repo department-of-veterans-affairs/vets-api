@@ -34,4 +34,30 @@ describe ClaimsApi::LocalBGS do
       end
     end
   end
+
+  # Testing potential ways the current check could be tricked
+  describe '#all' do
+    let(:subject_instance) { subject }
+    let(:id) { 12_343 }
+    let(:error_message) { { error: 'Did not work', code: 'XXX' } }
+    let(:empty_array) { [] }
+
+    context 'when an error message gets returned it still does not pass the count check' do
+      it 'returns an empty array' do
+        expect(error_message.count).to eq(2) # trick the claims count check
+        # error message should trigger return
+        allow(subject_instance).to receive(:find_benefit_claims_status_by_ptcpnt_id).with(id).and_return(error_message)
+        expect(subject.all(id)).to eq([]) # verify correct return
+      end
+    end
+
+    # Already being checked but based on an error seen just want to lock this in to ensure nothing gets missed
+    context 'when an empty array gets returned it still does not pass the count check' do
+      it 'returns an empty array' do
+        # error message should trigger return
+        allow(subject_instance).to receive(:find_benefit_claims_status_by_ptcpnt_id).with(id).and_return(empty_array)
+        expect(subject.all(id)).to eq([]) # verify correct return
+      end
+    end
+  end
 end
