@@ -91,23 +91,23 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(apartment_or_unit_number).to eq('22')
         expect(city).to eq('Portland')
         expect(country).to eq('US')
-        expect(zip).to eq('417261234')
+        expect(zip).to eq('41726-1234')
         expect(state).to eq('OR')
       end
 
       it 'maps the other veteran info' do
         mapper.map_claim
 
-        currently_va_employee = pdf_data[:data][:attributes][:identificationInformation][:currentlyVaEmployee]
+        current_va_employee = pdf_data[:data][:attributes][:identificationInformation][:currentVaEmployee]
         va_file_number = pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber]
         email = pdf_data[:data][:attributes][:identificationInformation][:emailAddress][:email]
         agree_to_email =
           pdf_data[:data][:attributes][:identificationInformation][:emailAddress][:agreeToEmailRelatedToClaim]
-        telephone = pdf_data[:data][:attributes][:identificationInformation][:veteranNumber][:telephone]
+        telephone = pdf_data[:data][:attributes][:identificationInformation][:phoneNumber][:telephone]
         international_telephone =
-          pdf_data[:data][:attributes][:identificationInformation][:veteranNumber][:internationalTelephone]
+          pdf_data[:data][:attributes][:identificationInformation][:phoneNumber][:internationalTelephone]
 
-        expect(currently_va_employee).to eq(false)
+        expect(current_va_employee).to eq(false)
         expect(va_file_number).to eq('AB123CDEF')
         expect(email).to eq('valid@somedomain.com')
         expect(agree_to_email).to eq(true)
@@ -122,17 +122,16 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
       it 'maps the dates' do
         mapper.map_claim
-
-        begin_date = pdf_data[:data][:attributes][:changeOfAddress][:dates][:beginningDate]
-        end_date = pdf_data[:data][:attributes][:changeOfAddress][:dates][:endingDate]
+        begin_date = pdf_data[:data][:attributes][:changeOfAddress][:effectiveDates][:start]
+        end_date = pdf_data[:data][:attributes][:changeOfAddress][:effectiveDates][:end]
         type_of_addr_change = pdf_data[:data][:attributes][:changeOfAddress][:typeOfAddressChange]
-        number_and_street = pdf_data[:data][:attributes][:changeOfAddress][:numberAndStreet]
+        number_and_street = pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:numberAndStreet]
         apartment_or_unit_number =
-          pdf_data[:data][:attributes][:changeOfAddress][:apartmentOrUnitNumber]
-        city = pdf_data[:data][:attributes][:changeOfAddress][:city]
-        country = pdf_data[:data][:attributes][:changeOfAddress][:country]
-        zip = pdf_data[:data][:attributes][:changeOfAddress][:zip]
-        state = pdf_data[:data][:attributes][:changeOfAddress][:state]
+          pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:apartmentOrUnitNumber]
+        city = pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:city]
+        country = pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:country]
+        zip = pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:zip]
+        state = pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:state]
 
         expect(begin_date).to eq('2012-11-30')
         expect(end_date).to eq('2013-10-11')
@@ -141,7 +140,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(apartment_or_unit_number).to eq('22')
         expect(city).to eq('Atlanta')
         expect(country).to eq('US')
-        expect(zip).to eq('422209897')
+        expect(zip).to eq('42220-9897')
         expect(state).to eq('GA')
       end
     end
@@ -182,40 +181,40 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         toxic_exp_data = pdf_data[:data][:attributes][:exposureInformation][:toxicExposure]
 
         gulf_locations = toxic_exp_data[:gulfWarHazardService][:servedInGulfWarHazardLocations]
-        gulf_begin_date = toxic_exp_data[:gulfWarHazardService][:serviceDates][:beginDate]
-        gulf_end_date = toxic_exp_data[:gulfWarHazardService][:serviceDates][:endDate]
+        gulf_begin_date = toxic_exp_data[:gulfWarHazardService][:serviceDates][:start]
+        gulf_end_date = toxic_exp_data[:gulfWarHazardService][:serviceDates][:end]
 
         herbicide_locations = toxic_exp_data[:herbicideHazardService][:servedInHerbicideHazardLocations]
         other_locations = toxic_exp_data[:herbicideHazardService][:otherLocationsServed]
-        herb_begin_date = toxic_exp_data[:herbicideHazardService][:serviceDates][:beginDate]
-        herb_end_date = toxic_exp_data[:herbicideHazardService][:serviceDates][:endDate]
+        herb_begin_date = toxic_exp_data[:herbicideHazardService][:serviceDates][:start]
+        herb_end_date = toxic_exp_data[:herbicideHazardService][:serviceDates][:end]
 
         additional_exposures = toxic_exp_data[:additionalHazardExposures][:additionalExposures]
         specify_other_exp = toxic_exp_data[:additionalHazardExposures][:specifyOtherExposures]
-        exp_begin_date = toxic_exp_data[:additionalHazardExposures][:exposureDates][:beginDate]
-        exp_end_date = toxic_exp_data[:additionalHazardExposures][:exposureDates][:endDate]
+        exp_begin_date = toxic_exp_data[:additionalHazardExposures][:exposureDates][:start]
+        exp_end_date = toxic_exp_data[:additionalHazardExposures][:exposureDates][:end]
 
-        multi_exp_begin_date = toxic_exp_data[:multipleExposures][:exposureDates][:beginDate]
-        multi_exp_end_date = toxic_exp_data[:multipleExposures][:exposureDates][:endDate]
+        multi_exp_begin_date = toxic_exp_data[:multipleExposures][:exposureDates][:start]
+        multi_exp_end_date = toxic_exp_data[:multipleExposures][:exposureDates][:end]
         multi_exp_location = toxic_exp_data[:multipleExposures][:exposureLocation]
         multi_exp_hazard = toxic_exp_data[:multipleExposures][:hazardExposedTo]
 
         expect(gulf_locations).to eq('YES')
-        expect(gulf_begin_date).to eq('07-2018')
-        expect(gulf_end_date).to eq('08-2018')
+        expect(gulf_begin_date).to eq('2018-07')
+        expect(gulf_end_date).to eq('2018-08')
 
         expect(herbicide_locations).to eq('YES')
         expect(other_locations).to eq('ABCDEFGHIJKLM')
-        expect(herb_begin_date).to eq('07-2018')
-        expect(herb_end_date).to eq('08-2018')
+        expect(herb_begin_date).to eq('2018-07')
+        expect(herb_end_date).to eq('2018-08')
 
-        expect(additional_exposures).to eq(%w[ASBESTOS SHAD])
+        expect(additional_exposures).to eq(%w[ASBESTOS SHIPBOARD_HAZARD_AND_DEFENSE])
         expect(specify_other_exp).to eq('Other exposure details')
-        expect(exp_begin_date).to eq('07-2018')
-        expect(exp_end_date).to eq('08-2018')
+        expect(exp_begin_date).to eq('2018-07')
+        expect(exp_end_date).to eq('2018-08')
 
-        expect(multi_exp_begin_date).to eq('07-2018')
-        expect(multi_exp_end_date).to eq('08-2018')
+        expect(multi_exp_begin_date).to eq('2018-07')
+        expect(multi_exp_end_date).to eq('2018-08')
         expect(multi_exp_location).to eq('ABCDEFGHIJKLMN')
         expect(multi_exp_hazard).to eq('ABCDEFGHIJKLMNO')
       end
@@ -233,7 +232,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         name = claim_info[:disabilities][0][:disability]
         relevance = claim_info[:disabilities][0][:serviceRelevance]
         date = claim_info[:disabilities][0][:approximateDate]
-        is_related = claim_info[:disabilities][0][:isRelatedToToxicExposure]
         event = claim_info[:disabilities][0][:exposureOrEventOrInjury]
         attribut_count = claim_info[:disabilities][0].count
         secondary_name = claim_info[:disabilities][1][:disability]
@@ -244,10 +242,9 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(has_conditions).to eq('YES')
         expect(name).to eq('Traumatic Brain Injury')
         expect(relevance).to eq('ABCDEFG')
-        expect(date).to eq('03-11-2018')
+        expect(date).to eq('March 2018')
         expect(event).to eq('EXPOSURE')
-        expect(is_related).to eq(true)
-        expect(attribut_count).to eq(5)
+        expect(attribut_count).to eq(4)
         expect(secondary_name).to eq('Cancer - Musculoskeletal - Elbow')
         expect(secondary_event).to eq('EXPOSURE')
         expect(secondary_relevance).to eq('ABCDEFG')
@@ -280,7 +277,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         no_date = tx_center_data[0][:doNotHaveDate]
         treatment_details = tx_center_data[0][:treatmentDetails]
 
-        expect(start_date).to eq('03-1985')
+        expect(start_date).to eq('1985-03')
         expect(no_date).to eq(false)
         expect(treatment_details).to eq('Traumatic Brain Injury, Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders, Cancer - Musculoskeletal - Elbow - Center One, Decatur, GA') # rubocop:disable Layout/LineLength
       end
@@ -295,25 +292,25 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
         serv_info = pdf_data[:data][:attributes][:serviceInformation]
 
-        branch = serv_info[:branchOfService]
+        branch = serv_info[:branchOfService][:branch]
         component = serv_info[:serviceComponent]
-        recent_start = serv_info[:mostRecentActiveService][:startDate]
-        recent_end = serv_info[:mostRecentActiveService][:endDate]
-        addtl_start = serv_info[:additionalPeriodsOfService][0][:startDate]
-        addtl_end = serv_info[:additionalPeriodsOfService][0][:endDate]
+        recent_start = serv_info[:mostRecentActiveService][:start]
+        recent_end = serv_info[:mostRecentActiveService][:end]
+        addtl_start = serv_info[:additionalPeriodsOfService][0][:start]
+        addtl_end = serv_info[:additionalPeriodsOfService][0][:end]
         last_sep = serv_info[:placeOfLastOrAnticipatedSeparation]
         pow = serv_info[:confinedAsPrisonerOfWar]
-        pow_start = serv_info[:prisonerOfWarConfinement][:confinementDates][0][:startDate]
-        pow_end = serv_info[:prisonerOfWarConfinement][:confinementDates][0][:endDate]
-        pow_start_two = serv_info[:prisonerOfWarConfinement][:confinementDates][1][:startDate]
-        pow_end_two = serv_info[:prisonerOfWarConfinement][:confinementDates][1][:endDate]
+        pow_start = serv_info[:prisonerOfWarConfinement][:confinementDates][0][:start]
+        pow_end = serv_info[:prisonerOfWarConfinement][:confinementDates][0][:end]
+        pow_start_two = serv_info[:prisonerOfWarConfinement][:confinementDates][1][:start]
+        pow_end_two = serv_info[:prisonerOfWarConfinement][:confinementDates][1][:end]
         natl_guard = serv_info[:servedInReservesOrNationalGuard]
         natl_guard_comp = serv_info[:reservesNationalGuardService][:component]
-        obl_begin = serv_info[:reservesNationalGuardService][:obligationTermsOfService][:beginDate]
-        obl_end = serv_info[:reservesNationalGuardService][:obligationTermsOfService][:endDate]
+        obl_begin = serv_info[:reservesNationalGuardService][:obligationTermsOfService][:start]
+        obl_end = serv_info[:reservesNationalGuardService][:obligationTermsOfService][:end]
         unit_name = serv_info[:reservesNationalGuardService][:unitName]
         unit_address = serv_info[:reservesNationalGuardService][:unitAddress]
-        unit_phone = serv_info[:reservesNationalGuardService][:unitPhone]
+        unit_phone = serv_info[:reservesNationalGuardService][:unitPhoneNumber]
         act_duty_pay = serv_info[:reservesNationalGuardService][:receivingInactiveDutyTrainingPay]
         other_name = serv_info[:servedUnderAnotherName]
         fed_orders = serv_info[:activatedOnFederalOrders]
@@ -323,25 +320,24 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         served_after_nine_eleven = serv_info[:servedInActiveCombatSince911]
 
         expect(branch).to eq('Public Health Service')
-        expect(component).to eq('Active')
+        expect(component).to eq('ACTIVE')
         expect(recent_start).to eq('1980-11-14')
         expect(recent_end).to eq('1991-11-30')
         expect(addtl_start).to eq('1980-11-14')
         expect(addtl_end).to eq('1991-11-30')
         expect(last_sep).to eq('ABCDEFGHIJKLMN')
         expect(pow).to eq('YES')
-        expect(pow_start).to eq('06-04-2018')
-        expect(pow_end).to eq('06-04-2018')
-        expect(pow_start_two).to eq('06-2020')
-        expect(pow_end_two).to eq('06-2020')
+        expect(pow_start).to eq('2018-06-04')
+        expect(pow_end).to eq('2018-06-04')
+        expect(pow_start_two).to eq('2020-06')
+        expect(pow_end_two).to eq('2020-06')
         expect(natl_guard).to eq('YES')
-        expect(natl_guard_comp).to eq('Active')
+        expect(natl_guard_comp).to eq('NATIONAL_GUARD')
         expect(obl_begin).to eq('2019-06-04')
         expect(obl_end).to eq('2020-06-04')
         expect(unit_name).to eq('National Guard Unit Name')
         expect(unit_address).to eq('1243 pine court')
-        expect(unit_phone[:areaCode]).to eq('555')
-        expect(unit_phone[:phoneNumber]).to eq('5555555')
+        expect(unit_phone).to eq('5555555555')
         expect(act_duty_pay).to eq('YES')
         expect(other_name).to eq('YES')
         expect(alt_names).to eq('john jacob, johnny smith')
@@ -362,7 +358,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         service_pay_data = pdf_data[:data][:attributes][:servicePay]
         favor_mil_retired_pay = service_pay_data[:favorMilitaryRetiredPay]
         receiving_mil_retired_pay = service_pay_data[:receivingMilitaryRetiredPay]
-        branch_of_service = service_pay_data[:militaryRetiredPay][:branchOfService]
+        branch_of_service = service_pay_data[:militaryRetiredPay][:branchOfService][:branch]
 
         expect(favor_mil_retired_pay).to eq(false)
         expect(receiving_mil_retired_pay).to eq('NO')

@@ -44,7 +44,7 @@
                 "additionalProperties": false,
                 "required": ["mailingAddress"],
                 "properties": {
-                  "currentlyVaEmployee": {
+                  "currentVaEmployee": {
                     "type": "boolean",
                     "description": "Set to true if Veteran is a VA employee.",
                     "default": false
@@ -155,16 +155,16 @@
                         "type": "object",
                         "properties": {
                             "beginDate": {
-                                "description": "Date in YYYY-MM-DD the Veteran changed address. Date must be in the future if change is temporary.",
-                                "pattern": "^$|^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                "description": "Date in MM-DD-YYYY the Veteran changed address. Date must be in the future if change is temporary.",
+                                "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
                                 "type": "string",
-                                "example": "2018-06-04"
+                                "example": "06-04-2018"
                             },
                             "endDate": {
-                                "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
+                                "description": "Date in MM-DD-YYYY the changed address expires, if change is temporary.",
                                 "type": "string",
-                                "pattern": "^$|^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
-                                "example": "2018-06-04"
+                                "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+                                "example": "06-04-2018"
                             }
                         }
                     },
@@ -373,7 +373,7 @@
                                         "ASBESTOS",
                                         "MUSTARD_GAS",
                                         "RADIATION",
-                                        "SHAD",
+                                        "SHIPBOARD_HAZARD_AND_DEFENSE",
                                         "MILITARY_OCCUPATIONAL_SPECIALTY_RELATED",
                                         "CONTAMINATED_WATER_AT_CAMP_LEJEUNE",
                                         "OTHER"
@@ -706,14 +706,14 @@
                                 "activeDutyBeginDate": {
                                     "description": "Date Started Active Duty.",
                                     "type": "string",
-                                    "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
-                                    "example": "1980-02-05"
+                                    "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+                                    "example": "02-05-1980"
                                 },
                                 "activeDutyEndDate": {
                                     "description": "Date Completed Active Duty.  If in the future, 'separationLocationCode' is required.",
                                     "type": "string",
-                                    "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
-                                    "example": "1990-01-02"
+                                    "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+                                    "example": "01-02-1990"
                                 },
                                 "separationLocationCode": {
                                     "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -753,14 +753,14 @@
                                 "additionalProperties": false,
                                 "properties": {
                                     "beginDate": {
-                                        "pattern": "^$|^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                        "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
                                         "type": "string",
-                                        "example": "2018-06-04"
+                                        "example": "06-04-2018"
                                     },
                                     "endDate": {
-                                        "pattern": "^$|^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$",
+                                        "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
                                         "type": "string",
-                                        "example": "2018-06-04"
+                                        "example": "06-04-2018"
                                     }
                                 }
                             },
@@ -777,12 +777,14 @@
                                   "anticipatedSeparationDate": {
                                     "description": "Anticipated date of separation. Date must be in the future.",
                                     "type": "string",
-                                    "pattern": "^$|^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
+                                    "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+                                    "example": "06-04-2018"
                                   },
                                   "title10ActivationDate": {
                                     "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
                                     "type": "string",
-                                    "pattern": "^$|^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
+                                    "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+                                    "example": "06-04-2018"
                                   }
                                 }
                               },

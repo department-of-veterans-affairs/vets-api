@@ -65,7 +65,7 @@ module ClaimsApi
 
         # If the date parse fails, then fall back to the InvalidFieldValue
         begin
-          return if Date.parse(date) < Time.zone.now
+          return if Date.strptime(date, '%m-%d-%Y') < Time.zone.now
         rescue
           raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.beginDate', date)
         end
@@ -82,7 +82,8 @@ module ClaimsApi
 
         raise_exception_if_value_not_present('end date', form_object_desc) if date.blank?
 
-        return if Date.parse(date) > Date.parse(change_of_address.dig('dates', 'beginDate'))
+        return if Date.strptime(date,
+                                '%m-%d-%Y') > Date.strptime(change_of_address.dig('dates', 'beginDate'), '%m-%d-%Y')
 
         raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.endDate', date)
       end
@@ -448,7 +449,6 @@ module ClaimsApi
             detail: 'Service information is required'
           )
         end
-
         validate_service_periods!
         validate_confinements!(service_information)
         validate_alternate_names!(service_information)
@@ -459,13 +459,13 @@ module ClaimsApi
         service_information = form_attributes['serviceInformation']
 
         service_information['servicePeriods'].each do |sp|
-          if Date.parse(sp['activeDutyBeginDate']) > Date.parse(sp['activeDutyEndDate'])
+          if Date.strptime(sp['activeDutyBeginDate'], '%m-%d-%Y') > Date.strptime(sp['activeDutyEndDate'], '%m-%d-%Y')
             raise ::Common::Exceptions::UnprocessableEntity.new(
               detail: 'Active Duty End Date needs to be after Active Duty Start Date'
             )
           end
 
-          if Date.parse(sp['activeDutyEndDate']) > Time.zone.now && sp['separationLocationCode'].empty?
+          if Date.strptime(sp['activeDutyEndDate'], '%m-%d-%Y') > Time.zone.now && sp['separationLocationCode'].empty?
             raise ::Common::Exceptions::UnprocessableEntity.new(
               detail: 'If Active Duty End Date is in the future a Separation Location Code is required.'
             )
@@ -540,7 +540,7 @@ module ClaimsApi
         raise_exception_if_value_not_present('begin date', form_obj_desc) if tos_start_date.blank?
         raise_exception_if_value_not_present('end date', form_obj_desc) if tos_end_date.blank?
 
-        if Date.parse(tos_start_date) > Date.parse(tos_end_date)
+        if Date.strptime(tos_start_date, '%m-%d-%Y') > Date.strptime(tos_end_date, '%m-%d-%Y')
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail: 'Terms of service begin date must be before the terms of service end date.'
           )
@@ -579,14 +579,16 @@ module ClaimsApi
         service_information = form_attributes['serviceInformation']
         service_periods = service_information&.dig('servicePeriods')
 
-        earliest_active_duty_begin_date = service_periods.max_by { |a| Date.parse(a['activeDutyBeginDate']) }
+        earliest_active_duty_begin_date = service_periods.max_by do |a|
+          Date.strptime(a['activeDutyBeginDate'], '%m-%d-%Y')
+        end
 
         # return true if activationDate is an earlier date
-        Date.parse(activation_date) < Date.parse(earliest_active_duty_begin_date['activeDutyBeginDate'])
+        Date.parse(activation_date) < Date.strptime(earliest_active_duty_begin_date['activeDutyBeginDate'], '%m-%d-%Y')
       end
 
       def validate_anticipated_seperation_date_in_past!(date)
-        if Date.parse(date) < Time.zone.now
+        if Date.strptime(date, '%m-%d-%Y') < Time.zone.now
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail: 'The anticipated separation date must be a date in the future.'
           )

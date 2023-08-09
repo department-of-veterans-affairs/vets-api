@@ -83,7 +83,7 @@ module ClaimsApi
 
       def veteran_meta
         @evss_claim[:veteran] ||= {}
-        @evss_claim[:veteran][:currentlyVAEmployee] = @data.dig(:veteranIdentification, :currentlyVaEmployee)
+        @evss_claim[:veteran][:currentVAEmployee] = @data.dig(:veteranIdentification, :currentVaEmployee)
         @evss_claim[:veteran][:emailAddress] = @data.dig(:veteranIdentification, :emailAddress, :email)
         @evss_claim[:veteran][:fileNumber] = @data.dig(:veteranIdentification, :vaFileNumber)
       end

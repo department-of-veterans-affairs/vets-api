@@ -42,7 +42,7 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
 
       it 'maps the other veteran info' do
         expect(evss_data[:veteran][:fileNumber]).to eq('AB123CDEF')
-        expect(evss_data[:veteran][:currentlyVAEmployee]).to eq(false)
+        expect(evss_data[:veteran][:currentVAEmployee]).to eq(false)
         expect(evss_data[:veteran][:emailAddress]).to eq('valid@somedomain.com')
       end
     end
