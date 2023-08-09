@@ -9,7 +9,7 @@ module EVSS
     include SentryLogging
 
     SYSTEM_NAME = 'vets.gov'
-    DEFAULT_TIMEOUT = 15 # in seconds
+    DEFAULT_TIMEOUT = 40 # in seconds
 
     def initialize(headers, use_mock = false)
       @headers = headers

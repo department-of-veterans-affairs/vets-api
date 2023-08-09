@@ -23,7 +23,7 @@ class EVSSClaimDocumentUploaderBase < CarrierWave::Uploader::Base
   before :store, :validate_file_size
 
   def size_range
-    1.byte...150.megabytes
+    1.byte...99.megabytes
   end
 
   def extension_allowlist
