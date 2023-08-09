@@ -366,4 +366,150 @@ describe Chip::Service do
       end
     end
   end
+
+  describe '#get_demographics' do
+    let(:service_obj) { subject.build(options) }
+    let(:patient_dfn) { 'patient_dfn_value' }
+    let(:station_no) { 'station_no_value' }
+
+    context 'successful response' do
+      let(:mailing_address) do
+        {
+          'street1' => 'Any Street',
+          'street2' => '',
+          'street3' => '',
+          'city' => 'Any Town',
+          'county' => '',
+          'state' => 'WV',
+          'zip' => '999980071',
+          'zip4' => nil,
+          'country' => 'USA'
+        }
+      end
+      let(:residential_address) do
+        {
+          'street1' => '186 Columbia Turnpike',
+          'street2' => '',
+          'street3' => '',
+          'city' => 'Florham Park',
+          'county' => '',
+          'state' => 'New Mexico',
+          'zip' => '07932',
+          'zip4' => nil,
+          'country' => 'USA'
+        }
+      end
+      let(:emergency_contact_address) do
+        {
+          'street1' => '690 Holcomb Bridge Rd',
+          'street2' => '',
+          'street3' => '',
+          'city' => 'Roswell',
+          'county' => '',
+          'state' => 'Georgia',
+          'zip' => '30076',
+          'zip4' => '',
+          'country' => 'USA'
+        }
+      end
+
+      let(:response_body) do
+        {
+          'data' => {
+            'insuranceVerificationNeeded' => false,
+            'needsConfirmation' => true,
+            'mailingAddress' => mailing_address,
+            'residentialAddress' => residential_address,
+            'homePhone' => '222-555-8235',
+            'officePhone' => '222-555-7720',
+            'cellPhone' => '315-378-9190',
+            'email' => 'payibo6648@weishu8.com',
+            'emergencyContact' => {
+              'name' => 'Bryant Richard',
+              'relationship' => 'Brother',
+              'phone' => '310-399-2006',
+              'workPhone' => '708-391-9015',
+              'address' => emergency_contact_address,
+              'needsConfirmation' => true
+            },
+            'nextOfKin' => {
+              'needsConfirmation' => true
+            }
+          },
+          'id' => '366',
+          'type' => 'authenticatedGetDemographicsResponse'
+        }
+      end
+
+      before do
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_token.total')
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_demographics.total')
+      end
+
+      it 'returns 200 with success message' do
+        VCR.use_cassette('chip/authenticated_demographics/get_demographics_200', match_requests_on: [:host]) do
+          VCR.use_cassette('chip/token/token_200') do
+            response = service_obj.get_demographics(patient_dfn:, station_no:)
+            expect(response.status).to be 200
+            expect(JSON.parse(response.body)).to eq(response_body)
+          end
+        end
+      end
+    end
+
+    context 'when chip returns a failure' do
+      let(:key) { 'CHIP_500' }
+      let(:response_values) { { status: 500, detail: nil, code: key, source: nil } }
+      let(:original_body) { '{ "title": "Error Fetching Demographic Updates" }' }
+
+      before do
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_demographics.fail',
+                                                        tags: ['error:ChipServiceException'])
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_demographics.total')
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_token.total')
+      end
+
+      it 'throws exception' do
+        VCR.use_cassette('chip/authenticated_demographics/get_demographics_500', match_requests_on: [:host]) do
+          VCR.use_cassette('chip/token/token_200') do
+            expect do
+              service_obj.get_demographics(patient_dfn:, station_no:)
+            end.to raise_exception(Chip::ServiceException) { |error|
+              expect(error.key).to eq(key)
+              expect(error.response_values).to eq(response_values)
+              expect(error.original_body).to eq(original_body)
+              expect(error.original_status).to eq(500)
+            }
+          end
+        end
+      end
+    end
+
+    context 'when token call returns a failure' do
+      let(:key) { 'CHIP_500' }
+      let(:response_values) { { status: 500, detail: nil, code: key, source: nil } }
+      let(:original_body) { '{"status":"500", "title":"Could not retrieve a token from LoROTA"}' }
+
+      before do
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_demographics.fail',
+                                                        tags: ['error:ChipServiceException'])
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_token.fail', tags: ['error:ChipServiceException'])
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_demographics.total')
+        expect(StatsD).to receive(:increment).once.with('api.chip.get_token.total')
+      end
+
+      it 'throws exception' do
+        VCR.use_cassette('chip/token/token_500') do
+          expect do
+            service_obj.get_demographics(patient_dfn:, station_no:)
+          end.to raise_exception(Chip::ServiceException) { |error|
+            expect(error.key).to eq(key)
+            expect(error.response_values).to eq(response_values)
+            expect(error.original_body).to eq(original_body)
+            expect(error.original_status).to eq(500)
+          }
+        end
+      end
+    end
+  end
 end
