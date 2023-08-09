@@ -249,7 +249,7 @@ module ClaimsApi
 
     def all(id)
       claims = find_benefit_claims_status_by_ptcpnt_id(id)
-      return [] if claims.count < 1
+      return [] if claims.count < 1 || claims[:benefit_claims_dto].blank?
 
       transform_bgs_claims_to_evss(claims)
     end
