@@ -6,7 +6,7 @@
       "claimProcessType": "STANDARD_CLAIM_PROCESS",
       "claimDate": "2020-12-18",
       "veteranIdentification": {
-        "currentlyVaEmployee": false,
+        "currentVaEmployee": false,
         "mailingAddress": {
           "numberAndStreet": "1234 Couch Street",
           "apartmentOrUnitNumber": "22",
@@ -26,11 +26,11 @@
           "internationalTelephone": "5555555555"
         },
         "vaFileNumber": "AB123CDEF"
-      },
-      "changeOfAddress": {
-        "dates": {
-          "beginDate": "2013-11-29",
-          "endDate": "2025-10-11"
+    },
+    "changeOfAddress": {
+      "dates": {
+        "beginDate": "11-29-2013",
+        "endDate": "10-11-2025"
         },
         "typeOfAddressChange": "TEMPORARY",
         "numberAndStreet": "10 Peach St",
@@ -71,7 +71,7 @@
         "additionalHazardExposures": {
           "additionalExposures": [
             "ASBESTOS",
-            "SHAD"
+            "SHIPBOARD_HAZARD_AND_DEFENSE"
           ],
           "specifyOtherExposures": "Other exposure details",
           "exposureDates": {
@@ -156,13 +156,13 @@
       ],
       "serviceInformation": {
         "servicePeriods": [
-          {
-            "serviceBranch": "Public Health Service",
-            "activeDutyBeginDate": "2015-11-14",
-            "activeDutyEndDate": "2018-11-30",
-            "serviceComponent": "Active",
-            "separationLocationCode": "V01D"
-          }
+            {
+              "serviceBranch": "Public Health Service",
+              "activeDutyBeginDate": "11-14-2015",
+              "activeDutyEndDate": "11-30-2018",
+              "serviceComponent": "Active",
+              "separationLocationCode": "V01D"
+            }
         ],
         "confinements": [
           {
@@ -175,22 +175,22 @@
           }
         ],
         "reservesNationalGuardService": {
-          "obligationTermsOfService": {
-            "beginDate": "2016-11-24",
-            "endDate": "2017-11-17"
-          },
-          "unitName": "National Guard Unit Name",
-          "unitAddress": "1243 pine court",
-          "component": "National Guard",
-          "title10Activation": {
-            "anticipatedSeparationDate": "2025-10-03",
-            "title10ActivationDate": "2018-02-11"
-          },
-          "unitPhone": {
-            "areaCode": "555",
-            "phoneNumber": "5555555"
-          },
-          "receivingInactiveDutyTrainingPay": true
+            "obligationTermsOfService": {
+              "beginDate":"11-24-2016",
+              "endDate":"11-17-2017"
+            },
+            "unitName": "National Guard Unit Name",
+            "unitAddress": "1243 pine court",
+            "component": "National Guard",
+            "title10Activation": {
+                "anticipatedSeparationDate": "10-03-2025",
+                "title10ActivationDate": "02-11-2018"
+            },
+            "unitPhone": {
+                "areaCode": "555",
+                "phoneNumber": "5555555"
+            },
+            "receivingInactiveDutyTrainingPay": true
         },
         "alternateNames": [
           "John Jacob Jingleheimer-Schmidt",
