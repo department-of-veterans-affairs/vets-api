@@ -26,11 +26,11 @@
           "internationalTelephone": "5555555555"
         },
         "vaFileNumber": "AB123CDEF"
-    },
-    "changeOfAddress": {
-      "dates": {
-        "beginDate": "11-29-2013",
-        "endDate": "10-11-2025"
+      },
+      "changeOfAddress": {
+        "dates": {
+          "beginDate": "11-29-2013",
+          "endDate": "10-11-2025"
         },
         "typeOfAddressChange": "TEMPORARY",
         "numberAndStreet": "10 Peach St",
@@ -69,10 +69,7 @@
           }
         },
         "additionalHazardExposures": {
-          "additionalExposures": [
-            "ASBESTOS",
-            "SHIPBOARD_HAZARD_AND_DEFENSE"
-          ],
+          "additionalExposures": ["ASBESTOS", "SHIPBOARD_HAZARD_AND_DEFENSE"],
           "specifyOtherExposures": "Other exposure details",
           "exposureDates": {
             "beginDate": "07-2011",
@@ -131,10 +128,7 @@
       ],
       "treatments": [
         {
-          "treatedDisabilityNames": [
-            "Hearing Loss",
-            "Traumatic Brain Injury"
-          ],
+          "treatedDisabilityNames": ["Hearing Loss", "Traumatic Brain Injury"],
           "center": {
             "name": "Center One",
             "state": "GA",
@@ -143,9 +137,7 @@
           "beginDate": "03-1985"
         },
         {
-          "treatedDisabilityNames": [
-            "Musculoskeletal - Foot"
-          ],
+          "treatedDisabilityNames": ["Musculoskeletal - Foot"],
           "center": {
             "name": "Center One",
             "state": "GA",
@@ -156,13 +148,13 @@
       ],
       "serviceInformation": {
         "servicePeriods": [
-            {
-              "serviceBranch": "Public Health Service",
-              "activeDutyBeginDate": "11-14-2015",
-              "activeDutyEndDate": "11-30-2018",
-              "serviceComponent": "Active",
-              "separationLocationCode": "V01D"
-            }
+          {
+            "serviceBranch": "Public Health Service",
+            "activeDutyBeginDate": "11-14-2015",
+            "activeDutyEndDate": "11-30-2018",
+            "serviceComponent": "Active",
+            "separationLocationCode": "V01D"
+          }
         ],
         "confinements": [
           {
@@ -175,27 +167,24 @@
           }
         ],
         "reservesNationalGuardService": {
-            "obligationTermsOfService": {
-              "beginDate":"11-24-2016",
-              "endDate":"11-17-2017"
-            },
-            "unitName": "National Guard Unit Name",
-            "unitAddress": "1243 pine court",
-            "component": "National Guard",
-            "title10Activation": {
-                "anticipatedSeparationDate": "10-03-2025",
-                "title10ActivationDate": "02-11-2018"
-            },
-            "unitPhone": {
-                "areaCode": "555",
-                "phoneNumber": "5555555"
-            },
-            "receivingInactiveDutyTrainingPay": true
+          "obligationTermsOfService": {
+            "beginDate": "11-24-2016",
+            "endDate": "11-17-2017"
+          },
+          "unitName": "National Guard Unit Name",
+          "unitAddress": "1243 pine court",
+          "component": "National Guard",
+          "title10Activation": {
+            "anticipatedSeparationDate": "10-03-2025",
+            "title10ActivationDate": "02-11-2018"
+          },
+          "unitPhone": {
+            "areaCode": "555",
+            "phoneNumber": "5555555"
+          },
+          "receivingInactiveDutyTrainingPay": true
         },
-        "alternateNames": [
-          "John Jacob Jingleheimer-Schmidt",
-          "Johnathon"
-        ],
+        "alternateNames": ["John Jacob Jingleheimer-Schmidt", "Johnathon"],
         "servedInActiveCombatSince911": false
       },
       "servicePay": {
