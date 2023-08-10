@@ -29,16 +29,12 @@ module VAProfile
       # Converts a decoded JSON response from VAProfile to an instance of the Disability model
       # @param rating [Hash] the decoded response rating from VAProfile
       # @return [VAProfile::Models::Disability] the model built from the response rating
-      def self.build_disability_data(rating)
-        VAProfile::Models::Disability.new(
-          combined_service_connected_rating_percentage: rating['combined_service_connected_rating_percentage']
-        )
-      end
-      
-      def self.build_from(rating)
+      def self.build_disability_rating(rating)
         return nil unless rating
 
-        build_disability_data(rating)
+        VAProfile::Models::Disability.new(
+          combined_service_connected_rating_percentage: rating
+        )
       end
     end
   end

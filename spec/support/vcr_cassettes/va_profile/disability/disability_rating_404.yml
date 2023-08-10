@@ -2,7 +2,8 @@
 http_interactions:
 - request:
     method: post
-    uri: https://localhost:4000/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/10051%5ENI%5E200DOD%5EUSDOD
+    # uri: https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/10051%5ENI%5E200DOD%5EUSDOD
+    uri: https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/1005127153%5ENI%5E200DOD%5EUSDOD  # this contains the full edipi
     body:
       encoding: UTF-8
       string: '{"bios":[{"bioPath":"disabilityRating"}]}'

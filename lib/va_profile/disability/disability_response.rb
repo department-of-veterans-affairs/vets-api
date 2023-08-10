@@ -6,28 +6,30 @@ require 'va_profile/models/disability'
 module VAProfile
   module Disability
     class DisabilityResponse < VAProfile::Response
-      attribute :rating, String
+      attribute :disability_rating, VAProfile::Models::Disability
 
       def self.from(_, raw_response = nil)
         body = raw_response&.body
-        rating = get_rating(body)
+        disability_rating = get_rating(body)
 
         new(
           raw_response&.status,
-          rating
+          disability_rating: disability_rating
         )
       end
 
       def self.get_rating(body)
         return nil unless body
 
-        rating = body&.dig(
+        combined_service_connected_rating_percentage = body&.dig(
           'profile',
           'disability_rating',
           'combined_service_connected_rating_percentage'
         )
 
-        VAProfile::Models::Disability.build_from(rating)
+        VAProfile::Models::Disability.build_disability_rating(
+          combined_service_connected_rating_percentage
+        )
       end
     end
   end

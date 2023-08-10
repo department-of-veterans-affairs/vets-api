@@ -6,7 +6,7 @@ require 'va_profile/service'
 require 'va_profile/stats'
 require 'va_profile/models/disability'
 require_relative 'configuration'
-require_relative 'disability_response'  # not created yet.
+require_relative 'disability_response'
 
 module VAProfile
   module Disability
@@ -20,7 +20,7 @@ module VAProfile
 
       # GET's a user's disability info from the VAProfile API
       # If a user is not found in VAProfile, an empty DisabilityResponse with a 404 status will be returned
-      # @return [VAProfile::Disability::DisabilityResponse] response wrapper around an service_history object
+      # @return [VAProfile::Disability::DisabilityResponse] response wrapper around a disability object
       def get_disability_data
         with_monitoring do
           edipi_present!
@@ -34,14 +34,13 @@ module VAProfile
           log_exception_to_sentry(
             e,
             { edipi: @user.edipi },
-            # { va_profile: :service_history_not_found },
-            { va_profile: :disability_data_not_found },  # is this right??
+            { va_profile: :disability_rating_not_found },
             :warning
           )
 
-          return DisabilityResponse.new(404, rating: nil)
+          return DisabilityResponse.new(404, disability_rating: nil)
         elsif e.status >= 400 && e.status < 500
-          return DisabilityResponse.new(e.status, rating: nil)
+          return DisabilityResponse.new(e.status, disability_rating: nil)
         end
 
         handle_error(e)
@@ -49,9 +48,8 @@ module VAProfile
         handle_error(e)
       end
 
-      # VA Profile military_personnel endpoints use the OID (Organizational Identifier), the EDIPI,
+      # VA Profile endpoints use the OID (Organizational Identifier), the EDIPI,
       # and the Assigning Authority ID to identify which person will be updated/retrieved.
-      # CHECK TO MAKE SURE THIS IS ACCURATE ^^
       def identity_path
         "#{OID}/#{ERB::Util.url_encode(edipi_with_aaid.to_s)}"
       end
