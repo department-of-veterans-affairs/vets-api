@@ -595,7 +595,7 @@ http_interactions:
       string: ''
     headers:
       Apikey:
-      - 6DazDH0cR9kD7hq0ABWcMIsVRmfm7Nk8
+      -
       User-Agent:
       - Faraday v0.17.6
       Accept-Encoding:
