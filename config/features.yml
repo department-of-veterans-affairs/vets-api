@@ -521,7 +521,8 @@ features:
     description: Toggle to enable login.gov create account experiment
   reactivation_experiment_initial_gate:
     actor_type: user
-    description: Toggle to enable all users to enter the eligibility check portion of the flow.  This only be set to
+    description:
+      Toggle to enable all users to enter the eligibility check portion of the flow.  This only be set to
       enabled for one (1) week at the longest, starting 20JULY2023 or 21JULY2023 depending on deployment timing.
   reactivation_experiment_rate_limit:
     actor_type: user
@@ -576,10 +577,6 @@ features:
     description: "Use a single page route in Profile for editing or adding a field value"
     enable_in_development: true
     actor_type: user
-  profile_use_info_card:
-    description: "Use an accessible component for Profile application information card sections"
-    enable_in_development: true
-    actor_type: user
   profile_use_notification_settings_checkboxes:
     actor_type: user
     description: "Use checkboxes for Notification Settings in Profile - Default Send and Email Channel"
@@ -601,7 +598,7 @@ features:
     enable_in_development: true
   my_va_update_errors_warnings:
     actor_type: user
-    description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released) 
+    description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released)
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
