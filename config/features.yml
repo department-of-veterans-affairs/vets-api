@@ -679,6 +679,9 @@ features:
     actor_type: cookie_id
     description: Enables the ability to use OAuth authentication via the Sign in Service (Identity)
     enable_in_development: true
+  sign_in_page_and_modal_experiment_lga:
+    actor_type: user
+    description: Enables users to see updated design of the sign in page to facilitate login.gov and id.me adoption.
   medical_copays_zero_debt:
     actor_type: user
     description: Enables zero debt balances feature on the medical copays application
