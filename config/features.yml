@@ -124,6 +124,10 @@ features:
     actor_type: user
     description: Enables browser monitoring for check-in applications.
     enable_in_development: false
+  check_in_experience_unified_landing_page:
+    actor_type: user
+    description: Enables the unified experience version of the landing page.
+    enable_in_development: true
   claim_letters_access:
     actor_type: user
     description: Enables users to access the claim letters page
