@@ -55,6 +55,7 @@ Mobile::Engine.routes.draw do
     put '/user/phones', to: 'phones#update'
     delete '/user/phones', to: 'phones#destroy'
     put '/user/preferred_name', to: 'preferred_names#update'
+    get '/user/demographics', to: 'demographics#index'
     get '/health/rx/prescriptions', to: 'prescriptions#index'
     put '/health/rx/prescriptions/refill', to: 'prescriptions#refill'
     get '/health/rx/prescriptions/:id/tracking', to: 'prescriptions#tracking'
