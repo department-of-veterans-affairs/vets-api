@@ -1,0 +1,45 @@
+{ "data": [
+    {
+      "inquiryNumber": "A-1",
+      "inquiryTopic": "Topic",
+      "inquiryProcessingStatus": "In Progress",
+      "lastUpdate": "08/07/23",
+      "submitterQuestions": "This is a question",
+      "attachments": [
+        {
+        "activity": "activity_1",
+        "date_sent": "08/7/23"
+        }
+      ],
+      "userUuid": "6400bbf301eb4e6e95ccea7693eced6f"
+    },
+    {
+      "inquiryNumber": "A-2",
+      "inquiryTopic": "Topic",
+      "submitterQuestions": "This is a question",
+      "inquiryProcessingStatus": "In Progress",
+      "lastUpdate": "08/07/23",
+      "attachments": [
+        {
+        "activity": "activity_2",
+        "date_sent": "08/7/23"
+        }
+      ],
+      "userUuid": "6400bbf301eb4e6e95ccea7693eced6f"
+    },
+    {
+      "inquiryNumber": "A-3",
+      "inquiryTopic": "Topic",
+      "submitterQuestions": "This is a question",
+      "inquiryProcessingStatus": "In Progress",
+      "lastUpdate": "08/07/23",
+      "attachments": [
+        {
+        "activity": "activity_2",
+        "date_sent": "08/7/23"
+        }
+      ],
+      "userUuid": "88f572d491af46efa393cba6c351e252"
+    }
+  ]
+}

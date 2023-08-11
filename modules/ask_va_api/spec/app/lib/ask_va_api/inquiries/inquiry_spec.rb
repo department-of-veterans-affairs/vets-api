@@ -2,17 +2,17 @@
 
 require 'rails_helper'
 
-RSpec.describe AskVAApi::Inquiry::Creator do
+RSpec.describe AskVAApi::Inquiries::Inquiry do
   subject(:creator) { described_class }
 
   let(:info) do
     {
-      'inquiryNumber' => 'A-1',
-      'inquiryTopic' => 'Topic',
-      'submitterQuestions' => 'This is a question',
-      'inquiryProcessingStatus' => 'In Progress',
-      'lastUpdate' => '08/07/23',
-      'userUuid' => '6400bbf301eb4e6e95ccea7693eced6f'
+      inquiryNumber: 'A-1',
+      inquiryTopic: 'Topic',
+      submitterQuestions: 'This is a question',
+      inquiryProcessingStatus: 'In Progress',
+      lastUpdate: '08/07/23',
+      userUuid: '6400bbf301eb4e6e95ccea7693eced6f'
     }
   end
   let(:inquiry) { creator.new(info) }
