@@ -34,9 +34,8 @@ module SimpleFormsApi
             status: #{status}, uuid #{confirmation_number}"
         )
         render json: { confirmation_number: }, status:
-      rescue
-        raise "something has gone wrong with your form, #{params[:form_number]} and the entire " \
-              'error message has been redacted to keep PII from getting leaked'
+      rescue => e
+        raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
       end
 
       private
