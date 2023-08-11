@@ -91,6 +91,17 @@ describe VAProfile::Prefill::MilitaryInformation do
         end
       end
     end    
+
+    describe '#latest_guard_reserve_service_period' do
+      it "returns the latest Guard and reserve service period" do
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+          response = subject.latest_guard_reserve_service_period
+
+          expect(response).to eq({ from: '2002-02-02', to: '2008-12-01' })
+        end
+      end
+    end
+    
   end
 
   context 'using bio path disabilityRating' do
