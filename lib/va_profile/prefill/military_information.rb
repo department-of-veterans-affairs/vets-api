@@ -1,4 +1,6 @@
 require 'hca/military_information'
+require 'va_profile/military_personnel/service' ## NOT SURE THESE TWO ARE RIGHT
+require 'va_profile/disability/service'
 
 module VAProfile
   module Prefill
@@ -65,7 +67,7 @@ module VAProfile
       attr_reader :military_personnel_service, :disability_service, :disability_data
 
       def initialize(user)
-        @military_personnel_service = HCA::MilitaryInformation(user)
+        @military_personnel_service = HCA::MilitaryInformation.new(user)
         @disability_service = VAProfile::Disability::Service.new(user)
       end
 
@@ -149,7 +151,7 @@ module VAProfile
     def guard_reserve_service_history
       guard_reserve_service_by_date.map do |period|
         {
-          from: period['period_of_service_begin_date']
+          from: period['period_of_service_begin_date'],
           to: period['period_of_service_end_date']
         }
       end
