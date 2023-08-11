@@ -168,12 +168,10 @@ module VAProfile
       private
 
       def combined_service_connected_rating_percentage
-        # binding.pry
-        @combined_service_connected_rating_percentage ||= disability_data.combined_service_connected_rating_percentage
+        disability_data.disability_rating.combined_service_connected_rating_percentage
       end
       
       def disability_data
-        # binding.pry
         @disability_data ||= disability_service.get_disability_data
       end
 
@@ -202,8 +200,6 @@ module VAProfile
       end
     end
 
-    private
-    
     # episodes is an array of Military Services Episodes and Service Academy Episodes. We're only
     #  interested in Military Service Episodes, so we filter out the Service Academy Episodes by checking
     #  if the episode has a period_of_service_end_date.
