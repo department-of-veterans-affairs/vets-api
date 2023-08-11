@@ -52,7 +52,25 @@ describe VAProfile::Prefill::MilitaryInformation do
           expect(response).to eq({ yes: false})
         end
       end
-    end  
+    end
+
+    describe '#service_periods' do
+      it "returns an array of service periods with service branch and date range" do
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+          response = subject.service_periods
+    
+          expect(response).to be_an(Array)
+    
+          service_period = response.first
+          expect(service_period).to have_key(:service_branch)
+          expect(service_period).to have_key(:date_range)
+          
+          date_range = service_period[:date_range]
+          expect(date_range).to have_key(:from)
+          expect(date_range).to have_key(:to)
+        end
+      end
+    end
   end
 
   context 'using bio path disabilityRating' do
@@ -100,6 +118,6 @@ describe VAProfile::Prefill::MilitaryInformation do
           expect(response).to eq('highDisability')
         end
       end
-    end 
+    end
   end
 end

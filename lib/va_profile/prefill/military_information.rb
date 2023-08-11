@@ -130,15 +130,15 @@ module VAProfile
       #  including service branch served under and date range of each
       #  service period, used only for Form 526 - Disability form
       def service_periods
-          military_service_episodes(military_personnel_service.service_episodes_by_date).map do |military_service_episode|
+        military_service_episodes_by_date.map do |military_service_episode|
           service_branch = service_branch_used_in_disability(military_service_episode)
           return {} unless service_branch
 
           {
             service_branch:,
             date_range: {
-              from: military_service_episode['period_of_service_begin_date'],
-              to: military_service_episode['period_of_service_end_date']
+              from: military_service_episode.begin_date,
+              to: military_service_episode.end_date
             }
           }
         end
@@ -179,7 +179,7 @@ module VAProfile
       # Military service episode model
       # @return [String] Readable service branch name formatted for EVSS
       def service_branch_used_in_disability(military_service_episode)
-        category = case military_service_episode['period_of_service_type_code']
+        category = case military_service_episode.personnel_category_type_code
                   when 'A'
                     ''
                   when 'N'
@@ -190,26 +190,26 @@ module VAProfile
                     ''
                   end
 
-        service_name = "#{military_service_episode['branch_of_service_text']} #{category}".strip
+        service_name = "#{military_service_episode.branch_of_service} #{category}".strip
         service_name.gsub!('Air Force National Guard', 'Air National Guard')
         service_name if COMBINED_SERVICE_BRANCHES.include? service_name
       end
-    end
 
-    # episodes is an array of Military Services Episodes and Service Academy Episodes. We're only
-    #  interested in Military Service Episodes, so we filter out the Service Academy Episodes by checking
-    #  if the episode has a period_of_service_end_date.
-    def military_service_episodes(episodes)
-      service_episodes_by_date.select do |episode|
-        episode['period_of_service_end_date']
+      # @return [Array<Hash] array of veteran's Guard and reserve service periods by period of service end date, DESC
+      def guard_reserve_service_by_date
+        military_service_episodes_by_date.each_with_object([]) do |episode, guard_details|
+          guard_details.concat(episode['guard_reserve_periods'])
+        end.sort_by { |guard_detail| guard_detail['period_of_service_end_date'] }.reverse
       end
-    end
 
-    # @return [Array<Hash] array of veteran's Guard and reserve service periods by period of service end date, DESC
-    def guard_reserve_service_by_date
-      military_service_episodes(military_personnel_service.service_episodes_by_date).each_with_object([]) do |episode, guard_details|
-        guard_details.concat(episode['guard_reserve_periods'])
-      end.sort_by { |guard_detail| guard_detail['period_of_service_end_date'] }.reverse
+      # episodes is an array of Military Services Episodes and Service Academy Episodes. We're only
+      #  interested in Military Service Episodes, so we filter out the Service Academy Episodes by checking
+      #  if the episode has a period_of_service_end_date.
+      def military_service_episodes_by_date
+        military_personnel_service.service_episodes_by_date.select do |episode|
+          episode.service_type == 'Military Service'
+        end
+      end
     end
   end
 end
