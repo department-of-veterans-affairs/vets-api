@@ -73,11 +73,21 @@ describe VAProfile::Prefill::MilitaryInformation do
     end
 
     describe '#is_va_service_connected' do
-      it 'returns true if true if veteran is paid for a disability with a low disability percentage' do
+      it 'returns true if true if veteran is paid for a disability with a high disability percentage' do
         VCR.use_cassette('va_profile/disability/disability_rating_200') do
           response = subject.is_va_service_connected
   
           expect(response).to eq(true)
+        end
+      end
+    end
+
+    describe '#compensable_va_service_connected' do
+      it 'returns false if true if veteran is not paid for a disability with a low disability percentage' do
+        VCR.use_cassette('va_profile/disability/disability_rating_200') do
+          response = subject.compensable_va_service_connected
+  
+          expect(response).to eq(false)
         end
       end
     end 
