@@ -41,6 +41,7 @@ Mobile::Engine.routes.draw do
     put '/push/prefs/:endpoint_sid', to: 'push_notifications#set_pref'
     post '/push/send', to: 'push_notifications#send_notification'
     get '/user', to: 'users#show'
+    get '/user/contact-info', to: 'contact_info#show'
     get '/user/logout', to: 'users#logout'
     post '/user/addresses', to: 'addresses#create'
     put '/user/addresses', to: 'addresses#update'

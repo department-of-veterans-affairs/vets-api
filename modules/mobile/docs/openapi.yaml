@@ -3038,6 +3038,40 @@ paths:
       security:
         - Bearer: []
       summary: /v0/user
+  /v0/user/contact-info:
+    get:
+      description: |
+        Returns the user contact info. If the user does not have a vet360 id, the contact info will be null.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: ./schemas/UserContactInfo.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/user/contact-info
   /v1/user:
     get:
       description: |
