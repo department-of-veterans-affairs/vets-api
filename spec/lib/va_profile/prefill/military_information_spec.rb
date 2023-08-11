@@ -25,7 +25,7 @@ describe VAProfile::Prefill::MilitaryInformation do
     end
   
     describe '#currently_active_duty' do
-      it 'returns false if user is not currently serving in active duty' do
+      it 'returns false if veteran is not currently serving in active duty' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
           response = subject.currently_active_duty
   
@@ -35,7 +35,7 @@ describe VAProfile::Prefill::MilitaryInformation do
     end
   
     describe '#currently_active_duty_hash' do
-      it 'returns false if user is not currently serving in active duty' do
+      it 'returns false if veteran is not currently serving in active duty' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
           response = subject.currently_active_duty_hash
   
@@ -45,7 +45,7 @@ describe VAProfile::Prefill::MilitaryInformation do
     end
   
     describe '#currently_active_duty_hash' do
-      it 'returns false if user is not currently serving in active duty' do
+      it 'returns false if veteran is not currently serving in active duty' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
           response = subject.currently_active_duty_hash
   
