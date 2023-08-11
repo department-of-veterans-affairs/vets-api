@@ -180,15 +180,15 @@ module VAProfile
       # @return [String] Readable service branch name formatted for EVSS
       def service_branch_used_in_disability(military_service_episode)
         category = case military_service_episode.personnel_category_type_code
-                  when 'A'
-                    ''
-                  when 'N'
-                    'National Guard'
-                  when 'V' || 'Q'
-                    'Reserve'
-                  else
-                    ''
-                  end
+                     when 'A'
+                       ''
+                     when 'N'
+                       'National Guard'
+                     when 'V' || 'Q'
+                       'Reserve'
+                     else
+                       ''
+                   end
 
         service_name = "#{military_service_episode.branch_of_service} #{category}".strip
         service_name.gsub!('Air Force National Guard', 'Air National Guard')
