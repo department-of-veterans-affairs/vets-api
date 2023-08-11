@@ -90,6 +90,16 @@ describe VAProfile::Prefill::MilitaryInformation do
           expect(response).to eq(false)
         end
       end
+    end
+
+    describe '#va_compensation_type' do
+      it "returns 'highDisability' when veteran is paid for a highDisbility" do
+        VCR.use_cassette('va_profile/disability/disability_rating_200') do
+          response = subject.va_compensation_type
+  
+          expect(response).to eq('highDisability')
+        end
+      end
     end 
   end
 end

@@ -116,7 +116,6 @@ module VAProfile
         # while supporting fallback support for the old fields,
         # make a consistent number of calls to the properties to
         # support specs that will be removed or updated
-        ## I DON'T UNDERSTAND THESE ^^ COMMENTS. TAKEN FROM EMIS SIDE.
         high_disability = is_va_service_connected
         low_disability = compensable_va_service_connected
 
