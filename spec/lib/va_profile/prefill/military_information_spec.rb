@@ -21,4 +21,14 @@ describe VAProfile::Prefill::MilitaryInformation do
       end
     end
   end
+
+  describe '#currently_active_duty' do
+    it 'returns false if user is not currently serving in active duty' do
+      VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+        response = subject.currently_active_duty
+
+        expect(response).to eq(false)
+      end
+    end
+  end
 end

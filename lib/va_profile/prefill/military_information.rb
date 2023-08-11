@@ -87,8 +87,8 @@ module VAProfile
       def currently_active_duty_hash
         military_personnel_service.service_episodes_by_date.each do |episode|
           value =
-            if episode['period_of_service_end_date']
-              date = episode['period_of_service_end_date']
+            if episode.end_date
+              date = episode.end_date
               date.empty? || DateTime.parse(date).to_date.future?
             else
               false
