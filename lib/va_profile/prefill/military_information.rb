@@ -23,46 +23,46 @@ module VAProfile
       # Disability ratings counted as higher
       HIGHER_DISABILITY_RATING = 50
 
-    # The following comment was copied from app/models/emis_redis/military_information.rb
-    # which is being depcreated.
-    #
-    # In https://github.com/department-of-veterans-affairs/va.gov-team/issues/41046
-    # we updated the military service branches to use an updated list from
-    # Lighthouse BRD. The list below combines the branches from the former list
-    # that was in the previous vets_json_schema, and the new list, from BRD. In
-    # the future, we may consider udpating this constant to a dynamic value
-    # populated by a call to Lighthouse BRD, but that is not necessary now.
-    COMBINED_SERVICE_BRANCHES = [
-      'Army Air Corps or Army Air Force',
-      'Air Force Academy',
-      'Air Force',
-      'Air Force Reserve',
-      'Air Force Reserves',
-      'Air National Guard',
-      'Army Reserve',
-      'Army Reserves',
-      'Army',
-      'Army National Guard',
-      'Coast Guard Academy',
-      'Coast Guard',
-      'Coast Guard Reserve',
-      'Coast Guard Reserves',
-      'Marine Corps',
-      'Marine Corps Reserve',
-      'Marine Corps Reserves',
-      'Merchant Marine',
-      'Naval Academy',
-      'Navy',
-      'National Oceanic & Atmospheric Administration',
-      'NOAA',
-      'Navy Reserve',
-      'Navy Reserves',
-      'Other',
-      'Public Health Service',
-      'Space Force',
-      'US Military Academy',
-      "Women's Army Corps"
-    ].freeze
+      # The following comment was copied from app/models/emis_redis/military_information.rb
+      # which is being depcreated.
+      #
+      # In https://github.com/department-of-veterans-affairs/va.gov-team/issues/41046
+      # we updated the military service branches to use an updated list from
+      # Lighthouse BRD. The list below combines the branches from the former list
+      # that was in the previous vets_json_schema, and the new list, from BRD. In
+      # the future, we may consider udpating this constant to a dynamic value
+      # populated by a call to Lighthouse BRD, but that is not necessary now.
+      COMBINED_SERVICE_BRANCHES = [
+        'Army Air Corps or Army Air Force',
+        'Air Force Academy',
+        'Air Force',
+        'Air Force Reserve',
+        'Air Force Reserves',
+        'Air National Guard',
+        'Army Reserve',
+        'Army Reserves',
+        'Army',
+        'Army National Guard',
+        'Coast Guard Academy',
+        'Coast Guard',
+        'Coast Guard Reserve',
+        'Coast Guard Reserves',
+        'Marine Corps',
+        'Marine Corps Reserve',
+        'Marine Corps Reserves',
+        'Merchant Marine',
+        'Naval Academy',
+        'Navy',
+        'National Oceanic & Atmospheric Administration',
+        'NOAA',
+        'Navy Reserve',
+        'Navy Reserves',
+        'Other',
+        'Public Health Service',
+        'Space Force',
+        'US Military Academy',
+        "Women's Army Corps"
+      ].freeze
 
       attr_reader :military_personnel_service, :disability_service
 
@@ -101,14 +101,16 @@ module VAProfile
       # @return [Boolean] true if veteran is paid for a disability
       #  with a high disability percentage
       def is_va_service_connected
-        binding.pry
-        disability_data.combined_service_connected_rating_percentage >= HIGHER_DISABILITY_RATING
+        # binding.pry
+        # disability_data.combined_service_connected_rating_percentage >= HIGHER_DISABILITY_RATING
+        combined_service_connected_rating_percentage >= HIGHER_DISABILITY_RATING
       end
 
       # @return [Boolean] true if veteran is paid for a disability
       #  with a low disability percentage
       def compensable_va_service_connected
-        LOWER_DISABILITY_RATINGS.include?(disability_data.combined_service_connected_rating_percentage)
+        # LOWER_DISABILITY_RATINGS.include?(disability_data.combined_service_connected_rating_percentage)
+        LOWER_DISABILITY_RATINGS.include?(combined_service_connected_rating_percentage)
       end
 
       # @return [String] If veteran is paid for a disability, this method will
@@ -127,90 +129,95 @@ module VAProfile
           'lowDisability'
         end          
       end
-    end
 
-    # @return [Array<Hash>] Data about the veteran's service periods
-    #  including service branch served under and date range of each
-    #  service period, used only for Form 526 - Disability form
-    def service_periods
-        military_service_episodes(military_personnel_service.service_episodes_by_date).map do |military_service_episode|
-        service_branch = service_branch_used_in_disability(military_service_episode)
-        return {} unless service_branch
+      # @return [Array<Hash>] Data about the veteran's service periods
+      #  including service branch served under and date range of each
+      #  service period, used only for Form 526 - Disability form
+      def service_periods
+          military_service_episodes(military_personnel_service.service_episodes_by_date).map do |military_service_episode|
+          service_branch = service_branch_used_in_disability(military_service_episode)
+          return {} unless service_branch
 
-        {
-          service_branch:,
-          date_range: {
-            from: military_service_episode['period_of_service_begin_date'],
-            to: military_service_episode['period_of_service_end_date']
+          {
+            service_branch:,
+            date_range: {
+              from: military_service_episode['period_of_service_begin_date'],
+              to: military_service_episode['period_of_service_end_date']
+            }
           }
-        }
+        end
+      end
+
+      # @return [Array<Hash>] Veteran's guard and reserve service episode date
+      #  ranges sorted by end_date
+      def guard_reserve_service_history
+        guard_reserve_service_by_date.map do |period|
+          {
+            from: period['period_of_service_begin_date'],
+            to: period['period_of_service_end_date']
+          }
+        end
+      end
+
+      # @return [Hash] Cached array of veteran's Guard and reserve service
+      # periods sorted by end date
+      def latest_guard_reserve_service_period
+        guard_reserve_service_history.try(:[], 0)
+      end
+      
+      private
+
+      def combined_service_connected_rating_percentage
+        # binding.pry
+        @combined_service_connected_rating_percentage ||= disability_data.combined_service_connected_rating_percentage
+      end
+      
+      def disability_data
+        # binding.pry
+        @disability_data ||= disability_service.get_disability_data
+      end
+
+      # Convert period of service type code from a military service episode
+      # into a formatted readable string.
+      # EVSS requires the reserve/national guard category to be a part
+      # of the period of service type field.
+      # @param military_service_episode [Hash]
+      # Military service episode model
+      # @return [String] Readable service branch name formatted for EVSS
+      def service_branch_used_in_disability(military_service_episode)
+        category = case military_service_episode['period_of_service_type_code']
+                  when 'A'
+                    ''
+                  when 'N'
+                    'National Guard'
+                  when 'V' || 'Q'
+                    'Reserve'
+                  else
+                    ''
+                  end
+
+        service_name = "#{military_service_episode['branch_of_service_text']} #{category}".strip
+        service_name.gsub!('Air Force National Guard', 'Air National Guard')
+        service_name if COMBINED_SERVICE_BRANCHES.include? service_name
       end
     end
 
-    # @return [Array<Hash>] Veteran's guard and reserve service episode date
-    #  ranges sorted by end_date
-    def guard_reserve_service_history
-      guard_reserve_service_by_date.map do |period|
-        {
-          from: period['period_of_service_begin_date'],
-          to: period['period_of_service_end_date']
-        }
-      end
-    end
-
-    # @return [Hash] Cached array of veteran's Guard and reserve service
-    # periods sorted by end date
-    def latest_guard_reserve_service_period
-      guard_reserve_service_history.try(:[], 0)
-    end
-    
     private
     
-    def disability_data
-      binding.pry
-      @disability_data ||= disability_service.get_disability_data
+    # episodes is an array of Military Services Episodes and Service Academy Episodes. We're only
+    #  interested in Military Service Episodes, so we filter out the Service Academy Episodes by checking
+    #  if the episode has a period_of_service_end_date.
+    def military_service_episodes(episodes)
+      service_episodes_by_date.select do |episode|
+        episode['period_of_service_end_date']
+      end
     end
 
-    # Convert period of service type code from a military service episode
-    # into a formatted readable string.
-    # EVSS requires the reserve/national guard category to be a part
-    # of the period of service type field.
-    # @param military_service_episode [Hash]
-    # Military service episode model
-    # @return [String] Readable service branch name formatted for EVSS
-    def service_branch_used_in_disability(military_service_episode)
-      category = case military_service_episode['period_of_service_type_code']
-                 when 'A'
-                   ''
-                 when 'N'
-                   'National Guard'
-                 when 'V' || 'Q'
-                   'Reserve'
-                 else
-                   ''
-                 end
-
-      service_name = "#{military_service_episode['branch_of_service_text']} #{category}".strip
-      service_name.gsub!('Air Force National Guard', 'Air National Guard')
-      service_name if COMBINED_SERVICE_BRANCHES.include? service_name
+    # @return [Array<Hash] array of veteran's Guard and reserve service periods by period of service end date, DESC
+    def guard_reserve_service_by_date
+      military_service_episodes(military_personnel_service.service_episodes_by_date).each_with_object([]) do |episode, guard_details|
+        guard_details.concat(episode['guard_reserve_periods'])
+      end.sort_by { |guard_detail| guard_detail['period_of_service_end_date'] }.reverse
     end
-  end
-
-  private
-  
-  # episodes is an array of Military Services Episodes and Service Academy Episodes. We're only
-  #  interested in Military Service Episodes, so we filter out the Service Academy Episodes by checking
-  #  if the episode has a period_of_service_end_date.
-  def military_service_episodes(episodes)
-    service_episodes_by_date.select do |episode|
-      episode['period_of_service_end_date']
-    end
-  end
-
-  # @return [Array<Hash] array of veteran's Guard and reserve service periods by period of service end date, DESC
-  def guard_reserve_service_by_date
-    military_service_episodes(military_personnel_service.service_episodes_by_date).each_with_object([]) do |episode, guard_details|
-      guard_details.concat(episode['guard_reserve_periods'])
-    end.sort_by { |guard_detail| guard_detail['period_of_service_end_date'] }.reverse
   end
 end
