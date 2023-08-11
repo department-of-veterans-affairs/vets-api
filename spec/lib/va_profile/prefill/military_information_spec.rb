@@ -71,6 +71,26 @@ describe VAProfile::Prefill::MilitaryInformation do
         end
       end
     end
+
+    describe '#guard_reserve_service_history' do
+      it "returns an array of guard and reserve service episode date ranges sorted by end_date" do
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+          response = subject.guard_reserve_service_history
+    
+          expect(response).to be_an(Array)
+
+          # Check structure of each episode in the response
+          response.each do |episode|
+            expect(episode).to have_key(:from)
+            expect(episode).to have_key(:to)
+          end
+    
+          # Ensure the array is sorted by :to in ascending order
+          sorted_by_to_dates = response.map { |episode| episode[:to] }.compact.sort
+          expect(response.map { |episode| episode[:to] }).to eq(sorted_by_to_dates)
+        end
+      end
+    end    
   end
 
   context 'using bio path disabilityRating' do

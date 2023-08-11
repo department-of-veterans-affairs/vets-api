@@ -149,8 +149,8 @@ module VAProfile
       def guard_reserve_service_history
         guard_reserve_service_by_date.map do |period|
           {
-            from: period['period_of_service_begin_date'],
-            to: period['period_of_service_end_date']
+            from: period.begin_date,
+            to: period.end_date
           }
         end
       end
@@ -197,9 +197,10 @@ module VAProfile
 
       # @return [Array<Hash] array of veteran's Guard and reserve service periods by period of service end date, DESC
       def guard_reserve_service_by_date
-        military_service_episodes_by_date.each_with_object([]) do |episode, guard_details|
-          guard_details.concat(episode['guard_reserve_periods'])
-        end.sort_by { |guard_detail| guard_detail['period_of_service_end_date'] }.reverse
+        military_service_episodes_by_date.select do |episode|
+          code = episode.personnel_category_type_code
+          code == 'N' || code == 'V' || code == 'Q'
+        end.sort_by { |episode| episode.end_date }.reverse
       end
 
       # episodes is an array of Military Services Episodes and Service Academy Episodes. We're only
