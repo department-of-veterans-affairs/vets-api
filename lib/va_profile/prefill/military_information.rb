@@ -64,7 +64,7 @@ module VAProfile
       "Women's Army Corps"
     ].freeze
 
-      attr_reader :military_personnel_service, :disability_service, :disability_data
+      attr_reader :military_personnel_service, :disability_service
 
       def initialize(user)
         @military_personnel_service = HCA::MilitaryInformation.new(user)
@@ -101,6 +101,7 @@ module VAProfile
       # @return [Boolean] true if veteran is paid for a disability
       #  with a high disability percentage
       def is_va_service_connected
+        binding.pry
         disability_data.combined_service_connected_rating_percentage >= HIGHER_DISABILITY_RATING
       end
 
@@ -166,6 +167,7 @@ module VAProfile
     private
     
     def disability_data
+      binding.pry
       @disability_data ||= disability_service.get_disability_data
     end
 
