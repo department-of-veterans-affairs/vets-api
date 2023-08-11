@@ -18,7 +18,8 @@ RSpec.describe 'ask_va_api/v0/users', type: :request do
                { 'id' => nil,
                  'type' => 'inquiry',
                  'attributes' =>
-                 { 'inquiry_number' => 'A-1',
+                 { 'attachments' => nil,
+                   'inquiry_number' => 'A-1',
                    'topic' => 'Topic',
                    'question' => 'This is a question',
                    'processing_status' => 'In Progress',
@@ -27,7 +28,8 @@ RSpec.describe 'ask_va_api/v0/users', type: :request do
                { 'id' => nil,
                  'type' => 'inquiry',
                  'attributes' =>
-                 { 'inquiry_number' => 'A-2',
+                 { 'attachments' => nil,
+                   'inquiry_number' => 'A-2',
                    'topic' => 'Topic',
                    'question' => 'This is a question',
                    'processing_status' => 'In Progress',

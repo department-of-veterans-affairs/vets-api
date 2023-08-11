@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module AskVAApi
-  module UserInquiries
-    class Creator
+  module Users
+    class UserInquiries
       attr_reader :id,
                   :inquiries
 

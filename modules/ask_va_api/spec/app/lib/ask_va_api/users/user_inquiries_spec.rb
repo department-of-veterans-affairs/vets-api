@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe AskVAApi::UserInquiries::Creator do
+RSpec.describe AskVAApi::Users::UserInquiries do
   subject(:creator) { described_class }
 
   let(:info) do
