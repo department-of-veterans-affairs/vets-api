@@ -101,15 +101,12 @@ module VAProfile
       # @return [Boolean] true if veteran is paid for a disability
       #  with a high disability percentage
       def is_va_service_connected
-        # binding.pry
-        # disability_data.combined_service_connected_rating_percentage >= HIGHER_DISABILITY_RATING
         combined_service_connected_rating_percentage >= HIGHER_DISABILITY_RATING
       end
 
       # @return [Boolean] true if veteran is paid for a disability
       #  with a low disability percentage
       def compensable_va_service_connected
-        # LOWER_DISABILITY_RATINGS.include?(disability_data.combined_service_connected_rating_percentage)
         LOWER_DISABILITY_RATINGS.include?(combined_service_connected_rating_percentage)
       end
 
@@ -168,7 +165,7 @@ module VAProfile
       private
 
       def combined_service_connected_rating_percentage
-        disability_data.disability_rating.combined_service_connected_rating_percentage
+        disability_data.disability_rating.combined_service_connected_rating_percentage.to_i
       end
       
       def disability_data
