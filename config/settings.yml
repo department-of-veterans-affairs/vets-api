@@ -1439,6 +1439,7 @@ vanotify:
         form526_confirmation_email: fake_template_id
         form526_submission_failed_email: fake_template_id
         form5490_confirmation_email: form5490_confirmation_email_template_id
+        form5495_confirmation_email: form5495_confirmation_email_template_id
         form686c_confirmation_email: fake_template_id
         form686c_reminder_email: fake_template_id
         form1010ez_reminder_email: fake_template_id
