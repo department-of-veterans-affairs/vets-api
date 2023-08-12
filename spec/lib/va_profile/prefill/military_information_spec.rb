@@ -5,6 +5,7 @@ require 'va_profile/prefill/military_information'
 
 describe VAProfile::Prefill::MilitaryInformation do
   subject { described_class.new(user) }
+
   let(:user) { build(:user, :loa3) }
 
   context 'using bio path militaryPerson.militaryServiceHistory' do
@@ -13,58 +14,58 @@ describe VAProfile::Prefill::MilitaryInformation do
     before do
       allow(user).to receive(:edipi).and_return(edipi)
     end
-  
+
     describe '#last_service_branch' do
       it 'returns the most recent branch of military the veteran served under' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
           response = subject.last_service_branch
-  
-          expect(response).to eq("Army")
+
+          expect(response).to eq('Army')
         end
       end
     end
-  
+
     describe '#currently_active_duty' do
       it 'returns false if veteran is not currently serving in active duty' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
           response = subject.currently_active_duty
-  
+
           expect(response).to eq(false)
         end
       end
     end
-  
+
     describe '#currently_active_duty_hash' do
       it 'returns false if veteran is not currently serving in active duty' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
           response = subject.currently_active_duty_hash
-  
-          expect(response).to eq({ yes: false})
+
+          expect(response).to eq({ yes: false })
         end
       end
     end
-  
+
     describe '#currently_active_duty_hash' do
       it 'returns false if veteran is not currently serving in active duty' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
           response = subject.currently_active_duty_hash
-  
-          expect(response).to eq({ yes: false})
+
+          expect(response).to eq({ yes: false })
         end
       end
     end
 
     describe '#service_periods' do
-      it "returns an array of service periods with service branch and date range" do
+      it 'returns an array of service periods with service branch and date range' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
           response = subject.service_periods
-    
+
           expect(response).to be_an(Array)
-    
+
           service_period = response.first
           expect(service_period).to have_key(:service_branch)
           expect(service_period).to have_key(:date_range)
-          
+
           date_range = service_period[:date_range]
           expect(date_range).to have_key(:from)
           expect(date_range).to have_key(:to)
@@ -73,10 +74,10 @@ describe VAProfile::Prefill::MilitaryInformation do
     end
 
     describe '#guard_reserve_service_history' do
-      it "returns an array of guard and reserve service episode date ranges sorted by end_date" do
+      it 'returns an array of guard and reserve service episode date ranges sorted by end_date' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
           response = subject.guard_reserve_service_history
-    
+
           expect(response).to be_an(Array)
 
           # Check structure of each episode in the response
@@ -84,16 +85,16 @@ describe VAProfile::Prefill::MilitaryInformation do
             expect(episode).to have_key(:from)
             expect(episode).to have_key(:to)
           end
-    
+
           # Ensure the array is sorted by :to in ascending order
-          sorted_by_to_dates = response.map { |episode| episode[:to] }.compact.sort
-          expect(response.map { |episode| episode[:to] }).to eq(sorted_by_to_dates)
+          sorted_by_to_dates = response.pluck(:to).compact.sort
+          expect(response.pluck(:to)).to eq(sorted_by_to_dates)
         end
       end
-    end    
+    end
 
     describe '#latest_guard_reserve_service_period' do
-      it "returns the latest Guard and reserve service period" do
+      it 'returns the latest Guard and reserve service period' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
           response = subject.latest_guard_reserve_service_period
 
@@ -101,7 +102,6 @@ describe VAProfile::Prefill::MilitaryInformation do
         end
       end
     end
-    
   end
 
   context 'using bio path disabilityRating' do
@@ -115,7 +115,7 @@ describe VAProfile::Prefill::MilitaryInformation do
       it 'returns false if veteran is not currently serving in active duty' do
         VCR.use_cassette('va_profile/disability/disability_rating_200') do
           response = subject.is_va_service_connected
-  
+
           expect(response).to eq(true)
         end
       end
@@ -125,7 +125,7 @@ describe VAProfile::Prefill::MilitaryInformation do
       it 'returns true if true if veteran is paid for a disability with a high disability percentage' do
         VCR.use_cassette('va_profile/disability/disability_rating_200') do
           response = subject.is_va_service_connected
-  
+
           expect(response).to eq(true)
         end
       end
@@ -135,7 +135,7 @@ describe VAProfile::Prefill::MilitaryInformation do
       it 'returns false if true if veteran is not paid for a disability with a low disability percentage' do
         VCR.use_cassette('va_profile/disability/disability_rating_200') do
           response = subject.compensable_va_service_connected
-  
+
           expect(response).to eq(false)
         end
       end
@@ -145,7 +145,7 @@ describe VAProfile::Prefill::MilitaryInformation do
       it "returns 'highDisability' when veteran is paid for a highDisbility" do
         VCR.use_cassette('va_profile/disability/disability_rating_200') do
           response = subject.va_compensation_type
-  
+
           expect(response).to eq('highDisability')
         end
       end
