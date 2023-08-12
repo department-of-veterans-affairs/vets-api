@@ -1,5 +1,4 @@
 require 'hca/military_information'
-require 'va_profile/military_personnel/service' ## NOT SURE THESE TWO ARE RIGHT
 require 'va_profile/disability/service'
 
 module VAProfile
