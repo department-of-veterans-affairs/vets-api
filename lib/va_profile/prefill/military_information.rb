@@ -6,7 +6,6 @@ require 'va_profile/disability/service'
 module VAProfile
   module Prefill
     class MilitaryInformation
-      # Do we need the following constant?
       PREFILL_METHODS = %i[
         last_service_branch
         currently_active_duty
