@@ -215,7 +215,6 @@ module VAProfile
 
       def reserve?(code)
         %w[V Q].include?(code)
-        # code == 'V' || code == 'Q'
       end
 
       # episodes is an array of Military Services Episodes and Service Academy Episodes. We're only
