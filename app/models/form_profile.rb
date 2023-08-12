@@ -67,7 +67,6 @@ class FormMilitaryInformation
   # - receives_va_pension, Boolean
   # - vic_verified, Boolean
   # Complete them if necessary.
-  #
 
   attribute :post_nov_1998_combat, Boolean
   attribute :last_service_branch, String
@@ -239,7 +238,7 @@ class FormProfile
   def prefill
     @identity_information = initialize_identity_information
     @contact_information = initialize_contact_information
-    @military_information = initialize_military_information  # where we pull in emis
+    @military_information = initialize_military_information
     mappings = self.class.mappings_for_form(form_id)
 
     form = form_id == '1010EZ' ? '1010ez' : form_id
@@ -251,35 +250,37 @@ class FormProfile
   private
 
   def initialize_military_information
-    military_information = VAProfile::Prefill::MilitaryInformation.new(user)
+    hca_military_information = initialize_hca_military_information
+    va_profile_prefill_military_information = initialize_va_profile_prefill_military_information
 
-    military_information_data = VAProfile::Prefill::MilitaryInformation::PREFILL_METHODS.each_with_object do |attr, acc|
-      acc[attr] = military_information.public_send(attr)
+    FormMilitaryInformation.new(hca_military_information.merge(va_profile_prefill_military_information))
+  end
+
+  def initialize_hca_military_information
+    military_information = HCA::MilitaryInformation.new(user)
+
+    HCA::MilitaryInformation::PREFILL_METHODS.each_with_object({}) do |attr, military_information_data|
+      military_information_data[attr] = military_information.public_send(attr)
     end
   rescue => e
     if Rails.env.production?
-      log_exception_to_sentry(e, {}, prefill: :vaprofile_military)
+      log_exception_to_sentry(e, {}, prefill: :hca_military_information)
 
       {}
     else
       raise e
     end
-
-    FormMilitaryInformation.new(military_information_data)
   end
 
-  def initialize_military_information_vaprofile
-    military_information_data = {}
-    military_information = HCA::MilitaryInformation.new(user)
+  def initialize_va_profile_prefill_military_information
+    military_information = VAProfile::Prefill::MilitaryInformation.new(user)
 
-    HCA::MilitaryInformation::PREFILL_METHODS.each do |attr|
+    VAProfile::Prefill::MilitaryInformation::PREFILL_METHODS.each_with_object({}) do |attr, military_information_data|
       military_information_data[attr] = military_information.public_send(attr)
     end
-
-    military_information_data
   rescue => e
     if Rails.env.production?
-      log_exception_to_sentry(e, {}, prefill: :vaprofile_military)
+      log_exception_to_sentry(e, {}, prefill: :va_profile_prefill_military_information)
 
       {}
     else
