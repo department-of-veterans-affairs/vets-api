@@ -25,48 +25,45 @@ end
 class FormMilitaryInformation
   include Virtus.model
   # The following methods are in VAProfile::Prefill::MilitaryInformation:
-  # last_service_branch
-  # currently_active_duty
-  # currently_active_duty_hash
-  # is_va_service_connected
-  # compensable_va_service_connected
-  # va_compensation_type
-  # service_periods
-  # guard_reserve_service_history
-  # latest_guard_reserve_service_period
+  # - last_service_branch
+  # - currently_active_duty
+  # - currently_active_duty_hash
+  # - is_va_service_connected
+  # - compensable_va_service_connected
+  # - va_compensation_type
+  # - service_periods
+  # - guard_reserve_service_history
+  # - latest_guard_reserve_service_period
   #
   # The following methods are marked as 'done by the 1010 team' according to comments in
   # app/models/emis_redis/military_information.rb:
-  # discharge_type, String
-  # hca_last_service_branch, String
-  # last_discharge_date, String
-  # last_entry_date, String
-  # post_nov111998_combat, Boolean
-  # sw_asia_combat, Boolean
+  # - discharge_type, String
+  # - hca_last_service_branch, String
+  # - last_discharge_date, String
+  # - last_entry_date, String
+  # - post_nov111998_combat, Boolean
+  # - sw_asia_combat, Boolean
 
   # The following methods are marked as 'Started by TT1' according to comments in
   # app/models/emis_redis/military_information.rb, but are not accounted for in
   # VAProfile::Prefill::MilitaryInformation
-  # service_branches, Array[String]
-  # tours_of_duty, Array
-
-  # The following methods are not accounted for:
-  # post_nov_1998_combat, Boolean
-  # receives_va_pension, Boolean
-  # vic_verified, Boolean
-
-  # TODO
-  # Complete the following methods:
-  # UPDATE!! - The following methods are accounted for in HCA::MilitaryInformation
   # - service_branches, Array[String]
   # - tours_of_duty, Array
-  #
+  # UPDATE - #service_branches and #tours_of_duty are in HCA::MilitaryInformation
+
+  # The following methods are not accounted for:
+  # - post_nov_1998_combat, Boolean
+  # - receives_va_pension, Boolean
+  # - vic_verified, Boolean
+
+  # TODO
   # Check with Lindsey if the following methods, which are not accounted for, which 
   # are in the attributes list below, need to be completed.
   # - post_nov_1998_combat, Boolean
   # - receives_va_pension, Boolean
   # - vic_verified, Boolean
   # Complete them if necessary.
+  # Update the tests for this file.
 
   attribute :post_nov_1998_combat, Boolean
   attribute :last_service_branch, String
