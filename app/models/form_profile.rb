@@ -206,6 +206,24 @@ class FormProfile
 
   private
 
+  def initialize_military_information
+    military_information = VAProfile::Prefill::MilitaryInformation.new(user)
+
+    military_information_data = VAProfile::Prefill::MilitaryInformation::PREFILL_METHODS.each_with_object do |attr, acc|
+      acc[attr] = military_information.public_send(attr)
+    end
+  rescue => e
+    if Rails.env.production?
+      log_exception_to_sentry(e, {}, prefill: :vaprofile_military)
+
+      {}
+    else
+      raise e
+    end
+
+    FormMilitaryInformation.new(military_information_data)
+  end
+
   def initialize_military_information_vaprofile
     military_information_data = {}
     military_information = HCA::MilitaryInformation.new(user)
@@ -223,53 +241,6 @@ class FormProfile
     else
       raise e
     end
-  end
-
-  def initialize_military_information_vaprofile_prefill
-    # I started copying the method above, but for the rest of the prefill methods.
-    # not done.
-    military_information_data = {}
-    VAProfile::Prefill::MilitaryInformation::PREFILL_METHODS.each do |attr|
-      military_information_data[attr] = military_information.public_send(attr)
-    end
-
-    military_information_data
-  rescue => e
-    if Rails.env.production?
-      log_exception_to_sentry(e, {}, prefill: :vaprofile_military)
-
-      {}
-    else
-      raise e
-    end
-  end
-
-  def initialize_military_information
-    return {} unless user.authorize :emis, :access?
-
-    military_information = user.military_information  # emis call
-    military_information_data = {}
-
-    military_information_data.merge!(initialize_military_information_vaprofile) if Flipper.enabled?(
-      :hca_vaprofile_military_info, user
-    )
-
-    military_information_data[:vic_verified] = user.can_access_id_card?
-
-    begin
-      EMISRedis::MilitaryInformation::PREFILL_METHODS.each do |attr|
-        military_information_data[attr] = military_information.public_send(attr) if military_information_data[attr].nil?
-      end
-    rescue => e
-      if Rails.env.production?
-        # fail silently if emis is down
-        log_exception_to_sentry(e, {}, external_service: :emis)
-      else
-        raise e
-      end
-    end
-
-    FormMilitaryInformation.new(military_information_data)
   end
 
   def initialize_identity_information
