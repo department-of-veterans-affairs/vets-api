@@ -199,8 +199,16 @@ module VAProfile
       def guard_reserve_service_by_date
         military_service_episodes_by_date.select do |episode|
           code = episode.personnel_category_type_code
-          code == 'N' || code == 'V' || code == 'Q'
+          is_national_guard?(code) || is_reserve?(code)
         end.sort_by { |episode| episode.end_date }.reverse
+      end
+
+      def is_national_guard?(code)
+        code == 'N'
+      end
+
+      def is_reserve?(code)
+        code == 'V' || code == 'Q'
       end
 
       # episodes is an array of Military Services Episodes and Service Academy Episodes. We're only
