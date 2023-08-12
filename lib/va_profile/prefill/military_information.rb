@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'hca/military_information'
 require 'va_profile/disability/service'
 
@@ -84,24 +86,29 @@ module VAProfile
 
       # @return [Hash] currently active duty data in hash format
       def currently_active_duty_hash
-        military_personnel_service.service_episodes_by_date.each do |episode|
-          value =
-            if episode.end_date
-              date = episode.end_date
-              date.empty? || DateTime.parse(date).to_date.future?
-            else
-              false
-            end
+        is_active = false
 
-          return { yes: value }
+        military_personnel_service.service_episodes_by_date.each do |episode|
+          if episode.end_date && (episode.end_date.empty? || DateTime.parse(episode.end_date).to_date.future?)
+            is_active = true
+            break
+          end
         end
+
+        { yes: is_active }
       end
 
       # @return [Boolean] true if veteran is paid for a disability
       #  with a high disability percentage
+      #
+      # Rubocop wants this method to be named va_service_connected? but is_va_service_connected
+      # is the name of the method we're replacing.
+      #
+      # rubocop:disable Naming/PredicateName
       def is_va_service_connected
         combined_service_connected_rating_percentage >= HIGHER_DISABILITY_RATING
       end
+      # rubocop:enable Naming/PredicateName
 
       # @return [Boolean] true if veteran is paid for a disability
       #  with a low disability percentage
@@ -122,7 +129,7 @@ module VAProfile
           'highDisability'
         elsif low_disability
           'lowDisability'
-        end          
+        end
       end
 
       # @return [Array<Hash>] Data about the veteran's service periods
@@ -159,13 +166,13 @@ module VAProfile
       def latest_guard_reserve_service_period
         guard_reserve_service_history.try(:[], 0)
       end
-      
+
       private
 
       def combined_service_connected_rating_percentage
         disability_data.disability_rating.combined_service_connected_rating_percentage.to_i
       end
-      
+
       def disability_data
         @disability_data ||= disability_service.get_disability_data
       end
@@ -179,14 +186,12 @@ module VAProfile
       # @return [String] Readable service branch name formatted for EVSS
       def service_branch_used_in_disability(military_service_episode)
         category = case military_service_episode.personnel_category_type_code
-                     when 'A'
-                       ''
-                     when 'N'
-                       'National Guard'
-                     when 'V' || 'Q'
-                       'Reserve'
-                     else
-                       ''
+                   when 'N'
+                     'National Guard'
+                   when 'V', 'Q'
+                     'Reserve'
+                   else
+                     ''
                    end
 
         service_name = "#{military_service_episode.branch_of_service} #{category}".strip
@@ -198,16 +203,18 @@ module VAProfile
       def guard_reserve_service_by_date
         military_service_episodes_by_date.select do |episode|
           code = episode.personnel_category_type_code
-          is_national_guard?(code) || is_reserve?(code)
-        end.sort_by { |episode| episode.end_date }.reverse
+          national_guard?(code) || reserve?(code)
+        end.sort_by(&:end_date)
+                                         .reverse
       end
 
-      def is_national_guard?(code)
+      def national_guard?(code)
         code == 'N'
       end
 
-      def is_reserve?(code)
-        code == 'V' || code == 'Q'
+      def reserve?(code)
+        %w[V Q].include?(code)
+        # code == 'V' || code == 'Q'
       end
 
       # episodes is an array of Military Services Episodes and Service Academy Episodes. We're only
