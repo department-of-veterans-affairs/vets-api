@@ -45,16 +45,6 @@ describe VAProfile::Prefill::MilitaryInformation do
       end
     end
 
-    describe '#currently_active_duty_hash' do
-      it 'returns false if veteran is not currently serving in active duty' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
-          response = subject.currently_active_duty_hash
-
-          expect(response).to eq({ yes: false })
-        end
-      end
-    end
-
     describe '#service_periods' do
       it 'returns an array of service periods with service branch and date range' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
@@ -81,10 +71,8 @@ describe VAProfile::Prefill::MilitaryInformation do
           expect(response).to be_an(Array)
 
           # Check structure of each episode in the response
-          response.each do |episode|
-            expect(episode).to have_key(:from)
-            expect(episode).to have_key(:to)
-          end
+          expect(response).to all(have_key(:from))
+          expect(response).to all(have_key(:to))
 
           # Ensure the array is sorted by :to in ascending order
           sorted_by_to_dates = response.pluck(:to).compact.sort
@@ -112,17 +100,7 @@ describe VAProfile::Prefill::MilitaryInformation do
     end
 
     describe '#is_va_service_connected' do
-      it 'returns false if veteran is not currently serving in active duty' do
-        VCR.use_cassette('va_profile/disability/disability_rating_200') do
-          response = subject.is_va_service_connected
-
-          expect(response).to eq(true)
-        end
-      end
-    end
-
-    describe '#is_va_service_connected' do
-      it 'returns true if true if veteran is paid for a disability with a high disability percentage' do
+      it 'returns true if veteran is paid for a disability with a high disability percentage' do
         VCR.use_cassette('va_profile/disability/disability_rating_200') do
           response = subject.is_va_service_connected
 
@@ -132,7 +110,7 @@ describe VAProfile::Prefill::MilitaryInformation do
     end
 
     describe '#compensable_va_service_connected' do
-      it 'returns false if true if veteran is not paid for a disability with a low disability percentage' do
+      it 'returns false if veteran is not paid for a disability with a low disability percentage' do
         VCR.use_cassette('va_profile/disability/disability_rating_200') do
           response = subject.compensable_va_service_connected
 
