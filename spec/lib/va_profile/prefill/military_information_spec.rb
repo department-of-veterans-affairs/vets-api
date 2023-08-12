@@ -3,23 +3,29 @@
 require 'rails_helper'
 require 'va_profile/prefill/military_information'
 
+# Spec tests for VAProfile::Prefill::MilitaryInformation class
 describe VAProfile::Prefill::MilitaryInformation do
+  # The main subject under test - an instance of VAProfile::Prefill::MilitaryInformation
   subject { described_class.new(user) }
 
+  # Mock user object to simulate a logged-in user with LOA3 authentication
   let(:user) { build(:user, :loa3) }
 
+  # Tests related to the bio path of militaryPerson.militaryServiceHistory
   context 'using bio path militaryPerson.militaryServiceHistory' do
+    # Mock EDIPI (a unique identifier for personnel) for the user
     let(:edipi) { '384759483' }
 
     before do
+      # Stubbing user's EDIPI for controlled testing
       allow(user).to receive(:edipi).and_return(edipi)
     end
 
+    # Test the method that fetches the last service branch the veteran was associated with
     describe '#last_service_branch' do
       it 'returns the most recent branch of military the veteran served under' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
           response = subject.last_service_branch
-
           expect(response).to eq('Army')
         end
       end
@@ -69,12 +75,9 @@ describe VAProfile::Prefill::MilitaryInformation do
           response = subject.guard_reserve_service_history
 
           expect(response).to be_an(Array)
-
-          # Check structure of each episode in the response
           expect(response).to all(have_key(:from))
           expect(response).to all(have_key(:to))
 
-          # Ensure the array is sorted by :to in ascending order
           sorted_by_to_dates = response.pluck(:to).compact.sort
           expect(response.pluck(:to)).to eq(sorted_by_to_dates)
         end
@@ -92,10 +95,13 @@ describe VAProfile::Prefill::MilitaryInformation do
     end
   end
 
+  # Tests related to the bio path of disabilityRating
   context 'using bio path disabilityRating' do
+    # Mock EDIPI for the user
     let(:edipi) { '1005127153' }
 
     before do
+      # Stubbing user's EDIPI for controlled testing
       allow(user).to receive(:edipi).and_return(edipi)
     end
 
