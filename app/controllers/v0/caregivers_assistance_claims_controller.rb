@@ -80,17 +80,6 @@ module V0
       render_errors Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
     end
 
-    def record_submission_success(submission)
-      submission_context = {
-        carma_case_id: submission.carma_case_id,
-        metadata: submission.metadata,
-        attachments: submission.attachments,
-        attachments_job_id: submission.attachments_job_id
-      }
-
-      auditor.record(:submission_success, claim_guid: @claim.guid, **submission_context)
-    end
-
     def auditor
       self.class::AUDITOR
     end
