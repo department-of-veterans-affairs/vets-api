@@ -9,9 +9,6 @@ RSpec.describe Form1010cg::Auditor do
         described_class.metrics.submission.attempt
       ).to eq('api.form1010cg.submission.attempt')
       expect(
-        described_class.metrics.submission.success
-      ).to eq('api.form1010cg.submission.success')
-      expect(
         described_class.metrics.submission.failure.client.data
       ).to eq('api.form1010cg.submission.failure.client.data')
       expect(
@@ -72,109 +69,6 @@ RSpec.describe Form1010cg::Auditor do
       it 'nothing' do
         expect(Rails.logger).not_to receive(:info)
         subject.record_submission_attempt
-      end
-    end
-  end
-
-  describe '#record_submission_success' do
-    context 'requires' do
-      it 'claim_guid:, carma_case_id:, metadata:, attachments:, attachments_job_id:' do
-        expect { subject.record_submission_success }.to raise_error(ArgumentError) do |e|
-          expect(e.message).to eq(
-            'missing keywords: :claim_guid, :carma_case_id, :metadata, :attachments, :attachments_job_id'
-          )
-        end
-      end
-    end
-
-    context 'increments' do
-      it 'api.form1010cg.submission.success' do
-        expected_context = {
-          claim_guid: 'uuid-123',
-          carma_case_id: 'CASE_123',
-          metadata: {},
-          attachments: {},
-          attachments_job_id: 'abc123'
-        }
-
-        expect { subject.record_submission_success(**expected_context) }
-          .to trigger_statsd_increment('api.form1010cg.submission.success')
-      end
-    end
-
-    context 'logs' do
-      it '[Form 10-10CG] Submission Successful' do
-        expected_message = '[Form 10-10CG] Submission Successful'
-        provided_context = {
-          claim_guid: 'uuid-123',
-          carma_case_id: 'CASE_123',
-          metadata: {
-            'claimGuid' => 'uuid-123',
-            'veteran' => { 'icn' => nil, 'isVeteran' => false },
-            'primaryCaregiver' => { 'icn' => nil },
-            'secondaryCaregiverOne' => { 'icn' => nil },
-            'secondaryCaregiverTwo' => nil
-          },
-          attachments: {
-            'has_errors' => false,
-            'data' => [
-              {
-                'id' => '0123ABC',
-                'carma_case_id' => 'CASE_123',
-                'veteran_name' => {
-                  'first' => 'First',
-                  'last' => 'Last'
-                },
-                'file_path' => 'tmp/pdfs/10-10CG_uuid-123.pdf',
-                'document_type' => '10-10CG',
-                'document_date' => '2020-01-01'
-              },
-              {
-                'id' => '0123ABC',
-                'carma_case_id' => 'CASE_123',
-                'veteran_name' => {
-                  'first' => 'First',
-                  'last' => 'Last'
-                },
-                'file_path' => 'tmp/pdfs/POA_uuid-123.pdf',
-                'document_type' => 'POA',
-                'document_date' => '2020-01-01'
-              }
-            ]
-          },
-          attachments_job_id: '12345abcdef'
-        }
-
-        logged_context = {
-          claim_guid: provided_context[:claim_guid],
-          carma_case_id: provided_context[:carma_case_id],
-          metadata: provided_context[:metadata],
-          attachments: {
-            'has_errors' => false,
-            'data' => [
-              {
-                'id' => '0123ABC',
-                'carma_case_id' => 'CASE_123',
-                'veteran_name' => '[FILTERED]',
-                'file_path' => 'tmp/pdfs/10-10CG_uuid-123.pdf',
-                'document_type' => '10-10CG',
-                'document_date' => '2020-01-01'
-              },
-              {
-                'id' => '0123ABC',
-                'carma_case_id' => 'CASE_123',
-                'veteran_name' => '[FILTERED]',
-                'file_path' => 'tmp/pdfs/POA_uuid-123.pdf',
-                'document_type' => 'POA',
-                'document_date' => '2020-01-01'
-              }
-            ]
-          },
-          attachments_job_id: provided_context[:attachments_job_id]
-        }
-
-        expect(Rails.logger).to receive(:info).with(expected_message, logged_context)
-        subject.record_submission_success(**provided_context)
       end
     end
   end
@@ -350,21 +244,6 @@ RSpec.describe Form1010cg::Auditor do
         it 'calls :record submission_attempt' do
           expect(subject).to receive(:record_submission_attempt)
           subject.record(:submission_attempt)
-        end
-      end
-
-      context 'for :submission_success' do
-        it 'calls :record submission_success' do
-          context = {
-            claim_guid: 'uuid-123',
-            carma_case_id: 'CASE_123',
-            metadata: {},
-            attachments: {},
-            attachments_job_id: '123abc'
-          }
-
-          expect(subject).to receive(:record_submission_success).with(context)
-          subject.record(:submission_success, **context)
         end
       end
 
