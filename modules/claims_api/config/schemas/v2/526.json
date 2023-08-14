@@ -144,6 +144,7 @@
     },
     "changeOfAddress": {
       "type": "object",
+      "description": "If 'changeOfAddress' is included, then following attributes are required: 'dates.beginDate', 'numberAndStreet', 'typeOfAddressChange', 'country'.",
       "additionalProperties": false,
       "properties": {
         "dates": {
@@ -164,7 +165,7 @@
           }
         },
         "typeOfAddressChange": {
-          "description": "Temporary or Permanent change of address.",
+          "description": "Temporary or Permanent change of address. If 'TEMPORARY', 'beginDate' and 'endDate' are required.",
           "type": "string",
           "enum": ["TEMPORARY", "PERMANENT"],
           "example": "PERMANENT"
@@ -263,7 +264,7 @@
               "example": "FLEEING_CURRENT_RESIDENCE"
             },
             "otherDescription": {
-              "description": "For a 'homelessSituationOptions' of value 'other', please provide additional comments on the living situation.",
+              "description": "Explanation of living situation. Required if 'homelessSituationOptions' is 'OTHER'.",
               "type": "string",
               "maxLength": 500,
               "example": "other living situation"
@@ -284,7 +285,7 @@
               ]
             },
             "otherDescription": {
-              "description": "For a 'livingSituationOptions' of value 'other', please provide additional comments on the living situation.",
+              "description": "Explanation of living situation. Required if 'livingSituationOptions' is 'OTHER'.",
               "type": "string",
               "maxLength": 500,
               "example": "other living situation"
@@ -486,13 +487,13 @@
             "example": 9999
           },
           "disabilityActionType": {
-            "description": "The status of the current disability.  \n If value is \"INCREASE\", then \"ratedDisabilityId\" and \"diagnosticCode\" are required.",
+            "description": "Action type requested for the disability. If 'INCREASE', then 'ratedDisabilityId' and 'diagnosticCode' are required.  'NONE' should be used when including a secondary disability. If 'NONE', then 'diagnosticCode' is required.",
             "type": "string",
             "enum": ["NONE", "NEW", "REOPEN", "INCREASE"],
             "example": "NEW"
           },
           "secondaryDisabilities": {
-            "description": "Identifies the Secondary Service Disability information of the Veteran.",
+            "description": "If secondaryDisability is included, the following attributes are required:  'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
             "type": "array",
             "uniqueItems": true,
             "items": {
@@ -538,7 +539,7 @@
           },
           "isRelatedToToxicExposure": {
             "type": "boolean",
-            "description": "Is the disability related to toxic exposures? If so, include exposure information.",
+            "description": "Is the disability related to toxic exposures? If true, related 'toxicExposure' must be included.",
             "example": true,
             "default": false,
             "nullable": false
@@ -593,7 +594,7 @@
             "example": "02-2018"
           },
           "treatedDisabilityNames": {
-            "description": "Name(s) of Disabilities treated in this time frame.",
+            "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
             "type": "array",
             "maxItems": 101,
             "items": {
@@ -719,7 +720,7 @@
         },
         "confinements": {
           "type": "array",
-          "description": "",
+          "description": "If 'confinements' is included, the following attributes are required: 'approximateBeginDate',  'approximateEndDate'.",
           "uniqueItems": true,
           "items": {
             "additionalProperties": false,
@@ -744,6 +745,7 @@
           "properties": {
             "obligationTermsOfService": {
               "type": "object",
+              "description": "If 'obligationTermsOfService' is included, the following attributes are required: 'beginDate ' and 'endDate'.",
               "additionalProperties": false,
               "properties": {
                 "beginDate": {
@@ -764,7 +766,7 @@
               "enum": ["Active", "Reserves", "National Guard"]
             },
             "title10Activation": {
-              "description": "Include if the Veteran is currently activated on federal orders within the National Guard or Reserves",
+              "description": "If 'title10Activation' is included, the following attributes are required: 'anticipatedSeparationDate' and 'title10ActivationDate'.",
               "type": "object",
               "additionalProperties": false,
               "properties": {
@@ -958,6 +960,7 @@
     "directDeposit": {
       "type": "object",
       "additionalProperties": false,
+      "description": "If direct deposit information is included, the following attributes are required: accountType, accountNumber, routingNumber, and financialInstitutionName.",
       "properties": {
         "accountType": {
           "description": "Account type for the direct deposit.",
