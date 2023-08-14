@@ -267,13 +267,12 @@ GEM
       bundler (>= 1.2.0, < 3)
       thor (~> 1.0)
     byebug (11.1.3)
-    carrierwave (2.2.4)
-      activemodel (>= 5.0.0)
-      activesupport (>= 5.0.0)
+    carrierwave (3.0.1)
+      activemodel (>= 6.0.0)
+      activesupport (>= 6.0.0)
       addressable (~> 2.6)
       image_processing (~> 1.1)
       marcel (~> 1.0.0)
-      mini_mime (>= 0.1.3)
       ssrf_filter (~> 1.0)
     carrierwave-aws (1.6.0)
       aws-sdk-s3 (~> 1.0)
@@ -999,7 +998,7 @@ GEM
     xmlmapper (0.8.1)
       nokogiri (~> 1.11)
     yard (0.9.34)
-    zeitwerk (2.6.8)
+    zeitwerk (2.6.9)
 
 PLATFORMS
   java

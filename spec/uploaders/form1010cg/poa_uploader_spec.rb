@@ -62,7 +62,9 @@ describe Form1010cg::PoaUploader, uploader_helpers: true do
     end
 
     context 'with invalid content-type' do
-      let(:source_file) { Rack::Test::UploadedFile.new('spec/fixtures/files/doctors-note.jpg', 'application/json') }
+      let(:source_file) do
+        Rack::Test::UploadedFile.new('spec/fixtures/files/invalid_content_type.jpg', 'application/json')
+      end
 
       it 'raises an error' do
         expect { subject.store!(source_file) }.to raise_error do |error|
