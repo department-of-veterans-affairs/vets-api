@@ -123,6 +123,7 @@ module DebtManagementCenter
 
     def submit_vba_fsr(form)
       Rails.logger.info('5655 Form Submitting to VBA')
+      form.delete('streamlined')
       response = perform(:post, 'financial-status-report/formtopdf', form)
       fsr_response = DebtManagementCenter::FinancialStatusReportResponse.new(response.body)
 
