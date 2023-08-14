@@ -711,7 +711,7 @@ GEM
     raabro (1.4.0)
     racc (1.7.1)
     racc (1.7.1-java)
-    rack (2.2.7)
+    rack (2.2.8)
     rack-attack (6.6.1)
       rack (>= 1.0, < 3)
     rack-cors (2.0.1)
