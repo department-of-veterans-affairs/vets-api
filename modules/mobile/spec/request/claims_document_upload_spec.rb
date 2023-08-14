@@ -18,6 +18,7 @@ RSpec.describe 'claims document upload', type: :request do
   before do
     iam_sign_in user
     token = 'abcdefghijklmnop'
+    allow_any_instance_of(BGS::People::Response).to receive(:file_number).and_return('12345')
     allow_any_instance_of(BenefitsDocuments::Configuration).to receive(:access_token).and_return(token)
     allow_any_instance_of(IAMUser).to receive(:icn).and_return('24811694708759028')
     Flipper.enable(:mobile_lighthouse_document_upload, user)
@@ -97,6 +98,22 @@ RSpec.describe 'claims document upload', type: :request do
     expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
     expect(args.key?('tracked_item_id')).to eq(true)
     expect(args['tracked_item_id']).to be_nil
+  end
+
+  context 'with a user that has multiple file numbers' do
+    before do
+      allow_any_instance_of(BGS::People::Response).to receive(:file_number).and_return(%w[12345 56789])
+    end
+
+    it 'uploads a file' do
+      params = { file:, claim_id:, tracked_item_ids:, documentType: document_type }
+      expect do
+        post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
+      end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
+
+      expect(response.status).to eq(202)
+      expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
+    end
   end
 
   context 'with unaccepted file_type' do
