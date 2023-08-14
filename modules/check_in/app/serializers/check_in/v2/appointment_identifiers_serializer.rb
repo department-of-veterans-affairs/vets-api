@@ -20,8 +20,8 @@ module CheckIn
         object.payload.dig(:demographics, :icn)
       end
 
-      attribute :mobilePhone do |object|
-        object.payload.dig(:demographics, :mobilePhone)
+      attribute :patientCellPhone do |object|
+        object.payload.dig(:demographics, :patientCellPhone)
       end
     end
   end
