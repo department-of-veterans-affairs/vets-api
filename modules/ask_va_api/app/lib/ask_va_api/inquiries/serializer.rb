@@ -13,8 +13,8 @@ module AskVAApi
                  :processing_status,
                  :last_update
 
-      def read_attribute_for_serialization(attr)
-        respond_to?(attr) ? send(attr) : object[attr]
+      attribute :reply do |obj|
+        AskVAApi::Replies::Serializer.new(obj.reply).serializable_hash
       end
     end
   end

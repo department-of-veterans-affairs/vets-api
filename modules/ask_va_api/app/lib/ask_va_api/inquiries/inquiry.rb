@@ -9,9 +9,10 @@ module AskVAApi
                   :topic,
                   :question,
                   :processing_status,
-                  :last_update
+                  :last_update,
+                  :reply
 
-      def initialize(info)
+      def initialize(info, reply = nil)
         @id = nil
         @inquiry_number = info[:inquiryNumber]
         @attachments = info[:attachments]
@@ -19,6 +20,7 @@ module AskVAApi
         @question = info[:submitterQuestions]
         @processing_status = info[:inquiryProcessingStatus]
         @last_update = info[:lastUpdate]
+        @reply = reply
       end
     end
   end
