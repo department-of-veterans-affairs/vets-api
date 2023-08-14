@@ -52,13 +52,14 @@ module BenefitsDocuments
     # @return [Faraday::Response] response from POST request
     #
     def post(body, document_data, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      headers = { Authorization: "Bearer #{
+      headers = { 'Authorization' => "Bearer #{
         access_token(
           lighthouse_client_id,
           lighthouse_rsa_key_path,
           options
         )
-      }" }
+      }",
+                  'Content-Type' => 'multipart/form-data' }
 
       connection.post(DOCUMENTS_PATH, body, headers) do |req|
         req.params['systemName'] = SYSTEM_NAME
