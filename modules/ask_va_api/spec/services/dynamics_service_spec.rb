@@ -20,4 +20,14 @@ RSpec.describe DynamicsService do
       expect(inquiry).to be_a(Hash)
     end
   end
+
+  describe '#get_reply' do
+    let(:reply) { service.get_reply(inquiry_number: 'A-1') }
+
+    context 'when there is a reply' do
+      it 'returns a reply hash' do
+        expect(reply).to be_a(Hash)
+      end
+    end
+  end
 end

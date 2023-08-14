@@ -13,17 +13,24 @@ RSpec.describe AskVAApi::Users::UserInquiriesSerializer do
                                                   attributes: { attachments: nil,
                                                                 inquiry_number: 'A-1',
                                                                 topic: 'Topic',
-                                                                question: 'This is a question',
-                                                                processing_status: 'In Progress',
-                                                                last_update: '08/07/23' } } },
+                                                                question: 'When is Sergeant Joe Smith birthday?',
+                                                                processing_status: 'Close',
+                                                                last_update: '08/07/23',
+                                                                reply: {
+                                                                  data: nil
+                                                                } } } },
                                         { data: { id: nil,
                                                   type: :inquiry,
                                                   attributes: { attachments: nil,
                                                                 inquiry_number: 'A-2',
                                                                 topic: 'Topic',
-                                                                question: 'This is a question',
+                                                                question: 'How long was Sergeant Joe Smith' \
+                                                                          ' overseas for?',
                                                                 processing_status: 'In Progress',
-                                                                last_update: '08/07/23' } } }] } } }
+                                                                last_update: '08/07/23',
+                                                                reply: {
+                                                                  data: nil
+                                                                } } } }] } } }
   end
 
   context 'when successful' do
