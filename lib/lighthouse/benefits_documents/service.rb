@@ -81,18 +81,15 @@ module BenefitsDocuments
       # The reason a user wouldn't have a VBMS file number is either:
       # 1. they're a rare case in production
       # 2. they're a test user in va.gov staging/LH documents_service sandbox
-      file_number = file_number || @user.ssn,
+      file_num = file_number || @user.ssn
+      file_num = file_num.first if file_num.is_a? Array
 
-      # I think rubocop is getting confused here
-      # rubocop:disable Layout/ArrayAlignment
       claim_id = file_params[:claimId] || file_params[:claim_id]
       tracked_item_ids = file_params[:trackedItemIds] || file_params[:tracked_item_ids]
       document_type = file_params[:documentType] || file_params[:document_type]
       password = file_params[:password]
-      # rubocop:enable Layout/ArrayAlignment
-
       LighthouseDocument.new(
-        file_number:,
+        file_number: file_num,
         claim_id:,
         file_obj: file,
         uuid: SecureRandom.uuid,
