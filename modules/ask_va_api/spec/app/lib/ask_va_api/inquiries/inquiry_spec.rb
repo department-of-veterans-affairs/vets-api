@@ -23,7 +23,8 @@ RSpec.describe AskVAApi::Inquiries::Inquiry do
                                          topic: 'Topic',
                                          question: 'This is a question',
                                          processing_status: 'In Progress',
-                                         last_update: '08/07/23'
+                                         last_update: '08/07/23',
+                                         reply: nil
                                        })
   end
 end

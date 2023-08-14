@@ -23,7 +23,10 @@ RSpec.describe AskVAApi::Inquiries::Serializer do
                             topic: 'Topic',
                             question: 'This is a question',
                             processing_status: 'In Progress',
-                            last_update: '08/07/23' } } }
+                            last_update: '08/07/23',
+                            reply: {
+                              data: nil
+                            } } } }
   end
 
   context 'when successful' do

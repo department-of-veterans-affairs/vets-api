@@ -5,5 +5,6 @@ AskVAApi::Engine.routes.draw do
     resources :static_data, only: %i[index]
     resources :static_data_auth, only: %i[index]
     get 'users/dashboard', to: 'users#show'
+    get 'inquiries/:inquiry_number', to: 'inquiries#show'
   end
 end

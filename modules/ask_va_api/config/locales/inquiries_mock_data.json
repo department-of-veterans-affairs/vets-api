@@ -1,10 +1,11 @@
 { "data": [
     {
+      "respond_reply_id": "Original Question",
       "inquiryNumber": "A-1",
       "inquiryTopic": "Topic",
-      "inquiryProcessingStatus": "In Progress",
+      "inquiryProcessingStatus": "Close",
       "lastUpdate": "08/07/23",
-      "submitterQuestions": "This is a question",
+      "submitterQuestions": "When is Sergeant Joe Smith birthday?",
       "attachments": [
         {
         "activity": "activity_1",
@@ -14,9 +15,10 @@
       "userUuid": "6400bbf301eb4e6e95ccea7693eced6f"
     },
     {
+      "respond_reply_id": "R-1",
       "inquiryNumber": "A-2",
       "inquiryTopic": "Topic",
-      "submitterQuestions": "This is a question",
+      "submitterQuestions": "How long was Sergeant Joe Smith overseas for?",
       "inquiryProcessingStatus": "In Progress",
       "lastUpdate": "08/07/23",
       "attachments": [
@@ -30,7 +32,7 @@
     {
       "inquiryNumber": "A-3",
       "inquiryTopic": "Topic",
-      "submitterQuestions": "This is a question",
+      "submitterQuestions": "Where was LT Bard Simpson stationed at in 1992?",
       "inquiryProcessingStatus": "In Progress",
       "lastUpdate": "08/07/23",
       "attachments": [

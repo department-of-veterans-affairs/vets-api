@@ -7,15 +7,17 @@ RSpec.describe AskVAApi::Inquiries::InquiryCreator do
 
   let(:inquiry_number) { 'A-1' }
 
+  before do
+    allow(AskVAApi::Replies::Reply).to receive(:new).and_call_original
+  end
+
   it 'returns an Inquiry object' do
     expect(creator).to be_a(AskVAApi::Inquiries::Inquiry)
   end
 
-  context 'when Inquiry is nil' do
-    let(:inquiry_number) { 'Invalid Number' }
+  it 'calls on AskVAApi::Replies::Reply' do
+    creator
 
-    it 'returns an error' do
-      expect { creator }.to raise_error(DynamicsService::DynamicsServiceError)
-    end
+    expect(AskVAApi::Replies::Reply).to have_received(:new)
   end
 end

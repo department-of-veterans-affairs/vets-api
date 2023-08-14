@@ -1,0 +1,10 @@
+{ 
+  "data": [
+    { 
+      "inquiryNumber": "A-1",
+      "replyId": "R-1",
+      "reply": "Sergeant Joe Smith birthday is July 4th, 1980",
+      "userUuid": "6400bbf301eb4e6e95ccea7693eced6f"
+    }
+  ]
+}
