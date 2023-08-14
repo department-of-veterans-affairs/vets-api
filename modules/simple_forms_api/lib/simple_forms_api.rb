@@ -28,7 +28,7 @@ module SimpleFormsApi
           words_to_remove += SimpleFormsApi::VBA2110210.new(params).words_to_remove
         end
 
-        words_to_remove.each do |word|
+        words_to_remove.compact.each do |word|
           message.gsub!(word, '')
         end
 
