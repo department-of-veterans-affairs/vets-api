@@ -161,8 +161,8 @@ module VAProfile
         end
       end
 
-      # @return [Hash] of the most recently completed service in the
-      # the guard or reserve service
+      # @return [Hash] Date range of the most recently completed service
+      #  in the guard or reserve service.
       def latest_guard_reserve_service_period
         guard_reserve_service_history.try(:[], 0)
       end
