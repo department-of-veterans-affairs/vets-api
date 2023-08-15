@@ -10,6 +10,7 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
       id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
       scope: 'read.full',
       payload: {
+        patientCellPhone: '4445556666',
         demographics: {
           mailingAddress: {
             street1: '123 Turtle Trail',
@@ -32,7 +33,7 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
             country: 'USA'
           },
           homePhone: '5552223333',
-          patientCellPhone: '5553334444',
+          mobilePhone: '5553334444',
           workPhone: '5554445555',
           emailAddress: 'kermit.frog@sesameenterprises.us'
         },
@@ -85,7 +86,8 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
               patientDFN: '888',
               stationNo: '5625',
               icn: nil,
-              patientCellPhone: '5553334444'
+              mobilePhone: '5553334444',
+              patientCellPhone: '4445556666'
             }
           }
         }
@@ -113,7 +115,8 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
               patientDFN: '888',
               stationNo: '5625',
               icn: '12340V123456',
-              patientCellPhone: '5553334444'
+              mobilePhone: '5553334444',
+              patientCellPhone: '4445556666'
             }
           }
         }
@@ -127,9 +130,9 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
       end
     end
 
-    context 'when patientCellPhone does not exist' do
+    context 'when mobilePhone does not exist' do
       let(:appointment_data_without_mobile_phone) do
-        appointment_data[:payload][:demographics].except!(:patientCellPhone)
+        appointment_data[:payload][:demographics].except!(:mobilePhone)
         appointment_data
       end
 
@@ -142,14 +145,40 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
               patientDFN: '888',
               stationNo: '5625',
               icn: nil,
-              patientCellPhone: nil
+              mobilePhone: nil,
+              patientCellPhone: '4445556666'
             }
           }
         }
       end
 
-      it 'returns a serialized hash with patientCellPhone nil' do
+      it 'returns a serialized hash with mobilePhone nil' do
         appt_struct = OpenStruct.new(appointment_data_without_mobile_phone)
+        appt_serializer = CheckIn::V2::AppointmentIdentifiersSerializer.new(appt_struct)
+
+        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
+      end
+    end
+
+    context 'when mobilePhone exists' do
+      let(:serialized_hash_response) do
+        {
+          data: {
+            id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+            type: :appointment_identifier,
+            attributes: {
+              patientDFN: '888',
+              stationNo: '5625',
+              icn: nil,
+              mobilePhone: '5553334444',
+              patientCellPhone: '4445556666'
+            }
+          }
+        }
+      end
+
+      it 'returns a serialized hash with mobilePhone' do
+        appt_struct = OpenStruct.new(appointment_data)
         appt_serializer = CheckIn::V2::AppointmentIdentifiersSerializer.new(appt_struct)
 
         expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
@@ -166,7 +195,8 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
               patientDFN: '888',
               stationNo: '5625',
               icn: nil,
-              patientCellPhone: '5553334444'
+              mobilePhone: '5553334444',
+              patientCellPhone: '4445556666'
             }
           }
         }
@@ -174,6 +204,36 @@ RSpec.describe CheckIn::V2::AppointmentIdentifiersSerializer do
 
       it 'returns a serialized hash with patientCellPhone' do
         appt_struct = OpenStruct.new(appointment_data)
+        appt_serializer = CheckIn::V2::AppointmentIdentifiersSerializer.new(appt_struct)
+
+        expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
+      end
+    end
+
+    context 'when patientCellPhone does not exist' do
+      let(:appointment_data_without_patient_cell_phone) do
+        appointment_data[:payload].except!(:patientCellPhone)
+        appointment_data
+      end
+
+      let(:serialized_hash_response) do
+        {
+          data: {
+            id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d',
+            type: :appointment_identifier,
+            attributes: {
+              patientDFN: '888',
+              stationNo: '5625',
+              icn: nil,
+              mobilePhone: '5553334444',
+              patientCellPhone: nil
+            }
+          }
+        }
+      end
+
+      it 'returns a serialized hash without patientCellPhone' do
+        appt_struct = OpenStruct.new(appointment_data_without_patient_cell_phone)
         appt_serializer = CheckIn::V2::AppointmentIdentifiersSerializer.new(appt_struct)
 
         expect(appt_serializer.serializable_hash).to eq(serialized_hash_response)
