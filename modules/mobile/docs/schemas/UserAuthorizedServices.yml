@@ -1,0 +1,37 @@
+type: object
+required:
+  - id
+  - type
+  - attributes
+properties:
+  id:
+    type: string
+    example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+  type:
+    type: string
+    example: "user"
+  attributes:
+    type: object
+    required:
+      - authorizedServices
+    properties:
+      authorizedServices:
+        description: All services with a boolean value of whether or not the service has access to that service.
+        type: object
+        example:
+          appeals: true
+          appointments: true
+          claims: true
+          decisionLetters: true
+          directDepositBenefits: true
+          directDepositBenefitsUpdate: true
+          disabilityRating: true
+          genderIdentity: false
+          lettersAndDocuments: true
+          militaryServiceHistory: true
+          paymentHistory: true
+          preferredName: false
+          prescriptions: false
+          scheduleAppointments: true
+          secureMessaging: false
+          userProfileUpdate: true
