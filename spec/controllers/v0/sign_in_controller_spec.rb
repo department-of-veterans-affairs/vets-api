@@ -72,29 +72,30 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:error_code) { SignIn::Constants::ErrorCode::INVALID_REQUEST }
         let(:auth_param) { 'fail' }
         let(:request_id) { SecureRandom.uuid }
+        let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 
         before do
           allow_any_instance_of(ActionController::TestRequest).to receive(:request_id).and_return(request_id)
         end
 
-        it 'renders the oauth_get_form template' do
-          expect(subject.body).to include('form id="oauth-form"')
+        it 'renders the oauth_get_form template with meta refresh tag' do
+          expect(subject.body).to include(meta_refresh_tag)
         end
 
         it 'directs to the given redirect url set in the client configuration' do
-          expect(subject.body).to include("action=\"#{client_config.redirect_uri}\"")
+          expect(subject.body).to include(client_config.redirect_uri)
         end
 
         it 'includes expected auth param' do
-          expect(subject.body).to include("value=\"#{auth_param}\"")
+          expect(subject.body).to include(auth_param)
         end
 
         it 'includes expected code param' do
-          expect(subject.body).to include("value=\"#{error_code}\"")
+          expect(subject.body).to include(error_code)
         end
 
         it 'includes expected request_id param' do
-          expect(subject.body).to include("value=\"#{request_id}\"")
+          expect(subject.body).to include(request_id)
         end
 
         it 'returns expected status' do
@@ -141,6 +142,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
     context 'when client_id maps to a client configuration' do
       let(:client_id_value) { client_config.client_id }
+      let(:expected_redirect_uri_param) { { redirect_uri: expected_redirect_uri }.to_query }
 
       shared_context 'successful response' do
         it 'returns ok status' do
@@ -152,7 +154,7 @@ RSpec.describe V0::SignInController, type: :controller do
         end
 
         it 'renders expected redirect_uri in template' do
-          expect(subject.body).to match(expected_redirect_uri)
+          expect(subject.body).to match(expected_redirect_uri_param)
         end
 
         it 'logs the authentication attempt' do
@@ -528,29 +530,30 @@ RSpec.describe V0::SignInController, type: :controller do
           { errors: expected_error, client_id:, type:, acr: }
         end
         let(:request_id) { SecureRandom.uuid }
+        let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 
         before do
           allow_any_instance_of(ActionController::TestRequest).to receive(:request_id).and_return(request_id)
         end
 
-        it 'renders the oauth_get_form template' do
-          expect(subject.body).to include('form id="oauth-form"')
+        it 'renders the oauth_get_form template with meta refresh tag' do
+          expect(subject.body).to include(meta_refresh_tag)
         end
 
         it 'directs to the given redirect url set in the client configuration' do
-          expect(subject.body).to include("action=\"#{client_config.redirect_uri}\"")
+          expect(subject.body).to include(client_config.redirect_uri)
         end
 
         it 'includes expected auth param' do
-          expect(subject.body).to include("value=\"#{auth_param}\"")
+          expect(subject.body).to include(auth_param)
         end
 
         it 'includes expected code param' do
-          expect(subject.body).to include("value=\"#{error_code}\"")
+          expect(subject.body).to include(error_code)
         end
 
         it 'includes expected request_id param' do
-          expect(subject.body).to include("value=\"#{request_id}\"")
+          expect(subject.body).to include(request_id)
         end
 
         it 'returns expected status' do
@@ -678,6 +681,7 @@ RSpec.describe V0::SignInController, type: :controller do
                 let(:acr) { 'min' }
                 let(:login_gov_response_acr) { IAL::LOGIN_GOV_IAL1 }
                 let(:expected_redirect_uri) { Settings.logingov.redirect_uri }
+                let(:expected_redirect_uri_param) { { redirect_uri: expected_redirect_uri }.to_query }
 
                 before do
                   allow_any_instance_of(SignIn::StatePayloadJwtEncoder).to receive(:perform)
@@ -689,7 +693,7 @@ RSpec.describe V0::SignInController, type: :controller do
                 end
 
                 it 'renders expected redirect_uri in template' do
-                  expect(subject.body).to match(expected_redirect_uri)
+                  expect(subject.body).to match(expected_redirect_uri_param)
                 end
 
                 it 'generates a new state payload with a new StateCode' do
@@ -733,6 +737,7 @@ RSpec.describe V0::SignInController, type: :controller do
                         given_names: [user_info.given_name],
                         family_name: user_info.family_name)
                 end
+                let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 
                 before { allow(SecureRandom).to receive(:uuid).and_return(client_code) }
 
@@ -740,24 +745,24 @@ RSpec.describe V0::SignInController, type: :controller do
                   expect(subject).to have_http_status(:ok)
                 end
 
-                it 'renders the oauth_get_form template' do
-                  expect(subject.body).to include('form id="oauth-form"')
+                it 'renders the oauth_get_form template with meta refresh tag' do
+                  expect(subject.body).to include(meta_refresh_tag)
                 end
 
                 it 'directs to the given redirect url set in the client configuration' do
-                  expect(subject.body).to include("action=\"#{client_redirect_uri}\"")
+                  expect(subject.body).to include(client_redirect_uri)
                 end
 
                 it 'includes expected code param' do
-                  expect(subject.body).to include("value=\"#{client_code}\"")
+                  expect(subject.body).to include(client_code)
                 end
 
                 it 'includes expected state param' do
-                  expect(subject.body).to include("value=\"#{client_state}\"")
+                  expect(subject.body).to include(client_state)
                 end
 
                 it 'includes expected type param' do
-                  expect(subject.body).to include("value=\"#{type}\"")
+                  expect(subject.body).to include(type)
                 end
 
                 it 'logs the successful callback' do
@@ -835,6 +840,7 @@ RSpec.describe V0::SignInController, type: :controller do
                 let(:acr) { 'min' }
                 let(:credential_ial) { LOA::ONE }
                 let(:expected_redirect_uri) { Settings.idme.redirect_uri }
+                let(:expected_redirect_uri_param) { { redirect_uri: expected_redirect_uri }.to_query }
 
                 before do
                   allow_any_instance_of(SignIn::StatePayloadJwtEncoder).to receive(:perform)
@@ -846,7 +852,7 @@ RSpec.describe V0::SignInController, type: :controller do
                 end
 
                 it 'renders expected redirect_uri in template' do
-                  expect(subject.body).to match(expected_redirect_uri)
+                  expect(subject.body).to match(expected_redirect_uri_param)
                 end
 
                 it 'generates a new state payload with a new StateCode' do
@@ -875,6 +881,7 @@ RSpec.describe V0::SignInController, type: :controller do
                     acr:
                   }
                 end
+                let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 
                 before do
                   allow(SecureRandom).to receive(:uuid).and_return(client_code)
@@ -884,24 +891,24 @@ RSpec.describe V0::SignInController, type: :controller do
                   expect(subject).to have_http_status(:ok)
                 end
 
-                it 'renders the oauth_get_form template' do
-                  expect(subject.body).to include('form id="oauth-form"')
+                it 'renders the oauth_get_form template with meta refresh tag' do
+                  expect(subject.body).to include(meta_refresh_tag)
                 end
 
                 it 'directs to the given redirect url set in the client configuration' do
-                  expect(subject.body).to include("action=\"#{client_redirect_uri}\"")
+                  expect(subject.body).to include(client_redirect_uri)
                 end
 
                 it 'includes expected code param' do
-                  expect(subject.body).to include("value=\"#{client_code}\"")
+                  expect(subject.body).to include(client_code)
                 end
 
                 it 'includes expected state param' do
-                  expect(subject.body).to include("value=\"#{client_state}\"")
+                  expect(subject.body).to include(client_state)
                 end
 
                 it 'includes expected type param' do
-                  expect(subject.body).to include("value=\"#{type}\"")
+                  expect(subject.body).to include(type)
                 end
 
                 it 'logs the successful callback' do
@@ -993,6 +1000,7 @@ RSpec.describe V0::SignInController, type: :controller do
                   acr:
                 }
               end
+              let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 
               before do
                 allow(SecureRandom).to receive(:uuid).and_return(client_code)
@@ -1003,24 +1011,24 @@ RSpec.describe V0::SignInController, type: :controller do
                   expect(subject).to have_http_status(:ok)
                 end
 
-                it 'renders the oauth_get_form template' do
-                  expect(subject.body).to include('form id="oauth-form"')
+                it 'renders the oauth_get_form template with meta refresh tag' do
+                  expect(subject.body).to include(meta_refresh_tag)
                 end
 
                 it 'directs to the given redirect url set in the client configuration' do
-                  expect(subject.body).to include("action=\"#{client_redirect_uri}\"")
+                  expect(subject.body).to include(client_redirect_uri)
                 end
 
                 it 'includes expected code param' do
-                  expect(subject.body).to include("value=\"#{client_code}\"")
+                  expect(subject.body).to include(client_code)
                 end
 
                 it 'includes expected state param' do
-                  expect(subject.body).to include("value=\"#{client_state}\"")
+                  expect(subject.body).to include(client_state)
                 end
 
                 it 'includes expected type param' do
-                  expect(subject.body).to include("value=\"#{type}\"")
+                  expect(subject.body).to include(type)
                 end
 
                 it 'logs the successful callback' do
@@ -1131,6 +1139,7 @@ RSpec.describe V0::SignInController, type: :controller do
                   acr:
                 }
               end
+              let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 
               before do
                 allow(SecureRandom).to receive(:uuid).and_return(client_code)
@@ -1141,24 +1150,24 @@ RSpec.describe V0::SignInController, type: :controller do
                   expect(subject).to have_http_status(:ok)
                 end
 
-                it 'renders the oauth_get_form template' do
-                  expect(subject.body).to include('form id="oauth-form"')
+                it 'renders the oauth_get_form template with meta refresh tag' do
+                  expect(subject.body).to include(meta_refresh_tag)
                 end
 
                 it 'directs to the given redirect url set in the client configuration' do
-                  expect(subject.body).to include("action=\"#{client_redirect_uri}\"")
+                  expect(subject.body).to include(client_redirect_uri)
                 end
 
                 it 'includes expected code param' do
-                  expect(subject.body).to include("value=\"#{client_code}\"")
+                  expect(subject.body).to include(client_code)
                 end
 
                 it 'includes expected state param' do
-                  expect(subject.body).to include("value=\"#{client_state}\"")
+                  expect(subject.body).to include(client_state)
                 end
 
                 it 'includes expected type param' do
-                  expect(subject.body).to include("value=\"#{type}\"")
+                  expect(subject.body).to include(type)
                 end
 
                 it 'logs the successful callback' do

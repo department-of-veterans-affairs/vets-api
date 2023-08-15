@@ -65,6 +65,7 @@ describe SignIn::Logingov::Service do
   let(:user_uuid) { '12345678-0990-10a1-f038-2839ab281f90' }
   let(:success_callback_url) { 'http://localhost:3001/auth/login/callback?type=logingov' }
   let(:failure_callback_url) { 'http://localhost:3001/auth/login/callback?auth=fail&code=007' }
+  let(:expected_authorization_page) { 'https://idp.int.identitysandbox.gov/openid_connect/authorize' }
   let(:state) { 'some-state' }
   let(:acr) { 'some-acr' }
 
@@ -77,12 +78,8 @@ describe SignIn::Logingov::Service do
       response
     end
 
-    it 'renders the oauth_get_form template' do
-      expect(response).to include('form id="oauth-form"')
-    end
-
-    it 'directs to the Login.gov OAuth authorization page' do
-      expect(response).to include('action="https://idp.int.identitysandbox.gov/openid_connect/authorize"')
+    it 'renders the expected redirect uri' do
+      expect(response).to include(expected_authorization_page)
     end
   end
 
@@ -126,10 +123,6 @@ describe SignIn::Logingov::Service do
     end
     let(:seed) { 'some-seed' }
     let(:client_logout_redirect_uri) { 'some-client-logout-redirect-uri' }
-
-    it 'renders the oauth_get_form template' do
-      expect(subject.render_logout_redirect(encoded_state)).to include('form id="oauth-form"')
-    end
 
     it 'directs to the expected logout redirect uri' do
       expect(subject.render_logout_redirect(encoded_state)).to include(client_logout_redirect_uri)
