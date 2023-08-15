@@ -11,11 +11,15 @@ module SignIn
 
     def perform
       renderer.render(template: 'oauth_get_form',
-                      locals: { url: redirect_uri, params: params_hash },
+                      locals: { url: redirect_uri_with_params },
                       format: :html)
     end
 
     private
+
+    def redirect_uri_with_params
+      "#{redirect_uri}?#{params_hash.to_query}"
+    end
 
     def renderer
       @renderer ||= begin
