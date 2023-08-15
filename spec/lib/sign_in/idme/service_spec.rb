@@ -89,12 +89,8 @@ describe SignIn::Idme::Service do
       response
     end
 
-    it 'renders the oauth_get_form template' do
-      expect(response).to include('form id="oauth-form"')
-    end
-
-    it 'directs to the Id.me OAuth authorization page' do
-      expect(response).to include("action=\"#{expected_authorization_page}\"")
+    it 'renders the expected redirect uri' do
+      expect(response).to include(expected_authorization_page)
     end
   end
 
