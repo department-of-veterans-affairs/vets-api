@@ -12,6 +12,11 @@ RSpec.describe BGS::DependentService do
         'full_name' => {
           'first' => 'WESLEY', 'middle' => nil, 'last' => 'FORD'
         },
+        'common_name' => user.common_name,
+        'participant_id' => '600061742',
+        'uuid' => user.uuid,
+        'email' => user.email,
+        'va_profile_email' => user.va_profile_email,
         'ssn' => '796043735',
         'va_file_number' => '796043735',
         'birth_date' => birth_date
@@ -41,7 +46,7 @@ RSpec.describe BGS::DependentService do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           service = BGS::DependentService.new(user)
           expect(service).not_to receive(:log_exception_to_sentry)
-          expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(user.uuid, claim.id, vet_info)
+          expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(user.uuid, user.icn, claim.id, vet_info)
           expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(claim.id, vet_info, true, true)
           service.submit_686c_form(claim)
         end
@@ -55,7 +60,7 @@ RSpec.describe BGS::DependentService do
           vet_info['veteran_information']['va_file_number'] = '12345678'
           service = BGS::DependentService.new(user)
           expect(service).not_to receive(:log_exception_to_sentry)
-          expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(user.uuid, claim.id, vet_info)
+          expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(user.uuid, user.icn, claim.id, vet_info)
           expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(claim.id, vet_info, true, true)
           service.submit_686c_form(claim)
         end
@@ -67,7 +72,7 @@ RSpec.describe BGS::DependentService do
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id).and_return({ file_nbr: '796-04-3735' }) # rubocop:disable Layout/LineLength
         service = BGS::DependentService.new(user)
         expect(service).not_to receive(:log_exception_to_sentry)
-        expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(user.uuid, claim.id, vet_info)
+        expect(BGS::SubmitForm686cJob).to receive(:perform_async).with(user.uuid, user.icn, claim.id, vet_info)
         expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(claim.id, vet_info, true, true)
         service.submit_686c_form(claim)
       end
