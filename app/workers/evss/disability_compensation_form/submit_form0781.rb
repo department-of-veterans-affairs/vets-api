@@ -9,7 +9,7 @@ module EVSS
     class SubmitForm0781 < Job
       extend Logging::ThirdPartyTransaction::MethodWrapper
 
-      attr_reader :submission_id, :evss_claim_id
+      attr_reader :submission_id, :evss_claim_id, :uuid
 
       wrap_with_logging(
         :upload_to_vbms,
@@ -19,7 +19,8 @@ module EVSS
         },
         additional_instance_logs: {
           submission_id: [:submission_id],
-          evss_claim_id: [:evss_claim_id]
+          evss_claim_id: [:evss_claim_id],
+          uuid: [:uuid]
         }
       )
 
@@ -60,6 +61,7 @@ module EVSS
       # `file`, which is the generated file location
       def get_docs(submission_id, uuid)
         @submission_id = submission_id
+        @uuid = uuid
 
         file_type_and_file_objs = []
         { 'form0781' => FORM_ID_0781, 'form0781a' => FORM_ID_0781A }.each do |form_type_key, actual_form_types|
