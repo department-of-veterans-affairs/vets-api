@@ -3038,6 +3038,40 @@ paths:
       security:
         - Bearer: []
       summary: /v0/user
+  /v0/user/authorized-services:
+    get:
+      description: |
+        Returns a hash of all available services, and a boolean value of whether the user has access to that service.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: ./schemas/UserAuthorizedServices.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/user/authorized-services
   /v0/user/contact-info:
     get:
       description: |
