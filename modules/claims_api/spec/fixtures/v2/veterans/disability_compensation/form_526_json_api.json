@@ -60,10 +60,10 @@
             "areaCode": "555",
             "phoneNumber": "5555555"
           },
-          "receivingInactiveDutyTrainingPay": true
+          "receivingInactiveDutyTrainingPay": "YES"
         },
         "alternateNames": ["john jacob", "johnny smith"],
-        "servedInActiveCombatSince911": false
+        "servedInActiveCombatSince911": "NO"
       },
       "disabilities": [
         {
@@ -129,14 +129,14 @@
       },
       "toxicExposure": {
         "gulfWarHazardService": {
-          "servedInGulfWarHazardLocations": true,
+          "servedInGulfWarHazardLocations": "YES",
           "serviceDates": {
             "beginDate": "07-2018",
             "endDate": "08-2018"
           }
         },
         "herbicideHazardService": {
-          "servedInHerbicideHazardLocations": true,
+          "servedInHerbicideHazardLocations": "YES",
           "otherLocationsServed": "ABCDEFGHIJKLM",
           "serviceDates": {
             "beginDate": "07-2018",
@@ -178,15 +178,15 @@
       "servicePay": {
         "favorTrainingPay": true,
         "favorMilitaryRetiredPay": false,
-        "receivingMilitaryRetiredPay": false,
-        "futureMilitaryRetiredPay": true,
+        "receivingMilitaryRetiredPay": "NO",
+        "futureMilitaryRetiredPay": "YES",
         "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
         "militaryRetiredPay": {
           "branchOfService": "Army",
           "monthlyAmount": 840.75
         },
         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
-        "receivedSeparationOrSeverancePay": false,
+        "receivedSeparationOrSeverancePay": "NO",
         "separationSeverancePay": {
           "datePaymentReceived": "03-12-2022",
           "branchOfService": "Naval Academy",

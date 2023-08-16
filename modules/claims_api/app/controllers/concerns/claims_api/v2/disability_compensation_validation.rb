@@ -381,7 +381,7 @@ module ClaimsApi
         future_explanation_attr = form_attributes.dig('servicePay', 'futureMilitaryRetiredPayExplanation')
         return if future_attr.nil?
 
-        if future_attr == true && future_explanation_attr.blank?
+        if future_attr == 'YES' && future_explanation_attr.blank?
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail: "If 'servicePay.futureMilitaryRetiredPay' is true, then " \
                     "'servicePay.futureMilitaryRetiredPayExplanation' is required"
