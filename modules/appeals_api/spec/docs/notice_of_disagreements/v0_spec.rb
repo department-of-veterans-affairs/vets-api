@@ -33,23 +33,6 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
         'minimum fields used' => { value: FixtureHelpers.fixture_as_json('notice_of_disagreements/v0/valid_10182_minimum.json') },
         'all fields used' => { value: FixtureHelpers.fixture_as_json('notice_of_disagreements/v0/valid_10182_extra.json') }
       }
-      file_number_header_params = AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
-      file_number_header_params[:required] = true
-      parameter file_number_header_params
-      let(:'X-VA-File-Number') { '987654321' }
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header].merge({ required: true })
-      let(:'X-VA-ICN') { '1234567890V123456' }
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_first_name_header]
-      let(:'X-VA-First-Name') { 'first' }
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_middle_initial_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_last_name_header]
-      let(:'X-VA-Last-Name') { 'last' }
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_birth_date_header]
-      let(:'X-VA-Birth-Date') { '1900-01-01' }
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_first_name_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_middle_initial_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_last_name_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_birth_date_header]
 
       response '200', 'Info about a single Notice of Disagreement' do
         let(:nod_body) { fixture_as_json('notice_of_disagreements/v0/valid_10182_minimum.json') }
@@ -66,9 +49,6 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
       response '200', 'Info about a single Notice of Disagreement' do
         schema '$ref' => '#/components/schemas/nodCreateResponse'
         let(:nod_body) { fixture_as_json('notice_of_disagreements/v0/valid_10182_extra.json') }
-        let(:'X-VA-NonVeteranClaimant-First-Name') { 'first' }
-        let(:'X-VA-NonVeteranClaimant-Last-Name') { 'last' }
-        let(:'X-VA-NonVeteranClaimant-Birth-Date') { '1921-08-08' }
 
         it_behaves_like 'rswag example',
                         desc: 'all fields used',
@@ -108,7 +88,7 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
 
       response '200', 'Info about a single Notice of Disagreement' do
         schema '$ref' => '#/components/schemas/nodShowResponse'
-        let(:uuid) { FactoryBot.create(:notice_of_disagreement_v2).id }
+        let(:uuid) { FactoryBot.create(:notice_of_disagreement_v0).id }
 
         it_behaves_like 'rswag example',
                         desc: 'returns a 200 response',
@@ -183,17 +163,6 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
         'minimum fields used' => { value: FixtureHelpers.fixture_as_json('notice_of_disagreements/v0/valid_10182_minimum.json') },
         'all fields used' => { value: FixtureHelpers.fixture_as_json('notice_of_disagreements/v0/valid_10182_extra.json') }
       }
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
-      let(:'X-VA-File-Number') { '987654321' }
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header].merge({ required: true })
-      let(:'X-VA-ICN') { '1234567890V123456' }
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_first_name_header]
-      let(:'X-VA-First-Name') { 'first' }
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_middle_initial_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_last_name_header]
-      let(:'X-VA-Last-Name') { 'last' }
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_birth_date_header]
-      let(:'X-VA-Birth-Date') { '1900-01-01' }
 
       response '200', 'Valid' do
         let(:nod_body) { fixture_as_json('notice_of_disagreements/v0/valid_10182_minimum.json') }
@@ -267,7 +236,7 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
 
       response '202', 'Accepted. Location generated' do
         schema '$ref' => '#/components/schemas/nodEvidenceSubmissionResponse'
-        let(:nod_uuid) { FactoryBot.create(:notice_of_disagreement_v2, :board_review_evidence_submission).id }
+        let(:nod_uuid) { FactoryBot.create(:notice_of_disagreement_v0, :board_review_evidence_submission).id }
 
         before do
           allow_any_instance_of(VBADocuments::UploadSubmission).to receive(:get_location).and_return(+'http://some.fakesite.com/path/uuid')
@@ -294,7 +263,7 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
       end
 
       response '422', 'Validation errors' do
-        let(:nod_uuid) { FactoryBot.create(:notice_of_disagreement_v2, :board_review_direct_review).id }
+        let(:nod_uuid) { FactoryBot.create(:notice_of_disagreement_v0, :board_review_direct_review).id }
         let(:'X-VA-File-Number') { '987654321' }
         schema '$ref' => '#/components/schemas/errorModel'
         it_behaves_like 'rswag example', desc: 'returns a 422 response', scopes:
