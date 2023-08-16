@@ -54,14 +54,14 @@
       },
       "toxicExposure": {
         "gulfWarHazardService": {
-          "servedInGulfWarHazardLocations": true,
+          "servedInGulfWarHazardLocations": "YES",
           "serviceDates": {
             "beginDate": "07-1999",
             "endDate": "01-2005"
           }
         },
         "herbicideHazardService": {
-          "servedInHerbicideHazardLocations": true,
+          "servedInHerbicideHazardLocations": "YES",
           "otherLocationsServed": "Guam",
           "serviceDates": {
             "beginDate": "03-2002",
@@ -182,23 +182,23 @@
             "areaCode": "555",
             "phoneNumber": "5555555"
           },
-          "receivingInactiveDutyTrainingPay": true
+          "receivingInactiveDutyTrainingPay": "YES"
         },
         "alternateNames": ["John Jacob Jingleheimer-Schmidt", "Johnathon"],
-        "servedInActiveCombatSince911": false
+        "servedInActiveCombatSince911": "NO"
       },
       "servicePay": {
         "favorTrainingPay": true,
         "favorMilitaryRetiredPay": false,
-        "receivingMilitaryRetiredPay": false,
-        "futureMilitaryRetiredPay": true,
+        "receivingMilitaryRetiredPay": "NO",
+        "futureMilitaryRetiredPay": "YES",
         "futureMilitaryRetiredPayExplanation": "ABCDEFGHIJKLMNOPQRSTUVW",
         "militaryRetiredPay": {
           "branchOfService": "Army",
           "monthlyAmount": 840.75
         },
         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
-        "receivedSeparationOrSeverancePay": false,
+        "receivedSeparationOrSeverancePay": "NO",
         "separationSeverancePay": {
           "datePaymentReceived": "07-31-2018",
           "branchOfService": "Naval Academy",

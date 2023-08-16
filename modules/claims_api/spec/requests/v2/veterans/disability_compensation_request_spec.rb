@@ -1039,8 +1039,8 @@ RSpec.describe 'Disability Claims', type: :request do
 
             context "when 'receivingMilitaryRetiredPay' and 'futureMilitaryRetiredPay' are equal but not 'nil'" do
               context "when both are 'true'" do
-                let(:receiving) { true }
-                let(:future) { true }
+                let(:receiving) { 'YES' }
+                let(:future) { 'YES' }
 
                 it 'responds with a bad request' do
                   with_okta_user(scopes) do |auth_header|
@@ -1054,8 +1054,8 @@ RSpec.describe 'Disability Claims', type: :request do
               end
 
               context "when both are 'false'" do
-                let(:receiving) { false }
-                let(:future) { false }
+                let(:receiving) { 'NO' }
+                let(:future) { 'NO' }
 
                 it 'responds with a bad request' do
                   with_okta_user(scopes) do |auth_header|
@@ -1071,8 +1071,8 @@ RSpec.describe 'Disability Claims', type: :request do
 
             context "when 'receivingMilitaryRetiredPay' and 'futureMilitaryRetiredPay' are not equal" do
               context "when 'receivingMilitaryRetiredPay' is 'false' and 'futureMilitaryRetiredPay' is 'true'" do
-                let(:receiving) { false }
-                let(:future) { true }
+                let(:receiving) { 'NO' }
+                let(:future) { 'YES' }
 
                 it 'responds with a 200' do
                   with_okta_user(scopes) do |auth_header|
@@ -1093,9 +1093,9 @@ RSpec.describe 'Disability Claims', type: :request do
                 end
               end
 
-              context "when 'receivingMilitaryRetiredPay' is 'true' and 'futureMilitaryRetiredPay' is 'false'" do
-                let(:receiving) { true }
-                let(:future) { false }
+              context "when 'receivingMilitaryRetiredPay' is 'YES' and 'futureMilitaryRetiredPay' is 'NO'" do
+                let(:receiving) { 'YES' }
+                let(:future) { 'NO' }
 
                 it 'responds with a 200' do
                   with_okta_user(scopes) do |auth_header|
@@ -1121,8 +1121,8 @@ RSpec.describe 'Disability Claims', type: :request do
           describe "'payment'" do
             let(:service_pay_attribute) do
               {
-                receivingMilitaryRetiredPay: true,
-                futureMilitaryRetiredPay: false,
+                receivingMilitaryRetiredPay: 'YES',
+                futureMilitaryRetiredPay: 'NO',
                 militaryRetiredPay: {
                   branchOfService: 'Air Force',
                   monthlyAmount: military_retired_payment_amount
@@ -1183,12 +1183,12 @@ RSpec.describe 'Disability Claims', type: :request do
 
           describe "'futurePayExplanation'" do
             context "when 'futureMilitaryRetiredPay' is 'true'" do
-              let(:future_military_retired_pay) { true }
+              let(:future_military_retired_pay) { 'YES' }
 
               context "when 'futureMilitaryRetiredPayExplanation' is not provided" do
                 let(:service_pay_attribute) do
                   {
-                    receivingMilitaryRetiredPay: false,
+                    receivingMilitaryRetiredPay: 'NO',
                     futureMilitaryRetiredPay: future_military_retired_pay,
                     militaryRetiredPay: {
                       branchOfService: 'Air Force'
@@ -1210,7 +1210,7 @@ RSpec.describe 'Disability Claims', type: :request do
               context "when 'futureMilitaryRetiredPayExplanation' is provided" do
                 let(:service_pay_attribute) do
                   {
-                    receivingMilitaryRetiredPay: false,
+                    receivingMilitaryRetiredPay: 'NO',
                     futureMilitaryRetiredPay: future_military_retired_pay,
                     futureMilitaryRetiredPayExplanation: 'Retiring soon.',
                     militaryRetiredPay: {
@@ -1245,7 +1245,7 @@ RSpec.describe 'Disability Claims', type: :request do
           describe "'payment'" do
             let(:service_pay_attribute) do
               {
-                receivedSeparationOrSeverancePay: true,
+                receivedSeparationOrSeverancePay: 'YES',
                 separationSeverancePay: {
                   datePaymentReceived: (Time.zone.today - 1.year).strftime('%m-%d-%Y'),
                   branchOfService: 'Air Force',
@@ -1308,7 +1308,7 @@ RSpec.describe 'Disability Claims', type: :request do
           describe "'datePaymentReceived'" do
             let(:service_pay_attribute) do
               {
-                receivedSeparationOrSeverancePay: true,
+                receivedSeparationOrSeverancePay: 'YES',
                 separationSeverancePay: {
                   datePaymentReceived: received_date,
                   branchOfService: 'Air Force',
