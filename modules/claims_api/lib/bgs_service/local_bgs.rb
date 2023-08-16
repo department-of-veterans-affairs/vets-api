@@ -184,6 +184,12 @@ module ClaimsApi
                    action: 'findBenefitClaimsStatusByPtcpntId', body:)
     end
 
+    def claims_count(id)
+      find_benefit_claims_status_by_ptcpnt_id(id).count
+    rescue ::Common::Exceptions::ResourceNotFound
+      0
+    end
+
     def find_benefit_claim_details_by_benefit_claim_id(id)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <bnftClaimId />
