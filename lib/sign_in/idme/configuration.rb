@@ -71,7 +71,7 @@ module SignIn
       end
 
       def jwt_decode_public_key
-        OpenSSL::PKey::RSA.new(File.read(Settings.idme.oauth_public_key))
+        @idme_public_keys ||= IdmePublicKeyFetcher.new.perform
       end
 
       def ssl_key
