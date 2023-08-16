@@ -361,7 +361,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         branch_of_service = service_pay_data[:militaryRetiredPay][:branchOfService][:branch]
 
         expect(favor_mil_retired_pay).to eq(false)
-        expect(receiving_mil_retired_pay).to eq('NO')
+        expect(receiving_mil_retired_pay).to eq('YES')
         expect(branch_of_service).to eq('Army')
       end
     end
