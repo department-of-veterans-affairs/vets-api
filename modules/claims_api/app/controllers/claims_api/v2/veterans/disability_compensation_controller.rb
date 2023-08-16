@@ -7,7 +7,6 @@ require 'claims_api/v2/disability_compensation_pdf_mapper'
 require 'claims_api/v2/disability_compensation_evss_mapper'
 require 'evss_service/base'
 require 'pdf_generator_service/pdf_client'
-require 'bd/bd'
 
 module ClaimsApi
   module V2
@@ -96,10 +95,6 @@ module ClaimsApi
           {
             data: {}
           }
-        end
-
-        def benefits_doc_api
-          ClaimsApi::BD.new
         end
 
         def evss_service

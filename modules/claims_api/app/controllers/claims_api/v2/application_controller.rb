@@ -8,6 +8,7 @@ require 'claims_api/claim_logger'
 require 'bgs_service/local_bgs'
 require 'claims_api/form_schemas'
 require 'claims_api/v2/benefits_documents/service'
+require 'bd/bd'
 
 module ClaimsApi
   module V2
@@ -135,6 +136,10 @@ module ClaimsApi
       end
 
       private
+
+      def benefits_doc_api(multipart: false)
+        ClaimsApi::BD.new(multipart:)
+      end
 
       def bgs_service
         BGS::Services.new(external_uid: target_veteran.participant_id,
