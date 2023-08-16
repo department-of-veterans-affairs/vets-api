@@ -277,6 +277,10 @@ RSpec.describe 'payment information', type: :request do
 
         expect(response).to have_http_status(:internal_server_error)
         expect(response.body).to match_json_schema('lighthouse_errors')
+
+        meta_error = response.parsed_body.dig('errors', 0, 'meta', 'messages', 0)
+        expect(meta_error['key']).to match('payment.accountRoutingNumber.invalidCheckSum')
+        expect(meta_error['text']).to match('Financial institution routing number is invalid')
       end
     end
   end
