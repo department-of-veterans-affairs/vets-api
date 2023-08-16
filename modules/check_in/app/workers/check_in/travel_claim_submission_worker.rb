@@ -24,7 +24,7 @@ module CheckIn
 
     def perform(uuid, appointment_date)
       check_in_session = CheckIn::V2::Session.build(data: { uuid: })
-      mobile_phone = TravelClaim::RedisClient.build.mobile_phone(uuid:)
+      patient_cell_phone = TravelClaim::RedisClient.build.patient_cell_phone(uuid:)
 
       logger.info("Submitting travel claim for #{uuid}, #{appointment_date}")
 
@@ -41,7 +41,7 @@ module CheckIn
         template_id = ERROR_TEMPLATE_ID
       end
 
-      send_notification(mobile_phone:, appointment_date:, template_id:, claim_number:)
+      send_notification(patient_cell_phone:, appointment_date:, template_id:, claim_number:)
       StatsD.increment(STATSD_NOTIFY_SUCCESS)
     end
 
@@ -65,12 +65,12 @@ module CheckIn
     def send_notification(opts = {})
       notify_client = VaNotify::Service.new(Settings.vanotify.services.check_in.api_key)
 
-      logger.info("Sending notification to (phone last four): #{opts[:mobile_phone].delete('^0-9').last(4)}," \
+      logger.info("Sending notification to (phone last four): #{opts[:patient_cell_phone].delete('^0-9').last(4)}," \
                   " using template_id: #{opts[:template_id]}")
       appt_date_in_mmm_dd_format = DateTime.strptime(opts[:appointment_date], '%Y-%m-%d').to_date.strftime('%b %d')
 
       notify_client.send_sms(
-        phone_number: opts[:mobile_phone],
+        phone_number: opts[:patient_cell_phone],
         template_id: opts[:template_id],
         sms_sender_id: SMS_SENDER_ID,
         personalisation: {
@@ -86,7 +86,7 @@ module CheckIn
     def handle_error(ex, opts = {})
       log_exception_to_sentry(
         ex,
-        { phone_number: opts[:mobile_phone].delete('^0-9').last(4), template_id: opts[:template_id],
+        { phone_number: opts[:patient_cell_phone].delete('^0-9').last(4), template_id: opts[:template_id],
           claim_number: opts[:claim_number] },
         { error: :check_in_va_notify_job, team: 'check-in' }
       )
