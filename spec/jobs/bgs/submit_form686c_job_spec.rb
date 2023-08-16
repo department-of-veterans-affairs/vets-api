@@ -3,26 +3,20 @@
 require 'rails_helper'
 
 RSpec.describe BGS::SubmitForm686cJob, type: :job do
-  subject { described_class.new.perform(user.uuid, user.icn, dependency_claim.id, vet_info) }
+  subject { described_class.new.perform(user.uuid, dependency_claim.id, vet_info) }
 
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:dependency_claim) { create(:dependency_claim) }
   let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
-  let(:birth_date) { '1809-02-12' }
   let(:vet_info) do
     {
       'veteran_information' => {
+        'birth_date' => '1809-02-12',
         'full_name' => {
-          'first' => 'WESLEY', 'middle' => nil, 'last' => 'FORD'
+          'first' => 'WESLEY', 'last' => 'FORD', 'middle' => nil
         },
-        'common_name' => user.common_name,
-        'participant_id' => '600061742',
-        'uuid' => user.uuid,
-        'email' => user.email,
-        'va_profile_email' => user.va_profile_email,
         'ssn' => '796043735',
-        'va_file_number' => '796043735',
-        'birth_date' => birth_date
+        'va_file_number' => '796043735'
       }
     }
   end
@@ -33,7 +27,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
 
   it 'calls #submit for 686c submission' do
     client_stub = instance_double('BGS::Form686c')
-    allow(BGS::Form686c).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
+    allow(BGS::Form686c).to receive(:new).with(an_instance_of(User)) { client_stub }
     expect(client_stub).to receive(:submit).once
 
     subject
@@ -41,7 +35,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
 
   it 'sends confirmation email' do
     client_stub = instance_double('BGS::Form686c')
-    allow(BGS::Form686c).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
+    allow(BGS::Form686c).to receive(:new).with(an_instance_of(User)) { client_stub }
     expect(client_stub).to receive(:submit).once
 
     expect(VANotify::EmailJob).to receive(:perform_async).with(
@@ -60,9 +54,9 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
     it 'enqueues SubmitForm674Job' do
       allow_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
       client_stub = instance_double('BGS::Form686c')
-      allow(BGS::Form686c).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
+      allow(BGS::Form686c).to receive(:new).with(an_instance_of(User)) { client_stub }
       expect(client_stub).to receive(:submit).once
-      expect(BGS::SubmitForm674Job).to receive(:perform_async).with(user.uuid, user.icn, dependency_claim.id, vet_info)
+      expect(BGS::SubmitForm674Job).to receive(:perform_async).with(user.uuid, dependency_claim.id, vet_info)
 
       subject
     end
@@ -71,7 +65,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
   context 'Claim is not submittable_674' do
     it 'does not enqueue SubmitForm674Job' do
       client_stub = instance_double('BGS::Form686c')
-      allow(BGS::Form686c).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
+      allow(BGS::Form686c).to receive(:new).with(an_instance_of(User)) { client_stub }
       expect(client_stub).to receive(:submit).once
       expect(BGS::SubmitForm674Job).not_to receive(:perform_async)
 
@@ -83,11 +77,11 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
     it 'calls DependentsApplicationFailureMailer' do
       client_stub = instance_double('BGS::Form686c')
       mailer_double = double('Mail::Message')
-      allow(BGS::Form686c).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
+      allow(BGS::Form686c).to receive(:new).with(an_instance_of(User)) { client_stub }
       expect(client_stub).to receive(:submit).and_raise(StandardError)
 
       allow(mailer_double).to receive(:deliver_now)
-      expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(OpenStruct)) { mailer_double }
+      expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(User)) { mailer_double }
 
       subject
     end
