@@ -1920,7 +1920,6 @@
                                 "NONE",
                                 "NEW",
                                 "SECONDARY",
-                                "REOPEN",
                                 "INCREASE"
                               ],
                               "example": "NEW"
@@ -3031,7 +3030,6 @@
                                   "enum": [
                                     "NONE",
                                     "NEW",
-                                    "REOPEN",
                                     "INCREASE"
                                   ],
                                   "example": "NEW"
@@ -4535,8 +4533,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-08-15",
-                      "expirationDate": "2024-08-15",
+                      "creationDate": "2023-08-16",
+                      "expirationDate": "2024-08-16",
                       "type": "compensation",
                       "status": "active"
                     }

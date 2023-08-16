@@ -67,7 +67,7 @@
       },
       "disabilities": [
         {
-          "disabilityActionType": "REOPEN",
+          "disabilityActionType": "NEW",
           "name": "Traumatic Brain Injury",
           "classificationCode": "9020",
           "serviceRelevance": "ABCDEFG",
@@ -88,7 +88,7 @@
           "exposureOrEventOrInjury": "EXPOSURE"
         },
         {
-          "disabilityActionType": "REOPEN",
+          "disabilityActionType": "NEW",
           "name": "Cancer - Musculoskeletal - Elbow",
           "classificationCode": "249470",
           "serviceRelevance": "ABCDEFG",

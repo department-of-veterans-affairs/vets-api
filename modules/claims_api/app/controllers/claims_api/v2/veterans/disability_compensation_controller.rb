@@ -31,7 +31,11 @@ module ClaimsApi
           pdf_data = get_pdf_data
           pdf_mapper_service(form_attributes, pdf_data, target_veteran).map_claim
 
+          evss_data = evss_mapper_service(auto_claim).map_claim
+          evss_service.submit(auto_claim, evss_data)
+
           generate_526_pdf(pdf_data)
+
           get_benefits_documents_auth_token unless Rails.env.test?
 
           render json: auto_claim
