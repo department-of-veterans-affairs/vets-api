@@ -21,10 +21,18 @@ module ClaimsApi
       def claim_attributes
         service_information
         current_mailing_address
-        direct_deposit
         disabilities
         standard_claim
         veteran_meta
+      end
+
+      def service_information
+        info = @data[:serviceInformation]
+        service_periods = format_service_periods(info&.dig(:servicePeriods))
+
+        @evss_claim[:serviceInformation] = {
+          servicePeriods: service_periods
+        }
       end
 
       def current_mailing_address
@@ -39,36 +47,18 @@ module ClaimsApi
         @evss_claim[:veteran][:currentMailingAddress].except!(:numberAndStreet, :apartmentOrUnitNumber)
       end
 
-      def direct_deposit
-        return if @data[:directDeposit].empty?
-
-        @evss_claim[:directDeposit] = @data[:directDeposit]
-        @evss_claim[:directDeposit][:bankName] = @data[:directDeposit][:financialInstitutionName]
-        @evss_claim[:directDeposit].except!(:financialInstitutionName, :noAccount)
+      def disabilities
+        @evss_claim[:disabilities] = @data[:disabilities]&.map { |disability| transform_disability_values!(disability) }
       end
 
-      def disabilities
-        @evss_claim[:disabilities] = @data[:disabilities].map do |disability|
-          disability[:approximateBeginDate] = map_date_to_obj disability[:approximateDate]
+      def transform_disability_values!(disability)
+        if disability&.dig(:secondaryDisabilities).present?
           disability[:secondaryDisabilities] = disability[:secondaryDisabilities]&.map do |secondary|
-            secondary[:approximateBeginDate] = map_date_to_obj secondary[:approximateDate]
             secondary.except(:exposureOrEventOrInjury, :approximateDate)
           end
-
-          disability.except(:approximateDate, :isRelatedToToxicExposure)
         end
-      end
 
-      def service_information
-        info = @data[:serviceInformation]
-        @evss_claim[:serviceInformation] = {
-          servicePeriods: info[:servicePeriods],
-          reservesNationalGuardService: {
-            obligationTermOfServiceFromDate: info[:reservesNationalGuardService][:obligationTermsOfService][:startDate],
-            obligationTermOfServiceToDate: info[:reservesNationalGuardService][:obligationTermsOfService][:endDate],
-            unitName: info[:reservesNationalGuardService][:unitName]
-          }
-        }
+        disability.except(:approximateDate, :isRelatedToToxicExposure)
       end
 
       def standard_claim
@@ -83,18 +73,20 @@ module ClaimsApi
 
       def veteran_meta
         @evss_claim[:veteran] ||= {}
-        @evss_claim[:veteran][:currentVAEmployee] = @data.dig(:veteranIdentification, :currentVaEmployee)
+        # EVSS Docker needs currentlyVAEmployee, 526 schema uses currentVaEmployee
+        @evss_claim[:veteran][:currentlyVAEmployee] = @data.dig(:veteranIdentification, :currentVaEmployee)
         @evss_claim[:veteran][:emailAddress] = @data.dig(:veteranIdentification, :emailAddress, :email)
         @evss_claim[:veteran][:fileNumber] = @data.dig(:veteranIdentification, :vaFileNumber)
       end
 
-      def map_date_to_obj(date)
-        date = if date.is_a? Date
-                 date
-               else
-                 DateTime.parse(date)
-               end
-        { year: date.year, month: date.month, day: date.day }
+      # Convert 12-05-1984 to 1984-12-05 for Docker container
+      def format_service_periods(service_period_dates)
+        service_period_dates.each do |sp_date|
+          begin_year = Date.strptime(sp_date[:activeDutyBeginDate], '%m-%d-%Y')
+          end_year = Date.strptime(sp_date[:activeDutyEndDate], '%m-%d-%Y')
+          sp_date[:activeDutyBeginDate] = begin_year.strftime('%Y-%m-%d')
+          sp_date[:activeDutyEndDate] = end_year.strftime('%Y-%m-%d')
+        end
       end
     end
   end

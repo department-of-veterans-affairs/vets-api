@@ -491,7 +491,7 @@
           "disabilityActionType": {
             "description": "Action type requested for the disability. If 'INCREASE', then 'ratedDisabilityId' and 'diagnosticCode' are required.  'NONE' should be used when including a secondary disability. If 'NONE', then 'diagnosticCode' is required.",
             "type": "string",
-            "enum": ["NONE", "NEW", "REOPEN", "INCREASE"],
+            "enum": ["NONE", "NEW", "INCREASE"],
             "example": "NEW"
           },
           "secondaryDisabilities": {

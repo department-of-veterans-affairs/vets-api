@@ -18,7 +18,13 @@ module ClaimsApi
       def submit(claim, data)
         @auth_headers = claim.auth_headers
 
-        client.post('submit', data).body
+        begin
+          client.post('submit', data).body
+        rescue => e
+          detail = e.respond_to?(:original_body) ? e.original_body : e
+          ClaimsApi::Logger.log('526',
+                                detail: "EVSS DOCKER CONTAINER submit error: #{detail}", claim_id: claim.id)
+        end
       end
 
       private
