@@ -209,6 +209,38 @@ describe SignIn::Idme::Service do
       end
     end
 
+    context 'when selecting ID.me public certificates' do
+      let(:idme_keys) { JSON.parse(JSON.parse(File.read('spec/fixtures/sign_in/idme_public_keys.json'))) }
+      let(:stored_idme_certs) { idme_keys.map { |key| OpenSSL::PKey::RSA.new key } }
+      let(:config) { subject.send(:config) }
+
+      around { |example| VCR.use_cassette('identity/idme_200_responses', allow_playback_repeats: true, &example) }
+
+      it 'calls the ID.me configuration class jwt_decode_public_key method' do
+        expect_any_instance_of(SignIn::Idme::Configuration).to receive(:jwt_decode_public_key)
+          .and_return(stored_idme_certs)
+        subject.user_info(token)
+      end
+
+      context 'when user info has already been called' do
+        before { subject.user_info(token) }
+
+        it 'does not call the IdmePublicKeyFetcher for updated certificates' do
+          expect_any_instance_of(SignIn::IdmePublicKeyFetcher).not_to receive(:perform)
+          subject.user_info(token)
+        end
+      end
+
+      context 'when user info has not been called' do
+        before { config.instance_variable_set(:@idme_public_keys, nil) }
+
+        it 'calls the IdmePublicKeyFetcher for updated certificates' do
+          expect_any_instance_of(SignIn::IdmePublicKeyFetcher).to receive(:perform).and_return(stored_idme_certs)
+          subject.user_info(token)
+        end
+      end
+    end
+
     context 'when the JWT has expired' do
       let(:current_time) { expiration_time + 100 }
       let(:expected_error) { SignIn::Idme::Errors::JWTExpiredError }

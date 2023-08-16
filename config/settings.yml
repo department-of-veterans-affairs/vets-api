@@ -25,7 +25,7 @@ idme:
   client_cert_path: spec/fixtures/sign_in/oauth.crt
   client_key_path: spec/fixtures/sign_in/oauth.key
   oauth_url: https://api.idmelabs.com
-  oauth_public_key: spec/fixtures/idme/idme_oauth_pub.pem
+  oauth_public_key_url: https://api.idmelabs.com/oidc/.well-known/jwks
 
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
@@ -52,7 +52,8 @@ session_cookie:
   secure: false
 
 sign_in:
-  jwt_encode_key: "spec/fixtures/sign_in/privatekey.pem"
+  jwt_encode_key: 'spec/fixtures/sign_in/privatekey.pem'
+  jwt_old_encode_key: 'spec/fixtures/sign_in/privatekey_old.pem'
   cookies_secure: false
   info_cookie_domain: localhost
   auto_uplevel: true
