@@ -937,7 +937,7 @@ GEM
     thread_safe (0.3.6)
     thread_safe (0.3.6-java)
     tilt (2.2.0)
-    timecop (0.9.6)
+    timecop (0.9.8)
     timeout (0.4.0)
     trailblazer-option (0.1.2)
     ttfunk (1.7.0)
