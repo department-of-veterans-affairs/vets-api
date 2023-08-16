@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss_service/base'
 require 'faraday'
 
 module ClaimsApi
@@ -10,8 +9,24 @@ module ClaimsApi
   # Takes an optional request parameter
   # @param [] rails request object
   class BD
-    def initialize(request = nil)
+    def initialize(multipart: false, request: nil)
       @request = request
+      @multipart = multipart
+    end
+
+    ##
+    # Search documents by claim and file number
+    #
+    # @return Documents list
+    def search(claim_id, file_number)
+      body = { data: { claimId: claim_id, fileNumber: file_number } }
+      ClaimsApi::Logger.log('benefits_documents',
+                            detail: "calling benefits documents search for claimId #{claim_id}")
+      client.post('documents/search', body)&.body
+    rescue => e
+      ClaimsApi::Logger.log('benefits_documents',
+                            detail: "/search failure for claimId #{claim_id}, #{e.message}")
+      {}
     end
 
     ##
@@ -62,14 +77,12 @@ module ClaimsApi
                     "#{@request&.host_with_port}/services"
                   end
 
-      token = ClaimsApi::EVSSService::Token.new.get_token # TODO: move this to generalized token service when it's ready
-      raise StandardError, 'Benefits Docs api_oauth_client_id missing' if token.blank?
+      @token ||= ClaimsApi::V2::BenefitsDocuments::Service.new.get_auth_token
+      raise StandardError, 'Benefits Docs token missing' if @token.blank?
 
       Faraday.new("https://#{base_name}/benefits-documents/v1",
-                  # Disable SSL for (localhost) testing
-                  ssl: { verify: Settings.bd&.ssl != false },
-                  headers: { 'Authorization' => "Bearer #{token}" }) do |f|
-        f.request :multipart
+                  headers: { 'Authorization' => "Bearer #{@token}" }) do |f|
+        f.request @multipart ? :multipart : :json
         f.response :raise_error
         f.response :json, parser_options: { symbolize_names: true }
         f.adapter Faraday.default_adapter

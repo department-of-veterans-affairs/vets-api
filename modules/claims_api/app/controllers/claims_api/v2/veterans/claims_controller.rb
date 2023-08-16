@@ -511,36 +511,61 @@ module ClaimsApi
           {}
         end
 
+        # rubocop:disable Metrics/MethodLength
         def build_supporting_docs(bgs_claim)
           return [] if bgs_claim.nil?
 
           @supporting_documents = []
 
-          docs = if sandbox?
+          docs = if benefits_documents_enabled?
+                   file_number = local_bgs_service.find_by_ssn(target_veteran.ssn)&.dig(:file_nbr) # rubocop:disable Rails/DynamicFindBy
+
+                   if file_number.nil?
+                     raise ::Common::Exceptions::ResourceNotFound.new(detail:
+                       "Unable to locate Veteran's File Number. " \
+                       'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
+                   end
+                   ClaimsApi::Logger.log('benefits_documents',
+                                         detail: "calling benefits documents api for claim_id #{params[:id]}")
+                   supporting_docs_list = benefits_doc_api(multipart: false).search(params[:id],
+                                                                                    file_number)&.dig(:data)
+                   # add with_indifferent_access so ['documents'] works below
+                   # we can remove when EVSS is gone and access it via it's symbol
+                   supporting_docs_list.with_indifferent_access if supporting_docs_list.present?
+                 elsif sandbox?
                    { documents: ClaimsApi::V2::MockDocumentsService.new.generate_documents }.with_indifferent_access
                  else
                    get_evss_documents(bgs_claim[:benefit_claim_details_dto][:benefit_claim_id])
                  end
-          ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'recieved docs from evss doc service')
           return [] if docs.nil? || docs&.dig('documents').blank?
 
           @supporting_documents = docs['documents']
 
           docs['documents'].map do |doc|
+            doc = doc.transform_keys(&:underscore) if benefits_documents_enabled?
+            upload_date = upload_date(doc['upload_date']) || bd_upload_date(doc['uploaded_date_time'])
             {
               document_id: doc['document_id'],
               document_type_label: doc['document_type_label'],
               original_file_name: doc['original_file_name'],
               tracked_item_id: doc['tracked_item_id'],
-              upload_date: upload_date(doc['upload_date'])
+              upload_date:
             }
           end
         end
+        # rubocop:enable Metrics/MethodLength
 
+        # duplicating temporarily to bd_upload_date. remove when EVSS call is gone
         def upload_date(upload_date)
           return if upload_date.nil?
 
           Time.zone.at(upload_date / 1000).strftime('%Y-%m-%d')
+        end
+
+        def bd_upload_date(upload_date)
+          return if upload_date.nil?
+
+          Date.parse(upload_date).strftime('%Y-%m-%d')
         end
 
         def build_claim_phase_attributes(bgs_claim, view)
@@ -566,6 +591,10 @@ module ClaimsApi
 
         def sandbox?
           Settings.claims_api.claims_error_reporting.environment_name&.downcase.eql? 'sandbox'
+        end
+
+        def benefits_documents_enabled?
+          Flipper.enabled? :claims_status_v2_lh_benefits_docs_service_enabled
         end
       end
     end

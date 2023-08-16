@@ -10,6 +10,10 @@ describe 'Claims',
     ClaimsApi::LocalBGS
   end
 
+  before do
+    Flipper.disable :claims_status_v2_lh_benefits_docs_service_enabled
+  end
+
   path '/veterans/{veteranId}/claims' do
     get 'Find all benefits claims for a Veteran.' do
       tags 'Claims'

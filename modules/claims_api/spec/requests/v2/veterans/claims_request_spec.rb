@@ -38,6 +38,10 @@ RSpec.describe 'Claims', type: :request do
   end
 
   describe 'Claims' do
+    before do
+      Flipper.disable :claims_status_v2_lh_benefits_docs_service_enabled
+    end
+
     describe 'index' do
       context 'auth header' do
         context 'when provided' do
