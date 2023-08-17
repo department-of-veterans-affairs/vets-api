@@ -850,7 +850,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  describe '#initialize_military_information_vaprofile' do
+  describe '#initialize_hca_military_information' do
     context 'when va profile is down in production' do
       before do
         allow(Rails.env).to receive(:production?).and_return(true)
@@ -861,13 +861,13 @@ RSpec.describe FormProfile, type: :model do
           instance_of(VCR::Errors::UnhandledHTTPRequestError), {}, prefill: :vaprofile_military
         )
 
-        expect(form_profile.send(:initialize_military_information_vaprofile)).to eq({})
+        expect(form_profile.send(:initialize_hca_military_information)).to eq({})
       end
     end
 
     it 'prefills military data from va profile' do
       VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
-        expect(form_profile.send(:initialize_military_information_vaprofile)).to eq(
+        expect(form_profile.send(:initialize_hca_military_information)).to eq(
           {
             'hca_last_service_branch' => 'army',
             'last_entry_date' => '2012-03-02',
