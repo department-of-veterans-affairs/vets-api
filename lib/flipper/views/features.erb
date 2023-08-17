@@ -1,23 +1,10 @@
 <div class="vads-l-row">
   <div class="vads-l-col">
-    <% if RequestStore.store[:flipper_user_email_for_log].blank? && !Rails.env.development? %>
-      <p>If you'd like to modify feature toggles, please sign in with GitHub.</p>
-      <form action="/flipper/features" method="post" class="usa-form">
-        <button type="submit" style="background-color:black; width:auto; margin-top:0">
-          <img style="height:25px; margin-right:20px" src="<%= "#{request.base_url}/images/github-mark-white.png" %>" alt="gh-logo">Sign in to GitHub
-        </button>
-      </form>
-    <% elsif !RequestStore.store[:flipper_authorized] && !Rails.env.development? %>
-      <p>You are not authorized to perform any actions. Please see <a href="https://depo-platform-documentation.scrollhelp.site/developer-docs/flipper-ui-access" target="_blank">Platform Documentation</a> for more information.</p>
-      <form action="/flipper/features/logout"  class="usa-form">
-        <button type="submit" style="background-color:black; width:auto; margin-top:0">
-          <img style="height:20px; margin-right:20px" src="<%= "#{request.base_url}/images/github-mark-white.png" %>" alt="gh-logo">Sign out
-        </button>
-      </form>
-    <% end %>
-
     <table class="vads-u-margin-top--0">
       <caption class="vads-u-font-size--xl">Features</caption>
+      <% if RequestStore.store[:flipper_user_email_for_log].blank? &&  !Rails.env.development? %>
+        <a href ="<%= SAML::URLService::VIRTUAL_HOST_MAPPINGS.dig(request.base_url, :base_redirect) %>">Sign in</a> with an identity-verified admin account to edit feature toggles.
+      <% end %>
       <thead>
         <tr>
           <th>Status</th>
@@ -33,7 +20,7 @@
               <%= feature.state.capitalize %>
             </td>
             <td>
-              <% if RequestStore.store[:flipper_authorized] || Rails.env.development? %>
+              <% if RequestStore.store[:flipper_user_email_for_log].present? || Rails.env.development? %>
                 <a href="<%= "#{script_name}/features/#{feature.key}" %>">
                   <%= feature.key %>
                 </a>
@@ -51,12 +38,5 @@
         <% end %>
       </tbody>
     </table>
-    <% if RequestStore.store[:flipper_authorized] %>
-      <form action="/flipper/features/logout"  class="usa-form" style="float:right">
-        <button type="submit" style="background-color:black; width:auto; margin:8px">
-          <img style="height:20px; margin-right:20px" src="<%= "#{request.base_url}/images/github-mark-white.png" %>" alt="gh-logo">Sign out
-        </button>
-      </form>  
-    <% end %>
   </div>
 </div>

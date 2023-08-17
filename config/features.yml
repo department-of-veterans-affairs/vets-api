@@ -14,7 +14,7 @@
 features:
   this_is_only_a_test:
     actor_type: user
-    description: Used in feature_toggles_controller_spec.
+    description: used in feature_toggles_controller_spec.
   avs_enabled:
     actor_type: user
     description: Enables the After Visit Summary API.

@@ -121,11 +121,8 @@ bgs:
   # ssl_verify_mode: "none"
 
 flipper:
-  github_organization: "organization"
-  github_team: 0000000
-  github_oauth_key: xxx000
-  github_oauth_secret: 000xxx
-  github_api_key: ~
+  admin_user_emails:
+    - abraham.lincoln@vets.gov
 
 va_forms:
   drupal_username: ~
