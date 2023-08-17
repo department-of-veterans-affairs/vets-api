@@ -1359,9 +1359,42 @@ paths:
       security:
         - Bearer: []
       summary: /v0/disability-rating
+  /v0/facilities-info:
+    get:
+      description: Retrieves facilities info for a user's va treatment facilities
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/FacilitiesInfo.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/facilities-info
   /v0/facilities-info/{sort_method}:
     get:
-      description: Retrieves facilities info for a given user
+      description: Retrieves facilities info for all facilities a given user has the ability to schedule appointments at
       parameters:
         - description: Sort method (Closest to home or current location, alphabetical, or by most recent appointment location) Note - When most recent appointment is selected any facility that doesn't appear in the user's appointments will be sorted alphabetically after those that do appear in the appointments list
           in: path
