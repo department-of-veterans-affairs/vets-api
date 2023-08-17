@@ -858,7 +858,7 @@ RSpec.describe FormProfile, type: :model do
 
       it 'logs exception and returns empty hash' do
         expect(form_profile).to receive(:log_exception_to_sentry).with(
-          instance_of(VCR::Errors::UnhandledHTTPRequestError), {}, prefill: :vaprofile_military
+          instance_of(VCR::Errors::UnhandledHTTPRequestError), {}, prefill: :hca_military_information
         )
 
         expect(form_profile.send(:initialize_hca_military_information)).to eq({})
