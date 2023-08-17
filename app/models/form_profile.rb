@@ -65,7 +65,6 @@ class FormMilitaryInformation
   # Complete them if necessary.
   # Update the tests for this file.
 
-  attribute :post_nov_1998_combat, Boolean
   attribute :last_service_branch, String
   attribute :hca_last_service_branch, String
   attribute :last_entry_date, String
@@ -75,12 +74,10 @@ class FormMilitaryInformation
   attribute :sw_asia_combat, Boolean
   attribute :compensable_va_service_connected, Boolean
   attribute :is_va_service_connected, Boolean
-  attribute :receives_va_pension, Boolean
   attribute :tours_of_duty, Array
   attribute :currently_active_duty, Boolean
   attribute :currently_active_duty_hash, Hash
   attribute :va_compensation_type, String
-  attribute :vic_verified, Boolean
   attribute :service_branches, Array[String]
   attribute :service_periods, Array
   attribute :guard_reserve_service_history, Array[FormDate]
