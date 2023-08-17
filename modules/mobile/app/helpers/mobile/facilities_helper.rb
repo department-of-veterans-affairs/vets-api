@@ -6,10 +6,11 @@ module Mobile
   module FacilitiesHelper
     module_function
 
-    def fetch_facilities_from_ids(user, facility_ids, include_children)
+    # schedulable can be true, false, or nil. Nil returns both schedulable and non-schedulable.
+    def fetch_facilities_from_ids(user, facility_ids, include_children:, schedulable:)
       ids = facility_ids.join(',')
       vaos_facilities = VAOS::V2::MobileFacilityService.new(user).get_facilities(ids:, children: include_children,
-                                                                                 schedulable: true, type: nil)
+                                                                                 schedulable:, type: nil)
       vaos_facilities[:data]
     end
 
