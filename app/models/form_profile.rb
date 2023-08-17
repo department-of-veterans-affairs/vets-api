@@ -57,7 +57,7 @@ class FormMilitaryInformation
   # - vic_verified, Boolean
 
   # TODO
-  # Check with Lindsey if the following methods, which are not accounted for, which 
+  # Check with Lindsey if the following methods, which are not accounted for, which
   # are in the attributes list below, need to be completed.
   # - post_nov_1998_combat, Boolean
   # - receives_va_pension, Boolean
@@ -250,14 +250,15 @@ class FormProfile
     hca_military_information = initialize_hca_military_information
     va_profile_prefill_military_information = initialize_va_profile_prefill_military_information
 
-    FormMilitaryInformation.new(hca_military_information.merge(va_profile_prefill_military_information))
+    FormMilitaryInformation.new(hca_military_information.merge(va_profile_prefill_military_information
+                                                        .merge({ vic_verified => user.can_access_id_card? })))
   end
 
   def initialize_hca_military_information
     military_information = HCA::MilitaryInformation.new(user)
 
-    HCA::MilitaryInformation::PREFILL_METHODS.each_with_object({}) do |attr, military_information_data|
-      military_information_data[attr] = military_information.public_send(attr)
+    HCA::MilitaryInformation::PREFILL_METHODS.index_with do |attr|
+      military_information.public_send(attr)
     end
   rescue => e
     if Rails.env.production?
@@ -272,8 +273,8 @@ class FormProfile
   def initialize_va_profile_prefill_military_information
     military_information = VAProfile::Prefill::MilitaryInformation.new(user)
 
-    VAProfile::Prefill::MilitaryInformation::PREFILL_METHODS.each_with_object({}) do |attr, military_information_data|
-      military_information_data[attr] = military_information.public_send(attr)
+    VAProfile::Prefill::MilitaryInformation::PREFILL_METHODS.index_with do |attr|
+      military_information.public_send(attr)
     end
   rescue => e
     if Rails.env.production?
