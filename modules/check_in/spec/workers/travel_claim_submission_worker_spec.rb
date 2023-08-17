@@ -8,6 +8,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
     let(:appt_date) { '2022-09-01' }
     let(:mobile_phone) { '123-345-4566' }
     let(:mobile_phone_last_four) { '4566' }
+    let(:patient_cell_phone) { '4445556666' }
     let(:redis_token) { '123-456' }
     let(:icn) { '123456' }
     let(:notify_appt_date) { 'Sep 01' }
@@ -17,6 +18,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
     before do
       allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
       allow(redis_client).to receive(:mobile_phone).and_return(mobile_phone)
+      allow(redis_client).to receive(:patient_cell_phone).and_return(patient_cell_phone)
       allow(redis_client).to receive(:token).and_return(redis_token)
       allow(redis_client).to receive(:icn).and_return(icn)
 
