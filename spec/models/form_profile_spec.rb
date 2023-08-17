@@ -874,7 +874,9 @@ RSpec.describe FormProfile, type: :model do
             'last_discharge_date' => '2018-10-31',
             'discharge_type' => nil,
             'post_nov111998_combat' => false,
-            'sw_asia_combat' => false
+            'sw_asia_combat' => false,
+            'service_branches' => [],
+            'tours_of_duty': [],
           }
         )
       end
