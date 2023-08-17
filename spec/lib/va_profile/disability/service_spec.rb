@@ -25,7 +25,7 @@ describe VAProfile::Disability::Service do
   describe '#get_disability_data' do
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('va_profile/disability/disability_rating_200') do
+        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability') do
           response = subject.get_disability_data
 
           expect(response).to be_ok
@@ -34,7 +34,7 @@ describe VAProfile::Disability::Service do
       end
 
       it 'returns a disability rating percentage' do
-        VCR.use_cassette('va_profile/disability/disability_rating_200') do
+        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability') do
           response = subject.get_disability_data
 
           expect(response.disability_rating.combined_service_connected_rating_percentage).to eq('60')
@@ -72,7 +72,7 @@ describe VAProfile::Disability::Service do
           expect(response).not_to be_ok
           expect(response.disability_rating).to eq(nil)
         end
-      end    
+      end
     end
   end
 end
