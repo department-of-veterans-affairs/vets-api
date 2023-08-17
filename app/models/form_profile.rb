@@ -207,8 +207,7 @@ class FormProfile
     hca_military_information = initialize_hca_military_information
     va_profile_prefill_military_information = initialize_va_profile_prefill_military_information
 
-    FormMilitaryInformation.new(hca_military_information.merge(va_profile_prefill_military_information
-                                                        .merge({ vic_verified => user.can_access_id_card? })))
+    FormMilitaryInformation.new(hca_military_information.merge(initialize_va_profile_prefill_military_information))
   end
 
   def initialize_hca_military_information
