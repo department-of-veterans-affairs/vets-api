@@ -1,225 +1,206 @@
-<div>
-  <% if RequestStore.store[:flipper_user_email_for_log].blank? && !Rails.env.development? %>
-    <p>If you'd like to modify feature toggles, please sign in with GitHub.</p>
-    <form action=<%="/flipper/features/#{@feature.key}"%> method="post" class="usa-form">
-      <button type="submit" style="background-color:black; width:auto; margin-top:0">
-        <img style="height:25px; margin-right:20px" src="<%= "#{request.base_url}/images/github-mark-white.png" %>" alt="gh-logo">Sign in to GitHub
-      </button>
-    </form>
-  <% elsif !RequestStore.store[:flipper_authorized] && !Rails.env.development? %>
-    <p>You are not authorized to perform any actions. Please see <a href="https://depo-platform-documentation.scrollhelp.site/developer-docs/flipper-ui-access" target="_blank">Platform Documentation</a> for more information.</p>
-    <form action="/flipper/features/logout"  class="usa-form">
-      <button type="submit" style="background-color:black; width:auto; margin-top:0">
-        <img style="height:20px; margin-right:20px" src="<%= "#{request.base_url}/images/github-mark-white.png" %>" alt="gh-logo">Sign out
-      </button>
-    </form>  
-  <% else %>
-    <% actor_type = FLIPPER_FEATURE_CONFIG['features'].dig(feature_name, 'actor_type')%>
-    <% actor_name = actor_type == FLIPPER_ACTOR_STRING ? 'FLIPPER_ID cookie' : 'Logged in Users'  %>
-    <% actor_id_name = actor_type == FLIPPER_ACTOR_STRING ? 'ID from FLIPPER_ID cookie' : "email address associated with their login"%>
+<% if RequestStore.store[:flipper_user_email_for_log].present? || Rails.env.development? %>
 
-    <% if params.key?("error") %>
-      <div class="alert alert-danger">
-        <%= params["error"] %>
-      </div>
-    <% end %>
+  <% actor_type = FLIPPER_FEATURE_CONFIG['features'].dig(feature_name, 'actor_type')%>
+  <% actor_name = actor_type == FLIPPER_ACTOR_STRING ? 'FLIPPER_ID cookie' : 'Logged in Users'  %>
+  <% actor_id_name = actor_type == FLIPPER_ACTOR_STRING ? 'ID from FLIPPER_ID cookie' : "email address associated with their login"%>
 
-    <div class="vads-l-col--9">
-      <div class="vads-l-row">
-        <div class="vads-l-col">
-          <h1 class="vads-u-font-size--xl">
-            <%= @feature.key %>
-          </h1>
-
-          <p class="vads-u-font-size--sm">
-            <%= yaml_features.dig(@feature.key,'description') %>
-          </p>
-
-          <div class="feature">
-            <p>
-              <% if @feature.on? %>
-                This feature is <strong>enabled for everyone</strong>.
-              <% elsif @feature.off? %>
-                This feature is <strong>disabled</strong>.
-              <% else %>
-                This feature is <strong>enabled with certain conditions</strong>.
-              <% end %>
-            </p>
-
-            <% if @feature.boolean_value %>
-            <p>Conditional toggles are currently disabled. If you want to conditionally enable this feature, you must first disable the feature for everyone.</p>
-            <% end %>
-
-            <form action="<%= script_name %>/features/<%= @feature.key %>/boolean" method="post" class="usa-form">
-              <%== csrf_input_tag %>
-              <% if @feature.off? %>
-                <button class="vads-u-margin--0 vads-u-margin-top--1 vads-u-width--auto" type="submit" name="action" value="Enable" title="Enable for everyone">Enable for everyone</button>
-              <% else %>
-                <button class="vads-u-margin--0 vads-u-margin-top--1 vads-u-width--auto" type="submit" name="action" value="Disable" title="Disable for everyone by clearing all percentages, groups and actors.">Disable for everyone</button>
-              <% end %>
-            </form>
-          </div>
-        </div>
-      </div>
-
-      <h2 class="vads-u-font-size--lg vads-u-margin-top--0 vads-u-margin-bottom--2">
-        Conditional Toggles
-      </h2>
-
-      <div class="vads-l-row">
-        <div class="vads-l-col--6">
-          <div class="vads-u-border--1px vads-u-border-color--gray-lighter vads-u-margin-right--1 vads-u-padding--2">
-            <form action="<%= script_name %>/features/<%= @feature.key %>/percentage_of_actors" method="post" class="usa-form">
-              <fieldset <% if @feature.boolean_value %>disabled<% end %>>
-                <%== csrf_input_tag %>
-                <label for="percentage-of-actors-input" class="vads-u-margin--0">
-                  Percentage of <%= actor_name %>
-                </label>
-                <input id="percentage-of-actors-input" type="text" name="value" <% if @feature.percentage_of_actors_value > 0 %>value="<%= @feature.percentage_of_actors_value %>"<% end %>>
-                <button class="vads-u-margin-top--1 vads-u-width--auto" type="submit">Set value</button>
-                <button class="usa-button-secondary vads-u-margin-top--1 vads-u-width--auto" type="submit" name="value" value="0">Disable</button>
-              </fieldset>
-            </form>
-            <p class="vads-u-background-color--gray-lightest vads-u-font-size--sm vads-u-padding--2 vads-u-margin-bottom--0">
-            <% if @feature.percentage_of_actors_value > 0 && !@feature.boolean_value %>
-              This feature is enabled for <%= @feature.percentage_of_actors_value %>% of <%= actor_name %>.
-            <% else %>
-              This feature is not enabled by percentage of <%= actor_name %>.
-            <% end %>
-            </p>
-          </div>
-        </div>
-        <div class="vads-l-col--6">
-          <div class="vads-u-border--1px vads-u-border-color--gray-lighter vads-u-margin-left--1 vads-u-padding--2">
-            <form action="<%= script_name %>/features/<%= @feature.key %>/percentage_of_time" method="post" class="usa-form">
-              <fieldset <% if @feature.boolean_value %>disabled<% end %>>
-                <%== csrf_input_tag %>
-                <label for="percentage-of-time-input" class="vads-u-margin--0">
-                  Percentage of Time
-                </label>
-                <input id="percentage-of-time-input" type="text" name="value" <% if @feature.percentage_of_time_value > 0 %>value="<%= @feature.percentage_of_time_value %>"<% end %>>
-                <button class="vads-u-margin-top--1 vads-u-width--auto" type="submit">Set value</button>
-                <button class="usa-button-secondary vads-u-margin-top--1 vads-u-width--auto" type="submit" name="value" value="0">Disable</button>
-              </fieldset>
-            </form>
-            <p class="vads-u-background-color--gray-lightest vads-u-font-size--sm vads-u-padding--2 vads-u-margin-bottom--0">
-            <% if @feature.percentage_of_time_value > 0 && !@feature.boolean_value %>
-              This feature is enabled <%= @feature.percentage_of_time_value %>% of the time for everyone.
-            <% else %>
-              This feature is not enabled by percentage of time.
-            <% end %>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="vads-l-row">
-        <div class="vads-l-col">
-          <div class="usa-alert usa-alert-info vads-u-margin-bottom--3">
-            <div class="usa-alert-body">
-              Percentage of <%= actor_name %> functions independently of percentage of time. If you enable 50% of <%= actor_name %> and 25% of time, then the feature will always be enabled for 50% of <%= actor_name %> and occasionally enabled 25% of the time for everyone.
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="vads-l-row">
-        <div class="vads-l-col--6">
-          <div class="vads-u-border--1px vads-u-border-color--gray-lighter vads-u-margin-right--1 vads-u-padding--2">
-            <% if @feature.boolean_value || Flipper.groups.empty? || @feature.disabled_groups.empty? %>
-              <div>Groups</div>
-            <% else %>
-              <form action="<%= script_name %>/features/<%= @feature.key %>/groups" method="post" class="usa-form">
-                <%== csrf_input_tag %>
-                <label for="group-select" class="vads-u-margin-top--0"><%= Flipper::UI.configuration.groups.title %></label>
-                <select id="group-select" name="value">
-                  <option value="">Select a group...</option>
-                  <% @feature.disabled_groups.each do |group| %>
-                    <option value="<%= group.name %>"><%= group.name %></option>
-                  <% end %>
-                </select>
-                <button class="vads-u-margin-top--1 vads-u-width--auto" type="submit" name="operation" value="enable">Enable group</button>
-              </form>
-            <% end %>
-            <p class="vads-u-background-color--gray-lightest vads-u-font-size--sm vads-u-padding--2 vads-u-margin-bottom--0">
-            <% if Flipper.groups.empty? %>
-              There are no groups available. Register groups in Flipper initializer.
-            <% elsif @feature.groups_value.empty? || @feature.boolean_value %>
-              This feature is not enabled by groups.
-            <% elsif @feature.disabled_groups.empty? %>
-              This feature is enabled for all available groups (listed below).
-            <% else %>
-              This feature is enabled for the following groups.
-            <% end %>
-            </p>
-            <% unless @feature.groups_value.empty? %>
-              <ul class="vads-u-margin-bottom--0 vads-u-padding--0">
-                <% @feature.groups_value.each do |item| %>
-                  <li class="vads-u-border--1px vads-u-border-style--dotted vads-u-padding--2" style="list-style-type: none;">
-                    <div class="vads-u-display--flex">
-                      <div class="vads-u-flex--1"><%= item %></div>
-                      <div class="vads-u-flex--auto vads-u-display--flex vads-u-align-items--center">
-                        <form action="<%= script_name %>/features/<%= @feature.key %>/groups" method="post" class="usa-form">
-                          <%== csrf_input_tag %>
-                          <input type="hidden" name="value" value="<%= item %>">
-                          <button class="va-button-link vads-u-margin--0" type="submit" name="operation" value="disable" title="Disable <%= item %>">
-                            <span class="octicon octicon-x"></span>
-                          </button>
-                        </form>
-                      </div>
-                    </div>
-                  </li>
-                <% end %>
-              </ul>
-            <% end %>
-          </div>
-        </div>
-        <div class="vads-l-col--6">
-          <div class="vads-u-border--1px vads-u-border-color--gray-lighter vads-u-margin-left--1 vads-u-padding--2">
-            <form action="<%= script_name %>/features/<%= @feature.key %>/actors" method="post" class="usa-form">
-              <fieldset <% if @feature.boolean_value %>disabled<% end %>>
-                <%== csrf_input_tag %>
-                <label for="actor-input" class="vads-u-margin-top--0"><%= actor_name %></label>
-                <input id="actor-input" onchange="this.value=this.value.toLowerCase()" type="text" name="value">
-                <button class="vads-u-margin-top--1 vads-u-width--auto" type="submit" name="operation" value="enable">Enable user</button>
-              </fieldset>
-            </form>
-            <% if @feature.actors_value.empty? %>
-              <p class="vads-u-background-color--gray-lightest vads-u-font-size--sm vads-u-padding--2 vads-u-margin-bottom--0">
-                <%= "This feature is not enabled for specific users. To enable for a user, add the user's #{actor_id_name}."%>
-              </p>
-            <% else %>
-              <p class="vads-u-background-color--gray-lightest vads-u-font-size--sm vads-u-padding--2">
-                This feature is enabled for the following <%= actor_name %>.
-              </p>
-              <ul class="vads-u-margin-bottom--0 vads-u-padding--0">
-                <% @feature.actors_value.each do |item| %>
-                  <li class="vads-u-border--1px vads-u-border-style--dotted vads-u-padding--2" style="list-style-type: none;">
-                    <div class="vads-u-display--flex">
-                      <div class="vads-u-flex--1"><%= item %></div>
-                      <div class="vads-u-flex--auto vads-u-display--flex vads-u-align-items--center">
-                        <form action="<%= script_name %>/features/<%= @feature.key %>/actors" method="post" class="usa-form">
-                          <%== csrf_input_tag %>
-                          <input type="hidden" name="value" value="<%= item %>">
-                          <button class="va-button-link vads-u-margin--0" type="submit" name="operation" value="disable" title="Disable <%= item %>">
-                            <span class="octicon octicon-x"></span>
-                          </button>
-                        </form>
-                      </div>
-                    </div>
-                  </li>
-                <% end %>
-              </ul>
-            <% end %>
-          </div>
-        </div>
-      </div>
-
-      <form action="/flipper/features/logout"  class="usa-form" style="float:right">
-        <button type="submit" style="background-color:black; width:auto; margin:8px">
-          <img style="height:20px; margin-right:20px" src="<%= "#{request.base_url}/images/github-mark-white.png" %>" alt="gh-logo">Sign out
-        </button>
-      </form>
+  <% if params.key?("error") %>
+    <div class="alert alert-danger">
+      <%= params["error"] %>
     </div>
   <% end %>
-</div>
+
+  <div class="vads-l-col--9">
+    <div class="vads-l-row">
+      <div class="vads-l-col">
+        <h1 class="vads-u-font-size--xl">
+          <%= @feature.key %>
+        </h1>
+
+        <p class="vads-u-font-size--sm">
+          <%= yaml_features.dig(@feature.key,'description') %>
+        </p>
+
+        <div class="feature">
+          <p>
+            <% if @feature.on? %>
+              This feature is <strong>enabled for everyone</strong>.
+            <% elsif @feature.off? %>
+              This feature is <strong>disabled</strong>.
+            <% else %>
+              This feature is <strong>enabled with certain conditions</strong>.
+            <% end %>
+          </p>
+
+          <% if @feature.boolean_value %>
+          <p>Conditional toggles are currently disabled. If you want to conditionally enable this feature, you must first disable the feature for everyone.</p>
+          <% end %>
+
+          <form action="<%= script_name %>/features/<%= @feature.key %>/boolean" method="post" class="usa-form">
+            <%== csrf_input_tag %>
+            <% if @feature.off? %>
+              <button class="vads-u-margin--0 vads-u-margin-top--1 vads-u-width--auto" type="submit" name="action" value="Enable" title="Enable for everyone">Enable for everyone</button>
+            <% else %>
+              <button class="vads-u-margin--0 vads-u-margin-top--1 vads-u-width--auto" type="submit" name="action" value="Disable" title="Disable for everyone by clearing all percentages, groups and actors.">Disable for everyone</button>
+            <% end %>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="vads-u-font-size--lg vads-u-margin-top--0 vads-u-margin-bottom--2">
+      Conditional Toggles
+    </h2>
+
+    <div class="vads-l-row">
+      <div class="vads-l-col--6">
+        <div class="vads-u-border--1px vads-u-border-color--gray-lighter vads-u-margin-right--1 vads-u-padding--2">
+          <form action="<%= script_name %>/features/<%= @feature.key %>/percentage_of_actors" method="post" class="usa-form">
+            <fieldset <% if @feature.boolean_value %>disabled<% end %>>
+              <%== csrf_input_tag %>
+              <label for="percentage-of-actors-input" class="vads-u-margin--0">
+                Percentage of <%= actor_name %>
+              </label>
+              <input id="percentage-of-actors-input" type="text" name="value" <% if @feature.percentage_of_actors_value > 0 %>value="<%= @feature.percentage_of_actors_value %>"<% end %>>
+              <button class="vads-u-margin-top--1 vads-u-width--auto" type="submit">Set value</button>
+              <button class="usa-button-secondary vads-u-margin-top--1 vads-u-width--auto" type="submit" name="value" value="0">Disable</button>
+            </fieldset>
+          </form>
+          <p class="vads-u-background-color--gray-lightest vads-u-font-size--sm vads-u-padding--2 vads-u-margin-bottom--0">
+          <% if @feature.percentage_of_actors_value > 0 && !@feature.boolean_value %>
+            This feature is enabled for <%= @feature.percentage_of_actors_value %>% of <%= actor_name %>.
+          <% else %>
+            This feature is not enabled by percentage of <%= actor_name %>.
+          <% end %>
+          </p>
+        </div>
+      </div>
+      <div class="vads-l-col--6">
+        <div class="vads-u-border--1px vads-u-border-color--gray-lighter vads-u-margin-left--1 vads-u-padding--2">
+          <form action="<%= script_name %>/features/<%= @feature.key %>/percentage_of_time" method="post" class="usa-form">
+            <fieldset <% if @feature.boolean_value %>disabled<% end %>>
+              <%== csrf_input_tag %>
+              <label for="percentage-of-time-input" class="vads-u-margin--0">
+                Percentage of Time
+              </label>
+              <input id="percentage-of-time-input" type="text" name="value" <% if @feature.percentage_of_time_value > 0 %>value="<%= @feature.percentage_of_time_value %>"<% end %>>
+              <button class="vads-u-margin-top--1 vads-u-width--auto" type="submit">Set value</button>
+              <button class="usa-button-secondary vads-u-margin-top--1 vads-u-width--auto" type="submit" name="value" value="0">Disable</button>
+            </fieldset>
+          </form>
+          <p class="vads-u-background-color--gray-lightest vads-u-font-size--sm vads-u-padding--2 vads-u-margin-bottom--0">
+          <% if @feature.percentage_of_time_value > 0 && !@feature.boolean_value %>
+            This feature is enabled <%= @feature.percentage_of_time_value %>% of the time for everyone.
+          <% else %>
+            This feature is not enabled by percentage of time.
+          <% end %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="vads-l-row">
+      <div class="vads-l-col">
+        <div class="usa-alert usa-alert-info vads-u-margin-bottom--3">
+          <div class="usa-alert-body">
+            Percentage of <%= actor_name %> functions independently of percentage of time. If you enable 50% of <%= actor_name %> and 25% of time, then the feature will always be enabled for 50% of <%= actor_name %> and occasionally enabled 25% of the time for everyone.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="vads-l-row">
+      <div class="vads-l-col--6">
+        <div class="vads-u-border--1px vads-u-border-color--gray-lighter vads-u-margin-right--1 vads-u-padding--2">
+          <% if @feature.boolean_value || Flipper.groups.empty? || @feature.disabled_groups.empty? %>
+            <div>Groups</div>
+          <% else %>
+            <form action="<%= script_name %>/features/<%= @feature.key %>/groups" method="post" class="usa-form">
+              <%== csrf_input_tag %>
+              <label for="group-select" class="vads-u-margin-top--0"><%= Flipper::UI.configuration.groups.title %></label>
+              <select id="group-select" name="value">
+                <option value="">Select a group...</option>
+                <% @feature.disabled_groups.each do |group| %>
+                  <option value="<%= group.name %>"><%= group.name %></option>
+                <% end %>
+              </select>
+              <button class="vads-u-margin-top--1 vads-u-width--auto" type="submit" name="operation" value="enable">Enable group</button>
+            </form>
+          <% end %>
+          <p class="vads-u-background-color--gray-lightest vads-u-font-size--sm vads-u-padding--2 vads-u-margin-bottom--0">
+          <% if Flipper.groups.empty? %>
+            There are no groups available. Register groups in Flipper initializer.
+          <% elsif @feature.groups_value.empty? || @feature.boolean_value %>
+            This feature is not enabled by groups.
+          <% elsif @feature.disabled_groups.empty? %>
+            This feature is enabled for all available groups (listed below).
+          <% else %>
+            This feature is enabled for the following groups.
+          <% end %>
+          </p>
+          <% unless @feature.groups_value.empty? %>
+            <ul class="vads-u-margin-bottom--0 vads-u-padding--0">
+              <% @feature.groups_value.each do |item| %>
+                <li class="vads-u-border--1px vads-u-border-style--dotted vads-u-padding--2" style="list-style-type: none;">
+                  <div class="vads-u-display--flex">
+                    <div class="vads-u-flex--1"><%= item %></div>
+                    <div class="vads-u-flex--auto vads-u-display--flex vads-u-align-items--center">
+                      <form action="<%= script_name %>/features/<%= @feature.key %>/groups" method="post" class="usa-form">
+                        <%== csrf_input_tag %>
+                        <input type="hidden" name="value" value="<%= item %>">
+                        <button class="va-button-link vads-u-margin--0" type="submit" name="operation" value="disable" title="Disable <%= item %>">
+                          <span class="octicon octicon-x"></span>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+        </div>
+      </div>
+      <div class="vads-l-col--6">
+        <div class="vads-u-border--1px vads-u-border-color--gray-lighter vads-u-margin-left--1 vads-u-padding--2">
+          <form action="<%= script_name %>/features/<%= @feature.key %>/actors" method="post" class="usa-form">
+            <fieldset <% if @feature.boolean_value %>disabled<% end %>>
+              <%== csrf_input_tag %>
+              <label for="actor-input" class="vads-u-margin-top--0"><%= actor_name %></label>
+              <input id="actor-input" onchange="this.value=this.value.toLowerCase()" type="text" name="value">
+              <button class="vads-u-margin-top--1 vads-u-width--auto" type="submit" name="operation" value="enable">Enable user</button>
+            </fieldset>
+          </form>
+          <% if @feature.actors_value.empty? %>
+            <p class="vads-u-background-color--gray-lightest vads-u-font-size--sm vads-u-padding--2 vads-u-margin-bottom--0">
+              <%= "This feature is not enabled for specific users. To enable for a user, add the user's #{actor_id_name}."%>
+            </p>
+          <% else %>
+            <p class="vads-u-background-color--gray-lightest vads-u-font-size--sm vads-u-padding--2">
+              This feature is enabled for the following <%= actor_name %>.
+            </p>
+            <ul class="vads-u-margin-bottom--0 vads-u-padding--0">
+              <% @feature.actors_value.each do |item| %>
+                <li class="vads-u-border--1px vads-u-border-style--dotted vads-u-padding--2" style="list-style-type: none;">
+                  <div class="vads-u-display--flex">
+                    <div class="vads-u-flex--1"><%= item %></div>
+                    <div class="vads-u-flex--auto vads-u-display--flex vads-u-align-items--center">
+                      <form action="<%= script_name %>/features/<%= @feature.key %>/actors" method="post" class="usa-form">
+                        <%== csrf_input_tag %>
+                        <input type="hidden" name="value" value="<%= item %>">
+                        <button class="va-button-link vads-u-margin--0" type="submit" name="operation" value="disable" title="Disable <%= item %>">
+                          <span class="octicon octicon-x"></span>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% else %>
+  <a href ="<%= SAML::URLService::VIRTUAL_HOST_MAPPINGS.dig(request.base_url, :base_redirect) %>">Sign in</a> with an identity-verified admin account to edit feature toggles.
+<% end %>
