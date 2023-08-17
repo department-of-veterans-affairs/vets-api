@@ -875,12 +875,16 @@ RSpec.describe FormProfile, type: :model do
             'discharge_type' => nil,
             'post_nov111998_combat' => false,
             'sw_asia_combat' => false,
-            'service_branches' => [],
-            'tours_of_duty': [],
+            'service_branches' => ["A", "N"],
+            'tours_of_duty' => [
+              {service_branch: "Army", date_range: {from: "2002-02-02", to: "2008-12-01"}},
+              {service_branch: "Navy", date_range: {from: "2009-03-01", to: "2012-12-31"}},
+              {service_branch: "Army", date_range: {from: "2012-03-02", to: "2018-10-31"}}
+            ]
           }
         )
       end
-    end
+    end    
   end
 
   describe '#pciu_us_phone' do
