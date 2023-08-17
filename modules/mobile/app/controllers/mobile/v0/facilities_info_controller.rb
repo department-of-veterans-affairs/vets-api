@@ -6,10 +6,21 @@ module Mobile
       SORT_METHODS = %w[home current alphabetical appointments].freeze
 
       def index
+        facility_ids = @current_user.va_treatment_facility_ids
+        facilities = Mobile::FacilitiesHelper.fetch_facilities_from_ids(@current_user, facility_ids,
+                                                                        include_children: false, schedulable: nil)
+        adapted_facilities = facilities.map do |facility|
+          Mobile::V0::Adapters::FacilityInfo.new.parse(facility, @current_user, params)
+        end
+        render json: Mobile::V0::FacilitiesInfoSerializer.new(@current_user.uuid, adapted_facilities)
+      end
+
+      def schedulable
         raise_invalid_sort_method_error unless SORT_METHODS.include?(params[:sort])
 
         facility_ids = @current_user.va_treatment_facility_ids + @current_user.cerner_facility_ids
-        facilities = Mobile::FacilitiesHelper.fetch_facilities_from_ids(@current_user, facility_ids, true)
+        facilities = Mobile::FacilitiesHelper.fetch_facilities_from_ids(@current_user, facility_ids,
+                                                                        include_children: true, schedulable: true)
         adapted_facilities = facilities.map do |facility|
           Mobile::V0::Adapters::FacilityInfo.new.parse(facility, @current_user, params)
         end
