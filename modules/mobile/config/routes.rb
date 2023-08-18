@@ -100,4 +100,8 @@ Mobile::Engine.routes.draw do
       end
     end
   end
+
+  namespace :v2 do
+    get '/user', to: 'users#show'
+  end
 end
