@@ -35,6 +35,8 @@ module Flipper
     end
 
     def self.authorized?(user)
+      return true if Rails.env.development?
+
       org_name = Settings.flipper.github_organization
       team_id = Settings.flipper.github_team
 
