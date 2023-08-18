@@ -90,9 +90,12 @@ module ClaimsApi
           if claim.id.nil? && claim.errors.find { |e| e.attribute == :md5 }&.type == :taken
             claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: claim.md5) || claim
           end
-
           ClaimsApi::ClaimSubmission.create claim:, claim_type: 'PACT',
                                             consumer_label: token.payload['label'] || token.payload['cid']
+        end
+
+        def evss_service
+          ClaimsApi::EVSSService::Base.new(request)
         end
 
         def get_pdf_data
@@ -101,8 +104,8 @@ module ClaimsApi
           }
         end
 
-        def evss_service
-          ClaimsApi::EVSSService::Base.new(request)
+        def benefits_doc_api
+          ClaimsApi::BD.new
         end
       end
     end
