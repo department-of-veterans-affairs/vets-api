@@ -10,7 +10,6 @@ RSpec.describe FormProfile, type: :model do
   let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:mpi_profile_address)) }
 
   before do
-    Flipper.disable(:hca_vaprofile_military_info)
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)
   end
@@ -884,7 +883,7 @@ RSpec.describe FormProfile, type: :model do
           }
         )
       end
-    end    
+    end
   end
 
   describe '#pciu_us_phone' do

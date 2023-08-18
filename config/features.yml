@@ -29,10 +29,6 @@ features:
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
-  hca_vaprofile_military_info:
-    actor_type: user
-    description: Enables prefilling 1010ez using VA profile military data
-    enable_in_development: false
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
