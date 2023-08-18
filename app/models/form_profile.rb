@@ -4,6 +4,7 @@ require 'string_helpers'
 require 'sentry_logging'
 require 'va_profile/configuration'
 require 'hca/military_information'
+require 'va_profile/prefill/military_information'
 
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
@@ -193,6 +194,7 @@ class FormProfile
     @identity_information = initialize_identity_information
     @contact_information = initialize_contact_information
     @military_information = initialize_military_information
+    binding.pry
     mappings = self.class.mappings_for_form(form_id)
 
     form = form_id == '1010EZ' ? '1010ez' : form_id
@@ -207,6 +209,7 @@ class FormProfile
     hca_military_information = initialize_hca_military_information
     va_profile_prefill_military_information = initialize_va_profile_prefill_military_information
 
+    binding.pry
     FormMilitaryInformation.new(hca_military_information.merge(va_profile_prefill_military_information))
   end
 
