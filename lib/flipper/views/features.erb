@@ -1,10 +1,29 @@
 <div class="vads-l-row">
   <div class="vads-l-col">
+    <% if RequestStore.store[:flipper_user_email_for_log].blank? && !Rails.env.development? %>
+      <p>If you'd like to modify feature toggles, please sign in with GitHub.</p>
+      <form action="/flipper/features" method="post" class="usa-form">
+        <button type="submit" style="background-color:black; width:auto; margin-top:0; padding-left:10px; display:flex; align-items:center">
+          <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 1.5em;" >
+            <path fill-rule="evenodd" clip-rule="evenodd" style="" d="M12 2C6.477 2 2 6.463 2 11.97c0 4.404 2.865 8.14 6.839 9.458.5.092.682-.216.682-.48 0-.236-.008-.864-.013-1.695-2.782.602-3.369-1.337-3.369-1.337-.454-1.151-1.11-1.458-1.11-1.458-.908-.618.069-.606.069-.606 1.003.07 1.531 1.027 1.531 1.027.892 1.524 2.341 1.084 2.91.828.092-.643.35-1.083.636-1.332-2.22-.251-4.555-1.107-4.555-4.927 0-1.088.39-1.979 1.029-2.675-.103-.252-.446-1.266.098-2.638 0 0 .84-.268 2.75 1.022A9.607 9.607 0 0 1 12 6.82c.85.004 1.705.114 2.504.336 1.909-1.29 2.747-1.022 2.747-1.022.546 1.372.202 2.386.1 2.638.64.696 1.028 1.587 1.028 2.675 0 3.83-2.339 4.673-4.566 4.92.359.307.678.915.678 1.846 0 1.332-.012 2.407-.012 2.734 0 .267.18.577.688.48 3.97-1.32 6.833-5.054 6.833-9.458C22 6.463 17.522 2 12 2Z" fill="white"></path>
+          </svg>
+          <span style="margin-left:0.5em">Sign in to GitHub</span>
+        </button>
+      </form>
+    <% elsif !RequestStore.store[:flipper_authorized] && !Rails.env.development? %>
+      <p>You are not authorized to perform any actions. Please see <a href="https://depo-platform-documentation.scrollhelp.site/developer-docs/flipper-ui-access" target="_blank">Platform Documentation</a> for more information.</p>
+      <form action="/flipper/features/logout"  class="usa-form">
+        <button type="submit" style="background-color:black; width:auto; margin-top:0; padding-left:10px; display:flex; align-items:center">
+          <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 1.5em;" >
+            <path fill-rule="evenodd" clip-rule="evenodd" style="" d="M12 2C6.477 2 2 6.463 2 11.97c0 4.404 2.865 8.14 6.839 9.458.5.092.682-.216.682-.48 0-.236-.008-.864-.013-1.695-2.782.602-3.369-1.337-3.369-1.337-.454-1.151-1.11-1.458-1.11-1.458-.908-.618.069-.606.069-.606 1.003.07 1.531 1.027 1.531 1.027.892 1.524 2.341 1.084 2.91.828.092-.643.35-1.083.636-1.332-2.22-.251-4.555-1.107-4.555-4.927 0-1.088.39-1.979 1.029-2.675-.103-.252-.446-1.266.098-2.638 0 0 .84-.268 2.75 1.022A9.607 9.607 0 0 1 12 6.82c.85.004 1.705.114 2.504.336 1.909-1.29 2.747-1.022 2.747-1.022.546 1.372.202 2.386.1 2.638.64.696 1.028 1.587 1.028 2.675 0 3.83-2.339 4.673-4.566 4.92.359.307.678.915.678 1.846 0 1.332-.012 2.407-.012 2.734 0 .267.18.577.688.48 3.97-1.32 6.833-5.054 6.833-9.458C22 6.463 17.522 2 12 2Z" fill="white"></path>
+          </svg>
+          <span style="margin-left:0.5em">Log out</span>
+        </button>
+      </form>
+    <% end %>
+
     <table class="vads-u-margin-top--0">
       <caption class="vads-u-font-size--xl">Features</caption>
-      <% if RequestStore.store[:flipper_user_email_for_log].blank? &&  !Rails.env.development? %>
-        <a href ="<%= SAML::URLService::VIRTUAL_HOST_MAPPINGS.dig(request.base_url, :base_redirect) %>">Sign in</a> with an identity-verified admin account to edit feature toggles.
-      <% end %>
       <thead>
         <tr>
           <th>Status</th>
@@ -20,7 +39,7 @@
               <%= feature.state.capitalize %>
             </td>
             <td>
-              <% if RequestStore.store[:flipper_user_email_for_log].present? || Rails.env.development? %>
+              <% if RequestStore.store[:flipper_authorized] || Rails.env.development? %>
                 <a href="<%= "#{script_name}/features/#{feature.key}" %>">
                   <%= feature.key %>
                 </a>
@@ -38,5 +57,15 @@
         <% end %>
       </tbody>
     </table>
+    <% if RequestStore.store[:flipper_authorized] %>
+      <form action="/flipper/features/logout"  class="usa-form" style="float:right">
+        <button type="submit" style="background-color:black; width:auto; margin:8px; padding-left:10px; display:flex; align-items:center">
+          <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 1.5em;" >
+            <path fill-rule="evenodd" clip-rule="evenodd" style="" d="M12 2C6.477 2 2 6.463 2 11.97c0 4.404 2.865 8.14 6.839 9.458.5.092.682-.216.682-.48 0-.236-.008-.864-.013-1.695-2.782.602-3.369-1.337-3.369-1.337-.454-1.151-1.11-1.458-1.11-1.458-.908-.618.069-.606.069-.606 1.003.07 1.531 1.027 1.531 1.027.892 1.524 2.341 1.084 2.91.828.092-.643.35-1.083.636-1.332-2.22-.251-4.555-1.107-4.555-4.927 0-1.088.39-1.979 1.029-2.675-.103-.252-.446-1.266.098-2.638 0 0 .84-.268 2.75 1.022A9.607 9.607 0 0 1 12 6.82c.85.004 1.705.114 2.504.336 1.909-1.29 2.747-1.022 2.747-1.022.546 1.372.202 2.386.1 2.638.64.696 1.028 1.587 1.028 2.675 0 3.83-2.339 4.673-4.566 4.92.359.307.678.915.678 1.846 0 1.332-.012 2.407-.012 2.734 0 .267.18.577.688.48 3.97-1.32 6.833-5.054 6.833-9.458C22 6.463 17.522 2 12 2Z" fill="white"></path>
+          </svg>
+          <span style="margin-left:0.5em">Log out</span>
+        </button>
+      </form> 
+    <% end %>
   </div>
 </div>
