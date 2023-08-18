@@ -415,6 +415,9 @@ features:
   form2110210:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-10210
+  form21p0847:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21P-0847
   form264555:
     actor_type: user
     description: If enabled shows the digital form experience for form 26-4555
