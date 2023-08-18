@@ -14,7 +14,8 @@ module Flipper
       # If Authenticated through GitHub, check authorization to determine what can be shown in views
       if request.session[:flipper_user].present?
         user = request.session[:flipper_user]
-        RequestStore.store[:flipper_user_email_for_log] = user&.email
+        RequestStore.store[:flipper_user_email_for_log] =
+          user&.email || "Email not found for: #{user&.name || '<no name>'}, #{user&.company || '<no company>'}"
         RequestStore.store[:flipper_authorized] = authorized?(user)
 
         return true
@@ -24,7 +25,6 @@ module Flipper
       return true if (request.method == 'GET' && request.path.exclude?('/callback')) || Rails.env.development?
 
       authenticate(request)
-      Rails.logger.info "Already Auth'd"
       true
     end
 
