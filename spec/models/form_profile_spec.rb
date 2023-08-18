@@ -1252,27 +1252,27 @@ RSpec.describe FormProfile, type: :model do
           # end
         end
 
-        # %w[
-        #   22-1990
-        #   22-1990N
-        #   22-1990E
-        #   22-1995
-        #   22-5490
-        #   22-5495
-        #   40-10007
-        #   1010ez
-        #   22-0993
-        #   FEEDBACK-TOOL
-        #   686C-674
-        #   28-8832
-        #   28-1900
-        #   26-1880
-        #   26-4555
-        # ].each do |form_id|
-        #   it "returns prefilled #{form_id}" do
-        #     expect_prefilled(form_id)
-        #   end
-        # end
+        %w[
+          22-1990
+          22-1990N
+          22-1990E
+          22-1995
+          22-5490
+          22-5495
+          40-10007
+          1010ez
+          22-0993
+          FEEDBACK-TOOL
+          686C-674
+          28-8832
+          28-1900
+          26-1880
+          26-4555
+        ].each do |form_id|
+          it "returns prefilled #{form_id}" do
+            expect_prefilled(form_id)
+          end
+        end
 
         context 'with a user that can prefill evss' do
           before do
