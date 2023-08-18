@@ -69,8 +69,8 @@ module ClaimsApi
     #
     # @return Faraday client
     def client
-      base_name = if !Settings.bd&.base_name.nil?
-                    Settings.bd.base_name
+      base_name = if !Settings.claims_api.evss_container&.auth_base_name.nil?
+                    "#{Settings.claims_api.evss_container.auth_base_name}/services"
                   elsif @request&.host_with_port.nil?
                     'api.va.gov/services'
                   else
