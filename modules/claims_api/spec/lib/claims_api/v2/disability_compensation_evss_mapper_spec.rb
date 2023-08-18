@@ -84,6 +84,10 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
         expect(secondary_disability[:serviceRelevance]).to eq('ABCDEFGHIJKLMNOPQ')
         expect(secondary_disability[:classificationCode]).to eq('9010')
       end
+
+      it 'maps the PACT attribute correctly' do
+        expect(evss_data[:disabilities][0][:specialIssues][0]).to eq('PACT')
+      end
     end
 
     context '526 section 6, service information: service periods' do

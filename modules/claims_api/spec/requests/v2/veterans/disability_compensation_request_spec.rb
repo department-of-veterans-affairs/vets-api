@@ -915,18 +915,33 @@ RSpec.describe 'Disability Claims', type: :request do
         end
       end
 
-      context 'when is a PACT claim' do
-        let(:hazard_exposed_to) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
+      context 'tracking PACT act claims' do
+        context 'when is a PACT claim' do
+          it 'tracks the claim count' do
+            with_okta_user(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['disabilities'][0]['isRelatedToToxicExposure'] = true
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              id = JSON.parse(response.body)['data']['id']
+              submissions = ClaimsApi::AutoEstablishedClaim.find(id).submissions
+              expect(submissions.size).to be <= 1
+            end
+          end
+        end
 
-        it 'tracks the claim count' do
-          with_okta_user(scopes) do |auth_header|
-            json = JSON.parse(data)
-            json['data']['attributes']['disabilities'][0]['isRelatedToToxicExposure'] = true
-            data = json.to_json
-            post submit_path, params: data, headers: auth_header
-            id = JSON.parse(response.body)['data']['id']
-            submissions = ClaimsApi::AutoEstablishedClaim.find(id).submissions
-            expect(submissions.size).to be <= 1
+        context 'when it is not a PACT claim' do
+          it 'tracks the claim count' do
+            with_okta_user(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['disabilities'][0]['isRelatedToToxicExposure'] = false
+              json['data']['attributes']['disabilities'][1]['isRelatedToToxicExposure'] = false
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              id = JSON.parse(response.body)['data']['id']
+              submissions = ClaimsApi::AutoEstablishedClaim.find(id).submissions
+              expect(submissions.size).to be(0)
+            end
           end
         end
       end
