@@ -3616,7 +3616,8 @@
         "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
         "pattern": "^[0-9]{10}V[0-9]{6}$",
         "minLength": 17,
-        "maxLength": 17
+        "maxLength": 17,
+        "example": "1234567890V123456"
       },
       "nonBlankString": {
         "type": "string",

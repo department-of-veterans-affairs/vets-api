@@ -2,10 +2,11 @@
 
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
+# Allow use of DocHelpers outside of 'it' context
+RSpec.configure { |_config| include DocHelpers }
+
 # rubocop:disable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength
 class AppealsApi::RswagConfig
-  include DocHelpers
-
   def rswag_doc_config(base_path_template:, description_file_path:, name:, tags:, version:)
     {
       # FIXME: The Lighthouse docs UI code does not yet support openapi versions above 3.0.z
@@ -235,15 +236,14 @@ class AppealsApi::RswagConfig
       merge_schemas(
         sc_create_schemas,
         sc_response_schemas,
-        appealable_issues_schema.slice(*%i[appealableIssue]),
+        appealable_issues_response_schemas.slice(*%i[appealableIssue]),
         generic_schemas.slice(*%i[errorModel documentUploadMetadata]),
         shared_schemas.slice(*%w[address icn phone ssn timezone nonBlankString])
       )
     when 'appealable_issues'
       merge_schemas(
-        appealable_issues_schema,
-        generic_schemas.slice(*%i[errorModel X-VA-SSN X-VA-File-Number X-VA-ICN]),
-        shared_schemas.slice(*%w[nonBlankString])
+        appealable_issues_response_schemas,
+        generic_schemas.slice(*%i[errorModel])
       )
     when 'legacy_appeals'
       merge_schemas(
@@ -396,7 +396,7 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def appealable_issues_schema
+  def appealable_issues_response_schemas
     {
       'appealableIssues': {
         'type': 'object',
@@ -409,12 +409,7 @@ class AppealsApi::RswagConfig
           }
         }
       },
-      'appealableIssue': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'appealable_issue.json'))),
-      'X-VA-Receipt-Date': {
-        "description": '(yyyy-mm-dd) Date to limit the appealable issues',
-        "type": 'string',
-        "format": 'date'
-      }
+      'appealableIssue': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'appealable_issue.json')))
     }
   end
 
