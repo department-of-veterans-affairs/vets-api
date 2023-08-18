@@ -1,0 +1,37 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://localhost:8120/max-ratings
+    body:
+      encoding: UTF-8
+      string: '{"diagnostic_codes":[7101,6260,6204]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      X-Api-Key:
+      - 9d3868d1-ec15-4889-8002-2bff1b50ba62
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      Date:
+      - Thu, 10 Aug 2023 20:55:14 GMT
+      Server:
+      - uvicorn
+      Content-Length:
+      - '34'
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"detail":"Internal Server Error"}'
+  recorded_at: Thu, 10 Aug 2023 20:55:14 GMT
+recorded_with: VCR 6.2.0
