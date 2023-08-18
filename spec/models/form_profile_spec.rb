@@ -1286,7 +1286,9 @@ RSpec.describe FormProfile, type: :model do
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
                   VCR.use_cassette('evss/ppiu/payment_information') do
-                    expect_prefilled('21-526EZ')
+                    VCR.use_cassette('virtual_regional_office/max_ratings') do
+                      expect_prefilled('21-526EZ')
+                    end
                   end
                 end
               end
@@ -1314,7 +1316,9 @@ RSpec.describe FormProfile, type: :model do
                 VCR.use_cassette('evss/pciu_address/address_domestic') do
                   VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
                     VCR.use_cassette('evss/ppiu/payment_information') do
-                      expect_prefilled('21-526EZ')
+                      VCR.use_cassette('virtual_regional_office/max_ratings') do
+                        expect_prefilled('21-526EZ')
+                      end
                     end
                   end
                 end

@@ -289,6 +289,10 @@ features:
     actor_type: user
     description: enables displaying a short education blurb alongside rated disabilities already at maximum rating.
     enable_in_development: true
+  disability_526_maximum_rating_api:
+    actor_type: user
+    description: enables sending disability diagnostic codes to VRO Max CFI API to get the corresponding maximum ratings.
+    enable_in_development: false
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.

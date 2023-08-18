@@ -55,7 +55,9 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             in_progress_form_lighthouse.update(form_data: fd)
 
             VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-              get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              VCR.use_cassette('virtual_regional_office/max_ratings') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
             end
 
             expect(response).to have_http_status(:ok)
@@ -154,8 +156,11 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             in_progress_form.update(form_data: fd)
 
             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-              get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
+              VCR.use_cassette('virtual_regional_office/max_ratings') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
+              end
             end
+
             expect(response).to have_http_status(:ok)
             json_response = JSON.parse(response.body)
             expect(json_response['formData']['ratedDisabilities']).to eq(
