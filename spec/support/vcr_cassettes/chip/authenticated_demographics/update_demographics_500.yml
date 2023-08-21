@@ -1,7 +1,7 @@
 http_interactions:
   - request:
       method: post
-      uri: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com/actions/authenticated-demographics
+      uri: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com/dev/actions/authenticated-demographics
     response:
       status:
         code: 500
