@@ -401,7 +401,7 @@ module Sidekiq
       end
 
       def convert_docs_to_pdf
-        Rails.logger.info(
+        ::Rails.logger.info(
           'Begin 526 PDF Generating for Backup Submission',
           { submission_id:, initial_upload_uuid: }
         )
@@ -411,7 +411,7 @@ module Sidekiq
           convert_doc_to_pdf(doc, klass)
         end
 
-        Rails.logger.info(
+        ::Rails.logger.info(
           'Complete 526 PDF Generating for Backup Submission',
           { submission_id:, initial_upload_uuid: }
         )
@@ -423,7 +423,7 @@ module Sidekiq
         actual_path_to_file = @lighthouse_service.get_file_path_from_objs(doc[:file])
         file_type_extension = File.extname(actual_path_to_file).downcase
         if klass::CAN_CONVERT.include?(file_type_extension)
-          Rails.logger.info(
+          ::Rails.logger.info(
             'Generating PDF document',
             { actual_path_to_file:, file_type_extension: }
           )
@@ -436,7 +436,6 @@ module Sidekiq
       end
     end
 
-    # [wipn8923] be sure and test this
     class NonBreakeredProcessor < Processor
       def get_form526_pdf
         headers = submission.auth_headers
