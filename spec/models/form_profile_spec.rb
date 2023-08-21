@@ -1117,16 +1117,18 @@ RSpec.describe FormProfile, type: :model do
       # # rubocop:enable Metrics/MethodLength
       # rubocop:disable Metrics/MethodLength
       def stub_methods_for_emis_data
-        edipi = '384759483'
-        allow(user).to receive(:edipi).and_return(edipi)
+        # edipi = '384759483'
+        # allow(user).to receive(:edipi).and_return(edipi)
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+          # user.identity.edipi = '1005127153'
+          # user.mpi.user_edipi = '1005127153'
+          user.save
+          # edipi = '1005127153'
+          # allow(user).to receive(:edipi).and_return(edipi)
 
-        VCR.use_cassette('va_profile/military_personnel/holden') do
-          edipi = '1005127153'
-          allow(user).to receive(:edipi).and_return(edipi)
-
-          VCR.use_cassette('va_profile/disability/holden') do
+          # VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability') do
             military_information = user.military_information
-            binding.pry
+            # binding.pry
             expect(military_information).to receive(:last_service_branch).and_return('Air Force')
             expect(military_information).to receive(:hca_last_service_branch).and_return('air force')
             expect(military_information).to receive(:last_entry_date).and_return('2007-04-01')
@@ -1155,7 +1157,7 @@ RSpec.describe FormProfile, type: :model do
               to: '2016-06-01'
             )    
           end
-        end
+        # end
       end
       # rubocop:enable Metrics/MethodLength
 
