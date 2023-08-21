@@ -12,7 +12,7 @@ module BenefitsDocuments
   class Configuration < Common::Client::Configuration::REST
     self.read_timeout = Settings.lighthouse.benefits_documents.timeout || 20
 
-    SYSTEM_NAME = 'va.gov'
+    SYSTEM_NAME = 'VA.gov'
     API_SCOPES = %w[documents.read documents.write].freeze
     DOCUMENTS_PATH = 'services/benefits-documents/v1/documents'
     TOKEN_PATH = 'oauth2/benefits-documents/system/v1/token'

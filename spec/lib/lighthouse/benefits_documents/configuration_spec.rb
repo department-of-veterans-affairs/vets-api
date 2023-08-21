@@ -6,8 +6,8 @@ require 'lighthouse/benefits_documents/configuration'
 RSpec.describe BenefitsDocuments::Configuration do
   let(:document_data) do
     { file_number: '796378881',
-      claim_id: 600_423_040,
-      tracked_item_id: [],
+      claim_id: '600423040',
+      tracked_item_id: nil,
       document_type: 'L023',
       file_name: 'doctors-note.pdf' }
   end
