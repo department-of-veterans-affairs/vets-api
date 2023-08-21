@@ -920,9 +920,9 @@ RSpec.describe FormProfile, type: :model do
   end
 
   describe '#prefill_form' do
-    def can_prefill_emis(yes)
-      expect(user).to receive(:authorize).at_least(:once).with(:emis, :access?).and_return(yes)
-    end
+    # def can_prefill_emis(yes)
+    #   expect(user).to receive(:authorize).at_least(:once).with(:emis, :access?).and_return(yes)
+    # end
 
     def strip_required(schema)
       new_schema = {}
@@ -1082,38 +1082,81 @@ RSpec.describe FormProfile, type: :model do
     end
 
     context 'with emis data', skip_emis: true do
+      
+      # # rubocop:disable Metrics/MethodLength
+      # def stub_methods_for_emis_data
+      #   military_information = user.military_information
+      #   expect(military_information).to receive(:last_service_branch).and_return('Air Force')
+      #   expect(military_information).to receive(:hca_last_service_branch).and_return('air force')
+      #   expect(military_information).to receive(:last_entry_date).and_return('2007-04-01')
+      #   expect(military_information).to receive(:last_discharge_date).and_return('2007-04-02')
+      #   expect(military_information).to receive(:discharge_type).and_return('honorable')
+      #   expect(military_information).to receive(:post_nov111998_combat).and_return(true)
+      #   expect(military_information).to receive(:sw_asia_combat).and_return(true)
+      #   expect(military_information).to receive(:compensable_va_service_connected).and_return(true).twice
+      #   expect(military_information).to receive(:is_va_service_connected).and_return(true).twice
+      #   expect(military_information).to receive(:tours_of_duty).and_return(
+      #     [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
+      #   )
+      #   expect(military_information).to receive(:service_branches).and_return(['F'])
+      #   allow(military_information).to receive(:currently_active_duty_hash).and_return(
+      #     yes: true
+      #   )
+      #   # expect(user).to receive(:can_access_id_card?).and_return(true)
+      #   expect(military_information).to receive(:service_periods).and_return(
+      #     [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
+      #   )
+      #   expect(military_information).to receive(:guard_reserve_service_history).and_return(
+      #     [{ from: '2007-04-01', to: '2016-06-01' }, { from: '2002-02-14', to: '2007-01-01' }]
+      #   )
+      #   expect(military_information).to receive(:latest_guard_reserve_service_period).and_return(
+      #     from: '2007-04-01',
+      #     to: '2016-06-01'
+      #   )
+      # end
+      # # rubocop:enable Metrics/MethodLength
       # rubocop:disable Metrics/MethodLength
       def stub_methods_for_emis_data
-        military_information = user.military_information
-        expect(military_information).to receive(:last_service_branch).and_return('Air Force')
-        expect(military_information).to receive(:hca_last_service_branch).and_return('air force')
-        expect(military_information).to receive(:last_entry_date).and_return('2007-04-01')
-        expect(military_information).to receive(:last_discharge_date).and_return('2007-04-02')
-        expect(military_information).to receive(:discharge_type).and_return('honorable')
-        expect(military_information).to receive(:post_nov111998_combat).and_return(true)
-        expect(military_information).to receive(:sw_asia_combat).and_return(true)
-        expect(military_information).to receive(:compensable_va_service_connected).and_return(true).twice
-        expect(military_information).to receive(:is_va_service_connected).and_return(true).twice
-        expect(military_information).to receive(:tours_of_duty).and_return(
-          [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
-        )
-        expect(military_information).to receive(:service_branches).and_return(['F'])
-        allow(military_information).to receive(:currently_active_duty_hash).and_return(
-          yes: true
-        )
-        expect(user).to receive(:can_access_id_card?).and_return(true)
-        expect(military_information).to receive(:service_periods).and_return(
-          [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
-        )
-        expect(military_information).to receive(:guard_reserve_service_history).and_return(
-          [{ from: '2007-04-01', to: '2016-06-01' }, { from: '2002-02-14', to: '2007-01-01' }]
-        )
-        expect(military_information).to receive(:latest_guard_reserve_service_period).and_return(
-          from: '2007-04-01',
-          to: '2016-06-01'
-        )
-      end
+        edipi = '384759483'
+        allow(user).to receive(:edipi).and_return(edipi)
 
+        VCR.use_cassette('va_profile/military_personnel/holden') do
+          edipi = '1005127153'
+          allow(user).to receive(:edipi).and_return(edipi)
+
+          VCR.use_cassette('va_profile/disability/holden') do
+            military_information = user.military_information
+            binding.pry
+            expect(military_information).to receive(:last_service_branch).and_return('Air Force')
+            expect(military_information).to receive(:hca_last_service_branch).and_return('air force')
+            expect(military_information).to receive(:last_entry_date).and_return('2007-04-01')
+            expect(military_information).to receive(:last_discharge_date).and_return('2007-04-02')
+            expect(military_information).to receive(:discharge_type).and_return('honorable')
+            expect(military_information).to receive(:post_nov111998_combat).and_return(true)
+            expect(military_information).to receive(:sw_asia_combat).and_return(true)
+            expect(military_information).to receive(:compensable_va_service_connected).and_return(true).twice
+            expect(military_information).to receive(:is_va_service_connected).and_return(true).twice
+            expect(military_information).to receive(:tours_of_duty).and_return(
+              [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
+            )
+            expect(military_information).to receive(:service_branches).and_return(['F'])
+            allow(military_information).to receive(:currently_active_duty_hash).and_return(
+              yes: true
+            )
+            # expect(user).to receive(:can_access_id_card?).and_return(true)
+            expect(military_information).to receive(:service_periods).and_return(
+              [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
+            )
+            expect(military_information).to receive(:guard_reserve_service_history).and_return(
+              [{ from: '2007-04-01', to: '2016-06-01' }, { from: '2002-02-14', to: '2007-01-01' }]
+            )
+            expect(military_information).to receive(:latest_guard_reserve_service_period).and_return(
+              from: '2007-04-01',
+              to: '2016-06-01'
+            )    
+          end
+        end
+      end
       # rubocop:enable Metrics/MethodLength
 
       context 'with va profile prefill on' do
@@ -1137,9 +1180,10 @@ RSpec.describe FormProfile, type: :model do
           VAProfile::Configuration::SETTINGS.prefill = false
         end
 
-        # it 'prefills 1990' do
-        #   expect_prefilled('22-1990')
-        # end
+        it 'prefills 1990' do
+          # binding.pry
+          expect_prefilled('22-1990')
+        end
       end
 
       context 'with emis prefill for 0994' do
