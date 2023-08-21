@@ -21,10 +21,10 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
     raise NotImplementedError, 'Not Implemented for Form 10-10CG'
   end
 
-  def to_pdf(filename = nil, **fill_options)
+  def to_pdf(filename = nil, **)
     # We never save the claim, so we don't have an id to provide for the filename.
     # Instead we'll create a filename with this format "10-10cg_{uuid}"
-    PdfFill::Filler.fill_form(self, filename || guid, **fill_options)
+    PdfFill::Filler.fill_form(self, filename || guid, **)
   end
 
   # SavedClaims require regional_office to be defined, CaregiversAssistanceClaim has no purpose for it.

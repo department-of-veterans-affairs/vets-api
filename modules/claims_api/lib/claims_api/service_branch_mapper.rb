@@ -57,7 +57,8 @@ module ClaimsApi
       return 'Army Air Corps or Army Air Force' if MAPS_TO_ARMY_AIR_CORPS_OR_ARMY_AIR_FORCE.include?(@service_branch)
       return 'Army' if MAPS_TO_ARMY.include?(@service_branch)
       return 'Marine Corps' if MAPS_TO_MARINE_CORPS.include?(@service_branch)
-      return 'National Oceanic & Atmospheric Administration' if MAPS_TO_NOAA_WITH_AMPERSAND.include?(@service_branch)
+
+      'National Oceanic & Atmospheric Administration' if MAPS_TO_NOAA_WITH_AMPERSAND.include?(@service_branch)
     end
   end
 end

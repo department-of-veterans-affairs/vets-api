@@ -73,7 +73,7 @@ module VBMS
 
       if supporting_documents.present?
         guid_matches = supporting_documents.any? { |doc| doc['confirmation_code'] == guid }
-        return evidence_type if guid_matches && evidence_type.present?
+        evidence_type if guid_matches && evidence_type.present?
       end
     end
   end

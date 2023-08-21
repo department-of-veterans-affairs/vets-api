@@ -232,8 +232,8 @@ class Form526Submission < ApplicationRecord
     timestamp_string
   end
 
-  def mark_birls_id_as_tried!(*args, **kwargs)
-    timestamp_string = mark_birls_id_as_tried(*args, **kwargs)
+  def mark_birls_id_as_tried!(*, **)
+    timestamp_string = mark_birls_id_as_tried(*, **)
     save!
     timestamp_string
   end

@@ -21,7 +21,8 @@ class UserVerification < ApplicationRecord
     return SAML::User::IDME_CSID if idme_uuid
     return SAML::User::LOGINGOV_CSID if logingov_uuid
     return SAML::User::MHV_ORIGINAL_CSID if mhv_uuid
-    return SAML::User::DSLOGON_CSID if dslogon_uuid
+
+    SAML::User::DSLOGON_CSID if dslogon_uuid
   end
 
   def credential_identifier

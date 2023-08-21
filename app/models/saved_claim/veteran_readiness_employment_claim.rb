@@ -238,7 +238,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def veteran_information
-    return errors.add(:form, 'Veteran Information is missing from form') if parsed_form['veteranInformation'].blank?
+    errors.add(:form, 'Veteran Information is missing from form') if parsed_form['veteranInformation'].blank?
   end
 
   def veteran_va_file_number(user)

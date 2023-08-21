@@ -85,7 +85,8 @@ module Mobile
         return id unless match
 
         return id.sub(match[0], '442') if match[0] == '983'
-        return id.sub(match[0], '552') if match[0] == '984'
+
+        id.sub(match[0], '552') if match[0] == '984'
       end
 
       def self.convert_to_non_prod_id!(id)
@@ -95,7 +96,8 @@ module Mobile
         return id unless match
 
         return id.sub(match[0], '983') if match[0] == '442'
-        return id.sub(match[0], '984') if match[0] == '552'
+
+        id.sub(match[0], '984') if match[0] == '552'
       end
     end
   end
