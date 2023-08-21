@@ -314,7 +314,7 @@ module AppealsApi
 
       icn = mpi_veteran.mpi_icn
 
-      return { id_type: 'ICN', id_value: icn } if icn.present?
+      { id_type: 'ICN', id_value: icn } if icn.present?
     end
 
     def data_attributes

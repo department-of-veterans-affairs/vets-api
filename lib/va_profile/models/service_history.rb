@@ -48,7 +48,8 @@ module VAProfile
         return nil unless episode
 
         return build_from_military_episode(episode) if episode_type == MILITARY_SERVICE_EPISODE
-        return build_from_academy_episode(episode)  if episode_type == ACADEMY_ATTENDANCE_EPISODE
+
+        build_from_academy_episode(episode) if episode_type == ACADEMY_ATTENDANCE_EPISODE
       end
 
       def self.build_from_military_episode(episode)
