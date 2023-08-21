@@ -26,6 +26,7 @@ end
 class FormMilitaryInformation
   include Virtus.model
 
+  attribute :service_episodes_by_date, Array
   attribute :last_service_branch, String
   attribute :hca_last_service_branch, String
   attribute :last_entry_date, String
@@ -87,7 +88,7 @@ class FormProfile
   include Virtus.model
   include SentryLogging
 
-  EMIS_PREFILL_KEY = 'emis_prefill'
+  # EMIS_PREFILL_KEY = 'emis_prefill'
 
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
@@ -203,15 +204,14 @@ class FormProfile
     { form_data:, metadata: }
   end
 
-  private
-
   def initialize_military_information
     hca_military_information = initialize_hca_military_information
     va_profile_prefill_military_information = initialize_va_profile_prefill_military_information
-
-    binding.pry
+    
     FormMilitaryInformation.new(hca_military_information.merge(va_profile_prefill_military_information))
   end
+  
+  private
 
   def initialize_hca_military_information
     military_information = HCA::MilitaryInformation.new(user)
