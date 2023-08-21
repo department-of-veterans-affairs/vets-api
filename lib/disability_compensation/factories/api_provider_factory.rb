@@ -43,7 +43,7 @@ class ApiProviderFactory
   end
 
   def self.intent_to_file_service_provider(current_user, api_provider = nil)
-    api_provider ||= if Flipper.enabled?(FEATURE_TOGGLE_INTENT_TO_FILE)
+    api_provider ||= if Flipper.enabled?(FEATURE_TOGGLE_INTENT_TO_FILE, current_user)
                        API_PROVIDER[:lighthouse]
                      else
                        API_PROVIDER[:evss]
