@@ -18,6 +18,7 @@ LighthousePolicy = Struct.new(:user, :lighthouse) do
   end
 
   alias_method :mobile_access?, :access_update?
+  alias_method :rating_info_access?, :access_update?
 
   private
 

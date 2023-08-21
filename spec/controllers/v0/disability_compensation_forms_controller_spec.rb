@@ -4,6 +4,10 @@ require 'rails_helper'
 
 RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
   let(:user) { build(:user, :loa3) }
+  let(:user_without_icn) { build(:user, :loa3, icn: '') }
+  let(:user_without_ssn) { build(:user, :loa3, ssn: '') }
+  let(:user_without_edipi) { build(:user, :loa3, edipi: '') }
+  let(:user_without_participant_id) { build(:user, :loa3, participant_id: '') }
 
   before do
     sign_in_as(user)
@@ -46,6 +50,17 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
           expect(data['source_system']).to eq('Lighthouse')
         end
       end
+
+      context 'user missing icn' do
+        before do
+          sign_in_as(user_without_icn)
+        end
+
+        it 'responds with forbidden' do
+          get(:rating_info)
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
     end
 
     context 'retrieve from EVSS' do
@@ -62,6 +77,16 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
           data = JSON.parse(response.body)['data']['attributes']
           expect(data['user_percent_of_disability']).to eq(100)
           expect(data['source_system']).to eq('EVSS')
+        end
+      end
+
+      context 'user is missing snn, edipi, or participant id' do
+        it 'responds with forbidden' do
+          [user_without_ssn, user_without_edipi, user_without_participant_id].each do |user|
+            sign_in_as(user)
+            get(:rating_info)
+            expect(response).to have_http_status(:forbidden)
+          end
         end
       end
     end
