@@ -780,7 +780,7 @@
       :file_path: "/chip/refresh-precheckin/default"
       :response_delay: 4
     - :method: :post
-      :path: <%= "/#{Settings.chip.base_path}/actions/authenticated-check-in" %>
+      :path: <%= "/#{Settings.chip.base_path}/actions/authenticated-checkin" %>
       :file_path: "/chip/authenticated-check-in/default"
       :response_delay: 4
     - :method: :delete
