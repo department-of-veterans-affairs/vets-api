@@ -15,6 +15,7 @@ module Mobile
                                                                in_threads: 2, &:call)
           Mobile::V0::Adapters::LegacyRating.new.disability_ratings(combine_response, individual_response)
         rescue => e
+          Rails.logger.info('LEGACY DR ERRORS', error: e)
           status_code = e.respond_to?('response') ? e.response[:status] : e.status_code
           case status_code
           when 400
