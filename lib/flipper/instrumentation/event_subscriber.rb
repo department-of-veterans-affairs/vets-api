@@ -5,8 +5,8 @@ require 'active_support/notifications'
 module Flipper
   module Instrumentation
     class EventSubscriber
-      def call(*args)
-        event = ActiveSupport::Notifications::Event.new(*args)
+      def call(*)
+        event = ActiveSupport::Notifications::Event.new(*)
         operation = event.payload[:operation]
 
         # Only log changes to toggle state. Don't log exist?, enabled?, state, on, off
