@@ -13,6 +13,7 @@ module HCA
       sw_asia_combat
       service_branches
       tours_of_duty
+      service_episodes_by_date
     ].freeze
 
     HCA_SERVICE_BRANCHES = {
