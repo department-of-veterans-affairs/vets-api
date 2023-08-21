@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: post
-      uri: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com/dev/actions/authenticated-check-in
+      uri: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com/dev/actions/authenticated-checkin
     response:
       status:
         code: 500

@@ -49,7 +49,7 @@ module Chip
     #
     def get_demographics(patient_dfn:, station_no:)
       with_monitoring_and_error_handling do
-        perform(:get, '/actions/authenticated-demographics',
+        perform(:get, "/#{config.base_path}/actions/authenticated-demographics",
                 { patientDfn: patient_dfn, stationNo: station_no }, request_headers)
       end
     end
@@ -61,7 +61,7 @@ module Chip
     #
     def update_demographics(patient_dfn:, station_no:, demographic_confirmations:)
       with_monitoring_and_error_handling do
-        perform(:post, '/actions/authenticated-demographics',
+        perform(:post, "/#{config.base_path}/actions/authenticated-demographics",
                 { patientDfn: patient_dfn, stationNo: station_no, demographicConfirmations: demographic_confirmations },
                 request_headers)
       end
@@ -85,7 +85,7 @@ module Chip
     #
     def post_patient_check_in(appointment_ien, patient_dfn, station_no)
       with_monitoring_and_error_handling do
-        perform(:post, "/#{config.base_path}/actions/authenticated-check-in",
+        perform(:post, "/#{config.base_path}/actions/authenticated-checkin",
                 { appointmentIen: appointment_ien, patientDfn: patient_dfn, stationNo: station_no },
                 request_headers)
       end
