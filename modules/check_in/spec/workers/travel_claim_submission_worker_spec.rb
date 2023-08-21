@@ -192,9 +192,9 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         end
 
         expect(StatsD).to have_received(:increment)
-                            .with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_SUCCESS).exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_SUCCESS).exactly(1).time
         expect(StatsD).to have_received(:increment)
-                            .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
       end
     end
 
@@ -224,9 +224,9 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         end
 
         expect(StatsD).to have_received(:increment)
-                            .with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_DUPLICATE).exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_DUPLICATE).exactly(1).time
         expect(StatsD).to have_received(:increment)
-                            .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
       end
     end
 
@@ -256,9 +256,9 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         end
 
         expect(StatsD).to have_received(:increment)
-                            .with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_ERROR).exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_ERROR).exactly(1).time
         expect(StatsD).to have_received(:increment)
-                            .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
       end
     end
 
@@ -289,9 +289,9 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
         end
 
         expect(StatsD).to have_received(:increment)
-                            .with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_ERROR).exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_ERROR).exactly(1).time
         expect(StatsD).to have_received(:increment)
-                            .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
       end
     end
 
@@ -310,9 +310,9 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
           { error: :check_in_va_notify_job, team: 'check-in' }
         )
         expect(StatsD).not_to receive(:increment)
-                                .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS)
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS)
         expect(StatsD).to receive(:increment)
-                            .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_ERROR).exactly(1).time
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_ERROR).exactly(1).time
 
         Sidekiq::Testing.inline! do
           VCR.use_cassette('check_in/vanotify/send_sms_403_forbidden', match_requests_on: [:host]) do
