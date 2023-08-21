@@ -13,7 +13,9 @@ module ClaimsApi
         # GET to fetch active intent to file by type
         #
         # @return [JSON] ITF record
-        def type
+        def type # rubocop:disable Metrics/MethodLength
+          ClaimsApi::Logger.log('ITF', type: get_bgs_type(params), detail: 'starting itf type')
+
           validate_request!(ClaimsApi::V2::ParamsValidation::IntentToFile)
 
           type = get_bgs_type(params)
@@ -21,7 +23,8 @@ module ClaimsApi
             target_veteran.participant_id,
             type
           )
-          message = "No active '#{params[:type].downcase}' intent to file found."
+          message = "No active '#{get_bgs_type(params)}' intent to file found."
+          ClaimsApi::Logger.log('ITF', type: get_bgs_type(params), detail: message.to_s) if response.blank?
           raise ::Common::Exceptions::ResourceNotFound.new(detail: message) if response.blank?
 
           response = [response] unless response.is_a?(Array)
@@ -33,12 +36,17 @@ module ClaimsApi
             itf[:status].casecmp?('active') && itf[:expiration_date].to_datetime > Time.zone.now
           end
 
+          ClaimsApi::Logger.log('ITF', type: get_bgs_type(params), detail: 'itf resource not found') if response.blank?
           raise ::Common::Exceptions::ResourceNotFound.new(detail: message) if active_itf.blank?
 
+          itf_id = response.is_a?(Array) ? response[0][:intent_to_file_id] : response[:intent_to_file_id]
+          ClaimsApi::Logger.log('ITF', type: get_bgs_type(params),
+                                       detail: 'ending itf type', itf_id: itf_id.to_s)
           render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(active_itf, root: :data)
         end
 
         def submit
+          ClaimsApi::Logger.log('ITF', detail: 'starting itf submit')
           validate_request!(ClaimsApi::V2::ParamsValidation::IntentToFile)
           type = get_bgs_type(params)
 
@@ -48,13 +56,18 @@ module ClaimsApi
 
           lighthouse_itf = bgs_itf_to_lighthouse_itf(bgs_itf: bgs_response)
 
+          itf_id = bgs_response.is_a?(Array) ? bgs_response[0][:intent_to_file_id] : bgs_response[:intent_to_file_id]
+          ClaimsApi::Logger.log('ITF', type: type.to_s,
+                                       detail: "ending itf submit, ift_id: #{itf_id}")
           render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(lighthouse_itf, root: :data)
         end
 
         def validate
+          ClaimsApi::Logger.log('ITF', detail: 'starting itf validate')
           validate_request!(ClaimsApi::V2::ParamsValidation::IntentToFile)
           type = get_bgs_type(params)
           build_options_and_validate(type)
+          ClaimsApi::Logger.log('ITF', type: type.to_s, detail: 'ending itf validate')
           render json: {
             data: {
               type: 'intent_to_file_validation',
