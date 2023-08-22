@@ -6,11 +6,13 @@ require 'medical_records/client'
 describe MedicalRecords::Client do
   before(:all) do
     VCR.use_cassette 'mr_client/session', record: :new_episodes do
-      VCR.use_cassette 'mr_client/get_a_patient_by_identifier', record: :new_episodes do
-        @client ||= begin
-          client = MedicalRecords::Client.new(session: { user_id: '5751733' })
-          client.authenticate
-          client
+      VCR.use_cassette 'phr_mgr_client/perform_a_phr_refresh', record: :new_episodes do
+        VCR.use_cassette 'mr_client/get_a_patient_by_identifier', record: :new_episodes do
+          @client ||= begin
+            client = MedicalRecords::Client.new(session: { user_id: '5751733', icn: '1000000000V000000' })
+            client.authenticate
+            client
+          end
         end
       end
     end
