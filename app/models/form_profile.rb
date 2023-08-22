@@ -195,7 +195,6 @@ class FormProfile
     @identity_information = initialize_identity_information
     @contact_information = initialize_contact_information
     @military_information = initialize_military_information
-    binding.pry
     mappings = self.class.mappings_for_form(form_id)
 
     form = form_id == '1010EZ' ? '1010ez' : form_id
