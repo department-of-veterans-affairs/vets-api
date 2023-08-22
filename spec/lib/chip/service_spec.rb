@@ -272,7 +272,8 @@ describe Chip::Service do
       it 'returns 200 with success message' do
         VCR.use_cassette('chip/authenticated_check_in/post_check_in_200') do
           VCR.use_cassette('chip/token/token_200') do
-            response = service_obj.post_patient_check_in('test-appt-ien', 'test-patient-ien', 'test-station-no')
+            response = service_obj.post_patient_check_in(appointment_ien: 'test-appt-ien',
+                                                         patient_dfn: 'test-patient-dfn', station_no: 'test-station-no')
             expect(response.status).to be 200
             expect(JSON.parse(response.body)).to eq(response_body)
           end
@@ -304,7 +305,8 @@ describe Chip::Service do
       it 'returns 200 with error message' do
         VCR.use_cassette('chip/authenticated_check_in/post_check_in_invalid_appointment_200') do
           VCR.use_cassette('chip/token/token_200') do
-            response = service_obj.post_patient_check_in('test-appt-ien', 'test-patient-ien', 'test-station-no')
+            response = service_obj.post_patient_check_in(appointment_ien: 'test-appt-ien',
+                                                         patient_dfn: 'test-patient-dfn', station_no: 'test-station-no')
             expect(response.status).to be 200
             expect(JSON.parse(response.body)).to eq(invalid_appt_response)
           end
@@ -328,7 +330,8 @@ describe Chip::Service do
         VCR.use_cassette('chip/authenticated_check_in/post_check_in_unknown_server_error_500') do
           VCR.use_cassette('chip/token/token_200') do
             expect do
-              service_obj.post_patient_check_in('test-appt-ien', 'test-patient-ien', 'test-station-no')
+              service_obj.post_patient_check_in(appointment_ien: 'test-appt-ien',
+                                                patient_dfn: 'test-patient-dfn', station_no: 'test-station-no')
             end.to raise_exception(Chip::ServiceException) { |error|
               expect(error.response_values).to eq(response_values)
               expect(error.original_body).to eq(original_body)
@@ -355,7 +358,8 @@ describe Chip::Service do
       it 'throws exception' do
         VCR.use_cassette('chip/token/token_500') do
           expect do
-            service_obj.post_patient_check_in('test-appt-ien', 'test-patient-ien', 'test-station-no')
+            service_obj.post_patient_check_in(appointment_ien: 'test-appt-ien',
+                                              patient_dfn: 'test-patient-dfn', station_no: 'test-station-no')
           end.to raise_exception(Chip::ServiceException) { |error|
             expect(error.key).to eq(key)
             expect(error.response_values).to eq(response_values)
