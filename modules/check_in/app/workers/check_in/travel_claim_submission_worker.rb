@@ -22,11 +22,9 @@ module CheckIn
     STATSD_BTSSS_ERROR = 'worker.checkin.travel_claim.btsss.error'
     STATSD_BTSSS_DUPLICATE = 'worker.checkin.travel_claim.btsss.duplicate'
 
-    PATIENT_CELL_PHONE_FEATURE = Flipper.enabled?('check_in_experience_patient_cell_phone') || false
-
     def perform(uuid, appointment_date)
       check_in_session = CheckIn::V2::Session.build(data: { uuid: })
-      mobile_phone = if PATIENT_CELL_PHONE_FEATURE
+      mobile_phone = if Flipper.enabled?('check_in_experience_patient_cell_phone')
                        TravelClaim::RedisClient.build.patient_cell_phone(uuid:)
                      else
                        TravelClaim::RedisClient.build.mobile_phone(uuid:)
