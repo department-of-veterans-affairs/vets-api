@@ -8,6 +8,7 @@
 
 require 'claims_api/claim_logger'
 require 'claims_api/error/soap_error_handler'
+require 'claims_api/evss_bgs_mapper'
 
 module ClaimsApi
   class LocalBGS
@@ -301,7 +302,8 @@ module ClaimsApi
     end
 
     def transform_bgs_claims_to_evss(claims)
-      claims[:benefit_claims_dto][:benefit_claim]&.map do |claim|
+      claims_array = [claims[:benefit_claims_dto][:benefit_claim]]&.flatten
+      claims_array&.map do |claim|
         bgs_claim = ClaimsApi::EvssBgsMapper.new(claim)
         bgs_claim.map_and_build_object
       end
