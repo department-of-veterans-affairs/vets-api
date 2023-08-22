@@ -10,7 +10,7 @@ RSpec.describe LighthouseRatedDisabilitiesProvider do
   let(:current_user) { build(:user, :loa3) }
 
   before(:all) do
-    @provider = LighthouseRatedDisabilitiesProvider.new('123456')
+    @provider = LighthouseRatedDisabilitiesProvider.new('123498767V234859')
   end
 
   before do
