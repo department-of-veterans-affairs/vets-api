@@ -40,45 +40,42 @@ RSpec.describe 'claims document upload', type: :request do
   end
 
   it 'uploads multiple jpeg files' do
-    skip 'Test is flakey'
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.jpg'))]
     params = { files:, claim_id:, tracked_item_ids:, documentType: document_type }
+    expect_any_instance_of(BenefitsDocuments::Service).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
                                                                headers: iam_headers(json_body_headers)
     end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
-    expect(Dir.empty?(Rails.root.join('tmp', 'uploads', 'cache'))).to eq(true)
   end
 
   it 'uploads multiple gif files' do
-    skip 'Test is flakey'
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.gif')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
     params = { files:, claim_id:, documentType: document_type, tracked_item_ids: }
+    expect_any_instance_of(BenefitsDocuments::Service).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
                                                                headers: iam_headers(json_body_headers)
     end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
-    expect(Dir.empty?(Rails.root.join('tmp', 'uploads', 'cache'))).to eq(true)
   end
 
   it 'uploads multiple mixed img files' do
-    skip 'Test is flakey'
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
     params = { files:, claim_id:, documentType: document_type, tracked_item_ids: }
+    expect_any_instance_of(BenefitsDocuments::Service).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
                                                                headers: iam_headers(json_body_headers)
     end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
-    expect(Dir.empty?(Rails.root.join('tmp', 'uploads', 'cache'))).to eq(true)
   end
 
   it 'rejects files with invalid document_types' do
