@@ -1,0 +1,59 @@
+name: Check CODEOWNERS Entries
+
+on:
+  pull_request:
+    branches:
+      - '*'
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 2
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        aws-access-key-id: ${{ secrets.aws_access_key_id }}
+        aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+        aws-region: "us-gov-west-1"
+
+    - name: Get GitHub Bot Token
+      uses: marvinpinto/action-inject-ssm-secrets@v1.2.1
+      with:
+        ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+        env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+    - name: Check CODEOWNERS exists for new files
+      id: check_codeowners
+      run: |
+        chmod +x .github/scripts/check_codeowners.sh
+        .github/scripts/check_codeowners.sh
+
+    - name: Respond to PR if check CODEOWNERS exists for new files fails
+      if: ${{ failure() }}
+      uses: thollander/actions-comment-pull-request@dadb7667129e23f12ca3925c90dc5cd7121ab57e # v2.4.0
+      with:
+        message: 'Error: A file (or its parent directories) does not have a CODEOWNERS entry. See test failure details. Offending file: ${{ env.offending_file }}'
+        GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+
+    - name: Check CODEOWNERS for removal when files deleted
+      id: check_deleted_files
+      run: |
+        chmod +x .github/scripts/check_deleted_files.sh
+        .github/scripts/check_deleted_files.sh
+
+    - name: Respond to PR if check CODEOWNERS exists for new files fails
+      if: ${{ failure() }}
+      uses: thollander/actions-comment-pull-request@dadb7667129e23f12ca3925c90dc5cd7121ab57e # v2.4.0
+      with:
+        message: 'Error: A file (or its parent directories) was deleted but its reference still exists in CODEOWNERS. See test failure details. Offending file: ${{ env.offending_file }}'
+        GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
