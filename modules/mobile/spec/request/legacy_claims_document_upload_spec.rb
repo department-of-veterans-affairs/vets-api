@@ -24,7 +24,6 @@ RSpec.describe 'legacy claims document upload', type: :request do
   let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
   it 'uploads a file' do
-    skip 'Test is flakey'
     params = { file:, trackedItemId: tracked_item_id, documentType: document_type }
     expect do
       post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
@@ -73,7 +72,6 @@ RSpec.describe 'legacy claims document upload', type: :request do
   end
 
   it 'rejects files with invalid document_types' do
-    skip 'Test is flakey'
     params = { file:, trackedItemId: tracked_item_id, documentType: 'invalid type' }
     post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
     expect(response).to have_http_status(:unprocessable_entity)
@@ -83,7 +81,6 @@ RSpec.describe 'legacy claims document upload', type: :request do
   end
 
   it 'normalizes requests with a null tracked_item_id' do
-    skip 'Test is flakey'
     params = { file:, tracked_item_id: 'null', documentType: document_type }
     post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
     args = EVSS::DocumentUpload.jobs.first['args'][2]
@@ -94,7 +91,6 @@ RSpec.describe 'legacy claims document upload', type: :request do
   end
 
   context 'with unaccepted file_type' do
-    skip 'Test is flakey'
     let(:file) { fixture_file_upload('invalid_idme_cert.crt', 'application/x-x509-ca-cert') }
 
     it 'rejects files with invalid document_types' do
@@ -108,17 +104,14 @@ RSpec.describe 'legacy claims document upload', type: :request do
   context 'with locked PDF and no provided password' do
     let(:locked_file) { fixture_file_upload('locked_pdf_password_is_test.pdf', 'application/pdf') }
 
-    skip 'Test is flakey'
     it 'rejects locked PDFs if no password is provided' do
       params = { file: locked_file, trackedItemId: tracked_item_id, documentType: document_type }
       post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
-      skip 'Test is flakey'
       expect(response).to have_http_status(:unprocessable_entity)
       expect(response.parsed_body['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.pdf.locked'))
     end
 
     it 'accepts locked PDFs with the correct password' do
-      skip 'Test is flakey'
       params = { file: locked_file, trackedItemId: tracked_item_id, documentType: document_type, password: 'test' }
       post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
       expect(response).to have_http_status(:accepted)
@@ -126,7 +119,6 @@ RSpec.describe 'legacy claims document upload', type: :request do
     end
 
     it 'rejects locked PDFs with the incocorrect password' do
-      skip 'Test is flakey'
       params = { file: locked_file, trackedItemId: tracked_item_id, documentType: document_type, password: 'bad' }
       post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
       expect(response).to have_http_status(:unprocessable_entity)
@@ -144,11 +136,9 @@ RSpec.describe 'legacy claims document upload', type: :request do
       fixture_file_upload(f.path, 'application/pdf')
     end
 
-    skip 'Test is flakey'
     it 'rejects a file that is not really a PDF' do
       params = { file: tempfile, trackedItemId: tracked_item_id, documentType: document_type }
       post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
-      skip 'Test is flakey'
       expect(response).to have_http_status(:unprocessable_entity)
       expect(
         response.parsed_body['errors'].first['title']
@@ -157,7 +147,6 @@ RSpec.describe 'legacy claims document upload', type: :request do
   end
 
   context 'with no body' do
-    skip 'Test is flakey'
     let(:file) { fixture_file_upload('empty_file.txt', 'text/plain') }
 
     it 'rejects a text file with no body' do
@@ -171,7 +160,6 @@ RSpec.describe 'legacy claims document upload', type: :request do
   end
 
   context 'with an emoji in text' do
-    skip 'Test is flakey'
     let(:tempfile) do
       f = Tempfile.new(['test', '.txt'])
       f.write("I \u2661 Unicode!")
@@ -190,7 +178,6 @@ RSpec.describe 'legacy claims document upload', type: :request do
   end
 
   context 'with UTF-16 ASCII text' do
-    skip 'Test is flakey'
     let(:tempfile) do
       f = Tempfile.new(['test', '.txt'], encoding: 'utf-16be')
       f.write('I love nulls')
