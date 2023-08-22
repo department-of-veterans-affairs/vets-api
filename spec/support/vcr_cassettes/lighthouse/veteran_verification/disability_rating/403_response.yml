@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/veteran_verification/v2/disability_rating
+    uri: https://sandbox-api.va.gov/services/veteran_verification/v2/disability_rating/123498767V234859
     body:
       encoding: US-ASCII
       string: ''

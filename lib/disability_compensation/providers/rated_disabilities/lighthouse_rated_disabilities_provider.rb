@@ -31,8 +31,7 @@ class LighthouseRatedDisabilitiesProvider
   # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
   # @param [string] lighthouse_rsa_key_path: path to the private RSA key used to create the lighthouse_client_id
   def get_data(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil)
-    auth_params = { launch: Base64.encode64(JSON.generate({ patient: @icn })) }
-    @service.get_rated_disabilities(lighthouse_client_id, lighthouse_rsa_key_path, { auth_params: })
+    @service.get_rated_disabilities(@icn, lighthouse_client_id, lighthouse_rsa_key_path)
   end
 
   def transform(data)
