@@ -16,15 +16,11 @@ RSpec.describe VeteranVerification::Service do
       end
 
       describe 'when requesting disability_rating' do
-        let(:auth_params) do
-          {
-            launch: Base64.encode64(JSON.generate({ patient: '123498767V234859' }))
-          }
-        end
+        let(:icn) { '123498767V234859' }
 
         it 'retrieves rated disabilities from the Lighthouse API' do
           VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-            response = @service.get_rated_disabilities('', '', { auth_params: })
+            response = @service.get_rated_disabilities(icn, '', '')
             expect(response['data']['id']).to eq('12303')
           end
         end
@@ -40,7 +36,7 @@ RSpec.describe VeteranVerification::Service do
 
           def test_error(cassette_path)
             VCR.use_cassette(cassette_path) do
-              @service.get_rated_disabilities('', '', { auth_params: })
+              @service.get_rated_disabilities(icn, '', '')
             end
           end
         end
