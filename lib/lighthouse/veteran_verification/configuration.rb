@@ -8,8 +8,7 @@ module VeteranVerification
   class Configuration < Common::Client::Configuration::REST
     self.read_timeout = Settings.lighthouse.veteran_verification.timeout || 20
 
-    API_SCOPES = %w[disability_rating.read enrolled_benefits.read flashes.read launch service_history.read
-                    veteran_status.read].freeze
+    API_SCOPES = %w[disability_rating.read].freeze
     VETERAN_VERIFICATION_PATH = 'services/veteran_verification/v2'
     TOKEN_PATH = 'oauth2/veteran-verification/system/v1/token'
 
@@ -120,7 +119,7 @@ module VeteranVerification
       aud_claim_url ||= settings.aud_claim_url
 
       @token_service ||= Auth::ClientCredentials::Service.new(
-        url, API_SCOPES, lighthouse_client_id, aud_claim_url, lighthouse_rsa_key_path
+        url, API_SCOPES, lighthouse_client_id, aud_claim_url, lighthouse_rsa_key_path, 'veteran-verification'
       )
     end
   end
