@@ -51,6 +51,24 @@ describe ClaimsApi::LocalBGS do
       end
     end
 
+    context 'when claims come back as a hash instead of an array' do
+      it 'casts the hash as an array' do
+        VCR.use_cassette('bgs/claims/claims_trimmed_down') do
+          claims = subject_instance.find_benefit_claims_status_by_ptcpnt_id('600061742')
+          claims[:benefit_claims_dto][:benefit_claim] = claims[:benefit_claims_dto][:benefit_claim][0]
+          allow(subject_instance).to receive(:find_benefit_claims_status_by_ptcpnt_id).with(id).and_return(claims)
+
+          begin
+            ret = subject_instance.send(:transform_bgs_claims_to_evss, claims)
+            expect(ret.class).to_be Array
+            expect(ret.size).to eq 1
+          rescue => e
+            expect(e.message).not_to include 'no implicit conversion of Array into Hash'
+          end
+        end
+      end
+    end
+
     # Already being checked but based on an error seen just want to lock this in to ensure nothing gets missed
     context 'when an empty array gets returned it still does not pass the count check' do
       it 'returns an empty array' do
