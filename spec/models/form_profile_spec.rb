@@ -1222,14 +1222,14 @@ RSpec.describe FormProfile, type: :model do
         # edipi = '384759483'
         # allow(user).to receive(:edipi).and_return(edipi)
 
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :match_requests_on => [:path]) do
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
           edipi = '1005127153'
           # user.edipi = edipi
           user.identity.edipi = edipi
           user.save!
           # allow(user).to receive(:edipi).and_return(edipi)
 
-          VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability', :match_requests_on => [:path]) do
+          VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability') do
 
         military_information = user.military_information
         expect(military_information).to receive(:last_service_branch).and_return('Air Force')
