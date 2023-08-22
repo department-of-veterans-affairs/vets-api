@@ -11,15 +11,12 @@ module Mobile
         end
 
         def get_rated_disabilities
-          auth_params = {
-            launch: Base64.encode64(JSON.generate({ patient: @icn }))
-          }
           settings = Settings.lighthouse.veteran_verification['form526']
 
           data = veteran_vertification_service.get_rated_disabilities(
+            @icn,
             settings.access_token.client_id,
-            settings.access_token.rsa_key,
-            { auth_params: }
+            settings.access_token.rsa_key
           )
 
           data['data']['attributes']
