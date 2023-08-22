@@ -500,8 +500,13 @@ en:
       MEDICALRECORDS_401:
         <<: *external_defaults
         code: "MEDICALRECORDS_401"
-        detail: "Application authentication failed"
+        detail: "Authentication failed on the upstream server"
         status: 401
+      MEDICALRECORDS_403:
+        <<: *external_defaults
+        code: "MEDICALRECORDS_403"
+        detail: "This user is forbidden from performing requests on the upstream server"
+        status: 403
       HCA422:
         <<: *external_defaults
         code: 'HCA422'

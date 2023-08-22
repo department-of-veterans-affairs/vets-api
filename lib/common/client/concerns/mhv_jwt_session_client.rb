@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'medical_records/phr_mgr/client'
+
 module Common
   module Client
     module Concerns
@@ -69,6 +71,10 @@ module Common
         # @return [MedicalRecords::ClientSession] if a MR (Medical Records) client session
         #
         def get_session
+          # Perform a PHR refresh for the user
+          phr_client = PHRMgr::Client.new
+          phr_client.post_phrmgr_refresh(session.icn)
+
           env = get_session_tagged
           # req_headers = env.request_headers
           res_headers = env.response_headers
