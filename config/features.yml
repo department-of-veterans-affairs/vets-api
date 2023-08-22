@@ -622,6 +622,10 @@ features:
   my_va_update_errors_warnings:
     actor_type: user
     description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released)
+  rated_disabilities_use_lighthouse:
+    actor_type: user
+    description: When enabled, the rated disabilities application uses Lighthouse instead of EVSS
+    enable_in_development: true
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
