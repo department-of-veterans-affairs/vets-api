@@ -83,7 +83,7 @@ module Chip
     #
     # @return [Faraday::Response] response from CHIP authenticated-check-in endpoint
     #
-    def post_patient_check_in(appointment_ien, patient_dfn, station_no)
+    def post_patient_check_in(appointment_ien:, patient_dfn:, station_no:)
       with_monitoring_and_error_handling do
         perform(:post, "/#{config.base_path}/actions/authenticated-checkin",
                 { appointmentIen: appointment_ien, patientDfn: patient_dfn, stationNo: station_no },
