@@ -12,7 +12,8 @@ module MyHealth
     protected
 
     def client
-      @client ||= MedicalRecords::Client.new(session: { user_id: current_user.mhv_correlation_id })
+      @client ||= MedicalRecords::Client.new(session: { user_id: current_user.mhv_correlation_id,
+                                                        icn: current_user.mhv_icn })
     end
 
     def authorize
