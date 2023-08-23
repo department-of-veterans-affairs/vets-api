@@ -195,17 +195,17 @@ module ClaimsApi
       def multiple_exposures
         multi = @pdf_data&.dig(:data, :attributes, :toxicExposure, :multipleExposures).present?
         if multi
-          multiple_service_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:multipleExposures][:exposureDates][:beginDate]
-          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][:exposureDates][:start] =
-            convert_date_string_my_to_object(multiple_service_dates_begin)
-          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][:exposureDates].delete(:beginDate)
-          multiple_service_dates_end = @pdf_data[:data][:attributes][:toxicExposure][:multipleExposures][:exposureDates][:endDate]
-          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][:exposureDates][:end] =
-            convert_date_string_my_to_object(multiple_service_dates_end)
-          @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][:exposureDates].delete(:endDate)
+          @pdf_data[:data][:attributes][:toxicExposure][:multipleExposures].each_with_index do |exp, index|
+            multiple_service_dates_begin = exp[:exposureDates][:beginDate]
+            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:start] = convert_date_string_my_to_object(multiple_service_dates_begin)
+            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates].delete(:beginDate)
+            multiple_service_dates_end = exp[:exposureDates][:endDate]
+            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:end] = convert_date_string_my_to_object(multiple_service_dates_end)
+            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates].delete(:endDate)
+          end
         end
+        @pdf_data
       end
-      # rubocop:enable Layout/LineLength
 
       def veteran_info # rubocop:disable Metrics/MethodLength
         @pdf_data[:data][:attributes].merge!(
@@ -454,7 +454,6 @@ module ClaimsApi
         @pdf_data
       end
 
-      # rubocop:disable Layout/LineLength
       def national_guard # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
         si = {}
         reserves = @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
