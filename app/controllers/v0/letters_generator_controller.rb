@@ -7,6 +7,7 @@ require 'lighthouse/letters_generator/veteran_sponsor_resolver'
 module V0
   class LettersGeneratorController < ApplicationController
     before_action { authorize :lighthouse, :access? }
+    before_action :validate_letter_type, only: %i[download]
     Raven.tags_context(team: 'benefits-claim-appeal-status', feature: 'letters-generator')
     DOWNLOAD_PARAMS = %i[
       id
@@ -53,6 +54,17 @@ module V0
     end
 
     private
+
+    def validate_letter_type
+      unless service.valid_type?(params[:id])
+        raise Common::Exceptions::BadRequest.new(
+          {
+            detail: "Letter type of #{params[:id]} is not one of the expected options",
+            source: self.class.name
+          }
+        )
+      end
+    end
 
     def service
       @service ||= Lighthouse::LettersGenerator::Service.new
