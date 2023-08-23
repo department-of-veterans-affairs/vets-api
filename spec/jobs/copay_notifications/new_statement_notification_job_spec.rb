@@ -10,7 +10,7 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
   end
 
   describe '#perform' do
-    let(:email_address) { Faker::Internet.email }
+    let(:icn) { '1234' }
     let(:statement) do
       {
         'veteranIdentifier' => '492031291',
@@ -23,7 +23,7 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
 
     before do
       allow_any_instance_of(DebtManagementCenter::StatementIdentifierService)
-        .to receive(:derive_email_address).and_return(email_address)
+        .to receive(:get_icn).and_return(icn)
     end
 
     it 'sends a new mcp notification email job frome edipi' do
@@ -35,7 +35,7 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
     end
 
     context 'veteran identifier is a vista id' do
-      let(:email_address) { Faker::Internet.email }
+      let(:icn) { '1234' }
       let(:statement) do
         {
           'veteranIdentifier' => '348530923',
@@ -48,7 +48,7 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
 
       before do
         allow_any_instance_of(DebtManagementCenter::StatementIdentifierService)
-          .to receive(:derive_email_address).and_return(email_address)
+          .to receive(:get_icn).and_return(icn)
       end
 
       it 'sends a new mcp notification email job frome facility and vista id' do
@@ -91,7 +91,7 @@ RSpec.describe CopayNotifications::NewStatementNotificationJob, type: :worker do
     context 'with any other error' do
       subject(:config) { described_class }
 
-      let(:exception) { DebtManagementCenter::StatementIdentifierService::UnableToSourceEmailForStatement.new(nil) }
+      let(:exception) { DebtManagementCenter::StatementIdentifierService::MalformedMCPStatement.new(nil) }
 
       it 'kills the job' do
         expect(config.sidekiq_retry_in_block.call(0, exception, nil)).to eq(:kill)
