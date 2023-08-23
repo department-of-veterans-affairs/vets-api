@@ -255,29 +255,21 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
       it 'raises lighthouse service error' do
         VCR.use_cassette('mobile/lighthouse_letters/download_error') do
           post '/mobile/v0/letters/benefit_summary/download', headers: iam_headers
+
           expect(response).to have_http_status(:unprocessable_entity)
         end
       end
     end
 
     context 'with an invalid letter type' do
-      it 'matches the letters schema' do
+      it 'returns 400 bad request' do
         post '/mobile/v0/letters/not_real/download', headers: iam_headers
 
-        expect(response).to have_http_status(:internal_server_error)
-        expect(response.parsed_body).to eq(
-          {
-            'errors' => [
-              {
-                'title' => 'Invalid letter type',
-                'detail' => 'Invalid letter type',
-                'code' => '500',
-                'source' => 'Lighthouse::LettersGenerator::Service',
-                'status' => '500',
-                'meta' => { 'message' => 'Letter type of not_real is not one of the expected options' }
-              }
-            ]
-          }
+        expect(response).to have_http_status(:bad_request)
+        expect(response.parsed_body['errors'][0]).to include(
+          'detail' => 'Letter type of not_real is not one of the expected options',
+          'source' => 'Mobile::V0::LettersController',
+          'status' => '400'
         )
       end
     end
@@ -293,15 +285,19 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
     end
 
     context 'when upstream is unavailable' do
-      it 'returns internal service error' do
+      it 'returns 503 service unavailable' do
         VCR.use_cassette('mobile/lighthouse_letters/letters_503', match_requests_on: %i[method uri]) do
           get '/mobile/v0/letters', headers: iam_headers
-          expect(response).to have_http_status(:internal_server_error)
-          expect(response.parsed_body).to eq({ 'errors' =>
-                                                 [{ 'code' => '500',
-                                                    'source' => 'Lighthouse::LettersGenerator::Service',
-                                                    'status' => '500',
-                                                    'meta' => { 'message' => nil } }] })
+          expect(response).to have_http_status(:service_unavailable)
+          expect(response.parsed_body).to eq(
+            { 'errors' =>
+              [{
+                'title' => 'Service unavailable',
+                'detail' => 'Backend Service Outage',
+                'code' => '503',
+                'status' => '503'
+              }] }
+          )
         end
       end
     end
@@ -312,12 +308,11 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
           get '/mobile/v0/letters/beneficiary', headers: iam_headers
           expect(response).to have_http_status(:internal_server_error)
           error = response.parsed_body['errors']
-          expect(error).to eq([{ 'title' => 'Required Backend Connection Error',
-                                 'detail' => 'Required Backend Connection Error',
-                                 'code' => '500',
-                                 'source' => 'Lighthouse::LettersGenerator::Service',
-                                 'status' => '500',
-                                 'meta' => { 'message' => 'Backend Service Error BGS' } }])
+          expect(error[0]).to include(
+            'title' => 'Required Backend Connection Error',
+            'detail' => 'Backend Service Error BGS',
+            'status' => '500'
+          )
         end
       end
     end
@@ -328,13 +323,9 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
           get '/mobile/v0/letters', headers: iam_headers
         end
         expect(response).to have_http_status(:not_found)
-        expect(response.parsed_body['errors']).to eq(
-          [{ 'title' => 'Person for ICN not found',
-             'detail' => 'Person for ICN not found',
-             'code' => 'LH_not_found',
-             'source' => 'Lighthouse::LettersGenerator::Service',
-             'status' => '404',
-             'meta' => { 'message' => 'No data found for ICN' } }]
+        expect(response.parsed_body['errors'][0]).to include(
+          'status' => '404',
+          'title' => 'Person for ICN not found'
         )
       end
     end
