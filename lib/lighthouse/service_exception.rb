@@ -27,7 +27,7 @@ module Lighthouse
     def self.send_error(error, service_name, lighthouse_client_id, url)
       raise error_class(:'504') if gateway_timeout?(error.response)
 
-      error_response = error.response
+      error_response = error.response.deep_symbolize_keys
 
       return error unless error_response&.key?(:status)
 
