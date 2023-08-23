@@ -10,23 +10,21 @@ class Form526Submission < ApplicationRecord
   include SentryLogging
   include Form526ClaimFastTrackingConcern
 
-  wrap_with_logging(
-    :enqueue_backup_submission,
-    :submit_form_4142,
-    :submit_uploads,
-    :submit_form_0781,
-    :submit_form_8940,
-    :upload_bdd_instructions,
-    :submit_flashes,
-    :cleanup,
-    additional_class_logs: {
-      action: 'Begin as anciliary 526 submission'
-    },
-    additional_instance_logs: {
-      saved_claim_id: %i[saved_claim id],
-      user_uuid: %i[user_uuid]
-    }
-  )
+  wrap_with_logging(:enqueue_backup_submission,
+                    :submit_form_4142,
+                    :submit_uploads,
+                    :submit_form_0781,
+                    :submit_form_8940,
+                    :upload_bdd_instructions,
+                    :submit_flashes,
+                    :cleanup,
+                    additional_class_logs: {
+                      action: 'Begin as anciliary 526 submission'
+                    },
+                    additional_instance_logs: {
+                      saved_claim_id: %i[saved_claim id],
+                      user_uuid: %i[user_uuid]
+                    })
 
   # A 526 disability compensation form record. This class is used to persist the post transformation form
   # and track submission workflow steps.
