@@ -862,10 +862,27 @@
         :uid_location: "url"
         :uid_locator: "\/services/claims/v2/veterans\/(?:.+)\/claims\/(.+)/5103"
 
-  # Lighthouse Benefits Documents API
+# Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"
   :base_uri: <%= "#{URI(Settings.lighthouse.benefits_documents.host).host}:#{URI(Settings.lighthouse.benefits_documents.host).port}" %>
   :endpoints:
     - :method: :post
       :path: "/benefits-documents/v1/documents"
       :file_path: "/lighthouse/benefits_documents"
+
+# After Visit Summary API
+- :name: "AVS"
+  :base_uri: <%= "#{URI(Settings.avs.url).host}:#{URI(Settings.avs.url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/avs-by-appointment/*/*"
+      :file_path: "/avs/index"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator:  '\/avs-by-appointment\/(.*)'
+    - :method: :get
+      :path: "/avs/*"
+      :file_path: "/avs/show"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator:  '\/avs\/(.*)'
