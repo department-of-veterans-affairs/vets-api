@@ -866,22 +866,99 @@ RSpec.describe FormProfile, type: :model do
 
     it 'prefills military data from va profile' do
       VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
-        expect(form_profile.send(:initialize_hca_military_information)).to eq(
+        service_episodes_by_date = [
           {
-            'hca_last_service_branch' => 'army',
-            'last_entry_date' => '2012-03-02',
-            'last_discharge_date' => '2018-10-31',
-            'discharge_type' => nil,
-            'post_nov111998_combat' => false,
-            'sw_asia_combat' => false,
-            'service_branches' => ["A", "N"],
-            'tours_of_duty' => [
-              {service_branch: "Army", date_range: {from: "2002-02-02", to: "2008-12-01"}},
-              {service_branch: "Navy", date_range: {from: "2009-03-01", to: "2012-12-31"}},
-              {service_branch: "Army", date_range: {from: "2012-03-02", to: "2018-10-31"}}
-            ]
+            begin_date: '2012-03-02',
+            branch_of_service: 'Army',
+            branch_of_service_code: 'A',
+            character_of_discharge_code: nil,
+            deployments: [],
+            end_date: '2018-10-31',
+            personnel_category_type_code: 'N',
+            service_type: 'Military Service',
+            termination_reason_code: 'C',
+            termination_reason_text: 'Completion of Active Service period'
+          },
+          {
+            begin_date: '2009-03-01',
+            branch_of_service: 'Navy',
+            branch_of_service_code: 'N',
+            character_of_discharge_code: nil,
+            deployments: [],
+            end_date: '2012-12-31',
+            personnel_category_type_code: 'N',
+            service_type: 'Military Service',
+            termination_reason_code: 'C',
+            termination_reason_text: 'Completion of Active Service period'
+          },
+          {
+            begin_date: '2002-02-02',
+            branch_of_service: 'Army',
+            branch_of_service_code: 'A',
+            character_of_discharge_code: nil,
+            deployments: [],
+            end_date: '2008-12-01',
+            personnel_category_type_code: 'N',
+            service_type: 'Military Service',
+            termination_reason_code: 'C',
+            termination_reason_text: 'Completion of Active Service period'
           }
-        )
+        ]
+        
+        expected_output = {
+          'currently_active_duty' => false,
+          'currently_active_duty_hash' => {
+            yes: false
+          },
+          'discharge_type' => nil,
+          'guard_reserve_service_history' => [
+            {
+              from: '2012-03-02',
+              to: '2018-10-31'
+            },
+            {
+              from: '2009-03-01',
+              to: '2012-12-31'
+            },
+            {
+              from: '2002-02-02',
+              to: '2008-12-01'
+            }
+          ],
+          'hca_last_service_branch' => 'army',
+          'last_discharge_date' => '2018-10-31',
+          'last_entry_date' => '2012-03-02',
+          'last_service_branch' => 'Army',
+          'latest_guard_reserve_service_period' => {
+            from: '2012-03-02',
+            to: '2018-10-31'
+          },
+          'post_nov111998_combat' => false,
+          'service_branches' => ['A', 'N'],
+          'service_episodes_by_date' => service_episodes_by_date,
+          'service_periods' => {},
+          'sw_asia_combat' => false,
+          'tours_of_duty' => [
+            { service_branch: 'Army', date_range: { from: '2002-02-02', to: '2008-12-01' } },
+            { service_branch: 'Navy', date_range: { from: '2009-03-01', to: '2012-12-31' } },
+            { service_branch: 'Army', date_range: { from: '2012-03-02', to: '2018-10-31' } }
+          ]
+        }
+
+        output = form_profile.send(:initialize_hca_military_information)
+
+        # Extract service histories and then compare their attributes
+        actual_service_histories = output.delete('service_episodes_by_date')
+        expected_service_histories = expected_output.delete('service_episodes_by_date')
+
+        # Now that service_episodes_by_date is removed from both outputs, compare the rest of the structure.
+        expect(output).to eq(expected_output)
+        
+        # Compare service_episodes_by_date separately. 
+        # Convert each VAProfile::Models::ServiceHistory object to a hash of attributes so it can be
+        # compared to the expected output.
+        expect(actual_service_histories.map(&:attributes)).to eq(expected_service_histories)
+      
       end
     end
   end
