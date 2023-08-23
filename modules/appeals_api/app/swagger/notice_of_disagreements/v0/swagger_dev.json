@@ -2681,18 +2681,18 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "veteran/NoticeOfDisagreements.read": "Allows a veteran to see their Board Appeals",
-              "representative/NoticeOfDisagreements.read": "Allows a veteran representative to see a veteran's Board Appeals",
-              "system/NoticeOfDisagreements.read": "Allows a system to see a veteran's Board Appeals",
-              "veteran/NoticeOfDisagreements.write": "Allows a veteran to submit Board Appeals for themselves",
-              "representative/NoticeOfDisagreements.write": "Allows a veteran representative to submit Board Appeals for a veteran",
-              "system/NoticeOfDisagreements.write": "Allows a system to submit Board Appeals for a veteran",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran",
-              "veteran/appeals.write": "Allows a veteran to submit any type of appeal data for themselves",
-              "representative/appeals.write": "Allows a veteran representative to submit any type of appeal data for a veteran",
-              "system/appeals.write": "Allows a system to submit any type of appeal data for a veteran"
+              "veteran/NoticeOfDisagreements.read": "Board Appeals info",
+              "representative/NoticeOfDisagreements.read": "Board Appeals info",
+              "system/NoticeOfDisagreements.read": "Board Appeals info",
+              "veteran/NoticeOfDisagreements.write": "Ability to submit Board Appeals",
+              "representative/NoticeOfDisagreements.write": "Ability to submit Board Appeals",
+              "system/NoticeOfDisagreements.write": "Ability to submit Board Appeals",
+              "veteran/appeals.read": "Appeals info",
+              "representative/appeals.read": "Appeals info",
+              "system/appeals.read": "Appeals info",
+              "veteran/appeals.write": "Ability to submit appeals",
+              "representative/appeals.write": "Ability to submit appeals",
+              "system/appeals.write": "Ability to submit appeals"
             }
           }
         }
@@ -2705,18 +2705,18 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "veteran/NoticeOfDisagreements.read": "Allows a veteran to see their Board Appeals",
-              "representative/NoticeOfDisagreements.read": "Allows a veteran representative to see a veteran's Board Appeals",
-              "system/NoticeOfDisagreements.read": "Allows a system to see a veteran's Board Appeals",
-              "veteran/NoticeOfDisagreements.write": "Allows a veteran to submit Board Appeals for themselves",
-              "representative/NoticeOfDisagreements.write": "Allows a veteran representative to submit Board Appeals for a veteran",
-              "system/NoticeOfDisagreements.write": "Allows a system to submit Board Appeals for a veteran",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran",
-              "veteran/appeals.write": "Allows a veteran to submit any type of appeal data for themselves",
-              "representative/appeals.write": "Allows a veteran representative to submit any type of appeal data for a veteran",
-              "system/appeals.write": "Allows a system to submit any type of appeal data for a veteran"
+              "veteran/NoticeOfDisagreements.read": "Board Appeals info",
+              "representative/NoticeOfDisagreements.read": "Board Appeals info",
+              "system/NoticeOfDisagreements.read": "Board Appeals info",
+              "veteran/NoticeOfDisagreements.write": "Ability to submit Board Appeals",
+              "representative/NoticeOfDisagreements.write": "Ability to submit Board Appeals",
+              "system/NoticeOfDisagreements.write": "Ability to submit Board Appeals",
+              "veteran/appeals.read": "Appeals info",
+              "representative/appeals.read": "Appeals info",
+              "system/appeals.read": "Appeals info",
+              "veteran/appeals.write": "Ability to submit appeals",
+              "representative/appeals.write": "Ability to submit appeals",
+              "system/appeals.write": "Ability to submit appeals"
             }
           }
         }

@@ -367,12 +367,12 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "veteran/LegacyAppeals.read": "Allows a veteran to see their own legacy appeals",
-              "representative/LegacyAppeals.read": "Allows a veteran representative to see a veteran's legacy appeals",
-              "system/LegacyAppeals.read": "Allows a system to see a veteran's legacy appeals",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran"
+              "veteran/LegacyAppeals.read": "Legacy appeals info",
+              "representative/LegacyAppeals.read": "Legacy appeals info",
+              "system/LegacyAppeals.read": "Legacy appeals info",
+              "veteran/appeals.read": "Appeals info",
+              "representative/appeals.read": "Appeals info",
+              "system/appeals.read": "Appeals info"
             }
           }
         }
@@ -385,12 +385,12 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "veteran/LegacyAppeals.read": "Allows a veteran to see their own legacy appeals",
-              "representative/LegacyAppeals.read": "Allows a veteran representative to see a veteran's legacy appeals",
-              "system/LegacyAppeals.read": "Allows a system to see a veteran's legacy appeals",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran"
+              "veteran/LegacyAppeals.read": "Legacy appeals info",
+              "representative/LegacyAppeals.read": "Legacy appeals info",
+              "system/LegacyAppeals.read": "Legacy appeals info",
+              "veteran/appeals.read": "Appeals info",
+              "representative/appeals.read": "Appeals info",
+              "system/appeals.read": "Appeals info"
             }
           }
         }

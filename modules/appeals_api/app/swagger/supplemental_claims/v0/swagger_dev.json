@@ -3199,18 +3199,18 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "veteran/SupplementalClaims.read": "Allows a veteran to see their Supplemental Claims",
-              "representative/SupplementalClaims.read": "Allows a veteran representative to see a veteran's Supplemental Claims",
-              "system/SupplementalClaims.read": "Allows a system to see a veteran's Supplemental Claims",
-              "veteran/SupplementalClaims.write": "Allows a veteran to submit Supplemental Claims for themselves",
-              "representative/SupplementalClaims.write": "Allows a veteran representative to submit Supplemental Claims for a veteran",
-              "system/SupplementalClaims.write": "Allows a system to submit Supplemental Claims for a veteran",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran",
-              "veteran/appeals.write": "Allows a veteran to submit any type of appeal data for themselves",
-              "representative/appeals.write": "Allows a veteran representative to submit any type of appeal data for a veteran",
-              "system/appeals.write": "Allows a system to submit any type of appeal data for a veteran"
+              "veteran/SupplementalClaims.read": "Supplemental Claims info",
+              "representative/SupplementalClaims.read": "Supplemental Claims info",
+              "system/SupplementalClaims.read": "Supplemental Claims info",
+              "veteran/SupplementalClaims.write": "Ability to submit Supplemental Claims",
+              "representative/SupplementalClaims.write": "Ability to submit Supplemental Claims",
+              "system/SupplementalClaims.write": "Ability to submit Supplemental Claims",
+              "veteran/appeals.read": "Appeals info",
+              "representative/appeals.read": "Appeals info",
+              "system/appeals.read": "Appeals info",
+              "veteran/appeals.write": "Ability to submit appeals",
+              "representative/appeals.write": "Ability to submit appeals",
+              "system/appeals.write": "Ability to submit appeals"
             }
           }
         }
@@ -3223,18 +3223,18 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "veteran/SupplementalClaims.read": "Allows a veteran to see their Supplemental Claims",
-              "representative/SupplementalClaims.read": "Allows a veteran representative to see a veteran's Supplemental Claims",
-              "system/SupplementalClaims.read": "Allows a system to see a veteran's Supplemental Claims",
-              "veteran/SupplementalClaims.write": "Allows a veteran to submit Supplemental Claims for themselves",
-              "representative/SupplementalClaims.write": "Allows a veteran representative to submit Supplemental Claims for a veteran",
-              "system/SupplementalClaims.write": "Allows a system to submit Supplemental Claims for a veteran",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran",
-              "veteran/appeals.write": "Allows a veteran to submit any type of appeal data for themselves",
-              "representative/appeals.write": "Allows a veteran representative to submit any type of appeal data for a veteran",
-              "system/appeals.write": "Allows a system to submit any type of appeal data for a veteran"
+              "veteran/SupplementalClaims.read": "Supplemental Claims info",
+              "representative/SupplementalClaims.read": "Supplemental Claims info",
+              "system/SupplementalClaims.read": "Supplemental Claims info",
+              "veteran/SupplementalClaims.write": "Ability to submit Supplemental Claims",
+              "representative/SupplementalClaims.write": "Ability to submit Supplemental Claims",
+              "system/SupplementalClaims.write": "Ability to submit Supplemental Claims",
+              "veteran/appeals.read": "Appeals info",
+              "representative/appeals.read": "Appeals info",
+              "system/appeals.read": "Appeals info",
+              "veteran/appeals.write": "Ability to submit appeals",
+              "representative/appeals.write": "Ability to submit appeals",
+              "system/appeals.write": "Ability to submit appeals"
             }
           }
         }

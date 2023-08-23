@@ -346,12 +346,12 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "veteran/AppealableIssues.read": "Allows a veteran to see their own appealable issues",
-              "representative/AppealableIssues.read": "Allows a veteran representative to see a veteran's appealable issues",
-              "system/AppealableIssues.read": "Allows a system to see a veteran's appealable issues",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran"
+              "veteran/AppealableIssues.read": "Appealable issues info",
+              "representative/AppealableIssues.read": "Appealable issues info",
+              "system/AppealableIssues.read": "Appealable issues info",
+              "veteran/appeals.read": "Appeals info",
+              "representative/appeals.read": "Appeals info",
+              "system/appeals.read": "Appeals info"
             }
           }
         }
@@ -364,12 +364,12 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "veteran/AppealableIssues.read": "Allows a veteran to see their own appealable issues",
-              "representative/AppealableIssues.read": "Allows a veteran representative to see a veteran's appealable issues",
-              "system/AppealableIssues.read": "Allows a system to see a veteran's appealable issues",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran"
+              "veteran/AppealableIssues.read": "Appealable issues info",
+              "representative/AppealableIssues.read": "Appealable issues info",
+              "system/AppealableIssues.read": "Appealable issues info",
+              "veteran/appeals.read": "Appeals info",
+              "representative/appeals.read": "Appeals info",
+              "system/appeals.read": "Appeals info"
             }
           }
         }

@@ -108,57 +108,57 @@ class AppealsApi::RswagConfig
     supplemental_claims: 'Supplemental Claims'
   }.freeze
 
-  DEFAULT_READ_SCOPE_DESCRIPTIONS = {
-    'veteran/appeals.read': 'Allows a veteran to see all their own decision review or appeal data',
-    'representative/appeals.read': 'Allows a veteran representative to see all decision review or appeal data for a veteran',
-    'system/appeals.read': 'Allows a system to see all decision review or appeal data for a veteran'
+  DEFAULT_READ_SCOPE_DISPLAY_NAMES = {
+    'veteran/appeals.read': 'Appeals info',
+    'representative/appeals.read': 'Appeals info',
+    'system/appeals.read': 'Appeals info'
   }.freeze
 
-  DEFAULT_WRITE_SCOPE_DESCRIPTIONS = {
-    'veteran/appeals.write': 'Allows a veteran to submit any type of appeal data for themselves',
-    'representative/appeals.write': 'Allows a veteran representative to submit any type of appeal data for a veteran',
-    'system/appeals.write': 'Allows a system to submit any type of appeal data for a veteran'
+  DEFAULT_WRITE_SCOPE_DISPLAY_NAMES = {
+    'veteran/appeals.write': 'Ability to submit appeals',
+    'representative/appeals.write': 'Ability to submit appeals',
+    'system/appeals.write': 'Ability to submit appeals'
   }.freeze
 
-  OAUTH_SCOPE_DESCRIPTIONS = {
+  OAUTH_SCOPE_DISPLAY_NAMES = {
     appeals_status: {
-      'veteran/AppealsStatus.read': 'Allows a veteran to see the status of their own VA decision reviews and appeals',
-      'representative/AppealsStatus.read': "Allows a veteran representative to see the status of a veteran's decision reviews and appeals",
-      'system/AppealsStatus.read': "Allows a system to see the status of a veteran's decision reviews and appeals"
+      'veteran/AppealsStatus.read': 'Status of appeals and decision reviews',
+      'representative/AppealsStatus.read': 'Status of appeals and decision reviews',
+      'system/AppealsStatus.read': 'Status of appeals and decision reviews'
     },
     appealable_issues: {
-      'veteran/AppealableIssues.read': 'Allows a veteran to see their own appealable issues',
-      'representative/AppealableIssues.read': "Allows a veteran representative to see a veteran's appealable issues",
-      'system/AppealableIssues.read': "Allows a system to see a veteran's appealable issues"
+      'veteran/AppealableIssues.read': 'Appealable issues info',
+      'representative/AppealableIssues.read': 'Appealable issues info',
+      'system/AppealableIssues.read': 'Appealable issues info'
     },
     higher_level_reviews: {
-      'veteran/HigherLevelReviews.read': 'Allows a veteran to see their own Higher-Level Reviews',
-      'representative/HigherLevelReviews.read': "Allows a veteran representative to see a veteran's Higher-Level Reviews",
-      'system/HigherLevelReviews.read': "Allows a system to see a veteran's Higher-Level Reviews",
-      'veteran/HigherLevelReviews.write': 'Allows a veteran to submit Higher-Level Reviews for themselves',
-      'representative/HigherLevelReviews.write': 'Allows a veteran representative to submit Higher-Level Reviews for a veteran',
-      'system/HigherLevelReviews.write': 'Allows a system to submit Higher-Level Reviews for a veteran'
+      'veteran/HigherLevelReviews.read': 'Higher-Level Reviews info',
+      'representative/HigherLevelReviews.read': 'Higher-Level Reviews info',
+      'system/HigherLevelReviews.read': 'Higher-Level Reviews info',
+      'veteran/HigherLevelReviews.write': 'Ability to submit Higher-Level Reviews',
+      'representative/HigherLevelReviews.write': 'Ability to submit Higher-Level Reviews',
+      'system/HigherLevelReviews.write': 'Ability to submit Higher-Level Reviews'
     },
     legacy_appeals: {
-      'veteran/LegacyAppeals.read': 'Allows a veteran to see their own legacy appeals',
-      'representative/LegacyAppeals.read': "Allows a veteran representative to see a veteran's legacy appeals",
-      'system/LegacyAppeals.read': "Allows a system to see a veteran's legacy appeals"
+      'veteran/LegacyAppeals.read': 'Legacy appeals info',
+      'representative/LegacyAppeals.read': 'Legacy appeals info',
+      'system/LegacyAppeals.read': 'Legacy appeals info'
     },
     notice_of_disagreements: {
-      'veteran/NoticeOfDisagreements.read': 'Allows a veteran to see their Board Appeals',
-      'representative/NoticeOfDisagreements.read': "Allows a veteran representative to see a veteran's Board Appeals",
-      'system/NoticeOfDisagreements.read': "Allows a system to see a veteran's Board Appeals",
-      'veteran/NoticeOfDisagreements.write': 'Allows a veteran to submit Board Appeals for themselves',
-      'representative/NoticeOfDisagreements.write': 'Allows a veteran representative to submit Board Appeals for a veteran',
-      'system/NoticeOfDisagreements.write': 'Allows a system to submit Board Appeals for a veteran'
+      'veteran/NoticeOfDisagreements.read': 'Board Appeals info',
+      'representative/NoticeOfDisagreements.read': 'Board Appeals info',
+      'system/NoticeOfDisagreements.read': 'Board Appeals info',
+      'veteran/NoticeOfDisagreements.write': 'Ability to submit Board Appeals',
+      'representative/NoticeOfDisagreements.write': 'Ability to submit Board Appeals',
+      'system/NoticeOfDisagreements.write': 'Ability to submit Board Appeals'
     },
     supplemental_claims: {
-      'veteran/SupplementalClaims.read': 'Allows a veteran to see their Supplemental Claims',
-      'representative/SupplementalClaims.read': "Allows a veteran representative to see a veteran's Supplemental Claims",
-      'system/SupplementalClaims.read': "Allows a system to see a veteran's Supplemental Claims",
-      'veteran/SupplementalClaims.write': 'Allows a veteran to submit Supplemental Claims for themselves',
-      'representative/SupplementalClaims.write': 'Allows a veteran representative to submit Supplemental Claims for a veteran',
-      'system/SupplementalClaims.write': 'Allows a system to submit Supplemental Claims for a veteran'
+      'veteran/SupplementalClaims.read': 'Supplemental Claims info',
+      'representative/SupplementalClaims.read': 'Supplemental Claims info',
+      'system/SupplementalClaims.read': 'Supplemental Claims info',
+      'veteran/SupplementalClaims.write': 'Ability to submit Supplemental Claims',
+      'representative/SupplementalClaims.write': 'Ability to submit Supplemental Claims',
+      'system/SupplementalClaims.write': 'Ability to submit Supplemental Claims'
     }
   }.freeze
 
@@ -175,11 +175,11 @@ class AppealsApi::RswagConfig
   end
 
   def oauth_security_schemes(api_name)
-    api_specific_scopes = OAUTH_SCOPE_DESCRIPTIONS[api_name.to_sym]
-    scope_descriptions = api_specific_scopes.merge(DEFAULT_READ_SCOPE_DESCRIPTIONS)
+    api_specific_scopes = OAUTH_SCOPE_DISPLAY_NAMES[api_name.to_sym]
+    scope_display_names = api_specific_scopes.merge(DEFAULT_READ_SCOPE_DISPLAY_NAMES)
 
     if api_specific_scopes.keys.any? { |name| name.end_with?('.write') }
-      scope_descriptions.merge!(DEFAULT_WRITE_SCOPE_DESCRIPTIONS)
+      scope_display_names.merge!(DEFAULT_WRITE_SCOPE_DISPLAY_NAMES)
     end
 
     {
@@ -195,7 +195,7 @@ class AppealsApi::RswagConfig
           authorizationCode: {
             authorizationUrl: 'https://api.va.gov/oauth2/authorization',
             tokenUrl: 'https://api.va.gov/oauth2/token',
-            scopes: scope_descriptions
+            scopes: scope_display_names
           }
         }
       },
@@ -206,7 +206,7 @@ class AppealsApi::RswagConfig
           authorizationCode: {
             authorizationUrl: 'https://sandbox-api.va.gov/oauth2/authorization',
             tokenUrl: 'https://sandbox-api.va.gov/oauth2/token',
-            scopes: scope_descriptions
+            scopes: scope_display_names
           }
         }
       }
