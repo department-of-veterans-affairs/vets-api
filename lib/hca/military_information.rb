@@ -288,7 +288,7 @@ module HCA
         code = episode.personnel_category_type_code
         national_guard?(code) || reserve?(code)
       end.sort_by(&:end_date)
-                                        .reverse
+                                       .reverse
     end
 
     # Temporary comment: Added by TT1
@@ -323,13 +323,13 @@ module HCA
     # @return [String] Readable service branch name formatted for EVSS
     def service_branch_used_in_disability(military_service_episode)
       category = case military_service_episode.personnel_category_type_code
-                  when 'N'
-                    'National Guard'
-                  when 'V', 'Q'
-                    'Reserve'
-                  else
-                    ''
-                  end
+                 when 'N'
+                   'National Guard'
+                 when 'V', 'Q'
+                   'Reserve'
+                 else
+                   ''
+                 end
 
       service_name = "#{military_service_episode.branch_of_service} #{category}".strip
       service_name.gsub!('Air Force National Guard', 'Air National Guard')

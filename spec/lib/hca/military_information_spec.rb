@@ -5,6 +5,7 @@ require 'hca/military_information'
 
 describe HCA::MilitaryInformation do
   subject { described_class.new(user) }
+
   let(:user) { build(:user, :loa3) }
 
   describe '#sw_asia_combat' do
@@ -23,11 +24,13 @@ describe HCA::MilitaryInformation do
     end
 
     it 'with an unknown character_of_discharge_code it returns nil' do
+      # rubocop:disable RSpec/SubjectStub
       allow(subject).to receive(:latest_service_episode).and_return(
         OpenStruct.new(
           character_of_discharge_code: nil
         )
       )
+      # rubocop:enable RSpec/SubjectStub
 
       expect(subject.discharge_type).to eq(nil)
     end
@@ -80,11 +83,13 @@ describe HCA::MilitaryInformation do
   describe '#hca_last_service_branch' do
     context 'with a nil service branch code' do
       before do
+        # rubocop:disable RSpec/SubjectStub
         expect(subject).to receive(:military_service_episodes).and_return(
           [
             OpenStruct.new(branch_of_service_code: nil)
           ]
         )
+        # rubocop:enable RSpec/SubjectStub
       end
 
       it 'returns other' do
@@ -102,12 +107,14 @@ describe HCA::MilitaryInformation do
   describe '#service_episodes_by_date' do
     context 'with a nil end date' do
       before do
+        # rubocop:disable RSpec/SubjectStub
         expect(subject).to receive(:military_service_episodes).and_return(
           [
             OpenStruct.new(end_date: '2018-10-31'),
             OpenStruct.new(end_date: nil)
           ]
         )
+        # rubocop:enable RSpec/SubjectStub
       end
 
       it 'returns sorted military_service_episodes' do
@@ -138,7 +145,6 @@ describe HCA::MilitaryInformation do
   describe '#last_service_branch' do
     it 'returns the most recent branch of military the veteran served under' do
       VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
-        
         response = subject.last_service_branch
         expect(response).to eq('Army')
       end
@@ -186,7 +192,7 @@ describe HCA::MilitaryInformation do
   describe '#guard_reserve_service_history' do
     it 'returns an array of guard and reserve service episode date ranges sorted by end_date' do
       VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
-        expected_response = [{ from: "2002-02-02", to: "2008-12-01" }]
+        expected_response = [{ from: '2002-02-02', to: '2008-12-01' }]
         response = subject.guard_reserve_service_history
 
         expect(response).to be_an(Array)
@@ -202,7 +208,7 @@ describe HCA::MilitaryInformation do
       VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
         response = subject.latest_guard_reserve_service_period
 
-        expect(response).to eq({ from: "2002-02-02", to: "2008-12-01" })
+        expect(response).to eq({ from: '2002-02-02', to: '2008-12-01' })
       end
     end
   end
