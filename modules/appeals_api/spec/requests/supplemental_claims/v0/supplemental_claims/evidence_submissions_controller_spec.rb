@@ -67,9 +67,9 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmiss
 
   describe '#create' do
     let!(:supplemental_claim) { create(:supplemental_claim_v0) }
-    let(:sc_uuid) { supplemental_claim.id }
+    let(:sc_id) { supplemental_claim.id }
     let(:ssn) { '123456789' }
-    let(:params) { { ssn:, sc_uuid: } }
+    let(:params) { { ssn:, scId: sc_id } }
     let(:consumer_username) { 'test' }
     let(:headers) { { 'X-Consumer-Username' => consumer_username, 'Content-Type' => 'application/json' } }
     let(:path) { '/services/appeals/supplemental-claims/v0/evidence-submissions' }
@@ -111,7 +111,7 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmiss
       end
 
       context 'when the corresponding supplemental claim record is not found' do
-        let(:params) { { sc_uuid: '00000000-0000-0000-0000-000000000000', ssn: } }
+        let(:params) { { scId: '00000000-0000-0000-0000-000000000000', ssn: } }
 
         it 'returns a 404 error' do
           expect(response).to have_http_status(:not_found)
@@ -120,7 +120,7 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmiss
 
       context 'when SSN and the SC UUID are provided' do
         context 'when the SSN provided does not match the SSN on the appeal record' do
-          let(:params) { { sc_uuid:, ssn: '000000000' } }
+          let(:params) { { scId: sc_id, ssn: '000000000' } }
 
           it 'returns a 422 error' do
             expect(response).to have_http_status(:unprocessable_entity)
@@ -141,7 +141,7 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmiss
       end
 
       context 'when SSN is missing' do
-        let(:params) { { sc_uuid: } }
+        let(:params) { { scId: sc_id } }
 
         it 'returns a 422 error' do
           expect(response).to have_http_status(:unprocessable_entity)
