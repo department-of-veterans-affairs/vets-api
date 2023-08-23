@@ -144,12 +144,12 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "veteran/AppealsStatus.read": "Allows a veteran to see the status of their own VA decision reviews and appeals",
-              "representative/AppealsStatus.read": "Allows a veteran representative to see the status of a veteran's decision reviews and appeals",
-              "system/AppealsStatus.read": "Allows a system to see the status of a veteran's decision reviews and appeals",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran"
+              "veteran/AppealsStatus.read": "Status of appeals and decision reviews",
+              "representative/AppealsStatus.read": "Status of appeals and decision reviews",
+              "system/AppealsStatus.read": "Status of appeals and decision reviews",
+              "veteran/appeals.read": "Appeals info",
+              "representative/appeals.read": "Appeals info",
+              "system/appeals.read": "Appeals info"
             }
           }
         }
@@ -162,12 +162,12 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "veteran/AppealsStatus.read": "Allows a veteran to see the status of their own VA decision reviews and appeals",
-              "representative/AppealsStatus.read": "Allows a veteran representative to see the status of a veteran's decision reviews and appeals",
-              "system/AppealsStatus.read": "Allows a system to see the status of a veteran's decision reviews and appeals",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran"
+              "veteran/AppealsStatus.read": "Status of appeals and decision reviews",
+              "representative/AppealsStatus.read": "Status of appeals and decision reviews",
+              "system/AppealsStatus.read": "Status of appeals and decision reviews",
+              "veteran/appeals.read": "Appeals info",
+              "representative/appeals.read": "Appeals info",
+              "system/appeals.read": "Appeals info"
             }
           }
         }

@@ -2802,18 +2802,18 @@
             "authorizationUrl": "https://api.va.gov/oauth2/authorization",
             "tokenUrl": "https://api.va.gov/oauth2/token",
             "scopes": {
-              "veteran/HigherLevelReviews.read": "Allows a veteran to see their own Higher-Level Reviews",
-              "representative/HigherLevelReviews.read": "Allows a veteran representative to see a veteran's Higher-Level Reviews",
-              "system/HigherLevelReviews.read": "Allows a system to see a veteran's Higher-Level Reviews",
-              "veteran/HigherLevelReviews.write": "Allows a veteran to submit Higher-Level Reviews for themselves",
-              "representative/HigherLevelReviews.write": "Allows a veteran representative to submit Higher-Level Reviews for a veteran",
-              "system/HigherLevelReviews.write": "Allows a system to submit Higher-Level Reviews for a veteran",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran",
-              "veteran/appeals.write": "Allows a veteran to submit any type of appeal data for themselves",
-              "representative/appeals.write": "Allows a veteran representative to submit any type of appeal data for a veteran",
-              "system/appeals.write": "Allows a system to submit any type of appeal data for a veteran"
+              "veteran/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "representative/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "system/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "veteran/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "representative/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "system/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "veteran/appeals.read": "Appeals info",
+              "representative/appeals.read": "Appeals info",
+              "system/appeals.read": "Appeals info",
+              "veteran/appeals.write": "Ability to submit appeals",
+              "representative/appeals.write": "Ability to submit appeals",
+              "system/appeals.write": "Ability to submit appeals"
             }
           }
         }
@@ -2826,18 +2826,18 @@
             "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
             "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
             "scopes": {
-              "veteran/HigherLevelReviews.read": "Allows a veteran to see their own Higher-Level Reviews",
-              "representative/HigherLevelReviews.read": "Allows a veteran representative to see a veteran's Higher-Level Reviews",
-              "system/HigherLevelReviews.read": "Allows a system to see a veteran's Higher-Level Reviews",
-              "veteran/HigherLevelReviews.write": "Allows a veteran to submit Higher-Level Reviews for themselves",
-              "representative/HigherLevelReviews.write": "Allows a veteran representative to submit Higher-Level Reviews for a veteran",
-              "system/HigherLevelReviews.write": "Allows a system to submit Higher-Level Reviews for a veteran",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran",
-              "veteran/appeals.write": "Allows a veteran to submit any type of appeal data for themselves",
-              "representative/appeals.write": "Allows a veteran representative to submit any type of appeal data for a veteran",
-              "system/appeals.write": "Allows a system to submit any type of appeal data for a veteran"
+              "veteran/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "representative/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "system/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "veteran/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "representative/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "system/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "veteran/appeals.read": "Appeals info",
+              "representative/appeals.read": "Appeals info",
+              "system/appeals.read": "Appeals info",
+              "veteran/appeals.write": "Ability to submit appeals",
+              "representative/appeals.write": "Ability to submit appeals",
+              "system/appeals.write": "Ability to submit appeals"
             }
           }
         }
