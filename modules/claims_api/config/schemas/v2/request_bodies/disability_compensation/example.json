@@ -76,14 +76,16 @@
             "endDate": "10-2013"
           }
         },
-        "multipleExposures": {
-          "exposureDates": {
-            "beginDate": "12-2012",
-            "endDate": "07-2013"
-          },
-          "exposureLocation": "Guam",
-          "hazardExposedTo": "RADIATION"
-        }
+        "multipleExposures": [
+          {
+            "exposureDates": {
+              "beginDate": "12-2012",
+              "endDate": "07-2013"
+            },
+            "exposureLocation": "Guam",
+            "hazardExposedTo": "RADIATION"
+          }
+        ]
       },
       "disabilities": [
         {

@@ -891,7 +891,7 @@ RSpec.describe 'Disability Claims', type: :request do
         it 'responds with a bad request' do
           with_okta_user(scopes) do |auth_header|
             json = JSON.parse(data)
-            json['data']['attributes']['toxicExposure']['multipleExposures']['exposureLocation'] =
+            json['data']['attributes']['toxicExposure']['multipleExposures'][0]['exposureLocation'] =
               exposure_location
             data = json.to_json
             post submit_path, params: data, headers: auth_header
@@ -906,7 +906,7 @@ RSpec.describe 'Disability Claims', type: :request do
         it 'responds with a bad request' do
           with_okta_user(scopes) do |auth_header|
             json = JSON.parse(data)
-            json['data']['attributes']['toxicExposure']['multipleExposures']['hazardExposedTo'] =
+            json['data']['attributes']['toxicExposure']['multipleExposures'][0]['hazardExposedTo'] =
               hazard_exposed_to
             data = json.to_json
             post submit_path, params: data, headers: auth_header
