@@ -1084,141 +1084,6 @@ RSpec.describe FormProfile, type: :model do
     context 'with emis data', skip_emis: true do
       # rubocop:disable Metrics/MethodLength
       def stub_methods_for_emis_data
-      #   WebMock.stub_request(:post, "https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/384759483%5ENI%5E200DOD%5EUSDOD")
-      #  .with(
-      #    body: '{"bios":[{"bioPath":"militaryPerson.militaryServiceHistory","parameters":{"scope":"all"}}]}',
-      #    headers: {
-      #      'Content-Type'=>'application/json',
-      #      'User-Agent'=>'curl/7.79.1',
-      #      'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-      #      'Accept'=>'*/*'
-      #    }
-      #  )
-      #  .to_return(
-      #    status: 200,
-      #    body: '{
-      #     "profile": {
-      #       "militaryPerson": {
-      #         "militaryServiceHistory": {
-      #           "serviceAcademyEpisodes": [
-      #             {
-      #               "academySequenceNumber": 2,
-      #               "branchOfServiceText": "U.S. Naval Academy",
-      #               "branchOfServiceCode": "USNA",
-      #               "academyBeginDate": "2000-06-30",
-      #               "academyEndDate": "2001-05-27"
-      #             },
-      #             {
-      #               "academySequenceNumber": 2,
-      #               "branchOfServiceText": "U.S. Coast Guard Academy",
-      #               "branchOfServiceCode": "USCGA",
-      #               "academyBeginDate": "1999-06-23",
-      #               "academyEndDate": "1999-07-18"                          
-      #             }
-      #           ],
-      #           "militaryServiceEpisodes": [
-      #             {
-      #               "serviceEpisodeIdentifier": 343703,
-      #               "branchOfServiceText": "Army",
-      #               "branchOfServiceCode": "A",
-      #               "episodeSequenceNumber": 1,
-      #               "periodOfServiceTypeCode": "N",
-      #               "periodOfServiceBeginDate": "2012-03-02",
-      #               "periodOfServiceEndDate": "2018-10-31",
-      #               "terminationReasonText":"Completion of Active Service period",
-      #               "terminationReasonCode":"C",
-      #               "guardReserves": [],
-      #               "deployments": []
-      #             },                                               
-      #             {
-      #               "serviceEpisodeIdentifier": 343701,
-      #               "branchOfServiceText": "Army",
-      #               "branchOfServiceCode": "A",
-      #               "episodeSequenceNumber": 1,
-      #               "periodOfServiceTypeCode": "N",
-      #               "periodOfServiceBeginDate": "2002-02-02",
-      #               "periodOfServiceEndDate": "2008-12-01",
-      #               "terminationReasonText":"Completion of Active Service period",
-      #               "terminationReasonCode":"C",                          
-      #               "guardReserves": [],
-      #               "deployments": []
-      #             },
-      #             {
-      #               "serviceEpisodeIdentifier": 343702,
-      #               "branchOfServiceText": "Navy",
-      #               "branchOfServiceCode": "N",
-      #               "episodeSequenceNumber": 2,
-      #               "periodOfServiceTypeCode": "N",
-      #               "periodOfServiceBeginDate": "2009-03-01",
-      #               "periodOfServiceEndDate": "2012-12-31",
-      #               "terminationReasonText":"Completion of Active Service period",
-      #               "terminationReasonCode":"C",                          
-      #               "guardReserves": [],
-      #               "deployments": []
-      #             }                        
-      #           ]
-      #         }
-      #       }
-      #     }
-      #    }',
-      #    headers: {
-      #      'Vaprofiletxauditid' => '788159f7-5f03-4f8d-8011-be13ffdd1f74',
-      #      'X-Content-Type-Options' => 'nosniff',
-      #      'X-Xss-Protection' => '1; mode=block',
-      #      'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
-      #      'Pragma' => 'no-cache',
-      #      'Expires' => '0',
-      #      'Strict-Transport-Security' => 'max-age=31536000 ; includeSubDomains',
-      #      'X-Frame-Options' => 'DENY',
-      #      'Content-Security-Policy' => "default-src 'self' 'unsafe-eval' 'unsafe-inline' data: filesystem: about: blob: ws: wss:",
-      #      'Content-Type' => 'application/json',
-      #      'Date' => 'Thu, 19 May 2022 20:27:52 GMT',
-      #      'Content-Length' => '700',
-      #      'Referrer-Policy' => 'no-referrer'
-      #    }
-      #  )
-
-      #  WebMock.stub_request(:post, "https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/1005127153%5ENI%5E200DOD%5EUSDOD")
-      #  .with(
-      #    body: '{"bios":[{"bioPath":"disabilityRating"}]}',
-      #    headers: {
-      #      'User-Agent'=>'Faraday v0.17.6',
-      #      'Content-Type'=>'application/json',
-      #      'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-      #      'Accept'=>'*/*'
-      #    }
-      #  )
-      #  .to_return(
-      #    status: 200,
-      #    body: '{"profile":{"disabilityRating":{"serviceConnectedIndicator":true,"combinedNonServiceConnectedRatingPercentage":"60","combinedServiceConnectedRatingPercentage":"60","combinedServiceConnectedLegalEffectiveDate":"2009-12-16T06:00:00Z","combinedServiceConnectedAwardEffectiveDate":"2010-12-01T06:00:00Z","permanentAndTotalIndicator":true,"permanentAndTotalEffectiveDate":"2015-05-20T05:00:00Z","promulgationDate":"2016-06-02T21:08:32Z","profileDate":"2015-05-20T13:32:17Z","unemployableIndicator":true,"disabilities":[{"disabilityEvaluationDiagnosticTypeCode":"6260","disabilityEvaluationDiagnosticTypeName":"Tinnitus","disabilityIdentifier":"1071473","disabilityMilitaryServicePeriodTypeCode":"7","disabilityMilitaryServicePeriodTypeName":"Vietnam
-      #    Era","disabilityDecisionBasisTypeCode":"INC","disabilityDecisionBasisTypeName":"Incurred","disabilityDecisionTypeCode":"SVCCONNCTED","disabilityDecisionTypeName":"Service
-      #    Connected","disabilityEvaluations":[{"ratingDecisionBeginDate":"2010-11-15T06:00:00Z","disabilityEvaluationDiagnosticText":"Tinnitus","disabilityEvaluationPercentNumber":"10"}]},{"disabilityEvaluationDiagnosticTypeCode":"7005","disabilityEvaluationDiagnosticTypeName":"Arteriosclerotic
-      #    heart disease","disabilityIdentifier":"1071472","disabilityMilitaryServicePeriodTypeCode":"7","disabilityMilitaryServicePeriodTypeName":"Vietnam
-      #    Era","disabilityDecisionBasisTypeCode":"INC","disabilityDecisionBasisTypeName":"Incurred","disabilityDecisionTypeCode":"SVCCONNCTED","disabilityDecisionTypeName":"Service
-      #    Connected","disabilityEvaluations":[{"ratingDecisionBeginDate":"2009-12-16T06:00:00Z","disabilityEvaluationDiagnosticText":"CAD","disabilityEvaluationPercentNumber":"60"}]},{"disabilityEvaluationDiagnosticTypeCode":"6100","disabilityEvaluationDiagnosticTypeName":"6100-Hearing
-      #    loss","disabilityIdentifier":"1090052","disabilityMilitaryServicePeriodTypeCode":"7","disabilityMilitaryServicePeriodTypeName":"Vietnam
-      #    Era","disabilityDecisionBasisTypeCode":"INC","disabilityDecisionBasisTypeName":"Incurred","disabilityDecisionTypeCode":"SVCCONNCTED","disabilityDecisionTypeName":"Service
-      #    Connected","disabilityEvaluations":[{"ratingDecisionBeginDate":"2010-11-15T06:00:00Z","disabilityEvaluationDiagnosticText":"bilateral
-      #    hearing loss","disabilityEvaluationPercentNumber":"0","supplementalDecisionTypeCode":"CCE","supplementalDecisionTypeName":"Confirmed
-      #    and Continued Evaluation"}]}],"ratingEvaluationHistory":[{"combinedServiceConnectedRatingPercentage":"60","combinedNonServiceConnectedRatingPercentage":"60","combinedServiceConnectedLegalEffectiveDate":"2010-11-15T06:00:00Z"},{"combinedServiceConnectedRatingPercentage":"60","combinedNonServiceConnectedRatingPercentage":"60","combinedServiceConnectedLegalEffectiveDate":"2009-12-16T06:00:00Z"}]}}}', # Copy the JSON response from the cassette here
-      #    headers: {
-      #      'X-Oneagent-Js-Injection' => 'true',
-      #      'Server-Timing' => 'dtRpid;desc="1601368822", dtSInfo;desc="0"',
-      #      'Vaprofiletxauditid' => 'b11341bd-38a6-4b26-a845-459fad97ef99',
-      #      'X-Content-Type-Options' => 'nosniff',
-      #      'X-Xss-Protection' => '1; mode=block',
-      #      'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
-      #      'Pragma' => 'no-cache',
-      #      'Expires' => '0',
-      #      'X-Frame-Options' => 'DENY',
-      #      'Content-Security-Policy' => "default-src 'self' 'unsafe-eval' 'unsafe-inline' data: filesystem: about: blob: ws: wss:",
-      #      'Content-Type' => 'application/json',
-      #      'Date' => 'Mon, 07 Aug 2023 20:22:31 GMT',
-      #      'Content-Length' => '2767',
-      #      'Referrer-Policy' => 'no-referrer',
-      #      'Strict-Transport-Security' => 'max-age=16000000; includeSubDomains; preload;'
-      #    }        
-      #  )
         # edipi = '384759483'
         # allow(user).to receive(:edipi).and_return(edipi)
 
@@ -1230,38 +1095,37 @@ RSpec.describe FormProfile, type: :model do
           # allow(user).to receive(:edipi).and_return(edipi)
 
           VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability') do
-
-        military_information = user.military_information
-        expect(military_information).to receive(:last_service_branch).and_return('Air Force')
-        expect(military_information).to receive(:hca_last_service_branch).and_return('air force')
-        expect(military_information).to receive(:last_entry_date).and_return('2007-04-01')
-        expect(military_information).to receive(:last_discharge_date).and_return('2007-04-02')
-        expect(military_information).to receive(:discharge_type).and_return('honorable')
-        expect(military_information).to receive(:post_nov111998_combat).and_return(true)
-        expect(military_information).to receive(:sw_asia_combat).and_return(true)
-        expect(military_information).to receive(:compensable_va_service_connected).and_return(true).twice
-        expect(military_information).to receive(:is_va_service_connected).and_return(true).twice
-        expect(military_information).to receive(:tours_of_duty).and_return(
-          [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
-        )
-        expect(military_information).to receive(:service_branches).and_return(['F'])
-        allow(military_information).to receive(:currently_active_duty_hash).and_return(
-          yes: true
-        )
-        # expect(user).to receive(:can_access_id_card?).and_return(true)
-        expect(military_information).to receive(:service_periods).and_return(
-          [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
-        )
-        expect(military_information).to receive(:guard_reserve_service_history).and_return(
-          [{ from: '2007-04-01', to: '2016-06-01' }, { from: '2002-02-14', to: '2007-01-01' }]
-        )
-        expect(military_information).to receive(:latest_guard_reserve_service_period).and_return(
-          from: '2007-04-01',
-          to: '2016-06-01'
-        )
+            military_information = user.military_information
+            expect(military_information).to receive(:last_service_branch).and_return('Air Force')
+            expect(military_information).to receive(:hca_last_service_branch).and_return('air force')
+            expect(military_information).to receive(:last_entry_date).and_return('2007-04-01')
+            expect(military_information).to receive(:last_discharge_date).and_return('2007-04-02')
+            expect(military_information).to receive(:discharge_type).and_return('honorable')
+            expect(military_information).to receive(:post_nov111998_combat).and_return(true)
+            expect(military_information).to receive(:sw_asia_combat).and_return(true)
+            expect(military_information).to receive(:compensable_va_service_connected).and_return(true).twice
+            expect(military_information).to receive(:is_va_service_connected).and_return(true).twice
+            expect(military_information).to receive(:tours_of_duty).and_return(
+              [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
+            )
+            expect(military_information).to receive(:service_branches).and_return(['F'])
+            allow(military_information).to receive(:currently_active_duty_hash).and_return(
+              yes: true
+            )
+            # expect(user).to receive(:can_access_id_card?).and_return(true)
+            expect(military_information).to receive(:service_periods).and_return(
+              [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
+            )
+            expect(military_information).to receive(:guard_reserve_service_history).and_return(
+              [{ from: '2007-04-01', to: '2016-06-01' }, { from: '2002-02-14', to: '2007-01-01' }]
+            )
+            expect(military_information).to receive(:latest_guard_reserve_service_period).and_return(
+              from: '2007-04-01',
+              to: '2016-06-01'
+            )
+          end
+        end
       end
-    end
-  end
       # rubocop:enable Metrics/MethodLength
 
       context 'with va profile prefill on' do
