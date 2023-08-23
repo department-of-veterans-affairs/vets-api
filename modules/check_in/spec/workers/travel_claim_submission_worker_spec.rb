@@ -8,6 +8,8 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
     let(:appt_date) { '2022-09-01' }
     let(:mobile_phone) { '123-345-4566' }
     let(:mobile_phone_last_four) { '4566' }
+    let(:patient_cell_phone) { '123-345-7777' }
+    let(:patient_cell_phone_last_four) { '7777' }
     let(:redis_token) { '123-456' }
     let(:icn) { '123456' }
     let(:notify_appt_date) { 'Sep 01' }
@@ -16,7 +18,10 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
 
     before do
       allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
+      allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
+      allow(Flipper).to receive(:enabled?).with('check_in_experience_patient_cell_phone').and_return(false)
       allow(redis_client).to receive(:mobile_phone).and_return(mobile_phone)
+      allow(redis_client).to receive(:patient_cell_phone).and_return(patient_cell_phone)
       allow(redis_client).to receive(:token).and_return(redis_token)
       allow(redis_client).to receive(:icn).and_return(icn)
 
@@ -157,6 +162,39 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
             end
           end
         end
+      end
+    end
+
+    context 'travel claim returns success with patient cell phone' do
+      before do
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(true)
+        allow(Flipper).to receive(:enabled?).with('check_in_experience_patient_cell_phone').and_return(true)
+      end
+
+      it 'sends notification with success template' do
+        worker = described_class.new
+        notify_client = double
+
+        expect(VaNotify::Service).to receive(:new).with(Settings.vanotify.services.check_in.api_key)
+                                                  .and_return(notify_client)
+        expect(notify_client).to receive(:send_sms).with(
+          phone_number: patient_cell_phone,
+          template_id: 'fake_success_template_id',
+          sms_sender_id: 'fake_sms_sender_id',
+          personalisation: { claim_number: claim_last4, appt_date: notify_appt_date }
+        )
+        expect(worker).not_to receive(:log_exception_to_sentry)
+
+        Sidekiq::Testing.inline! do
+          VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_200', match_requests_on: [:host]) do
+            worker.perform(uuid, appt_date)
+          end
+        end
+
+        expect(StatsD).to have_received(:increment)
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_BTSSS_SUCCESS).exactly(1).time
+        expect(StatsD).to have_received(:increment)
+          .with(CheckIn::TravelClaimSubmissionWorker::STATSD_NOTIFY_SUCCESS).exactly(1).time
       end
     end
   end

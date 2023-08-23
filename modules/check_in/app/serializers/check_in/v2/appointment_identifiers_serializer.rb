@@ -23,6 +23,10 @@ module CheckIn
       attribute :mobilePhone do |object|
         object.payload.dig(:demographics, :mobilePhone)
       end
+
+      attribute :patientCellPhone do |object|
+        object.payload[:patientCellPhone]
+      end
     end
   end
 end
