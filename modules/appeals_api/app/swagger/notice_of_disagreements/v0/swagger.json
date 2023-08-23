@@ -707,16 +707,7 @@
                                       ]
                                     },
                                     "fileNumber": {
-                                      "allOf": [
-                                        {
-                                          "description": "Veteran's VA file number (c-file / css)",
-                                          "minLength": 1,
-                                          "maxLength": 9
-                                        },
-                                        {
-                                          "$ref": "nonBlankString.json"
-                                        }
-                                      ]
+                                      "$ref": "fileNumber.json"
                                     },
                                     "birthDate": {
                                       "description": "Veteran's birth date",
@@ -1932,6 +1923,7 @@
                         "available_options": [
                           "10182",
                           "address",
+                          "fileNumber",
                           "icn",
                           "nonBlankString",
                           "phone",
@@ -3171,16 +3163,7 @@
                         ]
                       },
                       "fileNumber": {
-                        "allOf": [
-                          {
-                            "description": "Veteran's VA file number (c-file / css)",
-                            "minLength": 1,
-                            "maxLength": 9
-                          },
-                          {
-                            "$ref": "#/components/schemas/nonBlankString"
-                          }
-                        ]
+                        "$ref": "#/components/schemas/fileNumber"
                       },
                       "birthDate": {
                         "description": "Veteran's birth date",

@@ -968,16 +968,7 @@
                                       "format": "date"
                                     },
                                     "fileNumber": {
-                                      "allOf": [
-                                        {
-                                          "description": "Veteran's VA file number (c-file / css)",
-                                          "minLength": 1,
-                                          "maxLength": 9
-                                        },
-                                        {
-                                          "$ref": "nonBlankString.json"
-                                        }
-                                      ]
+                                      "$ref": "fileNumber.json"
                                     },
                                     "serviceNumber": {
                                       "allOf": [
@@ -2368,6 +2359,7 @@
                         "available_options": [
                           "200995",
                           "address",
+                          "fileNumber",
                           "icn",
                           "nonBlankString",
                           "phone",
@@ -3763,16 +3755,7 @@
                         "format": "date"
                       },
                       "fileNumber": {
-                        "allOf": [
-                          {
-                            "description": "Veteran's VA file number (c-file / css)",
-                            "minLength": 1,
-                            "maxLength": 9
-                          },
-                          {
-                            "$ref": "#/components/schemas/nonBlankString"
-                          }
-                        ]
+                        "$ref": "#/components/schemas/fileNumber"
                       },
                       "serviceNumber": {
                         "allOf": [
