@@ -78,7 +78,7 @@ http_interactions:
       - 3CWeSgx1aR8NXxmRqpRykK403Y_ubZUAfI3EaL_3cE7SsSp0JC7sWQ==
     body:
       encoding: UTF-8
-      string: '{"keys":[{"alg":"RS256","use":"sig","kty":"RSA","n":"qRoNXLUugbenQTBHswfiGoKuhKkvUPP6A1GllxEZEAX86FiFSrXr7x_suHZ4cBytsmtFuYGymJZAGTk7DLzvMW0BHZpVtMZ3qvBDsYbNQGN4oLLxIy5-Q1rT1XTZhNkJwaj7gndbKHpQ33FqNQphhdchXB28N9GekDCJKzwEEThhxHkBxhq-hYAkd6rZ2fLiiyd5C4MSO0pMB-E_oGrNdYhCoydaFqVAhojn8am9za-JkjZIE9-Shlv_CQGt0yr91h3agVxeR2aeuZjQmvrhALJUeeJxG4D_Xl-w4v_O6nl0nllKXKHFxjP4ejDdNbht2a1L9BgJoYBjq6pUcWT49w","e":"AQAB","kid":"f5ce1239e39d3da836f963bccd85f85d57d4335cfdc6a17039f274361a18b13c"}]}'
+      string: '{"keys":[{"alg":"RS256","use":"sig","kty":"RSA","n":"qRoNXLUugbenQTBHswfiGoKuhKkvUPP6A1GllxEZEAX86FiFSrXr7x_suHZ4cBytsmtFuYGymJZAGTk7DLzvMW0BHZpVtMZ3qvBDsYbNQGN4oLLxIy5-Q1rT1XTZhNkJwaj7gndbKHpQ33FqNQphhdchXB28N9GekDCJKzwEEThhxHkBxhq-hYAkd6rZ2fLiiyd5C4MSO0pMB-E_oGrNdYhCoydaFqVAhojn8am9za-JkjZIE9-Shlv_CQGt0yr91h3agVxeR2aeuZjQmvrhALJUeeJxG4D_Xl-w4v_O6nl0nllKXKHFxjP4ejDdNbht2a1L9BgJoYBjq6pUcWT49w","e":"AQAB","kid":"f5c6a17039f274361a18b13c"}]}'
   recorded_at: Tue, 22 Aug 2023 00:03:27 GMT
 - request:
     method: post

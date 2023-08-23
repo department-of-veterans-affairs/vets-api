@@ -25,7 +25,6 @@ idme:
   client_cert_path: spec/fixtures/sign_in/oauth.crt
   client_key_path: spec/fixtures/sign_in/oauth.key
   oauth_url: https://api.idmelabs.com
-  oauth_public_key_url: https://api.idmelabs.com/oidc/.well-known/jwks
 
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
