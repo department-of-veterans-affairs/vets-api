@@ -866,7 +866,9 @@ RSpec.describe FormProfile, type: :model do
 
     it 'prefills military data from va profile' do
       VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
-        service_episodes_by_date = [
+        output = form_profile.send(:initialize_hca_military_information)
+
+        expected_service_episodes_by_date = [
           {
             begin_date: '2012-03-02',
             branch_of_service: 'Army',
@@ -904,7 +906,7 @@ RSpec.describe FormProfile, type: :model do
             termination_reason_text: 'Completion of Active Service period'
           }
         ]
-        
+
         expected_output = {
           'currently_active_duty' => false,
           'currently_active_duty_hash' => {
@@ -935,7 +937,7 @@ RSpec.describe FormProfile, type: :model do
           },
           'post_nov111998_combat' => false,
           'service_branches' => ['A', 'N'],
-          'service_episodes_by_date' => service_episodes_by_date,
+          'service_episodes_by_date' => expected_service_episodes_by_date,
           'service_periods' => {},
           'sw_asia_combat' => false,
           'tours_of_duty' => [
@@ -945,9 +947,7 @@ RSpec.describe FormProfile, type: :model do
           ]
         }
 
-        output = form_profile.send(:initialize_hca_military_information)
-
-        # Extract service histories and then compare their attributes
+        # Extract service_episodes_by_date and then compare their attributes
         actual_service_histories = output.delete('service_episodes_by_date')
         expected_service_histories = expected_output.delete('service_episodes_by_date')
 
@@ -958,7 +958,6 @@ RSpec.describe FormProfile, type: :model do
         # Convert each VAProfile::Models::ServiceHistory object to a hash of attributes so it can be
         # compared to the expected output.
         expect(actual_service_histories.map(&:attributes)).to eq(expected_service_histories)
-      
       end
     end
   end
