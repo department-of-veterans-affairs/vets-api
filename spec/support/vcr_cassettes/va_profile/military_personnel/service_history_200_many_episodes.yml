@@ -1,99 +1,100 @@
 ---
 http_interactions:
-- request:
-    method: post
-    uri: https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/1006753503%5ENI%5E200DOD%5EUSDOD
-    body:
-      encoding: UTF-8
-      string: '{"bios":[{"bioPath":"militaryPerson.militaryServiceHistory","parameters":{"scope":"all"}}]}'
-    headers:
-      User-Agent:
-      - Faraday v0.17.6
-      Content-Type:
-      - application/json
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      X-Oneagent-Js-Injection:
-      - 'true'
-      Server-Timing:
-      - dtRpid;desc="-238728396", dtSInfo;desc="0"
-      Vaprofiletxauditid:
-      - ddffec72-a40a-41ad-b8fe-e620fc28216e
-      X-Content-Type-Options:
-      - nosniff
-      X-Xss-Protection:
-      - 1; mode=block
-      Cache-Control:
-      - no-cache, no-store, max-age=0, must-revalidate
-      Pragma:
-      - no-cache
-      Expires:
-      - '0'
-      X-Frame-Options:
-      - DENY
-      Content-Security-Policy:
-      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
-        about: blob: ws: wss:'
-      Content-Type:
-      - application/json
-      Date:
-      - Mon, 14 Aug 2023 14:30:39 GMT
-      Content-Length:
-      - '5746'
-      Referrer-Policy:
-      - no-referrer
-      Strict-Transport-Security:
-      - max-age=16000000; includeSubDomains; preload;
-    body:
-      encoding: UTF-8
-      string: '{"profile":{"militaryPerson":{"militaryServiceHistory":{"uniformedServiceInitialEntryDate":"1984-08-01","releaseFromActiveDutyDate":"2014-08-31","militaryServiceEpisodes":[{"serviceEpisodeIdentifier":442559,"branchOfServiceText":"Army","branchOfServiceCode":"A","organizationText":"Army
-        MILPERCEN DEERS Population: Eligible Army Active Duty","organizationCode":"11","episodeSequenceNumber":1,"periodOfServiceTypeText":"Active
-        duty member","periodOfServiceTypeCode":"A","periodOfServiceBeginDate":"1985-08-19","periodOfServiceEndDate":"1989-08-19","characterOfDischargeText":"DoD
-        provided a NULL or blank value","characterOfDischargeCode":"DVN","narrativeReasonForSeparationText":"DoD
-        provided a NULL or blank value","narrativeReasonForSeparationCode":"DVN","narrativeReasonForSeparationFamilyText":"DoD
-        provided a NULL or blank value","narrativeReasonForSeparationFamilyCode":"DVN","projectedDateOfSeparationCertaintyText":"No
-        date can be predicted","projectedDateOfSeparationCertaintyCode":"U","terminationReasonText":"Separation
-        from personnel category or organization","terminationReasonCode":"S","enlistedServiceYears":0,"selectedReservesYears":8,"serviceComponentCode":"DVN","serviceComponentText":"DoD
-        provided a NULL or blank value"},{"serviceEpisodeIdentifier":442560,"branchOfServiceText":"Army","branchOfServiceCode":"A","organizationText":"Army
-        MILPERCEN DEERS Population: Eligible Army Active Duty","organizationCode":"11","episodeSequenceNumber":2,"periodOfServiceTypeText":"Active
-        duty member","periodOfServiceTypeCode":"A","periodOfServiceBeginDate":"2002-07-02","periodOfServiceEndDate":"2014-08-31","characterOfDischargeText":"DoD
-        provided a NULL or blank value","characterOfDischargeCode":"DVN","narrativeReasonForSeparationText":"DoD
-        provided a NULL or blank value","narrativeReasonForSeparationCode":"DVN","narrativeReasonForSeparationFamilyText":"DoD
-        provided a NULL or blank value","narrativeReasonForSeparationFamilyCode":"DVN","projectedDateOfSeparation":"2014-08-31","projectedDateOfSeparationCertaintyText":"Separation
-        from personnel category or organization","projectedDateOfSeparationCertaintyCode":"R","terminationReasonText":"Separation
-        from personnel category or organization","terminationReasonCode":"S","enlistedServiceYears":8,"serviceComponentCode":"R","serviceComponentText":"Regular"},{"serviceEpisodeIdentifier":442561,"branchOfServiceText":"Army","branchOfServiceCode":"A","organizationText":"Army
-        Reserve DEERS Population: Eligible Army Reserve","organizationCode":"41","episodeSequenceNumber":2,"periodOfServiceTypeText":"Reserve
-        member","periodOfServiceTypeCode":"V","periodOfServiceBeginDate":"1989-08-20","periodOfServiceEndDate":"1992-08-23","characterOfDischargeText":"DoD
-        provided a NULL or blank value","characterOfDischargeCode":"DVN","narrativeReasonForSeparationText":"DoD
-        provided a NULL or blank value","narrativeReasonForSeparationCode":"DVN","narrativeReasonForSeparationFamilyText":"DoD
-        provided a NULL or blank value","narrativeReasonForSeparationFamilyCode":"DVN","projectedDateOfSeparationCertaintyText":"No
-        date can be predicted","projectedDateOfSeparationCertaintyCode":"U","terminationReasonText":"Separation
-        from personnel category or organization","terminationReasonCode":"S","enlistedServiceYears":0,"serviceComponentCode":"DVN","serviceComponentText":"DoD
-        provided a NULL or blank value"},{"serviceEpisodeIdentifier":442562,"branchOfServiceText":"Army","branchOfServiceCode":"A","organizationText":"Army
-        Reserve DEERS Population: Eligible Army Reserve","organizationCode":"41","episodeSequenceNumber":3,"periodOfServiceTypeText":"Reserve
-        member","periodOfServiceTypeCode":"V","periodOfServiceBeginDate":"1989-08-20","periodOfServiceEndDate":"2002-07-01","characterOfDischargeText":"DoD
-        provided a NULL or blank value","characterOfDischargeCode":"DVN","narrativeReasonForSeparationText":"DoD
-        provided a NULL or blank value","narrativeReasonForSeparationCode":"DVN","narrativeReasonForSeparationFamilyText":"DoD
-        provided a NULL or blank value","narrativeReasonForSeparationFamilyCode":"DVN","projectedDateOfSeparation":"2003-11-30","projectedDateOfSeparationCertaintyText":"Separation
-        from personnel category or organization","projectedDateOfSeparationCertaintyCode":"R","terminationReasonText":"Separation
-        from personnel category or organization","terminationReasonCode":"S","enlistedServiceYears":0,"serviceComponentCode":"DVN","serviceComponentText":"DoD
-        provided a NULL or blank value"},{"serviceEpisodeIdentifier":442563,"branchOfServiceText":"Air
-        Force","branchOfServiceCode":"F","organizationText":"Air Force Guard DEERS
-        Population: Eligible Air Force Guard","organizationCode":"52","episodeSequenceNumber":1,"periodOfServiceTypeText":"National
-        Guard member","periodOfServiceTypeCode":"N","periodOfServiceBeginDate":"2000-04-07","periodOfServiceEndDate":"2009-01-23","characterOfDischargeText":"Under
-        honorable conditions (general)","characterOfDischargeCode":"B","narrativeReasonForSeparationText":"UNKNOWN","narrativeReasonForSeparationCode":"999","narrativeReasonForSeparationFamilyText":"Unknown/Not
-        Applicable","narrativeReasonForSeparationFamilyCode":"Z","projectedDateOfSeparationCertaintyText":"DoD
-        provided a NULL or blank value","projectedDateOfSeparationCertaintyCode":"DVN","terminationReasonText":"Separation
-        from personnel category or organization","terminationReasonCode":"S","enlistedServiceYears":1,"deployments":[{"deploymentSequenceNumber":1,"deploymentProjectText":"Overseas
-        Contingency Operation (OCO)","deploymentProjectCode":"9GF","deploymentTerminationReasonText":"Separation
-        from personnel category or organization","deploymentTerminationReasonCode":"S"}],"serviceComponentCode":"DVN","serviceComponentText":"DoD
-        provided a NULL or blank value"}]}}}}'
-  recorded_at: Mon, 14 Aug 2023 14:30:39 GMT
+  - request:
+      method: post
+      uri: https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/384759483%5ENI%5E200DOD%5EUSDOD
+      body:
+        encoding: UTF-8
+        string: '{"bios":[{"bioPath":"militaryPerson.militaryServiceHistory","parameters":{"scope":"all"}}]}'
+      headers:
+        User-Agent:
+          - Faraday v0.17.6
+        Content-Type:
+          - application/json
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Accept:
+          - '*/*'
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        X-Oneagent-Js-Injection:
+          - 'true'
+        Server-Timing:
+          - dtRpid;desc="-238728396", dtSInfo;desc="0"
+        Vaprofiletxauditid:
+          - ddffec72-a40a-41ad-b8fe-e620fc28216e
+        X-Content-Type-Options:
+          - nosniff
+        X-Xss-Protection:
+          - 1; mode=block
+        Cache-Control:
+          - no-cache, no-store, max-age=0, must-revalidate
+        Pragma:
+          - no-cache
+        Expires:
+          - '0'
+        X-Frame-Options:
+          - DENY
+        Content-Security-Policy:
+          - "default-src 'self' 'unsafe-eval' 'unsafe-inline' data: filesystem:
+            about: blob: ws: wss:"
+        Content-Type:
+          - application/json
+        Date:
+          - Mon, 14 Aug 2023 14:30:39 GMT
+        Content-Length:
+          - '5746'
+        Referrer-Policy:
+          - no-referrer
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: UTF-8
+        string:
+          '{"profile":{"militaryPerson":{"militaryServiceHistory":{"uniformedServiceInitialEntryDate":"1984-08-01","releaseFromActiveDutyDate":"2014-08-31","militaryServiceEpisodes":[{"serviceEpisodeIdentifier":442559,"branchOfServiceText":"Army","branchOfServiceCode":"A","organizationText":"Army
+          MILPERCEN DEERS Population: Eligible Army Active Duty","organizationCode":"11","episodeSequenceNumber":1,"periodOfServiceTypeText":"Active
+          duty member","periodOfServiceTypeCode":"A","periodOfServiceBeginDate":"1985-08-19","periodOfServiceEndDate":"1989-08-19","characterOfDischargeText":"DoD
+          provided a NULL or blank value","characterOfDischargeCode":"DVN","narrativeReasonForSeparationText":"DoD
+          provided a NULL or blank value","narrativeReasonForSeparationCode":"DVN","narrativeReasonForSeparationFamilyText":"DoD
+          provided a NULL or blank value","narrativeReasonForSeparationFamilyCode":"DVN","projectedDateOfSeparationCertaintyText":"No
+          date can be predicted","projectedDateOfSeparationCertaintyCode":"U","terminationReasonText":"Separation
+          from personnel category or organization","terminationReasonCode":"S","enlistedServiceYears":0,"selectedReservesYears":8,"serviceComponentCode":"DVN","serviceComponentText":"DoD
+          provided a NULL or blank value"},{"serviceEpisodeIdentifier":442560,"branchOfServiceText":"Army","branchOfServiceCode":"A","organizationText":"Army
+          MILPERCEN DEERS Population: Eligible Army Active Duty","organizationCode":"11","episodeSequenceNumber":2,"periodOfServiceTypeText":"Active
+          duty member","periodOfServiceTypeCode":"A","periodOfServiceBeginDate":"2002-07-02","periodOfServiceEndDate":"2014-08-31","characterOfDischargeText":"DoD
+          provided a NULL or blank value","characterOfDischargeCode":"DVN","narrativeReasonForSeparationText":"DoD
+          provided a NULL or blank value","narrativeReasonForSeparationCode":"DVN","narrativeReasonForSeparationFamilyText":"DoD
+          provided a NULL or blank value","narrativeReasonForSeparationFamilyCode":"DVN","projectedDateOfSeparation":"2014-08-31","projectedDateOfSeparationCertaintyText":"Separation
+          from personnel category or organization","projectedDateOfSeparationCertaintyCode":"R","terminationReasonText":"Separation
+          from personnel category or organization","terminationReasonCode":"S","enlistedServiceYears":8,"serviceComponentCode":"R","serviceComponentText":"Regular"},{"serviceEpisodeIdentifier":442561,"branchOfServiceText":"Army","branchOfServiceCode":"A","organizationText":"Army
+          Reserve DEERS Population: Eligible Army Reserve","organizationCode":"41","episodeSequenceNumber":2,"periodOfServiceTypeText":"Reserve
+          member","periodOfServiceTypeCode":"V","periodOfServiceBeginDate":"1989-08-20","periodOfServiceEndDate":"1992-08-23","characterOfDischargeText":"DoD
+          provided a NULL or blank value","characterOfDischargeCode":"DVN","narrativeReasonForSeparationText":"DoD
+          provided a NULL or blank value","narrativeReasonForSeparationCode":"DVN","narrativeReasonForSeparationFamilyText":"DoD
+          provided a NULL or blank value","narrativeReasonForSeparationFamilyCode":"DVN","projectedDateOfSeparationCertaintyText":"No
+          date can be predicted","projectedDateOfSeparationCertaintyCode":"U","terminationReasonText":"Separation
+          from personnel category or organization","terminationReasonCode":"S","enlistedServiceYears":0,"serviceComponentCode":"DVN","serviceComponentText":"DoD
+          provided a NULL or blank value"},{"serviceEpisodeIdentifier":442562,"branchOfServiceText":"Army","branchOfServiceCode":"A","organizationText":"Army
+          Reserve DEERS Population: Eligible Army Reserve","organizationCode":"41","episodeSequenceNumber":3,"periodOfServiceTypeText":"Reserve
+          member","periodOfServiceTypeCode":"V","periodOfServiceBeginDate":"1989-08-20","periodOfServiceEndDate":"2002-07-01","characterOfDischargeText":"DoD
+          provided a NULL or blank value","characterOfDischargeCode":"DVN","narrativeReasonForSeparationText":"DoD
+          provided a NULL or blank value","narrativeReasonForSeparationCode":"DVN","narrativeReasonForSeparationFamilyText":"DoD
+          provided a NULL or blank value","narrativeReasonForSeparationFamilyCode":"DVN","projectedDateOfSeparation":"2003-11-30","projectedDateOfSeparationCertaintyText":"Separation
+          from personnel category or organization","projectedDateOfSeparationCertaintyCode":"R","terminationReasonText":"Separation
+          from personnel category or organization","terminationReasonCode":"S","enlistedServiceYears":0,"serviceComponentCode":"DVN","serviceComponentText":"DoD
+          provided a NULL or blank value"},{"serviceEpisodeIdentifier":442563,"branchOfServiceText":"Air
+          Force","branchOfServiceCode":"F","organizationText":"Air Force Guard DEERS
+          Population: Eligible Air Force Guard","organizationCode":"52","episodeSequenceNumber":1,"periodOfServiceTypeText":"National
+          Guard member","periodOfServiceTypeCode":"N","periodOfServiceBeginDate":"2000-04-07","periodOfServiceEndDate":"2009-01-23","characterOfDischargeText":"Under
+          honorable conditions (general)","characterOfDischargeCode":"B","narrativeReasonForSeparationText":"UNKNOWN","narrativeReasonForSeparationCode":"999","narrativeReasonForSeparationFamilyText":"Unknown/Not
+          Applicable","narrativeReasonForSeparationFamilyCode":"Z","projectedDateOfSeparationCertaintyText":"DoD
+          provided a NULL or blank value","projectedDateOfSeparationCertaintyCode":"DVN","terminationReasonText":"Separation
+          from personnel category or organization","terminationReasonCode":"S","enlistedServiceYears":1,"deployments":[{"deploymentSequenceNumber":1,"deploymentProjectText":"Overseas
+          Contingency Operation (OCO)","deploymentProjectCode":"9GF","deploymentTerminationReasonText":"Separation
+          from personnel category or organization","deploymentTerminationReasonCode":"S"}],"serviceComponentCode":"DVN","serviceComponentText":"DoD
+          provided a NULL or blank value"}]}}}}'
+    recorded_at: Mon, 14 Aug 2023 14:30:39 GMT
 recorded_with: VCR 6.2.0
