@@ -961,7 +961,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       before do
         create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
         # TODO: remove Flipper feature toggle when lighthouse provider is implemented
-        Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider')
+        Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider_foreground')
       end
 
       let(:form526v2) do

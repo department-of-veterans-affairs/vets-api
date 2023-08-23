@@ -157,11 +157,17 @@ module Form526ClaimFastTrackingConcern
   def all_rated_disabilities
     settings = Settings.lighthouse.veteran_verification.form526
     icn = UserAccount.where(id: user_account_id).first&.icn
-    service = ApiProviderFactory.rated_disabilities_service_provider(
-      { auth_headers:, icn: }
+    api_provider = ApiProviderFactory.call(
+      type: ApiProviderFactory::FACTORIES[:rated_disabilities],
+      provider: nil,
+      options: { auth_headers:, icn: },
+      # Flipper id is needed to check if the feature toggle works for this user
+      current_user: OpenStruct.new({ flipper_id: user_account_id }),
+      feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND
     )
+
     @all_rated_disabilities ||= begin
-      response = service.get_rated_disabilities(settings.access_token.client_id, settings.access_token.rsa_key)
+      response = api_provider.get_rated_disabilities(settings.access_token.client_id, settings.access_token.rsa_key)
       response.rated_disabilities
     end
   end

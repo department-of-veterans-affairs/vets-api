@@ -946,9 +946,12 @@ features:
   virtual_agent_show_floating_chatbot:
     actor_type: user
     description: Enables a floating chatbot on the chatbot page - managed by virtual agent team
-  disability_compensation_lighthouse_rated_disabilities_provider:
+  disability_compensation_lighthouse_rated_disabilities_provider_foreground:
     actor_type: user
-    description: If enabled uses the lighthouse rated disabilities endpoint
+    description: If enabled uses the lighthouse rated disabilities endpoint for foreground requests
+  disability_compensation_lighthouse_rated_disabilities_provider_background:
+    actor_type: user
+    description: If enabled uses the lighthouse rated disabilities endpoint for background tasks
   disability_compensation_lighthouse_document_service_provider:
     actor_type: user
     description: If enabled uses the lighthouse documents service
