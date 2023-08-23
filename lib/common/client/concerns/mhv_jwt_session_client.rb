@@ -92,6 +92,7 @@ module Common
           expires = (DateTime.now + Rational(3600, 86_400)).rfc2822
           @session.class.new(user_id: session.user_id.to_s,
                              patient_fhir_id:,
+                             icn: session.icn,
                              # TODO: If MHV updates API to include this field, use the version from their headers
                              #  expires_at: res_headers['expires'],
                              expires_at: expires,
