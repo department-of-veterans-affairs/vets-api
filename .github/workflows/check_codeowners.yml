@@ -42,7 +42,7 @@ jobs:
       if: ${{ failure() }}
       uses: thollander/actions-comment-pull-request@dadb7667129e23f12ca3925c90dc5cd7121ab57e # v2.4.0
       with:
-        message: 'Error: A file (or its parent directories) does not have a CODEOWNERS entry. See test failure details. Offending file: ${{ env.offending_file }}'
+        message: 'Error: A file (or its parent directories) does not have a CODEOWNERS entry. Please update the .github/CODEOWNERS file and add the entry for the Offending file: ${{ env.offending_file }}'
         GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
     - name: Check CODEOWNERS for removal when files deleted
@@ -55,5 +55,5 @@ jobs:
       if: ${{ failure() }}
       uses: thollander/actions-comment-pull-request@dadb7667129e23f12ca3925c90dc5cd7121ab57e # v2.4.0
       with:
-        message: 'Error: A file (or its parent directories) was deleted but its reference still exists in CODEOWNERS. See test failure details. Offending file: ${{ env.offending_file }}'
+        message: 'Error: A file (or its parent directories) was deleted but its reference still exists in CODEOWNERS. Please update the .github/CODEOWNERS file and delete the entry for the Offending file: ${{ env.offending_file }}'
         GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
