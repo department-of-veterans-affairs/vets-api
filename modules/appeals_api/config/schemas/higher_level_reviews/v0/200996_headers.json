@@ -6,71 +6,6 @@
     "hlrCreateParameters": {
       "type": "object",
       "properties": {
-        "X-VA-SSN": {
-          "type": "string",
-          "description": "Veteran's SSN",
-          "pattern": "^[0-9]{9}$"
-        },
-        "X-VA-ICN": {
-          "type": "string",
-          "description": "Veteran's ICN",
-          "pattern": "^[0-9]{10}V[0-9]{6}$",
-          "minLength": 17,
-          "maxLength": 17
-        },
-        "X-VA-First-Name": {
-          "type": "string",
-          "description": "Veteran's first name",
-          "maxLength": 30,
-          "$comment": "can be whitespace, to accommodate those with 1 legal name"
-        },
-        "X-VA-Middle-Initial": {
-          "allOf": [
-            { "description": "Veteran's middle initial", "maxLength": 1 },
-            { "$ref": "nonBlankString.json" }
-          ]
-        },
-        "X-VA-Last-Name": { "allOf": [
-          { "description": "Veteran's last name", "maxLength": 40 },
-          { "$ref": "nonBlankString.json" }
-        ] },
-        "X-VA-Birth-Date": {
-          "description": "Veteran's birth date",
-          "type": "string", "format": "date"
-        },
-        "X-VA-File-Number": { "allOf": [
-          { "description": "Veteran's file number", "maxLength":  9 },
-          { "$ref": "nonBlankString.json" }
-        ] },
-        "X-VA-Insurance-Policy-Number": { "allOf": [
-          { "description": "Veteran's insurance policy number", "maxLength": 18 },
-          { "$ref": "nonBlankString.json" }
-        ] },
-        "X-VA-NonVeteranClaimant-SSN": {
-          "type": "string",
-          "description": "Non-Veteran claimants's SSN",
-          "pattern": "^[0-9]{9}$"
-        },
-        "X-VA-NonVeteranClaimant-First-Name": {
-          "type": "string",
-          "description": "Non-Veteran claimant's first name",
-          "maxLength": 30,
-          "$comment": "can be whitespace, to accommodate those with 1 legal name"
-        },
-        "X-VA-NonVeteranClaimant-Middle-Initial": {
-          "allOf": [
-            { "description": "Non-Veteran claimant's middle initial", "maxLength": 1 },
-            { "$ref": "nonBlankString.json" }
-          ]
-        },
-        "X-VA-NonVeteranClaimant-Last-Name": { "allOf": [
-          { "description": "Non-Veteran claimant's last name", "maxLength": 40 },
-          { "$ref": "nonBlankString.json" }
-        ] },
-        "X-VA-NonVeteranClaimant-Birth-Date": {
-          "description": "Non-Veteran claimant's birth date",
-          "type": "string", "format": "date"
-        },
         "X-Consumer-Username": {
           "allOf": [
             { "description": "Consumer User Name (passed from Kong)" },
@@ -82,21 +17,7 @@
           { "$ref": "nonBlankString.json" }
         ] }
       },
-      "additionalProperties": false,
-      "required": [
-        "X-VA-SSN",
-        "X-VA-First-Name",
-        "X-VA-Last-Name",
-        "X-VA-Birth-Date",
-        "X-VA-ICN"
-      ],
-      "dependencies": {
-        "X-VA-NonVeteranClaimant-SSN": ["X-VA-NonVeteranClaimant-First-Name", "X-VA-NonVeteranClaimant-Last-Name", "X-VA-NonVeteranClaimant-Birth-Date"],
-        "X-VA-NonVeteranClaimant-First-Name": ["X-VA-NonVeteranClaimant-Last-Name", "X-VA-NonVeteranClaimant-Birth-Date"],
-        "X-VA-NonVeteranClaimant-Middle-Initial": ["X-VA-NonVeteranClaimant-First-Name", "X-VA-NonVeteranClaimant-Last-Name", "X-VA-NonVeteranClaimant-Birth-Date"],
-        "X-VA-NonVeteranClaimant-Last-Name": ["X-VA-NonVeteranClaimant-First-Name", "X-VA-NonVeteranClaimant-Birth-Date"],
-        "X-VA-NonVeteranClaimant-Birth-Date": ["X-VA-NonVeteranClaimant-First-Name", "X-VA-NonVeteranClaimant-Last-Name"]
-      }
+      "additionalProperties": false
     }
   }
 }

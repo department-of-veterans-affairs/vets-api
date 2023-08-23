@@ -99,29 +99,12 @@ module AppealsApi
     end
 
     # V2 End
-
-    def first_name
-      auth_headers['X-VA-First-Name']
-    end
-
-    def middle_initial
-      auth_headers['X-VA-Middle-Initial']
-    end
-
-    def last_name
-      auth_headers['X-VA-Last-Name']
-    end
+    delegate :birth_date, to: :veteran, prefix: :veteran
+    delegate :ssn, :file_number, :first_name, :middle_initial, :last_name,
+             :insurance_policy_number, :service_number, to: :veteran
 
     def full_name
       "#{first_name} #{middle_initial} #{last_name}".squeeze(' ').strip
-    end
-
-    def ssn
-      auth_headers['X-VA-SSN']
-    end
-
-    def file_number
-      auth_headers['X-VA-File-Number']
     end
 
     def veteran_birth_mm
@@ -134,14 +117,6 @@ module AppealsApi
 
     def veteran_birth_yyyy
       veteran_birth_date.strftime '%Y'
-    end
-
-    def service_number
-      auth_headers['X-VA-Service-Number']
-    end
-
-    def insurance_policy_number
-      auth_headers['X-VA-Insurance-Policy-Number']
     end
 
     def number_and_street
@@ -352,14 +327,6 @@ module AppealsApi
 
     def veteran_data
       data_attributes&.dig('veteran')
-    end
-
-    def veteran_birth_date_string
-      auth_headers['X-VA-Birth-Date']
-    end
-
-    def veteran_birth_date
-      self.class.date_from_string veteran_birth_date_string
     end
 
     def veteran_phone

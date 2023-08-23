@@ -63,12 +63,7 @@
                   "description": "Veteran's birth date",
                   "type": "string", "format": "date"
                 },
-                "fileNumber": {
-                  "allOf": [
-                    { "description": "Veteran's VA file number (c-file / css)", "minLength": 1, "maxLength": 9 },
-                    { "$ref": "nonBlankString.json" }
-                  ]
-                },
+                "fileNumber": { "$ref": "fileNumber.json" },
                 "serviceNumber": {
                   "allOf": [
                     { "description":  "Veteran's service number", "minLength":  1, "maxLength":  9 },

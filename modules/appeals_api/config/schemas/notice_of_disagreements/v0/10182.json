@@ -38,12 +38,7 @@
                     { "$ref":  "nonBlankString.json" }
                   ]
                 },
-                "fileNumber": {
-                  "allOf": [
-                    { "description": "Veteran's VA file number (c-file / css)", "minLength": 1, "maxLength": 9 },
-                    { "$ref": "nonBlankString.json" }
-                  ]
-                },
+                "fileNumber": { "$ref": "fileNumber.json" },
                 "birthDate": {
                   "description": "Veteran's birth date",
                   "type": "string", "format": "date"
