@@ -142,9 +142,10 @@ describe HCA::MilitaryInformation do
     end
   end
 
+  # spec/support/vcr_cassettes/va_profile/military_personnel/service_history_200_many_episodes.yml
   describe '#last_service_branch' do
     it 'returns the most recent branch of military the veteran served under' do
-      VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+      VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes') do
         response = subject.last_service_branch
         expect(response).to eq('Army')
       end
@@ -153,7 +154,7 @@ describe HCA::MilitaryInformation do
 
   describe '#currently_active_duty' do
     it 'returns false if veteran is not currently serving in active duty' do
-      VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+      VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes') do
         response = subject.currently_active_duty
 
         expect(response).to eq(false)
@@ -163,7 +164,7 @@ describe HCA::MilitaryInformation do
 
   describe '#currently_active_duty_hash' do
     it 'returns false if veteran is not currently serving in active duty' do
-      VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+      VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes') do
         response = subject.currently_active_duty_hash
 
         expect(response).to eq({ yes: false })
@@ -173,7 +174,7 @@ describe HCA::MilitaryInformation do
 
   describe '#service_periods' do
     it 'returns an array of service periods with service branch and date range' do
-      VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+      VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes') do
         response = subject.service_periods
 
         expect(response).to be_an(Array)
@@ -191,8 +192,12 @@ describe HCA::MilitaryInformation do
 
   describe '#guard_reserve_service_history' do
     it 'returns an array of guard and reserve service episode date ranges sorted by end_date' do
-      VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
-        expected_response = [{ from: '2002-02-02', to: '2008-12-01' }]
+      VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes') do
+        expected_response = [
+          { from: '2000-04-07', to: '2009-01-23' },
+          { from: '1989-08-20', to: '2002-07-01' },
+          { from: '1989-08-20', to: '1992-08-23' }
+        ]
         response = subject.guard_reserve_service_history
 
         expect(response).to be_an(Array)
@@ -205,10 +210,10 @@ describe HCA::MilitaryInformation do
 
   describe '#latest_guard_reserve_service_period' do
     it 'returns the most recently completed guard or reserve service period' do
-      VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+      VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes') do
         response = subject.latest_guard_reserve_service_period
 
-        expect(response).to eq({ from: '2002-02-02', to: '2008-12-01' })
+        expect(response).to eq({ from: '2000-04-07', to: '2009-01-23' })
       end
     end
   end
