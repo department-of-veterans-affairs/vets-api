@@ -2,6 +2,8 @@
 
 require 'lighthouse/letters_generator/configuration'
 require 'lighthouse/letters_generator/service_error'
+require 'lighthouse/service_exception'
+require 'common/exceptions/bad_request'
 
 module Lighthouse
   module LettersGenerator
@@ -44,8 +46,6 @@ module Lighthouse
       configuration Lighthouse::LettersGenerator::Configuration
 
       def get_letter(icn, letter_type, options = {})
-        validate_downloadable_letter_type(letter_type)
-
         endpoint = "letter-contents/#{letter_type}"
         log = "Retrieving letter from #{config.generator_url}/#{endpoint}"
         params = { icn: }.merge(options)
@@ -79,14 +79,16 @@ module Lighthouse
       end
 
       def download_letter(icn, letter_type, options = {})
-        validate_downloadable_letter_type(letter_type)
-
         endpoint = "letters/#{letter_type}/letter"
         log = "Downloading letter from #{config.generator_url}/#{endpoint}"
         params = { icn: }.merge(options)
 
         response = get_from_lighthouse(endpoint, params, log)
         response.body
+      end
+
+      def valid_type?(letter_type)
+        LETTER_TYPES.include? letter_type.downcase
       end
 
       private
@@ -104,7 +106,17 @@ module Lighthouse
           team: 'benefits-claim-appeal-status',
           feature: 'letters-generator'
         )
-        raise Lighthouse::LettersGenerator::ServiceError.new(e.response[:body]), 'Lighthouse error'
+
+        handle_error(e, config.service_name, endpoint)
+      end
+
+      def handle_error(error, lighthouse_client_id, endpoint)
+        Lighthouse::ServiceException.send_error(
+          error,
+          self.class.to_s.underscore,
+          lighthouse_client_id,
+          "#{config.generator_url}/#{endpoint}"
+        )
       end
 
       def transform_letters(letters)
@@ -146,19 +158,12 @@ module Lighthouse
       end
 
       def create_invalid_type_error(letter_type)
-        error = Lighthouse::LettersGenerator::ServiceError.new
-        error.title = 'Invalid letter type'
-        error.message = "Letter type of #{letter_type.downcase} is not one of the expected options"
-        error.status = 400
+        error = {}
+        error['title'] = 'Invalid letter type'
+        error['message'] = "Letter type of #{letter_type.downcase} is not one of the expected options"
+        error['status'] = 400
 
         error
-      end
-
-      def validate_downloadable_letter_type(letter_type)
-        unless LETTER_TYPES.include? letter_type.downcase
-          error = create_invalid_type_error(letter_type.downcase)
-          raise error
-        end
       end
     end
   end

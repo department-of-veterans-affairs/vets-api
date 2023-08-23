@@ -31,6 +31,7 @@ module Mobile
         end
       end
       before_action :validate_format!, only: %i[download]
+      before_action :validate_letter_type!, only: %i[download]
       after_action :increment_download_counter, only: %i[download], if: -> { response.successful? }
 
       # returns list of letters available for a given user. List includes letter display name and letter type
@@ -86,6 +87,17 @@ module Mobile
 
       def icn
         @current_user.icn
+      end
+
+      def validate_letter_type!
+        unless lighthouse_service.valid_type?(params[:type])
+          raise Common::Exceptions::BadRequest.new(
+            {
+              detail: "Letter type of #{params[:type]} is not one of the expected options",
+              source: self.class.name
+            }
+          )
+        end
       end
 
       def validate_format!
