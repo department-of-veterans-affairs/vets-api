@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "JSON Schema for evidence submissions for VA Form 10182",
+  "type": "object",
+  "properties": {
+    "nodId": {
+      "description": "Associated Notice of Disagreement UUID",
+      "type": "string",
+      "format": "uuid",
+      "example": "9dbc8f83-a778-417e-9f8b-a9a36d710f70"
+    },
+    "fileNumber": {
+      "description": "Veteran's VA file number (c-file / css)",
+      "type": "string",
+      "minLength": 7,
+      "maxLength": 9,
+      "example": "987654321"
+    }
+  },
+  "required": ["nodId", "fileNumber"]
+}
