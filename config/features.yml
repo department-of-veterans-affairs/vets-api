@@ -108,6 +108,10 @@ features:
     actor_type: user
     description: Enables downstream responses to be returned via betamocks
     enable_in_development: false
+  check_in_experience_patient_cell_phone:
+    actor_type: user
+    description: Enables patient cell phone rather than mobile phone
+    enable_in_development: true
   check_in_experience_phone_appointments_enabled:
     actor_type: user
     description: Enables telephone appointments for check-in
