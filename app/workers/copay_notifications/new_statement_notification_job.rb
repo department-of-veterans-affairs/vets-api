@@ -32,10 +32,8 @@ module CopayNotifications
     def perform(statement)
       StatsD.increment("#{STATSD_KEY_PREFIX}.total")
       statement_service = DebtManagementCenter::StatementIdentifierService.new(statement)
-      email_address = statement_service.derive_email_address
-      DebtManagementCenter::VANotifyEmailJob.perform_async(email_address, MCP_NOTIFICATION_TEMPLATE)
-    rescue DebtManagementCenter::StatementIdentifierService::UnableToSourceEmailForStatement => e
-      log_exception_to_sentry(e, {}, { info: :unable_to_source_email_for_statement }, 'info')
+      icn = statement_service.get_icn
+      DebtManagementCenter::VANotifyEmailJob.perform_async(icn, MCP_NOTIFICATION_TEMPLATE, nil, 'icn')
     end
   end
 end
