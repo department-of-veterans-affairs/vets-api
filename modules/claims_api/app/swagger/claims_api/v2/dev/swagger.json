@@ -1835,34 +1835,41 @@
                             }
                           },
                           "multipleExposures": {
-                            "type": "object",
-                            "description": "",
-                            "properties": {
-                              "exposureDates": {
-                                "type": "object",
-                                "description": "Date range for when the exposure happened.",
-                                "properties": {
-                                  "beginDate": {
-                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
-                                    "type": "string",
-                                    "description": "Approximate begin date for exposure.",
-                                    "example": "06-2018"
-                                  },
-                                  "endDate": {
-                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
-                                    "type": "string",
-                                    "description": "Approximate end date for exposure.",
-                                    "example": "06-2018"
+                            "type": "array",
+                            "minItems": 1,
+                            "uniqueItems": true,
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "properties": {
+                                "exposureDates": {
+                                  "type": "object",
+                                  "description": "Date range for when the exposure happened.",
+                                  "properties": {
+                                    "beginDate": {
+                                      "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                      "type": "string",
+                                      "description": "Approximate begin date for exposure.",
+                                      "example": "06-2018"
+                                    },
+                                    "endDate": {
+                                      "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                      "type": "string",
+                                      "description": "Approximate end date for exposure.",
+                                      "example": "06-2018"
+                                    }
                                   }
+                                },
+                                "exposureLocation": {
+                                  "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                  "description": "Other location(s) where Veteran served"
+                                },
+                                "hazardExposedTo": {
+                                  "type": "string",
+                                  "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                  "description": "The hazard or event that created the exposure."
                                 }
-                              },
-                              "exposureLocation": {
-                                "type": "string",
-                                "description": ""
-                              },
-                              "hazardExposedTo": {
-                                "type": "string",
-                                "description": ""
                               }
                             }
                           }
@@ -2944,36 +2951,41 @@
                                 }
                               },
                               "multipleExposures": {
-                                "type": "object",
-                                "description": "",
-                                "properties": {
-                                  "exposureDates": {
-                                    "type": "object",
-                                    "description": "Date range for when the exposure happened.",
-                                    "properties": {
-                                      "beginDate": {
-                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
-                                        "type": "string",
-                                        "description": "Approximate begin date for exposure.",
-                                        "example": "06-2018"
-                                      },
-                                      "endDate": {
-                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
-                                        "type": "string",
-                                        "description": "Approximate end date for exposure.",
-                                        "example": "06-2018"
+                                "type": "array",
+                                "minItems": 1,
+                                "uniqueItems": true,
+                                "items": {
+                                  "type": "object",
+                                  "additionalProperties": false,
+                                  "properties": {
+                                    "exposureDates": {
+                                      "type": "object",
+                                      "description": "Date range for when the exposure happened.",
+                                      "properties": {
+                                        "beginDate": {
+                                          "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                          "type": "string",
+                                          "description": "Approximate begin date for exposure.",
+                                          "example": "06-2018"
+                                        },
+                                        "endDate": {
+                                          "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                          "type": "string",
+                                          "description": "Approximate end date for exposure.",
+                                          "example": "06-2018"
+                                        }
                                       }
+                                    },
+                                    "exposureLocation": {
+                                      "type": "string",
+                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "description": "Other location(s) where Veteran served"
+                                    },
+                                    "hazardExposedTo": {
+                                      "type": "string",
+                                      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                      "description": "The hazard or event that created the exposure."
                                     }
-                                  },
-                                  "exposureLocation": {
-                                    "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "description": "Other location(s) where Veteran served"
-                                  },
-                                  "hazardExposedTo": {
-                                    "type": "string",
-                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "description": "The hazard or event that created the exposure."
                                   }
                                 }
                               }
@@ -3701,14 +3713,16 @@
                             "endDate": "10-2013"
                           }
                         },
-                        "multipleExposures": {
-                          "exposureDates": {
-                            "beginDate": "12-2012",
-                            "endDate": "07-2013"
-                          },
-                          "exposureLocation": "Guam",
-                          "hazardExposedTo": "RADIATION"
-                        }
+                        "multipleExposures": [
+                          {
+                            "exposureDates": {
+                              "beginDate": "12-2012",
+                              "endDate": "07-2013"
+                            },
+                            "exposureLocation": "Guam",
+                            "hazardExposedTo": "RADIATION"
+                          }
+                        ]
                       },
                       "disabilities": [
                         {
@@ -4436,7 +4450,7 @@
                   "errors": [
                     {
                       "title": "Resource not found",
-                      "detail": "No active 'compensation' intent to file found."
+                      "detail": "No active 'C' intent to file found."
                     }
                   ]
                 },
@@ -4533,8 +4547,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-08-16",
-                      "expirationDate": "2024-08-16",
+                      "creationDate": "2023-08-22",
+                      "expirationDate": "2024-08-22",
                       "type": "compensation",
                       "status": "active"
                     }
