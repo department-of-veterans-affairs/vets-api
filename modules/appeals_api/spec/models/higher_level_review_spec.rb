@@ -6,8 +6,74 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::HigherLevelReview, type: :model do
   include FixtureHelpers
 
+  shared_examples 'HLR record attributes from delegators' do |opts|
+    let(:higher_level_review) { create(opts[:factory], status: 'pending') }
+
+    describe '#first_name' do
+      subject { higher_level_review.first_name }
+
+      it { is_expected.to eq higher_level_review.veteran.first_name }
+    end
+
+    describe '#middle_initial' do
+      subject { higher_level_review.middle_initial }
+
+      it { is_expected.to eq higher_level_review.veteran.middle_initial }
+    end
+
+    describe '#last_name' do
+      subject { higher_level_review.last_name }
+
+      it { is_expected.to eq higher_level_review.veteran.last_name }
+    end
+
+    describe '#ssn' do
+      subject { higher_level_review.ssn }
+
+      it { is_expected.to eq higher_level_review.veteran.ssn }
+    end
+
+    describe '#file_number' do
+      subject { higher_level_review.file_number }
+
+      it { is_expected.to eq higher_level_review.veteran.file_number }
+    end
+
+    describe '#veteran_birth_mm' do
+      subject { higher_level_review.veteran_birth_mm }
+
+      it { is_expected.to eq higher_level_review.veteran.birth_date.strftime('%m') }
+    end
+
+    describe '#veteran_birth_dd' do
+      subject { higher_level_review.veteran_birth_dd }
+
+      it { is_expected.to eq higher_level_review.veteran.birth_date.strftime('%d') }
+    end
+
+    describe '#veteran_birth_yyyy' do
+      subject { higher_level_review.veteran_birth_yyyy }
+
+      it { is_expected.to eq higher_level_review.veteran.birth_date.strftime('%Y') }
+    end
+
+    describe '#service_number' do
+      subject { higher_level_review.service_number }
+
+      it { is_expected.to eq higher_level_review.veteran.service_number }
+    end
+
+    describe '#insurance_policy_number' do
+      subject { higher_level_review.insurance_policy_number }
+
+      it { is_expected.to eq higher_level_review.veteran.insurance_policy_number }
+    end
+  end
+
   describe 'when api_version is v0' do
     let(:higher_level_review) { create(:higher_level_review_v0, status: 'pending') }
+
+    include_examples 'HLR record attributes from delegators', factory: :higher_level_review_v0
 
     describe '#soc_opt_in' do
       describe 'by default' do
@@ -39,23 +105,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
     let(:form_data) { default_form_data }
     let(:form_data_attributes) { form_data.dig('data', 'attributes') }
 
-    describe '#first_name' do
-      subject { higher_level_review.first_name }
-
-      it('matches header') { is_expected.to eq auth_headers['X-VA-First-Name'] }
-    end
-
-    describe '#middle_initial' do
-      subject { higher_level_review.middle_initial }
-
-      it('matches header') { is_expected.to eq auth_headers['X-VA-Middle-Initial'] }
-    end
-
-    describe '#last_name' do
-      subject { higher_level_review.last_name }
-
-      it('matches header') { is_expected.to eq auth_headers['X-VA-Last-Name'] }
-    end
+    include_examples 'HLR record attributes from delegators', factory: :higher_level_review_v2
 
     describe '#full_name' do
       subject { higher_level_review.full_name }
@@ -99,53 +149,16 @@ describe AppealsApi::HigherLevelReview, type: :model do
     describe '#stamp_text' do
       it { expect(higher_level_review.stamp_text).to eq('Doé - 6789') }
 
-      it 'truncates the last name if too long' do
-        full_last_name = 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdddddddddd'
-        higher_level_review.auth_headers['X-VA-Last-Name'] = full_last_name
-        expect(higher_level_review.stamp_text).to eq 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdd... - 6789'
+      describe 'when the last name is too long' do
+        let(:higher_level_review) do
+          auth_headers = default_auth_headers.merge!('X-VA-Last-Name' => 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdddddddddd')
+          create(:higher_level_review_v2, auth_headers:)
+        end
+
+        it 'truncates the last name' do
+          expect(higher_level_review.stamp_text).to eq 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdd... - 6789'
+        end
       end
-    end
-
-    describe '#ssn' do
-      subject { higher_level_review.ssn }
-
-      it('matches header') { is_expected.to eq auth_headers['X-VA-SSN'] }
-    end
-
-    describe '#file_number' do
-      subject { higher_level_review.file_number }
-
-      it('matches header') { is_expected.to eq auth_headers['X-VA-File-Number'] }
-    end
-
-    describe '#veteran_birth_mm' do
-      subject { higher_level_review.veteran_birth_mm }
-
-      it('matches header') { is_expected.to eq auth_headers['X-VA-Birth-Date'][5..6] }
-    end
-
-    describe '#veteran_birth_dd' do
-      subject { higher_level_review.veteran_birth_dd }
-
-      it('matches header') { is_expected.to eq auth_headers['X-VA-Birth-Date'][8..9] }
-    end
-
-    describe '#veteran_birth_yyyy' do
-      subject { higher_level_review.veteran_birth_yyyy }
-
-      it('matches header') { is_expected.to eq auth_headers['X-VA-Birth-Date'][0..3] }
-    end
-
-    describe '#service_number' do
-      subject { higher_level_review.service_number }
-
-      it('matches header') { is_expected.to eq auth_headers['X-VA-Service-Number'] }
-    end
-
-    describe '#insurance_policy_number' do
-      subject { higher_level_review.insurance_policy_number }
-
-      it('matches header') { is_expected.to eq auth_headers['X-VA-Insurance-Policy-Number'] }
     end
 
     describe '#zip_code_5' do

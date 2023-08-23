@@ -120,9 +120,9 @@ module AppealsApi
 
     def signing_appellant?
       # claimant is signer if present
-      return true if claimant? && claimant_headers_present?
+      return true if claimant? && claimant_details_present?
 
-      veteran? && !claimant_headers_present?
+      veteran? && !claimant_details_present?
     end
 
     def veteran?
@@ -165,9 +165,8 @@ module AppealsApi
       form_data['address'] || {}
     end
 
-    def claimant_headers_present?
-      form_data.dig('data', 'attributes', 'claimant', 'lastName').present? ||
-        auth_headers.include?('X-VA-NonVeteranClaimant-Last-Name')
+    def claimant_details_present?
+      form_data['lastName'].present? || auth_headers.include?('X-VA-NonVeteranClaimant-Last-Name')
     end
 
     def mpi_veteran

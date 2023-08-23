@@ -4,6 +4,15 @@
       "attributes": {
         "benefitType": "education",
         "veteran": {
+          "icn": "1013062086V794840",
+          "ssn": "123456789",
+          "firstName": "Jäñe",
+          "middleInitial": "ø",
+          "lastName": "Doé",
+          "birthDate": "1969-12-31",
+          "fileNumber": "987654321",
+          "serviceNumber": "876543210",
+          "insurancePolicyNumber": "987654321123456789",
           "homeless": true,
           "address": {
             "addressLine1": "123 Main St",
@@ -24,6 +33,11 @@
           "timezone": "America/Chicago"
         },
         "claimant": {
+          "ssn": "829347561",
+          "birthDate": "1972-05-08",
+          "firstName": "Betty",
+          "middleInitial": "D",
+          "lastName": "Boop",
           "address": {
             "addressLine1": "456 First St",
             "addressLine2": "Apt 5",

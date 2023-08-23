@@ -5,6 +5,15 @@
       "informalConference": true,
       "benefitType": "fiduciary",
       "veteran": {
+        "icn": "1013062086V794840",
+        "ssn": "123456789",
+        "firstName": "Jäñe",
+        "middleInitial": "ø",
+        "lastName": "Doé",
+        "birthDate": "1969-12-31",
+        "fileNumber": "987654321",
+        "serviceNumber": "876543210",
+        "insurancePolicyNumber": "987654321123456789",
         "address": {
           "addressLine1": "123 Somestreet",
           "city": "Sometown",
