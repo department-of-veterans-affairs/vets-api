@@ -748,7 +748,9 @@ docs/setup/running_natively.md    @department-of-veterans-affairs/backend-review
 docs/setup/va_forms.md    @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 docs/setup/virtual_machine_access.md    @department-of-veterans-affairs/backend-review-group
 # Gemfile
+Gemfile    @department-of-veterans-affairs/backend-review-group
 # Gemfile.lock
+Gemfile.lock    @department-of-veterans-affairs/backend-review-group
 # .gitattributes
 # .github
 .github/CODEOWNERS    @department-of-veterans-affairs/backend-review-group
