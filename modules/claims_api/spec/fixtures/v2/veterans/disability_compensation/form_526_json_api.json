@@ -151,14 +151,16 @@
             "endDate": "08-2018"
           }
         },
-        "multipleExposures": {
-          "exposureDates": {
-            "beginDate": "07-2018",
-            "endDate": "08-2018"
-          },
-          "exposureLocation": "ABCDEFGHIJKLMN",
-          "hazardExposedTo": "ABCDEFGHIJKLMNO"
-        }
+        "multipleExposures": [
+          {
+            "exposureDates": {
+              "beginDate": "12-2012",
+              "endDate": "07-2013"
+            },
+            "exposureLocation": "Guam",
+            "hazardExposedTo": "RADIATION"
+          }
+        ]
       },
       "treatments": [
         {

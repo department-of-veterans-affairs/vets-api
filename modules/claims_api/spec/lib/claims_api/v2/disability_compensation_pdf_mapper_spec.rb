@@ -194,10 +194,10 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         exp_begin_date = toxic_exp_data[:additionalHazardExposures][:exposureDates][:start]
         exp_end_date = toxic_exp_data[:additionalHazardExposures][:exposureDates][:end]
 
-        multi_exp_begin_date = toxic_exp_data[:multipleExposures][:exposureDates][:start]
-        multi_exp_end_date = toxic_exp_data[:multipleExposures][:exposureDates][:end]
-        multi_exp_location = toxic_exp_data[:multipleExposures][:exposureLocation]
-        multi_exp_hazard = toxic_exp_data[:multipleExposures][:hazardExposedTo]
+        multi_exp_begin_date = toxic_exp_data[:multipleExposures][0][:exposureDates][:start]
+        multi_exp_end_date = toxic_exp_data[:multipleExposures][0][:exposureDates][:end]
+        multi_exp_location = toxic_exp_data[:multipleExposures][0][:exposureLocation]
+        multi_exp_hazard = toxic_exp_data[:multipleExposures][0][:hazardExposedTo]
 
         expect(gulf_locations).to eq('YES')
         expect(gulf_begin_date).to eq({ month: 7, year: 2018 })
@@ -213,10 +213,10 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(exp_begin_date).to eq({ month: 7, year: 2018 })
         expect(exp_end_date).to eq({ month: 8, year: 2018 })
 
-        expect(multi_exp_begin_date).to eq({ month: 7, year: 2018 })
-        expect(multi_exp_end_date).to eq({ month: 8, year: 2018 })
-        expect(multi_exp_location).to eq('ABCDEFGHIJKLMN')
-        expect(multi_exp_hazard).to eq('ABCDEFGHIJKLMNO')
+        expect(multi_exp_begin_date).to eq({ month: 12, year: 2012 })
+        expect(multi_exp_end_date).to eq({ month: 7, year: 2013 })
+        expect(multi_exp_location).to eq('Guam')
+        expect(multi_exp_hazard).to eq('RADIATION')
       end
     end
 
