@@ -170,6 +170,9 @@ module DebtsApi
         form.reject! { |k, _v| k == 'streamlined' }
         form['streamlined'] = streamline_data['value']
       end
+
+      form['streamlined'] = nil unless Flipper.enabled?(:financial_status_report_streamlined_waiver, @user)
+
       form
     end
 
