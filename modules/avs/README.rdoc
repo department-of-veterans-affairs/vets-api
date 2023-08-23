@@ -1,0 +1,10 @@
+= Avs
+This module provides endpoints to allow listing and retrieving After Visit Summaries.
+
+== Installation
+Ensure the following line is in the root project's Gemfile:
+
+  gem 'avs', path: 'modules/avs'
+
+== License
+This module is open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

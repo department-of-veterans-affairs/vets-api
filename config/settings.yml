@@ -1584,3 +1584,8 @@ coverband:
 
 dogstatsd:
   enabled: false
+
+avs:
+  mock: true
+  timeout: 55
+  url: "https://something.fake.va.gov"
