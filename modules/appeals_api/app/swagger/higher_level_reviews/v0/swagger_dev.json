@@ -190,6 +190,11 @@
                                 "informalConference": false,
                                 "benefitType": "lifeInsurance",
                                 "veteran": {
+                                  "icn": "1013062086V794840",
+                                  "ssn": "123456789",
+                                  "firstName": "Jane",
+                                  "lastName": "Doe",
+                                  "birthDate": "1969-12-31",
                                   "homeless": false,
                                   "address": {
                                     "addressLine1": "123 Some St.",
@@ -229,6 +234,15 @@
                               "attributes": {
                                 "benefitType": "education",
                                 "veteran": {
+                                  "icn": "1013062086V794840",
+                                  "ssn": "123456789",
+                                  "firstName": "Jäñe",
+                                  "middleInitial": "ø",
+                                  "lastName": "Doé",
+                                  "birthDate": "1969-12-31",
+                                  "fileNumber": "987654321",
+                                  "serviceNumber": "876543210",
+                                  "insurancePolicyNumber": "987654321123456789",
                                   "homeless": true,
                                   "address": {
                                     "addressLine1": "123 Main St",
@@ -249,6 +263,11 @@
                                   "timezone": "America/Chicago"
                                 },
                                 "claimant": {
+                                  "ssn": "829347561",
+                                  "birthDate": "1972-05-08",
+                                  "firstName": "Betty",
+                                  "middleInitial": "D",
+                                  "lastName": "Boop",
                                   "address": {
                                     "addressLine1": "456 First St",
                                     "addressLine2": "Apt 5",
@@ -486,6 +505,11 @@
                         "informalConference": false,
                         "benefitType": "lifeInsurance",
                         "veteran": {
+                          "icn": "1013062086V794840",
+                          "ssn": "123456789",
+                          "firstName": "Jane",
+                          "lastName": "Doe",
+                          "birthDate": "1969-12-31",
                           "homeless": false,
                           "address": {
                             "addressLine1": "123 Some St.",
@@ -514,6 +538,15 @@
                       "attributes": {
                         "benefitType": "education",
                         "veteran": {
+                          "icn": "1013062086V794840",
+                          "ssn": "123456789",
+                          "firstName": "Jäñe",
+                          "middleInitial": "ø",
+                          "lastName": "Doé",
+                          "birthDate": "1969-12-31",
+                          "fileNumber": "987654321",
+                          "serviceNumber": "876543210",
+                          "insurancePolicyNumber": "987654321123456789",
                           "homeless": true,
                           "address": {
                             "addressLine1": "123 Main St",
@@ -534,6 +567,11 @@
                           "timezone": "America/Chicago"
                         },
                         "claimant": {
+                          "ssn": "829347561",
+                          "birthDate": "1972-05-08",
+                          "firstName": "Betty",
+                          "middleInitial": "D",
+                          "lastName": "Boop",
                           "address": {
                             "addressLine1": "456 First St",
                             "addressLine2": "Apt 5",
@@ -910,6 +948,76 @@
                                 "veteran": {
                                   "type": "object",
                                   "properties": {
+                                    "ssn": {
+                                      "allOf": [
+                                        {
+                                          "$ref": "ssn.json"
+                                        },
+                                        {
+                                          "description": "Veteran's SSN"
+                                        }
+                                      ]
+                                    },
+                                    "icn": {
+                                      "$ref": "icn.json"
+                                    },
+                                    "firstName": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's first name",
+                                          "minLength": 1,
+                                          "maxLength": 30
+                                        },
+                                        {
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
+                                    "middleInitial": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's middle initial",
+                                          "minLength": 1,
+                                          "maxLength": 1
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
+                                    "lastName": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's last name",
+                                          "minLength": 1,
+                                          "maxLength": 40
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
+                                    "birthDate": {
+                                      "description": "Veteran's birth date",
+                                      "type": "string",
+                                      "format": "date"
+                                    },
+                                    "fileNumber": {
+                                      "$ref": "fileNumber.json"
+                                    },
+                                    "insurancePolicyNumber": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's insurance policy number",
+                                          "maxLength": 18
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
                                     "homeless": {
                                       "type": "boolean"
                                     },
@@ -930,6 +1038,11 @@
                                     }
                                   },
                                   "required": [
+                                    "ssn",
+                                    "icn",
+                                    "firstName",
+                                    "lastName",
+                                    "birthDate",
                                     "homeless"
                                   ],
                                   "if": {
@@ -947,8 +1060,50 @@
                                 },
                                 "claimant": {
                                   "type": "object",
-                                  "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
+                                  "description": "If the claimant is not a veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
                                   "properties": {
+                                    "ssn": {
+                                      "allOf": [
+                                        {
+                                          "$ref": "ssn.json"
+                                        },
+                                        {
+                                          "description": "Non-veteran claimant's SSN"
+                                        }
+                                      ]
+                                    },
+                                    "firstName": {
+                                      "type": "string",
+                                      "description": "Non-veteran claimant's first name",
+                                      "maxLength": 30
+                                    },
+                                    "middleInitial": {
+                                      "allOf": [
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        },
+                                        {
+                                          "description": "Non-veteran claimant's middle initial",
+                                          "maxLength": 1
+                                        }
+                                      ]
+                                    },
+                                    "lastName": {
+                                      "allOf": [
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        },
+                                        {
+                                          "description": "Non-veteran claimant's last name",
+                                          "maxLength": 40
+                                        }
+                                      ]
+                                    },
+                                    "birthDate": {
+                                      "description": "Non-veteran claimant's birth date",
+                                      "type": "string",
+                                      "format": "date"
+                                    },
                                     "address": {
                                       "$ref": "address.json"
                                     },
@@ -966,6 +1121,10 @@
                                     }
                                   },
                                   "required": [
+                                    "ssn",
+                                    "firstName",
+                                    "lastName",
+                                    "birthDate",
                                     "address",
                                     "phone"
                                   ]
@@ -2061,6 +2220,7 @@
                         "available_options": [
                           "200996",
                           "address",
+                          "fileNumber",
                           "icn",
                           "nonBlankString",
                           "phone",
@@ -2390,6 +2550,11 @@
                         "informalConference": false,
                         "benefitType": "lifeInsurance",
                         "veteran": {
+                          "icn": "1013062086V794840",
+                          "ssn": "123456789",
+                          "firstName": "Jane",
+                          "lastName": "Doe",
+                          "birthDate": "1969-12-31",
                           "homeless": false,
                           "address": {
                             "addressLine1": "123 Some St.",
@@ -2418,6 +2583,15 @@
                       "attributes": {
                         "benefitType": "education",
                         "veteran": {
+                          "icn": "1013062086V794840",
+                          "ssn": "123456789",
+                          "firstName": "Jäñe",
+                          "middleInitial": "ø",
+                          "lastName": "Doé",
+                          "birthDate": "1969-12-31",
+                          "fileNumber": "987654321",
+                          "serviceNumber": "876543210",
+                          "insurancePolicyNumber": "987654321123456789",
                           "homeless": true,
                           "address": {
                             "addressLine1": "123 Main St",
@@ -2438,6 +2612,11 @@
                           "timezone": "America/Chicago"
                         },
                         "claimant": {
+                          "ssn": "829347561",
+                          "birthDate": "1972-05-08",
+                          "firstName": "Betty",
+                          "middleInitial": "D",
+                          "lastName": "Boop",
                           "address": {
                             "addressLine1": "456 First St",
                             "addressLine2": "Apt 5",
@@ -2884,6 +3063,77 @@
                   "veteran": {
                     "type": "object",
                     "properties": {
+                      "ssn": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/ssn"
+                          },
+                          {
+                            "description": "Veteran's SSN"
+                          }
+                        ]
+                      },
+                      "icn": {
+                        "$ref": "#/components/schemas/icn"
+                      },
+                      "firstName": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's first name",
+                            "minLength": 1,
+                            "maxLength": 30
+                          },
+                          {
+                            "$comment": "can be whitespace, to accommodate those with 1 legal name"
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
+                      "middleInitial": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's middle initial",
+                            "minLength": 1,
+                            "maxLength": 1
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
+                      "lastName": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's last name",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
+                      "birthDate": {
+                        "description": "Veteran's birth date",
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "fileNumber": {
+                        "$ref": "#/components/schemas/fileNumber"
+                      },
+                      "insurancePolicyNumber": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's insurance policy number",
+                            "maxLength": 18
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
                       "homeless": {
                         "type": "boolean"
                       },
@@ -2904,6 +3154,11 @@
                       }
                     },
                     "required": [
+                      "ssn",
+                      "icn",
+                      "firstName",
+                      "lastName",
+                      "birthDate",
                       "homeless"
                     ],
                     "if": {
@@ -2921,8 +3176,51 @@
                   },
                   "claimant": {
                     "type": "object",
-                    "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
+                    "description": "If the claimant is not a veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
                     "properties": {
+                      "ssn": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/ssn"
+                          },
+                          {
+                            "description": "Non-veteran claimant's SSN"
+                          }
+                        ]
+                      },
+                      "firstName": {
+                        "type": "string",
+                        "description": "Non-veteran claimant's first name",
+                        "maxLength": 30,
+                        "$comment": "can be whitespace, to accommodate those with 1 legal name"
+                      },
+                      "middleInitial": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          },
+                          {
+                            "description": "Non-veteran claimant's middle initial",
+                            "maxLength": 1
+                          }
+                        ]
+                      },
+                      "lastName": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          },
+                          {
+                            "description": "Non-veteran claimant's last name",
+                            "maxLength": 40
+                          }
+                        ]
+                      },
+                      "birthDate": {
+                        "description": "Non-veteran claimant's birth date",
+                        "type": "string",
+                        "format": "date"
+                      },
                       "address": {
                         "$ref": "#/components/schemas/address"
                       },
@@ -2940,6 +3238,10 @@
                       }
                     },
                     "required": [
+                      "ssn",
+                      "firstName",
+                      "lastName",
+                      "birthDate",
                       "address",
                       "phone"
                     ]
