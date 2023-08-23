@@ -671,15 +671,13 @@ RSpec.describe V0::SignInController, type: :controller do
             end
 
             context 'and code is given that matches expected code for auth service' do
-              let(:response) { OpenStruct.new(access_token: token, id_token:, expires_in:) }
-              let(:id_token) { JWT.encode(id_token_payload, OpenSSL::PKey::RSA.new(2048), 'RS256') }
+              let(:response) { OpenStruct.new(access_token: token, logingov_acr:, expires_in:) }
               let(:expires_in) { 900 }
-              let(:id_token_payload) { { acr: login_gov_response_acr } }
-              let(:login_gov_response_acr) { IAL::LOGIN_GOV_IAL2 }
+              let(:logingov_acr) { IAL::LOGIN_GOV_IAL2 }
 
               context 'and credential should be uplevelled' do
                 let(:acr) { 'min' }
-                let(:login_gov_response_acr) { IAL::LOGIN_GOV_IAL1 }
+                let(:logingov_acr) { IAL::LOGIN_GOV_IAL1 }
                 let(:expected_redirect_uri) { Settings.logingov.redirect_uri }
                 let(:expected_redirect_uri_param) { { redirect_uri: expected_redirect_uri }.to_query }
 
@@ -2303,7 +2301,6 @@ RSpec.describe V0::SignInController, type: :controller do
           expiration_time: access_token_object.expiration_time.to_i
         }
       end
-      let(:logingov_id_token) { 'some-logingov-id-token' }
       let(:expected_status) { :redirect }
 
       before do
