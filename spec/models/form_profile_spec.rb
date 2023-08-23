@@ -962,6 +962,35 @@ RSpec.describe FormProfile, type: :model do
     end
   end
 
+  describe '#initialize_va_profile_prefill_military_information' do
+    context 'when va profile is down in production' do
+      before do
+        allow(Rails.env).to receive(:production?).and_return(true)
+      end
+
+      it 'logs exception and returns empty hash' do
+        expect(form_profile).to receive(:log_exception_to_sentry).with(
+          instance_of(VCR::Errors::UnhandledHTTPRequestError), {}, prefill: :va_profile_prefill_military_information
+        )
+
+        expect(form_profile.send(:initialize_va_profile_prefill_military_information)).to eq({})
+      end
+    end
+
+    it 'prefills military data from va profile' do
+      VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi') do
+        output = form_profile.send(:initialize_va_profile_prefill_military_information)
+        expected_output = {
+          'is_va_service_connected' => true,
+          'compensable_va_service_connected' => false,
+          'va_compensation_type' => 'highDisability'
+        }
+
+        expect(output).to eq(expected_output)
+      end
+    end
+  end
+
   describe '#pciu_us_phone' do
     def self.test_pciu_us_phone(primary, expected)
       it "returns #{expected}" do
