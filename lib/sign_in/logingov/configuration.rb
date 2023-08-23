@@ -6,6 +6,8 @@ require 'common/client/middleware/logging'
 module SignIn
   module Logingov
     class Configuration < Common::Client::Configuration::REST
+      attr_accessor :public_jwks
+
       def base_path
         Settings.logingov.oauth_url
       end
@@ -68,6 +70,14 @@ module SignIn
 
       def userinfo_path
         'api/openid_connect/userinfo'
+      end
+
+      def public_jwks_path
+        '/api/openid_connect/certs'
+      end
+
+      def jwt_decode_algorithm
+        'RS256'
       end
 
       def ssl_key

@@ -48,6 +48,24 @@ module SignIn
 
       private
 
+      def get_public_jwks
+        unless config.public_jwks
+          response = perform(:get, config.public_jwks_path, nil, nil)
+          config.public_jwks = parse_public_jwks(response:)
+          Rails.logger.info('[SignIn][Idme][Service] Get Public JWKs Success')
+        end
+
+        config.public_jwks
+      rescue Common::Client::Errors::ClientError => e
+        raise_client_error(e, 'Get Public JWKs')
+      end
+
+      def parse_public_jwks(response:)
+        jwks = JWT::JWK::Set.new(response.body)
+        jwks.select! { |key| key[:use] == 'sig' }
+        jwks
+      end
+
       def auth_params(acr, state)
         {
           scope: acr,
@@ -147,18 +165,18 @@ module SignIn
       end
 
       def jwt_decode(encoded_jwt)
-        with_validation = true
+        verify_expiration = true
         decoded_jwt = JWT.decode(
           encoded_jwt,
-          config.jwt_decode_public_key,
-          with_validation,
-          {
-            verify_expiration: with_validation,
-            algorithm: config.jwt_decode_algorithm
-          }
-        )&.first
+          nil,
+          verify_expiration,
+          { verify_expiration:, algorithm: config.jwt_decode_algorithm, jwks: get_public_jwks }
+        ).first
         log_parsed_credential(decoded_jwt) if config.log_credential
+
         OpenStruct.new(decoded_jwt)
+      rescue JWT::JWKError
+        raise Errors::PublicJWKError, '[SignIn][Idme][Service] Public JWK is malformed'
       rescue JWT::VerificationError
         raise Errors::JWTVerificationError, '[SignIn][Idme][Service] JWT body does not match signature'
       rescue JWT::ExpiredSignature

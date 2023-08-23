@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SignIn
-  module Idme
+  module Logingov
     module Errors
       class JWTVerificationError < StandardError; end
       class JWTExpiredError < StandardError; end
