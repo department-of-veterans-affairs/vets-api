@@ -28,9 +28,14 @@ module V0
     TYPES = %w[compensation].freeze
 
     def index
-      intent_to_file_service = ApiProviderFactory.intent_to_file_service_provider(@current_user)
+      intent_to_file_provider = ApiProviderFactory.call(
+        type: ApiProviderFactory::FACTORIES[:intent_to_file],
+        provider: nil,
+        options: {},
+        current_user: @current_user
+      )
       type = params['itf_type'] || 'compensation'
-      response = intent_to_file_service.get_intent_to_file(type, nil, nil)
+      response = intent_to_file_provider.get_intent_to_file(type, nil, nil)
       render json: response,
              serializer: IntentToFileSerializer
     end
@@ -42,9 +47,14 @@ module V0
     end
 
     def submit
-      intent_to_file_service = ApiProviderFactory.intent_to_file_service_provider(@current_user)
+      intent_to_file_provider = ApiProviderFactory.call(
+        type: ApiProviderFactory::FACTORIES[:intent_to_file],
+        provider: nil,
+        options: {},
+        current_user: @current_user
+      )
       type = params['itf_type'] || 'compensation'
-      response = intent_to_file_service.create_intent_to_file(type, nil, nil)
+      response = intent_to_file_provider.create_intent_to_file(type, nil, nil)
       render json: response,
              serializer: IntentToFileSerializer
     end
