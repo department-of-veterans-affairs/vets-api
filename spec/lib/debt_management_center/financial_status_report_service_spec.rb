@@ -197,7 +197,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
     end
 
     it 'submits to the VBS endpoint' do
-      service = described_class.new(user_data)
+      service = described_class.new(user)
       expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
     end
 
@@ -211,26 +211,35 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
     context 'with streamlined waiver' do
       let(:form_submission) { build(:sw_form5655_submission) }
       let(:non_streamlined_form_submission) { build(:non_sw_form5655_submission) }
+      let!(:user) { build(:user, :loa3) }
 
       it 'submits to the VBS endpoint' do
-        service = described_class.new(user_data)
+        service = described_class.new(user)
         expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
       end
 
       it 'makes streamlined the last key in the form hash' do
-        service = described_class.new(user_data)
+        service = described_class.new(user)
         adjusted_form = service.send(:streamline_adjustments, form_submission.form)
         expect(adjusted_form.keys.last).to eq('streamlined')
       end
 
       it 'changes fsrReason for streamlined waivers' do
-        service = described_class.new(user_data)
+        service = described_class.new(user)
         adjusted_form = service.send(:streamline_adjustments, form_submission.form)
         expect(adjusted_form['personalIdentification']['fsrReason']).to eq('et, Automatically Approved')
       end
 
+      it 'makes streamlined nil for no flag users' do
+        allow(Flipper).to receive(:enabled?).with(:financial_status_report_streamlined_waiver, user).and_return(false)
+        service = described_class.new(user)
+        form_submission.form['streamlined'].should_not be_nil
+        adjusted_form = service.send(:streamline_adjustments, form_submission.form)
+        expect(adjusted_form['streamlined']).to be_nil
+      end
+
       it 'does not change fsrReason for non-streamlined waivers' do
-        service = described_class.new(user_data)
+        service = described_class.new(user)
         adjusted_form = service.send(:streamline_adjustments, non_streamlined_form_submission.form)
         expect(adjusted_form['personalIdentification']['fsrReason']).not_to eq('Automatically Approved')
       end
