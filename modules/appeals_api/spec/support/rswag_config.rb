@@ -228,9 +228,8 @@ class AppealsApi::RswagConfig
       merge_schemas(
         nod_create_schemas,
         nod_response_schemas,
-        contestable_issues_schema.slice(*%i[contestableIssue]),
-        generic_schemas.except(*%i[errorWithTitleAndDetail timeStamp X-Consumer-ID X-Consumer-Username X-VA-Insurance-Policy-Number X-VA-NonVeteranClaimant-SSN X-VA-SSN]),
-        shared_schemas.slice(*%w[address phone timezone nonBlankString])
+        appealable_issues_response_schemas.slice(*%i[appealableIssue]),
+        generic_schemas.slice(*%i[errorModel uuid])
       )
     when 'supplemental_claims'
       merge_schemas(
@@ -636,8 +635,10 @@ class AppealsApi::RswagConfig
 
   def nod_create_schemas
     nod_schema = parse_create_schema('notice_of_disagreements', 'v0', '10182.json', return_raw: true)
+    evidence_schema = parse_create_schema('notice_of_disagreements', 'v0', 'evidence_submission.json', return_raw: true)
     {
-      nodCreate: { type: 'object' }.merge!(nod_schema.slice(*%w[description properties required]))
+      nodCreate: { type: 'object' }.merge!(nod_schema.slice(*%w[description properties required])),
+      nodEvidenceSubmissionCreate: { type: 'object' }.merge!(evidence_schema.slice(*%w[description properties required]))
     }
   end
 
@@ -805,7 +806,62 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def nod_response_schemas = decision_reviews_nod_response_schemas
+  def nod_response_schemas
+    decision_reviews_nod_response_schemas.merge(
+      {
+        'nodCreateResponse': {
+          'description': 'Successful response of a 10182 form submission',
+          'type': 'object',
+          'properties': {
+            'data': {
+              'properties': {
+                'id': {
+                  'type': 'string',
+                  'description': 'Unique ID of created NOD',
+                  'example': '97751cb6-d06d-4179-87f6-75e3fc9d875c'
+                },
+                'type': {
+                  'type': 'string',
+                  'description': 'Name of record class',
+                  'example': 'noticeOfDisagreement'
+                },
+                'attributes': {
+                  'type': 'object',
+                  'properties': {
+                    'status': {
+                      'type': 'string',
+                      'description': 'Status of NOD',
+                      'example': AppealsApi::NodStatus::STATUSES.first,
+                      'enum': AppealsApi::NodStatus::STATUSES
+                    },
+                    'createdAt': {
+                      'type': 'string',
+                      'description': 'Created timestamp of the NOD',
+                      'example': '2020-12-16T19:52:23.909Z'
+                    },
+                    'updatedAt': {
+                      'type': 'string',
+                      'description': 'Updated timestamp of the NOD',
+                      'example': '2020-12-16T19:52:23.909Z'
+                    }
+                  }
+                },
+                'formData': {
+                  '$ref': '#/components/schemas/nodCreate'
+                }
+              }
+            },
+            'included': {
+              'type': 'array',
+              'items': {
+                '$ref': '#/components/schemas/appealableIssue'
+              }
+            }
+          }
+        }
+      }
+    )
+  end
 
   def decision_reviews_sc_create_schemas
     sc_schema = parse_create_schema('decision_reviews', 'v2', '200995.json')
