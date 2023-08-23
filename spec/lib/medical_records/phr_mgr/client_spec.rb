@@ -38,5 +38,15 @@ describe PHRMgr::Client do
         end
       end
     end
+
+    context 'when ICN is blank' do
+      let(:icn) { nil }
+
+      it 'performs a PHR refresh', :vcr do
+        expect do
+          client.post_phrmgr_refresh(icn)
+        end.to raise_error(Common::Exceptions::ParameterMissing)
+      end
+    end
   end
 end
