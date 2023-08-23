@@ -7,18 +7,18 @@ module HCA
     PREFILL_METHODS = %w[
       currently_active_duty
       currently_active_duty_hash
+      discharge_type
       guard_reserve_service_history
       hca_last_service_branch
-      last_entry_date
       last_discharge_date
+      last_entry_date
       last_service_branch
       latest_guard_reserve_service_period
-      discharge_type
       post_nov111998_combat
+      service_branches
       service_episodes_by_date
       service_periods
       sw_asia_combat
-      service_branches
       tours_of_duty
     ].freeze
 
@@ -111,6 +111,107 @@ module HCA
       @service = VAProfile::MilitaryPersonnel::Service.new(user)
     end
 
+    # Temporary comment: Added by TT1
+    #
+    # @return [Boolean] true if the user is currently
+    #  serving in active duty
+    def currently_active_duty
+      currently_active_duty_hash[:yes]
+    end
+
+    # Temporary comment: Added by TT1
+    #
+    # @return [Hash] currently active duty data in hash format
+    def currently_active_duty_hash
+      is_active = false
+
+      service_episodes_by_date.each do |episode|
+        if episode.end_date && (episode.end_date.empty? || DateTime.parse(episode.end_date).to_date.future?)
+          is_active = true
+          break
+        end
+      end
+
+      { yes: is_active }
+    end
+
+    def deployments
+      @deployments ||= lambda do
+        return_val = []
+
+        service_history.episodes.each do |episode|
+          return_val += episode.deployments if episode.deployments.present?
+        end
+
+        return_val
+      end.call
+    end
+
+    def discharge_type
+      return if latest_service_episode.blank?
+
+      DISCHARGE_TYPES[latest_service_episode&.character_of_discharge_code]
+    end
+
+    # Temporary comment: Added by TT1
+    #
+    # @return [Array<Hash>] Veteran's guard and reserve service episode date
+    #  ranges sorted by end_date
+    def guard_reserve_service_history
+      guard_reserve_service_by_date.map do |period|
+        {
+          from: period.begin_date,
+          to: period.end_date
+        }
+      end
+    end
+
+    def hca_last_service_branch
+      HCA_SERVICE_BRANCHES[latest_service_episode&.branch_of_service_code] || 'other'
+    end
+
+    def last_discharge_date
+      latest_service_episode&.end_date
+    end
+
+    def last_entry_date
+      latest_service_episode&.begin_date
+    end
+
+    # Temporary comment: Added by TT1
+    #
+    # @return [String] Last service branch the veteran served under in
+    #  readable format
+    def last_service_branch
+      latest_service_episode&.branch_of_service
+    end
+
+    # Temporary comment: Added by TT1
+    #
+    # @return [Hash] Date range of the most recently completed service
+    #  in the guard or reserve service.
+    def latest_guard_reserve_service_period
+      guard_reserve_service_history.try(:[], 0)
+    end
+
+    def military_service_episodes
+      service_history.episodes.find_all do |episode|
+        episode.service_type == 'Military Service'
+      end
+    end
+
+    def post_nov111998_combat
+      deployments.each do |deployment|
+        return true if Date.parse(deployment['deployment_end_date']) > NOV_1998
+      end
+
+      false
+    end
+
+    def service_branches
+      military_service_episodes.map(&:branch_of_service_code).uniq
+    end
+
     def service_episodes_by_date
       @service_episodes_by_date ||= military_service_episodes.sort_by do |ep|
         if ep.end_date.blank?
@@ -141,49 +242,8 @@ module HCA
       end
     end
 
-    # Temporary comment: Added by TT1
-    #
-    # @return [Boolean] true if the user is currently
-    #  serving in active duty
-    def currently_active_duty
-      currently_active_duty_hash[:yes]
-    end
-
-    # Temporary comment: Added by TT1
-    #
-    # @return [Hash] currently active duty data in hash format
-    def currently_active_duty_hash
-      is_active = false
-
-      service_episodes_by_date.each do |episode|
-        if episode.end_date && (episode.end_date.empty? || DateTime.parse(episode.end_date).to_date.future?)
-          is_active = true
-          break
-        end
-      end
-
-      { yes: is_active }
-    end
-
-    # Temporary comment: Added by TT1
-    #
-    # @return [Array<Hash>] Veteran's guard and reserve service episode date
-    #  ranges sorted by end_date
-    def guard_reserve_service_history
-      guard_reserve_service_by_date.map do |period|
-        {
-          from: period.begin_date,
-          to: period.end_date
-        }
-      end
-    end
-
-    def hca_last_service_branch
-      HCA_SERVICE_BRANCHES[latest_service_episode&.branch_of_service_code] || 'other'
-    end
-
-    def service_branches
-      military_service_episodes.map(&:branch_of_service_code).uniq
+    def sw_asia_combat
+      deployed_to?(SOUTHWEST_ASIA, GULF_WAR_RANGE)
     end
 
     # @return [Array<Hash>] Data about the veteran's tours of duty
@@ -200,19 +260,7 @@ module HCA
       end
     end
 
-    def latest_service_episode
-      service_episodes_by_date.try(:[], 0)
-    end
-
-    def military_service_episodes
-      service_history.episodes.find_all do |episode|
-        episode.service_type == 'Military Service'
-      end
-    end
-
-    def sw_asia_combat
-      deployed_to?(SOUTHWEST_ASIA, GULF_WAR_RANGE)
-    end
+    private
 
     def deployed_to?(countries, date_range)
       deployments.each do |deployment|
@@ -228,58 +276,6 @@ module HCA
       false
     end
 
-    def post_nov111998_combat
-      deployments.each do |deployment|
-        return true if Date.parse(deployment['deployment_end_date']) > NOV_1998
-      end
-
-      false
-    end
-
-    def discharge_type
-      return if latest_service_episode.blank?
-
-      DISCHARGE_TYPES[latest_service_episode&.character_of_discharge_code]
-    end
-
-    def last_discharge_date
-      latest_service_episode&.end_date
-    end
-
-    # Temporary comment: Added by TT1
-    #
-    # @return [String] Last service branch the veteran served under in
-    #  readable format
-    def last_service_branch
-      latest_service_episode&.branch_of_service
-    end
-
-    def last_entry_date
-      latest_service_episode&.begin_date
-    end
-
-    # Temporary comment: Added by TT1
-    #
-    # @return [Hash] Date range of the most recently completed service
-    #  in the guard or reserve service.
-    def latest_guard_reserve_service_period
-      guard_reserve_service_history.try(:[], 0)
-    end
-
-    def deployments
-      @deployments ||= lambda do
-        return_val = []
-
-        service_history.episodes.each do |episode|
-          return_val += episode.deployments if episode.deployments.present?
-        end
-
-        return_val
-      end.call
-    end
-
-    private
-
     # Temporary comment: Added by TT1
     #
     # @return [Array<Hash] array of veteran's Guard and reserve service periods by period of service end date, DESC
@@ -289,6 +285,10 @@ module HCA
         national_guard?(code) || reserve?(code)
       end.sort_by(&:end_date)
                                        .reverse
+    end
+
+    def latest_service_episode
+      service_episodes_by_date.try(:[], 0)
     end
 
     # Temporary comment: Added by TT1
