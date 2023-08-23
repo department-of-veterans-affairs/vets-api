@@ -11,7 +11,9 @@ RSpec.describe 'Disability compensation form' do
   let(:user) { build(:disabilities_compensation_user) }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
-  let(:feature_toggle_rated_disabilities) { 'disability_compensation_lighthouse_rated_disabilities_provider' }
+  let(:feature_toggle_rated_disabilities) do
+    'disability_compensation_lighthouse_rated_disabilities_provider_foreground'
+  end
 
   before do
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)

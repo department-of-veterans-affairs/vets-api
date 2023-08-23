@@ -15,11 +15,15 @@ module V0
     before_action :validate_name_part, only: [:suggested_conditions]
 
     def rated_disabilities
-      service = ApiProviderFactory.rated_disabilities_service_provider(
-        { icn: @current_user.icn.to_s, auth_headers: }
+      api_provider = ApiProviderFactory.call(
+        type: ApiProviderFactory::FACTORIES[:rated_disabilities],
+        provider: nil,
+        options: { icn: @current_user.icn.to_s, auth_headers: },
+        current_user: @current_user,
+        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
       )
 
-      response = service.get_rated_disabilities
+      response = api_provider.get_rated_disabilities
 
       render json: response,
              serializer: RatedDisabilitiesSerializer

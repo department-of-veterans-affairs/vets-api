@@ -41,7 +41,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
         end
 
         before do
-          Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+          Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
 
           sign_in_as(lighthouse_user)
@@ -105,7 +105,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
       context 'using the EVSS Rated Disabilities Provider' do
         before do
-          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
           sign_in_as(user)
         end
 

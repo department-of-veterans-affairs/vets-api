@@ -92,13 +92,18 @@ class FormProfiles::VA526ez < FormProfile
   def initialize_rated_disabilities_information
     return {} unless user.authorize :evss, :access?
 
-    service = ApiProviderFactory.rated_disabilities_service_provider(
-      {
-        auth_headers: EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h),
-        icn: user.icn.to_s
-      }
+    api_provider = ApiProviderFactory.call(
+      type: ApiProviderFactory::FACTORIES[:rated_disabilities],
+      provider: nil,
+      options: {
+        icn: user.icn.to_s,
+        auth_headers: EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+      },
+      current_user: user,
+      feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
     )
-    response = service.get_rated_disabilities
+
+    response = api_provider.get_rated_disabilities
     ClaimFastTracking::MaxRatingAnnotator.annotate_disabilities(response)
 
     # Remap response object to schema fields

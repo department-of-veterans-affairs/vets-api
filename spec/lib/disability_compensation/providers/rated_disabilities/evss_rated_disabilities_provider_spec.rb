@@ -15,12 +15,14 @@ RSpec.describe EvssRatedDisabilitiesProvider do
   end
 
   before do
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
+    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
   end
 
   after do
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
+    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
   end
 
   it_behaves_like 'rated disabilities provider'
