@@ -204,12 +204,10 @@ class FormProfile
   end
 
   def initialize_military_information
-    hca_military_information = initialize_hca_military_information
-    va_profile_prefill_military_information = initialize_va_profile_prefill_military_information
-    
-    FormMilitaryInformation.new(hca_military_information.merge(va_profile_prefill_military_information))
+    FormMilitaryInformation.new(initialize_hca_military_information
+                                .merge(initialize_va_profile_prefill_military_information))
   end
-  
+
   private
 
   def initialize_hca_military_information
