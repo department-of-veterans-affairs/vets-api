@@ -6,6 +6,8 @@ require 'common/client/middleware/logging'
 module SignIn
   module Idme
     class Configuration < Common::Client::Configuration::REST
+      attr_accessor :public_jwks
+
       def base_path
         Settings.idme.oauth_url
       end
@@ -38,6 +40,10 @@ module SignIn
         Constants::Auth::IDME_LOA3
       end
 
+      def public_jwks_path
+        'oidc/.well-known/jwks'
+      end
+
       def auth_path
         'oauth/authorize'
       end
@@ -68,10 +74,6 @@ module SignIn
 
       def jwt_decode_algorithm
         'RS256'
-      end
-
-      def jwt_decode_public_key
-        @idme_public_keys ||= IdmePublicKeyFetcher.new.perform
       end
 
       def ssl_key
