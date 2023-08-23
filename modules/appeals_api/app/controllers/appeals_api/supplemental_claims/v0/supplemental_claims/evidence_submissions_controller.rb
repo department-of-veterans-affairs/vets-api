@@ -34,7 +34,7 @@ module AppealsApi::SupplementalClaims::V0::SupplementalClaims
       form_schemas.validate!('EVIDENCE_SUBMISSION', params.to_unsafe_h)
 
       status, error = AppealsApi::EvidenceSubmissionRequestValidator.new(
-        params[:sc_uuid], params[:ssn], 'SupplementalClaim'
+        params[:scId], params[:ssn], 'SupplementalClaim'
       ).call
 
       unless status == :ok
@@ -46,7 +46,7 @@ module AppealsApi::SupplementalClaims::V0::SupplementalClaims
       submission = AppealsApi::EvidenceSubmission.create!(
         {
           source: request.headers['X-Consumer-Username'],
-          supportable_id: params[:sc_uuid],
+          supportable_id: params[:scId],
           supportable_type: 'AppealsApi::SupplementalClaim',
           upload_submission: upload
         }
