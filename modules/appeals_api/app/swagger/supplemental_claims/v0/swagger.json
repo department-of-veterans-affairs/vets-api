@@ -692,7 +692,7 @@
         }
       }
     },
-    "/forms/200995/{uuid}": {
+    "/forms/200995/{id}": {
       "get": {
         "summary": "Shows a specific Supplemental Claim. (a.k.a. the Show endpoint)",
         "tags": [
@@ -723,14 +723,15 @@
         ],
         "parameters": [
           {
-            "name": "uuid",
+            "name": "id",
             "in": "path",
             "description": "Supplemental Claim UUID",
             "example": "7efd87fc-fac1-4851-a4dd-b9aa2533f57f",
-            "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
           }
         ],
         "responses": {
@@ -763,7 +764,7 @@
                   "errors": [
                     {
                       "code": "404",
-                      "detail": "SupplementalClaim with uuid invalid not found",
+                      "detail": "SupplementalClaim with uuid 00000000-0000-0000-0000-000000000000 not found",
                       "status": "404",
                       "title": "Record not found"
                     }
@@ -2880,7 +2881,7 @@
                       "detail": "Expected string data",
                       "code": "140",
                       "source": {
-                        "pointer": "/sc_uuid"
+                        "pointer": "/scId"
                       },
                       "status": "422"
                     }
@@ -3067,7 +3068,7 @@
         }
       }
     },
-    "/evidence-submissions/{uuid}": {
+    "/evidence-submissions/{id}": {
       "get": {
         "summary": "Returns all of the data associated with a specific Supplemental Claim Evidence Submission.",
         "tags": [
@@ -3098,13 +3099,14 @@
         ],
         "parameters": [
           {
-            "name": "uuid",
+            "name": "id",
             "in": "path",
             "description": "Supplemental Claim UUID Evidence Submission",
-            "required": true,
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
           }
         ],
         "responses": {
@@ -3142,7 +3144,7 @@
                   "errors": [
                     {
                       "title": "Record not found",
-                      "detail": "The record identified by invalid could not be found",
+                      "detail": "The record identified by 00000000-0000-0000-0000-000000000000 could not be found",
                       "code": "404",
                       "status": "404"
                     }
@@ -4257,10 +4259,11 @@
         "description": "JSON Schema for evidence submissions for VA Form 20-0995",
         "type": "object",
         "properties": {
-          "sc_uuid": {
+          "scId": {
             "type": "string",
             "format": "uuid",
-            "description": "Associated Supplemental Claim UUID"
+            "description": "Associated Supplemental Claim UUID",
+            "example": "7efd87fc-fac1-4851-a4dd-b9aa2533f57f"
           },
           "ssn": {
             "allOf": [
@@ -4274,7 +4277,7 @@
           }
         },
         "required": [
-          "sc_uuid",
+          "scId",
           "ssn"
         ]
       },
