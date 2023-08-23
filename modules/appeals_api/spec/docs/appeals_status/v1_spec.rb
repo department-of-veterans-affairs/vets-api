@@ -99,7 +99,7 @@ describe 'Appeals Status', swagger_doc:, type: :request do
           end
 
           it 'returns a 422 response' do |example|
-            pending('FIXME: Raw caseflow error is currently returned; Error should be reformatted according to the shared errorModel schema.')
+            pending 'Raw caseflow error is currently returned; Error should be reformatted according to the shared errorModel schema.'
             assert_response_matches_metadata(example.metadata)
           end
         end
