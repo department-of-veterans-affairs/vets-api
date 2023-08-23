@@ -1,14 +1,14 @@
 The Notice of Disagreements API lets you create and manage board appeals (known as Notice of Disagreements (NODs)). NODs can be requested after an initial claim, Supplemental Claim, or Higher-Level Review decision is made. [Learn more about Notice of Disagreements](https://www.va.gov/decision-reviews/board-appeal/).
 
-To check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://dev-developer.va.gov/explore/appeals/docs/appeals?version=current).
+To check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://dev-developer.va.gov/explore/api/appeals-status/docs).
 
 ## Technical overview
 The Notice of Disagreements API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Notice of Disagreement.
 
 ### Authorization and Access
 The authentication model for the Notice of Disagreements API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:
-* [Authorization code flow](https://dev-developer.va.gov/explore/authorization/docs/authorization-code)
-* [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/authorization/docs/client-credentials)
+* [Authorization code flow](https://dev-developer.va.gov/explore/api/notice-of-disagreements/authorization-code)
+* [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/notice-of-disagreements/client-credentials)
 
 **Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://dev-developer.va.gov/support/contact-us).
 
@@ -17,7 +17,7 @@ Use the correct GET endpoint to check the status of a Notice of Disagreement sub
 
 These endpoints return the status of the submission in Caseflow but not the status of the submission in VBMS, which is the status visible to claimants. Therefore, VBMS statuses are different from the statuses this API returns.
 
-To check the status of an appeal as it will appear to a claimant, use the [Appeals Status API](https://dev-developer.va.gov/explore/appeals/docs/appeals?version=current).
+To check the status of an appeal as it will appear to a claimant, use the [Appeals Status API](https://dev-developer.va.gov/explore/api/appeals-status/docs).
 
 | Status      | What it means |
 | ---        |     ---     |
@@ -36,7 +36,7 @@ Statuses can also be simulated for evidence document uploads.
 
 ### Evidence uploads
 Our NOD evidence submission endpoints allow a client to upload a document package (documents and metadata) of supporting evidence for their submission by following these steps.
-1. Use the endpoint `POST /evidence_submissions` to return a JSON service response with the attributes listed below.
+1. Use the endpoint `POST /evidence-submissions` to return a JSON service response with the attributes listed below.
     * `guid`: An identifier used for subsequent evidence upload status requests (not to be confused with the NOD submission GUID)
     * `location`: A URL to which the actual document package payload can be submitted in the next step. The URL is specific to this upload request, and should not be re-used for subsequent uploads. The URL is valid for 900 seconds (15 minutes) from the time of this response. If the location is not used within 15 minutes, the GUID will expire. Once expired, status checks on the GUID will return a status of `expired`.
 2. Client Request: PUT to the location URL returned in step 1.
@@ -59,7 +59,7 @@ Example `metadata.json` file:
 }
 ```
 
-The API will set the businessLine for your Evidence submission to ensure the documents are routed to the correct group within VA. You may check the status of your evidence document upload by using `GET /evidence_submissions/{uuid}`. If, after you've uploaded a document, the status hasn't changed to `uploaded` before 15 minutes has elapsed, we recommend retrying the submission to make sure the document properly reaches our servers.
+The API will set the businessLine for your Evidence submission to ensure the documents are routed to the correct group within VA. You may check the status of your evidence document upload by using `GET /evidence-submissions/{id}`. If, after you've uploaded a document, the status hasn't changed to `uploaded` before 15 minutes has elapsed, we recommend retrying the submission to make sure the document properly reaches our servers.
 
 For NODs, evidence may only be uploaded within 90 days of the NOD reaching submitted status. After 90 days an error will be returned if evidence uploads related to this NOD are attempted.
 
@@ -82,7 +82,7 @@ The metadata.json file only supports a limited set of characters within the asci
 
 ### Status Caching
 Due to system limitations, status attribute data for these endpoints is cached for 1 hour: 
-* GET `/forms/10182/{uuid}`
-* GET `/evidence_submission/{uuid}`
+* GET `/forms/10182/{id}`
+* GET `/evidence-submissions/{id}`
 
 The updated_at field indicates the last time the status for a given GUID was updated.
