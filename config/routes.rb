@@ -434,6 +434,7 @@ Rails.application.routes.draw do
 
   # Modules
   mount AskVAApi::Engine, at: '/ask_va_api'
+  mount Avs::Engine, at: '/avs'
   mount CheckIn::Engine, at: '/check_in'
   mount CovidResearch::Engine, at: '/covid-research'
   mount CovidVaccine::Engine, at: '/covid_vaccine'
