@@ -7,6 +7,9 @@ module AppealsApi::HigherLevelReviews::V0
     include AppealsApi::OpenidAuth
     include AppealsApi::PdfDownloads
 
+    skip_before_action :new_higher_level_review
+    skip_before_action :find_higher_level_review
+
     before_action :validate_icn_parameter, only: %i[download]
 
     API_VERSION = 'V0'
@@ -18,18 +21,68 @@ module AppealsApi::HigherLevelReviews::V0
       POST: %w[veteran/HigherLevelReviews.write representative/HigherLevelReviews.write system/HigherLevelReviews.write]
     }.freeze
 
+    def show
+      hlr = AppealsApi::HigherLevelReview.select(ALLOWED_COLUMNS).find(params[:id])
+      hlr = with_status_simulation(hlr) if status_requested_and_allowed?
+
+      render_higher_level_review(hlr)
+    rescue ActiveRecord::RecordNotFound
+      render_higher_level_review_not_found(params[:id])
+    end
+
+    def create
+      hlr = AppealsApi::HigherLevelReview.new(
+        auth_headers: request_headers,
+        form_data: @json_body,
+        source: request_headers['X-Consumer-Username'].presence&.strip,
+        api_version: self.class::API_VERSION,
+        veteran_icn: @json_body.dig('data', 'attributes', 'veteran', 'icn')
+      )
+
+      return render_model_errors(hlr) unless hlr.validate
+
+      hlr.save
+      AppealsApi::PdfSubmitJob.perform_async(hlr.id, 'AppealsApi::HigherLevelReview', 'v3')
+
+      render_higher_level_review(hlr)
+    end
+
     def download
       @id = params[:id]
       @higher_level_review = AppealsApi::HigherLevelReview.find(@id)
 
       render_appeal_pdf_download(@higher_level_review, "#{FORM_NUMBER}-higher-level-review-#{@id}.pdf")
     rescue ActiveRecord::RecordNotFound
-      render_higher_level_review_not_found
+      render_higher_level_review_not_found(params[:id])
     end
 
     private
 
     def header_names = headers_schema['definitions']['hlrCreateParameters']['properties'].keys
+
+    def render_higher_level_review(hlr)
+      render json: AppealsApi::HigherLevelReviewSerializer.new(hlr).serializable_hash
+    end
+
+    def render_higher_level_review_not_found(id)
+      render(
+        status: :not_found,
+        json: {
+          errors: [
+            {
+              code: '404',
+              detail: I18n.t('appeals_api.errors.not_found', type: 'HigherLevelReview', id:),
+              status: '404',
+              title: 'Record not found'
+            }
+          ]
+        }
+      )
+    end
+
+    def render_model_errors(hlr)
+      render json: model_errors_to_json_api(hlr), status: MODEL_ERROR_STATUS
+    end
 
     def validate_icn_parameter
       validation_errors = []
