@@ -50,8 +50,8 @@ class ApiProviderFactory
     }
   )
 
-  def self.call(**args)
-    new(**args).call
+  def self.call(**)
+    new(**).call
   end
 
   def initialize(type:, current_user:, provider: nil, options: {}, feature_toggle: nil)
