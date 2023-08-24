@@ -17,5 +17,6 @@ class UserProfileAttributes < Common::RedisStore
   attribute :first_name
   attribute :last_name
   attribute :ssn
+  attribute :flipper_id
   validates :uuid, presence: true
 end
