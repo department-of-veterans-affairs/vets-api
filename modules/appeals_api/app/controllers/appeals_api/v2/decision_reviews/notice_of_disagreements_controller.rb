@@ -8,9 +8,10 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
   include AppealsApi::JsonFormatValidation
   include AppealsApi::StatusSimulation
   include AppealsApi::CharacterUtilities
+  include AppealsApi::PdfDownloads
 
   skip_before_action :authenticate
-  before_action :validate_icn_header, only: %i[index]
+  before_action :validate_icn_header, only: %i[index download]
   before_action :validate_json_format, if: -> { request.post? }
   before_action :validate_json_schema, only: %i[create validate]
   before_action :new_notice_of_disagreement, only: %i[create validate]
@@ -44,6 +45,18 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
   def show
     @notice_of_disagreement = with_status_simulation(@notice_of_disagreement) if status_requested_and_allowed?
     render_notice_of_disagreement
+  end
+
+  def download
+    @notice_of_disagreement = AppealsApi::NoticeOfDisagreement.find(params[:id])
+
+    render_appeal_pdf_download(
+      @notice_of_disagreement,
+      "#{FORM_NUMBER}-notice-of-disagreement-#{params[:id]}.pdf",
+      request_headers['X-VA-ICN']
+    )
+  rescue ActiveRecord::RecordNotFound
+    render_notice_of_disagreement_not_found
   end
 
   def validate

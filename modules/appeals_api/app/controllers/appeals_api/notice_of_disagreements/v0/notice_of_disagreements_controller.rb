@@ -9,6 +9,7 @@ module AppealsApi::NoticeOfDisagreements::V0
 
     skip_before_action :new_notice_of_disagreement
     skip_before_action :find_notice_of_disagreement
+    skip_before_action :validate_icn_header
 
     before_action :validate_icn_parameter, only: %i[download]
 
@@ -64,7 +65,11 @@ module AppealsApi::NoticeOfDisagreements::V0
       id = params[:id]
       notice_of_disagreement = AppealsApi::NoticeOfDisagreement.find(id)
 
-      render_appeal_pdf_download(notice_of_disagreement, "#{FORM_NUMBER}-notice-of-disagreement-#{id}.pdf")
+      render_appeal_pdf_download(
+        notice_of_disagreement,
+        "#{FORM_NUMBER}-notice-of-disagreement-#{id}.pdf",
+        params[:icn]
+      )
     rescue ActiveRecord::RecordNotFound
       render_notice_of_disagreement_not_found(params[:id])
     end

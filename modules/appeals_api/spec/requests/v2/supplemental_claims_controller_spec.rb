@@ -558,4 +558,8 @@ describe AppealsApi::V2::DecisionReviews::SupplementalClaimsController, type: :r
       expect(parsed['errors']).not_to be_empty
     end
   end
+
+  describe '#download' do
+    it_behaves_like 'watermarked pdf download endpoint', { factory: :supplemental_claim, decision_reviews: true }
+  end
 end
