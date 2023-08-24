@@ -19,7 +19,8 @@ class UserProfileAttributeService
       first_name: @user.first_name,
       last_name: @user.last_name,
       email: @user.email,
-      ssn: @user.ssn
+      ssn: @user.ssn,
+      flipper_id: @user.flipper_id
     }
   end
 end
