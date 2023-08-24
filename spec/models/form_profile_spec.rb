@@ -1135,7 +1135,9 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'returns a prefilled 5655 form' do
-        expect_prefilled('5655')
+        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+          expect_prefilled('5655')
+        end
       end
 
       context 'payment window' do
@@ -1152,9 +1154,10 @@ RSpec.describe FormProfile, type: :model do
         end
 
         it 'filters older payments when window is present' do
-          allow(Settings.dmc).to receive(:fsr_payment_window).and_return(30)
-
-          expect_prefilled('5655')
+          VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+            allow(Settings.dmc).to receive(:fsr_payment_window).and_return(30)
+            expect_prefilled('5655')
+          end
         end
 
         context 'no window present' do
@@ -1489,7 +1492,9 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with a burial application form' do
       it 'returns the va profile mapped to the burial form' do
-        expect_prefilled('21P-530')
+        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+          expect_prefilled('21P-530')
+        end
       end
 
       context 'without address' do
@@ -1613,22 +1618,26 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'prefills an object that passes the schema' do
-        full_example = JSON.parse File.read Rails.root.join 'spec', 'fixtures', 'notice_of_disagreements',
-                                                            'valid_NOD_create_request.json'
+        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+          full_example = JSON.parse File.read Rails.root.join 'spec', 'fixtures', 'notice_of_disagreements',
+                                                              'valid_NOD_create_request.json'
 
-        test_data = full_example.deep_merge prefill.except('nonPrefill')
-        errors = JSON::Validator.fully_validate(
-          schema,
-          test_data,
-          validate_schema: true
-        )
-        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
+          test_data = full_example.deep_merge prefill.except('nonPrefill')
+          errors = JSON::Validator.fully_validate(
+            schema,
+            test_data,
+            validate_schema: true
+          )
+          expect(errors.empty?).to eq(true), "schema errors: #{errors}"
+        end
       end
     end
 
     context 'with a pension application form' do
       it 'returns the va profile mapped to the pension form' do
-        expect_prefilled('21P-527EZ')
+        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+          expect_prefilled('21P-527EZ')
+        end
       end
     end
 
