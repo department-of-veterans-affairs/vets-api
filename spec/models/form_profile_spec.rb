@@ -1105,7 +1105,9 @@ RSpec.describe FormProfile, type: :model do
 
       it 'returns a prefilled MDOT form' do
         VCR.use_cassette('mdot/get_supplies_200') do
-          expect_prefilled('MDOT')
+          VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+            expect_prefilled('MDOT')
+          end
         end
       end
     end
@@ -1209,15 +1211,17 @@ RSpec.describe FormProfile, type: :model do
 
     context 'user without an address' do
       it 'prefills properly' do
-        expect(user).to receive(:address).exactly(6).times.and_return(
-          street: nil,
-          street2: nil,
-          city: nil,
-          state: nil,
-          country: nil,
-          postal_code: nil
-        )
-        described_class.for(form_id: '22-1990e', user:).prefill
+        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+          expect(user).to receive(:address).exactly(6).times.and_return(
+            street: nil,
+            street2: nil,
+            city: nil,
+            state: nil,
+            country: nil,
+            postal_code: nil
+          )
+          described_class.for(form_id: '22-1990e', user:).prefill
+        end
       end
     end
 
@@ -1526,8 +1530,10 @@ RSpec.describe FormProfile, type: :model do
       let(:schema_name) { '20-0996' }
       let(:schema) { VetsJsonSchema::SCHEMAS[schema_name] }
 
-      let(:form_profile) { described_class.for(form_id: schema_name, user:) }
-      let(:prefill) { Oj.load(form_profile.prefill.to_json)['form_data'] }
+      VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+        let(:form_profile) { described_class.for(form_id: schema_name, user:) }
+        let(:prefill) { Oj.load(form_profile.prefill.to_json)['form_data'] }
+      end
 
       before do
         allow_any_instance_of(BGS::People::Service).to(
@@ -1560,14 +1566,16 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'prefills an object that passes the schema' do
-        full_example = VetsJsonSchema::EXAMPLES['HLR-CREATE-REQUEST-BODY']
-        test_data = full_example.deep_merge prefill
-        errors = JSON::Validator.fully_validate(
-          schema,
-          test_data,
-          validate_schema: true
-        )
-        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
+        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+          full_example = VetsJsonSchema::EXAMPLES['HLR-CREATE-REQUEST-BODY']
+          test_data = full_example.deep_merge prefill
+          errors = JSON::Validator.fully_validate(
+            schema,
+            test_data,
+            validate_schema: true
+          )
+          expect(errors.empty?).to eq(true), "schema errors: #{errors}"
+        end
       end
     end
 
@@ -1643,7 +1651,9 @@ RSpec.describe FormProfile, type: :model do
 
     context 'when the form mapping can not be found' do
       it 'raises an IOError' do
-        expect { described_class.new(form_id: 'foo', user:).prefill }.to raise_error(IOError)
+        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+          expect { described_class.new(form_id: 'foo', user:).prefill }.to raise_error(IOError)
+        end
       end
     end
   end
