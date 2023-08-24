@@ -9,7 +9,7 @@ module VeteranVerification
 
       NOTARY = VeteranVerification::Notary.new(Settings.vet_verification.key_path)
 
-      before_action { authorize :emis, :access? }
+      before_action { authorize :va_profile, :access? }
       before_action { permit_scopes %w[service_history.read] }
 
       def index
