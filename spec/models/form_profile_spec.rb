@@ -1518,6 +1518,7 @@ RSpec.describe FormProfile, type: :model do
     context 'with a higher level review form' do
       let(:schema_name) { '20-0996' }
       let(:schema) { VetsJsonSchema::SCHEMAS[schema_name] }
+
       let(:form_profile) { described_class.for(form_id: schema_name, user:) }
       let(:prefill) { Oj.load(form_profile.prefill.to_json)['form_data'] }
 
@@ -1535,18 +1536,20 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'prefills' do
-        expect(prefill.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')).to be_a(String).or be_nil
-        expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'areaCode')).to be_a(String).or be_nil
-        expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'phoneNumber')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street2')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street3')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'city')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'state')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'country')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'postalCode')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranSsnLastFour')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranVaFileNumberLastFour')).to be_a(String)
+        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+          expect(prefill.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')).to be_a(String).or be_nil
+          expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'areaCode')).to be_a(String).or be_nil
+          expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'phoneNumber')).to be_a(String).or be_nil
+          expect(prefill.dig('nonPrefill', 'veteranAddress', 'street')).to be_a(String).or be_nil
+          expect(prefill.dig('nonPrefill', 'veteranAddress', 'street2')).to be_a(String).or be_nil
+          expect(prefill.dig('nonPrefill', 'veteranAddress', 'street3')).to be_a(String).or be_nil
+          expect(prefill.dig('nonPrefill', 'veteranAddress', 'city')).to be_a(String).or be_nil
+          expect(prefill.dig('nonPrefill', 'veteranAddress', 'state')).to be_a(String).or be_nil
+          expect(prefill.dig('nonPrefill', 'veteranAddress', 'country')).to be_a(String).or be_nil
+          expect(prefill.dig('nonPrefill', 'veteranAddress', 'postalCode')).to be_a(String).or be_nil
+          expect(prefill.dig('nonPrefill', 'veteranSsnLastFour')).to be_a(String).or be_nil
+          expect(prefill.dig('nonPrefill', 'veteranVaFileNumberLastFour')).to be_a(String)
+        end
       end
 
       it 'prefills an object that passes the schema' do
