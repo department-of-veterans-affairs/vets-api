@@ -15,6 +15,7 @@ RSpec.describe UserProfileAttributeService, type: :service do
       expect(attributes.first_name).to eq(user.first_name)
       expect(attributes.last_name).to eq(user.last_name)
       expect(attributes.ssn).to eq(user.ssn)
+      expect(attributes.flipper_id).to eq(user.flipper_id)
     end
   end
 end
