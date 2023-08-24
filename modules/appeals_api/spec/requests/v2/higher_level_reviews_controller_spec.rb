@@ -422,4 +422,8 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
       expect(parsed['errors']).not_to be_empty
     end
   end
+
+  describe '#download' do
+    it_behaves_like 'watermarked pdf download endpoint', { factory: :higher_level_review_v2, decision_reviews: true }
+  end
 end

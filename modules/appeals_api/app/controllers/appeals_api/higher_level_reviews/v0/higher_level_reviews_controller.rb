@@ -7,6 +7,7 @@ module AppealsApi::HigherLevelReviews::V0
     include AppealsApi::OpenidAuth
     include AppealsApi::PdfDownloads
 
+    skip_before_action :validate_icn_header
     skip_before_action :new_higher_level_review
     skip_before_action :find_higher_level_review
 
@@ -51,7 +52,7 @@ module AppealsApi::HigherLevelReviews::V0
       @id = params[:id]
       @higher_level_review = AppealsApi::HigherLevelReview.find(@id)
 
-      render_appeal_pdf_download(@higher_level_review, "#{FORM_NUMBER}-higher-level-review-#{@id}.pdf")
+      render_appeal_pdf_download(@higher_level_review, "#{FORM_NUMBER}-higher-level-review-#{@id}.pdf", params[:icn])
     rescue ActiveRecord::RecordNotFound
       render_higher_level_review_not_found(params[:id])
     end

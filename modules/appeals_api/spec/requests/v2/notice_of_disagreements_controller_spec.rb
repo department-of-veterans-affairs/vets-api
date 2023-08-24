@@ -333,6 +333,14 @@ describe AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController, type:
     end
   end
 
+  describe '#download' do
+    it_behaves_like 'watermarked pdf download endpoint', {
+      factory: :extra_notice_of_disagreement_v2,
+      decision_reviews: true,
+      expunged_attrs: { board_review_option: 'hearing' }
+    }
+  end
+
   describe '#render_model_errors' do
     let(:path) { base_path 'notice_of_disagreements' }
     let(:data) { JSON.parse(minimum_data) }
