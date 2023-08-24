@@ -8,12 +8,12 @@ module AppealsApi
     extend ActiveSupport::Concern
 
     included do
-      def render_appeal_pdf_download(appeal, filename)
+      def render_appeal_pdf_download(appeal, filename, confirmation_icn)
         if expired?(appeal)
           # If the veteran_icn is available, we can check it against the current request's ICN parameter to return a 404
           # if it does not match, but otherwise, if the appeal has no PII, we can't tell whether the current request is
           # authorized, so in that case we return a specific error message regardless of authorization status.
-          if download_authorized?(appeal)
+          if download_authorized?(appeal, confirmation_icn)
             return render_pdf_download_expired(appeal)
           else
             raise ActiveRecord::RecordNotFound
@@ -22,7 +22,7 @@ module AppealsApi
 
         # We choose to return a 404 when PII in headers doesn't match the Appeal's PII so that we don't reveal the
         # existence of records that the user can't access
-        raise ActiveRecord::RecordNotFound unless download_authorized?(appeal)
+        raise ActiveRecord::RecordNotFound unless download_authorized?(appeal, confirmation_icn)
 
         return render_pdf_download_not_ready(appeal) unless submitted?(appeal)
 
@@ -65,11 +65,10 @@ module AppealsApi
     UNSUBMITTED_STATUSES = %w[pending submitting error].freeze
     WATERMARK_MARKUP = '<b>DIGITALLY SUBMITTED<br>DO NOT FILE</b>'
 
-    # Determines whether the current request's params authorize an appeal PDF download based on
-    # a provided 'icn' parameter and the appeal's saved data.
-    def download_authorized?(appeal)
+    # Determines whether the download is allowed based on a provided ICN value and the appeal's original saved data
+    def download_authorized?(appeal, confirmation_icn)
       if (saved_icn = appeal.veteran&.icn.presence || appeal.veteran_icn.presence)
-        return saved_icn == params[:icn]
+        return saved_icn == confirmation_icn
       end
 
       false

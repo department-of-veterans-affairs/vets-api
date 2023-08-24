@@ -8,9 +8,10 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
   include AppealsApi::CharacterUtilities
   include AppealsApi::MPIVeteran
   include AppealsApi::Schemas
+  include AppealsApi::PdfDownloads
 
   skip_before_action :authenticate
-  before_action :validate_icn_header, only: %i[index]
+  before_action :validate_icn_header, only: %i[index download]
   before_action :validate_json_format, if: -> { request.post? }
   before_action :validate_json_schema, only: %i[create validate]
 
@@ -74,6 +75,15 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
     render json: AppealsApi::SupplementalClaimSerializer.new(sc).serializable_hash
   rescue ActiveRecord::RecordNotFound
     render_supplemental_claim_not_found(id)
+  end
+
+  def download
+    sc = AppealsApi::SupplementalClaim.find(params[:id])
+    icn = request_headers['X-VA-ICN']
+
+    render_appeal_pdf_download(sc, "#{FORM_NUMBER}-supplemental-claim-#{params[:id]}.pdf", icn)
+  rescue ActiveRecord::RecordNotFound
+    render_supplemental_claim_not_found(params[:id])
   end
 
   private

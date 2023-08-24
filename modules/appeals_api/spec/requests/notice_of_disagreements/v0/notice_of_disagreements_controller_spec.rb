@@ -167,7 +167,7 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
     end
   end
 
-  describe '#download', skip: 'Waiting for v0 release' do
+  describe '#download' do
     it_behaves_like 'watermarked pdf download endpoint', {
       expunged_attrs: { board_review_option: 'hearing' },
       factory: :notice_of_disagreement_v0

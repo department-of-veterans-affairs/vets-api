@@ -41,6 +41,7 @@ AppealsApi::Engine.routes.draw do
         collection do
           get 'schema'
           post 'validate'
+          get '/:id/download', action: 'download'
         end
       end
 
@@ -52,6 +53,7 @@ AppealsApi::Engine.routes.draw do
         collection do
           get 'schema'
           post 'validate'
+          get '/:id/download', action: 'download'
         end
       end
 
@@ -61,6 +63,7 @@ AppealsApi::Engine.routes.draw do
         collection do
           get 'schema'
           post 'validate'
+          get '/:id/download', action: 'download'
         end
       end
 
@@ -119,8 +122,7 @@ AppealsApi::Engine.routes.draw do
         resources '10182', only: %i[create show], controller: controller_path do
           collection do
             post 'validate'
-            # N.B. The download endpoint will be re-enabled after the launch of v0:
-            # get '/:id/download', action: 'download'
+            get '/:id/download', action: 'download'
           end
         end
       end
@@ -152,8 +154,7 @@ AppealsApi::Engine.routes.draw do
         resources '200996', only: %i[create show], controller: controller_path do
           collection do
             post 'validate'
-            # N.B. The download endpoint will be re-enabled after the launch of v0:
-            # get '/:id/download', action: 'download'
+            get '/:id/download', action: 'download'
           end
         end
       end
@@ -181,8 +182,7 @@ AppealsApi::Engine.routes.draw do
         resources '200995', only: %i[create show], controller: controller_path do
           collection do
             post 'validate'
-            # N.B. The download endpoint will be re-enabled after the launch of v0:
-            # get '/:id/download', action: 'download'
+            get '/:id/download', action: 'download'
           end
         end
       end

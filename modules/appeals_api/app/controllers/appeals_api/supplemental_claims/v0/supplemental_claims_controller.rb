@@ -7,7 +7,7 @@ module AppealsApi::SupplementalClaims::V0
     include AppealsApi::OpenidAuth
     include AppealsApi::PdfDownloads
 
-    skip_before_action :validate_icn_header, only: %i[index]
+    skip_before_action :validate_icn_header
     before_action :validate_icn_parameter, only: %i[index download]
 
     API_VERSION = 'V0'
@@ -56,7 +56,7 @@ module AppealsApi::SupplementalClaims::V0
       id = params[:id]
       supplemental_claim = AppealsApi::SupplementalClaim.find(id)
 
-      render_appeal_pdf_download(supplemental_claim, "#{FORM_NUMBER}-supplemental-claim-#{id}.pdf")
+      render_appeal_pdf_download(supplemental_claim, "#{FORM_NUMBER}-supplemental-claim-#{id}.pdf", params[:icn])
     rescue ActiveRecord::RecordNotFound
       render_supplemental_claim_not_found(id)
     end

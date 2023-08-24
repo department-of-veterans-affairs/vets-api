@@ -9,9 +9,10 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   include AppealsApi::CharacterUtilities
   include AppealsApi::MPIVeteran
   include AppealsApi::Schemas
+  include AppealsApi::PdfDownloads
 
   skip_before_action :authenticate
-  before_action :validate_icn_header, only: %i[index]
+  before_action :validate_icn_header, only: %i[index download]
   before_action :validate_json_format, if: -> { request.post? }
   before_action :validate_json_schema, only: %i[create validate]
   before_action :new_higher_level_review, only: %i[create validate]
@@ -54,6 +55,18 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   def show
     @higher_level_review = with_status_simulation(@higher_level_review) if status_requested_and_allowed?
     render_higher_level_review
+  end
+
+  def download
+    @higher_level_review = AppealsApi::HigherLevelReview.find(params[:id])
+
+    render_appeal_pdf_download(
+      @higher_level_review,
+      "#{FORM_NUMBER}-higher-level-review-#{params[:id]}.pdf",
+      request_headers['X-VA-ICN']
+    )
+  rescue ActiveRecord::RecordNotFound
+    render_higher_level_review_not_found
   end
 
   private

@@ -8,11 +8,18 @@ shared_examples 'watermarked pdf download endpoint' do |opts|
   let(:other_uuid) { '11111111-1111-1111-1111-111111111111' }
   let(:api_segment) { appeal.class.name.demodulize.underscore.dasherize }
   let(:form_number) { described_class::FORM_NUMBER }
-  let(:path) { "/services/appeals/#{api_segment}s/v0/forms/#{form_number}/#{uuid}/download" }
+  let(:path) do
+    if opts[:decision_reviews]
+      "/services/appeals/v2/decision_reviews/#{api_segment.underscore}s/#{uuid}/download"
+    else
+      "/services/appeals/#{api_segment}s/v0/forms/#{form_number}/#{uuid}/download"
+    end
+  end
   let(:pdf_version) { opts[:pdf_version] || 'v3' }
   let(:veteran_icn) { appeal.veteran.icn }
   let(:other_icn) { '1111111111V111111' }
-  let(:params) { { icn: veteran_icn } }
+  let(:params) { opts[:decision_reviews] ? {} : { icn: veteran_icn } }
+  let(:headers) { opts[:decision_reviews] ? { 'X-VA-ICN' => veteran_icn } : {} }
   let(:i18n_args) { { type: appeal.class.name.demodulize, id: appeal.id } }
   let(:expunged_attrs) do
     # opts[:expunged_attrs] should be any model attributes required to qualify an appeal record for the PII expunge job
@@ -20,17 +27,24 @@ shared_examples 'watermarked pdf download endpoint' do |opts|
   end
 
   before do
-    with_openid_auth(described_class::OAUTH_SCOPES[:GET]) do |auth_header|
-      get(path, headers: auth_header, params:)
+    scopes = defined?(described_class::OAUTH_SCOPES) ? described_class::OAUTH_SCOPES[:GET] : []
+
+    with_openid_auth(scopes) do |auth_header|
+      get(path, headers: headers.merge(auth_header), params:)
     end
   end
 
-  context 'without icn parameter' do
+  context 'without icn parameter/header' do
     let(:params) { {} }
+    let(:headers) { {} }
 
     it 'returns a 422 error' do
       expect(response).to have_http_status(:unprocessable_entity)
-      expect(response.body).to include("'icn' parameter is required")
+      if opts[:decision_reviews]
+        expect(response.body).to include('X-VA-ICN is required')
+      else
+        expect(response.body).to include("'icn' parameter is required")
+      end
     end
   end
 
@@ -52,7 +66,8 @@ shared_examples 'watermarked pdf download endpoint' do |opts|
   end
 
   context 'when the provided ICN parameter does not match the veteran_icn on the appeal' do
-    let(:params) { { icn: other_icn } }
+    let(:params) { opts[:decision_reviews] ? {} : { icn: other_icn } }
+    let(:headers) { opts[:decision_reviews] ? { 'X-VA-ICN' => other_icn } : {} }
 
     it 'returns a 404 error' do
       expect(response).to have_http_status(:not_found)
@@ -74,7 +89,8 @@ shared_examples 'watermarked pdf download endpoint' do |opts|
     end
 
     context 'when the provided ICN parameter does not match the veteran_icn recorded on the appeal' do
-      let(:params) { { icn: other_icn } }
+      let(:params) { opts[:decision_reviews] ? {} : { icn: other_icn } }
+      let(:headers) { opts[:decision_reviews] ? { 'X-VA-ICN' => other_icn } : {} }
 
       it 'returns a 404 error' do
         expect(response).to have_http_status(:not_found)
