@@ -157,7 +157,7 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
     end
   end
 
-  describe '#download', skip: 'Waiting for v0 release' do
+  describe '#download' do
     it_behaves_like 'watermarked pdf download endpoint', { factory: :higher_level_review_v0 }
   end
 end
