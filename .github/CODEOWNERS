@@ -713,7 +713,7 @@ config/spring.rb    @department-of-veterans-affairs/backend-review-group
 config/ssoe_idp_int_metadata_isam.xml    @department-of-veterans-affairs/vsp-identity @department-of-veterans-affairs/backend-review-group
 config/storage.yml    @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 # CONTRIBUTING.md
-# Dangerfile
+Dangerfile @department-of-veterans-affairs/backend-review-group
 # db
 db/migrate    @department-of-veterans-affairs/backend-review-group
 db/schema.rb    @department-of-veterans-affairs/backend-review-group
