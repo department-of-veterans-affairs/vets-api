@@ -1510,7 +1510,9 @@ RSpec.describe FormProfile, type: :model do
         end
 
         it "doesn't throw an exception" do
-          expect_prefilled('21P-530')
+          VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+            expect_prefilled('21P-530')
+          end
         end
       end
     end
@@ -1589,23 +1591,25 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'prefills' do
-        veteran = prefill.dig 'data', 'attributes', 'veteran'
-        address = veteran['address']
-        phone = veteran['phone']
-        expect(address['addressLine1']).to be_a String
-        expect(address['addressLine2']).to be_a(String).or be_nil
-        expect(address['addressLine3']).to be_a(String).or be_nil
-        expect(address['city']).to be_a String
-        expect(address['stateCode']).to be_a String
-        expect(address['zipCode5']).to be_a String
-        expect(address['countryName']).to be_a String
-        expect(address['internationalPostalCode']).to be_a(String).or be_nil
-        expect(phone['areaCode']).to be_a String
-        expect(phone['phoneNumber']).to be_a String
-        expect(veteran['emailAddressText']).to be_a String
-        non_prefill = prefill['nonPrefill']
-        expect(non_prefill['veteranSsnLastFour']).to be_a String
-        expect(non_prefill['veteranVaFileNumberLastFour']).to be_a String
+        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+          veteran = prefill.dig 'data', 'attributes', 'veteran'
+          address = veteran['address']
+          phone = veteran['phone']
+          expect(address['addressLine1']).to be_a String
+          expect(address['addressLine2']).to be_a(String).or be_nil
+          expect(address['addressLine3']).to be_a(String).or be_nil
+          expect(address['city']).to be_a String
+          expect(address['stateCode']).to be_a String
+          expect(address['zipCode5']).to be_a String
+          expect(address['countryName']).to be_a String
+          expect(address['internationalPostalCode']).to be_a(String).or be_nil
+          expect(phone['areaCode']).to be_a String
+          expect(phone['phoneNumber']).to be_a String
+          expect(veteran['emailAddressText']).to be_a String
+          non_prefill = prefill['nonPrefill']
+          expect(non_prefill['veteranSsnLastFour']).to be_a String
+          expect(non_prefill['veteranVaFileNumberLastFour']).to be_a String
+        end
       end
 
       it 'prefills an object that passes the schema' do
