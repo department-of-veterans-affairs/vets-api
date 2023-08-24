@@ -1,0 +1,60 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://localhost:4000/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/1005127153%5ENI%5E200DOD%5EUSDOD
+    body:
+      encoding: UTF-8
+      string: '{"bios":[{"bioPath":"militaryPerson.militarySummary"}]}'
+    headers:
+      User-Agent:
+      - Faraday v2.7.10
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="1113675693", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - b48ceef9-138b-47f3-9de5-444994505eee
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 24 Aug 2023 17:33:41 GMT
+      Content-Length:
+      - '684'
+      Referrer-Policy:
+      - no-referrer
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"profile":{"militaryPerson":{"militarySummary":{"activeDutyStatus":"N","combatServiceIndicator":true,"post911DeploymentIndicator":true,"pre911DeploymentIndicator":false,"title38StatusText":"Title
+        38 Veteran","title38StatusCode":"V1","dutyStatusText":"Military not DoD-Affiliated:
+        service member not retired and no longer affiliated with any military service","dutyStatusCode":"12","totalNumberOfRegularActiveDutyDays":2481,"totalNumberOfReserveActiveDutyDays":0,"totalNumberOfGuardActiveDutyDays":0,"totalNumberOfTrainingDays":0,"customerType":{"dodServiceSummary":{"dodServiceSummaryCode":"A1","calculationModelVersion":"2021.10.05","effectiveStartDate":"2023-05-01T00:00:00Z"}}}}}}'
+  recorded_at: Thu, 24 Aug 2023 17:33:42 GMT
+recorded_with: VCR 6.2.0
