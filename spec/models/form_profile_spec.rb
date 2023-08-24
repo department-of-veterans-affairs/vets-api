@@ -954,7 +954,7 @@ RSpec.describe FormProfile, type: :model do
           # Now that service_episodes_by_date is removed from the outputs, compare the rest of the structure.
           expect(output).to eq(expected_output)
 
-          # Compare service_episodes_by_date separately. 
+          # Compare service_episodes_by_date separately.
           # Convert each VAProfile::Models::ServiceHistory object to a hash of attributes so it can be
           # compared to the expected output.
           expect(actual_service_histories.map(&:attributes)).to eq(expected_service_histories)
@@ -990,8 +990,8 @@ RSpec.describe FormProfile, type: :model do
         # Now that service_episodes_by_date is removed from output and initialize_hca_military_information_expected,
         # compare the rest of the structure.
         expect(output).to eq(initialize_hca_military_information_expected)
-        
-        # Compare service_episodes_by_date separately. 
+
+        # Compare service_episodes_by_date separately.
         # Convert each VAProfile::Models::ServiceHistory object to a hash of attributes so it can be
         # compared to the expected output.
         expect(actual_service_histories.map(&:attributes)).to eq(expected_service_histories)
@@ -1182,9 +1182,11 @@ RSpec.describe FormProfile, type: :model do
           end
 
           it 'includes older payments when no window is present' do
-            allow(Settings.dmc).to receive(:fsr_payment_window).and_return(nil)
+            VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+              allow(Settings.dmc).to receive(:fsr_payment_window).and_return(nil)
 
-            expect_prefilled('5655')
+              expect_prefilled('5655')
+            end
           end
         end
       end
