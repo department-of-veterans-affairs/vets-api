@@ -1567,8 +1567,10 @@ RSpec.describe FormProfile, type: :model do
         DecisionReview::Schemas::NOD_CREATE_REQUEST.merge '$schema': 'http://json-schema.org/draft-04/schema#'
       end
 
-      let(:form_profile) { described_class.for(form_id: schema_name, user:) }
-      let(:prefill) { Oj.load(form_profile.prefill.to_json)['form_data'] }
+      VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+        let(:form_profile) { described_class.for(form_id: schema_name, user:) }
+        let(:prefill) { Oj.load(form_profile.prefill.to_json)['form_data'] }
+      end
 
       before do
         allow_any_instance_of(BGS::People::Service).to(
