@@ -59,7 +59,7 @@ module TravelClaim
       )
       return nil if appointment_identifiers.nil?
 
-      Oj.load(appointment_identifiers).with_indifferent_access.dig(:data, :attributes, :patient_cell_phone)
+      Oj.load(appointment_identifiers).with_indifferent_access.dig(:data, :attributes, :patientCellPhone)
     end
   end
 end
