@@ -915,8 +915,9 @@ RSpec.describe FormProfile, type: :model do
   end
 
   describe '#prefill_form' do
+    # TODO: Platform Product Team 8/2023: rename this function.
     def can_prefill_emis(yes)
-      expect(user).to receive(:authorize).at_least(:once).with(:emis, :access?).and_return(yes)
+      expect(user).to receive(:authorize).at_least(:once).with(:va_profile, :access?).and_return(yes)
     end
 
     def strip_required(schema)

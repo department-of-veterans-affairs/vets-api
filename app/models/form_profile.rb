@@ -226,7 +226,7 @@ class FormProfile
   end
 
   def initialize_military_information
-    return {} unless user.authorize :emis, :access?
+    return {} unless user.authorize :va_profile, :access?
 
     military_information = user.military_information
     military_information_data = {}
