@@ -11,7 +11,8 @@ module VSPDanger
       [
         SidekiqEnterpriseGaurantor.new.run,
         ChangeLimiter.new.run,
-        MigrationIsolator.new.run
+        MigrationIsolator.new.run,
+        CodeownersCheck.new.run
       ]
     end
 
@@ -138,6 +139,44 @@ module VSPDanger
 
     def exclusions
       EXCLUSIONS.map { |exclusion| "':!#{exclusion}'" }.join ' '
+    end
+  end
+
+  class CodeownersCheck
+    def fetch_git_diff
+      `git diff #{BASE_SHA}...#{HEAD_SHA} -- .github/CODEOWNERS`
+    end
+
+    def error_message(required_group, index)
+      <<~EMSG
+        New entry on line #{index + 1} of CODEOWNERS does not include #{required_group}.
+        Please add #{required_group} to the entry
+      EMSG
+    end
+
+    def run
+      required_group = '@department-of-veterans-affairs/backend-review-group'
+      diff = fetch_git_diff
+
+      if diff.empty?
+        Result.success('CODEOWNERS file is unchanged.')
+      else
+        lines = diff.split("\n")
+
+        lines.each_with_index do |line, index|
+          next unless line.start_with?('+') # Only added lines
+          next if line.start_with?('+++') # Skip metadata lines
+
+          clean_line = line[1..].strip # Remove leading '+'
+
+          # Skip comments or empty lines
+          next if clean_line.start_with?('#') || clean_line.empty?
+
+          return Result.error(error_message(required_group, index)) unless clean_line.include?(required_group)
+        end
+
+        Result.success("All new entries in CODEOWNERS include #{required_group}.")
+      end
     end
   end
 
