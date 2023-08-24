@@ -1636,15 +1636,17 @@ RSpec.describe FormProfile, type: :model do
       let(:instance2) { FormProfile.new(form_id: '1010ez', user:) }
 
       it 'loads the yaml file only once' do
-        expect(YAML).to receive(:load_file).once.and_return(
-          'veteran_full_name' => %w[identity_information full_name],
-          'gender' => %w[identity_information gender],
-          'veteran_date_of_birth' => %w[identity_information date_of_birth],
-          'veteran_address' => %w[contact_information address],
-          'home_phone' => %w[contact_information home_phone]
-        )
-        instance1.prefill
-        instance2.prefill
+        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+          expect(YAML).to receive(:load_file).once.and_return(
+            'veteran_full_name' => %w[identity_information full_name],
+            'gender' => %w[identity_information gender],
+            'veteran_date_of_birth' => %w[identity_information date_of_birth],
+            'veteran_address' => %w[contact_information address],
+            'home_phone' => %w[contact_information home_phone]
+          )
+          instance1.prefill
+          instance2.prefill
+        end
       end
     end
   end
