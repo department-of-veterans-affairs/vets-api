@@ -185,11 +185,11 @@ edu:
   staging_spool_contents:
     emails:
       - noah.stern@va.gov
-      - gregg.puhala@dbitpro.com
+      - gregg.puhala@va.gov
       - kara.ciprich@va.gov
       - napoleon.kernessant@govcio.com
       - vishnhav.ashok@va.gov
-      - jarred.simon@vetsez.com
+      - donna.saunders@va.gov
       - ariana.adili@govcio.com
 
 dependents:
