@@ -108,57 +108,30 @@ class AppealsApi::RswagConfig
     supplemental_claims: 'Supplemental Claims'
   }.freeze
 
-  DEFAULT_READ_SCOPE_DISPLAY_NAMES = {
-    'veteran/appeals.read': 'Appeals info',
-    'representative/appeals.read': 'Appeals info',
-    'system/appeals.read': 'Appeals info'
-  }.freeze
+  DEFAULT_READ_SCOPE = { 'appeals.read': 'Appeals info' }.freeze
+  DEFAULT_WRITE_SCOPE = { 'appeals.write': 'Ability to submit appeals' }.freeze
 
-  DEFAULT_WRITE_SCOPE_DISPLAY_NAMES = {
-    'veteran/appeals.write': 'Ability to submit appeals',
-    'representative/appeals.write': 'Ability to submit appeals',
-    'system/appeals.write': 'Ability to submit appeals'
-  }.freeze
-
-  OAUTH_SCOPE_DISPLAY_NAMES = {
+  OAUTH_SCOPES = {
     appeals_status: {
-      'veteran/AppealsStatus.read': 'Status of appeals and decision reviews',
-      'representative/AppealsStatus.read': 'Status of appeals and decision reviews',
-      'system/AppealsStatus.read': 'Status of appeals and decision reviews'
+      'AppealsStatus.read': 'Status of appeals and decision reviews'
     },
     appealable_issues: {
-      'veteran/AppealableIssues.read': 'Appealable issues info',
-      'representative/AppealableIssues.read': 'Appealable issues info',
-      'system/AppealableIssues.read': 'Appealable issues info'
+      'AppealableIssues.read': 'Appealable issues info'
     },
     higher_level_reviews: {
-      'veteran/HigherLevelReviews.read': 'Higher-Level Reviews info',
-      'representative/HigherLevelReviews.read': 'Higher-Level Reviews info',
-      'system/HigherLevelReviews.read': 'Higher-Level Reviews info',
-      'veteran/HigherLevelReviews.write': 'Ability to submit Higher-Level Reviews',
-      'representative/HigherLevelReviews.write': 'Ability to submit Higher-Level Reviews',
-      'system/HigherLevelReviews.write': 'Ability to submit Higher-Level Reviews'
+      'HigherLevelReviews.read': 'Higher-Level Reviews info',
+      'HigherLevelReviews.write': 'Ability to submit Higher-Level Reviews'
     },
     legacy_appeals: {
-      'veteran/LegacyAppeals.read': 'Legacy appeals info',
-      'representative/LegacyAppeals.read': 'Legacy appeals info',
-      'system/LegacyAppeals.read': 'Legacy appeals info'
+      'LegacyAppeals.read': 'Legacy appeals info'
     },
     notice_of_disagreements: {
-      'veteran/NoticeOfDisagreements.read': 'Board Appeals info',
-      'representative/NoticeOfDisagreements.read': 'Board Appeals info',
-      'system/NoticeOfDisagreements.read': 'Board Appeals info',
-      'veteran/NoticeOfDisagreements.write': 'Ability to submit Board Appeals',
-      'representative/NoticeOfDisagreements.write': 'Ability to submit Board Appeals',
-      'system/NoticeOfDisagreements.write': 'Ability to submit Board Appeals'
+      'NoticeOfDisagreements.read': 'Board Appeals info',
+      'NoticeOfDisagreements.write': 'Ability to submit Board Appeals'
     },
     supplemental_claims: {
-      'veteran/SupplementalClaims.read': 'Supplemental Claims info',
-      'representative/SupplementalClaims.read': 'Supplemental Claims info',
-      'system/SupplementalClaims.read': 'Supplemental Claims info',
-      'veteran/SupplementalClaims.write': 'Ability to submit Supplemental Claims',
-      'representative/SupplementalClaims.write': 'Ability to submit Supplemental Claims',
-      'system/SupplementalClaims.write': 'Ability to submit Supplemental Claims'
+      'SupplementalClaims.read': 'Supplemental Claims info',
+      'SupplementalClaims.write': 'Ability to submit Supplemental Claims'
     }
   }.freeze
 
@@ -174,13 +147,24 @@ class AppealsApi::RswagConfig
     }
   end
 
-  def oauth_security_schemes(api_name)
-    api_specific_scopes = OAUTH_SCOPE_DISPLAY_NAMES[api_name.to_sym]
-    scope_display_names = api_specific_scopes.merge(DEFAULT_READ_SCOPE_DISPLAY_NAMES)
+  def scopes_for_user_type(scopes, user_type) = scopes.transform_keys { |k| "#{user_type}/#{k}" }
 
-    if api_specific_scopes.keys.any? { |name| name.end_with?('.write') }
-      scope_display_names.merge!(DEFAULT_WRITE_SCOPE_DISPLAY_NAMES)
-    end
+  def oauth_security_schemes(api_name)
+    api_specific_scopes = OAUTH_SCOPES[api_name.to_sym]
+    scopes = api_specific_scopes.merge(DEFAULT_READ_SCOPE)
+    scopes.merge!(DEFAULT_WRITE_SCOPE) if api_specific_scopes.keys.any? { |name| name.end_with?('.write') }
+
+    veteran_scopes = scopes_for_user_type(scopes, 'veteran')
+    representative_scopes = scopes_for_user_type(scopes, 'representative')
+    system_scopes = scopes_for_user_type(scopes, 'system')
+
+    authorization_code_scopes = veteran_scopes.merge(representative_scopes)
+    client_credentials_scopes = system_scopes
+
+    description = "The authentication model for the #{DOC_TITLES[api_name.to_sym]} API uses OAuth 2.0/OpenID Connect. " \
+                  'The following authorization models are supported: ' \
+                  "[Authorization code flow](https://#{DocHelpers.doc_url_prefix}developer.va.gov/explore/api/#{api_name.dasherize}/authorization-code) " \
+                  "and [Client Credentials Grant (CCG)](https://#{DocHelpers.doc_url_prefix}developer.va.gov/explore/api/#{api_name.dasherize}/client-credentials)."
 
     {
       bearer_token: {
@@ -190,23 +174,31 @@ class AppealsApi::RswagConfig
       },
       productionOauth: {
         type: :oauth2,
-        description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
+        description:,
         flows: {
           authorizationCode: {
-            authorizationUrl: 'https://api.va.gov/oauth2/authorization',
-            tokenUrl: 'https://api.va.gov/oauth2/token',
-            scopes: scope_display_names
+            authorizationUrl: 'https://api.va.gov/oauth2/appeals/v1/authorization',
+            tokenUrl: 'https://api.va.gov/oauth2/appeals/v1/token',
+            scopes: authorization_code_scopes
+          },
+          clientCredentials: {
+            tokenUrl: "To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://#{DocHelpers.doc_url_prefix}developer.va.gov/support/contact-us).",
+            scopes: client_credentials_scopes
           }
         }
       },
       sandboxOauth: {
         type: :oauth2,
-        description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
+        description:,
         flows: {
           authorizationCode: {
-            authorizationUrl: 'https://sandbox-api.va.gov/oauth2/authorization',
-            tokenUrl: 'https://sandbox-api.va.gov/oauth2/token',
-            scopes: scope_display_names
+            authorizationUrl: 'https://sandbox-api.va.gov/oauth2/appeals/v1/authorization',
+            tokenUrl: 'https://sandbox-api.va.gov/oauth2/appeals/v1/token',
+            scopes: authorization_code_scopes
+          },
+          clientCredentials: {
+            tokenUrl: 'https://deptva-eval.okta.com/oauth2/auskff5o6xsoQVngk2p7/v1/token',
+            scopes: client_credentials_scopes
           }
         }
       }

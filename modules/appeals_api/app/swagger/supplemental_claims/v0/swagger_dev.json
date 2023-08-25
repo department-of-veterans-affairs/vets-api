@@ -3195,23 +3195,28 @@
       },
       "productionOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "The authentication model for the Supplemental Claims API uses OAuth 2.0/OpenID Connect. The following authorization models are supported: [Authorization code flow](https://dev-developer.va.gov/explore/api/supplemental-claims/authorization-code) and [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/supplemental-claims/client-credentials).",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://api.va.gov/oauth2/authorization",
-            "tokenUrl": "https://api.va.gov/oauth2/token",
+            "authorizationUrl": "https://api.va.gov/oauth2/appeals/v1/authorization",
+            "tokenUrl": "https://api.va.gov/oauth2/appeals/v1/token",
             "scopes": {
               "veteran/SupplementalClaims.read": "Supplemental Claims info",
-              "representative/SupplementalClaims.read": "Supplemental Claims info",
-              "system/SupplementalClaims.read": "Supplemental Claims info",
               "veteran/SupplementalClaims.write": "Ability to submit Supplemental Claims",
-              "representative/SupplementalClaims.write": "Ability to submit Supplemental Claims",
-              "system/SupplementalClaims.write": "Ability to submit Supplemental Claims",
               "veteran/appeals.read": "Appeals info",
-              "representative/appeals.read": "Appeals info",
-              "system/appeals.read": "Appeals info",
               "veteran/appeals.write": "Ability to submit appeals",
-              "representative/appeals.write": "Ability to submit appeals",
+              "representative/SupplementalClaims.read": "Supplemental Claims info",
+              "representative/SupplementalClaims.write": "Ability to submit Supplemental Claims",
+              "representative/appeals.read": "Appeals info",
+              "representative/appeals.write": "Ability to submit appeals"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://dev-developer.va.gov/support/contact-us).",
+            "scopes": {
+              "system/SupplementalClaims.read": "Supplemental Claims info",
+              "system/SupplementalClaims.write": "Ability to submit Supplemental Claims",
+              "system/appeals.read": "Appeals info",
               "system/appeals.write": "Ability to submit appeals"
             }
           }
@@ -3219,23 +3224,28 @@
       },
       "sandboxOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "The authentication model for the Supplemental Claims API uses OAuth 2.0/OpenID Connect. The following authorization models are supported: [Authorization code flow](https://dev-developer.va.gov/explore/api/supplemental-claims/authorization-code) and [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/supplemental-claims/client-credentials).",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
-            "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
+            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/appeals/v1/authorization",
+            "tokenUrl": "https://sandbox-api.va.gov/oauth2/appeals/v1/token",
             "scopes": {
               "veteran/SupplementalClaims.read": "Supplemental Claims info",
-              "representative/SupplementalClaims.read": "Supplemental Claims info",
-              "system/SupplementalClaims.read": "Supplemental Claims info",
               "veteran/SupplementalClaims.write": "Ability to submit Supplemental Claims",
-              "representative/SupplementalClaims.write": "Ability to submit Supplemental Claims",
-              "system/SupplementalClaims.write": "Ability to submit Supplemental Claims",
               "veteran/appeals.read": "Appeals info",
-              "representative/appeals.read": "Appeals info",
-              "system/appeals.read": "Appeals info",
               "veteran/appeals.write": "Ability to submit appeals",
-              "representative/appeals.write": "Ability to submit appeals",
+              "representative/SupplementalClaims.read": "Supplemental Claims info",
+              "representative/SupplementalClaims.write": "Ability to submit Supplemental Claims",
+              "representative/appeals.read": "Appeals info",
+              "representative/appeals.write": "Ability to submit appeals"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "https://deptva-eval.okta.com/oauth2/auskff5o6xsoQVngk2p7/v1/token",
+            "scopes": {
+              "system/SupplementalClaims.read": "Supplemental Claims info",
+              "system/SupplementalClaims.write": "Ability to submit Supplemental Claims",
+              "system/appeals.read": "Appeals info",
               "system/appeals.write": "Ability to submit appeals"
             }
           }
