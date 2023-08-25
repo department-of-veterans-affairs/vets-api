@@ -361,17 +361,22 @@
       },
       "productionOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "The authentication model for the Legacy Appeals API uses OAuth 2.0/OpenID Connect. The following authorization models are supported: [Authorization code flow](https://dev-developer.va.gov/explore/api/legacy-appeals/authorization-code) and [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/legacy-appeals/client-credentials).",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://api.va.gov/oauth2/authorization",
-            "tokenUrl": "https://api.va.gov/oauth2/token",
+            "authorizationUrl": "https://api.va.gov/oauth2/appeals/v1/authorization",
+            "tokenUrl": "https://api.va.gov/oauth2/appeals/v1/token",
             "scopes": {
               "veteran/LegacyAppeals.read": "Legacy appeals info",
-              "representative/LegacyAppeals.read": "Legacy appeals info",
-              "system/LegacyAppeals.read": "Legacy appeals info",
               "veteran/appeals.read": "Appeals info",
-              "representative/appeals.read": "Appeals info",
+              "representative/LegacyAppeals.read": "Legacy appeals info",
+              "representative/appeals.read": "Appeals info"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://dev-developer.va.gov/support/contact-us).",
+            "scopes": {
+              "system/LegacyAppeals.read": "Legacy appeals info",
               "system/appeals.read": "Appeals info"
             }
           }
@@ -379,17 +384,22 @@
       },
       "sandboxOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "The authentication model for the Legacy Appeals API uses OAuth 2.0/OpenID Connect. The following authorization models are supported: [Authorization code flow](https://dev-developer.va.gov/explore/api/legacy-appeals/authorization-code) and [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/legacy-appeals/client-credentials).",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
-            "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
+            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/appeals/v1/authorization",
+            "tokenUrl": "https://sandbox-api.va.gov/oauth2/appeals/v1/token",
             "scopes": {
               "veteran/LegacyAppeals.read": "Legacy appeals info",
-              "representative/LegacyAppeals.read": "Legacy appeals info",
-              "system/LegacyAppeals.read": "Legacy appeals info",
               "veteran/appeals.read": "Appeals info",
-              "representative/appeals.read": "Appeals info",
+              "representative/LegacyAppeals.read": "Legacy appeals info",
+              "representative/appeals.read": "Appeals info"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "https://deptva-eval.okta.com/oauth2/auskff5o6xsoQVngk2p7/v1/token",
+            "scopes": {
+              "system/LegacyAppeals.read": "Legacy appeals info",
               "system/appeals.read": "Appeals info"
             }
           }

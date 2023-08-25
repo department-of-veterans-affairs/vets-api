@@ -340,17 +340,22 @@
       },
       "productionOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "The authentication model for the Appealable Issues API uses OAuth 2.0/OpenID Connect. The following authorization models are supported: [Authorization code flow](https://developer.va.gov/explore/api/appealable-issues/authorization-code) and [Client Credentials Grant (CCG)](https://developer.va.gov/explore/api/appealable-issues/client-credentials).",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://api.va.gov/oauth2/authorization",
-            "tokenUrl": "https://api.va.gov/oauth2/token",
+            "authorizationUrl": "https://api.va.gov/oauth2/appeals/v1/authorization",
+            "tokenUrl": "https://api.va.gov/oauth2/appeals/v1/token",
             "scopes": {
               "veteran/AppealableIssues.read": "Appealable issues info",
-              "representative/AppealableIssues.read": "Appealable issues info",
-              "system/AppealableIssues.read": "Appealable issues info",
               "veteran/appeals.read": "Appeals info",
-              "representative/appeals.read": "Appeals info",
+              "representative/AppealableIssues.read": "Appealable issues info",
+              "representative/appeals.read": "Appeals info"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).",
+            "scopes": {
+              "system/AppealableIssues.read": "Appealable issues info",
               "system/appeals.read": "Appeals info"
             }
           }
@@ -358,17 +363,22 @@
       },
       "sandboxOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "The authentication model for the Appealable Issues API uses OAuth 2.0/OpenID Connect. The following authorization models are supported: [Authorization code flow](https://developer.va.gov/explore/api/appealable-issues/authorization-code) and [Client Credentials Grant (CCG)](https://developer.va.gov/explore/api/appealable-issues/client-credentials).",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
-            "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
+            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/appeals/v1/authorization",
+            "tokenUrl": "https://sandbox-api.va.gov/oauth2/appeals/v1/token",
             "scopes": {
               "veteran/AppealableIssues.read": "Appealable issues info",
-              "representative/AppealableIssues.read": "Appealable issues info",
-              "system/AppealableIssues.read": "Appealable issues info",
               "veteran/appeals.read": "Appeals info",
-              "representative/appeals.read": "Appeals info",
+              "representative/AppealableIssues.read": "Appealable issues info",
+              "representative/appeals.read": "Appeals info"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "https://deptva-eval.okta.com/oauth2/auskff5o6xsoQVngk2p7/v1/token",
+            "scopes": {
+              "system/AppealableIssues.read": "Appealable issues info",
               "system/appeals.read": "Appeals info"
             }
           }
