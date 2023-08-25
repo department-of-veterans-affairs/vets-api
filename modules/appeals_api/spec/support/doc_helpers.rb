@@ -143,6 +143,10 @@ module DocHelpers
     ENV['RSWAG_ENV'] == 'dev' ? '_dev' : ''
   end
 
+  def self.doc_url_prefix
+    ENV['RSWAG_ENV'] == 'dev' ? 'dev-' : ''
+  end
+
   # Given a JSON schema hash and a path to a value inside it, find it and resolve any +$ref+s by merging them in
   # @param [Object] parent_schema - Full JSON schema as a hash
   # @param [Array<String>] value_keys - Path to dig for the value to resolve within the +parent_schema+
