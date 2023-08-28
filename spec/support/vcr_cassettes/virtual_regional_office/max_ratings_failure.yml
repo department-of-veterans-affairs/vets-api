@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://localhost:8120/max-ratings
+    uri: http://localhost:8120/employee-experience/max-ratings
     body:
       encoding: UTF-8
       string: '{"diagnostic_codes":[7101,6260,6204]}'
