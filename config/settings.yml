@@ -1415,6 +1415,8 @@ chip:
   mock: true
   mobile_app:
     tenant_id: 6f1c8b41-9c77-469d-852d-269c51a7d380
+    username: 'testuser'
+    password: '12345'
 
 check_in:
   travel_reimbursement_api:
