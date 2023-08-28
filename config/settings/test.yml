@@ -372,11 +372,10 @@ mhv:
     app_token: xyz
     host: http://example.org
 
-pdf_generator:
-  url: 'https://fake_pdf_url.com'
-  path: '/form-526ez-pdf-generator/v1/forms/'
-  content_type: 'application/vnd.api+json'
-
 claims_api:
   evss_container:
     auth_base_name: staging-api.va.gov
+  pdf_generator_526:
+    url: 'https://fake_pdf_url.com'
+    path: '/form-526ez-pdf-generator/v1/forms/'
+    content_type: 'application/vnd.api+json'
