@@ -649,7 +649,7 @@ RSpec.describe V0::SignInController, type: :controller do
                   verified_at: '1-1-2022',
                   sub: logingov_uuid,
                   social_security_number: '123456789',
-                  birthdate: '1-1-2022',
+                  birthdate: '2022-01-01',
                   given_name: 'some-name',
                   family_name: 'some-family-name',
                   email: 'some-email'
@@ -716,7 +716,8 @@ RSpec.describe V0::SignInController, type: :controller do
                     type:,
                     client_id:,
                     ial:,
-                    acr:
+                    acr:,
+                    icn: mpi_profile.icn
                   }
                 end
                 let(:expected_user_attributes) do
@@ -791,7 +792,7 @@ RSpec.describe V0::SignInController, type: :controller do
                 level_of_assurance:,
                 credential_ial:,
                 social: '123456789',
-                birth_date: '1-1-2022',
+                birth_date: '2022-01-01',
                 fname: 'some-name',
                 lname: 'some-family-name',
                 email: 'some-email'
@@ -876,7 +877,8 @@ RSpec.describe V0::SignInController, type: :controller do
                     type:,
                     client_id:,
                     ial:,
-                    acr:
+                    acr:,
+                    icn: mpi_profile.icn
                   }
                 end
                 let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
@@ -990,12 +992,14 @@ RSpec.describe V0::SignInController, type: :controller do
               let(:client_redirect_uri) { client_config.redirect_uri }
               let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
               let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
+              let(:expected_icn) { nil }
               let(:expected_logger_context) do
                 {
                   type:,
                   client_id:,
                   ial:,
-                  acr:
+                  acr:,
+                  icn: expected_icn
                 }
               end
               let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
@@ -1064,6 +1068,7 @@ RSpec.describe V0::SignInController, type: :controller do
               context 'and dslogon account is premium' do
                 let(:dslogon_assurance) { LOA::DSLOGON_ASSURANCE_THREE }
                 let(:ial) { IAL::TWO }
+                let(:expected_icn) { mpi_profile.icn }
                 let(:expected_user_attributes) do
                   {
                     ssn: user_info.dslogon_idvalue,
@@ -1129,12 +1134,14 @@ RSpec.describe V0::SignInController, type: :controller do
               let(:client_redirect_uri) { client_config.redirect_uri }
               let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
               let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
+              let(:expected_icn) { mpi_profile.icn }
               let(:expected_logger_context) do
                 {
                   type:,
                   client_id:,
                   ial:,
-                  acr:
+                  acr:,
+                  icn: expected_icn
                 }
               end
               let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
@@ -1186,6 +1193,7 @@ RSpec.describe V0::SignInController, type: :controller do
               context 'and mhv account is not premium' do
                 let(:mhv_assurance) { 'some-mhv-assurance' }
                 let(:ial) { IAL::ONE }
+                let(:expected_icn) { nil }
                 let(:expected_user_attributes) do
                   {
                     mhv_correlation_id: nil,
