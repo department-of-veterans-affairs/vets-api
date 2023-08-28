@@ -60,7 +60,7 @@ For Active Duty Claimants Only. Are you receiving or do you anticipate receiving
 
 For Civilian Employees of the U.S. Federal Government Only. Are you receiving or do you anticipate receiving any money from your agency (including but not limited to the Government Employees Training Act) for the same period for which you have applied to the VA for Education Benefits? If you will receive such benefits during any part of your training, check Yes.    <%= yesno(@applicant.civilianBenefitsAssistance) %>
 
-
+<% if ENV['HOSTNAME'].eql?('api.va.gov') -%>
                         MARITAL AND DEPENDENCY STATUS
            (For Applicants with Military Service Before Jan 1, 1977)
            ---------------------------------------------------------
@@ -73,8 +73,7 @@ Parent Dependent: <%= yesno(@applicant.serviceBefore1977.parentDependent) %>
 <% else -%>
 N/A
 <% end -%>
-
-
+<% end -%>
       Certification and Signature of Applicant
 Signature of Applicant                                               Date
 
