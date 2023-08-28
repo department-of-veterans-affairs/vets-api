@@ -580,6 +580,9 @@ features:
       Toggle for the entire pre-entry covid 19 self-screener available at /covid19screener and to be used by visitors
       to VHA facilities in lieu of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products team.
+  show_authenticated_menu_enhancements:
+    actor_type: user
+    description: Exposes new links for dependents and letters in the header dropdown for authenticated users
   profile_lighthouse_rating_info:
     actor_type: user
     description: When enabled, will request disability rating info data from lighthouse API.
