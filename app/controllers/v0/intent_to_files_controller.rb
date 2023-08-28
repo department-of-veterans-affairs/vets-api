@@ -32,7 +32,8 @@ module V0
         type: ApiProviderFactory::FACTORIES[:intent_to_file],
         provider: nil,
         options: {},
-        current_user: @current_user
+        current_user: @current_user,
+        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE
       )
       type = params['itf_type'] || 'compensation'
       response = intent_to_file_provider.get_intent_to_file(type, nil, nil)
@@ -51,7 +52,8 @@ module V0
         type: ApiProviderFactory::FACTORIES[:intent_to_file],
         provider: nil,
         options: {},
-        current_user: @current_user
+        current_user: @current_user,
+        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE
       )
       type = params['itf_type'] || 'compensation'
       response = intent_to_file_provider.create_intent_to_file(type, nil, nil)
