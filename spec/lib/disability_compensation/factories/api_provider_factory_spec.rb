@@ -92,8 +92,43 @@ RSpec.describe ApiProviderFactory do
         type: ApiProviderFactory::FACTORIES[:intent_to_file],
         provider: api_provider,
         options: {},
-        current_user:
+        current_user:,
+        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE
       )
+    end
+  end
+
+  context 'claims service' do
+    def provider(api_provider = nil)
+      ApiProviderFactory.call(
+        type: ApiProviderFactory::FACTORIES[:claims],
+        provider: api_provider,
+        options: { icn: current_user.icn },
+        current_user:,
+        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE
+      )
+    end
+
+    it 'provides an EVSS claims service provider' do
+      expect(provider(:evss).class).to equal(EvssClaimsServiceProvider)
+    end
+
+    it 'provides a Lighthouse claims service provider' do
+      expect(provider(:lighthouse).class).to equal(LighthouseClaimsServiceProvider)
+    end
+
+    it 'provides claims service provider based on Flipper' do
+      Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE)
+      expect(provider.class).to equal(LighthouseClaimsServiceProvider)
+
+      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE)
+      expect(provider.class).to equal(EvssClaimsServiceProvider)
+    end
+
+    it 'throw error if provider unknown' do
+      expect do
+        provider(:random)
+      end.to raise_error NotImplementedError
     end
   end
 
@@ -137,7 +172,8 @@ RSpec.describe ApiProviderFactory do
         type: ApiProviderFactory::FACTORIES[:ppiu],
         provider: api_provider,
         options: {},
-        current_user:
+        current_user:,
+        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT
       )
     end
   end

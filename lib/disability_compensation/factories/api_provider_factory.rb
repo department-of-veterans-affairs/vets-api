@@ -9,6 +9,9 @@ require 'disability_compensation/providers/intent_to_file/intent_to_file_provide
 require 'disability_compensation/providers/ppiu_direct_deposit/ppiu_provider'
 require 'disability_compensation/providers/ppiu_direct_deposit/evss_ppiu_provider'
 require 'disability_compensation/providers/ppiu_direct_deposit/lighthouse_ppiu_provider'
+require 'disability_compensation/providers/claims_service/claims_service_provider'
+require 'disability_compensation/providers/claims_service/evss_claims_service_provider'
+require 'disability_compensation/providers/claims_service/lighthouse_claims_service_provider'
 require 'logging/third_party_transaction'
 
 class ApiProviderFactory
@@ -23,7 +26,8 @@ class ApiProviderFactory
   FACTORIES = {
     rated_disabilities: :rated_disabilities,
     intent_to_file: :intent_to_file,
-    ppiu: :ppiu
+    ppiu: :ppiu,
+    claims: :claims
   }.freeze
 
   # Splitting the rated disabilities functionality into two use cases:
@@ -34,6 +38,7 @@ class ApiProviderFactory
   FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND =
     'disability_compensation_lighthouse_rated_disabilities_provider_background'
   FEATURE_TOGGLE_INTENT_TO_FILE = 'disability_compensation_lighthouse_intent_to_file_provider'
+  FEATURE_TOGGLE_CLAIMS_SERVICE = 'disability_compensation_lighthouse_claims_service_provider'
 
   # PPIU calls out to Direct Deposit APIs in Lighthouse
   FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT = 'disability_compensation_lighthouse_ppiu_direct_deposit_provider'
@@ -42,6 +47,7 @@ class ApiProviderFactory
     :rated_disabilities_service_provider,
     :intent_to_file_service_provider,
     :ppiu_service_provider,
+    :claims_service_provider,
     additional_class_logs: {
       action: 'disability compensation factory choosing API Provider'
     },
@@ -54,7 +60,7 @@ class ApiProviderFactory
     new(**).call
   end
 
-  def initialize(type:, current_user:, provider: nil, options: {}, feature_toggle: nil)
+  def initialize(type:, current_user:, feature_toggle:, provider: nil, options: {})
     @type = type
     @api_provider = provider
     @options = options
@@ -72,6 +78,8 @@ class ApiProviderFactory
       intent_to_file_service_provider
     when FACTORIES[:ppiu]
       ppiu_service_provider
+    when FACTORIES[:claims]
+      claims_service_provider
     else
       raise UndefinedFactoryTypeError
     end
@@ -91,7 +99,6 @@ class ApiProviderFactory
   end
 
   def intent_to_file_service_provider
-    @feature_toggle = FEATURE_TOGGLE_INTENT_TO_FILE
     case api_provider
     when API_PROVIDER[:evss]
       EvssIntentToFileProvider.new(@current_user, nil)
@@ -103,7 +110,6 @@ class ApiProviderFactory
   end
 
   def ppiu_service_provider
-    @feature_toggle = FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT
     case api_provider
     when API_PROVIDER[:evss]
       EvssPPIUProvider.new(@current_user)
@@ -113,6 +119,17 @@ class ApiProviderFactory
       raise NotImplementedError, 'Lighthouse PPIU Provider not implemented yet'
     else
       raise NotImplementedError, 'No known PPIU Api Provider type provided'
+    end
+  end
+
+  def claims_service_provider
+    case api_provider
+    when API_PROVIDER[:evss]
+      EvssClaimsServiceProvider.new(nil, @options[:auth_headers])
+    when API_PROVIDER[:lighthouse]
+      LighthouseClaimsServiceProvider.new(@options[:icn])
+    else
+      raise NotImplementedError, 'No known Claims Service Api Provider type provided'
     end
   end
 
