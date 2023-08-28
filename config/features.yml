@@ -349,10 +349,6 @@ features:
     actor_type: user
     description: Send only lat/long values (no bounding box or address) to the API when querying for facilities.
     enable_in_development: true
-  facility_locator_lighthouse_covid_vaccine_query:
-    actor_type: user
-    description: enable covid search/display
-    enable_in_development: true
   facility_locator_ppms_legacy_urgent_care_to_pos_locator:
     actor_type: user
     description: force the legacy urgent care path to use the new POS locator
