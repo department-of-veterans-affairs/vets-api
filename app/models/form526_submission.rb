@@ -73,6 +73,7 @@ class Form526Submission < ApplicationRecord
   # one-time setup or workflow redirection (e.g. for Claims Fast-Tracking) needs to happen, it should
   # go here and call start_evss_submission_job when done.
   def start
+    log_max_cfi_metrics_on_submit
     start_evss_submission_job
   end
 
