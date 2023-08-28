@@ -1495,7 +1495,7 @@ virtual_regional_office:
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
   evidence_pdf_path: evidence-pdf
   ctn_classification_path: classifier
-  max_cfi_path: max-ratings
+  max_cfi_path: employee-experience/max-ratings
 
 # Settings for Test User Dashboard modules
 test_user_dashboard:
