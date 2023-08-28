@@ -121,7 +121,8 @@ module EVSS
           type: ApiProviderFactory::FACTORIES[:ppiu],
           provider: nil,
           options: {},
-          current_user: @user
+          current_user: @user,
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT
         )
 
         response = service.get_payment_information
