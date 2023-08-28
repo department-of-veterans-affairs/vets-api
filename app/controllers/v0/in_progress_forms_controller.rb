@@ -19,6 +19,9 @@ module V0
              InProgressForm.new(form_id:, user_uuid: @current_user.uuid)
       form.user_account = @current_user.user_account
       form.real_user_uuid = @current_user.uuid
+
+      form.log_cfi_metric(params)
+
       form.update!(form_data: params[:form_data] || params[:formData], metadata: params[:metadata])
       render json: form, key_transform: :unaltered
     end
