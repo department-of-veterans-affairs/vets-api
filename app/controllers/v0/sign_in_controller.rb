@@ -321,7 +321,8 @@ module V0
         type: state_payload.type,
         client_id: state_payload.client_id,
         ial: credential_level.current_ial,
-        acr: state_payload.acr
+        acr: state_payload.acr,
+        icn: verified_icn
       }
       sign_in_logger.info('callback', context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS,
