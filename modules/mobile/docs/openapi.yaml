@@ -353,7 +353,7 @@ paths:
           $ref: '#/components/responses/504'
       security:
         - Bearer: [ ]
-      summary: /v0/appointments/check-in/demographics (DRAFT)
+      summary: /v0/appointments/check-in/demographics
     patch:
       description: Edit demographics confirmations.
       requestBody:
