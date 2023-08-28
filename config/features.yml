@@ -144,6 +144,18 @@ features:
     actor_type: user
     description: When enabled, claims status tool uses the Lighthouse API instead of EVSS
     enable_in_development: true
+  cst_use_lighthouse_5103:
+    actor_type: user
+    description: When enabled, claims status tool uses the Lighthouse API for the 5103 endpoint
+    enable_in_development: true
+  cst_use_lighthouse_index:
+    actor_type: user
+    description: When enabled, claims status tool uses the Lighthouse API for the index endpoint
+    enable_in_development: true
+  cst_use_lighthouse_show:
+    actor_type: user
+    description: When enabled, claims status tool uses the Lighthouse API for the show endpoint
+    enable_in_development: true
   cst_include_ddl_boa_letters:
     actor_type: user
     description: When enabled, the Download Decision Letters feature includes Board of Appeals decision letters
