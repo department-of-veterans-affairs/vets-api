@@ -10,6 +10,8 @@ module Form526ClaimFastTrackingConcern
   extend ActiveSupport::Concern
 
   RRD_STATSD_KEY_PREFIX = 'worker.rapid_ready_for_decision'
+  MAX_CFI_STATSD_KEY_PREFIX = 'api.max_cfi'
+  DISABILITIES_WITH_MAX_CFI = [ClaimFastTracking::DiagnosticCodes::TINNITUS].freeze
 
   def send_rrd_alert_email(subject, message, error = nil, to = Settings.rrd.alerts.recipients)
     RrdAlertMailer.build(self, subject, message, error, to).deliver_now
@@ -132,6 +134,23 @@ module Form526ClaimFastTrackingConcern
     invalidate_form_hash
   end
 
+  def log_max_cfi_metrics_on_submit
+    DISABILITIES_WITH_MAX_CFI.intersection(diagnostic_codes).each do |diagnostic_code|
+      selected_disability = disabilities.find do |dis|
+        diagnostic_code == dis['diagnosticCode']
+      end
+      next if selected_disability.nil?
+
+      next unless max_rated_disabilities_from_ipf.any? do |dis|
+        diagnostic_code == dis['diagnostic_code']
+      end
+
+      formatted_disability = selected_disability['name'].parameterize(separator: '_')
+      max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating) ? 'on' : 'off'
+      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.submit.#{formatted_disability}")
+    end
+  end
+
   def send_post_evss_notifications!
     conditionally_notify_mas
     Rails.logger.info('Submitted 526Submission to eVSS', id:, saved_claim_id:, submitted_claim_id:)
@@ -147,6 +166,19 @@ module Form526ClaimFastTrackingConcern
   end
 
   private
+
+  def max_rated_disabilities_from_ipf
+    in_progress_form = InProgressForm.find_by(form_id: '21-526EZ', user_uuid:)
+    return [] if in_progress_form.nil?
+
+    fd = in_progress_form.form_data
+    fd = JSON.parse(fd) if fd.is_a?(String)
+    rated_disabilities = fd['rated_disabilities'] || []
+
+    rated_disabilities.select do |dis|
+      dis['maximum_rating_percentage'] == dis['rating_percentage']
+    end
+  end
 
   def open_claims
     all_claims = EVSS::ClaimsService.new(auth_headers).all_claims.body
