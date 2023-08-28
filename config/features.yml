@@ -409,6 +409,10 @@ features:
     actor_type: user
     description: Enables form 1990e email submission confirmation (VaNotify)
     enable_in_development: true
+  form21_4142_confirmation_email:
+    actor_type: user
+    description: Enables form 21-4142 email submission confirmation (VaNotify)
+    enable_in_development: true
   form5490_confirmation_email:
     actor_type: user
     description: Enables form 5490 email submission confirmation (VaNotify)
