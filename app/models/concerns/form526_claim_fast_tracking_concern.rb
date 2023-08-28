@@ -181,7 +181,17 @@ module Form526ClaimFastTrackingConcern
   end
 
   def open_claims
-    all_claims = EVSS::ClaimsService.new(auth_headers).all_claims.body
+    icn = UserAccount.where(id: user_account_id).first&.icn
+    api_provider = ApiProviderFactory.call(
+      type: ApiProviderFactory::FACTORIES[:claims],
+      provider: nil,
+      options: { auth_headers:, icn: },
+      # Flipper id is needed to check if the feature toggle works for this user
+      current_user: OpenStruct.new({ flipper_id: user_account_id }),
+      feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE
+    )
+
+    all_claims = api_provider.all_claims
     all_claims['open_claims']
   end
 
