@@ -217,4 +217,60 @@ describe HCA::MilitaryInformation do
       end
     end
   end
+
+  describe '#service_branches' do
+    it 'returns a list of deduplicated service branch codes' do
+      VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes') do
+        response = subject.service_branches
+
+        expect(response).to eq(["A", "F"])
+      end
+    end
+
+    it 'returns an empty array if there are no episodes' do
+      VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200_empty') do
+        response = subject.service_branches
+
+        expect(response).to eq([])
+      end
+    end
+  end
+
+  describe '#tours_of_duty' do
+    it "returns an array of hashes about the veteran's tours of duty" do
+      VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes') do
+        response = subject.tours_of_duty
+        expected_response = [{
+          service_branch: "Army",
+          date_range: { from: "1985-08-19", to: "1989-08-19" }
+        },
+        {
+          service_branch: "Army",
+          date_range: { from: "1989-08-20", to: "1992-08-23" }
+        },
+        {
+          service_branch: "Army",
+          date_range: { from: "1989-08-20", to: "2002-07-01" }
+        },
+        {
+          service_branch: "Air Force",
+          date_range: { from: "2000-04-07", to: "2009-01-23" }
+        },
+        {
+          service_branch: "Army",
+          date_range: { from: "2002-07-02", to: "2014-08-31" }
+        }]
+
+        expect(response).to eq(expected_response)
+      end
+    end
+
+    it 'returns an empty array if there are no episodes' do
+      VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200_empty') do
+        response = subject.tours_of_duty
+
+        expect(response).to eq([])
+      end
+    end
+  end
 end
