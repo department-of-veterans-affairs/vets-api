@@ -74,6 +74,7 @@ vaid_dash.update!(authentication: SignIn::Constants::Auth::COOKIE,
                   redirect_uri: 'http://localhost:3001/auth/login/callback',
                   access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES,
                   access_token_audience: 'sample_client',
+                  access_token_attributes: %w[first_name last_name email],
                   logout_redirect_uri: 'http://localhost:3001',
                   refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
 
