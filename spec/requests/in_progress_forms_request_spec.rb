@@ -362,6 +362,80 @@ RSpec.describe V0::InProgressFormsController do
 
           expect(existing_form.reload.form_data).to eq(form_data)
         end
+
+        context 'has checked \'One or more of my rated conditions that have gotten worse\'' do
+          let!(:existing_form) { create(:in_progress_526_form, user_uuid: user.uuid) }
+          let(:form_data) do
+            { 'view:claim_type': {
+                'view:claiming_increase': true
+              },
+              rated_disabilities: [
+                { name: 'Hypertension' }
+              ] }.to_json
+          end
+
+          before { allow(StatsD).to receive(:increment) }
+
+          context 'has no ratings with maximum_rating_percentage' do
+            it 'updates form and does not include cfiMetric in metadata nor logs metric' do
+              put v0_in_progress_form_url(existing_form.form_id),
+                  params: { form_data:, metadata: existing_form.metadata }
+              expect(response).to have_http_status(:ok)
+              expect(existing_form.reload.metadata.keys).not_to include('cfiMetric')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.rated_disabilities.hypertension')
+            end
+          end
+
+          context 'has rated disability with maximum_rating_percentage' do
+            let(:form_data) do
+              { 'view:claim_type': {
+                  'view:claiming_increase': true
+                },
+                rated_disabilities: [
+                  { name: 'Tinnitus', rating_percentage: 10, maximum_rating_percentage: 10 },
+                  { name: 'Hypertension', rating_percentage: 20 }
+                ] }.to_json
+            end
+
+            it 'updates form and includes cfiMetric in metadata, and logs metric' do
+              put v0_in_progress_form_url(existing_form.form_id),
+                  params: { form_data:, metadata: existing_form.metadata }
+              expect(response).to have_http_status(:ok)
+              expect(existing_form.reload.metadata.keys).to include('cfiMetric')
+              expect(StatsD).to have_received(:increment).with('api.max_cfi.on.rated_disabilities.tinnitus')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.rated_disabilities.hypertension')
+            end
+
+            context 'if updated twice' do
+              it 'only logs metric once' do
+                put v0_in_progress_form_url(existing_form.form_id),
+                    params: { form_data:, metadata: existing_form.metadata }
+                expect(response).to have_http_status(:ok)
+                expect(existing_form.reload.metadata.keys).to include('cfiMetric')
+
+                put v0_in_progress_form_url(existing_form.form_id),
+                    params: { form_data:, metadata: existing_form.metadata }
+                expect(response).to have_http_status(:ok)
+                expect(existing_form.reload.metadata.keys).to include('cfiMetric')
+
+                expect(StatsD).to have_received(:increment).with('api.max_cfi.on.rated_disabilities.tinnitus').once
+                expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.rated_disabilities.hypertension')
+              end
+            end
+          end
+        end
+
+        context 'has not checked \'One or more of my rated conditions that have gotten worse\'' do
+          before { allow(StatsD).to receive(:increment) }
+
+          it 'updates form and does not include cfiMetric in metadata' do
+            put v0_in_progress_form_url(existing_form.form_id),
+                params: { form_data:, metadata: existing_form.metadata }
+            expect(response).to have_http_status(:ok)
+            expect(existing_form.reload.metadata.keys).not_to include('cfiMetric')
+            expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.rated-disabilities')
+          end
+        end
       end
     end
 
