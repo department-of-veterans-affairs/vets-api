@@ -624,7 +624,9 @@ vba_documents:
 #Settings for Claims Api Module
 claims_api:
   pdf_generator_526:
-    service_name: form-526ez-pdf-generator
+    url: ~
+    path: '/form-526ez-pdf-generator/v1/forms/'
+    content_type: 'application/vnd.api+json'
   report_enabled: false
   audit_enabled: false
   s3:
