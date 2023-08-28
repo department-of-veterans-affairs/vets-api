@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_08_24_175915) do
+ActiveRecord::Schema.define(version: 2023_08_28_162433) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -345,6 +345,7 @@ ActiveRecord::Schema.define(version: 2023_08_24_175915) do
     t.boolean "pkce"
     t.string "certificates", array: true
     t.text "description"
+    t.string "access_token_attributes", default: [], array: true
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
   end
 
