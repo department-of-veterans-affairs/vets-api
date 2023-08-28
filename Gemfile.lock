@@ -215,7 +215,7 @@ GEM
     Ascii85 (1.1.0)
     aasm (5.5.0)
       concurrent-ruby (~> 1.0)
-    activerecord-import (1.4.1)
+    activerecord-import (1.5.0)
       activerecord (>= 4.2)
     activerecord-postgis-adapter (7.1.1)
       activerecord (~> 6.1)
