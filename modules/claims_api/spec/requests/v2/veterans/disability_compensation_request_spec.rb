@@ -541,16 +541,16 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when the internationalTelephone has non-digits included' do
-          let(:international_telephone) { '123456789X' }
+          let(:international_telephone) { '+44 20 1234 5678' }
 
-          it 'responds with bad request' do
+          it 'responds with a 200' do
             with_okta_user(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['veteranNumber']['internationalTelephone'] =
                 international_telephone
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
@@ -821,8 +821,8 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
-        context "when 'pointOfContactNumber' 'internationalTelephone' contains alphabetic characters" do
-          it 'responds with a 422' do
+        context "when 'pointOfContactNumber' 'internationalTelephone' contains non-numeric characters" do
+          it 'responds with a 200' do
             with_okta_user(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
@@ -830,10 +830,10 @@ RSpec.describe 'Disability Claims', type: :request do
                 homelessSituationOptions: 'FLEEING_CURRENT_RESIDENCE',
                 otherDescription: 'community help center'
               }
-              params['data']['attributes']['homeless']['pointOfContactNumber']['intnernationalTelephone'] =
-                'xxxyyyzzzz'
+              params['data']['attributes']['homeless']['pointOfContactNumber']['internationalTelephone'] =
+                '+44 20 1234 5678'
               post submit_path, params: params.to_json, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:ok)
             end
           end
         end
