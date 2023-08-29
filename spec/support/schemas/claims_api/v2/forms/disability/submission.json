@@ -66,7 +66,8 @@
               "internationalTelephone": {
                 "type": "string",
                 "description": "Veteran's international phone number.",
-                "maxLength": 10
+                "example": "+44 20 1234 5678",
+                "maxLength": 25
               }
             }
           },
@@ -225,8 +226,8 @@
             "internationalTelephone": {
               "description": "international phone of Point of Contact.",
               "type": "string",
-              "example": "1231234",
-              "maxLength": 10
+              "example": "+44 20 1234 5678",
+              "maxLength": 25
             }
           },
           "currentlyHomeless": {

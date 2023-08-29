@@ -1503,7 +1503,8 @@
                               "internationalTelephone": {
                                 "type": "string",
                                 "description": "Veteran's international phone number.",
-                                "maxLength": 10
+                                "example": "+44 20 1234 5678",
+                                "maxLength": 25
                               }
                             }
                           },
@@ -1668,8 +1669,8 @@
                             "internationalTelephone": {
                               "description": "international phone of Point of Contact.",
                               "type": "string",
-                              "example": "1231234",
-                              "maxLength": 10
+                              "example": "+44 20 1234 5678",
+                              "maxLength": 25
                             }
                           },
                           "currentlyHomeless": {
@@ -2604,9 +2605,9 @@
                                   },
                                   "internationalTelephone": {
                                     "type": "string",
-                                    "pattern": "^\\d{10}?$",
                                     "description": "Veteran's international phone number.",
-                                    "maxLength": 10
+                                    "example": "+44 20 1234 5678",
+                                    "maxLength": 25
                                   }
                                 }
                               },
@@ -2773,9 +2774,8 @@
                                   "internationalTelephone": {
                                     "description": "international phone of Point of Contact.",
                                     "type": "string",
-                                    "pattern": "^\\d{10}?$",
-                                    "example": "5555555",
-                                    "maxLength": 10
+                                    "example": "+44 20 1234 5678",
+                                    "maxLength": 25
                                   }
                                 }
                               },
@@ -3657,7 +3657,7 @@
                         },
                         "veteranNumber": {
                           "telephone": "5555555555",
-                          "internationalTelephone": "5555555555"
+                          "internationalTelephone": "+44 20 1234 5678"
                         },
                         "vaFileNumber": "AB123CDEF"
                       },
@@ -3679,7 +3679,7 @@
                         "pointOfContact": "john stewart",
                         "pointOfContactNumber": {
                           "telephone": "5555555555",
-                          "internationalTelephone": "5555555555"
+                          "internationalTelephone": "+44 20 1234 5678"
                         },
                         "currentlyHomeless": {
                           "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
@@ -4547,8 +4547,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-08-22",
-                      "expirationDate": "2024-08-22",
+                      "creationDate": "2023-08-23",
+                      "expirationDate": "2024-08-23",
                       "type": "compensation",
                       "status": "active"
                     }
