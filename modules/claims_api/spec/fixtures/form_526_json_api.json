@@ -49,7 +49,7 @@
       "standardClaim": false,
       "autoCestPDFGenerationDisabled": true,
       "claimDate": "1990-01-03",
-      "applicationExpirationDate": "2015-08-28T19:53:45+00:00",
+      "applicationExpirationDate": "2055-08-28T19:53:45+00:00",
       "serviceInformation": {
         "servicePeriods": [
           {

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../../rails_helper'
 require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
 
@@ -29,33 +30,26 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
     describe 'show' do
       context 'CCG (Client Credentials Grant) flow' do
-        let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
-
         context 'when provided' do
           context 'when valid' do
             context 'when current poa code does not exist' do
               it 'returns a 204' do
-                allow(JWT).to receive(:decode).and_return(nil)
-                allow(Token).to receive(:new).and_return(ccg_token)
-                allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
-                allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(OpenStruct.new(current_poa_code: nil))
+                mock_ccg(scopes) do |auth_header|
+                  allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(OpenStruct.new(current_poa_code: nil))
 
-                get get_poa_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
+                  get get_poa_path, headers: auth_header
 
-                expect(response.status).to eq(204)
+                  expect(response.status).to eq(204)
+                end
               end
             end
           end
 
           context 'when not valid' do
-            it 'returns a 403' do
-              allow(JWT).to receive(:decode).and_return(nil)
-              allow(Token).to receive(:new).and_return(ccg_token)
-              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
-
+            it 'returns a 401' do
               get get_poa_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
 
-              expect(response.status).to eq(403)
+              expect(response.status).to eq(401)
             end
           end
         end
@@ -79,7 +73,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
       describe 'auth header' do
         context 'when provided' do
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
                 .and_return(bgs_poa)
               allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
@@ -93,17 +87,15 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
         context 'when not provided' do
           it 'returns a 401 error code' do
-            with_okta_user(scopes) do
-              put appoint_individual_path, params: data
-              expect(response.status).to eq(401)
-            end
+            put appoint_individual_path, params: data
+            expect(response.status).to eq(401)
           end
         end
       end
 
       context 'when a POA code isn\'t provided' do
         it 'returns a 400 error code' do
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             data[:serviceOrganization] = nil
 
             put appoint_individual_path, params: data, headers: auth_header
@@ -114,7 +106,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
       context 'when no signatures are provided' do
         it 'returns a 400 error code' do
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             data[:signatures] = nil
 
             put appoint_individual_path, params: data, headers: auth_header
@@ -125,7 +117,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
       context 'when a veteran signature isn\'t provided' do
         it 'returns a 400 error code' do
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             data[:signatures][:veteran] = nil
 
             put appoint_individual_path, params: data, headers: auth_header
@@ -136,7 +128,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
       context 'when a representative signature isn\'t provided' do
         it 'returns a 400 error code' do
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             data[:signatures][:representative] = nil
 
             put appoint_individual_path, params: data, headers: auth_header
@@ -147,7 +139,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
       context 'when the POA code is for an organization instead of an individual' do
         it 'returns a 422 error code' do
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             data[:serviceOrganization][:poaCode] = organization_poa_code.to_s
 
             put appoint_individual_path, params: data, headers: auth_header
@@ -161,7 +153,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
           Veteran::Service::Representative.new(representative_id: '12345', poa_codes: [individual_poa_code],
                                                first_name: 'Thomas', last_name: 'Jefferson').save!
 
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             put appoint_individual_path, params: data, headers: auth_header
             expect(response.status).to eq(500)
           end
@@ -169,34 +161,27 @@ RSpec.describe 'Power Of Attorney', type: :request do
       end
 
       context 'CCG (Client Credentials Grant) flow' do
-        let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
-
         context 'when provided' do
           context 'when valid' do
             it 'returns a 200' do
-              allow(JWT).to receive(:decode).and_return(nil)
-              allow(Token).to receive(:new).and_return(ccg_token)
-              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
-              expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
-                .and_return(bgs_poa)
-              allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
-                .and_return({ person_poa_history: nil })
+              mock_ccg(scopes) do |auth_header|
+                expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+                  .and_return(bgs_poa)
+                allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                  .and_return({ person_poa_history: nil })
 
-              put appoint_individual_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
+                put appoint_individual_path, params: data, headers: auth_header
 
-              expect(response.status).to eq(200)
+                expect(response.status).to eq(200)
+              end
             end
           end
 
           context 'when not valid' do
-            it 'returns a 403' do
-              allow(JWT).to receive(:decode).and_return(nil)
-              allow(Token).to receive(:new).and_return(ccg_token)
-              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
-
+            it 'returns a 401' do
               put appoint_individual_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
 
-              expect(response.status).to eq(403)
+              expect(response.status).to eq(401)
             end
           end
         end
@@ -220,7 +205,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
       describe 'auth header' do
         context 'when provided' do
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
                 .and_return(bgs_poa)
               allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
@@ -234,16 +219,14 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
         context 'when not provided' do
           it 'returns a 401 error code' do
-            with_okta_user(scopes) do
-              put appoint_organization_path, params: data
-              expect(response.status).to eq(401)
-            end
+            put appoint_organization_path, params: data
+            expect(response.status).to eq(401)
           end
         end
 
         context 'when the POA code is for an individual instead of an organization' do
           it 'returns a 422 error code' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               data[:serviceOrganization][:poaCode] = individual_poa_code.to_s
 
               put appoint_organization_path, params: data, headers: auth_header
@@ -254,34 +237,27 @@ RSpec.describe 'Power Of Attorney', type: :request do
       end
 
       context 'CCG (Client Credentials Grant) flow' do
-        let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
-
         context 'when provided' do
           context 'when valid' do
             it 'returns a 200' do
-              allow(JWT).to receive(:decode).and_return(nil)
-              allow(Token).to receive(:new).and_return(ccg_token)
-              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
-              expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
-                .and_return(bgs_poa)
-              allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
-                .and_return({ person_poa_history: nil })
+              mock_ccg(scopes) do |auth_header|
+                expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+                  .and_return(bgs_poa)
+                allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                  .and_return({ person_poa_history: nil })
 
-              put appoint_organization_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
+                put appoint_organization_path, params: data, headers: auth_header
 
-              expect(response.status).to eq(200)
+                expect(response.status).to eq(200)
+              end
             end
           end
 
           context 'when not valid' do
-            it 'returns a 403' do
-              allow(JWT).to receive(:decode).and_return(nil)
-              allow(Token).to receive(:new).and_return(ccg_token)
-              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
-
+            it 'returns a 401' do
               put appoint_organization_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
 
-              expect(response.status).to eq(403)
+              expect(response.status).to eq(401)
             end
           end
         end
