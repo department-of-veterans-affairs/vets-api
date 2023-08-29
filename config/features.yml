@@ -228,6 +228,9 @@ features:
     actor_type: user
     description: enable/disable the use of LH Benefits Documents API in our Claim Status v2 services.
     enable_in_development: false
+  claims_status_v1_lh_auto_establish_claim_enabled:
+    actor_type: user
+    description: With feature flag enabled, v1 /526 should use Lighthouse Form526 docker container
   debt_letters_show_letters:
     actor_type: user
     description: Enables debt letters
