@@ -408,6 +408,10 @@ features:
     actor_type: user
     description: Form 10182 Notice of Disagreement - Request a board appeal
     enable_in_development: true
+  form0994_confirmation_email:
+    actor_type: user
+    description: Enables form 0994 email submission confirmation (VaNotify)
+    enable_in_development: true
   form1990_confirmation_email:
     actor_type: user
     description: Enables form 1990 email submission confirmation (VaNotify)
