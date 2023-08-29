@@ -80,14 +80,14 @@ RSpec.describe Form526Submission do
 
             it 'logs CFI metric upon submission' do
               subject.start
-              expect(StatsD).to have_received(:increment).with('api.max_cfi.on.submit.tinnitus')
+              expect(StatsD).to have_received(:increment).with('api.max_cfi.on.submit.6260')
             end
           end
 
           context 'Rated Tinnitus is not at maximum' do
             it 'does not log CFI metric upon submission' do
               subject.start
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.tinnitus')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.6260')
             end
           end
         end
@@ -100,14 +100,14 @@ RSpec.describe Form526Submission do
 
             it 'logs CFI metric upon submission' do
               subject.start
-              expect(StatsD).to have_received(:increment).with('api.max_cfi.off.submit.tinnitus')
+              expect(StatsD).to have_received(:increment).with('api.max_cfi.off.submit.6260')
             end
           end
 
           context 'Rated Tinnitus is not at maximum' do
             it 'does not log CFI metric upon submission' do
               subject.start
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.tinnitus')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.6260')
             end
           end
         end
@@ -130,7 +130,7 @@ RSpec.describe Form526Submission do
 
           it 'does not log CFI metric upon submission' do
             subject.start
-            expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.hypertension')
+            expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
           end
         end
 
@@ -139,7 +139,7 @@ RSpec.describe Form526Submission do
 
           it 'does not log CFI metric upon submission' do
             subject.start
-            expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.hypertension')
+            expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
           end
         end
       end
