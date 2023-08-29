@@ -51,7 +51,19 @@ module MebApi
       end
 
       def submit_claim
-        dd_response = payment_service.get_ch33_dd_eft_info
+        dd_response = nil
+        if Flipper.enabled?(:toe_short_circuit_bgs_failure, @current_user)
+          begin
+            dd_response = payment_service.get_ch33_dd_eft_info
+          rescue => e
+            Rails.logger.error('BDN service error: ', e)
+            head :internal_server_error
+            return
+          end
+        else
+          dd_response = payment_service.get_ch33_dd_eft_info
+        end
+
         response = submission_service.submit_claim(params, dd_response, 'toe')
 
         clear_saved_form(params[:form_id]) if params[:form_id]
