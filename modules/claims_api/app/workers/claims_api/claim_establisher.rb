@@ -97,10 +97,10 @@ module ClaimsApi
     end
 
     def service(auth_headers)
-      if Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']
-        ClaimsApi::DisabilityCompensation::MockOverrideService.new(auth_headers)
-      elsif Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
+      if Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
         ClaimsApi::EVSSService::Base.new
+      elsif Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']
+        ClaimsApi::DisabilityCompensation::MockOverrideService.new(auth_headers)
       else
         EVSS::DisabilityCompensationForm::Service.new(auth_headers)
       end
