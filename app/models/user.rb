@@ -366,12 +366,12 @@ class User < Common::RedisStore
 
   veteran_status_method = 'veteran_status'
   define_method(veteran_status_method) do
-    emis_model = instance_variable_get(:"@#{veteran_status_method}")
-    return emis_model if emis_model.present?
+    veteran_status_instance = instance_variable_get(:"@#{veteran_status_method}")
+    return veteran_status_instance if veteran_status_instance.present?
 
-    emis_model = "EMISRedis::#{veteran_status_method.camelize}".constantize.for_user(self)
-    instance_variable_set(:"@#{veteran_status_method}", emis_model)
-    emis_model
+    veteran_status_instance = VeteranStatus.title38_status
+    instance_variable_set(:"@#{veteran_status_method}", veteran_status_instance)
+    veteran_status_instance
   end
 
   # %w[veteran_status].each do |emis_method|
