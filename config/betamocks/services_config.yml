@@ -43,6 +43,26 @@
     :path: "/vbsapi/UploadFSRJsonDocument"
     :file_path: "vbs/fsr"
 
+- :name: 'VHA'
+  :base_uri: <%= "#{URI('https://' + Settings.vha.sharepoint.sharepoint_url).host}:#{URI('https://' + Settings.vha.sharepoint.sharepoint_url).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: <%= "/#{Settings.vha.sharepoint.base_path}/_api/Web/GetFolderByServerRelativeUrl('#{Settings.vha.sharepoint.base_path}/Submissions')/Files/*" %>
+    :file_path: "vha/sharepoint/create"
+  - :method: :post
+    :path: <%= "/#{Settings.vha.sharepoint.base_path}/_api/Web/Lists/GetByTitle('Submissions')/items/*" %>
+    :file_path: "vha/sharepoint/create"
+  - :method: :get
+    :path: "/_api/Web/*"
+    :file_path: "vha/sharepoint/show"
+
+- :name: 'ACS'
+  :base_uri: <%= "#{URI(Settings.vha.sharepoint.authentication_url).host}:#{URI(Settings.vha.sharepoint.authentication_url).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: <%= "/#{Settings.vha.sharepoint.tenant_id}/tokens/OAuth/2" %>
+    :file_path: "vha/sharepoint/authenticate"
+
 - :name: 'MDOT'
   :base_uri: <%= "#{URI(Settings.mdot.url).host}:#{URI(Settings.mdot.url).port}" %>
   :endpoints:

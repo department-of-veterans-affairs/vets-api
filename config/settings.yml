@@ -1594,6 +1594,17 @@ coverband:
 dogstatsd:
   enabled: false
 
+vha:
+  sharepoint:
+    sharepoint_url: "dvagov.sharepoint.com"
+    client_id: "fake_sharepoint_client_id"
+    client_secret: "fake_sharepoint_client_secret"
+    tenant_id: "fake_sharepoint_tenant_id"
+    resource: "00000003-0000-0ff1-ce00-000000000000"
+    service_name: "VHA-SHAREPOINT"
+    base_path: "/sites/vhafinance/MDW"
+    authentication_url: "https://accounts.accesscontrol.windows.net"
+    mock: true
 avs:
   mock: true
   timeout: 55
