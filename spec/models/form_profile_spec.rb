@@ -1082,16 +1082,17 @@ RSpec.describe FormProfile, type: :model do
       else
         form_id
       end.tap do |schema_form_id|
+        binding.pry
         schema = strip_required(VetsJsonSchema::SCHEMAS[schema_form_id]).except('anyOf')
-
         schema_data = prefilled_data.deep_dup
-
         errors = JSON::Validator.fully_validate(
           schema,
           schema_data.deep_transform_keys { |key| key.camelize(:lower) }, validate_schema: true
         )
+
         expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end
+
       expect(prefilled_data).to eq(
         form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
       )
@@ -1225,83 +1226,78 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
-    # context 'with emis data', skip_emis: true do
-    #   # rubocop:disable Metrics/MethodLength
-    #   def stub_methods_for_emis_data
-    #     # edipi = '384759483'
-    #     # allow(user).to receive(:edipi).and_return(edipi)
+    context 'with military information data', skip_emis: true do
+      # rubocop:disable Metrics/MethodLength
+      def stub_methods_military_information
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
+          VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+            military_information = user.military_information
+            expect(military_information).to receive(:last_service_branch).and_return('Air Force')
+            expect(military_information).to receive(:hca_last_service_branch).and_return('air force')
+            expect(military_information).to receive(:last_entry_date).and_return('2007-04-01')
+            expect(military_information).to receive(:last_discharge_date).and_return('2007-04-02')
+            expect(military_information).to receive(:discharge_type).and_return('honorable')
+            expect(military_information).to receive(:post_nov111998_combat).and_return(true)
+            expect(military_information).to receive(:sw_asia_combat).and_return(true)
+            expect(military_information).to receive(:compensable_va_service_connected).and_return(true).twice
+            expect(military_information).to receive(:is_va_service_connected).and_return(true).twice
+            expect(military_information).to receive(:tours_of_duty).and_return(
+              [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
+            )
+            expect(military_information).to receive(:service_branches).and_return(['F'])
+            allow(military_information).to receive(:currently_active_duty_hash).and_return(
+              yes: true
+            )
+            # expect(user).to receive(:can_access_id_card?).and_return(true)
+            expect(military_information).to receive(:service_periods).and_return(
+              [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
+            )
+            expect(military_information).to receive(:guard_reserve_service_history).and_return(
+              [{ from: '2007-04-01', to: '2016-06-01' }, { from: '2002-02-14', to: '2007-01-01' }]
+            )
+            expect(military_information).to receive(:latest_guard_reserve_service_period).and_return(
+              from: '2007-04-01',
+              to: '2016-06-01'
+            )
+          end
+        end
+      end
+      # rubocop:enable Metrics/MethodLength
 
-    #     VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
-    #       edipi = '1005127153'
-    #       # user.edipi = edipi
-    #       user.identity.edipi = edipi
-    #       user.save!
-    #       # allow(user).to receive(:edipi).and_return(edipi)
+      context 'with va profile prefill on' do
+        before do
+          stub_methods_military_information
+          VAProfile::Configuration::SETTINGS.prefill = true
 
-    #       VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability') do
-    #         military_information = user.military_information
-    #         expect(military_information).to receive(:last_service_branch).and_return('Air Force')
-    #         expect(military_information).to receive(:hca_last_service_branch).and_return('air force')
-    #         expect(military_information).to receive(:last_entry_date).and_return('2007-04-01')
-    #         expect(military_information).to receive(:last_discharge_date).and_return('2007-04-02')
-    #         expect(military_information).to receive(:discharge_type).and_return('honorable')
-    #         expect(military_information).to receive(:post_nov111998_combat).and_return(true)
-    #         expect(military_information).to receive(:sw_asia_combat).and_return(true)
-    #         expect(military_information).to receive(:compensable_va_service_connected).and_return(true).twice
-    #         expect(military_information).to receive(:is_va_service_connected).and_return(true).twice
-    #         expect(military_information).to receive(:tours_of_duty).and_return(
-    #           [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
-    #         )
-    #         expect(military_information).to receive(:service_branches).and_return(['F'])
-    #         allow(military_information).to receive(:currently_active_duty_hash).and_return(
-    #           yes: true
-    #         )
-    #         # expect(user).to receive(:can_access_id_card?).and_return(true)
-    #         expect(military_information).to receive(:service_periods).and_return(
-    #           [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
-    #         )
-    #         expect(military_information).to receive(:guard_reserve_service_history).and_return(
-    #           [{ from: '2007-04-01', to: '2016-06-01' }, { from: '2002-02-14', to: '2007-01-01' }]
-    #         )
-    #         expect(military_information).to receive(:latest_guard_reserve_service_period).and_return(
-    #           from: '2007-04-01',
-    #           to: '2016-06-01'
-    #         )
-    #       end
-    #     end
-    #   end
-    #   # rubocop:enable Metrics/MethodLength
+          v22_1990_expected['email'] = VAProfileRedis::ContactInformation.for_user(user).email.email_address
+          v22_1990_expected['homePhone'] = '3035551234'
+          v22_1990_expected['mobilePhone'] = '3035551234'
+          v22_1990_expected['veteranAddress'] = {
+            'street' => '140 Rock Creek Rd',
+            'city' => 'Washington',
+            'state' => 'DC',
+            'country' => 'USA',
+            'postalCode' => '20011'
+          }
+        end
 
-    #   context 'with va profile prefill on' do
-    #     before do
-    #       stub_methods_for_emis_data
-    #       VAProfile::Configuration::SETTINGS.prefill = true
+        after do
+          VAProfile::Configuration::SETTINGS.prefill = false
+        end
 
-    #       v22_1990_expected['email'] = VAProfileRedis::ContactInformation.for_user(user).email.email_address
-    #       v22_1990_expected['homePhone'] = '3035551234'
-    #       v22_1990_expected['mobilePhone'] = '3035551234'
-    #       v22_1990_expected['veteranAddress'] = {
-    #         'street' => '140 Rock Creek Rd',
-    #         'city' => 'Washington',
-    #         'state' => 'DC',
-    #         'country' => 'USA',
-    #         'postalCode' => '20011'
-    #       }
-    #     end
-
-    #     after do
-    #       VAProfile::Configuration::SETTINGS.prefill = false
-    #     end
-
-    #     it 'prefills 1990' do
-    #       # binding.pry
-    #       expect_prefilled('22-1990')
-    #     end
-    #   end
+        it 'prefills 1990' do
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
+            VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+              expect_prefilled('22-1990')
+            end
+          end
+        end
+      end
+    end
 
     #   context 'with emis prefill for 0994' do
     #     before do
-    #       stub_methods_for_emis_data
+    #       stub_methods_military_information
     #       can_prefill_emis(true)
     #       expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
     #       expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
@@ -1314,7 +1310,7 @@ RSpec.describe FormProfile, type: :model do
 
     #   context 'with emis and ppiu prefill for 0994' do
     #     before do
-    #       stub_methods_for_emis_data
+    #       stub_methods_military_information
     #       can_prefill_emis(true)
     #       expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
     #       expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
@@ -1339,7 +1335,7 @@ RSpec.describe FormProfile, type: :model do
 
     #   context 'with emis and vet360 prefill for 0873' do
     #     before do
-    #       stub_methods_for_emis_data
+    #       stub_methods_military_information
     #       can_prefill_emis(true)
     #     end
 
@@ -1350,7 +1346,7 @@ RSpec.describe FormProfile, type: :model do
 
     #   context 'with emis prefill for 10203' do
     #     before do
-    #       stub_methods_for_emis_data
+    #       stub_methods_military_information
     #       can_prefill_emis(true)
     #       expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
     #     end
@@ -1362,7 +1358,7 @@ RSpec.describe FormProfile, type: :model do
 
     #   context 'with emis and GiBillStatus prefill for 10203' do
     #     before do
-    #       stub_methods_for_emis_data
+    #       stub_methods_military_information
     #       can_prefill_emis(true)
     #       expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
     #       v22_10203_expected['remainingEntitlement'] = {
@@ -1393,7 +1389,7 @@ RSpec.describe FormProfile, type: :model do
 
     #   context 'with a user that can prefill emis' do
     #     before do
-    #       stub_methods_for_emis_data
+    #       stub_methods_military_information
     #       can_prefill_emis(true)
     #     end
 
