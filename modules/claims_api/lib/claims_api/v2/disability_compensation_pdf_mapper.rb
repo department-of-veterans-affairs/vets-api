@@ -223,8 +223,14 @@ module ClaimsApi
           )
         end
         if international_telephone
-          @pdf_data[:data][:attributes][:identificationInformation][:phoneNumber][:internationalTelephone] =
-            international_telephone
+          if @pdf_data[:data][:attributes][:identificationInformation][:phoneNumber].present?
+            @pdf_data[:data][:attributes][:identificationInformation][:phoneNumber][:internationalTelephone] =
+              international_telephone
+          else
+            @pdf_data[:data][:attributes][:identificationInformation].merge!(
+              phoneNumber: { internationalTelephone: international_telephone }
+            )
+          end
         end
         @pdf_data[:data][:attributes][:identificationInformation].delete(:veteranNumber)
         country = @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:country]
