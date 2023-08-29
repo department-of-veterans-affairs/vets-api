@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../../rails_helper'
 require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
 
@@ -36,7 +37,7 @@ RSpec.describe 'IntentToFiles', type: :request do
 
         context 'when provided' do
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
               expect(response.status).to eq(200)
             end
@@ -45,10 +46,8 @@ RSpec.describe 'IntentToFiles', type: :request do
 
         context 'when not provided' do
           it 'returns a 401 error code' do
-            with_okta_user(scopes) do
-              get itf_type_path
-              expect(response.status).to eq(401)
-            end
+            get itf_type_path
+            expect(response.status).to eq(401)
           end
         end
       end
@@ -68,7 +67,7 @@ RSpec.describe 'IntentToFiles', type: :request do
           let(:type) { 'some-invalid-value' }
 
           it 'returns a 400' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
               expect(response.status).to eq(400)
             end
@@ -79,7 +78,7 @@ RSpec.describe 'IntentToFiles', type: :request do
           let(:type) { 'CoMpEnSaTiOn' }
 
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
               expect(response.status).to eq(200)
             end
@@ -90,7 +89,7 @@ RSpec.describe 'IntentToFiles', type: :request do
           let(:type) { 'COMPENSATION' }
 
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
               expect(response.status).to eq(200)
             end
@@ -102,7 +101,7 @@ RSpec.describe 'IntentToFiles', type: :request do
             let(:type) { 'compensation' }
 
             it 'returns a 200' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 get itf_type_path, headers: auth_header
                 expect(response.status).to eq(200)
               end
@@ -113,7 +112,7 @@ RSpec.describe 'IntentToFiles', type: :request do
             let(:type) { 'pension' }
 
             it 'returns a 200' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 get itf_type_path, headers: auth_header
                 expect(response.status).to eq(200)
               end
@@ -124,7 +123,7 @@ RSpec.describe 'IntentToFiles', type: :request do
             let(:type) { 'survivor' }
 
             it 'returns a 200' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 get itf_type_path, headers: auth_header
                 expect(response.status).to eq(200)
               end
@@ -137,7 +136,7 @@ RSpec.describe 'IntentToFiles', type: :request do
         let(:stub_response) { nil }
 
         it 'returns a 404' do
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             get itf_type_path, headers: auth_header
             expect(response.status).to eq(404)
           end
@@ -166,7 +165,7 @@ RSpec.describe 'IntentToFiles', type: :request do
           end
 
           it 'chooses the first non-expired ITF' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
 
               parsed_response = JSON.parse(response.body)
@@ -197,7 +196,7 @@ RSpec.describe 'IntentToFiles', type: :request do
           end
 
           it 'returns 404' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
 
               expect(response.status).to eq(404)
@@ -226,7 +225,7 @@ RSpec.describe 'IntentToFiles', type: :request do
           end
 
           it 'returns 404' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
 
               expect(response.status).to eq(404)
@@ -248,7 +247,7 @@ RSpec.describe 'IntentToFiles', type: :request do
           end
 
           it 'returns a 404' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
 
               expect(response.status).to eq(404)
@@ -268,7 +267,7 @@ RSpec.describe 'IntentToFiles', type: :request do
           end
 
           it 'returns a 404' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               get itf_type_path, headers: auth_header
 
               expect(response.status).to eq(404)
@@ -278,7 +277,6 @@ RSpec.describe 'IntentToFiles', type: :request do
       end
 
       context 'CCG (Client Credentials Grant) flow' do
-        let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
         let(:stub_response) do
           {
             intent_to_file_id: '1',
@@ -293,23 +291,17 @@ RSpec.describe 'IntentToFiles', type: :request do
         context 'when provided' do
           context 'when valid' do
             it 'returns a 200' do
-              allow(JWT).to receive(:decode).and_return(nil)
-              allow(Token).to receive(:new).and_return(ccg_token)
-              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
-
-              get itf_type_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
+              mock_ccg(scopes) do |auth_header|
+                get itf_type_path, headers: auth_header
+              end
               expect(response.status).to eq(200)
             end
           end
 
           context 'when not valid' do
-            it 'returns a 403' do
-              allow(JWT).to receive(:decode).and_return(nil)
-              allow(Token).to receive(:new).and_return(ccg_token)
-              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
-
+            it 'returns a 401' do
               get itf_type_path, headers: { 'Authorization' => 'Bearer HelloWorld' }
-              expect(response.status).to eq(403)
+              expect(response.status).to eq(401)
             end
           end
         end
@@ -350,7 +342,7 @@ RSpec.describe 'IntentToFiles', type: :request do
       describe 'auth header' do
         context 'when provided' do
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               post itf_submit_path, params: data, headers: auth_header
               expect(response.status).to eq(200)
             end
@@ -359,10 +351,8 @@ RSpec.describe 'IntentToFiles', type: :request do
 
         context 'when not provided' do
           it 'returns a 401 error code' do
-            with_okta_user(scopes) do
-              post itf_submit_path, params: data
-              expect(response.status).to eq(401)
-            end
+            post itf_submit_path, params: data
+            expect(response.status).to eq(401)
           end
         end
       end
@@ -370,7 +360,7 @@ RSpec.describe 'IntentToFiles', type: :request do
       describe 'submitting a payload' do
         context 'when payload is valid' do
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               post itf_submit_path, params: data, headers: auth_header
               expect(response.status).to eq(200)
             end
@@ -389,7 +379,7 @@ RSpec.describe 'IntentToFiles', type: :request do
               end
 
               it 'returns a 400' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   post itf_submit_path, params: invalid_data, headers: auth_header
                   expect(response.status).to eq(400)
                 end
@@ -398,7 +388,7 @@ RSpec.describe 'IntentToFiles', type: :request do
 
             context "when 'type' is blank" do
               it 'returns a 400' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   invalid_data = data
                   invalid_data[:data][:attributes][:type] = ''
 
@@ -410,7 +400,7 @@ RSpec.describe 'IntentToFiles', type: :request do
 
             context "when 'type' is nil" do
               it 'returns a 400' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   invalid_data = data
                   invalid_data[:data][:attributes][:type] = nil
 
@@ -422,7 +412,7 @@ RSpec.describe 'IntentToFiles', type: :request do
 
             context "when 'type' is not an accepted value" do
               it 'returns a 400' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   invalid_data = data
                   invalid_data[:data][:attributes][:type] = 'foo'
 
@@ -436,7 +426,7 @@ RSpec.describe 'IntentToFiles', type: :request do
           context "when ITF type is 'survivor'" do
             context "when optional 'claimantSsn' is provided" do
               it 'returns a 200' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   survivor_data = data
                   survivor_data[:data][:attributes][:type] = 'survivor'
                   survivor_data[:data][:attributes][:claimantSsn] = '123456789'
@@ -447,7 +437,7 @@ RSpec.describe 'IntentToFiles', type: :request do
 
               context "when 'claimantSsn' contains separators" do
                 it 'returns a 200' do
-                  with_okta_user(scopes) do |auth_header|
+                  mock_ccg(scopes) do |auth_header|
                     survivor_data = data
                     survivor_data[:data][:attributes][:type] = 'survivor'
                     survivor_data[:data][:attributes][:claimantSsn] = '123-45-6789'
@@ -460,7 +450,7 @@ RSpec.describe 'IntentToFiles', type: :request do
 
             context 'when no optional parameters are provided' do
               it 'returns a 422' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   survivor_data = data
                   survivor_data[:data][:attributes][:type] = 'survivor'
                   post itf_submit_path, params: survivor_data, headers: auth_header
@@ -471,7 +461,7 @@ RSpec.describe 'IntentToFiles', type: :request do
 
             context 'when invalid parameter is provided' do
               it 'returns a 422' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   survivor_data = data
                   survivor_data[:data][:attributes][:type] = 'survivor'
                   survivor_data[:data][:attributes][:claimantSsn] = 'abcdefghi'
@@ -485,7 +475,7 @@ RSpec.describe 'IntentToFiles', type: :request do
 
         context "when 'type' is mixed-case" do
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               valid_data = data
               valid_data[:data][:attributes][:type] = 'CoMpEnSaTiOn'
 
@@ -497,30 +487,21 @@ RSpec.describe 'IntentToFiles', type: :request do
       end
 
       context 'CCG (Client Credentials Grant) flow' do
-        let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
-
         context 'when provided' do
           context 'when valid' do
             it 'returns a 200' do
-              allow(JWT).to receive(:decode).and_return(nil)
-              allow(Token).to receive(:new).and_return(ccg_token)
-              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
-
-              post itf_submit_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
-
+              mock_ccg(scopes) do |auth_header|
+                post itf_submit_path, params: data, headers: auth_header
+              end
               expect(response.status).to eq(200)
             end
           end
 
           context 'when not valid' do
-            it 'returns a 403' do
-              allow(JWT).to receive(:decode).and_return(nil)
-              allow(Token).to receive(:new).and_return(ccg_token)
-              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
-
+            it 'returns a 401' do
               post itf_submit_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
 
-              expect(response.status).to eq(403)
+              expect(response.status).to eq(401)
             end
           end
         end
@@ -559,7 +540,7 @@ RSpec.describe 'IntentToFiles', type: :request do
       describe 'auth header' do
         context 'when provided' do
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               post itf_validate_path, params: data, headers: auth_header
               expect(response.status).to eq(200)
             end
@@ -568,10 +549,8 @@ RSpec.describe 'IntentToFiles', type: :request do
 
         context 'when not provided' do
           it 'returns a 401 error code' do
-            with_okta_user(scopes) do
-              post itf_validate_path, params: data
-              expect(response.status).to eq(401)
-            end
+            post itf_validate_path, params: data
+            expect(response.status).to eq(401)
           end
         end
       end
@@ -579,7 +558,7 @@ RSpec.describe 'IntentToFiles', type: :request do
       describe 'submitting a payload' do
         context 'when payload is valid' do
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               post itf_validate_path, params: data, headers: auth_header
               expect(response.status).to eq(200)
             end
@@ -590,7 +569,7 @@ RSpec.describe 'IntentToFiles', type: :request do
           context "when 'type' is survivor" do
             context "when 'claimantSsn' is blank" do
               it 'returns a 422' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   invalid_data = data
                   invalid_data[:data][:attributes][:type] = 'survivor'
                   invalid_data[:data][:attributes][:claimantSsn] = ''
@@ -604,7 +583,7 @@ RSpec.describe 'IntentToFiles', type: :request do
           context "when 'type' is invalid" do
             context "when 'type' is blank" do
               it 'returns a 400' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   invalid_data = data
                   invalid_data[:data][:attributes][:type] = ''
 
@@ -616,7 +595,7 @@ RSpec.describe 'IntentToFiles', type: :request do
 
             context "when 'type' is nil" do
               it 'returns a 400' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   invalid_data = data
                   invalid_data[:data][:attributes][:type] = nil
 
@@ -628,7 +607,7 @@ RSpec.describe 'IntentToFiles', type: :request do
 
             context "when 'type' is not an accepted value" do
               it 'returns a 400' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   invalid_data = data
                   invalid_data[:data][:attributes][:type] = 'foo'
 
@@ -642,7 +621,7 @@ RSpec.describe 'IntentToFiles', type: :request do
 
         context "when 'type' is mixed-case" do
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               valid_data = data
               valid_data[:data][:attributes][:type] = 'CoMpEnSaTiOn'
 
@@ -654,30 +633,22 @@ RSpec.describe 'IntentToFiles', type: :request do
       end
 
       context 'CCG (Client Credentials Grant) flow' do
-        let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
-
         context 'when provided' do
           context 'when valid' do
             it 'returns a 200' do
-              allow(JWT).to receive(:decode).and_return(nil)
-              allow(Token).to receive(:new).and_return(ccg_token)
-              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
-
-              post itf_validate_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
+              mock_ccg(scopes) do |auth_header|
+                post itf_validate_path, params: data, headers: auth_header
+              end
 
               expect(response.status).to eq(200)
             end
           end
 
           context 'when not valid' do
-            it 'returns a 403' do
-              allow(JWT).to receive(:decode).and_return(nil)
-              allow(Token).to receive(:new).and_return(ccg_token)
-              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
-
+            it 'returns a 401' do
               post itf_validate_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
 
-              expect(response.status).to eq(403)
+              expect(response.status).to eq(401)
             end
           end
         end
@@ -717,14 +688,14 @@ RSpec.describe 'IntentToFiles', type: :request do
 
       context 'should validate the request data is nested inside an attributes object that is inside a data object' do
         it 'returns 200 when submitting to SUBMIT with correct body format' do
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             post itf_submit_path, params: data, headers: auth_header
             expect(response.status).to eq(200)
           end
         end
 
         it 'returns 400 when submitting to SUBMIT with incorrect body format' do
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             invalid_data_format = data[:data][:attributes]
             post itf_submit_path, params: invalid_data_format, headers: auth_header
             expect(response.status).to eq(400)
@@ -732,14 +703,14 @@ RSpec.describe 'IntentToFiles', type: :request do
         end
 
         it 'returns 200 when submitting to VALIDATE with correct body format' do
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             post itf_validate_path, params: data, headers: auth_header
             expect(response.status).to eq(200)
           end
         end
 
         it 'returns 422 when submitting to VALIDATE with incorrect body format' do
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             invalid_data_format = data[:data][:attributes]
             post itf_validate_path, params: invalid_data_format, headers: auth_header
             expect(response.status).to eq(400)

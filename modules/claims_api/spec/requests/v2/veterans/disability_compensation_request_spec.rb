@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../../rails_helper'
 require 'token_validation/v2/client'
 
 RSpec.describe 'Disability Claims', type: :request do
@@ -40,12 +41,10 @@ RSpec.describe 'Disability Claims', type: :request do
         context 'when provided' do
           context 'when valid' do
             it 'returns a 200' do
-              allow(JWT).to receive(:decode).and_return(nil)
-              allow(Token).to receive(:new).and_return(ccg_token)
-              allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
-
-              post submit_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
-              expect(response).to have_http_status(:ok)
+              mock_ccg(scopes) do |auth_header|
+                post submit_path, params: data, headers: auth_header
+                expect(response).to have_http_status(:ok)
+              end
             end
           end
         end
@@ -53,9 +52,7 @@ RSpec.describe 'Disability Claims', type: :request do
         context 'when current user is not the target veteran' do
           context 'when current user is not a representative of the target veteran' do
             it 'returns a 422' do
-              with_okta_user(scopes) do |auth_header|
-                allow(JWT).to receive(:decode).and_return(nil)
-                allow(Token).to receive(:new).and_return(ccg_token)
+              mock_ccg(scopes) do |auth_header|
                 allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
 
                 post submit_path, headers: auth_header
@@ -81,7 +78,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:claim_date) { (Time.zone.today - 1.day).to_s }
 
             it 'responds with a 200' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:ok)
               end
@@ -92,7 +89,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:claim_date) { (Time.zone.today - 7.days).to_s }
 
             it 'responds with a 200' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:ok)
               end
@@ -103,7 +100,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:claim_date) { (Time.zone.today + 7.days).to_s }
 
             it 'responds with a bad request' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:bad_request)
               end
@@ -124,7 +121,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:claim_date) { Time.zone.today.to_s }
 
             it 'responds with a 200' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:ok)
               end
@@ -135,7 +132,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:claim_date) { (Time.zone.today - 1.day).to_s }
 
             it 'responds with a 200' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:ok)
               end
@@ -146,7 +143,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:claim_date) { (Time.zone.today + 7.days).to_s }
 
             it 'responds with bad request' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:bad_request)
               end
@@ -157,7 +154,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:claim_date) { 1.day.ago.iso8601 }
 
             it 'responds with a 200' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:ok)
               end
@@ -168,7 +165,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:claim_date) { 1.day.ago.iso8601.sub('Z', '-00:00') }
 
             it 'responds with a 200' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:ok)
               end
@@ -179,7 +176,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:claim_date) { 1.day.ago.iso8601.sub('Z', '') }
 
             it 'responds with a bad request' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
               end
@@ -190,7 +187,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:claim_date) { 1.day.ago.to_s }
 
             it 'responds with a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
               end
@@ -201,7 +198,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:claim_date) { 1.day.ago.iso8601.sub('T', ' ') }
 
             it 'responds with a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
               end
@@ -212,7 +209,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:claim_date) { 'hello world' }
 
             it 'responds with bad request' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
               end
@@ -223,7 +220,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:claim_date) { '' }
 
             it 'responds with bad request' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
               end
@@ -237,7 +234,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:claim_process_type) { 'claim_test' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['claimProcessType'] = claim_process_type
               data = json
@@ -251,7 +248,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:claim_process_type) { ' ' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['claimProcessType'] = claim_process_type
               data = json
@@ -267,7 +264,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:claimant_certification) { false }
 
           it 'responds with a bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['claimantCertification'] = claimant_certification
               data = json
@@ -283,7 +280,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:country) { 'USA' }
 
           it 'responds with a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['mailingAddress']['country'] = country
               data = json.to_json
@@ -297,7 +294,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:country) { 'United States of Nada' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['mailingAddress']['country'] = country
               data = json.to_json
@@ -309,7 +306,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context 'when no mailing address data is found' do
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['mailingAddress'] = {}
               data = json.to_json
@@ -341,7 +338,7 @@ RSpec.describe 'Disability Claims', type: :request do
             end
 
             it 'responds with a 200' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 json['data']['attributes']['changeOfAddress'] = valid_change_of_address
                 data = json.to_json
@@ -370,7 +367,7 @@ RSpec.describe 'Disability Claims', type: :request do
             end
 
             it 'responds with a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
                 data = json.to_json
@@ -403,7 +400,7 @@ RSpec.describe 'Disability Claims', type: :request do
             end
 
             it 'responds with a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
                 data = json.to_json
@@ -436,7 +433,7 @@ RSpec.describe 'Disability Claims', type: :request do
             end
 
             it 'responds with a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
                 data = json.to_json
@@ -469,7 +466,7 @@ RSpec.describe 'Disability Claims', type: :request do
             end
 
             it 'responds with a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
                 data = json.to_json
@@ -484,7 +481,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:country) { 'USA' }
 
           it 'responds with a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['changeOfAddress']['country'] = country
               data = json.to_json
@@ -498,7 +495,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:country) { 'United States of Nada' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['changeOfAddress']['country'] = country
               data = json.to_json
@@ -513,7 +510,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:end_date) { '01-01-2022' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['changeOfAddress']['dates']['beginDate'] = begin_date
               json['data']['attributes']['changeOfAddress']['dates']['endDate'] = end_date
@@ -530,7 +527,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:telephone) { '123456789X' }
 
           it 'responds with unprocessable request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['veteranNumber']['telephone'] = telephone
               data = json.to_json
@@ -543,8 +540,8 @@ RSpec.describe 'Disability Claims', type: :request do
         context 'when the internationalTelephone has non-digits included' do
           let(:international_telephone) { '+44 20 1234 5678' }
 
-          it 'responds with a 200' do
-            with_okta_user(scopes) do |auth_header|
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['veteranNumber']['internationalTelephone'] =
                 international_telephone
@@ -559,7 +556,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:zip_first_five) { '1234X' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['mailingAddress']['zipFirstFive'] = zip_first_five
               data = json.to_json
@@ -573,7 +570,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:zip_last_four) { '123X' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['mailingAddress']['zipLastFour'] = zip_last_four
               data = json.to_json
@@ -587,7 +584,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:apartment_or_unit_number) { '123456' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['mailingAddress']['apartmentOrUnitNumber'] =
                 apartment_or_unit_number
@@ -602,7 +599,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:number_and_street) { '1234567890abcdefghijklmnopqrstuvwxyz' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['mailingAddress']['numberAndStreet'] =
                 number_and_street
@@ -617,7 +614,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:city) { '1234567890abcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['mailingAddress']['city'] = city
               data = json.to_json
@@ -631,7 +628,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:state) { '!@#$%^&*()_+-=' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['mailingAddress']['state'] = state
               data = json.to_json
@@ -645,7 +642,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:va_file_number) { '1234567890abcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['vaFileNumber'] = va_file_number
               data = json.to_json
@@ -659,7 +656,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:current_va_employee) { 'negative' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['currentVaEmployee'] =
                 current_va_employee
@@ -674,7 +671,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:service_number) { '1234567890abcdefghijklmnopqrstuvwxyz!@#$%^&*()_+-=' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['serviceNumber'] = service_number
               data = json.to_json
@@ -688,7 +685,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:email) { '1234567890abcdefghijklmnopqrstuvwxyz@someinordiantelylongdomain.com' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['emailAddress'] = email
               data = json.to_json
@@ -702,7 +699,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:email) { '.invalid@somedomain.com' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['emailAddress'] = email
               data = json.to_json
@@ -716,7 +713,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:agree_to_email_related_to_claim) { 'negative' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['emailAddress']['agreeToEmailRelatedToClaim'] =
                 agree_to_email_related_to_claim
@@ -731,7 +728,7 @@ RSpec.describe 'Disability Claims', type: :request do
       describe 'Validation of claimant homeless elements' do
         context "when 'currentlyHomeless' and 'riskOfBecomingHomeless' are both provided" do
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
               params['data']['attributes']['homeless']['currentlyHomeless'] = {
@@ -758,7 +755,7 @@ RSpec.describe 'Disability Claims', type: :request do
       context "when neither 'currentlyHomeless' nor 'riskOfBecomingHomeless' is provided" do
         context "when 'pointOfContact' is provided" do
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
               params['data']['attributes']['homeless'] = {}
@@ -783,7 +780,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context "when 'pointOfContact' is not provided" do
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
               params['data']['attributes']['homeless']['currentlyHomeless'] = {
@@ -807,7 +804,7 @@ RSpec.describe 'Disability Claims', type: :request do
       context "when either 'currentlyHomeless' or 'riskOfBecomingHomeless' is provided" do
         context "when 'pointOfContactNumber' 'telephone' contains alphabetic characters" do
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
               params['data']['attributes']['homeless']['currentlyHomeless'] = {
@@ -821,9 +818,9 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
-        context "when 'pointOfContactNumber' 'internationalTelephone' contains non-numeric characters" do
-          it 'responds with a 200' do
-            with_okta_user(scopes) do |auth_header|
+        context "when 'pointOfContactNumber' 'internationalTelephone' contains alphabetic characters" do
+          it 'responds with a 422' do
+            mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
               params['data']['attributes']['homeless']['currentlyHomeless'] = {
@@ -844,7 +841,7 @@ RSpec.describe 'Disability Claims', type: :request do
         let(:other_locations_served) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
 
         it 'responds with a bad request' do
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             json = JSON.parse(data)
             json['data']['attributes']['toxicExposure']['herbicideHazardService']['otherLocationsServed'] =
               other_locations_served
@@ -859,7 +856,7 @@ RSpec.describe 'Disability Claims', type: :request do
         let(:additional_exposures) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
 
         it 'responds with a bad request' do
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             json = JSON.parse(data)
             json['data']['attributes']['toxicExposure']['additionalHazardExposures']['additionalExposures'] =
               additional_exposures
@@ -874,7 +871,7 @@ RSpec.describe 'Disability Claims', type: :request do
         let(:specify_other_exposures) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
 
         it 'responds with a bad request' do
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             json = JSON.parse(data)
             json['data']['attributes']['toxicExposure']['additionalHazardExposures']['specifyOtherExposures'] =
               specify_other_exposures
@@ -889,7 +886,7 @@ RSpec.describe 'Disability Claims', type: :request do
         let(:exposure_location) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
 
         it 'responds with a bad request' do
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             json = JSON.parse(data)
             json['data']['attributes']['toxicExposure']['multipleExposures'][0]['exposureLocation'] =
               exposure_location
@@ -904,7 +901,7 @@ RSpec.describe 'Disability Claims', type: :request do
         let(:hazard_exposed_to) { 'some !@#@#$#%$^%$#&$^%&&(*978078)' }
 
         it 'responds with a bad request' do
-          with_okta_user(scopes) do |auth_header|
+          mock_ccg(scopes) do |auth_header|
             json = JSON.parse(data)
             json['data']['attributes']['toxicExposure']['multipleExposures'][0]['hazardExposedTo'] =
               hazard_exposed_to
@@ -918,7 +915,7 @@ RSpec.describe 'Disability Claims', type: :request do
       context 'tracking PACT act claims' do
         context 'when is a PACT claim' do
           it 'tracks the claim count' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['disabilities'][0]['isRelatedToToxicExposure'] = true
               data = json.to_json
@@ -932,7 +929,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context 'when it is not a PACT claim' do
           it 'tracks the claim count' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['disabilities'][0]['isRelatedToToxicExposure'] = false
               json['data']['attributes']['disabilities'][1]['isRelatedToToxicExposure'] = false
@@ -966,7 +963,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 let(:future) { 'YES' }
 
                 it 'responds with a bad request' do
-                  with_okta_user(scopes) do |auth_header|
+                  mock_ccg(scopes) do |auth_header|
                     json_data = JSON.parse data
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -981,7 +978,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 let(:future) { 'NO' }
 
                 it 'responds with a bad request' do
-                  with_okta_user(scopes) do |auth_header|
+                  mock_ccg(scopes) do |auth_header|
                     json_data = JSON.parse data
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -998,7 +995,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 let(:future) { 'YES' }
 
                 it 'responds with a 200' do
-                  with_okta_user(scopes) do |auth_header|
+                  mock_ccg(scopes) do |auth_header|
                     json_data = JSON.parse data
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1013,7 +1010,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 let(:future) { 'NO' }
 
                 it 'responds with a 200' do
-                  with_okta_user(scopes) do |auth_header|
+                  mock_ccg(scopes) do |auth_header|
                     json_data = JSON.parse data
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1041,7 +1038,7 @@ RSpec.describe 'Disability Claims', type: :request do
               let(:military_retired_payment_amount) { 0 }
 
               it 'responds with an unprocessible entity' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1055,7 +1052,7 @@ RSpec.describe 'Disability Claims', type: :request do
               let(:military_retired_payment_amount) { 1_000_000 }
 
               it 'responds with an unprocessible entity' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1069,7 +1066,7 @@ RSpec.describe 'Disability Claims', type: :request do
               let(:military_retired_payment_amount) { 100 }
 
               it 'responds with a 200' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1096,7 +1093,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 end
 
                 it 'responds with an unprocessible entity' do
-                  with_okta_user(scopes) do |auth_header|
+                  mock_ccg(scopes) do |auth_header|
                     json_data = JSON.parse data
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1119,7 +1116,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 end
 
                 it 'responds with a 200' do
-                  with_okta_user(scopes) do |auth_header|
+                  mock_ccg(scopes) do |auth_header|
                     json_data = JSON.parse data
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1149,7 +1146,7 @@ RSpec.describe 'Disability Claims', type: :request do
               let(:separation_payment_amount) { 0 }
 
               it 'responds with an unprocessible entity' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1163,7 +1160,7 @@ RSpec.describe 'Disability Claims', type: :request do
               let(:separation_payment_amount) { 1_000_000 }
 
               it 'responds with an unprocessible entity' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1177,7 +1174,7 @@ RSpec.describe 'Disability Claims', type: :request do
               let(:separation_payment_amount) { 100 }
 
               it 'responds with a 200' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1204,7 +1201,7 @@ RSpec.describe 'Disability Claims', type: :request do
               let(:received_date) { (Time.zone.today + 1.day).strftime('%m-%d-%Y') }
 
               it 'responds with a bad request' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1218,7 +1215,7 @@ RSpec.describe 'Disability Claims', type: :request do
               let(:received_date) { (Time.zone.today - 1.year).strftime('%m-%d-%Y') }
 
               it 'responds with a 200' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1232,7 +1229,7 @@ RSpec.describe 'Disability Claims', type: :request do
               let(:received_date) { (Time.zone.today + 1.month).strftime('%m-%Y') }
 
               it 'responds with a bad request' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1246,7 +1243,7 @@ RSpec.describe 'Disability Claims', type: :request do
               let(:received_date) { (Time.zone.today - 1.year).strftime('%m-%Y') }
 
               it 'responds with a 200' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
@@ -1262,7 +1259,7 @@ RSpec.describe 'Disability Claims', type: :request do
       describe 'Validation of treament elements' do
         context 'when treatments values are not submitted' do
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse data
               json['data']['attributes']['treatments'] = []
               data = json.to_json
@@ -1274,7 +1271,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context 'when treatment beginDate is included and in the correct pattern' do
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:ok)
             end
@@ -1283,7 +1280,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context 'it gets the signature from the headers and MPI' do
           it 'returns a 200, and gets the signature' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:ok)
             end
@@ -1295,7 +1292,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:active_duty_begin_date) { '1981-11-15' }
 
           it 'returns a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['treatments'][0]['beginDate'] = treatment_begin_date
               json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] =
@@ -1309,7 +1306,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context "when 'treatment.beginDate' is not included" do
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse data
               json['data']['attributes']['treatments'][0]['beginDate'] = nil
               data = json.to_json
@@ -1323,7 +1320,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:not_treated_disability_name) { 'not included in submitted disabilities collection' }
 
           it 'returns a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['treatments'][0]['treatedDisabilityNames'][0] =
                 not_treated_disability_name
@@ -1339,7 +1336,7 @@ RSpec.describe 'Disability Claims', type: :request do
           # let(:secondary_disability_name) { 'Cancer - Musculoskeletal - Elbow' }
 
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               attrs = json['data']['attributes']
               attrs['treatments'][0]['treatedDisabilityNames'][1] = treated_disability_name
@@ -1352,7 +1349,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context 'when treatedDisabilityName has a match the list of declared disabilities' do
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:ok)
             end
@@ -1362,7 +1359,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:treated_disability_name) { '  Cancer - Musculoskeletal - Elbow' }
 
             it 'returns a 200' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 json['data']['attributes']['treatments'][0]['treatedDisabilityNames'][1] =
                   treated_disability_name
@@ -1377,7 +1374,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:treated_disability_name) { 'Cancer - Musculoskeletal - Elbow   ' }
 
             it 'returns a 200' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 json['data']['attributes']['treatments'][0]['treatedDisabilityNames'][1] =
                   treated_disability_name
@@ -1392,7 +1389,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:treated_disability_name) { 'CAnCer - MusCuLoskeLetaL - ElBow' }
 
             it 'returns a 200' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 json['data']['attributes']['treatments'][0]['treatedDisabilityNames'][1] =
                   treated_disability_name
@@ -1410,7 +1407,7 @@ RSpec.describe 'Disability Claims', type: :request do
               let(:treated_center_name) { ' ' }
 
               it 'returns a 422' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json = JSON.parse(data)
                   json['data']['attributes']['treatments'][0]['center']['name'] = treated_center_name
                   data = json.to_json
@@ -1424,7 +1421,7 @@ RSpec.describe 'Disability Claims', type: :request do
               let(:treated_center_name) { 'Center//// this $' }
 
               it 'returns a 422' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json = JSON.parse(data)
                   json['data']['attributes']['treatments'][0]['center']['name'] = treated_center_name
                   data = json.to_json
@@ -1438,7 +1435,7 @@ RSpec.describe 'Disability Claims', type: :request do
               let(:treated_center_name) { (0...102).map { ('a'..'z').to_a[rand(26)] }.join }
 
               it 'returns a 422' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json = JSON.parse(data)
                   json['data']['attributes']['treatments'][0]['center']['name'] = treated_center_name
                   data = json.to_json
@@ -1450,7 +1447,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
             context 'is a valid string of characters' do
               it 'returns a 200' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   post submit_path, params: data, headers: auth_header
                   expect(response).to have_http_status(:ok)
                 end
@@ -1461,7 +1458,7 @@ RSpec.describe 'Disability Claims', type: :request do
           context 'when the treatments.center.city' do
             context 'is a valid string of characters' do
               it 'returns a 200' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   post submit_path, params: data, headers: auth_header
                   expect(response).to have_http_status(:ok)
                 end
@@ -1472,7 +1469,7 @@ RSpec.describe 'Disability Claims', type: :request do
               let(:treated_center_city) { 'LMNOP 6' }
 
               it 'returns a 422' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json = JSON.parse data
                   json['data']['attributes']['treatments'][0]['center']['city'] = treated_center_city
                   data = json.to_json
@@ -1486,7 +1483,7 @@ RSpec.describe 'Disability Claims', type: :request do
           context 'when the treatments.center.state' do
             context 'is in the correct 2 letter format' do
               it 'returns a 200' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   post submit_path, params: data, headers: auth_header
                   expect(response).to have_http_status(:ok)
                 end
@@ -1497,7 +1494,7 @@ RSpec.describe 'Disability Claims', type: :request do
               let(:treated_center_state) { 'LMNOP' }
 
               it 'returns a 422' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json = JSON.parse data
                   json['data']['attributes']['treatments'][0]['center']['state'] = treated_center_state
                   data = json.to_json
@@ -1516,7 +1513,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:empty_date) { '' }
 
             it 'responds with a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
                 tos = reserves['obligationTermsOfService']
@@ -1531,7 +1528,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
           context 'obligationTermsOfService beginDate is required but not present' do
             it 'returns a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
                 tos = reserves['obligationTermsOfService']
@@ -1549,7 +1546,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
           context 'obligationTermsOfService endDate is required but not present' do
             it 'returns a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
                 tos = reserves['obligationTermsOfService']
@@ -1568,7 +1565,7 @@ RSpec.describe 'Disability Claims', type: :request do
           context 'when title10Activation is present anticipatedSeperationDate is required' do
             context 'when anticipatedSeperationDate is missing' do
               it 'returns a 422' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json = JSON.parse(data)
                   reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
                   reserves['title10Activation']['anticipatedSeparationDate'] = ''
@@ -1587,7 +1584,7 @@ RSpec.describe 'Disability Claims', type: :request do
           context 'when title10Activation is present title10ActivationDate is required' do
             context 'when title10ActivationDate is missing' do
               it 'returns a 422' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json = JSON.parse(data)
                   reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
                   reserves['title10Activation']['title10ActivationDate'] = ''
@@ -1608,7 +1605,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:service_branch) { '' }
 
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['serviceInformation']['servicePeriods'][0]['serviceBranch'] =
                 service_branch
@@ -1623,7 +1620,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:active_duty_end_date) { '1979-01-01' }
 
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
                 active_duty_end_date
@@ -1638,7 +1635,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:active_duty_begin_date) { '1979-01-01' }
 
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
                 active_duty_begin_date
@@ -1653,7 +1650,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:active_duty_end_date) { '1995-07-28' }
 
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
                 active_duty_end_date
@@ -1669,7 +1666,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
           context 'and the seperationLocationCode is present' do
             it 'responds with a 200' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
                   active_duty_end_date
@@ -1683,7 +1680,7 @@ RSpec.describe 'Disability Claims', type: :request do
               let(:separation_location_code) { nil }
 
               it 'responds with a 422' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json = JSON.parse(data)
                   service_period = json['data']['attributes']['serviceInformation']['servicePeriods'][0]
                   service_period['activeDutyEndDate'] = active_duty_end_date
@@ -1699,7 +1696,7 @@ RSpec.describe 'Disability Claims', type: :request do
               let(:separation_location_code) { '' }
 
               it 'responds with a 422' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json = JSON.parse(data)
                   service_period = json['data']['attributes']['serviceInformation']['servicePeriods'][0]
                   service_period['activeDutyEndDate'] = active_duty_end_date
@@ -1728,7 +1725,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'responds with a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['serviceInformation']['confinements'] = confinements
               data = json.to_json
@@ -1753,7 +1750,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'responds with a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['serviceInformation']['confinements'] = confinements
               data = json.to_json
@@ -1774,7 +1771,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['serviceInformation']['confinements'] = confinements
               data = json.to_json
@@ -1788,7 +1785,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:approximate_begin_date) { '2021-11-24' }
 
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               confinement = json['data']['attributes']['serviceInformation']['confinements'][0]
               confinement['approximateBeginDate'] = approximate_begin_date
@@ -1803,7 +1800,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:approximate_end_date) { '2022-11-24' }
 
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               confinement = json['data']['attributes']['serviceInformation']['confinements'][0]
               confinement['approximateEndDate'] = approximate_end_date
@@ -1819,7 +1816,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:approximate_begin_date) { '05-06-2016' }
 
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               confinement = json['data']['attributes']['serviceInformation']['confinements'][0]
               confinement['approximateEndDate'] = approximate_end_date
@@ -1833,7 +1830,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context 'when confinements are not present in service Information' do
           it 'responds with a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['serviceInformation']['confinements'] = []
               data = json.to_json
@@ -1846,7 +1843,7 @@ RSpec.describe 'Disability Claims', type: :request do
         context 'when confinements are present in service Information but missing one of the date periods' do
           context 'approximateBeginDate is present but approximateEndDate is not' do
             it 'responds with a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 confinement = json['data']['attributes']['serviceInformation']['confinements'][0]
                 confinement['approximateEndDate'] = ''
@@ -1863,7 +1860,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
           context 'approximateEndDate is present but approximateBeginDate is not' do
             it 'responds with a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 confinement = json['data']['attributes']['serviceInformation']['confinements'][0]
                 confinement['approximateBeginDate'] = ''
@@ -1884,7 +1881,7 @@ RSpec.describe 'Disability Claims', type: :request do
         describe "'disabilities.classificationCode' validations" do
           context "when 'disabilites.classificationCode' is valid" do
             it 'returns a successful response' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
                 post submit_path, params: params.to_json, headers: auth_header
@@ -1895,7 +1892,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
           context "when 'disabilites.classificationCode' is invalid" do
             it 'responds with a bad request' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['classificationCode'] = '1111'
@@ -1910,7 +1907,7 @@ RSpec.describe 'Disability Claims', type: :request do
           context "when 'disabilites.disabilityActionType' equals 'INCREASE'" do
             context "and 'disabilities.ratedDisabilityId' is not provided" do
               it 'returns an unprocessible entity status' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
                   disabilities = [
@@ -1930,7 +1927,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
             context "and 'disabilities.ratedDisabilityId' is provided" do
               it 'responds with a 200' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
                   disabilities = [
@@ -1972,7 +1969,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
             context "and 'disabilities.diagnosticCode' is not provided" do
               it 'returns an unprocessible entity status' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
                   disabilities = [
@@ -1995,7 +1992,7 @@ RSpec.describe 'Disability Claims', type: :request do
             context "and 'disabilites.secondaryDisabilities' is defined" do
               context "and 'disabilites.diagnosticCode is not provided" do
                 it 'returns an unprocessible entity status' do
-                  with_okta_user(scopes) do |auth_header|
+                  mock_ccg(scopes) do |auth_header|
                     json_data = JSON.parse data
                     params = json_data
                     disabilities = [
@@ -2024,7 +2021,7 @@ RSpec.describe 'Disability Claims', type: :request do
           context "when 'disabilites.disabilityActionType' equals value other than 'INCREASE'" do
             context "and 'disabilities.ratedDisabilityId' is not provided" do
               it 'responds with a 200' do
-                with_okta_user(scopes) do |auth_header|
+                mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['disabilities'][0]['disabilityActionType'] = 'NEW'
@@ -2042,7 +2039,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:approximate_date) { (Time.zone.today + 1.year).strftime('%m-%d-%Y') }
 
             it 'responds with a bad request' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
@@ -2056,7 +2053,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:approximate_date) { (Time.zone.today - 1.year).strftime('%m-%d-%Y') }
 
             it 'responds with a 200' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
                 post submit_path, params: params.to_json, headers: auth_header
@@ -2069,7 +2066,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:approximate_date) { (Time.zone.today - 6.months).strftime('%m-%Y') }
 
             it 'responds with a 200' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
                 post submit_path, params: params.to_json, headers: auth_header
@@ -2082,7 +2079,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:approximate_date) { (Time.zone.today + 1.year).strftime('%m-%Y') }
 
             it 'responds with a bad_request' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
@@ -2097,7 +2094,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:approximate_date) { (Time.zone.today - 1.month).strftime('%Y') }
 
             it 'responds with a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
@@ -2113,7 +2110,7 @@ RSpec.describe 'Disability Claims', type: :request do
         context 'when a secondaryDisability is added' do
           context 'but name is not present' do
             it 'returns a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
                 disabilities = [
@@ -2146,12 +2143,12 @@ RSpec.describe 'Disability Claims', type: :request do
 
           context 'but disabilityActionType is not present' do
             it 'raises an exception' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
                 disabilities = [
                   {
-                    disabilityActionType: 'NEW',
+                    disabilityActionType: 'REOPEN',
                     name: 'PTSD (post traumatic stress disorder)',
                     serviceRelevance: 'Heavy equipment operator in service.',
                     diagnosticCode: 9999,
@@ -2169,8 +2166,11 @@ RSpec.describe 'Disability Claims', type: :request do
                 post submit_path, params: params.to_json, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to eq(
-                  'The disability action type is required for secondary disability.'
+                expect(response_body['errors'][0]['detail']).to include(
+                  "Action type requested for the disability. If 'INCREASE', then " \
+                  "'ratedDisabilityId' and 'diagnosticCode' are required. " \
+                  "'NONE' should be used when including a secondary disability. " \
+                  "If 'NONE', then 'diagnosticCode' is required."
                 )
               end
             end
@@ -2178,7 +2178,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
           context 'but serviceRelevance is not present' do
             it 'raises an exception' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
                 disabilities = [
@@ -2212,7 +2212,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context 'when disabilityActionType is NONE with secondaryDisabilities but no diagnosticCode' do
           it 'raises an exception' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
               disabilities = [
@@ -2238,7 +2238,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context 'when secondaryDisability disabilityActionType is something other than SECONDARY' do
           it 'raises an exception' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
               disabilities = [
@@ -2265,7 +2265,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context "when 'disabilites.secondaryDisabilities.classificationCode' is invalid" do
           it 'raises an exception' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
               disabilities = [
@@ -2293,7 +2293,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context "when 'disabilites.secondaryDisabilities.classificationCode' does not match name" do
           it 'raises an exception' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
               disabilities = [
@@ -2321,7 +2321,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context "when 'disabilites.secondaryDisabilities.approximateDate' is present" do
           it 'raises an exception if date is invalid' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
               disabilities = [
@@ -2347,7 +2347,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'returns ok if date is approximate and in the past' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
               disabilities = [
@@ -2386,7 +2386,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'returns an exception if date is approximate and in the future' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
               disabilities = [
@@ -2412,7 +2412,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'raises an exception if date is not in the past' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
               disabilities = [
@@ -2440,7 +2440,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context "when 'disabilites.secondaryDisabilities.classificationCode' is not present" do
           it 'raises an exception if name is not valid structure' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
               disabilities = [
@@ -2465,7 +2465,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'raises an exception if name is longer than 255 characters' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
               disabilities = [
@@ -2496,7 +2496,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:empty_date) { '' }
 
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
               tos = reserves['obligationTermsOfService']
@@ -2514,7 +2514,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:end_date) { '2021-09-04' }
 
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
               tos = reserves['obligationTermsOfService']
@@ -2531,7 +2531,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:begin_date) { nil }
 
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
               reserves['obligationTermsOfService']['beginDate'] = begin_date
@@ -2546,7 +2546,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:end_date) { nil }
 
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
               reserves['obligationTermsOfService']['endDate'] = end_date
@@ -2562,7 +2562,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:anticipated_separation_date) { '' }
 
             it 'responds with a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
                 reserves['title10Activation']['anticipatedSeparationDate'] = anticipated_separation_date
@@ -2577,7 +2577,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:anticipated_separation_date) { 1.month.ago.strftime('%m-%d-%Y') }
 
             it 'responds with a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
                 reserves['title10Activation']['anticipatedSeparationDate'] = anticipated_separation_date
@@ -2592,7 +2592,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:title_10_activation_date) { '' }
 
             it 'responds with a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
                 reserves['title10Activation']['title10ActivationDate'] = title_10_activation_date
@@ -2625,7 +2625,7 @@ RSpec.describe 'Disability Claims', type: :request do
             end
 
             it 'responds with a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
                 service_information = json['data']['attributes']['serviceInformation']
                 service_information['servicePeriods'] = service_periods
@@ -2643,7 +2643,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:area_code) { '89X' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
               reserves['unitPhone']['areaCode'] = area_code
@@ -2658,7 +2658,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:area_code) { '1989' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
               reserves['unitPhone']['areaCode'] = area_code
@@ -2673,7 +2673,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:phone_number) { '89X6578' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
               reserves['unitPhone']['phoneNumber'] = phone_number
@@ -2688,7 +2688,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:phone_number) { '867530' }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
               reserves['unitPhone']['phoneNumber'] = phone_number
@@ -2703,7 +2703,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:alternate_names) { %w[John Johnathan John] }
 
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['serviceInformation']['alternateNames'] = alternate_names
               data = json.to_json
@@ -2717,7 +2717,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:alternate_names) { %w[John Johnathan john] }
 
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['serviceInformation']['alternateNames'] = alternate_names
               data = json.to_json
@@ -2741,7 +2741,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'returns a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse data
               json['data']['attributes']['directDeposit'] = direct_deposit
               data = json.to_json
@@ -2763,7 +2763,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'returns a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse data
               json['data']['attributes']['directDeposit'] = direct_deposit
               data = json.to_json
@@ -2785,7 +2785,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'returns a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse data
               json['data']['attributes']['directDeposit'] = direct_deposit
               data = json.to_json
@@ -2807,7 +2807,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'returns a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse data
               json['data']['attributes']['directDeposit'] = direct_deposit
               data = json.to_json
@@ -2829,7 +2829,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'returns a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse data
               json['data']['attributes']['directDeposit'] = direct_deposit
               data = json.to_json
@@ -2851,7 +2851,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'returns a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse data
               json['data']['attributes']['directDeposit'] = direct_deposit
               data = json.to_json
@@ -2873,7 +2873,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'returns a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse data
               json['data']['attributes']['directDeposit'] = direct_deposit
               data = json.to_json
@@ -2895,7 +2895,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'returns a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse data
               json['data']['attributes']['directDeposit'] = direct_deposit
               data = json.to_json
@@ -2917,7 +2917,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'returns a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse data
               json['data']['attributes']['directDeposit'] = direct_deposit
               data = json.to_json
@@ -2939,7 +2939,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'returns a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse data
               json['data']['attributes']['directDeposit'] = direct_deposit
               data = json.to_json
@@ -2961,7 +2961,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'returns a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse data
               json['data']['attributes']['directDeposit'] = direct_deposit
               data = json.to_json
@@ -2983,7 +2983,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse data
               json['data']['attributes']['directDeposit'] = direct_deposit
               data = json.to_json
@@ -2999,7 +2999,7 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:veteran_id) { nil }
 
           it 'responds with bad request' do
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               data = json
               post submit_path, params: data, headers: auth_header
@@ -3016,15 +3016,13 @@ RSpec.describe 'Disability Claims', type: :request do
       let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
 
       it 'returns a successful response when valid' do
-        allow(JWT).to receive(:decode).and_return(nil)
-        allow(Token).to receive(:new).and_return(ccg_token)
-        allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
-
-        post validation_path, params: data, headers: { 'Authorization' => 'Bearer HelloWorld' }
-        expect(response).to have_http_status(:ok)
-        parsed = JSON.parse(response.body)
-        expect(parsed['data']['type']).to eq('claims_api_auto_established_claim_validation')
-        expect(parsed['data']['attributes']['status']).to eq('valid')
+        mock_ccg(scopes) do |auth_header|
+          post validation_path, params: data, headers: auth_header
+          expect(response).to have_http_status(:ok)
+          parsed = JSON.parse(response.body)
+          expect(parsed['data']['type']).to eq('claims_api_auto_established_claim_validation')
+          expect(parsed['data']['attributes']['status']).to eq('valid')
+        end
       end
     end
 
