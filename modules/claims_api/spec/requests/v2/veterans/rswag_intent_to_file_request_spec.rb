@@ -2,6 +2,7 @@
 
 require 'swagger_helper'
 require 'rails_helper'
+require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
 # doc generation for V2 ITFs temporarily disabled by API-13879
@@ -57,7 +58,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           before do |example|
             Timecop.freeze(Time.zone.parse('2022-01-01T08:00:00Z'))
 
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               expect_any_instance_of(ClaimsApi::LocalBGS)
                 .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(bgs_response)
 
@@ -85,8 +86,6 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'default.json')))
 
-          let(:scopes) { %w[system/claim.read] }
-
           before do |example|
             submit_request(example.metadata)
           end
@@ -109,13 +108,14 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
         response '403', 'Forbidden' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
                                                       'default.json')))
-
-          let(:veteran) { OpenStruct.new(mpi: nil, participant_id: nil) }
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
-              expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+            mock_acg(scopes) do
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_is_target_veteran?).and_return(false)
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_represents_veteran?).and_return(false)
 
               submit_request(example.metadata)
             end
@@ -145,7 +145,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               expect_any_instance_of(ClaimsApi::LocalBGS)
                 .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(nil)
 
@@ -228,7 +228,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
               stub_response
             )
 
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               submit_request(example.metadata)
             end
           end
@@ -264,7 +264,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           end
 
           before do |example|
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               submit_request(example.metadata)
             end
           end
@@ -332,7 +332,12 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           end
 
           before do |example|
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_is_target_veteran?).and_return(false)
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_represents_veteran?).and_return(false)
+
               submit_request(example.metadata)
             end
           end
@@ -357,14 +362,14 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
                                                       'default.json')))
 
           let(:scopes) { %w[system/claim.write] }
-          let(:data) { { data: { attributes: { type: 'survivor', claimantSsn: '796111863' } } } }
+          let(:data) { { data: { attributes: { type: 'survivor', claimantSsn: 'not-a-valid-ssn' } } } }
           let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
 
           before do |example|
             stub_poa_verification
             stub_mpi
 
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
                 submit_request(example.metadata)
               end
@@ -446,7 +451,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
               stub_response
             )
 
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               submit_request(example.metadata)
             end
           end
@@ -482,7 +487,7 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           end
 
           before do |example|
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               submit_request(example.metadata)
             end
           end
@@ -554,7 +559,12 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           end
 
           before do |example|
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_is_target_veteran?).and_return(false)
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_represents_veteran?).and_return(false)
+
               submit_request(example.metadata)
             end
           end

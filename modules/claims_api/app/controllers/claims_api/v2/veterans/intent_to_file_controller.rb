@@ -7,7 +7,6 @@ module ClaimsApi
   module V2
     module Veterans
       class IntentToFileController < ClaimsApi::V2::ApplicationController
-        before_action :verify_access!
         before_action :validate_request_format, only: %i[submit validate]
 
         # GET to fetch active intent to file by type

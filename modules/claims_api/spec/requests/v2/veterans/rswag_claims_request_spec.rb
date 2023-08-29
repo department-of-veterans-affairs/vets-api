@@ -2,6 +2,7 @@
 
 require 'swagger_helper'
 require 'rails_helper'
+require_relative '../../../rails_helper'
 require 'bgs_service/local_bgs'
 
 describe 'Claims',
@@ -60,7 +61,7 @@ describe 'Claims',
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
                 expect_any_instance_of(bcs)
                   .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_response)
@@ -95,9 +96,7 @@ describe 'Claims',
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
-              submit_request(example.metadata)
-            end
+            submit_request(example.metadata)
           end
 
           after do |example|
@@ -123,8 +122,11 @@ describe 'Claims',
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
-              expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+            mock_acg(scopes) do
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_is_target_veteran?).and_return(false)
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_represents_veteran?).and_return(false)
 
               submit_request(example.metadata)
             end
@@ -212,7 +214,7 @@ describe 'Claims',
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               VCR.use_cassette('bgs/tracked_item_service/claims_v2_show_tracked_items') do
                 VCR.use_cassette('evss/documents/get_claim_documents') do
                   bgs_response[:benefit_claim_details_dto][:ptcpnt_vet_id] = target_veteran.participant_id
@@ -249,9 +251,7 @@ describe 'Claims',
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
-              submit_request(example.metadata)
-            end
+            submit_request(example.metadata)
           end
 
           after do |example|
@@ -277,8 +277,11 @@ describe 'Claims',
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
-              expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+            mock_acg(scopes) do
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_is_target_veteran?).and_return(false)
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_represents_veteran?).and_return(false)
 
               submit_request(example.metadata)
             end
@@ -309,7 +312,7 @@ describe 'Claims',
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_and_icn).and_return(nil)
               expect_any_instance_of(bcs).to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(nil)
 

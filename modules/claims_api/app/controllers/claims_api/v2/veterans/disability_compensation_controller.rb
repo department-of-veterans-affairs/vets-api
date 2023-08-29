@@ -17,7 +17,6 @@ module ClaimsApi
         FORM_NUMBER = '526'
         EVSS_DOCUMENT_TYPE = 'L023'
 
-        before_action :verify_access!
         before_action :shared_validation, only: %i[submit validate]
 
         def submit # rubocop:disable Metrics/MethodLength
