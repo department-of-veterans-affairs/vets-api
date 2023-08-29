@@ -136,19 +136,20 @@ module Form526ClaimFastTrackingConcern
 
   def log_max_cfi_metrics_on_submit
     DISABILITIES_WITH_MAX_CFI.intersection(diagnostic_codes).each do |diagnostic_code|
-      selected_disability = disabilities.find do |dis|
+      next unless disabilities.any? do |dis|
         diagnostic_code == dis['diagnosticCode']
       end
-      next if selected_disability.nil?
 
       next unless max_rated_disabilities_from_ipf.any? do |dis|
         diagnostic_code == dis['diagnostic_code']
       end
 
-      formatted_disability = selected_disability['name'].parameterize(separator: '_')
       max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating) ? 'on' : 'off'
-      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.submit.#{formatted_disability}")
+      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.submit.#{diagnostic_code}")
     end
+  rescue => e
+    # Log the exception but but do not fail, otherwise form will not be submitted
+    log_exception_to_sentry(e)
   end
 
   def send_post_evss_notifications!
