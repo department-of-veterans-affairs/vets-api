@@ -23,7 +23,7 @@
         },
         "veteranNumber": {
           "telephone": "5555555555",
-          "internationalTelephone": "5555555555"
+          "internationalTelephone": "+44 20 1234 5678"
         },
         "vaFileNumber": "AB123CDEF"
       },
@@ -45,7 +45,7 @@
         "pointOfContact": "john stewart",
         "pointOfContactNumber": {
           "telephone": "5555555555",
-          "internationalTelephone": "5555555555"
+          "internationalTelephone": "+44 20 1234 5678"
         },
         "currentlyHomeless": {
           "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
