@@ -6,6 +6,13 @@ FactoryBot.define do
       form { File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '0994', 'kitchen_sink.json')) }
     end
 
+    factory :va0994_no_education_benefits do
+      form {
+        File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '0994',
+                                  'kitchen_sink_no_education_benefits.json'))
+      }
+    end
+
     factory :va0994_minimum_form do
       form { File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '0994', 'simple.json')) }
     end
