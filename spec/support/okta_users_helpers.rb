@@ -175,6 +175,7 @@ def with_okta_user(scopes)
   user = create(:openid_user, identity_attrs: build(:user_identity_attrs, :loa3))
 
   allow(JWT).to receive(:decode).and_return(okta_jwt(scopes))
+
   Session.create(uuid: user.uuid, token: Digest::SHA256.hexdigest(token.to_s))
   with_okta_configured do
     yield(auth_header)

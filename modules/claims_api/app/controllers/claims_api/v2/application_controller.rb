@@ -12,18 +12,14 @@ require 'bd/bd'
 
 module ClaimsApi
   module V2
-    class ApplicationController < ::OpenidApplicationController
+    class ApplicationController < ::ApplicationController
       include ClaimsApi::Error::ErrorHandler
+      include ClaimsApi::TokenValidation
       include ClaimsApi::CcgTokenValidation
-
-      skip_before_action :authenticate, only: %i[schema]
-
-      # fetch_audience: defines the audience used for oauth
-      # Overrides the default value defined in OpenidApplicationController
-      # NOTE: required for Client Credential Grant (CCG) flow
-      def fetch_aud
-        Settings.oidc.isolated_audience.claims
-      end
+      include ClaimsApi::TargetVeteran
+      skip_before_action :verify_authenticity_token
+      skip_after_action :set_csrf_header
+      before_action :authenticate, except: %i[schema]
 
       def schema
         render json: { data: [ClaimsApi::FormSchemas.new(schema_version: 'v2').schemas[self.class::FORM_NUMBER]] }
@@ -66,10 +62,12 @@ module ClaimsApi
       def target_veteran
         @target_veteran ||= if @is_valid_ccg_flow
                               build_target_veteran(veteran_id: params[:veteranId], loa: { current: 3, highest: 3 })
+                            elsif @validated_token_data && !@current_user.icn.nil?
+                              build_target_veteran(veteran_id: @current_user.icn, loa: { current: 3, highest: 3 })
                             elsif user_is_representative?
                               build_target_veteran(veteran_id: params[:veteranId], loa: @current_user.loa)
                             else
-                              ClaimsApi::Veteran.from_identity(identity: @current_user)
+                              raise ::Common::Exceptions::Unauthorized
                             end
       end
 
@@ -100,21 +98,6 @@ module ClaimsApi
       end
 
       #
-      # Determine if the current authenticated user is allowed access
-      #
-      # raise if current authenticated user is neither the target veteran, nor target veteran representative
-      def verify_access!
-        if token.client_credentials_token?
-          validate_ccg_token!
-          return
-        end
-
-        return if user_is_target_veteran? || user_represents_veteran?
-
-        raise ::Common::Exceptions::Forbidden
-      end
-
-      #
       # Determine if the current authenticated user is the target veteran's representative
       #
       # @return [boolean] True if the current authenticated user is the target veteran's representative
@@ -136,6 +119,14 @@ module ClaimsApi
       end
 
       private
+
+      def authenticate
+        verify_access!
+
+        return if @is_valid_ccg_flow || user_is_target_veteran? || user_represents_veteran?
+
+        raise ::Common::Exceptions::Forbidden
+      end
 
       def benefits_doc_api(multipart: false)
         ClaimsApi::BD.new(multipart:)

@@ -7,8 +7,6 @@ module ClaimsApi
   module V2
     module Veterans
       class ClaimsController < ClaimsApi::V2::ApplicationController # rubocop:disable Metrics/ClassLength
-        before_action :verify_access!
-
         def index
           bgs_claims = find_bgs_claims!
 
