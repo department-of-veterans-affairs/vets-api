@@ -370,7 +370,8 @@ RSpec.describe V0::InProgressFormsController do
                 'view:claiming_increase': true
               },
               rated_disabilities: [
-                { name: 'Hypertension' }
+                { name: 'Hypertension',
+                  diagnostic_code: ClaimFastTracking::DiagnosticCodes::HYPERTENSION }
               ] }.to_json
           end
 
@@ -382,7 +383,7 @@ RSpec.describe V0::InProgressFormsController do
                   params: { form_data:, metadata: existing_form.metadata }
               expect(response).to have_http_status(:ok)
               expect(existing_form.reload.metadata.keys).not_to include('cfiMetric')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.rated_disabilities.hypertension')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.rated_disabilities.7101')
             end
           end
 
@@ -392,8 +393,13 @@ RSpec.describe V0::InProgressFormsController do
                   'view:claiming_increase': true
                 },
                 rated_disabilities: [
-                  { name: 'Tinnitus', rating_percentage: 10, maximum_rating_percentage: 10 },
-                  { name: 'Hypertension', rating_percentage: 20 }
+                  { name: 'Tinnitus',
+                    diagnostic_code: ClaimFastTracking::DiagnosticCodes::TINNITUS,
+                    rating_percentage: 10,
+                    maximum_rating_percentage: 10 },
+                  { name: 'Hypertension',
+                    diagnostic_code: ClaimFastTracking::DiagnosticCodes::HYPERTENSION,
+                    rating_percentage: 20 }
                 ] }.to_json
             end
 
@@ -402,8 +408,8 @@ RSpec.describe V0::InProgressFormsController do
                   params: { form_data:, metadata: existing_form.metadata }
               expect(response).to have_http_status(:ok)
               expect(existing_form.reload.metadata.keys).to include('cfiMetric')
-              expect(StatsD).to have_received(:increment).with('api.max_cfi.on.rated_disabilities.tinnitus')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.rated_disabilities.hypertension')
+              expect(StatsD).to have_received(:increment).with('api.max_cfi.on.rated_disabilities.6260')
+              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.rated_disabilities.7101')
             end
 
             context 'if updated twice' do
@@ -418,8 +424,8 @@ RSpec.describe V0::InProgressFormsController do
                 expect(response).to have_http_status(:ok)
                 expect(existing_form.reload.metadata.keys).to include('cfiMetric')
 
-                expect(StatsD).to have_received(:increment).with('api.max_cfi.on.rated_disabilities.tinnitus').once
-                expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.rated_disabilities.hypertension')
+                expect(StatsD).to have_received(:increment).with('api.max_cfi.on.rated_disabilities.6260').once
+                expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.rated_disabilities.7101')
               end
             end
           end
