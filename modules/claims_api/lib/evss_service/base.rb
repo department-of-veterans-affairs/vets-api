@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'claims_api/v2/benefits_documents/service'
+
 module ClaimsApi
   ##
   # Class to interact with the EVSS container
@@ -8,8 +10,6 @@ module ClaimsApi
   # @param [] rails request object (used to determine environment)
   module EVSSService
     class Base
-      require_relative 'token'
-
       def initialize(request = nil)
         @request = request
         @auth_headers = {}
@@ -19,11 +19,15 @@ module ClaimsApi
         @auth_headers = claim.auth_headers
 
         begin
-          client.post('submit', data).body
+          resp = client.post('submit', data).body
+          ClaimsApi::Logger.log('526',
+                                detail: 'EVSS DOCKER CONTAINER submit success', evss_response: resp)
+          resp # return is for v1 Sidekiq worker
         rescue => e
           detail = e.respond_to?(:original_body) ? e.original_body : e
           ClaimsApi::Logger.log('526',
-                                detail: "EVSS DOCKER CONTAINER submit error: #{detail}", claim_id: claim.id)
+                                detail: "EVSS DOCKER CONTAINER submit error: #{detail}", claim_id: claim&.id)
+          e # return is for v1 Sidekiq worker
         end
       end
 
@@ -32,6 +36,7 @@ module ClaimsApi
       def client
         base_name = Settings.evss&.dvp&.url
         service_name = Settings.evss&.service_name
+
         raise StandardError, 'DVP URL missing' if base_name.blank?
 
         Faraday.new("#{base_name}/#{service_name}/rest/form526/v2",
@@ -57,7 +62,7 @@ module ClaimsApi
       end
 
       def access_token
-        @access_token ||= ClaimsApi::EVSSService::Token.new(@request).get_token
+        @auth_token ||= ClaimsApi::V2::BenefitsDocuments::Service.new.get_auth_token
       end
     end
   end
