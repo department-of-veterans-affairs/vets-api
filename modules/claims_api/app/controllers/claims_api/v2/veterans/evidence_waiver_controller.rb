@@ -8,8 +8,6 @@ module ClaimsApi
   module V2
     module Veterans
       class EvidenceWaiverController < ClaimsApi::V2::ApplicationController
-        before_action :verify_access!
-
         def submit
           lighthouse_claim = find_lighthouse_claim!(claim_id: params[:id])
           benefit_claim_id = lighthouse_claim.present? ? lighthouse_claim.evss_id : params[:id]
