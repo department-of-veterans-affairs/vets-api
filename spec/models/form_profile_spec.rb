@@ -1082,7 +1082,6 @@ RSpec.describe FormProfile, type: :model do
       else
         form_id
       end.tap do |schema_form_id|
-        binding.pry
         schema = strip_required(VetsJsonSchema::SCHEMAS[schema_form_id]).except('anyOf')
         schema_data = prefilled_data.deep_dup
         errors = JSON::Validator.fully_validate(
@@ -1286,6 +1285,7 @@ RSpec.describe FormProfile, type: :model do
         end
 
         it 'prefills 1990' do
+          # TODO - look into update the following cassettes with ones that have data that can match the expected result
           VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
             VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
               expect_prefilled('22-1990')
@@ -1293,202 +1293,267 @@ RSpec.describe FormProfile, type: :model do
           end
         end
       end
+
+      context 'with emis prefill for 0994' do
+        before do
+          stub_methods_military_information
+          # can_prefill_emis(true)
+          expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+        end
+
+        it 'prefills 0994' do
+          # TODO - look into update the following cassettes with ones that have data that can match the expected result
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
+            VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+              expect_prefilled('22-0994')
+            end
+          end
+        end
+      end
+
+      context 'with emis and ppiu prefill for 0994' do
+        before do
+          stub_methods_military_information
+          # can_prefill_emis(true)
+          expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          v22_0994_expected['bankAccount'] = {
+            'bankAccountNumber' => '*********1234',
+            'bankAccountType' => 'Checking',
+            'bankName' => 'Comerica',
+            'bankRoutingNumber' => '*****2115'
+          }
+        end
+
+        it 'prefills 0994 with emis and payment information' do
+          VCR.use_cassette('evss/pciu_address/address_domestic') do
+            VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+              VCR.use_cassette('evss/ppiu/payment_information') do
+                # TODO - look into update the following cassettes with ones that have data that can match the expected result
+                VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
+                  VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+                    expect_prefilled('22-0994')
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context 'with emis and vet360 prefill for 0873' do
+        before do
+          stub_methods_military_information
+          # can_prefill_emis(true)
+        end
+
+        it 'prefills 0873' do
+          # TODO - look into update the following cassettes with ones that have data that can match the expected result
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
+            VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+              expect_prefilled('0873')
+            end
+          end
+        end
+      end
+
+      context 'with emis prefill for 10203' do
+        before do
+          stub_methods_military_information
+          # can_prefill_emis(true)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+        end
+
+        it 'prefills 10203' do
+          # TODO - look into update the following cassettes with ones that have data that can match the expected result?
+          # failure in #stub_methods_military_information
+          # expect(military_information).to receive(:last_service_branch).and_return('Air Force')
+          # expected: 1 time with any arguments
+          # received: 0 times with any arguments
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
+            VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+              expect_prefilled('22-10203')
+            end
+          end
+        end
+      end
+
+      context 'with emis and GiBillStatus prefill for 10203' do
+        before do
+          stub_methods_military_information
+          # can_prefill_emis(true)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          v22_10203_expected['remainingEntitlement'] = {
+            'months' => 0,
+            'days' => 12
+          }
+          v22_10203_expected['schoolName'] = 'OLD DOMINION UNIVERSITY'
+          v22_10203_expected['schoolCity'] = 'NORFOLK'
+          v22_10203_expected['schoolState'] = 'VA'
+          v22_10203_expected['schoolCountry'] = 'USA'
+        end
+
+        it 'prefills 10203 with emis and entitlement information' do
+          VCR.use_cassette('evss/pciu_address/address_domestic') do
+            VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+              VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
+                VCR.use_cassette('gi_client/gets_the_institution_details') do
+                  # TODO - look into update the following cassettes with ones that have data that can match the expected result?
+                  # failure in #stub_methods_military_information
+                  # expect(military_information).to receive(:last_service_branch).and_return('Air Force')
+                  # expected: 1 time with any arguments
+                  # received: 0 times with any arguments
+                  VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
+                    VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+                      prefilled_data = Oj.load(
+                        described_class.for(form_id: '22-10203', user:).prefill.to_json
+                      )['form_data']
+                      expect(prefilled_data).to eq(form_profile.send(:clean!, v22_10203_expected))
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context 'with a user that can prefill emis' do
+        before do
+          stub_methods_military_information
+          # can_prefill_emis(true)
+        end
+
+        context 'with a user with no vet360_id' do
+          before do
+            allow(user).to receive(:vet360_id).and_return(nil)
+          end
+
+          it 'omits address fields in 686c-674 form' do
+            # TODO - look into update the following cassettes with ones that have data that can match the expected result?
+            VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
+              VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+                prefilled_data = described_class.for(form_id: '686C-674', user:).prefill[:form_data]
+                v686_c_674_expected['veteranContactInformation'].delete('veteranAddress')
+                  # failure in #stub_methods_military_information
+                  # expect(military_information).to receive(:last_service_branch).and_return('Air Force')
+                  # expected: 1 time with any arguments
+                  # received: 0 times with any arguments
+                expect(prefilled_data).to eq(v686_c_674_expected)
+              end
+            end
+          end
+        end
+
+        %w[
+          22-1990
+          22-1990N
+          22-1990E
+          22-1995
+          22-5490
+          22-5495
+          40-10007
+          1010ez
+          22-0993
+          FEEDBACK-TOOL
+          686C-674
+          28-8832
+          28-1900
+          26-1880
+          26-4555
+        ].each do |form_id|
+          it "returns prefilled #{form_id}" do
+            # TODO - look into update the following cassettes with ones that have data that can match the expected result?
+            VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
+              VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+                expect_prefilled(form_id)
+              end
+            end
+          end
+        end
+
+        context 'with a user that can prefill evss' do
+          before do
+            allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('usyergd')
+          end
+
+          # NOTE: `increase only` and `all claims` use the same form prefilling
+          context 'when Vet360 prefill is disabled' do
+            before do
+              expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
+              expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            end
+
+            it 'returns prefilled 21-526EZ' do
+              Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+              VCR.use_cassette('evss/pciu_address/address_domestic') do
+                VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+                  VCR.use_cassette('evss/ppiu/payment_information') do
+                    # TODO - look into update the following cassettes with ones that have data that can match the expected result?
+                    VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
+                      VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+                        expect_prefilled('21-526EZ')
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+        
+        context 'without ppiu' do
+          context 'when Vet360 prefill is enabled' do
+            before do
+              VAProfile::Configuration::SETTINGS.prefill = true # todo - is this missing in the failures above?
+              expected_veteran_info = v21_526_ez_expected['veteran']
+              expected_veteran_info['emailAddress'] =
+                VAProfileRedis::ContactInformation.for_user(user).email.email_address
+              expected_veteran_info['primaryPhone'] = '3035551234'
+            end
+
+            after do
+              VAProfile::Configuration::SETTINGS.prefill = false
+            end
+
+            it 'returns prefilled 21-526EZ' do
+              Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+              expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
+              expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+              VCR.use_cassette('evss/pciu_address/address_domestic') do
+                VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+                  VCR.use_cassette('evss/ppiu/payment_information') do
+                    # TODO - look into update the following cassettes with ones that have data that can match the expected result?
+                    VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
+                      VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+                        expect_prefilled('21-526EZ')
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+          
+          it 'returns prefilled 21-686C' do
+            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
+              # TODO - look into update the following cassettes with ones that have data that can match the expected result?
+              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
+                VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+                  # failure in #stub_methods_military_information
+                  # expect(military_information).to receive(:last_service_branch).and_return('Air Force')
+                  # expected: 1 time with any arguments
+                  # received: 0 times with any arguments
+                  expect_prefilled('21-686C')
+                end
+              end
+            end
+          end
+        end
+      end
     end
-
-    #   context 'with emis prefill for 0994' do
-    #     before do
-    #       stub_methods_military_information
-    #       can_prefill_emis(true)
-    #       expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
-    #       expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-    #     end
-
-    #     it 'prefills 0994' do
-    #       expect_prefilled('22-0994')
-    #     end
-    #   end
-
-    #   context 'with emis and ppiu prefill for 0994' do
-    #     before do
-    #       stub_methods_military_information
-    #       can_prefill_emis(true)
-    #       expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
-    #       expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-    #       v22_0994_expected['bankAccount'] = {
-    #         'bankAccountNumber' => '*********1234',
-    #         'bankAccountType' => 'Checking',
-    #         'bankName' => 'Comerica',
-    #         'bankRoutingNumber' => '*****2115'
-    #       }
-    #     end
-
-    #     it 'prefills 0994 with emis and payment information' do
-    #       VCR.use_cassette('evss/pciu_address/address_domestic') do
-    #         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-    #           VCR.use_cassette('evss/ppiu/payment_information') do
-    #             expect_prefilled('22-0994')
-    #           end
-    #         end
-    #       end
-    #     end
-    #   end
-
-    #   context 'with emis and vet360 prefill for 0873' do
-    #     before do
-    #       stub_methods_military_information
-    #       can_prefill_emis(true)
-    #     end
-
-    #     it 'prefills 0873' do
-    #       expect_prefilled('0873')
-    #     end
-    #   end
-
-    #   context 'with emis prefill for 10203' do
-    #     before do
-    #       stub_methods_military_information
-    #       can_prefill_emis(true)
-    #       expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-    #     end
-
-    #     it 'prefills 10203' do
-    #       expect_prefilled('22-10203')
-    #     end
-    #   end
-
-    #   context 'with emis and GiBillStatus prefill for 10203' do
-    #     before do
-    #       stub_methods_military_information
-    #       can_prefill_emis(true)
-    #       expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-    #       v22_10203_expected['remainingEntitlement'] = {
-    #         'months' => 0,
-    #         'days' => 12
-    #       }
-    #       v22_10203_expected['schoolName'] = 'OLD DOMINION UNIVERSITY'
-    #       v22_10203_expected['schoolCity'] = 'NORFOLK'
-    #       v22_10203_expected['schoolState'] = 'VA'
-    #       v22_10203_expected['schoolCountry'] = 'USA'
-    #     end
-
-    #     it 'prefills 10203 with emis and entitlement information' do
-    #       VCR.use_cassette('evss/pciu_address/address_domestic') do
-    #         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-    #           VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
-    #             VCR.use_cassette('gi_client/gets_the_institution_details') do
-    #               prefilled_data = Oj.load(
-    #                 described_class.for(form_id: '22-10203', user:).prefill.to_json
-    #               )['form_data']
-    #               expect(prefilled_data).to eq(form_profile.send(:clean!, v22_10203_expected))
-    #             end
-    #           end
-    #         end
-    #       end
-    #     end
-    #   end
-
-    #   context 'with a user that can prefill emis' do
-    #     before do
-    #       stub_methods_military_information
-    #       can_prefill_emis(true)
-    #     end
-
-    #     context 'with a user with no vet360_id' do
-    #       before do
-    #         allow(user).to receive(:vet360_id).and_return(nil)
-    #       end
-
-    #       it 'omits address fields in 686c-674 form' do
-    #         prefilled_data = described_class.for(form_id: '686C-674', user:).prefill[:form_data]
-    #         v686_c_674_expected['veteranContactInformation'].delete('veteranAddress')
-    #         expect(prefilled_data).to eq(v686_c_674_expected)
-    #       end
-    #     end
-
-    #     %w[
-    #       22-1990
-    #       22-1990N
-    #       22-1990E
-    #       22-1995
-    #       22-5490
-    #       22-5495
-    #       40-10007
-    #       1010ez
-    #       22-0993
-    #       FEEDBACK-TOOL
-    #       686C-674
-    #       28-8832
-    #       28-1900
-    #       26-1880
-    #       26-4555
-    #     ].each do |form_id|
-    #       it "returns prefilled #{form_id}" do
-    #         expect_prefilled(form_id)
-    #       end
-    #     end
-
-    #     context 'with a user that can prefill evss' do
-    #       before do
-    #         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('usyergd')
-    #       end
-
-    #       # NOTE: `increase only` and `all claims` use the same form prefilling
-    #       context 'when Vet360 prefill is disabled' do
-    #         before do
-    #           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
-    #           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-    #         end
-
-    #         it 'returns prefilled 21-526EZ' do
-    #           Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
-    #           VCR.use_cassette('evss/pciu_address/address_domestic') do
-    #             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-    #               VCR.use_cassette('evss/ppiu/payment_information') do
-    #                 expect_prefilled('21-526EZ')
-    #               end
-    #             end
-    #           end
-    #         end
-    #       end
-
-    #       context 'without ppiu' do
-    #         context 'when Vet360 prefill is enabled' do
-    #           before do
-    #             VAProfile::Configuration::SETTINGS.prefill = true
-    #             expected_veteran_info = v21_526_ez_expected['veteran']
-    #             expected_veteran_info['emailAddress'] =
-    #               VAProfileRedis::ContactInformation.for_user(user).email.email_address
-    #             expected_veteran_info['primaryPhone'] = '3035551234'
-    #           end
-
-    #           after do
-    #             VAProfile::Configuration::SETTINGS.prefill = false
-    #           end
-
-    #           it 'returns prefilled 21-526EZ' do
-    #             Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
-    #             expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
-    #             expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-    #             VCR.use_cassette('evss/pciu_address/address_domestic') do
-    #               VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-    #                 VCR.use_cassette('evss/ppiu/payment_information') do
-    #                   expect_prefilled('21-526EZ')
-    #                 end
-    #               end
-    #             end
-    #           end
-    #         end
-
-    #         it 'returns prefilled 21-686C' do
-    #           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-    #           VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
-    #             expect_prefilled('21-686C')
-    #           end
-    #         end
-    #       end
-    #     end
-    #   end
-    # end
 
     context 'with a burial application form' do
       it 'returns the va profile mapped to the burial form' do
