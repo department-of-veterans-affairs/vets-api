@@ -79,20 +79,6 @@ Did you have a period of active duty that the Department of Defense counts for p
 
 <%= parse_with_template_path('non_va_assistance') %>
 
-
-                        MARITAL AND DEPENDENCY STATUS
-           (For Applicants with Military Service Before Jan 1, 1977)
-           ---------------------------------------------------------
-
-
-<% if @applicant.serviceBefore1977 -%>
-Married: <%= yesno(@applicant.serviceBefore1977.married) %>
-Has Dependents: <%= yesno(@applicant.serviceBefore1977.haveDependents) %>
-Parent Dependent: <%= yesno(@applicant.serviceBefore1977.parentDependent) %>
-<% else -%>
-N/A
-<% end -%>
-
 <% if @applicant.minorHighSchoolQuestions -%>
           GUARDIAN INFORMATION
           --------------------
