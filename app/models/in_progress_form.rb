@@ -110,13 +110,14 @@ class InProgressForm < ApplicationRecord
       return
     end
 
-    return unless fd['rated_disabilities'].present? || fd['ratedDisabilities'].present?
-
     max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating) ? 'on' : 'off'
-    rated_disabilities = fd['rated_disabilities'] || fd['ratedDisabilities']
+    rated_disabilities = fd['rated_disabilities'] || fd['ratedDisabilities'] || []
     rated_disabilities.each do |dis|
       log_cfi_metric_for_disability(params, dis, max_cfi_enabled)
     end
+  rescue => e
+    # Log the exception but but do not fail, otherwise in-progress form will not update
+    log_exception_to_sentry(e)
   end
 
   private
@@ -125,8 +126,8 @@ class InProgressForm < ApplicationRecord
     maximum_rating_percentage = disability['maximum_rating_percentage'] || disability['maximumRatingPercentage']
     rating_percentage = disability['rating_percentage'] || disability['ratingPercentage']
     if maximum_rating_percentage.present? && maximum_rating_percentage == rating_percentage
-      formatted_disability = disability['name'].parameterize(separator: '_')
-      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.rated_disabilities.#{formatted_disability}")
+      diagnostic_code = disability['diagnosticCode'] || disability['diagnostic_code']
+      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.rated_disabilities.#{diagnostic_code}")
       params[:metadata]['cfiMetric'] = true
     end
   end
