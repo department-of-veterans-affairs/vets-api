@@ -6,8 +6,8 @@ require 'evss/claims_service'
 
 class EvssClaimsServiceProvider
   include ClaimsServiceProvider
-  def initialize(current_user = nil, auth_headers = nil)
-    @service = EVSS::ClaimsService.new(current_user, auth_headers)
+  def initialize(auth_headers)
+    @service = EVSS::ClaimsService.new(auth_headers)
   end
 
   def all_claims(_client_id = nil, _rsa_key = nil)
