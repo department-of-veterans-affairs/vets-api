@@ -49,10 +49,11 @@ module AppealsApi::HigherLevelReviews::V0
     end
 
     def download
-      @id = params[:id]
-      @higher_level_review = AppealsApi::HigherLevelReview.find(@id)
-
-      render_appeal_pdf_download(@higher_level_review, "#{FORM_NUMBER}-higher-level-review-#{@id}.pdf", params[:icn])
+      render_appeal_pdf_download(
+        AppealsApi::HigherLevelReview.find(params[:id]),
+        "#{FORM_NUMBER}-higher-level-review-#{params[:id]}.pdf",
+        params[:icn]
+      )
     rescue ActiveRecord::RecordNotFound
       render_higher_level_review_not_found(params[:id])
     end
@@ -86,16 +87,15 @@ module AppealsApi::HigherLevelReviews::V0
     end
 
     def validate_icn_parameter
-      validation_errors = []
+      detail = nil
 
       if params[:icn].blank?
-        validation_errors << { status: 422, detail: "'icn' parameter is required" }
+        detail = "'icn' parameter is required"
       elsif !ICN_REGEX.match?(params[:icn])
-        validation_errors << { status: 422,
-                               detail: "'icn' parameter has an invalid format. Pattern: #{ICN_REGEX.inspect}" }
+        detail = "'icn' parameter has an invalid format. Pattern: #{ICN_REGEX.inspect}"
       end
 
-      render json: { errors: validation_errors }, status: :unprocessable_entity if validation_errors.present?
+      raise Common::Exceptions::UnprocessableEntity.new(detail:) if detail.present?
     end
 
     def token_validation_api_key
