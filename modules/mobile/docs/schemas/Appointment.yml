@@ -37,7 +37,7 @@ properties:
     properties:
       appointmentType:
         type: string
-        enum: [ COMMUNITY_CARE, VA, VA_VIDEO_CONNECT_ATLAS, VA_VIDEO_CONNECT_HOME, VA_VIDEO_CONNECT_GFE ]
+        enum: [ COMMUNITY_CARE, VA, VA_VIDEO_CONNECT_ATLAS, VA_VIDEO_CONNECT_HOME, VA_VIDEO_CONNECT_GFE, VA_VIDEO_CONNECT_ONSITE ]
         example: VA
       cancelId:
         type: string

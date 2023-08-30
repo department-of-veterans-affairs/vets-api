@@ -9,7 +9,8 @@ module Mobile
           cc: 'COMMUNITY_CARE',
           va_video_connect_home: 'VA_VIDEO_CONNECT_HOME',
           va_video_connect_gfe: 'VA_VIDEO_CONNECT_GFE',
-          va_video_connect_atlas: 'VA_VIDEO_CONNECT_ATLAS'
+          va_video_connect_atlas: 'VA_VIDEO_CONNECT_ATLAS',
+          va_video_connect_onsite: 'VA_VIDEO_CONNECT_ONSITE'
         }.freeze
 
         HIDDEN_STATUS = %w[
@@ -36,9 +37,18 @@ module Mobile
           email: 'email'
         }.freeze
 
-        VIDEO_GFE_CODE = 'MOBILE_GFE'
         PHONE_KIND = 'phone'
         COVID_SERVICE = 'covid'
+        VIDEO_CONNECT_AT_VA = %w[
+          STORE_FORWARD
+          CLINIC_BASED
+        ].freeze
+
+        # ADHOC is a staging value used in place of MOBILE_ANY
+        VIDEO_CODE = %w[
+          MOBILE_ANY
+          ADHOC
+        ].freeze
 
         # Only a subset of types of service that requires human readable conversion
         SERVICE_TYPES = {
@@ -246,15 +256,21 @@ module Mobile
           when 'cc'
             APPOINTMENT_TYPES[:cc]
           when 'telehealth'
-            if appointment.dig(:telehealth, :vvs_kind) == VIDEO_GFE_CODE
-              APPOINTMENT_TYPES[:va_video_connect_gfe]
-            elsif appointment.dig(:telehealth, :atlas)
-              APPOINTMENT_TYPES[:va_video_connect_atlas]
+            return APPOINTMENT_TYPES[:va_video_connect_atlas] if appointment.dig(:telehealth, :atlas)
+
+            vvs_kind = appointment.dig(:telehealth, :vvs_kind)
+            if VIDEO_CODE.include?(vvs_kind)
+              if appointment.dig(:extension, :patient_has_mobile_gfe)
+                APPOINTMENT_TYPES[:va_video_connect_gfe]
+              else
+                APPOINTMENT_TYPES[:va_video_connect_home]
+              end
+            elsif VIDEO_CONNECT_AT_VA.include?(vvs_kind)
+              APPOINTMENT_TYPES[:va_video_connect_onsite]
             else
-              APPOINTMENT_TYPES[:va_video_connect_home]
+              APPOINTMENT_TYPES[:va]
+
             end
-          else
-            APPOINTMENT_TYPES[:va]
           end
         end
 
@@ -304,7 +320,8 @@ module Mobile
               end
             when APPOINTMENT_TYPES[:va_video_connect_atlas],
               APPOINTMENT_TYPES[:va_video_connect_home],
-              APPOINTMENT_TYPES[:va_video_connect_gfe]
+              APPOINTMENT_TYPES[:va_video_connect_gfe],
+              APPOINTMENT_TYPES[:va_video_connect_onsite]
 
               location[:name] = appointment.dig(:location, :name)
               location[:phone] = parse_phone(appointment.dig(:location, :phone, :main))
@@ -390,7 +407,8 @@ module Mobile
           [APPOINTMENT_TYPES[:va],
            APPOINTMENT_TYPES[:va_video_connect_gfe],
            APPOINTMENT_TYPES[:va_video_connect_atlas],
-           APPOINTMENT_TYPES[:va_video_connect_home]].include?(appointment_type)
+           APPOINTMENT_TYPES[:va_video_connect_home],
+           APPOINTMENT_TYPES[:va_video_connect_onsite]].include?(appointment_type)
         end
 
         def comment
