@@ -651,7 +651,17 @@ features:
     description: Use single-logout (SLO) paths for Public Websites-managed EHR CTAs
   my_va_experimental:
     actor_type: user
-    description: Use for experimental features for My VA application
+    description: Use for experimental features for My VA application (general)
+  my_va_experimental_frontend:
+    actor_type: user
+    description: Use for experimental features for My VA application (frontend)
+  my_va_experimental_fullstack:
+    actor_type: user
+    description: Use for experimental features for My VA application (fullstack)
+    enable_in_development: true
+  my_va_notification_component:
+    actor_type: user
+    description: Enable users to see va-notification component on My VA
     enable_in_development: true
   my_va_notification_dot_indicator:
     actor_type: user
