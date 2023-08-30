@@ -1,0 +1,57 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://accounts.accesscontrol.windows.net/fake_sharepoint_tenant_id/tokens/OAuth/2
+    body:
+      encoding: UTF-8
+      base64_string: Y2xpZW50X2lkPTljOGQ3M2ViLTkzOTktNGEyNy1hZWU5LTUxNGIyMDIwZGIwMSU0MGU5NWYxYjIzLWFiYWYtNDVlZS04MjFkLWI3YWIyNTFhYjNiZiZjbGllbnRfPERNQ19UT0tFTj49ckNqeDNvWk1GQ2ZwQXNoTFNDeUVKdVluRXVITW1NJTJGQ2VabUlNMHdaeUwwJTNEJmdyYW50X3R5cGU9Y2xpZW50X2NyZWRlbnRpYWxzJnJlc291cmNlPTAwMDAwMDAzLTAwMDAtMGZmMS1jZTAwLTAwMDAwMDAwMDAwMCUyRmR2YWdvdi5zaGFyZXBvaW50LmNvbSU0MGU5NWYxYjIzLWFiYWYtNDVlZS04MjFkLWI3YWIyNTFhYjNiZg==
+    headers:
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Faraday v0.17.6
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Cache-Control:
+      - no-store, no-cache
+      Pragma:
+      - no-cache
+      Content-Type:
+      - application/json; charset=utf-8
+      Expires:
+      - "-1"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      X-Content-Type-Options:
+      - nosniff
+      P3p:
+      - CP="DSP CUR OTPi IND OTRi ONL FIN"
+      X-Ms-Request-Id:
+      - c13240f4-7504-4c1c-814c-4f7c83576a00
+      X-Ms-Ests-Server:
+      - 2.1.16150.3 - SCUS ProdSlices
+      X-Xss-Protection:
+      - '0'
+      Set-Cookie:
+      - esctx=PAQABAAEAAAAtyolDObpQQ5VtlI4uGjEPMJbAv6682tOO_HY6U0rVEmjqvgjT1ELE-B1HoVw4ohOaVkMPTqumzAXQFNeuyYD2rCOxKa3tuj9_b1fNvpJag7ZbdHmXwCLm6PQyvRpZBK1UeXg-tEmDOR42B1-T5JFx1__yI6c0hDVhnC2z4FWjTBJxJu3Rg1r4-Ml0JGsM2lYgAA;
+        domain=.accounts.accesscontrol.windows.net; path=/; secure; HttpOnly; SameSite=None
+      - fpc=AvkcI2m5w7xEtQiZ8sZ8oVG5CU5ZAQAAACEQgNwOAAAA; expires=Thu, 28-Sep-2023
+        16:13:22 GMT; path=/; secure; HttpOnly; SameSite=None
+      - stsservicecookie=estsfd; path=/; secure; samesite=none; httponly
+      - x-ms-gateway-slice=estsfd; path=/; secure; samesite=none; httponly
+      Date:
+      - Tue, 29 Aug 2023 16:13:21 GMT
+      Content-Length:
+      - '1418'
+    body:
+      encoding: UTF-8
+      base64_string: eyJ0b2tlbl90eXBlIjoiQmVhcmVyIiwiZXhwaXJlc19pbiI6Ijg2Mzk5Iiwibm90X2JlZm9yZSI6IjE2OTMzMjUzMDIiLCJleHBpcmVzX29uIjoiMTY5MzQxMjAwMiIsInJlc291cmNlIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwL2R2YWdvdi5zaGFyZXBvaW50LmNvbUBlOTVmMWIyMy1hYmFmLTQ1ZWUtODIxZC1iN2FiMjUxYWIzYmYiLCJhY2Nlc3NfdG9rZW4iOiJleUowZVhBaU9pSktWMVFpTENKaGJHY2lPaUpTVXpJMU5pSXNJbmcxZENJNklpMUxTVE5ST1c1T1VqZGlVbTltZUcxbFdtOVljV0pJV2tkbGR5SXNJbXRwWkNJNklpMUxTVE5ST1c1T1VqZGlVbTltZUcxbFdtOVljV0pJV2tkbGR5SjkuZXlKaGRXUWlPaUl3TURBd01EQXdNeTB3TURBd0xUQm1aakV0WTJVd01DMHdNREF3TURBd01EQXdNREF2WkhaaFoyOTJMbk5vWVhKbGNHOXBiblF1WTI5dFFHVTVOV1l4WWpJekxXRmlZV1l0TkRWbFpTMDRNakZrTFdJM1lXSXlOVEZoWWpOaVppSXNJbWx6Y3lJNklqQXdNREF3TURBeExUQXdNREF0TURBd01DMWpNREF3TFRBd01EQXdNREF3TURBd01FQmxPVFZtTVdJeU15MWhZbUZtTFRRMVpXVXRPREl4WkMxaU4yRmlNalV4WVdJelltWWlMQ0pwWVhRaU9qRTJPVE16TWpVek1ESXNJbTVpWmlJNk1UWTVNek15TlRNd01pd2laWGh3SWpveE5qa3pOREV5TURBeUxDSnBaR1Z1ZEdsMGVYQnliM1pwWkdWeUlqb2lNREF3TURBd01ERXRNREF3TUMwd01EQXdMV013TURBdE1EQXdNREF3TURBd01EQXdRR1U1TldZeFlqSXpMV0ZpWVdZdE5EVmxaUzA0TWpGa0xXSTNZV0l5TlRGaFlqTmlaaUlzSW01aGJXVnBaQ0k2SWpsak9HUTNNMlZpTFRrek9Ua3ROR0V5TnkxaFpXVTVMVFV4TkdJeU1ESXdaR0l3TVVCbE9UVm1NV0l5TXkxaFltRm1MVFExWldVdE9ESXhaQzFpTjJGaU1qVXhZV0l6WW1ZaUxDSnZhV1FpT2lKak9XRTBaRGd4TWkxa05XWTNMVFExT0RZdE9XSTRZaTFrTWpVNVpXUmhOemcxWWpZaUxDSnpkV0lpT2lKak9XRTBaRGd4TWkxa05XWTNMVFExT0RZdE9XSTRZaTFrTWpVNVpXUmhOemcxWWpZaUxDSjBjblZ6ZEdWa1ptOXlaR1ZzWldkaGRHbHZiaUk2SW1aaGJITmxJbjAuS3BTaThKQ0tnS3Y1Vk5nTDZ4T2U2OE9BT1M5SWQzdXZvSjNuaU1TQ0pYbnFZMGtndEdoVC1lS1JORjEwN1h3QWVTWVV4dklucGs2MWExUDJkRXpFSEJKU0hmalNzRURwaFBiZHhXeG1mNDdpWXlnV1g2b2VFVUVBLUp0Ym1Hc0FDdVNpejVISlY5RjJYbGpWN3dicWF4LTNNbWdvTUZCNUo2LXp5bXQtcHBkT254WHJWNjktd3Y4dllwZktzOFJ0VWk2dF93UGhWTDFoUlpaVnhnVHV2NEMwVTlVSFB3UElBYklJc0tEZzdoS1BiMVhIVV9fVGc2LXBzLUdqMlcxQ3FTcG11WXBIYjNYZEg2OFExc3dLS0t5U1kxcWd2bFgxRndUNzNpVXFJd2N3anBQTkdpRXRrSHZMemxyZDU2VUkxOHVyd1ljVTB3SHVoYk5HcDVVTm93In0=
+  recorded_at: Tue, 29 Aug 2023 16:13:22 GMT
