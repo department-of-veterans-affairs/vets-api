@@ -1,0 +1,36 @@
+---
+http_interactions:
+  - request:
+      method: post
+      uri: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com/dev/actions/authenticated-demographics
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Server:
+          - Server
+        Date:
+          - Mon, 29 Jun 2020 15:46:52 GMT
+        Content-Type:
+          - application/json
+      body:
+        encoding: UTF-8
+        string: |-
+          {
+            "data" : {
+              "attributes" : {
+                "id": 5,
+                "patientDfn": 418,
+                "demographicsNeedsUpdate": false,
+                "demographicsConfirmedAt": "2022-01-22T12:00:00.000-05:00",
+                "nextOfKinNeedsUpdate": false,
+                "nextOfKinConfirmedAt": "2022-02-03T12:00:00.000-05:00",
+                "emergencyContactNeedsUpdate": true,
+                "emergencyContactConfirmedAt": "2022-01-27T12:00:00.000-05:00"
+              },
+              "id" : 418
+            }
+          }
+    recorded_at: Thu, 19 Nov 2020 16:45:03 GMT
+recorded_with: VCR 6.0.0
