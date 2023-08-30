@@ -22,9 +22,24 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
         'va_profile_email' => user.va_profile_email,
         'ssn' => '796043735',
         'va_file_number' => '796043735',
+        'icn' => user.icn,
         'birth_date' => birth_date
       }
     }
+  end
+  let(:user_struct) do
+    OpenStruct.new(
+      first_name: vet_info['veteran_information']['full_name']['first'],
+      last_name: vet_info['veteran_information']['full_name']['last'],
+      middle_name: vet_info['veteran_information']['full_name']['middle'],
+      ssn: vet_info['veteran_information']['ssn'],
+      email: vet_info['veteran_information']['email'],
+      va_profile_email: vet_info['veteran_information']['va_profile_email'],
+      participant_id: vet_info['veteran_information']['participant_id'],
+      icn: vet_info['veteran_information']['icn'],
+      uuid: vet_info['veteran_information']['uuid'],
+      common_name: vet_info['veteran_information']['common_name']
+    )
   end
 
   before do
@@ -68,7 +83,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
         allow(BGS::Form686c).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
         expect(client_stub).to receive(:submit).once
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(user.uuid, user.icn,
-                                                                      dependency_claim.id, vet_info)
+                                                                      dependency_claim.id, vet_info, user_struct.to_h)
 
         subject
       end
@@ -137,7 +152,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
         allow(BGS::Form686c).to receive(:new).with(an_instance_of(User)) { client_stub }
         expect(client_stub).to receive(:submit).once
         expect(BGS::SubmitForm674Job).to receive(:perform_async).with(user.uuid, user.icn,
-                                                                      dependency_claim.id, vet_info)
+                                                                      dependency_claim.id, vet_info, user_struct.to_h)
 
         subject
       end
