@@ -4,7 +4,7 @@ module Lighthouse
   # Custom exception that maps Lighthouse API errors to controller ExceptionHandling-friendly format
   #
   class ServiceException
-    include SentryLogging
+    extend SentryLogging
 
     # a map of the known Lighthouse errors based on the documentation
     # https://developer.va.gov/
@@ -25,13 +25,13 @@ module Lighthouse
     # raises an error based off of what the response status was
     # formats the Lighthouse exception for the controller ExceptionHandling to report out to the consumer
     def self.send_error(error, service_name, lighthouse_client_id, url)
+      send_error_logs(error, service_name, lighthouse_client_id, url)
+
       raise error_class(:'504') if gateway_timeout?(error.response)
 
       error_response = error.response.deep_symbolize_keys
 
       return error unless error_response&.key?(:status)
-
-      send_error_logs(error, service_name, lighthouse_client_id, url)
 
       error_status = error_response[:status]
 
@@ -103,15 +103,17 @@ module Lighthouse
         base_key_string
       )
 
-      Raven.tags_context(
-        external_service: service_name
-      )
-
-      Raven.extra_context(
+      extra_context = Raven.extra_context(
         message: error.message,
         url:,
         client_id: lighthouse_client_id
       )
+
+      tags_context = Raven.tags_context(
+        external_service: service_name
+      )
+
+      log_exception_to_sentry(error, extra_context, tags_context)
     end
 
     def self.gateway_timeout?(response)
