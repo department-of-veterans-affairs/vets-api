@@ -12,7 +12,8 @@ RSpec.describe 'user', type: :request do
     end
 
     it 'includes a hash with all available services and a boolean value of if the user has access' do
-      get '/mobile/v0/user/authorized-services', headers: iam_headers
+      get '/mobile/v0/user/authorized-services', headers: iam_headers,
+                                                 params: { 'appointmentIEN' => '123', 'locationId' => '123' }
       expect(response).to have_http_status(:ok)
 
       expect(attributes['authorizedServices']).to eq(

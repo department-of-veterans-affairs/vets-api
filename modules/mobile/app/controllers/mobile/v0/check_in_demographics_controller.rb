@@ -15,7 +15,25 @@ module Mobile
         render json: Mobile::V0::CheckInDemographicsSerializer.new(@current_user.uuid, parsed_response)
       end
 
+      def update
+        response = chip_service.update_demographics(patient_dfn:, station_no: params[:location_id],
+                                                    demographic_confirmations:)
+        parsed_response = JSON.parse(response.body, symbolize_names: true)[:data][:attributes]
+
+        render json: Mobile::V0::CheckInUpdateDemographicsSerializer.new(parsed_response)
+      end
+
       private
+
+      def demographic_confirmations
+        dc = params[:demographic_confirmations]
+
+        {
+          demographicsNeedsUpdate: dc[:contact_needs_update],
+          emergencyContactNeedsUpdate: dc[:emergency_contact_needs_update],
+          nextOfKinNeedsUpdate: dc[:next_of_kin_needs_update]
+        }
+      end
 
       def patient_dfn
         @current_user.vha_facility_hash.dig(params[:location_id], 0)
