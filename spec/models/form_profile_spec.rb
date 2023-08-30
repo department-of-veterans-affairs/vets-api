@@ -1072,6 +1072,9 @@ RSpec.describe FormProfile, type: :model do
     end
 
     def expect_prefilled(form_id)
+      allow_any_instance_of(HCA::MilitaryInformation).to receive(:tours_of_duty).and_return([
+        {
+          'service_branch' => 'Air Force',
           'date_range' => {
             'from' => '2007-04-01', 'to' => '2016-06-01'
           }
@@ -1546,6 +1549,26 @@ RSpec.describe FormProfile, type: :model do
                     # TODO - look into update the following cassettes with ones that have data that can match the expected result?
                     VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
                       VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+                        allow_any_instance_of(HCA::MilitaryInformation).to receive(:service_periods).and_return(
+                          [
+                            {
+                              'serviceBranch' => 'Air Force Reserve',
+                              'dateRange' => {
+                                'from' => '2007-04-01',
+                                'to' => '2016-06-01'
+                              }
+                            }
+                          ]
+                        )
+
+                        allow_any_instance_of(HCA::MilitaryInformation).to receive(:guard_reserve_service_history).and_return(
+                          [
+                            {
+                              from: '2007-04-01',
+                              to: '2016-06-01'
+                            }
+                          ]
+                        )
                         expect_prefilled('21-526EZ')
                       end
                     end
