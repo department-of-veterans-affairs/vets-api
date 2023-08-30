@@ -24,7 +24,8 @@ module BGS
 
       # If Form 686c job succeeds, then enqueue 674 job.
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
-      BGS::SubmitForm674Job.perform_async(user_uuid, icn, saved_claim_id, vet_info) if claim.submittable_674?
+      user_struct_hash = user_struct.to_h
+      BGS::SubmitForm674Job.perform_async(user_uuid, icn, saved_claim_id, vet_info, user_struct_hash) if claim.submittable_674? # rubocop:disable Layout/LineLength
 
       send_confirmation_email(user)
       in_progress_form&.destroy
