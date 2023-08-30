@@ -948,8 +948,8 @@ RSpec.describe FormProfile, type: :model do
                               .merge(initialize_va_profile_prefill_military_information_expected)
 
           # Extract service_episodes_by_date and then compare their attributes
-          actual_service_histories = output.delete('service_episodes_by_date')
-          expected_service_histories = expected_output.delete('service_episodes_by_date')
+          actual_service_histories = output.service_episodes_by_date = nil
+          expected_service_histories = expected_output.delete(:service_episodes_by_date)
 
           # Now that service_episodes_by_date is removed from the outputs, compare the rest of the structure.
           expect(output).to eq(expected_output)
