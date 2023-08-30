@@ -20,9 +20,24 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         'va_profile_email' => user.va_profile_email,
         'ssn' => '796043735',
         'va_file_number' => '796043735',
+        'icn' => user.icn,
         'birth_date' => birth_date
       }
     }
+  end
+  let(:user_struct) do
+    OpenStruct.new(
+      first_name: vet_info['veteran_information']['full_name']['first'],
+      last_name: vet_info['veteran_information']['full_name']['last'],
+      middle_name: vet_info['veteran_information']['full_name']['middle'],
+      ssn: vet_info['veteran_information']['ssn'],
+      email: vet_info['veteran_information']['email'],
+      va_profile_email: vet_info['veteran_information']['va_profile_email'],
+      participant_id: vet_info['veteran_information']['participant_id'],
+      icn: vet_info['veteran_information']['icn'],
+      uuid: vet_info['veteran_information']['uuid'],
+      common_name: vet_info['veteran_information']['common_name']
+    )
   end
 
   context 'The flipper is turned on' do
@@ -35,7 +50,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
       expect(client_stub).to receive(:submit).once
 
-      described_class.new.perform(user.uuid, user.icn, dependency_claim.id, vet_info)
+      described_class.new.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
     end
 
     it 'sends confirmation email' do
@@ -52,7 +67,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         }
       )
 
-      described_class.new.perform(user.uuid, user.icn, dependency_claim.id, vet_info)
+      described_class.new.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
     end
 
     context 'error' do
@@ -70,7 +85,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(OpenStruct)) { mailer_double }
         expect(job).to receive(:salvage_save_in_progress_form).with('686C-674', user.uuid, anything)
 
-        job.perform(user.uuid, user.icn, dependency_claim.id, vet_info)
+        job.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
       end
     end
   end
@@ -85,7 +100,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       allow(BGS::Form674).to receive(:new).with(an_instance_of(User)) { client_stub }
       expect(client_stub).to receive(:submit).once
 
-      described_class.new.perform(user.uuid, user.icn, dependency_claim.id, vet_info)
+      described_class.new.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
     end
 
     it 'sends confirmation email' do
@@ -102,7 +117,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         }
       )
 
-      described_class.new.perform(user.uuid, user.icn, dependency_claim.id, vet_info)
+      described_class.new.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
     end
 
     context 'error' do
@@ -120,7 +135,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(User)) { mailer_double }
         expect(job).to receive(:salvage_save_in_progress_form).with('686C-674', user.uuid, anything)
 
-        job.perform(user.uuid, user.icn, dependency_claim.id, vet_info)
+        job.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
       end
     end
   end
