@@ -223,6 +223,7 @@ RSpec.describe 'Claims', type: :request do
                 benefit_claims_dto: {
                   benefit_claim: [
                     {
+                      base_end_prdct_type_cd: '400',
                       benefit_claim_id: '111111111',
                       claim_status: 'Preparation for notification'
                     }
@@ -256,6 +257,7 @@ RSpec.describe 'Claims', type: :request do
                   expect(json_response['data']).to be_an_instance_of(Array)
                   expect(json_response.count).to eq(1)
                   claim = json_response['data'].first
+                  expect(claim['attributes']['baseEndProductCode']).to eq('400')
                   expect(claim['attributes']['status']).to eq('PREPARATION_FOR_NOTIFICATION')
                   expect(claim['id']).to eq('111111111')
                   expect(claim['attributes']['lighthouseId']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
@@ -270,6 +272,7 @@ RSpec.describe 'Claims', type: :request do
                 benefit_claims_dto: {
                   benefit_claim: [
                     {
+                      base_end_prdct_type_cd: '400',
                       benefit_claim_id: '111111111',
                       phase_type: 'claim received'
                     }
@@ -294,6 +297,7 @@ RSpec.describe 'Claims', type: :request do
                   expect(json_response['data']).to be_an_instance_of(Array)
                   expect(json_response.count).to eq(1)
                   claim = json_response['data'].first
+                  expect(claim['attributes']['baseEndProductCode']).to eq('400')
                   expect(claim['attributes']['status']).to eq('CLAIM_RECEIVED')
                   expect(claim['id']).to eq('111111111')
                   expect(claim['attributes']['lighthouseId']).to be nil
