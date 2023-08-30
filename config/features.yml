@@ -160,6 +160,10 @@ features:
     actor_type: user
     description: When enabled, the Download Decision Letters feature includes Board of Appeals decision letters
     enable_in_development: true
+  cst_use_new_claim_cards:
+    actor_type: user
+    description: When enabled, claims status tool uses the new claim card designs
+    enable_in_development: true
   coe_access:
     actor_type: user
     description: Feature gates the certificate of eligibility application

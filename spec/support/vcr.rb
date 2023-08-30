@@ -31,6 +31,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<PPMS_API_KEY>') { Settings.ppms.api_keys }
   c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }
   c.filter_sensitive_data('<MULESOFT_SECRET>') { Settings.form_10_10cg.carma.mulesoft.client_secret }
+  c.filter_sensitive_data('<SHAREPOINT_CLIENT_SECRET>') { Settings.vha.sharepoint.client_secret }
 
   c.before_record do |i|
     %i[response request].each do |env|

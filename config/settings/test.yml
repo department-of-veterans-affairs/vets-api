@@ -356,15 +356,15 @@ form_10_10cg:
 
 vha:
   sharepoint:
-    sharepoint_url: "fake_url.com"
-    client_id: "51dadf135qwwc"
-    client_secret: "xxxxxxxxx"
-    tenant_id: "ad21angkl35dadf43ad56"
-    resource: "23asdb54ada655a3"
+    sharepoint_url: "dvagov.sharepoint.com"
+    client_id: "fake_sharepoint_client_id"
+    client_secret: "fake_sharepoint_client_secret"
+    tenant_id: "fake_sharepoint_tenant_id"
+    resource: "00000003-0000-0ff1-ce00-000000000000"
     service_name: "VHA-SHAREPOINT"
-    base_path: "/base"
-    authentication_url: "https://fake_auth_url.com"
-    mock: true
+    base_path: "/sites/vhafinance/MDW"
+    authentication_url: "https://accounts.accesscontrol.windows.net"
+    mock: false
 
 mhv:
   medical_records:
