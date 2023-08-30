@@ -81,16 +81,15 @@ module AppealsApi::NoticeOfDisagreements::V0
     private
 
     def validate_icn_parameter
-      validation_errors = []
+      detail = nil
 
       if params[:icn].blank?
-        validation_errors << { status: 422, detail: "'icn' parameter is required" }
+        detail = "'icn' parameter is required"
       elsif !ICN_REGEX.match?(params[:icn])
-        validation_errors << { status: 422,
-                               detail: "'icn' parameter has an invalid format. Pattern: #{ICN_REGEX.inspect}" }
+        detail = "'icn' parameter has an invalid format. Pattern: #{ICN_REGEX.inspect}"
       end
 
-      render json: { errors: validation_errors }, status: :unprocessable_entity if validation_errors.present?
+      raise Common::Exceptions::UnprocessableEntity.new(detail:) if detail.present?
     end
 
     def render_notice_of_disagreement(nod)

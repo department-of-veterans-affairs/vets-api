@@ -5,6 +5,7 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
+require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_pdf_downloads.rb')
 
 def swagger_doc
   "modules/appeals_api/app/swagger/decision_reviews/v2/swagger#{DocHelpers.doc_suffix}.json"
@@ -156,6 +157,21 @@ describe 'Supplemental Claims', swagger_doc:, type: :request do
       end
 
       it_behaves_like 'rswag 500 response'
+    end
+  end
+
+  if ENV['RSWAG_ENV'] == 'dev'
+    path '/supplemental_claims/{uuid}/download' do
+      get 'Download a watermarked copy of a submitted Supplemental Claim' do
+        tags 'Supplemental Claims'
+        operationId 'downloadSc'
+        security DocHelpers.decision_reviews_security_config
+
+        include_examples 'decision reviews PDF download docs', {
+          factory: :extra_supplemental_claim,
+          appeal_type_display_name: 'Supplemental Claim'
+        }
+      end
     end
   end
 

@@ -91,15 +91,15 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
   def header_names = headers_schema['definitions']['scCreateParameters']['properties'].keys
 
   def validate_icn_header
-    validation_errors = []
+    detail = nil
 
     if request_headers[ICN_HEADER].blank?
-      validation_errors << { status: 422, detail: "#{ICN_HEADER} is required" }
+      detail = "#{ICN_HEADER} is required"
     elsif !ICN_REGEX.match?(request_headers[ICN_HEADER])
-      validation_errors << { status: 422, detail: "#{ICN_HEADER} has an invalid format. Pattern: #{ICN_REGEX.inspect}" }
+      detail = "#{ICN_HEADER} has an invalid format. Pattern: #{ICN_REGEX.inspect}"
     end
 
-    render json: { errors: validation_errors }, status: :unprocessable_entity if validation_errors.present?
+    raise Common::Exceptions::UnprocessableEntity.new(detail:) if detail.present?
   end
 
   def validate_json_schema
