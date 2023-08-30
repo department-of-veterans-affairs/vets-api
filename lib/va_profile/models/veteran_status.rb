@@ -9,7 +9,7 @@ module VAProfile
     class VeteranStatus < Base
       include VAProfile::Concerns::Defaultable  # need this?
 
-      attribute :combined_service_connected_rating_percentage, String
+      attribute :combined_service_connected_title, String
       # Might need to also grab the boolean serviceConnectedIndicator
 
       # Converts an instance of the VeteranStatus model to a JSON encoded string suitable for
@@ -27,13 +27,13 @@ module VAProfile
       end
 
       # Converts a decoded JSON response from VAProfile to an instance of the VeteranStatus model
-      # @param rating [Hash] the decoded response rating from VAProfile
-      # @return [VAProfile::Models::VeteranStatus] the model built from the response rating
-      def self.build_veteran_status_rating(rating)
-        return nil unless rating
+      # @param title [Hash] the decoded response title from VAProfile
+      # @return [VAProfile::Models::VeteranStatus] the model built from the response title
+      def self.build_veteran_title(title)
+        return nil unless title
 
         VAProfile::Models::VeteranStatus.new(
-          combined_service_connected_rating_percentage: rating
+          combined_service_connected_title: title
         )
       end
     end

@@ -6,29 +6,28 @@ require 'va_profile/models/veteran_status'
 module VAProfile
   module VeteranStatus
     class VeteranStatusResponse < VAProfile::Response
-      attribute :veteran_status_rating, VAProfile::Models::VeteranStatus
+      attribute :veteran_status_title, VAProfile::Models::VeteranStatus
 
       def self.from(_, raw_response = nil)
         body = raw_response&.body
-        veteran_status_rating = get_rating(body)
+        veteran_status_title = get_title(body)
 
         new(
           raw_response&.status,
-          veteran_status_rating: veteran_status_rating
+          veteran_status_title: veteran_status_title
         )
       end
 
-      def self.get_rating(body)
+      def self.get_title(body)
         return nil unless body
 
-        combined_service_connected_rating_percentage = body&.dig(
+        combined_service_connected_title = body&.dig(
           'profile',
-          'veteran_status_rating',
-          'combined_service_connected_rating_percentage'
+          'veteran_status_title'
         )
 
-        VAProfile::Models::VeteranStatus.build_veteran_status_rating(
-          combined_service_connected_rating_percentage
+        VAProfile::Models::VeteranStatus.build_veteran_status_title(
+          combined_service_connected_title
         )
       end
     end

@@ -34,18 +34,37 @@ module VAProfile
           log_exception_to_sentry(
             e,
             { edipi: @user.edipi },
-            { va_profile: :veteran_status_rating_not_found },
+            { va_profile: :veteran_status_title_not_found },
             :warning
           )
 
-          return VeteranStatusResponse.new(404, veteran_status_rating: nil)
+          return VeteranStatusResponse.new(404, veteran_status_title: nil)
         elsif e.status >= 400 && e.status < 500
-          return VeteranStatusResponse.new(e.status, veteran_status_rating: nil)
+          return VeteranStatusResponse.new(e.status, veteran_status_title: nil)
         end
 
         handle_error(e)
       rescue => e
         handle_error(e)
+      end
+
+      # @return [Boolean] true if user is a title 38 veteran
+      def veteran?
+        title38_status == 'V1'
+      end
+
+      # @return [String] Title 38 status code
+      def title38_status
+        get_veteran_status_data&.veteran_status_title&.title38_status_code
+      end
+
+      # Returns boolean for user being/not being considered a military person
+      # based on their Title 38 Status Code.
+      #
+      # @return [Boolean]
+      #
+      def military_person?
+        title38_status == 'V3' || title38_status == 'V6'
       end
 
       # VA Profile endpoints use the OID (Organizational Identifier), the EDIPI,
@@ -71,6 +90,8 @@ module VAProfile
       def aaid
         return AAID if @user&.edipi.present?
       end
+
+
     end
   end
 end
