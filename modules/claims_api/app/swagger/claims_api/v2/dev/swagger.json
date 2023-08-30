@@ -416,6 +416,7 @@
                       "id": "555555555",
                       "type": "claim",
                       "attributes": {
+                        "baseEndProductCode": "400",
                         "claimDate": "2017-05-02",
                         "claimPhaseDates": {
                           "phaseChangeDate": "2017-10-18"
@@ -464,6 +465,7 @@
                           "attributes": {
                             "type": "object",
                             "required": [
+                              "baseEndProductCode",
                               "claimType",
                               "claimDate",
                               "claimPhaseDates",
@@ -477,6 +479,11 @@
                               "status"
                             ],
                             "properties": {
+                              "baseEndProductCode": {
+                                "type": "string",
+                                "description": "Base end product code for claim",
+                                "example": "400"
+                              },
                               "claimType": {
                                 "type": "string",
                                 "description": "Name of claim type",
@@ -4547,8 +4554,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-08-23",
-                      "expirationDate": "2024-08-23",
+                      "creationDate": "2023-08-25",
+                      "expirationDate": "2024-08-25",
                       "type": "compensation",
                       "status": "active"
                     }

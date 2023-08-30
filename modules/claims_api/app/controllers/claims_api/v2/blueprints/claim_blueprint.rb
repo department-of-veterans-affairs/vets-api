@@ -13,6 +13,7 @@ module ClaimsApi
         view :index do
           field :attributes do |claim, _options|
             {
+              base_end_product_code: claim[:base_end_prdct_type_cd],
               claim_date: claim[:claim_date],
               claim_phase_dates: claim[:claim_phase_dates],
               claim_type: claim[:claim_type],
