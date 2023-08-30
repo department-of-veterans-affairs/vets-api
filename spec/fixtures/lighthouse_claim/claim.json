@@ -3,6 +3,7 @@
     "id": "600342023",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2022-11-07",
       "claimPhaseDates": { "phaseChangeDate": "2022-11-07" },
       "claimType": "Compensation",
@@ -20,6 +21,7 @@
     "id": "600141237",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2018-10-15",
       "claimPhaseDates": { "phaseChangeDate": "2018-10-15" },
       "claimType": "Compensation",
@@ -37,6 +39,7 @@
     "id": "600133838",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2018-08-01",
       "claimPhaseDates": { "phaseChangeDate": "2018-10-15" },
       "claimType": "Compensation",
@@ -54,6 +57,7 @@
     "id": "600133835",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2018-07-24",
       "claimPhaseDates": { "phaseChangeDate": "2018-10-15" },
       "claimType": "Compensation",
@@ -71,6 +75,7 @@
     "id": "600133856",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2018-07-24",
       "claimPhaseDates": { "phaseChangeDate": "2018-10-15" },
       "claimType": "Compensation",
@@ -88,6 +93,7 @@
     "id": "600133833",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2018-07-24",
       "claimPhaseDates": { "phaseChangeDate": "2018-10-15" },
       "claimType": "Compensation",
@@ -105,6 +111,7 @@
     "id": "600133373",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2018-07-19",
       "claimPhaseDates": { "phaseChangeDate": "2018-10-15" },
       "claimType": "Compensation",
@@ -122,6 +129,7 @@
     "id": "600122635",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2018-01-26",
       "claimPhaseDates": { "phaseChangeDate": "2018-01-26" },
       "claimType": "Compensation",
@@ -139,6 +147,7 @@
     "id": "600114887",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2017-10-03",
       "claimPhaseDates": { "phaseChangeDate": "2018-01-26" },
       "claimType": "Compensation",
@@ -156,6 +165,7 @@
     "id": "600112997",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2017-08-29",
       "claimPhaseDates": { "phaseChangeDate": "2018-01-26" },
       "claimType": "Compensation",
@@ -173,6 +183,7 @@
     "id": "600112789",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2017-08-21",
       "claimPhaseDates": { "phaseChangeDate": "2018-01-26" },
       "claimType": "Compensation",
@@ -190,6 +201,7 @@
     "id": "600104444",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2017-06-14",
       "claimPhaseDates": { "phaseChangeDate": "2018-01-26" },
       "claimType": "Compensation",
@@ -207,6 +219,7 @@
     "id": "600103546",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2017-05-31",
       "claimPhaseDates": { "phaseChangeDate": "2018-01-26" },
       "claimType": "Compensation",
@@ -224,6 +237,7 @@
     "id": "600103550",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2017-05-31",
       "claimPhaseDates": { "phaseChangeDate": "2018-01-26" },
       "claimType": "Compensation",
@@ -241,6 +255,7 @@
     "id": "600103556",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2017-05-31",
       "claimPhaseDates": { "phaseChangeDate": "2018-01-26" },
       "claimType": "Compensation",
@@ -258,6 +273,7 @@
     "id": "600103545",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2017-05-31",
       "claimPhaseDates": { "phaseChangeDate": "2018-01-26" },
       "claimType": "Compensation",
@@ -275,6 +291,7 @@
     "id": "600087818",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2017-02-22",
       "claimPhaseDates": { "phaseChangeDate": "2017-05-23" },
       "claimType": "Compensation",
@@ -292,6 +309,7 @@
     "id": "600087959",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2017-02-22",
       "claimPhaseDates": { "phaseChangeDate": "2017-05-23" },
       "claimType": "Compensation",
@@ -309,6 +327,7 @@
     "id": "600085710",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2017-02-22",
       "claimPhaseDates": { "phaseChangeDate": "2017-05-23" },
       "claimType": "Compensation",
@@ -326,6 +345,7 @@
     "id": "600090539",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2016-12-06",
       "claimPhaseDates": { "phaseChangeDate": "2017-05-23" },
       "claimType": "Compensation",
@@ -343,6 +363,7 @@
     "id": "600076820",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2016-05-24",
       "claimPhaseDates": { "phaseChangeDate": "2017-05-23" },
       "claimType": "Compensation",
@@ -360,6 +381,7 @@
     "id": "600074982",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2016-04-29",
       "claimPhaseDates": { "phaseChangeDate": "2016-05-10" },
       "claimType": "Compensation",
@@ -377,6 +399,7 @@
     "id": "600062920",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2016-04-16",
       "claimPhaseDates": { "phaseChangeDate": "2016-04-18" },
       "claimType": "Compensation",
@@ -394,6 +417,7 @@
     "id": "600065438",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2016-04-16",
       "claimPhaseDates": { "phaseChangeDate": "2016-04-18" },
       "claimType": "Compensation",
@@ -411,6 +435,7 @@
     "id": "600063447",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2016-04-16",
       "claimPhaseDates": { "phaseChangeDate": "2016-04-18" },
       "claimType": "Compensation",
@@ -428,6 +453,7 @@
     "id": "600060678",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2016-04-16",
       "claimPhaseDates": { "phaseChangeDate": "2016-04-18" },
       "claimType": "Compensation",
@@ -445,6 +471,7 @@
     "id": "600060379",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2016-04-16",
       "claimPhaseDates": { "phaseChangeDate": "2016-04-18" },
       "claimType": "Compensation",
@@ -462,6 +489,7 @@
     "id": "600062929",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2016-04-16",
       "claimPhaseDates": { "phaseChangeDate": "2016-04-18" },
       "claimType": "Compensation",
@@ -479,6 +507,7 @@
     "id": "600060761",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2016-01-01",
       "claimPhaseDates": { "phaseChangeDate": "2016-04-18" },
       "claimType": "Compensation",
@@ -496,6 +525,7 @@
     "id": "600060686",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2016-01-01",
       "claimPhaseDates": { "phaseChangeDate": "2016-04-18" },
       "claimType": "Compensation",
@@ -513,6 +543,7 @@
     "id": "600030634",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-06-17",
       "claimPhaseDates": { "phaseChangeDate": "2016-04-18" },
       "claimType": "Compensation",
@@ -530,6 +561,7 @@
     "id": "600030620",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-06-17",
       "claimPhaseDates": { "phaseChangeDate": "2016-04-18" },
       "claimType": "Compensation",
@@ -547,6 +579,7 @@
     "id": "600030156",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-06-09",
       "claimPhaseDates": { "phaseChangeDate": "2015-06-09" },
       "claimType": "Compensation",
@@ -564,6 +597,7 @@
     "id": "600025030",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-04-14",
       "claimPhaseDates": { "phaseChangeDate": "2015-06-09" },
       "claimType": "Compensation",
@@ -581,6 +615,7 @@
     "id": "600024864",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-04-08",
       "claimPhaseDates": { "phaseChangeDate": "2015-04-08" },
       "claimType": "Compensation",
@@ -598,6 +633,7 @@
     "id": "600024452",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-03-30",
       "claimPhaseDates": { "phaseChangeDate": "2015-06-09" },
       "claimType": "Compensation",
@@ -615,6 +651,7 @@
     "id": "600024246",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-03-25",
       "claimPhaseDates": { "phaseChangeDate": "2015-06-09" },
       "claimType": "Compensation",
@@ -632,6 +669,7 @@
     "id": "600022725",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-03-09",
       "claimPhaseDates": { "phaseChangeDate": "2015-06-09" },
       "claimType": "Compensation",
@@ -649,6 +687,7 @@
     "id": "600022355",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-03-04",
       "claimPhaseDates": { "phaseChangeDate": "2015-03-04" },
       "claimType": "Compensation",
@@ -666,6 +705,7 @@
     "id": "600022224",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-03-03",
       "claimPhaseDates": { "phaseChangeDate": "2015-06-09" },
       "claimType": "Compensation",
@@ -683,6 +723,7 @@
     "id": "600022034",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-02-27",
       "claimPhaseDates": { "phaseChangeDate": "2015-06-09" },
       "claimType": "Compensation",
@@ -700,6 +741,7 @@
     "id": "600021899",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-02-26",
       "claimPhaseDates": { "phaseChangeDate": "2015-06-09" },
       "claimType": "Compensation",
@@ -717,6 +759,7 @@
     "id": "600021587",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-02-18",
       "claimPhaseDates": { "phaseChangeDate": "2015-02-24" },
       "claimType": "Compensation",
@@ -734,6 +777,7 @@
     "id": "600021446",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-02-12",
       "claimPhaseDates": { "phaseChangeDate": "2015-02-24" },
       "claimType": "Compensation",
@@ -751,6 +795,7 @@
     "id": "600021313",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-02-06",
       "claimPhaseDates": { "phaseChangeDate": "2015-02-18" },
       "claimType": "Compensation",
@@ -768,6 +813,7 @@
     "id": "600021138",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-02-03",
       "claimPhaseDates": { "phaseChangeDate": "2015-02-24" },
       "claimType": "Compensation",
@@ -785,6 +831,7 @@
     "id": "600020033",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-01-19",
       "claimPhaseDates": { "phaseChangeDate": "2015-02-24" },
       "claimType": "Compensation",
@@ -802,6 +849,7 @@
     "id": "600020062",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-01-19",
       "claimPhaseDates": { "phaseChangeDate": "2015-02-24" },
       "claimType": "Compensation",
@@ -819,6 +867,7 @@
     "id": "600019899",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-01-13",
       "claimPhaseDates": { "phaseChangeDate": "2015-02-24" },
       "claimType": "Compensation",
@@ -836,6 +885,7 @@
     "id": "600019871",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2015-01-11",
       "claimPhaseDates": { "phaseChangeDate": "2015-02-24" },
       "claimType": "Compensation",
@@ -853,6 +903,7 @@
     "id": "600019079",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2014-12-15",
       "claimPhaseDates": { "phaseChangeDate": "2015-02-24" },
       "claimType": "Compensation",
@@ -870,6 +921,7 @@
     "id": "600016020",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2014-11-02",
       "claimPhaseDates": { "phaseChangeDate": "2014-10-30" },
       "claimType": "Compensation",
@@ -887,6 +939,7 @@
     "id": "600016016",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2014-11-02",
       "claimPhaseDates": { "phaseChangeDate": "2015-02-24" },
       "claimType": "Compensation",
@@ -904,6 +957,7 @@
     "id": "288108",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2014-11-02",
       "claimPhaseDates": { "phaseChangeDate": "2014-10-29" },
       "claimType": "Compensation",
@@ -921,6 +975,7 @@
     "id": "600015742",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2014-10-28",
       "claimPhaseDates": { "phaseChangeDate": "2015-02-12" },
       "claimType": "Compensation",
@@ -938,6 +993,7 @@
     "id": "600015675",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2014-10-27",
       "claimPhaseDates": { "phaseChangeDate": "2015-02-24" },
       "claimType": "Compensation",
@@ -955,6 +1011,7 @@
     "id": "600010275",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2014-10-24",
       "claimPhaseDates": { "phaseChangeDate": "2015-02-24" },
       "claimType": "Compensation",
@@ -972,6 +1029,7 @@
     "id": "285434",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2014-09-02",
       "claimPhaseDates": { "phaseChangeDate": "2014-08-30" },
       "claimType": "Compensation",
@@ -989,6 +1047,7 @@
     "id": "285949",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2014-09-02",
       "claimPhaseDates": { "phaseChangeDate": "2014-08-30" },
       "claimType": "Compensation",
@@ -1006,6 +1065,7 @@
     "id": "278753",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2014-05-23",
       "claimPhaseDates": { "phaseChangeDate": "2014-08-30" },
       "claimType": "Compensation",
@@ -1023,6 +1083,7 @@
     "id": "278762",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2014-05-23",
       "claimPhaseDates": { "phaseChangeDate": "2014-08-30" },
       "claimType": "Compensation",
@@ -1040,6 +1101,7 @@
     "id": "278728",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2014-05-22",
       "claimPhaseDates": { "phaseChangeDate": "2014-07-31" },
       "claimType": "Compensation",
@@ -1057,6 +1119,7 @@
     "id": "600020586",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2014-05-01",
       "claimPhaseDates": { "phaseChangeDate": "2017-05-23" },
       "claimType": "Compensation",
@@ -1074,6 +1137,7 @@
     "id": "272398",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2014-03-05",
       "claimPhaseDates": { "phaseChangeDate": "2014-03-25" },
       "claimType": "Compensation",
@@ -1091,6 +1155,7 @@
     "id": "272078",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2014-02-27",
       "claimPhaseDates": { "phaseChangeDate": "2014-03-25" },
       "claimType": "Compensation",
@@ -1108,6 +1173,7 @@
     "id": "269808",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2013-12-26",
       "claimPhaseDates": { "phaseChangeDate": "2014-03-25" },
       "claimType": "Compensation",
@@ -1125,6 +1191,7 @@
     "id": "268672",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2013-12-06",
       "claimPhaseDates": { "phaseChangeDate": "2014-03-25" },
       "claimType": "Compensation",
@@ -1142,6 +1209,7 @@
     "id": "268400",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2013-12-03",
       "claimPhaseDates": { "phaseChangeDate": "2014-03-25" },
       "claimType": "Compensation",
@@ -1159,6 +1227,7 @@
     "id": "261556",
     "type": "claim",
     "attributes": {
+      "baseEndProductCode": "400",
       "claimDate": "2013-08-01",
       "claimPhaseDates": { "phaseChangeDate": "2014-04-17" },
       "claimType": "Compensation",
