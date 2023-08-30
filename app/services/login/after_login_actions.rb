@@ -28,6 +28,8 @@ module Login
         TestUserDashboard::UpdateUser.new(current_user).call(Time.current)
         TestUserDashboard::AccountMetrics.new(current_user).checkout
       end
+
+      MHV::PhrUpdateJob.perform_async(current_user.icn, current_user.mhv_correlation_id)
     end
 
     private

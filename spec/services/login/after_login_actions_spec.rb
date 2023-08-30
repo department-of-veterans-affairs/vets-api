@@ -1,9 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sidekiq/testing'
+Sidekiq::Testing.fake!
 
 RSpec.describe Login::AfterLoginActions do
   describe '#perform' do
+    before do
+      Sidekiq::Worker.clear_all
+    end
+
     context 'creating credential email' do
       let(:user) { create(:user, email:, idme_uuid:) }
       let!(:user_verification) { create(:idme_user_verification, idme_uuid:) }
@@ -229,6 +235,27 @@ RSpec.describe Login::AfterLoginActions do
         it 'does not send an email' do
           expect { described_class.new(user).perform }.not_to change(VANotify::EmailJob.jobs, :size)
         end
+      end
+    end
+
+    context 'enqueue MHV::PhrUpdateJob' do
+      let(:user) { create(:user) }
+      let(:icn) { '1000000000V000000' }
+      let(:mhv_correlation_id) { '12345' }
+
+      before do
+        allow(user).to receive(:icn).and_return(icn)
+        allow(user).to receive(:mhv_correlation_id).and_return(mhv_correlation_id)
+      end
+
+      it 'enqueues the job with correct parameters' do
+        expect do
+          described_class.new(user).perform
+        end.to change(Sidekiq::Queues['default'], :size).by(1)
+
+        enqueued_job = Sidekiq::Queues['default'].last
+        expect(enqueued_job['class']).to eq 'MHV::PhrUpdateJob'
+        expect(enqueued_job['args']).to eq [icn, mhv_correlation_id]
       end
     end
   end
