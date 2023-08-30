@@ -440,6 +440,10 @@ features:
     actor_type: user
     description: Enables form 5495 email submission confirmation (VaNotify)
     enable_in_development: true
+  simple_forms_email_confirmations:
+    actor_type: user
+    description: Enables form email submission confirmations (for allowed email types via VaNotify)
+    enable_in_development: true
   form214142:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4142

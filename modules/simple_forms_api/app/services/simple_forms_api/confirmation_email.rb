@@ -16,6 +16,8 @@ module SimpleFormsApi
     end
 
     def send
+      # this will need to be refactored as we add more supported forms
+      return unless Flipper.enabled?(:form21_4142_confirmation_email)
       return unless SUPPORTED_FORMS.include?(form_number)
 
       email = @form_data.dig('veteran', 'email')
