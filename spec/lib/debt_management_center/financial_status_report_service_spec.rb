@@ -15,12 +15,6 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
     expect(described_class.ancestors).to include(SentryLogging)
   end
 
-  def mock_sharepoint_upload
-    sp_stub = instance_double('DebtManagementCenter::Sharepoint::Request')
-    allow(DebtManagementCenter::Sharepoint::Request).to receive(:new).and_return(sp_stub)
-    allow(sp_stub).to receive(:upload).and_return(Faraday::Response.new)
-  end
-
   def mock_pdf_fill
     pdf_stub = class_double('PdfFill::Filler').as_stubbed_const
     allow(pdf_stub).to receive(:fill_ancillary_form).and_return(::Rails.root.join(
@@ -186,26 +180,41 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
     let(:form_submission) { build(:form5655_submission) }
     let(:user) { build(:user, :loa3) }
     let(:user_data) { build(:user_profile_attributes) }
+    let(:mpi_profile) { build(:mpi_profile, family_name: 'Beer', ssn: '123456598') }
+    let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
+    let(:file_path) { ::Rails.root.join(*'/spec/fixtures/dmc/5655.pdf'.split('/')).to_s }
 
     before do
       response = Faraday::Response.new(status: 200, body:
       {
         message: 'Success'
       })
+      upload_time = DateTime.new(2023, 8, 29, 16, 13, 22)
       allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post).and_return(response)
-      mock_sharepoint_upload
+      allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(file_path)
+      allow(File).to receive(:delete).and_return(nil)
+      allow(DateTime).to receive(:now).and_return(upload_time)
+      allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile_response)
     end
 
     it 'submits to the VBS endpoint' do
       service = described_class.new(user_data)
-      expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+      VCR.use_cassette('vha/sharepoint/authenticate') do
+        VCR.use_cassette('vha/sharepoint/upload_pdf') do
+          expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+        end
+      end
     end
 
     it 'parses out delimiter characters' do
-      service = described_class.new(user_data)
-      delimitered_json = { 'name' => "^Gr\neg|" }
-      parsed_form_string = service.send(:remove_form_delimiters, delimitered_json).to_s
-      expect(['^', '|', "\n"].any? { |i| parsed_form_string.include? i }).to be false
+      VCR.use_cassette('vha/sharepoint/authenticate') do
+        VCR.use_cassette('vha/sharepoint/upload_pdf') do
+          service = described_class.new(user_data)
+          delimitered_json = { 'name' => "^Gr\neg|" }
+          parsed_form_string = service.send(:remove_form_delimiters, delimitered_json).to_s
+          expect(['^', '|', "\n"].any? { |i| parsed_form_string.include? i }).to be false
+        end
+      end
     end
 
     context 'with streamlined waiver' do
@@ -213,26 +222,42 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
       let(:non_streamlined_form_submission) { build(:non_sw_form5655_submission) }
 
       it 'submits to the VBS endpoint' do
-        service = described_class.new(user_data)
-        expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+        VCR.use_cassette('vha/sharepoint/authenticate') do
+          VCR.use_cassette('vha/sharepoint/upload_pdf') do
+            service = described_class.new(user_data)
+            expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+          end
+        end
       end
 
       it 'makes streamlined the last key in the form hash' do
-        service = described_class.new(user_data)
-        adjusted_form = service.send(:streamline_adjustments, form_submission.form)
-        expect(adjusted_form.keys.last).to eq('streamlined')
+        VCR.use_cassette('vha/sharepoint/authenticate') do
+          VCR.use_cassette('vha/sharepoint/upload_pdf') do
+            service = described_class.new(user_data)
+            adjusted_form = service.send(:streamline_adjustments, form_submission.form)
+            expect(adjusted_form.keys.last).to eq('streamlined')
+          end
+        end
       end
 
       it 'changes fsrReason for streamlined waivers' do
-        service = described_class.new(user_data)
-        adjusted_form = service.send(:streamline_adjustments, form_submission.form)
-        expect(adjusted_form['personalIdentification']['fsrReason']).to eq('et, Automatically Approved')
+        VCR.use_cassette('vha/sharepoint/authenticate') do
+          VCR.use_cassette('vha/sharepoint/upload_pdf') do
+            service = described_class.new(user_data)
+            adjusted_form = service.send(:streamline_adjustments, form_submission.form)
+            expect(adjusted_form['personalIdentification']['fsrReason']).to eq('et, Automatically Approved')
+          end
+        end
       end
 
       it 'does not change fsrReason for non-streamlined waivers' do
-        service = described_class.new(user_data)
-        adjusted_form = service.send(:streamline_adjustments, non_streamlined_form_submission.form)
-        expect(adjusted_form['personalIdentification']['fsrReason']).not_to eq('Automatically Approved')
+        VCR.use_cassette('vha/sharepoint/authenticate') do
+          VCR.use_cassette('vha/sharepoint/upload_pdf') do
+            service = described_class.new(user_data)
+            adjusted_form = service.send(:streamline_adjustments, non_streamlined_form_submission.form)
+            expect(adjusted_form['personalIdentification']['fsrReason']).not_to eq('Automatically Approved')
+          end
+        end
       end
     end
   end
@@ -249,7 +274,6 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
       })
       allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post)
         .and_return(response)
-      mock_sharepoint_upload
       allow(User).to receive(:find).with(user.uuid).and_return(user)
     end
 
@@ -322,7 +346,6 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
         message: 'Success'
       })
       allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post).and_return(response)
-      mock_sharepoint_upload
       allow(User).to receive(:find).with(user.uuid).and_return(user)
     end
 
@@ -343,6 +366,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
           'debtType' => 'COPAY'
         }
       ]
+
       service = described_class.new(user)
       expect { service.create_vha_fsr(valid_form_data) }
         .to change { Form5655::VHASubmissionJob.jobs.size }
