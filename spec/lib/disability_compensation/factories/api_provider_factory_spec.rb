@@ -103,7 +103,7 @@ RSpec.describe ApiProviderFactory do
       ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:claims],
         provider: api_provider,
-        options: { icn: current_user.icn },
+        options: { icn: current_user.icn, auth_headers: },
         current_user:,
         feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE
       )

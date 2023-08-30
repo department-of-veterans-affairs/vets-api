@@ -27,7 +27,7 @@ RSpec.describe EvssClaimsServiceProvider do
 
   it 'retrieves claims rom the EVSS API' do
     VCR.use_cassette('evss/claims/claims', match_requests_on: %i[uri method body]) do
-      provider = EvssClaimsServiceProvider.new(nil, auth_headers)
+      provider = EvssClaimsServiceProvider.new(auth_headers)
       response = provider.all_claims
       expect(response['open_claims'].length).to eq(3)
     end
