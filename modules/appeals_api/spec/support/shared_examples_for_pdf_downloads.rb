@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable RSpec/VariableName, Layout/LineLength
 shared_examples 'watermarked pdf download endpoint' do |opts|
   let(:created_at) { Time.current }
   let(:status) { 'pending' }
@@ -129,3 +130,244 @@ shared_examples 'watermarked pdf download endpoint' do |opts|
     end
   end
 end
+
+shared_examples 'PDF download docs' do |opts|
+  example_id = '44444444-5555-6666-7777-888888888888'
+  example_icn = '0123456789V012345'
+
+  description <<~DESC
+    Returns a watermarked copy of the submitted #{opts[:appeal_type_display_name]} PDF. The PDF will only be available
+    for download after the #{opts[:appeal_type_display_name]} has progressed to a 'submitted' state. The PDF will
+    become unavailable again once personally identifying information is deleted from the server one week after the
+    #{opts[:appeal_type_display_name]} progresses to a 'completed' state.
+
+    A PDF will not be available unless an ICN was included when the #{opts[:appeal_type_display_name]} was created,
+    And the 'icn' query parameter provided to this endpoint is required to match the ICN originally submitted with the
+    #{opts[:appeal_type_display_name]}.
+  DESC
+
+  consumes 'application/json'
+
+  let!(:appeal) do
+    record = FactoryBot.create(
+      opts[:factory],
+      id: example_id,
+      pdf_version: 'v3',
+      status: 'submitted',
+      veteran_icn: example_icn
+    )
+
+    record.form_data['data']['attributes']['veteran']['icn'] = example_icn
+    record.save
+    record
+  end
+
+  parameter(
+    parameter_from_schema('shared/v0/icn.json', 'properties', 'icn').merge(
+      {
+        description: "ICN of the Veteran associated with the #{opts[:appeal_type_display_name]}",
+        example: example_icn,
+        in: :query,
+        required: true
+      }
+    )
+  )
+
+  let(:icn) { example_icn }
+
+  parameter name: :id,
+            in: :path,
+            description: "#{opts[:appeal_type_display_name]} ID",
+            schema: { type: :string, format: :uuid },
+            example: example_id
+
+  let(:id) { example_id }
+
+  response '200', 'Success' do
+    produces 'application/pdf'
+
+    after do |example|
+      Dir.glob("*-#{id}.pdf").each { |f| FileUtils.rm_f(f) }
+
+      example.metadata[:response][:content] = {
+        'application/pdf' => { schema: { type: :file } }
+      }
+    end
+
+    # rubocop:disable RSpec/NoExpectationExample
+    it 'returns a PDF of the appeal submission' do
+      # No-op: response is not JSON, don't let rswag try to parse it
+    end
+    # rubocop:enable RSpec/NoExpectationExample
+  end
+
+  response '404', "#{opts[:appeal_type_display_name]} record was not found, or the provided 'icn' query parameter does not match the record's ICN" do
+    schema '$ref' => '#/components/schemas/errorModel'
+    produces 'application/json'
+
+    let(:icn) { '0000000000V000000' }
+
+    it_behaves_like 'rswag example', desc: 'Not found', scopes: opts[:scopes]
+  end
+
+  response '410', 'Personally identifying information gone' do
+    schema '$ref' => '#/components/schemas/errorModel'
+    produces 'application/json'
+
+    let(:appeal) do
+      record = FactoryBot.create(
+        opts[:factory],
+        id: example_id,
+        pdf_version: 'v3',
+        status: 'submitted',
+        veteran_icn: example_icn
+      )
+
+      record.update!(form_data: nil, auth_headers: nil, auth_headers_ciphertext: nil, form_data_ciphertext: nil)
+      record
+    end
+
+    it_behaves_like 'rswag example',
+                    desc: "Data for the #{opts[:appeal_type_display_name]} has been deleted from the server because the retention period for the veteran's personally identifying information has expired",
+                    scopes: opts[:scopes]
+  end
+
+  response '422', 'Unable to return a PDF' do
+    schema '$ref' => '#/components/schemas/errorModel'
+    produces 'application/json'
+
+    before { appeal.update!(status: 'pending') }
+
+    it_behaves_like 'rswag example',
+                    desc: "#{opts[:appeal_type_display_name]} has not yet progressed to a 'submitted' state",
+                    scopes: opts[:scopes]
+  end
+
+  response '422', "Missing 'icn' query parameter" do
+    schema '$ref' => '#/components/schemas/errorModel'
+    produces 'application/json'
+
+    let(:icn) {}
+
+    it_behaves_like 'rswag example', desc: "Missing 'icn' parameter", scopes: opts[:scopes]
+  end
+
+  it_behaves_like 'rswag 500 response'
+end
+
+shared_examples 'decision reviews PDF download docs' do |opts|
+  example_uuid = '44444444-5555-6666-7777-888888888888'
+  example_icn = '0123456789V012345'
+
+  description <<~DESC
+    Returns a watermarked copy of the submitted #{opts[:appeal_type_display_name]} PDF. The PDF will only be available
+    for download after the #{opts[:appeal_type_display_name]} has progressed to a 'submitted' state. The PDF will
+    become unavailable again once personally identifying information is deleted from the server one week after the
+    #{opts[:appeal_type_display_name]} progresses to a 'completed' state.
+
+    A PDF will not be available unless an ICN was included when the #{opts[:appeal_type_display_name]} was created,
+    And the X-VA-ICN header submitted to this endpoint is required to match the ICN originally submitted with the
+    #{opts[:appeal_type_display_name]}.
+  DESC
+
+  consumes 'application/json'
+
+  let!(:appeal) do
+    record = FactoryBot.create(
+      opts[:factory],
+      id: example_uuid,
+      pdf_version: 'v3',
+      status: 'submitted',
+      veteran_icn: example_icn
+    )
+
+    record.auth_headers['X-VA-ICN'] = example_icn
+    record.save
+    record
+  end
+
+  parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header].merge(
+    description: "ICN of the Veteran associated with the #{opts[:appeal_type_display_name]}",
+    example: example_icn
+  )
+
+  let(:'X-VA-ICN') { example_icn }
+
+  parameter name: :uuid,
+            in: :path,
+            type: :string,
+            description: "#{opts[:appeal_type_display_name]} UUID",
+            example: example_uuid
+
+  let(:uuid) { example_uuid }
+
+  response '200', 'Success' do
+    produces 'application/pdf'
+
+    after do |example|
+      Dir.glob("*-#{uuid}.pdf").each { |f| FileUtils.rm_f(f) }
+
+      example.metadata[:response][:content] = {
+        'application/pdf' => { schema: { type: :file } }
+      }
+    end
+
+    # rubocop:disable RSpec/NoExpectationExample
+    it 'returns a PDF of the appeal submission' do
+      # No-op: response is not JSON, don't let rswag try to parse it
+    end
+    # rubocop:enable RSpec/NoExpectationExample
+  end
+
+  response '404', "#{opts[:appeal_type_display_name]} record was not found, or the provided X-VA-ICN header does not match the record's ICN, or the record was not created with an ICN" do
+    schema '$ref' => '#/components/schemas/errorModel'
+    produces 'application/json'
+
+    let(:'X-VA-ICN') { '0000000000V000000' }
+
+    it_behaves_like 'rswag example', desc: 'Not found'
+  end
+
+  response '410', 'Personally identifying information gone' do
+    schema '$ref' => '#/components/schemas/errorModel'
+    produces 'application/json'
+
+    let(:appeal) do
+      record = FactoryBot.create(
+        opts[:factory],
+        id: example_uuid,
+        pdf_version: 'v3',
+        status: 'submitted',
+        veteran_icn: example_icn
+      )
+
+      record.update!(form_data: nil, auth_headers: nil, auth_headers_ciphertext: nil, form_data_ciphertext: nil)
+      record
+    end
+
+    it_behaves_like 'rswag example',
+                    desc: "Data for the #{opts[:appeal_type_display_name]} has been deleted from the server because the retention period for the veteran's personally identifying information has expired"
+  end
+
+  response '422', 'Unable to return a PDF' do
+    schema '$ref' => '#/components/schemas/errorModel'
+    produces 'application/json'
+
+    before { appeal.update!(status: 'pending') }
+
+    it_behaves_like 'rswag example',
+                    desc: "#{opts[:appeal_type_display_name]} has not yet progressed to a 'submitted' state"
+  end
+
+  response '422', 'Missing X-VA-ICN header' do
+    schema '$ref' => '#/components/schemas/errorModel'
+    produces 'application/json'
+
+    let(:'X-VA-ICN') {}
+
+    it_behaves_like 'rswag example', desc: 'Missing X-VA-ICN header'
+  end
+
+  it_behaves_like 'rswag 500 response'
+end
+# rubocop:enable RSpec/VariableName, Layout/LineLength
