@@ -1343,23 +1343,13 @@ RSpec.describe FormProfile, type: :model do
       end
 
       context 'with emis and vet360 prefill for 0873' do
-        before do
-          stub_methods_military_information
-          # can_prefill_emis(true)
-        end
-
         it 'prefills 0873' do
           # TODO - look into update the following cassettes with ones that have data that can match the expected result
           VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
             VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
-              allow_any_instance_of(FormProfiles::VA0873::FormAddress).to receive(:veteranServiceInformation).and_return(veteran_service_information)
-              allow_any_instance_of(VA0873::VeteranServiceInformation).to receive(:branchOfService).and_return("Air Force")
-              allow_any_instance_of(VA0873::VeteranServiceInformation).to receive(:serviceDateRange).and_return(
-                {
-                  'from' => '2007-04-01',
-                  'to' => '2007-04-02'
-                }
-              )
+              allow_any_instance_of(HCA::MilitaryInformation).to receive(:last_service_branch).and_return("Air Force")
+              allow_any_instance_of(HCA::MilitaryInformation).to receive(:last_entry_date).and_return('2007-04-01')
+              allow_any_instance_of(HCA::MilitaryInformation).to receive(:last_discharge_date).and_return('2007-04-02')
               expect_prefilled('0873')
             end
           end
