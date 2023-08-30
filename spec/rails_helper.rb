@@ -177,7 +177,7 @@ RSpec.configure do |config|
 
   config.before do |example|
     stub_mpi unless example.metadata[:skip_mvi]
-    stub_va_profile unless example.metadata[:skip_va_profile]
+    # stub_va_profile unless example.metadata[:skip_va_profile]
     stub_vet360 unless example.metadata[:skip_vet360]
 
     Sidekiq::Worker.clear_all

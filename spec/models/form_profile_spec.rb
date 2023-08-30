@@ -1072,6 +1072,15 @@ RSpec.describe FormProfile, type: :model do
     end
 
     def expect_prefilled(form_id)
+          'date_range' => {
+            'from' => '2007-04-01', 'to' => '2016-06-01'
+          }
+        }
+      ])
+
+      allow_any_instance_of(HCA::MilitaryInformation).to receive(:currently_active_duty_hash).and_return({"yes" => true})
+      allow_any_instance_of(HCA::MilitaryInformation).to receive(:currently_active_duty).and_return(true)
+
       prefilled_data = Oj.load(described_class.for(form_id:, user:).prefill.to_json)['form_data']
 
       case form_id
@@ -1231,30 +1240,22 @@ RSpec.describe FormProfile, type: :model do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
           VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
             military_information = user.military_information
-            expect(military_information).to receive(:last_service_branch).and_return('Air Force')
-            expect(military_information).to receive(:hca_last_service_branch).and_return('air force')
-            expect(military_information).to receive(:last_entry_date).and_return('2007-04-01')
-            expect(military_information).to receive(:last_discharge_date).and_return('2007-04-02')
-            expect(military_information).to receive(:discharge_type).and_return('honorable')
-            expect(military_information).to receive(:post_nov111998_combat).and_return(true)
-            expect(military_information).to receive(:sw_asia_combat).and_return(true)
-            expect(military_information).to receive(:compensable_va_service_connected).and_return(true).twice
-            expect(military_information).to receive(:is_va_service_connected).and_return(true).twice
-            expect(military_information).to receive(:tours_of_duty).and_return(
-              []
-            )
-            expect(military_information).to receive(:service_branches).and_return([])
-            allow(military_information).to receive(:currently_active_duty_hash).and_return(
-              yes: false
-            )
-            # expect(user).to receive(:can_access_id_card?).and_return(true)
-            expect(military_information).to receive(:service_periods).and_return( 
-              []
-            )
-            expect(military_information).to receive(:guard_reserve_service_history).and_return(
-              []
-            )
-            expect(military_information).to receive(:latest_guard_reserve_service_period).and_return(nil)
+
+            expect(military_information.last_service_branch).to eq(nil)
+            expect(military_information.hca_last_service_branch).to eq('other')
+            expect(military_information.last_entry_date).to eq(nil)
+            expect(military_information.last_discharge_date).to eq(nil)
+            expect(military_information.discharge_type).to eq(nil)
+            expect(military_information.post_nov111998_combat).to eq(false)
+            expect(military_information.sw_asia_combat).to eq(false)
+            expect(military_information.compensable_va_service_connected).to eq(false)
+            expect(military_information.is_va_service_connected).to eq(true)
+            expect(military_information.tours_of_duty).to eq([])
+            expect(military_information.service_branches).to eq([])
+            expect(military_information.currently_active_duty_hash).to eq(yes: false)
+
+            expect(military_information.service_periods).to eq([])
+            expect(military_information.guard_reserve_service_history).to eq([])
           end
         end
       end
@@ -1262,7 +1263,6 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with va profile prefill on' do
         before do
-          stub_methods_military_information
           VAProfile::Configuration::SETTINGS.prefill = true
 
           v22_1990_expected['email'] = VAProfileRedis::ContactInformation.for_user(user).email.email_address
@@ -1283,9 +1283,8 @@ RSpec.describe FormProfile, type: :model do
 
         it 'prefills 1990' do
           # TODO - look into update the following cassettes with ones that have data that can match the expected result
-          allow_any_instance_of(FormProfile).to receive(:initialize_military_information).and_return({})
           VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
-            VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+            VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do             
               expect_prefilled('22-1990')
             end
           end
@@ -1295,8 +1294,6 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with emis prefill for 0994' do
         before do
-          stub_methods_military_information
-          # can_prefill_emis(true)
           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
         end
