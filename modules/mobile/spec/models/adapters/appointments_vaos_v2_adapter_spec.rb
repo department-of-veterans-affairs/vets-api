@@ -31,7 +31,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
   end
 
   it 'returns a list of appointments at the expected size' do
-    expect(adapted_appointments.size).to eq(13)
+    expect(adapted_appointments.size).to eq(14)
   end
 
   context 'with a cancelled VA appointment' do
@@ -544,6 +544,54 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                      'best_time_to_call' => nil,
                                      'friendly_location_name' => 'Cheyenne VA Medical Center',
                                      'service_category_name' => nil })
+    end
+  end
+
+  context 'with a telehealth on site appointment' do
+    let(:telehealth_onsite) { adapted_appointment[13] }
+
+    it 'has expected fields' do
+      expect(telehealth_onsite[:appointment_type]).to eq('VA_VIDEO_CONNECT_ONSITE')
+      expect(telehealth_onsite[:location][:name]).to eq('Cheyenne VA Medical Center')
+      expect(telehealth_onsite[:location][:url]).to eq('http://www.meeting.com')
+
+      expect(telehealth_onsite.as_json).to eq({ 'id' => '50094',
+                                                'appointment_type' => 'VA_VIDEO_CONNECT_ONSITE',
+                                                'cancel_id' => '50094',
+                                                'comment' => nil,
+                                                'facility_id' => '442',
+                                                'sta6aid' => '442',
+                                                'healthcare_provider' => nil,
+                                                'healthcare_service' => nil,
+                                                'location' =>
+                                       { 'id' => nil,
+                                         'name' => 'Cheyenne VA Medical Center',
+                                         'address' =>
+                                           { 'street' => nil, 'city' => nil, 'state' => nil, 'zip_code' => nil },
+                                         'lat' => nil,
+                                         'long' => nil,
+                                         'phone' => { 'area_code' => '307', 'number' => '778-7550',
+                                                      'extension' => nil },
+                                         'url' => 'http://www.meeting.com',
+                                         'code' => nil },
+                                                'minutes_duration' => nil,
+                                                'phone_only' => false,
+                                                'start_date_local' => '2021-09-08T06:00:00.000-06:00',
+                                                'start_date_utc' => '2021-09-08T12:00:00.000+00:00',
+                                                'status' => 'SUBMITTED',
+                                                'status_detail' => nil,
+                                                'time_zone' => 'America/Denver',
+                                                'vetext_id' => nil,
+                                                'reason' => nil,
+                                                'is_covid_vaccine' => false,
+                                                'is_pending' => true,
+                                                'proposed_times' => [{ 'date' => '09/08/2021', 'time' => 'PM' }],
+                                                'type_of_care' => 'Primary Care',
+                                                'patient_phone_number' => '999-999-9992',
+                                                'patient_email' => nil,
+                                                'best_time_to_call' => nil,
+                                                'friendly_location_name' => 'Cheyenne VA Medical Center',
+                                                'service_category_name' => nil })
     end
   end
 
