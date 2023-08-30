@@ -139,7 +139,7 @@
       {
         "does_child_live_with_you": true,
         "place_of_birth": {"state": "CA", "city": "Slawson"},
-        "child_status": {"adopted": true},
+        "child_status": {"adopted": true },
         "not_self_sufficient": false,
         "previously_married": "No",
         "full_name": {
@@ -176,6 +176,7 @@
           "biological": true,
           "adopted": true,
           "stepchild": true,
+          "biological_stepchild": true,
           "date_became_dependent": "2021-05-02",
           "stepchild_parent":  {
             "first": "Lindsay",
