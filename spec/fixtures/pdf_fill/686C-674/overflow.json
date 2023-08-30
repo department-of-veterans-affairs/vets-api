@@ -262,6 +262,7 @@
           "biological": true,
           "adopted": true,
           "stepchild": true,
+          "biological_stepchild": true,
           "date_became_dependent": "2021-05-02",
           "stepchild_parent":  {
             "first": "Lindsay",
