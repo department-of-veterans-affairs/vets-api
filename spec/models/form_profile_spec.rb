@@ -1081,6 +1081,7 @@ RSpec.describe FormProfile, type: :model do
       allow_any_instance_of(HCA::MilitaryInformation).to receive(:currently_active_duty_hash).and_return({"yes" => true})
       allow_any_instance_of(HCA::MilitaryInformation).to receive(:currently_active_duty).and_return(true)
 
+
       prefilled_data = Oj.load(described_class.for(form_id:, user:).prefill.to_json)['form_data']
 
       case form_id
@@ -1489,6 +1490,28 @@ RSpec.describe FormProfile, type: :model do
                     # TODO - look into update the following cassettes with ones that have data that can match the expected result?
                     VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
                       VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
+                        allow_any_instance_of(HCA::MilitaryInformation).to receive(:service_periods).and_return(
+                          [
+                            {
+                              'serviceBranch' => 'Air Force Reserve',
+                              'dateRange' => {
+                                'from' => '2007-04-01',
+                                'to' => '2016-06-01'
+                              }
+                            }
+                          ]
+                        )
+
+                        allow_any_instance_of(HCA::MilitaryInformation).to receive(:guard_reserve_service_history).and_return(
+                          [
+                            {
+                              from: '2007-04-01',
+                              to: '2016-06-01'
+                            }
+                          ]
+                        )
+                        
+
                         expect_prefilled('21-526EZ')
                       end
                     end
