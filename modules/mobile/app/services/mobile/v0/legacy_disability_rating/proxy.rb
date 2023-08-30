@@ -10,18 +10,12 @@ module Mobile
           @user = user
         end
 
-        def get_disability_ratings
+        def get_disability_ratings # rubocop:disable Metrics/MethodLength
           combine_response, individual_response = Parallel.map([get_combine_rating, get_individual_ratings],
                                                                in_threads: 2, &:call)
           Mobile::V0::Adapters::LegacyRating.new.disability_ratings(combine_response, individual_response)
-        rescue => e
-          if !e.respond_to?('response') && !e.respond_to?('status_code')
-            Rails.logger.info('LEGACY DR ERRORS', error: e)
-            raise e
-          end
-
-          status_code = e.respond_to?('response') ? e.response[:status] : e.status_code
-          case status_code
+        rescue Common::Exceptions::BaseError => e
+          case e.status_code
           when 400
             raise Common::Exceptions::BackendServiceException, 'MOBL_404_rating_not_found'
           when 502
@@ -29,6 +23,25 @@ module Mobile
           when 403
             raise Common::Exceptions::BackendServiceException, 'MOBL_403_rating_forbidden'
           else
+            raise e
+          end
+        rescue EVSS::DisabilityCompensationForm::ServiceUnavailableException
+          raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
+        rescue => e
+          if e.respond_to?('response')
+            Rails.logger.info('LEGACY DR ERRORS WITH RESPONSE', error: e)
+            case e.response[:status]
+            when 400
+              raise Common::Exceptions::BackendServiceException, 'MOBL_404_rating_not_found'
+            when 502
+              raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
+            when 403
+              raise Common::Exceptions::BackendServiceException, 'MOBL_403_rating_forbidden'
+            else
+              raise e
+            end
+          else
+            Rails.logger.info('LEGACY DR ERRORS WITHOUT RESPONSE', error: e)
             raise e
           end
         end
