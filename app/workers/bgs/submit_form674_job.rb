@@ -11,13 +11,13 @@ module BGS
 
     sidekiq_options retry: false
 
-    def perform(user_uuid, icn, saved_claim_id, vet_info)
+    def perform(user_uuid, icn, saved_claim_id, vet_info, user_struct_hash)
       Rails.logger.info('BGS::SubmitForm674Job running!', { user_uuid:, saved_claim_id:, icn: })
       in_progress_form = InProgressForm.find_by(form_id: FORM_ID, user_uuid:)
       in_progress_copy = in_progress_form_copy(in_progress_form)
       claim_data = valid_claim_data(saved_claim_id, vet_info)
       normalize_names_and_addresses!(claim_data)
-      user_struct = generate_user_struct(vet_info['veteran_information'])
+      user_struct = OpenStruct.new(user_struct_hash)
 
       user = Flipper.enabled?(:dependents_enqueue_with_user_struct) ? user_struct : User.find(user_uuid)
       BGS::Form674.new(user).submit(claim_data)
