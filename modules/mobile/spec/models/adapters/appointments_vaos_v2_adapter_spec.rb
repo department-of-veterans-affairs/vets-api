@@ -553,7 +553,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
     it 'has expected fields' do
       expect(telehealth_onsite[:appointment_type]).to eq('VA_VIDEO_CONNECT_ONSITE')
       expect(telehealth_onsite[:location][:name]).to eq('Cheyenne VA Medical Center')
-      expect(telehealth_onsite[:location][:url]).to eq('http://www.meeting.com')
+      expect(telehealth_onsite[:location][:url]).to eq(nil)
 
       expect(telehealth_onsite.as_json).to eq({ 'id' => '50094',
                                                 'appointment_type' => 'VA_VIDEO_CONNECT_ONSITE',
@@ -564,16 +564,21 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
                                                 'healthcare_provider' => nil,
                                                 'healthcare_service' => nil,
                                                 'location' =>
-                                       { 'id' => nil,
-                                         'name' => 'Cheyenne VA Medical Center',
-                                         'address' =>
-                                           { 'street' => nil, 'city' => nil, 'state' => nil, 'zip_code' => nil },
-                                         'lat' => nil,
-                                         'long' => nil,
-                                         'phone' => { 'area_code' => '307', 'number' => '778-7550',
-                                                      'extension' => nil },
-                                         'url' => 'http://www.meeting.com',
-                                         'code' => nil },
+                                                  { 'id' => '442',
+                                                    'name' => 'Cheyenne VA Medical Center',
+                                                    'address' =>
+                                                     { 'street' => '2360 East Pershing Boulevard',
+                                                       'city' => 'Cheyenne',
+                                                       'state' => 'WY',
+                                                       'zip_code' => '82001-5356' },
+                                                    'lat' => 41.148026,
+                                                    'long' => -104.786255,
+                                                    'phone' =>
+                                                     { 'area_code' => '307',
+                                                       'number' => '778-7550',
+                                                       'extension' => nil },
+                                                    'url' => nil,
+                                                    'code' => nil },
                                                 'minutes_duration' => nil,
                                                 'phone_only' => false,
                                                 'start_date_local' => '2021-09-08T06:00:00.000-06:00',
