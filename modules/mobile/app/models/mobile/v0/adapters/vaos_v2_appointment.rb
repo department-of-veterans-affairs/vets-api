@@ -320,8 +320,7 @@ module Mobile
               end
             when APPOINTMENT_TYPES[:va_video_connect_atlas],
               APPOINTMENT_TYPES[:va_video_connect_home],
-              APPOINTMENT_TYPES[:va_video_connect_gfe],
-              APPOINTMENT_TYPES[:va_video_connect_onsite]
+              APPOINTMENT_TYPES[:va_video_connect_gfe]
 
               location[:name] = appointment.dig(:location, :name)
               location[:phone] = parse_phone(appointment.dig(:location, :phone, :main))
@@ -345,6 +344,7 @@ module Mobile
             else
               location[:id] = appointment.dig(:location, :id)
               location[:name] = appointment.dig(:location, :name)
+
               address = appointment.dig(:location, :physical_address)
               if address.present?
                 location[:address] = {
