@@ -111,4 +111,56 @@ RSpec.describe 'check in demographics', type: :request do
       end
     end
   end
+
+  describe 'PATCH /mobile/v0/appointments/check-in/demographics' do
+    context 'when upstream updates successfully' do
+      it 'returns demographic confirmations' do
+        VCR.use_cassette('mobile/check_in/token_200') do
+          VCR.use_cassette('mobile/check_in/update_demographics_200') do
+            patch '/mobile/v0/appointments/check-in/demographics',
+                  headers: iam_headers,
+                  params: { 'location_id' => '418',
+                            'demographic_confirmations' => { 'contact_needs_update' => false,
+                                                             'emergency_contact_needs_update' => true,
+                                                             'next_of_kin_needs_update' => false } }
+          end
+        end
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body).to eq(
+          { 'data' =>
+              { 'id' => '5',
+                'type' => 'demographicConfirmations',
+                'attributes' =>
+                  { 'contactNeedsUpdate' => false,
+                    'emergencyContactNeedsUpdate' => true,
+                    'nextOfKinNeedsUpdate' => false } } }
+        )
+      end
+    end
+
+    context 'when upstream service fails' do
+      it 'throws an exception' do
+        VCR.use_cassette('mobile/check_in/token_200') do
+          VCR.use_cassette('mobile/check_in/update_demographics_500') do
+            patch '/mobile/v0/appointments/check-in/demographics',
+                  headers: iam_headers,
+                  params: { 'location_id' => '418',
+                            'demographic_confirmations' => { 'contact_needs_update' => false,
+                                                             'emergency_contact_needs_update' => true,
+                                                             'next_of_kin_needs_update' => false } }
+          end
+        end
+        expect(response).to have_http_status(:bad_request)
+        expect(response.parsed_body).to eq(
+          { 'errors' =>
+              [
+                { 'title' => 'Operation failed',
+                  'detail' => 'The upstream server returned an error code that is unmapped',
+                  'code' => 'unmapped_service_exception',
+                  'status' => '400' }
+              ] }
+        )
+      end
+    end
+  end
 end

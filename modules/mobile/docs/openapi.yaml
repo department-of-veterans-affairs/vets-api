@@ -406,7 +406,7 @@ paths:
           $ref: '#/components/responses/504'
       security:
         - Bearer: [ ]
-      summary: /v0/appointments/check-in/demographics (DRAFT)
+      summary: /v0/appointments/check-in/demographics
   /v0/appointments/community_care/eligibility/{service_type}:
     get:
       description: Checks if user is eligible to make an appointment with Community Care for a type of service. Checks if user is registered at a site that is marked as accepting community care requests and community care eligibility api says that they're eligible for the type of care they chose
