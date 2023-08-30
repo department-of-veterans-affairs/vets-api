@@ -257,9 +257,26 @@ RSpec.describe 'vaos v2 appointments', type: :request do
             get '/mobile/v0/appointments', headers: iam_headers, params:
           end
         end
+        attributes = response.parsed_body.dig('data', 0, 'attributes')
         expect(response).to have_http_status(:ok)
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
-        expect(response.parsed_body.dig('data', 0, 'attributes', 'appointmentType')).to eq('VA_VIDEO_CONNECT_ONSITE')
+
+        expect(attributes['appointmentType']).to eq('VA_VIDEO_CONNECT_ONSITE')
+        expect(attributes['location']).to eq({ 'id' => '983',
+                                               'name' => 'Cheyenne VA Medical Center',
+                                               'address' =>
+                                                { 'street' => '2360 East Pershing Boulevard',
+                                                  'city' => 'Cheyenne',
+                                                  'state' => 'WY',
+                                                  'zipCode' => '82001-5356' },
+                                               'lat' => 41.148026,
+                                               'long' => -104.786255,
+                                               'phone' =>
+                                                { 'areaCode' => '307',
+                                                  'number' => '778-7550',
+                                                  'extension' => nil },
+                                               'url' => nil,
+                                               'code' => nil })
       end
     end
 
