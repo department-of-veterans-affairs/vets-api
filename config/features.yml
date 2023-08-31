@@ -635,19 +635,23 @@ features:
     actor_type: user
     description: Show/Hide the quick submit section of notification settings in profile
   profile_use_experimental:
-    description: "Use experimental features for Pofile application - Do not remove"
+    description: Use experimental features for Profile application - Do not remove
     enable_in_development: true
     actor_type: user
   profile_use_field_editing_page:
-    description: "Use a single page route in Profile for editing or adding a field value"
+    description: Use a single page route in Profile for editing or adding a field value
+    enable_in_development: true
+    actor_type: user
+  profile_use_hub_page:
+    description: Use a hub style page as the root page for the profile application
     enable_in_development: true
     actor_type: user
   profile_use_notification_settings_checkboxes:
     actor_type: user
-    description: "Use checkboxes for Notification Settings in Profile - Default Send and Email Channel"
+    description: Use checkboxes for Notification Settings in Profile - Default Send and Email Channel
     enable_in_development: true
   profile_use_vafsc:
-    description: "Use VA Forms System Core for forms instead of schema based forms"
+    description: Use VA Forms System Core for forms instead of schema based forms
     actor_type: user
     enable_in_development: true
   pw_ehr_cta_drupal_source_of_truth:
@@ -1052,4 +1056,3 @@ features:
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
-    
