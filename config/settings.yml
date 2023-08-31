@@ -1273,7 +1273,6 @@ vanotify:
       api_key: fake_secret
       template_id:
         disconnection_template: fake_template_id
-        connection_template: fake_template_id
     dmc:
       api_key: fake_secret
       template_id:
