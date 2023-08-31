@@ -139,7 +139,6 @@ vanotify:
       api_key: fake_api_key
       template_id:
         disconnection_template: fake_template_id
-        connection_template: fake_template_id
     check_in:
       api_key: check-in_aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
       sms_sender_id: fake_sms_sender_id
