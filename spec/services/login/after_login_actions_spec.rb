@@ -268,7 +268,7 @@ RSpec.describe Login::AfterLoginActions do
         context 'the user is not an MHV user' do
           let(:mhv_correlation_id) { nil }
 
-          it 'does not enqueues the job' do
+          it 'does not enqueue the job' do
             expect do
               described_class.new(user).perform
             end.not_to change(Sidekiq::Queues['default'], :size)
@@ -281,7 +281,7 @@ RSpec.describe Login::AfterLoginActions do
           Flipper.disable(:mhv_medical_records_phr_refresh_on_login)
         end
 
-        it 'does not enqueues the job' do
+        it 'does not enqueue the job' do
           expect do
             described_class.new(user).perform
           end.not_to change(Sidekiq::Queues['default'], :size)
