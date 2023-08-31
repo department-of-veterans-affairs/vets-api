@@ -22,40 +22,38 @@ module VAProfile
       # If a user is not found in VAProfile, an empty VeteranStatusResponse with a 404 status will be returned
       # @return [VAProfile::VeteranStatus::VeteranStatusResponse] response wrapper around a veteran_status object
       def get_veteran_status_data
-        def get_veteran_status_data
-          with_monitoring do
-            edipi_present!
-        
-            response = perform(:post, identity_path, VAProfile::Models::VeteranStatus.in_json)
-        
-            VeteranStatusResponse.from(@current_user, response)
-          end
-        rescue Common::Client::Errors::ClientError => e
-          additional_params = { edipi: @user.edipi, title38_status: title38_status }  # Add title38_status to the logging
-        
-          if e.status == 404
-            log_exception_to_sentry(
-              e,
-              additional_params,
-              { va_profile: :veteran_status_title_not_found },
-              :warning
-            )
-        
-            return VeteranStatusResponse.new(404, veteran_status_title: nil)
-          elsif e.status >= 400 && e.status < 500
-            log_exception_to_sentry(
-              e,
-              additional_params,
-              { va_profile: :client_error_related_to_title38 },
-              :warning
-            )
-            return VeteranStatusResponse.new(e.status, veteran_status_title: nil)
-          end
-        
-          handle_error(e)
-        rescue => e
-          handle_error(e)
+        with_monitoring do
+          edipi_present!
+      
+          response = perform(:post, identity_path, VAProfile::Models::VeteranStatus.in_json)
+      
+          VeteranStatusResponse.from(@current_user, response)
         end
+      rescue Common::Client::Errors::ClientError => e
+        additional_params = { edipi: @user.edipi, title38_status: title38_status }  # Add title38_status to the logging
+      
+        if e.status == 404
+          log_exception_to_sentry(
+            e,
+            additional_params,
+            { va_profile: :veteran_status_title_not_found },
+            :warning
+          )
+      
+          return VeteranStatusResponse.new(404, veteran_status_title: nil)
+        elsif e.status >= 400 && e.status < 500
+          log_exception_to_sentry(
+            e,
+            additional_params,
+            { va_profile: :client_error_related_to_title38 },
+            :warning
+          )
+          return VeteranStatusResponse.new(e.status, veteran_status_title: nil)
+        end
+      
+        handle_error(e)
+      rescue => e
+        handle_error(e)
       end
 
       # @return [Boolean] true if user is a title 38 veteran
