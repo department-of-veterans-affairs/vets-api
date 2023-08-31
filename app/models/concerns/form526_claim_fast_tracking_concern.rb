@@ -177,7 +177,7 @@ module Form526ClaimFastTrackingConcern
     rated_disabilities = fd['rated_disabilities'] || []
 
     rated_disabilities.select do |dis|
-      dis['maximum_rating_percentage'] == dis['rating_percentage']
+      dis['maximum_rating_percentage'].present? && dis['maximum_rating_percentage'] == dis['rating_percentage']
     end
   end
 
