@@ -9,8 +9,7 @@ module VAProfile
     class VeteranStatus < Base
       include VAProfile::Concerns::Defaultable  # need this?
 
-      attribute :combined_service_connected_title, String
-      # Might need to also grab the boolean serviceConnectedIndicator
+      attribute :title_38_status_code, String
 
       # Converts an instance of the VeteranStatus model to a JSON encoded string suitable for
       # use in the body of a request to VAProfile
@@ -24,17 +23,6 @@ module VAProfile
             }
           ]
         }.to_json
-      end
-
-      # Converts a decoded JSON response from VAProfile to an instance of the VeteranStatus model
-      # @param title [Hash] the decoded response title from VAProfile
-      # @return [VAProfile::Models::VeteranStatus] the model built from the response title
-      def self.build_veteran_title(title)
-        return nil unless title
-
-        VAProfile::Models::VeteranStatus.new(
-          combined_service_connected_title: title
-        )
       end
     end
   end

@@ -369,7 +369,7 @@ class User < Common::RedisStore
     veteran_status_instance = instance_variable_get(:"@#{veteran_status_method}")
     return veteran_status_instance if veteran_status_instance.present?
 
-    veteran_status_instance = user.veteran?
+    veteran_status_instance = VAProfile::VeteranStatus::Service.new()
     instance_variable_set(:"@#{veteran_status_method}", veteran_status_instance)
     veteran_status_instance
   end

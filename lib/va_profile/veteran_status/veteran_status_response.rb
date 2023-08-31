@@ -10,24 +10,14 @@ module VAProfile
 
       def self.from(_, raw_response = nil)
         body = raw_response&.body
-        veteran_status_title = get_title(body)
+
+        title_38_status_code = body&.dig('profile', 'militaryPerson', 'militarySummary', 'title38StatusCode')  # parse title_38 from the raw response
 
         new(
           raw_response&.status,
-          veteran_status_title: veteran_status_title
-        )
-      end
-
-      def self.get_title(body)
-        return nil unless body
-
-        combined_service_connected_title = body&.dig(
-          'profile',
-          'veteran_status_title'
-        )
-
-        VAProfile::Models::VeteranStatus.build_veteran_status_title(
-          combined_service_connected_title
+          veteran_status_title: VAProfile::Models::VeteranStatus.new(
+            title_38_status_code: title_38_status_code
+          )
         )
       end
     end
