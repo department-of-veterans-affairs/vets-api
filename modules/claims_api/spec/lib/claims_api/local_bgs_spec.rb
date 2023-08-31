@@ -2,9 +2,12 @@
 
 require 'rails_helper'
 require 'bgs_service/local_bgs'
+require 'claims_api/error/soap_error_handler'
 
 describe ClaimsApi::LocalBGS do
   subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
+
+  let(:soap_error_handler) { ClaimsApi::SoapErrorHandler.new }
 
   describe '#find_poa_by_participant_id' do
     it 'responds as expected, with extra ClaimsApi::Logger logging' do
@@ -40,6 +43,7 @@ describe ClaimsApi::LocalBGS do
     let(:subject_instance) { subject }
     let(:id) { 12_343 }
     let(:error_message) { { error: 'Did not work', code: 'XXX' } }
+    let(:bgs_unknown_error_message) { { error: 'Unexpected error' } }
     let(:empty_array) { [] }
 
     context 'when an error message gets returned it still does not pass the count check' do
@@ -75,6 +79,26 @@ describe ClaimsApi::LocalBGS do
         # error message should trigger return
         allow(subject_instance).to receive(:find_benefit_claims_status_by_ptcpnt_id).with(id).and_return(empty_array)
         expect(subject.all(id)).to eq([]) # verify correct return
+      end
+    end
+
+    context 'when an error message gets returns unknown' do
+      it 'the soap error handler returns unprocessable' do
+        allow(subject_instance).to receive(:make_request).with(endpoint: 'PersonWebServiceBean/PersonWebService',
+                                                               action: 'findPersonBySSN',
+                                                               body: Nokogiri::XML::DocumentFragment.new(
+                                                                 Nokogiri::XML::Document.new
+                                                               ),
+                                                               key: 'PersonDTO').and_return(:bgs_unknown_error_message)
+        begin
+          allow(soap_error_handler).to receive(:handle_errors)
+            .with(:bgs_unknown_error_message).and_raise(Common::Exceptions::UnprocessableEntity)
+          ret = soap_error_handler.send(:handle_errors, :bgs_unknown_error_message)
+          expect(ret.class).to_be Array
+          expect(ret.size).to eq 1
+        rescue => e
+          expect(e.message).to include 'Unprocessable Entity'
+        end
       end
     end
   end

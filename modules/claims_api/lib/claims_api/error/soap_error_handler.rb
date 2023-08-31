@@ -33,7 +33,7 @@ module ClaimsApi
             fault_string.include?('No Person found')
         ClaimsApi::Logger.log("Returning 404 via local_bgs & soap_error_handler, fault_string:#{fault_string}")
         'not_found'
-      elsif fault_string.include?('does not have necessary info')
+      elsif fault_string.include?('does not have necessary info') || fault_string.include?('Unexpected error')
         ClaimsApi::Logger.log("Returning 422 via local_bgs & soap_error_handler, fault_string:#{fault_string}")
         'unprocessable'
       else
