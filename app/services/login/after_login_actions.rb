@@ -29,9 +29,11 @@ module Login
         TestUserDashboard::AccountMetrics.new(current_user).checkout
       end
 
-      MHV::PhrUpdateJob.perform_async(current_user.icn, current_user.mhv_correlation_id) if Flipper.enabled?(
-        :mhv_medical_records_phr_refresh_on_login, @current_user
-      )
+      if Flipper.enabled?(:mhv_medical_records_phr_refresh_on_login,
+                          @current_user) && current_user.mhv_correlation_id.present?
+        MHV::PhrUpdateJob.perform_async(current_user.icn,
+                                        current_user.mhv_correlation_id)
+      end
     end
 
     private

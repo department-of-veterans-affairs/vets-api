@@ -253,14 +253,26 @@ RSpec.describe Login::AfterLoginActions do
           Flipper.enable(:mhv_medical_records_phr_refresh_on_login)
         end
 
-        it 'enqueues the job with correct parameters' do
-          expect do
-            described_class.new(user).perform
-          end.to change(Sidekiq::Queues['default'], :size).by(1)
+        context 'the user is an MHV user' do
+          it 'enqueues the job with correct parameters' do
+            expect do
+              described_class.new(user).perform
+            end.to change(Sidekiq::Queues['default'], :size).by(1)
 
-          enqueued_job = Sidekiq::Queues['default'].last
-          expect(enqueued_job['class']).to eq 'MHV::PhrUpdateJob'
-          expect(enqueued_job['args']).to eq [icn, mhv_correlation_id]
+            enqueued_job = Sidekiq::Queues['default'].last
+            expect(enqueued_job['class']).to eq 'MHV::PhrUpdateJob'
+            expect(enqueued_job['args']).to eq [icn, mhv_correlation_id]
+          end
+        end
+
+        context 'the user is not an MHV user' do
+          let(:mhv_correlation_id) { nil }
+
+          it 'does not enqueues the job' do
+            expect do
+              described_class.new(user).perform
+            end.not_to change(Sidekiq::Queues['default'], :size)
+          end
         end
       end
 
