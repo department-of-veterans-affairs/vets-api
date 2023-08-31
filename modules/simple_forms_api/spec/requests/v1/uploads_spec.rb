@@ -38,6 +38,24 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     test_submit_request 'vba_21_0972.json'
     test_submit_request 'vba_21_0845.json'
 
+    def self.test_failed_request_scrubs_error_message_unhandled_form
+      it 'makes the request for an unhandled form and expects a failure' do
+        fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                       'form_with_dangerous_characters_unhandled.json')
+        data = JSON.parse(fixture_path.read)
+
+        post '/simple_forms_api/v1/simple_forms', params: data
+
+        expect(response).to have_http_status(:error)
+        expect(response.body).to include('something has gone wrong with your form')
+        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](0..2))
+        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](3..4))
+        expect(response.body).not_to include(data.dig('veteran', 'ssn')&.[](5..8))
+        expect(response.body).not_to include(data.dig('veteran', 'address', 'postal_code')&.[](0..4))
+      end
+    end
+
+    test_failed_request_scrubs_error_message_unhandled_form
     def self.test_failed_request_scrubs_error_message214142
       it 'makes the request for 21-4142 and expects a failure' do
         fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
