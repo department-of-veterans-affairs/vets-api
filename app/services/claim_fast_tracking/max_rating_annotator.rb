@@ -20,7 +20,14 @@ module ClaimFastTracking
     end
 
     def self.annotate_disabilities_api_enabled(rated_disabilities_response)
-      diagnostic_codes = rated_disabilities_response.rated_disabilities.map(&:diagnostic_code)
+      return if rated_disabilities_response.rated_disabilities.blank?
+
+      diagnostic_codes = rated_disabilities_response.rated_disabilities
+                                                    .compact # filter out nil entries in rated_disabilities
+                                                    .map(&:diagnostic_code) # map to diagnostic_code field in rating
+                                                    .select { |dc| dc.is_a?(Integer) } # select only integer values
+      return rated_disabilities_response if diagnostic_codes.empty?
+
       ratings = get_ratings(diagnostic_codes)
       if ratings.present?
         ratings.each do |rating|
