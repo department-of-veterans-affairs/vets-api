@@ -1029,9 +1029,6 @@ features:
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
-  income_limits_new:
-    actor_type: user
-    description: If enabled, shows the newly designed income limits application
   drupal_footer:
     actor_type: user
     description: If enabled, pulls Drupal data to populate most of the global footer
