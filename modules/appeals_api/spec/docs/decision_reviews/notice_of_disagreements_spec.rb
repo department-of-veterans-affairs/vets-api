@@ -5,6 +5,7 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
+require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_pdf_downloads.rb')
 
 def swagger_doc
   "modules/appeals_api/app/swagger/decision_reviews/v2/swagger#{DocHelpers.doc_suffix}.json"
@@ -154,6 +155,21 @@ describe 'Notice of Disagreements', swagger_doc:, type: :request do
       end
 
       it_behaves_like 'rswag 500 response'
+    end
+  end
+
+  if ENV['RSWAG_ENV'] == 'dev'
+    path '/notice_of_disagreements/{uuid}/download' do
+      get 'Download a watermarked copy of a submitted Notice of Disagreement' do
+        tags 'Notice of Disagreements'
+        operationId 'downloadNod'
+        security DocHelpers.decision_reviews_security_config
+
+        include_examples 'decision reviews PDF download docs', {
+          factory: :extra_notice_of_disagreement_v2,
+          appeal_type_display_name: 'Notice of Disagreement'
+        }
+      end
     end
   end
 

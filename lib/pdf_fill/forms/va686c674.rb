@@ -881,7 +881,55 @@ module PdfFill
                 'month' => { key: 'children_to_add.child_status.date_became_dependent.month[%iterator%]' },
                 'day' => { key: 'children_to_add.child_status.date_became_dependent.day[%iterator%]' },
                 'year' => { key: 'children_to_add.child_status.date_became_dependent.year[%iterator%]' }
-              }
+              },
+              'biological_stepchild_0' => { # there can only be up to 6 stepchildren filled out including the addendum.
+                'biological_stepchild_0_true' => {
+                  key: 'form1[0].#subform[21].#subform[22].RadioButtonList[41]'
+                },
+                'biological_stepchild_0_false' => {
+                  key: 'form1[0].#subform[21].#subform[22].RadioButtonList[42]'
+                }
+              },
+              'biological_stepchild_1' => {
+                'biological_stepchild_1_true' => {
+                  key: 'form1[0].#subform[21].#subform[22].RadioButtonList[52]'
+                },
+                'biological_stepchild_1_false' => {
+                  key: 'form1[0].#subform[21].#subform[22].RadioButtonList[53]'
+                }
+              },
+              'biological_stepchild_2' => {
+                'biological_stepchild_2_true' => {
+                  key: 'form1[0].#subform[23].#subform[24].RadioButtonList[74]'
+                },
+                'biological_stepchild_2_false' => {
+                  key: 'form1[0].#subform[23].#subform[24].RadioButtonList[75]'
+                }
+              },
+              'biological_stepchild_3' => {
+                'biological_stepchild_3_true' => {
+                  key: 'form1[0].#subform[23].#subform[24].RadioButtonList[63]'
+                },
+                'biological_stepchild_3_false' => {
+                  key: 'form1[0].#subform[23].#subform[24].RadioButtonList[64]'
+                }
+              },
+              'biological_stepchild_4' => {
+                'biological_stepchild_4_true' => {
+                  key: 'form1[0].#subform[34].#subform[35].RadioButtonList[109]'
+                },
+                'biological_stepchild_4_false' => {
+                  key: 'form1[0].#subform[34].#subform[35].RadioButtonList[110]'
+                }
+              },
+              'biological_stepchild_5' => {
+                'biological_stepchild_5_true' => {
+                  key: 'form1[0].#subform[34].#subform[35].RadioButtonList[120]'
+                },
+                'biological_stepchild_5_false' => {
+                  key: 'form1[0].#subform[34].#subform[35].RadioButtonList[121]'
+                }
+              } # end of biological stepchild
             }, # end of child status
             'previous_marriage_details' => {
               'date_marriage_ended' => {
@@ -937,7 +985,6 @@ module PdfFill
                 }
               } # end reason_marriage_ended_other
             } # end previous_marriage_details
-            # @TODO 16I. IF YOU CHECKED "STEPCHILD" IN ITEM 17G, IS STEPCHILD THE BIOLOGICAL CHILD OF YOUR SPOUSE?
           }, # end children_to_add
           # ------------  SECTION IV: VETERAN REPORTING DIVORCE FROM FORMER SPOUSE  ----------------- #
           'report_divorce' => {
@@ -1635,7 +1682,7 @@ module PdfFill
         children_to_add = @form_data['dependents_application']['children_to_add']
         return if children_to_add.blank?
 
-        children_to_add.each do |child|
+        children_to_add.each_with_index do |child, index|
           # extract middle initial
           child['full_name'] = extract_middle_i(child, 'full_name')
 
@@ -1656,16 +1703,16 @@ module PdfFill
               extract_country(child.dig('child_address_info', 'address'))
           end
 
-          expand_child_status(child)
+          expand_child_status(child, index)
           expand_child_previously_married(child)
         end
       end
 
-      def expand_child_status(child)
+      def expand_child_status(child, index)
         # expand child status
         child_status = child['child_status']
         date_became_dependent = split_date(child.dig('child_status', 'date_became_dependent'))
-
+        biological_stepchild_key = "biological_stepchild_#{index}"
         # @TODO 18-23 YEARS OLD AND IN SCHOOL
         child['child_status'] = {
           'biological' => select_radio_button(child_status['biological']),
@@ -1673,7 +1720,11 @@ module PdfFill
           'adopted' => select_radio_button(child_status['adopted']),
           'incapable_self_support' => select_radio_button(child['not_self_sufficient']),
           'child_previously_married' => select_radio_button(child_status['child_previously_married']),
-          'stepchild' => select_radio_button(child_status['stepchild'])
+          'stepchild' => select_radio_button(child_status['stepchild']),
+          biological_stepchild_key => {
+            "#{biological_stepchild_key}_true" => select_radio_button(child_status['biological_stepchild']),
+            "#{biological_stepchild_key}_false" => child_status.key?('biological_stepchild') ? select_radio_button(!child_status['biological_stepchild']) : 'Off' # rubocop:disable Layout/LineLength
+          }
         }
 
         child['child_status']['date_became_dependent'] = date_became_dependent if date_became_dependent.present?

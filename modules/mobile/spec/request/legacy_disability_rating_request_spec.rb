@@ -3,6 +3,7 @@
 require 'rails_helper'
 require_relative '../support/helpers/iam_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
+require 'evss/disability_compensation_form/service_unavailable_exception'
 
 RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
   include JsonSchemaMatchers
@@ -189,6 +190,30 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
             get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
             expect(response).to have_http_status(:forbidden)
             expect(response.body).to match_json_schema('evss_errors')
+          end
+        end
+      end
+    end
+
+    context 'with an EVSS::DisabilityCompensationForm::ServiceUnavailable error' do
+      before do
+        allow_any_instance_of(EVSS::DisabilityCompensationForm::Service)
+          .to receive(:get_rated_disabilities)
+          .and_raise(EVSS::DisabilityCompensationForm::ServiceUnavailableException)
+      end
+
+      it 'raises backend service exception' do
+        VCR.use_cassette('mobile/profile/rating_info') do
+          VCR.use_cassette('mobile/profile/rated_disabilities') do
+            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            expect(response).to have_http_status(:bad_gateway)
+            expect(response.body).to match_json_schema('evss_errors')
+            expect(response.parsed_body).to eq({ 'errors' =>
+                                                   [{ 'title' => 'Bad Gateway',
+                                                      'detail' =>
+                                                        'Received an an invalid response from the upstream server',
+                                                      'code' => 'MOBL_502_upstream_error',
+                                                      'status' => '502' }] })
           end
         end
       end

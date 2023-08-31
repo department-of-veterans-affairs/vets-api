@@ -2,30 +2,19 @@
 
 require 'rails_helper'
 require 'debt_management_center/sharepoint/request'
+require 'pdf_fill/filler'
 
 RSpec.describe DebtManagementCenter::Sharepoint::Request do
-  subject { described_class.new }
-
-  let(:mpi_profile) { build(:mpi_profile) }
-  let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
-
-  def mock_faraday
-    client_stub = instance_double('Faraday::Connection')
-    faraday_response = instance_double('Faraday::Response')
-    allow(Faraday).to receive(:new).and_return(client_stub)
-    allow(client_stub).to receive(:post).and_return(faraday_response)
-    allow(client_stub).to receive(:get).and_return(faraday_response)
-    allow(faraday_response).to receive(:body).and_return(body)
-    allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(file_path)
-    allow(File).to receive(:delete).and_return(nil)
-
-    client_stub
+  subject do
+    VCR.use_cassette('vha/sharepoint/authenticate') do
+      described_class.new
+    end
   end
 
+  let(:mpi_profile) { build(:mpi_profile, family_name: 'Beer', ssn: '123456598') }
+  let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
   before do
-    allow_any_instance_of(DebtManagementCenter::Sharepoint::Request)
-      .to receive(:set_sharepoint_access_token)
-      .and_return('123abc')
     allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile_response)
   end
 
@@ -37,11 +26,11 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
 
   describe 'settings' do
     it 'has a sharepoint_url' do
-      expect(subject.sharepoint_url).to eq('fake_url.com')
+      expect(subject.sharepoint_url).to eq('dvagov.sharepoint.com')
     end
 
     it 'has base_path' do
-      expect(subject.base_path).to eq('/base')
+      expect(subject.base_path).to eq('/sites/vhafinance/MDW')
     end
 
     it 'has service_name' do
@@ -49,23 +38,23 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
     end
 
     it 'has a authentication_url' do
-      expect(subject.authentication_url).to eq('https://fake_auth_url.com')
+      expect(subject.authentication_url).to eq('https://accounts.accesscontrol.windows.net')
     end
 
     it 'has a client_secret' do
-      expect(subject.client_secret).to eq('xxxxxxxxx')
+      expect(subject.client_secret).to eq('fake_sharepoint_client_secret')
     end
 
     it 'has a client_id' do
-      expect(subject.client_id).to eq('51dadf135qwwc')
+      expect(subject.client_id).to eq('fake_sharepoint_client_id')
     end
 
     it 'has a tenant_id' do
-      expect(subject.tenant_id).to eq('ad21angkl35dadf43ad56')
+      expect(subject.tenant_id).to eq('fake_sharepoint_tenant_id')
     end
 
     it 'has a resource' do
-      expect(subject.resource).to eq('23asdb54ada655a3')
+      expect(subject.resource).to eq('00000003-0000-0ff1-ce00-000000000000')
     end
   end
 
@@ -93,12 +82,18 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
       }
     end
 
-    it 'uploads a pdf file to SharePoint' do
-      client_stub = mock_faraday
-      expect(client_stub).to receive(:post).twice
-      expect(client_stub).to receive(:get).once
+    before do
+      upload_time = DateTime.new(2023, 8, 29, 16, 13, 22)
+      allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(file_path)
+      allow(File).to receive(:delete).and_return(nil)
+      allow(DateTime).to receive(:now).and_return(upload_time)
+    end
 
-      subject.upload(form_contents: form_content, form_submission:, station_id:)
+    it 'uploads a pdf file to SharePoint' do
+      VCR.use_cassette('vha/sharepoint/upload_pdf') do
+        response = subject.upload(form_contents: form_content, form_submission:, station_id:)
+        expect(response.success?).to be(true)
+      end
     end
   end
 end

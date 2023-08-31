@@ -26,6 +26,13 @@ idme:
   client_key_path: spec/fixtures/sign_in/oauth.key
   oauth_url: https://api.idmelabs.com
 
+mobile_application_platform:
+  chatbot_client_id: 2bb9803acfc3
+  sign_up_service_client_id: c7d6e0fc9a39
+  oauth_url: https://veteran.apps-staging.va.gov
+  client_cert_path: spec/fixtures/mobile_application_platform/oauth.crt
+  client_key_path: spec/fixtures/mobile_application_platform/oauth.key
+
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
   idp_metadata_file: config/ssoe_idp_int_metadata_isam.xml
@@ -1242,6 +1249,8 @@ vanotify:
         form527ez_confirmation_email: form527ez_confirmation_email_template_id
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         contact_info_change: fake_template_id
+        form0994_confirmation_email_v1: form0994_confirmation_email_v1_template_id
+        form0994_confirmation_email_v2: form0994_confirmation_email_v2_template_id
         form1990_confirmation_email: form1990_confirmation_email_template_id
         form1990e_confirmation_email: form1990e_confirmation_email_template_id
         form1995_confirmation_email: form1995_confirmation_email_template_id
@@ -1589,6 +1598,17 @@ coverband:
 dogstatsd:
   enabled: false
 
+vha:
+  sharepoint:
+    sharepoint_url: "dvagov.sharepoint.com"
+    client_id: "fake_sharepoint_client_id"
+    client_secret: "fake_sharepoint_client_secret"
+    tenant_id: "fake_sharepoint_tenant_id"
+    resource: "00000003-0000-0ff1-ce00-000000000000"
+    service_name: "VHA-SHAREPOINT"
+    base_path: "/sites/vhafinance/MDW"
+    authentication_url: "https://accounts.accesscontrol.windows.net"
+    mock: true
 avs:
   mock: true
   timeout: 55

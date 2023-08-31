@@ -6,6 +6,7 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 require AppealsApi::Engine.root.join('spec', 'support', 'doc_helpers.rb')
+require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_pdf_downloads.rb')
 
 def swagger_doc
   "modules/appeals_api/app/swagger/higher_level_reviews/v0/swagger#{DocHelpers.doc_suffix}.json"
@@ -106,7 +107,7 @@ RSpec.describe 'Higher-Level Reviews', swagger_doc:, type: :request do
     end
   end
 
-  path '/forms/200996/{uuid}' do
+  path '/forms/200996/{id}' do
     get 'Shows a specific Higher-Level Review. (a.k.a. the Show endpoint)' do
       scopes = AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController::OAUTH_SCOPES[:GET]
       description 'Returns all of the data associated with a specific Higher-Level Review.'
@@ -115,16 +116,16 @@ RSpec.describe 'Higher-Level Reviews', swagger_doc:, type: :request do
       security DocHelpers.oauth_security_config(scopes)
       produces 'application/json'
 
-      parameter name: :uuid,
+      parameter name: :id,
                 in: :path,
-                type: :string,
-                description: 'Higher-Level Review UUID',
+                description: 'Higher-Level Review ID',
+                schema: { type: :string, format: :uuid },
                 example: '44e08764-6008-46e8-a95e-eb21951a5b68'
 
       response '200', 'Info about a single Higher-Level Review' do
         schema '$ref' => '#/components/schemas/hlrShow'
 
-        let(:uuid) { FactoryBot.create(:minimal_higher_level_review_v2).id }
+        let(:id) { FactoryBot.create(:minimal_higher_level_review_v2).id }
 
         it_behaves_like 'rswag example', desc: 'returns a 200 response',
                                          response_wrapper: :normalize_appeal_response,
@@ -134,12 +135,27 @@ RSpec.describe 'Higher-Level Reviews', swagger_doc:, type: :request do
       response '404', 'Higher-Level Review not found' do
         schema '$ref' => '#/components/schemas/errorModel'
 
-        let(:uuid) { 'invalid' }
+        let(:id) { 'invalid' }
 
         it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes:
       end
 
       it_behaves_like 'rswag 500 response'
+    end
+  end
+
+  path '/forms/200996/{id}/download' do
+    get 'Download a watermarked copy of a submitted Higher-Level Review' do
+      scopes = AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController::OAUTH_SCOPES[:GET]
+      tags 'Higher-Level Reviews'
+      operationId 'downloadHlr'
+      security DocHelpers.oauth_security_config(scopes)
+
+      include_examples 'PDF download docs', {
+        factory: :higher_level_review_v0,
+        appeal_type_display_name: 'Higher-Level Review',
+        scopes:
+      }
     end
   end
 

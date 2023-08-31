@@ -7,8 +7,6 @@ module ClaimsApi
   module V2
     module Veterans
       class ClaimsController < ClaimsApi::V2::ApplicationController # rubocop:disable Metrics/ClassLength
-        before_action :verify_access!
-
         def index
           bgs_claims = find_bgs_claims!
 
@@ -179,6 +177,7 @@ module ClaimsApi
 
         def build_claim_structure(data:, lighthouse_id:, upstream_id:) # rubocop:disable Metrics/MethodLength
           {
+            base_end_prdct_type_cd: data[:base_end_prdct_type_cd],
             claim_date: date_present(data[:claim_dt]),
             claim_id: upstream_id,
             claim_phase_dates: build_claim_phase_attributes(data, 'index'),

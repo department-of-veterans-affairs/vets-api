@@ -6,7 +6,6 @@ module ClaimsApi
   module V2
     class VeteranIdentifierController < ClaimsApi::V2::ApplicationController
       def find
-        verify_access! if ccg_flow?(token:)
         validate_request!(ClaimsApi::V2::ParamsValidation::VeteranIdentifier)
         raise ::Common::Exceptions::ResourceNotFound if target_veteran&.mpi&.icn.blank?
         unless ccg_flow?(token:) || user_is_target_veteran? || user_is_representative?

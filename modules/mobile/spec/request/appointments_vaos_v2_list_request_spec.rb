@@ -236,6 +236,50 @@ RSpec.describe 'vaos v2 appointments', type: :request do
       end
     end
 
+    context 'request telehealth onsite appointment' do
+      before do
+        mock_facility
+        mock_clinic
+      end
+
+      let(:start_date) { Time.zone.parse('1991-01-01T00:00:00Z').iso8601 }
+      let(:end_date) { Time.zone.parse('2023-01-01T00:00:00Z').iso8601 }
+      let(:params) do
+        { page: { number: 1, size: 9999 }, startDate: start_date, endDate: end_date }
+      end
+
+      it 'processes appointments without error' do
+        VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200_telehealth_onsite',
+                         match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri], tag: :force_utf8) do
+            allow_any_instance_of(Mobile::V2::Appointments::ProviderNames).to \
+              receive(:fetch_provider).and_return(provider_response)
+            get '/mobile/v0/appointments', headers: iam_headers, params:
+          end
+        end
+        attributes = response.parsed_body.dig('data', 0, 'attributes')
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to match_json_schema('VAOS_v2_appointments')
+
+        expect(attributes['appointmentType']).to eq('VA_VIDEO_CONNECT_ONSITE')
+        expect(attributes['location']).to eq({ 'id' => '983',
+                                               'name' => 'Cheyenne VA Medical Center',
+                                               'address' =>
+                                                { 'street' => '2360 East Pershing Boulevard',
+                                                  'city' => 'Cheyenne',
+                                                  'state' => 'WY',
+                                                  'zipCode' => '82001-5356' },
+                                               'lat' => 41.148026,
+                                               'long' => -104.786255,
+                                               'phone' =>
+                                                { 'areaCode' => '307',
+                                                  'number' => '778-7550',
+                                                  'extension' => nil },
+                                               'url' => nil,
+                                               'code' => nil })
+      end
+    end
+
     describe 'healthcare provider names' do
       before do
         mock_facility

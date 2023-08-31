@@ -3,6 +3,7 @@
 require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
+require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
 describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers.new.claims_api_docs do # rubocop:disable RSpec/DescribeClass
@@ -71,7 +72,7 @@ describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers
             stub_poa_verification
             stub_mpi
 
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               VCR.use_cassette('evss/claims/claims') do
                 VCR.use_cassette('evss/reference_data/countries') do
                   submit_request(example.metadata)

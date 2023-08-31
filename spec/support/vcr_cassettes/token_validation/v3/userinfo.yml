@@ -1,0 +1,63 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://dev-api.va.gov/internal/auth/v3/userinfo
+    body:
+      encoding: UTF-8
+      string: aud=https%3A%2F%2Fdev-api.va.gov%2Fservices%2Fclaims
+    headers:
+      Accept:
+      - "*/*"
+      User-Agent:
+      - rest-client/2.1.0 (darwin22 arm64) ruby/3.2.2p53
+      Content-Length:
+      - '52'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Host:
+      - dev-api.va.gov
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Wed, 02 Aug 2023 18:27:10 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Reset:
+      - '51'
+      Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Proxy-Debug-Message:
+      - Headed to ECS lighthouse-auth
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      X-Frame-Options:
+      - SAMEORIGIN
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"uuid":"b24346a788c04dfea5048d44ad071181","email":"abraham.lincoln@vets.gov","lastLoginType":"logingov","firstName":"Tamara","lastName":"Ellis","middleName":"E","icn":"1012667145V762142","actorUser":false}'
+  recorded_at: Tue, 12 Dec 2017 03:09:06 GMT
+recorded_with: VCR 6.2.0

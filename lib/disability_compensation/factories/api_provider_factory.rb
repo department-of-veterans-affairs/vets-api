@@ -125,7 +125,7 @@ class ApiProviderFactory
   def claims_service_provider
     case api_provider
     when API_PROVIDER[:evss]
-      EvssClaimsServiceProvider.new(nil, @options[:auth_headers])
+      EvssClaimsServiceProvider.new(@options[:auth_headers])
     when API_PROVIDER[:lighthouse]
       LighthouseClaimsServiceProvider.new(@options[:icn])
     else

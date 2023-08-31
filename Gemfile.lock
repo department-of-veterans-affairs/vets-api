@@ -57,10 +57,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 7ffea32595e37259a5a09174aa52d8edcbb2cb55
+  revision: 51b0a7b4e5a1c07f4f88cc386f2a7ab15c2fbb19
   branch: master
   specs:
-    vets_json_schema (20.27.1)
+    vets_json_schema (20.27.2)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -231,7 +231,7 @@ GEM
     attr_extras (7.1.0)
     awesome_print (1.9.2)
     aws-eventstream (1.2.0)
-    aws-partitions (1.810.0)
+    aws-partitions (1.813.0)
     aws-sdk-core (3.181.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.651.0)
@@ -240,7 +240,7 @@ GEM
     aws-sdk-kms (1.71.0)
       aws-sdk-core (~> 3, >= 3.177.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.133.0)
+    aws-sdk-s3 (1.134.0)
       aws-sdk-core (~> 3, >= 3.181.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.6)
@@ -828,7 +828,7 @@ GEM
     rswag-ui (2.10.1)
       actionpack (>= 3.1, < 7.1)
       railties (>= 3.1, < 7.1)
-    rubocop (1.56.0)
+    rubocop (1.56.2)
       base64 (~> 0.1.1)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
@@ -927,7 +927,7 @@ GEM
     ssrf_filter (1.1.1)
     staccato (0.5.3)
     statsd-instrument (3.5.11)
-    strong_migrations (1.6.0)
+    strong_migrations (1.6.1)
       activerecord (>= 5.2)
     super_diff (0.10.0)
       attr_extras (>= 6.2.4)
@@ -978,7 +978,7 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
-    webmock (3.18.1)
+    webmock (3.19.1)
       addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)

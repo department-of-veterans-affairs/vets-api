@@ -3,6 +3,7 @@
 require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
+require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 require 'bgs_service/local_bgs'
 
@@ -53,7 +54,7 @@ describe 'PowerOfAttorney',
                                                  first_name: 'Firstname',
                                                  last_name: 'Lastname',
                                                  phone: '555-555-5555').save!
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               Authorization = auth_header # rubocop:disable Naming/ConstantName
               submit_request(example.metadata)
             end
@@ -81,7 +82,7 @@ describe 'PowerOfAttorney',
             expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               Authorization = auth_header # rubocop:disable Naming/ConstantName
               submit_request(example.metadata)
             end
@@ -134,7 +135,12 @@ describe 'PowerOfAttorney',
                                                       'default.json')))
 
           before do |example|
-            with_okta_user(scopes) do |auth_header|
+            mock_acg(scopes) do |auth_header|
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_is_target_veteran?).and_return(false)
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_represents_veteran?).and_return(false)
+
               Authorization = auth_header # rubocop:disable Naming/ConstantName
               submit_request(example.metadata)
             end
@@ -215,7 +221,7 @@ describe 'PowerOfAttorney',
                                                  first_name: 'Firstname',
                                                  last_name: 'Lastname',
                                                  phone: '555-555-5555').save!
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               Authorization = auth_header # rubocop:disable Naming/ConstantName
               submit_request(example.metadata)
             end
@@ -268,7 +274,12 @@ describe 'PowerOfAttorney',
                                                       'default.json')))
 
           before do |example|
-            with_okta_user(scopes) do |auth_header|
+            mock_acg(scopes) do |auth_header|
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_is_target_veteran?).and_return(false)
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_represents_veteran?).and_return(false)
+
               Authorization = auth_header # rubocop:disable Naming/ConstantName
               submit_request(example.metadata)
             end
@@ -294,7 +305,7 @@ describe 'PowerOfAttorney',
                                                       'default.json')))
 
           before do |example|
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
               Authorization = auth_header # rubocop:disable Naming/ConstantName
@@ -385,7 +396,7 @@ describe 'PowerOfAttorney',
             Veteran::Service::Organization.create(poa: organization_poa_code,
                                                   name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS")
 
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               Authorization = auth_header # rubocop:disable Naming/ConstantName
               submit_request(example.metadata)
             end
@@ -438,7 +449,12 @@ describe 'PowerOfAttorney',
                                                       'default.json')))
 
           before do |example|
-            with_okta_user(scopes) do |auth_header|
+            mock_acg(scopes) do |auth_header|
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_is_target_veteran?).and_return(false)
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_represents_veteran?).and_return(false)
+
               Authorization = auth_header # rubocop:disable Naming/ConstantName
               submit_request(example.metadata)
             end
@@ -464,7 +480,7 @@ describe 'PowerOfAttorney',
                                                       'default.json')))
 
           before do |example|
-            with_okta_user(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
               Authorization = auth_header # rubocop:disable Naming/ConstantName

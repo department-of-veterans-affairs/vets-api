@@ -3,6 +3,7 @@
 require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
+require_relative '../../rails_helper'
 require_relative '../../support/swagger_shared_components/v1'
 
 describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
@@ -104,7 +105,7 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
             stub_poa_verification
             stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               VCR.use_cassette('bgs/claims/claims') do
                 VCR.use_cassette('brd/countries') do
                   submit_request(example.metadata)
@@ -147,9 +148,12 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
             stub_poa_verification
             stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               VCR.use_cassette('bgs/claims/claims') do
-                submit_request(example.metadata)
+                VCR.use_cassette('brd/countries') do
+                  allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
+                  submit_request(example.metadata)
+                end
               end
             end
           end
@@ -180,7 +184,7 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
             stub_poa_verification
             stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               VCR.use_cassette('bgs/claims/claims') do
                 submit_request(example.metadata)
               end
@@ -307,7 +311,7 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
             stub_poa_verification
             stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
               submit_request(example.metadata)
             end
@@ -338,7 +342,7 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
             stub_poa_verification
             stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               submit_request(example.metadata)
             end
           end
@@ -373,7 +377,7 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
             stub_poa_verification
             stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
               submit_request(example.metadata)
             end
@@ -411,8 +415,9 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
             stub_poa_verification
             stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+              allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
               submit_request(example.metadata)
             end
           end
@@ -448,7 +453,7 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
             stub_poa_verification
             stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
               submit_request(example.metadata)
             end
@@ -524,7 +529,7 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
             stub_mpi
 
             VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
-              with_okta_user(scopes) do
+              mock_acg(scopes) do
                 VCR.use_cassette('bgs/claims/claims') do
                   VCR.use_cassette('brd/countries') do
                     submit_request(example.metadata)
@@ -569,8 +574,9 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
             stub_mpi
 
             VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
-              with_okta_user(scopes) do
+              mock_acg(scopes) do
                 VCR.use_cassette('bgs/claims/claims') do
+                  allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
                   submit_request(example.metadata)
                 end
               end
@@ -604,7 +610,7 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
             stub_poa_verification
             stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
                 VCR.use_cassette('bgs/claims/claims') do
                   submit_request(example.metadata)
@@ -701,7 +707,7 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
             stub_poa_verification
             stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
               submit_request(example.metadata)
             end
@@ -743,8 +749,9 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
             stub_poa_verification
             stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+              allow(ClaimsApi::ValidatedToken).to receive(:new).and_return(nil)
               submit_request(example.metadata)
             end
           end
@@ -783,7 +790,7 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
             stub_poa_verification
             stub_mpi
 
-            with_okta_user(scopes) do
+            mock_acg(scopes) do
               allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
               submit_request(example.metadata)
             end
