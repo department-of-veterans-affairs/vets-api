@@ -33,7 +33,7 @@ RSpec.describe AppsApi::FetchConnections, type: :worker do
 
     xit 'calls handle_event twice' do
       expect_any_instance_of(AppsApi::NotificationService).to receive(:handle_event)
-        .with('app.oauth2.as.consent.grant', 'fake_template_id').and_return(1)
+        .with('app.oauth2.as.consent.revoke', 'fake_template_id').and_return(1)
       fetch_connections.perform
     end
 
