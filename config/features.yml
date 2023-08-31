@@ -526,6 +526,10 @@ features:
     actor_type: user
     description: Enables/disbales Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
+  mhv_medical_records_phr_refresh_on_login:
+    actor_type: user
+    description: Enables/disbales the PHR refresh for MHV users when logging into VA.gov
+    enable_in_development: true
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer experience (Identity)

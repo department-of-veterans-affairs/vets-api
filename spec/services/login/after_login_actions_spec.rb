@@ -238,7 +238,7 @@ RSpec.describe Login::AfterLoginActions do
       end
     end
 
-    context 'enqueue MHV::PhrUpdateJob' do
+    describe 'PHR update' do
       let(:user) { create(:user) }
       let(:icn) { '1000000000V000000' }
       let(:mhv_correlation_id) { '12345' }
@@ -248,14 +248,32 @@ RSpec.describe Login::AfterLoginActions do
         allow(user).to receive(:mhv_correlation_id).and_return(mhv_correlation_id)
       end
 
-      it 'enqueues the job with correct parameters' do
-        expect do
-          described_class.new(user).perform
-        end.to change(Sidekiq::Queues['default'], :size).by(1)
+      context 'feature flag is enabled' do
+        before do
+          Flipper.enable(:mhv_medical_records_phr_refresh_on_login)
+        end
 
-        enqueued_job = Sidekiq::Queues['default'].last
-        expect(enqueued_job['class']).to eq 'MHV::PhrUpdateJob'
-        expect(enqueued_job['args']).to eq [icn, mhv_correlation_id]
+        it 'enqueues the job with correct parameters' do
+          expect do
+            described_class.new(user).perform
+          end.to change(Sidekiq::Queues['default'], :size).by(1)
+
+          enqueued_job = Sidekiq::Queues['default'].last
+          expect(enqueued_job['class']).to eq 'MHV::PhrUpdateJob'
+          expect(enqueued_job['args']).to eq [icn, mhv_correlation_id]
+        end
+      end
+
+      context 'feature flag is disabled' do
+        before do
+          Flipper.disable(:mhv_medical_records_phr_refresh_on_login)
+        end
+
+        it 'does not enqueues the job' do
+          expect do
+            described_class.new(user).perform
+          end.not_to change(Sidekiq::Queues['default'], :size)
+        end
       end
     end
   end
