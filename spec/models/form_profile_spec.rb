@@ -35,10 +35,10 @@ RSpec.describe FormProfile, type: :model do
     {
       'dateOfBirth' => user.birth_date,
       'socialSecurityNumber' => user.ssn,
-      'branchOfService' => 'Air Force',
+      'branchOfService' => 'Army',
       'serviceDateRange' => {
-        'from' => '2007-04-01',
-        'to' => '2007-04-02'
+        'from' => '2012-03-02',
+        'to' => '2018-10-31'
       }
     }
   end
@@ -255,14 +255,20 @@ RSpec.describe FormProfile, type: :model do
     {
       'toursOfDuty' => [
         {
-          'service_branch' => 'Air Force',
-          'date_range' => {
-            'from' => '2007-04-01', 'to' => '2016-06-01'
-          }
+          'service_branch' => 'Army',
+          'date_range' => { 'from' => '2002-02-02', 'to' => '2008-12-01' }
+        },
+        {
+          'service_branch' => 'Navy',
+          'date_range' => { 'from' => '2009-03-01', 'to' => '2012-12-31' }
+        },
+        {
+          'service_branch' => 'Army',
+          'date_range' => { 'from' => '2012-03-02', 'to' => '2018-10-31' }
         }
       ],
       'currentlyActiveDuty' => {
-        'yes' => true
+        'yes' => false
       },
       'veteranAddress' => {
         'street' => street_check[:street],
@@ -300,7 +306,7 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v22_0994_expected) do
     {
-      'activeDuty' => true,
+      'activeDuty' => false,
       'mailingAddress' => {
         'street' => street_check[:street],
         'street2' => street_check[:street2],
@@ -327,14 +333,14 @@ RSpec.describe FormProfile, type: :model do
     {
       'toursOfDuty' => [
         {
-          'service_branch' => 'Air Force',
+          'service_branch' => 'Army',
           'date_range' => {
-            'from' => '2007-04-01', 'to' => '2016-06-01'
+            'from' => '2002-02-02', 'to' => '2008-12-01'
           }
         }
       ],
       'currentlyActiveDuty' => {
-        'yes' => true
+        'yes' => false
       },
       'veteranAddress' => {
         'street' => street_check[:street],
@@ -470,13 +476,19 @@ RSpec.describe FormProfile, type: :model do
     {
       'toursOfDuty' => [
         {
-          'service_branch' => 'Air Force',
-          'date_range' => {
-            'from' => '2007-04-01', 'to' => '2016-06-01'
-          }
+          'service_branch' => 'Army',
+          'date_range' => { 'from' => '2002-02-02', 'to' => '2008-12-01' }
+        },
+        {
+          'service_branch' => 'Navy',
+          'date_range' => { 'from' => '2009-03-01', 'to' => '2012-12-31' }
+        },
+        {
+          'service_branch' => 'Army',
+          'date_range' => { 'from' => '2012-03-02', 'to' => '2018-10-31' }
         }
       ],
-      'currentlyActiveDuty' => true,
+      'currentlyActiveDuty' => false,
       'relativeFullName' => {
         'first' => user.first_name&.capitalize,
         'middle' => user.middle_name&.capitalize,
@@ -506,11 +518,11 @@ RSpec.describe FormProfile, type: :model do
         'country' => user.address[:country],
         'postal_code' => user.address[:postal_code][0..4]
       },
-      'swAsiaCombat' => true,
-      'lastServiceBranch' => 'air force',
-      'lastEntryDate' => '2007-04-01',
-      'lastDischargeDate' => '2007-04-02',
-      'dischargeType' => 'honorable',
+      'swAsiaCombat' => false,
+      'lastServiceBranch' => 'army',
+      'lastEntryDate' => '2002-02-02',
+      'lastDischargeDate' => '2008-12-01',
+      'dischargeType' => 'general',
       'postNov111998Combat' => true,
       'gender' => user.gender,
       'homePhone' => us_phone,
@@ -694,18 +706,46 @@ RSpec.describe FormProfile, type: :model do
       ],
       'servicePeriods' => [
         {
-          'serviceBranch' => 'Air Force Reserve',
+          'serviceBranch' => 'Army',
           'dateRange' => {
-            'from' => '2007-04-01',
-            'to' => '2016-06-01'
+            'from' => '2002-07-02',
+            'to' => '2014-08-31'
+          }
+        },
+        {
+          "serviceBranch" => "Air National Guard",
+          "dateRange" => {
+            "from" => "2000-04-07",
+            "to" => "2009-01-23"
+          }
+        },
+        {
+          "serviceBranch" => "Army Reserve",
+          "dateRange" => {
+            "from" => "1989-08-20",
+            "to" => "2002-07-01"
+          }
+        },
+        {
+          "serviceBranch" => "Army Reserve",
+          "dateRange" => {
+            "from" => "1989-08-20",
+            "to" => "1992-08-23"
+          }
+        },
+        {
+          "serviceBranch" => "Army",
+          "dateRange" => {
+            "from" => "1985-08-19",
+            "to" => "1989-08-19"
           }
         }
       ],
       'reservesNationalGuardService' => {
         'obligationTermOfServiceDateRange' => {
-          'from' => '2007-04-01',
-          'to' => '2016-06-01'
-        }
+          'from' => '2000-04-07',
+          'to' => '2009-01-23'
+      }
       },
       'veteran' => {
         'mailingAddress' => {
@@ -772,17 +812,14 @@ RSpec.describe FormProfile, type: :model do
       'contactEmail' => user.pciu_email,
       'periodsOfService' => [
         {
-          'serviceBranch' => 'Air Force',
-          'dateRange' => {
-            'from' => '2007-04-01',
-            'to' => '2016-06-01'
-          }
-        }
+          'service_branch' => 'Army',
+          'date_range' => { 'from' => '2002-02-02', 'to' => '2008-12-01' }
+        },
       ],
       'currentlyActiveDuty' => {
-        'yes' => true
+        'yes' => false
       },
-      'activeDuty' => true
+      'activeDuty' => false
     }
   end
 
@@ -1072,19 +1109,6 @@ RSpec.describe FormProfile, type: :model do
     end
 
     def expect_prefilled(form_id)
-      allow_any_instance_of(HCA::MilitaryInformation).to receive(:tours_of_duty).and_return([
-        {
-          'service_branch' => 'Air Force',
-          'date_range' => {
-            'from' => '2007-04-01', 'to' => '2016-06-01'
-          }
-        }
-      ])
-
-      allow_any_instance_of(HCA::MilitaryInformation).to receive(:currently_active_duty_hash).and_return({"yes" => true})
-      allow_any_instance_of(HCA::MilitaryInformation).to receive(:currently_active_duty).and_return(true)
-
-
       prefilled_data = Oj.load(described_class.for(form_id:, user:).prefill.to_json)['form_data']
 
       case form_id
@@ -1240,6 +1264,9 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with military information data', skip_va_profile: true do
       # rubocop:disable Metrics/MethodLength
+      # CAN WE KILL THIS? it's calling user.military_information, so whenever we called
+      # this, it would kind of cache it for future tests. So we could probably just remove this
+      # method and also remove all the places it's used in this file.
       def stub_methods_military_information
         VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
           VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
@@ -1286,9 +1313,8 @@ RSpec.describe FormProfile, type: :model do
         end
 
         it 'prefills 1990' do
-          # TODO - look into update the following cassettes with ones that have data that can match the expected result
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
-            VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do             
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true, :match_requests_on => [:uri, :method, :body]) do
+            VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true, :match_requests_on => [:uri, :method, :body]) do
               expect_prefilled('22-1990')
             end
           end
@@ -1303,7 +1329,6 @@ RSpec.describe FormProfile, type: :model do
         end
 
         it 'prefills 0994' do
-          # TODO - look into update the following cassettes with ones that have data that can match the expected result
           VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
             VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
               expect_prefilled('22-0994')
@@ -1330,7 +1355,6 @@ RSpec.describe FormProfile, type: :model do
           VCR.use_cassette('evss/pciu_address/address_domestic') do
             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
               VCR.use_cassette('evss/ppiu/payment_information') do
-                # TODO - look into update the following cassettes with ones that have data that can match the expected result
                 VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
                   VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
                     expect_prefilled('22-0994')
@@ -1344,12 +1368,8 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with emis and vet360 prefill for 0873' do
         it 'prefills 0873' do
-          # TODO - look into update the following cassettes with ones that have data that can match the expected result
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
-            VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
-              allow_any_instance_of(HCA::MilitaryInformation).to receive(:last_service_branch).and_return("Air Force")
-              allow_any_instance_of(HCA::MilitaryInformation).to receive(:last_entry_date).and_return('2007-04-01')
-              allow_any_instance_of(HCA::MilitaryInformation).to receive(:last_discharge_date).and_return('2007-04-02')
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true, :match_requests_on => [:uri, :method, :body]) do
+            VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true, :match_requests_on => [:uri, :method, :body]) do
               expect_prefilled('0873')
             end
           end
@@ -1364,11 +1384,6 @@ RSpec.describe FormProfile, type: :model do
         end
 
         it 'prefills 10203' do
-          # TODO - look into update the following cassettes with ones that have data that can match the expected result?
-          # failure in #stub_methods_military_information
-          # expect(military_information).to receive(:last_service_branch).and_return('Air Force')
-          # expected: 1 time with any arguments
-          # received: 0 times with any arguments
           VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
             VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
               expect_prefilled('22-10203')
@@ -1397,11 +1412,6 @@ RSpec.describe FormProfile, type: :model do
             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
               VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
                 VCR.use_cassette('gi_client/gets_the_institution_details') do
-                  # TODO - look into update the following cassettes with ones that have data that can match the expected result?
-                  # failure in #stub_methods_military_information
-                  # expect(military_information).to receive(:last_service_branch).and_return('Air Force')
-                  # expected: 1 time with any arguments
-                  # received: 0 times with any arguments
                   VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
                     VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
                       prefilled_data = Oj.load(
@@ -1434,54 +1444,52 @@ RSpec.describe FormProfile, type: :model do
               VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
                 prefilled_data = described_class.for(form_id: '686C-674', user:).prefill[:form_data]
                 v686_c_674_expected['veteranContactInformation'].delete('veteranAddress')
-                  # failure in #stub_methods_military_information
-                  # expect(military_information).to receive(:last_service_branch).and_return('Air Force')
-                  # expected: 1 time with any arguments
-                  # received: 0 times with any arguments
                 expect(prefilled_data).to eq(v686_c_674_expected)
               end
             end
           end
         end
 
-        %w[
-          22-1990
-          22-1990N
-          22-1990E
-          22-1995
-          22-5490
-          22-5495
-          40-10007
-          1010ez
-          22-0993
-          FEEDBACK-TOOL
-          686C-674
-          28-8832
-          28-1900
-          26-1880
-          26-4555
-        ].each do |form_id|
-          it "returns prefilled #{form_id}" do
-            # TODO - look into update the following cassettes with ones that have data that can match the expected result?
-            VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
-              VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
-                if form_id == "FEEDBACK-TOOL"
-                  allow_any_instance_of(HCA::MilitaryInformation).to receive(:last_service_branch).and_return("Air Force")
-                  allow_any_instance_of(HCA::MilitaryInformation).to receive(:last_entry_date).and_return('2007-04-01')
-                  allow_any_instance_of(HCA::MilitaryInformation).to receive(:last_discharge_date).and_return('2007-04-02')
-                elsif form_id == "1010ez"
-                  allow_any_instance_of(HCA::MilitaryInformation).to receive(:sw_asia_combat).and_return(true)
-                  allow_any_instance_of(HCA::MilitaryInformation).to receive(:hca_last_service_branch).and_return("air force")
-                  allow_any_instance_of(HCA::MilitaryInformation).to receive(:last_entry_date).and_return("2007-04-01")
-                  allow_any_instance_of(HCA::MilitaryInformation).to receive(:last_discharge_date).and_return("2007-04-02")
-                  allow_any_instance_of(HCA::MilitaryInformation).to receive(:discharge_type).and_return("honorable")
-                  allow_any_instance_of(HCA::MilitaryInformation).to receive(:post_nov111998_combat).and_return("true")
-                end
-                expect_prefilled(form_id)
-              end
-            end
-          end
-        end
+        # 22-1990
+        # 22-1990E
+        # 22-1995
+        # 22-5490
+        # 40-10007
+        # 22-0993
+        # FEEDBACK-TOOL
+        # 686C-674
+        # 28-8832
+        # 28-1900
+        # 26-4555
+
+        # 22-5495
+        # %w[
+        #   22-1990N
+        #   26-1880
+        #   1010ez
+        # ].each do |form_id|
+        #   it "returns prefilled #{form_id}" do
+        #     # TODO - look into update the following cassettes with ones that have data that can match the expected result?
+        #     VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true, :match_requests_on => [:uri, :method, :body]) do
+        #       # VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true, :match_requests_on => [:uri, :method, :body]) do
+        #       VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes', :allow_playback_repeats => true, :match_requests_on => [:uri, :method, :body]) do
+        #         # if form_id == "FEEDBACK-TOOL"
+        #           # allow_any_instance_of(HCA::MilitaryInformation).to receive(:last_service_branch).and_return("Air Force")
+        #           # allow_any_instance_of(HCA::MilitaryInformation).to receive(:last_entry_date).and_return('2007-04-01')
+        #           # allow_any_instance_of(HCA::MilitaryInformation).to receive(:last_discharge_date).and_return('2007-04-02')
+        #         # elsif form_id == "1010ez"
+        #           # allow_any_instance_of(HCA::MilitaryInformation).to receive(:sw_asia_combat).and_return(true)
+        #           # allow_any_instance_of(HCA::MilitaryInformation).to receive(:hca_last_service_branch).and_return("air force")
+        #           # allow_any_instance_of(HCA::MilitaryInformation).to receive(:last_entry_date).and_return("2007-04-01")
+        #           # allow_any_instance_of(HCA::MilitaryInformation).to receive(:last_discharge_date).and_return("2007-04-02")
+        #           # allow_any_instance_of(HCA::MilitaryInformation).to receive(:discharge_type).and_return("honorable")
+        #           # allow_any_instance_of(HCA::MilitaryInformation).to receive(:post_nov111998_combat).and_return("true")
+        #         # end
+        #         expect_prefilled(form_id)
+        #       end
+        #     end
+        #   end
+        # end
 
         context 'with a user that can prefill evss' do
           before do
@@ -1500,31 +1508,8 @@ RSpec.describe FormProfile, type: :model do
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
                   VCR.use_cassette('evss/ppiu/payment_information') do
-                    # TODO - look into update the following cassettes with ones that have data that can match the expected result?
-                    VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
-                      VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
-                        allow_any_instance_of(HCA::MilitaryInformation).to receive(:service_periods).and_return(
-                          [
-                            {
-                              'serviceBranch' => 'Air Force Reserve',
-                              'dateRange' => {
-                                'from' => '2007-04-01',
-                                'to' => '2016-06-01'
-                              }
-                            }
-                          ]
-                        )
-
-                        allow_any_instance_of(HCA::MilitaryInformation).to receive(:guard_reserve_service_history).and_return(
-                          [
-                            {
-                              from: '2007-04-01',
-                              to: '2016-06-01'
-                            }
-                          ]
-                        )
-                        
-
+                    VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes', :allow_playback_repeats => true, :match_requests_on => [:uri, :method, :body]) do
+                      VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true, :match_requests_on => [:uri, :method, :body]) do
                         expect_prefilled('21-526EZ')
                       end
                     end
@@ -1556,29 +1541,8 @@ RSpec.describe FormProfile, type: :model do
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
                   VCR.use_cassette('evss/ppiu/payment_information') do
-                    # TODO - look into update the following cassettes with ones that have data that can match the expected result?
-                    VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
-                      VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
-                        allow_any_instance_of(HCA::MilitaryInformation).to receive(:service_periods).and_return(
-                          [
-                            {
-                              'serviceBranch' => 'Air Force Reserve',
-                              'dateRange' => {
-                                'from' => '2007-04-01',
-                                'to' => '2016-06-01'
-                              }
-                            }
-                          ]
-                        )
-
-                        allow_any_instance_of(HCA::MilitaryInformation).to receive(:guard_reserve_service_history).and_return(
-                          [
-                            {
-                              from: '2007-04-01',
-                              to: '2016-06-01'
-                            }
-                          ]
-                        )
+                    VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes', :allow_playback_repeats => true, :match_requests_on => [:uri, :method, :body]) do
+                      VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true, :match_requests_on => [:uri, :method, :body]) do
                         expect_prefilled('21-526EZ')
                       end
                     end
@@ -1591,13 +1555,8 @@ RSpec.describe FormProfile, type: :model do
           it 'returns prefilled 21-686C' do
             expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
             VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
-              # TODO - look into update the following cassettes with ones that have data that can match the expected result?
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
                 VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
-                  # failure in #stub_methods_military_information
-                  # expect(military_information).to receive(:last_service_branch).and_return('Air Force')
-                  # expected: 1 time with any arguments
-                  # received: 0 times with any arguments
                   expect_prefilled('21-686C')
                 end
               end
