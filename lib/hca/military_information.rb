@@ -202,7 +202,7 @@ module HCA
 
     def post_nov111998_combat
       deployments.each do |deployment|
-        if deployment['deployment_end_date']  # will there not always be an end date? check.
+        if deployment['deployment_end_date']
           return true if Date.parse(deployment['deployment_end_date']) > NOV_1998
         end
       end
