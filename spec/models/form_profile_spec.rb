@@ -1241,35 +1241,6 @@ RSpec.describe FormProfile, type: :model do
     end
 
     context 'with military information data', skip_va_profile: true do
-      # rubocop:disable Metrics/MethodLength
-      # CAN WE KILL THIS? it's calling user.military_information, so whenever we called
-      # this, it would kind of cache it for future tests. So we could probably just remove this
-      # method and also remove all the places it's used in this file.
-      def stub_methods_military_information
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200', :allow_playback_repeats => true) do
-          VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true) do
-            military_information = user.military_information
-
-            expect(military_information.last_service_branch).to eq(nil)
-            expect(military_information.hca_last_service_branch).to eq('other')
-            expect(military_information.last_entry_date).to eq(nil)
-            expect(military_information.last_discharge_date).to eq(nil)
-            expect(military_information.discharge_type).to eq(nil)
-            expect(military_information.post_nov111998_combat).to eq(false)
-            expect(military_information.sw_asia_combat).to eq(false)
-            expect(military_information.compensable_va_service_connected).to eq(false)
-            expect(military_information.is_va_service_connected).to eq(true)
-            expect(military_information.tours_of_duty).to eq([])
-            expect(military_information.service_branches).to eq([])
-            expect(military_information.currently_active_duty_hash).to eq(yes: false)
-
-            expect(military_information.service_periods).to eq([])
-            expect(military_information.guard_reserve_service_history).to eq([])
-          end
-        end
-      end
-      # rubocop:enable Metrics/MethodLength
-
       context 'with va profile prefill on' do
         before do
           VAProfile::Configuration::SETTINGS.prefill = true
@@ -1317,7 +1288,6 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with emis and ppiu prefill for 0994' do
         before do
-          stub_methods_military_information
           # can_prefill_emis(true)
           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
@@ -1356,7 +1326,6 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with emis prefill for 10203' do
         before do
-          stub_methods_military_information
           # can_prefill_emis(true)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
         end
@@ -1372,7 +1341,6 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with emis and GiBillStatus prefill for 10203' do
         before do
-          stub_methods_military_information
           # can_prefill_emis(true)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           v22_10203_expected['remainingEntitlement'] = {
@@ -1407,7 +1375,6 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with a user that can prefill emis' do
         before do
-          stub_methods_military_information
           # can_prefill_emis(true)
         end
 
