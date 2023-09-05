@@ -1053,6 +1053,10 @@ features:
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
+  terms_of_use:
+    actor_type: user
+    description: This determines whether a user is redirected to the Terms of Use page
+    enable_in_development: true
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
