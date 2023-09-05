@@ -279,6 +279,60 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#get_most_recent_visited_clinic_appointment' do
+    subject { instance_of_class.get_most_recent_visited_clinic_appointment }
+
+    let(:instance_of_class) { described_class.new(user) }
+    let(:mock_appointment_one) { double('Appointment', kind: 'clinic', start: '2022-12-01') }
+    let(:mock_appointment_two) { double('Appointment', kind: 'telehealth', start: '2022-12-01T21:38:01.476Z') }
+    let(:mock_appointment_three) { double('Appointment', kind: 'clinic', start: '2022-12-09T21:38:01.476Z') }
+
+    context 'when appointments are available' do
+      before do
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: [mock_appointment_one,
+                                                                                   mock_appointment_two,
+                                                                                   mock_appointment_three] })
+      end
+
+      it 'returns the most recent clinic appointment' do
+        expect(subject).to eq(mock_appointment_three)
+      end
+    end
+
+    context 'when no appointments are available' do
+      before do
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: [] })
+      end
+
+      it 'returns nil' do
+        expect(subject).to be_nil
+      end
+    end
+
+    context 'when there are no clinic appointments' do
+      before do
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: [mock_appointment_two] })
+      end
+
+      it 'returns nil' do
+        expect(subject).to be_nil
+      end
+    end
+
+    context 'when the second interval search returns an appointment' do
+      before do
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: [mock_appointment_two] },
+                                                                          { data: [mock_appointment_one,
+                                                                                   mock_appointment_two,
+                                                                                   mock_appointment_three] })
+      end
+
+      it 'returns the most recent clinic appointment' do
+        expect(subject).to eq(mock_appointment_three)
+      end
+    end
+  end
+
   describe '#get_appointment' do
     context 'with an appointment' do
       context 'with Jacqueline Morgan' do
