@@ -84,7 +84,7 @@ class StatsdMiddleware
     secure-messaging
     medical-records
     static-pages
-    terms-and-conditions
+    terms-of-use
     vaos
     verify
     veteran-id-card
