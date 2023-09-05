@@ -3,6 +3,8 @@
 #  @department-of-veterans-affairs/backend-review-group and @department-of-veterans-affairs/va-api-engineers will be requested for
 # review when someone opens a pull request.
 
+*       @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
+
 app/controllers/appeals_base_controller.rb     @department-of-veterans-affairs/lighthouse-banana-peels   @department-of-veterans-affairs/backend-review-group
 app/controllers/appeals_base_controller_v1.rb     @department-of-veterans-affairs/lighthouse-banana-peels   @department-of-veterans-affairs/backend-review-group
 app/controllers/application_controller.rb   @department-of-veterans-affairs/backend-review-group
