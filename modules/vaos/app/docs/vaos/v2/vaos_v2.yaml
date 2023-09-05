@@ -401,6 +401,42 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
+  "/v2/locations/last_visited_clinic":
+    get:
+      tags:
+        - facilities
+      description: Returns the latest clinic visited
+      responses:
+        "200":
+          description: Returns the latest clinic visited
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Clinic"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
   "/locations/{location_id}/clinics":
     get:
       tags:
@@ -458,36 +494,36 @@ paths:
                   - id: "983"
                     type: "clinic"
                     attributes:
-                      vista_site: "983"
+                      vistaSite: "983"
                       id: "308"
-                      service_name: "CHY PC KILPATRICK"
-                      physical_location: "Green Team Clinic1"
-                      phone_number: "111-222-3333"
-                      station_id: ""
-                      station_name: ""
-                      primary_stop_code: "323"
-                      primary_stop_code_name: ""
-                      secondary_stop_code: ""
-                      secondary_stop_code_name: ""
-                      patient_direct_scheduling: true
-                      patient_display: true
+                      serviceName: "CHY PC KILPATRICK"
+                      physicalLocation: "Green Team Clinic1"
+                      phoneNumber: "111-222-3333"
+                      stationId: ""
+                      stationName: ""
+                      primaryStopCode: "323"
+                      primaryStopCodeName: ""
+                      secondaryStopCode: ""
+                      secondaryStopCodeName: ""
+                      patientDirectScheduling: true
+                      patientDisplay: true
                       char4: "CDQC"
                   - id: "983"
                     type: "clinic"
                     attributes:
-                      vista_site: "983"
+                      vistaSite: "983"
                       id: "308"
-                      service_name: "CHY PC KILPATRICK"
-                      physical_location: "Green Team Clinic1"
-                      phone_number: "111-222-3333"
-                      station_id: ""
-                      station_name: ""
-                      primary_stop_code: "323"
-                      primary_stop_code_name: ""
-                      secondary_stop_code: ""
-                      secondary_stop_code_name: ""
-                      patient_direct_scheduling: true
-                      patient_display: true
+                      serviceName: "CHY PC KILPATRICK"
+                      physicalLocation: "Green Team Clinic1"
+                      phoneNumber: "111-222-3333"
+                      stationId: ""
+                      stationName: ""
+                      primaryStopCode: "323"
+                      primaryStopCodeame: ""
+                      secondaryStopCode: ""
+                      secondaryStopCodeName: ""
+                      patientDirectScheduling: true
+                      patientDisplay: true
                       char4: "CDQC"
         "400":
           $ref: "#/components/responses/BadRequest"
@@ -866,8 +902,8 @@ components:
     AppointmentStatus:
       type: string
       enum:
-        - proposed
         - cancelled
+        - proposed
         - pending
         - booked
         - arrived
@@ -916,46 +952,46 @@ components:
         attributes:
           type: "object"
           required:
-            - "vista_site"
+            - "vistaSite"
             - "id"
-            - "service_name"
-            - "physical_location"
-            - "phone_number"
-            - "station_id"
-            - "station_name"
-            - "primary_stop_code"
-            - "primary_stop_code_name"
-            - "secondary_stop_code"
-            - "secondary_stop_code_name"
-            - "patient_direct_scheduling"
-            - "patient_display"
+            - "serviceName"
+            - "physicalLocation"
+            - "phoneNumber"
+            - "stationId"
+            - "stationName"
+            - "primaryStopCode"
+            - "primaryStopCodeName"
+            - "secondaryStopCode"
+            - "secondaryStopCodeName"
+            - "patientDirectScheduling"
+            - "patientDisplay"
             - "char4"
           properties:
-            vista_site:
+            vistaSite:
               type: "integer"
             id:
               type: "string"
-            service_name:
+            serviceName:
               type: "string"
-            physical_location:
+            physicalLocation:
               type: "string"
-            phone_number:
+            phoneNumber:
               type: "string"
-            station_id:
+            stationId:
               type: "string"
-            station_name:
+            stationName:
               type: "string"
-            primary_stop_code:
+            primaryStopCode:
               type: "integer"
-            primary_stop_code_name:
+            primaryStopCodeName:
               type: "string"
-            secondary_stop_code:
+            secondaryStopCode:
               type: "integer"
-            secondary_stop_code_name:
+            secondaryStopCodeName:
               type: "string"
-            patient_direct_scheduling:
+            patientDirectScheduling:
               type: "boolean"
-            patient_display:
+            patientDisplay:
               type: "boolean"
             char4:
               type: "string"
@@ -1358,9 +1394,9 @@ components:
         attributes:
           type: object
           required:
-            - facility_id
+            - facilityId
           properties:
-            facility_id:
+            facilityId:
               type: string
             services:
               type: array
@@ -1371,7 +1407,7 @@ components:
                     type: string
                   name:
                     type: string
-                  stop_codes:
+                  stopCodes:
                     type: array
                     items:
                       type: object
@@ -1385,43 +1421,43 @@ components:
                   direct:
                     type: object
                     properties:
-                      patient_history_required:
+                      patientHistoryRequired:
                         type: boolean
-                      patient_history_duration:
+                      patientHistoryDuration:
                         type: integer
-                      can_cancel:
+                      canCancel:
                         type: boolean
                       enabled:
                         type: boolean
                   request:
                     type: object
                     properties:
-                      patient_history_required:
+                      patientHistoryRequired:
                         type: boolean
-                      patient_history_duration:
+                      patientHistoryDuration:
                         type: integer
-                      can_cancel:
+                      canCancel:
                         type: boolean
-                      submitted_request_limit:
+                      submittedRequestLimit:
                         type: integer
-                      enterprise_submitted_request_limit:
+                      enterpriseSubmittedRequestLimit:
                         type: integer
                       supported:
                         type: boolean
-                      scheduling_days:
+                      schedulingDays:
                         type: array
                         items:
                           type: object
                           properties:
                             day:
                               type: string
-                            can_schedule:
+                            canSchedule:
                               type: boolean
-                            start_time:
+                            startTime:
                               type: string
-                            end_time:
+                            endTime:
                               type: string
-            community_care:
+            communityCare:
               type: boolean
     TasAddress:
       type: object
@@ -1548,4 +1584,4 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Errors"
+            $ref: "#/components/schemas/Errors" 
