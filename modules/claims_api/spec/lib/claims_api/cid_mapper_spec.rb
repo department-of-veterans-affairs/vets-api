@@ -18,7 +18,7 @@ describe ClaimsApi::CidMapper do
 
     it "returns an obfuscated version of the 'cid'" do
       mapped_value = ClaimsApi::CidMapper.new(cid:).name
-      expect(mapped_value).to eq('ABCDEFG...')
+      expect(mapped_value).to eq('Lighthouse')
     end
   end
 
