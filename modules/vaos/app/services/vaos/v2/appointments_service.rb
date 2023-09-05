@@ -89,7 +89,43 @@ module VAOS
         end
       end
 
+      # Retrieves the most recent clinic appointment within the last year.
+      #
+      # Returns:
+      # - The most recent appointment of kind == 'clinic' or
+      # - nil if no appointment is found.
+      #
+      def get_most_recent_visited_clinic_appointment
+        current_check = Date.current.end_of_day.yesterday
+        three_month_interval = 3.months
+        look_back_limit = 1.year.ago
+        statuses = 'booked,fulfilled,arrived'
+
+        # starting yesterday loop in three month intervals until we find an appointment
+        # or we run into the look back limit
+        while current_check > look_back_limit
+          end_time = current_check
+          start_time = current_check - three_month_interval
+
+          appointments = fetch_clinic_appointments(start_time, end_time, statuses)
+
+          return most_recent_appointment(appointments) unless appointments.empty?
+
+          current_check -= three_month_interval
+        end
+
+        nil
+      end
+
       private
+
+      def fetch_clinic_appointments(start_time, end_time, statuses)
+        get_appointments(start_time, end_time, statuses)[:data].select { |appt| appt.kind == 'clinic' }
+      end
+
+      def most_recent_appointment(appointments)
+        appointments.max_by { |appointment| DateTime.parse(appointment.start) }
+      end
 
       def mobile_facility_service
         @mobile_facility_service ||=
