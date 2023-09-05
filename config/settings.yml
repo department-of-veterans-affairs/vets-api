@@ -67,6 +67,9 @@ sign_in:
   mock_redirect_uri: http://localhost:3000/v0/sign_in/callback
   mockdata_sync_api_key: ~
 
+terms_of_use:
+  current_version: v1
+
 lockbox:
   master_key: "0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9"
   previous_master_key: "a798f118b400a1a7552597cc94f44c577919c76b3d26c1eed8ae0703f4240216"
