@@ -366,6 +366,9 @@ Rails.application.routes.draw do
       post 'submit_coe_claim'
       post 'document_upload'
     end
+
+    post 'terms_of_use_agreements/:version/accept', to: 'terms_of_use_agreements#accept'
+    post 'terms_of_use_agreements/:version/decline', to: 'terms_of_use_agreements#decline'
   end
 
   namespace :v1, defaults: { format: 'json' } do
