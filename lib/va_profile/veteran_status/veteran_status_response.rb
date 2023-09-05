@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
 require 'va_profile/response'
+# require_relative '../../../va_profile/models/veteran_status'
 require 'va_profile/models/veteran_status'
+# require_relative '../../models/veteran_status'
+
 
 module VAProfile
   module VeteranStatus
     class VeteranStatusResponse < VAProfile::Response
-      attribute :veteran_status_title, VAProfile::Models::VeteranStatus
+      # attribute :title_38_status_code, VAProfile::Models::VeteranStatus
 
       def self.from(_, raw_response = nil)
         body = raw_response&.body

@@ -11,7 +11,6 @@ module VAProfile
       include VAProfile::Concerns::Defaultable
       include VAProfile::VeteranStatus::Service
 
-
       attribute :title_38_status_code, String
 
       # Converts an instance of the VeteranStatus model to a JSON encoded string suitable for

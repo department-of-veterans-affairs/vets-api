@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'va_profile/models/veteran_status'
+require_relative '../../../lib/va_profile/veteran_status/veteran_status_response'
 
 describe VAProfile::Models::VeteranStatus, skip_emis: true do
   # subject { described_class.for_user(user) }

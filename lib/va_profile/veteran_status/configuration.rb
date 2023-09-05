@@ -5,7 +5,7 @@ require 'va_profile/configuration'
 module VAProfile
   module VeteranStatus
     class Configuration < VAProfile::Configuration
-      self.read_timeout = VAProfile::Configuration::SETTINGS.veteran_status.timeout || 30
+      self.read_timeout = 30
 
       def base_path
         "#{VAProfile::Configuration::SETTINGS.url}/profile-service/profile/v3"
