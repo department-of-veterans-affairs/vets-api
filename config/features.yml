@@ -1053,3 +1053,9 @@ features:
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
+  burial_form_enabled:
+    actor_type: user
+    description: Enable the burial form
+  pension_form_enabled:
+    actor_type: user
+    description: Enable the pension form
