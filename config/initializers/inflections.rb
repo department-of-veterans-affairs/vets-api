@@ -44,4 +44,5 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'VRE'
   inflect.acronym 'VSO'
   inflect.uncountable 'terms_and_conditions'
+  inflect.uncountable %w[next_of_kin NextOfKin]
 end

@@ -3,6 +3,8 @@
 require 'flipper/admin_user_constraint'
 
 Rails.application.routes.draw do
+  get 'next_of_kin/create'
+  get 'next_of_kin/show'
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
 
@@ -366,7 +368,10 @@ Rails.application.routes.draw do
       post 'submit_coe_claim'
       post 'document_upload'
     end
+
+    resources :emergency_contacts, only: %i[create show]
   end
+  # end /v0
 
   namespace :v1, defaults: { format: 'json' } do
     resources :apidocs, only: [:index]
