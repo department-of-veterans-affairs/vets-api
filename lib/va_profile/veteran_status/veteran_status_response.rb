@@ -9,7 +9,7 @@ require 'va_profile/models/veteran_status'
 module VAProfile
   module VeteranStatus
     class VeteranStatusResponse < VAProfile::Response
-      # attribute :title_38_status_code, VAProfile::Models::VeteranStatus
+      attribute :title_38_status_code, VAProfile::Models::VeteranStatus
 
       def self.from(_, raw_response = nil)
         body = raw_response&.body
