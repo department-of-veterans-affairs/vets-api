@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'va_profile/models/veteran_status'
-require_relative '../../../lib/va_profile/veteran_status/veteran_status_response'
 
 describe VAProfile::Models::VeteranStatus, skip_emis: true do
   # subject { described_class.for_user(user) }
@@ -67,13 +66,13 @@ describe VAProfile::Models::VeteranStatus, skip_emis: true do
       it 'returns true' do
         VCR.use_cassette('vcr_cassettes/va_profile_veteran_status_200') do
           response_data = subject.get_veteran_status_data
-          parsed_body = JSON.parse(response_data.body) 
+          parsed_body = JSON.parse(response_data.body)
           title38_status_code = parsed_body.dig("profile", "militaryPerson", "militarySummary", "title38StatusCode")
           expect(title38_status_code).to eq("V1")
         end
       end
     end
-  
+
 
     # context 'with a valid response for a non-veteran' do
     #   it 'returns false' do

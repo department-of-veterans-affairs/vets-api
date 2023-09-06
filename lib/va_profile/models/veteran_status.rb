@@ -1,15 +1,12 @@
 # frozen_string_literal: true
 
-require_relative '../veteran_status/service'
 require_relative 'base'
 require 'va_profile/concerns/defaultable'
-require 'va_profile/service'
 
 module VAProfile
   module Models
     class VeteranStatus < Base
       include VAProfile::Concerns::Defaultable
-      include VAProfile::VeteranStatus::Service
 
       attribute :title_38_status_code, String
 

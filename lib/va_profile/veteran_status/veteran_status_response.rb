@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
 require 'va_profile/response'
-# require_relative '../../../va_profile/models/veteran_status'
-require 'va_profile/models/veteran_status'
-# require_relative '../../models/veteran_status'
-
+require_relative '../models/veteran_status'
 
 module VAProfile
   module VeteranStatus
