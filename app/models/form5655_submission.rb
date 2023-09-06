@@ -10,6 +10,18 @@ class Form5655Submission < ApplicationRecord
   has_kms_key
   has_encrypted :form_json, :metadata, key: :kms_key, **lockbox_options
 
+  scope :streamlined, -> { where("(public_metadata -> 'streamlined' ->> 'value')::boolean") }
+  scope :not_streamlined, -> { where.not("(public_metadata -> 'streamlined' ->> 'value')::boolean") }
+  scope :streamlined_unclear, -> { where("(public_metadata -> 'streamlined') IS NULL") }
+  scope :streamlined_nil, lambda {
+                            where("(public_metadata -> 'streamlined') IS NOT NULL and " \
+                                  "(public_metadata -> 'streamlined' ->> 'value') IS NULL")
+                          }
+
+  def public_metadata
+    super || {}
+  end
+
   def form
     @form_hash ||= JSON.parse(form_json)
   end
@@ -30,8 +42,6 @@ class Form5655Submission < ApplicationRecord
   end
 
   def streamlined?
-    return false unless form.key?('streamlined')
-
-    form['streamlined']['value']
+    public_metadata.dig('streamlined', 'value') == true
   end
 end
