@@ -190,7 +190,8 @@ module DebtsApi
         form_json: form_json.to_json,
         metadata:,
         user_uuid: @user.uuid,
-        user_account: @user.user_account
+        user_account: @user.user_account,
+        public_metadata: form_json.slice('streamlined')
       )
     end
 
