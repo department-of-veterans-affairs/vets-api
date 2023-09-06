@@ -5,7 +5,7 @@ module VAProfile
     class Service < VAProfile::Service
       include Common::Client::Concerns::Monitoring
 
-      configuration VAProfile::ContactInformation::Configuration
+      configuration VAProfile::HealthBenefit::Configuration
 
       OID = '1.2.3'
 
@@ -27,11 +27,13 @@ module VAProfile
       end
 
       def post_emergency_contacts(emergency_contact)
+        emergency_contact.source_system_user = user.icn
         response = perform(:post, v1_update_path, emergency_contact.in_json)
         VAProfile::HealthBenefit::AssociatedPersonsResponse.new(response.status, response)
       end
 
       def post_next_of_kin(next_of_kin)
+        next_of_kin.source_system_user = user.icn
         response = perform(:post, v1_update_path, next_of_kin.in_json)
         VAProfile::HealhtBenefit::AssociatedPersonResponse.new(response.status, response)
       end

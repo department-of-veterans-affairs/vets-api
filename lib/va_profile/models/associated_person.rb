@@ -89,7 +89,7 @@ module VAProfile
           associatedPersons: [{
             sourceDate: Time.zone.now.iso8601,
             originatingSourceSystem: SOURCE_SYSTEM,
-            sourceSystemUser: nil, # user.icn
+            sourceSystemUser: @source_system_user,
             contactType: @contact_type,
             prefix: @prefix,
             givenName: @given_name,

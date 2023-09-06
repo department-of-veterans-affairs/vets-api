@@ -21,7 +21,13 @@ module V0
     end
 
     def emergency_contact_params
-      # params.permit(...)
+      params.require(:emergency_contact).permit(
+        :name,
+        :address,
+        :relationship,
+        :phone,
+        :work_phone
+      )
     end
   end
 end
