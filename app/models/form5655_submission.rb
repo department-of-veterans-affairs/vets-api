@@ -7,8 +7,18 @@ class Form5655Submission < ApplicationRecord
 
   validates :user_uuid, presence: true
   belongs_to :user_account, dependent: nil, optional: true
-  has_kms_key
+  has_kms_key version: 2,
+              previous_versions: {
+                1 => { key_id: KmsEncrypted.key_id }
+              }
   has_encrypted :form_json, :metadata, key: :kms_key, **lockbox_options
+
+  def kms_encryption_context(*)
+    {
+      model_name: model_name.to_s,
+      model_id: id
+    }
+  end
 
   scope :streamlined, -> { where("(public_metadata -> 'streamlined' ->> 'value')::boolean") }
   scope :not_streamlined, -> { where.not("(public_metadata -> 'streamlined' ->> 'value')::boolean") }
