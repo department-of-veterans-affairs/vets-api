@@ -144,7 +144,8 @@ module Form526ClaimFastTrackingConcern
         diagnostic_code == dis['diagnostic_code']
       end
 
-      max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating) ? 'on' : 'off'
+      user = User.find(user_uuid)
+      max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating, user) ? 'on' : 'off'
       StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.submit.#{diagnostic_code}")
     end
   rescue => e

@@ -56,7 +56,10 @@ RSpec.describe Form526Submission do
         ipf
       end
 
-      before { allow(StatsD).to receive(:increment) }
+      before do
+        allow(StatsD).to receive(:increment)
+        Flipper.disable(:disability_526_maximum_rating)
+      end
 
       context 'the submission is for tinnitus' do
         let(:form_json) do
@@ -73,7 +76,7 @@ RSpec.describe Form526Submission do
         let(:rating_percentage) { 0 }
 
         context 'Max rating education enabled' do
-          before { Flipper.enable(:disability_526_maximum_rating) }
+          before { Flipper.enable(:disability_526_maximum_rating, user) }
 
           context 'Rated Tinnitus is at maximum' do
             let(:rating_percentage) { 10 }
@@ -93,7 +96,7 @@ RSpec.describe Form526Submission do
         end
 
         context 'Max rating education disabled' do
-          before { Flipper.disable(:disability_526_maximum_rating) }
+          before { Flipper.disable(:disability_526_maximum_rating, user) }
 
           context 'Rated Tinnitus is at maximum' do
             let(:rating_percentage) { 10 }
@@ -126,7 +129,7 @@ RSpec.describe Form526Submission do
         end
 
         context 'Max rating education enabled' do
-          before { Flipper.enable(:disability_526_maximum_rating) }
+          before { Flipper.enable(:disability_526_maximum_rating, user) }
 
           it 'does not log CFI metric upon submission' do
             subject.start
@@ -135,7 +138,7 @@ RSpec.describe Form526Submission do
         end
 
         context 'Max rating education disabled' do
-          before { Flipper.disable(:disability_526_maximum_rating) }
+          before { Flipper.disable(:disability_526_maximum_rating, user) }
 
           it 'does not log CFI metric upon submission' do
             subject.start

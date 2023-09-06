@@ -110,7 +110,8 @@ class InProgressForm < ApplicationRecord
       return
     end
 
-    max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating) ? 'on' : 'off'
+    user = User.find(user_uuid)
+    max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating, user) ? 'on' : 'off'
     rated_disabilities = fd['rated_disabilities'] || fd['ratedDisabilities'] || []
     rated_disabilities.each do |dis|
       log_cfi_metric_for_disability(params, dis, max_cfi_enabled)
