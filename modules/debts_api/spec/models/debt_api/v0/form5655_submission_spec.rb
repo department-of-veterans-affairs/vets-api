@@ -3,6 +3,17 @@
 require 'rails_helper'
 
 RSpec.describe DebtsApi::V0::Form5655Submission do
+  describe 'namespace portability' do
+    let!(:some_record) do
+      create(:form5655_submission, public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => true } })
+    end
+
+    it 'shares data with the old model scope' do
+      expect(described_class.last.form).to eq(some_record.form)
+      expect(Form5655Submission.last.form).to eq(some_record.form)
+    end
+  end
+
   describe 'scopes' do
     let!(:first_record) do
       create(:form5655_submission, public_metadata: { 'streamlined' => { 'type' => 'short', 'value' => true } })
@@ -35,7 +46,9 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
     let(:guy) { create(:form5655_submission) }
 
     it 'enqueues a VBA submission job' do
-      expect { form5655_submission.submit_to_vba }.to change(DebtsApi::V0::Form5655::VBASubmissionJob.jobs, :size).by(1)
+      expect do
+        form5655_submission.submit_to_vba
+      end.to change(DebtsApi::V0::Form5655::VBASubmissionJob.jobs, :size).by(1)
     end
   end
 
@@ -43,7 +56,9 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
     let(:form5655_submission) { create(:debts_api_form5655_submission) }
 
     it 'enqueues a VHA submission job' do
-      expect { form5655_submission.submit_to_vha }.to change(DebtsApi::V0::Form5655::VHASubmissionJob.jobs, :size).by(1)
+      expect do
+        form5655_submission.submit_to_vha
+      end.to change(DebtsApi::V0::Form5655::VHASubmissionJob.jobs, :size).by(1)
     end
   end
 
