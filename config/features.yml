@@ -828,6 +828,10 @@ features:
     actor_type: user
     description: Allows updates to the static landing widget on the Public Websites page
     enable_in_development: true
+  va_online_scheduling_GA4_migration:
+    actor_type: user
+    description: Toggle for the GA4 events migration work.
+    enable_in_development: true
   va_online_scheduling_unenrolled_vaccine:
     actor_type: user
     description: Toggle for unenrolled vaccine scheduling discovery work.
