@@ -36,10 +36,6 @@ features:
     actor_type: user
     description: Enables the optimized household section flow.
     enable_in_development: true
-  hca_remove_id_fields_enabled:
-    actor_type: user
-    description: Enables removal of duplicate identitiy fields when completing health care application as a guest.
-    enable_in_development: true
   hca_sigi_enabled:
     actor_type: user
     description: Enables Self-Identifying Gender Identity question for health care applicants.
