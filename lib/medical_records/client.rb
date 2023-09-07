@@ -92,7 +92,8 @@ module MedicalRecords
     end
 
     def list_allergies
-      fhir_search(FHIR::AllergyIntolerance, search: { parameters: { patient: patient_fhir_id } })
+      bundle = fhir_search(FHIR::AllergyIntolerance, search: { parameters: { patient: patient_fhir_id } })
+      sort_bundle(bundle, :onsetDateTime, :desc)
     end
 
     def get_clinical_note(note_id)
@@ -306,6 +307,27 @@ module MedicalRecords
 
       # Return the paginated result or an empty array if no entries
       paginated_entries || []
+    end
+
+    ##
+    # Sort the FHIR::Bundle entries on a given field and sort order. If a field is not present, that entry
+    # is sorted to the end.
+    #
+    # @param bundle [FHIR::Bundle] the bundle to sort
+    # @param field [Symbol] the field to sort on
+    # @param order [Symbol] the sort order, :asc (default) or :desc
+    #
+    def sort_bundle(bundle, field, order = :asc)
+      sorted_entries = bundle.entry.sort_by do |entry|
+        if entry.resource.respond_to?(field) && !entry.resource.send(field).nil?
+          [0, entry.resource.send(field)]
+        else
+          [1, Float::INFINITY]
+        end
+      end
+      sorted_entries.reverse! if order == :desc
+      bundle.entry = sorted_entries
+      bundle
     end
 
     ##
