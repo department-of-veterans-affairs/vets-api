@@ -1061,6 +1061,9 @@ features:
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
+  virtual_agent_enable_pva2_chatbot:
+    actor_type: user
+    description: If enabled, switches VA chatbot from PVA1 to PVA2
   terms_of_use:
     actor_type: user
     description: This determines whether a user is redirected to the Terms of Use page
