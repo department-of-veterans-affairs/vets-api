@@ -8,10 +8,21 @@ module ClaimsApi
   module V2
     module Veterans
       class EvidenceWaiverController < ClaimsApi::V2::ApplicationController
+        before_action :file_number_check
+
         def submit
           lighthouse_claim = find_lighthouse_claim!(claim_id: params[:id])
           benefit_claim_id = lighthouse_claim.present? ? lighthouse_claim.evss_id : params[:id]
           bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
+
+          if @file_number.nil?
+            ClaimsApi::Logger.log('EWS',
+                                  detail: 'EWS no file number error', claim_id: params[:id])
+
+            raise ::Common::Exceptions::ResourceNotFound.new(detail:
+              "Unable to locate Veteran's File Number. " \
+              'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
+          end
 
           if lighthouse_claim.blank? && bgs_claim.blank?
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
@@ -34,6 +45,7 @@ module ClaimsApi
           }
 
           new_ews = ClaimsApi::EvidenceWaiverSubmission.create!(attributes)
+          new_ews.auth_headers['va_eauth_birlsfilenumber'] = @file_number
           new_ews.save
           new_ews
         end
@@ -72,6 +84,17 @@ module ClaimsApi
           end
 
           raise
+        end
+
+        def file_number_check
+          @file_number = local_bgs_service.find_by_ssn(target_veteran.ssn)&.dig(:file_nbr) # rubocop:disable Rails/DynamicFindBy
+
+        # catch any other errors related to this call failing
+        rescue => e
+          log_exception_to_sentry(e, nil, { message: e.errors[0].detail }, 'warn')
+          raise ::Common::Exceptions::FailedDependency.new(
+            detail: "An external system failure occurred while trying to retrieve Veteran 'FileNumber'"
+          )
         end
       end
     end
