@@ -47,6 +47,7 @@ Mobile::Engine.routes.draw do
     get '/user', to: 'users#show'
     get '/user/authorized-services', to: 'authorized_services#index'
     get '/user/contact-info', to: 'contact_info#show'
+    post '/user/logged-in', to: 'users#logged_in'
     get '/user/logout', to: 'users#logout'
     post '/user/addresses', to: 'addresses#create'
     put '/user/addresses', to: 'addresses#update'
