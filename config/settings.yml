@@ -1228,6 +1228,7 @@ covid_vaccine:
 
 virtual_agent:
   webchat_secret: fake_secret
+  webchat_pva2_secret: fake_secret
   lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
   lighthouse_api_key: fake_api_key
   cxdw_client_secret: fake_secret
