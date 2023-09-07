@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'va_profile/health_benefit/configuration'
+require 'va_profile/models/associated_person'
+
 module VAProfile
   module HealthBenefit
     class Service < VAProfile::Service
@@ -12,30 +15,34 @@ module VAProfile
       attr_reader :user
 
       def get_next_of_kin
-        contact_types = VAProfile::Models::AssociatedPerson.NOK_TYPES
-        get_associated_persons.select { |p| contact_types.include?(p.contact_type) }
+        contact_types = VAProfile::Models::AssociatedPerson::NOK_TYPES
+        response = get_associated_persons
+        response.associated_persons.select! { |p| contact_types.include?(p.contact_type) }
+        response
       end
 
       def get_emergency_contacts
-        contact_types = VAProfile::Models::AssociatedPerson.EC_TYPES
-        get_associated_persons.select { |p| contact_types.include?(p.contact_type) }
+        contact_types = VAProfile::Models::AssociatedPerson::EC_TYPES
+        response = get_associated_persons
+        response.associated_persons.select! { |p| contact_types.include?(p.contact_type) }
+        response
       end
 
       def get_associated_persons
         response = perform(:get, v1_read_path)
-        VAProfile::HealthBenefit::AssociatedPersonsResponse.new(response.status, response).associated_persons
+        VAProfile::HealthBenefit::AssociatedPersonsResponse.from(response)
       end
 
       def post_emergency_contacts(emergency_contact)
         emergency_contact.source_system_user = user.icn
         response = perform(:post, v1_update_path, emergency_contact.in_json)
-        VAProfile::HealthBenefit::AssociatedPersonsResponse.new(response.status, response)
+        VAProfile::HealthBenefit::AssociatedPersonsResponse.from(response)
       end
 
       def post_next_of_kin(next_of_kin)
         next_of_kin.source_system_user = user.icn
         response = perform(:post, v1_update_path, next_of_kin.in_json)
-        VAProfile::HealhtBenefit::AssociatedPersonResponse.new(response.status, response)
+        VAProfile::HealhtBenefit::AssociatedPersonResponse.from(response)
       end
 
       private
@@ -43,7 +50,7 @@ module VAProfile
       ID_ME_AAID = '^PN^200VIDM^USDVA'
       LOGIN_GOV_AAID = '^PN^200VLGN^USDVA'
 
-      def cps_id
+      def csp_id
         user&.idme_uuid || user&.logingov_uuid
       end
 
@@ -62,15 +69,15 @@ module VAProfile
       end
 
       def v1_read_path
-        "/v1/#{identity_path}/read"
+        "#{config.base_path}/v1/#{identity_path}/read"
       end
 
       def v1_update_path
-        "/v1/#{identity_path}/update"
+        "#{config.base_path}/v1/#{identity_path}/update"
       end
 
       def v1_notification_path
-        "/v1/#{identity_path}/notification"
+        "#{config.base_path}/v1/#{identity_path}/notification"
       end
     end
   end

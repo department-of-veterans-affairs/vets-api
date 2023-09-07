@@ -21,7 +21,10 @@ module V0
     end
 
     def next_of_kin_params
-      # params.permit(...)
+      params.require(:next_of_kin).permit(
+        :name,
+        :phone
+      )
     end
   end
 end

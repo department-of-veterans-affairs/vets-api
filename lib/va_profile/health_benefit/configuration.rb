@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# require 'va_profile/configuration'
+require 'va_profile/configuration'
 
 module VAProfile
   module HealthBenefit
