@@ -1125,6 +1125,7 @@ RSpec.describe FormProfile, type: :model do
     context 'with a user that can prefill mdot' do
       before do
         expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
+        expect(user).to receive(:authorize).with(:emis, :access?).and_return(true).at_least(:once)
         expect(user.authorize(:mdot, :access?)).to eq(true)
       end
 
@@ -1285,6 +1286,7 @@ RSpec.describe FormProfile, type: :model do
         before do
           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:emis, :access?).and_return(true).at_least(:once)
         end
 
         it 'prefills 0994' do
