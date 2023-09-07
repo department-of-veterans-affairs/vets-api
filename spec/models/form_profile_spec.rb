@@ -1295,7 +1295,7 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with emis and ppiu prefill for 0994' do
         before do
-          # can_prefill_emis(true)
+          can_prefill_emis(true)
           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           v22_0994_expected['bankAccount'] = {
