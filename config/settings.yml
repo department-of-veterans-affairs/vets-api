@@ -1252,8 +1252,8 @@ vanotify:
         form527ez_confirmation_email: form527ez_confirmation_email_template_id
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         contact_info_change: fake_template_id
-        form0994_confirmation_email_v1: form0994_confirmation_email_v1_template_id
-        form0994_confirmation_email_v2: form0994_confirmation_email_v2_template_id
+        form0994_confirmation_email: form0994_confirmation_email_template_id
+        form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1990_confirmation_email: form1990_confirmation_email_template_id
         form1990e_confirmation_email: form1990e_confirmation_email_template_id
         form1995_confirmation_email: form1995_confirmation_email_template_id
