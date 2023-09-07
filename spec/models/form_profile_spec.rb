@@ -1333,7 +1333,7 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with emis prefill for 10203' do
         before do
-          # can_prefill_emis(true)
+          can_prefill_emis(true)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
         end
 
@@ -1348,7 +1348,7 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with emis and GiBillStatus prefill for 10203' do
         before do
-          # can_prefill_emis(true)
+          can_prefill_emis(true)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           v22_10203_expected['remainingEntitlement'] = {
             'months' => 0,
@@ -1382,7 +1382,7 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with a user that can prefill emis' do
         before do
-          # can_prefill_emis(true)
+          can_prefill_emis(true)
         end
 
         context 'with a user with no vet360_id' do
