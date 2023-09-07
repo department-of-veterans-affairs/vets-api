@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: "<MHV_MR_HOST>/fhir/Condition?_count=100&patient=2952"
+      uri: "<MHV_MR_HOST>/fhir/Condition?_count=9999&patient=2952"
       body:
         encoding: US-ASCII
         string: ""
@@ -52,9 +52,6 @@ http_interactions:
             "link": [ {
               "relation": "self",
               "url": "<MHV_MR_HOST>/fhir/Condition?patient=39254"
-            }, {
-              "relation": "next",
-              "url": "<MHV_MR_HOST>/baseR4?_getpages=7ea8ba1a-6d82-4178-9b2d-7caae1d9fcf8&_getpagesoffset=20&_count=20&_pretty=true&_bundletype=searchset"
             } ],
             "entry": [ {
               "fullUrl": "<MHV_MR_HOST>/fhir/Condition/39238",

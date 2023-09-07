@@ -13,7 +13,7 @@ module MedicalRecords
     include Common::Client::Concerns::MHVJwtSessionClient
 
     # Default number of records to request per call when searching
-    DEFAULT_COUNT = 100
+    DEFAULT_COUNT = 9999
 
     # LOINC codes for clinical notes
     PHYSICIAN_PROCEDURE_NOTE = '11505-5' # Physician procedure note
@@ -43,6 +43,13 @@ module MedicalRecords
       "#{Settings.mhv.medical_records.host}/fhir/"
     end
 
+    ##
+    # Create a new FHIR::Client instance, given the provided bearer token. This method does not require a
+    # client_session to have been initialized.
+    #
+    # @param bearer_token [String] The bearer token from the authentication call
+    # @return [FHIR::Client]
+    #
     def sessionless_fhir_client(bearer_token)
       # FHIR debug level is extremely verbose, printing the full contents of every response body.
       ::FHIR.logger.level = Logger::INFO
@@ -55,8 +62,14 @@ module MedicalRecords
       end
     end
 
+    ##
+    # Create a new FHIR::Client instance based on the client_session. Use an existing client if one already exists
+    # in this instance.
+    #
+    # @return [FHIR::Client]
+    #
     def fhir_client
-      sessionless_fhir_client(jwt_bearer_token)
+      @fhir_client ||= sessionless_fhir_client(jwt_bearer_token)
     end
 
     def get_patient_by_identifier(fhir_client, identifier)
@@ -189,11 +202,37 @@ module MedicalRecords
                   search: { parameters: { patient: patient_fhir_id, type: loinc_codes } })
     end
 
+    ##
+    # Perform a FHIR search. This method will continue making queries until all results have been returned.
+    #
+    # @param fhir_model [FHIR::Model] The type of resource to search
+    # @param params [Hash] The parameters to pass the search
+    # @return [FHIR::Bundle]
+    #
     def fhir_search(fhir_model, params)
+      reply = fhir_search_query(fhir_model, params)
+      combined_bundle = reply.resource
+      loop do
+        break unless reply.resource.next_link
+
+        reply = fhir_client.next_page(reply)
+        combined_bundle = merge_bundles(combined_bundle, reply.resource)
+      end
+      combined_bundle
+    end
+
+    ##
+    # Perform a FHIR search. This method will return the first page of results only.
+    #
+    # @param fhir_model [FHIR::Model] The type of resource to search
+    # @param params [Hash] The parameters to pass the search
+    # @return [FHIR::ClientReply]
+    #
+    def fhir_search_query(fhir_model, params)
       params[:search][:parameters].merge!(_count: DEFAULT_COUNT)
       result = fhir_client.search(fhir_model, params)
       handle_api_errors(result) if result.resource.nil?
-      result.resource
+      result
     end
 
     def fhir_read(fhir_model, id)
@@ -224,6 +263,33 @@ module MedicalRecords
                         end
 
       raise exception_class, { detail: diagnostics } if exception_class
+    end
+
+    ##
+    # Merge two FHIR bundles into one, with an updated total count.
+    #
+    # @param bundle1 [FHIR:Bundle] The first FHIR bundle
+    # @param bundle2 [FHIR:Bundle] The second FHIR bundle
+    # @param page_num [FHIR:Bundle]
+    #
+    def merge_bundles(bundle1, bundle2)
+      unless bundle1.resourceType == 'Bundle' && bundle2.resourceType == 'Bundle'
+        raise 'Both inputs must be FHIR Bundles'
+      end
+
+      # Clone the first bundle to avoid modifying the original
+      merged_bundle = bundle1.clone
+
+      # Merge the entries from the second bundle into the merged_bundle
+      merged_bundle.entry ||= []
+      bundle2.entry&.each do |entry|
+        merged_bundle.entry << entry
+      end
+
+      # Update the total count in the merged bundle
+      merged_bundle.total = merged_bundle.entry.count
+
+      merged_bundle
     end
 
     ##
