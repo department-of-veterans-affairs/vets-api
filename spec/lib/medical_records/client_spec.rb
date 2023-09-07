@@ -94,6 +94,15 @@ describe MedicalRecords::Client do
     end
   end
 
+  it 'gets a multi-page list of FHIR resources', :vcr do
+    VCR.use_cassette 'mr_client/get_multiple_fhir_pages' do
+      allergies_list = client.list_allergies
+      expect(allergies_list).to be_a(FHIR::Bundle)
+      expect(allergies_list.total).to eq(5)
+      expect(allergies_list.entry.count).to eq(5)
+    end
+  end
+
   context 'when the requested page is within the available entries' do
     it 'returns the correct block of entries for page 1 with page size 2' do
       page_size = 2
