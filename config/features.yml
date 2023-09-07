@@ -312,6 +312,10 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
+  dependents_submit_674_independently:
+    actor_type: user
+    description: Manage whether 674 can be submitted without an associated 686c
+    enable_in_development: true
   disability_526_classifier:
     actor_type: user
     description: enables sending claims for increase to VRO Contention Classification service for more accurate classification entry.
