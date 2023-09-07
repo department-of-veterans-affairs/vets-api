@@ -9,6 +9,7 @@ module VAProfile
       include VAProfile::Concerns::Defaultable
 
       attribute :title_38_status_code, String
+      validates :title_38_status_code, presence: true, length: { maximum: 25 }
 
       # Converts an instance of the VeteranStatus model to a JSON encoded string suitable for
       # use in the body of a request to VAProfile
