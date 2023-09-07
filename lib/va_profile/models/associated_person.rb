@@ -118,7 +118,7 @@ module VAProfile
 
       class << self
         # Translate a VA Profile Health Benefit API response.body.associated_persons
-        # entry to an AssociatedPerson model
+        #   entry to an AssociatedPerson model
         # @param json [Hash] response.body['associated_persons'] entry
         # @return [VAProfile::Models::AssociatedPerson] model created from json response
         # rubocop:disable Metrics/MethodLength
