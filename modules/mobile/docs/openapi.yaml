@@ -3733,6 +3733,35 @@ paths:
       security:
         - Bearer: []
       summary: /v0/user/logout
+  /v0/user/logged-in:
+    post:
+      description: Called by the mobile app after successful login to perform any actions needed to start a session.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/user/logged-in
   /v0/user/preferred_name:
     put:
       description: Updates a user's preferred name. Only users with id.me or login.gov accounts may use this

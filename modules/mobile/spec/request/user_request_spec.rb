@@ -487,4 +487,64 @@ RSpec.describe 'user', type: :request do
       end
     end
   end
+
+  describe 'POST /mobile/v0/user/logged-in' do
+    before { iam_sign_in }
+
+    it 'returns an ok response' do
+      post '/mobile/v0/user/logged-in', headers: iam_headers
+      expect(response).to have_http_status(:ok)
+    end
+
+    describe 'appointments precaching' do
+      context 'with mobile_precache_appointments flag on' do
+        before { Flipper.enable(:mobile_precache_appointments) }
+
+        it 'kicks off a pre cache appointments job' do
+          expect(Mobile::V0::PreCacheAppointmentsJob).to receive(:perform_async).once
+          post '/mobile/v0/user/logged-in', headers: iam_headers
+        end
+      end
+
+      context 'with mobile_precache_appointments flag off' do
+        before { Flipper.disable(:mobile_precache_appointments) }
+
+        after { Flipper.enable(:mobile_precache_appointments) }
+
+        it 'does not kick off a pre cache appointments job' do
+          expect(Mobile::V0::PreCacheAppointmentsJob).not_to receive(:perform_async)
+          post '/mobile/v0/user/logged-in', headers: iam_headers
+        end
+      end
+    end
+
+    describe 'vet360 linking' do
+      context 'when user has a vet360_id' do
+        let(:user) { FactoryBot.build(:iam_user) }
+
+        before { iam_sign_in(user) }
+
+        it 'does not enqueue vet360 linking job' do
+          expect(Mobile::V0::Vet360LinkingJob).not_to receive(:perform_async)
+
+          post '/mobile/v0/user/logged-in', headers: iam_headers
+        end
+
+        it 'flips mobile user vet360_linked to true if record exists' do
+          Mobile::User.create(icn: user.icn, vet360_link_attempts: 1, vet360_linked: false)
+          post '/mobile/v0/user/logged-in', headers: iam_headers
+          expect(Mobile::User.where(icn: user.icn, vet360_link_attempts: 1, vet360_linked: true)).to exist
+        end
+      end
+
+      context 'when user does not have a vet360_id' do
+        before { iam_sign_in(FactoryBot.build(:iam_user, :no_vet360_id)) }
+
+        it 'enqueues vet360 linking job' do
+          expect(Mobile::V0::Vet360LinkingJob).to receive(:perform_async)
+          post '/mobile/v0/user/logged-in', headers: iam_headers
+        end
+      end
+    end
+  end
 end
