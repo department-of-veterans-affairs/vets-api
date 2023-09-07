@@ -23,6 +23,10 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to view/download benefit letters.
     enable_in_development: true
+  benefits_documents_use_lighthouse:
+    actor_type: user
+    description: Use lighthouse instead of EVSS to upload benefits documents.
+    enable_in_development: false
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
