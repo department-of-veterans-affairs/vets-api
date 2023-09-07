@@ -935,7 +935,10 @@ RSpec.describe FormProfile, type: :model do
       'post_nov111998_combat' => false,
       'service_branches' => ['A', 'N'],
       'service_episodes_by_date' => expected_service_episodes_by_date,
-      'service_periods' => {},
+      'service_periods' => [
+        { service_branch: "Army National Guard", date_range: { from: "2012-03-02", to: "2018-10-31" } },
+        { service_branch: "Army National Guard", date_range: { from: "2002-02-02", to: "2008-12-01" } }
+      ],
       'sw_asia_combat' => false,
       'tours_of_duty' => [
         { service_branch: 'Army', date_range: { from: '2002-02-02', to: '2008-12-01' } },

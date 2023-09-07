@@ -231,15 +231,15 @@ module HCA
     #  including service branch served under and date range of each
     #  service period, used only for Form 526 - Disability form
     def service_periods
-      military_service_episodes_by_date.map do |military_service_episode|
-        service_branch = service_branch_used_in_disability(military_service_episode)
-        return {} unless service_branch
-
+      valid_episodes = military_service_episodes_by_date.select do |military_service_episode|
+        service_branch_used_in_disability(military_service_episode)
+      end
+      valid_episodes.map do |valid_episode|
         {
-          service_branch:,
+          service_branch: service_branch_used_in_disability(valid_episode),
           date_range: {
-            from: military_service_episode.begin_date,
-            to: military_service_episode.end_date
+            from: valid_episode.begin_date,
+            to: valid_episode.end_date
           }
         }
       end
