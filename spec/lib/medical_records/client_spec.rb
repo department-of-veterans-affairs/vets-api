@@ -103,58 +103,104 @@ describe MedicalRecords::Client do
     end
   end
 
-  context 'when the requested page is within the available entries' do
-    it 'returns the correct block of entries for page 1 with page size 2' do
-      page_size = 2
-      page_num = 1
-      result = client.paginate_bundle_entries(entries, page_size, page_num)
-      expect(result).to eq(['Entry 1', 'Entry 2'])
+  describe 'Bundle sorting' do
+    let(:bundle) { FHIR::Bundle.new(entry: [entry1, entry2, entry3]) }
+    let(:entry1) { FHIR::Bundle::Entry.new(resource: resource1) }
+    let(:entry2) { FHIR::Bundle::Entry.new(resource: resource2) }
+    let(:entry3) { FHIR::Bundle::Entry.new(resource: resource3) }
+    let(:resource1) { FHIR::AllergyIntolerance.new(onsetDateTime: '2005') }
+    let(:resource2) { FHIR::AllergyIntolerance.new(onsetDateTime: '2000') }
+    let(:resource3) { FHIR::AllergyIntolerance.new(onsetDateTime: '2010') }
+    let(:resource4) { FHIR::AllergyIntolerance.new }
+
+    context 'when sorting by date in ascending order' do
+      it 'returns the entries sorted by date' do
+        sorted = client.sort_bundle(bundle, :onsetDateTime)
+        expect(sorted.entry.map { |e| e.resource.onsetDateTime }).to eq(%w[2000 2005 2010])
+      end
     end
 
-    it 'returns the correct block of entries for page 2 with page size 2' do
-      page_size = 2
-      page_num = 2
-      result = client.paginate_bundle_entries(entries, page_size, page_num)
-      expect(result).to eq(['Entry 3', 'Entry 4'])
+    context 'when sorting by date in descending order' do
+      it 'returns the entries sorted by date' do
+        sorted = client.sort_bundle(bundle, :onsetDateTime, :desc)
+        expect(sorted.entry.map { |e| e.resource.onsetDateTime }).to eq(%w[2010 2005 2000])
+      end
     end
 
-    it 'returns the correct block of entries for page 3 with page size 2' do
-      page_size = 2
-      page_num = 3
-      result = client.paginate_bundle_entries(entries, page_size, page_num)
-      expect(result).to eq(['Entry 5'])
-    end
+    context 'when one of the resources lacks the sorting field' do
+      let(:bundle_with_missing_field) { FHIR::Bundle.new(entry: [entry1, entry4, entry2]) }
+      let(:entry4) { FHIR::Bundle::Entry.new(resource: resource4) }
 
-    it 'returns the correct block of entries for page 1 with page size 3' do
-      page_size = 3
-      page_num = 1
-      result = client.paginate_bundle_entries(entries, page_size, page_num)
-      expect(result).to eq(['Entry 1', 'Entry 2', 'Entry 3'])
-    end
-  end
+      context 'in ascending order' do
+        it 'places the entry with the missing field at the end' do
+          sorted = client.sort_bundle(bundle_with_missing_field, :onsetDateTime)
+          expect(sorted.entry.last.resource.onsetDateTime).to be_nil
+        end
+      end
 
-  context 'when the requested page exceeds the available entries' do
-    it 'returns an empty array for page 4 with page size 2' do
-      page_size = 2
-      page_num = 4
-      result = client.paginate_bundle_entries(entries, page_size, page_num)
-      expect(result).to eq([])
-    end
-
-    it 'returns an empty array for page 2 with page size 5' do
-      page_size = 5
-      page_num = 2
-      result = client.paginate_bundle_entries(entries, page_size, page_num)
-      expect(result).to eq([])
+      context 'in descending order' do
+        it 'places the entry with the missing field at the beginning' do
+          sorted = client.sort_bundle(bundle_with_missing_field, :onsetDateTime, :desc)
+          expect(sorted.entry.first.resource.onsetDateTime).to be_nil
+        end
+      end
     end
   end
 
-  context 'when the entries array is empty' do
-    it 'returns an empty array for any page and page size' do
-      page_size = 3
-      page_num = 1
-      result = client.paginate_bundle_entries([], page_size, page_num)
-      expect(result).to eq([])
+  describe 'Bundle pagination' do
+    context 'when the requested page is within the available entries' do
+      it 'returns the correct block of entries for page 1 with page size 2' do
+        page_size = 2
+        page_num = 1
+        result = client.paginate_bundle_entries(entries, page_size, page_num)
+        expect(result).to eq(['Entry 1', 'Entry 2'])
+      end
+
+      it 'returns the correct block of entries for page 2 with page size 2' do
+        page_size = 2
+        page_num = 2
+        result = client.paginate_bundle_entries(entries, page_size, page_num)
+        expect(result).to eq(['Entry 3', 'Entry 4'])
+      end
+
+      it 'returns the correct block of entries for page 3 with page size 2' do
+        page_size = 2
+        page_num = 3
+        result = client.paginate_bundle_entries(entries, page_size, page_num)
+        expect(result).to eq(['Entry 5'])
+      end
+
+      it 'returns the correct block of entries for page 1 with page size 3' do
+        page_size = 3
+        page_num = 1
+        result = client.paginate_bundle_entries(entries, page_size, page_num)
+        expect(result).to eq(['Entry 1', 'Entry 2', 'Entry 3'])
+      end
+    end
+
+    context 'when the requested page exceeds the available entries' do
+      it 'returns an empty array for page 4 with page size 2' do
+        page_size = 2
+        page_num = 4
+        result = client.paginate_bundle_entries(entries, page_size, page_num)
+        expect(result).to eq([])
+      end
+
+      it 'returns an empty array for page 2 with page size 5' do
+        page_size = 5
+        page_num = 2
+        result = client.paginate_bundle_entries(entries, page_size, page_num)
+        expect(result).to eq([])
+      end
+    end
+
+    context 'when the entries array is empty' do
+      it 'returns an empty array for any page and page size' do
+        page_size = 3
+        page_num = 1
+        result = client.paginate_bundle_entries([], page_size, page_num)
+        expect(result).to eq([])
+      end
     end
   end
 
