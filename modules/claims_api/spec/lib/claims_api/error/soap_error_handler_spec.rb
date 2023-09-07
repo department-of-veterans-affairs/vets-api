@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../../rails_helper'
 require 'claims_api/error/soap_error_handler'
 
 describe ApplicationController, type: :controller do
@@ -33,7 +34,7 @@ describe ApplicationController, type: :controller do
   end
 
   it 'catches resource not found' do
-    with_okta_user(scopes) do |auth_header|
+    mock_ccg(scopes) do |auth_header|
       # Following the normal headers: auth_header pattern fails due to
       # this rspec bug: https://github.com/rspec/rspec-rails/issues/1655
       # This is the recommended workaround from that issue thread.
@@ -50,7 +51,7 @@ describe ApplicationController, type: :controller do
   end
 
   it 'catches an unknown service error' do
-    with_okta_user(scopes) do |auth_header|
+    mock_ccg(scopes) do |auth_header|
       request.headers.merge!(auth_header)
 
       get :raise_service_error
@@ -65,7 +66,7 @@ describe ApplicationController, type: :controller do
   end
 
   it 'catches an unprocessable entity' do
-    with_okta_user(scopes) do |auth_header|
+    mock_ccg(scopes) do |auth_header|
       request.headers.merge!(auth_header)
 
       get :raise_unprocessable
