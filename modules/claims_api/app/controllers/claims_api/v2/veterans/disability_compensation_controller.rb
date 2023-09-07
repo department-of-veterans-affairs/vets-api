@@ -27,12 +27,28 @@ module ClaimsApi
             cid: token.payload['cid'],
             veteran_icn: target_veteran.mpi.icn
           )
+
+          # .create returns the resulting object whether the object was saved successfully to the database or not.
+          # If it's lacking the ID, that means the create was unsuccessful and an identical claim already exists.
+          # Find and return that claim instead.
+          unless auto_claim.id
+            existing_auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5)
+            auto_claim = existing_auto_claim if existing_auto_claim.present?
+          end
+
           track_pact_counter auto_claim
           pdf_data = get_pdf_data
           pdf_mapper_service(form_attributes, pdf_data, target_veteran).map_claim
 
-          evss_data = evss_mapper_service(auto_claim).map_claim
-          evss_service.submit(auto_claim, evss_data)
+          if auto_claim.evss_id.nil?
+            ClaimsApi::Logger.log('526 v2', claim_id: auto_claim.id, detail: 'Mapping EVSS Data')
+            evss_data = evss_mapper_service(auto_claim).map_claim
+            ClaimsApi::Logger.log('526 v2', claim_id: auto_claim.id, detail: 'Submitting to EVSS')
+            evss_service.submit(auto_claim, evss_data)
+          else
+            ClaimsApi::Logger.log('526 v2', claim_id: auto_claim.id, detail: 'EVSS Skipped',
+                                            evss_id: auto_claim.evss_id)
+          end
 
           ClaimsApi::Logger.log('526 v2', claim_id: auto_claim.id, detail: 'Starting call to 526EZ PDF generator')
           pdf_string = generate_526_pdf(pdf_data)
