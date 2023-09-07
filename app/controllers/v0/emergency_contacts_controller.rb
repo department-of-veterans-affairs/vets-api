@@ -22,11 +22,9 @@ module V0
 
     def emergency_contact_params
       params.require(:emergency_contact).permit(
-        :name,
-        :address,
-        :relationship,
-        :phone,
-        :work_phone
+        :given_name,
+        :family_name,
+        :primary_phone
       )
     end
   end

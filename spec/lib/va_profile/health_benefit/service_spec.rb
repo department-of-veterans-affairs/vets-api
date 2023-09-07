@@ -18,7 +18,7 @@ describe VAProfile::HealthBenefit::Service do
   end
 
   around do |example|
-    # using webmock & json fixtures
+    # using webmock & json fixtures instead of VCR
     VCR.turned_off { example.run }
   end
 

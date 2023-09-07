@@ -17,13 +17,21 @@ module V0
     private
 
     def service
-      VAProfile::HealhtBenefit::Service.new(current_user)
+      VAProfile::HealthBenefit::Service.new(current_user)
     end
 
     def next_of_kin_params
       params.require(:next_of_kin).permit(
-        :name,
-        :phone
+        :given_name,
+        :family_name,
+        :relationship,
+        :address_line1,
+        :address_line2,
+        :address_line3,
+        :city,
+        :state,
+        :zip_code,
+        :primary_phone
       )
     end
   end
