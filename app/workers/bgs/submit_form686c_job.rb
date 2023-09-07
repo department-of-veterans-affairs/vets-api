@@ -19,7 +19,7 @@ module BGS
       normalize_names_and_addresses!(claim_data)
       user_struct = generate_user_struct(vet_info['veteran_information'])
 
-      user = Flipper.enabled?(:dependents_enqueue_with_user_struct) ? user_struct : User.find(user_uuid)
+      user = user_struct
       BGS::Form686c.new(user).submit(claim_data)
 
       # If Form 686c job succeeds, then enqueue 674 job.
