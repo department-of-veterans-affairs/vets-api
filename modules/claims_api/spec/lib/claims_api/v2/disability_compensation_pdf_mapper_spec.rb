@@ -340,7 +340,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(unit_phone).to eq('5555555555')
         expect(act_duty_pay).to eq('YES')
         expect(other_name).to eq('YES')
-        expect(alt_names).to eq('john jacob, johnny smith')
+        expect(alt_names).to eq(['john jacob', 'johnny smith'])
         expect(fed_orders).to eq('YES')
         expect(fed_act).to eq({ month: 2, day: 11, year: 3619 })
         expect(fed_sep).to eq({ month: 10, day: 3, year: 6705 })

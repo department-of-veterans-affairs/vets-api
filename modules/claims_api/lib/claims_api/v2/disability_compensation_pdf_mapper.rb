@@ -495,11 +495,7 @@ module ClaimsApi
 
       def service_info_other_names
         other_names = @pdf_data[:data][:attributes][:serviceInformation][:alternateNames].present?
-        if other_names
-          names = @pdf_data[:data][:attributes][:serviceInformation][:alternateNames].join(', ')
-          @pdf_data[:data][:attributes][:serviceInformation][:servedUnderAnotherName] = 'YES'
-          @pdf_data[:data][:attributes][:serviceInformation][:alternateNames] = names
-        end
+        @pdf_data[:data][:attributes][:serviceInformation][:servedUnderAnotherName] = 'YES' if other_names
       end
 
       def fed_activation
