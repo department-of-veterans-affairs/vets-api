@@ -17,7 +17,7 @@ module VAProfile
       end
 
       def mock_enabled?
-        VAProfile::Configuration::SETTINGS.veteran_status.mock || false
+        false
       end
     end
   end

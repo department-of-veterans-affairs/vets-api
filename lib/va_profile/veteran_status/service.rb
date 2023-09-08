@@ -21,8 +21,8 @@ module VAProfile
       # GET's a user's veteran status info from the VAProfile API
       # If a user is not found in VAProfile, an empty VeteranStatusResponse with a 404 status will be returned
       # @return [VAProfile::VeteranStatus::VeteranStatusResponse] response wrapper around a veteran_status object
-      def get_veteran_status_data
-        with_monitoring do
+      def get_veteran_status
+        with_monitoring do 
           edipi_present!
       
           response = perform(:post, identity_path, VAProfile::Models::VeteranStatus.in_json)
@@ -63,7 +63,7 @@ module VAProfile
 
       # @return [String] Title 38 status code
       def title38_status
-        get_veteran_status_data&.veteran_status_title&.title38_status_code
+        get_veteran_status&.veteran_status_title&.title38_status_code
       end
 
       # Returns boolean for user being/not being considered a military person
@@ -84,7 +84,7 @@ module VAProfile
       private
 
       def edipi_present!
-        raise 'User does not have a valid edipi' if @user&.edipi.blank?
+        raise 'User does not have a valid edipi' if @user&.identity.edipi.blank?
       end
 
       def edipi_with_aaid
