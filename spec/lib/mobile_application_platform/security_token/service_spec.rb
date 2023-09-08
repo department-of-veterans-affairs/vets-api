@@ -15,7 +15,7 @@ describe MobileApplicationPlatform::SecurityToken::Service do
       context 'when an issue occurs with the client request' do
         let(:expected_error) { Common::Client::Errors::ClientError }
         let(:expected_error_message) do
-          "#{log_prefix} Token failed, client error, status: #{status}, description: #{description}," \
+          "#{log_prefix} token failed, client error, status: #{status}, description: #{description}," \
             " application: #{application}, icn: #{icn}"
         end
         let(:status) { 'some-status' }
@@ -34,7 +34,7 @@ describe MobileApplicationPlatform::SecurityToken::Service do
       context 'and response is malformed' do
         let(:expected_error) { NoMethodError }
         let(:expected_error_message) do
-          "#{log_prefix} Token failed, response unknown, application: #{application}, icn: #{icn}"
+          "#{log_prefix} token failed, response unknown, application: #{application}, icn: #{icn}"
         end
         let(:status) { 'some-status' }
         let(:description) { 'some-description' }
@@ -50,7 +50,7 @@ describe MobileApplicationPlatform::SecurityToken::Service do
       end
 
       context 'and response is successful' do
-        let(:expected_log_message) { "#{log_prefix} Token Success, application: #{application}, icn: #{icn}" }
+        let(:expected_log_message) { "#{log_prefix} token success, application: #{application}, icn: #{icn}" }
 
         it 'logs a token success message',
            vcr: { cassette_name: 'mobile_application_platform/security_token_service_200_response' } do
@@ -85,7 +85,7 @@ describe MobileApplicationPlatform::SecurityToken::Service do
     context 'when input application is arbitrary' do
       let(:application) { :some_application }
       let(:expected_error) { MobileApplicationPlatform::SecurityToken::Errors::ApplicationMismatchError }
-      let(:expected_error_message) { "#{log_prefix} Application mismatch detected" }
+      let(:expected_error_message) { "#{log_prefix} application mismatch detected" }
 
       it 'raises an application mismatch error' do
         expect { subject }.to raise_exception(expected_error, expected_error_message)
