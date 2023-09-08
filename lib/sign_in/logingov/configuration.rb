@@ -6,8 +6,6 @@ require 'common/client/middleware/logging'
 module SignIn
   module Logingov
     class Configuration < Common::Client::Configuration::REST
-      attr_accessor :public_jwks
-
       def base_path
         Settings.logingov.oauth_url
       end
@@ -94,6 +92,14 @@ module SignIn
 
       def service_name
         'logingov'
+      end
+
+      def jwks_cache_key
+        'logingov_public_jwks'
+      end
+
+      def jwks_cache_expiration
+        30.minutes
       end
 
       def connection
