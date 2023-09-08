@@ -40,7 +40,7 @@ describe VAProfile::HealthBenefit::Service do
         stub_request(:get, resource).to_return(status: 404)
         # result = service.get_emergency_contacts
         # expect(result.ok?).to be(false)
-        expect { service.get_emergency_contacts }.to raise_error Common::Client::Errors::ClientError
+        expect { service.get_emergency_contacts }.to raise_error Common::Exceptions::BackendServiceException
       end
     end
 
@@ -49,7 +49,7 @@ describe VAProfile::HealthBenefit::Service do
         stub_request(:get, resource).to_return(status: 500)
         # result = service.get_emergency_contacts
         # expect(result.ok?).to be(false)
-        expect { service.get_emergency_contacts }.to raise_error Common::Client::Errors::ClientError
+        expect { service.get_emergency_contacts }.to raise_error Common::Exceptions::BackendServiceException
       end
     end
   end
@@ -70,14 +70,14 @@ describe VAProfile::HealthBenefit::Service do
     context 'when resource is not found' do
       it "returns an AssociatedPersonsResponse with not-'ok' status" do
         stub_request(:get, resource).to_return(status: 404)
-        expect { service.get_next_of_kin }.to raise_error Common::Client::Errors::ClientError
+        expect { service.get_next_of_kin }.to raise_error Common::Exceptions::BackendServiceException
       end
     end
 
     context 'when the server experiences an error' do
       it "returns an AssociatedPersonsResponse with not-'ok' status" do
         stub_request(:get, resource).to_return(status: 500)
-        expect { service.get_next_of_kin }.to raise_error Common::Client::Errors::ClientError
+        expect { service.get_next_of_kin }.to raise_error Common::Exceptions::BackendServiceException
       end
     end
   end

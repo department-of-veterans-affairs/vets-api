@@ -29,20 +29,32 @@ module VAProfile
       end
 
       def get_associated_persons
-        response = perform(:get, v1_read_path)
-        VAProfile::HealthBenefit::AssociatedPersonsResponse.from(response)
+        with_monitoring do
+          response = perform(:get, v1_read_path)
+          VAProfile::HealthBenefit::AssociatedPersonsResponse.from(response)
+        end
+      rescue => e
+        handle_error(e)
       end
 
       def post_emergency_contacts(emergency_contact)
-        emergency_contact.source_system_user = user.icn
-        response = perform(:post, v1_update_path, emergency_contact.in_json)
-        VAProfile::HealthBenefit::AssociatedPersonsResponse.from(response)
+        with_monitoring do
+          emergency_contact.source_system_user = user.icn
+          response = perform(:post, v1_update_path, emergency_contact.in_json)
+          VAProfile::HealthBenefit::AssociatedPersonsResponse.from(response)
+        end
+      rescue => e
+        handle_error(e)
       end
 
       def post_next_of_kin(next_of_kin)
-        next_of_kin.source_system_user = user.icn
-        response = perform(:post, v1_update_path, next_of_kin.in_json)
-        VAProfile::HealhtBenefit::AssociatedPersonResponse.from(response)
+        with_monitoring do
+          next_of_kin.source_system_user = user.icn
+          response = perform(:post, v1_update_path, next_of_kin.in_json)
+          VAProfile::HealhtBenefit::AssociatedPersonResponse.from(response)
+        end
+      rescue => e
+        handle_error(e)
       end
 
       private
