@@ -48,14 +48,13 @@ module SignIn
 
       private
 
-      def get_public_jwks
-        unless config.public_jwks
+      def public_jwks
+        @public_jwks ||= Rails.cache.fetch(config.jwks_cache_key, expires_in: config.jwks_cache_expiration) do
           response = perform(:get, config.public_jwks_path, nil, nil)
-          config.public_jwks = parse_public_jwks(response:)
           Rails.logger.info('[SignIn][Idme][Service] Get Public JWKs Success')
-        end
 
-        config.public_jwks
+          parse_public_jwks(response:)
+        end
       rescue Common::Client::Errors::ClientError => e
         raise_client_error(e, 'Get Public JWKs')
       end
@@ -170,7 +169,7 @@ module SignIn
           encoded_jwt,
           nil,
           verify_expiration,
-          { verify_expiration:, algorithm: config.jwt_decode_algorithm, jwks: get_public_jwks }
+          { verify_expiration:, algorithm: config.jwt_decode_algorithm, jwks: public_jwks }
         ).first
         log_parsed_credential(decoded_jwt) if config.log_credential
 

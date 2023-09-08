@@ -6,8 +6,6 @@ require 'common/client/middleware/logging'
 module SignIn
   module Idme
     class Configuration < Common::Client::Configuration::REST
-      attr_accessor :public_jwks
-
       def base_path
         Settings.idme.oauth_url
       end
@@ -86,6 +84,14 @@ module SignIn
 
       def log_credential
         false
+      end
+
+      def jwks_cache_key
+        'idme_public_jwks'
+      end
+
+      def jwks_cache_expiration
+        30.minutes
       end
 
       # Faraday connection object with breakers, snakecase and json response middleware
