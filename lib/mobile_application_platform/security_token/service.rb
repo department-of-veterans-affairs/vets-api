@@ -13,12 +13,12 @@ module MobileApplicationPlatform
                            config.token_path,
                            token_params(application, icn),
                            { 'Content-Type' => 'application/x-www-form-urlencoded' })
-        Rails.logger.info("#{config.logging_prefix} Token Success, application: #{application}, icn: #{icn}")
+        Rails.logger.info("#{config.logging_prefix} token success, application: #{application}, icn: #{icn}")
         parse_response(response, application, icn)
       rescue Common::Client::Errors::ClientError => e
         status = e.status
-        description = e.body && e.body[:error_description]
-        raise e, "#{config.logging_prefix} Token failed, client error, status: #{status}," \
+        description = e.body.presence && e.body[:error_description]
+        raise e, "#{config.logging_prefix} token failed, client error, status: #{status}," \
                  " description: #{description}, application: #{application}, icn: #{icn}"
       end
 
@@ -32,7 +32,7 @@ module MobileApplicationPlatform
           expiration: Time.zone.now + response_body['expires_in']
         }
       rescue => e
-        raise e, "#{config.logging_prefix} Token failed, response unknown, application: #{application}, icn: #{icn}"
+        raise e, "#{config.logging_prefix} token failed, response unknown, application: #{application}, icn: #{icn}"
       end
 
       def client_id_from_application(application)
@@ -42,7 +42,7 @@ module MobileApplicationPlatform
         when :sign_up_service
           config.sign_up_service_client_id
         else
-          raise Errors::ApplicationMismatchError, "#{config.logging_prefix} Application mismatch detected"
+          raise Errors::ApplicationMismatchError, "#{config.logging_prefix} application mismatch detected"
         end
       end
 
