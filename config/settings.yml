@@ -32,6 +32,8 @@ mobile_application_platform:
   oauth_url: https://veteran.apps-staging.va.gov
   client_cert_path: spec/fixtures/mobile_application_platform/oauth.crt
   client_key_path: spec/fixtures/mobile_application_platform/oauth.key
+  sign_up_service_url: https://cerner.apps-staging.va.gov
+  sign_up_service_provisioning_api_key: abcd1234
 
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
