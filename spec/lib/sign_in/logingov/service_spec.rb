@@ -111,7 +111,6 @@ describe SignIn::Logingov::Service do
   describe '#token' do
     before do
       Timecop.freeze(Time.zone.at(current_time))
-      subject.send(:config).public_jwks = nil
     end
 
     after do
@@ -136,6 +135,26 @@ describe SignIn::Logingov::Service do
 
       it 'returns a logingov acr', vcr: { cassette_name: 'identity/logingov_200_responses' } do
         expect(subject.token(code)[:logingov_acr]).to eq(expected_logingov_acr)
+      end
+
+      context 'when the public JWK response is cached' do
+        let(:cache_key) { 'logingov_public_jwks' }
+        let(:cache_expiration) { 30.minutes }
+        let(:response) { double(body: 'some-body') }
+
+        before do
+          allow(Rails.cache).to receive(:fetch).with(cache_key, expires_in: cache_expiration).and_return(response)
+          allow(JWT).to receive(:decode).and_return([{ 'acr' => 'some-acr' }])
+          allow(JWT::JWK::Set).to receive(:new).and_return([])
+        end
+
+        it 'does not log expected_jwks_log' do
+          VCR.use_cassette('identity/logingov_200_responses') do
+            expect(Rails.logger).to receive(:info).with(expected_token_log)
+            expect(Rails.logger).not_to receive(:info).with(expected_jwks_log)
+            subject.token(code)
+          end
+        end
       end
     end
 
@@ -202,7 +221,6 @@ describe SignIn::Logingov::Service do
   describe '#user_info' do
     before do
       Timecop.freeze(Time.zone.at(current_time))
-      subject.send(:config).public_jwks = nil
     end
 
     after do
