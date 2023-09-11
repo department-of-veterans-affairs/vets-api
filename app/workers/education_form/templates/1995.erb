@@ -24,7 +24,11 @@ Address:
 Email Address:  <%= @applicant.email %>
 Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
 
+<% if Settings.vsp_environment.eql?('production') -%>
 <%= parse_with_template_path('bank_account') %>
+<% else -%>
+<%= parse_with_template_path('bank_account_no_stop') %>
+<% end -%>
 
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
@@ -60,7 +64,7 @@ For Active Duty Claimants Only. Are you receiving or do you anticipate receiving
 
 For Civilian Employees of the U.S. Federal Government Only. Are you receiving or do you anticipate receiving any money from your agency (including but not limited to the Government Employees Training Act) for the same period for which you have applied to the VA for Education Benefits? If you will receive such benefits during any part of your training, check Yes.    <%= yesno(@applicant.civilianBenefitsAssistance) %>
 
-<% if ENV['HOSTNAME'].eql?('api.va.gov') -%>
+<% if Settings.vsp_environment.eql?('production') -%>
                         MARITAL AND DEPENDENCY STATUS
            (For Applicants with Military Service Before Jan 1, 1977)
            ---------------------------------------------------------
