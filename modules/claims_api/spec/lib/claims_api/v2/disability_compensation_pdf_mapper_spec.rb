@@ -118,7 +118,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(va_file_number).to eq('AB123CDEF')
         expect(email).to eq('valid@somedomain.com')
         expect(agree_to_email).to eq(true)
-        expect(telephone).to eq('5555555555')
+        expect(telephone).to eq('555-555-5555')
         expect(international_telephone).to eq('+44 20 1234 5678')
       end
     end
@@ -170,7 +170,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless][:otherDescription]
 
         expect(homeless_point_of_contact).to eq('john stewart')
-        expect(homeless_telephone).to eq('5555555555')
+        expect(homeless_telephone).to eq('555-555-5555')
         expect(homeless_international_telephone).to eq('+44 20 1234 5678')
         expect(homeless_currently).to eq('YES') # can't be both homess & at risk
         expect(homeless_situation_options).to eq('FLEEING_CURRENT_RESIDENCE')
