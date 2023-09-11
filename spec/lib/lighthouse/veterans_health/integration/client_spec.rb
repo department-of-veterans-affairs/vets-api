@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'lighthouse/veterans_health/client'
 
-# rubocop:disable RSpec/FilePath
+# rubocop:disable RSpec/SpecFilePathFormat
 RSpec.describe Lighthouse::VeteransHealth::Client, :vcr do
   describe '#list_medication_requests' do
     context 'with a multi-page response' do
