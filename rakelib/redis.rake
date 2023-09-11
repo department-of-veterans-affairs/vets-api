@@ -79,25 +79,6 @@ namespace :redis do
       puts "Highest LOA3: #{loa3}"
       puts "Highest LOA1: #{loa1}"
     end
-
-    desc 'Audit Veteran Status'
-    task emis: :environment do
-      count = 0
-      veteran = 0
-
-      namespace = 'veteran-status-response'
-      redis = $redis
-      redis.scan_each(match: "#{namespace}:*") do |key|
-        count += 1
-        resp = Oj.load(redis.get(key))[:response]
-        veteran += 1 if any_veteran_indicator?(resp.items.first)
-      rescue
-        puts "Couldn't parse #{key}"
-      end
-
-      puts "Total cached EMIS responses: #{count}"
-      puts "Veterans: #{veteran}"
-    end
   end
 end
 
