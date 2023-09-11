@@ -1,14 +1,14 @@
 apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
-  name: claims-benefits
-  description: Benefits APIs for VA Lighthouse program
-  title: Claims Benefits API
+  name: benefits-claims
+  description: Benefits Claims API for VA Lighthouse program
+  title: Benefits Claims API
   tags:
     - lighthouse
     - external
   links:
-    - url: https://developer.va.gov/explore/benefits
+    - url: https://developer.va.gov/explore/api/benefits-claims
       title: Public Docs
       icon: web
 spec:
