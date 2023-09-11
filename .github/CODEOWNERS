@@ -666,7 +666,7 @@ lib/common/client/middleware/request/multipart_request.rb     @department-of-vet
 lib/common/exceptions/open_id_service_error.rb     @department-of-veterans-affairs/lighthouse-pivot   @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 lib/debt_management_center/base_service.rb     @department-of-veterans-affairs/vsa-debt-resolution   @department-of-veterans-affairs/backend-review-group
 lib/decision_review/configuration.rb     @department-of-veterans-affairs/Benefits-Team-1   @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
-lib/disability_compensation/factories     @department-of-veterans-affairs/Disability-Experience     @department-of-veterans-affairs/bdex   @department-of-veterans-affairs/backend-review-group
+lib/disability_compensation/factories     @department-of-veterans-affairs/Disability-Experience     @department-of-veterans-affairs/dbex-trex  @department-of-veterans-affairs/backend-review-group
 lib/efolder     @department-of-veterans-affairs/vsa-debt-resolution   @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 lib/efolder/service.rb     @department-of-veterans-affairs/vsa-debt-resolution   @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 lib/emis/configuration.rb   @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
