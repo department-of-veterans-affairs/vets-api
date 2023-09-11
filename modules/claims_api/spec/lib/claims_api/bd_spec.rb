@@ -15,11 +15,10 @@ describe ClaimsApi::BD do
   describe '#upload' do
     let(:claim) { create(:auto_established_claim, evss_id: 600_400_688) }
     let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-526EZ.pdf' }
-    let(:file_number) { 796_130_115 }
 
     it 'uploads a document to BD' do
       VCR.use_cassette('bd/upload') do
-        result = subject.upload(claim, pdf_path, file_number)
+        result = subject.upload(claim:, pdf_path:)
         expect(result).to be_a Hash
         expect(result[:data][:success]).to be true
       end

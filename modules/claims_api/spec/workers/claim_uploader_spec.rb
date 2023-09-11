@@ -7,6 +7,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
 
   before do
     Sidekiq::Worker.clear_all
+    allow(Flipper).to receive(:enabled?).with(:claims_claim_uploader_use_bd).and_return false
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -58,6 +59,15 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     expect do
       subject.perform_async(supporting_document.id)
     end.to change(subject.jobs, :size).by(1)
+  end
+
+  it 'submits successfully with BD' do
+    allow(Flipper).to receive(:enabled?).with(:claims_claim_uploader_use_bd).and_return true
+    allow_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return true
+
+    subject.new.perform(supporting_document.id)
+    supporting_document.reload
+    expect(auto_claim.uploader.blank?).to eq(false)
   end
 
   # relates to API-14302 and API-14303
