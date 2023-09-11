@@ -27,10 +27,10 @@ module VAProfile
       
           response = perform(:post, identity_path, VAProfile::Models::VeteranStatus.in_json)
       
-          VeteranStatusResponse.from(@current_user, response)
+          veteran_status_response = VeteranStatusResponse.from(@current_user, response)
         end
       rescue Common::Client::Errors::ClientError => e
-        additional_params = { edipi: @user.edipi, title38_status: title38_status }  # Add title38_status to the logging
+        additional_params = { edipi: @user.edipi, title38_status: veteran_status_response.title_38_status_code }  # Add title38_status to the logging
       
         if e.status == 404
           log_exception_to_sentry(
