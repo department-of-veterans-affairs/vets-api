@@ -12,8 +12,7 @@ cd ~/Documents
 git clone git@github.com:department-of-veterans-affairs/vets-api-mockdata.git
 ```
 
-2. If you're using Docker there is no step 2 run `make up` to start vets-api. If you're 
-not on Docker set the cache dir to the relative path of the mock data repo in 
+2. Set the cache dir to the relative path of the mock data repo in 
 config/development.yml file.
 ```yaml
 betamocks:
@@ -24,6 +23,7 @@ betamocks:
   #cache_dir: /cache # via docker; e.g. make up or make console
   services_config: config/betamocks/services_config.yml
 ```
+If you're using Docker run `make up` to start vets-api.
 
 Lighthouse devs can begin making api requests. Va.gov devs can now login with one of the [test users](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/MVI%20Integration/reference_documents/mvi_users_s1a.csv)
 without being connect to the VA VPN. By default all users have been mocked for MVI but
