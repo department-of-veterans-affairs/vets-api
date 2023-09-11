@@ -44,6 +44,7 @@
   "educationType": "tuitionTopUp",
   "educationObjective": "bachelor's degree",
   "bankAccountChange": "startUpdate",
+  "bankAccountChangeUpdate": "startUpdate",
   "bankAccount": {
     "accountNumber": "88888888888",
     "accountType": "checking",
