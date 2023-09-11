@@ -3,7 +3,6 @@
 require 'rails_helper'
 require 'virtual_regional_office/client'
 
-# rubocop:disable RSpec/SpecFilePathFormat
 RSpec.describe VirtualRegionalOffice::Client, :vcr do
   describe '#classify_contention_by_diagnostic_code' do
     context 'with a contention classification request' do
@@ -40,4 +39,3 @@ RSpec.describe VirtualRegionalOffice::Client, :vcr do
     end
   end
 end
-# rubocop:enable RSpec/FilePath

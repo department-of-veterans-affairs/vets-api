@@ -5,10 +5,7 @@ require_relative '../../../rakelib/piilog_repl/piilog_helpers'
 
 Q = PersonalInformationLogQueryBuilder
 
-# rubocop:disable RSpec/SpecFilePathFormat
 describe PersonalInformationLogQueryBuilder do
-  # rubocop:enable RSpec/FilePath
-
   [
     [
       'string/symbol args* narrow the error_class (*most string args)',
