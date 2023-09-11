@@ -526,8 +526,8 @@ module ClaimsApi
                    end
                    ClaimsApi::Logger.log('benefits_documents',
                                          detail: "calling benefits documents api for claim_id #{params[:id]}")
-                   supporting_docs_list = benefits_doc_api(multipart: false).search(params[:id],
-                                                                                    file_number)&.dig(:data)
+                   supporting_docs_list = benefits_doc_api.search(params[:id],
+                                                                  file_number)&.dig(:data)
                    # add with_indifferent_access so ['documents'] works below
                    # we can remove when EVSS is gone and access it via it's symbol
                    supporting_docs_list.with_indifferent_access if supporting_docs_list.present?
