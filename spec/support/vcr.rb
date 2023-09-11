@@ -12,6 +12,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<EE_PASS>') { Settings.hca.ee.pass }
   c.filter_sensitive_data('<EVSS_AWS_BASE_URL>') { Settings.evss.aws.url }
   c.filter_sensitive_data('<EVSS_BASE_URL>') { Settings.evss.url }
+  c.filter_sensitive_data('<EVSS_DVP_BASE_URL>') { Settings.evss.dvp.url }
   c.filter_sensitive_data('<GIDS_URL>') { Settings.gids.url }
   c.filter_sensitive_data('<LIGHTHOUSE_API_KEY>') { Settings.decision_review.api_key }
   c.filter_sensitive_data('<LIGHTHOUSE_API_KEY>') { Settings.lighthouse.facilities.api_key }
