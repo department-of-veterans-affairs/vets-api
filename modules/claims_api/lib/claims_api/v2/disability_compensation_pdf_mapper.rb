@@ -609,8 +609,10 @@ module ClaimsApi
               year: @target_veteran.birth_date[0..3].to_s
             }
         end
+        ssn = @target_veteran.ssn
+        formated_ssn = "#{ssn[0..2]}-#{ssn[3..4]}-#{ssn[5..8]}"
         @pdf_data[:data][:attributes][:identificationInformation][:name] = name
-        @pdf_data[:data][:attributes][:identificationInformation][:ssn] = @target_veteran.ssn
+        @pdf_data[:data][:attributes][:identificationInformation][:ssn] = formated_ssn
         @pdf_data[:data][:attributes][:identificationInformation][:dateOfBirth] = birth_date
         @pdf_data
       end

@@ -111,7 +111,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         international_telephone =
           pdf_data[:data][:attributes][:identificationInformation][:phoneNumber][:internationalTelephone]
 
-        expect(ssn).to eq('796111863')
+        expect(ssn).to eq('796-11-1863')
         expect(name).to eq({ lastName: 'lincoln', middleInitial: '', firstName: 'abraham' })
         expect(birth_date).to eq({ month: '11', day: '30', year: '2012' })
         expect(current_va_employee).to eq(false)
