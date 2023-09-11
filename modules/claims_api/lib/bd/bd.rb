@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'faraday'
+require 'claims_api/v2/benefits_documents/service'
 
 module ClaimsApi
   ##
@@ -9,9 +10,9 @@ module ClaimsApi
   # Takes an optional request parameter
   # @param [] rails request object
   class BD
-    def initialize(multipart: false, request: nil)
+    def initialize(request: nil)
       @request = request
-      @multipart = multipart
+      @multipart = false
     end
 
     ##
@@ -19,6 +20,7 @@ module ClaimsApi
     #
     # @return Documents list
     def search(claim_id, file_number)
+      @multipart = false
       body = { data: { claimId: claim_id, fileNumber: file_number } }
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "calling benefits documents search for claimId #{claim_id}")
@@ -33,23 +35,27 @@ module ClaimsApi
     # Upload document of mapped claim
     #
     # @return success or failure
-    def upload(claim, pdf_path, file_number)
-      body = generate_upload_body(claim, pdf_path, file_number)
-      client.post('documents', body)&.body
+    def upload(claim:, pdf_path:, file_number: nil)
+      @multipart = true
+      body = generate_upload_body(claim:, pdf_path:, file_number:)
+      res = client.post('documents', body)&.body
+      request_id = res&.dig(:data, :requestId)
+      ClaimsApi::Logger.log('526', detail: 'Successfully uploaded doc to BD', claim_id: claim.id, request_id:)
+      res
     end
 
     ##
     # Generate form body to upload a document
     #
     # @return {paramenters, file}
-    def generate_upload_body(claim, pdf_path, file_number)
+    def generate_upload_body(claim:, pdf_path:, file_number: nil)
       payload = {}
       data = {
         data: {
-          systemName: 'va.gov',
+          systemName: 'VA.gov',
           docType: 'L122',
           claimId: claim.evss_id,
-          fileNumber: file_number,
+          fileNumber: file_number || claim.auth_headers['va_eauth_birlsfilenumber'],
           fileName: File.basename(pdf_path),
           trackedItemIds: []
         }

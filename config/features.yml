@@ -225,6 +225,9 @@ features:
   covid_volunteer_delivery:
     actor_type: cookie_id
     description: Toggles whether COVID Research volunteer submissions will be delivered to genISIS
+  claims_claim_uploader_use_bd:
+    actor_type: user
+    description: Use BDS instead of EVSS to upload to VBMS.
   claims_status_v1_bgs_enabled:
     actor_type: user
     description: enables calling BGS instead of EVSS for the claims status v1.
