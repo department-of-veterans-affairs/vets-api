@@ -202,9 +202,7 @@ module HCA
 
     def post_nov111998_combat
       deployments.each do |deployment|
-        if deployment['deployment_end_date']
-          return true if Date.parse(deployment['deployment_end_date']) > NOV_1998
-        end
+        return true if deployment['deployment_end_date'] && (Date.parse(deployment['deployment_end_date']) > NOV_1998)
       end
 
       false
@@ -267,13 +265,11 @@ module HCA
 
     def deployed_to?(countries, date_range)
       deployments.each do |deployment|
-        if deployment['deployment_locations']
-          deployment['deployment_locations'].each do |location|
-            location_date_range = location['deployment_location_begin_date']..location['deployment_location_end_date']
+        deployment['deployment_locations']&.each do |location|
+          location_date_range = location['deployment_location_begin_date']..location['deployment_location_end_date']
 
-            if countries.include?(location['deployment_country_code']) && date_range.overlaps?(location_date_range)
-              return true
-            end
+          if countries.include?(location['deployment_country_code']) && date_range.overlaps?(location_date_range)
+            return true
           end
         end
       end

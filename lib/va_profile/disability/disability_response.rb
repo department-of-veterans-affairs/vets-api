@@ -14,7 +14,7 @@ module VAProfile
 
         new(
           raw_response&.status,
-          disability_rating: disability_rating
+          disability_rating:
         )
       end
 
