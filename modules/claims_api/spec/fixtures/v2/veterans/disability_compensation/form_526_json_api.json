@@ -97,6 +97,17 @@
           "diagnosticCode": 249470,
           "isRelatedToToxicExposure": true,
           "exposureOrEventOrInjury": "EXPOSURE"
+        },
+        {
+          "disabilityActionType": "NEW",
+          "name": "Cancer - Musculoskeletal - Knee",
+          "classificationCode": "249470",
+          "serviceRelevance": "ABCDEFG",
+          "approximateDate": "2015",
+          "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+          "diagnosticCode": 249470,
+          "isRelatedToToxicExposure": true,
+          "exposureOrEventOrInjury": "EXPOSURE"
         }
       ],
       "claimantCertification": true,
