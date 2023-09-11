@@ -7,6 +7,7 @@ require 'evss/error_middleware'
 require 'evss/reference_data/service'
 require 'common/exceptions'
 require 'jsonapi/parser'
+require 'evss_service/base' # docker container
 
 module ClaimsApi
   module V1
@@ -146,7 +147,9 @@ module ClaimsApi
           ClaimsApi::Logger.log('526', detail: '526/validate - Controller Actions Completed')
 
           service =
-            if Flipper.enabled? :form526_legacy
+            if Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
+              ClaimsApi::EVSSService::Base.new
+            elsif Flipper.enabled? :form526_legacy
               EVSS::DisabilityCompensationForm::Service.new(auth_headers)
             else
               EVSS::DisabilityCompensationForm::Dvp::Service.new(auth_headers)
@@ -159,16 +162,26 @@ module ClaimsApi
             flashes:,
             special_issues: special_issues_per_disability
           )
-          service.validate_form526(auto_claim.to_internal)
+
+          if Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
+            service.validate(auto_claim, auto_claim.to_internal)
+          else
+            service.validate_form526(auto_claim.to_internal)
+          end
+
           ClaimsApi::Logger.log('526', detail: '526/validate - Request Completed')
           render json: valid_526_response
         rescue ::EVSS::DisabilityCompensationForm::ServiceException, EVSS::ErrorMiddleware::EVSSError => e
           error_details = e.is_a?(EVSS::ErrorMiddleware::EVSSError) ? e.details : e.messages
           track_526_validation_errors(error_details)
           raise ::Common::Exceptions::UnprocessableEntity.new(errors: format_526_errors(error_details))
+        rescue ::Common::Exceptions::BackendServiceException => e
+          error_details = e&.original_body&.[](:messages)
+          raise ::Common::Exceptions::UnprocessableEntity.new(errors: format_526_errors(error_details))
         rescue ::Common::Exceptions::GatewayTimeout,
                ::Timeout::Error,
                ::Faraday::TimeoutError,
+               Faraday::Error::ParsingError,
                Breakers::OutageException => e
           req = { auth: auth_headers, form: form_attributes, source: source_name, auto_claim: auto_claim.as_json }
           PersonalInformationLog.create(
