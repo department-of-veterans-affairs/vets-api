@@ -4,8 +4,7 @@ require 'medical_records/phr_mgr/client'
 
 ##
 # For current MHV users, call the "PHR Refresh" API in MHV to update their medical records in the
-# FHIR server. This is done on login to give the process time to complete before the user browses
-# to the medical records page.
+# FHIR server.
 #
 module MHV
   class PhrUpdateJob

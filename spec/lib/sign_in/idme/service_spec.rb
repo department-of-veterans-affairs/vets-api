@@ -133,11 +133,11 @@ describe SignIn::Idme::Service do
   describe '#user_info' do
     let(:test_client_cert_path) { 'spec/fixtures/sign_in/oauth_test.crt' }
     let(:test_client_key_path) { 'spec/fixtures/sign_in/oauth_test.key' }
+    let(:expected_jwks_log) { '[SignIn][Idme][Service] Get Public JWKs Success' }
 
     before do
       allow(Settings.idme).to receive(:client_cert_path).and_return(test_client_cert_path)
       allow(Settings.idme).to receive(:client_key_path).and_return(test_client_key_path)
-      subject.send(:config).public_jwks = nil
     end
 
     it 'returns user attributes', vcr: { cassette_name: 'identity/idme_200_responses' } do
@@ -225,6 +225,34 @@ describe SignIn::Idme::Service do
 
       it 'raises a jwt malformed error with expected message', vcr: { cassette_name: 'identity/idme_jwks_malformed' } do
         expect { subject.user_info(token) }.to raise_error(expected_error, expected_error_message)
+      end
+    end
+
+    context 'when the public JWK response is not cached' do
+      it 'logs information to rails logger' do
+        VCR.use_cassette('identity/idme_200_responses') do
+          expect(Rails.logger).to receive(:info).with(expected_jwks_log)
+          subject.user_info(token)
+        end
+      end
+    end
+
+    context 'when the public JWK response is cached' do
+      let(:cache_key) { 'idme_public_jwks' }
+      let(:cache_expiration) { 30.minutes }
+      let(:response) { double(body: 'some-body') }
+
+      before do
+        allow(Rails.cache).to receive(:fetch).with(cache_key, expires_in: cache_expiration).and_return(response)
+        allow(JWT).to receive(:decode).and_return([])
+        allow(JWT::JWK::Set).to receive(:new).and_return([])
+      end
+
+      it 'does not log expected_jwks_log' do
+        VCR.use_cassette('identity/idme_200_responses') do
+          expect(Rails.logger).not_to receive(:info).with(expected_jwks_log)
+          subject.user_info(token)
+        end
       end
     end
   end

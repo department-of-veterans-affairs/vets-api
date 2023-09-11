@@ -17,7 +17,7 @@ class SavedClaim::EducationBenefits::VA1995 < SavedClaim::EducationBenefits
   def after_submit(_user)
     return unless Flipper.enabled?(:form1995_confirmation_email)
 
-    parsed_form_data ||= JSON.parse(form)
+    parsed_form_data = JSON.parse(form)
     email = parsed_form_data['email']
     return if email.blank?
 
@@ -27,21 +27,18 @@ class SavedClaim::EducationBenefits::VA1995 < SavedClaim::EducationBenefits
   private
 
   def send_confirmation_email(parsed_form_data, email)
+    benefit_claimed = BENEFIT_TITLE_FOR_1995[parsed_form_data['benefit']] || ''
+
     VANotify::EmailJob.perform_async(
       email,
       Settings.vanotify.services.va_gov.template_id.form1995_confirmation_email,
       {
         'first_name' => parsed_form.dig('veteranFullName', 'first')&.upcase.presence,
-        'benefit' => benefit_claimed(parsed_form_data),
+        'benefit' => benefit_claimed,
         'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
         'confirmation_number' => education_benefits_claim.confirmation_number,
         'regional_office_address' => regional_office_address
       }
     )
-  end
-
-  def benefit_claimed(parsed_form_data)
-    benefit ||= parsed_form_data['benefit']
-    BENEFIT_TITLE_FOR_1995[benefit]
   end
 end

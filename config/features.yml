@@ -23,6 +23,10 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to view/download benefit letters.
     enable_in_development: true
+  benefits_documents_use_lighthouse:
+    actor_type: user
+    description: Use lighthouse instead of EVSS to upload benefits documents.
+    enable_in_development: false
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
@@ -35,10 +39,6 @@ features:
   hca_household_v2_enabled:
     actor_type: user
     description: Enables the optimized household section flow.
-    enable_in_development: true
-  hca_remove_id_fields_enabled:
-    actor_type: user
-    description: Enables removal of duplicate identitiy fields when completing health care application as a guest.
     enable_in_development: true
   hca_sigi_enabled:
     actor_type: user
@@ -225,6 +225,9 @@ features:
   covid_volunteer_delivery:
     actor_type: cookie_id
     description: Toggles whether COVID Research volunteer submissions will be delivered to genISIS
+  claims_claim_uploader_use_bd:
+    actor_type: user
+    description: Use BDS instead of EVSS to upload to VBMS.
   claims_status_v1_bgs_enabled:
     actor_type: user
     description: enables calling BGS instead of EVSS for the claims status v1.
@@ -312,6 +315,10 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
+  dependents_submit_674_independently:
+    actor_type: user
+    description: Manage whether 674 can be submitted without an associated 686c
+    enable_in_development: true
   disability_526_classifier:
     actor_type: user
     description: enables sending claims for increase to VRO Contention Classification service for more accurate classification entry.
@@ -324,6 +331,9 @@ features:
     actor_type: user
     description: enables sending disability diagnostic codes to VRO Max CFI API to get the corresponding maximum ratings.
     enable_in_development: false
+  disability_526_toxic_exposure:
+    actor_type: user
+    description: enables new pages, processing, and submission of toxic exposure claims
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
@@ -545,6 +555,10 @@ features:
   mhv_medical_records_phr_refresh_on_login:
     actor_type: user
     description: Enables/disbales the PHR refresh for MHV users when logging into VA.gov
+    enable_in_development: true
+  mhv_medical_records_display_domains:
+    actor_type: user
+    description: Show/hide in-progress Medical Records domains
     enable_in_development: true
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
@@ -832,6 +846,10 @@ features:
     actor_type: user
     description: Allows updates to the static landing widget on the Public Websites page
     enable_in_development: true
+  va_online_scheduling_GA4_migration:
+    actor_type: user
+    description: Toggle for the GA4 events migration work.
+    enable_in_development: true
   va_online_scheduling_unenrolled_vaccine:
     actor_type: user
     description: Toggle for unenrolled vaccine scheduling discovery work.
@@ -974,6 +992,9 @@ features:
     actor_type: user
     description: Provides a flag wrapper for minor code changes to be gated from Prod.
     enable_in_development: true
+  meb_gate_person_criteria:
+    actor_type: user
+    description: Flag to use Person Criteria on Submission service
   supply_reordering_sleep_apnea_enabled:
     actor_type: user
     description: Enables sleep apnea supplies to be ordered in the supply reorder tool / MDOT.
@@ -1033,9 +1054,6 @@ features:
   virtual_agent_fetch_jwt_token:
     actor_type: user
     description: Enable the fetching of a JWT token to access MAP environment
-  income_limits_new:
-    actor_type: user
-    description: If enabled, shows the newly designed income limits application
   drupal_footer:
     actor_type: user
     description: If enabled, pulls Drupal data to populate most of the global footer
@@ -1060,3 +1078,16 @@ features:
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
+  virtual_agent_enable_pva2_chatbot:
+    actor_type: user
+    description: If enabled, switches VA chatbot from PVA1 to PVA2
+  terms_of_use:
+    actor_type: user
+    description: This determines whether a user is redirected to the Terms of Use page
+    enable_in_development: true
+  burial_form_enabled:
+    actor_type: user
+    description: Enable the burial form
+  pension_form_enabled:
+    actor_type: user
+    description: Enable the pension form

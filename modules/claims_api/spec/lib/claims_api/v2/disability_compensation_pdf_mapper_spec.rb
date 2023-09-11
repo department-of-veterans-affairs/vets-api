@@ -52,6 +52,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         ssn: '796111863',
         edipi: '8040545646',
         participant_id: '600061742',
+        birth_date: '20121130',
         mpi: OpenStruct.new(
           icn: '1013062086V794840',
           profile: OpenStruct.new(ssn: '796111863')
@@ -99,6 +100,9 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         mapper.map_claim
 
         current_va_employee = pdf_data[:data][:attributes][:identificationInformation][:currentVaEmployee]
+        ssn = pdf_data[:data][:attributes][:identificationInformation][:ssn]
+        name = pdf_data[:data][:attributes][:identificationInformation][:name]
+        birth_date = pdf_data[:data][:attributes][:identificationInformation][:dateOfBirth]
         va_file_number = pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber]
         email = pdf_data[:data][:attributes][:identificationInformation][:emailAddress][:email]
         agree_to_email =
@@ -107,11 +111,14 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         international_telephone =
           pdf_data[:data][:attributes][:identificationInformation][:phoneNumber][:internationalTelephone]
 
+        expect(ssn).to eq('796-11-1863')
+        expect(name).to eq({ lastName: 'lincoln', middleInitial: '', firstName: 'abraham' })
+        expect(birth_date).to eq({ month: '11', day: '30', year: '2012' })
         expect(current_va_employee).to eq(false)
         expect(va_file_number).to eq('AB123CDEF')
         expect(email).to eq('valid@somedomain.com')
         expect(agree_to_email).to eq(true)
-        expect(telephone).to eq('5555555555')
+        expect(telephone).to eq('555-555-5555')
         expect(international_telephone).to eq('+44 20 1234 5678')
       end
     end
@@ -133,8 +140,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         zip = pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:zip]
         state = pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:state]
 
-        expect(begin_date).to eq({ month: 11, day: 30, year: 2012 })
-        expect(end_date).to eq({ month: 10, day: 11, year: 2013 })
+        expect(begin_date).to eq({ month: '11', day: '30', year: '2012' })
+        expect(end_date).to eq({ month: '10', day: '11', year: '2013' })
         expect(type_of_addr_change).to eq('TEMPORARY')
         expect(number_and_street).to eq('10 Peach St')
         expect(apartment_or_unit_number).to eq('22')
@@ -163,7 +170,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless][:otherDescription]
 
         expect(homeless_point_of_contact).to eq('john stewart')
-        expect(homeless_telephone).to eq('5555555555')
+        expect(homeless_telephone).to eq('555-555-5555')
         expect(homeless_international_telephone).to eq('+44 20 1234 5678')
         expect(homeless_currently).to eq('YES') # can't be both homess & at risk
         expect(homeless_situation_options).to eq('FLEEING_CURRENT_RESIDENCE')
@@ -200,21 +207,21 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         multi_exp_hazard = toxic_exp_data[:multipleExposures][0][:hazardExposedTo]
 
         expect(gulf_locations).to eq('YES')
-        expect(gulf_begin_date).to eq({ month: 7, year: 2018 })
-        expect(gulf_end_date).to eq({ month: 8, year: 2018 })
+        expect(gulf_begin_date).to eq({ month: '07', year: '2018' })
+        expect(gulf_end_date).to eq({ month: '08', year: '2018' })
 
         expect(herbicide_locations).to eq('YES')
         expect(other_locations).to eq('ABCDEFGHIJKLM')
-        expect(herb_begin_date).to eq({ month: 7, year: 2018 })
-        expect(herb_end_date).to eq({ month: 8, year: 2018 })
+        expect(herb_begin_date).to eq({ month: '07', year: '2018' })
+        expect(herb_end_date).to eq({ month: '08', year: '2018' })
 
         expect(additional_exposures).to eq(%w[ASBESTOS SHIPBOARD_HAZARD_AND_DEFENSE])
         expect(specify_other_exp).to eq('Other exposure details')
-        expect(exp_begin_date).to eq({ month: 7, year: 2018 })
-        expect(exp_end_date).to eq({ month: 8, year: 2018 })
+        expect(exp_begin_date).to eq({ month: '07', year: '2018' })
+        expect(exp_end_date).to eq({ month: '08', year: '2018' })
 
-        expect(multi_exp_begin_date).to eq({ month: 12, year: 2012 })
-        expect(multi_exp_end_date).to eq({ month: 7, year: 2013 })
+        expect(multi_exp_begin_date).to eq({ month: '12', year: '2012' })
+        expect(multi_exp_end_date).to eq({ month: '07', year: '2013' })
         expect(multi_exp_location).to eq('Guam')
         expect(multi_exp_hazard).to eq('RADIATION')
       end
@@ -238,11 +245,13 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         secondary_event = claim_info[:disabilities][1][:exposureOrEventOrInjury]
         secondary_relevance = claim_info[:disabilities][1][:serviceRelevance]
         has_conditions = pdf_data[:data][:attributes][:exposureInformation][:hasConditionsRelatedToToxicExposures]
+        yyyy_date_format = claim_info[:disabilities][2][:approximateDate]
 
         expect(has_conditions).to eq('YES')
         expect(name).to eq('Traumatic Brain Injury')
         expect(relevance).to eq('ABCDEFG')
         expect(date).to eq('March 2018')
+        expect(yyyy_date_format).to eq('2015')
         expect(event).to eq('EXPOSURE')
         expect(attribut_count).to eq(4)
         expect(secondary_name).to eq('Cancer - Musculoskeletal - Elbow')
@@ -277,7 +286,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         no_date = tx_center_data[0][:doNotHaveDate]
         treatment_details = tx_center_data[0][:treatmentDetails]
 
-        expect(start_date).to eq({ month: 3, year: 1985 })
+        expect(start_date).to eq({ month: '03', year: '1985' })
         expect(no_date).to eq(false)
         expect(treatment_details).to eq('Traumatic Brain Injury, Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders, Cancer - Musculoskeletal - Elbow - Center One, Decatur, GA') # rubocop:disable Layout/LineLength
       end
@@ -321,29 +330,29 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
         expect(branch).to eq('Public Health Service')
         expect(component).to eq('ACTIVE')
-        expect(recent_start).to eq({ month: 11, day: 14, year: 1980 })
-        expect(recent_end).to eq({ month: 11, day: 30, year: 1991 })
-        expect(addtl_start).to eq({ month: 11, day: 14, year: 1980 })
-        expect(addtl_end).to eq({ month: 11, day: 30, year: 1991 })
+        expect(recent_start).to eq({ month: '11', day: '14', year: '1980' })
+        expect(recent_end).to eq({ month: '11', day: '30', year: '1991' })
+        expect(addtl_start).to eq({ month: '11', day: '14', year: '1980' })
+        expect(addtl_end).to eq({ month: '11', day: '30', year: '1991' })
         expect(last_sep).to eq('ABCDEFGHIJKLMN')
         expect(pow).to eq('YES')
-        expect(pow_start).to eq({ month: 6, day: 4, year: 2018 })
-        expect(pow_end).to eq({ month: 6, day: 4, year: 2018 })
-        expect(pow_start_two).to eq({ month: 6, year: 2020 })
-        expect(pow_end_two).to eq({ month: 6, year: 2020 })
+        expect(pow_start).to eq({ month: '06', day: '04', year: '2018' })
+        expect(pow_end).to eq({ month: '06', day: '04', year: '2018' })
+        expect(pow_start_two).to eq({ month: '06', year: '2020' })
+        expect(pow_end_two).to eq({ month: '06', year: '2020' })
         expect(natl_guard).to eq('YES')
         expect(natl_guard_comp).to eq('NATIONAL_GUARD')
-        expect(obl_begin).to eq({ month: 6, day: 4, year: 2019 })
-        expect(obl_end).to eq({ month: 6, day: 4, year: 2020 })
+        expect(obl_begin).to eq({ month: '06', day: '04', year: '2019' })
+        expect(obl_end).to eq({ month: '06', day: '04', year: '2020' })
         expect(unit_name).to eq('National Guard Unit Name')
         expect(unit_address).to eq('1243 pine court')
         expect(unit_phone).to eq('5555555555')
         expect(act_duty_pay).to eq('YES')
         expect(other_name).to eq('YES')
-        expect(alt_names).to eq('john jacob, johnny smith')
+        expect(alt_names).to eq(['john jacob', 'johnny smith'])
         expect(fed_orders).to eq('YES')
-        expect(fed_act).to eq({ month: 2, day: 11, year: 3619 })
-        expect(fed_sep).to eq({ month: 10, day: 3, year: 6705 })
+        expect(fed_act).to eq({ month: '02', day: '11', year: '3619' })
+        expect(fed_sep).to eq({ month: '10', day: '03', year: '6705' })
         expect(served_after_nine_eleven).to eq('NO')
       end
     end
@@ -400,7 +409,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         signature = pdf_data[:data][:attributes][:claimCertificationAndSignature][:signature]
         date = pdf_data[:data][:attributes][:claimCertificationAndSignature][:dateSigned]
 
-        expect(date).to eq({ month: 2, day: 18, year: 2023 })
+        expect(date).to eq({ month: '02', day: '18', year: '2023' })
         expect(signature).to eq('abraham lincoln')
       end
     end

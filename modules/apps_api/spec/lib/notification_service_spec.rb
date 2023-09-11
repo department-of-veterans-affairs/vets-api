@@ -8,47 +8,6 @@ require 'ostruct'
 describe AppsApi::NotificationService do
   subject { AppsApi::NotificationService.new }
 
-  let(:invalid_connection_event) do
-    {
-      'eventType' => 'app.oauth2.as.consent.grant',
-      'outcome' => {
-        'result' => 'FAILED'
-      },
-      'published' => '2020-11-29T00:23:39.508Z',
-      'uuid' => '1234fakeuuid',
-      'target' => [
-        {
-          'id' => 'oagke4gvwYHTncxlI2p6',
-          'displayName' => 'veteran_status.read',
-          'detailEntry' => {
-            'publicclientapp' => '{app_id}',
-            'user' => '{user_id}'
-          }
-        }
-      ]
-    }
-  end
-
-  let(:valid_connection_event) do
-    {
-      'eventType' => 'app.oauth2.as.consent.grant',
-      'outcome' => {
-        'result' => 'SUCCESS'
-      },
-      'published' => '2020-11-29T00:23:39.508Z',
-      'uuid' => '1234fakeuuid',
-      'target' => [
-        {
-          'id' => 'oagke4gvwYHTncxlI2p6',
-          'displayName' => 'veteran_status.read',
-          'detailEntry' => {
-            'publicclientapp' => '{app_id}',
-            'user' => '{user_id}'
-          }
-        }
-      ]
-    }
-  end
   let(:invalid_disconnection_event) do
     {
       'eventType' => 'app.oauth2.as.consent.revoke',
@@ -77,6 +36,7 @@ describe AppsApi::NotificationService do
         'result' => 'SUCCESS'
       },
       'published' => '2020-11-29T00:23:39.508Z',
+      'uuid' => '1234fakeuuid',
       'target' => [
         {
           'id' => '{token_id}',
@@ -112,7 +72,7 @@ describe AppsApi::NotificationService do
     subject.create_hash(
       app_record: directory_app,
       user: user_struct,
-      event: valid_connection_event
+      event: valid_disconnection_event
     )
   end
   let(:directory_app_struct) do
@@ -136,40 +96,7 @@ describe AppsApi::NotificationService do
     it 'initializes the class correctly' do
       expect(subject.instance_variable_get(:@okta_service)).to be_instance_of(Okta::Service)
       expect(subject.instance_variable_get(:@notify_client)).to be_instance_of(VaNotify::Service)
-      expect(subject.instance_variable_get(:@connection_event)).to be('app.oauth2.as.consent.grant')
       expect(subject.instance_variable_get(:@disconnection_event)).to be('app.oauth2.as.consent.revoke')
-    end
-  end
-
-  describe 'handle_event' do
-    it 'returns early if in testing or development' do
-      subject.instance_variable_set(:@should_perform, false)
-      response = subject.handle_event(
-        subject.instance_variable_get(:@connection_event),
-        subject.instance_variable_get(:@connection_template)
-      )
-      expect(response).to eql 'not enabled for this environment'
-    end
-
-    it 'properly calls the okta service' do
-      response = OpenStruct.new(
-        {
-          body:
-            [
-              valid_connection_event,
-              invalid_connection_event
-            ]
-        }
-      )
-      allow_any_instance_of(Okta::Service).to receive(:system_logs).with(any_args).and_return(response)
-      allow_any_instance_of(Okta::Service).to receive(:app).with(any_args).and_return(directory_app_struct)
-      allow_any_instance_of(Okta::Service).to receive(:user).with(any_args).and_return(user_struct)
-
-      expect_any_instance_of(Okta::Service).to receive(:system_logs)
-      subject.handle_event(
-        subject.instance_variable_get(:@connection_event),
-        subject.instance_variable_get(:@connection_template)
-      )
     end
   end
 
@@ -181,11 +108,6 @@ describe AppsApi::NotificationService do
     end
 
     VCR.use_cassette('okta/user', match_requests_on: %i[method path]) do
-      it 'calls Okta::Service.user' do
-        expect_any_instance_of(Okta::Service).to receive(:user)
-        subject.parse_event(valid_connection_event)
-      end
-
       it 'invokes create_hash' do
         expect_any_instance_of(AppsApi::NotificationService).to receive(:create_hash)
         subject.parse_event(valid_disconnection_event)
@@ -204,13 +126,6 @@ describe AppsApi::NotificationService do
       Timecop.return
     end
 
-    it 'returns a response body of connections' do
-      VCR.use_cassette('okta/connection_logs', match_requests_on: %i[method path]) do
-        response = subject.get_events('app.oauth2.as.consent.grant')
-        expect(response.body).not_to be_empty
-      end
-    end
-
     it 'returns a response body of disconnections' do
       VCR.use_cassette('okta/disconnection_logs', match_requests_on: %i[method]) do
         response = subject.get_events('app.oauth2.as.token.revoke')
@@ -221,24 +136,11 @@ describe AppsApi::NotificationService do
 
   describe 'validating events' do
     it 'does not validate invalid events' do
-      expect(subject.event_is_invalid?(returned_hash, invalid_connection_event)).to be(true)
       expect(subject.event_is_invalid?(returned_hash, invalid_disconnection_event)).to be(true)
     end
 
     it 'validates valid events' do
-      expect(subject.event_is_invalid?(returned_hash, valid_connection_event)).to be(false)
       expect(subject.event_is_invalid?(returned_hash, valid_disconnection_event)).to be(false)
-    end
-
-    context 'when the event has already been processed' do
-      it 'does not process an event that has already been processed' do
-        subject.instance_variable_set(:@handled_events, ['1234fakeuuid'])
-        expect(subject.event_is_invalid?(returned_hash, invalid_connection_event)).to be(true)
-      end
-
-      it 'ignores events that have not been processed' do
-        expect(subject.event_is_invalid?(returned_hash, valid_connection_event)).to be(false)
-      end
     end
   end
 
@@ -250,14 +152,8 @@ describe AppsApi::NotificationService do
   end
 
   describe 'event_unsuccessful?' do
-    it 'parses connection events as expected' do
-      expect(subject.event_unsuccessful?(valid_connection_event)).to be(false)
-      expect(subject.event_unsuccessful?(invalid_connection_event)).to be(true)
-    end
-
     it 'handles disconnection events as expected' do
       expect(subject.event_unsuccessful?(valid_disconnection_event)).to be(false)
-      expect(subject.event_unsuccessful?(invalid_connection_event)).to be(true)
     end
   end
 
@@ -276,39 +172,6 @@ describe AppsApi::NotificationService do
   describe 'format_published_time' do
     it 'parses the published time correctly' do
       expect(subject.format_published_time(published)).to eq('11/29/2020 at 12:23 a.m')
-    end
-  end
-
-  describe 'send_email' do
-    context 'when app_record is nil' do
-      let(:hash_with_nil_record) do
-        subject.create_hash(
-          app_record: nil,
-          user: user_struct,
-          event: valid_connection_event
-        )
-      end
-
-      it 'returns false' do
-        expect(
-          subject.send_email(
-            hash: hash_with_nil_record,
-            template: subject.instance_variable_get(:@connection_template)
-          )
-        ).to be(false)
-      end
-    end
-
-    context 'when app_record is not nil' do
-      it 'does call the notify client' do
-        allow_any_instance_of(VaNotify::Service).to receive(:send_email).and_return(true)
-        expect(
-          subject.send_email(
-            hash: returned_hash,
-            template: subject.instance_variable_get(:@connection_template)
-          )
-        ).to eq(true)
-      end
     end
   end
 end

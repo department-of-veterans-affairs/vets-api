@@ -32,6 +32,8 @@ mobile_application_platform:
   oauth_url: https://veteran.apps-staging.va.gov
   client_cert_path: spec/fixtures/mobile_application_platform/oauth.crt
   client_key_path: spec/fixtures/mobile_application_platform/oauth.key
+  sign_up_service_url: https://cerner.apps-staging.va.gov
+  sign_up_service_provisioning_api_key: abcd1234
 
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
@@ -66,6 +68,9 @@ sign_in:
   mock_auth_url: http://localhost:3000/mocked_authentication/profiles
   mock_redirect_uri: http://localhost:3000/v0/sign_in/callback
   mockdata_sync_api_key: ~
+
+terms_of_use:
+  current_version: v1
 
 lockbox:
   master_key: "0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9"
@@ -1225,6 +1230,7 @@ covid_vaccine:
 
 virtual_agent:
   webchat_secret: fake_secret
+  webchat_pva2_secret: fake_secret
   lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
   lighthouse_api_key: fake_api_key
   cxdw_client_secret: fake_secret
@@ -1249,8 +1255,8 @@ vanotify:
         form527ez_confirmation_email: form527ez_confirmation_email_template_id
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         contact_info_change: fake_template_id
-        form0994_confirmation_email_v1: form0994_confirmation_email_v1_template_id
-        form0994_confirmation_email_v2: form0994_confirmation_email_v2_template_id
+        form0994_confirmation_email: form0994_confirmation_email_template_id
+        form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1990_confirmation_email: form1990_confirmation_email_template_id
         form1990e_confirmation_email: form1990e_confirmation_email_template_id
         form1995_confirmation_email: form1995_confirmation_email_template_id
@@ -1273,7 +1279,6 @@ vanotify:
       api_key: fake_secret
       template_id:
         disconnection_template: fake_template_id
-        connection_template: fake_template_id
     dmc:
       api_key: fake_secret
       template_id:

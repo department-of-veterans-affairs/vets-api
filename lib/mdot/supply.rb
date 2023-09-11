@@ -4,7 +4,7 @@ module MDOT
   class Supply
     include Virtus.model
 
-    attribute :device_name, String
+    attribute :device_name, String, default: ''
     attribute :product_name, String
     attribute :product_group, String
     attribute :product_id, Integer
