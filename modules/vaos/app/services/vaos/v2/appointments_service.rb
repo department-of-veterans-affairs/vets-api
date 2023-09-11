@@ -3,10 +3,13 @@
 require 'common/exceptions'
 require 'common/client/errors'
 require 'json'
+require 'memoist'
 
 module VAOS
   module V2
     class AppointmentsService < VAOS::SessionService
+      extend Memoist
+
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
       VAOS_SERVICE_DATA_KEY = 'VAOSServiceTypesAndCategory'
       VAOS_TELEHEALTH_DATA_KEY = 'VAOSTelehealthData'
@@ -249,11 +252,11 @@ module VAOS
       # with the appointment time to the convert_utc_to_local_time method which does the actual conversion.
       def convert_appointment_time(appt)
         if !appt[:start].nil?
-          facility_timezone = get_facility_timezone(appt[:location_id])
+          facility_timezone = get_facility_timezone_memoized(appt[:location_id])
           appt[:local_start_time] = convert_utc_to_local_time(appt[:start], facility_timezone)
         elsif !appt.dig(:requested_periods, 0, :start).nil?
           appt[:requested_periods].each do |period|
-            facility_timezone = get_facility_timezone(appt[:location_id])
+            facility_timezone = get_facility_timezone_memoized(appt[:location_id])
             period[:local_start_time] = convert_utc_to_local_time(period[:start], facility_timezone)
           end
         end
@@ -279,7 +282,7 @@ module VAOS
       end
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
-      def get_facility_timezone(facility_location_id)
+      def get_facility_timezone_memoized(facility_location_id)
         facility_info = get_facility(facility_location_id) unless facility_location_id.nil?
         if facility_info == FACILITY_ERROR_MSG || facility_info.nil?
           nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
@@ -287,6 +290,7 @@ module VAOS
           facility_info[:timezone]&.[](:time_zone_id)
         end
       end
+      memoize :get_facility_timezone_memoized
 
       def get_facility(location_id)
         mobile_facility_service.get_facility_with_cache(location_id)
