@@ -204,7 +204,7 @@ class FormProfile
   end
 
   def initialize_military_information
-    return {} unless user.authorize :emis, :access?
+    return {} unless user.authorize :va_profile, :access?
     FormMilitaryInformation.new(initialize_hca_military_information
                                 .merge(initialize_va_profile_prefill_military_information))
   end

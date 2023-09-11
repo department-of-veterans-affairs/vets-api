@@ -1147,7 +1147,7 @@ RSpec.describe FormProfile, type: :model do
     context 'with a user that can prefill mdot' do
       before do
         expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
-        expect(user).to receive(:authorize).with(:emis, :access?).and_return(true).at_least(:once)
+        expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
         expect(user.authorize(:mdot, :access?)).to eq(true)
       end
 
@@ -1308,7 +1308,7 @@ RSpec.describe FormProfile, type: :model do
         before do
           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-          expect(user).to receive(:authorize).with(:emis, :access?).and_return(true).at_least(:once)
+          expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
         end
 
         it 'prefills 0994' do
@@ -1473,7 +1473,9 @@ RSpec.describe FormProfile, type: :model do
                   VCR.use_cassette('evss/ppiu/payment_information') do
                     VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes', :allow_playback_repeats => true, :match_requests_on => [:uri, :method, :body]) do
                       VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true, :match_requests_on => [:uri, :method, :body]) do
+                        VCR.use_cassette('virtual_regional_office/max_ratings') do
                         expect_prefilled('21-526EZ')
+                        end
                       end
                     end
                   end
@@ -1498,7 +1500,7 @@ RSpec.describe FormProfile, type: :model do
             end
 
             it 'returns prefilled 21-526EZ' do
-              Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+              Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
               expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
               expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
@@ -1506,7 +1508,9 @@ RSpec.describe FormProfile, type: :model do
                   VCR.use_cassette('evss/ppiu/payment_information') do
                     VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes', :allow_playback_repeats => true, :match_requests_on => [:uri, :method, :body]) do
                       VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi', :allow_playback_repeats => true, :match_requests_on => [:uri, :method, :body]) do
+                        VCR.use_cassette('virtual_regional_office/max_ratings') do
                         expect_prefilled('21-526EZ')
+                        end
                       end
                     end
                   end
