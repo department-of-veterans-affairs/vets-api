@@ -4,31 +4,37 @@ require 'rails_helper'
 require 'va_profile/veteran_status/service'
 
 describe VAProfile::VeteranStatus::Service do
-  let(:edipi_veteran) { '1068619536' }
-  let(:edipi_non_veteran) { '1140840595' }
-  let(:bad_edipi) { '595' }
-  let(:missing_edipi) { '1111111111' }
-  let(:no_status) { '1005079361' }
-  let(:user) { create(:user) }
+  # let(:edipi_veteran) { '1068619536' }
+  # let(:edipi_non_veteran) { '1140840595' }
+  # let(:bad_edipi) { '595' }
+  # let(:missing_edipi) { '1111111111' }
+  # let(:no_status) { '1005079361' }
+  # let(:user) { create(:user) }
   # let(:user) do
   #   user_instance = create(:user)
   #   user_instance.edipi = edipi_veteran
   #   user_instance
   # end
+  
   subject { described_class.new(user) }
-
+  let(:user) { build(:user, :loa3) }
+  let(:edipi) { '1005127153' }
 
   # before do
   #   allow(Settings.vet_verification).to receive(:mock_emis).and_return(false)
   # end
+
+  before do
+    allow(user).to receive(:edipi).and_return(edipi)
+  end
 
   describe 'get_veteran_status' do
     context 'with a valid request' do
       it 'calls the get_veteran_status endpoint with a proper emis message' do
         VCR.use_cassette('va_profile_veteran_status_200') do
           #binding.pry
-          user.identity.edipi = edipi_veteran
-          binding.pry
+         # user.identity.edipi = edipi_veteran
+        #  binding.pry
           response = subject.get_veteran_status
           expect(response).to be_ok
         end
