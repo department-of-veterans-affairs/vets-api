@@ -527,12 +527,17 @@ describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claim
           before do |example|
             stub_poa_verification
             stub_mpi
+            stub_claims_api_auth_token
 
             VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
               mock_acg(scopes) do
                 VCR.use_cassette('bgs/claims/claims') do
                   VCR.use_cassette('brd/countries') do
-                    submit_request(example.metadata)
+                    VCR.use_cassette('claims_api/v1/disability_comp/bd_token') do
+                      VCR.use_cassette('claims_api/v1/disability_comp/validate') do
+                        submit_request(example.metadata)
+                      end
+                    end
                   end
                 end
               end
