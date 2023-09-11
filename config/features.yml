@@ -331,6 +331,9 @@ features:
     actor_type: user
     description: enables sending disability diagnostic codes to VRO Max CFI API to get the corresponding maximum ratings.
     enable_in_development: false
+  disability_526_toxic_exposure:
+    actor_type: user
+    description: enables new pages, processing, and submission of toxic exposure claims
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
