@@ -165,9 +165,6 @@ Style/BlockDelimiters:
     - "spec/factories/*.rb"
     - "modules/*/spec/factories/*.rb"
 
-RSpec/SpecFilePathSuffix:
-  Enabled: true
-
 # Excluding modules specs for now and a few that may need to be revisited.
 RSpec/SpecFilePathFormat:
   Enabled: true
