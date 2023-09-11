@@ -67,9 +67,13 @@
           "type": "object",
           "properties": {
             "telephone": {
-              "type": "string",
+              "description": "Veteran's phone number.",
+              "type": ["null", "string"],
               "pattern": "^\\d{10}?$",
-              "description": "Veteran's phone number."
+              "example": "5555555",
+              "minLength": 10,
+              "maxLength": 10,
+              "nullable": true
             },
             "internationalTelephone": {
               "type": "string",
@@ -232,10 +236,12 @@
           "properties": {
             "telephone": {
               "description": "Primary phone of Point of Contact.",
-              "type": "string",
+              "type": ["null", "string"],
               "pattern": "^\\d{10}?$",
               "example": "5555555",
-              "maxLength": 10
+              "minLength": 10,
+              "maxLength": 10,
+              "nullable": true
             },
             "internationalTelephone": {
               "description": "international phone of Point of Contact.",
