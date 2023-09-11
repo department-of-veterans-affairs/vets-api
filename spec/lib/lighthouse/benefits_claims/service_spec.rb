@@ -54,6 +54,22 @@ RSpec.describe BenefitsClaims::Service do
           end
         end
       end
+
+      describe 'when posting a form526' do
+        it 'when given a full request body, posts to the Lighthouse API' do
+          VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
+            response = @service.submit526({ data: { attributes: {} } })
+            expect(response).to eq('string')
+          end
+        end
+
+        it 'when given a only the form data in the request body, posts to the Lighthouse API' do
+          VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
+            response = @service.submit526({})
+            expect(response).to eq('string')
+          end
+        end
+      end
     end
   end
 end
