@@ -3,7 +3,6 @@
 require 'rails_helper'
 require 'mail_automation/client'
 
-# rubocop:disable RSpec/SpecFilePathFormat
 RSpec.describe MailAutomation::Client, :vcr do
   describe '#list_medication_requests' do
     context 'with a sleep apnea request' do
@@ -33,4 +32,3 @@ RSpec.describe MailAutomation::Client, :vcr do
     end
   end
 end
-# rubocop:enable RSpec/FilePath
