@@ -166,7 +166,7 @@ Style/BlockDelimiters:
     - "modules/*/spec/factories/*.rb"
 
 # Excluding modules specs for now and a few that may need to be revisited.
-RSpec/FilePath:
+RSpec/SpecFilePathFormat:
   Exclude:
     - 'modules/**/*'
     - 'spec/lib/common/models/**/*'
