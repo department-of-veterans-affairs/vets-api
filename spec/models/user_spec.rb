@@ -48,6 +48,35 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#needs_accepted_terms_of_use' do
+    context 'when user is verified' do
+      let(:user) { build(:user, :loa3) }
+      let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
+
+      context 'and user has an associated current terms of use agreements' do
+        let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account: user_verification.user_account) }
+
+        it 'does not return true' do
+          expect(user.needs_accepted_terms_of_use).to be_falsey
+        end
+      end
+
+      context 'and user does not have an associated current terms of use agreements' do
+        it 'returns true' do
+          expect(user.needs_accepted_terms_of_use).to be true
+        end
+      end
+    end
+
+    context 'when user is not verified' do
+      let(:user) { build(:user, :loa1) }
+
+      it 'does not return true' do
+        expect(user.needs_accepted_terms_of_use).to be_falsey
+      end
+    end
+  end
+
   describe '#all_emails' do
     let(:user) { build(:user, :loa3, vet360_id: '12345') }
     let(:vet360_email) { user.vet360_contact_info.email.email_address }

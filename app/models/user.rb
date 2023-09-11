@@ -14,8 +14,6 @@ class User < Common::RedisStore
   include Authorization
   extend Gem::Deprecate
 
-  UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
-
   # Defined per issue #6042
   ID_CARD_ALLOWED_STATUSES = %w[V1 V3 V6].freeze
 
@@ -33,11 +31,8 @@ class User < Common::RedisStore
   attribute :user_account_uuid, String
   attribute :user_verification_id, Integer
   attribute :fingerprint, String
+  attribute :needs_accepted_terms_of_use, Boolean
 
-  # Retrieve a user's Account record
-  #
-  # @return [Account] an instance of the Account object
-  #
   def account
     @account ||= Identity::AccountCreator.new(self).call
   end
@@ -48,6 +43,11 @@ class User < Common::RedisStore
 
   def account_id
     @account_id ||= account&.id
+  end
+
+  def needs_accepted_terms_of_use
+    @needs_accepted_terms_of_use ||= user_account&.verified? &&
+                                     user_account.terms_of_use_agreements.current.accepted.blank?
   end
 
   def user_verification
