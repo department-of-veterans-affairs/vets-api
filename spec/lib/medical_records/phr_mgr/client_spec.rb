@@ -28,11 +28,9 @@ describe PHRMgr::Client do
     context 'when ICN is not properly formatted' do
       let(:icn) { '12345' }
 
-      it 'performs a PHR refresh', :vcr do
+      it 'raises an error', :vcr do
         VCR.use_cassette 'phr_mgr_client/perform_a_phr_refresh_with_bad_icn' do
           expect do
-            # Raises #<PHRMgr::ServiceException "BackendServiceException:
-            #        {:status=>400, :detail=>\"Invalid ICN\", :code=>\"VA900\", :source=>nil}">
             client.post_phrmgr_refresh(icn)
           end.to raise_error(Common::Exceptions::BackendServiceException)
         end
@@ -42,7 +40,7 @@ describe PHRMgr::Client do
     context 'when ICN is blank' do
       let(:icn) { nil }
 
-      it 'performs a PHR refresh', :vcr do
+      it 'raises an error', :vcr do
         expect do
           client.post_phrmgr_refresh(icn)
         end.to raise_error(Common::Exceptions::ParameterMissing)

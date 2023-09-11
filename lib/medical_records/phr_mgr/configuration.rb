@@ -18,7 +18,7 @@ module PHRMgr
     # @return [String] Base path for dependent URLs
     #
     def base_path
-      "#{Settings.mhv.rx.host}/mhv-api/patient/v1/medical-records/"
+      "#{Settings.mhv.medical_records.host}/mhvapi/v2/phrmgr/"
     end
 
     ##
