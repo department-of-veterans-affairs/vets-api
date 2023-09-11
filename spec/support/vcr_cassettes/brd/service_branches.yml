@@ -1,0 +1,68 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://staging-api.va.gov/services/benefits-reference-data/v1/service-branches
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Apikey:
+      - "<LIGHTHOUSE_BRD_API_KEY>"
+      User-Agent:
+      - Faraday v0.17.6
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 29 Aug 2023 18:18:36 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Ratelimit-Reset:
+      - '24'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      X-Frame-Options:
+      - SAMEORIGIN
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"totalItems":23,"totalPages":1,"links":[{"href":"https://staging-api.va.gov/services/benefits-reference-data/v1/service-branches","rel":"self"}],"items":[{"code":"NR","description":"Navy
+        Reserves"},{"code":"ANG","description":"Air National Guard"},{"code":"OTH","description":"Other"},{"code":"N
+        ACAD","description":"Naval Academy"},{"code":"MM","description":"Merchant
+        Marine"},{"code":"PHS","description":"Public Health Service"},{"code":"AAC","description":"Army
+        Air Corps or Army Air Force"},{"code":"WAC","description":"Women''s Army Corps"},{"code":"NOAA","description":"National
+        Oceanic & Atmospheric Administration"},{"code":"SF","description":"Space Force"},{"code":"ARMY","description":"Army"},{"code":"ARNG","description":"Army
+        National Guard"},{"code":"AF ACAD","description":"Air Force Academy"},{"code":"CG
+        ACAD","description":"Coast Guard Academy"},{"code":"USMA","description":"US
+        Military Academy"},{"code":"AF","description":"Air Force"},{"code":"CG","description":"Coast
+        Guard"},{"code":"MC","description":"Marine Corps"},{"code":"NAVY","description":"Navy"},{"code":"AFR","description":"Air
+        Force Reserves"},{"code":"AR","description":"Army Reserves"},{"code":"CGR","description":"Coast
+        Guard Reserves"},{"code":"MCR","description":"Marine Corps Reserves"}]}'
+  recorded_at: Tue, 29 Aug 2023 18:18:33 GMT
+recorded_with: VCR 6.2.0
