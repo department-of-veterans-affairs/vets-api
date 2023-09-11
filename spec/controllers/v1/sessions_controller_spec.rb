@@ -13,6 +13,10 @@ RSpec.describe V1::SessionsController, type: :controller do
   let(:token) { 'abracadabra-open-sesame' }
   let(:loa1_user) { build(:user, :loa1, uuid:, idme_uuid: uuid) }
   let(:loa3_user) { build(:user, :loa3, uuid:, idme_uuid: uuid) }
+  let!(:user_verification) { create(:idme_user_verification, idme_uuid: loa3_user.idme_uuid) }
+  let!(:terms_of_use_agreement_loa3_user) do
+    create(:terms_of_use_agreement, user_account: user_verification.user_account)
+  end
   let(:ial1_user) { build(:user, :ial1, uuid:, logingov_uuid: uuid) }
   let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
   let(:user_attributes) { double('user_attributes', saml_user_attributes) }
@@ -362,10 +366,28 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'loa3_user' do
         let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
 
-        it 'makes a call to AfterLoginActions' do
-          allow(SAML::User).to receive(:new).and_return(saml_user)
-          expect_any_instance_of(Login::AfterLoginActions).to receive(:perform)
-          post :saml_callback
+        before { allow(SAML::User).to receive(:new).and_return(saml_user) }
+
+        context 'when user has not accepted the current terms of use' do
+          let(:terms_of_use_agreement_loa3_user) { nil }
+          let(:expected_redirect_url) do
+            'http://127.0.0.1:3001/terms-of-use?redirect_url=http%3A%2F%2F127.0.0.1%3A3001%2Fauth%2Flogin%2Fcallback'
+          end
+
+          it 'redirects to terms of use page' do
+            expect(post(:saml_callback)).to redirect_to(expected_redirect_url)
+          end
+        end
+
+        context 'when user has accepted the current terms of use' do
+          let!(:terms_of_use_agreement_loa3_user) do
+            create(:terms_of_use_agreement, user_account: user_verification.user_account)
+          end
+          let(:expected_redirect_url) { 'http://127.0.0.1:3001/auth/login/callback' }
+
+          it 'redirects to expected auth page page' do
+            expect(post(:saml_callback)).to redirect_to(expected_redirect_url)
+          end
         end
       end
 
@@ -396,11 +418,6 @@ RSpec.describe V1::SessionsController, type: :controller do
             expect(response).to have_http_status(:found)
           end
         end
-      end
-
-      it 'redirect user to home page when no SAMLRequestTracker exists' do
-        allow(SAML::User).to receive(:new).and_return(saml_user)
-        expect(post(:saml_callback)).to redirect_to(expected_redirect_url)
       end
 
       context 'for a user with semantically invalid SAML attributes' do
@@ -907,28 +924,6 @@ RSpec.describe V1::SessionsController, type: :controller do
             expect { post(:saml_callback) }
               .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE, tags: login_failed_tags)
           end
-        end
-      end
-
-      context 'MVI is down', :aggregate_failures do
-        let(:authn_context) { 'myhealthevet' }
-        let(:mhv_premium_user) { build(:user, :mhv, uuid:) }
-        let(:saml_user_attributes) do
-          mhv_premium_user.attributes.merge(mhv_premium_user.identity.attributes).merge(first_name: nil)
-        end
-
-        it 'allows user to sign in even if user attributes are not available' do
-          SAMLRequestTracker.create(
-            uuid: login_uuid,
-            payload: { type: 'mhv' }
-          )
-          MPI::Configuration.instance.breakers_service.begin_forced_outage!
-          callback_tags = ['status:success', 'context:myhealthevet', 'version:v1']
-          expect { post(:saml_callback) }
-            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
-            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
-          expect(response.location).to start_with(expected_redirect_url)
-          MPI::Configuration.instance.breakers_service.end_forced_outage!
         end
       end
 

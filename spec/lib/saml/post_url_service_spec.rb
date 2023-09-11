@@ -600,6 +600,18 @@ RSpec.describe SAML::PostURLService do
                 .to eq(values[:base_redirect] + SAML::URLService::LOGOUT_REDIRECT_PARTIAL)
             end
           end
+
+          context 'for terms of use' do
+            let(:user) { build(:user, :loa3) }
+            let(:expected_redirect_url_param) do
+              "#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}?type=idme".to_query('redirect_url')
+            end
+
+            it 'has a login redirect url with success' do
+              expect(subject.terms_of_use_redirect_url)
+                .to eq("#{values[:base_redirect]}/terms-of-use?#{expected_redirect_url_param}")
+            end
+          end
         end
 
         context 'instance created by invalid action' do
