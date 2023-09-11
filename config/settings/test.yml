@@ -383,4 +383,10 @@ claims_api:
     url: 'https://fake_pdf_url.com'
     path: '/form-526ez-pdf-generator/v1/forms/'
     content_type: 'application/vnd.api+json'
-
+  benefits_documents:
+    host: https://sandbox-api.va.gov
+    auth:
+      ccg:
+        client_id: fakekeyvaluehere
+        secret_key: path/to/fake/key.pem
+        aud_claim_url: https://fakeurlhere/fake/path/here

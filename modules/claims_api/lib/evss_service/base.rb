@@ -19,15 +19,33 @@ module ClaimsApi
         @auth_headers = claim.auth_headers
 
         begin
-          resp = client.post('submit', data).body
-          ClaimsApi::Logger.log('526',
-                                detail: 'EVSS DOCKER CONTAINER submit success', evss_response: resp)
+          resp = client.post('submit', data)&.body
+          log_outcome_for_claims_api('submit', 'success', resp, claim)
+
           resp # return is for v1 Sidekiq worker
         rescue => e
           detail = e.respond_to?(:original_body) ? e.original_body : e
-          ClaimsApi::Logger.log('526',
-                                detail: "EVSS DOCKER CONTAINER submit error: #{detail}", claim_id: claim&.id)
+          log_outcome_for_claims_api('submit', 'error', detail, claim)
+
           e # return is for v1 Sidekiq worker
+        end
+      end
+
+      def validate(claim, data)
+        @auth_headers = claim.auth_headers
+        @auth_headers['va_eauth_birlsfilenumber'] = @auth_headers['va_eauth_pnid']
+
+        begin
+          resp = client.post('validate', data)&.body
+          log_outcome_for_claims_api('validate', 'success', resp, claim)
+
+          resp
+        rescue => e
+          detail = e.respond_to?(:original_body) ? e.original_body : e
+          log_outcome_for_claims_api('validate', 'error', detail, claim)
+
+          formatted_err = handle_error(e) # for v1 controller reporting
+          raise formatted_err
         end
       end
 
@@ -63,6 +81,28 @@ module ClaimsApi
 
       def access_token
         @auth_token ||= ClaimsApi::V2::BenefitsDocuments::Service.new.get_auth_token
+      end
+
+      def handle_error(e)
+        # if orignal_body we have a Docker Container error
+        if e.respond_to?(:original_body)
+          errors = format_docker_container_error_for_v1(e.original_body[:messages])
+          e.original_body[:messages] = errors
+        end
+        e
+      end
+
+      # v1/disability_compenstaion_controller expects different values then the docker container provides
+      def format_docker_container_error_for_v1(errors)
+        errors.each do |err|
+          # need to add a :detail key v1 looks for in it's error reporting, get :text key from docker container
+          err.merge!(detail: err[:text]).stringify_keys!
+        end
+      end
+
+      def log_outcome_for_claims_api(action, status, response, claim)
+        ClaimsApi::Logger.log('526_docker_container',
+                              detail: "EVSS DOCKER CONTAINER #{action} #{status}: #{response}", claim: claim&.id)
       end
     end
   end
