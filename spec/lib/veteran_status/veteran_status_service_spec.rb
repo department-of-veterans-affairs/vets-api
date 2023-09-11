@@ -15,10 +15,10 @@ describe VAProfile::VeteranStatus::Service do
   #   user_instance.edipi = edipi_veteran
   #   user_instance
   # end
-  
-  subject { described_class.new(user) }
+
   let(:user) { build(:user, :loa3) }
   let(:edipi) { '1005127153' }
+  subject { described_class.new(user) }
 
   # before do
   #   allow(Settings.vet_verification).to receive(:mock_emis).and_return(false)
@@ -28,13 +28,19 @@ describe VAProfile::VeteranStatus::Service do
     allow(user).to receive(:edipi).and_return(edipi)
   end
 
+  describe '#identity_path' do
+    context 'when an edipi exists' do
+      it 'returns a valid identity path' do
+        path = subject.identity_path
+        expect(path).to eq('2.16.840.1.113883.3.42.10001.100001.12/1005127153%5ENI%5E200DOD%5EUSDOD')
+      end
+    end
+  end
+
   describe 'get_veteran_status' do
     context 'with a valid request' do
       it 'calls the get_veteran_status endpoint with a proper emis message' do
-        VCR.use_cassette('va_profile_veteran_status_200') do
-          #binding.pry
-         # user.identity.edipi = edipi_veteran
-        #  binding.pry
+        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200') do
           response = subject.get_veteran_status
           expect(response).to be_ok
         end
