@@ -81,6 +81,36 @@ module BenefitsClaims
       handle_error(e, lighthouse_client_id, endpoint)
     end
 
+    # submit form526 to Lighthouse API endpoint: /services/claims/v2/veterans/{veteranId}/526
+    # @param [hash] body: a hash representing the form526 attributes in the Lighthouse request schema
+    # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
+    # @param [string] lighthouse_rsa_key_path: absolute path to the rsa key file
+    # @param [hash] options: options to override aud_claim_url, params, and auth_params
+    def submit526(body, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+      endpoint = 'benefits_claims/form/526'
+      path = "#{@icn}/526"
+
+      # if we're coming straight from the transformation service without
+      # making this a jsonapi request body first ({data: {type:, attributes}}),
+      # this will put it in the correct format for transmission
+      if body['attributes'].blank?
+        body = {
+          data: {
+            type: 'form/526',
+            attributes: body
+          }
+        }.as_json.deep_transform_keys { |k| k.camelize(:lower) }
+      end
+
+      config.post(
+        path,
+        body,
+        lighthouse_client_id, lighthouse_rsa_key_path, options
+      ).body
+    rescue Faraday::ClientError => e
+      handle_error(e, lighthouse_client_id, endpoint)
+    end
+
     private
 
     def filter_by_status(items)
