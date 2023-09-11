@@ -165,8 +165,12 @@ Style/BlockDelimiters:
     - "spec/factories/*.rb"
     - "modules/*/spec/factories/*.rb"
 
+RSpec/SpecFilePathSuffix:
+  Enabled: true
+
 # Excluding modules specs for now and a few that may need to be revisited.
 RSpec/SpecFilePathFormat:
+  Enabled: true
   Exclude:
     - 'modules/**/*'
     - 'spec/lib/common/models/**/*'
@@ -180,6 +184,10 @@ RSpec/SpecFilePathFormat:
     - 'spec/lib/common/client/middleware/response/response_middleware_spec.rb'
     - 'spec/lib/evss/pciu_address/pciu_address_spec.rb'
     - 'spec/lib/sm/client/message_drafts_spec.rb'
+    - 'spec/lib/lighthouse/veterans_health/integration/client_spec.rb'
+    - 'spec/lib/mail_automation/integration/client_spec.rb'
+    - 'spec/lib/virtual_regional_office/integration/client_spec.rb'
+    - 'spec/rakelib/piilog_repl/piilog_helpers_spec.rb'
   CustomTransform:
     SSOeSettingsService: ssoe_settings_service
 
