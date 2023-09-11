@@ -5,6 +5,12 @@ require 'brd/brd'
 module ClaimsApi
   module V2
     module DisabilityCompensationValidation # rubocop:disable Metrics/ModuleLength
+      DATE_FORMATS = {
+        10 => 'mm-dd-yyyy',
+        7 => 'mm-yyyy',
+        4 => 'yyyy'
+      }.freeze
+
       def validate_form_526_submission_values!
         # ensure 'claimDate', if provided, is a valid date not in the future
         validate_form_526_submission_claim_date!
@@ -165,8 +171,6 @@ module ClaimsApi
       end
 
       def brd_disabilities
-        return @brd_disabilities if @brd_disabilities.present?
-
         @brd_disabilities ||= ClaimsApi::BRD.new(request).disabilities
       end
 
@@ -359,7 +363,9 @@ module ClaimsApi
       def validate_form_526_service_pay!
         validate_form_526_military_retired_pay!
         validate_form_526_future_military_retired_pay!
+        validate_from_526_military_retired_pay_branch!
         validate_form_526_separation_pay_received_date!
+        validate_from_526_separation_severance_pay_branch!
       end
 
       def validate_form_526_military_retired_pay!
@@ -373,6 +379,17 @@ module ClaimsApi
         raise ::Common::Exceptions::InvalidFieldValue.new(
           'servicePay.militaryRetiredPay',
           form_attributes['servicePay']['militaryRetiredPay']
+        )
+      end
+
+      def validate_from_526_military_retired_pay_branch!
+        branch = form_attributes.dig('servicePay', 'militaryRetiredPay', 'branchOfService')
+        return if branch.nil? || brd_service_branch_names.include?(branch)
+
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: "'servicePay.militaryRetiredPay.branchOfService' must match a service branch " \
+                  'returned from the /service-branches endpoint of the Benefits ' \
+                  'Reference Data API.'
         )
       end
 
@@ -398,6 +415,17 @@ module ClaimsApi
 
         raise ::Common::Exceptions::InvalidFieldValue.new('separationSeverancePay.datePaymentReceived',
                                                           separation_pay_received_date)
+      end
+
+      def validate_from_526_separation_severance_pay_branch!
+        branch = form_attributes.dig('servicePay', 'separationSeverancePay', 'branchOfService')
+        return if branch.nil? || brd_service_branch_names.include?(branch)
+
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: "'servicePay.separationSeverancePay.branchOfService' must match a service branch " \
+                  'returned from the /service-branches endpoint of the Benefits ' \
+                  'Reference Data API.'
+        )
       end
 
       def validate_form_526_treatments!
@@ -449,15 +477,14 @@ module ClaimsApi
             detail: 'Service information is required'
           )
         end
-        validate_service_periods!
+        validate_service_periods!(service_information)
+        validate_service_branch_names!(service_information)
         validate_confinements!(service_information)
         validate_alternate_names!(service_information)
         validate_reserves_required_values!(service_information)
       end
 
-      def validate_service_periods!
-        service_information = form_attributes['serviceInformation']
-
+      def validate_service_periods!(service_information)
         service_information['servicePeriods'].each do |sp|
           if Date.strptime(sp['activeDutyBeginDate'], '%m-%d-%Y') > Date.strptime(sp['activeDutyEndDate'], '%m-%d-%Y')
             raise ::Common::Exceptions::UnprocessableEntity.new(
@@ -517,6 +544,27 @@ module ClaimsApi
         end
       end
 
+      def validate_service_branch_names!(service_information)
+        downcase_branches = brd_service_branch_names.map(&:downcase)
+        service_information['servicePeriods'].each do |sp|
+          unless downcase_branches.include?(sp['serviceBranch'].downcase)
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: "'servicePeriods.serviceBranch' must match a service branch " \
+                      'returned from the /service-branches endpoint of the Benefits ' \
+                      'Reference Data API.'
+            )
+          end
+        end
+      end
+
+      def brd_service_branch_names
+        @brd_service_branch_names ||= brd_service_branches&.pluck(:description)
+      end
+
+      def brd_service_branches
+        @brd_service_branches ||= ClaimsApi::BRD.new(request).service_branches
+      end
+
       def validate_reserves_required_values!(service_information)
         reserves = service_information&.dig('reservesNationalGuardService')
 
@@ -525,7 +573,6 @@ module ClaimsApi
         # if reserves is not empty the we require tos dates
         validate_reserves_tos_dates!(reserves)
         validate_title_ten_activiation_values!(reserves)
-        # validate_reserves_unit_information_values!(reserves)
       end
 
       def validate_reserves_tos_dates!(reserves)
@@ -646,6 +693,7 @@ module ClaimsApi
 
       private
 
+      # Used for confinements dates
       def begin_date_is_not_after_end_date?(begin_date, end_date)
         # see what format each date is in
         begin_date_has_day = date_has_day?(begin_date)
@@ -660,22 +708,26 @@ module ClaimsApi
 
       # Either date could be in MM-YYYY or MM-DD-YYYY format
       def begin_date_not_after_end_date_with_mixed_format_dates?(begin_date, end_date)
-        # figure out which one has the day and remove it
-        if date_has_day?(begin_date)
+        # figure out if either has the day and remove it to compare
+        if type_of_date_format?(begin_date) == 'mm-dd-yyyy'
           begin_date = remove_chars(begin_date.dup)
-        elsif date_has_day?(end_date)
+        elsif type_of_date_format?(end_date) == 'mm-dd-yyyy'
           end_date = remove_chars(end_date.dup)
         end
-        Date.strptime(begin_date, '%m-%Y') > Date.strptime(end_date, '%m-%Y') # = is ok
+        Date.strptime(begin_date, '%m-%Y') > Date.strptime(end_date, '%m-%Y') # only > is an issue
       end
 
       def date_is_valid_against_current_time_after_check_on_format?(date)
-        if date_has_day?(date)
+        case type_of_date_format?(date)
+        when 'mm-dd-yyyy'
           param_date = Date.strptime(date, '%m-%d-%Y')
           now_date = Date.strptime(Time.zone.today.strftime('%m-%d-%Y'), '%m-%d-%Y')
-        else
+        when 'mm-yyyy'
           param_date = Date.strptime(date, '%m-%Y')
           now_date = Date.strptime(Time.zone.today.strftime('%m-%Y'), '%m-%Y')
+        when 'yyyy'
+          param_date = Date.strptime(date, '%Y')
+          now_date = Date.strptime(Time.zone.today.strftime('%Y'), '%Y')
         end
         param_date <= now_date # Since it is approximate we go with <=
       end
@@ -683,6 +735,11 @@ module ClaimsApi
       # just need to know if day is present or not
       def date_has_day?(date)
         date.length == 10
+      end
+
+      # which of three types are we dealing with
+      def type_of_date_format?(date)
+        DATE_FORMATS[date.length]
       end
 
       # making date approximate to compare
