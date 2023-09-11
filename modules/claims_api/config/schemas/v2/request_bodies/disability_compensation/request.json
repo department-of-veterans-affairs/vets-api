@@ -673,46 +673,9 @@
                     ],
                     "properties": {
                       "serviceBranch": {
-                        "description": "Branch of Service during period.",
+                        "description": "Branch of service. The /service-branches endpoint on the Benefits Reference Data API may be used to retrieve list of possible service branches.",
                         "type": "string",
-                        "example": "Air Force",
-                        "enum": [
-                          "Air Force",
-                          "Air Force Academy",
-                          "Air Force Reserves",
-                          "Air Force Civilian",
-                          "Air National Guard",
-                          "Army",
-                          "Army Air Corps",
-                          "Army Air Corps or Army Air Force",
-                          "Army National Guard",
-                          "Army Nurse Corps",
-                          "Army Reserves",
-                          "Coast Guard",
-                          "Coast Guard Academy",
-                          "Coast Guard Reserves",
-                          "Commonwealth Army Veteran",
-                          "Guerrilla Combination Service",
-                          "Marine",
-                          "Marine Corps",
-                          "Marine Corps Reserves",
-                          "Merchant Marine",
-                          "National Oceanic & Atmospheric Administration",
-                          "National Oceanic and Atmospheric Administration",
-                          "Naval Academy",
-                          "Navy",
-                          "Navy Reserves",
-                          "Other",
-                          "Public Health Service",
-                          "Regular Philippine Scout",
-                          "Regular Scout Service",
-                          "Space Force",
-                          "Special Philippine Scout",
-                          "Unknown",
-                          "US Military Academy",
-                          "Woman Air Corps",
-                          "Women's Army Corps"
-                        ]
+                        "example": "Air Force"
                       },
                       "serviceComponent": {
                         "type": "string",
@@ -901,35 +864,8 @@
                   "description": "",
                   "properties": {
                     "branchOfService": {
-                      "description": "Branch of Service making payments.",
+                      "description": "Branch of service. The /service-branches endpoint on the Benefits Reference Data API may be used to retrieve list of possible service branches.",
                       "type": "string",
-                      "enum": [
-                        "Air Force",
-                        "Air Force Reserves",
-                        "Air National Guard",
-                        "Army",
-                        "Army National Guard",
-                        "Army Reserves",
-                        "Coast Guard",
-                        "Coast Guard Reserves",
-                        "Marine Corps",
-                        "Marine Corps Reserves",
-                        "National Oceanic &amp; Atmospheric Administration",
-                        "National Oceanic & Atmospheric Administration",
-                        "Navy",
-                        "Navy Reserves",
-                        "Public Health Service",
-                        "Air Force Academy",
-                        "Army Air Corps or Army Air Force",
-                        "Army Nurse Corps",
-                        "Coast Guard Academy",
-                        "Merchant Marine",
-                        "Naval Academy",
-                        "Other",
-                        "US Military Academy",
-                        "Women's Army Corps",
-                        "Space Force"
-                      ],
                       "example": "Air Force"
                     },
                     "monthlyAmount": {
@@ -968,7 +904,7 @@
                       "example": "03-02-2018 or 03-2018"
                     },
                     "branchOfService": {
-                      "description": "Branch of Service making payments.",
+                      "description": "Branch of service. The /service-branches endpoint on the Benefits Reference Data API may be used to retrieve list of possible service branches.",
                       "type": "string",
                       "example": "Air Force"
                     },
