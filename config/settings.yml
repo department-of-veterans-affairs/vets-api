@@ -25,7 +25,15 @@ idme:
   client_cert_path: spec/fixtures/sign_in/oauth.crt
   client_key_path: spec/fixtures/sign_in/oauth.key
   oauth_url: https://api.idmelabs.com
-  oauth_public_key: spec/fixtures/idme/idme_oauth_pub.pem
+
+mobile_application_platform:
+  chatbot_client_id: 2bb9803acfc3
+  sign_up_service_client_id: c7d6e0fc9a39
+  oauth_url: https://veteran.apps-staging.va.gov
+  client_cert_path: spec/fixtures/mobile_application_platform/oauth.crt
+  client_key_path: spec/fixtures/mobile_application_platform/oauth.key
+  sign_up_service_url: https://cerner.apps-staging.va.gov
+  sign_up_service_provisioning_api_key: abcd1234
 
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
@@ -52,13 +60,17 @@ session_cookie:
   secure: false
 
 sign_in:
-  jwt_encode_key: "spec/fixtures/sign_in/privatekey.pem"
+  jwt_encode_key: 'spec/fixtures/sign_in/privatekey.pem'
+  jwt_old_encode_key: 'spec/fixtures/sign_in/privatekey_old.pem'
   cookies_secure: false
   info_cookie_domain: localhost
   auto_uplevel: true
   mock_auth_url: http://localhost:3000/mocked_authentication/profiles
   mock_redirect_uri: http://localhost:3000/v0/sign_in/callback
   mockdata_sync_api_key: ~
+
+terms_of_use:
+  current_version: v1
 
 lockbox:
   master_key: "0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9"
@@ -185,11 +197,11 @@ edu:
   staging_spool_contents:
     emails:
       - noah.stern@va.gov
-      - gregg.puhala@dbitpro.com
+      - gregg.puhala@va.gov
       - kara.ciprich@va.gov
       - napoleon.kernessant@govcio.com
       - vishnhav.ashok@va.gov
-      - jarred.simon@vetsez.com
+      - donna.saunders@va.gov
       - ariana.adili@govcio.com
 
 dependents:
@@ -626,7 +638,9 @@ vba_documents:
 #Settings for Claims Api Module
 claims_api:
   pdf_generator_526:
-    service_name: form-526ez-pdf-generator
+    url: ~
+    path: '/form-526ez-pdf-generator/v1/forms/'
+    content_type: 'application/vnd.api+json'
   report_enabled: false
   audit_enabled: false
   s3:
@@ -887,209 +901,6 @@ search_click_tracking:
   affiliate: va
   mock: false
   url: https://api.gsa.gov/technology/searchgov/v2
-
-flipper:
-  mute_logs: false
-  admin_user_emails:
-    - aditya.sharma@thoughtworks.com # Virtual Agent
-    - adrian.rollett@va.gov
-    - alexander.schmidt.garcia@gmail.com # Alexander Garcia (Clarity), Identity, Frontend Engineer
-    - afia.caruso@oddball.io # Afia Caruso (Oddball), Identity, Frontend Engineer
-    - alastair@adhocteam.us
-    - alex.wilson@oddball.io # Alex Wilson - Oddball
-    - andrew.herzberg@adhocteam.us
-    - anu@themostudio.com # Anu Das Full Stack Engineer, LGA
-    - bill.ryan@adhocteam.us
-    - bradley.gross@b3groupinc.com
-    - brian.seek@civicactions.com # Brian Seek (Civic Actions), FE Engineer Health Care Experience/Check-In
-    - clark@governmentcio.com # Designer on GCIO
-    - cameron@oddball.io
-    - casey.williams@adhocteam.us # Backend Engineer, Benefits & Appeals
-    - chika.adibemma@adhocteam.us
-    - corey.parker@gcio.com # Corey Parker (GCIO), Product Manager Health Care Experience/Check-In
-    - cory.trimm@va.gov
-    - craig.wheeler@gcio.com
-    - dan.goodwin@civicactions.com # Dan Goodwin (Civic Actions), FE Engineer Health Care Experience/Check-In
-    - dan.hinze@adhocteam.us
-    - dat.tran@gcio.com
-    - devinmccurdy@gmail.com
-    - dnalbach@governmentcio.com
-    - draju@governmentcio.com
-    - drew.fisher@adhocteam.us # Drew Fisher (Ad Hoc), Team Lead Decision Reviews
-    - dror@matal.com
-    - eric.boehs@oddball.io
-    - eric.voshall@adhocteam.us
-    - erik@adhocteam.us
-    - ethan.teague@civicactions.com
-    - eugene.lynch+va@coforma.io # Eugene Lynch (Coforma), Benefits Team 1, FE and BE Engineer
-    - filip.fafara@gmail.com # Thoughtworks, ex VANotify, supports DHP, CDSP, Virtual Agent
-    - fahmed@governmentcio.com
-    - garrett.rabian@coforma.io # Garrett Rabian - Engineer - VA Forms Team
-    - ggupta@kindsys.us # Gaurav Gupta (Kindsys), BE Engineer Health Care Experience/Check-In
-    - gescobar@governmentcio.com
-    - grodriguez@governmentcio.com
-    - holden.hinkle@oddball.io # Holden (Emmerson) Hinkle (Oddball), Rails Engineer
-    - ian.hundere@oddball.io # Ian Hundere (Oddball), Identity, DevOps Engineer
-    - jacob.gacek@thoughtworks.com # Virtual Agent
-    - james.childers@gcio.com
-    - james.adams2@va.gov # Jim Adams designer on GCIO
-    - jayson.perkins@adhocteam.us
-    - jeff.roof@adhocteam.us
-    - jeffrey.roof@va.gov
-    - jennie.mcgibney@va.gov
-    - jeremy.wu@oddball.io
-    - jesse.cohn@adhocteam.us
-    - jesse.james@themostudio.com
-    - jlinn@governmentcio.com
-    - joe.hall@thoughtworks.com # Virtual Agent
-    - joeyn414@gmail.com # Joe Niquette (Oddball), Identity, Sr Security Engineer
-    - jonathan.nelson@adhocteam.us
-    - john.bramley@adhocteam.us # John Bramley (AdHoc), Identity, Backend Engineer
-    - julie.adair@agile6.com # Julie Adair (Agile6), Product Manager Health Care Experience/Check-In
-    - jwolf@governmentcio.com # Jason Wolf Product Manager for GCIO
-    - justin.trieu@thoughtworks.com # Virtual Agent
-    - kabrown@thoughtworks.com
-    - kadams@governmentcio.com
-    - kathleen.crawford@gcio.com
-    - kenneth.gary@va.gov
-    - kenneth.santiago2010@gmail.com
-    - kevin.musiorski@gcio.com # Kevin Musiorski (GCIO), Engineer
-    - kmircovich@governmentcio.com
-    - kris.pethtel@adhocteam.us
-    - kris.pethtel@gmail.com # email tied to production id.me account
-    - kristen.brown@adhocteam.us # Kristen Brown (Ad Hoc), Engineer, Benefits & Appeals
-    - ksuriyamoorthy@kindsys.us # Kanchana Suriyamoorthy (Kindsys), BE Engineer Health Care Experience/Check-In
-    - lauren.alexanderson@va.gov
-    - leah.delacosta@adhocteam.us
-    - lihan@adhocteam.us
-    - lindsey.hattamer@oddball.io
-    - lisa.zapson@adhocteam.us
-    - lance.sanchez@gcio.com
-    - lucian.snare@adhocteam.us # Lucian Snare - Ad Hoc LLC
-    - mattgardner@navapbc.com
-    - marci.mcguire@gmail.com
-    - mark.dewey@va.gov
-    - metrowebz@gmail.com
-    - micah@adhocteam.us
-    - michael.moyer@va.gov # MHV Secure Messaging Team
-    - michel.mcdonald@adhocteam.us
-    - michael.chaffee@va.gov # DHP team tech lead
-    - michael.chelen@va.gov
-    - michael.pelz-sherman@gcio.com
-    - michelle.middaugh@adhocteam.us
-    - n.ratana@gmail.com
-    - nathan.wright@oddball.io # Nathan Wright (Oddball) - Eng lead - VANotify strike team
-    - nathaniel.buck@gmail.com # AFS - My Education Benefits
-    - narin@adhocteam.us
-    - nick.sprinkle@oddball.io # Nick Sprinkle - Engineer - VA Forms Team
-    - oleksii.morgun@va.gov # MHV Secure Messaging Team
-    - patrick.bateman@va.gov
-    - patrick@adhocteam.us
-    - patrickryll@yahoo.com
-    - paul.touchton@b3groupinc.com
-    - rachael.bontrager@adhocteam.us # Rachael Bontrager - Ad Hoc - Mobile QA
-    - rebecca.green@thoughtworks.com
-    - regarr@gmail.com # Robin Garrison - AdHoc
-    - riley.anderson@oddball.io
-    - robyn.singleton@adhocteam.us
-    - robyn.singleton@va.gov
-    - ryan.leahy@adhocteam.us # Ryan Leahy - Adhoc
-    - ryan.thurlwell@va.gov
-    - sallymaki@navapbc.com
-    - samara.strauss@va.gov
-    - sarah.knopp@agile6.com # Sarah Knopp (Agile 6), Scrum Master
-    - scott.james@gcio.com
-    - scy0846@gmail.com # Taylor Mitchell - GCIO
-    - ssuddath@governmentcio.com
-    - stephen.barrs@gmail.com
-    - teagan.stephenson@bracari.com
-    - therese.dickson@adhocteam.us # Therese Dickson - Ad Hoc - Mobile QA
-    - tom.gammons@adhocteam.us # Tom Gammons - Ad Hoc - Mobile QA
-    - tony.williams@va.gov
-    - travis.hilton@oddball.io
-    - trevor.bosaw@oddball.io # Trevor Bosaw (Oddball), Identity, Backend Engineer
-    - tricia.baker@va.gov # Tricia Baker - Product Manager - VA Forms Team
-    - tze@adhocteam.us
-    - yangyang@navapbc.com # Yang Yang - Nava - Claims Fast Tracking / Employee Experience
-    - amylai@navapbc.com # Amy Lai - Nava - Claims Fast Tracking / Employee Experience
-    - yoom@navapbc.com # Yoom Lam - Nava - Virtual Regional Office
-    - zmorel@governmentcio.com
-    - kha.huynh@thoughtworks.com # Virtual Agent
-    - zach.morel@gcio.com
-    - vfep_support_team@va.gov
-    - eugenia.gina.ronat@accenturefederal.com
-    - m.c.shah@accenturefederal.com
-    - mrmanishs@gmail.com
-    - patrick.arthur@accenturefederal.com
-    - adam.freemer@accenturefederal.com
-    - dan.brooking@accenturefederal.com
-    - sebastian.cooper@accenturefederal.com
-    - david.rowley@accenturefederal.com
-    - nick.barthelemy@accenturefederal.com
-    - bradley.bergeron@accenturefederal.com
-    - adam.whitlock@adhocteam.us
-    - d.a.barnes@accenturefederal.com
-    - hocine.halli@accenturefederal.com
-    - jacob.finnern@accenturefederal.com
-    - brandon.clapp@accenturefederal.com
-    - matt.long@adhocteam.us # Matt Long - Staff Software Engineer - Ad Hoc
-    - trent.mcdole@gcio.com
-    - simi.adebowale@adhocteam.us
-    - berni.xiong@agile6.com # Bernie Xiong - Agile 6
-    - mcahill@gwu.edu # Travis Cahill - Agile 6
-    - pamela.drouin@a1msolutions.com # Pamela Drouin - A1M Solutions
-    - adrian.brewster@agile6.com # Adrian Brewster - Agile 6
-    - tom.harrison@adhocteam.us # Tom Harrison - Ad Hoc
-    - angela.agosto@adhocteam.us # Angela Agosto - Ad Hoc
-    - ryan.koch@agile6.com
-    - wesley.rowe@agile6.com
-    - jill.adams@agile6.com
-    - allison@cityfriends.tech
-    - helene.mccarron@thoughtworks.com # Virtual Agent
-    - ryan.shaw@adhocteam.us
-    - brandyn.sullins@govcio.com # Brandyn Sullins - Front End Engineer - GCIO
-    - andrew.rodiek@gmail.com # Andrew Rodiek - Front End Engineer - GCIO
-    - karan.krishnani@thoughtworks.com # Virtual Agent Chatbot
-    - aherzberg5@gmail.com # email tied to production id.me account
-    - jtmills09@live.com # Josh Mills - Front End Engineer
-    - choi.won@gmail.com # AFS DevOps
-    - andrew.barrett1986@gmail.com # DGIB managed service Operations Lead
-    - erica.sauve@adhocteam.us # Erica Suave - APM Adhoc Auth Exp
-    - ajakabcin@gmail.com # Ana Jakabcin - PM Adhoc Auth Exp
-    - cesar.santiago@accenturefederal.com # My Education Benefits Team Lead
-    - jacob.k.worrell@gmail.com # Jacob Worrell - Benefits Team #1
-    - jerek.shoemaker@adhocteam.us # Jerek Shoemaker - Benefits Team #1
-    - sam.cormier@coforma.io # Sam Cormier - Benefits Team #1
-    - scott.meyers@coforma.io # Scott Meyers - Benefits Team #1
-    - kyle.soskin@adhocteam.us # Kyle Soskin - Benefits Team #1
-    - johncater@gmail.com # John Cater - FE Engineer Auth Exp
-    - mark.komosa@va.gov # Mark Komosa GCIO VFEP Tech Lead
-    - Napoleon.Kernessant@va.gov # Kernessant, Napoleon GCIO VFEP Dev Lead
-    - Jarred.Simon@va.gov # Jarred Simon GCIO VFEP FE Dev
-    - NOAH.STERN@va.gov # Noah Sterngo GCIO VFEP BE Dev
-    - GREGG.PUHALA@va.gov # Gregg Puhala GCIO VFEP BE Dev
-    - derrick.ellerbie@agile6.com # Derrick Ellerbie - Engineer - Agile 6
-    - daniel.sasser@va.gov # Daniel Sasser - Engineer - Agile 6 - Sitewide Crew, Public Websites
-    - daniel.sasser@agile6.com # Daniel Sasser - Engineer - Agile 6 - Sitewide Crew, Public Websites
-    - florence.mccafferty@agile6.com # Florence McCafferty - Agile 6 - Authenticated Experience
-    - berni.xiong@agile6.com # Berni Xiong - Agile 6 - Authenticated Experience
-    - liz.lantz@adhocteam.us # Liz Lantz - Ad Hoc - Authenticated Experience
-    - aaron.young@thoughtworks.com # Aaron Young - Virtual Agent Chatbot
-    - alex.person@thoughtworks.com # Alex Person - Virtual Agent Chatbot
-    - seth.darr@agile6.com # Seth Darr - Engineer - Agile 6 - Benefits Delivery Experience Team 1
-    - aurora.hampton@agile6.com # Aurora Hampton - Engineer - Agile 6 - Benefits Delivery Experience Team 1
-    - christinec.fftc@gmail.com # Christine Cereca - Engineer - Friends From The City - Benefits Delivery Experience Team 1
-    - markchae@navapbc.com # Mark Chae - Engineer - Nava - Benefits Delivery Experience Team 1
-    - eddieglenn@navapbc.com # Eddie Glenn - Engineer - Nava - Benefits Delivery Experience Team 1
-    - john.woolschlager@va.gov # John Woolschlager - CivicActions - Check In Experience
-    - kevin.duensing@adhocteam.us # Kevin Duensing - Ad Hoc - Benefits Team 1, Management Tools
-    - randi.mays@va.gov # Randi Mays - Front End Engineer - Kind Systems, Sitewide Crew, Public Websites
-    - rmays@kindsys.us # Randi Mays - Front End Engineer - Kind Systems, Sitewide Crew, Public Websites
-    - luke@verdance.co # Luke Short - Software Engineer - Verdance LLC, Contention Classification
-    - adewitt@thoughtworks.com # Anita DeWitt - Virtual Agent Chatbot
-    - maurice.okumu@thoughtworks.com # Maurice Okumu - Virtual Agent Chatbot
-    - nichelous.herndon@thoughtworks.com # Nichelous Herndon - Virtual Agent Chatbot
-    - jason.conigliari@adhocteam.us # Jason Conigliari - Ad Hoc - Mobile Back End Engineer
 
 bgs:
   application: ~
@@ -1424,6 +1235,7 @@ covid_vaccine:
 
 virtual_agent:
   webchat_secret: fake_secret
+  webchat_pva2_secret: fake_secret
   lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
   lighthouse_api_key: fake_api_key
   cxdw_client_secret: fake_secret
@@ -1448,12 +1260,16 @@ vanotify:
         form527ez_confirmation_email: form527ez_confirmation_email_template_id
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         contact_info_change: fake_template_id
+        form0994_confirmation_email: form0994_confirmation_email_template_id
+        form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1990_confirmation_email: form1990_confirmation_email_template_id
         form1990e_confirmation_email: form1990e_confirmation_email_template_id
         form1995_confirmation_email: form1995_confirmation_email_template_id
+        form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
         form526_confirmation_email: fake_template_id
         form526_submission_failed_email: fake_template_id
         form5490_confirmation_email: form5490_confirmation_email_template_id
+        form5495_confirmation_email: form5495_confirmation_email_template_id
         form686c_confirmation_email: fake_template_id
         form686c_reminder_email: fake_template_id
         form1010ez_reminder_email: fake_template_id
@@ -1463,16 +1279,17 @@ vanotify:
         covid_vaccine_expanded_registration: fake_template_id
         direct_deposit_edu: edu_template_id
         direct_deposit_comp_pen: comp_pen_template_id
+        login_reactivation_email: reactivation_email_test_b
     lighthouse:
       api_key: fake_secret
       template_id:
         disconnection_template: fake_template_id
-        connection_template: fake_template_id
     dmc:
       api_key: fake_secret
       template_id:
         fsr_confirmation_email: fake_template_id
         vha_new_copay_statement_email: fake_template_id
+        fsr_streamlined_confirmation_email: fake_template_id
     check_in:
       api_key: fake_secret
       sms_sender_id: fake_secret
@@ -1614,6 +1431,8 @@ chip:
   mock: true
   mobile_app:
     tenant_id: 6f1c8b41-9c77-469d-852d-269c51a7d380
+    username: 'testuser'
+    password: '12345'
 
 check_in:
   travel_reimbursement_api:
@@ -1693,8 +1512,8 @@ virtual_regional_office:
   url: http://localhost:8120
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
   evidence_pdf_path: evidence-pdf
-  # ctn_classification_path: contention-classification/classifier
   ctn_classification_path: classifier
+  max_cfi_path: employee-experience/max-ratings
 
 # Settings for Test User Dashboard modules
 test_user_dashboard:
@@ -1734,6 +1553,14 @@ sidekiq:
   github_oauth_secret: ~
   github_api_key: ~
 
+flipper:
+  mute_logs: false
+  github_organization: ~
+  github_team: ~
+  github_oauth_key: ~
+  github_oauth_secret: ~
+  github_api_key: ~
+
 lgy:
   base_url: http://www.example.com
   app_id: ~
@@ -1746,6 +1573,13 @@ form526_backup:
   submission_method: "single"
   api_key: ~
   url: https://sandbox-api.va.gov/services/vba_documents/v1/
+  aws:
+    bucket: ~
+    region: ~
+    access_key_id: ~
+    secret_access_key: ~
+
+form526_export:
   aws:
     bucket: ~
     region: ~
@@ -1773,3 +1607,19 @@ coverband:
 
 dogstatsd:
   enabled: false
+
+vha:
+  sharepoint:
+    sharepoint_url: "dvagov.sharepoint.com"
+    client_id: "fake_sharepoint_client_id"
+    client_secret: "fake_sharepoint_client_secret"
+    tenant_id: "fake_sharepoint_tenant_id"
+    resource: "00000003-0000-0ff1-ce00-000000000000"
+    service_name: "VHA-SHAREPOINT"
+    base_path: "/sites/vhafinance/MDW"
+    authentication_url: "https://accounts.accesscontrol.windows.net"
+    mock: true
+avs:
+  mock: true
+  timeout: 55
+  url: "https://something.fake.va.gov"

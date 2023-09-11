@@ -10,16 +10,18 @@ RSpec.describe LighthouseRatedDisabilitiesProvider do
   let(:current_user) { build(:user, :loa3) }
 
   before(:all) do
-    @provider = LighthouseRatedDisabilitiesProvider.new('123456')
+    @provider = LighthouseRatedDisabilitiesProvider.new('123498767V234859')
   end
 
   before do
-    Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+    Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
+    Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
   end
 
   after do
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
+    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
   end
 
   it_behaves_like 'rated disabilities provider'

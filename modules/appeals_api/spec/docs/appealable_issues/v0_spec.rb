@@ -16,10 +16,16 @@ RSpec.describe 'Appealable Issues', swagger_doc:, type: :request do
   include DocHelpers
   let(:Authorization) { 'Bearer TEST_TOKEN' }
 
-  path '/appealable-issues/{decision_review_type}' do
+  before do
+    mpi_response = create(:find_profile_response, profile: build(:mpi_profile))
+    allow_any_instance_of(MPI::Service)
+      .to receive(:find_profile_by_identifier)
+      .with(identifier: icn, identifier_type: MPI::Constants::ICN).and_return(mpi_response)
+  end
+
+  path '/appealable-issues/{decisionReviewType}' do
     get 'Returns all appealable issues for a specific veteran.' do
       scopes = AppealsApi::AppealableIssues::V0::AppealableIssuesController::OAUTH_SCOPES[:GET]
-
       tags 'Appealable Issues'
       operationId 'getAppealableIssues'
       description 'Returns all issues associated with a Veteran that have been decided ' \
@@ -28,50 +34,31 @@ RSpec.describe 'Appealable Issues', swagger_doc:, type: :request do
       consumes 'application/json'
       produces 'application/json'
 
-      parameter name: :decision_review_type,
-                in: :path,
-                required: true,
-                description: 'Scoping of appeal type for associated issues',
-                schema: {
-                  type: 'string',
-                  enum: %w[higher_level_reviews notice_of_disagreements supplemental_claims]
-                },
-                example: 'higher_level_reviews'
+      parameter(
+        parameter_from_schema('appealable_issues/v0/params.json', 'properties', 'decisionReviewType').merge({ in: :path })
+      )
 
-      let(:decision_review_type) { 'higher_level_reviews' }
+      parameter(
+        parameter_from_schema('appealable_issues/v0/params.json', 'properties', 'benefitType').merge({ in: :query })
+      )
 
-      parameter name: :benefit_type,
-                in: :query,
-                description: 'Required if decision review type is Higher Level Review or Supplemental Claims.',
-                schema: {
-                  type: 'string',
-                  enum: %w[
-                    compensation
-                    pensionSurvivorsBenefits
-                    fiduciary
-                    lifeInsurance
-                    veteransHealthAdministration
-                    veteranReadinessAndEmployment
-                    loanGuaranty
-                    education
-                    nationalCemeteryAdministration
-                  ]
-                },
-                example: 'compensation'
+      parameter(
+        parameter_from_schema('appealable_issues/v0/params.json', 'properties', 'receiptDate').merge({ in: :query })
+      )
 
-      let(:benefit_type) { 'compensation' }
+      parameter(
+        parameter_from_schema('appealable_issues/v0/params.json', 'properties', 'icn').merge({ in: :query })
+      )
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header]
-      let(:'X-VA-SSN') { '872958715' }
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:va_receipt_date]
-      let(:'X-VA-Receipt-Date') { '2019-12-01' }
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header].merge({ required: true })
-      let(:'X-VA-ICN') { '1234567890V123456' }
+      let(:decisionReviewType) { 'higher-level-reviews' }
+      let(:receiptDate) { '2019-12-01' }
+      let(:icn) { '1234567890V123456' }
+      let(:benefitType) { 'compensation' }
 
       response '200', 'JSON:API response returning all appealable issues for a specific veteran.' do
+        let(:decisionReviewType) { 'notice-of-disagreements' }
+
         schema '$ref' => '#/components/schemas/appealableIssues'
-        let(:decision_review_type) { 'notice_of_disagreements' }
 
         it_behaves_like 'rswag example',
                         cassette: 'caseflow/notice_of_disagreements/contestable_issues',
@@ -91,17 +78,17 @@ RSpec.describe 'Appealable Issues', swagger_doc:, type: :request do
       response '422', 'Parameter Errors' do
         schema '$ref' => '#/components/schemas/errorModel'
 
-        describe 'bad decision_review_type' do
-          let(:decision_review_type) { 'invalid' }
+        describe 'bad decisionReviewType' do
+          let(:decisionReviewType) { 'invalid' }
 
           it_behaves_like 'rswag example',
-                          desc: 'decision_review_type must be one of: higher_level_reviews, notice_of_disagreements, supplemental_claims',
+                          desc: 'decisionReviewType must be one of: higher-level-reviews, notice-of-disagreements, supplemental-claims',
                           extract_desc: true,
                           scopes:
         end
 
-        describe 'bad X-VA-Receipt-Date' do
-          let(:'X-VA-Receipt-Date') { '1900-01-01' }
+        describe 'bad receiptDate' do
+          let(:receiptDate) { '1900-01-01' }
 
           it_behaves_like 'rswag example',
                           cassette: 'caseflow/higher_level_reviews/bad_date',
@@ -111,10 +98,10 @@ RSpec.describe 'Appealable Issues', swagger_doc:, type: :request do
         end
 
         describe 'missing ICN' do
-          let(:'X-VA-ICN') { nil }
+          let(:icn) { '' }
 
           it_behaves_like 'rswag example',
-                          desc: 'X-VA-ICN header missing',
+                          desc: "'icn' parameter missing",
                           extract_desc: true,
                           scopes:
         end

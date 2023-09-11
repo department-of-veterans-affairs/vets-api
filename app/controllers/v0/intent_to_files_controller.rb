@@ -3,20 +3,40 @@
 require 'evss/intent_to_file/service'
 require 'evss/intent_to_file/response_strategy'
 require 'disability_compensation/factories/api_provider_factory'
+require 'logging/third_party_transaction'
 
 module V0
   class IntentToFilesController < ApplicationController
+    extend Logging::ThirdPartyTransaction::MethodWrapper
+
     before_action { authorize :evss, :access_form526? }
     before_action :validate_type_param, only: %i[active submit]
+
+    wrap_with_logging(
+      :index,
+      :submit,
+      additional_class_logs: {
+        action: 'load Intent To File for 526 form flow'
+      },
+      additional_instance_logs: {
+        user_uuid: %i[current_user account_uuid]
+      }
+    )
 
     # currently, only `compensation` is supported. This will be expanded to
     # include `pension` and `survivor` in the future.
     TYPES = %w[compensation].freeze
 
     def index
-      intent_to_file_service = ApiProviderFactory.intent_to_file_service_provider(@current_user)
+      intent_to_file_provider = ApiProviderFactory.call(
+        type: ApiProviderFactory::FACTORIES[:intent_to_file],
+        provider: nil,
+        options: {},
+        current_user: @current_user,
+        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE
+      )
       type = params['itf_type'] || 'compensation'
-      response = intent_to_file_service.get_intent_to_file(type, nil, nil)
+      response = intent_to_file_provider.get_intent_to_file(type, nil, nil)
       render json: response,
              serializer: IntentToFileSerializer
     end
@@ -28,9 +48,15 @@ module V0
     end
 
     def submit
-      intent_to_file_service = ApiProviderFactory.intent_to_file_service_provider(@current_user)
+      intent_to_file_provider = ApiProviderFactory.call(
+        type: ApiProviderFactory::FACTORIES[:intent_to_file],
+        provider: nil,
+        options: {},
+        current_user: @current_user,
+        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_INTENT_TO_FILE
+      )
       type = params['itf_type'] || 'compensation'
-      response = intent_to_file_service.create_intent_to_file(type, nil, nil)
+      response = intent_to_file_provider.create_intent_to_file(type, nil, nil)
       render json: response,
              serializer: IntentToFileSerializer
     end

@@ -251,7 +251,7 @@ module ClaimsApi
             response = find_by_ssn(ssn)
             ClaimsApi::Logger.log('poa', detail: 'file_number located')
             unless response && response[:file_nbr].present?
-              error_message = "Unable to locate Veteran's File Number in Master Person Index (MPI)." \
+              error_message = "Unable to locate Veteran's File Number in Master Person Index (MPI). " \
                               'Please submit an issue at ask.va.gov ' \
                               'or call 1-800-MyVA411 (800-698-2411) for assistance.'
               raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_message)

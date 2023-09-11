@@ -1,13 +1,13 @@
 The Appeals Status API allows you to request the statuses of all decision reviews for a Veteran, including decision reviews following the AMA process and legacy benefit appeals. The statuses are returned as read only.
 
 To retrieve a list of a claimant’s active contestable issues or legacy appeals, use one of these APIs:
-* [Appealable Issues API](https://developer.va.gov/explore/appeals/docs/appealable_issues)
-* [Legacy Appeals API](https://developer.va.gov/explore/appeals/docs/legacy_appeals)
+* [Appealable Issues API](https://developer.va.gov/explore/api/appealable-issues/docs)
+* [Legacy Appeals API](https://developer.va.gov/explore/api/legacy-appeals/docs)
 
 To file an appeal or decision review, use one of these APIs:
-* [Higher-Level Reviews API](https://developer.va.gov/explore/appeals/docs/higher_level_reviews)
-* [Notice of Disagreements API](https://developer.va.gov/explore/appeals/docs/notice_of_disagreements)
-* [Supplemental Claims API](https://developer.va.gov/explore/appeals/docs/supplemental_claims)
+* [Higher-Level Reviews API](https://developer.va.gov/explore/api/higher-level-reviews/docs)
+* [Notice of Disagreements API](https://developer.va.gov/explore/api/notice-of-disagreements/docs)
+* [Supplemental Claims API](https://developer.va.gov/explore/api/supplemental-claims/docs)
 
 ## Background
 
@@ -20,8 +20,8 @@ Because this application is designed to allow third-parties to request informati
 ### Authentication and Authorization
 
 The authentication model for the Appeals Status API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:
-* [Authorization code flow](https://developer.va.gov/explore/authorization/docs/authorization-code?api=appeals)
-* [Client Credentials Grant (CCG)](https://developer.va.gov/explore/authorization/docs/client-credentials?api=appeals)
+* [Authorization code flow](https://developer.va.gov/explore/api/appeals-status/authorization-code)
+* [Client Credentials Grant (CCG)](https://developer.va.gov/explore/api/appeals-status/client-credentials)
 
 **Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).
 

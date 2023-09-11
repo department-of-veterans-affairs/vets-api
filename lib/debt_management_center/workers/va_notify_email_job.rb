@@ -6,16 +6,11 @@ module DebtManagementCenter
     include SentryLogging
     sidekiq_options retry: 14
 
-    def perform(email, template_id, personalisation = nil)
-      notify_client = VaNotify::Service.new(Settings.vanotify.services.dmc.api_key)
+    class UnrecognizedIdentifier < StandardError; end
 
-      notify_client.send_email(
-        {
-          email_address: email,
-          template_id:,
-          personalisation:
-        }.compact
-      )
+    def perform(identifier, template_id, personalisation = nil, id_type = 'email')
+      notify_client = VaNotify::Service.new(Settings.vanotify.services.dmc.api_key)
+      notify_client.send_email(email_params(identifier, template_id, personalisation, id_type))
     rescue => e
       log_exception_to_sentry(
         e,
@@ -24,6 +19,25 @@ module DebtManagementCenter
         },
         { error: :dmc_va_notify_email_job }
       )
+    end
+
+    def email_params(identifier, template_id, personalisation, id_type)
+      case id_type.downcase
+      when 'email'
+        {
+          email_address: identifier,
+          template_id:,
+          personalisation:
+        }.compact
+      when 'icn'
+        {
+          recipient_identifier: { id_value: identifier, id_type: 'ICN' },
+          template_id:,
+          personalisation:
+        }.compact
+      else
+        raise UnrecognizedIdentifier, id_type
+      end
     end
   end
 end

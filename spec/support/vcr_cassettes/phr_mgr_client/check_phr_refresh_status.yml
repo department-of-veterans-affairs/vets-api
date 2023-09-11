@@ -1,0 +1,49 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: "<MHV_HOST>/mhv-api/patient/v1/medical-records/status/1000000000V000000"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        X-Authorization-Key:
+          - "<MHV_MR_X_AUTH_KEY>"
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Mon, 21 Aug 2023 16:09:17 GMT
+        Content-Type:
+          - application/json
+        Content-Length:
+          - "2715"
+        X-Amzn-Requestid:
+          - "048bcc8d-6344-479d-ab3e-87e7cd01b033"
+        X-Amzn-Remapped-Content-Length:
+          - "2715"
+        X-Amz-Apigw-Id:
+          - KBLXGEPEvHMFjtw=
+        X-Amzn-Remapped-Date:
+          - Mon, 21 Aug 2023 16:09:17 GMT
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: ASCII-8BIT
+        string:
+          '{"patient":{"identifier":"1000000000V000000","assigningFacility":"200M","assigningAuthority":"USVHA","typeCode":"NI","icn":true},"retrievedDate":1692634157124,"lastRefreshDate":null,"facilityExtractStatusList":[{"icn":"1000000000V000000","stationNumber":"0","extract":"AppointmentsReminder","lastModified":1690229854871,"recordCount":0,"lastRequested":1690229853942,"lastCompleted":1690229854873,"loadStatus":"OK","errorMessage":null,"lastSuccessfulCompleted":1690229854873,"upToDate":true},{"icn":"1000000000V000000","stationNumber":"0","extract":"Allergy","lastModified":1692633877389,"recordCount":0,"lastRequested":1692633876696,"lastCompleted":1692633877391,"loadStatus":"OK","errorMessage":null,"lastSuccessfulCompleted":1692633877391,"upToDate":true},{"icn":"1000000000V000000","stationNumber":"0","extract":"ImagingStudy","lastModified":1692633879029,"recordCount":0,"lastRequested":1692633876769,"lastCompleted":1692633879029,"loadStatus":"ERROR","errorMessage":"Failed
+          query id 12337165 Error getting Studies with Filter. site Id&#x3a; 983","lastSuccessfulCompleted":null,"upToDate":true},{"icn":"1000000000V000000","stationNumber":"0","extract":"MASAppointments","lastModified":1692633880276,"recordCount":0,"lastRequested":1692633876793,"lastCompleted":1692633880245,"loadStatus":"ERROR","errorMessage":"Code&#x3a;500&#x3b;Source&#x3a;989&#x3b;Summary&#x3a;Could
+          not get appointments from VistA Scheduling Service &#x28;8aa85b2d-17b4-4c9a-9c05-d3cb145be7f4&#x29;&#xa;Code&#x3a;900&#x3b;Source&#x3a;MAS&#x3b;Summary&#x3a;Partial
+          data was returned&#xa;","lastSuccessfulCompleted":1687790867692,"upToDate":true},{"icn":"1000000000V000000","stationNumber":"0","extract":"VPR","lastModified":1692633879160,"recordCount":12,"lastRequested":1692633876682,"lastCompleted":1692633879162,"loadStatus":"OK","errorMessage":null,"lastSuccessfulCompleted":1692633879162,"upToDate":true},{"icn":"1000000000V000000","stationNumber":"0","extract":"DodMilitaryService","lastModified":1692633877406,"recordCount":1,"lastRequested":1692633876754,"lastCompleted":1692633877408,"loadStatus":"OK","errorMessage":null,"lastSuccessfulCompleted":1692633877408,"upToDate":true},{"icn":"1000000000V000000","stationNumber":"0","extract":"ChemistryHematology","lastModified":1692633877626,"recordCount":0,"lastRequested":1692633876708,"lastCompleted":1692633877627,"loadStatus":"OK","errorMessage":null,"lastSuccessfulCompleted":1692633877627,"upToDate":true},{"icn":"1000000000V000000","stationNumber":"0","extract":"Appointments","lastModified":1692633876749,"recordCount":0,"lastRequested":1692633876735,"lastCompleted":1692633876751,"loadStatus":"OK","errorMessage":null,"lastSuccessfulCompleted":1692633876751,"upToDate":true}]}'
+    recorded_at: Mon, 21 Aug 2023 16:09:17 GMT
+recorded_with: VCR 6.2.0

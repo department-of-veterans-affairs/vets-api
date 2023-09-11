@@ -542,6 +542,7 @@ RSpec.describe FormProfile, type: :model do
       'dateOfBirth' => user.birth_date,
       'eligibility' => {
         'accessories' => true,
+        'apneas' => true,
         'batteries' => true
       },
       'supplies' => [
@@ -582,6 +583,26 @@ RSpec.describe FormProfile, type: :model do
           'lastOrderDate' => '2020-05-06',
           'nextAvailabilityDate' => '2020-10-06',
           'quantity' => 60
+        },
+        {
+          'deviceName' => '',
+          'productName' => 'AIRFIT P10',
+          'productGroup' => 'Apnea',
+          'productId' => 6650,
+          'availableForReorder' => true,
+          'lastOrderDate' => '2022-07-05',
+          'nextAvailabilityDate' => '2022-12-05',
+          'quantity' => 1
+        },
+        {
+          'deviceName' => '',
+          'productName' => 'AIRCURVE10-ASV-CLIMATELINE',
+          'productGroup' => 'Apnea',
+          'productId' => 8467,
+          'availableForReorder' => false,
+          'lastOrderDate' => '2022-07-06',
+          'nextAvailabilityDate' => '2022-12-06',
+          'quantity' => 1
         }
       ]
     }
@@ -1080,8 +1101,9 @@ RSpec.describe FormProfile, type: :model do
   end
 
   describe '#prefill_form' do
+    # TODO: Platform Product Team 8/2023: rename this function.
     def can_prefill_emis(yes)
-      expect(user).to receive(:authorize).at_least(:once).with(:emis, :access?).and_return(yes)
+      expect(user).to receive(:authorize).at_least(:once).with(:va_profile, :access?).and_return(yes)
     end
 
     def strip_required(schema)
@@ -1445,7 +1467,7 @@ RSpec.describe FormProfile, type: :model do
             end
 
             it 'returns prefilled 21-526EZ' do
-              Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+              Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
                   VCR.use_cassette('evss/ppiu/payment_information') do

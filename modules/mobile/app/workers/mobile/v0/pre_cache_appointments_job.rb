@@ -12,7 +12,7 @@ module Mobile
       def perform(uuid)
         return unless Flipper.enabled?(:mobile_precache_appointments)
 
-        user = IAMUser.find(uuid) || User.find(uuid)
+        user = IAMUser.find(uuid) || ::User.find(uuid)
         raise MissingUserError, uuid unless user
 
         Mobile::AppointmentsCacheInterface.new.fetch_appointments(user:, fetch_cache: false,

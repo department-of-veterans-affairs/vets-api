@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require 'logging/third_party_transaction'
+
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm8940 < Job
+      extend Logging::ThirdPartyTransaction::MethodWrapper
+
       STATSD_KEY_PREFIX = 'worker.evss.submit_form8940'
 
       # Sidekiq has built in exponential back-off functionality for retrys
@@ -21,6 +25,18 @@ module EVSS
         Metrics.new(STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
       end
 
+      attr_accessor :submission_id
+
+      wrap_with_logging(
+        :upload_to_vbms,
+        additional_class_logs: {
+          action: 'upload form 8940 to EVSS'
+        },
+        additional_instance_logs: {
+          submission_id: %i[submission_id]
+        }
+      )
+
       def get_docs(submission_id)
         @submission_id = submission_id
         { type: '21-8940', file: EVSS::DisabilityCompensationForm::Form8940Document.new(submission) }
@@ -31,12 +47,13 @@ module EVSS
       # @param submission_id [Integer] The {Form526Submission} id
       #
       def perform(submission_id)
+        @submission_id = submission_id
         Raven.tags_context(source: '526EZ-all-claims')
+
         super(submission_id)
 
         with_tracking('Form8940 Submission', submission.saved_claim_id, submission_id) do
-          document = EVSS::DisabilityCompensationForm::Form8940Document.new(submission)
-          upload_to_vbms(submission.auth_headers, document)
+          upload_to_vbms
         end
       rescue => e
         # Cannot move job straight to dead queue dynamically within an executing job
@@ -48,16 +65,23 @@ module EVSS
 
       private
 
-      def upload_to_vbms(auth_headers, document)
-        if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
-          # TODO: create client from lighthouse document service
-        else
-          client = EVSS::DocumentsService.new(auth_headers)
-        end
+      def document
+        @document ||= EVSS::DisabilityCompensationForm::Form8940Document.new(submission)
+      end
+
+      def upload_to_vbms
         client.upload(document.file_body, document.data)
       ensure
         # Delete the temporary PDF file
         File.delete(document.pdf_path) if document.pdf_path.present?
+      end
+
+      def client
+        @client ||= if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
+                      # TODO: create client from lighthouse document service
+                    else
+                      EVSS::DocumentsService.new(submission.auth_headers)
+                    end
       end
     end
   end

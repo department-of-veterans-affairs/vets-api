@@ -15,7 +15,8 @@ module EducationForm::Forms
       return 'CH1607' if application.chapter1607
       return 'CH33' if application.chapter33
       return 'CH30' if application.chapter30
-      return 'CH32' if application.chapter32
+
+      'CH32' if application.chapter32
     end
 
     def non_va_assistance

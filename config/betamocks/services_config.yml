@@ -43,6 +43,26 @@
     :path: "/vbsapi/UploadFSRJsonDocument"
     :file_path: "vbs/fsr"
 
+- :name: 'VHA'
+  :base_uri: <%= "#{URI('https://' + Settings.vha.sharepoint.sharepoint_url).host}:#{URI('https://' + Settings.vha.sharepoint.sharepoint_url).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: <%= "/#{Settings.vha.sharepoint.base_path}/_api/Web/GetFolderByServerRelativeUrl('#{Settings.vha.sharepoint.base_path}/Submissions')/Files/*" %>
+    :file_path: "vha/sharepoint/create"
+  - :method: :post
+    :path: <%= "/#{Settings.vha.sharepoint.base_path}/_api/Web/Lists/GetByTitle('Submissions')/items/*" %>
+    :file_path: "vha/sharepoint/create"
+  - :method: :get
+    :path: "/_api/Web/*"
+    :file_path: "vha/sharepoint/show"
+
+- :name: 'ACS'
+  :base_uri: <%= "#{URI(Settings.vha.sharepoint.authentication_url).host}:#{URI(Settings.vha.sharepoint.authentication_url).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: <%= "/#{Settings.vha.sharepoint.tenant_id}/tokens/OAuth/2" %>
+    :file_path: "vha/sharepoint/authenticate"
+
 - :name: 'MDOT'
   :base_uri: <%= "#{URI(Settings.mdot.url).host}:#{URI(Settings.mdot.url).port}" %>
   :endpoints:
@@ -745,10 +765,10 @@
 
 #CHIP
 - :name: "CHIP"
-  :base_uri: <%= "#{URI(Settings.check_in.chip_api_v2.url).host}:#{URI(Settings.check_in.chip_api_v2.url).port}" %>
+  :base_uri: <%= "#{URI(Settings.chip.url).host}:#{URI(Settings.chip.url).port}" %>
   :endpoints:
     - :method: :post
-      :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/token" %>
+      :path: <%= "/#{Settings.chip.base_path}/token" %>
       :file_path: "/chip/token/default"
       :response_delay: 0.2
     - :method: :post
@@ -779,9 +799,17 @@
       :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/refresh-precheckin/*" %>
       :file_path: "/chip/refresh-precheckin/default"
       :response_delay: 4
+    - :method: :post
+      :path: <%= "/#{Settings.chip.base_path}/actions/authenticated-checkin" %>
+      :file_path: "/chip/authenticated-check-in/default"
+      :response_delay: 4
     - :method: :delete
       :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/deleteFromLorota/*" %>
       :file_path: "/chip/deleteFromLorota/default"
+      :response_delay: 4
+    - :method: post
+      :path: <%= "/#{Settings.chip.base_path}/actions/authenticated-demographics" %>
+      :file_path: "/chip/update-demographics/default"
       :response_delay: 4
 
 # LGY: Certificate of Eligibility
@@ -854,10 +882,27 @@
         :uid_location: "url"
         :uid_locator: "\/services/claims/v2/veterans\/(?:.+)\/claims\/(.+)/5103"
 
-  # Lighthouse Benefits Documents API
+# Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"
   :base_uri: <%= "#{URI(Settings.lighthouse.benefits_documents.host).host}:#{URI(Settings.lighthouse.benefits_documents.host).port}" %>
   :endpoints:
     - :method: :post
       :path: "/benefits-documents/v1/documents"
       :file_path: "/lighthouse/benefits_documents"
+
+# After Visit Summary API
+- :name: "AVS"
+  :base_uri: <%= "#{URI(Settings.avs.url).host}:#{URI(Settings.avs.url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/avs-by-appointment/*/*"
+      :file_path: "/avs/index"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator:  '\/avs-by-appointment\/(.*)'
+    - :method: :get
+      :path: "/avs/*"
+      :file_path: "/avs/show"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator:  '\/avs\/(.*)'

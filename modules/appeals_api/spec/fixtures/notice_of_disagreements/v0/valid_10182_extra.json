@@ -3,6 +3,12 @@
     "type": "noticeOfDisagreement",
     "attributes": {
       "veteran": {
+        "icn": "1234567890V123456",
+        "fileNumber": "987654321",
+        "firstName": "Jäñe",
+        "middleInitial": "Z",
+        "lastName": "Doe",
+        "birthDate": "1969-12-31",
         "homeless": false,
         "address": {
           "addressLine1": "123 Main St",
@@ -23,7 +29,11 @@
         "timezone": "America/Chicago"
       },
       "claimant": {
+        "firstName": "First",
+        "middleInitial": "D",
+        "lastName": "Last",
         "homeless": false,
+        "birthDate": "1972-05-08",
         "address": {
           "addressLine1": "456 First St",
           "addressLine2": "Apt 5",
@@ -39,11 +49,11 @@
           "phoneNumber": "8111100",
           "phoneNumberExt": "4"
         },
-        "email": "bob@email.com",
+        "email": "example@email.com",
         "timezone": "America/Detroit"
       },
       "representative": {
-        "name": "Tony Danza"
+        "name": "First Last"
       },
       "boardReviewOption": "hearing",
       "hearingTypePreference": "central_office",

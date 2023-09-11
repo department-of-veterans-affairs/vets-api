@@ -117,7 +117,13 @@ module EVSS
         return {} unless @user.authorize :ppiu, :access?
 
         # Call to either EVSS or Lighthouse PPIU/Direct Deposit data provider
-        service = ApiProviderFactory.ppiu_service_provider(@user)
+        service = ApiProviderFactory.call(
+          type: ApiProviderFactory::FACTORIES[:ppiu],
+          provider: nil,
+          options: {},
+          current_user: @user,
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT
+        )
 
         response = service.get_payment_information
         account = response.responses.first.payment_account

@@ -7,6 +7,7 @@ module SignIn
       class JWTExpiredError < StandardError; end
       class JWTDecodeError < StandardError; end
       class JWEDecodeError < StandardError; end
+      class PublicJWKError < StandardError; end
     end
   end
 end

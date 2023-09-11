@@ -5,7 +5,7 @@ module ClaimsApi
   # Class to interact with the BRD API
   #
   # Takes an optional request parameter
-  # @param [] rails request object
+  # @param [] rails request object (used to determine environment)
   class BRD
     def initialize(request = nil)
       @request = request
@@ -19,12 +19,21 @@ module ClaimsApi
       client.get('countries').body[:items]
     end
 
+    ##
+    # List of intake sites
+    #
+    # @return [Array<Hash>] list of intake sites
+    # as {id: <number> and description: <string>}
     def intake_sites
       client.get('intake-sites').body[:items]
     end
 
     def disabilities
       client.get('disabilities').body[:items]
+    end
+
+    def service_branches
+      client.get('service-branches').body[:items]
     end
 
     private

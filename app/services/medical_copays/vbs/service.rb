@@ -17,6 +17,8 @@ module MedicalCopays
 
       attr_reader :request, :request_data, :user
 
+      STATSD_KEY_PREFIX = 'api.mcp.vbs'
+
       ##
       # Builds a Service instance
       #
@@ -80,9 +82,13 @@ module MedicalCopays
       # @return [Hash]
       #
       def get_pdf_statement_by_id(statement_id)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.pdf.total")
         response = request.get("#{settings.base_path}/GetPDFStatementById/#{statement_id}")
 
         Base64.decode64(response.body['statement'])
+      rescue => e
+        StatsD.increment("#{STATSD_KEY_PREFIX}.pdf.failure")
+        raise e
       end
 
       def send_statement_notifications(statements_json_byte)

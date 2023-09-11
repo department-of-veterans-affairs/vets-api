@@ -6,7 +6,7 @@
     "contact": {
       "name": "developer.va.gov"
     },
-    "description": "The Legacy Appeals API returns a list of a claimant's active legacy appeals, which are not part of the Appeals Modernization Act (AMA) process. This list can be used to determine whether to opt in to the new decision review process. [Learn more about managing a legacy appeal.](https://www.va.gov/decision-reviews/legacy-appeals/).\n\nTo check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://dev-developer.va.gov/explore/appeals/docs/appeals?version=current).\n\nTo file an appeal or decision review, use one of these APIs:\n* [Higher-Level Reviews API](https://dev-developer.va.gov/explore/appeals/docs/higher_level_reviews)\n* [Notice of Disagreements API](https://dev-developer.va.gov/explore/appeals/docs/notice_of_disagreements)\n* [Supplemental Claims API](https://dev-developer.va.gov/explore/appeals/docs/supplemental_claims)\n\n## Technical overview\nThe Legacy Appeals API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Higher Level Review, Notice of Disagreement, or Supplemental Claim.\n\n### Authorization and Access\nThe authentication model for the Legacy Appeals API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:\n* [Authorization code flow](https://dev-developer.va.gov/explore/authorization/docs/authorization-code)\n* [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/authorization/docs/client-credentials)\n\n**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://dev-developer.va.gov/support/contact-us).\n"
+    "description": "The Legacy Appeals API returns a list of a claimant's active legacy appeals, which are not part of the Appeals Modernization Act (AMA) process. This list can be used to determine whether to opt in to the new decision review process. [Learn more about managing a legacy appeal](https://www.va.gov/decision-reviews/legacy-appeals/).\n\nTo check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://dev-developer.va.gov/explore/api/appeals-status/docs).\n\nTo file an appeal or decision review, use one of these APIs:\n* [Higher-Level Reviews API](https://dev-developer.va.gov/explore/api/higher-level-reviews/docs)\n* [Notice of Disagreements API](https://dev-developer.va.gov/explore/api/notice-of-disagreements/docs)\n* [Supplemental Claims API](https://dev-developer.va.gov/explore/api/supplemental-claims/docs)\n\n## Technical overview\nThe Legacy Appeals API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Higher Level Review, Notice of Disagreement, or Supplemental Claim.\n\n### Authorization and Access\nThe authentication model for the Legacy Appeals API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:\n* [Authorization code flow](https://dev-developer.va.gov/explore/api/legacy-appeals/authorization-code)\n* [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/legacy-appeals/client-credentials)\n\n**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://dev-developer.va.gov/support/contact-us).\n"
   },
   "tags": [
     {
@@ -361,36 +361,46 @@
       },
       "productionOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "The authentication model for the Legacy Appeals API uses OAuth 2.0/OpenID Connect. The following authorization models are supported: [Authorization code flow](https://dev-developer.va.gov/explore/api/legacy-appeals/authorization-code) and [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/legacy-appeals/client-credentials).",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://api.va.gov/oauth2/authorization",
-            "tokenUrl": "https://api.va.gov/oauth2/token",
+            "authorizationUrl": "https://api.va.gov/oauth2/appeals/v1/authorization",
+            "tokenUrl": "https://api.va.gov/oauth2/appeals/v1/token",
             "scopes": {
-              "veteran/LegacyAppeals.read": "Allows a veteran to see their own legacy appeals",
-              "representative/LegacyAppeals.read": "Allows a veteran representative to see a veteran's legacy appeals",
-              "system/LegacyAppeals.read": "Allows a system to see a veteran's legacy appeals",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran"
+              "veteran/LegacyAppeals.read": "Legacy appeals info",
+              "veteran/appeals.read": "Appeals info",
+              "representative/LegacyAppeals.read": "Legacy appeals info",
+              "representative/appeals.read": "Appeals info"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://dev-developer.va.gov/support/contact-us).",
+            "scopes": {
+              "system/LegacyAppeals.read": "Legacy appeals info",
+              "system/appeals.read": "Appeals info"
             }
           }
         }
       },
       "sandboxOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "The authentication model for the Legacy Appeals API uses OAuth 2.0/OpenID Connect. The following authorization models are supported: [Authorization code flow](https://dev-developer.va.gov/explore/api/legacy-appeals/authorization-code) and [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/legacy-appeals/client-credentials).",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
-            "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
+            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/appeals/v1/authorization",
+            "tokenUrl": "https://sandbox-api.va.gov/oauth2/appeals/v1/token",
             "scopes": {
-              "veteran/LegacyAppeals.read": "Allows a veteran to see their own legacy appeals",
-              "representative/LegacyAppeals.read": "Allows a veteran representative to see a veteran's legacy appeals",
-              "system/LegacyAppeals.read": "Allows a system to see a veteran's legacy appeals",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran"
+              "veteran/LegacyAppeals.read": "Legacy appeals info",
+              "veteran/appeals.read": "Appeals info",
+              "representative/LegacyAppeals.read": "Legacy appeals info",
+              "representative/appeals.read": "Appeals info"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "https://deptva-eval.okta.com/oauth2/auskff5o6xsoQVngk2p7/v1/token",
+            "scopes": {
+              "system/LegacyAppeals.read": "Legacy appeals info",
+              "system/appeals.read": "Appeals info"
             }
           }
         }

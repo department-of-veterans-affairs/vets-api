@@ -6,7 +6,7 @@
     "contact": {
       "name": "developer.va.gov"
     },
-    "description": "The Appeals Status API allows you to request the statuses of all decision reviews for a Veteran, including decision reviews following the AMA process and legacy benefit appeals. The statuses are returned as read only.\n\nTo retrieve a list of a claimant’s active contestable issues or legacy appeals, use one of these APIs:\n* [Appealable Issues API](https://developer.va.gov/explore/appeals/docs/appealable_issues)\n* [Legacy Appeals API](https://developer.va.gov/explore/appeals/docs/legacy_appeals)\n\nTo file an appeal or decision review, use one of these APIs:\n* [Higher-Level Reviews API](https://developer.va.gov/explore/appeals/docs/higher_level_reviews)\n* [Notice of Disagreements API](https://developer.va.gov/explore/appeals/docs/notice_of_disagreements)\n* [Supplemental Claims API](https://developer.va.gov/explore/appeals/docs/supplemental_claims)\n\n## Background\n\nThe Appeals API passes data through to Caseflow, a case management system. Caseflow accepts a header with the Veteran’s SSN and returns the current status of their decision reviews and/or benefits appeals.\n\nBecause this application is designed to allow third-parties to request information on behalf of a Veteran, we are not using VA Authentication Federation Infrastructure (VAAFI) headers or Single Sign On External (SSOe).\n\n## Technical overview\n\n### Authentication and Authorization\n\nThe authentication model for the Appeals Status API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:\n* [Authorization code flow](https://developer.va.gov/explore/authorization/docs/authorization-code?api=appeals)\n* [Client Credentials Grant (CCG)](https://developer.va.gov/explore/authorization/docs/client-credentials?api=appeals)\n\n**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n### Test data\n\nThe database powering our sandbox environment is populated with [Veteran test data](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/benefits_test_accounts.md). This sandbox data contains no PII or PHI, but mimics real Veteran account information.\n"
+    "description": "The Appeals Status API allows you to request the statuses of all decision reviews for a Veteran, including decision reviews following the AMA process and legacy benefit appeals. The statuses are returned as read only.\n\nTo retrieve a list of a claimant’s active contestable issues or legacy appeals, use one of these APIs:\n* [Appealable Issues API](https://developer.va.gov/explore/api/appealable-issues/docs)\n* [Legacy Appeals API](https://developer.va.gov/explore/api/legacy-appeals/docs)\n\nTo file an appeal or decision review, use one of these APIs:\n* [Higher-Level Reviews API](https://developer.va.gov/explore/api/higher-level-reviews/docs)\n* [Notice of Disagreements API](https://developer.va.gov/explore/api/notice-of-disagreements/docs)\n* [Supplemental Claims API](https://developer.va.gov/explore/api/supplemental-claims/docs)\n\n## Background\n\nThe Appeals API passes data through to Caseflow, a case management system. Caseflow accepts a header with the Veteran’s SSN and returns the current status of their decision reviews and/or benefits appeals.\n\nBecause this application is designed to allow third-parties to request information on behalf of a Veteran, we are not using VA Authentication Federation Infrastructure (VAAFI) headers or Single Sign On External (SSOe).\n\n## Technical overview\n\n### Authentication and Authorization\n\nThe authentication model for the Appeals Status API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:\n* [Authorization code flow](https://developer.va.gov/explore/api/appeals-status/authorization-code)\n* [Client Credentials Grant (CCG)](https://developer.va.gov/explore/api/appeals-status/client-credentials)\n\n**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n### Test data\n\nThe database powering our sandbox environment is populated with [Veteran test data](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/benefits_test_accounts.md). This sandbox data contains no PII or PHI, but mimics real Veteran account information.\n"
   },
   "tags": [
     {
@@ -138,36 +138,46 @@
       },
       "productionOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "The authentication model for the Appeals Status API uses OAuth 2.0/OpenID Connect. The following authorization models are supported: [Authorization code flow](https://developer.va.gov/explore/api/appeals-status/authorization-code) and [Client Credentials Grant (CCG)](https://developer.va.gov/explore/api/appeals-status/client-credentials).",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://api.va.gov/oauth2/authorization",
-            "tokenUrl": "https://api.va.gov/oauth2/token",
+            "authorizationUrl": "https://api.va.gov/oauth2/appeals/v1/authorization",
+            "tokenUrl": "https://api.va.gov/oauth2/appeals/v1/token",
             "scopes": {
-              "veteran/AppealsStatus.read": "Allows a veteran to see the status of their own VA decision reviews and appeals",
-              "representative/AppealsStatus.read": "Allows a veteran representative to see the status of a veteran's decision reviews and appeals",
-              "system/AppealsStatus.read": "Allows a system to see the status of a veteran's decision reviews and appeals",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran"
+              "veteran/AppealsStatus.read": "Status of appeals and decision reviews",
+              "veteran/appeals.read": "Appeals info",
+              "representative/AppealsStatus.read": "Status of appeals and decision reviews",
+              "representative/appeals.read": "Appeals info"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).",
+            "scopes": {
+              "system/AppealsStatus.read": "Status of appeals and decision reviews",
+              "system/appeals.read": "Appeals info"
             }
           }
         }
       },
       "sandboxOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "The authentication model for the Appeals Status API uses OAuth 2.0/OpenID Connect. The following authorization models are supported: [Authorization code flow](https://developer.va.gov/explore/api/appeals-status/authorization-code) and [Client Credentials Grant (CCG)](https://developer.va.gov/explore/api/appeals-status/client-credentials).",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
-            "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
+            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/appeals/v1/authorization",
+            "tokenUrl": "https://sandbox-api.va.gov/oauth2/appeals/v1/token",
             "scopes": {
-              "veteran/AppealsStatus.read": "Allows a veteran to see the status of their own VA decision reviews and appeals",
-              "representative/AppealsStatus.read": "Allows a veteran representative to see the status of a veteran's decision reviews and appeals",
-              "system/AppealsStatus.read": "Allows a system to see the status of a veteran's decision reviews and appeals",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran"
+              "veteran/AppealsStatus.read": "Status of appeals and decision reviews",
+              "veteran/appeals.read": "Appeals info",
+              "representative/AppealsStatus.read": "Status of appeals and decision reviews",
+              "representative/appeals.read": "Appeals info"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "https://deptva-eval.okta.com/oauth2/auskff5o6xsoQVngk2p7/v1/token",
+            "scopes": {
+              "system/AppealsStatus.read": "Status of appeals and decision reviews",
+              "system/appeals.read": "Appeals info"
             }
           }
         }

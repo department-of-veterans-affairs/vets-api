@@ -129,21 +129,8 @@ module AppealsApi
     end
     # V2 End
 
-    def veteran_first_name
-      header_field_as_string 'X-VA-First-Name'
-    end
-
-    def veteran_last_name
-      header_field_as_string 'X-VA-Last-Name'
-    end
-
-    def ssn
-      header_field_as_string 'X-VA-SSN'
-    end
-
-    def file_number
-      header_field_as_string 'X-VA-File-Number'
-    end
+    delegate :first_name, :last_name, :birth_date, to: :veteran, prefix: :veteran
+    delegate :ssn, :file_number, to: :veteran
 
     def consumer_name
       header_field_as_string 'X-Consumer-Username'
@@ -357,10 +344,6 @@ module AppealsApi
 
     def unexpected_hearing_type_inclusion?
       !board_review_hearing_selected? && includes_hearing_type_preference?
-    end
-
-    def veteran_birth_date
-      self.class.date_from_string header_field_as_string 'X-VA-Birth-Date'
     end
 
     def header_field_as_string(key)

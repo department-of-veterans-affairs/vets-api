@@ -4,7 +4,7 @@ module SignIn
   class CredentialLevelCreator
     attr_reader :requested_acr,
                 :type,
-                :id_token,
+                :logingov_acr,
                 :verified_at,
                 :mhv_assurance,
                 :dslogon_assurance,
@@ -12,10 +12,10 @@ module SignIn
                 :credential_ial,
                 :credential_uuid
 
-    def initialize(requested_acr:, type:, id_token:, user_info:)
+    def initialize(requested_acr:, type:, logingov_acr:, user_info:)
       @requested_acr = requested_acr
       @type = type
-      @id_token = id_token
+      @logingov_acr = logingov_acr
       @verified_at = user_info.verified_at
       @mhv_assurance = user_info.mhv_assurance
       @dslogon_assurance = user_info.dslogon_assurance
@@ -115,10 +115,6 @@ module SignIn
       else
         false
       end
-    end
-
-    def logingov_acr
-      @logingov_acr ||= JWT.decode(id_token, nil, false).first['acr']
     end
   end
 end

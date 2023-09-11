@@ -36,39 +36,39 @@ RSpec.describe 'legacy claims document upload', type: :request do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.jpg'))]
     params = { files:, trackedItemId: tracked_item_id, documentType: document_type }
+    expect_any_instance_of(Mobile::V0::Claims::Proxy).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
                                                                headers: iam_headers(json_body_headers)
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
-    expect(Rails.root.join('tmp', 'uploads', 'cache').empty?).to eq(true)
   end
 
   it 'uploads multiple gif files' do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.gif')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
     params = { files:, trackedItemId: tracked_item_id, documentType: document_type }
+    expect_any_instance_of(Mobile::V0::Claims::Proxy).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
                                                                headers: iam_headers(json_body_headers)
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
-    expect(Rails.root.join('tmp', 'uploads', 'cache').empty?).to eq(true)
   end
 
   it 'uploads multiple mixed img files' do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
     params = { files:, trackedItemId: tracked_item_id, documentType: document_type }
+    expect_any_instance_of(Mobile::V0::Claims::Proxy).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
                                                                headers: iam_headers(json_body_headers)
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
-    expect(Rails.root.join('tmp', 'uploads', 'cache').empty?).to eq(true)
   end
 
   it 'rejects files with invalid document_types' do

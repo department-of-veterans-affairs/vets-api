@@ -6,9 +6,9 @@ module Lighthouse
   module DirectDeposit
     class ErrorParser
       def self.parse(response)
-        status = response[:status]
         body = parse_body(response[:body])
         detail = parse_detail(body)
+        status = parse_status(response[:status], detail)
 
         errors = [
           {
@@ -20,6 +20,10 @@ module Lighthouse
         ]
 
         Lighthouse::DirectDeposit::ErrorResponse.new(status, errors)
+      end
+
+      def self.parse_status(status, _detail)
+        status
       end
 
       def self.parse_title(body)

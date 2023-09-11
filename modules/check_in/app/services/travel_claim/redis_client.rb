@@ -51,5 +51,15 @@ module TravelClaim
 
       Oj.load(appointment_identifiers).with_indifferent_access.dig(:data, :attributes, :mobilePhone)
     end
+
+    def patient_cell_phone(uuid:)
+      appointment_identifiers = Rails.cache.read(
+        "check_in_lorota_v2_appointment_identifiers_#{uuid}",
+        namespace: 'check-in-lorota-v2-cache'
+      )
+      return nil if appointment_identifiers.nil?
+
+      Oj.load(appointment_identifiers).with_indifferent_access.dig(:data, :attributes, :patientCellPhone)
+    end
   end
 end

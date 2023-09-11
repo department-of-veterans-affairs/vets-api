@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'token'
-require 'token_validation/v2/client'
+require_relative '../../rails_helper'
 require 'bgs_service/local_bgs'
 
 RSpec.describe 'Power of Attorney ', type: :request do
@@ -15,6 +14,12 @@ RSpec.describe 'Power of Attorney ', type: :request do
       'X-VA-Gender': 'M' }
   end
   let(:scopes) { %w[claim.read claim.write] }
+  let(:multi_profile) do
+    MPI::Responses::FindProfileResponse.new(
+      status: :ok,
+      profile: FactoryBot.build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321])
+    )
+  end
   let(:pws) { ClaimsApi::LocalBGS }
 
   before do
@@ -52,7 +57,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
             end
 
             it 'assigns a source' do
-              with_okta_user(scopes) do |auth_header|
+              mock_acg(scopes) do |auth_header|
                 allow_any_instance_of(pws)
                   .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 post path, params: data, headers: headers.merge(auth_header)
@@ -65,7 +70,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
             end
 
             it 'returns a successful response with all the data' do
-              with_okta_user(scopes) do |auth_header|
+              mock_acg(scopes) do |auth_header|
                 allow_any_instance_of(pws)
                   .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 post path, params: data, headers: headers.merge(auth_header)
@@ -76,13 +81,13 @@ RSpec.describe 'Power of Attorney ', type: :request do
             end
 
             it "assigns a 'cid' (OKTA client_id)" do
-              with_okta_user(scopes) do |auth_header|
+              mock_acg(scopes) do |auth_header|
                 allow_any_instance_of(pws)
                   .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 post path, params: data, headers: headers.merge(auth_header)
                 token = JSON.parse(response.body)['data']['id']
                 poa = ClaimsApi::PowerOfAttorney.find(token)
-                expect(poa[:cid]).to eq('0oa1c01m77heEXUZt2p7')
+                expect(poa[:cid]).to eq('0oa41882gkjtBRJhu2p7')
               end
             end
           end
@@ -94,33 +99,19 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
             context 'when consumer is representative' do
               it 'returns an unprocessible entity status' do
-                with_okta_user(scopes) do |auth_header|
+                mock_acg(scopes) do |auth_header|
                   post path, params: data, headers: headers.merge(auth_header)
                   expect(response.status).to eq(422)
                 end
               end
             end
 
-            context 'when consumer is Veteran' do
-              it 'adds person to MPI' do
-                with_okta_user(scopes) do |auth_header|
-                  VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
-                    VCR.use_cassette('mpi/add_person/add_person_success') do
-                      VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
-                        expect_any_instance_of(MPIData).to receive(:add_person_proxy).once.and_call_original
-                        post path, params: data, headers: auth_header
-                      end
-                    end
-                  end
-                end
-              end
-            end
-
             context 'when consumer is Veteran and missing EDIPI' do
               it 'catches a raised 422' do
-                with_okta_user(scopes) do |auth_header|
+                mock_acg(scopes) do |auth_header|
                   VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
-                    expect_any_instance_of(MPIData).to receive(:add_person_proxy).once.and_call_original
+                    allow_any_instance_of(MPIData)
+                      .to receive(:mvi_response).and_return(multi_profile)
                     post path, params: data, headers: auth_header
 
                     response_body = JSON.parse response.body
@@ -143,7 +134,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
                 end
 
                 it 'returns a 200' do
-                  with_okta_user(scopes) do |auth_header|
+                  mock_acg(scopes) do |auth_header|
                     allow_any_instance_of(pws)
                       .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                     post path, params: data, headers: headers.merge(auth_header)
@@ -156,7 +147,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
           context 'when a request includes signatures' do
             it 'Generates a 21-22 or 21-22a form to submit to VBMS' do
-              with_okta_user(scopes) do |auth_header|
+              mock_acg(scopes) do |auth_header|
                 allow_any_instance_of(pws)
                   .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
                 params = JSON.parse data
@@ -175,7 +166,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
           context 'when a request doesn\'t include signatures' do
             it 'Doesn\'t generate a 21-22 or 21-22a form to upload to VBMS' do
-              with_okta_user(scopes) do |auth_header|
+              mock_acg(scopes) do |auth_header|
                 expect(ClaimsApi::PoaFormBuilderJob).not_to receive(:perform_async)
 
                 post path, params: data, headers: headers.merge(auth_header)
@@ -198,7 +189,9 @@ RSpec.describe 'Power of Attorney ', type: :request do
           end
 
           it 'responds with a 422' do
-            with_okta_user(scopes) do |auth_header|
+            mock_acg(scopes) do |auth_header|
+              allow(::Veteran::Service::Representative).to receive(:all_for_user).and_return([])
+
               post path, params: data, headers: headers.merge(auth_header)
 
               expect(response.status).to eq(422)
@@ -215,7 +208,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
           end
 
           it 'responds with invalid poa code message' do
-            with_okta_user(scopes) do |auth_header|
+            mock_acg(scopes) do |auth_header|
               post path, params: data, headers: headers.merge(auth_header)
               expect(response.status).to eq(400)
             end
@@ -229,7 +222,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
         end
 
         it 'responds with invalid poa code message' do
-          with_okta_user(scopes) do |auth_header|
+          mock_acg(scopes) do |auth_header|
             post path, params: data, headers: headers.merge(auth_header)
             expect(response.status).to eq(400)
           end
@@ -245,7 +238,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
           it 'returns an unprocessible entity status' do
             allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
               .and_raise(ArgumentError)
-            with_okta_user(scopes) do |auth_header|
+            mock_acg(scopes) do |auth_header|
               post path, params: data, headers: headers.merge(auth_header)
               expect(response.status).to eq(422)
             end
@@ -261,7 +254,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
         let(:json_data) { JSON.parse data }
 
         it 'requires poa_code subfield' do
-          with_okta_user(scopes) do |auth_header|
+          mock_acg(scopes) do |auth_header|
             params = json_data
             params['data']['attributes']['serviceOrganization']['poaCode'] = nil
             post path, params: params.to_json, headers: headers.merge(auth_header)
@@ -271,7 +264,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
         end
 
         it 'doesn\'t allow additional fields' do
-          with_okta_user(scopes) do |auth_header|
+          mock_acg(scopes) do |auth_header|
             params = json_data
             params['data']['attributes']['someBadField'] = 'someValue'
             post path, params: params.to_json, headers: headers.merge(auth_header)
@@ -293,7 +286,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       let(:power_of_attorney) { create(:power_of_attorney, auth_headers: headers) }
 
       it 'return the status of a POA based on GUID' do
-        with_okta_user(scopes) do |auth_header|
+        mock_acg(scopes) do |auth_header|
           get("#{path}/#{power_of_attorney.id}",
               params: nil, headers: headers.merge(auth_header))
           parsed = JSON.parse(response.body)
@@ -319,7 +312,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       end
 
       it 'submit binary and change the document status' do
-        with_okta_user(scopes) do |auth_header|
+        mock_acg(scopes) do |auth_header|
           allow_any_instance_of(pws)
             .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
           allow_any_instance_of(ClaimsApi::PowerOfAttorneyUploader).to receive(:store!)
@@ -333,7 +326,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       end
 
       it 'submit base64 and change the document status' do
-        with_okta_user(scopes) do |auth_header|
+        mock_acg(scopes) do |auth_header|
           allow_any_instance_of(pws)
             .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
           allow_any_instance_of(ClaimsApi::PowerOfAttorneyUploader).to receive(:store!)
@@ -349,7 +342,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       context "when checking if Veteran has a valid 'FileNumber'" do
         context 'when the call to BGS raises an error' do
           it 'returns a 424' do
-            with_okta_user(scopes) do |auth_header|
+            mock_acg(scopes) do |auth_header|
               allow_any_instance_of(pws)
                 .to receive(:find_by_ssn).and_raise(BGS::ShareError.new('HelloWorld'))
               expect(power_of_attorney.file_data).to be_nil
@@ -367,13 +360,13 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
         context 'BGS response is invalid' do
           let(:error_detail) do
-            "Unable to locate Veteran's File Number in Master Person Index (MPI)." \
+            "Unable to locate Veteran's File Number in Master Person Index (MPI). " \
               'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
           end
 
           context "when the BGS response is 'nil'" do
             it 'returns a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_acg(scopes) do |auth_header|
                 allow_any_instance_of(pws)
                   .to receive(:find_by_ssn).and_return(nil)
                 expect(power_of_attorney.file_data).to be_nil
@@ -391,7 +384,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
           context "when 'file_nbr' in the BGS response is 'nil'" do
             it 'returns a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_acg(scopes) do |auth_header|
                 allow_any_instance_of(pws)
                   .to receive(:find_by_ssn).and_return({ file_nbr: nil })
                 expect(power_of_attorney.file_data).to be_nil
@@ -409,7 +402,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
           context "when 'file_nbr' in the BGS response is blank" do
             it 'returns a 422' do
-              with_okta_user(scopes) do |auth_header|
+              mock_acg(scopes) do |auth_header|
                 allow_any_instance_of(pws)
                   .to receive(:find_by_ssn).and_return({ file_nbr: '' })
                 expect(power_of_attorney.file_data).to be_nil
@@ -429,7 +422,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
       context 'when no attachment is provided to the PUT endpoint' do
         it 'rejects the request for missing param' do
-          with_okta_user(scopes) do |auth_header|
+          mock_acg(scopes) do |auth_header|
             allow_any_instance_of(pws)
               .to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
             put("#{path}/#{power_of_attorney.id}", headers: headers.merge(auth_header))
@@ -449,7 +442,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       end
 
       it 'returns a response when valid' do
-        with_okta_user(scopes) do |auth_header|
+        mock_acg(scopes) do |auth_header|
           post "#{path}/validate", params: data, headers: headers.merge(auth_header)
           parsed = JSON.parse(response.body)
           expect(parsed['data']['attributes']['status']).to eq('valid')
@@ -458,7 +451,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       end
 
       it 'returns a response when invalid' do
-        with_okta_user(scopes) do |auth_header|
+        mock_acg(scopes) do |auth_header|
           post "#{path}/validate", params: { data: { attributes: nil } }.to_json, headers: headers.merge(auth_header)
           parsed = JSON.parse(response.body)
           expect(response).to have_http_status(:unprocessable_entity)
@@ -467,7 +460,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       end
 
       it 'responds properly when JSON parse error' do
-        with_okta_user(scopes) do |auth_header|
+        mock_acg(scopes) do |auth_header|
           post "#{path}/validate", params: 'hello', headers: headers.merge(auth_header)
           expect(response).to have_http_status(:unprocessable_entity)
         end
@@ -488,7 +481,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
         end
 
         it 'returns a 404' do
-          with_okta_user(scopes) do |auth_header|
+          mock_acg(scopes) do |auth_header|
             allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
             expect(bgs_poa_verifier).to receive(:current_poa).and_return(nil)
             get("#{path}/active", params: nil, headers: headers.merge(auth_header))
@@ -511,7 +504,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
         end
 
         it 'returns a 200' do
-          with_okta_user(scopes) do |auth_header|
+          mock_acg(scopes) do |auth_header|
             allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
             expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
             expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
@@ -526,49 +519,11 @@ RSpec.describe 'Power of Attorney ', type: :request do
               .to eq('HelloWorld')
           end
         end
-
-        context 'when a request uses the client credentials grant (CCG) auth flow' do
-          context 'when a client is authorized for the scope they are attempting to access' do
-            it 'returns a 200' do
-              with_okta_user(scopes) do |auth_header|
-                allow_any_instance_of(Token).to receive(:client_credentials_token?).and_return(true)
-                allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(true)
-
-                with_settings(Settings.claims_api.token_validation, api_key: 'some_value') do
-                  allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-                  expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
-                  expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
-                  expect_any_instance_of(
-                    ClaimsApi::V1::Forms::PowerOfAttorneyController
-                  ).to receive(:build_representative_info).and_return(representative_info)
-                  get "#{path}/active", params: nil, headers: headers.merge(auth_header)
-                  expect(response.status).to eq(200)
-                end
-              end
-            end
-          end
-
-          context 'when a client is not authorized to access a particular claims OAuth scope' do
-            it 'returns a 403' do
-              with_okta_user(scopes) do |auth_header|
-                VCR.use_cassette('evss/claims/claims') do
-                  allow_any_instance_of(Token).to receive(:client_credentials_token?).and_return(true)
-                  allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
-
-                  with_settings(Settings.claims_api.token_validation, api_key: 'some_value') do
-                    get "#{path}/active", params: nil, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(403)
-                  end
-                end
-              end
-            end
-          end
-        end
       end
 
       context 'when a non-accredited representative and non-veteran request active power of attorney' do
         it 'returns a 403' do
-          with_okta_user(scopes) do |auth_header|
+          mock_acg(scopes) do |auth_header|
             get("#{path}/active", params: nil, headers: headers.merge(auth_header))
             expect(response.status).to eq(403)
           end
@@ -583,7 +538,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
         context 'when representative is part of an organization' do
           it "returns the organization's name and phone" do
-            with_okta_user(scopes) do |auth_header|
+            mock_acg(scopes) do |auth_header|
               expect_any_instance_of(
                 ClaimsApi::V1::Forms::PowerOfAttorneyController
               ).to receive(:validate_user_is_accredited!).and_return(nil)
@@ -613,7 +568,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
         context 'when representative is not part of an organization' do
           it "returns the representative's name and phone" do
-            with_okta_user(scopes) do |auth_header|
+            mock_acg(scopes) do |auth_header|
               expect_any_instance_of(
                 ClaimsApi::V1::Forms::PowerOfAttorneyController
               ).to receive(:validate_user_is_accredited!).and_return(nil)
@@ -649,7 +604,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
         context 'when representative POA code not found in OGC scraped data' do
           it 'returns a 404' do
-            with_okta_user(scopes) do |auth_header|
+            mock_acg(scopes) do |auth_header|
               expect_any_instance_of(
                 ClaimsApi::V1::Forms::PowerOfAttorneyController
               ).to receive(:validate_user_is_accredited!).and_return(nil)

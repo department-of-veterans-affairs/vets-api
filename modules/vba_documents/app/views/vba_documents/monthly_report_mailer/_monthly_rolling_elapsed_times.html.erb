@@ -18,22 +18,29 @@
   </tr>
   </thead>
   <tbody>
-  <% collection.each do |e| %>
-    <% e.each_pair do |k,v| %>
+    <% stats.each do |month_stats| %>
       <tr>
-        <td><%= k.first(4) %></td>
-        <td><%= Date::MONTHNAMES[k.last(2).to_i] %></td>
-        <%= render partial: 'vba_documents/monthly_report_mailer/elapsed_status_times', locals: {row: v['pending']} %>
-        <%= render partial: 'vba_documents/monthly_report_mailer/elapsed_status_times', locals: {row: v['uploaded']} %>
-        <%= render partial: 'vba_documents/monthly_report_mailer/elapsed_status_times', locals: {row: v['received']} %>
-        <%= render partial: 'vba_documents/monthly_report_mailer/elapsed_status_times', locals: {row: v['processing']} %>
-        <%= render partial: 'vba_documents/monthly_report_mailer/elapsed_status_times', locals: {row: v['success']} %>
-        <%= render partial: 'vba_documents/monthly_report_mailer/time_btw_statuses', locals: {row: v['pending2error']} %>
-        <%= render partial: 'vba_documents/monthly_report_mailer/time_btw_statuses', locals: {row: v['pending2success']} %>
-        <%= render partial: 'vba_documents/monthly_report_mailer/time_btw_statuses', locals: {row: v['pending2vbms']} %>
-        <%= render partial: 'vba_documents/monthly_report_mailer/time_btw_statuses', locals: {row: v['success2vbms']} %>
+        <td><%= month_stats.year %></td>
+        <td><%= Date::MONTHNAMES[month_stats.month] %></td>
+        <%= render partial: 'vba_documents/monthly_report_mailer/elapsed_status_times',
+                   locals: { stats: month_stats.stats['status_elapsed_time_stats']['pending'] } %>
+        <%= render partial: 'vba_documents/monthly_report_mailer/elapsed_status_times',
+                   locals: { stats: month_stats.stats['status_elapsed_time_stats']['uploaded'] } %>
+        <%= render partial: 'vba_documents/monthly_report_mailer/elapsed_status_times',
+                   locals: { stats: month_stats.stats['status_elapsed_time_stats']['received'] } %>
+        <%= render partial: 'vba_documents/monthly_report_mailer/elapsed_status_times',
+                   locals: { stats: month_stats.stats['status_elapsed_time_stats']['processing'] } %>
+        <%= render partial: 'vba_documents/monthly_report_mailer/elapsed_status_times',
+                   locals: { stats: month_stats.stats['status_elapsed_time_stats']['success'] } %>
+        <%= render partial: 'vba_documents/monthly_report_mailer/time_between_statuses',
+                   locals: { stats: month_stats.stats['status_elapsed_time_stats']['pending_to_error'] } %>
+        <%= render partial: 'vba_documents/monthly_report_mailer/time_between_statuses',
+                   locals: { stats: month_stats.stats['status_elapsed_time_stats']['pending_to_success'] } %>
+        <%= render partial: 'vba_documents/monthly_report_mailer/time_between_statuses',
+                   locals: { stats: month_stats.stats['status_elapsed_time_stats']['pending_to_vbms'] } %>
+        <%= render partial: 'vba_documents/monthly_report_mailer/time_between_statuses',
+                   locals: { stats: month_stats.stats['status_elapsed_time_stats']['success_to_vbms'] } %>
       </tr>
     <% end %>
-  <% end if collection %>
   </tbody>
 </table>

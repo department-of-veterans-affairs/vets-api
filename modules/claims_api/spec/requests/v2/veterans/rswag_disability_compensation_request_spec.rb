@@ -3,6 +3,7 @@
 require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
+require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
 describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers.new.claims_api_docs do # rubocop:disable RSpec/DescribeClass
@@ -71,7 +72,7 @@ describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers
             stub_poa_verification
             stub_mpi
 
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               VCR.use_cassette('evss/claims/claims') do
                 VCR.use_cassette('evss/reference_data/countries') do
                   submit_request(example.metadata)
@@ -191,6 +192,54 @@ describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers
                     }
                   }
                 }
+
+      describe 'Getting a successful response' do
+        response '200', 'upload response' do
+          it 'returns a valid 200 response' do
+            one = 1
+            expect(one).to eq(1)
+          end
+        end
+      end
+
+      describe 'Getting a 401 response' do
+        response '401', 'Unauthorized' do
+          it 'returns a 401 response' do
+            one = 1
+            expect(one).to eq(1)
+          end
+        end
+      end
+    end
+  end
+
+  path '/veterans/{veteranId}/526/{id}/getPDF' do
+    get 'Returns filled out 526EZ form as PDF' do
+      tags 'Disability'
+      operationId 'get526Pdf'
+      security [
+        { productionOauth: ['system/claim.read', 'system/claim.write'] },
+        { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
+        { bearer_token: [] }
+      ]
+      consumes 'multipart/form-data'
+      produces 'application/json'
+
+      parameter name: 'veteranId',
+                in: :path,
+                required: true,
+                type: :string,
+                example: '1012667145V762142',
+                description: 'ID of Veteran'
+
+      let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
+      let(:Authorization) { 'Bearer token' }
+      pdf_description = <<~VERBIAGE
+        Returns a filled out 526EZ form for a disability compensation claim (21-526EZ).
+
+        This endpoint can be used to generate the PDF based on the request data in the case that the submission was not able to be successfully auto-established. The PDF can then be uploaded via the [Benefits Intake API](https://developer.va.gov/explore/api/benefits-intake) to digitally submit directly to the Veterans Benefits Administration's (VBA) claims intake process.
+      VERBIAGE
+      description pdf_description
 
       describe 'Getting a successful response' do
         response '200', 'upload response' do

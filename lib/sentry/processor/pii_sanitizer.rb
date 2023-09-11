@@ -13,6 +13,7 @@ module Sentry
           bankName
           birth_date
           city
+          common_name
           country
           dslogon_idvalue
           fileNumber
@@ -22,6 +23,7 @@ module Sentry
           lastName
           lname
           mname
+          participant_id
           phone
           postalCode
           routingNumber

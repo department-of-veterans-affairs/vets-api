@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Example JSON schema",
+  "properties": {
+    "exampleDateValue": {
+      "description": "Description of example date field",
+      "type": "string",
+      "format": "date",
+      "example": "2001-01-01"
+    },
+    "exampleDefinitionValue1": {
+      "$ref": "#/definitions/exampleDefinitionValue"
+    },
+    "exampleDefinitionValue2": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/exampleDefinitionValue"
+        },
+        {
+          "description": "Description of example definition reference field"
+        }
+      ]
+    },
+    "exampleSharedSchemaValue1": {
+      "$ref": "icn.json"
+    },
+    "exampleSharedSchemaValue2": {
+      "allOf": [
+        {
+          "$ref": "icn.json"
+        },
+        {
+          "description": "Description of example shared schema field"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "exampleDefinitionValue": {
+      "description": "Description of example definition field",
+      "type": "string"
+    }
+  },
+  "required": [
+    "exampleDateValue",
+    "exampleDefinitionValue1",
+    "exampleSharedSchemaValue2"
+  ]
+}

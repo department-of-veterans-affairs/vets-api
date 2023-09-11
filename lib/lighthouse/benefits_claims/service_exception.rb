@@ -14,6 +14,7 @@ module BenefitsClaims
       502 => Common::Exceptions::BadGateway,
       500 => Common::Exceptions::ExternalServerInternalServerError,
       429 => Common::Exceptions::TooManyRequests,
+      413 => Common::Exceptions::PayloadTooLarge,
       404 => Common::Exceptions::ResourceNotFound,
       403 => Common::Exceptions::Forbidden,
       401 => Common::Exceptions::Unauthorized,

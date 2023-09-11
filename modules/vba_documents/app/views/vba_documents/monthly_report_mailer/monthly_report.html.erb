@@ -1,6 +1,6 @@
 <%= render partial: 'vba_documents/common/table_styling' %>
-<h1><%= @last_month_start.strftime("%B") %> <%= @last_month_start.strftime("%Y") %> Monthly Upload Submission Report (<%= @environment.to_s.upcase %>)</h1>
-<h2><%= @last_month_start.strftime("%B") %> <%= @last_month_start.strftime("%Y") %> Submissions Per Consumer and Status</h2>
+<h1><%= @report_month %> <%= @report_year %> Monthly Upload Submission Report (<%= @environment.to_s.upcase %>)</h1>
+<h2><%= @report_month %> <%= @report_year %> Submissions Per Consumer and Status</h2>
 <table>
   <thead>
   <tr>
@@ -15,37 +15,32 @@
   </tr>
   </thead>
   <tbody>
-  <% @monthly_totals.each do |row| %>
-    <tr>
-      <td><%= row['consumer_name'] %></td>
-      <td style="text-align: right"><%= row['expired'] %></td>
-      <td style="text-align: right"><%= row['errored'] %></td>
-      <td style="text-align: right"><%= row['processing'] %></td>
-      <td style="text-align: right"><%= row['success'] %></td>
-      <td style="text-align: right"><%= row['vbms'] %></td>
-      <td style="text-align: right"><%= row['total'] %></td>
-      <td style="text-align: right">
-        <%= "#{((row['errored'].to_f / row['total'].to_f) * 100).round(0)} %" %>
-      </td>
-    </tr>
-  <% end if @monthly_totals %>
+    <% @stats[0].stats['consumer_stats'].each do |consumer| %>
+      <tr>
+        <td><%= consumer['consumer_name'] %></td>
+        <td style="text-align: right"><%= consumer['expired_count'] %></td>
+        <td style="text-align: right"><%= consumer['errored_count'] %></td>
+        <td style="text-align: right"><%= consumer['processing_count'] %></td>
+        <td style="text-align: right"><%= consumer['success_count'] %></td>
+        <td style="text-align: right"><%= consumer['vbms_count'] %></td>
+        <td style="text-align: right"><%= consumer['total'] %></td>
+        <td style="text-align: right"><%= "#{(consumer['error_percent'] * 100).round(0)} %" %></td>
+      </tr>
+    <% end %>
   </tbody>
   <tfoot>
-  <% if @monthly_totals %>
-    <tr style="background-color: darkblue">
+    <tr style="background-color: #ADD8E6">
       <td>Summary Totals</td>
-      <td style="text-align: right"><%= @summary_totals['expired'] %></td>
-      <td style="text-align: right"><%= @summary_totals['errored'] %></td>
-      <td style="text-align: right"><%= @summary_totals['processing'] %></td>
-      <td style="text-align: right"><%= @summary_totals['success'] %></td>
-      <td style="text-align: right"><%= @summary_totals['vbms'] %></td>
-      <td style="text-align: right"><%= @summary_totals['total'] %></td>
+      <td style="text-align: right"><%= @stats[0].stats['summary_stats']['expired_count'] %></td>
+      <td style="text-align: right"><%= @stats[0].stats['summary_stats']['errored_count'] %></td>
+      <td style="text-align: right"><%= @stats[0].stats['summary_stats']['processing_count'] %></td>
+      <td style="text-align: right"><%= @stats[0].stats['summary_stats']['success_count'] %></td>
+      <td style="text-align: right"><%= @stats[0].stats['summary_stats']['vbms_count'] %></td>
+      <td style="text-align: right"><%= @stats[0].stats['summary_stats']['total'] %></td>
       <td style="text-align: right">
-        <%= "#{((@summary_totals['errored'].to_f / @summary_totals['total'].to_f) * 100).round(0)} %" %>
+        <%= "#{(@stats[0].stats['summary_stats']['error_percent'] * 100).round(0)} %" %>
       </td>
-
     </tr>
-  <% end %>
   </tfoot>
 </table>
 <h5>* Processing statuses include: pending, uploaded, received, and processing</h5>
@@ -76,24 +71,23 @@
   </tr>
   </thead>
   <tbody>
-  <% @monthly_grouping.each do |row| %>
-    <tr>
-      <td><%= row['yyyy'] %></td>
-      <td><%= Date::MONTHNAMES[row['mm']] %></td>
-      <td style="text-align: right"><%= row['count'].to_s %></td>
-      <td style="text-align: right"><%= row['max_pages'].to_s %></td>
-      <td style="text-align: right"><%= row['avg_pages'].to_s %></td>
-      <td style="text-align: right"><%= row['median_pages'].to_s %></td>
-      <td style="text-align: right"><%= row['mode_pages'].to_s %></td>
-      <td style="text-align: right"><%= row['max_mb'].to_s %></td>
-      <td style="text-align: right"><%= row['avg_mb'].to_s %></td>
-      <td style="text-align: right"><%= row['median_size'].to_s %></td>
-      <td style="text-align: right"><%= row['mode_size'].to_s %></td>
-    </tr>
-  <% end if @monthly_grouping %>
+    <% @stats.each do |month_stats| %>
+      <tr>
+        <td><%= month_stats.year %></td>
+        <td><%= Date::MONTHNAMES[month_stats.month] %></td>
+        <td style="text-align: right"><%= month_stats.stats['page_count_stats']['total'] %></td>
+        <td style="text-align: right"><%= month_stats.stats['page_count_stats']['maximum'] %></td>
+        <td style="text-align: right"><%= month_stats.stats['page_count_stats']['average'] %></td>
+        <td style="text-align: right"><%= month_stats.stats['page_count_stats']['median'] %></td>
+        <td style="text-align: right"><%= month_stats.stats['page_count_stats']['mode'] %></td>
+        <td style="text-align: right"><%= month_stats.stats['upload_size_in_mb_stats']['maximum'] %></td>
+        <td style="text-align: right"><%= month_stats.stats['upload_size_in_mb_stats']['average'] %></td>
+        <td style="text-align: right"><%= month_stats.stats['upload_size_in_mb_stats']['median'] %></td>
+        <td style="text-align: right"><%= month_stats.stats['upload_size_in_mb_stats']['mode'] %></td>
+      </tr>
+    <% end %>
   </tbody>
 </table>
 <br>
 <br>
-<%= render partial: 'vba_documents/monthly_report_mailer/monthly_rolling_elapsed_times',
-           locals: {collection: @rolling_elapsed_times} %>
+<%= render partial: 'vba_documents/monthly_report_mailer/monthly_rolling_elapsed_times', locals: { stats: @stats } %>

@@ -1,0 +1,141 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://cerner.apps-staging.va.gov/signup/v1/patients/10101V964144/agreements
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      X-Frame-Options:
+      - allow-from https://nextgenid-mbetenantworkflow.azurewebsites.net
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Content-Security-Policy:
+      - frame-ancestors https://nextgenid-mbetenantworkflow.azurewebsites.net
+      Etag:
+      - W/"dba68a519b00d7f452e79971a398650f"
+      X-Request-Id:
+      - 5b1d220c-4b01-4409-b9a5-367ab3c99ca9
+      X-Runtime:
+      - '0.026178'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains
+      X-Node:
+      - sandbox-core-02.idmeinc.net
+      Vary:
+      - Accept-Encoding
+      Expires:
+      - Wed, 26 Jul 2023 19:56:07 GMT
+      Cache-Control:
+      - max-age=0, no-cache, no-store
+      Pragma:
+      - no-cache
+      Date:
+      - Wed, 26 Jul 2023 19:56:07 GMT
+      Content-Length:
+      - '14658'
+      Connection:
+      - keep-alive
+      Server-Timing:
+      - ak_p; desc="1690401366974_1752320020_1303469004_11342_12901_31_-_-";dur=1
+      - cdn-cache; desc=MISS
+      - edge; dur=68
+      - origin; dur=46
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Wed, 26 Oct 2022 18:30:02 GMT
+- request:
+    method: delete
+    uri: https://cerner.apps-staging.va.gov/signup/v1/patients/10101V964144/agreements
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 401
+      message: Unauthorized
+    headers:
+      Content-Type:
+      - application/json; charset=utf-8
+      X-Frame-Options:
+      - allow-from https://nextgenid-mbetenantworkflow.azurewebsites.net
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Content-Security-Policy:
+      - frame-ancestors https://nextgenid-mbetenantworkflow.azurewebsites.net
+      Etag:
+      - W/"dba68a519b00d7f452e79971a398650f"
+      X-Request-Id:
+      - 5b1d220c-4b01-4409-b9a5-367ab3c99ca9
+      X-Runtime:
+      - '0.026178'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains
+      X-Node:
+      - sandbox-core-02.idmeinc.net
+      Vary:
+      - Accept-Encoding
+      Expires:
+      - Wed, 26 Jul 2023 19:56:07 GMT
+      Cache-Control:
+      - max-age=0, no-cache, no-store
+      Pragma:
+      - no-cache
+      Date:
+      - Wed, 26 Jul 2023 19:56:07 GMT
+      Content-Length:
+      - '14658'
+      Connection:
+      - keep-alive
+      Server-Timing:
+      - ak_p; desc="1690401366974_1752320020_1303469004_11342_12901_31_-_-";dur=1
+      - cdn-cache; desc=MISS
+      - edge; dur=68
+      - origin; dur=46
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Wed, 26 Oct 2022 18:30:02 GMT
+recorded_with: VCR 6.1.0

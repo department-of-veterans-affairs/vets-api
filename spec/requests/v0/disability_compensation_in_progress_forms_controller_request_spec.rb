@@ -20,7 +20,8 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
              'diagnosticCode' => 5238,
              'decisionCode' => 'SVCCONNCTED',
              'decisionText' => 'Service Connected',
-             'ratingPercentage' => 50 }]
+             'ratingPercentage' => 50,
+             'maximumRatingPercentage' => nil }]
         end
 
         let(:lighthouse_user) { build(:evss_user, uuid: SecureRandom.uuid) }
@@ -40,7 +41,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
         end
 
         before do
-          Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+          Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
           allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
 
           sign_in_as(lighthouse_user)
@@ -54,7 +55,9 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             in_progress_form_lighthouse.update(form_data: fd)
 
             VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-              get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              VCR.use_cassette('virtual_regional_office/max_ratings') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+              end
             end
 
             expect(response).to have_http_status(:ok)
@@ -102,7 +105,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
       context 'using the EVSS Rated Disabilities Provider' do
         before do
-          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES)
+          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
           sign_in_as(user)
         end
 
@@ -114,14 +117,16 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
              'diagnosticCode' => 5238,
              'decisionCode' => 'SVCCONNCTED',
              'decisionText' => 'Service Connected',
-             'ratingPercentage' => 100 },
+             'ratingPercentage' => 100,
+             'maximumRatingPercentage' => nil },
            { 'name' => 'Diabetes mellitus1',
              'ratedDisabilityId' => '2',
              'ratingDecisionId' => '63655',
              'diagnosticCode' => 5238,
              'decisionCode' => 'SVCCONNCTED',
              'decisionText' => 'Service Connected',
-             'ratingPercentage' => 100 }]
+             'ratingPercentage' => 100,
+             'maximumRatingPercentage' => nil }]
         end
         let!(:in_progress_form) do
           form_json = JSON.parse(
@@ -151,8 +156,11 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             in_progress_form.update(form_data: fd)
 
             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-              get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
+              VCR.use_cassette('virtual_regional_office/max_ratings') do
+                get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
+              end
             end
+
             expect(response).to have_http_status(:ok)
             json_response = JSON.parse(response.body)
             expect(json_response['formData']['ratedDisabilities']).to eq(

@@ -5,4 +5,13 @@ ENV['RAILS_ENV'] = 'test'
 
 require 'rspec/rails'
 
-RSpec.configure { |config| config.use_transactional_fixtures = true }
+ASK_VA_API_ENGINE_RAILS_ROOT = File.join(File.dirname(__FILE__), '../')
+
+# Requires supporting ruby files with custom matchers and macros, etc,
+# in spec/support/ and its subdirectories.
+Dir[File.join(ASK_VA_API_ENGINE_RAILS_ROOT, '../../spec/support/**/*.rb')].each { |f| puts require f }
+
+RSpec.configure do |config|
+  config.use_transactional_fixtures = true
+  config.filter_run :focus
+end

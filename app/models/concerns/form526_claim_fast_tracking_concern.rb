@@ -10,6 +10,8 @@ module Form526ClaimFastTrackingConcern
   extend ActiveSupport::Concern
 
   RRD_STATSD_KEY_PREFIX = 'worker.rapid_ready_for_decision'
+  MAX_CFI_STATSD_KEY_PREFIX = 'api.max_cfi'
+  DISABILITIES_WITH_MAX_CFI = [ClaimFastTracking::DiagnosticCodes::TINNITUS].freeze
 
   def send_rrd_alert_email(subject, message, error = nil, to = Settings.rrd.alerts.recipients)
     RrdAlertMailer.build(self, subject, message, error, to).deliver_now
@@ -132,6 +134,25 @@ module Form526ClaimFastTrackingConcern
     invalidate_form_hash
   end
 
+  def log_max_cfi_metrics_on_submit
+    DISABILITIES_WITH_MAX_CFI.intersection(diagnostic_codes).each do |diagnostic_code|
+      next unless disabilities.any? do |dis|
+        diagnostic_code == dis['diagnosticCode']
+      end
+
+      next unless max_rated_disabilities_from_ipf.any? do |dis|
+        diagnostic_code == dis['diagnostic_code']
+      end
+
+      user = User.find(user_uuid)
+      max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating, user) ? 'on' : 'off'
+      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.submit.#{diagnostic_code}")
+    end
+  rescue => e
+    # Log the exception but but do not fail, otherwise form will not be submitted
+    log_exception_to_sentry(e)
+  end
+
   def send_post_evss_notifications!
     conditionally_notify_mas
     Rails.logger.info('Submitted 526Submission to eVSS', id:, saved_claim_id:, submitted_claim_id:)
@@ -148,8 +169,31 @@ module Form526ClaimFastTrackingConcern
 
   private
 
+  def max_rated_disabilities_from_ipf
+    in_progress_form = InProgressForm.find_by(form_id: '21-526EZ', user_uuid:)
+    return [] if in_progress_form.nil?
+
+    fd = in_progress_form.form_data
+    fd = JSON.parse(fd) if fd.is_a?(String)
+    rated_disabilities = fd['rated_disabilities'] || []
+
+    rated_disabilities.select do |dis|
+      dis['maximum_rating_percentage'].present? && dis['maximum_rating_percentage'] == dis['rating_percentage']
+    end
+  end
+
   def open_claims
-    all_claims = EVSS::ClaimsService.new(auth_headers).all_claims.body
+    icn = UserAccount.where(id: user_account_id).first&.icn
+    api_provider = ApiProviderFactory.call(
+      type: ApiProviderFactory::FACTORIES[:claims],
+      provider: nil,
+      options: { auth_headers:, icn: },
+      # Flipper id is needed to check if the feature toggle works for this user
+      current_user: OpenStruct.new({ flipper_id: user_account_id }),
+      feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_CLAIMS_SERVICE
+    )
+
+    all_claims = api_provider.all_claims
     all_claims['open_claims']
   end
 
@@ -157,11 +201,17 @@ module Form526ClaimFastTrackingConcern
   def all_rated_disabilities
     settings = Settings.lighthouse.veteran_verification.form526
     icn = UserAccount.where(id: user_account_id).first&.icn
-    service = ApiProviderFactory.rated_disabilities_service_provider(
-      { auth_headers:, icn: }
+    api_provider = ApiProviderFactory.call(
+      type: ApiProviderFactory::FACTORIES[:rated_disabilities],
+      provider: nil,
+      options: { auth_headers:, icn: },
+      # Flipper id is needed to check if the feature toggle works for this user
+      current_user: OpenStruct.new({ flipper_id: user_account_id }),
+      feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND
     )
+
     @all_rated_disabilities ||= begin
-      response = service.get_rated_disabilities(settings.access_token.client_id, settings.access_token.rsa_key)
+      response = api_provider.get_rated_disabilities(settings.access_token.client_id, settings.access_token.rsa_key)
       response.rated_disabilities
     end
   end

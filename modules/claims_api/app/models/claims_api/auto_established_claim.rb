@@ -18,7 +18,6 @@ module ClaimsApi
     has_kms_key
     has_encrypted :auth_headers, :bgs_flash_responses, :bgs_special_issue_responses, :evss_response, :form_data,
                   key: :kms_key, **lockbox_options
-
     validate :validate_service_dates
     before_validation :set_md5
     after_validation :remove_encrypted_fields, on: [:update]
@@ -39,6 +38,8 @@ module ClaimsApi
     EVSS_CLAIM_ATTRIBUTES = %i[date_filed min_est_date max_est_date open waiver_submitted
                                documents_needed development_letter_sent decision_letter_sent
                                requested_decision va_representative].freeze
+
+    DATE_REGEX = /\d{2}-\d{2}-\d{4}/
 
     validates :md5, uniqueness: true, on: :create
 
@@ -218,12 +219,25 @@ module ClaimsApi
       Rails.logger.info("ClaimsApi: Claim[#{id}] contains the following special issues - #{special_issues}")
     end
 
-    def validate_service_dates
+    def validate_service_dates # rubocop:disable Metrics/MethodLength
       service_periods = form_data.dig('serviceInformation', 'servicePeriods')
-
       service_periods.each do |service_period|
-        start_date = Date.parse(service_period['activeDutyBeginDate']) if service_period['activeDutyBeginDate'].present?
-        end_date = Date.parse(service_period['activeDutyEndDate']) if service_period['activeDutyEndDate'].present?
+        if service_period['activeDutyBeginDate'].present?
+          start_date = if DATE_REGEX.match?((service_period['activeDutyBeginDate']))
+                         Date.strptime(service_period['activeDutyBeginDate'],
+                                       '%m-%d-%Y')
+                       else
+                         Date.parse(service_period['activeDutyBeginDate'])
+                       end
+        end
+        if service_period['activeDutyEndDate'].present?
+          end_date = if DATE_REGEX.match?((service_period['activeDutyEndDate']))
+                       Date.strptime(service_period['activeDutyEndDate'],
+                                     '%m-%d-%Y')
+                     else
+                       Date.parse(service_period['activeDutyEndDate'])
+                     end
+        end
 
         if start_date.present? && end_date.blank?
           next

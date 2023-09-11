@@ -20,7 +20,6 @@ module VAOS
                  :long,
                  :website,
                  :phone,
-                 :hours_of_operation,
                  :mailing_address,
                  :physical_address,
                  :mobile,

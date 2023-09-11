@@ -29,6 +29,7 @@ module DebtManagementCenter
     DATE_TIMEZONE = 'Central Time (US & Canada)'
     VBA_CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.fsr_confirmation_email
     VHA_CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.vha_fsr_confirmation_email
+    STREAMLINED_CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.fsr_streamlined_confirmation_email
     DEDUCTION_CODES = {
       '30' => 'Disability compensation and pension debt',
       '41' => 'Chapter 34 education debt',
@@ -122,6 +123,7 @@ module DebtManagementCenter
 
     def submit_vba_fsr(form)
       Rails.logger.info('5655 Form Submitting to VBA')
+      form.delete('streamlined')
       response = perform(:post, 'financial-status-report/formtopdf', form)
       fsr_response = DebtManagementCenter::FinancialStatusReportResponse.new(response.body)
 
@@ -136,7 +138,7 @@ module DebtManagementCenter
       vha_form = form_submission.form
       vha_form['transactionId'] = form_submission.id
       vha_form['timestamp'] = DateTime.now.strftime('%Y%m%dT%H%M%S')
-
+      vha_form = streamline_adjustments(vha_form)
       vbs_request = DebtManagementCenter::VBS::Request.build
       sharepoint_request = DebtManagementCenter::Sharepoint::Request.new
       Rails.logger.info('5655 Form Submitting to VHA', submission_id: form_submission.id)
@@ -156,12 +158,26 @@ module DebtManagementCenter
 
       DebtManagementCenter::VANotifyEmailJob.perform_async(
         options['email'],
-        VHA_CONFIRMATION_TEMPLATE,
+        options['template_id'],
         options['email_personalization_info']
       )
     end
 
     private
+
+    def streamline_adjustments(form)
+      if form.key?('streamlined')
+        if form['streamlined']['value']
+          reasons_array = form['personalIdentification']['fsrReason'].split(',').map(&:strip)
+          reasons = reasons_array.push('Automatically Approved').uniq.join(', ')
+          form['personalIdentification']['fsrReason'] = reasons
+        end
+        streamline_data = form.fetch('streamlined')
+        form.reject! { |k, _v| k == 'streamlined' }
+        form['streamlined'] = streamline_data['value']
+      end
+      form
+    end
 
     def raise_client_error
       raise Common::Client::Errors::ClientError.new('malformed request', 400)
@@ -180,19 +196,23 @@ module DebtManagementCenter
         form_json: form_json.to_json,
         metadata:,
         user_uuid: @user.uuid,
-        user_account: @user.user_account
+        user_account: @user.user_account,
+        public_metadata: form_json.slice('streamlined')
       )
     end
 
     def submit_vha_batch_job(vha_submissions)
       return unless defined?(Sidekiq::Batch)
 
+      template = vha_submissions.any?(&:streamlined?) ? STREAMLINED_CONFIRMATION_TEMPLATE : VHA_CONFIRMATION_TEMPLATE
+
       submission_batch = Sidekiq::Batch.new
       submission_batch.on(
         :success,
         'DebtManagementCenter::FinancialStatusReportService#send_vha_confirmation_email',
         'email' => @user.email&.downcase,
-        'email_personalization_info' => email_personalization_info
+        'email_personalization_info' => email_personalization_info,
+        'template_id' => template
       )
       submission_batch.jobs do
         vha_submissions.map(&:submit_to_vha)

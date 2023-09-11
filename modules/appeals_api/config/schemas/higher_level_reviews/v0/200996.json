@@ -28,6 +28,46 @@
             "veteran": {
               "type": "object",
               "properties": {
+                "ssn": {
+                  "allOf": [
+                    { "$ref": "ssn.json" },
+                    { "description": "Veteran's SSN" }
+                  ]
+                },
+                "icn": { "$ref": "icn.json" },
+                "firstName": {
+                  "allOf": [
+                    { "description": "Veteran's first name", "minLength": 1, "maxLength": 30 },
+                    { "$comment":  "can be whitespace, to accommodate those with 1 legal name" },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
+                "middleInitial": {
+                  "allOf": [
+                    { "description": "Veteran's middle initial", "minLength": 1, "maxLength": 1 },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
+                "lastName": {
+                  "allOf": [
+                    { "description": "Veteran's last name", "minLength": 1, "maxLength": 40 },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
+                "birthDate": {
+                  "description": "Veteran's birth date",
+                  "type": "string",
+                  "format": "date"
+                },
+                "fileNumber": {
+                  "$ref": "fileNumber.json"
+                },
+                "insurancePolicyNumber": {
+                  "allOf": [
+                    { "description": "Veteran's insurance policy number", "maxLength": 18 },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
                 "homeless": { "type": "boolean"},
                 "address":  { "$ref": "address.json" },
                 "phone":    { "$ref": "phone.json" },
@@ -39,14 +79,43 @@
                 },
                 "timezone": { "$ref":  "timezone.json"}
               },
-              "required": [ "homeless" ],
+              "required": [ "ssn", "icn", "firstName", "lastName", "birthDate", "homeless" ],
               "if": { "properties": { "homeless": { "const": false } } },
               "then": { "required": ["address"] }
             },
             "claimant": {
               "type": "object",
-              "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
+              "description": "If the claimant is not a veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
               "properties": {
+                "ssn": {
+                  "allOf": [
+                    {"$ref": "ssn.json"},
+                    { "description": "Non-veteran claimant's SSN" }
+                  ]
+                },
+                "firstName": {
+                  "type": "string",
+                  "description": "Non-veteran claimant's first name",
+                  "maxLength": 30,
+                  "$comment": "can be whitespace, to accommodate those with 1 legal name"
+                },
+                "middleInitial": {
+                  "allOf": [
+                    { "$ref": "nonBlankString.json" },
+                    { "description": "Non-veteran claimant's middle initial", "maxLength": 1 }
+                  ]
+                },
+                "lastName": {
+                  "allOf": [
+                    { "$ref": "nonBlankString.json" },
+                    { "description": "Non-veteran claimant's last name", "maxLength": 40 }
+                  ]
+                },
+                "birthDate": {
+                  "description": "Non-veteran claimant's birth date",
+                  "type": "string",
+                  "format": "date"
+                },
                 "address":  { "$ref": "address.json" },
                 "phone":    { "$ref": "phone.json" },
                 "email": {
@@ -57,7 +126,7 @@
                 },
                 "timezone": { "$ref":  "timezone.json"}
               },
-              "required": [ "address", "phone" ]
+              "required": [ "ssn", "firstName", "lastName", "birthDate", "address", "phone" ]
             },
             "informalConferenceContact": { "type": "string", "enum": [ "veteran", "representative"] },
             "informalConferenceTime":    { "type": "string", "enum": [ "800-1200 ET", "1200-1630 ET" ] },

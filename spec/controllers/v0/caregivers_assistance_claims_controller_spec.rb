@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'saved_claim/caregivers_assistance_claim'
 
 RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
   describe '::auditor' do
@@ -174,6 +175,28 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       post :create, params: { caregivers_assistance_claim: { form: claim.form } }
 
       expect(JSON.parse(response.body)['data']['id']).to eq(SavedClaim::CaregiversAssistanceClaim.last.id.to_s)
+    end
+  end
+
+  describe '#backend_service_outage' do
+    let(:claim) { build(:caregivers_assistance_claim) }
+
+    it 'calls backend_service_outage when veteran is not found in mpi' do
+      allow_any_instance_of(SavedClaim::CaregiversAssistanceClaim).to receive(:guid).and_return(SecureRandom.uuid)
+      expect_any_instance_of(Form1010cg::Service).to receive(
+        :assert_veteran_status
+      ).and_raise(Form1010cg::Service::InvalidVeteranStatus)
+      allow_any_instance_of(Form1010cg::Auditor).to receive(:record)
+      expect_any_instance_of(Form1010cg::Auditor).to receive(:record).with(
+        :submission_failure_client_qualification,
+        claim_guid: claim.guid
+      )
+
+      post :create, params: { caregivers_assistance_claim: { form: claim.form } }
+      expect(response.code).to eq('503')
+      expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+        'Backend Service Outage'
+      )
     end
   end
 

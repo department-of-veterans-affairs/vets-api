@@ -3,16 +3,31 @@
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/disability_compensation_form/gateway_timeout'
 require 'sentry_logging'
+require 'logging/third_party_transaction'
 
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm526 < Job
+      extend Logging::ThirdPartyTransaction::MethodWrapper
+
+      attr_accessor :submission_id
+
       # Sidekiq has built in exponential back-off functionality for retrys
       # A max retry attempt of 15 will result in a run time of ~36 hours
       # Changed from 15 -> 14 ~ Jan 19, 2023
       # This change reduces the run-time from ~36 hours to ~24 hours
       RETRY = 14
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526'
+
+      wrap_with_logging(
+        :submit_complete_form,
+        additional_class_logs: {
+          action: 'Begin overall 526 submission'
+        },
+        additional_instance_logs: {
+          submission_id: %i[submission_id]
+        }
+      )
 
       sidekiq_options retry: RETRY, queue: 'low'
 
@@ -61,11 +76,17 @@ module EVSS
       #
       # rubocop:disable Metrics/MethodLength
       def perform(submission_id)
+        @submission_id = submission_id
+
         Raven.tags_context(source: '526EZ-all-claims')
         super(submission_id)
 
         submission.prepare_for_evss!
         with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
+          # This instantiates the service as defined by the inheriting object
+          # TODO: this meaningless variable assignment is required for the specs to pass, which
+          # indicates a problematic coupling of implementation and test logic.  This should eventually
+          # be addressed to make this service and test more robust and readable.
           service = service(submission.auth_headers)
           submission.mark_birls_id_as_tried!
           if Flipper.enabled?(:disability_compensation_lighthouse_submit_migration)
@@ -92,6 +113,10 @@ module EVSS
       # rubocop:enable Metrics/MethodLength
 
       private
+
+      def submit_complete_form
+        service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
+      end
 
       def response_handler(response)
         submission.submitted_claim_id = response.claim_id

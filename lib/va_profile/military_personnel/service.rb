@@ -66,11 +66,11 @@ module VAProfile
       end
 
       def edipi_id
-        return @user&.edipi if @user&.edipi.present?
+        @user&.edipi.presence
       end
 
       def aaid
-        return AAID if @user&.edipi.present?
+        AAID if @user&.edipi.present?
       end
     end
   end

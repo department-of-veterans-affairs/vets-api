@@ -46,7 +46,7 @@
   <tfoot>
   <% if @consumer_totals %>
     <% sum_hash = @consumer_totals['summary'] %>
-    <tr style="background-color: darkblue">
+    <tr style="background-color: #ADD8E6">
       <td>SUMMARY TOTALS</td>
       <% VBADocuments::UploadSubmission::RPT_STATUSES.each do |status| %>
         <td style="text-align: right"><%= sum_hash[status] %></td>

@@ -5,7 +5,7 @@ module Mobile
     class TriageTeamsController < MessagingController
       def index
         resource = client.get_triage_teams(@current_user.uuid, use_cache? || true)
-        raise Common::Exceptions::InternalServerError if resource.blank?
+        raise Common::Exceptions::ResourceNotFound if resource.blank?
 
         resource = resource.sort(params[:sort])
 

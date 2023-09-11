@@ -3,27 +3,26 @@
 require 'common/file_helpers'
 require 'pdf_fill/filler'
 
-# rubocop:disable Metrics/ModuleLength
 module AppealsApi
   module PdfDownloads
     extend ActiveSupport::Concern
 
     included do
-      def render_appeal_pdf_download(appeal, filename)
+      def render_appeal_pdf_download(appeal, filename, confirmation_icn)
         if expired?(appeal)
-          # If the veteran_icn is available, we can check it against the current request's ICN header to return a 404
-          # if it does not match, but otherwise, without auth_headers, we can't tell whether the current request is
+          # If the veteran_icn is available, we can check it against the current request's ICN parameter to return a 404
+          # if it does not match, but otherwise, if the appeal has no PII, we can't tell whether the current request is
           # authorized, so in that case we return a specific error message regardless of authorization status.
-          if appeal.veteran_icn && appeal.veteran_icn != request.headers['X-VA-ICN']
-            raise ActiveRecord::RecordNotFound
-          else
+          if download_authorized?(appeal, confirmation_icn)
             return render_pdf_download_expired(appeal)
+          else
+            raise ActiveRecord::RecordNotFound
           end
         end
 
         # We choose to return a 404 when PII in headers doesn't match the Appeal's PII so that we don't reveal the
         # existence of records that the user can't access
-        raise ActiveRecord::RecordNotFound unless download_authorized?(appeal)
+        raise ActiveRecord::RecordNotFound unless download_authorized?(appeal, confirmation_icn)
 
         return render_pdf_download_not_ready(appeal) unless submitted?(appeal)
 
@@ -66,26 +65,13 @@ module AppealsApi
     UNSUBMITTED_STATUSES = %w[pending submitting error].freeze
     WATERMARK_MARKUP = '<b>DIGITALLY SUBMITTED<br>DO NOT FILE</b>'
 
-    # Determines whether the current request's headers authorize an appeal PDF download based on
-    # X-VA-ICN, X-VA-File-Number, and the appeal's saved headers.
-    def download_authorized?(appeal)
-      return false unless (header_icn = request.headers['X-VA-ICN'])
-
-      if appeal.veteran_icn.present?
-        appeal.veteran_icn == header_icn
-      elsif (appeal_icn = appeal.auth_headers['X-VA-ICN'])
-        appeal_icn == header_icn
-      elsif (appeal_ssn = appeal.auth_headers['X-VA-SSN'])
-        appeal_ssn == MPI::Service.new.find_profile_by_identifier(
-          identifier: header_icn,
-          identifier_type: 'ICN'
-        ).profile&.ssn
-      elsif (appeal_file_number = appeal.auth_headers['X-VA-File-Number']) &&
-            (header_file_number = request.headers['X-VA-File-Number'])
-        appeal_file_number == header_file_number
-      else
-        false
+    # Determines whether the download is allowed based on a provided ICN value and the appeal's original saved data
+    def download_authorized?(appeal, confirmation_icn)
+      if (saved_icn = appeal.veteran&.icn.presence || appeal.veteran_icn.presence)
+        return saved_icn == confirmation_icn
       end
+
+      false
     end
 
     def submitted?(appeal)
@@ -93,7 +79,7 @@ module AppealsApi
     end
 
     def expired?(appeal)
-      appeal.class.pii_expunge_policy.exists?(appeal.id) || appeal.auth_headers.blank?
+      appeal.class.pii_expunge_policy.exists?(appeal.id) || appeal.form_data.blank?
     end
 
     def render_pdf_download_not_ready(appeal)
@@ -139,4 +125,3 @@ module AppealsApi
     end
   end
 end
-# rubocop:enable Metrics/ModuleLength

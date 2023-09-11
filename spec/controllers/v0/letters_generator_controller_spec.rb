@@ -73,7 +73,7 @@ RSpec.describe V0::LettersGeneratorController, type: :controller do
     context 'when an error occurs' do
       before { sign_in_as(user_error) }
 
-      it 'raises Lighthouse::LettersGenerator::ServiceError' do
+      it 'raises an unprocessable entity error if upstream cannot process request' do
         VCR.use_cassette('lighthouse/letters_generator/download_error') do
           post :download, params: { id: 'BENEFIT_SUMMARY' }
           response_body = JSON.parse(response.body)

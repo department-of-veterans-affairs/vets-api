@@ -1,0 +1,7 @@
+{
+  "type": "https://api.va.gov/services/letters/v1/api-schema/errors/constraint-violation",
+  "title": "Gateway Timeout",
+  "status": 504,
+  "detail": "Timed out",
+  "instance": "e6d1119e-dc91-4b4d-b583-0f309de0807b"
+}

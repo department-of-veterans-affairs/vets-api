@@ -12,9 +12,9 @@ module BenefitsDocuments
   class Configuration < Common::Client::Configuration::REST
     self.read_timeout = Settings.lighthouse.benefits_documents.timeout || 20
 
-    SYSTEM_NAME = 'va.gov'
+    SYSTEM_NAME = 'VA.gov'
     API_SCOPES = %w[documents.read documents.write].freeze
-    DOCUMENTS_PATH = 'benefits-documents/v1/documents'
+    DOCUMENTS_PATH = 'services/benefits-documents/v1/documents'
     TOKEN_PATH = 'oauth2/benefits-documents/system/v1/token'
 
     ##
@@ -38,7 +38,7 @@ module BenefitsDocuments
     end
 
     def base_api_path(host = nil)
-      "#{base_path(host)}/#{DOCUMENTS_PATH}"
+      "#{base_path(host)}/"
     end
 
     ##
@@ -51,25 +51,44 @@ module BenefitsDocuments
     ##
     # @return [Faraday::Response] response from POST request
     #
-    def post(body, document_data, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      headers = { Authorization: "Bearer #{
+    def post(file_body, document_data, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+      headers = { 'Authorization' => "Bearer #{
         access_token(
           lighthouse_client_id,
           lighthouse_rsa_key_path,
           options
         )
-      }" }
+      }",
+                  'Content-Type' => 'multipart/form-data' }
 
-      connection.post(DOCUMENTS_PATH, body, headers) do |req|
-        req.params['systemName'] = SYSTEM_NAME
-        req.params['docType'] = document_data.document_type
-        req.params['claimId'] = document_data.claim_id
-        req.params['fileNumber'] = @icn
-        # In theory one document can correspond to multiple tracked items
-        # To do that, add multiple query parameters
-        req.params['trackedItemIds'] = document_data.tracked_item_id
-        req.params['fileName'] = document_data.file_name
-      end
+      body = generate_upload_body(document_data, file_body)
+      connection.post(DOCUMENTS_PATH, body, headers)
+    end
+
+    def generate_upload_body(document_data, file_body)
+      payload = {}
+      data = {
+        data: {
+          systemName: SYSTEM_NAME,
+          docType: document_data[:document_type],
+          claimId: document_data[:claim_id],
+          fileNumber: document_data[:file_number],
+          fileName: document_data[:file_name],
+          # In theory one document can correspond to multiple tracked items
+          # To do that, add multiple query parameters
+          trackedItemIds: document_data[:tracked_item_id]
+        }
+      }
+
+      payload[:parameters] = data
+      fn = Tempfile.new('params')
+      File.write(fn, data.to_json)
+      payload[:parameters] = Faraday::UploadIO.new(fn, 'application/json')
+
+      file = Tempfile.new(document_data[:file_name])
+      File.write(file, file_body)
+      payload[:file] = Faraday::UploadIO.new(file, 'application/pdf')
+      payload
     end
 
     ##

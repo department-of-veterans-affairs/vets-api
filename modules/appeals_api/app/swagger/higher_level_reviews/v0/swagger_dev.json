@@ -6,7 +6,7 @@
     "contact": {
       "name": "developer.va.gov"
     },
-    "description": "The Higher-Level Reviews API lets you create and manage Higher-Level Reviews. Higher-Level Reviews can be requested after receiving an initial claim or a Supplemental Claims decision. [Learn more about VA Higher-Level Reviews](https://www.va.gov/decision-reviews/higher-level-review/).\n\nTo check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://dev-developer.va.gov/explore/appeals/docs/appeals?version=current).\n\n## Technical overview\nThe Higher-Level Reviews API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Higher-Level Review.\n\n### Authorization and Access\nThe authentication model for the Higher-Level Reviews API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:\n* [Authorization code flow](https://dev-developer.va.gov/explore/authorization/docs/authorization-code)\n* [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/authorization/docs/client-credentials)\n\n**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://dev-developer.va.gov/support/contact-us).\n\n### Submission Statuses\nUse the correct GET endpoint to check the status of a Higher-Level Review submission.\n\nThese endpoints return the status of the submission in Caseflow but not the status of the submission in VBMS, which is the status visible to claimants. Therefore, VBMS statuses are different from the statuses this API returns.\n\nTo check the status of an appeal as it will appear to a claimant, use the [Appeals Status API](https://dev-developer.va.gov/explore/appeals/docs/appeals?version=current).\n\n| Status      | What it means |\n| ---        |     ---     |\n| pending      | Submission successfully received by the API but has not yet started processing. |\n| submitting   | Data is transferring to upstream systems but is not yet complete. |\n| submitted   | A submitted status means the data was successfully transferred to the central mail portal.<br /><br />A submitted status is confirmation from the central mail portal that they have received the PDF, but the data is not yet being processed. The Date of Receipt is set when this status is achieved.<br /><br />Submitted is the final status in the sandbox environment.<p> |\n| processing   | Indicates intake has begun, the Intake, Conversion and Mail Handling Services (ICMHS) group is processing the appeal data. |\n| success   | The centralized mail portal, Digital Mail Handling System (DHMS), has received the data. |\n| complete   | Final status. Indicates the document package has been successfully associated with the Veteran and has been received in the correct business area for processing. Claim is now established in VBMS. |\n| error   | An error occurred. See the error code and message for further information. |\n\n#### Status simulation in sandbox and staging\n\nTest submissions do not progress through the same statuses as the production environment. In sandbox and staging, the final status of a submission is `submitted`; however, we allow passing a `Status-Simulation` header on the show endpoints so that you can simulate all production statuses.\n\n#### Status Caching\nDue to system limitations, status attribute data for the GET `/forms/200996/{uuid}` endpoint is cached for 1 hour. The updated_at field indicates the last time the status for a given GUID was updated.\n"
+    "description": "The Higher-Level Reviews API lets you create and manage Higher-Level Reviews. Higher-Level Reviews can be requested after receiving an initial claim or a Supplemental Claims decision. [Learn more about VA Higher-Level Reviews](https://www.va.gov/decision-reviews/higher-level-review/).\n\nTo check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://dev-developer.va.gov/explore/api/appeals-status/docs).\n\n## Technical overview\nThe Higher-Level Reviews API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Higher-Level Review.\n\n### Authorization and Access\nThe authentication model for the Higher-Level Reviews API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:\n* [Authorization code flow](https://dev-developer.va.gov/explore/api/higher-level-reviews/authorization-code)\n* [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/higher-level-reviews/client-credentials)\n\n**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://dev-developer.va.gov/support/contact-us).\n\n### Submission Statuses\nUse the correct GET endpoint to check the status of a Higher-Level Review submission.\n\nThese endpoints return the status of the submission in Caseflow but not the status of the submission in VBMS, which is the status visible to claimants. Therefore, VBMS statuses are different from the statuses this API returns.\n\nTo check the status of an appeal as it will appear to a claimant, use the [Appeals Status API](https://dev-developer.va.gov/explore/api/appeals-status/docs).\n\n| Status      | What it means |\n| ---        |     ---     |\n| pending      | Submission successfully received by the API but has not yet started processing. |\n| submitting   | Data is transferring to upstream systems but is not yet complete. |\n| submitted   | A submitted status means the data was successfully transferred to the central mail portal.<br /><br />A submitted status is confirmation from the central mail portal that they have received the PDF, but the data is not yet being processed. The Date of Receipt is set when this status is achieved.<br /><br />Submitted is the final status in the sandbox environment.<p> |\n| processing   | Indicates intake has begun, the Intake, Conversion and Mail Handling Services (ICMHS) group is processing the appeal data. |\n| success   | The centralized mail portal, Digital Mail Handling System (DHMS), has received the data. |\n| complete   | Final status. Indicates the document package has been successfully associated with the Veteran and has been received in the correct business area for processing. Claim is now established in VBMS. |\n| error   | An error occurred. See the error code and message for further information. |\n\n#### Status simulation in sandbox and staging\n\nTest submissions do not progress through the same statuses as the production environment. In sandbox and staging, the final status of a submission is `submitted`; however, we allow passing a `Status-Simulation` header on the show endpoints so that you can simulate all production statuses.\n\n#### Status Caching\nDue to system limitations, status attribute data for the GET `/forms/200996/{id}` endpoint is cached for 1 hour. The updated_at field indicates the last time the status for a given GUID was updated.\n"
   },
   "tags": [
     {
@@ -190,6 +190,11 @@
                                 "informalConference": false,
                                 "benefitType": "lifeInsurance",
                                 "veteran": {
+                                  "icn": "1013062086V794840",
+                                  "ssn": "123456789",
+                                  "firstName": "Jane",
+                                  "lastName": "Doe",
+                                  "birthDate": "1969-12-31",
                                   "homeless": false,
                                   "address": {
                                     "addressLine1": "123 Some St.",
@@ -229,6 +234,15 @@
                               "attributes": {
                                 "benefitType": "education",
                                 "veteran": {
+                                  "icn": "1013062086V794840",
+                                  "ssn": "123456789",
+                                  "firstName": "Jäñe",
+                                  "middleInitial": "ø",
+                                  "lastName": "Doé",
+                                  "birthDate": "1969-12-31",
+                                  "fileNumber": "987654321",
+                                  "serviceNumber": "876543210",
+                                  "insurancePolicyNumber": "987654321123456789",
                                   "homeless": true,
                                   "address": {
                                     "addressLine1": "123 Main St",
@@ -249,6 +263,11 @@
                                   "timezone": "America/Chicago"
                                 },
                                 "claimant": {
+                                  "ssn": "829347561",
+                                  "birthDate": "1972-05-08",
+                                  "firstName": "Betty",
+                                  "middleInitial": "D",
+                                  "lastName": "Boop",
                                   "address": {
                                     "addressLine1": "456 First St",
                                     "addressLine2": "Apt 5",
@@ -486,6 +505,11 @@
                         "informalConference": false,
                         "benefitType": "lifeInsurance",
                         "veteran": {
+                          "icn": "1013062086V794840",
+                          "ssn": "123456789",
+                          "firstName": "Jane",
+                          "lastName": "Doe",
+                          "birthDate": "1969-12-31",
                           "homeless": false,
                           "address": {
                             "addressLine1": "123 Some St.",
@@ -514,6 +538,15 @@
                       "attributes": {
                         "benefitType": "education",
                         "veteran": {
+                          "icn": "1013062086V794840",
+                          "ssn": "123456789",
+                          "firstName": "Jäñe",
+                          "middleInitial": "ø",
+                          "lastName": "Doé",
+                          "birthDate": "1969-12-31",
+                          "fileNumber": "987654321",
+                          "serviceNumber": "876543210",
+                          "insurancePolicyNumber": "987654321123456789",
                           "homeless": true,
                           "address": {
                             "addressLine1": "123 Main St",
@@ -534,6 +567,11 @@
                           "timezone": "America/Chicago"
                         },
                         "claimant": {
+                          "ssn": "829347561",
+                          "birthDate": "1972-05-08",
+                          "firstName": "Betty",
+                          "middleInitial": "D",
+                          "lastName": "Boop",
                           "address": {
                             "addressLine1": "456 First St",
                             "addressLine2": "Apt 5",
@@ -703,7 +741,7 @@
         }
       }
     },
-    "/forms/200996/{uuid}": {
+    "/forms/200996/{id}": {
       "get": {
         "summary": "Shows a specific Higher-Level Review. (a.k.a. the Show endpoint)",
         "description": "Returns all of the data associated with a specific Higher-Level Review.",
@@ -734,14 +772,15 @@
         ],
         "parameters": [
           {
-            "name": "uuid",
+            "name": "id",
             "in": "path",
-            "description": "Higher-Level Review UUID",
-            "example": "44e08764-6008-46e8-a95e-eb21951a5b68",
-            "required": true,
+            "description": "Higher-Level Review ID",
             "schema": {
-              "type": "string"
-            }
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "44e08764-6008-46e8-a95e-eb21951a5b68",
+            "required": true
           }
         ],
         "responses": {
@@ -777,6 +816,155 @@
                       "detail": "HigherLevelReview with uuid invalid not found",
                       "status": "404",
                       "title": "Record not found"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Internal server error",
+                      "detail": "Internal server error",
+                      "code": "500",
+                      "status": "500"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/forms/200996/{id}/download": {
+      "get": {
+        "summary": "Download a watermarked copy of a submitted Higher-Level Review",
+        "tags": [
+          "Higher-Level Reviews"
+        ],
+        "operationId": "downloadHlr",
+        "security": [
+          {
+            "productionOauth": [
+              "veteran/HigherLevelReviews.read",
+              "representative/HigherLevelReviews.read",
+              "system/HigherLevelReviews.read"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "veteran/HigherLevelReviews.read",
+              "representative/HigherLevelReviews.read",
+              "system/HigherLevelReviews.read"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Returns a watermarked copy of the submitted Higher-Level Review PDF. The PDF will only be available\nfor download after the Higher-Level Review has progressed to a 'submitted' state. The PDF will\nbecome unavailable again once personally identifying information is deleted from the server one week after the\nHigher-Level Review progresses to a 'completed' state.\n\nA PDF will not be available unless an ICN was included when the Higher-Level Review was created,\nAnd the 'icn' query parameter provided to this endpoint is required to match the ICN originally submitted with the\nHigher-Level Review.\n",
+        "parameters": [
+          {
+            "name": "icn",
+            "description": "ICN of the Veteran associated with the Higher-Level Review",
+            "example": "0123456789V012345",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]{10}V[0-9]{6}$",
+              "minLength": 17,
+              "maxLength": 17
+            },
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Higher-Level Review ID",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "44444444-5555-6666-7777-888888888888",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "file"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Higher-Level Review record was not found, or the provided 'icn' query parameter does not match the record's ICN",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "code": "404",
+                      "detail": "HigherLevelReview with uuid 44444444-5555-6666-7777-888888888888 not found",
+                      "status": "404",
+                      "title": "Record not found"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Personally identifying information gone",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "code": "410",
+                      "detail": "PDF for HigherLevelReview with id 44444444-5555-6666-7777-888888888888 cannot be downloaded because the form data was deleted from the server after the PII retention period expired",
+                      "status": "410",
+                      "title": "PDF download expired"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Missing 'icn' query parameter",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable Entity",
+                      "detail": "'icn' parameter is required",
+                      "code": "422",
+                      "status": "422"
                     }
                   ]
                 },
@@ -910,6 +1098,76 @@
                                 "veteran": {
                                   "type": "object",
                                   "properties": {
+                                    "ssn": {
+                                      "allOf": [
+                                        {
+                                          "$ref": "ssn.json"
+                                        },
+                                        {
+                                          "description": "Veteran's SSN"
+                                        }
+                                      ]
+                                    },
+                                    "icn": {
+                                      "$ref": "icn.json"
+                                    },
+                                    "firstName": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's first name",
+                                          "minLength": 1,
+                                          "maxLength": 30
+                                        },
+                                        {
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
+                                    "middleInitial": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's middle initial",
+                                          "minLength": 1,
+                                          "maxLength": 1
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
+                                    "lastName": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's last name",
+                                          "minLength": 1,
+                                          "maxLength": 40
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
+                                    "birthDate": {
+                                      "description": "Veteran's birth date",
+                                      "type": "string",
+                                      "format": "date"
+                                    },
+                                    "fileNumber": {
+                                      "$ref": "fileNumber.json"
+                                    },
+                                    "insurancePolicyNumber": {
+                                      "allOf": [
+                                        {
+                                          "description": "Veteran's insurance policy number",
+                                          "maxLength": 18
+                                        },
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        }
+                                      ]
+                                    },
                                     "homeless": {
                                       "type": "boolean"
                                     },
@@ -930,6 +1188,11 @@
                                     }
                                   },
                                   "required": [
+                                    "ssn",
+                                    "icn",
+                                    "firstName",
+                                    "lastName",
+                                    "birthDate",
                                     "homeless"
                                   ],
                                   "if": {
@@ -947,8 +1210,50 @@
                                 },
                                 "claimant": {
                                   "type": "object",
-                                  "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
+                                  "description": "If the claimant is not a veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
                                   "properties": {
+                                    "ssn": {
+                                      "allOf": [
+                                        {
+                                          "$ref": "ssn.json"
+                                        },
+                                        {
+                                          "description": "Non-veteran claimant's SSN"
+                                        }
+                                      ]
+                                    },
+                                    "firstName": {
+                                      "type": "string",
+                                      "description": "Non-veteran claimant's first name",
+                                      "maxLength": 30
+                                    },
+                                    "middleInitial": {
+                                      "allOf": [
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        },
+                                        {
+                                          "description": "Non-veteran claimant's middle initial",
+                                          "maxLength": 1
+                                        }
+                                      ]
+                                    },
+                                    "lastName": {
+                                      "allOf": [
+                                        {
+                                          "$ref": "nonBlankString.json"
+                                        },
+                                        {
+                                          "description": "Non-veteran claimant's last name",
+                                          "maxLength": 40
+                                        }
+                                      ]
+                                    },
+                                    "birthDate": {
+                                      "description": "Non-veteran claimant's birth date",
+                                      "type": "string",
+                                      "format": "date"
+                                    },
                                     "address": {
                                       "$ref": "address.json"
                                     },
@@ -966,6 +1271,10 @@
                                     }
                                   },
                                   "required": [
+                                    "ssn",
+                                    "firstName",
+                                    "lastName",
+                                    "birthDate",
                                     "address",
                                     "phone"
                                   ]
@@ -2061,6 +2370,7 @@
                         "available_options": [
                           "200996",
                           "address",
+                          "fileNumber",
                           "icn",
                           "nonBlankString",
                           "phone",
@@ -2390,6 +2700,11 @@
                         "informalConference": false,
                         "benefitType": "lifeInsurance",
                         "veteran": {
+                          "icn": "1013062086V794840",
+                          "ssn": "123456789",
+                          "firstName": "Jane",
+                          "lastName": "Doe",
+                          "birthDate": "1969-12-31",
                           "homeless": false,
                           "address": {
                             "addressLine1": "123 Some St.",
@@ -2418,6 +2733,15 @@
                       "attributes": {
                         "benefitType": "education",
                         "veteran": {
+                          "icn": "1013062086V794840",
+                          "ssn": "123456789",
+                          "firstName": "Jäñe",
+                          "middleInitial": "ø",
+                          "lastName": "Doé",
+                          "birthDate": "1969-12-31",
+                          "fileNumber": "987654321",
+                          "serviceNumber": "876543210",
+                          "insurancePolicyNumber": "987654321123456789",
                           "homeless": true,
                           "address": {
                             "addressLine1": "123 Main St",
@@ -2438,6 +2762,11 @@
                           "timezone": "America/Chicago"
                         },
                         "claimant": {
+                          "ssn": "829347561",
+                          "birthDate": "1972-05-08",
+                          "firstName": "Betty",
+                          "middleInitial": "D",
+                          "lastName": "Boop",
                           "address": {
                             "addressLine1": "456 First St",
                             "addressLine2": "Apt 5",
@@ -2617,48 +2946,58 @@
       },
       "productionOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "The authentication model for the Higher-Level Reviews API uses OAuth 2.0/OpenID Connect. The following authorization models are supported: [Authorization code flow](https://dev-developer.va.gov/explore/api/higher-level-reviews/authorization-code) and [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/higher-level-reviews/client-credentials).",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://api.va.gov/oauth2/authorization",
-            "tokenUrl": "https://api.va.gov/oauth2/token",
+            "authorizationUrl": "https://api.va.gov/oauth2/appeals/v1/authorization",
+            "tokenUrl": "https://api.va.gov/oauth2/appeals/v1/token",
             "scopes": {
-              "veteran/HigherLevelReviews.read": "Allows a veteran to see their own Higher-Level Reviews",
-              "representative/HigherLevelReviews.read": "Allows a veteran representative to see a veteran's Higher-Level Reviews",
-              "system/HigherLevelReviews.read": "Allows a system to see a veteran's Higher-Level Reviews",
-              "veteran/HigherLevelReviews.write": "Allows a veteran to submit Higher-Level Reviews for themselves",
-              "representative/HigherLevelReviews.write": "Allows a veteran representative to submit Higher-Level Reviews for a veteran",
-              "system/HigherLevelReviews.write": "Allows a system to submit Higher-Level Reviews for a veteran",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran",
-              "veteran/appeals.write": "Allows a veteran to submit any type of appeal data for themselves",
-              "representative/appeals.write": "Allows a veteran representative to submit any type of appeal data for a veteran",
-              "system/appeals.write": "Allows a system to submit any type of appeal data for a veteran"
+              "veteran/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "veteran/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "veteran/appeals.read": "Appeals info",
+              "veteran/appeals.write": "Ability to submit appeals",
+              "representative/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "representative/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "representative/appeals.read": "Appeals info",
+              "representative/appeals.write": "Ability to submit appeals"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://dev-developer.va.gov/support/contact-us).",
+            "scopes": {
+              "system/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "system/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "system/appeals.read": "Appeals info",
+              "system/appeals.write": "Ability to submit appeals"
             }
           }
         }
       },
       "sandboxOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "The authentication model for the Higher-Level Reviews API uses OAuth 2.0/OpenID Connect. The following authorization models are supported: [Authorization code flow](https://dev-developer.va.gov/explore/api/higher-level-reviews/authorization-code) and [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/higher-level-reviews/client-credentials).",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
-            "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
+            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/appeals/v1/authorization",
+            "tokenUrl": "https://sandbox-api.va.gov/oauth2/appeals/v1/token",
             "scopes": {
-              "veteran/HigherLevelReviews.read": "Allows a veteran to see their own Higher-Level Reviews",
-              "representative/HigherLevelReviews.read": "Allows a veteran representative to see a veteran's Higher-Level Reviews",
-              "system/HigherLevelReviews.read": "Allows a system to see a veteran's Higher-Level Reviews",
-              "veteran/HigherLevelReviews.write": "Allows a veteran to submit Higher-Level Reviews for themselves",
-              "representative/HigherLevelReviews.write": "Allows a veteran representative to submit Higher-Level Reviews for a veteran",
-              "system/HigherLevelReviews.write": "Allows a system to submit Higher-Level Reviews for a veteran",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran",
-              "veteran/appeals.write": "Allows a veteran to submit any type of appeal data for themselves",
-              "representative/appeals.write": "Allows a veteran representative to submit any type of appeal data for a veteran",
-              "system/appeals.write": "Allows a system to submit any type of appeal data for a veteran"
+              "veteran/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "veteran/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "veteran/appeals.read": "Appeals info",
+              "veteran/appeals.write": "Ability to submit appeals",
+              "representative/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "representative/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "representative/appeals.read": "Appeals info",
+              "representative/appeals.write": "Ability to submit appeals"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "https://deptva-eval.okta.com/oauth2/auskff5o6xsoQVngk2p7/v1/token",
+            "scopes": {
+              "system/HigherLevelReviews.read": "Higher-Level Reviews info",
+              "system/HigherLevelReviews.write": "Ability to submit Higher-Level Reviews",
+              "system/appeals.read": "Appeals info",
+              "system/appeals.write": "Ability to submit appeals"
             }
           }
         }
@@ -2884,6 +3223,77 @@
                   "veteran": {
                     "type": "object",
                     "properties": {
+                      "ssn": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/ssn"
+                          },
+                          {
+                            "description": "Veteran's SSN"
+                          }
+                        ]
+                      },
+                      "icn": {
+                        "$ref": "#/components/schemas/icn"
+                      },
+                      "firstName": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's first name",
+                            "minLength": 1,
+                            "maxLength": 30
+                          },
+                          {
+                            "$comment": "can be whitespace, to accommodate those with 1 legal name"
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
+                      "middleInitial": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's middle initial",
+                            "minLength": 1,
+                            "maxLength": 1
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
+                      "lastName": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's last name",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
+                      "birthDate": {
+                        "description": "Veteran's birth date",
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "fileNumber": {
+                        "$ref": "#/components/schemas/fileNumber"
+                      },
+                      "insurancePolicyNumber": {
+                        "allOf": [
+                          {
+                            "description": "Veteran's insurance policy number",
+                            "maxLength": 18
+                          },
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          }
+                        ]
+                      },
                       "homeless": {
                         "type": "boolean"
                       },
@@ -2904,6 +3314,11 @@
                       }
                     },
                     "required": [
+                      "ssn",
+                      "icn",
+                      "firstName",
+                      "lastName",
+                      "birthDate",
                       "homeless"
                     ],
                     "if": {
@@ -2921,8 +3336,51 @@
                   },
                   "claimant": {
                     "type": "object",
-                    "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
+                    "description": "If the claimant is not a veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
                     "properties": {
+                      "ssn": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/ssn"
+                          },
+                          {
+                            "description": "Non-veteran claimant's SSN"
+                          }
+                        ]
+                      },
+                      "firstName": {
+                        "type": "string",
+                        "description": "Non-veteran claimant's first name",
+                        "maxLength": 30,
+                        "$comment": "can be whitespace, to accommodate those with 1 legal name"
+                      },
+                      "middleInitial": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          },
+                          {
+                            "description": "Non-veteran claimant's middle initial",
+                            "maxLength": 1
+                          }
+                        ]
+                      },
+                      "lastName": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/nonBlankString"
+                          },
+                          {
+                            "description": "Non-veteran claimant's last name",
+                            "maxLength": 40
+                          }
+                        ]
+                      },
+                      "birthDate": {
+                        "description": "Non-veteran claimant's birth date",
+                        "type": "string",
+                        "format": "date"
+                      },
                       "address": {
                         "$ref": "#/components/schemas/address"
                       },
@@ -2940,6 +3398,10 @@
                       }
                     },
                     "required": [
+                      "ssn",
+                      "firstName",
+                      "lastName",
+                      "birthDate",
                       "address",
                       "phone"
                     ]

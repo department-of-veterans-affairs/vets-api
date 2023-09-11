@@ -11,6 +11,7 @@ module SimpleFormsApi
 
       FORM_NUMBER_MAP = {
         '21-0972' => 'vba_21_0972',
+        '21-0845' => 'vba_21_0845',
         '21-10210' => 'vba_21_10210',
         '21-4142' => 'vba_21_4142',
         '21P-0847' => 'vba_21p_0847',
@@ -22,12 +23,19 @@ module SimpleFormsApi
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
         form_id = FORM_NUMBER_MAP[params[:form_number]]
-        filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, data: JSON.parse(params.to_json))
+        parsed_form_data = JSON.parse(params.to_json)
+        filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, data: parsed_form_data)
 
         file_path = filler.generate
         metadata = filler.metadata
 
         status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
+
+        if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
+          SimpleFormsApi::ConfirmationEmail.new(
+            form_data: parsed_form_data, form_number: form_id, confirmation_number:
+          ).send
+        end
 
         Rails.logger.info(
           "Simple forms api - sent to benefits intake: #{params[:form_number]},
@@ -35,10 +43,7 @@ module SimpleFormsApi
         )
         render json: { confirmation_number: }, status:
       rescue => e
-        # scrubs all user-entered info from the error message
-        param_hash = JSON.parse(params.to_json)
-        remove_words(param_hash, e.message)
-        raise e
+        raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
       end
 
       private
@@ -62,27 +67,6 @@ module SimpleFormsApi
         )
 
         [response.status, uuid_and_location[:uuid]]
-      end
-
-      def aggregate_words(hash)
-        words = []
-        hash.each_value do |value|
-          case value
-          when Hash
-            words += aggregate_words(value)
-          when String
-            words += value.split
-          end
-        end
-        words.uniq.sort_by(&:length).reverse
-      end
-
-      def remove_words(hash, message)
-        words_to_remove = aggregate_words(hash)
-        words_to_remove.each do |word|
-          message.gsub!(word, '')
-        end
-        message
       end
     end
   end

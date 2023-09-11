@@ -110,7 +110,7 @@ module PdfFill
 
     def check_for_overflow(arr, pdftk_keys)
       return true if pdftk_keys[:always_overflow]
-      return true if arr.size > pdftk_keys[:limit]
+      return true if arr.size > (pdftk_keys[:limit] || 0)
 
       arr.each do |item|
         next if item.blank? || !item.is_a?(Hash)

@@ -49,8 +49,8 @@ class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
     object.data
   end
 
-  def create_event_from_string_date(type, *from_keys)
-    date = object.data.dig(*from_keys)
+  def create_event_from_string_date(type, *)
+    date = object.data.dig(*)
     return nil unless date
 
     {
@@ -131,8 +131,8 @@ class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
     end
   end
 
-  def sub_objects_of(*parents)
-    items = object.data.dig(*parents) || []
+  def sub_objects_of(*)
+    items = object.data.dig(*) || []
     items.compact
   end
 

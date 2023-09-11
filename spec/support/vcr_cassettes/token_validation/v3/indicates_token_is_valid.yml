@@ -86,6 +86,6 @@ http_interactions:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"data":{"id":"AT.5srKQCpbOCwG9HZRItYk_ERIkOfhdLWifr5f4HRRQx8.oar136oq1wFphHGiO2p7","type":"validated_token","attributes":{"ver":1,"jti":"AT.5srKQCpbOCwG9HZRItYk_ERIkOfhdLWifr5f4HRRQx8.oar136oq1wFphHGiO2p7","iss":"https://deptva-eval.okta.com/oauth2/default","aud":"api://default","iat":1635353996,"exp":1635357596,"cid":"0oa41882gkjtBRJhu2p7","uid":"00u3z5e6as6tEwXWx2p7","scp":["openid","offline_access","profile","some_resource.read"],"sub":"b24346a788c04dfea5048d44ad071181","act":{"icn":"1012667145V762142","npi":null,"sec_id":null,"vista_id":null,"type":"patient"},"launch":{"patient":"1012667145V762142"}}}}'
+      string: '{"data":{"id":"AT.5srKQCpbOCwG9HZRItYk_ERIkOfhdLWifr5f4HRRQx8.oar136oq1wFphHGiO2p7","type":"validated_token","attributes":{"ver":1,"jti":"AT.5srKQCpbOCwG9HZRItYk_ERIkOfhdLWifr5f4HRRQx8.oar136oq1wFphHGiO2p7","iss":"https://deptva-eval.okta.com/oauth2/default","aud":"api://default","iat":1635353996,"exp":1635357596,"cid":"0oa41882gkjtBRJhu2p7","uid":"00u3z5e6as6tEwXWx2p7","scp":["openid","offline_access","profile","some_resource.read","claim.read","claim.write"],"sub":"b24346a788c04dfea5048d44ad071181","act":{"icn":"1012667145V762142","npi":null,"sec_id":null,"vista_id":null,"type":"patient"},"launch":{"patient":"1012667145V762142"}}}}'
   recorded_at: Wed, 27 Oct 2021 17:42:07 GMT
 recorded_with: VCR 6.0.0

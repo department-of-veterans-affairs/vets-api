@@ -24,7 +24,11 @@ module CheckIn
 
     def perform(uuid, appointment_date)
       check_in_session = CheckIn::V2::Session.build(data: { uuid: })
-      mobile_phone = TravelClaim::RedisClient.build.mobile_phone(uuid:)
+      mobile_phone = if Flipper.enabled?('check_in_experience_patient_cell_phone')
+                       TravelClaim::RedisClient.build.patient_cell_phone(uuid:)
+                     else
+                       TravelClaim::RedisClient.build.mobile_phone(uuid:)
+                     end
 
       logger.info("Submitting travel claim for #{uuid}, #{appointment_date}")
 

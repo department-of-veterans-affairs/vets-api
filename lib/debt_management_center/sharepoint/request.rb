@@ -11,7 +11,7 @@ module DebtManagementCenter
       STATSD_KEY_PREFIX = 'api.vha.financial_status_report.sharepoint.request'
 
       attr_reader :settings
-      attr_accessor :access_token
+      attr_accessor :access_token, :user
 
       def_delegators :settings, :sharepoint_url, :client_id, :client_secret, :tenant_id, :resource, :service_name,
                      :base_path, :authentication_url
@@ -31,6 +31,7 @@ module DebtManagementCenter
       # @return [Faraday::Response] - Response from SharePoint upload
       #
       def upload(form_contents:, form_submission:, station_id:)
+        @user = set_user_data(form_submission.user_account_id)
         upload_response = upload_pdf(form_contents:, form_submission:,
                                      station_id:)
 
@@ -57,6 +58,18 @@ module DebtManagementCenter
         auth_response.body['access_token']
       end
 
+      def set_user_data(user_account_id)
+        user_account = UserAccount.find(user_account_id)
+        user_profile = mpi_service.find_profile_by_identifier(identifier: user_account.icn,
+                                                              identifier_type: MPI::Constants::ICN)
+
+        {
+          ssn: user_profile.profile.ssn,
+          first_name: user_profile.profile.given_names.first,
+          last_name: user_profile.profile.family_name
+        }
+      end
+
       ##
       # Upload PDF document to SharePoint site
       #
@@ -69,19 +82,23 @@ module DebtManagementCenter
       def upload_pdf(form_contents:, form_submission:, station_id:)
         pdf_path = PdfFill::Filler.fill_ancillary_form(form_contents, "#{form_submission.id}-#{station_id}", '5655')
         fsr_pdf = File.open(pdf_path)
-        user = User.find(form_submission.user_uuid)
-        file_name = "#{DateTime.now.strftime('%Y%m%dT%H%M%S')}_#{user.ssn.last(4)}_#{user.last_name.tr(' ', '_')}"
+
+        file_name = "#{DateTime.now.strftime('%Y%m%dT%H%M%S')}_#{user[:ssn].last(4)}_#{user[:last_name].tr(' ', '_')}"
 
         file_transfer_path =
           "#{base_path}/_api/Web/GetFolderByServerRelativeUrl('#{base_path}/Submissions')" \
           "/Files/add(url='#{file_name}.pdf',overwrite=true)"
 
         with_monitoring do
-          sharepoint_file_connection.post(file_transfer_path) do |req|
+          response = sharepoint_file_connection.post(file_transfer_path) do |req|
             req.headers['Content-Type'] = 'octet/stream'
             req.headers['Content-Length'] = fsr_pdf.size.to_s
             req.body = Faraday::UploadIO.new(fsr_pdf, 'octet/stream')
           end
+
+          File.delete(pdf_path)
+
+          response
         end
       end
 
@@ -117,7 +134,6 @@ module DebtManagementCenter
       #
       def update_list_item_fields(list_item_id:, form_submission:, station_id:)
         path = "#{base_path}/_api/Web/Lists/GetByTitle('Submissions')/items(#{list_item_id})"
-        user = User.find(form_submission.user_uuid)
         with_monitoring do
           sharepoint_connection.post(path) do |req|
             req.headers['Content-Type'] = 'application/json;odata=verbose'
@@ -129,8 +145,8 @@ module DebtManagementCenter
               },
               'StationId' => station_id,
               'UID' => form_submission.id,
-              'SSN' => user.ssn,
-              'Name1' => "#{user.last_name}, #{user.first_name}"
+              'SSN' => user[:ssn],
+              'Name1' => "#{user[:last_name]}, #{user[:first_name]}"
             }.to_json
           end
         end
@@ -198,6 +214,10 @@ module DebtManagementCenter
 
       def initialize_settings
         @settings = Settings.vha.sharepoint
+      end
+
+      def mpi_service
+        @service ||= MPI::Service.new
       end
 
       ##

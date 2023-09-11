@@ -29,6 +29,7 @@ module V0
 
         def update
           response = client.update_payment_info(payment_account)
+          Rails.logger.warn('DisabilityCompensationsController#update request completed', sso_logging_info)
           send_confirmation_email
 
           render status: response.status,

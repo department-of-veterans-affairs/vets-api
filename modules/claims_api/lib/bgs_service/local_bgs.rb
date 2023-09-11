@@ -8,6 +8,7 @@
 
 require 'claims_api/claim_logger'
 require 'claims_api/error/soap_error_handler'
+require 'claims_api/evss_bgs_mapper'
 
 module ClaimsApi
   class LocalBGS
@@ -184,6 +185,12 @@ module ClaimsApi
                    action: 'findBenefitClaimsStatusByPtcpntId', body:)
     end
 
+    def claims_count(id)
+      find_benefit_claims_status_by_ptcpnt_id(id).count
+    rescue ::Common::Exceptions::ResourceNotFound
+      0
+    end
+
     def find_benefit_claim_details_by_benefit_claim_id(id)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <bnftClaimId />
@@ -249,7 +256,7 @@ module ClaimsApi
 
     def all(id)
       claims = find_benefit_claims_status_by_ptcpnt_id(id)
-      return [] if claims.count < 1
+      return [] if claims.count < 1 || claims[:benefit_claims_dto].blank?
 
       transform_bgs_claims_to_evss(claims)
     end
@@ -295,7 +302,8 @@ module ClaimsApi
     end
 
     def transform_bgs_claims_to_evss(claims)
-      claims[:benefit_claims_dto][:benefit_claim]&.map do |claim|
+      claims_array = [claims[:benefit_claims_dto][:benefit_claim]]&.flatten
+      claims_array&.map do |claim|
         bgs_claim = ClaimsApi::EvssBgsMapper.new(claim)
         bgs_claim.map_and_build_object
       end

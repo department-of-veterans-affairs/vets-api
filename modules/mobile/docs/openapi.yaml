@@ -353,7 +353,7 @@ paths:
           $ref: '#/components/responses/504'
       security:
         - Bearer: [ ]
-      summary: /v0/appointments/check-in/demographics (DRAFT)
+      summary: /v0/appointments/check-in/demographics
     patch:
       description: Edit demographics confirmations.
       requestBody:
@@ -406,7 +406,7 @@ paths:
           $ref: '#/components/responses/504'
       security:
         - Bearer: [ ]
-      summary: /v0/appointments/check-in/demographics (DRAFT)
+      summary: /v0/appointments/check-in/demographics
   /v0/appointments/community_care/eligibility/{service_type}:
     get:
       description: Checks if user is eligible to make an appointment with Community Care for a type of service. Checks if user is registered at a site that is marked as accepting community care requests and community care eligibility api says that they're eligible for the type of care they chose
@@ -1359,9 +1359,42 @@ paths:
       security:
         - Bearer: []
       summary: /v0/disability-rating
+  /v0/facilities-info:
+    get:
+      description: Retrieves facilities info for a user's va treatment facilities
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/FacilitiesInfo.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/facilities-info
   /v0/facilities-info/{sort_method}:
     get:
-      description: Retrieves facilities info for a given user
+      description: Retrieves facilities info for all facilities a given user has the ability to schedule appointments at
       parameters:
         - description: Sort method (Closest to home or current location, alphabetical, or by most recent appointment location) Note - When most recent appointment is selected any facility that doesn't appear in the user's appointments will be sorted alphabetically after those that do appear in the appointments list
           in: path
@@ -3038,6 +3071,74 @@ paths:
       security:
         - Bearer: []
       summary: /v0/user
+  /v0/user/authorized-services:
+    get:
+      description: |
+        Returns a hash of all available services, and a boolean value of whether the user has access to that service.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: ./schemas/UserAuthorizedServices.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/user/authorized-services
+  /v0/user/contact-info:
+    get:
+      description: |
+        Returns the user contact info. If the user does not have a vet360 id, the contact info will be null.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: ./schemas/UserContactInfo.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/user/contact-info
   /v1/user:
     get:
       description: |
@@ -3090,6 +3191,40 @@ paths:
       security:
         - Bearer: [ ]
       summary: /v1/user
+  /v2/user:
+    get:
+      description: |
+        Returns basic user information
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: ./schemas/v2/User.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v2/user
   /v0/user/addresses:
     delete:
       description: Deletes a user's address
@@ -3344,6 +3479,39 @@ paths:
       security:
         - Bearer: []
       summary: /v0/user/addresses/validate
+  /v0/user/demographics:
+    get:
+      description: Returns the users demographics info
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: ./schemas/UserDemographics.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: [ ]
+      summary: /v0/user/demographics
   /v0/user/emails:
     delete:
       description: Deletes a user's email address
@@ -3565,6 +3733,35 @@ paths:
       security:
         - Bearer: []
       summary: /v0/user/logout
+  /v0/user/logged-in:
+    post:
+      description: Called by the mobile app after successful login to perform any actions needed to start a session.
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/user/logged-in
   /v0/user/preferred_name:
     put:
       description: Updates a user's preferred name. Only users with id.me or login.gov accounts may use this

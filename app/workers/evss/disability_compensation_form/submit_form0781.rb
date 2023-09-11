@@ -2,12 +2,31 @@
 
 require 'central_mail/datestamp_pdf'
 require 'pdf_fill/filler'
+require 'logging/third_party_transaction'
 
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm0781 < Job
+      extend Logging::ThirdPartyTransaction::MethodWrapper
+
+      attr_reader :submission_id, :evss_claim_id, :uuid
+
+      wrap_with_logging(
+        :upload_to_vbms,
+        :perform_client_upload,
+        additional_class_logs: {
+          action: 'upload form 21-0781 to EVSS'
+        },
+        additional_instance_logs: {
+          submission_id: [:submission_id],
+          evss_claim_id: [:evss_claim_id],
+          uuid: [:uuid]
+        }
+      )
+
       FORM_ID_0781 = '21-0781' # form id for PTSD
       FORM_ID_0781A = '21-0781a' # form id for PTSD Secondary to Personal Assault
+
       FORMS_METADATA = {
         FORM_ID_0781 => { docType: 'L228' },
         FORM_ID_0781A => { docType: 'L229' }
@@ -42,13 +61,14 @@ module EVSS
       # `file`, which is the generated file location
       def get_docs(submission_id, uuid)
         @submission_id = submission_id
-        parsed_forms = JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))
+        @uuid = uuid
+
         file_type_and_file_objs = []
         { 'form0781' => FORM_ID_0781, 'form0781a' => FORM_ID_0781A }.each do |form_type_key, actual_form_types|
           if parsed_forms[form_type_key].present?
             file_type_and_file_objs << {
               type: actual_form_types,
-              file: process_0781(submission.auth_headers, uuid, FORM_ID_0781, parsed_forms[form_type_key],
+              file: process_0781(uuid, FORM_ID_0781, parsed_forms[form_type_key],
                                  upload: false)
             }
           end
@@ -56,24 +76,27 @@ module EVSS
         file_type_and_file_objs
       end
 
+      def parsed_forms
+        @parsed_forms ||= JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))
+      end
+
       # Performs an asynchronous job for generating and submitting 0781 + 0781A PDF documents to VBMS
       #
       # @param submission_id [Integer] The {Form526Submission} id
       #
       def perform(submission_id)
+        @submission_id = submission_id
+
         Raven.tags_context(source: '526EZ-all-claims')
         super(submission_id)
-        with_tracking('Form0781 Submission', submission.saved_claim_id, submission.id) do
-          parsed_forms = JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))
 
+        with_tracking('Form0781 Submission', submission.saved_claim_id, submission.id) do
           # process 0781 and 0781a
           if parsed_forms['form0781'].present?
-            process_0781(submission.auth_headers,
-                         submission.submitted_claim_id, FORM_ID_0781, parsed_forms['form0781'])
+            process_0781(submission.submitted_claim_id, FORM_ID_0781, parsed_forms['form0781'])
           end
           if parsed_forms['form0781a'].present?
-            process_0781(submission.auth_headers,
-                         submission.submitted_claim_id, FORM_ID_0781A, parsed_forms['form0781a'])
+            process_0781(submission.submitted_claim_id, FORM_ID_0781A, parsed_forms['form0781a'])
           end
         end
       rescue => e
@@ -86,10 +109,11 @@ module EVSS
 
       private
 
-      def process_0781(auth_headers, evss_claim_id, form_id, form_content, upload: true)
+      def process_0781(evss_claim_id, form_id, form_content, upload: true)
+        @evss_claim_id = evss_claim_id
         # generate and stamp PDF file
         pdf_path0781 = generate_stamp_pdf(form_content, evss_claim_id, form_id)
-        upload ? upload_to_vbms(auth_headers, evss_claim_id, pdf_path0781, form_id) : pdf_path0781
+        upload ? upload_to_vbms(pdf_path0781, form_id) : pdf_path0781
       end
 
       # Invokes Filler ancillary form method to generate PDF document
@@ -124,22 +148,30 @@ module EVSS
         )
       end
 
-      def upload_to_vbms(auth_headers, evss_claim_id, pdf_path, form_id)
+      def upload_to_vbms(pdf_path, form_id)
         upload_data = get_evss_claim_metadata(pdf_path, form_id)
         document_data = create_document_data(evss_claim_id, upload_data)
 
         raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
-        if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
-          # TODO: create client from lighthouse document service
-        else
-          client = EVSS::DocumentsService.new(auth_headers)
-        end
+        # thin wrapper to isolate upload for logging
         file_body = File.open(pdf_path).read
-        client.upload(file_body, document_data)
+        perform_client_upload(file_body, document_data)
       ensure
         # Delete the temporary PDF file
         File.delete(pdf_path) if pdf_path.present?
+      end
+
+      def perform_client_upload(file_body, document_data)
+        client.upload(file_body, document_data)
+      end
+
+      def client
+        @client ||= if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
+                      # TODO: create client from lighthouse document service
+                    else
+                      EVSS::DocumentsService.new(submission.auth_headers)
+                    end
       end
     end
   end

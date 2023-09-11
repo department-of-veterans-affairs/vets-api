@@ -27,6 +27,7 @@ module AppealsApi::V1
         }
       end
 
+      # rubocop:disable Layout/LineLength
       swagger_component do
         schema :nodStatus do
           key :type, :string
@@ -475,6 +476,7 @@ module AppealsApi::V1
           end
         end
       end
+      # rubocop:enable Layout/LineLength
     end
   end
 end
