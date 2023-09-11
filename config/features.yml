@@ -546,6 +546,14 @@ features:
     actor_type: user
     description: Enables/disbales Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
+  mhv_medical_records_phr_refresh_on_login:
+    actor_type: user
+    description: Enables/disbales the PHR refresh for MHV users when logging into VA.gov
+    enable_in_development: true
+  mhv_medical_records_display_domains:
+    actor_type: user
+    description: Show/hide in-progress Medical Records domains
+    enable_in_development: true
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer experience (Identity)
@@ -979,8 +987,8 @@ features:
     description: Provides a flag wrapper for minor code changes to be gated from Prod.
     enable_in_development: true
   meb_gate_person_criteria:
-      actor_type: user
-      description: Flag to use Person Criteria on Submission service
+    actor_type: user
+    description: Flag to use Person Criteria on Submission service
   supply_reordering_sleep_apnea_enabled:
     actor_type: user
     description: Enables sleep apnea supplies to be ordered in the supply reorder tool / MDOT.
