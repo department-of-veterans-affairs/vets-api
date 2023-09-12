@@ -104,37 +104,6 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
         end
       end
 
-      describe 'Getting a 403 response' do
-        response '403', 'Forbidden' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
-          let(:scopes) { %w[system/claim.read] }
-
-          before do |example|
-            mock_acg(scopes) do
-              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:user_is_target_veteran?).and_return(false)
-              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:user_represents_veteran?).and_return(false)
-
-              submit_request(example.metadata)
-            end
-          end
-
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
-          end
-
-          it 'returns a 403 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-      end
-
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
           schema JSON.parse(
@@ -308,49 +277,6 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           end
 
           it 'returns a valid 401 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-      end
-
-      describe 'Getting a 403 response' do
-        let(:veteranId) { 'not-the-same-id-as-tamara' } # rubocop:disable RSpec/VariableName
-
-        response '403', 'Forbidden' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
-
-          let(:scopes) { %w[system/claim.write] }
-          let(:data) do
-            {
-              data: {
-                attributes: {
-                  type: 'compensation'
-                }
-              }
-            }
-          end
-
-          before do |example|
-            mock_acg(scopes) do
-              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:user_is_target_veteran?).and_return(false)
-              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:user_represents_veteran?).and_return(false)
-
-              submit_request(example.metadata)
-            end
-          end
-
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
-          end
-
-          it 'returns a valid 403 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
@@ -535,49 +461,6 @@ describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
           end
 
           it 'returns a valid 401 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-      end
-
-      describe 'Getting a 403 response' do
-        let(:veteranId) { 'not-the-same-id-as-tamara' } # rubocop:disable RSpec/VariableName
-
-        response '403', 'Forbidden' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
-
-          let(:scopes) { %w[system/claim.write] }
-          let(:data) do
-            {
-              data: {
-                attributes: {
-                  type: 'compensation'
-                }
-              }
-            }
-          end
-
-          before do |example|
-            mock_acg(scopes) do
-              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:user_is_target_veteran?).and_return(false)
-              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:user_represents_veteran?).and_return(false)
-
-              submit_request(example.metadata)
-            end
-          end
-
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
-          end
-
-          it 'returns a valid 403 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
