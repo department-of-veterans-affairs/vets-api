@@ -128,8 +128,8 @@ module ClaimsApi
         raise ::Common::Exceptions::Forbidden
       end
 
-      def benefits_doc_api(multipart: false)
-        ClaimsApi::BD.new(multipart:)
+      def benefits_doc_api
+        ClaimsApi::BD.new(request:)
       end
 
       def bgs_service
