@@ -11,7 +11,7 @@ module MobileApplicationPlatform
       def status(icn:)
         response = perform(:get, config.status_unauthenticated_path(icn), nil)
         Rails.logger.info("#{config.logging_prefix} status success, icn: #{icn}")
-        parse_response(response, icn, 'status')
+        parse_response(response.body, icn, 'status')
       rescue Common::Client::Errors::ClientError => e
         status = e.status
         description = e.body.presence && e.body[:error_description]
@@ -44,13 +44,14 @@ module MobileApplicationPlatform
                            config.patients_provisioning_path(icn),
                            update_provisioning_params(first_name, last_name, mpi_gcids).to_json,
                            config.authenticated_provisioning_header)
-        Rails.logger.info("#{config.logging_prefix} update provisioning success, icn: #{icn}")
-        parse_response(response, icn, 'update provisioning')
+        successful_update_provisioning_response(response, icn)
       rescue Common::Client::Errors::ClientError => e
-        status = e.status
-        description = e.body.presence && e.body[:error_description]
-        raise e, "#{config.logging_prefix} update provisioning failed, client error, status: #{status}," \
-                 " description: #{description}, icn: #{icn}"
+        if config.provisioning_acceptable_status.include?(e.status)
+          successful_update_provisioning_response(e, icn)
+        else
+          raise e, "#{config.logging_prefix} update provisioning failed, client error, status: #{e.status}," \
+                   " description: #{e&.body}, icn: #{icn}"
+        end
       end
 
       private
@@ -69,14 +70,19 @@ module MobileApplicationPlatform
         }
       end
 
-      def parse_response(response, icn, action)
-        response_body = JSON.parse(response.body)
+      def successful_update_provisioning_response(response, icn)
+        Rails.logger.info("#{config.logging_prefix} update provisioning success, icn: #{icn}")
+        parse_response(response.body, icn, 'update provisioning')
+      end
+
+      def parse_response(response_body, icn, action)
+        parsed_response_body = JSON.parse(response_body)
 
         {
-          agreement_signed: response_body['agreementSigned'],
-          opt_out: response_body['optOut'],
-          cerner_provisioned: response_body['cernerProvisioned'],
-          bypass_eligible: response_body['bypassEligible']
+          agreement_signed: parsed_response_body['agreementSigned'],
+          opt_out: parsed_response_body['optOut'],
+          cerner_provisioned: parsed_response_body['cernerProvisioned'],
+          bypass_eligible: parsed_response_body['bypassEligible']
         }
       rescue => e
         raise e, "#{config.logging_prefix} #{action} failed, response unknown, icn: #{icn}"
