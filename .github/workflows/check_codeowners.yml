@@ -52,7 +52,7 @@ jobs:
         chmod +x .github/scripts/check_deleted_files.sh
         .github/scripts/check_deleted_files.sh
 
-    - name: Respond to PR if check CODEOWNERS exists for new files fails
+    - name: Respond to PR if check CODEOWNERS exists for deleted files fails
       if: ${{ failure() }}
       uses: thollander/actions-comment-pull-request@dadb7667129e23f12ca3925c90dc5cd7121ab57e # v2.4.0
       with:
