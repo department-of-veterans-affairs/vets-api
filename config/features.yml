@@ -560,6 +560,10 @@ features:
     actor_type: user
     description: Show/hide in-progress Medical Records domains
     enable_in_development: true
+  mhv_medical_records_allow_txt_downloads:
+    actor_type: user
+    description: Allows users to download Medical Records data in TXT format
+    enable_in_development: true
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer experience (Identity)
