@@ -46,16 +46,14 @@ describe VAProfile::VeteranStatus::Service do
         end
       end
 
-  #     it 'gives me the right values back' do
-  #       VCR.use_cassette('emis/get_veteran_status/valid') do
-  #         response = subject.get_veteran_status(edipi: edipi_veteran)
-  #         expect(response.items.first.title38_status_code).to eq('V1')
-  #         expect(response.items.first.post911_deployment_indicator).to eq('Y')
-  #         expect(response.items.first.post911_combat_indicator).to eq('N')
-  #         expect(response.items.first.pre911_deployment_indicator).to eq('N')
-  #       end
-  #     end
-  #   end
+      it 'gives me the right values back' do
+        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200') do
+          response = subject.get_veteran_status
+        #  binding.pry
+          expect(response.title38_status_code.title38_status_code).to eq('V1')
+        end
+      end
+    # end
 
   #   context 'with a valid request for a non-veteran' do
   #     it 'gives me the right values back' do

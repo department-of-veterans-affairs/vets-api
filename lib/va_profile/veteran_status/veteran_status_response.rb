@@ -6,19 +6,26 @@ require_relative '../models/veteran_status'
 module VAProfile
   module VeteranStatus
     class VeteranStatusResponse < VAProfile::Response
-      attribute :title_38_status_code, VAProfile::Models::VeteranStatus
+      attribute :title38_status_code, VAProfile::Models::VeteranStatus
 
       def self.from(_, raw_response = nil)
         body = raw_response&.body
 
-        title_38_status_code = body&.dig('profile', 'militaryPerson', 'militarySummary', 'title38StatusCode')  # parse title_38 from the raw response
-
+        title38_status_code = body&.dig('profile', 'military_person', 'military_summary', 'title38_status_code')  # parse title_38 from the raw response
+       # binding.pry
+        # new(
+        #  # raw_response&.status,
+        #   veteran_status: VAProfile::Models::VeteranStatus.new(
+        #     title38_status_code: title38_status_code
+        #   )
+        # )
+        # binding.pry
         new(
-          raw_response&.status,
-          veteran_status_title: VAProfile::Models::VeteranStatus.new(
-            title_38_status_code: title_38_status_code
-          )
-        )
+            raw_response&.status,
+            title38_status_code: VAProfile::Models::VeteranStatus.new(
+             title38_status_code: title38_status_code
+           )
+         )
       end
     end
   end
