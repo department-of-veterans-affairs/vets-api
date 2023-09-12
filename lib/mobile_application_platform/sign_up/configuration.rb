@@ -38,6 +38,10 @@ module MobileApplicationPlatform
         { 'X-VAMF-API-KEY' => provisioning_api_key }
       end
 
+      def provisioning_acceptable_status
+        [200, 406, 412]
+      end
+
       def logging_prefix
         '[MobileApplicationPlatform][SignUp][Service]'
       end
