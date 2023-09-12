@@ -29,22 +29,6 @@ describe MobileApplicationPlatform::SignUp::Service do
       end
     end
 
-    context 'when client response is malformed' do
-      let(:expected_error) { NoMethodError }
-      let(:expected_error_message) { "#{log_prefix} status failed, response unknown, icn: #{icn}" }
-      let(:status) { 'some-status' }
-      let(:description) { 'some-description' }
-      let(:empty_response) { nil }
-
-      before do
-        allow_any_instance_of(described_class).to receive(:perform).and_return(empty_response)
-      end
-
-      it 'raises an unknown response error with expected message' do
-        expect { subject }.to raise_error(expected_error, expected_error_message)
-      end
-    end
-
     context 'when response is successful' do
       let(:expected_log_message) { "#{log_prefix} status success, icn: #{icn}" }
       let(:expected_response_hash) do
@@ -205,29 +189,13 @@ describe MobileApplicationPlatform::SignUp::Service do
       end
       let(:status) { 'some-status' }
       let(:description) { 'some-description' }
-      let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, { error_description: description }) }
+      let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, description) }
 
       before do
         allow_any_instance_of(described_class).to receive(:perform).and_raise(raised_error)
       end
 
       it 'raises a client error with expected message' do
-        expect { subject }.to raise_error(expected_error, expected_error_message)
-      end
-    end
-
-    context 'when client response is malformed' do
-      let(:expected_error) { NoMethodError }
-      let(:expected_error_message) { "#{log_prefix} update provisioning failed, response unknown, icn: #{icn}" }
-      let(:status) { 'some-status' }
-      let(:description) { 'some-description' }
-      let(:empty_response) { nil }
-
-      before do
-        allow_any_instance_of(described_class).to receive(:perform).and_return(empty_response)
-      end
-
-      it 'raises an unknown response error with expected message' do
         expect { subject }.to raise_error(expected_error, expected_error_message)
       end
     end
@@ -251,6 +219,52 @@ describe MobileApplicationPlatform::SignUp::Service do
 
       it 'returns response hash with expected fields',
          vcr: { cassette_name: 'mobile_application_platform/sign_up_service_200_responses' } do
+        expect(subject).to eq(expected_response_hash)
+      end
+    end
+
+    context 'when response is successful with 406' do
+      let(:expected_log_message) { "#{log_prefix} update provisioning success, icn: #{icn}" }
+      let(:expected_response_hash) do
+        {
+          agreement_signed: true,
+          opt_out: false,
+          cerner_provisioned: false,
+          bypass_eligible: false
+        }
+      end
+
+      it 'logs a token success message',
+         vcr: { cassette_name: 'mobile_application_platform/sign_up_service_406_responses' } do
+        expect(Rails.logger).to receive(:info).with(expected_log_message)
+        subject
+      end
+
+      it 'returns response hash with expected fields',
+         vcr: { cassette_name: 'mobile_application_platform/sign_up_service_406_responses' } do
+        expect(subject).to eq(expected_response_hash)
+      end
+    end
+
+    context 'when response is successful with 412' do
+      let(:expected_log_message) { "#{log_prefix} update provisioning success, icn: #{icn}" }
+      let(:expected_response_hash) do
+        {
+          agreement_signed: true,
+          opt_out: false,
+          cerner_provisioned: false,
+          bypass_eligible: false
+        }
+      end
+
+      it 'logs a token success message',
+         vcr: { cassette_name: 'mobile_application_platform/sign_up_service_412_responses' } do
+        expect(Rails.logger).to receive(:info).with(expected_log_message)
+        subject
+      end
+
+      it 'returns response hash with expected fields',
+         vcr: { cassette_name: 'mobile_application_platform/sign_up_service_412_responses' } do
         expect(subject).to eq(expected_response_hash)
       end
     end
