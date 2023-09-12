@@ -16,21 +16,22 @@ module ClaimsApi
       ews = ClaimsApi::EvidenceWaiverSubmission.find(ews_id)
       bgs_claim = benefit_claim_service(ews).find_bnft_claim(claim_id: ews.claim_id)
 
-      unless bgs_claim&.dig(:bnft_claim_dto, :filed5103_waiver_ind) == FILE_5103
+      indicator = bgs_claim&.dig(:bnft_claim_dto, :filed5103_waiver_ind)
+      if indicator.present? && indicator != FILE_5103
         bgs_claim[:bnft_claim_dto][:filed5103_waiver_ind] = FILE_5103
-
         update_bgs_claim(ews, bgs_claim)
+      end
+      if bgs_claim&.dig(:bnft_claim_dto).blank?
+        ews.status = ClaimsApi::EvidenceWaiverSubmission::ERRORED
+        ClaimsApi::Logger.log('ews_updater',
+                              detail: "bnft_claim_dto, filed5103_waiver_ind is not present on claim: #{ews.claim_id},
+            and ews_id: #{ews.id}, and bgs_claim keys: #{bgs_claim&.keys}.")
       end
       ews.save
       ews
     end
 
     private
-
-    def bgs_service(ews)
-      BGS::Services.new(external_uid: ews.auth_headers['va_eauth_pnid'],
-                        external_key: ews.auth_headers['va_eauth_pnid'])
-    end
 
     def update_claim_level_suspense(ews)
       suspense_claim = claim_management_service(ews).find_claim_level_suspense(claim_id: ews.claim_id)
@@ -74,8 +75,8 @@ module ClaimsApi
                                                      external_key: ews.auth_headers['va_eauth_pnid'])
     end
 
-    def update_bgs_claim(ews, bgs_claim)
-      response = bgs_service(ews).benefit_claims.update_bnft_claim(claim: bgs_claim)
+    def update_bgs_claim(ews, _bgs_claim)
+      response = benefit_claim_service(ews).update_bnft_claim(claim_id: ews.claim_id)
       if response[:bnft_claim_dto].nil?
         ews.status = ClaimsApi::EvidenceWaiverSubmission::ERRORED
         ews.bgs_error_message = "BGS Error: update_record failed with code #{response[:return_code]}"
