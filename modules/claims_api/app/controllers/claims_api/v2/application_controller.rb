@@ -123,7 +123,7 @@ module ClaimsApi
       def authenticate
         verify_access!
 
-        return if @is_valid_ccg_flow || user_is_target_veteran? || user_represents_veteran?
+        return if @is_valid_ccg_flow
 
         raise ::Common::Exceptions::Forbidden
       end
