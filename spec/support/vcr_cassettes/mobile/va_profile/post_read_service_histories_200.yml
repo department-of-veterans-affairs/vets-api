@@ -81,7 +81,8 @@ http_interactions:
                           "terminationReasonText":"Completion of Active Service period",
                           "terminationReasonCode":"C",
                           "guardReserves": [],
-                          "deployments": []
+                          "deployments": [],
+                          "characterOfDischargeCode": "A"
                         },                                               
                         {
                           "serviceEpisodeIdentifier": 343701,
@@ -94,7 +95,8 @@ http_interactions:
                           "terminationReasonText":"Completion of Active Service period",
                           "terminationReasonCode":"C",                          
                           "guardReserves": [],
-                          "deployments": []
+                          "deployments": [],
+                          "characterOfDischargeCode": "F"
                         },
                         {
                           "serviceEpisodeIdentifier": 343702,
@@ -107,7 +109,8 @@ http_interactions:
                           "terminationReasonText":"Completion of Active Service period",
                           "terminationReasonCode":"C",                          
                           "guardReserves": [],
-                          "deployments": []
+                          "deployments": [],
+                          "characterOfDischargeCode": "Z"
                         }                        
                       ]
                     }
