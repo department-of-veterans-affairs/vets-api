@@ -314,7 +314,7 @@ paths:
           $ref: '#/components/responses/504'
       security:
         - Bearer: []
-      summary: /v0/appointments/check-in (DRAFT)
+      summary: /v0/appointments/check-in
   /v0/appointments/check-in/demographics:
     get:
       description: Retrieves demographics confirmation information which includes a field indicating if insurance verification is needed, patient contact information, emergency contact information and next-of-kin contact information.
