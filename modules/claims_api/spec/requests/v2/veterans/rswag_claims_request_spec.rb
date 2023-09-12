@@ -112,39 +112,6 @@ describe 'Claims',
           end
         end
       end
-
-      describe 'Getting a 403 response' do
-        response '403', 'Forbidden' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
-
-          let(:veteran) { OpenStruct.new(mpi: nil, participant_id: nil) }
-          let(:scopes) { %w[system/claim.read] }
-
-          before do |example|
-            mock_acg(scopes) do
-              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:user_is_target_veteran?).and_return(false)
-              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:user_represents_veteran?).and_return(false)
-
-              submit_request(example.metadata)
-            end
-          end
-
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
-          end
-
-          it 'returns a 403 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-      end
     end
   end
 
@@ -263,39 +230,6 @@ describe 'Claims',
           end
 
           it 'returns a 401 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-      end
-
-      describe 'Getting a 403 response' do
-        response '403', 'Forbidden' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'default.json')))
-
-          let(:veteran) { OpenStruct.new(mpi: nil, participant_id: nil) }
-          let(:scopes) { %w[system/claim.read] }
-
-          before do |example|
-            mock_acg(scopes) do
-              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:user_is_target_veteran?).and_return(false)
-              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:user_represents_veteran?).and_return(false)
-
-              submit_request(example.metadata)
-            end
-          end
-
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
-          end
-
-          it 'returns a 403 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
