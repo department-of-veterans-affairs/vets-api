@@ -65,10 +65,10 @@ describe 'Veteran Identifier', swagger_doc: Rswag::TextHelpers.new.claims_api_do
         end
       end
 
-      describe 'Getting a 422 response' do
+      describe 'Getting a 400 response' do
         context 'when parameters are missing' do
           before do |example|
-            mock_acg(scopes) do |auth_header|
+            mock_ccg(scopes) do |auth_header|
               Authorization = auth_header # rubocop:disable Naming/ConstantName
               data[:ssn] = nil
               submit_request(example.metadata)
@@ -83,14 +83,14 @@ describe 'Veteran Identifier', swagger_doc: Rswag::TextHelpers.new.claims_api_do
             }
           end
 
-          response '422', 'Bad Request' do
+          response '400', 'Bad Request' do
             schema JSON.parse(
               File.read(
                 Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 'default.json')
               )
             )
 
-            it 'returns a 422 response' do |example|
+            it 'returns a 400 response' do |example|
               assert_response_matches_metadata(example.metadata)
             end
           end
@@ -120,39 +120,6 @@ describe 'Veteran Identifier', swagger_doc: Rswag::TextHelpers.new.claims_api_do
           )
 
           it 'returns a 401 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-      end
-
-      describe 'Getting a 403 response' do
-        before do |example|
-          expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
-          allow(veteran).to receive(:mpi).and_return(veteran_mpi_data)
-          allow(veteran_mpi_data).to receive(:icn).and_return(test_user_icn)
-          expect(::Veteran::Service::Representative).to receive(:all_for_user).and_return([])
-          mock_acg(scopes) do |auth_header|
-            Authorization = auth_header # rubocop:disable Naming/ConstantName
-            submit_request(example.metadata)
-          end
-        end
-
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
-
-        response '403', 'Forbidden' do
-          schema JSON.parse(
-            File.read(
-              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors', 'default.json')
-            )
-          )
-
-          it 'returns a 403 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
