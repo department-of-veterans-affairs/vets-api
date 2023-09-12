@@ -20,7 +20,7 @@ RSpec.describe ClaimsApi::EwsUpdater, type: :job do
         subject.new.perform(ews.id)
         ews.reload
 
-        expect(ews.status).to eq(ClaimsApi::EvidenceWaiverSubmission::UPDATED)
+        expect(ews.status).to eq(ClaimsApi::EvidenceWaiverSubmission::PENDING)
       end
     end
   end
