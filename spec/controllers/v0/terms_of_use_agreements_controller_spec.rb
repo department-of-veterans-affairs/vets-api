@@ -27,10 +27,10 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
         expect(JSON.parse(response.body)['terms_of_use_agreement']['response']).to eq('accepted')
         expect(StatsD).to have_received(:increment).with(
           'api.terms_of_use_agreements.accepted',
-          tags: ["agreement_version:#{agreement_version}"]
+          tags: ["version:#{agreement_version}"]
         )
         expect(Rails.logger).to have_received(:info).with(
-          '[TermsOfUseAgreementsController] [accepted]',
+          '[TermsOfUseAgreement] [Accepted]',
           hash_including(:terms_of_use_agreement_id, :user_account_uuid, :icn, :agreement_version, :response)
         )
       end
@@ -61,10 +61,10 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
         expect(JSON.parse(response.body)['terms_of_use_agreement']['response']).to eq('declined')
         expect(StatsD).to have_received(:increment).with(
           'api.terms_of_use_agreements.declined',
-          tags: ["agreement_version:#{agreement_version}"]
+          tags: ["version:#{agreement_version}"]
         )
         expect(Rails.logger).to have_received(:info).with(
-          '[TermsOfUseAgreementsController] [declined]',
+          '[TermsOfUseAgreement] [Declined]',
           hash_including(:terms_of_use_agreement_id, :user_account_uuid, :icn, :agreement_version, :response)
         )
       end
