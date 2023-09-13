@@ -876,7 +876,7 @@
             ]
           }
         ],
-        "description": "Returns a watermarked copy of the submitted Higher-Level Review PDF. The PDF will only be available\nfor download after the Higher-Level Review has progressed to a 'submitted' state. The PDF will\nbecome unavailable again once personally identifying information is deleted from the server one week after the\nHigher-Level Review progresses to a 'completed' state.\n\nA PDF will not be available unless an ICN was included when the Higher-Level Review was created,\nAnd the 'icn' query parameter provided to this endpoint is required to match the ICN originally submitted with the\nHigher-Level Review.\n",
+        "description": "Returns a watermarked copy of a Higher-Level Review PDF as submitted to the VA. PDFs are available\nwith the following caveats:\n\n1. The PDF download will become available only after after the Higher-Level Review has progressed to\n   the 'submitted' state.\n2. The PDF will stop being available one week after the Higher-Level Review has progressed to the\n   'completed' state. This is when the Veteran's personally identifying information is purged from our servers.\n",
         "parameters": [
           {
             "name": "icn",
