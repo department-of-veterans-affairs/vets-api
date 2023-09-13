@@ -169,8 +169,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Info about a single Higher-Level Review",
+          "201": {
+            "description": "Higher-Level Review created",
             "content": {
               "application/json": {
                 "examples": {

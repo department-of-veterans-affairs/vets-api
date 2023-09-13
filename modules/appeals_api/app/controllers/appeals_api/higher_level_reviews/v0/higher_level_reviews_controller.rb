@@ -45,7 +45,7 @@ module AppealsApi::HigherLevelReviews::V0
       hlr.save
       AppealsApi::PdfSubmitJob.perform_async(hlr.id, 'AppealsApi::HigherLevelReview', 'v3')
 
-      render_higher_level_review(hlr)
+      render_higher_level_review(hlr, status: :created)
     end
 
     def download
@@ -62,8 +62,8 @@ module AppealsApi::HigherLevelReviews::V0
 
     def header_names = headers_schema['definitions']['hlrCreateParameters']['properties'].keys
 
-    def render_higher_level_review(hlr)
-      render json: AppealsApi::HigherLevelReviewSerializer.new(hlr).serializable_hash
+    def render_higher_level_review(hlr, **)
+      render(json: AppealsApi::HigherLevelReviewSerializer.new(hlr).serializable_hash, **)
     end
 
     def render_higher_level_review_not_found(id)
