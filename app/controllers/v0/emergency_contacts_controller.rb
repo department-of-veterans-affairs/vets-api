@@ -1,10 +1,15 @@
 # frozen_string_literal: true
 
 module V0
-  class EmergencyContacts < ApplicationController
+  class EmergencyContactsController < ApplicationController
     # GET /v0/emergency_contacts
     def index
-      render(json: service.get_emergency_contacts)
+      response = service.get_emergency_contacts
+      render(
+        status: response.status,
+        json: response.associated_persons,
+        each_serializer: EmergencyContactSerializer
+      )
     end
 
     # POST /v0/emergency_contacts
@@ -17,7 +22,7 @@ module V0
     private
 
     def service
-      VAProfile::HealhtBenefit::Service.new(current_user)
+      VAProfile::HealthBenefit::Service.new(current_user)
     end
 
     def emergency_contact_params

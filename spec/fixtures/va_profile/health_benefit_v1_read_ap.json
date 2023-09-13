@@ -12,7 +12,7 @@
     {
       "create_date": "2023-09-07T13:00:00.001Z",
       "update_date": "2023-09-07T13:00:00.001Z",
-      "tx_audit_id": "string",
+      "tx_audit_id": "dbbf9a58-41e5-40c0-bdb5-fc1407aa1f05",
       "source_system": "string",
       "source_date": "2023-09-07T13:00:00.001Z",
       "originating_source_system": "string",
@@ -41,7 +41,7 @@
     {
       "create_date": "2023-09-07T13:00:00.001Z",
       "update_date": "2023-09-07T13:00:00.001Z",
-      "tx_audit_id": "string",
+      "tx_audit_id": "11307939-1ac6-4028-88a5-1d11064821a4",
       "source_system": "string",
       "source_date": "2023-09-07T13:00:00.001Z",
       "originating_source_system": "string",
@@ -70,7 +70,7 @@
     {
       "create_date": "2023-09-07T13:00:00.001Z",
       "update_date": "2023-09-07T13:00:00.001Z",
-      "tx_audit_id": "string",
+      "tx_audit_id": "040fb2e0-9d60-45ef-a5a9-18beda8c3dd3",
       "source_system": "string",
       "source_date": "2023-09-07T13:00:00.001Z",
       "originating_source_system": "string",
@@ -99,7 +99,7 @@
     {
       "create_date": "2023-09-07T13:00:00.001Z",
       "update_date": "2023-09-07T13:00:00.001Z",
-      "tx_audit_id": "string",
+      "tx_audit_id": "1d4ab900-fd0e-47a0-8c3f-3f642d6b10fc",
       "source_system": "string",
       "source_date": "2023-09-07T13:00:00.001Z",
       "originating_source_system": "string",
@@ -128,7 +128,7 @@
     {
       "create_date": "2023-09-07T13:00:00.001Z",
       "update_date": "2023-09-07T13:00:00.001Z",
-      "tx_audit_id": "string",
+      "tx_audit_id": "df03c665-7f71-42f0-9b61-d5cb2f3d54fa",
       "source_system": "string",
       "source_date": "2023-09-07T13:00:00.001Z",
       "originating_source_system": "string",

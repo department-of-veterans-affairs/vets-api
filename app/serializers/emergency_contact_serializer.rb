@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class EmergencyContactSerializer < ActiveModel::Serializer
+  type :emergency_contact
+
   attributes(
     :contact_type,
     :given_name,
@@ -9,6 +11,6 @@ class EmergencyContactSerializer < ActiveModel::Serializer
   )
 
   def id
-    tx_audit_id
+    object.tx_audit_id
   end
 end

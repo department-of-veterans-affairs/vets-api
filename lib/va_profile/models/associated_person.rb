@@ -78,7 +78,9 @@ module VAProfile
       with_options if: ->(o) { [PRIMARY_NEXT_OF_KIN, OTHER_NEXT_OF_KIN].include?(o.contact_type) } do
         validates :relationship, presence: true
         validates :address_line1, presence: true
-        # ...
+        validates :city, presence: true
+        validates :state, presence: true
+        validates :zip_code, presence: true
       end
 
       # Prepare AssociatedPerson data for POSTing to VA Profile Health Benefit Service v1

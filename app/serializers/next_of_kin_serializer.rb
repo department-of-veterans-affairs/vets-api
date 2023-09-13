@@ -15,6 +15,6 @@ class NextOfKinSerializer < ActiveModel::Serializer
   )
 
   def id
-    tx_audit_id
+    object.tx_audit_id
   end
 end
