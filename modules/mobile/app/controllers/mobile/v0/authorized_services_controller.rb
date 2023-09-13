@@ -4,7 +4,7 @@ module Mobile
   module V0
     class AuthorizedServicesController < ApplicationController
       def index
-        render json: Mobile::V0::AuthorizedServicesSerializer.new(@current_user.id,
+        render json: Mobile::V0::AuthorizedServicesSerializer.new(@current_user.uuid,
                                                                   user_accessible_services.service_auth_map)
       end
 
