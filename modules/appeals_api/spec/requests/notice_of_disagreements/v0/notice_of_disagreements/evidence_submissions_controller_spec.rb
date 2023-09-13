@@ -70,7 +70,7 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceS
       describe 'successes' do
         context 'when provided fileNumber matches the NOD' do
           it 'succeeds and store the source on the submission record' do
-            expect(response).to have_http_status(:accepted)
+            expect(response).to have_http_status(:created)
 
             updated_record = AppealsApi::EvidenceSubmission.find_by(guid: response_data['id'])
             expect(updated_record.source).to eq consumer_username
@@ -85,7 +85,7 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceS
           end
 
           it 'succeeds anyway' do
-            expect(response).to have_http_status(:accepted)
+            expect(response).to have_http_status(:created)
           end
         end
       end
@@ -128,7 +128,7 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceS
     it_behaves_like(
       'an endpoint with OpenID auth',
       scopes: described_class::OAUTH_SCOPES[:POST],
-      success_status: :accepted
+      success_status: :created
     ) do
       def make_request(auth_header)
         post(path, params: params.to_json, headers: headers.merge(auth_header))

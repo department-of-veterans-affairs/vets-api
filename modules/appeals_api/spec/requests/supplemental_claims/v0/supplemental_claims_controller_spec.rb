@@ -105,7 +105,9 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
     let(:headers) { fixture_as_json 'supplemental_claims/v0/valid_200995_headers.json' }
 
     describe 'auth behavior' do
-      it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:POST]) do
+      it_behaves_like(
+        'an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:POST], success_status: :created
+      ) do
         def make_request(auth_header)
           post(path, params: default_data.to_json, headers: headers.merge(auth_header))
         end
@@ -122,6 +124,8 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
       end
 
       it 'creates an SC record having api_version: "V0"' do
+        expect(response).to have_http_status(:created)
+
         created_record = AppealsApi::SupplementalClaim.find(json_body['data']['id'])
 
         expect(created_record.api_version).to eq('V0')

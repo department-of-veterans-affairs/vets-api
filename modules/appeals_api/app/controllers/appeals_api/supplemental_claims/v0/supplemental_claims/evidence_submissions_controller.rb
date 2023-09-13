@@ -52,7 +52,7 @@ module AppealsApi::SupplementalClaims::V0::SupplementalClaims
         }
       )
 
-      render status: :accepted,
+      render status: :created,
              json: submission,
              serializer: AppealsApi::EvidenceSubmissionSerializer,
              key_transform: :camel_lower,

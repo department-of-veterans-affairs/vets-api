@@ -35,7 +35,7 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
         'all fields used' => { value: FixtureHelpers.fixture_as_json('notice_of_disagreements/v0/valid_10182_extra.json') }
       }
 
-      response '200', 'Info about a single Notice of Disagreement' do
+      response '201', 'Notice of Disagreement created' do
         let(:nod_body) { fixture_as_json('notice_of_disagreements/v0/valid_10182_minimum.json') }
 
         schema '$ref' => '#/components/schemas/nodCreateResponse'
@@ -47,7 +47,7 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
                         scopes:
       end
 
-      response '200', 'Info about a single Notice of Disagreement' do
+      response '201', 'Notice of Disagreement created' do
         schema '$ref' => '#/components/schemas/nodCreateResponse'
         let(:nod_body) { fixture_as_json('notice_of_disagreements/v0/valid_10182_extra.json') }
 
@@ -252,7 +252,7 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
       let(:fileNumber) { nod.veteran.file_number }
       let(:nod_es_body) { { nodId:, fileNumber: } }
 
-      response '202', 'Accepted. Location generated' do
+      response '201', 'Location created' do
         schema '$ref' => '#/components/schemas/nodEvidenceSubmissionResponse'
 
         before do
@@ -260,7 +260,7 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
         end
 
         it_behaves_like 'rswag example',
-                        desc: 'returns a 202 response',
+                        desc: 'returns a 201 response',
                         response_wrapper: :normalize_evidence_submission_response,
                         scopes:
       end
