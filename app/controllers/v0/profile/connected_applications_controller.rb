@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'rest-client'
-
 module V0
   module Profile
     class ConnectedApplicationsController < ApplicationController
@@ -10,29 +8,12 @@ module V0
       end
 
       def destroy
-        icn = @current_user.icn
-        client_id = connected_accounts_params[:id]
+        app = OktaRedis::App.with_id(connected_accounts_params[:id])
+        app.user = @current_user
 
-        if icn.nil? || client_id.nil?
-          render json: { error: 'icn and/or clientId is missing' }
-          return
-        end
+        app.delete_grants
 
-        revocation_url = Settings.connected_apps_api.connected_apps.revoke_url
-
-        payload = { icn:, clientId: client_id }
-
-        begin
-          response = RestClient.delete(revocation_url, params: payload,
-                                                       headers: { apiKey:
-                                                       Settings.connected_apps_api.connected_apps.api_key })
-
-          if response.code == 204
-            head :no_content
-          else
-            render json: { error: 'Something went wrong cannot revoke grants' }, status: :unprocessable_entity
-          end
-        end
+        head :no_content
       end
 
       private
