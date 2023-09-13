@@ -58,7 +58,7 @@ module AppealsApi::NoticeOfDisagreements::V0
       nod.save
       AppealsApi::PdfSubmitJob.perform_async(nod.id, 'AppealsApi::NoticeOfDisagreement', 'v3')
 
-      render_notice_of_disagreement(nod)
+      render_notice_of_disagreement(nod, status: :created)
     end
 
     def download
@@ -92,8 +92,8 @@ module AppealsApi::NoticeOfDisagreements::V0
       raise Common::Exceptions::UnprocessableEntity.new(detail:) if detail.present?
     end
 
-    def render_notice_of_disagreement(nod)
-      render json: AppealsApi::NoticeOfDisagreementSerializer.new(nod).serializable_hash
+    def render_notice_of_disagreement(nod, **)
+      render(json: AppealsApi::NoticeOfDisagreementSerializer.new(nod).serializable_hash, **)
     end
 
     def render_notice_of_disagreement_not_found(id)

@@ -48,8 +48,8 @@
 
         ],
         "responses": {
-          "200": {
-            "description": "Info about a single Notice of Disagreement",
+          "201": {
+            "description": "Notice of Disagreement created",
             "content": {
               "application/json": {
                 "examples": {
@@ -2474,8 +2474,8 @@
 
         ],
         "responses": {
-          "202": {
-            "description": "Accepted. Location generated",
+          "201": {
+            "description": "Location created",
             "content": {
               "application/json": {
                 "example": {
