@@ -24,8 +24,14 @@ check_in_codeowners() {
     local file="$1"
     while [[ "$file" != '.' && "$file" != '/' ]]; do
         echo "Checking CODEOWNERS for: $file"
-        if grep -qE "^\s*${file}(/?|\s+|\$)" .github/CODEOWNERS; then
+        # Check for exact match or trailing slash
+        if grep -qE "^\s*${file}(/)?(\s|\$)" .github/CODEOWNERS; then
             echo "Found in CODEOWNERS: $file"
+            return 0
+        fi
+        # Check for wildcard match
+        if grep -qE "^\s*${file}/\*(\s|\$)" .github/CODEOWNERS; then
+            echo "Found in CODEOWNERS as wildcard: ${file}/*"
             return 0
         fi
         # Move to the parent directory
