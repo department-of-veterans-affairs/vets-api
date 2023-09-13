@@ -2,15 +2,34 @@
 
 set -e
 
-# Fetch all the deleted files
-DELETED_FILES=$(git diff --name-only --diff-filter=D HEAD~1 HEAD)
+
+set -e
+
+# Fetch the latest information from the remote repository
+git fetch origin master
+
+# Get the SHA of the latest commit on the current branch
+HEAD_SHA=$(git rev-parse HEAD)
+
+# Use the latest commit from the origin/master as the base SHA
+BASE_SHA=$(git rev-parse origin/master)
+
+# Get the list of changed files between the base and head commits
+DELETED_FILES=$(git diff --name-only --diff-filter=D ${BASE_SHA}...${HEAD_SHA})
 
 # Check if a file's or its parent directory's reference is in CODEOWNERS
 file_in_codeowners() {
     local file="$1"
     while [[ "$file" != '.' && "$file" != '/' ]]; do
-        if grep -qE "^\s*${file}(/|\s+|\$)" .github/CODEOWNERS; then
-            return 0
+        # Check for exact match or trailing slash
+        if grep -qE "^\s*${file}(/)?(\s|\$)" .github/CODEOWNERS; then
+          echo "Found in CODEOWNERS: $file"
+          return 0
+        fi
+        # Check for wildcard match
+        if grep -qE "^\s*${file}/\*(\s|\$)" .github/CODEOWNERS; then
+          echo "Found in CODEOWNERS as wildcard: ${file}/*"
+          return 0
         fi
         # Move to the parent directory
         file=$(dirname "$file")
