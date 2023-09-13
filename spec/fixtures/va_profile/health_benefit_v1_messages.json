@@ -1,0 +1,11 @@
+{
+  "messages": [
+    {
+      "code": "string",
+      "key": "string",
+      "text": "string",
+      "severity": "INFO",
+      "potentially_self_correcting_on_retry": true
+    }
+  ]
+}

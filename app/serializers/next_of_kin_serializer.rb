@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class NextOfKinSerializer < ActiveModel::Serializer
+  type :next_of_kin
+
   attributes(
     :given_name,
     :family_name,

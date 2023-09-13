@@ -15,6 +15,8 @@ module V0
     # POST /v0/emergency_contacts
     def create
       emergency_contact = VAProfile::Models::AssociatedPerson.new(emergency_contact_params)
+      raise Common::Exceptions::ValidationErrors, emergency_contact unless emergency_contact.valid?
+
       response = service.post_emergency_contacts(emergency_contact)
       render(json: response)
     end
@@ -27,6 +29,7 @@ module V0
 
     def emergency_contact_params
       params.require(:emergency_contact).permit(
+        :contact_type,
         :given_name,
         :family_name,
         :primary_phone
