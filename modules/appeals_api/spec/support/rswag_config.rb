@@ -258,8 +258,7 @@ class AppealsApi::RswagConfig
         decision_reviews_sc_alt_signer_schemas,
         contestable_issues_schema,
         legacy_appeals_schema,
-        generic_schemas,
-        shared_schemas.slice(*%w[address phone timezone nonBlankString])
+        generic_schemas
       )
     else
       raise "Don't know how to build schemas for '#{api_name}'"

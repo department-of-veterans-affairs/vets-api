@@ -190,7 +190,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       it_behaves_like 'shared model validations', validations: %i[veteran_birth_date_is_in_the_past
                                                                   contestable_issue_dates_are_in_the_past
                                                                   required_claimant_data_is_present
-                                                                  claimant_birth_date_is_in_the_past],
+                                                                  claimant_birth_date_is_in_the_past
+                                                                  country_codes_valid],
                                                   required_claimant_headers: described_class.required_nvc_headers
 
       describe '#veteran' do
@@ -277,5 +278,16 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         end
       end
     end
+  end
+
+  describe 'when api_version is V0' do
+    let(:appeal) { create(:extra_notice_of_disagreement_v0, api_version: 'V0') }
+
+    it_behaves_like 'shared model validations',
+                    required_claimant_headers: [],
+                    validations: %i[veteran_birth_date_is_in_the_past
+                                    contestable_issue_dates_are_in_the_past
+                                    claimant_birth_date_is_in_the_past
+                                    country_codes_valid]
   end
 end

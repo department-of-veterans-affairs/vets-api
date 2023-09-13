@@ -14,7 +14,7 @@
         "address": {
           "addressLine1": "123 Some St.",
           "city": "Sometown",
-          "countryCodeISO2": "US",
+          "countryCodeIso3": "USA",
           "zipCode5": "12345"
         }
       }
