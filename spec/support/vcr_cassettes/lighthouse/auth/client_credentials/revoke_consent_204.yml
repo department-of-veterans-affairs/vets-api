@@ -1,0 +1,31 @@
+---
+http_interactions:
+- request:
+    method: delete
+    uri: https://sandbox-api.va.gov/internal/auth/v3/user/consent?clientId=0oa2ey2m6kEL2897N2p7&icn=123498767V234859
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v0.9.2
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+  response:
+    status:
+      code: 204
+      message: No Content
+    headers:
+      Content-Type:
+      - application/json;charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Wed, 07 Nov 2018 14:57:48 GMT
