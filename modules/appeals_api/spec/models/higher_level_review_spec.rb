@@ -94,6 +94,22 @@ describe AppealsApi::HigherLevelReview, type: :model do
         it('ignores the user-provided value') { is_expected.to eq true }
       end
     end
+
+    describe 'validations' do
+      let(:appeal) do
+        described_class.new(form_data:, auth_headers:, api_version: 'V0')
+      end
+      let(:auth_headers) { fixture_as_json 'higher_level_reviews/v0/valid_200996_headers.json' }
+      let(:form_data) { fixture_as_json 'higher_level_reviews/v0/valid_200996_extra.json' }
+
+      it_behaves_like 'shared model validations', {
+        validations: %i[veteran_birth_date_is_in_the_past
+                        contestable_issue_dates_are_in_the_past
+                        claimant_birth_date_is_in_the_past
+                        country_codes_valid],
+        required_claimant_headers: described_class.required_nvc_headers
+      }
+    end
   end
 
   describe 'when api_version is v2' do
@@ -257,7 +273,8 @@ describe AppealsApi::HigherLevelReview, type: :model do
         validations: %i[veteran_birth_date_is_in_the_past
                         contestable_issue_dates_are_in_the_past
                         required_claimant_data_is_present
-                        claimant_birth_date_is_in_the_past],
+                        claimant_birth_date_is_in_the_past
+                        country_codes_valid],
         required_claimant_headers: described_class.required_nvc_headers
       }
     end

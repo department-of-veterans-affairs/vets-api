@@ -80,7 +80,7 @@
                                   "address": {
                                     "addressLine1": "123 Main St",
                                     "city": "New York",
-                                    "countryCodeISO2": "US",
+                                    "countryCodeIso3": "USA",
                                     "zipCode5": "30012"
                                   },
                                   "phone": {
@@ -141,7 +141,7 @@
                                     "addressLine2": "Suite #1200",
                                     "addressLine3": "Box 4",
                                     "city": "New York",
-                                    "countryCodeISO2": "US",
+                                    "countryCodeIso3": "USA",
                                     "stateCode": "NY",
                                     "zipCode5": "30012"
                                   },
@@ -162,7 +162,7 @@
                                     "addressLine2": "Apt 5",
                                     "addressLine3": "Box 1",
                                     "city": "Montreal",
-                                    "countryCodeISO2": "CA",
+                                    "countryCodeIso3": "CAN",
                                     "zipCode5": "00000",
                                     "internationalPostalCode": "A9999AAA"
                                   },
@@ -431,7 +431,7 @@
                           "address": {
                             "addressLine1": "123 Main St",
                             "city": "New York",
-                            "countryCodeISO2": "US",
+                            "countryCodeIso3": "USA",
                             "zipCode5": "30012"
                           },
                           "phone": {
@@ -481,7 +481,7 @@
                             "addressLine2": "Suite #1200",
                             "addressLine3": "Box 4",
                             "city": "New York",
-                            "countryCodeISO2": "US",
+                            "countryCodeIso3": "USA",
                             "stateCode": "NY",
                             "zipCode5": "30012"
                           },
@@ -502,7 +502,7 @@
                             "addressLine2": "Apt 5",
                             "addressLine3": "Box 1",
                             "city": "Montreal",
-                            "countryCodeISO2": "CA",
+                            "countryCodeIso3": "CAN",
                             "zipCode5": "00000",
                             "internationalPostalCode": "A9999AAA"
                           },
@@ -1649,15 +1649,17 @@
                                 "WY"
                               ]
                             },
-                            "countryCodeISO2": {
+                            "countryCodeIso3": {
+                              "description": "Three letter ISO 3166-1 country code",
                               "type": "string",
-                              "pattern": "^[A-Z]{2}$",
-                              "minLength": 2,
-                              "maxLength": 2
+                              "pattern": "^[A-Z]{3}$",
+                              "minLength": 3,
+                              "maxLength": 3,
+                              "example": "USA"
                             },
                             "zipCode5": {
                               "type": "string",
-                              "description": "5-digit zipcode. Use \"00000\" if address is outside the United States",
+                              "description": "Five digit zipcode. Use \"00000\" if address is outside the United States",
                               "pattern": "^[0-9]{5}$",
                               "minLength": 5,
                               "maxLength": 5
@@ -1671,7 +1673,7 @@
                           "required": [
                             "addressLine1",
                             "city",
-                            "countryCodeISO2",
+                            "countryCodeIso3",
                             "zipCode5"
                           ]
                         }
@@ -2699,7 +2701,7 @@
                           "address": {
                             "addressLine1": "123 Main St",
                             "city": "New York",
-                            "countryCodeISO2": "US",
+                            "countryCodeIso3": "USA",
                             "zipCode5": "30012"
                           },
                           "phone": {
@@ -2749,7 +2751,7 @@
                             "addressLine2": "Suite #1200",
                             "addressLine3": "Box 4",
                             "city": "New York",
-                            "countryCodeISO2": "US",
+                            "countryCodeIso3": "USA",
                             "stateCode": "NY",
                             "zipCode5": "30012"
                           },
@@ -2770,7 +2772,7 @@
                             "addressLine2": "Apt 5",
                             "addressLine3": "Box 1",
                             "city": "Montreal",
-                            "countryCodeISO2": "CA",
+                            "countryCodeIso3": "CAN",
                             "zipCode5": "00000",
                             "internationalPostalCode": "A9999AAA"
                           },
@@ -3486,15 +3488,17 @@
               "WY"
             ]
           },
-          "countryCodeISO2": {
+          "countryCodeIso3": {
+            "description": "Three letter ISO 3166-1 country code",
             "type": "string",
-            "pattern": "^[A-Z]{2}$",
-            "minLength": 2,
-            "maxLength": 2
+            "pattern": "^[A-Z]{3}$",
+            "minLength": 3,
+            "maxLength": 3,
+            "example": "USA"
           },
           "zipCode5": {
             "type": "string",
-            "description": "5-digit zipcode. Use \"00000\" if address is outside the United States",
+            "description": "Five digit zipcode. Use \"00000\" if address is outside the United States",
             "pattern": "^[0-9]{5}$",
             "minLength": 5,
             "maxLength": 5
@@ -3508,7 +3512,7 @@
         "required": [
           "addressLine1",
           "city",
-          "countryCodeISO2",
+          "countryCodeIso3",
           "zipCode5"
         ]
       },
