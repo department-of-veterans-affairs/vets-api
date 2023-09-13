@@ -9,7 +9,7 @@ RSpec.describe AcceptableVerifiedCredentialAdoptionService do
   let!(:user_account) { user_verification.user_account }
   let(:statsd_key) { 'api.user_transition_availability' }
   let(:va_notify_log) { 'shared.sidekiq.default.VANotify_EmailJob.enqueue' }
-  let(:reactivation_template) { '480270b2-d2c8-4048-91d7-aebc51a2f073' }
+  let(:reactivation_template) { Settings.vanotify.services.va_gov.template_id.login_reactivation_email }
 
   before { allow(StatsD).to receive(:increment) }
 

@@ -6,7 +6,7 @@
     "contact": {
       "name": "developer.va.gov"
     },
-    "description": "The Appealable Issues API lets you retrieve a list of a claimant’s appealable issues and any chains of preceding issues. Appealable issues are issues from claims about which VA has made a decision that may be eligible for appeal. Not all appealable issues are guaranteed to be eligible for appeal; for example, claimants may have another appeal in progress for an issue.\n\nTo check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://dev-developer.va.gov/explore/appeals/docs/appeals?version=current).\n\nTo file an appeal or decision review, use one of these APIs:\n* [Higher-Level Reviews API](https://dev-developer.va.gov/explore/appeals/docs/higher_level_reviews)\n* [Notice of Disagreements API](https://dev-developer.va.gov/explore/appeals/docs/notice_of_disagreements)\n* [Supplemental Claims API](https://dev-developer.va.gov/explore/appeals/docs/supplemental_claims)\n\n## Technical overview\nThe Appealable Issues API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Higher Level Review, Notice of Disagreement, or Supplemental Claim.\n\n### Authorization and Access\nThe authentication model for the Appealable Issues API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:\n* [Authorization code flow](https://dev-developer.va.gov/explore/authorization/docs/authorization-code)\n* [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/authorization/docs/client-credentials)\n\n**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://dev-developer.va.gov/support/contact-us).\n"
+    "description": "The Appealable Issues API lets you retrieve a list of a claimant’s appealable issues and any chains of preceding issues. Appealable issues are issues from claims about which VA has made a decision that may be eligible for appeal. Not all appealable issues are guaranteed to be eligible for appeal; for example, claimants may have another appeal in progress for an issue.\n\nTo check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://dev-developer.va.gov/explore/api/appeals-status/docs).\n\nTo file an appeal or decision review, use one of these APIs:\n* [Higher-Level Reviews API](https://dev-developer.va.gov/explore/api/higher-level-reviews/docs)\n* [Notice of Disagreements API](https://dev-developer.va.gov/explore/api/notice-of-disagreements/docs)\n* [Supplemental Claims API](https://dev-developer.va.gov/explore/api/supplemental-claims/docs)\n\n## Technical overview\nThe Appealable Issues API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Higher Level Review, Notice of Disagreement, or Supplemental Claim.\n\n### Authorization and Access\nThe authentication model for the Appealable Issues API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:\n* [Authorization code flow](https://dev-developer.va.gov/explore/api/appealable-issues/authorization-code)\n* [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/appealable-issues/client-credentials)\n\n**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://dev-developer.va.gov/support/contact-us).\n"
   },
   "tags": [
     {
@@ -15,7 +15,7 @@
     }
   ],
   "paths": {
-    "/appealable-issues/{decision_review_type}": {
+    "/appealable-issues/{decisionReviewType}": {
       "get": {
         "summary": "Returns all appealable issues for a specific veteran.",
         "tags": [
@@ -46,24 +46,24 @@
         ],
         "parameters": [
           {
-            "name": "decision_review_type",
-            "in": "path",
-            "required": true,
+            "name": "decisionReviewType",
             "description": "Scoping of appeal type for associated issues",
+            "example": "higher-level-reviews",
+            "required": true,
             "schema": {
               "type": "string",
               "enum": [
-                "higher_level_reviews",
-                "notice_of_disagreements",
-                "supplemental_claims"
+                "higher-level-reviews",
+                "notice-of-disagreements",
+                "supplemental-claims"
               ]
             },
-            "example": "higher_level_reviews"
+            "in": "path"
           },
           {
-            "name": "benefit_type",
-            "in": "query",
-            "description": "Required if decision review type is Higher Level Review or Supplemental Claims.",
+            "name": "benefitType",
+            "description": "Required if decision review type is Higher-Level Reviews or Supplemental Claims",
+            "example": "compensation",
             "schema": {
               "type": "string",
               "enum": [
@@ -78,46 +78,31 @@
                 "nationalCemeteryAdministration"
               ]
             },
-            "example": "compensation"
+            "in": "query"
           },
           {
-            "in": "header",
-            "name": "X-VA-SSN",
-            "required": true,
-            "description": "Veteran's SSN",
-            "example": "706547821",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-SSN"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-Receipt-Date",
-            "required": true,
-            "description": "(yyyy-mm-dd) In order to determine contestability of issues, the receipt date of a hypothetical Decision Review must be specified.",
+            "name": "receiptDate",
+            "description": "(yyyy-mm-dd) In order to determine appealability of issues, the receipt date of a hypothetical Decision Review must be specified.",
             "example": "2022-01-01",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-Receipt-Date"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-File-Number",
-            "required": false,
-            "description": "Veteran's file number",
-            "schema": {
-              "$ref": "#/components/schemas/X-VA-File-Number"
-            }
-          },
-          {
-            "in": "header",
-            "name": "X-VA-ICN",
             "required": true,
-            "description": "Veteran's ICN",
-            "example": "1013062086V794840",
             "schema": {
-              "$ref": "#/components/schemas/X-VA-ICN"
-            }
+              "type": "string",
+              "format": "date"
+            },
+            "in": "query"
+          },
+          {
+            "name": "icn",
+            "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
+            "example": "1234567890V123456",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]{10}V[0-9]{6}$",
+              "minLength": 17,
+              "maxLength": 17
+            },
+            "in": "query"
           }
         ],
         "responses": {
@@ -232,14 +217,24 @@
             "content": {
               "application/json": {
                 "examples": {
-                  "decision_review_type must be one of: higher_level_reviews, notice_of_disagreements, supplemental_claims": {
+                  "decisionReviewType must be one of: higher-level-reviews, notice-of-disagreements, supplemental-claims": {
                     "value": {
                       "errors": [
                         {
-                          "title": "Unprocessable Entity",
-                          "code": "unprocessable_entity",
-                          "detail": "decision_review_type must be one of: higher_level_reviews, notice_of_disagreements, supplemental_claims",
-                          "status": "422"
+                          "title": "Invalid option",
+                          "detail": "'invalid' is not an available option",
+                          "code": "141",
+                          "source": {
+                            "pointer": "/decisionReviewType"
+                          },
+                          "status": "422",
+                          "meta": {
+                            "available_options": [
+                              "higher-level-reviews",
+                              "notice-of-disagreements",
+                              "supplemental-claims"
+                            ]
+                          }
                         }
                       ]
                     }
@@ -256,7 +251,7 @@
                       ]
                     }
                   },
-                  "X-VA-ICN header missing": {
+                  "'icn' parameter missing": {
                     "value": {
                       "errors": [
                         {
@@ -264,7 +259,7 @@
                           "detail": "'' did not fit within the defined length limits",
                           "code": "142",
                           "source": {
-                            "pointer": "/X-VA-ICN"
+                            "pointer": "/icn"
                           },
                           "status": "422",
                           "meta": {
@@ -277,7 +272,7 @@
                           "detail": "'' did not match the defined pattern",
                           "code": "143",
                           "source": {
-                            "pointer": "/X-VA-ICN"
+                            "pointer": "/icn"
                           },
                           "status": "422",
                           "meta": {
@@ -345,36 +340,46 @@
       },
       "productionOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "The authentication model for the Appealable Issues API uses OAuth 2.0/OpenID Connect. The following authorization models are supported: [Authorization code flow](https://dev-developer.va.gov/explore/api/appealable-issues/authorization-code) and [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/appealable-issues/client-credentials).",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://api.va.gov/oauth2/authorization",
-            "tokenUrl": "https://api.va.gov/oauth2/token",
+            "authorizationUrl": "https://api.va.gov/oauth2/appeals/v1/authorization",
+            "tokenUrl": "https://api.va.gov/oauth2/appeals/v1/token",
             "scopes": {
-              "veteran/AppealableIssues.read": "Allows a veteran to see their own appealable issues",
-              "representative/AppealableIssues.read": "Allows a veteran representative to see a veteran's appealable issues",
-              "system/AppealableIssues.read": "Allows a system to see a veteran's appealable issues",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran"
+              "veteran/AppealableIssues.read": "Appealable issues info",
+              "veteran/appeals.read": "Appeals info",
+              "representative/AppealableIssues.read": "Appealable issues info",
+              "representative/appeals.read": "Appeals info"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://dev-developer.va.gov/support/contact-us).",
+            "scopes": {
+              "system/AppealableIssues.read": "Appealable issues info",
+              "system/appeals.read": "Appeals info"
             }
           }
         }
       },
       "sandboxOauth": {
         "type": "oauth2",
-        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "description": "The authentication model for the Appealable Issues API uses OAuth 2.0/OpenID Connect. The following authorization models are supported: [Authorization code flow](https://dev-developer.va.gov/explore/api/appealable-issues/authorization-code) and [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/appealable-issues/client-credentials).",
         "flows": {
           "authorizationCode": {
-            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
-            "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
+            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/appeals/v1/authorization",
+            "tokenUrl": "https://sandbox-api.va.gov/oauth2/appeals/v1/token",
             "scopes": {
-              "veteran/AppealableIssues.read": "Allows a veteran to see their own appealable issues",
-              "representative/AppealableIssues.read": "Allows a veteran representative to see a veteran's appealable issues",
-              "system/AppealableIssues.read": "Allows a system to see a veteran's appealable issues",
-              "veteran/appeals.read": "Allows a veteran to see all their own decision review or appeal data",
-              "representative/appeals.read": "Allows a veteran representative to see all decision review or appeal data for a veteran",
-              "system/appeals.read": "Allows a system to see all decision review or appeal data for a veteran"
+              "veteran/AppealableIssues.read": "Appealable issues info",
+              "veteran/appeals.read": "Appeals info",
+              "representative/AppealableIssues.read": "Appealable issues info",
+              "representative/appeals.read": "Appeals info"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "https://deptva-eval.okta.com/oauth2/auskff5o6xsoQVngk2p7/v1/token",
+            "scopes": {
+              "system/AppealableIssues.read": "Appealable issues info",
+              "system/appeals.read": "Appeals info"
             }
           }
         }
@@ -589,42 +594,6 @@
             }
           }
         }
-      },
-      "nonBlankString": {
-        "type": "string",
-        "pattern": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]"
-      },
-      "X-VA-File-Number": {
-        "allOf": [
-          {
-            "description": "VA file number (c-file / css)"
-          },
-          {
-            "maxLength": 9
-          },
-          {
-            "$ref": "#/components/schemas/nonBlankString"
-          }
-        ]
-      },
-      "X-VA-ICN": {
-        "description": "Veteran's Integration Control Number, a unique identifier established via the Master Person Index (MPI)",
-        "type": "string",
-        "minLength": 17,
-        "maxLength": 17,
-        "pattern": "^[0-9]{10}V[0-9]{6}$"
-      },
-      "X-VA-Receipt-Date": {
-        "description": "(yyyy-mm-dd) Date to limit the appealable issues",
-        "type": "string",
-        "format": "date"
-      },
-      "X-VA-SSN": {
-        "description": "social security number",
-        "type": "string",
-        "minLength": 9,
-        "maxLength": 9,
-        "pattern": "^[0-9]{9}$"
       }
     }
   },

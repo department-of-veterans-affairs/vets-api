@@ -8,12 +8,16 @@ require 'mpi/errors/errors'
 
 module ClaimsApi
   module V1
-    class ApplicationController < ::OpenidApplicationController
+    class ApplicationController < ::ApplicationController
       include ClaimsApi::MPIVerification
       include ClaimsApi::HeaderValidation
       include ClaimsApi::JsonFormatValidation
+      include ClaimsApi::TokenValidation
       include ClaimsApi::CcgTokenValidation
-
+      include ClaimsApi::TargetVeteran
+      skip_before_action :verify_authenticity_token
+      skip_after_action :set_csrf_header
+      before_action :authenticate, except: %i[schema] # rubocop:disable Rails/LexicallyScopedActionFilter
       before_action :validate_json_format, if: -> { request.post? }
       before_action :validate_veteran_identifiers
 
@@ -79,7 +83,7 @@ module ClaimsApi
         ids = target_veteran&.mpi&.participant_ids
         if ids.nil? || ids.size.zero?
           raise ::Common::Exceptions::UnprocessableEntity.new(detail:
-            'Veteran missing Participant ID. ' \
+            "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end
 
@@ -109,6 +113,10 @@ module ClaimsApi
       end
 
       private
+
+      def authenticate
+        verify_access!
+      end
 
       def claims_status_service
         edipi_check
@@ -147,10 +155,10 @@ module ClaimsApi
         if header_request?
           headers_to_validate = %w[X-VA-SSN X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date]
           validate_headers(headers_to_validate)
-          validate_ccg_token! if token.client_credentials_token?
+          validate_ccg_token! if @is_valid_ccg_flow
           veteran_from_headers(with_gender:)
         else
-          ClaimsApi::Veteran.from_identity(identity: @current_user)
+          build_target_veteran(veteran_id: @current_user.icn, loa: { current: 3, highest: 3 })
         end
       end
 
@@ -162,7 +170,7 @@ module ClaimsApi
           last_name: header('X-VA-Last-Name'),
           va_profile: ClaimsApi::Veteran.build_profile(header('X-VA-Birth-Date')),
           last_signed_in: Time.now.utc,
-          loa: token.client_credentials_token? ? { current: 3, highest: 3 } : @current_user.loa
+          loa: @is_valid_ccg_flow ? { current: 3, highest: 3 } : @current_user.loa
         )
         vet.mpi_record?
         vet.gender = header('X-VA-Gender') || vet.gender_mpi if with_gender
@@ -170,12 +178,6 @@ module ClaimsApi
         vet.participant_id = vet.participant_id_mpi
         vet.icn = vet&.mpi_icn
         vet
-      end
-
-      def authenticate_token
-        super
-      rescue ::Common::Exceptions::TokenValidationError => e
-        raise ::Common::Exceptions::Unauthorized.new(detail: e.detail)
       end
 
       def set_tags_and_extra_context

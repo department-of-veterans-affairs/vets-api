@@ -10,15 +10,20 @@ require 'disability_compensation/factories/api_provider_factory'
 
 module V0
   class DisabilityCompensationFormsController < ApplicationController
-    before_action { authorize :evss, :access? }
+    before_action(except: :rating_info) { authorize :evss, :access? }
+    before_action :auth_rating_info, only: [:rating_info]
     before_action :validate_name_part, only: [:suggested_conditions]
 
     def rated_disabilities
-      service = ApiProviderFactory.rated_disabilities_service_provider(
-        { icn: @current_user.icn.to_s, auth_headers: }
+      api_provider = ApiProviderFactory.call(
+        type: ApiProviderFactory::FACTORIES[:rated_disabilities],
+        provider: nil,
+        options: { icn: @current_user.icn.to_s, auth_headers: },
+        current_user: @current_user,
+        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
       )
 
-      response = service.get_rated_disabilities
+      response = api_provider.get_rated_disabilities
 
       render json: response,
              serializer: RatedDisabilitiesSerializer
@@ -60,7 +65,7 @@ module V0
     end
 
     def rating_info
-      if Flipper.enabled?(:profile_lighthouse_rating_info, @current_user)
+      if lighthouse?
         service = LighthouseRatedDisabilitiesProvider.new(@current_user.icn)
 
         disability_rating = service.get_combined_disability_rating
@@ -76,6 +81,15 @@ module V0
     end
 
     private
+
+    def auth_rating_info
+      api = lighthouse? ? :lighthouse : :evss
+      authorize(api, :rating_info_access?)
+    end
+
+    def lighthouse?
+      Flipper.enabled?(:profile_lighthouse_rating_info, @current_user)
+    end
 
     def create_submission(saved_claim)
       Rails.logger.info(

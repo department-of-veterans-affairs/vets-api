@@ -73,6 +73,7 @@ module Mobile
 
       def upload_document
         jid = if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
+                params[:claim_id] = params[:id]
                 lighthouse_document_service.queue_document_upload(params)
               else
                 evss_claims_proxy.upload_document(params)
@@ -82,6 +83,7 @@ module Mobile
 
       def upload_multi_image_document
         jid = if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
+                params[:claim_id] = params[:id]
                 lighthouse_document_service.queue_multi_image_upload_document(params)
               else
                 evss_claims_proxy.upload_multi_image(params)
@@ -144,7 +146,7 @@ module Mobile
       end
 
       def lighthouse_document_service
-        @lighthouse_document_service ||= BenefitsDocuments::Service.new(@current_user.icn)
+        @lighthouse_document_service ||= BenefitsDocuments::Service.new(@current_user)
       end
 
       def validate_params

@@ -17,4 +17,9 @@ Gem::Specification.new do |spec|
   spec.license     = 'CC0-1.0'
 
   spec.files = Dir['{app,config,db,lib}/**/*', 'Rakefile', 'README.md']
+  spec.test_files = Dir['spec/**/*']
+
+  spec.add_development_dependency 'factory_bot_rails'
+  spec.add_development_dependency 'pg'
+  spec.add_development_dependency 'rspec-rails'
 end

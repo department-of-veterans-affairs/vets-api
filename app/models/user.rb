@@ -353,17 +353,6 @@ class User < Common::RedisStore
     model
   end
 
-  # %w[veteran_status military_information payment].each do |emis_method|
-  #   define_method(emis_method) do
-  #     emis_model = instance_variable_get(:"@#{emis_method}")
-  #     return emis_model if emis_model.present?
-
-  #     emis_model = "EMISRedis::#{emis_method.camelize}".constantize.for_user(self)
-  #     instance_variable_set(:"@#{emis_method}", emis_model)
-  #     emis_model
-  #   end
-  # end
-
   veteran_status_method = 'veteran_status'
   define_method(veteran_status_method) do
     veteran_status_instance = instance_variable_get(:"@#{veteran_status_method}")
@@ -373,17 +362,6 @@ class User < Common::RedisStore
     instance_variable_set(:"@#{veteran_status_method}", veteran_status_instance)
     veteran_status_instance
   end
-
-  # %w[veteran_status].each do |emis_method|
-  #   define_method(emis_method) do
-  #     emis_model = instance_variable_get(:"@#{emis_method}")
-  #     return emis_model if emis_model.present?
-
-  #     emis_model = "EMISRedis::#{emis_method.camelize}".constantize.for_user(self)
-  #     instance_variable_set(:"@#{emis_method}", emis_model)
-  #     emis_model
-  #   end
-  # end
 
   %w[profile grants].each do |okta_model_name|
     okta_method = "okta_#{okta_model_name}"

@@ -7,7 +7,8 @@ module AppealsApi::SupplementalClaims::V0
     include AppealsApi::OpenidAuth
     include AppealsApi::PdfDownloads
 
-    before_action :validate_icn_header, only: %i[download]
+    skip_before_action :validate_icn_header
+    before_action :validate_icn_parameter, only: %i[index download]
 
     API_VERSION = 'V0'
     SCHEMA_OPTIONS = { schema_version: 'v0', api_name: 'supplemental_claims' }.freeze
@@ -17,6 +18,22 @@ module AppealsApi::SupplementalClaims::V0
       PUT: %w[veteran/SupplementalClaims.write representative/SupplementalClaims.write system/SupplementalClaims.write],
       POST: %w[veteran/SupplementalClaims.write representative/SupplementalClaims.write system/SupplementalClaims.write]
     }.freeze
+
+    def index
+      veteran_scs = AppealsApi::SupplementalClaim.select(ALLOWED_COLUMNS)
+                                                 .where(veteran_icn: params[:icn])
+                                                 .order(created_at: :desc)
+      render json: AppealsApi::SupplementalClaimSerializer.new(veteran_scs).serializable_hash
+    end
+
+    def show
+      sc = AppealsApi::SupplementalClaim.select(ALLOWED_COLUMNS).find(params[:id])
+      sc = with_status_simulation(sc) if status_requested_and_allowed?
+
+      render_supplemental_claim(sc)
+    rescue ActiveRecord::RecordNotFound
+      render_supplemental_claim_not_found(params[:id])
+    end
 
     def create
       sc = AppealsApi::SupplementalClaim.new(
@@ -32,20 +49,35 @@ module AppealsApi::SupplementalClaims::V0
 
       sc.save
       AppealsApi::PdfSubmitJob.perform_async(sc.id, 'AppealsApi::SupplementalClaim', 'v3')
-
-      render json: AppealsApi::SupplementalClaimSerializer.new(sc).serializable_hash
+      render_supplemental_claim(sc)
     end
 
     def download
       id = params[:id]
       supplemental_claim = AppealsApi::SupplementalClaim.find(id)
 
-      render_appeal_pdf_download(supplemental_claim, "#{FORM_NUMBER}-supplemental-claim-#{id}.pdf")
+      render_appeal_pdf_download(supplemental_claim, "#{FORM_NUMBER}-supplemental-claim-#{id}.pdf", params[:icn])
     rescue ActiveRecord::RecordNotFound
       render_supplemental_claim_not_found(id)
     end
 
     private
+
+    def validate_icn_parameter
+      detail = nil
+
+      if params[:icn].blank?
+        detail = "'icn' parameter is required"
+      elsif !ICN_REGEX.match?(params[:icn])
+        detail = "'icn' parameter has an invalid format. Pattern: #{ICN_REGEX.inspect}"
+      end
+
+      raise Common::Exceptions::UnprocessableEntity.new(detail:) if detail.present?
+    end
+
+    def render_supplemental_claim(sc)
+      render json: AppealsApi::SupplementalClaimSerializer.new(sc).serializable_hash
+    end
 
     def token_validation_api_key
       Settings.dig(:modules_appeals_api, :token_validation, :supplemental_claims, :api_key)

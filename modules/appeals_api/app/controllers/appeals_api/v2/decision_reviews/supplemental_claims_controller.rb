@@ -8,9 +8,10 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
   include AppealsApi::CharacterUtilities
   include AppealsApi::MPIVeteran
   include AppealsApi::Schemas
+  include AppealsApi::PdfDownloads
 
   skip_before_action :authenticate
-  before_action :validate_icn_header, only: %i[index]
+  before_action :validate_icn_header, only: %i[index download]
   before_action :validate_json_format, if: -> { request.post? }
   before_action :validate_json_schema, only: %i[create validate]
 
@@ -76,20 +77,29 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
     render_supplemental_claim_not_found(id)
   end
 
+  def download
+    sc = AppealsApi::SupplementalClaim.find(params[:id])
+    icn = request_headers['X-VA-ICN']
+
+    render_appeal_pdf_download(sc, "#{FORM_NUMBER}-supplemental-claim-#{params[:id]}.pdf", icn)
+  rescue ActiveRecord::RecordNotFound
+    render_supplemental_claim_not_found(params[:id])
+  end
+
   private
 
   def header_names = headers_schema['definitions']['scCreateParameters']['properties'].keys
 
   def validate_icn_header
-    validation_errors = []
+    detail = nil
 
     if request_headers[ICN_HEADER].blank?
-      validation_errors << { status: 422, detail: "#{ICN_HEADER} is required" }
+      detail = "#{ICN_HEADER} is required"
     elsif !ICN_REGEX.match?(request_headers[ICN_HEADER])
-      validation_errors << { status: 422, detail: "#{ICN_HEADER} has an invalid format. Pattern: #{ICN_REGEX.inspect}" }
+      detail = "#{ICN_HEADER} has an invalid format. Pattern: #{ICN_REGEX.inspect}"
     end
 
-    render json: { errors: validation_errors }, status: :unprocessable_entity if validation_errors.present?
+    raise Common::Exceptions::UnprocessableEntity.new(detail:) if detail.present?
   end
 
   def validate_json_schema

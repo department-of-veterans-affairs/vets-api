@@ -73,7 +73,12 @@ module ClaimsApi
     end
 
     def ssn=(new_ssn)
-      raise ::Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless SSN_REGEX.match?(new_ssn)
+      unless SSN_REGEX.match?(new_ssn)
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: 'Invalid SSN in Master Person Index (MPI). ' \
+                  'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
+        )
+      end
 
       super(new_ssn)
     end

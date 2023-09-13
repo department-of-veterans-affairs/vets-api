@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "JSON Schema for Appealable Issues endpoint parameters",
+  "type": "object",
+  "properties": {
+    "icn": {
+      "$ref": "icn.json"
+    },
+    "receiptDate": {
+      "description": "(yyyy-mm-dd) In order to determine appealability of issues, the receipt date of a hypothetical Decision Review must be specified.",
+      "type": "string",
+      "format": "date",
+      "example": "2022-01-01"
+    },
+    "decisionReviewType": {
+      "description": "Scoping of appeal type for associated issues",
+      "type": "string",
+      "enum": ["higher-level-reviews", "notice-of-disagreements", "supplemental-claims"],
+      "example": "higher-level-reviews"
+    },
+    "benefitType": {
+      "description": "Required if decision review type is Higher-Level Reviews or Supplemental Claims",
+      "type": "string",
+      "enum": [
+        "compensation",
+        "pensionSurvivorsBenefits",
+        "fiduciary",
+        "lifeInsurance",
+        "veteransHealthAdministration",
+        "veteranReadinessAndEmployment",
+        "loanGuaranty",
+        "education",
+        "nationalCemeteryAdministration"
+      ],
+      "example": "compensation"
+    }
+  },
+  "required": [
+    "icn",
+    "receiptDate",
+    "decisionReviewType"
+  ],
+  "if": {
+    "properties": {
+      "decisionReviewType": {
+        "enum": ["higher-level-reviews", "supplemental-claims"]
+      }
+    }
+  },
+  "then": { "required": ["benefitType"] }
+}

@@ -22,5 +22,22 @@ RSpec.describe VirtualRegionalOffice::Client, :vcr do
       end
     end
   end
+
+  describe '#get_max_rating_for_diagnostic_codes' do
+    context 'with a max ratings request' do
+      subject(:client) do
+        described_class.new.get_max_rating_for_diagnostic_codes(
+          diagnostic_codes: [6260]
+        )
+      end
+
+      it 'returns a classification' do
+        VCR.use_cassette('virtual_regional_office/max_ratings') do
+          expect(subject.body['ratings'].first['diagnostic_code']).to eq(6260)
+          expect(subject.body['ratings'].first['max_rating']).to eq(10)
+        end
+      end
+    end
+  end
 end
 # rubocop:enable RSpec/FilePath

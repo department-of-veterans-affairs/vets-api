@@ -1,0 +1,17 @@
+http_interactions:
+  - request:
+      method: post
+      uri: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com/actions/authenticated-demographics
+    response:
+      status:
+        code: 504
+        message: Endpoint request timed out
+      headers:
+        Server:
+          - Server
+        Date:
+          - Mon, 29 Jun 2020 15:46:52 GMT
+        Content-Type:
+          - application/json
+    recorded_at: Thu, 19 Nov 2020 16:45:03 GMT
+recorded_with: VCR 6.0.0

@@ -174,7 +174,7 @@ describe HCA::MilitaryInformation do
 
   describe '#service_periods' do
     it 'returns an array of service periods with service branch and date range' do
-      VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes') do
+      VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
         response = subject.service_periods
 
         expect(response).to be_an(Array)

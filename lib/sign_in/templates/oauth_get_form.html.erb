@@ -1,31 +1,6 @@
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>VA.gov sign-in</title>
-</head>
-
-<body>
-  <noscript>
-    <p>Your browser does not support JavaScript. 
-    Please press the Continue button once to proceed with sign-in.
-    </p>
-  </noscript>
-
-  <%= form_tag url, authenticity_token: false, method: :get, id: "oauth-form" do %>
-    <% params.each do |key, value| %>
-      <%= hidden_field_tag key, value %>
-    <% end %>
-    <noscript>
-      <div>
-        <input type=\”submit\” value=\”Continue\”/>
-      </div>
-    </noscript>
-  <% end %>
-
-  <script nonce="**CSP_NONCE**">
-    (function() {
-      document.getElementById("oauth-form").submit();
-    })();
-  </script>
-</body>
+  <head>
+    <meta http-equiv="refresh" content="0;URL=<%= url %>" />
+  </head>
+  <body></body>
 </html>

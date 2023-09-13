@@ -5,7 +5,7 @@ require 'common/exceptions'
 module VeteranVerification
   module V1
     class VeteranStatusController < ApplicationController
-      before_action { authorize :emis, :access? }
+      before_action { authorize :va_profile, :access? }
       before_action { permit_scopes %w[veteran_status.read] }
 
       def index

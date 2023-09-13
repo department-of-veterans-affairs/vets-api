@@ -1,0 +1,24 @@
+type: object
+required:
+  - id
+  - type
+  - attributes
+properties:
+  id:
+    type: string
+    example: "1008596379V859838"
+  type:
+    type: string
+    example: "demographics"
+  attributes:
+    type: object
+    required:
+      - genderIdentity
+      - preferredName
+    properties:
+      genderIdentity:
+        type: string
+        example: "F"
+      preferredName:
+        type: string
+        example: "SAM"

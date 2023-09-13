@@ -22,8 +22,13 @@
           },
           "attributes": {
             "type": "object",
-            "required": ["claimType", "claimDate", "claimPhaseDates", "closeDate", "developmentLetterSent", "decisionLetterSent", "documentsNeeded", "endProductCode", "evidenceWaiverSubmitted5103", "lighthouseId", "status"],
+            "required": ["baseEndProductCode", "claimType", "claimDate", "claimPhaseDates", "closeDate", "developmentLetterSent", "decisionLetterSent", "documentsNeeded", "endProductCode", "evidenceWaiverSubmitted5103", "lighthouseId", "status"],
             "properties": {
+              "baseEndProductCode": {
+                "type": "string",
+                "description": "Base end product code for claim",
+                "example": "400"
+              },
               "claimType": {
                 "type": "string",
                 "description": "Name of claim type",

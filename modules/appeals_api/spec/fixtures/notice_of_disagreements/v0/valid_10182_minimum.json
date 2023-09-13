@@ -3,12 +3,17 @@
     "type": "noticeOfDisagreement",
     "attributes": {
       "veteran": {
+        "icn": "1234567890V123456",
+        "fileNumber": "987654321",
+        "firstName": "Jäñe",
+        "lastName": "Doe",
+        "birthDate": "1969-12-31",
         "homeless": true,
         "phone": {
           "areaCode": "555",
           "phoneNumber": "8001111"
         },
-        "email": "clause@north.com",
+        "email": "jdoe@example.com",
         "timezone": "America/Chicago"
       },
       "boardReviewOption": "evidence_submission",

@@ -78,7 +78,7 @@ module EMISRedis
     # @return [Hash] A hash of veteran status properties
     #
     def validated_response
-      raise VeteranStatus::NotAuthorized.new(status: 401) if !@user.loa3? || !@user.authorize(:emis, :access?)
+      raise VeteranStatus::NotAuthorized.new(status: 401) if !@user.loa3? || !@user.authorize(:va_profile, :access?)
 
       response = emis_response('get_veteran_status')
 

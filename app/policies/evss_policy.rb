@@ -27,6 +27,8 @@ EVSSPolicy = Struct.new(:user, :evss) do
     end
   end
 
+  alias_method :rating_info_access?, :access?
+
   private
 
   def log_success(policy)

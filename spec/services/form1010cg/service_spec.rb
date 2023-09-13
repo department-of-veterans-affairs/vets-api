@@ -366,6 +366,19 @@ RSpec.describe Form1010cg::Service do
         end
       end
 
+      it 'raises an error when the response has an error' do
+        expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
+          OpenStruct.new(
+            ok?: false,
+            error: StandardError
+          )
+        )
+
+        expect do
+          subject.icn_for('veteran')
+        end.to raise_error(StandardError)
+      end
+
       it 'will not log the search result when reading from cache' do
         expect_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes).and_return(
           create(:find_profile_response, profile: double(icn: :ICN_123))

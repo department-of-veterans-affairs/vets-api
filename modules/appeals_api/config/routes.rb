@@ -41,6 +41,7 @@ AppealsApi::Engine.routes.draw do
         collection do
           get 'schema'
           post 'validate'
+          get '/:id/download', action: 'download'
         end
       end
 
@@ -52,6 +53,7 @@ AppealsApi::Engine.routes.draw do
         collection do
           get 'schema'
           post 'validate'
+          get '/:id/download', action: 'download'
         end
       end
 
@@ -61,6 +63,7 @@ AppealsApi::Engine.routes.draw do
         collection do
           get 'schema'
           post 'validate'
+          get '/:id/download', action: 'download'
         end
       end
 
@@ -175,6 +178,7 @@ AppealsApi::Engine.routes.draw do
       get :docs, to: '/appeals_api/docs/v2/docs#sc'
 
       namespace :forms do
+        # N.B. The index action may be enabled after the launch of v0:
         resources '200995', only: %i[create show], controller: controller_path do
           collection do
             post 'validate'
@@ -196,64 +200,25 @@ AppealsApi::Engine.routes.draw do
     end
   end
 
-  appealable_issues_controller_path = '/appeals_api/appealable_issues/v0/appealable_issues'
-
-  concern :appealable_issues_routes do |opts|
-    api_name = opts[:deprecated] ? 'contestable-issues' : 'appealable-issues'
-
-    mapper.instance_eval do
-      namespace :appealable_issues, path: api_name, defaults: { format: 'json' } do
-        namespace :v0 do
-          get :appealable_issues,
-              to: "#{controller_path}#index",
-              path: "#{api_name}/:decision_review_type"
-          get :healthcheck, to: '/appeals_api/metadata#healthcheck'
-          get :upstream_healthcheck,
-              to: '/appeals_api/metadata#appeals_status_upstream_healthcheck',
-              path: 'upstream-healthcheck'
-          get :docs, to: '/appeals_api/docs/v2/docs#ci'
-
-          namespace :schemas, controller: appealable_issues_controller_path do
-            get 'headers', action: :schema
-          end
-
-          resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
-        end
-      end
-    end
-  end
-
-  concern :appealable_issues_routes do
-    get :healthcheck, to: '/appeals_api/metadata#healthcheck'
-    get :upstream_healthcheck,
-        to: '/appeals_api/metadata#appeals_status_upstream_healthcheck',
-        path: 'upstream-healthcheck'
-    get :docs, to: '/appeals_api/docs/v2/docs#ai'
-
-    namespace :schemas, controller: appealable_issues_controller_path do
-      get 'headers', action: :schema
-    end
-
-    resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
-  end
-
   namespace :appealable_issues, path: 'appealable-issues', default: { format: 'json' } do
+    appealable_issues_controller_path = '/appeals_api/appealable_issues/v0/appealable_issues'
+
     namespace :v0 do
       get :appealable_issues,
           to: "#{appealable_issues_controller_path}#index",
-          path: 'appealable-issues/:decision_review_type'
+          path: 'appealable-issues/:decisionReviewType'
 
-      concerns :appealable_issues_routes
-    end
-  end
+      get :healthcheck, to: '/appeals_api/metadata#healthcheck'
+      get :upstream_healthcheck,
+          to: '/appeals_api/metadata#appeals_status_upstream_healthcheck',
+          path: 'upstream-healthcheck'
+      get :docs, to: '/appeals_api/docs/v2/docs#ai'
 
-  namespace :contestable_issues, path: 'contestable-issues', default: { format: 'json' } do
-    namespace :v0 do
-      get :contestable_issues,
-          to: "#{appealable_issues_controller_path}#index",
-          path: 'contestable-issues/:decision_review_type'
+      namespace :schemas, controller: appealable_issues_controller_path do
+        get 'appealable-issues', action: :schema
+      end
 
-      concerns :appealable_issues_routes
+      resources :schemas, only: :show, param: :schema_type, controller: '/appeals_api/schemas/shared_schemas'
     end
   end
 

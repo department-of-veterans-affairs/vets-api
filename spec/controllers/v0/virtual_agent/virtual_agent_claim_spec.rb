@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'lighthouse/benefits_claims/configuration'
 
 RSpec.describe 'VirtualAgentClaims', type: :request do
   let(:user) { create(:user, :loa3) }
   let(:claim) { create(:evss_claim, user_uuid: user.uuid) }
 
   before do
+    Flipper.disable(:virtual_agent_lighthouse_claims)
+
     @mock_cxdw_reporting_service = instance_double(V0::VirtualAgent::ReportToCxdw)
     allow(@mock_cxdw_reporting_service).to receive(:report_to_cxdw)
 

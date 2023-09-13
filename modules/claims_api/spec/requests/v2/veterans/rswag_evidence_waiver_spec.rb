@@ -3,6 +3,7 @@
 require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
+require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
 # doc generation for V2 5103 temporarily disabled
@@ -49,8 +50,10 @@ describe 'EvidenceWaiver5103',
           let(:scopes) { %w[system/claim.write] }
 
           before do |example|
-            with_okta_user(scopes) do
+            mock_ccg(scopes) do
               VCR.use_cassette('bgs/benefit_claim/update_5103_200') do
+                allow_any_instance_of(ClaimsApi::LocalBGS)
+                  .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
                 submit_request(example.metadata)
               end
             end
@@ -79,9 +82,7 @@ describe 'EvidenceWaiver5103',
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
-              submit_request(example.metadata)
-            end
+            submit_request(example.metadata)
           end
 
           after do |example|
@@ -107,8 +108,11 @@ describe 'EvidenceWaiver5103',
           let(:scopes) { %w[system/claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
-              expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+            mock_acg(scopes) do
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_is_target_veteran?).and_return(false)
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_represents_veteran?).and_return(false)
 
               submit_request(example.metadata)
             end

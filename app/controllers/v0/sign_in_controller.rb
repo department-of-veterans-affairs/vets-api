@@ -62,7 +62,7 @@ module V0
                                state_payload.client_id).user_info(service_token_response[:access_token])
       credential_level = SignIn::CredentialLevelCreator.new(requested_acr: state_payload.acr,
                                                             type: state_payload.type,
-                                                            id_token: service_token_response[:id_token],
+                                                            logingov_acr: service_token_response[:logingov_acr],
                                                             user_info:).perform
       if credential_level.can_uplevel_credential?
         render_uplevel_credential(state_payload)
@@ -305,8 +305,7 @@ module V0
                                                  client_config: client_config(state_payload.client_id),
                                                  type: state_payload.type,
                                                  client_state: state_payload.client_state).perform
-      render body: auth_service(state_payload.type,
-                                state_payload.client_id).render_auth(state:, acr: acr_for_type),
+      render body: auth_service(state_payload.type, state_payload.client_id).render_auth(state:, acr: acr_for_type),
              content_type: 'text/html'
     end
 
@@ -322,7 +321,8 @@ module V0
         type: state_payload.type,
         client_id: state_payload.client_id,
         ial: credential_level.current_ial,
-        acr: state_payload.acr
+        acr: state_payload.acr,
+        icn: verified_icn
       }
       sign_in_logger.info('callback', context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS,

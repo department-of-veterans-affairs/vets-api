@@ -2,29 +2,45 @@
 
 module Chip
   class Configuration < Common::Client::Configuration::REST
-    def server_url
-      "#{Settings.chip.url}/#{Settings.chip.base_path}"
+    ##
+    # @return [Config::Options] Chip settings object
+    #
+    def settings
+      Settings.chip
     end
 
-    def api_gtwy_id
-      Settings.chip.api_gtwy_id
-    end
+    delegate :url, :api_gtwy_id, :base_path, to: :settings
 
+    ##
+    # @return [String] service name
+    #
     def service_name
       'Chip'
     end
 
+    ##
+    # Validate that the tenant_id matches the tenant_name
+    #
+    # @return [Boolean]
+    #
     def valid_tenant?(tenant_name:, tenant_id:)
-      Settings.chip[tenant_name]&.tenant_id == tenant_id
+      settings[tenant_name]&.tenant_id == tenant_id
     end
 
+    ##
+    # Creates a Faraday connection with middleware for mapping errors, and adding breakers functionality.
+    #
+    # @return [Faraday::Connection] a Faraday connection instance.
+    #
     def connection
-      Faraday.new(url: server_url) do |conn|
-        conn.use :breakers
-        conn.response :raise_error, error_prefix: service_name
-        conn.response :betamocks if Settings.chip.mock?
+      @conn ||= Faraday.new(url:) do |faraday|
+        faraday.use :breakers
+        faraday.request :json
 
-        conn.adapter Faraday.default_adapter
+        faraday.response :raise_error, error_prefix: service_name
+        faraday.response :betamocks if settings.mock
+
+        faraday.adapter Faraday.default_adapter
       end
     end
   end

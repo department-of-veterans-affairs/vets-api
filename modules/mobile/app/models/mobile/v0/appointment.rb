@@ -23,7 +23,8 @@ module Mobile
         'VA',
         'VA_VIDEO_CONNECT_ATLAS',
         'VA_VIDEO_CONNECT_GFE',
-        'VA_VIDEO_CONNECT_HOME'
+        'VA_VIDEO_CONNECT_HOME',
+        'VA_VIDEO_CONNECT_ONSITE'
       )
       STATUS_TYPE = Types::String.enum('BOOKED', 'CANCELLED', 'HIDDEN', 'SUBMITTED')
       STATUS_DETAIL_TYPE = Types::String.enum('CANCELLED BY CLINIC & AUTO RE-BOOK',
@@ -85,7 +86,8 @@ module Mobile
         return id unless match
 
         return id.sub(match[0], '442') if match[0] == '983'
-        return id.sub(match[0], '552') if match[0] == '984'
+
+        id.sub(match[0], '552') if match[0] == '984'
       end
 
       def self.convert_to_non_prod_id!(id)
@@ -95,7 +97,8 @@ module Mobile
         return id unless match
 
         return id.sub(match[0], '983') if match[0] == '442'
-        return id.sub(match[0], '984') if match[0] == '552'
+
+        id.sub(match[0], '984') if match[0] == '552'
       end
     end
   end

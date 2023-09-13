@@ -13,11 +13,11 @@ module FixtureHelpers
     end
   end
 
-  def get_fixture(*args)
-    self.class.public_send(__method__, *args)
+  def get_fixture(*)
+    self.class.public_send(__method__, *)
   end
 
-  def get_fixture_absolute(*args)
-    self.class.public_send(__method__, *args)
+  def get_fixture_absolute(*)
+    self.class.public_send(__method__, *)
   end
 end

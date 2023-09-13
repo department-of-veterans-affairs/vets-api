@@ -70,15 +70,19 @@
         "waiveVABenefitsToRetainTrainingPay": true,
         "waiveVABenefitsToRetainRetiredPay": false,
         "militaryRetiredPay": {
+          "willReceiveInFuture": true,
           "receiving": true,
           "payment": {
-            "serviceBranch": "Air Force"
+            "serviceBranch": "Air Force",
+            "amount": 500.00
           }
         },
+        "retiredStatus": "Retired",
         "separationPay": {
           "received": true,
           "payment": {
-            "serviceBranch": "Air Force"
+            "serviceBranch": "Air Force",
+            "amount": 1000.00
           },
           "receivedDate": {
             "year": "2000"
@@ -86,6 +90,7 @@
         }
       },
       "serviceInformation": {
+        "separationLocationCode": "OU812",
         "servicePeriods": [
           {
             "serviceBranch": "Air Force",
@@ -96,6 +101,11 @@
             "serviceBranch": "Air Force Reserves",
             "activeDutyBeginDate": "1990-04-05",
             "activeDutyEndDate": "1999-01-01"
+          },
+          {
+            "serviceBranch": "Air National Guard",
+            "activeDutyBeginDate": "1990-03-05",
+            "activeDutyEndDate": "1990-04-05"
           }
         ],
         "confinements": [

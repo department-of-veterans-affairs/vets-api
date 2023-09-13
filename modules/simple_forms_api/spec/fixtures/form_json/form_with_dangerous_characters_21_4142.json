@@ -1,0 +1,142 @@
+{
+  "form_number": "21-4142",
+  "veteran": {
+    "full_name": {
+      "first": "Veteran",
+      "middle": "B",
+      "last": "Surname",
+      "suffix": "III"
+    },
+    "address": {
+      "country": "USA",
+      "street": "1 First Ln",
+      "street2": "Suite 22",
+      "street3": "Room 3",
+      "city": "Place",
+      "state": "AL",
+      "postal_code": "12345"
+    },
+    "date_of_birth": "1987-02-20",
+    "ssn": "333558888",
+    "va_file_number": "987654321",
+    "veteran_service_number": "AA987654",
+    "home_phone": "987-654-3213",
+    "international_phone": "987-654-321312312",
+    "email": "veteran.surname@address.com"
+  },
+  "patient_identification": {
+    "is_requesting_own_medical_records": true,
+    "patient_full_name": {
+      "first": "Child",
+      "middle": "C",
+      "last": "Surname",
+      "suffix": "IV"
+    },
+    "patient_ssn": "222554444",
+    "patient_va_file_number": "123456789"
+  },
+  "acknowledge_to_release_information": true,
+  "provider_facility": [
+    {
+      "provider_facility_name": "Super Health Hospital",
+      "provider_facility_address": {
+        "country": "USA",
+        "street": "1 Care Rd",
+        "street2": "Bldg 2",
+        "city": "Helpful",
+        "state": "KY",
+        "postal_code": "33211"
+      },
+      "conditions_treated": "this, and, that",
+      "treatment_date_range": {
+        "from": "2014-02-19",
+        "to": "2015-10-15"
+      }
+    },
+    {
+      "provider_facility_name": "Supreme Health Service",
+      "provider_facility_address": {
+        "country": "USA",
+        "street": "2 Recovery Dr",
+        "street2": "Unit 15",
+        "city": "Good",
+        "state": "SC",
+        "postal_code": "98123"
+      },
+      "conditions_treated": "some of everything",
+      "treatment_date_range": {
+        "from": "2017-03-13",
+        "to": "2018-08-21"
+      }
+    },
+    {
+      "provider_facility_name": "Ultra Care Facility",
+      "provider_facility_address": {
+        "country": "USA",
+        "street": "3 Plain old good Blvd",
+        "street2": "#33",
+        "city": "Best",
+        "state": "WI",
+        "postal_code": "65712"
+      },
+      "conditions_treated": "all kinds of ailments",
+      "treatment_date_range": {
+        "from": "2019-10-14",
+        "to": "2020-01-17"
+      }
+    },
+    {
+      "provider_facility_name": "Top Notch Care Hospital",
+      "provider_facility_address": {
+        "country": "USA",
+        "street": "4 Convalescence Way",
+        "street2": "Facility 443",
+        "city": "Nursing",
+        "state": "IA",
+        "postal_code": "02234"
+      },
+      "conditions_treated": "Severe stomach issues",
+      "treatment_date_range": {
+        "from": "2022-03-16",
+        "to": "2022-08-21"
+      }
+    },
+    {
+      "provider_facility_name": "University Care Center",
+      "provider_facility_address": {
+        "country": "USA",
+        "street": "5 Medication Ave",
+        "street2": "Car 581",
+        "city": "Everbetter",
+        "state": "WY",
+        "postal_code": "91723"
+      },
+      "conditions_treated": "the last touches of health",
+      "treatment_date_range": {
+        "from": "2022-11-19",
+        "to": "2023-02-21"
+      }
+    }
+  ],
+  "limited_consent": "lots of things to say here",
+  "preparer_identification": {
+    "preparer_address": {
+      "street": "10 Top third",
+      "street2": "Third Party",
+      "city": "Tertiary pl",
+      "country": "USA",
+      "state": "TN",
+      "postal_code": "44444"
+    },
+    "preparer_full_name": {
+      "first": "Third",
+      "middle": "Tertiary",
+      "last": "Terra",
+      "suffix": "II"
+    },
+    "preparer_title": "Title",
+    "preparer_organization": "Top Org",
+    "court_appointment_info": "Representing \"court stuff\" like...Representing court stuff like...Representing court stuff like...Representing court stuff like...Representing court stuff like...Representing court stuff like...",
+    "relationship_to_veteran": "Veteran Service Officer"
+  }
+}

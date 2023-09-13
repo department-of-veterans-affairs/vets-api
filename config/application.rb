@@ -98,6 +98,13 @@ module VetsAPI
         redirect_uri: 'coverband/auth/github/callback'
       }
 
+      config.scope_defaults :flipper, config: {
+        client_id: Settings.flipper.github_oauth_key,
+        client_secret: Settings.flipper.github_oauth_secret,
+        scope: 'read:org',
+        redirect_uri: 'flipper/auth/github/callback'
+      }
+
       config.serialize_from_session { |key| Warden::GitHub::Verifier.load(key) }
       config.serialize_into_session { |user| Warden::GitHub::Verifier.dump(user) }
     end

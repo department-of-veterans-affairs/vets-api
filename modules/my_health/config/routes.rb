@@ -29,6 +29,7 @@ MyHealth::Engine.routes.draw do
       resources :messages, only: %i[show create destroy], defaults: { format: :json } do
         get :thread, on: :member
         get :categories, on: :collection
+        get :signature, on: :collection
         patch :move, on: :member
         post :reply, on: :member
         resources :attachments, only: [:show], defaults: { format: :json }

@@ -5,7 +5,7 @@ require 'common/client/configuration/rest'
 module Auth
   module ClientCredentials
     ##
-    # HTTP client configuration for the {BenefitsClaims::Service},
+    # HTTP client configuration for the {Auth::ClientCredentials::Service},
     # sets the base path, the base request headers, and a service name for breakers and metrics.
     #
     class Configuration < Common::Client::Configuration::REST

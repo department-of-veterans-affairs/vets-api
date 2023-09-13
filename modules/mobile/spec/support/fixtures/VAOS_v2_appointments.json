@@ -454,7 +454,11 @@
     },
     "cancellable":true,
     "telehealth":{
+      "vvs_kind":"MOBILE_ANY",
       "url":"http://www.meeting.com"
+    },
+    "extension":{
+      "patient_has_mobile_gfe": false
     }
   },
   {
@@ -586,8 +590,11 @@
     },
     "cancellable":true,
     "telehealth":{
-      "vvs_kind":"MOBILE_GFE",
+      "vvs_kind":"MOBILE_ANY",
       "url":"http://www.meeting.com"
+    },
+    "extension":{
+      "patient_has_mobile_gfe": true
     }
   },
   {
@@ -890,6 +897,69 @@
       },
       "health_service":["Audiology", "Cardiology", "DentalServices", "Dermatology", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "Urology", "WomensHealth"],
       "healthcare_provider":null
+    }
+  },
+  {
+    "id":"50094",
+    "identifier":[
+      {
+        "system":"http://med.va.gov/fhir/urn/vaos/arsid",
+        "value":"8a487fd67ba6a62d017bc0cc86d80002"
+      }
+    ],
+    "kind":"telehealth",
+    "location":{
+      "id":"442",
+      "name":"Cheyenne VA Medical Center",
+      "time_zone" : {
+        "time_zone_id" : "America/Denver"
+      },
+      "physical_address":{
+        "type":"physical",
+        "line":[
+          "2360 East Pershing Boulevard"
+        ],
+        "city":"Cheyenne",
+        "state":"WY",
+        "postal_code":"82001-5356"
+      },
+      "lat":41.148026,
+      "long":-104.786255,
+      "phone":{
+        "main":"307-778-7550"
+      },
+      "url":null,
+      "code":null
+    },
+    "status":"proposed",
+    "service_type":"PrimaryCare",
+    "patient_icn":"1012845331V153043",
+    "location_id":"983",
+    "reason":"Test_SM test (tele)",
+    "requested_periods":[
+      {
+        "start":"2021-09-08T12:00:00Z",
+        "end":"2021-09-08T23:59:59.999Z"
+      }
+    ],
+    "contact":{
+      "telecom":[
+        {
+          "type":"phone",
+          "value":"9999999992"
+        }
+      ]
+    },
+    "cancellation_reason":{
+      "code":"other"
+    },
+    "cancellable":true,
+    "telehealth":{
+      "vvs_kind":"CLINIC_BASED",
+      "url":"http://www.meeting.com"
+    },
+    "extension":{
+      "patient_has_mobile_gfe": true
     }
   }
 ]

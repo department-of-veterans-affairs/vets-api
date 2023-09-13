@@ -32,15 +32,26 @@ module Mobile
       end
 
       def update
+        lh_error_response = nil
+
         payment_information = if lighthouse?
-                                lighthouse_adapter.parse(lighthouse_service.update_payment_info(pay_info))
+                                begin
+                                  lighthouse_adapter.parse(lighthouse_service.update_payment_info(pay_info))
+                                rescue Common::Exceptions::BaseError => e
+                                  error = { status: e.status_code, body: e.errors.first }
+                                  lh_error_response = Mobile::V0::Adapters::LighthouseDirectDepositError.parse(error)
+                                end
                               else
                                 evss_proxy.update_payment_information(pay_info)
                               end
 
-        render json: Mobile::V0::PaymentInformationSerializer.new(@current_user.uuid,
-                                                                  payment_information.payment_account,
-                                                                  payment_information.control_information)
+        if lh_error_response
+          render status: lh_error_response.status, json: lh_error_response.body
+        else
+          render json: Mobile::V0::PaymentInformationSerializer.new(@current_user.uuid,
+                                                                    payment_information.payment_account,
+                                                                    payment_information.control_information)
+        end
       end
 
       private

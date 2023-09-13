@@ -17,8 +17,6 @@ module Mobile
         service_auth_map.keys.sort
       end
 
-      private
-
       # rubocop:disable Metrics/MethodLength
       def service_auth_map
         @service_auth_map ||= {
@@ -44,6 +42,8 @@ module Mobile
         }
       end
       # rubocop:enable Metrics/MethodLength
+
+      private
 
       def flagged_access?(flag_name, flag_on_policy, flag_off_policy)
         if Flipper.enabled?(flag_name, @user)

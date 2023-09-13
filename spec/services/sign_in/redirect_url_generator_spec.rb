@@ -14,17 +14,11 @@ RSpec.describe SignIn::RedirectUrlGenerator do
     end
     let(:param_value) { 'some-param' }
     let(:param_key) { :some_param }
+    let(:expected_redirect_uri_with_params) { "#{redirect_uri}?#{params_hash.to_query}" }
+    let(:expected_meta_tag) { "<meta http-equiv=\"refresh\" content=\"0;URL=#{expected_redirect_uri_with_params}\" />" }
 
-    it 'renders the oauth_get_form template' do
-      expect(subject).to include('form id="oauth-form"')
-    end
-
-    it 'directs to the given redirect url set in the client configuration' do
-      expect(subject).to include("action=\"#{redirect_uri}\"")
-    end
-
-    it 'includes params from param hash' do
-      expect(subject).to include("value=\"#{param_value}\"")
+    it 'renders a meta refresh with expected redirect uri with params' do
+      expect(subject).to include(expected_meta_tag)
     end
   end
 end

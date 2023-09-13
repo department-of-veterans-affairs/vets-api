@@ -1,0 +1,76 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com/actions/authenticated-demographics
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+        - Server
+      Date:
+        - Mon, 29 Jun 2020 15:46:52 GMT
+      Content-Type:
+        - application/json
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "data": {
+            "insuranceVerificationNeeded": false,
+            "needsConfirmation": true,
+            "mailingAddress": {
+              "street1": "Any Street",
+              "street2": "",
+              "street3": "",
+              "city": "Any Town",
+              "county": "",
+              "state": "WV",
+              "zip": "999980071",
+              "zip4": null,
+              "country": "USA"
+            },
+            "residentialAddress": {
+              "street1": "186 Columbia Turnpike",
+              "street2": "",
+              "street3": "",
+              "city": "Florham Park",
+              "county": "",
+              "state": "New Mexico",
+              "zip": "07932",
+              "zip4": null,
+              "country": "USA"
+            },
+            "homePhone": "222-555-8235",
+            "officePhone": "222-555-7720",
+            "cellPhone": "315-378-9190",
+            "email": "payibo6648@weishu8.com",
+            "emergencyContact": {
+              "name": "Bryant Richard",
+              "relationship": "Brother",
+              "phone": "310-399-2006",
+              "workPhone": "708-391-9015",
+              "address": {
+                "street1": "690 Holcomb Bridge Rd",
+                "street2": "",
+                "street3": "",
+                "city": "Roswell",
+                "county": "",
+                "state": "Georgia",
+                "zip": "30076",
+                "zip4": "",
+                "country": "USA"
+              },
+              "needsConfirmation": true
+            },
+            "nextOfKin": {
+              "needsConfirmation": true
+            }
+          },
+          "id": "366",
+          "type": "authenticatedGetDemographicsResponse"
+        }
+  recorded_at: Thu, 19 Nov 2020 16:45:03 GMT
+recorded_with: VCR 6.0.0

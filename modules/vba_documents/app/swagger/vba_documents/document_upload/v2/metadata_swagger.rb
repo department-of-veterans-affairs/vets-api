@@ -10,7 +10,7 @@ module VBADocuments
           schema :DocumentUploadMetadata do
             key :type, :object
             key :description, 'Identifying properties about the document payload being submitted'
-            key :required, %i[veteranFirstName veteranLastName fileNumber zipCode source]
+            key :required, %i[veteranFirstName veteranLastName fileNumber zipCode]
 
             property :veteranFirstName do
               key :type, :string

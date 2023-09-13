@@ -29,6 +29,9 @@ module VAOS
             # remove service type(s) for non-medical non-CnP appointments per GH#56197
             remove_service_type(appt) unless medical?(appt) || cnp?(appt) || no_service_cat?(appt)
 
+            # set requestedPeriods to nil if the appointment is a booked cerner appointment per GH#62912
+            appt[:requested_periods] = nil if booked?(appt) && cerner?(appt)
+
             log_telehealth_data(appt[:telehealth]&.[](:atlas)) unless appt[:telehealth]&.[](:atlas).nil?
             convert_appointment_time(appt)
           end
@@ -53,6 +56,11 @@ module VAOS
           # remove service type(s) for non-medical non-CnP appointments per GH#56197
           unless medical?(response.body[:data]) || cnp?(response.body[:data]) || no_service_cat?(response.body[:data])
             remove_service_type(response.body[:data])
+          end
+
+          # set requestedPeriods to nil if the appointment is a booked cerner appointment per GH#62912
+          if booked?(response.body[:data]) && cerner?(response.body[:data])
+            response.body[:data][:requested_periods] = nil
           end
 
           OpenStruct.new(response.body[:data])
@@ -81,11 +89,60 @@ module VAOS
         end
       end
 
+      # Retrieves the most recent clinic appointment within the last year.
+      #
+      # Returns:
+      # - The most recent appointment of kind == 'clinic' or
+      # - nil if no appointment is found.
+      #
+      def get_most_recent_visited_clinic_appointment
+        current_check = Date.current.end_of_day.yesterday
+        three_month_interval = 3.months
+        look_back_limit = 1.year.ago
+        statuses = 'booked,fulfilled,arrived'
+
+        # starting yesterday loop in three month intervals until we find an appointment
+        # or we run into the look back limit
+        while current_check > look_back_limit
+          end_time = current_check
+          start_time = current_check - three_month_interval
+
+          appointments = fetch_clinic_appointments(start_time, end_time, statuses)
+
+          return most_recent_appointment(appointments) unless appointments.empty?
+
+          current_check -= three_month_interval
+        end
+
+        nil
+      end
+
       private
+
+      def fetch_clinic_appointments(start_time, end_time, statuses)
+        get_appointments(start_time, end_time, statuses)[:data].select { |appt| appt.kind == 'clinic' }
+      end
+
+      def most_recent_appointment(appointments)
+        appointments.max_by { |appointment| DateTime.parse(appointment.start) }
+      end
 
       def mobile_facility_service
         @mobile_facility_service ||=
           VAOS::V2::MobileFacilityService.new(user)
+      end
+
+      # Checks if the appointment is booked.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is booked, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def booked?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt[:status] == 'booked'
       end
 
       # Get codes from a list of codeable concepts.
@@ -97,6 +154,28 @@ module VAOS
         return [] if input.nil?
 
         input.flat_map { |codeable_concept| codeable_concept[:coding]&.pluck(:code) }.compact
+      end
+
+      # Checks if the appointment is associated with cerner. It looks through each identifier and checks if the system
+      # contains cerner. If it does, it returns true. Otherwise, it returns false.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is associated with cerner, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      def cerner?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        identifiers = appt[:identifier]
+
+        return false if identifiers.nil?
+
+        identifiers.each do |identifier|
+          system = identifier[:system]
+          return true if system.include?('cerner')
+        end
+
+        false
       end
 
       # Determines if the appointment is for compensation and pension.

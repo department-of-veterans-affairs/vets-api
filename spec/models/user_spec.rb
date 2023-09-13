@@ -124,15 +124,15 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#can_prefill_emis?' do
+  describe '#can_prefill_va_profile?' do
     it 'returns true if user has edipi or icn' do
-      expect(user.authorize(:emis, :access?)).to eq(true)
+      expect(user.authorize(:va_profile, :access?)).to eq(true)
     end
 
     it 'returns false if user doesnt have edipi or icn' do
       expect(user).to receive(:edipi).and_return(nil)
 
-      expect(user.authorize(:emis, :access?)).to eq(false)
+      expect(user.authorize(:va_profile, :access?)).to eq(false)
     end
   end
 

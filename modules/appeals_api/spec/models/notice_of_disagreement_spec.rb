@@ -105,6 +105,10 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     it { expect(notice_of_disagreement.veteran_last_name).to eq 'Doe' }
   end
 
+  describe '#veteran_birth_date' do
+    it { expect(notice_of_disagreement.veteran_birth_date&.iso8601).to eq '1969-12-31' }
+  end
+
   describe '#ssn' do
     it { expect(notice_of_disagreement.ssn).to eq '123456789' }
   end

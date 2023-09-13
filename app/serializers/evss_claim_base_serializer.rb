@@ -103,8 +103,8 @@ class EVSSClaimBaseSerializer < ActiveModel::Serializer
     'complete' => 8
   }.freeze
 
-  def phase_from_keys(*keys)
-    s = object_data.dig(*keys)&.downcase
+  def phase_from_keys(*)
+    s = object_data.dig(*)&.downcase
     PHASE_MAPPING[s]
     # Rails.logger.error "Expected EVSS #{keys} to be a phase. Got '#{s}'." unless phase
   end

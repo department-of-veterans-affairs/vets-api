@@ -9,7 +9,7 @@ module ClaimsApi
     def upload_to_vbms(evidence_waiver_submission, path)
       uploader = VBMSUploader.new(
         filepath: path,
-        file_number: retrieve_veteran_file_number(evidence_waiver_submission:),
+        file_number: evidence_waiver_submission.auth_headers['va_eauth_birlsfilenumber'],
         doc_type: '705'
       )
       uploader.upload!
@@ -43,27 +43,6 @@ module ClaimsApi
         vbms_error_message: error_message
       )
       log_message_to_sentry(self.class.name, :warning, body: error_message)
-    end
-
-    private
-
-    def retrieve_veteran_file_number(evidence_waiver_submission:)
-      ssn = evidence_waiver_submission.auth_headers['va_eauth_pnid']
-
-      begin
-        bgs_service(evidence_waiver_submission:).people.find_by_ssn(ssn)&.[](:file_nbr) # rubocop:disable Rails/DynamicFindBy
-      rescue BGS::ShareError => e
-        error_message = "A BGS failure occurred while trying to retrieve Veteran 'FileNumber'"
-        log_exception_to_sentry(e, nil, { message: error_message }, 'warn')
-        raise ::Common::Exceptions::FailedDependency
-      end
-    end
-
-    def bgs_service(evidence_waiver_submission:)
-      BGS::Services.new(
-        external_uid: evidence_waiver_submission.auth_headers['va_eauth_pid'],
-        external_key: evidence_waiver_submission.auth_headers['va_eauth_pid']
-      )
     end
   end
 end

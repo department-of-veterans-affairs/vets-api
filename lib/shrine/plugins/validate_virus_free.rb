@@ -19,7 +19,7 @@ class Shrine
 
         def add_error_msg(message)
           if Rails.env.development? && message.match(/nodename nor servname provided/)
-            Shrine.logger.error('VIRUS SCANNING IS OFF. PLEASE START CLAMD')
+            Rails.logger.error('VIRUS SCANNING IS OFF. PLEASE START CLAMD')
             true
           else
             errors << (message || 'virus or malware detected')

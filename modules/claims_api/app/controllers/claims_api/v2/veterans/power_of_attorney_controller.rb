@@ -8,7 +8,6 @@ module ClaimsApi
     module Veterans
       class PowerOfAttorneyController < ClaimsApi::V2::ApplicationController
         include ClaimsApi::PoaVerification
-        before_action :verify_access!
         FORM_NUMBER = '2122'
 
         def show

@@ -35,7 +35,8 @@ RSpec.describe FacilitiesApi::V1::PPMS::Provider, type: :model, team: :facilitie
           pos_codes: nil,
           provider_identifier: nil,
           provider_name: nil,
-          provider_type: 'GroupPracticeOrAgency'
+          provider_type: 'GroupPracticeOrAgency',
+          trainings: []
         }
       )
     end

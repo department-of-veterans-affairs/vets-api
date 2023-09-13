@@ -142,5 +142,52 @@ module DocHelpers
   def self.doc_suffix
     ENV['RSWAG_ENV'] == 'dev' ? '_dev' : ''
   end
+
+  def self.doc_url_prefix
+    ENV['RSWAG_ENV'] == 'dev' ? 'dev-' : ''
+  end
+
+  # Given a JSON schema hash and a path to a value inside it, find it and resolve any +$ref+s by merging them in
+  # @param [Object] parent_schema - Full JSON schema as a hash
+  # @param [Array<String>] value_keys - Path to dig for the value to resolve within the +parent_schema+
+  # @return [Hash] - JSON schema for the given value without any $refs
+  def _resolve_value_schema(parent_schema, *value_keys)
+    value_schema = parent_schema.dig(*value_keys)
+    raise "Unable to resolve schema at path #{value_keys.join('/')}" if value_schema.blank?
+
+    if (parts = value_schema['allOf'])
+      value_schema = parts.reduce(:merge)
+    end
+
+    return value_schema unless (ref = value_schema.delete('$ref'))
+
+    if ref.end_with? '.json' # shared schema
+      shared_schema = JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', 'shared', 'v0', ref)))
+      shared_schema.dig('properties', ref.gsub('.json', '')).merge(value_schema)
+    elsif ref.start_with? '#/' # reference within parent schema
+      _resolve_value_schema(parent_schema, *ref.slice(2..).split('/')).merge(value_schema)
+    else
+      raise "Unable to resolve schema at #/#{value_keys.join('/')}"
+    end
+  end
+
+  HOISTED_OAS_KEYS = %w[description required deprecated allowEmptyValue example].freeze
+
+  # Generates a swagger parameter configuration based on the JSON schema for a value. See formats:
+  # - JSON schema object: https://json-schema.org/understanding-json-schema/reference/object.html
+  # - Swagger parameter config: https://swagger.io/specification/#parameter-object
+  # @param [String] json_schema_path - Path to a JSON schema file within the appeals_api's schemas directory
+  # @param [Array<String>] value_keys - Path to dig for the parameter value within the JSON schema
+  # @return [Hash] - Rswag parameter config for the given value
+  def parameter_from_schema(json_schema_path, *value_keys)
+    parent_schema = JSON.parse(File.read(AppealsApi::Engine.root.join('config', 'schemas', json_schema_path)))
+    value_schema = _resolve_value_schema(parent_schema, *value_keys)
+    name = value_keys.last
+    param_config = { name: }
+    HOISTED_OAS_KEYS.each { |key| param_config[key] = value_schema.delete(key) if value_schema[key] }
+    param_config[:required] = true if parent_schema['required']&.include? name
+    param_config[:schema] = value_schema
+    param_config.deep_symbolize_keys
+  end
 end
 # rubocop:enable Metrics/ModuleLength

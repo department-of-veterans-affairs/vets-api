@@ -1,0 +1,37 @@
+type: object
+required:
+  - id
+  - type
+  - attributes
+properties:
+  id:
+    type: string
+    example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+  type:
+    type: string
+    example: "user"
+  attributes:
+    type: object
+    required:
+      - id
+      - firstName
+      - middleName
+      - lastName
+      - signinEmail
+      - signinService
+    properties:
+      firstName:
+        type: string
+        example: "John"
+      middleName:
+        type: string
+        example: "A"
+      lastName:
+        type: string
+        example: "Smith"
+      signinEmail:
+        type: string
+        example: "john.a.smith@domain.com"
+      signinService:
+        type: string
+        example: "IDME"

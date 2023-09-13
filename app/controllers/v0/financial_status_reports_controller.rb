@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'debt_management_center/financial_status_report_service'
+require 'debts_api/v0/financial_status_report_service'
 
 module V0
   class FinancialStatusReportsController < ApplicationController
@@ -50,6 +51,10 @@ module V0
     # rubocop:disable Metrics/MethodLength
     def fsr_form
       params.permit(
+        streamlined: %i[
+          value
+          type
+        ],
         personal_identification: %i[fsr_reason ssn file_number],
         personal_data: [
           :telephone_number,
@@ -148,7 +153,11 @@ module V0
     # rubocop:enable Metrics/MethodLength
 
     def service
-      DebtManagementCenter::FinancialStatusReportService.new(current_user)
+      if Flipper.enabled?(:financial_status_report_debts_api_module)
+        DebtsApi::V0::FinancialStatusReportService.new(current_user)
+      else
+        DebtManagementCenter::FinancialStatusReportService.new(current_user)
+      end
     end
   end
 end

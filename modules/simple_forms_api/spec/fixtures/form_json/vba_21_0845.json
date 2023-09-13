@@ -1,0 +1,40 @@
+{
+  "form_number": "21-0845",
+  "limited_information_items": "Status of pending claim or appeal,Request a benefit payment letter,Change of address or direct deposit",
+  "limited_information_other": "ither",
+  "organization_address": {
+    "street": "125 Any St",
+    "street2": "s4",
+    "city": "Anycity",
+    "country": "USA",
+    "state": "CA",
+    "postal_code": "12347"
+  },
+  "veteran_ssn": "111223333",
+  "veteran_va_file_number": "555442222",
+  "veteran_service_number": "555442222",
+  "veteran_full_name": { "first": "John", "middle": "m", "last": "Veteran" },
+  "veteran_date_of_birth": "1979-02-01",
+  "authorizer_address": {
+    "street": "123 Any St",
+    "street2": "s2",
+    "city": "Anytown",
+    "country": "USA",
+    "state": "CA",
+    "postal_code": "12345"
+  },
+  "authorizer_full_name": {
+    "first": "Jack",
+    "middle": "a",
+    "last": "Authorizer"
+  },
+  "authorizer_type": "nonVeteran",
+  "thirdParty_type": "organization",
+  "organization_name": "ACME Org",
+  "organization_representatives": [{ "representative_name": "Joe Rep" }],
+  "information_scope": "limited",
+  "release_duration": "untilDate",
+  "release_end_date": "2033-06-16",
+  "security_question": "motherBirthplace",
+  "security_answer": "Las Vegas, NV"
+}

@@ -28,13 +28,19 @@ module Rx
           @meta_attributes = split_meta_fields!
           @errors = @parsed_json.delete(:errors) || {}
 
-          data =  parsed_prescription_list || parsed_tracking_object || parsed_prescription
+          data =  parsed_prescription_list || parsed_tracking_object || parsed_prescription || parsed_medication_list
           @parsed_json = {
             data:,
             errors: @errors,
             metadata: @meta_attributes
           }
           @parsed_json
+        end
+
+        def parsed_medication_list
+          return nil unless @parsed_json.keys.include?(:medication_list)
+
+          @parsed_json[:medication_list][:medication]
         end
 
         def split_meta_fields!

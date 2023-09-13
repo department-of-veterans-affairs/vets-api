@@ -14,7 +14,6 @@ module Form1010cg
       OpenStruct.new(
         submission: OpenStruct.new(
           attempt: "#{submission_prefix}.attempt",
-          success: "#{submission_prefix}.success",
           caregivers: OpenStruct.new(
             primary_no_secondary: "#{submission_prefix}.caregivers.primary_no_secondary",
             primary_one_secondary: "#{submission_prefix}.caregivers.primary_one_secondary",
@@ -49,18 +48,6 @@ module Form1010cg
 
     def record_submission_attempt
       increment self.class.metrics.submission.attempt
-    end
-
-    def record_submission_success(claim_guid:, carma_case_id:, metadata:, attachments:, attachments_job_id:)
-      increment self.class.metrics.submission.success
-      log(
-        'Submission Successful',
-        claim_guid:,
-        carma_case_id:,
-        metadata:,
-        attachments:,
-        attachments_job_id:
-      )
     end
 
     # rubocop:disable Metrics/MethodLength

@@ -15,8 +15,8 @@ module VAProfile
 
       configuration VAProfile::Disability::Configuration
 
-      OID = '2.16.840.1.113883.3.42.10001.100001.12'  # double check swagger
-      AAID = '^NI^200DOD^USDOD'  # double check swagger. 
+      OID = '2.16.840.1.113883.3.42.10001.100001.12'
+      AAID = '^NI^200DOD^USDOD'
 
       # GET's a user's disability info from the VAProfile API
       # If a user is not found in VAProfile, an empty DisabilityResponse with a 404 status will be returned
@@ -65,11 +65,11 @@ module VAProfile
       end
 
       def edipi_id
-        return @user&.edipi if @user&.edipi.present?
+        @user&.edipi.presence
       end
 
       def aaid
-        return AAID if @user&.edipi.present?
+        AAID if @user&.edipi.present?
       end
     end
   end

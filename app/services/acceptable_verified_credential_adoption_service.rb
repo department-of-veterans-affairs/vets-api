@@ -8,7 +8,7 @@
 class AcceptableVerifiedCredentialAdoptionService
   attr_accessor :user
 
-  REACTIVATION_TEMPLATE_ID = '480270b2-d2c8-4048-91d7-aebc51a2f073'
+  REACTIVATION_TEMPLATE_ID = Settings.vanotify.services.va_gov.template_id.login_reactivation_email
   STATS_KEY = 'api.user_transition_availability'
 
   def initialize(user)

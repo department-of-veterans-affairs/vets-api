@@ -8,7 +8,7 @@ module Chip
 
     UNMAPPED_KEY = 'unmapped_service_exception'
 
-    def initialize(key: nil, response_values: {}, original_status: nil, original_body: nil)
+    def initialize(key, response_values = {}, original_status = nil, original_body = nil)
       super(key, response_values, original_status, original_body)
     end
 

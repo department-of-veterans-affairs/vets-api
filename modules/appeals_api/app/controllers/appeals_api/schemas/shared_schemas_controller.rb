@@ -8,6 +8,7 @@ class AppealsApi::Schemas::SharedSchemasController < AppealsApi::ApplicationCont
 
   ACCEPTED_SCHEMA_TYPES = %w[
     address
+    fileNumber
     icn
     nonBlankString
     phone

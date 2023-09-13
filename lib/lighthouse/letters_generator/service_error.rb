@@ -16,6 +16,7 @@ module Lighthouse
         413 => 'lighthouse.letters_generator.payload_too_large',
         422 => 'lighthouse.letters_generator.unprocessable_entity',
         429 => 'lighthouse.letters_generator.too_many_requests',
+        504 => 'lighthouse.letters_generator.gateway_timeout',
         default: 'common.exceptions.internal_server_error'
       }.freeze
 

@@ -10,8 +10,8 @@ shared_examples 'test schema' do
 end
 
 describe DecisionReview::Schemas do
-  def hash_from_json_file(*path)
-    JSON.parse File.read Rails.root.join(*path)
+  def hash_from_json_file(*)
+    JSON.parse File.read Rails.root.join(*)
   end
 
   let(:errors) { validator.validate(json).to_a }

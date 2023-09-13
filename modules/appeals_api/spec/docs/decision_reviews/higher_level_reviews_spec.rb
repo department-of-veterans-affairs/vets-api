@@ -5,6 +5,7 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
+require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_pdf_downloads.rb')
 
 def swagger_doc
   "modules/appeals_api/app/swagger/decision_reviews/v2/swagger#{DocHelpers.doc_suffix}.json"
@@ -43,6 +44,7 @@ describe 'Higher-Level Reviews', swagger_doc:, type: :request do
       let(:'X-VA-SSN') { '000000000' }
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header]
+      let(:'X-VA-ICN') { '1234567890V987654' }
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_first_name_header]
       let(:'X-VA-First-Name') { 'first' }
@@ -141,6 +143,21 @@ describe 'Higher-Level Reviews', swagger_doc:, type: :request do
       end
 
       it_behaves_like 'rswag 500 response'
+    end
+  end
+
+  if ENV['RSWAG_ENV'] == 'dev'
+    path '/higher_level_reviews/{uuid}/download' do
+      get 'Download a watermarked copy of a submitted Higher-Level Review' do
+        tags 'Higher-Level Reviews'
+        operationId 'downloadHlr'
+        security DocHelpers.decision_reviews_security_config
+
+        include_examples 'decision reviews PDF download docs', {
+          factory: :extra_higher_level_review_v2,
+          appeal_type_display_name: 'Higher-Level Review'
+        }
+      end
     end
   end
 
@@ -258,6 +275,7 @@ describe 'Higher-Level Reviews', swagger_doc:, type: :request do
       let(:'X-VA-SSN') { '000000000' }
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_icn_header]
+      let(:'X-VA-ICN') { '1234567890V987654' }
 
       parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_first_name_header]
       let(:'X-VA-First-Name') { 'first' }

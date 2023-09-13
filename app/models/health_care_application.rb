@@ -41,6 +41,10 @@ class HealthCareApplication < ApplicationRecord
     }
   end
 
+  def form_id
+    self.class::FORM_ID.upcase
+  end
+
   def success?
     state == 'success'
   end

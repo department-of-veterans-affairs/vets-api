@@ -203,13 +203,14 @@ module HCA
     def post_nov111998_combat
       deployments.each do |deployment|
         if deployment['deployment_end_date']
-          return true if Date.parse(deployment['deployment_end_date']) > NOV_1998
+          return true if deployment['deployment_end_date'] && (Date.parse(deployment['deployment_end_date']) > NOV_1998)
         end
       end
 
       false
     end
 
+    # @return [Array<String>] Veteran's unique service branch codes
     # @return [Array<String>] Veteran's unique service branch codes
     def service_branches
       military_service_episodes.map(&:branch_of_service_code).uniq
@@ -231,15 +232,15 @@ module HCA
     #  including service branch served under and date range of each
     #  service period, used only for Form 526 - Disability form
     def service_periods
-      military_service_episodes_by_date.map do |military_service_episode|
-        service_branch = service_branch_used_in_disability(military_service_episode)
-        return {} unless service_branch
-
+      valid_episodes = military_service_episodes_by_date.select do |military_service_episode|
+        service_branch_used_in_disability(military_service_episode)
+      end
+      valid_episodes.map do |valid_episode|
         {
-          service_branch:,
+          service_branch: service_branch_used_in_disability(valid_episode),
           date_range: {
-            from: military_service_episode.begin_date,
-            to: military_service_episode.end_date
+            from: valid_episode.begin_date,
+            to: valid_episode.end_date
           }
         }
       end
@@ -268,7 +269,7 @@ module HCA
     def deployed_to?(countries, date_range)
       deployments.each do |deployment|
         if deployment['deployment_locations']
-          deployment['deployment_locations'].each do |location|
+          deployment['deployment_locations']&.each do |location|
             location_date_range = location['deployment_location_begin_date']..location['deployment_location_end_date']
 
             if countries.include?(location['deployment_country_code']) && date_range.overlaps?(location_date_range)

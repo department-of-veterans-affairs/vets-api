@@ -73,7 +73,7 @@ class Account < ApplicationRecord
   end
 
   def unique?(new_uuid)
-    return true unless Account.exists?(uuid: new_uuid)
+    true unless Account.exists?(uuid: new_uuid)
   end
 
   def generate_uuid

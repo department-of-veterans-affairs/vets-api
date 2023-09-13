@@ -12,6 +12,37 @@
             "veteran": {
               "type": "object",
               "properties": {
+                "ssn": {
+                  "allOf": [
+                    { "$ref": "ssn.json" },
+                    { "description": "Veteran's SSN" }
+                  ]
+                },
+                "icn": { "$ref": "icn.json" },
+                "firstName": {
+                  "allOf": [
+                    { "description": "Veteran's first name", "minLength": 1, "maxLength": 255 },
+                    { "$comment":  "can be whitespace, to accommodate those with 1 legal name" },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
+                "middleInitial": {
+                  "allOf": [
+                    { "description": "Veteran's middle initial", "minLength": 1, "maxLength": 1 },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
+                "lastName": {
+                  "allOf": [
+                    { "description":  "Veteran's last name", "minLength": 1, "maxLength": 255 },
+                    { "$ref":  "nonBlankString.json" }
+                  ]
+                },
+                "fileNumber": { "$ref": "fileNumber.json" },
+                "birthDate": {
+                  "description": "Veteran's birth date",
+                  "type": "string", "format": "date"
+                },
                 "homeless": { "type": "boolean" },
                 "address": { "$ref": "address.json" },
                 "phone": {
@@ -24,7 +55,7 @@
                   "$ref": "timezone.json"
                 }
               },
-              "required": ["homeless", "phone", "email"],
+              "required": ["icn", "fileNumber", "firstName", "lastName", "birthDate", "homeless", "phone", "email"],
               "if": { "properties": { "homeless": { "const": false } } },
               "then": { "required": ["address"] }
             },
@@ -32,6 +63,30 @@
               "type": "object",
               "description": "If the claimant is a non-Veteran, claimant information is required. Without this information, we will be unable to identify the claimant. If you're a healthcare provider or an employee of a healthcare provider requesting review of a VA payment decision, you must identify the healthcare provider as the claimant and complete all relevant information in the claimant object.",
               "properties": {
+                "firstName": {
+                  "allOf": [
+                    { "description": "Non-Veteran claimant's first name", "minLength": 1, "maxLength": 255 },
+                    { "$ref": "nonBlankString.json" },
+                    { "$comment":  "Can be whitespace to accommodate those with 1 legal name" }
+                  ]
+                },
+                "middleInitial": {
+                  "allOf": [
+                    { "description": "Non-Veteran Claimant's middle initial", "minLength": 1, "maxLength": 1 },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
+                "lastName": {
+                  "allOf": [
+                    { "description": "Non-Veteran Claimant's last name", "minLength": 1, "maxLength": 255 },
+                    { "$ref": "nonBlankString.json" }
+                  ]
+                },
+                "birthDate": {
+                  "description": "Non-Veteran claimant's birth date",
+                  "type": "string",
+                  "format": "date"
+                },
                 "homeless": { "type": "boolean" },
                 "address": { "$ref": "address.json" },
                 "phone": {

@@ -48,7 +48,7 @@ module VAOS
       def schedulable
         if Flipper.enabled?('va_online_scheduling_required_schedulable_param')
           # with this flag on, we will always want to return 'true' for this param per github issue #59503
-          true
+          params[:schedulable] = true
         else
           params[:schedulable]
         end
