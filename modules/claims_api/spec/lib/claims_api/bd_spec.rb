@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bd/bd'
-require 'claims_api/v2/benefits_documents/service'
+require_relative '../../rails_helper'
 
 describe ClaimsApi::BD do
   subject { described_class.new }
