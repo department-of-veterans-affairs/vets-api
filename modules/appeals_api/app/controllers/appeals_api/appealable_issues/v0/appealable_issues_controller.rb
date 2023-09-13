@@ -3,12 +3,13 @@
 require 'appeals_api/form_schemas'
 
 module AppealsApi::AppealableIssues::V0
-  class AppealableIssuesController < AppealsApi::V2::DecisionReviews::ContestableIssuesController
+  class AppealableIssuesController < AppealsApi::ApplicationController
+    include AppealsApi::CaseflowRequest
     include AppealsApi::OpenidAuth
     include AppealsApi::Schemas
 
-    # This validation happens in #validate_params now; remove this once inheritance relationship is gone:
-    skip_before_action :validate_json_schema
+    skip_before_action :authenticate
+    before_action :validate_json_schema, only: %i[index]
 
     SCHEMA_OPTIONS = { schema_version: 'v0', api_name: 'appealable_issues' }.freeze
 
@@ -17,13 +18,7 @@ module AppealsApi::AppealableIssues::V0
     }.freeze
 
     def index
-      get_appealable_issues_from_caseflow
-
-      if caseflow_response_has_a_body_and_a_status?
-        render_response(caseflow_response)
-      else
-        render_unusable_response_error
-      end
+      render json: caseflow_response.body, status: caseflow_response.status
     end
 
     def schema
@@ -32,15 +27,22 @@ module AppealsApi::AppealableIssues::V0
 
     private
 
-    def validate_params = form_schemas.validate!('PARAMS', params.to_unsafe_h)
+    def header_names = headers_schema['definitions']['appealableIssuesIndexParameters']['properties'].keys
+
+    def request_headers
+      header_names.index_with { |key| request.headers[key] }.compact
+    end
+
+    def validate_json_schema
+      form_schemas.validate!('PARAMS', params.to_unsafe_h)
+    end
 
     def token_validation_api_key
       # FIXME: rename token storage key
       Settings.dig(:modules_appeals_api, :token_validation, :contestable_issues, :api_key)
     end
 
-    # rubocop:disable Metrics/MethodLength
-    def get_appealable_issues_from_caseflow(filter: true)
+    def get_caseflow_response
       headers = generate_caseflow_headers
       decision_review_type = if params[:decisionReviewType] == 'notice-of-disagreements'
                                'appeals'
@@ -52,39 +54,34 @@ module AppealsApi::AppealableIssues::V0
                      else
                        params[:benefitType].to_s.underscore
                      end
-      @caseflow_response ||= filtered_caseflow_response(
+
+      format_caseflow_response(
         decision_review_type,
-        Caseflow::Service.new.get_contestable_issues(headers:, decision_review_type:, benefit_type:),
-        filter
+        caseflow_service.get_contestable_issues(headers:, decision_review_type:, benefit_type:)
       )
-    rescue Common::Exceptions::BackendServiceException => @backend_service_exception # rubocop:disable Naming/RescuedExceptionsVariableName
-      log_caseflow_error 'BackendServiceException',
-                         backend_service_exception.original_status,
-                         backend_service_exception.original_body
-
-      raise unless caseflow_returned_a_4xx?
-
-      @caseflow_response = caseflow_response_from_backend_service_exception
     end
-    # rubocop:enable Metrics/MethodLength
 
     def generate_caseflow_headers
-      mpi = MPI::Service.new
-      user = mpi.find_profile_by_identifier(identifier: params[:icn], identifier_type: MPI::Constants::ICN)
-      { 'X-VA-Receipt-Date' => params[:receiptDate], 'X-VA-SSN' => user.profile.ssn }
+      { 'X-VA-Receipt-Date' => params[:receiptDate], 'X-VA-SSN' => icn_to_ssn!(params[:icn]) }
     end
 
-    def filtered_caseflow_response(decision_review_type, caseflow_response, filter)
-      super
+    # Filters and reformats a response from caseflow for presentation to the client
+    def format_caseflow_response(decision_review_type, res)
+      return res unless decision_review_type == 'appeals'
+      return res if res.body['data'].nil?
 
-      if caseflow_response&.body.is_a? Hash
-        caseflow_response.body.fetch('data', []).each do |issue|
+      res.body['data'].reject! { |issue| issue['attributes']['ratingIssueSubjectText'].nil? }
+      res.body['data'].sort_by! { |issue| Date.strptime(issue['attributes']['approxDecisionDate'], '%Y-%m-%d') }
+      res.body['data'].reverse!
+
+      if res&.body.is_a? Hash
+        res.body.fetch('data', []).each do |issue|
           # Responses from caseflow still have the older name 'contestableIssue'
           issue['type'] = 'appealableIssue' if issue['type'] == 'contestableIssue'
         end
       end
 
-      caseflow_response
+      res
     end
   end
 end
