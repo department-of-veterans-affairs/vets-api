@@ -136,14 +136,13 @@ shared_examples 'PDF download docs' do |opts|
   example_icn = '0123456789V012345'
 
   description <<~DESC
-    Returns a watermarked copy of the submitted #{opts[:appeal_type_display_name]} PDF. The PDF will only be available
-    for download after the #{opts[:appeal_type_display_name]} has progressed to a 'submitted' state. The PDF will
-    become unavailable again once personally identifying information is deleted from the server one week after the
-    #{opts[:appeal_type_display_name]} progresses to a 'completed' state.
+    Returns a watermarked copy of a #{opts[:appeal_type_display_name]} PDF as submitted to the VA. PDFs are available
+    with the following caveats:
 
-    A PDF will not be available unless an ICN was included when the #{opts[:appeal_type_display_name]} was created,
-    And the 'icn' query parameter provided to this endpoint is required to match the ICN originally submitted with the
-    #{opts[:appeal_type_display_name]}.
+    1. The PDF download will become available only after after the #{opts[:appeal_type_display_name]} has progressed to
+       the 'submitted' state.
+    2. The PDF will stop being available one week after the #{opts[:appeal_type_display_name]} has progressed to the
+       'completed' state. This is when the Veteran's personally identifying information is purged from our servers.
   DESC
 
   consumes 'application/json'
@@ -260,14 +259,16 @@ shared_examples 'decision reviews PDF download docs' do |opts|
   example_icn = '0123456789V012345'
 
   description <<~DESC
-    Returns a watermarked copy of the submitted #{opts[:appeal_type_display_name]} PDF. The PDF will only be available
-    for download after the #{opts[:appeal_type_display_name]} has progressed to a 'submitted' state. The PDF will
-    become unavailable again once personally identifying information is deleted from the server one week after the
-    #{opts[:appeal_type_display_name]} progresses to a 'completed' state.
+    Returns a watermarked copy of a #{opts[:appeal_type_display_name]} PDF as submitted to the VA. PDFs are available
+    with the following caveats:
 
-    A PDF will not be available unless an ICN was included when the #{opts[:appeal_type_display_name]} was created,
-    And the X-VA-ICN header submitted to this endpoint is required to match the ICN originally submitted with the
-    #{opts[:appeal_type_display_name]}.
+    1. The PDF download will become available only after after the #{opts[:appeal_type_display_name]} has progressed to
+       the 'submitted' state.
+    2. The PDF will stop being available one week after the #{opts[:appeal_type_display_name]} has progressed to the
+       'completed' state. This is when the Veteran's personally identifying information is purged from our servers.
+    3. PDFs are only available for #{opts[:appeal_type_display_name]}s created with an associated Veteran ICN, which is
+       provided in the `X-VA-ICN` header when the appeal is first created. If the appeal was not created with an
+       `X-VA-ICN` header, a PDF will never become available.
   DESC
 
   consumes 'application/json'

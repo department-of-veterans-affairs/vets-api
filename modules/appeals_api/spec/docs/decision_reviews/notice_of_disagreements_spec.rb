@@ -158,18 +158,16 @@ describe 'Notice of Disagreements', swagger_doc:, type: :request do
     end
   end
 
-  if ENV['RSWAG_ENV'] == 'dev'
-    path '/notice_of_disagreements/{uuid}/download' do
-      get 'Download a watermarked copy of a submitted Notice of Disagreement' do
-        tags 'Notice of Disagreements'
-        operationId 'downloadNod'
-        security DocHelpers.decision_reviews_security_config
+  path '/notice_of_disagreements/{uuid}/download' do
+    get 'Download a watermarked copy of a submitted Notice of Disagreement' do
+      tags 'Notice of Disagreements'
+      operationId 'downloadNod'
+      security DocHelpers.decision_reviews_security_config
 
-        include_examples 'decision reviews PDF download docs', {
-          factory: :extra_notice_of_disagreement_v2,
-          appeal_type_display_name: 'Notice of Disagreement'
-        }
-      end
+      include_examples 'decision reviews PDF download docs', {
+        factory: :extra_notice_of_disagreement_v2,
+        appeal_type_display_name: 'Notice of Disagreement'
+      }
     end
   end
 
