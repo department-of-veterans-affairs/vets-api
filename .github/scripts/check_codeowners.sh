@@ -24,7 +24,7 @@ check_in_codeowners() {
     local file="$1"
     while [[ "$file" != '.' && "$file" != '/' ]]; do
         echo "Checking CODEOWNERS for: $file"
-        if grep -qE "^\s*${file}(\s+|\$)" .github/CODEOWNERS; then
+        if grep -qE "^\s*${file}(/?|\s+|\$)" .github/CODEOWNERS; then
             echo "Found in CODEOWNERS: $file"
             return 0
         fi
