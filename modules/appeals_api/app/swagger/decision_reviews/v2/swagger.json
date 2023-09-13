@@ -1094,6 +1094,137 @@
         }
       }
     },
+    "/higher_level_reviews/{uuid}/download": {
+      "get": {
+        "summary": "Download a watermarked copy of a submitted Higher-Level Review",
+        "tags": [
+          "Higher-Level Reviews"
+        ],
+        "operationId": "downloadHlr",
+        "security": [
+          {
+            "apikey": [
+
+            ]
+          }
+        ],
+        "description": "Returns a watermarked copy of a Higher-Level Review PDF as submitted to the VA. PDFs are available\nwith the following caveats:\n\n1. The PDF download will become available only after after the Higher-Level Review has progressed to\n   the 'submitted' state.\n2. The PDF will stop being available one week after the Higher-Level Review has progressed to the\n   'completed' state. This is when the Veteran's personally identifying information is purged from our servers.\n3. PDFs are only available for Higher-Level Reviews created with an associated Veteran ICN, which is\n   provided in the `X-VA-ICN` header when the appeal is first created. If the appeal was not created with an\n   `X-VA-ICN` header, a PDF will never become available.\n",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-VA-ICN",
+            "required": false,
+            "description": "ICN of the Veteran associated with the Higher-Level Review",
+            "example": "0123456789V012345",
+            "schema": {
+              "$ref": "#/components/schemas/X-VA-ICN"
+            }
+          },
+          {
+            "name": "uuid",
+            "in": "path",
+            "description": "Higher-Level Review UUID",
+            "example": "44444444-5555-6666-7777-888888888888",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "file"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Higher-Level Review record was not found, or the provided X-VA-ICN header does not match the record's ICN, or the record was not created with an ICN",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "code": "404",
+                      "detail": "HigherLevelReview with uuid 44444444-5555-6666-7777-888888888888 not found",
+                      "status": "404",
+                      "title": "Record not found"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Personally identifying information gone",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "code": "410",
+                      "detail": "PDF for HigherLevelReview with id 44444444-5555-6666-7777-888888888888 cannot be downloaded because the form data was deleted from the server after the PII retention period expired",
+                      "status": "410",
+                      "title": "PDF download expired"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Missing X-VA-ICN header",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable Entity",
+                      "detail": "X-VA-ICN is required",
+                      "code": "422",
+                      "status": "422"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Internal server error",
+                      "detail": "Internal server error",
+                      "code": "500",
+                      "status": "500"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/higher_level_reviews/contestable_issues/{benefit_type}": {
       "get": {
         "summary": "Returns all contestable issues for a specific veteran.",
@@ -2951,6 +3082,137 @@
         }
       }
     },
+    "/notice_of_disagreements/{uuid}/download": {
+      "get": {
+        "summary": "Download a watermarked copy of a submitted Notice of Disagreement",
+        "tags": [
+          "Notice of Disagreements"
+        ],
+        "operationId": "downloadNod",
+        "security": [
+          {
+            "apikey": [
+
+            ]
+          }
+        ],
+        "description": "Returns a watermarked copy of a Notice of Disagreement PDF as submitted to the VA. PDFs are available\nwith the following caveats:\n\n1. The PDF download will become available only after after the Notice of Disagreement has progressed to\n   the 'submitted' state.\n2. The PDF will stop being available one week after the Notice of Disagreement has progressed to the\n   'completed' state. This is when the Veteran's personally identifying information is purged from our servers.\n3. PDFs are only available for Notice of Disagreements created with an associated Veteran ICN, which is\n   provided in the `X-VA-ICN` header when the appeal is first created. If the appeal was not created with an\n   `X-VA-ICN` header, a PDF will never become available.\n",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-VA-ICN",
+            "required": false,
+            "description": "ICN of the Veteran associated with the Notice of Disagreement",
+            "example": "0123456789V012345",
+            "schema": {
+              "$ref": "#/components/schemas/X-VA-ICN"
+            }
+          },
+          {
+            "name": "uuid",
+            "in": "path",
+            "description": "Notice of Disagreement UUID",
+            "example": "44444444-5555-6666-7777-888888888888",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "file"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Notice of Disagreement record was not found, or the provided X-VA-ICN header does not match the record's ICN, or the record was not created with an ICN",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "code": "404",
+                      "detail": "NoticeOfDisagreement with uuid 44444444-5555-6666-7777-888888888888 not found",
+                      "status": "404",
+                      "title": "Record not found"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Personally identifying information gone",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "code": "410",
+                      "detail": "PDF for NoticeOfDisagreement with id 44444444-5555-6666-7777-888888888888 cannot be downloaded because the form data was deleted from the server after the PII retention period expired",
+                      "status": "410",
+                      "title": "PDF download expired"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Missing X-VA-ICN header",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable Entity",
+                      "detail": "X-VA-ICN is required",
+                      "code": "422",
+                      "status": "422"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Internal server error",
+                      "detail": "Internal server error",
+                      "code": "500",
+                      "status": "500"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/notice_of_disagreements/schema": {
       "get": {
         "summary": "Gets the Notice of Disagreement JSON Schema.",
@@ -4532,6 +4794,137 @@
                       "detail": "SupplementalClaim with uuid invalid not found",
                       "status": "404",
                       "title": "Record not found"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Internal server error",
+                      "detail": "Internal server error",
+                      "code": "500",
+                      "status": "500"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/supplemental_claims/{uuid}/download": {
+      "get": {
+        "summary": "Download a watermarked copy of a submitted Supplemental Claim",
+        "tags": [
+          "Supplemental Claims"
+        ],
+        "operationId": "downloadSc",
+        "security": [
+          {
+            "apikey": [
+
+            ]
+          }
+        ],
+        "description": "Returns a watermarked copy of a Supplemental Claim PDF as submitted to the VA. PDFs are available\nwith the following caveats:\n\n1. The PDF download will become available only after after the Supplemental Claim has progressed to\n   the 'submitted' state.\n2. The PDF will stop being available one week after the Supplemental Claim has progressed to the\n   'completed' state. This is when the Veteran's personally identifying information is purged from our servers.\n3. PDFs are only available for Supplemental Claims created with an associated Veteran ICN, which is\n   provided in the `X-VA-ICN` header when the appeal is first created. If the appeal was not created with an\n   `X-VA-ICN` header, a PDF will never become available.\n",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-VA-ICN",
+            "required": false,
+            "description": "ICN of the Veteran associated with the Supplemental Claim",
+            "example": "0123456789V012345",
+            "schema": {
+              "$ref": "#/components/schemas/X-VA-ICN"
+            }
+          },
+          {
+            "name": "uuid",
+            "in": "path",
+            "description": "Supplemental Claim UUID",
+            "example": "44444444-5555-6666-7777-888888888888",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "file"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Supplemental Claim record was not found, or the provided X-VA-ICN header does not match the record's ICN, or the record was not created with an ICN",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "code": "404",
+                      "detail": "SupplementalClaim with uuid 44444444-5555-6666-7777-888888888888 not found",
+                      "status": "404",
+                      "title": "Record not found"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Personally identifying information gone",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "code": "410",
+                      "detail": "PDF for SupplementalClaim with id 44444444-5555-6666-7777-888888888888 cannot be downloaded because the form data was deleted from the server after the PII retention period expired",
+                      "status": "410",
+                      "title": "PDF download expired"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Missing X-VA-ICN header",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Unprocessable Entity",
+                      "detail": "X-VA-ICN is required",
+                      "code": "422",
+                      "status": "422"
                     }
                   ]
                 },
