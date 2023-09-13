@@ -41,7 +41,9 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
     let(:headers) { default_headers }
 
     describe 'auth behavior' do
-      it_behaves_like('an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:POST]) do
+      it_behaves_like(
+        'an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:POST], success_status: :created
+      ) do
         def make_request(auth_header)
           post(path, params: params.to_json, headers: headers.merge(auth_header))
         end
@@ -56,7 +58,7 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
       end
 
       it 'creates an NOD record having api_version: "V0"' do
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:created)
 
         nod_guid = parsed_response['data']['id']
         nod = AppealsApi::NoticeOfDisagreement.find(nod_guid)

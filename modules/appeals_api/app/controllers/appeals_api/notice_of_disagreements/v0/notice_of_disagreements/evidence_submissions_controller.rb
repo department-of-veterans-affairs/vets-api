@@ -52,7 +52,7 @@ module AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements
         }
       )
 
-      render status: :accepted,
+      render status: :created,
              json: submission,
              serializer: AppealsApi::EvidenceSubmissionSerializer,
              key_transform: :camel_lower,
