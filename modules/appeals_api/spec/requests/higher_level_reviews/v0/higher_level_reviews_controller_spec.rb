@@ -65,7 +65,9 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
     let(:headers) { default_headers }
 
     describe 'auth behavior' do
-      it_behaves_like 'an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:POST] do
+      it_behaves_like(
+        'an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:POST], success_status: :created
+      ) do
         def make_request(auth_header)
           post(path, params: params.to_json, headers: headers.merge(auth_header))
         end
@@ -80,7 +82,7 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
       end
 
       it 'creates an HLR record having api_version: "V0"' do
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:created)
 
         hlr = AppealsApi::HigherLevelReview.find(parsed_response['data']['id'])
 

@@ -48,8 +48,8 @@
 
         ],
         "responses": {
-          "200": {
-            "description": "Info about a single Supplemental Claim",
+          "201": {
+            "description": "Supplemental Claim created",
             "content": {
               "application/json": {
                 "examples": {
@@ -2999,8 +2999,8 @@
 
         ],
         "responses": {
-          "202": {
-            "description": "Accepted. Location generated",
+          "201": {
+            "description": "Location created",
             "content": {
               "application/json": {
                 "example": {

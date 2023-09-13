@@ -50,7 +50,7 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
                   }
                 }
 
-      response '200', 'Info about a single Supplemental Claim' do
+      response '201', 'Supplemental Claim created' do
         let(:sc_body) { fixture_as_json('supplemental_claims/v0/valid_200995.json') }
 
         schema '$ref' => '#/components/schemas/scCreateResponse'
@@ -61,7 +61,7 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
                                          scopes:
       end
 
-      response '200', 'Info about a single Supplemental Claim' do
+      response '201', 'Supplemental Claim created' do
         let(:sc_body) do
           fixture_as_json('supplemental_claims/v0/valid_200995_extra.json').tap do |data|
             data.dig('data', 'attributes')&.delete('potentialPactAct') unless DocHelpers.wip_doc_enabled?(:sc_v2_potential_pact_act)
@@ -272,7 +272,7 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
       let(:scId) { FactoryBot.create(:supplemental_claim_v0).id }
       let(:sc_es_body) { { ssn:, scId: } }
 
-      response '202', 'Accepted. Location generated' do
+      response '201', 'Location created' do
         schema '$ref' => '#/components/schemas/scEvidenceSubmissionResponse'
 
         before do
@@ -280,7 +280,7 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
         end
 
         it_behaves_like 'rswag example',
-                        desc: 'returns a 202 response',
+                        desc: 'returns a 201 response',
                         response_wrapper: :normalize_evidence_submission_response,
                         scopes:
       end

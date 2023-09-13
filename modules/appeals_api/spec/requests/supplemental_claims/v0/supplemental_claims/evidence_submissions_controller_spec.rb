@@ -84,7 +84,7 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmiss
       end
 
       it 'succeeds and stores the source on the submission record' do
-        expect(response).to have_http_status(:accepted)
+        expect(response).to have_http_status(:created)
 
         updated_record = AppealsApi::EvidenceSubmission.find_by(guid: json_body['data']['id'])
         expect(updated_record.source).to eq consumer_username
@@ -98,7 +98,7 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmiss
         end
 
         it 'succeeds anyway' do
-          expect(response).to have_http_status(:accepted)
+          expect(response).to have_http_status(:created)
         end
       end
     end
@@ -161,7 +161,7 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmiss
       it_behaves_like(
         'an endpoint with OpenID auth',
         scopes: described_class::OAUTH_SCOPES[:POST],
-        success_status: :accepted
+        success_status: :created
       ) do
         def make_request(auth_header)
           stub_upload_location
