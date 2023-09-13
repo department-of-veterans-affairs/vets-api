@@ -15,7 +15,7 @@
           "addressLine2": "Suite #1200",
           "addressLine3": "Box 4",
           "city": "North Pole",
-          "countryCodeISO2": "CA",
+          "countryCodeIso3": "CAN",
           "zipCode5": "00000",
           "internationalPostalCode": "A1B 23C"
         },
@@ -39,7 +39,7 @@
           "addressLine2": "Apt 5",
           "addressLine3": "Box 1",
           "city": "Detroit",
-          "countryCodeISO2": "US",
+          "countryCodeIso3": "USA",
           "stateCode": "MI",
           "zipCode5": "48070"
         },
