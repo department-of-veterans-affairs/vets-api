@@ -3048,7 +3048,11 @@ spec/support/vcr_cassettes/lgy/documents_coe_file_not_found.yml @department-of-v
 spec/support/vcr_cassettes/lgy/documents_coe_file.yml @department-of-veterans-affairs/Benefits-Team-1 @department-of-veterans-affairs/vsa-ebenefits
 spec/support/vcr_cassettes/lgy/documents_list.yml @department-of-veterans-affairs/vsa-ebenefits
 spec/support/vcr_cassettes/lgy/document_upload.yml @department-of-veterans-affairs/vsa-ebenefits
-spec/support/vcr_cassettes/lighthouse @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-facilities
+spec/support/vcr_cassettes/lighthouse/auth/client_credentials/invalid_assertion_401.yml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-facilities
+spec/support/vcr_cassettes/lighthouse/auth/client_credentials/invalid_client_id_400.yml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-facilities
+spec/support/vcr_cassettes/lighthouse/auth/client_credentials/invalid_scopes_400.yml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-facilities
+spec/support/vcr_cassettes/lighthouse/auth/client_credentials/revoke_consent_204.yml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-facilities
+spec/support/vcr_cassettes/lighthouse/auth/client_credentials/token_200.yml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-facilities
 spec/support/vcr_cassettes/mail_automation @department-of-veterans-affairs/vfs-benefits-delivery
 spec/support/vcr_cassettes/mail_automation/mas_initiate_apcas_request_failure.yml @department-of-veterans-affairs/vfs-benefits-delivery
 spec/support/vcr_cassettes/mail_automation/mas_initiate_apcas_request.yml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-benefits-delivery
