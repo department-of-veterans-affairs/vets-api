@@ -46,14 +46,17 @@
         ],
         "parameters": [
           {
-            "in": "header",
-            "name": "X-VA-SSN",
-            "required": true,
-            "description": "Veteran's SSN",
-            "example": "706547821",
+            "name": "icn",
+            "description": "Veteran's Master Person Index (MPI) Integration Control Number (ICN)",
+            "example": "1234567890V543210",
             "schema": {
-              "$ref": "#/components/schemas/X-VA-SSN"
-            }
+              "type": "string",
+              "pattern": "^[0-9]{10}V[0-9]{6}$",
+              "minLength": 17,
+              "maxLength": 17
+            },
+            "in": "query",
+            "required": true
           },
           {
             "name": "X-VA-User",
@@ -86,7 +89,7 @@
             }
           },
           "400": {
-            "description": "Missing SSN header",
+            "description": "Missing 'icn' parameter",
             "content": {
               "application/json": {
                 "schema": {
@@ -96,7 +99,7 @@
             }
           },
           "422": {
-            "description": "Invalid SSN",
+            "description": "Invalid ICN",
             "content": {
               "application/json": {
                 "schema": {
