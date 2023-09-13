@@ -21,6 +21,7 @@ DELETED_FILES=$(git diff --name-only --diff-filter=D ${BASE_SHA}...${HEAD_SHA})
 file_in_codeowners() {
     local file="$1"
     while [[ "$file" != '.' && "$file" != '/' ]]; do
+        echo "Checking CODEOWNERS for: $file"
         # Check for exact match or trailing slash
         if grep -qE "^\s*${file}(/)?(\s|\$)" .github/CODEOWNERS; then
           echo "Found in CODEOWNERS: $file"
@@ -32,26 +33,24 @@ file_in_codeowners() {
           return 0
         fi
         # Move to the parent directory
+        echo "PARENT DIR: Checking CODEOWNERS for: $file"
         file=$(dirname "$file")
     done
     return 1
 }
 
-for FILE in $DELETED_FILES
-do
-  # Check if the deleted file's or its parent directory's reference is still in CODEOWNERS
+for FILE in $DELETED_FILES; do
+  # Ignore files starting with a dot
+  if [[ $FILE == .* ]]; then
+    echo "Ignoring file $FILE"
+    continue
+  fi
+
+  echo "Checking file: $FILE"
   if file_in_codeowners "$FILE"; then
-    # Check if other files in the same directory still exist
-    PARENT_DIR=$(dirname "$FILE")
-    if [ "$(ls -A "$PARENT_DIR" 2>/dev/null)" ]; then
-      # Other files in the directory still exist, so it's okay
-      continue
-    else
-      # The entire directory has been deleted, but its reference still exists in CODEOWNERS
-      echo "Error: $FILE (or its parent directories) is deleted but its reference still exists in CODEOWNERS."
-      echo "offending_file=$FILE" >> $GITHUB_ENV
-      exit 1
-    fi
+    echo "Error: $FILE (or its parent directories) is deleted but its reference still exists in CODEOWNERS."
+    echo "offending_file=$FILE" >> $GITHUB_ENV
+    exit 1
   fi
 done
 

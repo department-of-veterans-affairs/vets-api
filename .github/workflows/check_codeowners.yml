@@ -47,7 +47,6 @@ jobs:
         GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
     - name: Check CODEOWNERS for removal when files deleted
-      continue-on-error: true
       id: check_deleted_files
       run: |
         chmod +x .github/scripts/check_deleted_files.sh
