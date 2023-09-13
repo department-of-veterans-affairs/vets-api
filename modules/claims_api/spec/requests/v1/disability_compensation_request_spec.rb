@@ -979,13 +979,11 @@ RSpec.describe 'Disability Claims ', type: :request do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('brd/countries') do
               VCR.use_cassette('bgs/claims/claims') do
-                VCR.use_cassette('claims_api/v1/disability_comp/bd_token') do
-                  VCR.use_cassette('claims_api/v1/disability_comp/validate') do
-                    post path, params: data, headers: headers.merge(auth_header)
-                    parsed = JSON.parse(response.body)
-                    expect(parsed['data']['type']).to eq('claims_api_auto_established_claim_validation')
-                    expect(parsed['data']['attributes']['status']).to eq('valid')
-                  end
+                VCR.use_cassette('claims_api/v1/disability_comp/validate') do
+                  post path, params: data, headers: headers.merge(auth_header)
+                  parsed = JSON.parse(response.body)
+                  expect(parsed['data']['type']).to eq('claims_api_auto_established_claim_validation')
+                  expect(parsed['data']['attributes']['status']).to eq('valid')
                 end
               end
             end
@@ -996,12 +994,10 @@ RSpec.describe 'Disability Claims ', type: :request do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('brd/countries') do
               VCR.use_cassette('bgs/claims/claims') do
-                VCR.use_cassette('claims_api/v1/disability_comp/bd_token') do
-                  VCR.use_cassette('claims_api/v1/disability_comp/invalid') do
-                    post path, params: data, headers: headers.merge(auth_header)
-                    parsed = JSON.parse(response.body)
-                    expect(parsed['errors'].size).to eq(2)
-                  end
+                VCR.use_cassette('claims_api/v1/disability_comp/invalid') do
+                  post path, params: data, headers: headers.merge(auth_header)
+                  parsed = JSON.parse(response.body)
+                  expect(parsed['errors'].size).to eq(2)
                 end
               end
             end
@@ -1036,17 +1032,15 @@ RSpec.describe 'Disability Claims ', type: :request do
                 mock_acg(scopes) do |auth_header|
                   VCR.use_cassette('brd/countries') do
                     VCR.use_cassette('bgs/claims/claims') do
-                      VCR.use_cassette('claims_api/v1/disability_comp/bd_token') do
-                        allow_any_instance_of(ClaimsApi::DisabilityCompensation::MockOverrideService)
-                          .to receive(:validate_form526).and_raise(error_klass)
-                        allow_any_instance_of(EVSS::DisabilityCompensationForm::Service)
-                          .to receive(:validate_form526).and_raise(error_klass)
-                        allow_any_instance_of(ClaimsApi::EVSSService::Base)
-                          .to receive(:validate).and_raise(error_klass)
-                        post path, params: data, headers: headers.merge(auth_header)
-                        expect(PersonalInformationLog.count).to be_positive
-                        expect(PersonalInformationLog.last.error_class).to eq("validate_form_526 #{error_klass.name}")
-                      end
+                      allow_any_instance_of(ClaimsApi::DisabilityCompensation::MockOverrideService)
+                        .to receive(:validate_form526).and_raise(error_klass)
+                      allow_any_instance_of(EVSS::DisabilityCompensationForm::Service)
+                        .to receive(:validate_form526).and_raise(error_klass)
+                      allow_any_instance_of(ClaimsApi::EVSSService::Base)
+                        .to receive(:validate).and_raise(error_klass)
+                      post path, params: data, headers: headers.merge(auth_header)
+                      expect(PersonalInformationLog.count).to be_positive
+                      expect(PersonalInformationLog.last.error_class).to eq("validate_form_526 #{error_klass.name}")
                     end
                   end
                 end
