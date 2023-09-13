@@ -52,6 +52,7 @@ module AppealsApi
       :contestable_issue_dates_are_in_the_past,
       :validate_retrieve_from_date_range,
       :claimant_birth_date_is_in_the_past,
+      :country_codes_valid,
       if: proc { |a| a.form_data.present? }
     )
 

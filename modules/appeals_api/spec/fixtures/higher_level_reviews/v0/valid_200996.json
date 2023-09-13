@@ -17,7 +17,7 @@
         "address": {
           "addressLine1": "123 Somestreet",
           "city": "Sometown",
-          "countryCodeISO2": "US",
+          "countryCodeIso3": "USA",
           "zipCode5": "66002"
         },
         "phone": {

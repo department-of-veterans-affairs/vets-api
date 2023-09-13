@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
 module AppealsApi
   module ModelValidations
     extend ActiveSupport::Concern
@@ -111,6 +112,23 @@ module AppealsApi
         end
       end
 
+      def country_codes_valid
+        # Decision Reviews uses 'countryCodeISO2' while the segmented APIs use 'countryCodeIso3'
+        field_name = should_validate_auth_headers? ? 'countryCodeISO2' : 'countryCodeIso3'
+        value = nil
+
+        %w[veteran claimant].each do |person|
+          if (value = form_data.dig('data', 'attributes', person, 'address', field_name).presence)
+            # confirm that the code is valid as we don't have enums of all known countries in our schemas
+            IsoCountryCodes.find(value)
+          end
+        rescue IsoCountryCodes::UnknownCodeError
+          expected_length = should_validate_auth_headers? ? 'two' : 'three'
+          errors.add "/data/attributes/#{person}/address/#{field_name}",
+                     "'#{value}' is not a valid #{expected_length} letter country code"
+        end
+      end
+
       def add_date_error(pointer, date_str, error_opts = {})
         errors.add pointer,
                    "Date must be in the past: #{date_str}",
@@ -147,3 +165,4 @@ module AppealsApi
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength

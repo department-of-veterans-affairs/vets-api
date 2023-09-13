@@ -25,6 +25,18 @@ describe AppealsApi::SupplementalClaim, type: :model do
         it('ignores the user-provided value') { is_expected.to eq(true) }
       end
     end
+
+    describe 'validations' do
+      let(:appeal) { build(:extra_supplemental_claim_v0, api_version: 'V0') }
+
+      it_behaves_like 'shared model validations', {
+        validations: %i[veteran_birth_date_is_in_the_past
+                        claimant_birth_date_is_in_the_past
+                        contestable_issue_dates_are_in_the_past
+                        country_codes_valid],
+        required_claimant_headers: []
+      }
+    end
   end
 
   describe 'when api_version is v2' do
