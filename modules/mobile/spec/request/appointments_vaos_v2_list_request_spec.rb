@@ -109,7 +109,36 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           end
         end
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
-        expect(response.parsed_body['location']).to be_nil
+        location = response.parsed_body.dig('data', 0, 'attributes', 'location')
+        expect(location).to eq({ 'id' => nil,
+                                 'name' => nil,
+                                 'address' =>
+                                   { 'street' => nil,
+                                     'city' => nil,
+                                     'state' => nil,
+                                     'zipCode' => nil },
+                                 'lat' => nil,
+                                 'long' => nil,
+                                 'phone' =>
+                                   { 'areaCode' => nil,
+                                     'number' => nil,
+                                     'extension' => nil },
+                                 'url' => nil,
+                                 'code' => nil })
+      end
+
+      it 'does not attempt to fetch facility more than once' do
+        expect_any_instance_of(Mobile::AppointmentsHelper).to receive(:get_facility).with('983').once
+
+        VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinic_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_facility_500', match_requests_on: %i[method uri],
+                                                                           allow_playback_repeats: true) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_bad_facility_200',
+                             match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params:
+            end
+          end
+        end
       end
     end
 
@@ -141,6 +170,19 @@ RSpec.describe 'vaos v2 appointments', type: :request do
         end
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
         expect(response.parsed_body.dig('data', 0, 'attributes', 'healthcareService')).to be_nil
+      end
+
+      it 'attempts to fetch clinic once' do
+        allow_any_instance_of(Mobile::AppointmentsHelper).to receive(:get_clinic).and_return(nil)
+        expect_any_instance_of(Mobile::AppointmentsHelper).to receive(:get_clinic).once
+
+        VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinic_bad_facility_id_500',
+                         match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_bad_facility_200',
+                           match_requests_on: %i[method uri]) do
+            get '/mobile/v0/appointments', headers: iam_headers, params:
+          end
+        end
       end
     end
 
