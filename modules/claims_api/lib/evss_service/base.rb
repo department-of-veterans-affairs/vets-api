@@ -74,7 +74,8 @@ module ClaimsApi
 
         @auth_headers.merge!({
                                Authorization: "Bearer #{access_token}",
-                               'client-key': client_key
+                               'client-key': client_key,
+                               'Content-Type': 'application/json;charset=UTF-8'
                              })
         @auth_headers.transform_keys(&:to_s)
       end
