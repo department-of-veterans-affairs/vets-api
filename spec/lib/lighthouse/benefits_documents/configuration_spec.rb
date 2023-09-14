@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'lighthouse/benefits_documents/configuration'
 
 RSpec.describe BenefitsDocuments::Configuration do
-
   before do
     token = 'abcd1234'
     allow_any_instance_of(BenefitsDocuments::Configuration).to receive(:access_token).and_return(token)
