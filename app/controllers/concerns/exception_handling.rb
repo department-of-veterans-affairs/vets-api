@@ -3,6 +3,7 @@
 require 'common/exceptions'
 require 'common/client/errors'
 require 'json_schema/json_api_missing_attribute'
+require 'ddtrace'
 
 module ExceptionHandling
   extend ActiveSupport::Concern
@@ -86,5 +87,14 @@ module ExceptionHandling
     end
     va_exception_info = { va_exception_errors: va_exception.errors.map(&:to_hash) }
     log_exception_to_sentry(exception, extra.merge(va_exception_info))
+
+    # Because we are handling exceptions here and not re-raising, we need to set the error on the
+    # Datadog span for it to be reported correctly. We also need to set it on the top-level
+    # (Rack) span for errors to show up in the Datadog Error Tracking console.
+    # Datadog does not support setting rich structured context on spans so we are ignoring
+    # the extra va_exception and other context for now. We can set tags in Datadog as they are used
+    # in Sentry, but tags are not suitable for complex objects.
+    Datadog::Tracing.active_span&.set_error(exception)
+    request.env[Datadog::Tracing::Contrib::Rack::Ext::RACK_ENV_REQUEST_SPAN]&.set_error(exception)
   end
 end
