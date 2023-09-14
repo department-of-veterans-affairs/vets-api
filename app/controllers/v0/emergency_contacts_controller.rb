@@ -6,7 +6,6 @@ module V0
     def index
       response = service.get_emergency_contacts
       render(
-        status: response.status,
         json: response.associated_persons,
         each_serializer: EmergencyContactSerializer
       )

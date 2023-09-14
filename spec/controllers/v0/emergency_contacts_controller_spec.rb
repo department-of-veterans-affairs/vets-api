@@ -26,7 +26,9 @@ RSpec.describe V0::EmergencyContactsController, type: :controller do
         get :index
         expect(response).to have_http_status(:success)
         expect(json['data'].length).to eq(2)
-        expect(json['data'].first['attributes']['contact_type']).to match(/emergency contact/i)
+        json['data'].each do |el|
+          expect(el['attributes']['contact_type']).to match(/emergency contact/i)
+        end
       end
     end
 
