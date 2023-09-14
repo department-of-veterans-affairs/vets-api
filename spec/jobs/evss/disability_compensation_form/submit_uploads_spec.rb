@@ -149,6 +149,16 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         subject.perform_async(submission.id, first_submission_upload)
         described_class.drain
       end
+
+      context 'when get_file is nil' do
+        let(:lighthouse_attachment) { double(:lighthouse_attachment, get_file: nil) }
+
+        it 'logs a non_retryable_error' do
+          subject.perform_async(submission.id, first_submission_upload)
+          expect(Form526JobStatus).to receive(:upsert).twice
+          expect { described_class.drain }.to raise_error(ArgumentError)
+        end
+      end
     end
   end
 end
