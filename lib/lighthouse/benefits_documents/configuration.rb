@@ -87,7 +87,8 @@ module BenefitsDocuments
 
       file = Tempfile.new(document_data[:file_name])
       File.write(file, file_body)
-      payload[:file] = Faraday::UploadIO.new(file, 'application/pdf')
+      mime_type = MimeMagic.by_path(document_data[:file_name]).type
+      payload[:file] = Faraday::UploadIO.new(file, mime_type)
       payload
     end
 
