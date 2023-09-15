@@ -41,7 +41,7 @@ RSpec.describe MedicalCopays::VBS::Service do
     end
 
     it 'returns a response hash' do
-      url = '/base/path/GetStatementsByEDIPIAndVistaAccountNumber'
+      url = '/vbsapi/GetStatementsByEDIPIAndVistaAccountNumber'
       data = { edipi: '123456789', vistaAccountNumbers: [36_546] }
       response = Faraday::Response.new(status: 200, body:
         [
@@ -67,7 +67,7 @@ RSpec.describe MedicalCopays::VBS::Service do
     end
 
     it 'includes zero balance statements if available' do
-      url = '/base/path/GetStatementsByEDIPIAndVistaAccountNumber'
+      url = '/vbsapi/GetStatementsByEDIPIAndVistaAccountNumber'
       data = { edipi: '123456789', vistaAccountNumbers: [36_546] }
       response = Faraday::Response.new(status: 200, body:
         [
@@ -151,7 +151,7 @@ RSpec.describe MedicalCopays::VBS::Service do
     end
 
     it 'returns a response hash' do
-      url = "/base/path/GetPDFStatementById/#{statement_id}"
+      url = "/vbsapi/GetPDFStatementById/#{statement_id}"
       response = Faraday::Response.new(body: { 'statement' => Base64.encode64('foo bar') }, status: 200)
 
       allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:valid?).and_return(true)
