@@ -53,7 +53,7 @@ module VAProfile
       ].freeze
 
       # validation maximums from OpenAPI/Swagger docs
-      # required fields: given_name, family_name, and primary_phone
+      # required fields: contact_type, given_name, family_name, and primary_phone
       validates :contact_type, inclusion: { in: CONTACT_TYPES }
       validates :prefix, length: { maximum: 12 }
       validates :given_name, length: { maximum: 30 }, presence: true

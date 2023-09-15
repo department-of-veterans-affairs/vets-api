@@ -4,6 +4,7 @@ class NextOfKinSerializer < ActiveModel::Serializer
   type :next_of_kin
 
   attributes(
+    :contact_type,
     :given_name,
     :family_name,
     :relationship,

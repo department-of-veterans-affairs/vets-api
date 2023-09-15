@@ -4,12 +4,18 @@ module V0
   class NextOfKinController < ApplicationController
     # GET /v0/next_of_kin
     def index
-      render(json: service.get_next_of_kin)
+      response = service.get_next_of_kin
+      render(
+        json: response.associated_persons,
+        each_serializer: NextOfKinSerializer
+      )
     end
 
     # POST /v0/next_of_kin
     def create
       next_of_kin = VAProfile::Models::AssociatedPerson.new(next_of_kin_params)
+      raise Common::Exceptions::ValidationErrors, next_of_kin unless next_of_kin.valid?
+
       response = service.post_next_of_kin(next_of_kin)
       render(json: response)
     end
@@ -22,6 +28,7 @@ module V0
 
     def next_of_kin_params
       params.require(:next_of_kin).permit(
+        :contact_type,
         :given_name,
         :family_name,
         :relationship,
