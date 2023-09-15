@@ -5,6 +5,8 @@ require 'mobile_application_platform/sign_up/service'
 
 describe MobileApplicationPlatform::SignUp::Service do
   let(:icn) { '10101V964144' }
+  let(:signature_name) { 'some-signature-name' }
+  let(:version) { 'v1' }
   let(:log_prefix) { '[MobileApplicationPlatform][SignUp][Service]' }
 
   describe '#status' do
@@ -54,7 +56,7 @@ describe MobileApplicationPlatform::SignUp::Service do
   end
 
   describe '#agreements_accept' do
-    subject { described_class.new.agreements_accept(icn:) }
+    subject { described_class.new.agreements_accept(icn:, signature_name:, version:) }
 
     context 'when an issue occurs with the client request' do
       let(:expected_error) { Common::Client::Errors::ClientError }
