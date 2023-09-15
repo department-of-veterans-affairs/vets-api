@@ -4,7 +4,7 @@ require 'common/client/configuration/rest'
 
 module SimpleFormsApiSubmission
   class Configuration < Common::Client::Configuration::REST
-    self.read_timeout = 20 # using the same timeout as lighthouse
+    self.read_timeout = 30
 
     ##
     # @return [String] Base path
