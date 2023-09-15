@@ -11,8 +11,9 @@ module SISSessionHelper
 
   def sis_user(args = {})
     @sis_user ||= begin
+      # user_args = { uuid: sis_access_token }.merge(arg)
       user_args = args.merge(uuid: sis_access_token.user_uuid)
-      create(:user, :api_auth, **user_args)
+      create(:mhv_api_auth, **user_args)
     end
   end
 
