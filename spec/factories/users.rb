@@ -357,17 +357,7 @@ FactoryBot.define do
       end
     end
 
-    factory :mhv_api_auth, traits: [:mhv_base] do
-      sign_in do
-        {
-          service_name: SAML::User::MHV_ORIGINAL_CSID,
-          auth_broker: 'sis',
-          client_id: SAML::URLService::MOBILE_CLIENT_ID
-        }
-      end
-    end
-
-    trait :mhv_base do
+    trait :mhv_api_auth do
       authn_context { 'myhealthevet' }
       uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
       idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
@@ -389,6 +379,14 @@ FactoryBot.define do
       vha_facility_hash { { '358' => %w[998877], '200MHS' => %w[998877] } }
       mhv_ids { %w[12345678901] }
       active_mhv_ids { mhv_ids }
+
+      sign_in do
+        {
+          service_name: SAML::User::MHV_ORIGINAL_CSID,
+          auth_broker: 'sis',
+          client_id: SAML::URLService::MOBILE_CLIENT_ID
+        }
+      end
 
       loa do
         {

@@ -11,7 +11,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
-  let!(:user) { sis_user(icn: '1012846043V576341') }
+  let!(:user) { sis_user(args: { icn: '1012846043V576341' }) }
 
   let(:mock_clinic) do
     mock_clinic = {
