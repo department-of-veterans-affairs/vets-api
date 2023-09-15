@@ -185,12 +185,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
     let(:file_path) { ::Rails.root.join(*'/spec/fixtures/dmc/5655.pdf'.split('/')).to_s }
 
     before do
-      response = Faraday::Response.new(status: 200, body:
-      {
-        message: 'Success'
-      })
       upload_time = DateTime.new(2023, 8, 29, 16, 13, 22)
-      allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post).and_return(response)
       allow(PdfFill::Filler).to receive(:fill_ancillary_form).and_return(file_path)
       allow(File).to receive(:delete).and_return(nil)
       allow(DateTime).to receive(:now).and_return(upload_time)
@@ -201,7 +196,9 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
       service = described_class.new(user_data)
       VCR.use_cassette('vha/sharepoint/authenticate') do
         VCR.use_cassette('vha/sharepoint/upload_pdf') do
-          expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+          VCR.use_cassette('dmc/submit_to_vbs') do
+            expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+          end
         end
       end
     end
@@ -224,8 +221,10 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
       it 'submits to the VBS endpoint' do
         VCR.use_cassette('vha/sharepoint/authenticate') do
           VCR.use_cassette('vha/sharepoint/upload_pdf') do
-            service = described_class.new(user_data)
-            expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+            VCR.use_cassette('dmc/submit_to_vbs') do
+              service = described_class.new(user_data)
+              expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+            end
           end
         end
       end
@@ -268,12 +267,6 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
 
     before do
       valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
-      response = Faraday::Response.new(status: 200, body:
-      {
-        message: 'Success'
-      })
-      allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post)
-        .and_return(response)
       allow(User).to receive(:find).with(user.uuid).and_return(user)
     end
 
@@ -341,11 +334,6 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService, type: :servic
 
     before do
       valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
-      response = Faraday::Response.new(status: 200, body:
-      {
-        message: 'Success'
-      })
-      allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post).and_return(response)
       allow(User).to receive(:find).with(user.uuid).and_return(user)
     end
 

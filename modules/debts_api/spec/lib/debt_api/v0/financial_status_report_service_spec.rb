@@ -186,17 +186,14 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     let(:user_data) { build(:user_profile_attributes) }
 
     before do
-      response = Faraday::Response.new(status: 200, body:
-      {
-        message: 'Success'
-      })
-      allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post).and_return(response)
       mock_sharepoint_upload
     end
 
     it 'submits to the VBS endpoint' do
       service = described_class.new(user_data)
-      expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+      VCR.use_cassette('dmc/submit_to_vbs') do
+        expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+      end
     end
 
     it 'parses out delimiter characters' do
@@ -211,8 +208,10 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       let(:non_streamlined_form_submission) { build(:debts_api_non_sw_form5655_submission) }
 
       it 'submits to the VBS endpoint' do
-        service = described_class.new(user_data)
-        expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+        VCR.use_cassette('dmc/submit_to_vbs') do
+          service = described_class.new(user_data)
+          expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+        end
       end
 
       it 'makes streamlined the last key in the form hash' do
@@ -241,12 +240,6 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
     before do
       valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
-      response = Faraday::Response.new(status: 200, body:
-      {
-        message: 'Success'
-      })
-      allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post)
-        .and_return(response)
       mock_sharepoint_upload
       allow(User).to receive(:find).with(user.uuid).and_return(user)
     end
@@ -315,11 +308,6 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
     before do
       valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
-      response = Faraday::Response.new(status: 200, body:
-      {
-        message: 'Success'
-      })
-      allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post).and_return(response)
       mock_sharepoint_upload
       allow(User).to receive(:find).with(user.uuid).and_return(user)
     end

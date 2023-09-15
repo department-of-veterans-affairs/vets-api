@@ -13,14 +13,6 @@ RSpec.describe Form5655::VHA::VBSSubmissionJob, type: :worker do
   describe '#perform' do
     let(:form_submission) { create(:form5655_submission) }
 
-    before do
-      response = Faraday::Response.new(status: 200, body:
-      {
-        message: 'Success'
-      })
-      allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post).and_return(response)
-    end
-
     it 'submits to the VBS endpoint' do
       job = described_class.new
       form = form_submission.form
@@ -28,8 +20,10 @@ RSpec.describe Form5655::VHA::VBSSubmissionJob, type: :worker do
       form['timestamp'] = form_submission.created_at.strftime('%Y%m%dT%H%M%S')
       expect_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post).with(
         '/vbsapi/UploadFSRJsonDocument', { jsonDocument: form.to_json }
-      )
-      job.perform(form_submission.id)
+      ).and_call_original
+      VCR.use_cassette('dmc/submit_to_vbs') do
+        job.perform(form_submission.id)
+      end
     end
 
     it 'creates new notification for successful submission' do
@@ -45,7 +39,9 @@ RSpec.describe Form5655::VHA::VBSSubmissionJob, type: :worker do
         described_class::EMAIL_TEMPLATE,
         email_personalization_info
       )
-      job.perform(form_submission.id)
+      VCR.use_cassette('dmc/submit_to_vbs') do
+        job.perform(form_submission.id)
+      end
     end
 
     context 'VBS submission fails' do
