@@ -15,6 +15,11 @@ FactoryBot.define do
     version { SignIn::Constants::AccessToken::CURRENT_VERSION }
     expiration_time { Time.zone.now + SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
     created_time { Time.zone.now }
+    user_attributes do
+      { 'first_name' => Faker::Name.first_name,
+        'last_name' => Faker::Name.last_name,
+        'email' => Faker::Internet.email }
+    end
 
     initialize_with do
       new(session_handle:,
@@ -27,7 +32,8 @@ FactoryBot.define do
           last_regeneration_time:,
           version:,
           expiration_time:,
-          created_time:)
+          created_time:,
+          user_attributes:)
     end
   end
 end

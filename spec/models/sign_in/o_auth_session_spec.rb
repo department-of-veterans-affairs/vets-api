@@ -10,7 +10,8 @@ RSpec.describe SignIn::OAuthSession, type: :model do
            hashed_refresh_token:,
            refresh_expiration:,
            refresh_creation:,
-           client_id:)
+           client_id:,
+           user_attributes:)
   end
 
   let(:user_verification) { create(:user_verification) }
@@ -20,6 +21,10 @@ RSpec.describe SignIn::OAuthSession, type: :model do
   let(:refresh_creation) { Time.zone.now }
   let(:client_config) { create(:client_config) }
   let(:client_id) { client_config.client_id }
+  let(:user_attributes) { { first_name:, last_name:, email: }.to_json }
+  let(:first_name) { Faker::Name.first_name }
+  let(:last_name) { Faker::Name.last_name }
+  let(:email) { Faker::Internet.email }
 
   describe 'validations' do
     describe '#user_verification' do
@@ -177,6 +182,16 @@ RSpec.describe SignIn::OAuthSession, type: :model do
       it 'returns false' do
         expect(subject).to be false
       end
+    end
+  end
+
+  describe '#user_attributes_hash' do
+    subject { oauth_session.user_attributes_hash }
+
+    it 'returns a Ruby hash of the saved user_attributes' do
+      expect(subject['first_name']).to eq(first_name)
+      expect(subject['last_name']).to eq(last_name)
+      expect(subject['email']).to eq(email)
     end
   end
 end
