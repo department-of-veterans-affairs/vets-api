@@ -15,15 +15,17 @@ RSpec.describe SignIn::AccessToken, type: :model do
            last_regeneration_time:,
            expiration_time:,
            version:,
-           created_time:)
+           created_time:,
+           user_attributes:)
   end
 
   let(:session_handle) { create(:oauth_session).handle }
   let(:user_uuid) { create(:user_account).id }
   let!(:client_config) do
-    create(:client_config, authentication:, access_token_duration:)
+    create(:client_config, authentication:, access_token_duration:, access_token_attributes:)
   end
   let(:access_token_duration) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
+  let(:access_token_attributes) { SignIn::Constants::AccessToken::USER_ATTRIBUTES }
   let(:client_id) { client_config.client_id }
   let(:audience) { 'some-audience' }
   let(:authentication) { SignIn::Constants::Auth::API }
@@ -35,6 +37,10 @@ RSpec.describe SignIn::AccessToken, type: :model do
   let(:validity_length) { client_config.access_token_duration }
   let(:expiration_time) { Time.zone.now + validity_length }
   let(:created_time) { Time.zone.now }
+  let(:first_name) { Faker::Name.first_name }
+  let(:last_name) { Faker::Name.last_name }
+  let(:email) { Faker::Internet.email }
+  let(:user_attributes) { { 'first_name' => first_name, 'last_name' => last_name, 'email' => email } }
 
   describe 'validations' do
     describe '#session_handle' do
@@ -202,6 +208,36 @@ RSpec.describe SignIn::AccessToken, type: :model do
 
         it 'sets expired time to now' do
           expect(subject).to eq(expected_created_time)
+        end
+      end
+    end
+
+    describe '#user_attributes' do
+      subject { access_token.user_attributes }
+
+      context 'when attributes are present in the ClientConfig access_token_attributes' do
+        it 'includes those attributes in the access token' do
+          expect(subject['first_name']).to eq(first_name)
+          expect(subject['last_name']).to eq(last_name)
+          expect(subject['email']).to eq(email)
+        end
+      end
+
+      context 'when one or more attributes are not present in the ClientConfig access_token_attributes' do
+        let(:access_token_attributes) { %w[email] }
+
+        it 'does not include those attributes in the access token' do
+          expect(subject['first_name']).to be_nil
+          expect(subject['last_name']).to be_nil
+          expect(subject['email']).to eq(email)
+        end
+      end
+
+      context 'when no attributes are present in the ClientConfig access_token_attributes' do
+        let(:access_token_attributes) { [] }
+
+        it 'sets an empty hash object in the access token' do
+          expect(subject).to eq({})
         end
       end
     end
