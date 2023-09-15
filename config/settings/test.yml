@@ -309,13 +309,13 @@ mcp:
   vbs:
     url: https://fake_url.com:9000
     host: fake_url.com:9000
-    base_path: /base/path
+    base_path: /vbsapi
     service_name: VBS
     mock: true
   vbs_v2:
-    url: https://fake_url.com:9000
-    host: fake_url.com:9000
-    base_path: /base/path
+    url: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491
+    host: internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491
+    base_path: /vbsapi
     service_name: VBS
     mock: true
   notifications:
