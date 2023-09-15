@@ -200,15 +200,10 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     end
 
     it 'parses out delimiter characters' do
-      VCR.use_cassette('vha/sharepoint/authenticate') do
-        VCR.use_cassette('vha/sharepoint/upload_pdf') do
-          service = described_class.new(user_data)
-          delimitered_json = { 'name' => "^Gr\neg|" }
-          parsed_form = service.send(:remove_form_delimiters, delimitered_json)
-          parsed_characters = parsed_form.values.map(&:chars).flatten
-          expect(['^', '|', "\n"].any? { |i| parsed_characters.include? i }).to be false
-        end
-      end
+      service = described_class.new(user_data)
+      delimitered_json = { 'name' => "^Gr\neg|" }
+      parsed_form_string = service.send(:remove_form_delimiters, delimitered_json).to_s
+      expect(['^', '|', "\n"].any? { |i| parsed_form_string.include? i }).to be false
     end
 
     context 'with streamlined waiver' do
