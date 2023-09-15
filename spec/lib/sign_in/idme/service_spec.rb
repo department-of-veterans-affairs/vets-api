@@ -63,6 +63,7 @@ describe SignIn::Idme::Service do
   let(:last_name) { 'Twinkle' }
   let(:ssn) { '666798234' }
   let(:email) { 'tumults-vicious-0q@icloud.com' }
+  let(:operation) { 'some-operation' }
 
   before do
     Timecop.freeze(Time.zone.at(current_time))
@@ -73,11 +74,13 @@ describe SignIn::Idme::Service do
   end
 
   describe '#render_auth' do
-    let(:response) { subject.render_auth(state:, acr:).to_s }
+    let(:response) { subject.render_auth(state:, acr:, operation:).to_s }
     let(:expected_authorization_page) { "#{base_path}/#{auth_path}" }
     let(:base_path) { 'some-base-path' }
     let(:auth_path) { 'oauth/authorize' }
-    let(:expected_log) { "[SignIn][Idme][Service] Rendering auth, state: #{state}, acr: #{acr}" }
+    let(:expected_log) do
+      "[SignIn][Idme][Service] Rendering auth, state: #{state}, acr: #{acr}, operation: #{operation}"
+    end
 
     before do
       allow(Settings.idme).to receive(:oauth_url).and_return(base_path)
@@ -90,6 +93,24 @@ describe SignIn::Idme::Service do
 
     it 'renders the expected redirect uri' do
       expect(response).to include(expected_authorization_page)
+    end
+
+    context 'when operation parameter equals Constants::Auth::SIGN_UP' do
+      let(:operation) { SignIn::Constants::Auth::SIGN_UP }
+      let(:expected_signup_param) { 'op=signup' }
+
+      it 'includes op=signup param in rendered form' do
+        expect(response).to include(expected_signup_param)
+      end
+    end
+
+    context 'when operation is arbitrary' do
+      let(:operation) { 'some-operation' }
+      let(:expected_signup_param) { 'op=signup' }
+
+      it 'does not include op=signup param in rendered form' do
+        expect(response).not_to include(expected_signup_param)
+      end
     end
   end
 
