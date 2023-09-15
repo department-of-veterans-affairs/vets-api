@@ -13,5 +13,6 @@ FactoryBot.define do
     access_token_audience { SecureRandom.hex }
     refresh_token_duration { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
     description { Faker::Lorem.sentence }
+    access_token_attributes { [] }
   end
 end

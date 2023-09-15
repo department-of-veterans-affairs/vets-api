@@ -38,8 +38,9 @@ RSpec.describe SignIn::SessionRefresher do
       let(:session_expiration) { Time.zone.now + 5.minutes }
       let(:client_id) { client_config.client_id }
       let(:client_config) do
-        create(:client_config, anti_csrf:, refresh_token_duration:)
+        create(:client_config, anti_csrf:, refresh_token_duration:, access_token_attributes:)
       end
+      let(:access_token_attributes) { %w[first_name last_name email] }
       let(:anti_csrf) { false }
       let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
 
@@ -161,6 +162,36 @@ RSpec.describe SignIn::SessionRefresher do
 
                 before do
                   allow(SecureRandom).to receive(:hex).and_return(expected_anti_csrf_token)
+                end
+
+                context 'when determining included user attributes' do
+                  context 'when attributes are present in the ClientConfig access_token_attributes' do
+                    it 'includes those attributes in the access token' do
+                      container = subject
+                      access_token = container.access_token
+                      expect(access_token.user_attributes).to eq(session.user_attributes_hash)
+                    end
+                  end
+
+                  context 'when one or more attributes are not present in the ClientConfig access_token_attributes' do
+                    let(:access_token_attributes) { %w[email] }
+
+                    it 'does not include those attributes in the access token' do
+                      access_token_attributes = subject.access_token.user_attributes
+
+                      expect(access_token_attributes['first_name']).to be_nil
+                      expect(access_token_attributes['last_name']).to be_nil
+                      expect(access_token_attributes['email']).to eq(session.user_attributes_hash['email'])
+                    end
+                  end
+
+                  context 'when no attributes are present in the ClientConfig access_token_attributes' do
+                    let(:access_token_attributes) { [] }
+
+                    it 'sets an empty hash object in the access token' do
+                      expect(subject.access_token.user_attributes).to eq({})
+                    end
+                  end
                 end
 
                 it 'returns a new access token with expected attributes' do
