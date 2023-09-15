@@ -4,6 +4,7 @@ module V0
   class TermsOfUseAgreementsController < ApplicationController
     def accept
       terms_of_use_agreement = TermsOfUse::Acceptor.new(user_account: current_user.user_account,
+                                                        common_name: current_user.common_name,
                                                         version: params[:version]).perform!
       render_success(terms_of_use_agreement)
     rescue ActiveRecord::RecordInvalid, StandardError => e
@@ -12,6 +13,7 @@ module V0
 
     def decline
       terms_of_use_agreement = TermsOfUse::Decliner.new(user_account: current_user.user_account,
+                                                        common_name: current_user.common_name,
                                                         version: params[:version]).perform!
       render_success(terms_of_use_agreement)
     rescue ActiveRecord::RecordInvalid, StandardError => e

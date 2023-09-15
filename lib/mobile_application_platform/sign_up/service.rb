@@ -19,8 +19,11 @@ module MobileApplicationPlatform
                  " description: #{description}, icn: #{icn}"
       end
 
-      def agreements_accept(icn:)
-        perform(:post, config.patients_agreements_path(icn), '', authenticated_header(icn))
+      def agreements_accept(icn:, signature_name:, version:)
+        perform(:post,
+                config.patients_agreements_path(icn),
+                agreements_body(icn, signature_name, version),
+                authenticated_header(icn))
         Rails.logger.info("#{config.logging_prefix} agreements accept success, icn: #{icn}")
       rescue Common::Client::Errors::ClientError => e
         status = e.status
@@ -59,6 +62,15 @@ module MobileApplicationPlatform
       def authenticated_header(icn)
         access_token = SecurityToken::Service.new.token(application: :sign_up_service, icn:)
         config.authenticated_header(access_token[:access_token])
+      end
+
+      def agreements_body(icn, signature_name, version)
+        {
+          responseDate: Time.zone.now,
+          icn:,
+          signatureName: signature_name,
+          version: config.agreements_version_mapping[version]
+        }.to_json
       end
 
       def update_provisioning_params(first_name, last_name, mpi_gcids)
