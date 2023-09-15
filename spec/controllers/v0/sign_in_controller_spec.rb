@@ -12,7 +12,13 @@ RSpec.describe V0::SignInController, type: :controller do
 
     let!(:client_config) { create(:client_config, authentication:, pkce:) }
     let(:authorize_params) do
-      {}.merge(type).merge(code_challenge).merge(code_challenge_method).merge(client_state).merge(client_id).merge(acr)
+      {}.merge(type)
+        .merge(code_challenge)
+        .merge(code_challenge_method)
+        .merge(client_state)
+        .merge(client_id)
+        .merge(acr)
+        .merge(operation)
     end
     let(:acr) { { acr: acr_value } }
     let(:acr_value) { 'some-acr' }
@@ -26,7 +32,11 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:client_state_minimum_length) { SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }
     let(:type) { { type: type_value } }
     let(:type_value) { 'some-type' }
-    let(:statsd_tags) { ["type:#{type_value}", "client_id:#{client_id_value}", "acr:#{acr_value}"] }
+    let(:operation) { { operation: operation_value } }
+    let(:operation_value) { SignIn::Constants::Auth::AUTHORIZE }
+    let(:statsd_tags) do
+      ["type:#{type_value}", "client_id:#{client_id_value}", "acr:#{acr_value}", "operation:#{operation_value}"]
+    end
 
     before { allow(Rails.logger).to receive(:info) }
 
@@ -157,6 +167,10 @@ RSpec.describe V0::SignInController, type: :controller do
           expect(subject.body).to match(expected_redirect_uri_param)
         end
 
+        it 'renders expected op value in template' do
+          expect(subject.body).to match(expected_op_value)
+        end
+
         it 'logs the authentication attempt' do
           expect(Rails.logger).to receive(:info).with(expected_log, expected_logger_context)
           subject
@@ -175,7 +189,8 @@ RSpec.describe V0::SignInController, type: :controller do
           {
             type: type[:type],
             client_id: client_id_value,
-            acr: acr_value
+            acr: acr_value,
+            operation: operation_value
           }
         end
 
@@ -221,10 +236,7 @@ RSpec.describe V0::SignInController, type: :controller do
         it_behaves_like 'error response'
       end
 
-      context 'when type param is logingov' do
-        let(:type_value) { SignIn::Constants::Auth::LOGINGOV }
-        let(:expected_redirect_uri) { Settings.logingov.redirect_uri }
-
+      shared_context 'a logingov authentication service interface' do
         context 'and acr param is not given' do
           let(:acr) { {} }
           let(:acr_value) { nil }
@@ -329,7 +341,63 @@ RSpec.describe V0::SignInController, type: :controller do
         end
       end
 
+      context 'when type param is logingov' do
+        let(:type_value) { SignIn::Constants::Auth::LOGINGOV }
+        let(:expected_redirect_uri) { Settings.logingov.redirect_uri }
+
+        context 'and operation param is not given' do
+          let(:operation) { {} }
+          let(:expected_op_value) { '' }
+
+          it_behaves_like 'a logingov authentication service interface'
+        end
+
+        context 'and operation param is in OPERATION_TYPES' do
+          let(:operation_value) { SignIn::Constants::Auth::OPERATION_TYPES.first }
+          let(:expected_op_value) { '' }
+
+          it_behaves_like 'a logingov authentication service interface'
+        end
+
+        context 'and operation param is arbitrary' do
+          let(:operation_value) { 'some-operation-value' }
+          let(:expected_error) { 'Operation is not valid' }
+
+          it_behaves_like 'error response'
+        end
+      end
+
       shared_context 'an idme authentication service interface' do
+        context 'and operation param is not given' do
+          let(:operation) { {} }
+          let(:expected_op_value) { '' }
+
+          it_behaves_like 'an idme service interface with appropriate operation'
+        end
+
+        context 'and operation param is authorize' do
+          let(:operation_value) { SignIn::Constants::Auth::AUTHORIZE }
+          let(:expected_op_value) { '' }
+
+          it_behaves_like 'an idme service interface with appropriate operation'
+        end
+
+        context 'and operation param is arbitrary' do
+          let(:operation_value) { 'some-operation-value' }
+          let(:expected_error) { 'Operation is not valid' }
+
+          it_behaves_like 'error response'
+        end
+
+        context 'and operation param is sign_up' do
+          let(:operation_value) { SignIn::Constants::Auth::SIGN_UP }
+          let(:expected_op_value) { 'op=signup' }
+
+          it_behaves_like 'an idme service interface with appropriate operation'
+        end
+      end
+
+      shared_context 'an idme service interface with appropriate operation' do
         let(:expected_redirect_uri) { Settings.idme.redirect_uri }
 
         context 'and acr param is not given' do
