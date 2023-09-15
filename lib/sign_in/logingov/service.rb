@@ -11,8 +11,11 @@ module SignIn
 
       SCOPE = 'profile profile:verified_at address email social_security_number openid'
 
-      def render_auth(state: SecureRandom.hex, acr: Constants::Auth::LOGIN_GOV_IAL1)
-        Rails.logger.info("[SignIn][Logingov][Service] Rendering auth, state: #{state}, acr: #{acr}")
+      def render_auth(state: SecureRandom.hex,
+                      acr: Constants::Auth::LOGIN_GOV_IAL1,
+                      operation: Constants::Auth::AUTHORIZE)
+        Rails.logger.info('[SignIn][Logingov][Service] Rendering auth, ' \
+                          "state: #{state}, acr: #{acr}, operation: #{operation}")
         RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(acr, state)).perform
       end
 

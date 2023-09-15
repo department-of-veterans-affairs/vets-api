@@ -44,7 +44,6 @@ module SignIn
     class InvalidServiceAccountScope < StandardError; end
     class CodeInvalidError < StandardError; end
     class MalformedParamsError < StandardError; end
-    class AuthorizeInvalidType < StandardError; end
     class CodeVerifierMalformedError < StandardError; end
     class UserAccountNotFoundError < StandardError; end
     class SessionNotFoundError < StandardError; end
