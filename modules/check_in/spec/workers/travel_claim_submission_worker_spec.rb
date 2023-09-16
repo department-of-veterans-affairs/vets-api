@@ -20,6 +20,8 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
       allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
       allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
       allow(Flipper).to receive(:enabled?).with('check_in_experience_patient_cell_phone').and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_increase_timeout).and_return(true)
+
       allow(redis_client).to receive(:mobile_phone).and_return(mobile_phone)
       allow(redis_client).to receive(:patient_cell_phone).and_return(patient_cell_phone)
       allow(redis_client).to receive(:token).and_return(redis_token)
