@@ -55,7 +55,7 @@
             }
           },
           "veteranNumber": {
-            "description": "",
+            "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
             "type": "object",
             "properties": {
               "telephone": {
