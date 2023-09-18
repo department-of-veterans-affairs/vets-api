@@ -102,7 +102,6 @@ module Form526ClaimFastTrackingConcern
   end
 
   def update_classification
-    return unless Flipper.enabled?(:disability_526_classifier)
     return unless increase_only?
     return unless disabilities.count == 1
     return unless diagnostic_codes.count == 1
