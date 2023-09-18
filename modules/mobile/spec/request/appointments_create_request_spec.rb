@@ -15,7 +15,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
     'test' => 'test'
   }
 
-  let!(:user) { sis_user(icn: '1012846043V576341') }
+  let!(:user) { sis_user(attributes: { icn: '1012846043V576341' }) }
 
   before do
     Flipper.enable('va_online_scheduling')

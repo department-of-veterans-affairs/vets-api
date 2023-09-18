@@ -9,10 +9,10 @@ module SISSessionHelper
     @sis_bearer_token ||= SignIn::AccessTokenJwtEncoder.new(access_token: sis_access_token).perform
   end
 
-  def sis_user(trait: :api_auth, args: {})
+  def sis_user(trait: :api_auth, attributes: {})
     @sis_user ||= begin
-      user_args = { uuid: sis_access_token.user_uuid }.merge(args)
-      create(:user, trait, **user_args)
+      user_attributes = { uuid: sis_access_token.user_uuid }.merge(attributes)
+      create(:user, trait, **user_attributes)
     end
   end
 

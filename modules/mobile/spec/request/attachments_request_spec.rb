@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
 require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/helpers/mobile_sm_client_helper'
 
@@ -22,7 +21,7 @@ RSpec.describe 'Mobile Message Attachments Integration', type: :request do
     let(:mhv_account_type) { 'Basic' }
 
     it 'is not authorized' do
-      get '/mobile/v0/messaging/health/messages/629999/attachments/629993', headers: iam_headers
+      get '/mobile/v0/messaging/health/messages/629999/attachments/629993', headers: sis_headers
       expect(response).not_to be_successful
       expect(response.status).to eq(403)
     end
@@ -32,7 +31,7 @@ RSpec.describe 'Mobile Message Attachments Integration', type: :request do
     let(:mhv_account_type) { 'Advanced' }
 
     it 'is not authorized' do
-      get '/mobile/v0/messaging/health/messages/629999/attachments/629993', headers: iam_headers
+      get '/mobile/v0/messaging/health/messages/629999/attachments/629993', headers: sis_headers
       expect(response).not_to be_successful
       expect(response.status).to eq(403)
     end
