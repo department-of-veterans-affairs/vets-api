@@ -166,6 +166,10 @@
             "approximateEndDate": "07-2019"
           }
         ],
+        "federalActivation": {
+          "anticipatedSeparationDate": "10-03-2025",
+          "activationDate": "02-11-2018"
+        },
         "reservesNationalGuardService": {
           "obligationTermsOfService": {
             "beginDate": "11-24-2016",
@@ -174,10 +178,6 @@
           "unitName": "National Guard Unit Name",
           "unitAddress": "1243 pine court",
           "component": "National Guard",
-          "title10Activation": {
-            "anticipatedSeparationDate": "10-03-2025",
-            "title10ActivationDate": "02-11-2018"
-          },
           "unitPhone": {
             "areaCode": "555",
             "phoneNumber": "5555555"

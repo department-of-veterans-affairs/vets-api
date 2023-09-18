@@ -496,17 +496,17 @@ module ClaimsApi
       end
 
       def fed_activation
+        ten = @pdf_data[:data][:attributes][:serviceInformation][:federalActivation]
         @pdf_data[:data][:attributes][:serviceInformation][:federalActivation] = {}
-        ten = @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:title10Activation]
-        activation_date = ten[:title10ActivationDate]
+        activation_date = ten[:activationDate]
         @pdf_data[:data][:attributes][:serviceInformation][:federalActivation][:activationDate] =
           convert_date_to_object(activation_date)
 
         anticipated_sep_date = ten[:anticipatedSeparationDate]
         @pdf_data[:data][:attributes][:serviceInformation][:federalActivation][:anticipatedSeparationDate] =
           convert_date_to_object(anticipated_sep_date)
-        @pdf_data[:data][:attributes][:serviceInformation][:activatedOnFederalOrders] = 'YES' if activation_date
-        @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService].delete(:title10Activation)
+        @pdf_data[:data][:attributes][:serviceInformation][:activatedOnFederalOrders] = activation_date ? 'YES' : 'NO'
+        @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService].delete(:federalActivation)
 
         @pdf_data
       end

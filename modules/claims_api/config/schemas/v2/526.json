@@ -714,6 +714,24 @@
             }
           }
         },
+        "federalActivation": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "anticipatedSeparationDate": {
+              "description": "Anticipated date of separation. Date must be in the future.",
+              "type": "string",
+              "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+              "example": "06-04-2018"
+            },
+            "activationDate": {
+              "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
+              "type": "string",
+              "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+              "example": "06-04-2018"
+            }
+          }
+        },
         "reservesNationalGuardService": {
           "type": "object",
           "additionalProperties": false,
@@ -738,26 +756,7 @@
             "component": {
               "type": "string",
               "description": "",
-              "enum": ["Active", "Reserves", "National Guard"]
-            },
-            "title10Activation": {
-              "description": "If 'title10Activation' is included, the following attributes are required: 'anticipatedSeparationDate' and 'title10ActivationDate'.",
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "anticipatedSeparationDate": {
-                  "description": "Anticipated date of separation. Date must be in the future.",
-                  "type": "string",
-                  "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                  "example": "06-04-2018"
-                },
-                "title10ActivationDate": {
-                  "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
-                  "type": "string",
-                  "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                  "example": "06-04-2018"
-                }
-              }
+              "enum": ["Reserves", "National Guard"]
             },
             "unitName": {
               "type": "string",
@@ -779,8 +778,7 @@
                 },
                 "phoneNumber": {
                   "type": "string",
-                  "maxLength": 7,
-                  "pattern": "^$|^\\d{7}$",
+                  "maxLength": 20,
                   "example": "5555555"
                 }
               }
