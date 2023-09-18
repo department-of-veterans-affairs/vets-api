@@ -34,7 +34,9 @@ module Swagger::Requests
         response 200 do
           key :description, 'Successful request'
           schema do
-            key :$ref, :EmergencyContact
+            property :emergency_contact, type: :object do
+              key :$ref, :EmergencyContact
+            end
           end
         end
       end
