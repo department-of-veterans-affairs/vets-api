@@ -7,6 +7,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
 
   before do
     Sidekiq::Worker.clear_all
+    allow(Flipper).to receive(:enabled?).with(:claims_status_v1_lh_auto_establish_claim_enabled).and_return true
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
