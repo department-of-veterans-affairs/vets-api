@@ -109,15 +109,15 @@
               }
             }
           },
-          "422": {
+          "400": {
             "description": "Bad Request",
             "content": {
               "application/json": {
                 "example": {
                   "errors": [
                     {
-                      "title": "Unprocessable Entity",
-                      "detail": "Invalid SSN in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance."
+                      "title": "invalid value for SSN",
+                      "detail": "blank is not valid for SSN"
                     }
                   ]
                 },
@@ -171,59 +171,6 @@
                     {
                       "title": "Not authorized",
                       "detail": "Not authorized"
-                    }
-                  ]
-                },
-                "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Forbidden",
-                      "detail": "Forbidden"
                     }
                   ]
                 },
@@ -576,59 +523,6 @@
                     {
                       "title": "Not authorized",
                       "detail": "Not authorized"
-                    }
-                  ]
-                },
-                "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Forbidden",
-                      "detail": "Forbidden"
                     }
                   ]
                 },
@@ -1246,59 +1140,6 @@
                     {
                       "title": "Not authorized",
                       "detail": "Not authorized"
-                    }
-                  ]
-                },
-                "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Forbidden",
-                      "detail": "Forbidden"
                     }
                   ]
                 },
@@ -2179,6 +2020,25 @@
                               }
                             }
                           },
+                          "federalActivation": {
+                            "description": "Include if the Veteran is currently activated on federal orders within the National Guard or Reserves",
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "anticipatedSeparationDate": {
+                                "description": "Anticipated date of separation. Date must be in the future.",
+                                "type": "string",
+                                "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+                                "example": "06-04-2018"
+                              },
+                              "activationDate": {
+                                "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
+                                "type": "string",
+                                "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+                                "example": "06-04-2018"
+                              }
+                            }
+                          },
                           "reservesNationalGuardService": {
                             "type": "object",
                             "additionalProperties": false,
@@ -2207,25 +2067,6 @@
                                   "Reserves",
                                   "National Guard"
                                 ]
-                              },
-                              "title10Activation": {
-                                "description": "Include if the Veteran is currently activated on federal orders within the National Guard or Reserves",
-                                "type": "object",
-                                "additionalProperties": false,
-                                "properties": {
-                                  "anticipatedSeparationDate": {
-                                    "description": "Anticipated date of separation. Date must be in the future.",
-                                    "type": "string",
-                                    "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                                    "example": "06-04-2018"
-                                  },
-                                  "title10ActivationDate": {
-                                    "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
-                                    "type": "string",
-                                    "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                                    "example": "06-04-2018"
-                                  }
-                                }
                               },
                               "unitName": {
                                 "type": "string",
@@ -3205,6 +3046,25 @@
                                   }
                                 }
                               },
+                              "federalActivation": {
+                                "description": "If 'federalActivation' is included, the following attributes are required: 'anticipatedSeparationDate' and 'activationDate'.",
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                  "anticipatedSeparationDate": {
+                                    "description": "Anticipated date of separation. Date must be in the future.",
+                                    "type": "string",
+                                    "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+                                    "example": "06-04-2018"
+                                  },
+                                  "activationDate": {
+                                    "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
+                                    "type": "string",
+                                    "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+                                    "example": "06-04-2018"
+                                  }
+                                }
+                              },
                               "reservesNationalGuardService": {
                                 "type": "object",
                                 "additionalProperties": false,
@@ -3234,25 +3094,6 @@
                                       "Reserves",
                                       "National Guard"
                                     ]
-                                  },
-                                  "title10Activation": {
-                                    "description": "If 'title10Activation' is included, the following attributes are required: 'anticipatedSeparationDate' and 'title10ActivationDate'.",
-                                    "type": "object",
-                                    "additionalProperties": false,
-                                    "properties": {
-                                      "anticipatedSeparationDate": {
-                                        "description": "Anticipated date of separation. Date must be in the future.",
-                                        "type": "string",
-                                        "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                                        "example": "06-04-2018"
-                                      },
-                                      "title10ActivationDate": {
-                                        "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
-                                        "type": "string",
-                                        "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                                        "example": "06-04-2018"
-                                      }
-                                    }
                                   },
                                   "unitName": {
                                     "type": "string",
@@ -3660,6 +3501,10 @@
                             "approximateEndDate": "07-2019"
                           }
                         ],
+                        "federalActivation": {
+                          "anticipatedSeparationDate": "10-03-2025",
+                          "activationDate": "02-11-2018"
+                        },
                         "reservesNationalGuardService": {
                           "obligationTermsOfService": {
                             "beginDate": "11-24-2016",
@@ -3668,10 +3513,6 @@
                           "unitName": "National Guard Unit Name",
                           "unitAddress": "1243 pine court",
                           "component": "National Guard",
-                          "title10Activation": {
-                            "anticipatedSeparationDate": "10-03-2025",
-                            "title10ActivationDate": "02-11-2018"
-                          },
                           "unitPhone": {
                             "areaCode": "555",
                             "phoneNumber": "5555555"
@@ -4001,59 +3842,6 @@
                 }
               }
             }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Forbidden",
-                      "detail": "Forbidden"
-                    }
-                  ]
-                },
-                "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
           }
         }
       }
@@ -4191,59 +3979,6 @@
                     {
                       "title": "Not authorized",
                       "detail": "Not authorized"
-                    }
-                  ]
-                },
-                "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Forbidden",
-                      "detail": "Forbidden"
                     }
                   ]
                 },
@@ -4567,59 +4302,6 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Forbidden",
-                      "detail": "Forbidden"
-                    }
-                  ]
-                },
-                "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
           "422": {
             "description": "Unprocessable entity",
             "content": {
@@ -4885,59 +4567,6 @@
                     {
                       "title": "Not authorized",
                       "detail": "Not authorized"
-                    }
-                  ]
-                },
-                "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Forbidden",
-                      "detail": "Forbidden"
                     }
                   ]
                 },
