@@ -566,6 +566,7 @@ module ClaimsApi
       end
 
       def validate_reserves_required_values!(service_information)
+        validate_title_ten_activiation_values!(service_information)
         reserves = service_information&.dig('reservesNationalGuardService')
 
         return if reserves.blank?
@@ -594,9 +595,9 @@ module ClaimsApi
         end
       end
 
-      def validate_title_ten_activiation_values!(reserves)
-        title_ten_activation = reserves&.dig('title10Activation')
-        title_ten_activation_date = title_ten_activation&.dig('title10ActivationDate')
+      def validate_title_ten_activiation_values!(service_information)
+        title_ten_activation = service_information&.dig('federalActivation')
+        title_ten_activation_date = title_ten_activation&.dig('activationDate')
         anticipated_seperation_date = title_ten_activation&.dig('anticipatedSeparationDate')
 
         return if title_ten_activation.blank?
