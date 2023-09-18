@@ -5,6 +5,9 @@ module SignIn
     belongs_to :user_account, dependent: nil
     belongs_to :user_verification, dependent: nil
 
+    has_kms_key
+    has_encrypted :user_attributes, key: :kms_key, **lockbox_options
+
     validates :handle, uniqueness: true, presence: true
     validates :hashed_refresh_token, uniqueness: true, presence: true
     validates :refresh_expiration, presence: true
@@ -14,6 +17,10 @@ module SignIn
 
     def active?
       refresh_valid? && session_max_valid?
+    end
+
+    def user_attributes_hash
+      @user_attributes_hash ||= JSON.parse(user_attributes)
     end
 
     private

@@ -26,6 +26,7 @@ module SignIn
       CLIENT_STATE_MINIMUM_LENGTH = 22
       CODE_CHALLENGE_METHOD = 'S256'
       CSP_TYPES = [IDME = 'idme', LOGINGOV = 'logingov', DSLOGON = 'dslogon', MHV = 'mhv'].freeze
+      OPERATION_TYPES = [SIGN_UP = 'sign_up', AUTHORIZE = 'authorize'].freeze
       GRANT_TYPES = [AUTH_CODE = 'authorization_code',
                      JWT_BEARER = 'urn:ietf:params:oauth:grant-type:jwt-bearer'].freeze
       CLIENT_ASSERTION_TYPE = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'

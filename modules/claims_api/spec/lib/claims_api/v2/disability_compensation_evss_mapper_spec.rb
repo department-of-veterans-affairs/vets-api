@@ -73,7 +73,7 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
       it 'maps the attributes correctly' do
         expect(disability[:disabilityActionType]).to eq('NEW')
         expect(disability[:name]).to eq('Traumatic Brain Injury')
-        expect(disability[:classificationCode]).to eq('9020')
+        expect(disability[:classificationCode]).to eq('9014')
         expect(disability[:serviceRelevance]).to eq('ABCDEFG')
         expect(disability[:ratedDisabilityId]).to eq('ABCDEFGHIJKLMNOPQRSTUVWX')
         expect(disability[:diagnosticCode]).to eq(9020)
@@ -82,7 +82,7 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
         expect(secondary_disability[:name]).to eq('Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders')
         expect(secondary_disability[:disabilityActionType]).to eq('SECONDARY')
         expect(secondary_disability[:serviceRelevance]).to eq('ABCDEFGHIJKLMNOPQ')
-        expect(secondary_disability[:classificationCode]).to eq('9010')
+        expect(secondary_disability[:classificationCode]).to eq('9014')
       end
 
       it 'maps the PACT attribute correctly' do

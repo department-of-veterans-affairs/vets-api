@@ -44,7 +44,6 @@ module SignIn
     class InvalidServiceAccountScope < StandardError; end
     class CodeInvalidError < StandardError; end
     class MalformedParamsError < StandardError; end
-    class AuthorizeInvalidType < StandardError; end
     class CodeVerifierMalformedError < StandardError; end
     class UserAccountNotFoundError < StandardError; end
     class SessionNotFoundError < StandardError; end
@@ -61,5 +60,6 @@ module SignIn
     class MHVMissingMPIRecordError < StandardError; end
     class UnverifiedCredentialBlockedError < StandardError; end
     class CredentialMissingAttributeError < StandardError; end
+    class InvalidAccessTokenAttributeError < StandardError; end
   end
 end

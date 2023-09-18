@@ -55,7 +55,8 @@ module SignIn
         refresh_token_hash:,
         parent_refresh_token_hash:,
         anti_csrf_token:,
-        last_regeneration_time: refresh_created_time
+        last_regeneration_time: refresh_created_time,
+        user_attributes:
       )
     end
 
@@ -76,7 +77,8 @@ module SignIn
                            handle:,
                            hashed_refresh_token: double_parent_refresh_token_hash,
                            refresh_expiration: refresh_expiration_time,
-                           refresh_creation: refresh_created_time)
+                           refresh_creation: refresh_created_time,
+                           user_attributes: user_attributes.to_json)
     end
 
     def refresh_created_time
@@ -105,6 +107,10 @@ module SignIn
 
     def user_account
       @user_account ||= user_verification.user_account
+    end
+
+    def user_attributes
+      @user_attributes ||= validated_credential.user_attributes
     end
 
     def user_uuid

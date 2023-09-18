@@ -11,6 +11,7 @@ module SignIn
     attribute :client_id, String
     attribute :user_verification_id, Integer
     attribute :credential_email, String
+    attribute :user_attributes, Hash
 
     validates(:code, :user_verification_id, presence: true)
 

@@ -8,7 +8,8 @@ RSpec.describe TermsOfUse::Decliner, type: :service do
 
     let(:user_account) { create(:user_account) }
     let(:version) { 'v1' }
-    let(:decliner) { described_class.new(user_account:, version:) }
+    let(:common_name) { 'some-common-name' }
+    let(:decliner) { described_class.new(user_account:, common_name:, version:) }
 
     before do
       allow(TermsOfUse::SignUpServiceUpdaterJob).to receive(:perform_async)
@@ -24,7 +25,7 @@ RSpec.describe TermsOfUse::Decliner, type: :service do
     end
 
     it 'enqueues the SignUpServiceUpdaterJob with the terms of use agreement id' do
-      expect(TermsOfUse::SignUpServiceUpdaterJob).to have_received(:perform_async).with(subject.id)
+      expect(TermsOfUse::SignUpServiceUpdaterJob).to have_received(:perform_async).with(subject.id, common_name)
     end
   end
 end

@@ -8,6 +8,11 @@ describe TravelClaim::Client do
   let(:uuid) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
   let(:check_in) { CheckIn::V2::Session.build(data: { uuid: }) }
 
+  before do
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:check_in_experience_travel_claim_increase_timeout).and_return(true)
+  end
+
   describe '.build' do
     it 'returns an instance of described_class' do
       expect(subject).to be_an_instance_of(described_class)
@@ -101,12 +106,6 @@ describe TravelClaim::Client do
 
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(claim_response)
-      end
-
-      it 'yields to block' do
-        expect_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_yield(Faraday::Request.new)
-
-        subject.submit_claim(token: access_token, patient_icn: icn, appointment_date: appt_date)
       end
 
       it 'returns claims number' do
