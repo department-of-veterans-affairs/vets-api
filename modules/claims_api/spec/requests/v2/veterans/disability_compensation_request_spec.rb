@@ -23,9 +23,9 @@ RSpec.describe 'Disability Claims', type: :request do
       temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
                              'form_526_json_api.json').read
       temp = JSON.parse(temp)
-      temp['data']['attributes']['claimDate'] = claim_date
-      temp['data']['attributes']['serviceInformation']['reservesNationalGuardService']['title10Activation']['anticipatedSeparationDate'] = # rubocop:disable Layout/LineLength
-        anticipated_separation_date
+      attributes = temp['data']['attributes']
+      attributes['claimDate'] = claim_date
+      attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
 
       temp.to_json
     end
@@ -1643,13 +1643,13 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
 
-          context 'when title10Activation is present anticipatedSeperationDate is required' do
+          context 'when federalActivation is present anticipatedSeperationDate is required' do
             context 'when anticipatedSeperationDate is missing' do
               it 'returns a 422' do
                 mock_ccg(scopes) do |auth_header|
                   json = JSON.parse(data)
-                  reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
-                  reserves['title10Activation']['anticipatedSeparationDate'] = ''
+                  reserves = json['data']['attributes']['serviceInformation']
+                  reserves['federalActivation']['anticipatedSeparationDate'] = ''
                   data = json.to_json
                   post submit_path, params: data, headers: auth_header
                   expect(response).to have_http_status(:unprocessable_entity)
@@ -1662,13 +1662,13 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
 
-          context 'when title10Activation is present title10ActivationDate is required' do
-            context 'when title10ActivationDate is missing' do
+          context 'when federalActivation is present activationDate is required' do
+            context 'when activationDate is missing' do
               it 'returns a 422' do
                 mock_ccg(scopes) do |auth_header|
                   json = JSON.parse(data)
-                  reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
-                  reserves['title10Activation']['title10ActivationDate'] = ''
+                  reserves = json['data']['attributes']['serviceInformation']
+                  reserves['federalActivation']['activationDate'] = ''
                   data = json.to_json
                   post submit_path, params: data, headers: auth_header
                   expect(response).to have_http_status(:unprocessable_entity)
@@ -2679,15 +2679,15 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
-        context 'when title10Activation' do
+        context 'when federalActivation' do
           context 'is missing anticipatedSeparationDate' do
             let(:anticipated_separation_date) { '' }
 
             it 'responds with a 422' do
               mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
-                reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
-                reserves['title10Activation']['anticipatedSeparationDate'] = anticipated_separation_date
+                reserves = json['data']['attributes']['serviceInformation']
+                reserves['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
@@ -2701,8 +2701,8 @@ RSpec.describe 'Disability Claims', type: :request do
             it 'responds with a 422' do
               mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
-                reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
-                reserves['title10Activation']['anticipatedSeparationDate'] = anticipated_separation_date
+                reserves = json['data']['attributes']['serviceInformation']
+                reserves['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
@@ -2710,14 +2710,14 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
 
-          context 'is missing title10ActivationDate' do
+          context 'is missing activationDate' do
             let(:title_10_activation_date) { '' }
 
             it 'responds with a 422' do
               mock_ccg(scopes) do |auth_header|
                 json = JSON.parse(data)
-                reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
-                reserves['title10Activation']['title10ActivationDate'] = title_10_activation_date
+                reserves = json['data']['attributes']['serviceInformation']
+                reserves['federalActivation']['activationDate'] = title_10_activation_date
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
@@ -2725,7 +2725,7 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
 
-          context 'when title10ActivationDate is not after the earliest servicePeriod.activeDutyBeginDate' do
+          context 'when activationDate is not after the earliest servicePeriod.activeDutyBeginDate' do
             let(:title_10_activation_date) { '05-05-2005' }
             let(:service_periods) do
               [
@@ -2751,7 +2751,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 json = JSON.parse(data)
                 service_information = json['data']['attributes']['serviceInformation']
                 service_information['servicePeriods'] = service_periods
-                service_information['reservesNationalGuardService']['title10Activation']['title10ActivationDate'] =
+                service_information['federalActivation']['activationDate'] =
                   title_10_activation_date
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
@@ -2791,23 +2791,8 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
-        context 'when unitPhone.phoneNumber has non-digits included' do
-          let(:phone_number) { '89X6578' }
-
-          it 'responds with bad request' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              reserves = json['data']['attributes']['serviceInformation']['reservesNationalGuardService']
-              reserves['unitPhone']['phoneNumber'] = phone_number
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-          end
-        end
-
         context 'when unitPhone.phoneNumber has wrong number of digits' do
-          let(:phone_number) { '867530' }
+          let(:phone_number) { '123456790123456798012345' }
 
           it 'responds with bad request' do
             mock_ccg(scopes) do |auth_header|
