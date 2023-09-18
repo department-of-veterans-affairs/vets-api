@@ -7,13 +7,12 @@ require_relative '../support/helpers/mobile_sm_client_helper'
 RSpec.describe 'Mobile Message Attachments Integration', type: :request do
   include Mobile::MessagingClientHelper
 
-  let!(:user) { sis_user(trait: :mhv_api_auth) }
+  let!(:user) { sis_user(trait: :mhv_api_auth, attributes: { mhv_account_type: }) }
   let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
   let(:message_id) { 573_302 }
 
   before do
-    allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return(mhv_account_type)
     allow(Mobile::V0::Messaging::Client).to receive(:new).and_return(authenticated_client)
   end
 
