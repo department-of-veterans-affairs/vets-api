@@ -925,7 +925,7 @@ modules/appeals_api @department-of-veterans-affairs/lighthouse-banana-peels
 modules/apps_api @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/lighthouse-pivot
 modules/ask_va_api @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/check_in @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
-modules/claims_api @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/lighthouse-dash
+modules/claims_api @department-of-veterans-affairs/lighthouse-dash
 modules/covid_research @department-of-veterans-affairs/long-covid
 modules/covid_vaccine @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
 modules/debts_api @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
@@ -943,6 +943,7 @@ modules/test_user_dashboard @department-of-veterans-affairs/vsp-identity @depart
 modules/va_forms @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/va_notify @department-of-veterans-affairs/va-notify-write @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/vaos @department-of-veterans-affairs/va-gov-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+modules/vaos/app/services/vaos/v2 @department-of-veterans-affairs/va-gov-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/vba_documents @department-of-veterans-affairs/lighthouse-banana-peels
 modules/veteran @department-of-veterans-affairs/lighthouse-dash
 public @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1666,7 +1667,7 @@ spec/support/schemas_camelized/va_forms @department-of-veterans-affairs/platform
 spec/support/schemas_camelized/vaos @department-of-veterans-affairs/va-gov-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas_camelized/va_profile @department-of-veterans-affairs/vfs-authenticated-experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas_camelized/veteran_verification @department-of-veterans-affairs/vfs-authenticated-experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/support/schemas/claims_api @department-of-veterans-affairs/lighthouse-banana-peels
+spec/support/schemas/claims_api @department-of-veterans-affairs/lighthouse-dash
 spec/support/schemas/contestable_issues.json @department-of-veterans-affairs/Benefits-Team-1 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/control_information.json @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/vfs-authenticated-experience
 spec/support/schemas/debts.json @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
@@ -1762,13 +1763,16 @@ spec/support/validation_helpers.rb @department-of-veterans-affairs/vsp-identity
 spec/support/va_profile @department-of-veterans-affairs/vfs-authenticated-experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/apps @department-of-veterans-affairs/lighthouse-pivot @department-of-veterans-affairs/lighthouse-banana-peels
 spec/support/vcr_cassettes/bb_client @department-of-veterans-affairs/va-gov-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/support/vcr_cassettes/bgs @department-of-veterans-affairs/vsa-ebenefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/bgs @department-of-veterans-affairs/vsa-ebenefits @department-of-veterans-affairs/lighthouse-dash @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/bgs/claims @department-of-veterans-affairs/lighthouse-dash
+spec/support/vcr_cassettes/bgs/benefit_claim @department-of-veterans-affairs/lighthouse-dash
 spec/support/vcr_cassettes/bid @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/brd @department-of-veterans-affairs/lighthouse-dash
 spec/support/vcr_cassettes/carma @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/caseflow @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/charon @department-of-veterans-affairs/lighthouse-banana-peels
 spec/support/vcr_cassettes/check_in @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
+spec/support/vcr_cassettes/claims_api @department-of-veterans-affairs/lighthouse-dash
 spec/support/vcr_cassettes/complex_interaction @department-of-veterans-affairs/vsp-identity
 spec/support/vcr_cassettes/covid_vaccine @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/vfs-facilities @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 spec/support/vcr_cassettes/cypress_viewport_updater @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
@@ -1837,6 +1841,7 @@ spec/support/vcr_cassettes/va_forms @department-of-veterans-affairs/platform-va-
 spec/support/vcr_cassettes/va_notify @department-of-veterans-affairs/va-notify-write @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/vaos @department-of-veterans-affairs/va-gov-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/va_profile @department-of-veterans-affairs/vfs-authenticated-experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/vaos @department-of-veterans-affairs/va-gov-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/vbms @department-of-veterans-affairs/vsa-ebenefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/veteran @department-of-veterans-affairs/lighthouse-dash
 spec/support/vcr_cassettes/veteran_readiness_employment @department-of-veterans-affairs/Benefits-Team-1 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
