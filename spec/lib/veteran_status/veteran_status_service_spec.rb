@@ -48,21 +48,21 @@ describe VAProfile::VeteranStatus::Service do
 
       it 'gives me the right values back' do
         VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200') do
+          binding.pry
           response = subject.get_veteran_status
-        #  binding.pry
           expect(response.title38_status_code.title38_status_code).to eq('V1')
         end
       end
-    # end
+    end
 
-  #   context 'with a valid request for a non-veteran' do
-  #     it 'gives me the right values back' do
-  #       VCR.use_cassette('emis/get_veteran_status/valid_non_veteran') do
-  #         response = subject.get_veteran_status(edipi: edipi_non_veteran)
-  #         expect(response.items.first.title38_status_code).to eq('V4')
-  #       end
-  #     end
-  #   end
+    # context 'with a valid request for a non-veteran' do
+    #   it 'gives me the right values back' do
+    #     VCR.use_cassette('emis/get_veteran_status/valid_non_veteran') do
+    #       response = subject.get_veteran_status(edipi: edipi_non_veteran)
+    #       expect(response.items.first.title38_status_code).to eq('V4')
+    #     end
+    #   end
+    # end
 
   #   context 'with a bad edipi' do
   #     it 'gives me a bad response' do
@@ -96,7 +96,7 @@ describe VAProfile::VeteranStatus::Service do
   #       end
   #     end
     end
-  end
+  # end
 end
 
 # module EMIS
@@ -123,3 +123,4 @@ end
 #     end
 #   end
 # end
+
