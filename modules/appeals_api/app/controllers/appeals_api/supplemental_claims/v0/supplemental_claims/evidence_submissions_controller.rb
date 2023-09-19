@@ -23,10 +23,7 @@ module AppealsApi::SupplementalClaims::V0::SupplementalClaims
 
       submission = with_status_simulation(submission) if status_requested_and_allowed?
 
-      render json: submission,
-             serializer: AppealsApi::EvidenceSubmissionSerializer,
-             key_transform: :camel_lower,
-             render_location: false
+      render json: AppealsApi::SupplementalClaims::V0::EvidenceSubmissionSerializer.new(submission).serializable_hash
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -53,10 +50,9 @@ module AppealsApi::SupplementalClaims::V0::SupplementalClaims
       )
 
       render status: :created,
-             json: submission,
-             serializer: AppealsApi::EvidenceSubmissionSerializer,
-             key_transform: :camel_lower,
-             render_location: true
+             json: AppealsApi::SupplementalClaims::V0::EvidenceSubmissionSerializer.new(
+               submission, { params: { render_location: true } }
+             ).serializable_hash
     end
     # rubocop:enable Metrics/MethodLength
 

@@ -60,8 +60,8 @@
                         "type": "noticeOfDisagreement",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2020-01-02T03:04:05.067Z",
-                          "createdAt": "2020-01-02T03:04:05.067Z",
+                          "createDate": "2020-01-02T03:04:05.067Z",
+                          "updateDate": "2020-01-02T03:04:05.067Z",
                           "formData": {
                             "data": {
                               "type": "noticeOfDisagreement",
@@ -108,8 +108,8 @@
                         "type": "noticeOfDisagreement",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2020-01-02T03:04:05.067Z",
-                          "createdAt": "2020-01-02T03:04:05.067Z",
+                          "createDate": "2020-01-02T03:04:05.067Z",
+                          "updateDate": "2020-01-02T03:04:05.067Z",
                           "formData": {
                             "data": {
                               "type": "noticeOfDisagreement",
@@ -519,8 +519,8 @@
                     "type": "noticeOfDisagreement",
                     "attributes": {
                       "status": "pending",
-                      "updatedAt": "2020-01-02T03:04:05.067Z",
-                      "createdAt": "2020-01-02T03:04:05.067Z"
+                      "createDate": "2020-01-02T03:04:05.067Z",
+                      "updateDate": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },
@@ -2488,11 +2488,11 @@
                       "status": "pending",
                       "code": null,
                       "detail": null,
-                      "appealType": "NoticeOfDisagreement",
-                      "appealId": "00000000-1111-2222-3333-444444444444",
                       "location": "http://path.to.upload/location/uuid",
-                      "createdAt": "2020-01-02T03:04:05.067Z",
-                      "updatedAt": "2020-01-02T03:04:05.067Z"
+                      "appealId": "00000000-1111-2222-3333-444444444444",
+                      "appealType": "NoticeOfDisagreement",
+                      "createDate": "2020-01-02T03:04:05.067Z",
+                      "updateDate": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },
@@ -2775,11 +2775,11 @@
                       "status": "pending",
                       "code": null,
                       "detail": null,
-                      "appealType": "NoticeOfDisagreement",
-                      "appealId": "00000000-1111-2222-3333-444444444444",
                       "location": null,
-                      "createdAt": "2020-01-02T03:04:05.067Z",
-                      "updatedAt": "2020-01-02T03:04:05.067Z"
+                      "appealId": "00000000-1111-2222-3333-444444444444",
+                      "appealType": "NoticeOfDisagreement",
+                      "createDate": "2020-01-02T03:04:05.067Z",
+                      "updateDate": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },
@@ -3466,12 +3466,12 @@
                       "error"
                     ]
                   },
-                  "createdAt": {
+                  "createDate": {
                     "type": "string",
                     "description": "Created timestamp of the NOD",
                     "example": "2020-12-16T19:52:23.909Z"
                   },
-                  "updatedAt": {
+                  "updateDate": {
                     "type": "string",
                     "description": "Updated timestamp of the NOD",
                     "example": "2020-12-16T19:52:23.909Z"
@@ -3573,14 +3573,14 @@
                     "format": "uri",
                     "example": "https://sandbox-api.va.gov/example_path_here/6d8433c1-cd55-4c24-affd-f592287a7572"
                   },
-                  "updatedAt": {
+                  "updateDate": {
                     "description": "The last time the submission was updated",
                     "type": "string",
                     "format": "date-time",
                     "example": "2018-07-30T17:31:15.958Z"
                   },
-                  "createdAt": {
-                    "description": "The last time the submission was updated",
+                  "createDate": {
+                    "description": "The time the submission was created",
                     "type": "string",
                     "format": "date-time",
                     "example": "2018-07-30T17:31:15.958Z"
@@ -3628,14 +3628,14 @@
                       "error"
                     ]
                   },
-                  "updatedAt": {
+                  "updateDate": {
                     "description": "The last time the submission was updated",
                     "type": "string",
                     "format": "date-time",
                     "example": "2018-07-30T17:31:15.958Z"
                   },
-                  "createdAt": {
-                    "description": "The last time the submission was updated",
+                  "createDate": {
+                    "description": "The time the submission was created",
                     "type": "string",
                     "format": "date-time",
                     "example": "2018-07-30T17:31:15.958Z"
