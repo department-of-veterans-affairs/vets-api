@@ -220,6 +220,7 @@ module ClaimsApi
         @pdf_data[:data][:attributes].merge!(
           identificationInformation: @auto_claim&.dig('veteranIdentification')&.deep_symbolize_keys
         )
+        @pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber] = @target_veteran.mpi.birls_id
         vet_number = @pdf_data[:data][:attributes][:identificationInformation][:veteranNumber].present?
         if vet_number
           phone = convert_phone(@pdf_data[:data][:attributes][:identificationInformation][:veteranNumber][:telephone])

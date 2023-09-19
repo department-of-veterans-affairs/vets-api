@@ -77,17 +77,6 @@ module ClaimsApi
             claim_id
           )
         end
-
-        def file_number_check
-          @file_number = local_bgs_service.find_by_ssn(target_veteran.ssn)&.dig(:file_nbr) # rubocop:disable Rails/DynamicFindBy
-
-        # catch any other errors related to this call failing
-        rescue => e
-          log_exception_to_sentry(e, nil, { message: e.errors[0].detail }, 'warn')
-          raise ::Common::Exceptions::FailedDependency.new(
-            detail: "An external system failure occurred while trying to retrieve Veteran 'FileNumber'"
-          )
-        end
       end
     end
   end

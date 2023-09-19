@@ -88,11 +88,6 @@
                     }
                   }
                 },
-                "vaFileNumber": {
-                  "type": "string",
-                  "description": "VA File Number associated to the Veteran.",
-                  "maxLength": 9
-                },
                 "mailingAddress": {
                   "type": "object",
                   "additionalProperties": false,
