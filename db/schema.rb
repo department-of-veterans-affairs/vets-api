@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_09_01_195553) do
+ActiveRecord::Schema.define(version: 2023_09_14_180448) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -617,6 +617,8 @@ ActiveRecord::Schema.define(version: 2023_09_01_195553) do
     t.datetime "updated_at", precision: 6, null: false
     t.uuid "user_account_id"
     t.jsonb "public_metadata"
+    t.integer "state", default: 0
+    t.string "error_message"
     t.index ["user_account_id"], name: "index_form5655_submissions_on_user_account_id"
     t.index ["user_uuid"], name: "index_form5655_submissions_on_user_uuid"
   end
