@@ -87,7 +87,7 @@ module BenefitsDocuments
       payload[:parameters] = Faraday::UploadIO.new(fn, 'application/json')
 
       file_type = MimeMagic.by_path(document_data[:file_name]).subtype
-      allowed_filetype(file_type)
+      validate_filetype!(file_type)
 
       file = Tempfile.new(document_data[:file_name])
       File.write(file, file_body)
@@ -117,7 +117,7 @@ module BenefitsDocuments
 
     private
 
-    def allowed_filetype(file_type)
+    def validate_filetype!(file_type)
       unless EXTENSION_ALLOWLIST.include?(file_type)
         raise Common::Exceptions::BadRequest, { errors: "Invalid claim document upload file type: #{file_type}" }
       end
