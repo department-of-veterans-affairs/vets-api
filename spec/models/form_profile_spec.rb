@@ -962,7 +962,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  describe '#initialize_military_information' do
+  describe '#initialize_military_information', skip_va_profile: true do
     it 'prefills military data from va profile' do
       VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
                        allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
@@ -1137,7 +1137,7 @@ RSpec.describe FormProfile, type: :model do
         expect(user.authorize(:mdot, :access?)).to eq(true)
       end
 
-      it 'returns a prefilled MDOT form' do
+      it 'returns a prefilled MDOT form', skip_va_profile: true  do
         VCR.use_cassette('mdot/get_supplies_200') do
           VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
                            allow_playback_repeats: true) do
@@ -1263,7 +1263,7 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
-    context 'when VA Profile returns 500' do
+    context 'when VA Profile returns 500',  skip_va_profile: true do
       it 'returns a BackendServiceException' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_500',
                            allow_playback_repeats: true, match_requests_on: %i[method uri]) do
