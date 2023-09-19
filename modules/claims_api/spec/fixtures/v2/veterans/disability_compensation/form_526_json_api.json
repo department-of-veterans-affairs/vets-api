@@ -21,8 +21,7 @@
         "veteranNumber": {
           "telephone": "5555555555",
           "internationalTelephone": "+44 20 1234 5678"
-        },
-        "vaFileNumber": "AB123CDEF"
+        }
       },
       "serviceInformation": {
         "servicePeriods": [

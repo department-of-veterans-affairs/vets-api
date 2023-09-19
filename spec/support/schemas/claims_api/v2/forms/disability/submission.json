@@ -71,11 +71,6 @@
               }
             }
           },
-          "vaFileNumber": {
-            "type": "string",
-            "description": "The file number associated with the Veteran and Veteran's Affairs.",
-            "maxLength": 9
-          },
           "mailingAddress": {
             "type": "object",
             "additionalProperties": false,

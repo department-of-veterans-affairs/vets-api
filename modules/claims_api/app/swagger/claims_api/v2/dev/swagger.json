@@ -1356,11 +1356,6 @@
                               }
                             }
                           },
-                          "vaFileNumber": {
-                            "type": "string",
-                            "description": "The file number associated with the Veteran and Veteran's Affairs.",
-                            "maxLength": 9
-                          },
                           "mailingAddress": {
                             "type": "object",
                             "additionalProperties": false,
@@ -2368,11 +2363,6 @@
                                   }
                                 }
                               },
-                              "vaFileNumber": {
-                                "type": "string",
-                                "description": "VA File Number associated to the Veteran.",
-                                "maxLength": 9
-                              },
                               "mailingAddress": {
                                 "type": "object",
                                 "additionalProperties": false,
@@ -3350,8 +3340,7 @@
                         },
                         "veteranNumber": {
                           "internationalTelephone": "+44 20 1234 5678"
-                        },
-                        "vaFileNumber": "AB123CDEF"
+                        }
                       },
                       "changeOfAddress": {
                         "dates": {
@@ -4128,8 +4117,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-09-14",
-                      "expirationDate": "2024-09-14",
+                      "creationDate": "2023-09-19",
+                      "expirationDate": "2024-09-19",
                       "type": "compensation",
                       "status": "active"
                     }
