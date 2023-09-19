@@ -71,53 +71,13 @@ describe VAProfile::VeteranStatus::Service do
         end
       end
 
+      it 'gives me a 500 response' do
+        VCR.use_cassette('va_profile/veteran_status/veteran_status_500_aaid') do
+          expect do
+            response = subject.get_veteran_status
+          end.to raise_error(Common::Exceptions::BackendServiceException)
+        end
+      end
     end
-
-  #   context 'with a missing edipi' do
-  #     it 'gives me a missing response' do
-  #       VCR.use_cassette('emis/get_veteran_status/missing_edipi') do
-  #         response = subject.get_veteran_status(edipi: missing_edipi)
-  #         expect(response).not_to be_ok
-  #         expect(response).to be_empty
-  #         expect(response.error?).to eq(false)
-  #         expect(response.error).to eq(nil)
-  #       end
-  #     end
-  #   end
-
-  #   context 'with an empty response element' do
-  #     it 'returns nil' do
-  #       VCR.use_cassette('emis/get_veteran_status/empty_title38') do
-  #         response = subject.get_veteran_status(edipi: no_status)
-  #         expect(response.items.first).to be_nil
-  #       end
-  #     end
-    end
-  # end
+  end
 end
-
-# module EMIS
-#   class BrokenVeteranStatusService < Service
-#     configuration EMIS::VeteranStatusConfiguration
-
-#     create_endpoints([[:get_veteran_status, 'fooRequest']])
-
-#     def custom_namespaces
-#       {}
-#     end
-#   end
-# end
-
-# describe EMIS::BrokenVeteranStatusService do
-#   let(:edipi) { '1607472595' }
-
-#   it 'gives me back an error' do
-#     VCR.use_cassette('emis/get_veteran_status/broken') do
-#       response = subject.get_veteran_status(edipi:)
-#       expect(response).to be_an_instance_of(EMIS::Responses::ErrorResponse)
-#       expect(response.error).to be_an_instance_of(Common::Client::Errors::HTTPError)
-#       expect(response.error.message).to be('SOAP HTTP call failed')
-#     end
-#   end
-# end
-
