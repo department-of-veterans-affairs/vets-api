@@ -23,6 +23,11 @@ module DebtsApi
 
       DebtsApi::V0::FinancialStatusReportService.new(user).submit_vba_fsr(submission.form)
       user.destroy
+      submission.submitted!
+    rescue => e
+      submission.failed!
+      submission.update(error_message: e.message)
+      raise e
     end
   end
 end
