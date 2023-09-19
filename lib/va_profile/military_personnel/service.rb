@@ -24,14 +24,13 @@ module VAProfile
       def get_service_history
         with_monitoring do
           edipi_present!
-          # if there is a different endpoint i need to call, it would be here.
-          # taking the response from va profile and turning it into a format we can use
+
           response = perform(:post, identity_path, VAProfile::Models::ServiceHistory.in_json)
 
           ServiceHistoryResponse.from(@current_user, response)  # this might be all I need.
         end
       rescue Common::Client::Errors::ClientError => e
-        if e.status == 404
+        if e&.status == 404
           log_exception_to_sentry(
             e,
             { edipi: @user.edipi },
@@ -40,7 +39,7 @@ module VAProfile
           )
 
           return ServiceHistoryResponse.new(404, episodes: nil)
-        elsif e.status >= 400 && e.status < 500
+        elsif e&.status >= 400 && e&.status < 500
           return ServiceHistoryResponse.new(e.status, episodes: nil)
         end
 

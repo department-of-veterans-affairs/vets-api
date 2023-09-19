@@ -61,7 +61,7 @@ module VAProfile
       private
 
       def combined_service_connected_rating_percentage
-        disability_data.disability_rating.combined_service_connected_rating_percentage.to_i
+        disability_data&.disability_rating&.combined_service_connected_rating_percentage&.to_i || 0
       end
 
       def disability_data

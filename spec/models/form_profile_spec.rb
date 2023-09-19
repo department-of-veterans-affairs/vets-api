@@ -1235,17 +1235,48 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
-    # context 'when emis is down', skip_va_profile: true do
-    #   it 'logs the error to sentry' do
-    #     can_prefill_emis(true)
-    #     error = RuntimeError.new('foo')
-    #     expect(Rails.env).to receive(:production?).and_return(true)
-    #     expect(user.military_information).to receive(:hca_last_service_branch).and_return('air force').and_raise(error)
-    #     form_profile = described_class.for(form_id: '1010ez', user:)
-    #     expect(form_profile).to receive(:log_exception_to_sentry).with(error, {}, external_service: :emis)
-    #     form_profile.prefill
-    #   end
-    # end
+    context 'when VA Profile returns 404', skip_va_profile: true do
+      it 'returns default values' do
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_404',
+                         allow_playback_repeats: true, match_requests_on: %i[method body]) do
+          VCR.use_cassette('va_profile/disability/disability_rating_404',
+                           allow_playback_repeats: true, match_requests_on: %i[method body]) do
+            can_prefill_emis(true)
+            output = form_profile.send(:initialize_military_information).attributes.transform_keys(&:to_s)
+            expect(output['currently_active_duty']).to eq(false)
+            expect(output['currently_active_duty_hash']).to eq({:yes=>false})
+            expect(output['discharge_type']).to eq(nil)
+            expect(output['guard_reserve_service_history']).to eq([])
+            expect(output['hca_last_service_branch']).to eq('other')
+            expect(output['last_discharge_date']).to eq(nil)
+            expect(output['last_entry_date']).to eq(nil)
+            expect(output['last_service_branch']).to eq(nil)
+            expect(output['latest_guard_reserve_service_period']).to eq(nil)
+            expect(output['post_nov111998_combat']).to eq(false)
+            expect(output['service_branches']).to eq([])
+            expect(output['service_episodes_by_date']).to eq([])
+            expect(output['service_periods']).to eq([])
+            expect(output['sw_asia_combat']).to eq(false)
+            expect(output['tours_of_duty']).to eq([])
+          end
+        end
+      end
+    end
+
+    context 'when VA Profile returns 500' do
+      it 'returns a BackendServiceException' do
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_500',
+                           allow_playback_repeats: true, match_requests_on: %i[method uri]) do
+          VCR.use_cassette('va_profile/disability/disability_rating_500',
+                             allow_playback_repeats: true, match_requests_on: %i[method uri]) do
+
+            expect { form_profile.send(:initialize_military_information) }.to raise_error(
+              Common::Exceptions::BackendServiceException
+            )
+          end
+        end
+      end
+    end
 
     context 'user without an address' do
       it 'prefills properly' do

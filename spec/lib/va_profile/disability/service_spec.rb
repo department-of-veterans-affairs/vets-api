@@ -42,7 +42,7 @@ describe VAProfile::Disability::Service do
       end
     end
 
-    context 'when not successful' do
+    context 'when unsuccessful' do
       it 'returns nil disability rating for 404' do
         VCR.use_cassette('va_profile/disability/disability_rating_404') do
           response = subject.get_disability_data
@@ -60,8 +60,7 @@ describe VAProfile::Disability::Service do
             { va_profile: :disability_rating_not_found },
             :warning
           )
-
-          response = subject.get_disability_data
+          subject.get_disability_data
         end
       end
 
@@ -71,6 +70,14 @@ describe VAProfile::Disability::Service do
 
           expect(response).not_to be_ok
           expect(response.disability_rating).to eq(nil)
+        end
+      end
+
+      it 'raises error for 500' do
+        VCR.use_cassette('va_profile/disability/disability_rating_500') do
+          expect { subject.get_disability_data }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
         end
       end
     end

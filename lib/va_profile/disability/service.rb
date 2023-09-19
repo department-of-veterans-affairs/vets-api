@@ -30,7 +30,7 @@ module VAProfile
           DisabilityResponse.from(@current_user, response)
         end
       rescue Common::Client::Errors::ClientError => e
-        if e.status == 404
+        if e&.status == 404
           log_exception_to_sentry(
             e,
             { edipi: @user.edipi },
@@ -39,7 +39,7 @@ module VAProfile
           )
 
           return DisabilityResponse.new(404, disability_rating: nil)
-        elsif e.status >= 400 && e.status < 500
+        elsif e&.status >= 400 && e&.status < 500
           return DisabilityResponse.new(e.status, disability_rating: nil)
         end
 
