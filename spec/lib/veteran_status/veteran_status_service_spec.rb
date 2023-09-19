@@ -4,41 +4,13 @@ require 'rails_helper'
 require 'va_profile/veteran_status/service'
 
 describe VAProfile::VeteranStatus::Service do
-  # let(:edipi_veteran) { '1068619536' }
-  # let(:edipi_non_veteran) { '1140840595' }
-  # let(:bad_edipi) { '595' }
-  # let(:missing_edipi) { '1111111111' }
-  # let(:no_status) { '1005079361' }
-  # let(:user) { create(:user) }
-  # let(:user) do
-  #   user_instance = create(:user)
-  #   user_instance.identity.edipi = edipi_veteran
-  #   user_instance.save!
-  #   user_instance
-  # end
-  # let(:user) { create(:user, identity: build(:user_identity, edipi: edipi_veteran)) }
-  # let(:user) do
-  #   user_instance = create(:user)
-  #   create(:user_identity, edipi: edipi_veteran, user: user_instance)
-  #   user_instance
-  # end
-  # let(:user) do
-  #   identity_instance = create(:user_identity, edipi: edipi_veteran)
-  #   create(:user, identity: identity_instance)
-  # end
-
-
   let(:user) { build(:user, :loa3) }
   let(:edipi) { '1005127153' }
   subject { described_class.new(user) }
 
-  # before do
-  #   allow(Settings.vet_verification).to receive(:mock_emis).and_return(false)
-  # end
-
-  # before do
-  #   allow(user).to receive(:edipi).and_return(edipi)
-  # end
+  before do
+    allow(user).to receive(:edipi).and_return(edipi)
+  end
 
   describe '#identity_path' do
     context 'when an edipi exists' do
@@ -61,24 +33,16 @@ describe VAProfile::VeteranStatus::Service do
       it 'gives me the right values back' do
         VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200') do
           response = subject.get_veteran_status
-          binding.pry
+         # binding.pry
           expect(response.title38_status_code.title38_status_code).to eq('V1')
         end
       end
     end
 
-    # context 'with a valid request for a non-veteran' do
-    #   it 'gives me the right values back' do
-    #     VCR.use_cassette('emis/get_veteran_status/valid_non_veteran') do
-    #       response = subject.get_veteran_status(edipi: edipi_non_veteran)
-    #       expect(response.items.first.title38_status_code).to eq('V4')
-    #     end
-    #   end
-    # end
-
-    context 'with a bad edipi' do
+    context 'throws an error' do
       it 'gives me a bad response' do
-        VCR.use_cassette('va_profile/veteran_status/miliary_service_no_edipi_2023-09-13_13_33_09_UTC', match_requests_on: [:body]) do
+        VCR.use_cassette('va_profile/veteran_status/veteran_status_400', match_requests_on: [:body]) do
+        #  binding.pry
           response = subject.get_veteran_status
           expect(response).not_to be_ok
           # binding.pry

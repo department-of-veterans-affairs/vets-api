@@ -32,8 +32,8 @@ module VAProfile
           veteran_status_response = VeteranStatusResponse.from(@current_user, response)
         end
       rescue Common::Client::Errors::ClientError => e
-      #  binding.pry
-        additional_params = { edipi: @user.edipi, title38_status: veteran_status_response&.title38_status_code }  # Add title38_status to the logging
+        binding.pry
+        additional_params = { edipi: @user.edipi }
       
         if e.status == 404
           log_exception_to_sentry(
