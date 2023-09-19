@@ -8,7 +8,7 @@ require 'lighthouse/benefits_documents/service'
 RSpec.describe 'claims document upload', type: :request do
   include JsonSchemaMatchers
 
-  let!(:user) { sis_user(traits: [:api_auth, :loa3], attributes: { icn: '24811694708759028' }) }
+  let!(:user) { sis_user(traits: %i[api_auth loa3], attributes: { icn: '24811694708759028' }) }
   let(:file) { fixture_file_upload('doctors-note.pdf', 'application/pdf') }
   let(:claim_id) { 33 }
   let(:tracked_item_ids) { [33] }
@@ -32,7 +32,6 @@ RSpec.describe 'claims document upload', type: :request do
     expect do
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
     end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
-
 
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
