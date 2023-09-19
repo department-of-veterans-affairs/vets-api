@@ -34,8 +34,11 @@ Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
                   -----------------------------------------
 
 Benefit You Are Receiving: <%= form_benefit %>
-
+<% if Settings.vsp_environment.eql?('production') -%>
 Type of Education or Training: <%= @applicant.educationType&.titleize %>
+<% else %>
+Type of Education or Training: <%= @applicant.educationTypeUpdate&.titleize %>
+<% end -%>
 Education or Career Goal: <%= @applicant.educationObjective %>
 
 New School or Training Establishment:
