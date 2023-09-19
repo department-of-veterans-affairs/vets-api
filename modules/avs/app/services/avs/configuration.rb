@@ -2,8 +2,6 @@
 
 require 'common/client/configuration/rest'
 
-# TODO: add JWT wrapper, see VAOS for example.
-
 module Avs
   class Configuration < Common::Client::Configuration::REST
     self.read_timeout = Settings.avs.timeout || 55
@@ -31,6 +29,11 @@ module Avs
         conn.response :json_parser
         conn.adapter Faraday.default_adapter
       end
+    end
+
+    def self.base_request_headers
+      token = Settings.avs.api_jwt
+      super.merge('Authorization' => "Bearer #{token}")
     end
 
     def mock_enabled?
