@@ -20,7 +20,7 @@ module SignIn
     end
 
     def user_attributes_hash
-      @user_attributes_hash ||= JSON.parse(user_attributes)
+      @user_attributes_hash ||= user_attributes.present? ? JSON.parse(user_attributes) : {}
     end
 
     private
