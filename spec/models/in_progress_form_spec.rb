@@ -65,6 +65,11 @@ RSpec.describe InProgressForm, type: :model do
         expect(in_progress_form.metadata['expiresAt']).to eq(1_622_505_600)
       end
     end
+
+    it 'adds the form creation time', run_at: '2023-09-15' do
+      in_progress_form.save
+      expect(in_progress_form.metadata['createdAt']).to eq(1_694_736_000)
+    end
   end
 
   describe '#serialize_form_data' do
