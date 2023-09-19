@@ -924,6 +924,7 @@ lib/webhooks @department-of-veterans-affairs/va-api-engineers @department-of-vet
 modules/appeals_api @department-of-veterans-affairs/lighthouse-banana-peels
 modules/apps_api @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/lighthouse-pivot
 modules/ask_va_api @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+modules/avs @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-cto-health-products
 modules/check_in @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
 modules/claims_api @department-of-veterans-affairs/lighthouse-dash
 modules/covid_research @department-of-veterans-affairs/long-covid
