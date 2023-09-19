@@ -22,8 +22,25 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
     let(:auto_claim) do
       create(:auto_established_claim, form_data: form_data['data']['attributes'])
     end
-
-    let(:evss_data) { ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526] }
+    let(:target_veteran) do
+      OpenStruct.new(
+        icn: '1013062086V794840',
+        first_name: 'abraham',
+        last_name: 'lincoln',
+        loa: { current: 3, highest: 3 },
+        ssn: '796111863',
+        edipi: '8040545646',
+        participant_id: '600061742',
+        mpi: OpenStruct.new(
+          icn: '1013062086V794840',
+          profile: OpenStruct.new(ssn: '796111863')
+        )
+      )
+    end
+    let(:evss_data) do
+      ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, file_number).map_claim[:form526]
+    end
+    let(:file_number) { '796111863' }
 
     RSpec.shared_examples 'does not map any values' do |section|
       it "does not map any of the #{section} values" do
@@ -48,7 +65,7 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
       end
 
       it 'maps the other veteran info' do
-        expect(evss_data[:veteran][:fileNumber]).to eq('AB123CDEF')
+        expect(evss_data[:veteran][:fileNumber]).to eq('796111863')
         expect(evss_data[:veteran][:currentlyVAEmployee]).to eq(false)
         expect(evss_data[:veteran][:emailAddress]).to eq('valid@somedomain.com')
       end
