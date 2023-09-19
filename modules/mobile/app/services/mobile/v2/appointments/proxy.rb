@@ -37,12 +37,15 @@ module Mobile
 
         def merge_clinic_facility_address(appointments)
           cached_facilities = {}
+
+          facility_ids = appointments.map(&:location_id).compact.uniq
+          facility_ids.each do |facility_id|
+            cached_facilities[facility_id] = appointments_helper.get_facility(facility_id)
+          end
+
           appointments.each do |appt|
             facility_id = appt[:location_id]
             next unless facility_id
-
-            cached = cached_facilities[facility_id]
-            cached_facilities[facility_id] = appointments_helper.get_facility(facility_id) unless cached
 
             appt[:location] = cached_facilities[facility_id]
           end
@@ -50,12 +53,15 @@ module Mobile
 
         def merge_auxiliary_clinic_info(appointments)
           cached_clinics = {}
+
+          location_clinics = appointments.map { |appt| [appt.location_id, appt.clinic] }.reject { |a| a.any?(nil) }.uniq
+          location_clinics.each do |location_id, clinic_id|
+            cached_clinics[clinic_id] = appointments_helper.get_clinic(location_id, clinic_id)
+          end
+
           appointments.each do |appt|
             clinic_id = appt[:clinic]
             next unless clinic_id
-
-            cached = cached_clinics[clinic_id]
-            cached_clinics[clinic_id] = appointments_helper.get_clinic(appt[:location_id], clinic_id) unless cached
 
             service_name = cached_clinics.dig(clinic_id, :service_name)
             appt[:service_name] = service_name

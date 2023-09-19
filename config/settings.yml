@@ -663,12 +663,6 @@ claims_api:
     host: https://sandbox-api.va.gov
     use_mocks: false
 
-connected_apps_api:
-  connected_apps:
-    url: ~
-    api_key: ~
-    revoke_url: https://sandbox-api.va.gov/internal/auth/v3/user/consent
-
 redis:
   host: localhost
   port: 6379
@@ -1266,6 +1260,7 @@ vanotify:
         form1990_confirmation_email: form1990_confirmation_email_template_id
         form1990e_confirmation_email: form1990e_confirmation_email_template_id
         form1995_confirmation_email: form1995_confirmation_email_template_id
+        form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
         form526_confirmation_email: fake_template_id
         form526_submission_failed_email: fake_template_id

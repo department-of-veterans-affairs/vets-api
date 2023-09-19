@@ -136,6 +136,10 @@ features:
     actor_type: user
     description: Enables the unified experience version of the landing page.
     enable_in_development: true
+  check_in_experience_travel_claim_increase_timeout:
+    actor_type: user
+    description: Increases the timeout for BTSSS submit claim request to 120 seconds
+    enable_in_development: true
   claim_letters_access:
     actor_type: user
     description: Enables users to access the claim letters page
@@ -442,6 +446,10 @@ features:
     actor_type: user
     description: Enables form 1990e email submission confirmation (VaNotify)
     enable_in_development: true
+  form21_10210_confirmation_email:
+    actor_type: user
+    description: Enables form 21-10210 email submission confirmation (VaNotify)
+    enable_in_development: true
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
@@ -458,6 +466,9 @@ features:
     actor_type: user
     description: Enables form email submission confirmations (for allowed email types via VaNotify)
     enable_in_development: true
+  form210845:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21-0845
   form214142:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4142

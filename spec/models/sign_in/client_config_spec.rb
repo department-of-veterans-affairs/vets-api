@@ -13,7 +13,8 @@ RSpec.describe SignIn::ClientConfig, type: :model do
            access_token_duration:,
            access_token_audience:,
            refresh_token_duration:,
-           certificates:)
+           certificates:,
+           access_token_attributes:)
   end
   let(:client_id) { 'some-client-id' }
   let(:authentication) { SignIn::Constants::Auth::API }
@@ -24,6 +25,7 @@ RSpec.describe SignIn::ClientConfig, type: :model do
   let(:access_token_duration) { SignIn::Constants::AccessToken::VALIDITY_LENGTH_SHORT_MINUTES }
   let(:access_token_audience) { 'some-access-token-audience' }
   let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
+  let(:access_token_attributes) { [] }
 
   describe 'validations' do
     subject { client_config }
@@ -167,6 +169,32 @@ RSpec.describe SignIn::ClientConfig, type: :model do
 
         it 'raises validation error' do
           expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+    end
+
+    describe '#access_token_attributes' do
+      context 'when access_token_attributes is empty' do
+        it 'does not raise a validation error' do
+          expect { subject }.not_to raise_error
+        end
+      end
+
+      context 'when access_token_attributes contain attributes not included in USER_ATTRIBUTES constant' do
+        let(:access_token_attributes) { %w[first_name last_name bad_attribute] }
+        let(:expected_error_message) { 'Validation failed: Access token attributes is not included in the list' }
+        let(:expected_error) { ActiveRecord::RecordInvalid }
+
+        it 'raises a validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+
+      context 'when all access_token_attributes are included in USER_ATTRIBUTES constant' do
+        let(:access_token_attributes) { SignIn::Constants::AccessToken::USER_ATTRIBUTES }
+
+        it 'does not raise a validation error' do
+          expect { subject }.not_to raise_error
         end
       end
     end

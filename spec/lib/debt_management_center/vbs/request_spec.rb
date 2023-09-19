@@ -14,11 +14,11 @@ RSpec.describe DebtManagementCenter::VBS::Request do
 
   describe 'settings' do
     it 'has a host' do
-      expect(subject.host).to eq('fake_url.com:9000')
+      expect(subject.host).to eq('internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491')
     end
 
     it 'has base_path' do
-      expect(subject.base_path).to eq('/base/path')
+      expect(subject.base_path).to eq('/vbsapi')
     end
 
     it 'has service_name' do
@@ -26,7 +26,7 @@ RSpec.describe DebtManagementCenter::VBS::Request do
     end
 
     it 'has a url' do
-      expect(subject.url).to eq('https://fake_url.com:9000')
+      expect(subject.url).to eq('https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491')
     end
   end
 
@@ -44,7 +44,7 @@ RSpec.describe DebtManagementCenter::VBS::Request do
 
   describe '#headers' do
     it 'has request headers' do
-      expect(subject.headers).to eq({ 'Host' => 'fake_url.com:9000',
+      expect(subject.headers).to eq({ 'Host' => 'internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491', # rubocop:disable Metrics/LineLength
                                       'Content-Type' => 'application/json',
                                       'apiKey' => 'abcd1234abcd1234abcd1234abcd1234abcd1234' })
     end

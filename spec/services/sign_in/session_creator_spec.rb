@@ -14,8 +14,9 @@ RSpec.describe SignIn::SessionCreator do
       let(:validated_credential) { create(:validated_credential, client_config:) }
       let(:user_uuid) { validated_credential.user_verification.backing_credential_identifier }
       let(:client_id) { client_config.client_id }
-      let(:client_config) { create(:client_config, refresh_token_duration:) }
+      let(:client_config) { create(:client_config, refresh_token_duration:, access_token_attributes:) }
       let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
+      let(:access_token_attributes) { %w[first_name last_name email] }
 
       context 'expected anti_csrf_token' do
         let(:expected_anti_csrf_token) { 'some-anti-csrf-token' }
@@ -36,6 +37,7 @@ RSpec.describe SignIn::SessionCreator do
         let(:expected_parent_token_uuid) { SecureRandom.uuid }
         let(:expected_user_uuid) { user_uuid }
         let(:expected_expiration_time) { Time.zone.now + refresh_token_duration }
+        let(:expected_user_attributes) { validated_credential.user_attributes }
         let(:expected_double_hashed_parent_refresh_token) do
           Digest::SHA256.hexdigest(parent_refresh_token_hash)
         end
@@ -72,6 +74,7 @@ RSpec.describe SignIn::SessionCreator do
           expect(session.hashed_refresh_token).to eq(expected_double_hashed_parent_refresh_token)
           expect(session.refresh_creation).to eq(expected_created_time)
           expect(session.client_id).to eq(client_id)
+          expect(session.user_attributes_hash.values).to eq(expected_user_attributes.values)
         end
 
         context 'and client is configured for a short token expiration' do
@@ -175,6 +178,37 @@ RSpec.describe SignIn::SessionCreator do
           expect(access_token.refresh_token_hash).to eq(expected_refresh_token_hash)
           expect(access_token.parent_refresh_token_hash).to eq(expected_parent_refresh_token_hash)
           expect(access_token.last_regeneration_time).to eq(expected_last_regeneration_time)
+        end
+
+        context 'expected user attributes on access token' do
+          context 'when attributes are present in the ClientConfig access_token_attributes' do
+            it 'includes those attributes in the access token' do
+              user_attributes = subject.access_token.user_attributes
+              expect(user_attributes['first_name']).to eq(validated_credential.user_attributes[:first_name])
+              expect(user_attributes['last_name']).to eq(validated_credential.user_attributes[:last_name])
+              expect(user_attributes['email']).to eq(validated_credential.user_attributes[:email])
+            end
+          end
+
+          context 'when one or more attributes are not present in the ClientConfig access_token_attributes' do
+            let(:access_token_attributes) { %w[email] }
+
+            it 'does not include those attributes in the access token' do
+              user_attributes = subject.access_token.user_attributes
+
+              expect(user_attributes['first_name']).to be_nil
+              expect(user_attributes['last_name']).to be_nil
+              expect(user_attributes['email']).to eq(validated_credential.user_attributes[:email])
+            end
+          end
+
+          context 'when no attributes are present in the ClientConfig access_token_attributes' do
+            let(:access_token_attributes) { [] }
+
+            it 'sets an empty hash object in the access token' do
+              expect(subject.access_token.user_attributes).to eq({})
+            end
+          end
         end
       end
     end

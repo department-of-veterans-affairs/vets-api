@@ -193,6 +193,24 @@ RSpec.describe ApplicationController, type: :controller do
     end
   end
 
+  describe 'Datadog tracing' do
+    let(:active_span) do
+      instance_double(Datadog::Tracing::Span)
+    end
+
+    it 'sets error state on spans for handled exceptions' do
+      allow(Datadog::Tracing).to receive(:active_span).and_return(active_span)
+      expect(active_span).to receive(:set_error).with(Common::Exceptions::BackendServiceException)
+      get :common_error_with_warning_sentry
+    end
+
+    it 'does not set error state on spans for expected exceptions' do
+      allow(Datadog::Tracing).to receive(:active_span).and_return(active_span)
+      expect(active_span).not_to receive(:set_error)
+      get :forbidden
+    end
+  end
+
   describe '#clear_saved_form' do
     subject do
       controller.clear_saved_form(form_id)
