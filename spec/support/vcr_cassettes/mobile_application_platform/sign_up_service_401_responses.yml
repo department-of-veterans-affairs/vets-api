@@ -67,7 +67,7 @@ http_interactions:
       - origin; dur=46
     body:
       encoding: UTF-8
-      string: ''
+      string: '{"code":401,"message":"Unauthenticated access is not permitted.","traceId":"3dd9f18b1edbf391c05868af8de6148a"}'
   recorded_at: Wed, 26 Oct 2022 18:30:02 GMT
 - request:
     method: delete
@@ -136,6 +136,6 @@ http_interactions:
       - origin; dur=46
     body:
       encoding: UTF-8
-      string: ''
+      string: '{"code":401,"message":"Unauthenticated access is not permitted.","traceId":"9ab25637428a6eb92f4713ce15475939"}'
   recorded_at: Wed, 26 Oct 2022 18:30:02 GMT
 recorded_with: VCR 6.1.0

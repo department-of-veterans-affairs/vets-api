@@ -13,10 +13,7 @@ module MobileApplicationPlatform
         Rails.logger.info("#{config.logging_prefix} status success, icn: #{icn}")
         parse_response(response.body, icn, 'status')
       rescue Common::Client::Errors::ClientError => e
-        status = e.status
-        description = e.body.presence && e.body[:error_description]
-        raise e, "#{config.logging_prefix} status failed, client error, status: #{status}," \
-                 " description: #{description}, icn: #{icn}"
+        parse_and_raise_error(e, icn, 'status')
       end
 
       def agreements_accept(icn:, signature_name:, version:)
@@ -26,20 +23,14 @@ module MobileApplicationPlatform
                 authenticated_header(icn))
         Rails.logger.info("#{config.logging_prefix} agreements accept success, icn: #{icn}")
       rescue Common::Client::Errors::ClientError => e
-        status = e.status
-        description = e.body.presence && e.body[:error_description]
-        raise e, "#{config.logging_prefix} agreements accept failed, client error, status: #{status}," \
-                 " description: #{description}, icn: #{icn}"
+        parse_and_raise_error(e, icn, 'agreements accept')
       end
 
       def agreements_decline(icn:)
         perform(:delete, config.patients_agreements_path(icn), nil, authenticated_header(icn))
         Rails.logger.info("#{config.logging_prefix} agreements decline success, icn: #{icn}")
       rescue Common::Client::Errors::ClientError => e
-        status = e.status
-        description = e.body.presence && e.body[:error_description]
-        raise e, "#{config.logging_prefix} agreements decline failed, client error, status: #{status}," \
-                 " description: #{description}, icn: #{icn}"
+        parse_and_raise_error(e, icn, 'agreements decline')
       end
 
       def update_provisioning(icn:, first_name:, last_name:, mpi_gcids:)
@@ -52,8 +43,7 @@ module MobileApplicationPlatform
         if config.provisioning_acceptable_status.include?(e.status)
           successful_update_provisioning_response(e, icn)
         else
-          raise e, "#{config.logging_prefix} update provisioning failed, client error, status: #{e.status}," \
-                   " description: #{e&.body}, icn: #{icn}"
+          parse_and_raise_error(e, icn, 'update provisioning')
         end
       end
 
@@ -85,6 +75,20 @@ module MobileApplicationPlatform
       def successful_update_provisioning_response(response, icn)
         Rails.logger.info("#{config.logging_prefix} update provisioning success, icn: #{icn}")
         parse_response(response.body, icn, 'update provisioning')
+      end
+
+      def parse_and_raise_error(e, icn, action)
+        status = e.status
+        parsed_body = e.body.present? ? JSON.parse(e.body) : {}
+        context = {
+          id: parsed_body['id'],
+          code: parsed_body['code'],
+          error_code: parsed_body['errorCode'],
+          message: parsed_body['message'],
+          trace_id: parsed_body['traceId']
+        }.compact
+        raise e, "#{config.logging_prefix} #{action} failed, client error, status: #{status}," \
+                 " icn: #{icn}, context: #{context}"
       end
 
       def parse_response(response_body, icn, action)

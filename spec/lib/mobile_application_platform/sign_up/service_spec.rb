@@ -9,26 +9,43 @@ describe MobileApplicationPlatform::SignUp::Service do
   let(:version) { 'v1' }
   let(:log_prefix) { '[MobileApplicationPlatform][SignUp][Service]' }
 
+  shared_examples 'error response' do
+    let(:context) do
+      {
+        id: expected_error_id,
+        code: expected_error_status,
+        error_code: expected_error_code,
+        message: expected_error_message,
+        trace_id: expected_error_trace_id
+      }.compact
+    end
+    let(:expected_message) do
+      "#{log_prefix} #{action} failed, client error, status: #{expected_error_status}, icn: #{icn}, context: #{context}"
+    end
+    let(:expected_error) { Common::Client::Errors::ClientError }
+
+    it 'raises a client error with expected message' do
+      VCR.use_cassette('mobile_application_platform/security_token_service_200_response') do
+        VCR.use_cassette(vcr_cassette) do
+          expect { subject }.to raise_error(expected_error, expected_message)
+        end
+      end
+    end
+  end
+
   describe '#status' do
     subject { described_class.new.status(icn:) }
 
-    context 'when an issue occurs with the client request' do
-      let(:expected_error) { Common::Client::Errors::ClientError }
-      let(:expected_error_message) do
-        "#{log_prefix} status failed, client error, status: #{status}, " \
-          "description: #{description}, icn: #{icn}"
-      end
-      let(:status) { 'some-status' }
-      let(:description) { 'some-description' }
-      let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, { error_description: description }) }
+    context 'when response is not successful with a 400 error' do
+      let(:vcr_cassette) { 'mobile_application_platform/sign_up_service_400_responses' }
+      let(:action) { 'status' }
+      let(:expected_error_id) { '381e5926-12f4-48f7-9ca5-2ed2f631daab' }
+      let(:expected_error_code) { 14 }
+      let(:expected_error_status) { 400 }
+      let(:expected_error_message) { 'ICN has invalid format' }
+      let(:expected_error_trace_id) { nil }
 
-      before do
-        allow_any_instance_of(described_class).to receive(:perform).and_raise(raised_error)
-      end
-
-      it 'raises a client error with expected message' do
-        expect { subject }.to raise_error(expected_error, expected_error_message)
-      end
+      it_behaves_like 'error response'
     end
 
     context 'when response is successful' do
@@ -58,42 +75,28 @@ describe MobileApplicationPlatform::SignUp::Service do
   describe '#agreements_accept' do
     subject { described_class.new.agreements_accept(icn:, signature_name:, version:) }
 
-    context 'when an issue occurs with the client request' do
-      let(:expected_error) { Common::Client::Errors::ClientError }
-      let(:expected_error_message) do
-        "#{log_prefix} agreements accept failed, client error, status: #{status}, " \
-          "description: #{description}, icn: #{icn}"
-      end
-      let(:status) { 'some-status' }
-      let(:description) { 'some-description' }
-      let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, { error_description: description }) }
+    context 'when response is not successful with a 400 error' do
+      let(:vcr_cassette) { 'mobile_application_platform/sign_up_service_400_responses' }
+      let(:action) { 'agreements accept' }
+      let(:expected_error_id) { 'df5decee-8161-4c30-af74-7e030d2048e5' }
+      let(:expected_error_code) { 11 }
+      let(:expected_error_status) { 400 }
+      let(:expected_error_message) { 'Missing EDIPI Identifier' }
+      let(:expected_error_trace_id) { nil }
 
-      before do
-        allow_any_instance_of(described_class).to receive(:perform).and_raise(raised_error)
-      end
-
-      it 'raises a client error with expected message' do
-        VCR.use_cassette('mobile_application_platform/security_token_service_200_response') do
-          expect { subject }.to raise_error(expected_error, expected_error_message)
-        end
-      end
+      it_behaves_like 'error response'
     end
 
-    context 'when response is not successful' do
-      let(:expected_error) { Common::Client::Errors::ClientError }
-      let(:expected_error_message) do
-        "#{log_prefix} agreements accept failed, client error, status: #{status}, " \
-          "description: , icn: #{icn}"
-      end
-      let(:status) { 401 }
+    context 'when response is not successful with a 401 error' do
+      let(:vcr_cassette) { 'mobile_application_platform/sign_up_service_401_responses' }
+      let(:action) { 'agreements accept' }
+      let(:expected_error_id) { nil }
+      let(:expected_error_code) { nil }
+      let(:expected_error_status) { 401 }
+      let(:expected_error_message) { 'Unauthenticated access is not permitted.' }
+      let(:expected_error_trace_id) { '3dd9f18b1edbf391c05868af8de6148a' }
 
-      it 'raises a client error with expected message' do
-        VCR.use_cassette('mobile_application_platform/security_token_service_200_response') do
-          VCR.use_cassette('mobile_application_platform/sign_up_service_authentication_failure_responses') do
-            expect { subject }.to raise_error(expected_error, expected_error_message)
-          end
-        end
-      end
+      it_behaves_like 'error response'
     end
 
     context 'when response is successful' do
@@ -115,45 +118,28 @@ describe MobileApplicationPlatform::SignUp::Service do
   describe '#agreements_decline' do
     subject { described_class.new.agreements_decline(icn:) }
 
-    context 'when an issue occurs with the client request' do
-      let(:expected_error) { Common::Client::Errors::ClientError }
-      let(:expected_error_message) do
-        "#{log_prefix} agreements decline failed, client error, status: #{status}, " \
-          "description: #{description}, icn: #{icn}"
-      end
-      let(:status) { 'some-status' }
-      let(:description) { 'some-description' }
-      let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, { error_description: description }) }
+    context 'when response is not successful with a 400 error' do
+      let(:vcr_cassette) { 'mobile_application_platform/sign_up_service_400_responses' }
+      let(:action) { 'agreements decline' }
+      let(:expected_error_id) { '892994ef-7e92-42fb-b0c2-98fa396eec4e' }
+      let(:expected_error_code) { 15 }
+      let(:expected_error_status) { 400 }
+      let(:expected_error_message) { 'No existing agreement found for Veteran' }
+      let(:expected_error_trace_id) { nil }
 
-      before do
-        allow_any_instance_of(described_class).to receive(:perform).and_raise(raised_error)
-      end
-
-      it 'raises a client error with expected message' do
-        VCR.use_cassette('mobile_application_platform/security_token_service_200_response') do
-          expect { subject }.to raise_error(expected_error, expected_error_message)
-        end
-      end
+      it_behaves_like 'error response'
     end
 
-    context 'when response is not successful' do
-      let(:expected_log_message) { "#{log_prefix} agreements decline failed, icn: #{icn}" }
-      let(:expected_error) { Common::Client::Errors::ClientError }
-      let(:expected_error_message) do
-        "#{log_prefix} agreements decline failed, client error, status: #{status}, " \
-          "description: , icn: #{icn}"
-      end
-      let(:status) { 401 }
+    context 'when response is not successful with a 401 error' do
+      let(:vcr_cassette) { 'mobile_application_platform/sign_up_service_401_responses' }
+      let(:action) { 'agreements decline' }
+      let(:expected_error_id) { nil }
+      let(:expected_error_code) { nil }
+      let(:expected_error_status) { 401 }
+      let(:expected_error_message) { 'Unauthenticated access is not permitted.' }
+      let(:expected_error_trace_id) { '9ab25637428a6eb92f4713ce15475939' }
 
-      before { allow(Rails.logger).to receive(:info) }
-
-      it 'raises a client error with expected message' do
-        VCR.use_cassette('mobile_application_platform/security_token_service_200_response') do
-          VCR.use_cassette('mobile_application_platform/sign_up_service_authentication_failure_responses') do
-            expect { subject }.to raise_error(expected_error, expected_error_message)
-          end
-        end
-      end
+      it_behaves_like 'error response'
     end
 
     context 'when response is successful' do
@@ -183,23 +169,16 @@ describe MobileApplicationPlatform::SignUp::Service do
         '123456^PI^200ESR^USVHA^A|123456^PI^648^USVHA^A|123456^PI^200BRLS^USVBA^A'
     end
 
-    context 'when an issue occurs with the client request' do
-      let(:expected_error) { Common::Client::Errors::ClientError }
-      let(:expected_error_message) do
-        "#{log_prefix} update provisioning failed, client error, status: #{status}, " \
-          "description: #{description}, icn: #{icn}"
-      end
-      let(:status) { 'some-status' }
-      let(:description) { 'some-description' }
-      let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, description) }
+    context 'when response is not successful with a 400 error' do
+      let(:vcr_cassette) { 'mobile_application_platform/sign_up_service_400_responses' }
+      let(:action) { 'update provisioning' }
+      let(:expected_error_id) { nil }
+      let(:expected_error_code) { nil }
+      let(:expected_error_trace_id) { 'ef7bcc0708137692610a0a5f66746afc' }
+      let(:expected_error_status) { 400 }
+      let(:expected_error_message) { 'X-VAMF-API-KEY not found or invalid.' }
 
-      before do
-        allow_any_instance_of(described_class).to receive(:perform).and_raise(raised_error)
-      end
-
-      it 'raises a client error with expected message' do
-        expect { subject }.to raise_error(expected_error, expected_error_message)
-      end
+      it_behaves_like 'error response'
     end
 
     context 'when response is successful' do
