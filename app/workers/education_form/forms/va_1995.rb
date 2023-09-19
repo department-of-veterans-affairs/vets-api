@@ -22,7 +22,11 @@ module EducationForm::Forms
     end
 
     def form_benefit
-      @applicant.benefit&.titleize
+      if Settings.vsp_environment.eql?('production')
+        @applicant.benefit&.titleize
+      else
+        @applicant.benefitUpdate&.titleize
+      end
     end
 
     def header_form_type
