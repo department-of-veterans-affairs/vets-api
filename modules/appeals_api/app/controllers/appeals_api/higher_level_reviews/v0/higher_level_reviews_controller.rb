@@ -63,7 +63,7 @@ module AppealsApi::HigherLevelReviews::V0
     def header_names = headers_schema['definitions']['hlrCreateParameters']['properties'].keys
 
     def render_higher_level_review(hlr, **)
-      render(json: AppealsApi::HigherLevelReviewSerializer.new(hlr).serializable_hash, **)
+      render(json: HigherLevelReviewSerializer.new(hlr).serializable_hash, **)
     end
 
     def render_higher_level_review_not_found(id)

@@ -93,7 +93,7 @@ module AppealsApi::NoticeOfDisagreements::V0
     end
 
     def render_notice_of_disagreement(nod, **)
-      render(json: AppealsApi::NoticeOfDisagreementSerializer.new(nod).serializable_hash, **)
+      render(json: NoticeOfDisagreementSerializer.new(nod).serializable_hash, **)
     end
 
     def render_notice_of_disagreement_not_found(id)
