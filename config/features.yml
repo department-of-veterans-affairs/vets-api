@@ -40,6 +40,9 @@ features:
     actor_type: user
     description: Enables the optimized household section flow.
     enable_in_development: true
+  hca_performance_alert_enabled:
+    actor_type: user
+    description: Enables alert notifying users of a potential issue with application performance.
   hca_sigi_enabled:
     actor_type: user
     description: Enables Self-Identifying Gender Identity question for health care applicants.
