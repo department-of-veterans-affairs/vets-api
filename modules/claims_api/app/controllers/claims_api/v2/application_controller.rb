@@ -191,6 +191,19 @@ module ClaimsApi
         target_veteran[:va_profile] = ClaimsApi::Veteran.build_profile(mpi_profile.birth_date)
         target_veteran
       end
+
+      def file_number_check
+        if target_veteran&.mpi&.birls_id.present?
+          @file_number = target_veteran&.birls_id || target_veteran&.mpi&.birls_id
+        else
+          ClaimsApi::Logger.log('missing_file_number',
+                                detail: 'missing_file_number on request in application controller.')
+
+          raise ::CommonExceptions::UnprocessableEntity.new(detail:
+            "Unable to locate Veteran's 'File Number' in Master Person Index (MPI). " \
+            'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
+        end
+      end
     end
   end
 end
