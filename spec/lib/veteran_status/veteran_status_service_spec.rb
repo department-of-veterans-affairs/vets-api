@@ -40,14 +40,15 @@ describe VAProfile::VeteranStatus::Service do
     end
 
     context 'throws an error' do
-      it 'gives me a bad response' do
-        VCR.use_cassette('va_profile/veteran_status/veteran_status_400', match_requests_on: [:body]) do
-        #  binding.pry
+      it 'gives me a 400 response' do
+        VCR.use_cassette('va_profile/veteran_status/veteran_status_400_') do
           response = subject.get_veteran_status
           expect(response).not_to be_ok
-          # binding.pry
-          expect(response.error?).to eq(true)
-          expect(response.error.message).to eq('MIS-ERR-005 EDIPI_BAD_FORMAT EDIPI incorrectly formatted')
+          expect(response.status).to eq(400)
+          expect(response.veteran_status_title).to eq(nil)
+          expect(response.title38_status).to eq(nil)
+
+                    #TODO test log_exception_to_sentry
         end
       end
     end
