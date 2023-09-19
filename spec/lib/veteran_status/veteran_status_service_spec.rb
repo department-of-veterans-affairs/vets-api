@@ -12,9 +12,21 @@ describe VAProfile::VeteranStatus::Service do
   # let(:user) { create(:user) }
   # let(:user) do
   #   user_instance = create(:user)
-  #   user_instance.edipi = edipi_veteran
+  #   user_instance.identity.edipi = edipi_veteran
+  #   user_instance.save!
   #   user_instance
   # end
+  # let(:user) { create(:user, identity: build(:user_identity, edipi: edipi_veteran)) }
+  # let(:user) do
+  #   user_instance = create(:user)
+  #   create(:user_identity, edipi: edipi_veteran, user: user_instance)
+  #   user_instance
+  # end
+  # let(:user) do
+  #   identity_instance = create(:user_identity, edipi: edipi_veteran)
+  #   create(:user, identity: identity_instance)
+  # end
+
 
   let(:user) { build(:user, :loa3) }
   let(:edipi) { '1005127153' }
@@ -24,9 +36,9 @@ describe VAProfile::VeteranStatus::Service do
   #   allow(Settings.vet_verification).to receive(:mock_emis).and_return(false)
   # end
 
-  before do
-    allow(user).to receive(:edipi).and_return(edipi)
-  end
+  # before do
+  #   allow(user).to receive(:edipi).and_return(edipi)
+  # end
 
   describe '#identity_path' do
     context 'when an edipi exists' do
@@ -48,8 +60,8 @@ describe VAProfile::VeteranStatus::Service do
 
       it 'gives me the right values back' do
         VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200') do
-          binding.pry
           response = subject.get_veteran_status
+          binding.pry
           expect(response.title38_status_code.title38_status_code).to eq('V1')
         end
       end
@@ -64,17 +76,17 @@ describe VAProfile::VeteranStatus::Service do
     #   end
     # end
 
-  #   context 'with a bad edipi' do
-  #     it 'gives me a bad response' do
-  #       VCR.use_cassette('emis/get_veteran_status/bad_edipi') do
-  #         response = subject.get_veteran_status(edipi: bad_edipi)
-  #         expect(response).not_to be_ok
-  #         expect(response.error?).to eq(true)
-  #         expect(response.error).to be_a(EMIS::Errors::ServiceError)
-  #         expect(response.error.message).to eq('MIS-ERR-005 EDIPI_BAD_FORMAT EDIPI incorrectly formatted')
-  #       end
-  #     end
-  #   end
+    context 'with a bad edipi' do
+      it 'gives me a bad response' do
+        VCR.use_cassette('va_profile/veteran_status/miliary_service_no_edipi_2023-09-13_13_33_09_UTC', match_requests_on: [:body]) do
+          response = subject.get_veteran_status
+          expect(response).not_to be_ok
+          # binding.pry
+          expect(response.error?).to eq(true)
+          expect(response.error.message).to eq('MIS-ERR-005 EDIPI_BAD_FORMAT EDIPI incorrectly formatted')
+        end
+      end
+    end
 
   #   context 'with a missing edipi' do
   #     it 'gives me a missing response' do
