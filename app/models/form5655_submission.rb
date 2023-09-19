@@ -5,6 +5,8 @@ require 'user_profile_attribute_service'
 class Form5655Submission < ApplicationRecord
   class StaleUserError < StandardError; end
 
+  enum state: { unassigned: 0, in_progress: 1, submitted: 2, failed: 3 }
+
   validates :user_uuid, presence: true
   belongs_to :user_account, dependent: nil, optional: true
   has_kms_key version: 2,
