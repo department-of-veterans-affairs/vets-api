@@ -124,7 +124,7 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
       end
 
       it 'returns only the data from the ALLOWED_COLUMNS' do
-        expect(parsed_response.dig('data', 'attributes').keys).to eq(%w[status updatedAt createdAt])
+        expect(parsed_response.dig('data', 'attributes').keys).to eq(%w[status createDate updateDate])
       end
     end
   end

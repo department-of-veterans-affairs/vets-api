@@ -181,8 +181,8 @@
                         "type": "higherLevelReview",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2020-01-02T03:04:05.067Z",
-                          "createdAt": "2020-01-02T03:04:05.067Z",
+                          "createDate": "2020-01-02T03:04:05.067Z",
+                          "updateDate": "2020-01-02T03:04:05.067Z",
                           "formData": {
                             "data": {
                               "type": "higherLevelReview",
@@ -226,8 +226,8 @@
                         "type": "higherLevelReview",
                         "attributes": {
                           "status": "pending",
-                          "updatedAt": "2020-01-02T03:04:05.067Z",
-                          "createdAt": "2020-01-02T03:04:05.067Z",
+                          "createDate": "2020-01-02T03:04:05.067Z",
+                          "updateDate": "2020-01-02T03:04:05.067Z",
                           "formData": {
                             "data": {
                               "type": "higherLevelReview",
@@ -794,8 +794,8 @@
                     "type": "higherLevelReview",
                     "attributes": {
                       "status": "pending",
-                      "updatedAt": "2020-01-02T03:04:05.067Z",
-                      "createdAt": "2020-01-02T03:04:05.067Z"
+                      "createDate": "2020-01-02T03:04:05.067Z",
+                      "updateDate": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },
@@ -3574,14 +3574,14 @@
                       "error"
                     ]
                   },
-                  "updatedAt": {
+                  "updateDate": {
                     "description": "The last time the submission was updated",
                     "type": "string",
                     "format": "date-time",
                     "example": "2018-07-30T17:31:15.958Z"
                   },
-                  "createdAt": {
-                    "description": "The last time the submission was updated",
+                  "createDate": {
+                    "description": "The time the submission was created",
                     "type": "string",
                     "format": "date-time",
                     "example": "2018-07-30T17:31:15.958Z"
