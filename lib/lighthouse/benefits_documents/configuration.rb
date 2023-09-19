@@ -86,10 +86,11 @@ module BenefitsDocuments
       File.write(fn, data.to_json)
       payload[:parameters] = Faraday::UploadIO.new(fn, 'application/json')
 
-      file = Tempfile.new(document_data[:file_name])
-      File.write(file, file_body)
       file_type = MimeMagic.by_path(document_data[:file_name]).subtype
       allowed_filetype(file_type)
+
+      file = Tempfile.new(document_data[:file_name])
+      File.write(file, file_body)
 
       payload[:file] = Faraday::UploadIO.new(file, file_type)
       payload
