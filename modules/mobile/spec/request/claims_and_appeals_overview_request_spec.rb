@@ -33,7 +33,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
   end
 
   describe 'GET /v0/claims-and-appeals-overview' do
-    let!(:user) { sis_user(traits: [:api_auth, :loa3], attributes: { icn: '1008596379V859838' }) }
+    let!(:user) { sis_user(traits: %i[api_auth loa3], attributes: { icn: '1008596379V859838' }) }
     let(:params) { { useCache: false, page: { size: 60 } } }
 
     describe '#index (all user claims) is polled' do
@@ -326,7 +326,9 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
     end
 
     context 'when user is only authorized to access appeals, not claims' do
-      let!(:user) { sis_user(traits: [:api_auth, :loa3], attributes: { icn: '1008596379V859838', participant_id: nil }) }
+      let!(:user) do
+        sis_user(traits: %i[api_auth loa3], attributes: { icn: '1008596379V859838', participant_id: nil })
+      end
 
       it 'and appeals service succeed' do
         VCR.use_cassette(good_claims_response_vcr_path) do
@@ -350,7 +352,9 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
     end
 
     context 'when user is not authorized to access neither claims or appeals' do
-      let!(:user) { sis_user(traits: [:api_auth, :loa1], attributes: { icn: '1008596379V859838', participant_id: nil }) }
+      let!(:user) do
+        sis_user(traits: %i[api_auth loa1], attributes: { icn: '1008596379V859838', participant_id: nil })
+      end
 
       it 'returns 403 status' do
         VCR.use_cassette(good_claims_response_vcr_path) do
