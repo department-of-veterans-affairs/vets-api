@@ -17,7 +17,7 @@ module ClaimsApi
         FORM_NUMBER = '526'
         EVSS_DOCUMENT_TYPE = 'L023'
 
-        before_action :shared_validation, only: %i[submit validate]
+        before_action :shared_validation, :file_number_check, only: %i[submit validate]
 
         def submit # rubocop:disable Metrics/MethodLength
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -112,7 +112,7 @@ module ClaimsApi
         end
 
         def evss_mapper_service(auto_claim)
-          ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim)
+          ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, @file_number)
         end
 
         def track_pact_counter(claim)

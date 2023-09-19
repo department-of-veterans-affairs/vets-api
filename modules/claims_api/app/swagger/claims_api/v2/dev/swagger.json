@@ -1340,7 +1340,7 @@
                             }
                           },
                           "veteranNumber": {
-                            "description": "",
+                            "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
                             "type": "object",
                             "properties": {
                               "telephone": {
@@ -1355,11 +1355,6 @@
                                 "maxLength": 25
                               }
                             }
-                          },
-                          "vaFileNumber": {
-                            "type": "string",
-                            "description": "The file number associated with the Veteran and Veteran's Affairs.",
-                            "maxLength": 9
                           },
                           "mailingAddress": {
                             "type": "object",
@@ -2352,7 +2347,7 @@
                                 }
                               },
                               "veteranNumber": {
-                                "description": "",
+                                "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
                                 "type": "object",
                                 "properties": {
                                   "telephone": {
@@ -2367,11 +2362,6 @@
                                     "maxLength": 25
                                   }
                                 }
-                              },
-                              "vaFileNumber": {
-                                "type": "string",
-                                "description": "VA File Number associated to the Veteran.",
-                                "maxLength": 9
                               },
                               "mailingAddress": {
                                 "type": "object",
@@ -3350,8 +3340,7 @@
                         },
                         "veteranNumber": {
                           "internationalTelephone": "+44 20 1234 5678"
-                        },
-                        "vaFileNumber": "AB123CDEF"
+                        }
                       },
                       "changeOfAddress": {
                         "dates": {
@@ -4128,8 +4117,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-09-07",
-                      "expirationDate": "2024-09-07",
+                      "creationDate": "2023-09-19",
+                      "expirationDate": "2024-09-19",
                       "type": "compensation",
                       "status": "active"
                     }

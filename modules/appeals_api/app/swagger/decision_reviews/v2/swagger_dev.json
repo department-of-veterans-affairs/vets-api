@@ -8448,7 +8448,7 @@
                     "example": "2018-07-30T17:31:15.958Z"
                   },
                   "createdAt": {
-                    "description": "The last time the submission was updated",
+                    "description": "The time the submission was created",
                     "type": "string",
                     "format": "date-time",
                     "example": "2018-07-30T17:31:15.958Z"
@@ -8897,7 +8897,7 @@
                     "example": "2018-07-30T17:31:15.958Z"
                   },
                   "createdAt": {
-                    "description": "The last time the submission was updated",
+                    "description": "The time the submission was created",
                     "type": "string",
                     "format": "date-time",
                     "example": "2018-07-30T17:31:15.958Z"
@@ -8952,7 +8952,7 @@
                     "example": "2018-07-30T17:31:15.958Z"
                   },
                   "createdAt": {
-                    "description": "The last time the submission was updated",
+                    "description": "The time the submission was created",
                     "type": "string",
                     "format": "date-time",
                     "example": "2018-07-30T17:31:15.958Z"
@@ -9505,7 +9505,7 @@
                     "example": "2018-07-30T17:31:15.958Z"
                   },
                   "createdAt": {
-                    "description": "The last time the submission was updated",
+                    "description": "The time the submission was created",
                     "type": "string",
                     "format": "date-time",
                     "example": "2018-07-30T17:31:15.958Z"

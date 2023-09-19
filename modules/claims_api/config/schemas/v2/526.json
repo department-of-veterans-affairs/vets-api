@@ -63,7 +63,7 @@
           }
         },
         "veteranNumber": {
-          "description": "",
+          "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
           "type": "object",
           "properties": {
             "telephone": {
@@ -82,11 +82,6 @@
               "maxLength": 25
             }
           }
-        },
-        "vaFileNumber": {
-          "type": "string",
-          "description": "VA File Number associated to the Veteran.",
-          "maxLength": 9
         },
         "mailingAddress": {
           "type": "object",
