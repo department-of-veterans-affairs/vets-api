@@ -3066,7 +3066,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports getting connected applications' do
         with_okta_configured do
           expect(subject).to validate(:get, '/v0/profile/connected_applications', 401)
-          VCR.use_cassette('lighthouse/auth/client_credentials/connected_apps_200') do
+          VCR.use_cassette('okta/grants') do
             expect(subject).to validate(:get, '/v0/profile/connected_applications', 200, headers)
           end
         end

@@ -40,29 +40,18 @@ module V0
       private
 
       def apps_from_grants
-        data = []
-        icn = @current_user.icn
-
-        grant_url = Settings.connected_apps_api.connected_apps.url
-
-        payload = { icn: }
-        url_with_params = "#{grant_url}?#{URI.encode_www_form(payload)}"
-        headers = { apiKey: Settings.connected_apps_api.connected_apps.api_key }
-        response = RestClient::Request.execute(method: :get, url: url_with_params, headers:)
-
-        if response.code == 200
-          parsed_response = JSON.parse(response.body)
-          lhapps = parsed_response['apps']
-          lhapps.each do |lh_app|
-            app = {}
-            app['id'] = lh_app['clientId']
-            app['attributes'] = {}
-            app['attributes']['title'] = lh_app['label']
-            app['attributes']['logo'] = lh_app['href']
-            (data ||= []) << app
+        apps = {}
+        @current_user.okta_grants.all.each do |grant|
+          links = grant['_links']
+          app_id = links['app']['href'].split('/').last
+          unless apps[app_id]
+            app = OktaRedis::App.with_id(app_id)
+            app.user = @current_user
+            app.fetch_grants
+            apps[app_id] = app
           end
         end
-        { 'data' => data }
+        apps.values
       end
 
       def connected_accounts_params
