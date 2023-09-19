@@ -663,6 +663,12 @@ claims_api:
     host: https://sandbox-api.va.gov
     use_mocks: false
 
+connected_apps_api:
+  connected_apps:
+    url: ~
+    api_key: ~
+    revoke_url: https://sandbox-api.va.gov/internal/auth/v3/user/consent
+
 redis:
   host: localhost
   port: 6379
