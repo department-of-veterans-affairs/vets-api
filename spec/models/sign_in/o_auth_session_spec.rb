@@ -188,10 +188,22 @@ RSpec.describe SignIn::OAuthSession, type: :model do
   describe '#user_attributes_hash' do
     subject { oauth_session.user_attributes_hash }
 
-    it 'returns a Ruby hash of the saved user_attributes' do
-      expect(subject['first_name']).to eq(first_name)
-      expect(subject['last_name']).to eq(last_name)
-      expect(subject['email']).to eq(email)
+    context 'when user attributes are present' do
+      let(:user_attributes) { { first_name:, last_name:, email: }.to_json }
+
+      it 'returns a Ruby hash of the saved user_attributes' do
+        expect(subject['first_name']).to eq(first_name)
+        expect(subject['last_name']).to eq(last_name)
+        expect(subject['email']).to eq(email)
+      end
+    end
+
+    context 'when user attributes are not present' do
+      let(:user_attributes) { nil }
+
+      it 'returns an empty hash' do
+        expect(subject).to eq({})
+      end
     end
   end
 end
