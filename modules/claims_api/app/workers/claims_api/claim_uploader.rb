@@ -3,6 +3,7 @@
 require 'sidekiq'
 require 'evss/documents_service'
 require 'claims_api/claim_logger'
+require 'bd/bd'
 
 module ClaimsApi
   class ClaimUploader
@@ -24,11 +25,47 @@ module ClaimsApi
         uploader.retrieve_from_store!(claim_object.file_data['filename'])
         file_body = uploader.read
         ClaimsApi::Logger.log('526', claim_id: auto_claim.id, attachment_id: uuid)
-        service(auth_headers).upload(file_body, claim_upload_document(claim_object))
+        if Flipper.enabled? :claims_claim_uploader_use_bd
+          bd_upload_body(auto_claim:, file_body:)
+        else
+          EVSS::DocumentsService.new(auth_headers).upload(file_body, claim_upload_document(claim_object))
+        end
       end
     end
 
     private
+
+    def bd_upload_body(auto_claim:, file_body:)
+      fh = Tempfile.new(['pdf_path', '.pdf'], binmode: true)
+      begin
+        fh.write(file_body)
+        fh.close
+        claim_bd_upload_document(auto_claim, fh.path)
+      ensure
+        fh.unlink
+      end
+    end
+
+    def claim_bd_upload_document(claim, pdf_path)
+      ClaimsApi::BD.new.upload(claim:, pdf_path:)
+    # Temporary errors (returning HTML, connection timeout), retry call
+    rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
+      ClaimsApi::Logger.log('benefits_documents',
+                            retry: true,
+                            detail: "/upload failure for claimId #{claim&.id}: #{e.message}")
+      raise e
+    # Permanent failures, don't retry
+    rescue => e
+      message = if e.respond_to? :original_body
+                  e.original_body
+                else
+                  e.message
+                end
+      ClaimsApi::Logger.log('benefits_documents',
+                            retry: false,
+                            detail: "/upload failure for claimId #{claim&.id}: #{message}")
+      {}
+    end
 
     def claim_upload_document(claim_document)
       upload_document = OpenStruct.new(
@@ -46,12 +83,6 @@ module ClaimsApi
       end
 
       upload_document
-    end
-
-    def service(auth_headers)
-      EVSS::DocumentsService.new(
-        auth_headers
-      )
     end
   end
 end

@@ -4,8 +4,6 @@ require 'rails_helper'
 require_relative '../support/helpers/iam_session_helper'
 
 RSpec.describe 'contact info', type: :request do
-  include SchemaMatchers
-
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
   let(:residential_address) do
@@ -18,34 +16,18 @@ RSpec.describe 'contact info', type: :request do
       'addressType' => 'DOMESTIC',
       'city' => 'Washington',
       'countryName' => 'USA',
-      'countryCodeIso2' => nil,
       'countryCodeIso3' => 'USA',
-      'countryCodeFips' => nil,
-      'countyCode' => nil,
-      'countyName' => nil,
-      'createdAt' => '2017-04-09T11:52:03.000-06:00',
-      'effectiveEndDate' => nil,
-      'effectiveStartDate' => nil,
-      'geocodeDate' => '2018-04-13T17:01:18.000Z',
-      'geocodePrecision' => 100.0,
       'internationalPostalCode' => nil,
-      'latitude' => 38.901,
-      'longitude' => -77.0347,
       'province' => nil,
-      'sourceDate' => '2018-04-09T11:52:03.000-06:00',
-      'sourceSystemUser' => nil,
       'stateCode' => 'DC',
-      'updatedAt' => '2017-04-09T11:52:03.000-06:00',
-      'validationKey' => nil,
-      'vet360Id' => '12345',
       'zipCode' => '20011',
-      'zipCodeSuffix' => nil,
-      'badAddress' => true
+      'zipCodeSuffix' => nil
     }
   end
 
   let(:mailing_address) do
     {
+      'id' => 124,
       'addressLine1' => '140 Rock Creek Rd',
       'addressLine2' => nil,
       'addressLine3' => nil,
@@ -53,100 +35,53 @@ RSpec.describe 'contact info', type: :request do
       'addressType' => 'DOMESTIC',
       'city' => 'Washington',
       'countryName' => 'USA',
-      'countryCodeIso2' => nil,
       'countryCodeIso3' => 'USA',
-      'countryCodeFips' => nil,
-      'countyCode' => nil,
-      'countyName' => nil,
-      'createdAt' => '2017-04-09T11:52:03.000-06:00',
-      'effectiveEndDate' => nil,
-      'effectiveStartDate' => nil,
-      'geocodeDate' => '2018-04-13T17:01:18.000Z',
-      'geocodePrecision' => 100.0,
-      'id' => 124,
       'internationalPostalCode' => nil,
-      'latitude' => 38.901,
-      'longitude' => -77.0347,
       'province' => nil,
-      'sourceDate' => '2018-04-09T11:52:03.000-06:00',
-      'sourceSystemUser' => nil,
       'stateCode' => 'DC',
-      'updatedAt' => '2017-04-09T11:52:03.000-06:00',
-      'validationKey' => nil,
-      'vet360Id' => '12345',
       'zipCode' => '20011',
-      'zipCodeSuffix' => nil,
-      'badAddress' => true
+      'zipCodeSuffix' => nil
 
     }
   end
 
   let(:home_phone) do
     {
+      'id' => 789,
       'areaCode' => '303',
       'countryCode' => '1',
-      'createdAt' => '2017-04-09T11:52:03.000-06:00',
       'extension' => nil,
-      'effectiveEndDate' => nil,
-      'effectiveStartDate' => nil,
-      'id' => 789,
-      'isInternational' => false,
-      'isTextable' => false,
-      'isTextPermitted' => false,
-      'isTty' => true,
-      'isVoicemailable' => true,
       'phoneNumber' => '5551234',
-      'phoneType' => 'HOME',
-      'sourceDate' => '2018-04-09T11:52:03.000-06:00',
-      'sourceSystemUser' => nil,
-      'updatedAt' => '2017-04-09T11:52:03.000-06:00',
-      'vet360Id' => '12345'
+      'phoneType' => 'HOME'
     }
   end
 
   let(:mobile_phone) do
     {
+      'id' => 790,
       'areaCode' => '303',
       'countryCode' => '1',
-      'createdAt' => '2017-04-09T11:52:03.000-06:00',
       'extension' => nil,
-      'effectiveEndDate' => nil,
-      'effectiveStartDate' => nil,
-      'id' => 790,
-      'isInternational' => false,
-      'isTextable' => false,
-      'isTextPermitted' => false,
-      'isTty' => true,
-      'isVoicemailable' => true,
       'phoneNumber' => '5551234',
-      'phoneType' => 'MOBILE',
-      'sourceDate' => '2018-04-09T11:52:03.000-06:00',
-      'sourceSystemUser' => nil,
-      'updatedAt' => '2017-04-09T11:52:03.000-06:00',
-      'vet360Id' => '12345'
+      'phoneType' => 'MOBILE'
     }
   end
 
   let(:work_phone) do
     {
+      'id' => 791,
       'areaCode' => '303',
       'countryCode' => '1',
-      'createdAt' => '2017-04-09T11:52:03.000-06:00',
       'extension' => nil,
-      'effectiveEndDate' => nil,
-      'effectiveStartDate' => nil,
-      'id' => 791,
-      'isInternational' => false,
-      'isTextable' => false,
-      'isTextPermitted' => false,
-      'isTty' => true,
-      'isVoicemailable' => true,
       'phoneNumber' => '5551234',
-      'phoneType' => 'WORK',
-      'sourceDate' => '2018-04-09T11:52:03.000-06:00',
-      'sourceSystemUser' => nil,
-      'updatedAt' => '2017-04-09T11:52:03.000-06:00',
-      'vet360Id' => '12345'
+      'phoneType' => 'WORK'
+    }
+  end
+
+  let(:contact_email) do
+    {
+      'id' => 456,
+      'emailAddress' => user.vet360_contact_info.email.email_address # dynamic value
     }
   end
 
@@ -163,11 +98,12 @@ RSpec.describe 'contact info', type: :request do
       end
 
       it 'returns full contact information' do
-        expect(attributes['residentialAddress']).to include(residential_address)
-        expect(attributes['mailingAddress']).to include(mailing_address)
-        expect(attributes['homePhone']).to include(home_phone)
-        expect(attributes['mobilePhone']).to include(mobile_phone)
-        expect(attributes['workPhone']).to include(work_phone)
+        expect(attributes['residentialAddress']).to eq(residential_address)
+        expect(attributes['mailingAddress']).to eq(mailing_address)
+        expect(attributes['homePhone']).to eq(home_phone)
+        expect(attributes['mobilePhone']).to eq(mobile_phone)
+        expect(attributes['workPhone']).to eq(work_phone)
+        expect(attributes['contactEmail']).to eq(contact_email)
       end
 
       it 'returns the user id' do
@@ -189,6 +125,7 @@ RSpec.describe 'contact info', type: :request do
       expect(attributes['homePhone']).to be_nil
       expect(attributes['mobilePhone']).to be_nil
       expect(attributes['workPhone']).to be_nil
+      expect(attributes['contactEmail']).to be_nil
     end
   end
 end

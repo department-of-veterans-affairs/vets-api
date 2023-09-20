@@ -95,7 +95,7 @@
             "content": {
               "application/json": {
                 "example": {
-                  "id": "1012667145V762142"
+                  "id": "1013062086V794840"
                 },
                 "schema": {
                   "additionalProperties": false,
@@ -171,59 +171,6 @@
                     {
                       "title": "Not authorized",
                       "detail": "Not authorized"
-                    }
-                  ]
-                },
-                "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Forbidden",
-                      "detail": "Forbidden"
                     }
                   ]
                 },
@@ -576,59 +523,6 @@
                     {
                       "title": "Not authorized",
                       "detail": "Not authorized"
-                    }
-                  ]
-                },
-                "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Forbidden",
-                      "detail": "Forbidden"
                     }
                   ]
                 },
@@ -1290,59 +1184,6 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Forbidden",
-                      "detail": "Forbidden"
-                    }
-                  ]
-                },
-                "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
           "404": {
             "description": "Resource not found",
             "content": {
@@ -1499,7 +1340,7 @@
                             }
                           },
                           "veteranNumber": {
-                            "description": "",
+                            "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
                             "type": "object",
                             "properties": {
                               "telephone": {
@@ -1514,11 +1355,6 @@
                                 "maxLength": 25
                               }
                             }
-                          },
-                          "vaFileNumber": {
-                            "type": "string",
-                            "description": "The file number associated with the Veteran and Veteran's Affairs.",
-                            "maxLength": 9
                           },
                           "mailingAddress": {
                             "type": "object",
@@ -1754,16 +1590,16 @@
                                 "description": "Date range for when the exposure happened.",
                                 "properties": {
                                   "beginDate": {
-                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                     "type": "string",
                                     "description": "Approximate begin date for serving in Gulf War hazard location.",
-                                    "example": "06-2018"
+                                    "example": "06-2018 or 2018"
                                   },
                                   "endDate": {
-                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                     "type": "string",
                                     "description": "Approximate end date for serving in Gulf War hazard location.",
-                                    "example": "06-2018"
+                                    "example": "06-2018 or 2018"
                                   }
                                 }
                               }
@@ -1786,16 +1622,16 @@
                                 "description": "Date range for when the exposure happened.",
                                 "properties": {
                                   "beginDate": {
-                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                     "type": "string",
                                     "description": "Approximate begin date for serving in herbicide location.",
-                                    "example": "06-2018"
+                                    "example": "06-2018 or 2018"
                                   },
                                   "endDate": {
-                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                     "type": "string",
                                     "description": "Approximate end date for serving in herbicide location.",
-                                    "example": "06-2018"
+                                    "example": "06-2018 or 2018"
                                   }
                                 }
                               }
@@ -1827,16 +1663,16 @@
                                 "description": "Date range for when the exposure happened.",
                                 "properties": {
                                   "beginDate": {
-                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                     "type": "string",
                                     "description": "Approximate begin date for exposure.",
-                                    "example": "06-2018"
+                                    "example": "06-2018 or 2018"
                                   },
                                   "endDate": {
-                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                     "type": "string",
                                     "description": "Approximate end date for exposure.",
-                                    "example": "06-2018"
+                                    "example": "06-2018 or 2018"
                                   }
                                 }
                               }
@@ -1855,16 +1691,16 @@
                                   "description": "Date range for when the exposure happened.",
                                   "properties": {
                                     "beginDate": {
-                                      "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                      "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                       "type": "string",
                                       "description": "Approximate begin date for exposure.",
-                                      "example": "06-2018"
+                                      "example": "06-2018 or 2018"
                                     },
                                     "endDate": {
-                                      "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                      "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                       "type": "string",
                                       "description": "Approximate end date for exposure.",
-                                      "example": "06-2018"
+                                      "example": "06-2018 or 2018"
                                     }
                                   }
                                 },
@@ -1913,10 +1749,10 @@
                               "example": "Heavy equipment operator in service."
                             },
                             "approximateDate": {
-                              "description": "Approximate date disability began. Date must be in the past. \n Format can be either MM-DD-YYYY or MM-YYYY",
+                              "description": "Approximate date disability began. Date must be in the past. \n Format can be either MM-DD-YYYY or MM-YYYY or YYYY",
                               "type": "string",
-                              "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
-                              "example": "03-12-2019 or 03-2019"
+                              "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$|^\\d{4}$",
+                              "example": "03-12-2019 or 03-2019 or 2019"
                             },
                             "ratedDisabilityId": {
                               "description": "When submitting a contention with action type INCREASE, the previously rated disability id may be included.",
@@ -1971,10 +1807,10 @@
                                     "example": "249470"
                                   },
                                   "approximateDate": {
-                                    "description": "Approximate date disability began. \n Format can be either MM-DD-YYYY or MM-YYYY",
+                                    "description": "Approximate date disability began. \n Format can be either MM-DD-YYYY or MM-YYYY or YYYY",
                                     "type": "string",
-                                    "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
-                                    "example": "03-12-2019 or 03-2019"
+                                    "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$|^\\d{4}$",
+                                    "example": "03-12-2019 or 03-2019 or 2019"
                                   },
                                   "exposureOrEventOrInjury": {
                                     "type": "array",
@@ -2057,8 +1893,8 @@
                                 "null",
                                 "string"
                               ],
-                              "pattern": "^$|^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
-                              "example": "02-2018"
+                              "pattern": "^$|^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$^\\d{4}$",
+                              "example": "02-2018 or 2018"
                             },
                             "treatedDisabilityNames": {
                               "description": "Name(s) of Disabilities treated in this time frame.",
@@ -2125,46 +1961,9 @@
                               ],
                               "properties": {
                                 "serviceBranch": {
-                                  "description": "Branch of Service during period.",
+                                  "description": "Branch of service. The /service-branches endpoint on the [Benefits Reference Data API|https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current] may be used to retrieve list of possible service branches.",
                                   "type": "string",
-                                  "example": "Air Force",
-                                  "enum": [
-                                    "Air Force",
-                                    "Air Force Academy",
-                                    "Air Force Reserves",
-                                    "Air Force Civilian",
-                                    "Air National Guard",
-                                    "Army",
-                                    "Army Air Corps",
-                                    "Army Air Corps or Army Air Force",
-                                    "Army National Guard",
-                                    "Army Nurse Corps",
-                                    "Army Reserves",
-                                    "Coast Guard",
-                                    "Coast Guard Academy",
-                                    "Coast Guard Reserves",
-                                    "Commonwealth Army Veteran",
-                                    "Guerrilla Combination Service",
-                                    "Marine",
-                                    "Marine Corps",
-                                    "Marine Corps Reserves",
-                                    "Merchant Marine",
-                                    "National Oceanic & Atmospheric Administration",
-                                    "National Oceanic and Atmospheric Administration",
-                                    "Naval Academy",
-                                    "Navy",
-                                    "Navy Reserves",
-                                    "Other",
-                                    "Public Health Service",
-                                    "Regular Philippine Scout",
-                                    "Regular Scout Service",
-                                    "Space Force",
-                                    "Special Philippine Scout",
-                                    "Unknown",
-                                    "US Military Academy",
-                                    "Woman Air Corps",
-                                    "Women's Army Corps"
-                                  ]
+                                  "example": "Air Force"
                                 },
                                 "serviceComponent": {
                                   "type": "array",
@@ -2216,6 +2015,25 @@
                               }
                             }
                           },
+                          "federalActivation": {
+                            "description": "Include if the Veteran is currently activated on federal orders within the National Guard or Reserves",
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "anticipatedSeparationDate": {
+                                "description": "Anticipated date of separation. Date must be in the future.",
+                                "type": "string",
+                                "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+                                "example": "06-04-2018"
+                              },
+                              "activationDate": {
+                                "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
+                                "type": "string",
+                                "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+                                "example": "06-04-2018"
+                              }
+                            }
+                          },
                           "reservesNationalGuardService": {
                             "type": "object",
                             "additionalProperties": false,
@@ -2244,25 +2062,6 @@
                                   "Reserves",
                                   "National Guard"
                                 ]
-                              },
-                              "title10Activation": {
-                                "description": "Include if the Veteran is currently activated on federal orders within the National Guard or Reserves",
-                                "type": "object",
-                                "additionalProperties": false,
-                                "properties": {
-                                  "anticipatedSeparationDate": {
-                                    "description": "Anticipated date of separation. Date must be in the future.",
-                                    "type": "string",
-                                    "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                                    "example": "06-04-2018"
-                                  },
-                                  "title10ActivationDate": {
-                                    "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
-                                    "type": "string",
-                                    "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                                    "example": "06-04-2018"
-                                  }
-                                }
                               },
                               "unitName": {
                                 "type": "string",
@@ -2349,35 +2148,8 @@
                             "description": "",
                             "properties": {
                               "branchOfService": {
-                                "description": "Branch of Service making payments.",
+                                "description": "Branch of service. The /service-branches endpoint on the [Benefits Reference Data API|https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current] may be used to retrieve list of possible service branches.",
                                 "type": "string",
-                                "enum": [
-                                  "Air Force",
-                                  "Air Force Reserves",
-                                  "Air National Guard",
-                                  "Army",
-                                  "Army National Guard",
-                                  "Army Reserves",
-                                  "Coast Guard",
-                                  "Coast Guard Reserves",
-                                  "Marine Corps",
-                                  "Marine Corps Reserves",
-                                  "National Oceanic &amp; Atmospheric Administration",
-                                  "National Oceanic & Atmospheric Administration",
-                                  "Navy",
-                                  "Navy Reserves",
-                                  "Public Health Service",
-                                  "Air Force Academy",
-                                  "Army Air Corps or Army Air Force",
-                                  "Army Nurse Corps",
-                                  "Coast Guard Academy",
-                                  "Merchant Marine",
-                                  "Naval Academy",
-                                  "Other",
-                                  "US Military Academy",
-                                  "Women's Army Corps",
-                                  "Space Force"
-                                ],
                                 "example": "Air Force"
                               },
                               "monthlyAmount": {
@@ -2409,41 +2181,14 @@
                             "description": "",
                             "properties": {
                               "datePaymentReceived": {
-                                "description": "Approximate date separation pay was received. \n Format can be either MM-DD-YYYY or MM-YYYY",
+                                "description": "Approximate date separation pay was received. \n Format can be either MM-DD-YYYY or MM-YYYY or YYYY",
                                 "type": "string",
-                                "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
-                                "example": "03-02-2018 or 03-2018"
+                                "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$|^\\d{4}$",
+                                "example": "03-02-2018 or 03-2018 or 2018"
                               },
                               "branchOfService": {
-                                "description": "Branch of Service making payments.",
+                                "description": "Branch of service. The /service-branches endpoint on the [Benefits Reference Data API|https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current] may be used to retrieve list of possible service branches.",
                                 "type": "string",
-                                "enum": [
-                                  "Air Force",
-                                  "Air Force Reserves",
-                                  "Air National Guard",
-                                  "Army",
-                                  "Army National Guard",
-                                  "Army Reserves",
-                                  "Coast Guard",
-                                  "Coast Guard Reserves",
-                                  "Marine Corps",
-                                  "Marine Corps Reserves",
-                                  "National Oceanic &amp; Atmospheric Administration",
-                                  "National Oceanic & Atmospheric Administration",
-                                  "Navy",
-                                  "Navy Reserves",
-                                  "Public Health Service",
-                                  "Air Force Academy",
-                                  "Army Air Corps or Army Air Force",
-                                  "Army Nurse Corps",
-                                  "Coast Guard Academy",
-                                  "Merchant Marine",
-                                  "Naval Academy",
-                                  "Other",
-                                  "US Military Academy",
-                                  "Women's Army Corps",
-                                  "Space Force"
-                                ],
                                 "example": "Air Force"
                               },
                               "preTaxAmountReceived": {
@@ -2602,7 +2347,7 @@
                                 }
                               },
                               "veteranNumber": {
-                                "description": "",
+                                "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
                                 "type": "object",
                                 "properties": {
                                   "telephone": {
@@ -2617,11 +2362,6 @@
                                     "maxLength": 25
                                   }
                                 }
-                              },
-                              "vaFileNumber": {
-                                "type": "string",
-                                "description": "VA File Number associated to the Veteran.",
-                                "maxLength": 9
                               },
                               "mailingAddress": {
                                 "type": "object",
@@ -2856,16 +2596,16 @@
                                     "description": "Date range for when the exposure happened.",
                                     "properties": {
                                       "beginDate": {
-                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$^\\d{4}$",
                                         "type": "string",
                                         "description": "Approximate begin date for serving in Gulf War hazard location.",
-                                        "example": "06-2018"
+                                        "example": "06-2018 or 2018"
                                       },
                                       "endDate": {
-                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$^\\d{4}$",
                                         "type": "string",
                                         "description": "Approximate end date for serving in Gulf War hazard location.",
-                                        "example": "06-2018"
+                                        "example": "06-2018 or 2018"
                                       }
                                     }
                                   }
@@ -2895,16 +2635,16 @@
                                     "description": "Date range for when the exposure happened.",
                                     "properties": {
                                       "beginDate": {
-                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                         "type": "string",
                                         "description": "Approximate begin date for serving in herbicide location.",
-                                        "example": "06-2018"
+                                        "example": "06-2018 or 2018"
                                       },
                                       "endDate": {
-                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                         "type": "string",
                                         "description": "Approximate end date for serving in herbicide location.",
-                                        "example": "06-2018"
+                                        "example": "06-2018 or 2018"
                                       }
                                     }
                                   }
@@ -2942,16 +2682,16 @@
                                     "description": "Date range for when the exposure happened.",
                                     "properties": {
                                       "beginDate": {
-                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                         "type": "string",
                                         "description": "Approximate begin date for exposure.",
-                                        "example": "06-2018"
+                                        "example": "06-2018 or 2018"
                                       },
                                       "endDate": {
-                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                         "type": "string",
                                         "description": "Approximate end date for exposure.",
-                                        "example": "06-2018"
+                                        "example": "06-2018 or 2018"
                                       }
                                     }
                                   }
@@ -2970,16 +2710,16 @@
                                       "description": "Date range for when the exposure happened.",
                                       "properties": {
                                         "beginDate": {
-                                          "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                          "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                           "type": "string",
                                           "description": "Approximate begin date for exposure.",
-                                          "example": "06-2018"
+                                          "example": "06-2018 or 2018"
                                         },
                                         "endDate": {
-                                          "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
+                                          "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                           "type": "string",
                                           "description": "Approximate end date for exposure.",
-                                          "example": "06-2018"
+                                          "example": "06-2018 or 2018"
                                         }
                                       }
                                     },
@@ -3028,10 +2768,10 @@
                                   "example": "Heavy equipment operator in service."
                                 },
                                 "approximateDate": {
-                                  "description": "Approximate date disability began. Date must be in the past. \n Format can be either MM-DD-YYYY or MM-YYYY",
+                                  "description": "Approximate date disability began. Date must be in the past. \n Format can be either MM-DD-YYYY or MM-YYYY or YYYY",
                                   "type": "string",
-                                  "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
-                                  "example": "03-12-2019 or 03-2019"
+                                  "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$|^\\d{4}$",
+                                  "example": "03-12-2019 or 03-2019 or 2019"
                                 },
                                 "ratedDisabilityId": {
                                   "description": "When submitting a contention with action type INCREASE, the previously rated disability id may be included.",
@@ -3087,10 +2827,10 @@
                                         "example": "249470"
                                       },
                                       "approximateDate": {
-                                        "description": "Approximate date disability began. \n Format can be either MM-DD-YYYY or MM-YYYY",
+                                        "description": "Approximate date disability began. \n Format can be either MM-DD-YYYY or MM-YYYY or YYYY",
                                         "type": "string",
-                                        "pattern": "^$|^((0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4})?$",
-                                        "example": "03-12-2019 or 03-2019"
+                                        "pattern": "^$|^((0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$|^\\d{4}$)?",
+                                        "example": "03-12-2019 or 03-2019 or 2019"
                                       },
                                       "exposureOrEventOrInjury": {
                                         "type": "string",
@@ -3175,8 +2915,8 @@
                                     "null",
                                     "string"
                                   ],
-                                  "pattern": "^$|^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$",
-                                  "example": "02-2018"
+                                  "pattern": "^$|^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
+                                  "example": "02-2018 or 2018"
                                 },
                                 "treatedDisabilityNames": {
                                   "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
@@ -3242,46 +2982,9 @@
                                   ],
                                   "properties": {
                                     "serviceBranch": {
-                                      "description": "Branch of Service during period.",
+                                      "description": "Branch of service. The /service-branches endpoint on the Benefits Reference Data API may be used to retrieve list of possible service branches.",
                                       "type": "string",
-                                      "example": "Air Force",
-                                      "enum": [
-                                        "Air Force",
-                                        "Air Force Academy",
-                                        "Air Force Reserves",
-                                        "Air Force Civilian",
-                                        "Air National Guard",
-                                        "Army",
-                                        "Army Air Corps",
-                                        "Army Air Corps or Army Air Force",
-                                        "Army National Guard",
-                                        "Army Nurse Corps",
-                                        "Army Reserves",
-                                        "Coast Guard",
-                                        "Coast Guard Academy",
-                                        "Coast Guard Reserves",
-                                        "Commonwealth Army Veteran",
-                                        "Guerrilla Combination Service",
-                                        "Marine",
-                                        "Marine Corps",
-                                        "Marine Corps Reserves",
-                                        "Merchant Marine",
-                                        "National Oceanic & Atmospheric Administration",
-                                        "National Oceanic and Atmospheric Administration",
-                                        "Naval Academy",
-                                        "Navy",
-                                        "Navy Reserves",
-                                        "Other",
-                                        "Public Health Service",
-                                        "Regular Philippine Scout",
-                                        "Regular Scout Service",
-                                        "Space Force",
-                                        "Special Philippine Scout",
-                                        "Unknown",
-                                        "US Military Academy",
-                                        "Woman Air Corps",
-                                        "Women's Army Corps"
-                                      ]
+                                      "example": "Air Force"
                                     },
                                     "serviceComponent": {
                                       "type": "string",
@@ -3333,6 +3036,25 @@
                                   }
                                 }
                               },
+                              "federalActivation": {
+                                "description": "If 'federalActivation' is included, the following attributes are required: 'anticipatedSeparationDate' and 'activationDate'.",
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                  "anticipatedSeparationDate": {
+                                    "description": "Anticipated date of separation. Date must be in the future.",
+                                    "type": "string",
+                                    "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+                                    "example": "06-04-2018"
+                                  },
+                                  "activationDate": {
+                                    "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
+                                    "type": "string",
+                                    "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+                                    "example": "06-04-2018"
+                                  }
+                                }
+                              },
                               "reservesNationalGuardService": {
                                 "type": "object",
                                 "additionalProperties": false,
@@ -3362,25 +3084,6 @@
                                       "Reserves",
                                       "National Guard"
                                     ]
-                                  },
-                                  "title10Activation": {
-                                    "description": "If 'title10Activation' is included, the following attributes are required: 'anticipatedSeparationDate' and 'title10ActivationDate'.",
-                                    "type": "object",
-                                    "additionalProperties": false,
-                                    "properties": {
-                                      "anticipatedSeparationDate": {
-                                        "description": "Anticipated date of separation. Date must be in the future.",
-                                        "type": "string",
-                                        "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                                        "example": "06-04-2018"
-                                      },
-                                      "title10ActivationDate": {
-                                        "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
-                                        "type": "string",
-                                        "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                                        "example": "06-04-2018"
-                                      }
-                                    }
                                   },
                                   "unitName": {
                                     "type": "string",
@@ -3494,35 +3197,8 @@
                                 "description": "",
                                 "properties": {
                                   "branchOfService": {
-                                    "description": "Branch of Service making payments.",
+                                    "description": "Branch of service. The /service-branches endpoint on the Benefits Reference Data API may be used to retrieve list of possible service branches.",
                                     "type": "string",
-                                    "enum": [
-                                      "Air Force",
-                                      "Air Force Reserves",
-                                      "Air National Guard",
-                                      "Army",
-                                      "Army National Guard",
-                                      "Army Reserves",
-                                      "Coast Guard",
-                                      "Coast Guard Reserves",
-                                      "Marine Corps",
-                                      "Marine Corps Reserves",
-                                      "National Oceanic &amp; Atmospheric Administration",
-                                      "National Oceanic & Atmospheric Administration",
-                                      "Navy",
-                                      "Navy Reserves",
-                                      "Public Health Service",
-                                      "Air Force Academy",
-                                      "Army Air Corps or Army Air Force",
-                                      "Army Nurse Corps",
-                                      "Coast Guard Academy",
-                                      "Merchant Marine",
-                                      "Naval Academy",
-                                      "Other",
-                                      "US Military Academy",
-                                      "Women's Army Corps",
-                                      "Space Force"
-                                    ],
                                     "example": "Air Force"
                                   },
                                   "monthlyAmount": {
@@ -3558,13 +3234,13 @@
                                 "description": "",
                                 "properties": {
                                   "datePaymentReceived": {
-                                    "description": "Approximate date separation pay was received. \n Format can be either MM-DD-YYYY or MM-YYYY",
+                                    "description": "Approximate date separation pay was received. \n Format can be either MM-DD-YYYY or MM-YYYY or YYYY",
                                     "type": "string",
-                                    "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
-                                    "example": "03-02-2018 or 03-2018"
+                                    "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$|^\\d{4}$",
+                                    "example": "03-02-2018 or 03-2018 or 2018"
                                   },
                                   "branchOfService": {
-                                    "description": "Branch of Service making payments.",
+                                    "description": "Branch of service. The /service-branches endpoint on the Benefits Reference Data API may be used to retrieve list of possible service branches.",
                                     "type": "string",
                                     "example": "Air Force"
                                   },
@@ -3663,10 +3339,8 @@
                           "agreeToEmailRelatedToClaim": true
                         },
                         "veteranNumber": {
-                          "telephone": "5555555555",
                           "internationalTelephone": "+44 20 1234 5678"
-                        },
-                        "vaFileNumber": "AB123CDEF"
+                        }
                       },
                       "changeOfAddress": {
                         "dates": {
@@ -3685,8 +3359,7 @@
                       "homeless": {
                         "pointOfContact": "john stewart",
                         "pointOfContactNumber": {
-                          "telephone": "5555555555",
-                          "internationalTelephone": "+44 20 1234 5678"
+                          "internationalTelephone": "442-234-5678"
                         },
                         "currentlyHomeless": {
                           "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
@@ -3737,7 +3410,7 @@
                           "name": "Hearing Loss",
                           "classificationCode": "3140",
                           "serviceRelevance": "Heavy equipment operator in service",
-                          "approximateDate": "07-1968",
+                          "approximateDate": "10-1988",
                           "isRelatedToToxicExposure": false,
                           "exposureOrEventOrInjury": "Noise"
                         },
@@ -3817,6 +3490,10 @@
                             "approximateEndDate": "07-2019"
                           }
                         ],
+                        "federalActivation": {
+                          "anticipatedSeparationDate": "10-03-2025",
+                          "activationDate": "02-11-2018"
+                        },
                         "reservesNationalGuardService": {
                           "obligationTermsOfService": {
                             "beginDate": "11-24-2016",
@@ -3825,20 +3502,12 @@
                           "unitName": "National Guard Unit Name",
                           "unitAddress": "1243 pine court",
                           "component": "National Guard",
-                          "title10Activation": {
-                            "anticipatedSeparationDate": "10-03-2025",
-                            "title10ActivationDate": "02-11-2018"
-                          },
                           "unitPhone": {
                             "areaCode": "555",
                             "phoneNumber": "5555555"
                           },
                           "receivingInactiveDutyTrainingPay": "YES"
                         },
-                        "alternateNames": [
-                          "John Jacob Jingleheimer-Schmidt",
-                          "Johnathon"
-                        ],
                         "servedInActiveCombatSince911": "NO"
                       },
                       "servicePay": {
@@ -4162,59 +3831,6 @@
                 }
               }
             }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Forbidden",
-                      "detail": "Forbidden"
-                    }
-                  ]
-                },
-                "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
           }
         }
       }
@@ -4351,60 +3967,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
-                      "detail": "Not authorized."
-                    }
-                  ]
-                },
-                "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Forbidden",
-                      "detail": "Forbidden"
+                      "detail": "Not authorized"
                     }
                   ]
                 },
@@ -4554,8 +4117,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-08-25",
-                      "expirationDate": "2024-08-25",
+                      "creationDate": "2023-09-19",
+                      "expirationDate": "2024-09-19",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -4683,60 +4246,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
-                      "detail": "Not authorized."
-                    }
-                  ]
-                },
-                "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Forbidden",
-                      "detail": "Forbidden"
+                      "detail": "Not authorized"
                     }
                   ]
                 },
@@ -4789,7 +4299,7 @@
                   "errors": [
                     {
                       "title": "Unprocessable Entity",
-                      "detail": "Claimant SSN cannot be the same as veteran SSN for type 'survivor'"
+                      "detail": "Invalid claimantSsn parameter"
                     }
                   ]
                 },
@@ -5045,60 +4555,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
-                      "detail": "Not authorized."
-                    }
-                  ]
-                },
-                "schema": {
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "description": "HTTP error title"
-                          },
-                          "detail": {
-                            "type": "string",
-                            "description": "HTTP error detail"
-                          },
-                          "source": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "description": "Source of error",
-                            "properties": {
-                              "pointer": {
-                                "type": "string",
-                                "description": "Pointer to source of error"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Forbidden",
-                      "detail": "Forbidden"
+                      "detail": "Not authorized"
                     }
                   ]
                 },

@@ -517,26 +517,12 @@
                       "va_representative": "DALE M BOETTCHER",
                       "events_timeline": [
                         {
-                          "tracked_item_id": null,
-                          "file_type": "Medical Treatment Records - Furnished by SSA",
-                          "document_type": "L478",
-                          "filename": "VickiSchmidt_PINT_b4_add_update.pdf",
-                          "upload_date": "2017-12-08",
-                          "type": "other_documents_list",
-                          "date": "2017-12-08"
+                          "type": "phase7",
+                          "date": "2018-06-12"
                         },
                         {
-                          "tracked_item_id": null,
-                          "file_type": "VA 21-526EZ, Fully Developed Claim (Compensation)",
-                          "document_type": "L533",
-                          "filename": "WESLEY_FORD_526.pdf",
-                          "upload_date": "2017-12-08",
-                          "type": "other_documents_list",
-                          "date": "2017-12-08"
-                        },
-                        {
-                          "type": "phase1",
-                          "date": "2017-12-08"
+                          "type": "completed",
+                          "date": "2018-06-12"
                         },
                         {
                           "type": "filed",
@@ -9490,7 +9476,7 @@
                   "errors": [
                     {
                       "title": "Unprocessable Entity",
-                      "detail": "Unable to locate Veteran's File Number in Master Person Index (MPI).Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.",
+                      "detail": "Unable to locate Veteran's File Number in Master Person Index (MPI). Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.",
                       "code": "422",
                       "status": "422"
                     }

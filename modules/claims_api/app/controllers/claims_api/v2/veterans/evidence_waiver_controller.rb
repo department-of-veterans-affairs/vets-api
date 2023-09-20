@@ -8,10 +8,21 @@ module ClaimsApi
   module V2
     module Veterans
       class EvidenceWaiverController < ClaimsApi::V2::ApplicationController
+        before_action :file_number_check
+
         def submit
           lighthouse_claim = find_lighthouse_claim!(claim_id: params[:id])
           benefit_claim_id = lighthouse_claim.present? ? lighthouse_claim.evss_id : params[:id]
           bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
+
+          if @file_number.nil?
+            ClaimsApi::Logger.log('EWS',
+                                  detail: 'EWS no file number error', claim_id: params[:id])
+
+            raise ::Common::Exceptions::ResourceNotFound.new(detail:
+              "Unable to locate Veteran's File Number. " \
+              'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
+          end
 
           if lighthouse_claim.blank? && bgs_claim.blank?
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
@@ -34,6 +45,7 @@ module ClaimsApi
           }
 
           new_ews = ClaimsApi::EvidenceWaiverSubmission.create!(attributes)
+          new_ews.auth_headers['va_eauth_birlsfilenumber'] = @file_number
           new_ews.save
           new_ews
         end
@@ -61,17 +73,9 @@ module ClaimsApi
         def find_bgs_claim!(claim_id:)
           return if claim_id.blank?
 
-          bgs_service.ebenefits_benefit_claims_status.find_benefit_claim_details_by_benefit_claim_id(
-            benefit_claim_id: claim_id
+          local_bgs_service.find_benefit_claim_details_by_benefit_claim_id(
+            claim_id
           )
-        rescue Savon::SOAPFault => e
-          # the ebenefits service raises an exception if a claim is not found,
-          # so catch the exception here and return a 404 instead
-          if e.message.include?("No BnftClaim found for #{claim_id}") || e.message.include?("The object [#{claim_id}]")
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
-          end
-
-          raise
         end
       end
     end

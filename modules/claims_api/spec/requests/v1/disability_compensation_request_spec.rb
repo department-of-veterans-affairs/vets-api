@@ -24,6 +24,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     stub_poa_verification
     stub_mpi
     Timecop.freeze(Time.zone.now)
+    stub_claims_api_auth_token
   end
 
   after do
@@ -975,10 +976,10 @@ RSpec.describe 'Disability Claims ', type: :request do
         let(:path) { '/services/claims/v1/forms/526/validate' }
 
         it 'returns a successful response when valid' do
-          VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
-            mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('brd/countries') do
-                VCR.use_cassette('bgs/claims/claims') do
+          mock_acg(scopes) do |auth_header|
+            VCR.use_cassette('brd/countries') do
+              VCR.use_cassette('bgs/claims/claims') do
+                VCR.use_cassette('claims_api/v1/disability_comp/validate') do
                   post path, params: data, headers: headers.merge(auth_header)
                   parsed = JSON.parse(response.body)
                   expect(parsed['data']['type']).to eq('claims_api_auto_established_claim_validation')
@@ -991,9 +992,9 @@ RSpec.describe 'Disability Claims ', type: :request do
 
         it 'returns a list of errors when invalid hitting EVSS' do
           mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
-              VCR.use_cassette('brd/countries') do
-                VCR.use_cassette('bgs/claims/claims') do
+            VCR.use_cassette('brd/countries') do
+              VCR.use_cassette('bgs/claims/claims') do
+                VCR.use_cassette('claims_api/v1/disability_comp/invalid') do
                   post path, params: data, headers: headers.merge(auth_header)
                   parsed = JSON.parse(response.body)
                   expect(parsed['errors'].size).to eq(2)
@@ -1024,22 +1025,6 @@ RSpec.describe 'Disability Claims ', type: :request do
           end
         end
 
-        context 'Breakers outages are recorded (investigating)' do
-          it 'is logged to PersonalInformationLog' do
-            EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
-            mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('brd/countries') do
-                VCR.use_cassette('bgs/claims/claims') do
-                  post path, params: data, headers: headers.merge(auth_header)
-                  expect(PersonalInformationLog.count).to be_positive
-                  expect(PersonalInformationLog.last.error_class).to eq('validate_form_526 Breakers::OutageException')
-                end
-              end
-            end
-            EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.end_forced_outage!
-          end
-        end
-
         context 'Timeouts are recorded (investigating)' do
           [Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError].each do |error_klass|
             context error_klass.to_s do
@@ -1051,6 +1036,8 @@ RSpec.describe 'Disability Claims ', type: :request do
                         .to receive(:validate_form526).and_raise(error_klass)
                       allow_any_instance_of(EVSS::DisabilityCompensationForm::Service)
                         .to receive(:validate_form526).and_raise(error_klass)
+                      allow_any_instance_of(ClaimsApi::EVSSService::Base)
+                        .to receive(:validate).and_raise(error_klass)
                       post path, params: data, headers: headers.merge(auth_header)
                       expect(PersonalInformationLog.count).to be_positive
                       expect(PersonalInformationLog.last.error_class).to eq("validate_form_526 #{error_klass.name}")

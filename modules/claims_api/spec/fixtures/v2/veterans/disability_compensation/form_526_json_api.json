@@ -21,8 +21,7 @@
         "veteranNumber": {
           "telephone": "5555555555",
           "internationalTelephone": "+44 20 1234 5678"
-        },
-        "vaFileNumber": "AB123CDEF"
+        }
       },
       "serviceInformation": {
         "servicePeriods": [
@@ -44,6 +43,10 @@
             "approximateEndDate": "06-2020"
           }
         ],
+        "federalActivation": {
+          "anticipatedSeparationDate": "10-03-6705",
+          "activationDate": "02-11-3619"
+        },
         "reservesNationalGuardService": {
           "obligationTermsOfService": {
             "beginDate": "06-04-2019",
@@ -52,10 +55,6 @@
           "unitName": "National Guard Unit Name",
           "unitAddress": "1243 pine court",
           "component": "National Guard",
-          "title10Activation": {
-            "anticipatedSeparationDate": "10-03-6705",
-            "title10ActivationDate": "02-11-3619"
-          },
           "unitPhone": {
             "areaCode": "555",
             "phoneNumber": "5555555"
@@ -69,7 +68,7 @@
         {
           "disabilityActionType": "NEW",
           "name": "Traumatic Brain Injury",
-          "classificationCode": "9020",
+          "classificationCode": "9014",
           "serviceRelevance": "ABCDEFG",
           "approximateDate": "03-11-2018",
           "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
@@ -79,7 +78,7 @@
               "name": "Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders",
               "disabilityActionType": "SECONDARY",
               "serviceRelevance": "ABCDEFGHIJKLMNOPQ",
-              "classificationCode": "9010",
+              "classificationCode": "9014",
               "approximateDate": "03-12-2018",
               "exposureOrEventOrInjury": "EXPOSURE"
             }
@@ -90,9 +89,20 @@
         {
           "disabilityActionType": "NEW",
           "name": "Cancer - Musculoskeletal - Elbow",
-          "classificationCode": "249470",
+          "classificationCode": "9014",
           "serviceRelevance": "ABCDEFG",
           "approximateDate": "03-02-2018",
+          "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
+          "diagnosticCode": 249470,
+          "isRelatedToToxicExposure": true,
+          "exposureOrEventOrInjury": "EXPOSURE"
+        },
+        {
+          "disabilityActionType": "NEW",
+          "name": "Cancer - Musculoskeletal - Knee",
+          "classificationCode": "9014",
+          "serviceRelevance": "ABCDEFG",
+          "approximateDate": "2015",
           "ratedDisabilityId": "ABCDEFGHIJKLMNOPQRSTUVWX",
           "diagnosticCode": 249470,
           "isRelatedToToxicExposure": true,

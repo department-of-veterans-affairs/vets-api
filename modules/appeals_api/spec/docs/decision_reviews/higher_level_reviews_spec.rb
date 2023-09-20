@@ -146,18 +146,16 @@ describe 'Higher-Level Reviews', swagger_doc:, type: :request do
     end
   end
 
-  if ENV['RSWAG_ENV'] == 'dev'
-    path '/higher_level_reviews/{uuid}/download' do
-      get 'Download a watermarked copy of a submitted Higher-Level Review' do
-        tags 'Higher-Level Reviews'
-        operationId 'downloadHlr'
-        security DocHelpers.decision_reviews_security_config
+  path '/higher_level_reviews/{uuid}/download' do
+    get 'Download a watermarked copy of a submitted Higher-Level Review' do
+      tags 'Higher-Level Reviews'
+      operationId 'downloadHlr'
+      security DocHelpers.decision_reviews_security_config
 
-        include_examples 'decision reviews PDF download docs', {
-          factory: :extra_higher_level_review_v2,
-          appeal_type_display_name: 'Higher-Level Review'
-        }
-      end
+      include_examples 'decision reviews PDF download docs', {
+        factory: :extra_higher_level_review_v2,
+        appeal_type_display_name: 'Higher-Level Review'
+      }
     end
   end
 

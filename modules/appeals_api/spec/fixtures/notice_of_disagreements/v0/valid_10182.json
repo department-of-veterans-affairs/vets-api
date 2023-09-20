@@ -12,7 +12,7 @@
         "address": {
           "addressLine1": "123 Main St",
           "city": "North Pole",
-          "countryCodeISO2": "CA",
+          "countryCodeIso3": "CAN",
           "zipCode5": "00000"
         },
         "phone": {

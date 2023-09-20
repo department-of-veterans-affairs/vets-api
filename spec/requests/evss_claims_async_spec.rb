@@ -112,7 +112,10 @@ RSpec.describe 'EVSS Claims management', type: :request do
       allow(Raven).to receive(:tags_context)
       expect(Raven).to receive(:tags_context).with(team: 'benefits-memorial-1')
 
-      get '/v0/evss_claims_async/2'
+      VCR.use_cassette('evss/claims/claims') do
+        get '/v0/evss_claims_async/2'
+      end
+
       expect(response).to have_http_status(:not_found)
     end
   end

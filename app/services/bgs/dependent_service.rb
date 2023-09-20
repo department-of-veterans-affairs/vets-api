@@ -33,6 +33,7 @@ module BGS
       service.claimant.find_dependents_by_participant_id(participant_id, ssn) || { persons: [] }
     end
 
+    # rubocop:disable Metrics/MethodLength
     def submit_686c_form(claim)
       Rails.logger.info('BGS::DependentService running!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
       bgs_person = service.people.find_person_by_ptcpnt_id(participant_id) || service.people.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
@@ -56,23 +57,40 @@ module BGS
         claim.submittable_686?,
         claim.submittable_674?
       )
-      if claim.submittable_686?
-        # Previously, we would wait until `BGS::Service#create_person`'s call to
-        # BGS's `vnp_person_create` endpoint to fail due to an invalid file number
-        # or file number / SSN mismatch. Unfortunately, BGS's error response is
-        # so verbose that Sentry is unable to capture the portion of the message
-        # detailing this specific file number / SSN error, and is therefore unable
-        # to distinguish this error from others in our Sentry dashboards. That is
-        # why I am deliberately raising these errors here.
-        validate_file_number_format!(file_number:)
-        validate_file_number_matches_ssn!(file_number:)
-        BGS::SubmitForm686cJob.perform_async(uuid, @icn, claim.id, form_hash_686c)
-        Rails.logger.info('BGS::DependentService succeeded!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
+      if Flipper.enabled?(:dependents_submit_674_independently)
+        if claim.submittable_686? || claim.submittable_674?
+          # Previously, we would wait until `BGS::Service#create_person`'s call to
+          # BGS's `vnp_person_create` endpoint to fail due to an invalid file number
+          # or file number / SSN mismatch. Unfortunately, BGS's error response is
+          # so verbose that Sentry is unable to capture the portion of the message
+          # detailing this specific file number / SSN error, and is therefore unable
+          # to distinguish this error from others in our Sentry dashboards. That is
+          # why I am deliberately raising these errors here.
+          validate_file_number_format!(file_number:)
+          validate_file_number_matches_ssn!(file_number:)
+          claim.submittable_686? ? BGS::SubmitForm686cJob.perform_async(uuid, @icn, claim.id, form_hash_686c) : BGS::SubmitForm674Job.perform_async(uuid, @icn, claim.id, form_hash_686c) # rubocop:disable Layout/LineLength
+          Rails.logger.info('BGS::DependentService succeeded!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
+        end
+      else
+        if claim.submittable_686? # rubocop:disable Style/IfInsideElse
+          # Previously, we would wait until `BGS::Service#create_person`'s call to
+          # BGS's `vnp_person_create` endpoint to fail due to an invalid file number
+          # or file number / SSN mismatch. Unfortunately, BGS's error response is
+          # so verbose that Sentry is unable to capture the portion of the message
+          # detailing this specific file number / SSN error, and is therefore unable
+          # to distinguish this error from others in our Sentry dashboards. That is
+          # why I am deliberately raising these errors here.
+          validate_file_number_format!(file_number:)
+          validate_file_number_matches_ssn!(file_number:)
+          BGS::SubmitForm686cJob.perform_async(uuid, @icn, claim.id, form_hash_686c)
+          Rails.logger.info('BGS::DependentService succeeded!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
+        end
       end
     rescue => e
       Rails.logger.error('BGS::DependentService failed!', { user_uuid: uuid, saved_claim_id: claim.id, icn:, error: e.message }) # rubocop:disable Layout/LineLength
       log_exception_to_sentry(e, { icn:, uuid: }, { team: Constants::SENTRY_REPORTING_TEAM })
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
@@ -115,7 +133,7 @@ module BGS
       # tell BGS the kinds of file numbers we are seeing.
       if file_number.length < 8 || file_number.length > 9
         file_number_pattern = file_number.gsub(/[0-9]/, 'X')
-        raise "Aborting Form 686c submission: BGS file_nbr has invalid format! (#{file_number_pattern})"
+        raise Flipper.enabled?(:dependents_submit_674_independently) ? "Aborting Form 686c/674 submission: BGS file_nbr has invalid format! (#{file_number_pattern})" : "Aborting Form 686c submission: BGS file_nbr has invalid format! (#{file_number_pattern})" # rubocop:disable Layout/LineLength
       end
     end
 
@@ -125,7 +143,7 @@ module BGS
       # we can inform MPI and others of instances where veteran account data is
       # screwed up.
       if file_number.length == 9 && file_number != ssn
-        raise 'Aborting Form 686c submission: VA.gov SSN does not match BGS file_nbr!'
+        raise Flipper.enabled?(:dependents_submit_674_independently) ? 'Aborting Form 686c/674 submission: VA.gov SSN does not match BGS file_nbr!' : 'Aborting Form 686c submission: VA.gov SSN does not match BGS file_nbr!' # rubocop:disable Layout/LineLength
       end
     end
   end

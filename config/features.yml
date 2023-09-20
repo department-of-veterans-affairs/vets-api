@@ -23,6 +23,10 @@ features:
     actor_type: user
     description: Use lighthouse instead of EVSS to view/download benefit letters.
     enable_in_development: true
+  benefits_documents_use_lighthouse:
+    actor_type: user
+    description: Use lighthouse instead of EVSS to upload benefits documents.
+    enable_in_development: false
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
@@ -36,10 +40,9 @@ features:
     actor_type: user
     description: Enables the optimized household section flow.
     enable_in_development: true
-  hca_remove_id_fields_enabled:
+  hca_performance_alert_enabled:
     actor_type: user
-    description: Enables removal of duplicate identitiy fields when completing health care application as a guest.
-    enable_in_development: true
+    description: Enables alert notifying users of a potential issue with application performance.
   hca_sigi_enabled:
     actor_type: user
     description: Enables Self-Identifying Gender Identity question for health care applicants.
@@ -136,6 +139,10 @@ features:
     actor_type: user
     description: Enables the unified experience version of the landing page.
     enable_in_development: true
+  check_in_experience_travel_claim_increase_timeout:
+    actor_type: user
+    description: Increases the timeout for BTSSS submit claim request to 120 seconds
+    enable_in_development: true
   claim_letters_access:
     actor_type: user
     description: Enables users to access the claim letters page
@@ -225,6 +232,9 @@ features:
   covid_volunteer_delivery:
     actor_type: cookie_id
     description: Toggles whether COVID Research volunteer submissions will be delivered to genISIS
+  claims_claim_uploader_use_bd:
+    actor_type: user
+    description: Use BDS instead of EVSS to upload to VBMS.
   claims_status_v1_bgs_enabled:
     actor_type: user
     description: enables calling BGS instead of EVSS for the claims status v1.
@@ -312,6 +322,10 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
+  dependents_submit_674_independently:
+    actor_type: user
+    description: Manage whether 674 can be submitted without an associated 686c
+    enable_in_development: true
   disability_526_classifier:
     actor_type: user
     description: enables sending claims for increase to VRO Contention Classification service for more accurate classification entry.
@@ -324,6 +338,9 @@ features:
     actor_type: user
     description: enables sending disability diagnostic codes to VRO Max CFI API to get the corresponding maximum ratings.
     enable_in_development: false
+  disability_526_toxic_exposure:
+    actor_type: user
+    description: enables new pages, processing, and submission of toxic exposure claims
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
@@ -432,6 +449,10 @@ features:
     actor_type: user
     description: Enables form 1990e email submission confirmation (VaNotify)
     enable_in_development: true
+  form21_10210_confirmation_email:
+    actor_type: user
+    description: Enables form 21-10210 email submission confirmation (VaNotify)
+    enable_in_development: true
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
@@ -448,6 +469,9 @@ features:
     actor_type: user
     description: Enables form email submission confirmations (for allowed email types via VaNotify)
     enable_in_development: true
+  form210845:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21-0845
   form214142:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4142
@@ -541,6 +565,18 @@ features:
   mhv_secure_messaging_to_va_gov_release:
     actor_type: user
     description: Enables/disbales Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
+    enable_in_development: true
+  mhv_medical_records_phr_refresh_on_login:
+    actor_type: user
+    description: Enables/disbales the PHR refresh for MHV users when logging into VA.gov
+    enable_in_development: true
+  mhv_medical_records_display_domains:
+    actor_type: user
+    description: Show/hide in-progress Medical Records domains
+    enable_in_development: true
+  mhv_medical_records_allow_txt_downloads:
+    actor_type: user
+    description: Allows users to download Medical Records data in TXT format
     enable_in_development: true
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
@@ -828,6 +864,10 @@ features:
     actor_type: user
     description: Allows updates to the static landing widget on the Public Websites page
     enable_in_development: true
+  va_online_scheduling_GA4_migration:
+    actor_type: user
+    description: Toggle for the GA4 events migration work.
+    enable_in_development: true
   va_online_scheduling_unenrolled_vaccine:
     actor_type: user
     description: Toggle for unenrolled vaccine scheduling discovery work.
@@ -970,6 +1010,9 @@ features:
     actor_type: user
     description: Provides a flag wrapper for minor code changes to be gated from Prod.
     enable_in_development: true
+  meb_gate_person_criteria:
+    actor_type: user
+    description: Flag to use Person Criteria on Submission service
   supply_reordering_sleep_apnea_enabled:
     actor_type: user
     description: Enables sleep apnea supplies to be ordered in the supply reorder tool / MDOT.
@@ -1053,6 +1096,13 @@ features:
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
+  virtual_agent_enable_pva2_chatbot:
+    actor_type: user
+    description: If enabled, switches VA chatbot from PVA1 to PVA2
+  terms_of_use:
+    actor_type: user
+    description: This determines whether a user is redirected to the Terms of Use page
+    enable_in_development: true
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form

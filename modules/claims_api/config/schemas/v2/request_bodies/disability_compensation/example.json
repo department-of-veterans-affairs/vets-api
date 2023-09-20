@@ -22,10 +22,8 @@
           "agreeToEmailRelatedToClaim": true
         },
         "veteranNumber": {
-          "telephone": "5555555555",
           "internationalTelephone": "+44 20 1234 5678"
-        },
-        "vaFileNumber": "AB123CDEF"
+        }
       },
       "changeOfAddress": {
         "dates": {
@@ -44,8 +42,7 @@
       "homeless": {
         "pointOfContact": "john stewart",
         "pointOfContactNumber": {
-          "telephone": "5555555555",
-          "internationalTelephone": "+44 20 1234 5678"
+          "internationalTelephone": "442-234-5678"
         },
         "currentlyHomeless": {
           "homelessSituationOptions": "FLEEING_CURRENT_RESIDENCE",
@@ -93,7 +90,7 @@
           "name": "Hearing Loss",
           "classificationCode": "3140",
           "serviceRelevance": "Heavy equipment operator in service",
-          "approximateDate": "07-1968",
+          "approximateDate": "10-1988",
           "isRelatedToToxicExposure": false,
           "exposureOrEventOrInjury": "Noise"
         },
@@ -168,6 +165,10 @@
             "approximateEndDate": "07-2019"
           }
         ],
+        "federalActivation": {
+          "anticipatedSeparationDate": "10-03-2025",
+          "activationDate": "02-11-2018"
+        },
         "reservesNationalGuardService": {
           "obligationTermsOfService": {
             "beginDate": "11-24-2016",
@@ -176,17 +177,12 @@
           "unitName": "National Guard Unit Name",
           "unitAddress": "1243 pine court",
           "component": "National Guard",
-          "title10Activation": {
-            "anticipatedSeparationDate": "10-03-2025",
-            "title10ActivationDate": "02-11-2018"
-          },
           "unitPhone": {
             "areaCode": "555",
             "phoneNumber": "5555555"
           },
           "receivingInactiveDutyTrainingPay": "YES"
         },
-        "alternateNames": ["John Jacob Jingleheimer-Schmidt", "Johnathon"],
         "servedInActiveCombatSince911": "NO"
       },
       "servicePay": {

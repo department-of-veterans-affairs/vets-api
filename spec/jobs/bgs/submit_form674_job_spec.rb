@@ -42,7 +42,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
 
   context 'The flipper is turned on' do
     before do
-      Flipper.enable(:dependents_enqueue_with_user_struct)
+      Flipper.enable(:dependents_submit_674_independently)
     end
 
     it 'calls #submit for 674 submission' do
@@ -51,6 +51,14 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       expect(client_stub).to receive(:submit).once
 
       described_class.new.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
+    end
+
+    it 'calls #submit without a user_struct passed in by 686c' do
+      client_stub = instance_double('BGS::Form674')
+      allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
+      expect(client_stub).to receive(:submit).once
+
+      described_class.new.perform(user.uuid, user.icn, dependency_claim.id, vet_info)
     end
 
     it 'sends confirmation email' do
@@ -92,12 +100,12 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
 
   context 'The flipper is turned off' do
     before do
-      Flipper.disable(:dependents_enqueue_with_user_struct)
+      Flipper.disable(:dependents_submit_674_independently)
     end
 
     it 'calls #submit for 674 submission' do
       client_stub = instance_double('BGS::Form674')
-      allow(BGS::Form674).to receive(:new).with(an_instance_of(User)) { client_stub }
+      allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
       expect(client_stub).to receive(:submit).once
 
       described_class.new.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
@@ -105,7 +113,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
 
     it 'sends confirmation email' do
       client_stub = instance_double('BGS::Form674')
-      allow(BGS::Form674).to receive(:new).with(an_instance_of(User)) { client_stub }
+      allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
       expect(client_stub).to receive(:submit).once
 
       expect(VANotify::EmailJob).to receive(:perform_async).with(
@@ -129,10 +137,10 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         job = described_class.new
         client_stub = instance_double('BGS::Form674')
         mailer_double = double('Mail::Message')
-        allow(BGS::Form674).to receive(:new).with(an_instance_of(User)) { client_stub }
+        allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
         expect(client_stub).to receive(:submit).and_raise(StandardError)
         allow(mailer_double).to receive(:deliver_now)
-        expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(User)) { mailer_double }
+        expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(OpenStruct)) { mailer_double }
         expect(job).to receive(:salvage_save_in_progress_form).with('686C-674', user.uuid, anything)
 
         job.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)

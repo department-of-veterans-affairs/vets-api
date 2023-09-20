@@ -3,10 +3,13 @@
 require 'common/exceptions'
 require 'common/client/errors'
 require 'json'
+require 'memoist'
 
 module VAOS
   module V2
     class AppointmentsService < VAOS::SessionService
+      extend Memoist
+
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
       VAOS_SERVICE_DATA_KEY = 'VAOSServiceTypesAndCategory'
       VAOS_TELEHEALTH_DATA_KEY = 'VAOSTelehealthData'
@@ -21,10 +24,8 @@ module VAOS
         with_monitoring do
           response = perform(:get, appointments_base_url, params, headers)
           response.body[:data].each do |appt|
-            # for CnP appointments set cancellable to false per GH#57824
-            set_cancellable_false(appt) if cnp?(appt)
-            # for covid appointments set cancellable to false per GH#58690
-            set_cancellable_false(appt) if covid?(appt)
+            # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
+            set_cancellable_false(appt) if cnp?(appt) || covid?(appt)
 
             # remove service type(s) for non-medical non-CnP appointments per GH#56197
             remove_service_type(appt) unless medical?(appt) || cnp?(appt) || no_service_cat?(appt)
@@ -48,10 +49,8 @@ module VAOS
           response = perform(:get, get_appointment_base_url(appointment_id), params, headers)
           convert_appointment_time(response.body[:data])
 
-          # for CnP appointments set cancellable to false per GH#57824
-          set_cancellable_false(response.body[:data]) if cnp?(response.body[:data])
-          # for covid appointments set cancellable to false per GH#58690
-          set_cancellable_false(response.body[:data]) if covid?(response.body[:data])
+          # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
+          set_cancellable_false(response.body[:data]) if cnp?(response.body[:data]) || covid?(response.body[:data])
 
           # remove service type(s) for non-medical non-CnP appointments per GH#56197
           unless medical?(response.body[:data]) || cnp?(response.body[:data]) || no_service_cat?(response.body[:data])
@@ -89,7 +88,43 @@ module VAOS
         end
       end
 
+      # Retrieves the most recent clinic appointment within the last year.
+      #
+      # Returns:
+      # - The most recent appointment of kind == 'clinic' or
+      # - nil if no appointment is found.
+      #
+      def get_most_recent_visited_clinic_appointment
+        current_check = Date.current.end_of_day.yesterday
+        three_month_interval = 3.months
+        look_back_limit = 1.year.ago
+        statuses = 'booked,fulfilled,arrived'
+
+        # starting yesterday loop in three month intervals until we find an appointment
+        # or we run into the look back limit
+        while current_check > look_back_limit
+          end_time = current_check
+          start_time = current_check - three_month_interval
+
+          appointments = fetch_clinic_appointments(start_time, end_time, statuses)
+
+          return most_recent_appointment(appointments) unless appointments.empty?
+
+          current_check -= three_month_interval
+        end
+
+        nil
+      end
+
       private
+
+      def fetch_clinic_appointments(start_time, end_time, statuses)
+        get_appointments(start_time, end_time, statuses)[:data].select { |appt| appt.kind == 'clinic' }
+      end
+
+      def most_recent_appointment(appointments)
+        appointments.max_by { |appointment| DateTime.parse(appointment.start) }
+      end
 
       def mobile_facility_service
         @mobile_facility_service ||=
@@ -213,11 +248,11 @@ module VAOS
       # with the appointment time to the convert_utc_to_local_time method which does the actual conversion.
       def convert_appointment_time(appt)
         if !appt[:start].nil?
-          facility_timezone = get_facility_timezone(appt[:location_id])
+          facility_timezone = get_facility_timezone_memoized(appt[:location_id])
           appt[:local_start_time] = convert_utc_to_local_time(appt[:start], facility_timezone)
         elsif !appt.dig(:requested_periods, 0, :start).nil?
           appt[:requested_periods].each do |period|
-            facility_timezone = get_facility_timezone(appt[:location_id])
+            facility_timezone = get_facility_timezone_memoized(appt[:location_id])
             period[:local_start_time] = convert_utc_to_local_time(period[:start], facility_timezone)
           end
         end
@@ -243,7 +278,7 @@ module VAOS
       end
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
-      def get_facility_timezone(facility_location_id)
+      def get_facility_timezone_memoized(facility_location_id)
         facility_info = get_facility(facility_location_id) unless facility_location_id.nil?
         if facility_info == FACILITY_ERROR_MSG || facility_info.nil?
           nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
@@ -251,6 +286,7 @@ module VAOS
           facility_info[:timezone]&.[](:time_zone_id)
         end
       end
+      memoize :get_facility_timezone_memoized
 
       def get_facility(location_id)
         mobile_facility_service.get_facility_with_cache(location_id)

@@ -62,6 +62,7 @@ module AppealsApi
     # v2 validations
     validate :claimant_birth_date_is_in_the_past,
              :required_claimant_data_is_present,
+             :country_codes_valid,
              if: proc { |a| a.api_version.upcase != 'V1' && a.form_data.present? }
 
     has_many :evidence_submissions, as: :supportable, dependent: :destroy
@@ -124,17 +125,15 @@ module AppealsApi
     end
 
     def city
-      veteran_data.dig('address', 'city') || ''
+      veteran.city || ''
     end
 
     def state_code
-      veteran_data.dig('address', 'stateCode') || ''
+      veteran.state_code || ''
     end
 
     def country_code
-      return '' unless address_combined
-
-      veteran_data.dig('address', 'countryCodeISO2') || 'US'
+      veteran.country_code || 'US'
     end
 
     def zip_code

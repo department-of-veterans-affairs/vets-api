@@ -63,7 +63,7 @@ RSpec.describe 'Higher-Level Reviews', swagger_doc:, type: :request do
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_ssn_header]
       parameter AppealsApi::SwaggerSharedComponents.header_params[:claimant_birth_date_header]
 
-      response '200', 'Info about a single Higher-Level Review' do
+      response '201', 'Higher-Level Review created' do
         let(:hlr_body) { fixture_as_json('higher_level_reviews/v0/valid_200996_minimum.json') }
 
         schema '$ref' => '#/components/schemas/hlrShow'
@@ -75,7 +75,7 @@ RSpec.describe 'Higher-Level Reviews', swagger_doc:, type: :request do
                         scopes:
       end
 
-      response '200', 'Info about a single Higher-Level Review' do
+      response '201', 'Higher-Level Review created' do
         let(:hlr_body) { fixture_as_json('higher_level_reviews/v0/valid_200996_extra.json') }
         let(:'X-VA-NonVeteranClaimant-SSN') { '999999999' }
         let(:'X-VA-NonVeteranClaimant-First-Name') { 'first' }
@@ -125,7 +125,7 @@ RSpec.describe 'Higher-Level Reviews', swagger_doc:, type: :request do
       response '200', 'Info about a single Higher-Level Review' do
         schema '$ref' => '#/components/schemas/hlrShow'
 
-        let(:id) { FactoryBot.create(:minimal_higher_level_review_v2).id }
+        let(:id) { FactoryBot.create(:minimal_higher_level_review_v0).id }
 
         it_behaves_like 'rswag example', desc: 'returns a 200 response',
                                          response_wrapper: :normalize_appeal_response,

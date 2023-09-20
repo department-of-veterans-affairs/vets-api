@@ -10,7 +10,7 @@ def swagger_doc
   "modules/appeals_api/app/swagger/appeals_status/v1/swagger#{DocHelpers.doc_suffix}.json"
 end
 
-# rubocop:disable RSpec/VariableName, Layout/LineLength
+# rubocop:disable RSpec/VariableName, Layout/LineLength, RSpec/RepeatedExample
 describe 'Appeals Status', swagger_doc:, type: :request do
   include DocHelpers
   let(:Authorization) { 'Bearer TEST_TOKEN' }
@@ -27,67 +27,68 @@ describe 'Appeals Status', swagger_doc:, type: :request do
       consumes 'application/json'
       produces 'application/json'
 
-      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header]
+      example_icn = '1234567890V543210'
+      example_va_user = 'va.api.user+idme.001@gmail.com'
+
+      parameter(
+        parameter_from_schema('shared/v0/icn.json', 'properties', 'icn').merge(
+          {
+            name: :icn,
+            in: :query,
+            required: true,
+            example: example_icn
+          }
+        )
+      )
+
+      let(:icn) { example_icn }
 
       parameter name: 'X-VA-User',
                 in: :header,
                 required: true,
-                example: 'va.api.user+idme.001@gmail.com',
+                example: example_va_user,
                 schema: { type: 'string' },
                 description: 'VA username of the person making the request'
 
-      let(:'X-VA-SSN') { '796130115' }
-      let(:'X-VA-User') { 'va.api.user+idme.001@gmail.com' }
+      let(:'X-VA-User') { example_va_user }
+
+      let(:caseflow_cassette_name) { 'caseflow/appeals' }
+      let(:mpi_cassette_name) { 'mpi/find_candidate/valid' }
+
+      before do |example|
+        VCR.use_cassette(caseflow_cassette_name) do
+          VCR.use_cassette(mpi_cassette_name) do
+            with_rswag_auth(scopes) { submit_request(example.metadata) }
+          end
+        end
+      end
 
       response '200', 'Appeals retrieved successfully' do
         response_schema = {
           type: 'object',
-          properties: {
-            data: {
-              '$ref': '#/components/schemas/appeals'
-            }
-          },
+          properties: { data: { '$ref': '#/components/schemas/appeals' } },
           required: ['data']
         }
         schema response_schema
 
-        context 'with successful caseflow response' do
-          before do |example|
-            VCR.use_cassette('caseflow/appeals') do
-              with_rswag_auth(scopes) do
-                submit_request(example.metadata)
-              end
-            end
-          end
-
-          it 'returns a 200 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
+        it 'returns a 200 response' do |example|
+          assert_response_matches_metadata(example.metadata)
         end
       end
 
-      response '400', 'Missing SSN header' do
-        let(:'X-VA-SSN') { nil }
+      response '400', "Missing 'icn' parameter" do
+        let(:icn) { nil }
 
         schema '$ref' => '#/components/schemas/errorModel'
 
-        context 'with successful caseflow response' do
-          before do |example|
-            VCR.use_cassette('caseflow/appeals') do
-              with_rswag_auth(scopes) do
-                submit_request(example.metadata)
-              end
-            end
-          end
-
-          it 'returns a 400 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
+        it 'returns a 400 response' do |example|
+          assert_response_matches_metadata(example.metadata)
         end
       end
 
-      response '422', 'Invalid SSN' do
+      response '422', 'Invalid ICN' do
         schema '$ref' => '#/components/schemas/errorModel'
+        let(:icn) { '000000000V00000' }
 
         context 'with caseflow error response' do
           before do |example|
@@ -99,7 +100,6 @@ describe 'Appeals Status', swagger_doc:, type: :request do
           end
 
           it 'returns a 422 response' do |example|
-            pending 'Raw caseflow error is currently returned; Error should be reformatted according to the shared errorModel schema.'
             assert_response_matches_metadata(example.metadata)
           end
         end
@@ -109,4 +109,4 @@ describe 'Appeals Status', swagger_doc:, type: :request do
     end
   end
 end
-# rubocop:enable RSpec/VariableName, Layout/LineLength
+# rubocop:enable RSpec/VariableName, Layout/LineLength, RSpec/RepeatedExample

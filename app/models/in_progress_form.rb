@@ -69,6 +69,7 @@ class InProgressForm < ApplicationRecord
     data = super || {}
     last_accessed = updated_at || Time.current
     data.merge(
+      'createdAt' => created_at&.to_time.to_i,
       'expiresAt' => expires_at.to_i || (last_accessed + expires_after).to_i,
       'lastUpdated' => updated_at.to_i,
       'inProgressFormId' => id
@@ -110,7 +111,8 @@ class InProgressForm < ApplicationRecord
       return
     end
 
-    max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating) ? 'on' : 'off'
+    user = User.find(user_uuid)
+    max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating, user) ? 'on' : 'off'
     rated_disabilities = fd['rated_disabilities'] || fd['ratedDisabilities'] || []
     rated_disabilities.each do |dis|
       log_cfi_metric_for_disability(params, dis, max_cfi_enabled)

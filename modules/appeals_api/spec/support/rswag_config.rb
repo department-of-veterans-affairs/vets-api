@@ -258,8 +258,7 @@ class AppealsApi::RswagConfig
         decision_reviews_sc_alt_signer_schemas,
         contestable_issues_schema,
         legacy_appeals_schema,
-        generic_schemas,
-        shared_schemas.slice(*%w[address phone timezone nonBlankString])
+        generic_schemas
       )
     else
       raise "Don't know how to build schemas for '#{api_name}'"
@@ -437,6 +436,8 @@ class AppealsApi::RswagConfig
 
   def decision_reviews_hlr_response_schemas
     schemas = hlr_response_schemas
+    schemas = deep_replace_key(schemas, :createDate, :createdAt)
+    schemas = deep_replace_key(schemas, :updateDate, :updatedAt)
 
     # ContestableIssuesShow is not part of the segmented HLR api, so we only add it for Decision Reviews
     schemas['hlrContestableIssuesShow'] = {
@@ -600,14 +601,14 @@ class AppealsApi::RswagConfig
                     'example': AppealsApi::HlrStatus::V2_STATUSES.first,
                     'enum': AppealsApi::HlrStatus::V2_STATUSES
                   },
-                  'updatedAt': {
+                  'updateDate': {
                     'description': 'The last time the submission was updated',
                     'type': 'string',
                     'format': 'date-time',
                     'example': '2018-07-30T17:31:15.958Z'
                   },
-                  'createdAt': {
-                    'description': 'The last time the submission was updated',
+                  'createDate': {
+                    'description': 'The time the submission was created',
                     'type': 'string',
                     'format': 'date-time',
                     'example': '2018-07-30T17:31:15.958Z'
@@ -712,7 +713,7 @@ class AppealsApi::RswagConfig
                     'example': '2018-07-30T17:31:15.958Z'
                   },
                   'createdAt': {
-                    'description': 'The last time the submission was updated',
+                    'description': 'The time the submission was created',
                     'type': 'string',
                     'format': 'date-time',
                     'example': '2018-07-30T17:31:15.958Z'
@@ -782,7 +783,7 @@ class AppealsApi::RswagConfig
                     'example': '2018-07-30T17:31:15.958Z'
                   },
                   'createdAt': {
-                    'description': 'The last time the submission was updated',
+                    'description': 'The time the submission was created',
                     'type': 'string',
                     'format': 'date-time',
                     'example': '2018-07-30T17:31:15.958Z'
@@ -799,7 +800,10 @@ class AppealsApi::RswagConfig
   end
 
   def nod_response_schemas
-    decision_reviews_nod_response_schemas.merge(
+    schemas = decision_reviews_nod_response_schemas
+    schemas = deep_replace_key(schemas, :createdAt, :createDate)
+    schemas = deep_replace_key(schemas, :updatedAt, :updateDate)
+    schemas.merge(
       {
         'nodCreateResponse': {
           'description': 'Successful response of a 10182 form submission',
@@ -826,12 +830,12 @@ class AppealsApi::RswagConfig
                       'example': AppealsApi::NodStatus::STATUSES.first,
                       'enum': AppealsApi::NodStatus::STATUSES
                     },
-                    'createdAt': {
+                    'createDate': {
                       'type': 'string',
                       'description': 'Created timestamp of the NOD',
                       'example': '2020-12-16T19:52:23.909Z'
                     },
-                    'updatedAt': {
+                    'updateDate': {
                       'type': 'string',
                       'description': 'Updated timestamp of the NOD',
                       'example': '2020-12-16T19:52:23.909Z'
@@ -988,7 +992,7 @@ class AppealsApi::RswagConfig
                     'example': '2018-07-30T17:31:15.958Z'
                   },
                   'createdAt': {
-                    'description': 'The last time the submission was updated',
+                    'description': 'The time the submission was created',
                     'type': 'string',
                     'format': 'date-time',
                     'example': '2018-07-30T17:31:15.958Z'
@@ -1005,7 +1009,10 @@ class AppealsApi::RswagConfig
   end
 
   def sc_response_schemas
-    decision_reviews_sc_response_schemas.merge(
+    schemas = decision_reviews_sc_response_schemas
+    schemas = deep_replace_key(schemas, :createdAt, :createDate)
+    schemas = deep_replace_key(schemas, :updatedAt, :updateDate)
+    schemas.merge(
       {
         'scCreateResponse': {
           'description': 'Successful response of a 200995 form submission',
@@ -1032,12 +1039,12 @@ class AppealsApi::RswagConfig
                       'example': AppealsApi::SupplementalClaim::STATUSES.first,
                       'enum': AppealsApi::SupplementalClaim::STATUSES
                     },
-                    'createdAt': {
+                    'createDate': {
                       'type': 'string',
                       'description': 'Created timestamp of the supplemental claim',
                       'example': '2020-12-16T19:52:23.909Z'
                     },
-                    'updatedAt': {
+                    'updateDate': {
                       'type': 'string',
                       'description': 'Updated timestamp of the supplemental claim',
                       'example': '2020-12-16T19:52:23.909Z'

@@ -18,9 +18,9 @@ class SavedClaim::EducationBenefits::VA0994 < SavedClaim::EducationBenefits
 
   def send_confirmation_email(parsed_form_data, email)
     email_template = if parsed_form_data['appliedForVaEducationBenefits']
-                       Settings.vanotify.services.va_gov.template_id.form0994_confirmation_email_v1
+                       Settings.vanotify.services.va_gov.template_id.form0994_confirmation_email
                      else
-                       Settings.vanotify.services.va_gov.template_id.form0994_confirmation_email_v2
+                       Settings.vanotify.services.va_gov.template_id.form0994_extra_action_confirmation_email
                      end
 
     VANotify::EmailJob.perform_async(

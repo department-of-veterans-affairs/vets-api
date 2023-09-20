@@ -86,14 +86,14 @@ FactoryBot.define do
   factory :extra_notice_of_disagreement_v0,
           class: 'AppealsApi::NoticeOfDisagreement', parent: :extra_notice_of_disagreement_v2 do
     api_version { 'V0' }
-    auth_headers { FixtureHelpers.fixture_as_json 'notice_of_disagreements/v0/valid_10182_headers_extra.json' }
+    auth_headers { FixtureHelpers.fixture_as_json 'notice_of_disagreements/v0/valid_10182_headers.json' }
     form_data { FixtureHelpers.fixture_as_json 'notice_of_disagreements/v0/valid_10182_extra.json' }
   end
 
   factory :minimal_notice_of_disagreement_v0,
           class: 'AppealsApi::NoticeOfDisagreement', parent: :minimal_notice_of_disagreement_v2 do
     api_version { 'V0' }
-    auth_headers { FixtureHelpers.fixture_as_json 'notice_of_disagreements/v0/valid_10182_headers.json' }
+    auth_headers { {} }
     form_data { FixtureHelpers.fixture_as_json 'notice_of_disagreements/v0/valid_10182_minimum.json' }
   end
 end

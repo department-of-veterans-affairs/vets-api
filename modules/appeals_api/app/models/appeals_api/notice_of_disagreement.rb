@@ -65,6 +65,7 @@ module AppealsApi
     # V2 validations
     validate  :required_claimant_data_is_present,
               :claimant_birth_date_is_in_the_past,
+              :country_codes_valid,
               if: proc { |a| a.api_version.upcase != 'V1' && a.form_data.present? }
 
     validate :validate_requesting_extension, if: proc { |a| a.api_version.upcase != 'V1' && a.form_data.present? }

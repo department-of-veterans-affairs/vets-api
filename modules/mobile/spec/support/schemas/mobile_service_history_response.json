@@ -2,47 +2,72 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "definitions": {
   },
+  "required": [
+    "data"
+  ],
   "properties": {
     "data": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "attributes"
+      ],
       "properties": {
-        "attributes": {
-          "properties": {
-            "serviceHistory": {
-              "description": "Array of service history hashes",
-              "items": {
-                "type": "hash"
-              },
-              "properties": {
-                "branchOfService": {
-                  "type": "string"
-                },
-                "beginDate": {
-                  "type": "string"
-                },
-                "endDate": {
-                  "type": "string"
-                },
-                "formattedBeginDate": {
-                  "type": "string"
-                },
-                "formattedEndDate": {
-                  "type": "string"
-                }
-              },
-              "type": "array"
-            }
-          },
-          "type": "object"
-        },
         "id": {
           "type": "string"
         },
         "type": {
           "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "required": [
+            "serviceHistory"
+          ],
+          "properties": {
+            "serviceHistory": {
+              "type": "array",
+              "description": "Array of service history hashes",
+              "items": {
+                "type": "object",
+                "required": [
+                  "branchOfService",
+                  "beginDate",
+                  "endDate",
+                  "formattedBeginDate",
+                  "formattedEndDate",
+                  "characterOfDischarge",
+                  "honorableServiceIndicator"
+                ],
+                "properties": {
+                  "branchOfService": {
+                    "type": "string"
+                  },
+                  "beginDate": {
+                    "type": "string"
+                  },
+                  "endDate": {
+                    "type": ["string", "null"]
+                  },
+                  "formattedBeginDate": {
+                    "type": "string"
+                  },
+                  "formattedEndDate": {
+                    "type": ["string", "null"]
+                  },
+                  "characterOfDischarge": {
+                    "type": ["string", "null"]
+                  },
+                  "honorableServiceIndicator": {
+                    "type": ["string", "null"]
+                  }
+                }
+              }
+            }
+          }
         }
-      },
-      "type": "object"
+      }
     }
-  },
-  "type": "object"
+  }
 }

@@ -135,7 +135,12 @@ module V1
       @current_user, @session_object = user_session_form.persist
       set_cookies
       after_login_actions
-      redirect_to url_service.login_redirect_url
+
+      if Settings.vsp_environment != 'production' && @current_user.needs_accepted_terms_of_use
+        redirect_to url_service.terms_of_use_redirect_url
+      else
+        redirect_to url_service.login_redirect_url
+      end
       login_stats(:success)
     end
 

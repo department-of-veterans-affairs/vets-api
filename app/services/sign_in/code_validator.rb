@@ -64,7 +64,8 @@ module SignIn
     def validated_credential
       @validated_credential ||= ValidatedCredential.new(user_verification:,
                                                         credential_email: code_container.credential_email,
-                                                        client_config:)
+                                                        client_config:,
+                                                        user_attributes: code_container.user_attributes)
     end
 
     def client_config

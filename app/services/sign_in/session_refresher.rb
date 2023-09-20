@@ -77,7 +77,8 @@ module SignIn
         refresh_token_hash: get_hash(child_refresh_token.to_json),
         parent_refresh_token_hash: refresh_token_hash,
         anti_csrf_token: updated_anti_csrf_token,
-        last_regeneration_time:
+        last_regeneration_time:,
+        user_attributes: session.user_attributes_hash
       )
     end
 

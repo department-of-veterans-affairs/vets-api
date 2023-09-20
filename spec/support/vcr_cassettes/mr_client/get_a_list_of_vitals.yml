@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: "<MHV_MR_HOST>/fhir/Observation?_count=100&code=85354-9,9279-1,8867-4,8302-2,8310-5,29463-7&patient=2952"
+      uri: "<MHV_MR_HOST>/fhir/Observation?_count=9999&code=85354-9,9279-1,8867-4,8302-2,8310-5,29463-7&patient=2952"
       body:
         encoding: US-ASCII
         string: ""
@@ -52,9 +52,6 @@ http_interactions:
             "link": [ {
               "relation": "self",
               "url": "<MHV_MR_HOST>/fhir/Observation?code=85354-9%2C9279-1%2C8867-4%2C8302-2%2C8310-5%2C29463-7&patient=30163"
-            }, {
-              "relation": "next",
-              "url": "<MHV_MR_HOST>/baseR4?_getpages=e4d1f6b8-9665-482f-a381-798c060d6f2d&_getpagesoffset=20&_count=20&_pretty=true&_bundletype=searchset"
             } ],
             "entry": [ {
               "fullUrl": "<MHV_MR_HOST>/fhir/Observation/30189",

@@ -32,6 +32,10 @@ module ClaimsApi
       client.get('disabilities').body[:items]
     end
 
+    def service_branches
+      client.get('service-branches').body[:items]
+    end
+
     private
 
     def client

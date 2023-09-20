@@ -40,7 +40,7 @@ RSpec.describe 'Claims', type: :request do
 
   describe 'Claims' do
     before do
-      Flipper.disable :claims_status_v2_lh_benefits_docs_service_enabled
+      allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return false
     end
 
     describe 'index' do
@@ -99,24 +99,6 @@ RSpec.describe 'Claims', type: :request do
                 allow_any_instance_of(ClaimsApi::ValidatedToken).to receive(:validated_token_data).and_return(nil)
                 get all_claims_path, headers: auth_header
                 expect(response.status).to eq(401)
-              end
-            end
-          end
-        end
-      end
-
-      context 'forbidden access' do
-        context 'when current user is not the target veteran' do
-          context 'when current user is not a representative of the target veteran' do
-            it 'returns a 403' do
-              mock_acg(scopes) do |auth_header|
-                expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                  .to receive(:user_is_target_veteran?).and_return(false)
-                expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                  .to receive(:user_represents_veteran?).and_return(false)
-
-                get all_claims_path, headers: auth_header
-                expect(response.status).to eq(403)
               end
             end
           end
@@ -517,26 +499,32 @@ RSpec.describe 'Claims', type: :request do
         end
       end
 
+      it 'uses BD when it should', vcr: 'claims_api/v2/claims_show' do
+        allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return true
+        lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
+                                                   evss_id: '111111111')
+        mock_ccg(scopes) do |auth_header|
+          VCR.use_cassette('evss/documents/get_claim_documents') do
+            expect_any_instance_of(bcs)
+              .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
+            expect(ClaimsApi::AutoEstablishedClaim)
+              .to receive(:get_by_id_and_icn).and_return(lh_claim)
+            expect_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
+              .to receive(:get_auth_token).and_return('some-value-here')
+
+            get claim_by_id_path, headers: auth_header
+            json_response = JSON.parse(response.body)
+
+            expect(response.status).to eq(200)
+            expect(json_response['data']['attributes']['supportingDocuments'].length).to eq(2)
+          end
+        end
+      end
+
       context 'when no auth header provided' do
         it 'returns a 401 error code' do
           get claim_by_id_path
           expect(response.status).to eq(401)
-        end
-      end
-
-      context 'when current user is not the target veteran' do
-        context 'when current user is not a representative of the target veteran' do
-          it 'returns a 403' do
-            mock_acg(scopes) do |auth_header|
-              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:user_is_target_veteran?).and_return(false)
-              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:user_represents_veteran?).and_return(false)
-
-              get claim_by_id_path, headers: auth_header
-              expect(response.status).to eq(403)
-            end
-          end
         end
       end
 
