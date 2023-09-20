@@ -370,12 +370,25 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         context 'when user has not accepted the current terms of use' do
           let(:terms_of_use_agreement_loa3_user) { nil }
-          let(:expected_redirect_url) do
-            'http://127.0.0.1:3001/terms-of-use?redirect_url=http%3A%2F%2F127.0.0.1%3A3001%2Fauth%2Flogin%2Fcallback'
+
+          context 'and authentication occurred with a application in TERMS_OF_USE_ENABLED_CLIENTS' do
+            let(:application) { SAML::URLService::TERMS_OF_USE_ENABLED_CLIENTS.first }
+            let!(:tracker) { SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: }) }
+            let(:expected_redirect_url) do
+              'http://127.0.0.1:3001/terms-of-use?redirect_url=http%3A%2F%2F127.0.0.1%3A3001%2Fauth%2Flogin%2Fcallback'
+            end
+
+            it 'redirects to terms of use page' do
+              expect(post(:saml_callback)).to redirect_to(expected_redirect_url)
+            end
           end
 
-          it 'redirects to terms of use page' do
-            expect(post(:saml_callback)).to redirect_to(expected_redirect_url)
+          context 'and authentication occurred with an application not in TERMS_OF_USE_ENABLED_CLIENTS' do
+            let(:expected_redirect_url) { 'http://127.0.0.1:3001/auth/login/callback' }
+
+            it 'redirects to expected auth page page' do
+              expect(post(:saml_callback)).to redirect_to(expected_redirect_url)
+            end
           end
         end
 
