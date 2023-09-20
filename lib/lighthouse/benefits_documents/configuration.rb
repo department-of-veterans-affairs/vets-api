@@ -66,6 +66,7 @@ module BenefitsDocuments
       connection.post(DOCUMENTS_PATH, body, headers)
     end
 
+    # rubocop:disable Metrics/MethodLength
     def generate_upload_body(document_data, file_body)
       payload = {}
       data = {
@@ -86,7 +87,8 @@ module BenefitsDocuments
       File.write(fn, data.to_json)
       payload[:parameters] = Faraday::UploadIO.new(fn, 'application/json')
 
-      validate_filetype!(document_data[:file_name])
+      file_type = MimeMagic.by_path(document_data[:file_name]).subtype
+      validate_filetype!(file_type)
 
       file = Tempfile.new(document_data[:file_name])
       File.write(file, file_body)
@@ -94,6 +96,7 @@ module BenefitsDocuments
       payload[:file] = Faraday::UploadIO.new(file, file_type)
       payload
     end
+    # rubocop:enable Metrics/MethodLength
 
     ##
     # Creates a Faraday connection with parsing json and breakers functionality.
@@ -116,9 +119,7 @@ module BenefitsDocuments
 
     private
 
-    def validate_filetype!(file_name)
-      file_type = MimeMagic.by_path(file_name).subtype
-
+    def validate_filetype!(file_type)
       unless EXTENSION_ALLOWLIST.include?(file_type)
         raise Common::Exceptions::BadRequest, { errors: "Invalid claim document upload file type: #{file_type}" }
       end
