@@ -10,7 +10,7 @@ RSpec.describe 'Connected Applications API endpoint' do
   context 'with valid response from okta' do
     it 'returns list of grants by app' do
       with_okta_configured do
-        VCR.use_cassette('okta/grants') do
+        VCR.use_cassette('lighthouse/auth/client_credentials/connected_apps_200') do
           get '/v0/profile/connected_applications'
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)

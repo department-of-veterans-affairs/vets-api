@@ -40,18 +40,47 @@ module V0
       private
 
       def apps_from_grants
-        apps = {}
-        @current_user.okta_grants.all.each do |grant|
-          links = grant['_links']
-          app_id = links['app']['href'].split('/').last
-          unless apps[app_id]
-            app = OktaRedis::App.with_id(app_id)
-            app.user = @current_user
-            app.fetch_grants
-            apps[app_id] = app
+        data = []
+        icn = @current_user.icn
+
+        grant_url = Settings.connected_apps_api.connected_apps.url
+
+        payload = { icn: }
+        url_with_params = "#{grant_url}?#{URI.encode_www_form(payload)}"
+        headers = { apiKey: Settings.connected_apps_api.connected_apps.api_key }
+        response = RestClient::Request.execute(method: :get, url: url_with_params, headers:)
+
+        if response.code == 200
+          parsed_response = JSON.parse(response.body)
+          lhapps = parsed_response['apps']
+          lhapps.each do |lh_app|
+            app = build_apps_from_data(lh_app)
+            (data ||= []) << app
           end
         end
-        apps.values
+        { 'data' => data }
+      end
+
+      def build_apps_from_data(lh_app)
+        app = {}
+        app['id'] = lh_app['clientId']
+        app['type'] = 'lighthouse_consumer_app'
+        app['attributes'] = {}
+        app['attributes']['title'] = lh_app['label']
+        app['attributes']['logo'] = lh_app['href']
+        app['attributes']['privacyUrl'] = ''
+        app['attributes']['grants'] = build_grants(lh_app)
+        app
+      end
+
+      def build_grants(lh_app)
+        [
+          {
+            title: lh_app['label'],
+            id: lh_app['clientId'],
+            created: lh_app['connectionDate']
+          }
+        ]
       end
 
       def connected_accounts_params
