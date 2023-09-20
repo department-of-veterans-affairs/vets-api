@@ -41,20 +41,23 @@ module ClaimsApi
           pdf_mapper_service(form_attributes, pdf_data, target_veteran).map_claim
 
           if auto_claim.evss_id.nil?
-            ClaimsApi::Logger.log('526 v2', claim_id: auto_claim.id, detail: 'Mapping EVSS Data')
+            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Mapping EVSS Data')
             evss_data = evss_mapper_service(auto_claim).map_claim
-            ClaimsApi::Logger.log('526 v2', claim_id: auto_claim.id, detail: 'Submitting to EVSS')
-            evss_service.submit(auto_claim, evss_data)
+            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Submitting to EVSS')
+            evss_res = evss_service.submit(auto_claim, evss_data)
+            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Successfully submitted to EVSS',
+                                            evss_id: evss_res[:claimId])
+            auto_claim.update(evss_id: evss_res[:claimId])
           else
-            ClaimsApi::Logger.log('526 v2', claim_id: auto_claim.id, detail: 'EVSS Skipped',
+            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'EVSS Skipped',
                                             evss_id: auto_claim.evss_id)
           end
 
-          ClaimsApi::Logger.log('526 v2', claim_id: auto_claim.id, detail: 'Starting call to 526EZ PDF generator')
+          ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Starting call to 526EZ PDF generator')
           pdf_string = generate_526_pdf(pdf_data)
-          ClaimsApi::Logger.log('526 v2', claim_id: auto_claim.id, detail: 'Completed call to 526EZ PDF generator')
+          ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Completed call to 526EZ PDF generator')
           if pdf_string.empty?
-            ClaimsApi::Logger.log('526 v2', claim_id: auto_claim.id, detail: '526EZ PDF generator failed.')
+            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: '526EZ PDF generator failed.')
           elsif pdf_string
             file_name = "#{SecureRandom.hex}.pdf"
             path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
@@ -65,7 +68,7 @@ module ClaimsApi
                                                             })
             auto_claim.set_file_data!(upload, EVSS_DOCUMENT_TYPE)
             auto_claim.save!
-            ClaimsApi::Logger.log('526 v2', claim_id: auto_claim.id, detail: 'Uploaded 526EZ PDF to S3')
+            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Uploaded 526EZ PDF to S3')
             ::Common::FileHelpers.delete_file_if_exists(path)
           end
           get_benefits_documents_auth_token unless Rails.env.test?
