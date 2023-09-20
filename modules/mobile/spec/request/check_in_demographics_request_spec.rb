@@ -6,13 +6,20 @@ require_relative '../support/helpers/sis_session_helper'
 RSpec.describe 'check in demographics', type: :request do
   # for some reason the api_auth factory does not work but mhv_api_auth does
   let!(:user) do
-    sis_user(trait: :mhv_api_auth, attributes: { icn: '24811694708759028', vha_facility_hash: {
-               '516' => ['12345'],
-               '553' => ['2'],
-               '200HD' => ['12345'],
-               '200IP' => ['TKIP123456'],
-               '200MHV' => ['123456']
-             }, vha_facility_ids: %w[516 553 200HD 200IP 200MHV] })
+    sis_user(
+      traits: [:mhv_api_auth],
+      attributes: {
+        icn: '24811694708759028',
+        vha_facility_hash: {
+          '516' => ['12345'],
+          '553' => ['2'],
+          '200HD' => ['12345'],
+          '200IP' => ['TKIP123456'],
+          '200MHV' => ['123456']
+        },
+        vha_facility_ids: %w[516 553 200HD 200IP 200MHV]
+      }
+    )
   end
 
   describe 'GET /mobile/v0/appointments/check-in/demographics' do

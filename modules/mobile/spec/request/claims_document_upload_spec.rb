@@ -44,7 +44,9 @@ RSpec.describe 'claims document upload', type: :request do
     expect_any_instance_of(BenefitsDocuments::Service).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
-                                                               headers: sis_headers(additional_headers: json_body_headers)
+                                                               headers: sis_headers(
+                                                                 additional_headers: json_body_headers
+                                                               )
     end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
@@ -57,7 +59,9 @@ RSpec.describe 'claims document upload', type: :request do
     expect_any_instance_of(BenefitsDocuments::Service).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
-                                                               headers: sis_headers(additional_headers: json_body_headers)
+                                                               headers: sis_headers(
+                                                                 additional_headers: json_body_headers
+                                                               )
     end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
@@ -70,7 +74,9 @@ RSpec.describe 'claims document upload', type: :request do
     expect_any_instance_of(BenefitsDocuments::Service).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
-                                                               headers: sis_headers(additional_headers: json_body_headers)
+                                                               headers: sis_headers(
+                                                                 additional_headers: json_body_headers
+                                                               )
     end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
