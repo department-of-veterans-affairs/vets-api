@@ -348,6 +348,7 @@ app/policies/debt_letters_policy.rb @department-of-veterans-affairs/vsa-debt-res
 app/policies/debt_policy.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 app/policies/demographics_policy.rb@department-of-veterans-affairs/mobile-api-team
 app/policies/form1095_policy.rb @department-of-veterans-affairs/vfs-1095-b @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+app/policies/hca_disability_rating_policy.rb @department-of-veterans-affairs/vfs-authenticated-experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/policies/lighthouse_policy.rb @department-of-veterans-affairs/lighthouse-banana-peels
 app/policies/meb_policy.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/policies/medical_copays_policy.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
@@ -1448,6 +1449,7 @@ spec/policies/ch33_dd_policy_spec.rb @department-of-veterans-affairs/vsa-ebenefi
 spec/policies/coe_policy_spec.rb @department-of-veterans-affairs/Benefits-Team-1 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/policies/debt_policy_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
 spec/policies/form1095_policy_spec.rb @department-of-veterans-affairs/vfs-1095-b @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/policies/hca_disability_rating_policy_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/policies/lighthouse_policy_spec.rb @department-of-veterans-affairs/lighthouse-banana-peels
 spec/policies/meb_policy_spec.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/policies/medical_copays_policy_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
