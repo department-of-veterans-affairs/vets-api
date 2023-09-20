@@ -1621,7 +1621,9 @@ vha:
     base_path: "/sites/vhafinance/MDW"
     authentication_url: "https://accounts.accesscontrol.windows.net"
     mock: true
+
 avs:
   mock: true
   timeout: 55
   url: "https://something.fake.va.gov"
+  api_jwt: abcd1234abcd1234abcd1234abcd1234abcd1234

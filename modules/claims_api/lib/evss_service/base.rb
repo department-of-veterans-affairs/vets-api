@@ -26,8 +26,9 @@ module ClaimsApi
         rescue => e
           detail = e.respond_to?(:original_body) ? e.original_body : e
           log_outcome_for_claims_api('submit', 'error', detail, claim)
-
-          e # return is for v1 Sidekiq worker
+          ClaimsApi::Logger.log('526',
+                                detail: "EVSS DOCKER CONTAINER submit error: #{detail}", claim_id: claim&.id)
+          raise e
         end
       end
 
