@@ -217,6 +217,7 @@ RSpec.describe 'Fetching user data' do
       let(:v0_user_request_headers) { { 'X-Key-Inflection' => 'camel' } }
 
       it 'returns proper json' do
+       # binding.pry
         expect(response).to match_camelized_response_schema('user_loa1')
       end
     end

@@ -33,7 +33,6 @@ describe VAProfile::VeteranStatus::Service do
       it 'gives me the right values back' do
         VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200') do
           response = subject.get_veteran_status
-         # binding.pry
           expect(response.title38_status_code.title38_status_code).to eq('V1')
         end
       end

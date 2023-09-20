@@ -7,7 +7,7 @@ module VAProfile
   module Models
     class VeteranStatus < Base
       include VAProfile::Concerns::Defaultable
-
+      #binding.pry
       attribute :title38_status_code, String
       validates :title38_status_code, presence: true, length: { maximum: 25 }
 
@@ -16,6 +16,7 @@ module VAProfile
       #
       # @return [String] JSON-encoded string suitable for requests to VAProfile
       def self.in_json
+       # binding.pry
         {
           bios: [
             {

@@ -22,17 +22,13 @@ module VAProfile
       # If a user is not found in VAProfile, an empty VeteranStatusResponse with a 404 status will be returned
       # @return [VAProfile::VeteranStatus::VeteranStatusResponse] response wrapper around a veteran_status object
       def get_veteran_status
-        # veteran_status_response = nil
         with_monitoring do 
-         # binding.pry
           edipi_present!
           
           response = perform(:post, identity_path, VAProfile::Models::VeteranStatus.in_json)
-         # binding.pry
           veteran_status_response = VeteranStatusResponse.from(@current_user, response)
         end
       rescue Common::Client::Errors::ClientError => e
-        binding.pry
         additional_params = { edipi: @user.edipi }
       
         if e.status == 404

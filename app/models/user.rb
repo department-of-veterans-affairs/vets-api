@@ -9,6 +9,7 @@ require 'mpi/service'
 require 'saml/user'
 require 'formatters/date_formatter'
 require 'va_profile/configuration'
+require 'va_profile/veteran_status/service'
 
 class User < Common::RedisStore
   include Authorization
@@ -353,14 +354,19 @@ class User < Common::RedisStore
     model
   end
 
-  veteran_status_method = 'veteran_status'
-  define_method(veteran_status_method) do
-    veteran_status_instance = instance_variable_get(:"@#{veteran_status_method}")
-    return veteran_status_instance if veteran_status_instance.present?
+  # veteran_status_method = 'veteran_status'
+  # define_method(veteran_status_method) do
+  #   binding.pry
+  #   veteran_status_instance = instance_variable_get(:"@#{veteran_status_method}")
+  #   return veteran_status_instance if veteran_status_instance.present?
 
-    veteran_status_instance = VAProfile::VeteranStatus::Service.new(user)
-    instance_variable_set(:"@#{veteran_status_method}", veteran_status_instance)
-    veteran_status_instance
+  #   veteran_status_instance = VAProfile::VeteranStatus::Service.new(user)
+  #   instance_variable_set(:"@#{veteran_status_method}", veteran_status_instance)
+  #   veteran_status_instance
+  # end
+
+  def veteran_status
+    @veteran_status ||= VAProfile::VeteranStatus::Service.new(self)
   end
 
   %w[profile grants].each do |okta_model_name|
