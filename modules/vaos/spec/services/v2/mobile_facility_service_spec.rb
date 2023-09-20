@@ -161,6 +161,60 @@ describe VAOS::V2::MobileFacilityService do
     end
   end
 
+  describe '#get_facilities_with_cache' do
+    context 'with multiple facility ids, none in cache' do
+      it 'returns all facility information and caches it' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_none_cached_200',
+                         match_requests_on: %i[method path query]) do
+          response = subject.get_facilities_with_cache('541QB', '541QA', '541QE', '541QC')
+          facilities = response[:data]
+          expect(facilities.size).to eq(4)
+          expect(Rails.cache.exist?('vaos_facility_541QB')).to eq(true)
+          expect(Rails.cache.exist?('vaos_facility_541QA')).to eq(true)
+          expect(Rails.cache.exist?('vaos_facility_541QE')).to eq(true)
+          expect(Rails.cache.exist?('vaos_facility_541QC')).to eq(true)
+        end
+      end
+    end
+
+    context 'with multiple facility ids, some in cache' do
+      it 'returns the facility information and caches uncached' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_some_cached_200',
+                         match_requests_on: %i[method path query]) do
+          mock_541_qb = OpenStruct.new(id: '541QB', name: 'Ceveland VA Clinic')
+          mock_541_qa = OpenStruct.new(id: '541QA', name: 'Summit County VA Clinic')
+          Rails.cache.write('vaos_facility_541QB', mock_541_qb)
+          Rails.cache.write('vaos_facility_541QA', mock_541_qa)
+
+          response = subject.get_facilities_with_cache(%w[541QB 541QA 541QE 541QC])
+          facilities = response[:data]
+          expect(facilities.size).to eq(4)
+          expect(Rails.cache.exist?('vaos_facility_541QB')).to eq(true)
+          expect(Rails.cache.exist?('vaos_facility_541QA')).to eq(true)
+          expect(Rails.cache.exist?('vaos_facility_541QE')).to eq(true)
+          expect(Rails.cache.exist?('vaos_facility_541QC')).to eq(true)
+        end
+      end
+    end
+
+    context 'with multiple facility ids, all in cache' do
+      it 'returns the cached facility information' do
+        mock_541_qb = OpenStruct.new(id: '541QB', name: 'Ceveland VA Clinic')
+        mock_541_qa = OpenStruct.new(id: '541QA', name: 'Summit County VA Clinic')
+        mock_541_qe = OpenStruct.new(id: '541QE', name: 'Summit County 1 VA Clinic')
+        mock_541_qc = OpenStruct.new(id: '541QC', name: 'Cleveland 1 VA Clinic')
+        Rails.cache.write('vaos_facility_541QB', mock_541_qb)
+        Rails.cache.write('vaos_facility_541QA', mock_541_qa)
+        Rails.cache.write('vaos_facility_541QE', mock_541_qe)
+        Rails.cache.write('vaos_facility_541QC', mock_541_qc)
+
+        response = subject.get_facilities_with_cache(%w[541QB 541QA 541QE 541QC])
+        facilities = response[:data]
+        expect(facilities.size).to eq(4)
+      end
+    end
+  end
+
   describe '#get_clinic' do
     context 'with a valid request and station is a parent VHA facility' do
       it 'returns the clinic information' do

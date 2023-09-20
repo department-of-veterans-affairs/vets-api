@@ -24,10 +24,8 @@ module VAOS
         with_monitoring do
           response = perform(:get, appointments_base_url, params, headers)
           response.body[:data].each do |appt|
-            # for CnP appointments set cancellable to false per GH#57824
-            set_cancellable_false(appt) if cnp?(appt)
-            # for covid appointments set cancellable to false per GH#58690
-            set_cancellable_false(appt) if covid?(appt)
+            # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
+            set_cancellable_false(appt) if cnp?(appt) || covid?(appt)
 
             # remove service type(s) for non-medical non-CnP appointments per GH#56197
             remove_service_type(appt) unless medical?(appt) || cnp?(appt) || no_service_cat?(appt)
@@ -51,10 +49,8 @@ module VAOS
           response = perform(:get, get_appointment_base_url(appointment_id), params, headers)
           convert_appointment_time(response.body[:data])
 
-          # for CnP appointments set cancellable to false per GH#57824
-          set_cancellable_false(response.body[:data]) if cnp?(response.body[:data])
-          # for covid appointments set cancellable to false per GH#58690
-          set_cancellable_false(response.body[:data]) if covid?(response.body[:data])
+          # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
+          set_cancellable_false(response.body[:data]) if cnp?(response.body[:data]) || covid?(response.body[:data])
 
           # remove service type(s) for non-medical non-CnP appointments per GH#56197
           unless medical?(response.body[:data]) || cnp?(response.body[:data]) || no_service_cat?(response.body[:data])
