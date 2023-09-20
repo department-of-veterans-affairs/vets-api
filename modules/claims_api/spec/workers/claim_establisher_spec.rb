@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../rails_helper'
 
 RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
   subject { described_class }
@@ -8,6 +9,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
   before do
     Sidekiq::Worker.clear_all
     allow(Flipper).to receive(:enabled?).with(:claims_status_v1_lh_auto_establish_claim_enabled).and_return true
+    stub_claims_api_auth_token
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -30,14 +32,12 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     end
 
     it 'sets a status of established on successful call' do
-      evss_service_stub = instance_double('ClaimsApi::EVSSService::Base')
-      allow(ClaimsApi::EVSSService::Base).to receive(:new) { evss_service_stub }
-      allow(evss_service_stub).to receive(:submit) { OpenStruct.new(claimId: 1337) }
-
-      subject.new.perform(claim.id)
-      claim.reload
-      expect(claim.evss_id).not_to be_nil
-      expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
+      VCR.use_cassette('claims_api/evss/submit') do
+        subject.new.perform(claim.id)
+        claim.reload
+        expect(claim.evss_id).not_to be_nil
+        expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
+      end
     end
 
     it 'clears original data upon success' do
