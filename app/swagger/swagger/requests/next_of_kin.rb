@@ -31,11 +31,16 @@ module Swagger::Requests
 
         parameter :authorization
 
+        parameter name: :body, in: :body do
+          schema do
+            property :next_of_kin, type: :object do
+              key :$ref, :NextOfKin
+            end
+          end
+        end
+
         response 200 do
           key :description, 'Successful request'
-          schema do
-            key :$ref, :NextOfKin
-          end
         end
       end
     end

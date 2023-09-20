@@ -31,13 +31,16 @@ module Swagger::Requests
 
         parameter :authorization
 
-        response 200 do
-          key :description, 'Successful request'
+        parameter name: :body, in: :body do
           schema do
             property :emergency_contact, type: :object do
               key :$ref, :EmergencyContact
             end
           end
+        end
+
+        response 200 do
+          key :description, 'Successful request'
         end
       end
     end
