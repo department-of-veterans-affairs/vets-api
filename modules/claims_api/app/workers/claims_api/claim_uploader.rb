@@ -26,7 +26,7 @@ module ClaimsApi
         file_body = uploader.read
         ClaimsApi::Logger.log('526', claim_id: auto_claim.id, attachment_id: uuid)
         if Flipper.enabled? :claims_claim_uploader_use_bd
-          claim_bd_upload_document(auto_claim, uploader&.file&.file)
+          bd_upload_body(auto_claim:, file_body:)
         else
           EVSS::DocumentsService.new(auth_headers).upload(file_body, claim_upload_document(claim_object))
         end
@@ -34,6 +34,17 @@ module ClaimsApi
     end
 
     private
+
+    def bd_upload_body(auto_claim:, file_body:)
+      fh = Tempfile.new(['pdf_path', '.pdf'], binmode: true)
+      begin
+        fh.write(file_body)
+        fh.close
+        claim_bd_upload_document(auto_claim, fh.path)
+      ensure
+        fh.unlink
+      end
+    end
 
     def claim_bd_upload_document(claim, pdf_path)
       ClaimsApi::BD.new.upload(claim:, pdf_path:)
