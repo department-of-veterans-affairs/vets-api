@@ -93,6 +93,33 @@ module VAOS
         end
       end
 
+      # Returns the list of facility details for the given facility IDs.
+      # The method first checks the Rails cache for each ID and returns the data
+      # set, then fetches any IDs that were not already cached and caches that data for future use.
+      #
+      # @param ids [Array<String>] An array of facility IDs to retrieve details for.
+      #
+      # @raise [Common::Exceptions::ParameterMissing] if the `ids` argument is missing or empty.
+      #
+      # @return [Hash] A hash of facility details fetched from the cache and remote call.
+      #   The hash has two keys: `:data` (an array of facility details) and `:meta` (pagination metadata).
+      #   The `:data` array includes facility details in an [OpenStruct] format.
+      #   The `:meta` hash includes pagination details and is currently always an empty hash.
+      #
+      def get_facilities_with_cache(*ids)
+        raise Common::Exceptions::ParameterMissing, 'ids' if bad_arg?(ids)
+
+        ids = ids.flatten.uniq
+        cached = read_cached_facilities(ids)
+        uncached = ids - cached.pluck(:id)
+        fetched = fetch_uncached_and_cache(uncached)
+
+        {
+          data: cached.concat(fetched),
+          meta: pagination({})
+        }
+      end
+
       # Retrieves information about a VA facility from the Mobile Facility Service given its ID.
       #
       # @param facility_id [String] the ID of the VA facility to retrieve information about
@@ -149,6 +176,36 @@ module VAOS
       end
 
       private
+
+      # Reads cached facilities from Rails cache. It reads the cache for each id
+      # provided in the array, maps them into a new array and returns the new array
+      # excluding nil values.
+      #
+      # @param ids [Array<String>] An array containing the ids of facilities.
+      #
+      # @return [Array<OpenStruct>] An array containing the cached facilities.
+      #
+      def read_cached_facilities(ids)
+        ids.map { |id| Rails.cache.read("vaos_facility_#{id}") }.compact
+      end
+
+      # fetches the facilities via 'get_facilities' method that are not present in
+      # the cache and caches them for future use.
+      #
+      # @param ids [Array<String>] An array containing the ids of facilities.
+      #
+      # @return [Array<OpenStruct>] An array containing the fetched facilities. Or
+      #  an empty array if 'ids' is an empty array.
+      #
+      def fetch_uncached_and_cache(ids)
+        return [] if ids.empty?
+
+        facilities = get_facilities(ids: ids.join(','), schedulable: nil, children: false)
+        facilities[:data].each do |facility|
+          Rails.cache.write("vaos_facility_#{facility[:id]}", facility, expires_in: 12.hours)
+        end
+        facilities[:data]
+      end
 
       def deserialized_configurations(configuration_list)
         return [] unless configuration_list

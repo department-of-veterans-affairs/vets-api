@@ -1,0 +1,72 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<EVSS_DVP_BASE_URL>/wss-form526-services-web/rest/form526/v2/submit"
+    body:
+      encoding: UTF-8
+      string: '{"form526":{"veteran":{"flashes":["Hardship","Homeless"],"currentlyVAEmployee":false,"currentMailingAddress":{"city":"Portland","country":"USA","zipFirstFive":"12345","addressLine1":"1234
+        Couch Street","addressLine2":"Apt. 22","type":"DOMESTIC","zipLastFour":"6789","state":"OR"},"homelessness":{"currentlyHomeless":{"homelessSituationType":"FLEEING_CURRENT_RESIDENCE","otherLivingSituation":"none"},"pointOfContact":{"pointOfContactName":"Firstname
+        Lastname","primaryPhone":{"areaCode":"123","phoneNumber":"5551234"}}}},"claimantCertification":true,"disabilities":[{"ratedDisabilityId":"1100583","diagnosticCode":9999,"disabilityActionType":"NEW","name":"PTSD
+        (post traumatic stress disorder)","specialIssues":["PTSD_2"],"secondaryDisabilities":[{"name":"PTSD
+        personal trauma","disabilityActionType":"SECONDARY","serviceRelevance":"Caused
+        by a service-connected disability\\nLengthy description"}]}],"standardClaim":false,"autoCestPDFGenerationDisabled":true,"claimDate":"1990-01-03T00:00:00+00:00","applicationExpirationDate":"2055-08-28T19:53:45+00:00","serviceInformation":{"servicePeriods":[{"activeDutyEndDate":"1990-01-02","serviceBranch":"Air
+        Force","activeDutyBeginDate":"1980-02-05"},{"activeDutyEndDate":"1999-01-01","serviceBranch":"Air
+        Force","activeDutyBeginDate":"1990-04-05"}],"reservesNationalGuardService":{"obligationTermOfServiceFromDate":"2000-01-01","obligationTermOfServiceToDate":"2000-01-02","unitName":"A
+        name, with commas, and  double  spaces"}},"claimSubmissionSource":"LH-B","disabilites":[[{"name":"PTSD
+        personal trauma","disabilityActionType":"SECONDARY","serviceRelevance":"Caused
+        by a service-connected disability\\nLengthy description"}]]}}'
+    headers:
+      Va-Eauth-Csid:
+      - DSLogon
+      Va-Eauth-Authenticationmethod:
+      - DSLogon
+      Va-Eauth-Pnidtype:
+      - SSN
+      Va-Eauth-Assurancelevel:
+      - '3'
+      Va-Eauth-Firstname:
+      - abraham
+      Va-Eauth-Lastname:
+      - lincoln
+      Va-Eauth-Issueinstant:
+      - '2023-09-19T15:24:23Z'
+      Va-Eauth-Dodedipnid:
+      - '384759483'
+      Va-Eauth-Birlsfilenumber:
+      - '2361752466'
+      Va-Eauth-Pid:
+      - '84543710'
+      Va-Eauth-Pnid:
+      - '796111863'
+      Va-Eauth-Birthdate:
+      - '1809-02-12T00:00:00+00:00'
+      Va-Eauth-Authorization:
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796111863","edi":"384759483","firstName":"abraham","lastName":"lincoln","birthDate":"1809-02-12T00:00:00+00:00","gender":"MALE"}}'
+      Va-Eauth-Authenticationauthority:
+      - eauth
+      Authorization: Bearer <TOKEN>
+      Client-Key:
+      - fakekeyvaluehere
+      Content-Type:
+      - application/json;charset=UTF-8
+      User-Agent:
+      - Faraday v0.17.6
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: "{\r\n  \"claimId\" : 600442191,\r\n  \"endProductClaimCode\" : \"400SUPP\",\r\n
+        \ \"endProductClaimName\" : \"eBenefits 526EZ-Supplemental (400)\",\r\n  \"inflightDocumentId\"
+        : 13069\r\n}"
+  recorded_at: Tue, 19 Sep 2023 15:24:40 GMT
+recorded_with: VCR 6.2.0

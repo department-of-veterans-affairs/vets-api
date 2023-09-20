@@ -22,7 +22,15 @@ module ClaimsApi
       auth_headers = auto_claim.auth_headers
 
       if Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
-        response = service(auth_headers).submit(auto_claim, form_data)
+        begin
+          response = service(auth_headers).submit(auto_claim, form_data)
+        # Temporary errors (returning HTML, connection timeout), retry call
+        rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
+          ClaimsApi::Logger.log('claims_establisher',
+                                retry: true,
+                                detail: "/submit failure for claimId #{auto_claim&.id}: #{e.message}")
+          raise e
+        end
 
         ClaimsApi::Logger.log('526_docker_container', claim_id: auto_claim_id,
                                                       vbms_id: response[:claimId])
@@ -49,6 +57,9 @@ module ClaimsApi
       auto_claim.save
       log_exception_to_sentry(e)
     rescue ::Common::Exceptions::BackendServiceException => e
+      ClaimsApi::Logger.log('claims_establisher',
+                            retry: false,
+                            detail: "/submit failure for claimId #{auto_claim&.id}: #{e.original_body}")
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response = [{ 'key' => e.status_code, 'severity' => 'FATAL', 'text' => e.original_body }]
       auto_claim.form_data = orig_form_data
