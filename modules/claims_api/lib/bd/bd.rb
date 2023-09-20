@@ -36,6 +36,11 @@ module ClaimsApi
     #
     # @return success or failure
     def upload(claim:, pdf_path:, file_number: nil)
+      unless File.exist? pdf_path
+        ClaimsApi::Logger.log('526', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist", claim_id: claim.id)
+        raise Errno::ENOENT, pdf_path
+      end
+
       @multipart = true
       body = generate_upload_body(claim:, pdf_path:, file_number:)
       res = client.post('documents', body)&.body
@@ -47,7 +52,7 @@ module ClaimsApi
     ##
     # Generate form body to upload a document
     #
-    # @return {paramenters, file}
+    # @return {parameters, file}
     def generate_upload_body(claim:, pdf_path:, file_number: nil)
       payload = {}
       data = {
