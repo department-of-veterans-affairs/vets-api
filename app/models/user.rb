@@ -366,6 +366,7 @@ class User < Common::RedisStore
   # end
 
   def veteran_status
+    binding.pry
     @veteran_status ||= VAProfile::VeteranStatus::Service.new(self)
   end
 

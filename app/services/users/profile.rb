@@ -142,6 +142,7 @@ module Users
     end
 
     def veteran_status
+      binding.pry
       {
         status: RESPONSE_STATUS[:ok],
         is_veteran: user.veteran?,

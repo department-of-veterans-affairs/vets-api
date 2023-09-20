@@ -180,6 +180,7 @@ RSpec.describe 'Fetching user data' do
 
   context 'GET /v0/user - when an LOA 1 user is logged in', :skip_mvi do
     let(:v0_user_request_headers) { {} }
+    let(:edipi) { '1005127153' }
 
     before do
       sign_in_as(new_user(:loa1))
