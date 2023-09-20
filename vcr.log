@@ -1,0 +1,12 @@
+[webmock] Handling request: [post https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/384759483%5ENI%5E200DOD%5EUSDOD] (disabled: false)
+[webmock] Identified request type (unhandled) for [post https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/384759483%5ENI%5E200DOD%5EUSDOD]
+[webmock] Handling request: [post https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/384759483%5ENI%5E200DOD%5EUSDOD] (disabled: false)
+[webmock] Identified request type (unhandled) for [post https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/384759483%5ENI%5E200DOD%5EUSDOD]
+[webmock] Handling request: [post https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/384759483%5ENI%5E200DOD%5EUSDOD] (disabled: false)
+[webmock] Identified request type (unhandled) for [post https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/384759483%5ENI%5E200DOD%5EUSDOD]
+[webmock] Handling request: [get https://mhv-api.example.com/mhv-api/patient/v1/session] (disabled: false)
+[webmock] Identified request type (unhandled) for [get https://mhv-api.example.com/mhv-api/patient/v1/session]
+[webmock] Handling request: [get https://mhv-api.example.com/mhv-api/patient/v1/session] (disabled: false)
+[webmock] Identified request type (unhandled) for [get https://mhv-api.example.com/mhv-api/patient/v1/session]
+[webmock] Handling request: [get https://mhv-api.example.com/mhv-api/patient/v1/session] (disabled: false)
+[webmock] Identified request type (unhandled) for [get https://mhv-api.example.com/mhv-api/patient/v1/session]
