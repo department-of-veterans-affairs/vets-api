@@ -10,7 +10,7 @@ module Swagger::Requests
 
         key :summary, 'Get Next-of-Kin'
         key :description, "Returns a Veteran's Next-of-Kin"
-        # key :tags, %w[]
+        key :tags, [:next_of_kin]
 
         parameter :authorization
 
@@ -28,6 +28,7 @@ module Swagger::Requests
 
         key :summary, 'Create Next-of-Kin'
         key :description, 'Creates a new Next-of-Kin for a Veteran'
+        key :tags, [:next_of_kin]
 
         parameter :authorization
 

@@ -3,7 +3,7 @@
 require 'va_profile/models/associated_person'
 
 module Swagger::Schemas
-  class EmergencyContacts
+  class NextOfKin
     include Swagger::Blocks
 
     swagger_schema :NextOfKins do

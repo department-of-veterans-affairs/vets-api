@@ -10,7 +10,7 @@ module Swagger::Requests
 
         key :summary, 'Get Emergency Contacts'
         key :description, "Returns a Veteran's Emergency Contacts"
-        # key :tags, %w[]
+        key :tags, [:emergency_contacts]
 
         parameter :authorization
 
@@ -28,6 +28,7 @@ module Swagger::Requests
 
         key :summary, 'Create Emergency Contact'
         key :description, 'Creates a new Emergency Contact for a Veteran'
+        key :tags, [:emergency_contacts]
 
         parameter :authorization
 
