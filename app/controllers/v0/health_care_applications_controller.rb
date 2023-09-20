@@ -12,6 +12,7 @@ module V0
 
     before_action :record_submission_attempt, only: :create
     before_action :load_user, only: %i[create enrollment_status]
+    before_action(only: :rating_info) { authorize(:hca_disability_rating, :access?) }
 
     def rating_info
       service = BGS::Service.new(current_user)

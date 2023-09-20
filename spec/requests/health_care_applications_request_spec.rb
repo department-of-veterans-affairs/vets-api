@@ -28,6 +28,17 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         { 'user_percent_of_disability' => 100 }
       )
     end
+
+    context 'with an loa1 user' do
+      let(:current_user) { build(:user, :loa1) }
+
+      it 'errors if user is not loa3' do
+        get(rating_info_v0_health_care_applications_path)
+
+        errors = JSON.parse(response.body)['errors']
+        expect(errors.first['title']).to eq('Forbidden')
+      end
+    end
   end
 
   describe 'GET healthcheck' do
