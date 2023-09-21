@@ -12,23 +12,70 @@ describe MobileApplicationPlatform::SecurityToken::Service do
     let(:log_prefix) { '[MobileApplicationPlatform][SecurityToken][Service]' }
 
     shared_examples 'STS token request' do
-      context 'when an issue occurs with the client request' do
-        let(:expected_error) { Common::Client::Errors::ClientError }
-        let(:expected_error_message) do
-          "#{log_prefix} token failed, client error, status: #{status}, description: #{description}," \
-            " application: #{application}, icn: #{icn}"
+      shared_examples 'Client Errors' do
+        context 'when an issue occurs with the client request' do
+          let(:expected_error) { Common::Client::Errors::ClientError }
+          let(:expected_error_message) do
+            "#{log_prefix} Token failed, client error, status: #{status}, description: #{description}," \
+              " application: #{application}, icn: #{icn}"
+          end
+
+          before do
+            allow_any_instance_of(described_class).to receive(:perform).and_raise(raised_error)
+          end
+
+          it 'raises a client error with expected message' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
         end
-        let(:status) { 'some-status' }
-        let(:description) { 'some-description' }
+      end
+
+      context 'when the status is 500' do
+        let(:status) { 500 }
+        let(:description) { 'service returned Internal Server error most likely due to an invalid ICN' }
+        let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, description) }
+
+        it_behaves_like 'Client Errors'
+      end
+
+      context 'when the status is 401 and the key for the error is error:' do
+        let(:status) { 401 }
+        let(:description) { 'some error' }
+        let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, { error: description }) }
+
+        it_behaves_like 'Client Errors'
+      end
+
+      context 'when the status is 401 and the key for the error is error_description:' do
+        let(:status) { 401 }
+        let(:description) { 'some error' }
         let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, { error_description: description }) }
 
-        before do
-          allow_any_instance_of(described_class).to receive(:perform).and_raise(raised_error)
-        end
+        it_behaves_like 'Client Errors'
+      end
 
-        it 'raises a client error with expected message' do
-          expect { subject }.to raise_error(expected_error, expected_error_message)
-        end
+      context 'when the status is 400 and the key for the error is error:' do
+        let(:status) { 400 }
+        let(:description) { 'some error' }
+        let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, { error: description }) }
+
+        it_behaves_like 'Client Errors'
+      end
+
+      context 'when the status is 400 and the key for the error is error_description:' do
+        let(:status) { 400 }
+        let(:description) { 'some error' }
+        let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, { error_description: description }) }
+
+        it_behaves_like 'Client Errors'
+      end
+
+      context 'when the description body is empty or unknown:' do
+        let(:status) { 999 }
+        let(:description) { 'unknown' }
+        let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status) }
+
+        it_behaves_like 'Client Errors'
       end
 
       context 'and response is malformed' do

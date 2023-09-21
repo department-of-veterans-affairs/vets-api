@@ -16,9 +16,23 @@ module MobileApplicationPlatform
         Rails.logger.info("#{config.logging_prefix} token success, application: #{application}, icn: #{icn}")
         parse_response(response, application, icn)
       rescue Common::Client::Errors::ClientError => e
+        description = case e.status
+                      when 500
+                        'service returned Internal Server error most likely due to an invalid ICN'
+                      when 401, 400
+                        if e.body.is_a?(Hash) && e.body&.key?(:error)
+                          e.body[:error]
+                        elsif e.body.is_a?(Hash) && e.body&.key?(:error_description)
+                          e.body[:error_description]
+                        else
+                          'unknown'
+                        end
+                      else
+                        'unknown'
+                      end
+
         status = e.status
-        description = e.body.presence && e.body[:error_description]
-        raise e, "#{config.logging_prefix} token failed, client error, status: #{status}," \
+        raise e, "#{config.logging_prefix} Token failed, client error, status: #{status}," \
                  " description: #{description}, application: #{application}, icn: #{icn}"
       end
 
