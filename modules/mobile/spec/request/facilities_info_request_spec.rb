@@ -30,6 +30,8 @@ RSpec.describe 'facilities info', type: :request do
   end
 
   describe 'GET /mobile/v0/facilities-info' do
+    let(:user) { FactoryBot.build(:iam_user, :custom_facility_ids, facility_ids: %w[757 358 999]) }
+
     it 'returns a list of the user\'s va facilities' do
       VCR.use_cassette('mobile/appointments/get_multiple_facilities_without_children_200',
                        match_requests_on: %i[method uri]) do
@@ -37,6 +39,9 @@ RSpec.describe 'facilities info', type: :request do
         facility_ids = facilities.pluck('id')
         expect(response).to have_http_status(:ok)
         expect(user.va_treatment_facility_ids).to match_array(facility_ids)
+        facilities.each do |facility|
+          expect(facility['miles']).to be_nil
+        end
         expect(response.body).to match_json_schema('facilities_info')
       end
     end
@@ -52,7 +57,23 @@ RSpec.describe 'facilities info', type: :request do
             expect(response).to have_http_status(:ok)
             expect(facilities[0]['id']).to eq('757')
             expect(facilities[1]['id']).to eq('358')
+            facilities.each do |facility|
+              expect(facility['miles']).not_to be_nil
+            end
             expect(response.body).to match_json_schema('facilities_info')
+          end
+        end
+
+        context 'when user does not have a home address' do
+          let(:user) { FactoryBot.build(:iam_user, :no_vet360_id) }
+
+          it 'returns facility details sorted by closest to user\'s home' do
+            VCR.use_cassette('mobile/appointments/get_multiple_mfs_facilities_200',
+                             match_requests_on: %i[method uri]) do
+              get('/mobile/v0/facilities-info/home', headers: iam_headers, params:)
+              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response.body).to match_json_schema('errors')
+            end
           end
         end
       end
@@ -65,6 +86,9 @@ RSpec.describe 'facilities info', type: :request do
             expect(response).to have_http_status(:ok)
             expect(facilities[0]['id']).to eq('358')
             expect(facilities[1]['id']).to eq('757')
+            facilities.each do |facility|
+              expect(facility['miles']).not_to be_nil
+            end
             expect(response.body).to match_json_schema('facilities_info')
           end
         end
@@ -89,6 +113,9 @@ RSpec.describe 'facilities info', type: :request do
             expect(response).to have_http_status(:ok)
             expect(facilities[0]['id']).to eq('358')
             expect(facilities[1]['id']).to eq('757')
+            facilities.each do |facility|
+              expect(facility['miles']).to be_nil
+            end
             expect(response.body).to match_json_schema('facilities_info')
           end
         end
@@ -107,6 +134,9 @@ RSpec.describe 'facilities info', type: :request do
               expect(response).to have_http_status(:ok)
               expect(facilities[0]['id']).to eq('358')
               expect(facilities[1]['id']).to eq('757')
+              facilities.each do |facility|
+                expect(facility['miles']).to be_nil
+              end
               expect(response.body).to match_json_schema('facilities_info')
             end
           end
