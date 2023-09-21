@@ -9,9 +9,9 @@ RSpec.describe 'Disability Claims', type: :request do
   before do
     stub_mpi
     Timecop.freeze(Time.zone.now)
-    evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
-    allow(ClaimsApi::EVSSService::Base).to receive(:new) { evss_service_stub }
-    allow(evss_service_stub).to receive(:submit) { OpenStruct.new(claimId: 1337) }
+    allow_any_instance_of(ClaimsApi::EVSSService::Base).to receive(:submit).and_return OpenStruct.new(claimId: 1337)
+    # evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
+    # allow(evss_service_stub).to receive(:submit) { OpenStruct.new(claimId: 1337) }
   end
 
   after do
@@ -31,8 +31,8 @@ RSpec.describe 'Disability Claims', type: :request do
 
       temp.to_json
     end
-    let(:veteran_id) { '1013062086V794840' }
     let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read }
+    let(:veteran_id) { '1013062086V794840' }
 
     context 'submit' do
       let(:submit_path) { "/services/claims/v2/veterans/#{veteran_id}/526" }
