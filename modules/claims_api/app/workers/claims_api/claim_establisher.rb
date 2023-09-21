@@ -65,6 +65,13 @@ module ClaimsApi
       auto_claim.form_data = orig_form_data
       auto_claim.save
       log_exception_to_sentry(e)
+    rescue => e
+      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+      auto_claim.evss_response = e.detailed_message
+      auto_claim.form_data = orig_form_data
+      auto_claim.save
+      log_exception_to_sentry(e)
+      raise e
     end
 
     private
