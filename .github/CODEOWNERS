@@ -1023,6 +1023,7 @@ spec/controllers/v0/preneeds @department-of-veterans-affairs/mbs-core-team @depa
 spec/controllers/v0/preneeds/preneed_attachments_controller_spec.rb @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/profile @department-of-veterans-affairs/vfs-authenticated-experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/sign_in_controller_spec.rb @department-of-veterans-affairs/vsp-identity
+spec/controllers/v0/terms_of_use_agreements_controller_spec.rb @department-of-veterans-affairs/vsp-identity
 spec/controllers/v0/upload_supporting_evidences_controller_spec.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/users_controller_spec.rb @department-of-veterans-affairs/vsp-identity
 spec/controllers/v0/veteran_readiness_employment_claims_controller_spec.rb @department-of-veterans-affairs/Benefits-Team-1 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
