@@ -204,10 +204,10 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
           expect(response).to have_http_status(:ok)
 
           expect(VANotify::EmailJob).to have_received(:perform_async).with(
-            'claimant.long@address.com',
+            'my.long.email.address@email.com',
             'form21_10210_confirmation_email_template_id',
             {
-              'first_name' => 'JOE',
+              'first_name' => 'JACK',
               'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
               'confirmation_number' => confirmation_number
             }
