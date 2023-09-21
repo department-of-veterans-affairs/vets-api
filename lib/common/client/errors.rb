@@ -14,6 +14,10 @@ module Common
           @status = status
           @body = body
         end
+
+        def deconstruct
+          [message, status, body]
+        end
       end
 
       class NotAuthenticated < ClientError; end
