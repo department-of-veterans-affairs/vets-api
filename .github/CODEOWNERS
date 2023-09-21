@@ -321,6 +321,7 @@ app/models/terms_and_conditions.rb @department-of-veterans-affairs/va-api-engine
 app/models/token.rb @department-of-veterans-affairs/vsp-identity
 app/models/transaction_notification.rb @department-of-veterans-affairs/vfs-authenticated-experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/triage_team.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+app/models/all_triage_teams.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/user_acceptable_verified_credential.rb @department-of-veterans-affairs/vsp-identity
 app/models/user_account.rb @department-of-veterans-affairs/vsp-identity
 app/models/user_credential_email.rb @department-of-veterans-affairs/vsp-identity
@@ -1665,6 +1666,8 @@ spec/support/schemas_camelized/terms_and_conditions_mini.json @department-of-vet
 spec/support/schemas_camelized/terms_and_conditions_single.json @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas_camelized/triage_team.json @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas_camelized/triage_teams.json @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/schemas_camelized/all_triage_team.json @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/schemas_camelized/all_triage_teams.json @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas_camelized/user_loa1.json @department-of-veterans-affairs/vsp-identity
 spec/support/schemas_camelized/user_loa3.json @department-of-veterans-affairs/vsp-identity
 spec/support/schemas_camelized/user_preferences.json @department-of-veterans-affairs/vsp-identity
@@ -1745,6 +1748,8 @@ spec/support/schemas/terms_and_conditions_mini.json @department-of-veterans-affa
 spec/support/schemas/terms_and_conditions_single.json @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/triage_team.json @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/triage_teams.json @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/schemas/all_triage_team.json @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/schemas/all_triage_teams.json @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/upload_supporting_evidence.json @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/user_loa1.json @department-of-veterans-affairs/vsp-identity
 spec/support/schemas/user_loa3.json @department-of-veterans-affairs/vsp-identity
