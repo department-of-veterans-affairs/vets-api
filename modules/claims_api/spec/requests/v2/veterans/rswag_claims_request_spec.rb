@@ -13,6 +13,7 @@ describe 'Claims',
 
   before do
     Flipper.disable :claims_status_v2_lh_benefits_docs_service_enabled
+    stub_jwt_valid_token_decode
   end
 
   path '/veterans/{veteranId}/claims' do

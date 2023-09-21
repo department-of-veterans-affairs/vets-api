@@ -25,6 +25,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     stub_mpi
     Timecop.freeze(Time.zone.now)
     stub_claims_api_auth_token
+    stub_jwt_valid_token_decode
   end
 
   after do

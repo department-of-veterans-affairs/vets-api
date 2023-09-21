@@ -12,6 +12,10 @@ describe 'PowerOfAttorney',
          swagger_doc: Rswag::TextHelpers.new.claims_api_docs, document: false do
   let(:local_bgs) { ClaimsApi::LocalBGS }
 
+  before do
+    stub_jwt_valid_token_decode
+  end
+
   path '/veterans/{veteranId}/power-of-attorney' do
     get 'Find current Power of Attorney for a Veteran.' do
       tags 'Power of Attorney'
