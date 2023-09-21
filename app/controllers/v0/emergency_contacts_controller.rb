@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require 'va_profile/health_benefit/service'
+
 module V0
   class EmergencyContactsController < ApplicationController
+    skip_before_action :authenticate, if: -> { Settings.vet360.health_benefit.mock && Settings.vsp_environment != 'production' }
+
     # GET /v0/emergency_contacts
     def index
       response = service.get_emergency_contacts

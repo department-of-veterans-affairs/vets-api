@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'va_profile/response'
+require 'va_profile/models/associated_person'
+require 'va_profile/models/message'
 
 module VAProfile
   module HealthBenefit

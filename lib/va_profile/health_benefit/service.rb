@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'va_profile/health_benefit/configuration'
+require 'va_profile/health_benefit/associated_persons_response'
 require 'va_profile/models/associated_person'
 
 module VAProfile
@@ -29,12 +30,21 @@ module VAProfile
       end
 
       def get_associated_persons
+        return mock_get_associated_persons if config.mock_enabled?
+
         with_monitoring do
           response = perform(:get, v1_read_path)
           VAProfile::HealthBenefit::AssociatedPersonsResponse.from(response)
         end
       rescue => e
         handle_error(e)
+      end
+
+      def mock_get_associated_persons
+        fixture_path = %w[spec fixtures va_profile health_benefit_v1_read_ap.json]
+        body = Rails.root.join(*fixture_path).read
+        response = OpenStruct.new(status: 200, body:)
+        VAProfile::HealthBenefit::AssociatedPersonsResponse.from(response)
       end
 
       def post_emergency_contacts(emergency_contact)
@@ -51,7 +61,7 @@ module VAProfile
         with_monitoring do
           next_of_kin.source_system_user = user.icn
           response = perform(:post, v1_update_path, next_of_kin.in_json)
-          VAProfile::HealhtBenefit::AssociatedPersonResponse.from(response)
+          VAProfile::HealthBenefit::AssociatedPersonResponse.from(response)
         end
       rescue => e
         handle_error(e)
