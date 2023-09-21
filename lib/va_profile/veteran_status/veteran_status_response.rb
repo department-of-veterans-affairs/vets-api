@@ -13,11 +13,11 @@ module VAProfile
 
         title38_status_code = body&.dig('profile', 'military_person', 'military_summary', 'title38_status_code')  # parse title_38 from the raw response
         new(
-            raw_response&.status,
-            title38_status_code: VAProfile::Models::VeteranStatus.new(
-             title38_status_code: title38_status_code
-           )
-         )
+          raw_response&.status,
+          title38_status_code: VAProfile::Models::VeteranStatus.new(
+            title38_status_code:
+          )
+        )
       end
     end
   end

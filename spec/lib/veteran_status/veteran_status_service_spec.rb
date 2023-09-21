@@ -4,8 +4,9 @@ require 'rails_helper'
 require 'va_profile/veteran_status/service'
 
 describe VAProfile::VeteranStatus::Service do
-  let(:user) { build(:user, :loa3) }
   subject { described_class.new(user) }
+
+  let(:user) { build(:user, :loa3) }
 
   describe '#identity_path' do
     context 'when an edipi exists' do
@@ -57,7 +58,7 @@ describe VAProfile::VeteranStatus::Service do
             { va_profile: :veteran_status_title_not_found },
             :warning
           )
-          
+
           response = subject.get_veteran_status
           expect(response).not_to be_ok
           expect(response.status).to eq(404)
@@ -68,7 +69,7 @@ describe VAProfile::VeteranStatus::Service do
       it 'gives me a 500 response' do
         VCR.use_cassette('va_profile/veteran_status/veteran_status_500_aaid', match_requests_on: [:method]) do
           expect do
-            response = subject.get_veteran_status
+            subject.get_veteran_status
           end.to raise_error(Common::Exceptions::BackendServiceException)
         end
       end
