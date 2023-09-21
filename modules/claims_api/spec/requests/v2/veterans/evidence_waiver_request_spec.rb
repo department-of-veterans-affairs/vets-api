@@ -18,6 +18,10 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
       'sub' => '0oa8r55rjdDAH5Vaj2p7' }
   end
 
+  before do
+    stub_jwt_valid_token_decode
+  end
+
   describe '5103 Waiver' do
     describe 'submit' do
       context 'Vet flow' do

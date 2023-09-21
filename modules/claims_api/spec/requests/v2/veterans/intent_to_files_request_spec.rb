@@ -11,6 +11,10 @@ RSpec.describe 'IntentToFiles', type: :request do
     ClaimsApi::LocalBGS
   end
 
+  before do
+    stub_jwt_valid_token_decode
+  end
+
   describe 'IntentToFiles' do
     describe 'type' do
       before do

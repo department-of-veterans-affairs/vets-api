@@ -37,6 +37,10 @@ describe 'EvidenceWaiver5103',
       let(:Authorization) { 'Bearer token' }
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
 
+      before do
+        stub_jwt_valid_token_decode
+      end
+
       describe 'Getting a successful response' do
         response '200', 'Successful response' do
           schema JSON.parse(File.read(Rails.root.join('spec',

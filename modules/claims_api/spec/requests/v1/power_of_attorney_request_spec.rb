@@ -24,6 +24,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
   before do
     stub_poa_verification
+    stub_jwt_valid_token_decode
   end
 
   describe '#2122' do
