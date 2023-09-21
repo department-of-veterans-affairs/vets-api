@@ -20,6 +20,7 @@ RSpec.describe 'Power Of Attorney', type: :request do
 
   describe 'PowerOfAttorney' do
     before do
+      stub_jwt_valid_token_decode
       Veteran::Service::Representative.new(representative_id: '12345', poa_codes: [individual_poa_code],
                                            first_name: 'Abraham', last_name: 'Lincoln').save!
       Veteran::Service::Representative.new(representative_id: '67890', poa_codes: [organization_poa_code],
