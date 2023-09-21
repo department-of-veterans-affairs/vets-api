@@ -13,6 +13,36 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
     sign_in(user)
   end
 
+  describe 'GET #latest' do
+    let(:expected_status) { :ok }
+
+    it 'returns ok status' do
+      get :latest, params: { version: agreement_version }
+
+      expect(response).to have_http_status(expected_status)
+    end
+
+    context 'when a terms of use agreement exists for the authenticated user' do
+      let!(:terms_of_use_acceptance) do
+        create(:terms_of_use_agreement, user_account:, response: terms_response, agreement_version:)
+      end
+      let(:terms_response) { 'accepted' }
+
+      it 'returns the latest terms of use agreement for the authenticated user' do
+        get :latest, params: { version: agreement_version }
+        expect(JSON.parse(response.body)['terms_of_use_agreement']['response']).to eq(terms_response)
+        expect(JSON.parse(response.body)['terms_of_use_agreement']['agreement_version']).to eq(agreement_version)
+      end
+    end
+
+    context 'when a terms of use agreement does not exist for the authenticated user' do
+      it 'returns nil terms of use agreement' do
+        get :latest, params: { version: agreement_version }
+        expect(JSON.parse(response.body)['terms_of_use_agreement']).to eq(nil)
+      end
+    end
+  end
+
   describe 'POST #accept' do
     context 'when the agreement is accepted successfully' do
       before do
