@@ -16,7 +16,7 @@ metadata:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
 
-  query: (({{ $threads }}{{ $root.Values.target_env }}{{ $deployment}}{{ $name }}}.rollup(sum,60) - {{ $pool }}{{ $root.Values.target_env }}{{ $deployment}}{{ $name }}}.rollup(sum,60)) / {{ $threads }}{{ $root.Values.target_env }}{{ $deployment}}{{ $name }}}.rollup(sum,60))*100
+  query: (({{ $threads }}{{ $root.Values.target_env }}{{ $deployment}}{{ $name }}}.rollup(60) - {{ $pool }}{{ $root.Values.target_env }}{{ $deployment}}{{ $name }}}.rollup(60)) / {{ $threads }}{{ $root.Values.target_env }}{{ $deployment}}{{ $name }}}.rollup(60))*100
 
 {{- end }}
 {{- end }}
