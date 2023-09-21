@@ -83,7 +83,7 @@ module VAProfile
       private
 
       def edipi_present!
-        binding.pry
+        #binding.pry
         raise 'User does not have a valid edipi' if @user&.identity&.edipi.blank?
       end
 

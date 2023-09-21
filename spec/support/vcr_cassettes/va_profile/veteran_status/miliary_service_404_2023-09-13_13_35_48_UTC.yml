@@ -1,0 +1,64 @@
+---
+http_interactions:
+  - request:
+      method: post
+      uri: https://localhost:4000/profile-service/profile/2.16.840.1.113883.3.42.10001.100001.12/0005127153%5ENI%5E200DOD%5EUSDOD
+      body:
+        encoding: UTF-8
+        string: '{"bios":[{"bioPath":"militaryPerson.militarySummary"}]}'
+      headers:
+        User-Agent:
+          - Faraday v2.7.10
+        Content-Type:
+          - application/json
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Accept:
+          - "*/*"
+    response:
+      status:
+        code: 404
+        message: Not Found
+      headers:
+        Transfer-Encoding:
+          - chunked
+        X-Oneagent-Js-Injection:
+          - "true"
+        Server-Timing:
+          - dtRpid;desc="482594878", dtSInfo;desc="0"
+        Vaprofiletxauditid:
+          - cafb2670-a664-4df6-a400-ebe618410779
+        Vary:
+          - Access-Control-Request-Headers
+          - Access-Control-Request-Method
+          - Origin
+        X-Content-Type-Options:
+          - nosniff
+        X-Xss-Protection:
+          - 1; mode=block
+        Cache-Control:
+          - no-cache, no-store, max-age=0, must-revalidate
+        Pragma:
+          - no-cache
+        Expires:
+          - "0"
+        X-Frame-Options:
+          - DENY
+        Content-Security-Policy:
+          - "default-src 'self' 'unsafe-eval' 'unsafe-inline' data: filesystem:
+            about: blob: ws: wss:"
+        Content-Type:
+          - application/json
+        Date:
+          - Wed, 13 Sep 2023 13:35:49 GMT
+        Referrer-Policy:
+          - no-referrer
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: UTF-8
+        string:
+          '{"timestamp":"2023-09-13T13:35:49Z","status":404,"error":"Not Found","message":"No
+          message available","path":"/profile/2.16.840.1.113883.3.42.10001.100001.12/0005127153%5ENI%5E200DOD%5EUSDOD"}'
+    recorded_at: Wed, 13 Sep 2023 13:35:49 GMT
+recorded_with: VCR 6.2.0
