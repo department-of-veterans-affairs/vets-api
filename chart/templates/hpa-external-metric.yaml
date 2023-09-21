@@ -1,9 +1,6 @@
 {{- $root := . -}}
 {{- range $name, $service := $root.Values.web.webServices }}
 {{- if $service.autoscaling.enabled }}
-{{- $pool := "sum:puma.pool_capacity{kube_cluster_name:dsva-vagov-" }}
-{{- $threads := "sum:puma.max_threads{kube_cluster_name:dsva-vagov-" }}
-{{- $deployment := "-cluster,kube_deployment:" }}
 
 ---
 apiVersion: datadoghq.com/v1alpha1
@@ -16,7 +13,8 @@ metadata:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
 
-  query: (({{ $threads }}{{ $root.Values.target_env }}{{ $deployment}}{{ $name }}}.rollup(60) - {{ $pool }}{{ $root.Values.target_env }}{{ $deployment}}{{ $name }}}.rollup(60)) / {{ $threads }}{{ $root.Values.target_env }}{{ $deployment}}{{ $name }}}.rollup(60))*100
+  query: (((sum:puma.max_threads{kube_cluster_name:dsva-vagov-{{ $root.Values.target_env }}-cluster,kube_deployment:{{ $name }}}.rollup(60)) - (sum:puma.pool_capacity{kube_cluster_name:dsva-vagov-{{ $root.Values.target_env }}-cluster,kube_deployment:{{ $name }}}.rollup(60))) /(sum:puma.max_threads{kube_cluster_name:dsva-vagov-{{ $root.Values.target_env }}-cluster,kube_deployment:{{ $name }}}.rollup(60)))*100
+
 
 {{- end }}
 {{- end }}
