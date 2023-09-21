@@ -1284,8 +1284,6 @@ vanotify:
         login_reactivation_email: reactivation_email_test_b
     lighthouse:
       api_key: fake_secret
-      template_id:
-        disconnection_template: fake_template_id
     dmc:
       api_key: fake_secret
       template_id:
