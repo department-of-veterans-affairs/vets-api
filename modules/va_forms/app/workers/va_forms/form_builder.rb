@@ -17,56 +17,122 @@ module VAForms
 
     sidekiq_options(retries: RETRIES)
 
-    def perform(form)
-      build_and_save_form(form)
+    def perform(form_data)
+      build_and_save_form(form_data)
     rescue => e
-      message = "#{self.class.name} failed to import #{form['fieldVaFormNumber']} into forms database"
+      form_name = form_data['fieldVaFormNumber']
+      message = "#{self.class.name} failed to import #{form_name} into forms database"
       Rails.logger.error(message, e)
       log_message_to_sentry(message, :error, body: e.message)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.failure", tags: { form_name: form['fieldVaFormNumber'] })
+      StatsD.increment("#{STATSD_KEY_PREFIX}.failure", tags: { form_name: })
       raise
     end
 
-    def build_and_save_form(form)
-      va_form = VAForms::Form.find_or_initialize_by row_id: form['fieldVaFormRowId']
-      attrs = init_attributes(form)
-      new_url = form['fieldVaFormUrl']['uri']
-      va_form_url = new_url.starts_with?('http') ? new_url.gsub('http:', 'https:') : expand_va_url(new_url)
-      normalized_url = Addressable::URI.parse(va_form_url).normalize.to_s
-      issued_string = form.dig('fieldVaFormIssueDate', 'value')
-      revision_string = form.dig('fieldVaFormRevisionDate', 'value')
-      attrs[:url] = normalized_url
-      attrs[:first_issued_on] = parse_date(issued_string) if issued_string.present?
-      attrs[:last_revision_on] = parse_date(revision_string) if revision_string.present?
-      va_form.assign_attributes(attrs)
-      va_form = validate_form(va_form)
-      number_tag = VAForms::RegexHelper.new.strip_va(form['fieldVaFormNumber'])
-      va_form.tags = va_form.tags.presence || number_tag
-      va_form.save
-      va_form
+    # Given +form_data+ as returned by the graphql query, returns a matching, updated and saved +VAForms::Form+ instance
+    def build_and_save_form(form_data)
+      form = find_or_create_form(form_data)
+      attrs = gather_form_attributes(form_data)
+
+      maybe_pdf, content_type = fetch_form_pdf(attrs[:url])
+      attrs[:valid_pdf] = maybe_pdf.present?
+      attrs[:sha256] = Digest::SHA256.hexdigest(maybe_pdf) if maybe_pdf.present?
+
+      send_notifications(form, attrs, content_type)
+
+      form.update!(attrs)
+      form
     end
 
-    def init_attributes(form)
-      mapped = {
-        form_name: form['fieldVaFormNumber'],
-        title: form['fieldVaFormName'],
-        pages: form['fieldVaFormNumPages'],
-        language: form['fieldVaFormLanguage'].presence || 'en',
-        form_type: form['fieldVaFormType'],
-        form_usage: form.dig('fieldVaFormUsage', 'processed'),
-        form_tool_intro: form['fieldVaFormToolIntro'],
-        form_tool_url: form.dig('fieldVaFormToolUrl', 'uri'),
-        deleted_at: form.dig('fieldVaFormDeletedDate', 'value'),
-        related_forms: form['fieldVaFormRelatedForms'].map { |f| f.dig('entity', 'fieldVaFormNumber') },
-        benefit_categories: map_benefit_categories(form['fieldBenefitCategories']),
-        va_form_administration: form.dig('fieldVaFormAdministration', 'entity', 'entityLabel')
+    # Given a +existing_form+ instance of +VAForms::Form+, +updated_attributes+ for that form, and the +content_type+
+    # returned by the form URL, send appropriate Slack notifications
+    def send_notifications(existing_form, updated_attrs, content_type)
+      if updated_attrs[:valid_pdf]
+        if existing_form.url != updated_attrs[:url]
+          # If the URL has changed, we notify regardless of content
+          notify_slack(
+            "Form #{updated_attrs[:form_name]} has been updated.",
+            from_form_url: existing_form.url,
+            to_form_url: updated_attrs[:url]
+          )
+        elsif existing_form.sha256 != updated_attrs[:sha256] && content_type == 'application/pdf'
+          # If sha256 has changed, only notify if the URL actually returns a PDF, because if the URL is for a download
+          # web page instead, the change in sha256 may not actually reflect a change in the PDF itself
+          notify_slack("PDF contents of form #{updated_attrs[:form_name]} have been updated.")
+        end
+      elsif existing_form.valid_pdf
+        # If PDF is not valid, only notify if it was previously valid
+        notify_slack(
+          "URL for form #{updated_attrs[:form_name]} no longer returns a valid PDF or web page.",
+          form_url: updated_attrs[:url]
+        )
+      end
+    end
+
+    # Finds or creates a matching +VAForms::Form+ based on the given +form_data+ as returned from the graphql query
+    def find_or_create_form(form_data)
+      VAForms::Form.find_or_initialize_by row_id: form_data['fieldVaFormRowId']
+    end
+
+    # Returns a hash of attributes for a +VAForms::Form+ record based on the given +form_data+
+    # rubocop:disable Metrics/MethodLength
+    def gather_form_attributes(form_data)
+      form_url = normalize_form_url(form_data.dig('fieldVaFormUrl', 'uri'))
+
+      attrs = {
+        form_name: form_data['fieldVaFormNumber'],
+        title: form_data['fieldVaFormName'],
+        pages: form_data['fieldVaFormNumPages'],
+        language: form_data['fieldVaFormLanguage'].presence || 'en',
+        form_type: form_data['fieldVaFormType'],
+        form_usage: form_data.dig('fieldVaFormUsage', 'processed'),
+        form_details_url: form_data['entityPublished'] ? "#{FORM_BASE_URL}#{form_data.dig('entityUrl', 'path')}" : '',
+        form_tool_intro: form_data['fieldVaFormToolIntro'],
+        form_tool_url: form_data.dig('fieldVaFormToolUrl', 'uri'),
+        deleted_at: form_data.dig('fieldVaFormDeletedDate', 'value'),
+        related_forms: form_data['fieldVaFormRelatedForms'].map { |f| f.dig('entity', 'fieldVaFormNumber') },
+        benefit_categories: parse_benefit_categories(form_data),
+        va_form_administration: form_data.dig('fieldVaFormAdministration', 'entity', 'entityLabel'),
+        url: form_url,
+        **parse_form_revision_dates(form_data)
       }
-      mapped[:form_details_url] = form['entityPublished'] ? "#{FORM_BASE_URL}#{form.dig('entityUrl', 'path')}" : ''
-      mapped
+
+      if (raw_tags = form_data['fieldVaFormNumber'])
+        attrs[:tags] = VAForms::RegexHelper.new.strip_va(raw_tags)
+      end
+
+      attrs
+    end
+    # rubocop:enable Metrics/MethodLength
+
+    # Normalizes a +url+ that may not be a full, valid URL or  may not use https
+    def normalize_form_url(url)
+      va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)
+      Addressable::URI.parse(va_form_url).normalize.to_s
     end
 
-    def map_benefit_categories(categories)
-      categories.map do |field|
+    # Parses a given date string and returns it in MM-YYYY or YYYY-MM-DD format
+    def parse_date(date_string)
+      Date.strptime(date_string, date_string.split('-').count == 2 ? '%m-%Y' : '%Y-%m-%d')
+    end
+
+    # Parses values for +first_issued_on+ and +last_revision_on+ dates from the given +form_data+
+    def parse_form_revision_dates(form_data)
+      dates = {}
+
+      if (issued_string = form_data.dig('fieldVaFormIssueDate', 'value'))
+        dates[:first_issued_on] = parse_date(issued_string)
+      end
+
+      if (revision_string = form_data.dig('fieldVaFormRevisionDate', 'value'))
+        dates[:last_revision_on] = parse_date(revision_string)
+      end
+
+      dates
+    end
+
+    # Parses an array of valid category name & description hashes from the given +form_data+
+    def parse_benefit_categories(form_data)
+      form_data['fieldBenefitCategories'].map do |field|
         {
           name: field.dig('entity', 'fieldHomePageHubLabel'),
           description: field.dig('entity', 'entityLabel')
@@ -74,40 +140,8 @@ module VAForms
       end
     end
 
-    def parse_date(date_string)
-      matcher = date_string.split('-').count == 2 ? '%m-%Y' : '%Y-%m-%d'
-      Date.strptime(date_string, matcher)
-    end
-
-    def validate_form(form)
-      if form.url.present?
-        form = check_pdf_validity(form)
-      else
-        form.valid_pdf = false
-      end
-      form
-    end
-
-    def check_pdf_validity(form)
-      response = fetch_form_pdf(form.url)
-      content_type = response.headers['Content-Type']
-
-      if response.success?
-        form.sha256 = get_sha256(form, response.body)
-        form.valid_pdf = true
-      elsif final_retry?
-        notify_slack("Form #{form.form_name} no longer returns a valid PDF.", form.url) if form.valid_pdf
-        form.valid_pdf = false
-      else
-        message = 'A valid PDF could not be fetched'
-        details = { response_code: response.status, content_type:, url: form.url, current_retry: @current_retry }
-        Rails.logger.error(message, details)
-        raise message # Raise and let the job retry
-      end
-
-      form
-    end
-
+    # Attempts to download and return a tuple of [request body, content type] from the given +url+. If the +url+ doesn't
+    # successfully return a body, this will raise an error if it's still possible to retry the job.
     def fetch_form_pdf(url)
       connection = Faraday.new(url) do |conn|
         conn.use FaradayMiddleware::FollowRedirects
@@ -115,13 +149,18 @@ module VAForms
         conn.options.timeout = 30
         conn.adapter Faraday.default_adapter
       end
-      connection.get
-    end
+      response = connection.get
+      content_type = response.headers['Content-Type']
+      return [response.body, content_type] if response.success?
 
-    def get_sha256(form, pdf)
-      sha256 = Digest::SHA256.hexdigest(pdf)
-      notify_slack("Form #{form.form_name} has been updated.", form.url) if form.sha256 != sha256
-      sha256
+      unless final_retry? # Unless we're on the final retry, raise this failure to trigger a retry
+        message = 'A valid PDF could not be fetched'
+        details = { response_code: response.status, content_type:, url:, current_retry: @current_retry }
+        Rails.logger.error(message, details)
+        raise message
+      end
+
+      [nil, '']
     end
 
     def final_retry?
@@ -134,11 +173,11 @@ module VAForms
       "#{FORM_BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.starts_with?('./va') || url.starts_with?('./medical')
     end
 
-    def notify_slack(message, form_url)
+    def notify_slack(message, **)
       return unless Settings.va_forms.slack.enabled
 
       begin
-        VAForms::Slack::Messenger.new({ class: self.class.name, message:, form_url: }).notify!
+        VAForms::Slack::Messenger.new({ class: self.class.name, message:, ** }).notify!
       rescue => e
         Rails.logger.error("#{self.class.name} failed to notify Slack, message: #{message}", e)
       end
