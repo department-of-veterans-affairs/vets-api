@@ -153,26 +153,6 @@ clamav:
   probes: {}
   resources: {}
 
-# clamav-mirror configuration
-# Clamav-mirrror is specific for vets-api helm charts. Please do not enable.
-# Setting up clamavMirror incorrectly can lead to a PRODUCTION shut down.
-clamavMirror:
-  name: ""
-  enabled: false
-  service:
-    enabled: false
-  ports: {}
-  type: ""
-  resources: {}
-  probes: {}
-  image:
-    tag: ""
-    value: ""
-    pullPolicy: ""
-  network:
-    enabled: false
-  egress: {}
-  socatProxyEnabled: false
 
 # Common configuration
 common:

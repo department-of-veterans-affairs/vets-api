@@ -72,7 +72,8 @@ type: application
 # 0.12.06 - Remove clamav command
 # 0.12.07 - update traefik name for preview-environment - broken do not use
 # 0.12.08 - update traefik name for preview-environment
-version: 0.12.08
+# 0.12.09 - Removed clamav mirror
+version: 0.12.09
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
