@@ -40,6 +40,7 @@ RSpec.describe 'Claims', type: :request do
 
   describe 'Claims' do
     before do
+      stub_jwt_valid_token_decode
       allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return false
     end
 
