@@ -70,7 +70,7 @@ spec:
                 command:
                   - /bin/sh
                   - -c
-                  - sleep 40
+                  - sleep {{ $root.Values.web.terminationGracePeriodSeconds }}
           {{- if $root.Values.web.startupProbe.enabled  }}
           startupProbe:
             httpGet:
