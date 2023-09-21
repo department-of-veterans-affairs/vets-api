@@ -16,13 +16,14 @@ module SISSessionHelper
     end
   end
 
-  def sis_headers(additional_headers: {})
+  def sis_headers(additional_headers: {}, camelize: true)
     headers = {
       'Authorization' => "Bearer #{sis_bearer_token}",
-      'X-Key-Inflection' => 'camel',
       'Authentication-Method' => 'SIS'
     }
-    headers.merge!(additional_headers)
+    headers.merge!('X-Key-Inflection' => 'camel') if camelize
+    headers.merge!(additional_headers) if additional_headers.any?
+    headers
   end
 end
 

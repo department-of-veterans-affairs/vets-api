@@ -355,6 +355,14 @@ FactoryBot.define do
           client_id: SAML::URLService::MOBILE_CLIENT_ID
         }
       end
+
+
+      loa do
+        {
+          current: LOA::THREE,
+          highest: LOA::THREE
+        }
+      end
     end
 
     trait :mhv_api_auth do

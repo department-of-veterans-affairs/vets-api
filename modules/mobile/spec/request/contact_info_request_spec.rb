@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 
 RSpec.describe 'contact info', type: :request do
+
+  let!(:user) { sis_user(traits: [:mhv_api_auth]) }
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
   let(:residential_address) do
@@ -85,16 +87,10 @@ RSpec.describe 'contact info', type: :request do
     }
   end
 
-  let(:user) { FactoryBot.build(:iam_user) }
-
-  before do
-    iam_sign_in(user)
-  end
-
   describe 'GET /mobile/v0/user/contact_info with vet360 id' do
     context 'valid user' do
       before do
-        get('/mobile/v0/user/contact-info', headers: iam_headers)
+        get('/mobile/v0/user/contact-info', headers: sis_headers)
       end
 
       it 'returns full contact information' do
@@ -107,16 +103,16 @@ RSpec.describe 'contact info', type: :request do
       end
 
       it 'returns the user id' do
-        expect(response.parsed_body.dig('data', 'id')).to eq(user.id)
+        expect(response.parsed_body.dig('data', 'id')).to eq(user.uuid)
       end
     end
   end
 
   describe 'GET /mobile/v0/user/contact_info without vet360 id' do
-    before do
-      allow_any_instance_of(IAMUser).to receive(:vet360_id).and_return(nil)
+    let!(:user) { sis_user }
 
-      get('/mobile/v0/user/contact-info', headers: iam_headers)
+    before do
+      get('/mobile/v0/user/contact-info', headers: sis_headers)
     end
 
     it 'returns nil' do
