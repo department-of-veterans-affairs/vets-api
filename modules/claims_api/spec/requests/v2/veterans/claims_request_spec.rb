@@ -504,20 +504,18 @@ RSpec.describe 'Claims', type: :request do
         lh_claim = create(:auto_established_claim, status: 'PENDING', veteran_icn: veteran_id,
                                                    evss_id: '111111111')
         mock_ccg(scopes) do |auth_header|
-          VCR.use_cassette('evss/documents/get_claim_documents') do
-            expect_any_instance_of(bcs)
-              .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
-            expect(ClaimsApi::AutoEstablishedClaim)
-              .to receive(:get_by_id_and_icn).and_return(lh_claim)
-            expect_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
-              .to receive(:get_auth_token).and_return('some-value-here')
+          expect_any_instance_of(bcs)
+            .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
+          expect(ClaimsApi::AutoEstablishedClaim)
+            .to receive(:get_by_id_and_icn).and_return(lh_claim)
+          expect_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
+            .to receive(:get_auth_token).and_return('some-value-here')
 
-            get claim_by_id_path, headers: auth_header
-            json_response = JSON.parse(response.body)
+          get claim_by_id_path, headers: auth_header
+          json_response = JSON.parse(response.body)
 
-            expect(response.status).to eq(200)
-            expect(json_response['data']['attributes']['supportingDocuments'].length).to eq(2)
-          end
+          expect(response.status).to eq(200)
+          expect(json_response['data']['attributes']['supportingDocuments'].length).to eq(2)
         end
       end
 
