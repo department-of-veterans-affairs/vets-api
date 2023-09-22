@@ -660,4 +660,144 @@ describe VAOS::V2::AppointmentsService do
       expect { subject.send(:booked?, nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
     end
   end
+
+  describe '#non_empty_array_of_hashes?' do
+    context 'when argument is not an array' do
+      arg = 'not an array'
+
+      it 'returns false' do
+        expect(subject.send(:non_empty_array_of_hashes?, arg)).to be false
+      end
+    end
+
+    context 'when argument is an empty array' do
+      arg = []
+
+      it 'returns false' do
+        expect(subject.send(:non_empty_array_of_hashes?, arg)).to be false
+      end
+    end
+
+    context 'when argument is an array with non OpenStruct element' do
+      arg = [1, OpenStruct.new, 'a string']
+
+      it 'returns false' do
+        expect(subject.send(:non_empty_array_of_hashes?, arg)).to be false
+      end
+    end
+
+    context 'when argument is an array with only Hash elements' do
+      arg = [{}, {}]
+
+      it 'returns true' do
+        expect(subject.send(:non_empty_array_of_hashes?, arg)).to be true
+      end
+    end
+
+    context 'when argument is nil' do
+      it 'returns false' do
+        expect(subject.send(:non_empty_array_of_hashes?, nil)).to be false
+      end
+    end
+  end
+
+  describe '#extract_names' do
+    context 'when practitioners is not a non-empty array' do
+      practitioners = 'not a non-empty array'
+
+      it 'returns nil' do
+        expect(subject.send(:extract_names, practitioners)).to be_nil
+      end
+    end
+
+    context 'when practitioners is an array of practitioners' do
+      practitioners =
+        [
+          { name: { given: ['John'], family: 'Doe' } },
+          { name: { given: ['Jane'], family: 'Roe' } }
+        ]
+
+      it 'returns a string of practitioner full names joined by comma' do
+        expect(subject.send(:extract_names, practitioners)).to eq 'John Doe, Jane Roe'
+      end
+    end
+
+    context 'when practitioners is a single practitioner with two given names' do
+      practitioners =
+        [
+          { name: { given: %w[Jane Olivia], family: 'Roe' } }
+        ]
+
+      it 'returns the practitioner full name' do
+        expect(subject.send(:extract_names, practitioners)).to eq 'Jane Olivia Roe'
+      end
+    end
+
+    context 'when practitioners is a single practitioner with no given names' do
+      practitioners =
+        [
+          { name: { family: 'Roe' } }
+        ]
+
+      it 'returns a string of practitioner full names joined by comma' do
+        expect(subject.send(:extract_names, practitioners)).to eq 'Roe'
+      end
+    end
+
+    context 'when practitioners is a single practitioner with no name' do
+      practitioners =
+        [
+          {}
+        ]
+
+      it 'returns a string of practitioner full names joined by comma' do
+        expect(subject.send(:extract_names, practitioners)).to be_nil
+      end
+    end
+  end
+
+  describe '#log_telehealth_data' do
+    let(:appt) do
+      { id: '177402',
+        location_id: '983',
+        practitioners: [
+          { identifier: [
+              { system: 'dfn-983', value: '520647710' }
+            ],
+            name: {
+              family: 'Poldass', given: ['Aarathi']
+            },
+            practice_name: 'Cheyenne WY VAMC' }
+        ],
+        telehealth: { atlas: { site_code: 'VFW-VA-20151-07',
+                               confirmation_code: '272438',
+                               address: { street_address: 'AFS CHANTILLY WALMART',
+                                          city: ' CHANTILLY ',
+                                          state: 'VA',
+                                          zip_code: '20105',
+                                          country: 'USA',
+                                          latitutde: 38.91753,
+                                          longitude: 7.0,
+                                          additional_details: '' } },
+                      vvs_kind: 'ADHOC' },
+        extension: { patient_has_mobile_gfe: false } }
+    end
+
+    let(:arg1) { 'VAOS telehealth atlas details' }
+
+    let(:arg2) do
+      '{"VAOSTelehealthData":{"siteCode":"VFW-VA-20151-07","address":{"street_address"' \
+        ':"AFS CHANTILLY WALMART","city":" CHANTILLY ","state":"VA","zip_code":"20105",' \
+        '"country":"USA","latitutde":38.91753,"longitude":7.0,"additional_details":""}' \
+        ',"hasMobileGfe":false,"vvsKind":"ADHOC","siteId":"983",' \
+        '"clinicId":null,"provider":"Aarathi Poldass"}}'
+    end
+
+    context 'when a telehealth appointment is passed in' do
+      it 'logs the telehealth data' do
+        expect(Rails.logger).to receive(:info).with(arg1, arg2)
+        subject.send(:log_telehealth_data, appt)
+      end
+    end
+  end
 end
