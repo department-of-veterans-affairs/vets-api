@@ -18,15 +18,14 @@ module MobileApplicationPlatform
       rescue Common::Client::Errors::ClientError => e
         description = case e
                       in _msg, 500, _body
-                        'service returned Internal Server error most likely due to an invalid ICN'
+                        'Internal Server error'
                       in _msg, (400|401), { error: }
                         error
                       in _msg, (400|401), { error_description: }
                         error_description
                       else
-                        'unknown'
+                        e.body
                       end
-
         status = e.status
         raise e, "#{config.logging_prefix} Token failed, client error, status: #{status}," \
                  " description: #{description}, application: #{application}, icn: #{icn}"

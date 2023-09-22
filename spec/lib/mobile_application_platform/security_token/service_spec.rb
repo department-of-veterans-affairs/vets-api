@@ -32,7 +32,7 @@ describe MobileApplicationPlatform::SecurityToken::Service do
 
       context 'when the status is 500' do
         let(:status) { 500 }
-        let(:description) { 'service returned Internal Server error most likely due to an invalid ICN' }
+        let(:description) { 'Internal Server error' }
         let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, description) }
 
         it_behaves_like 'Client Errors'
@@ -72,7 +72,7 @@ describe MobileApplicationPlatform::SecurityToken::Service do
 
       context 'when the description body is empty or unknown:' do
         let(:status) { 999 }
-        let(:description) { 'unknown' }
+        let(:description) { 'some error' }
         let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status) }
 
         it_behaves_like 'Client Errors'
