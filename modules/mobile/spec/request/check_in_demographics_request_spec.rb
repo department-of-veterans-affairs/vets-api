@@ -4,10 +4,8 @@ require 'rails_helper'
 require_relative '../support/helpers/sis_session_helper'
 
 RSpec.describe 'check in demographics', type: :request do
-  # for some reason the api_auth factory does not work but mhv_api_auth does
   let!(:user) do
     sis_user(
-      traits: [:mhv_api_auth],
       attributes: {
         icn: '24811694708759028',
         vha_facility_hash: {

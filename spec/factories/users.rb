@@ -348,7 +348,11 @@ FactoryBot.define do
     end
 
     trait :api_auth do
-      sign_in { attributes_for(:sign_in) }
+      sign_in do
+        {
+          client_id: SAML::URLService::MOBILE_CLIENT_ID
+        }
+      end
 
       loa do
         {
@@ -419,14 +423,20 @@ FactoryBot.define do
       vha_facility_hash { { '358' => %w[998877], '200MHS' => %w[998877] } }
       mhv_ids { %w[12345678901] }
       active_mhv_ids { mhv_ids }
+      sign_in {
+        attributes_for(:sign_in,
+                       service_name: SAML::User::MHV_ORIGINAL_CSID,
+                       auth_broker: SAML::URLService::BROKER_CODE,
+                       client_id: SAML::URLService::WEB_CLIENT_ID)
+              }
 
-      sign_in do
-        {
-          service_name: SAML::User::MHV_ORIGINAL_CSID,
-          auth_broker: SAML::URLService::BROKER_CODE,
-          client_id: SAML::URLService::WEB_CLIENT_ID
-        }
-      end
+      # sign_in do
+      #   {
+      #     service_name: SAML::User::MHV_ORIGINAL_CSID,
+      #     auth_broker: SAML::URLService::BROKER_CODE,
+      #     client_id: SAML::URLService::WEB_CLIENT_ID
+      #   }
+      # end
 
       loa do
         {
@@ -481,7 +491,7 @@ FactoryBot.define do
     end
   end
 
-  # move this
+  # move this and make less specific to mobile
   factory :sign_in do
     service_name { SAML::User::IDME_CSID }
     auth_broker { 'sis' }

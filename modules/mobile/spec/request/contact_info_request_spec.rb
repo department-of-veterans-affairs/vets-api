@@ -4,7 +4,7 @@ require 'rails_helper'
 require_relative '../support/helpers/sis_session_helper'
 
 RSpec.describe 'contact info', type: :request do
-  let!(:user) { sis_user(traits: [:mhv_api_auth]) }
+  let!(:user) { sis_user }
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
   let(:residential_address) do
