@@ -16,7 +16,7 @@ RSpec.describe 'Requesting ID Card Attributes' do
 
   describe '#show /v0/id_card/attributes' do
     it 'returns a signed redirect URL' do
-      expect_any_instance_of(EMISRedis::MilitaryInformation)
+      expect_any_instance_of(HCA::MilitaryInformation)
         .to receive(:service_episodes_by_date).at_least(:once).and_return(service_episodes)
       expect_any_instance_of(EMISRedis::VeteranStatus)
         .to receive(:title38_status).at_least(:once).and_return('V1')
@@ -39,7 +39,7 @@ RSpec.describe 'Requesting ID Card Attributes' do
     it 'returns Bad Gateway if military information not retrievable' do
       expect_any_instance_of(EMISRedis::VeteranStatus)
         .to receive(:title38_status).at_least(:once).and_return('V1')
-      expect_any_instance_of(EMISRedis::MilitaryInformation)
+      expect_any_instance_of(HCA::MilitaryInformation)
         .to receive(:service_episodes_by_date).and_raise(StandardError)
       get '/v0/id_card/attributes', headers: auth_header
       expect(response).to have_http_status(:bad_gateway)
