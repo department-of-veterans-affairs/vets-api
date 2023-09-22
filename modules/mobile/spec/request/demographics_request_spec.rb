@@ -1,25 +1,17 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
-require 'va_profile/demographics/service'
+require_relative '../support/helpers/sis_session_helper'
 
 RSpec.describe 'demographics', type: :request do
-  include SchemaMatchers
-
   describe 'logingov user' do
-    let(:csd) { 'LGN' }
-
-    before do
-      iam_sign_in(FactoryBot.build(:iam_user, :logingov))
-      allow_any_instance_of(IAMUser).to receive(:logingov_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
-    end
+    let!(:user) { sis_user(attributes: { icn: '1008596379V859838', idme_uuid: nil, logingov_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', sign_in: { service_name: SAML::User::LOGINGOV_CSID }} )}
 
     describe 'GET /mobile/v0/user/demographics' do
       context 'returns as expected' do
         before do
           VCR.use_cassette('mobile/demographics/logingov') do
-            get('/mobile/v0/user/demographics', headers: iam_headers_no_camel)
+            get('/mobile/v0/user/demographics', headers: sis_headers(camelize: false))
           end
         end
 
@@ -35,18 +27,13 @@ RSpec.describe 'demographics', type: :request do
   end
 
   describe 'idme user' do
-    let(:csd) { 'IDM' }
-
-    before do
-      iam_sign_in(FactoryBot.build(:iam_user))
-      allow_any_instance_of(IAMUser).to receive(:idme_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
-    end
+    let!(:user) { sis_user(attributes: { icn: '1008596379V859838', idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' } )}
 
     describe 'GET /mobile/v0/user/demographics' do
       context 'returns as expected' do
         before do
           VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-            get('/mobile/v0/user/demographics', headers: iam_headers_no_camel)
+            get('/mobile/v0/user/demographics', headers: sis_headers(camelize: false))
           end
         end
 
@@ -62,7 +49,7 @@ RSpec.describe 'demographics', type: :request do
       context 'upstream service returns 503 error' do
         before do
           VCR.use_cassette('mobile/va_profile/demographics/demographics_error_503') do
-            get('/mobile/v0/user/demographics', headers: iam_headers_no_camel)
+            get('/mobile/v0/user/demographics', headers: sis_headers(camelize: false))
           end
         end
 
@@ -80,7 +67,7 @@ RSpec.describe 'demographics', type: :request do
       context 'upstream service returns 404 error' do
         before do
           VCR.use_cassette('mobile/va_profile/demographics/demographics_error_404') do
-            get('/mobile/v0/user/demographics', headers: iam_headers_no_camel)
+            get('/mobile/v0/user/demographics', headers: sis_headers(camelize: false))
           end
         end
 
@@ -97,7 +84,7 @@ RSpec.describe 'demographics', type: :request do
       context 'upstream service returns 400 error' do
         before do
           VCR.use_cassette('mobile/va_profile/demographics/demographics_error_400') do
-            get('/mobile/v0/user/demographics', headers: iam_headers_no_camel)
+            get('/mobile/v0/user/demographics', headers: sis_headers(camelize: false))
           end
         end
 
@@ -113,13 +100,11 @@ RSpec.describe 'demographics', type: :request do
   end
 
   describe 'unauthorized user' do
-    before do
-      iam_sign_in(FactoryBot.build(:iam_user, :no_multifactor))
-    end
+    let!(:user) { sis_user(attributes: { idme_uuid: nil, logingov_uuid: nil } )}
 
     context 'returns as expected' do
       before do
-        get('/mobile/v0/user/demographics', headers: iam_headers_no_camel)
+        get('/mobile/v0/user/demographics', headers: sis_headers(camelize: false))
       end
 
       it 'returns forbidden error' do
