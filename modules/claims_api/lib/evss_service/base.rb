@@ -34,7 +34,6 @@ module ClaimsApi
 
       def validate(claim, data)
         @auth_headers = claim.auth_headers
-        @auth_headers['va_eauth_birlsfilenumber'] = @auth_headers['va_eauth_pnid']
 
         begin
           resp = client.post('validate', data)&.body
@@ -76,7 +75,7 @@ module ClaimsApi
         @auth_headers.merge!({
                                Authorization: "Bearer #{access_token}",
                                'client-key': client_key,
-                               'content-type': ['application/json', 'charset=UTF-8']
+                               'content-type': 'application/json; charset=UTF-8'
                              })
         @auth_headers.transform_keys(&:to_s)
       end
