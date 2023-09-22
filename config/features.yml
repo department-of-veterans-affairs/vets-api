@@ -1109,3 +1109,6 @@ features:
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
+  veteran_status_updated:
+    actor_type: user
+    description: Enable the veteran post-emis status
