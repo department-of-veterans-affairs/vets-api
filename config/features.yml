@@ -707,6 +707,10 @@ features:
     actor_type: user
     description: Use for experimental features for My VA application (fullstack)
     enable_in_development: true
+  my_va_hide_notifications_section:
+    actor_type: user
+    description: Hides the Notifications section on My VA
+    enable_in_development: true
   my_va_notification_component:
     actor_type: user
     description: Enable users to see va-notification component on My VA
