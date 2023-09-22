@@ -4,7 +4,6 @@ require 'rails_helper'
 require_relative '../support/helpers/sis_session_helper'
 
 RSpec.describe 'contact info', type: :request do
-
   let!(:user) { sis_user(traits: [:mhv_api_auth]) }
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
@@ -109,7 +108,7 @@ RSpec.describe 'contact info', type: :request do
   end
 
   describe 'GET /mobile/v0/user/contact_info without vet360 id' do
-    let!(:user) { sis_user }
+    let!(:user) { sis_user(attributes: { vet360_id: nil }) }
 
     before do
       get('/mobile/v0/user/contact-info', headers: sis_headers)
