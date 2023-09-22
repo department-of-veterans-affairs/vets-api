@@ -6,7 +6,16 @@ RSpec.describe HCA::EncryptedSubmissionJob, type: :job do
   let(:user) { create(:user) }
   let(:user_identifier) { HealthCareApplication.get_user_identifier(user) }
   let(:health_care_application) { create(:health_care_application) }
-  let(:form) { { foo: true, email: 'foo@example.com' }.stringify_keys }
+  let(:form) do
+    {
+      foo: true,
+      email: 'foo@example.com',
+      veteranFullName: {
+        first: 'first',
+        last: 'last'
+      }
+    }.deep_stringify_keys
+  end
   let(:encrypted_form) { KmsEncrypted::Box.new.encrypt(form.to_json) }
   let(:result) do
     {
@@ -70,9 +79,8 @@ RSpec.describe HCA::EncryptedSubmissionJob, type: :job do
         it 'creates a pii log' do
           subject
 
-          log = PersonalInformationLog.last
+          log = PersonalInformationLog.where(error_class: 'HCA::SOAPParser::ValidationError').last
           expect(log.data['form']).to eq(form)
-          expect(log.error_class).to eq('HCA::SOAPParser::ValidationError')
         end
       end
 
