@@ -72,7 +72,7 @@ describe MobileApplicationPlatform::SecurityToken::Service do
 
       context 'when the description body is empty or unknown:' do
         let(:status) { 999 }
-        let(:description) { 'some error' }
+        let(:description) { nil }
         let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status) }
 
         it_behaves_like 'Client Errors'
