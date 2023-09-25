@@ -40,7 +40,7 @@ Style/GlobalVars:
 # Bug in 1.11.0
 RSpec/VariableName:
   Exclude:
-    - spec/jobs/facilities/pssg_download_spec.rb
+    - spec/sidekiq/facilities/pssg_download_spec.rb
 
 # This cop forces you to put a return at the beginning of a block of code rather than having an if statement
 # whose body carries to the end of the function. For example:
@@ -88,7 +88,7 @@ Metrics/MethodLength:
   Exclude:
     - 'spec/support/form1010cg_helpers/build_claim_data_for.rb'
     - 'spec/simplecov_helper.rb'
-    - 'app/workers/education_form/create_daily_spool_files.rb'
+    - 'app/sidekiq/education_form/create_daily_spool_files.rb'
 
 Metrics/ClassLength:
   Max: 400
@@ -174,7 +174,7 @@ RSpec/SpecFilePathFormat:
     - 'spec/lib/saml/*_user_spec.rb'
     - 'spec/lib/ihub/appointments/service_spec.rb'
     - 'spec/requests/in_progress_forms_request_spec.rb'
-    - 'spec/jobs/pagerduty/**/*'
+    - 'spec/sidekiq/pagerduty/**/*'
     - 'spec/lib/pagerduty/**/*'
     - 'spec/lib/common/client/middleware/response/appeals_response_middleware_spec.rb'
     - 'spec/lib/common/client/middleware/response/gids_response_middleware_spec.rb'
@@ -278,16 +278,16 @@ RSpec/MessageChain:
 # These instances seem to be necessary
 RSpec/MultipleDescribes:
   Exclude:
-    - 'spec/jobs/evss/document_upload_spec.rb'
-    - 'spec/jobs/evss/request_decision_spec.rb'
+    - 'spec/sidekiq/evss/document_upload_spec.rb'
+    - 'spec/sidekiq/evss/request_decision_spec.rb'
     - 'spec/lib/emis/veteran_status_service_spec.rb'
     - 'spec/requests/swagger_spec.rb'
-    - 'spec/jobs/cypress_viewport_updater/existing_github_file_spec.rb'
+    - 'spec/sidekiq/cypress_viewport_updater/existing_github_file_spec.rb'
 
 # These instances seem to be false positives
 RSpec/RepeatedExample:
   Exclude:
-    - 'modules/vba_documents/spec/jobs/upload_processor_spec.rb'
+    - 'modules/vba_documents/spec/sidekiq/upload_processor_spec.rb'
     - 'modules/vba_documents/spec/models/upload_submission_spec.rb'
     - 'modules/vba_documents/spec/request/v0/reports_request_spec.rb'
     - 'modules/vba_documents/spec/request/v1/reports_request_spec.rb'
@@ -314,12 +314,12 @@ RSpec/ScatteredLet:
 RSpec/SubjectStub:
   Exclude:
     - 'modules/vaos/spec/services/user_service_spec.rb'
-    - 'spec/jobs/education_form/create_daily_spool_files_spec.rb'
-    - 'spec/jobs/education_form/process10203_submissions_spec.rb'
-    - 'spec/jobs/education_form/create10203_applicant_decision_letters_spec.rb'
-    - 'spec/jobs/education_form/forms/va1990_spec.rb'
-    - 'spec/jobs/transactional_email_analytics_job_spec.rb'
-    - 'spec/jobs/form526_confirmation_email_job_spec.rb'
+    - 'spec/sidekiq/education_form/create_daily_spool_files_spec.rb'
+    - 'spec/sidekiq/education_form/process10203_submissions_spec.rb'
+    - 'spec/sidekiq/education_form/create10203_applicant_decision_letters_spec.rb'
+    - 'spec/sidekiq/education_form/forms/va1990_spec.rb'
+    - 'spec/sidekiq/transactional_email_analytics_job_spec.rb'
+    - 'spec/sidekiq/form526_confirmation_email_job_spec.rb'
     - 'spec/lib/bb/generate_report_request_form_spec.rb'
     - 'spec/lib/common/models/redis_store_spec.rb'
     - 'spec/lib/evss/disability_compensation_form/data_translation_all_claim_spec.rb'
