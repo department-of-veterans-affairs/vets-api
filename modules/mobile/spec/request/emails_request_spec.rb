@@ -40,7 +40,8 @@ RSpec.describe 'email', type: :request do
 
     context 'with email missing from params' do
       before do
-        put('/mobile/v0/user/emails', params: { email_address: '' }.to_json, headers: sis_headers(additional_headers: json_body_headers))
+        put('/mobile/v0/user/emails', params: { email_address: '' }.to_json,
+                                      headers: sis_headers(additional_headers: json_body_headers))
       end
 
       it 'returns a 422' do
@@ -98,7 +99,8 @@ RSpec.describe 'email', type: :request do
 
     context 'with email missing from params' do
       before do
-        put('/mobile/v0/user/emails', params: { email_address: '' }.to_json, headers: sis_headers(additional_headers: json_body_headers))
+        put('/mobile/v0/user/emails', params: { email_address: '' }.to_json,
+                                      headers: sis_headers(additional_headers: json_body_headers))
       end
 
       it 'returns a 422' do
