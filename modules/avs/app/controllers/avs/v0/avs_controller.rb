@@ -14,16 +14,17 @@ module Avs
           return
         end
 
-        search_response = avs_service.get_avs_by_appointment(station_no, appointment_ien)
-        data = if search_response['body'].empty?
-                 {}
-               else
-                 { path: get_avs_path(search_response['body'][0]['sid']) }
-               end
+        response = avs_service.get_avs_by_appointment(station_no, appointment_ien)
 
-        if !data.empty? && @current_user.icn != search_response['body'][0]['icn']
-          render_client_error('Not authorized', 'User may not view the AVS for this appointment.', :unauthorized)
-          return
+        if response['body'].empty?
+          data = {}
+        else
+          if response['body'][0]['icn'].nil? || !icns_match?(@current_user.icn, response['body'][0]['icn'])
+            render_client_error('Not authorized', 'User may not view the AVS for this appointment.', :unauthorized)
+            return
+          end
+
+          data = { path: get_avs_path(response['body'][0]['sid']) }
         end
 
         render json: data
@@ -44,7 +45,7 @@ module Avs
         end
 
         data = avs_response.avs
-        unless @current_user.icn == data['icn']
+        if data['icn'].nil? || !icns_match?(@current_user.icn, data['icn'])
           render_client_error('Not authorized', 'User may not view this AVS.', :unauthorized)
           return
         end
@@ -87,6 +88,14 @@ module Avs
 
       def validate_sid?(sid)
         /^([A-F0-9]){32}$/.match(sid)
+      end
+
+      def normalize_icn(icn)
+        icn&.gsub(/V[\d]{6}$/, '')
+      end
+
+      def icns_match?(icn_a, icn_b)
+        normalize_icn(icn_a) == normalize_icn(icn_b)
       end
     end
   end
