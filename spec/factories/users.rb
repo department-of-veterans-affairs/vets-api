@@ -386,12 +386,6 @@ FactoryBot.define do
       vha_facility_hash { { '358' => %w[998877], '200MHS' => %w[998877] } }
       mhv_ids { %w[12345678901] }
       active_mhv_ids { mhv_ids }
-      # sign_in {
-      #   attributes_for(:sign_in,
-      #                  service_name: SAML::User::MHV_ORIGINAL_CSID,
-      #                  auth_broker: SAML::URLService::BROKER_CODE,
-      #                  client_id: SAML::URLService::WEB_CLIENT_ID)
-              # }
 
       sign_in do
         {

@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/helpers/mobile_sm_client_helper'
 
 RSpec.describe 'Mobile Folders Integration', type: :request do
   include Mobile::MessagingClientHelper
   include SchemaMatchers
 
+  let!(:user) { sis_user(traits: [:mhv, :api_auth], attributes: { mhv_correlation_id: '123', mhv_account_type: })}
   let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
   let(:message_id) { 573_059 }
@@ -16,14 +17,13 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
   before do
     allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return(mhv_account_type)
     allow(Mobile::V0::Messaging::Client).to receive(:new).and_return(authenticated_client)
-    iam_sign_in(build(:iam_user, iam_mhv_id: '123'))
   end
 
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
 
     it 'is not authorized' do
-      get '/mobile/v0/messaging/health/folders', headers: iam_headers
+      get '/mobile/v0/messaging/health/folders', headers: sis_headers
       expect(response).not_to be_successful
       expect(response.status).to eq(403)
     end
@@ -33,7 +33,7 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
     let(:mhv_account_type) { 'Advanced' }
 
     it 'is not authorized' do
-      get '/mobile/v0/messaging/health/folders', headers: iam_headers
+      get '/mobile/v0/messaging/health/folders', headers: sis_headers
       expect(response).not_to be_successful
       expect(response.status).to eq(403)
     end
@@ -45,7 +45,7 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
     describe '#index' do
       it 'responds to GET #index' do
         VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders') do
-          get '/mobile/v0/messaging/health/folders', headers: iam_headers
+          get '/mobile/v0/messaging/health/folders', headers: sis_headers
         end
         expect(response).to be_successful
         expect(response.body).to be_a(String)
@@ -57,7 +57,7 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
       context 'when there are pagination parameters' do
         it 'returns expected number of pages and items per pages' do
           VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders') do
-            get '/mobile/v0/messaging/health/folders', params: { page: 3, per_page: 5 }, headers: iam_headers
+            get '/mobile/v0/messaging/health/folders', params: { page: 3, per_page: 5 }, headers: sis_headers
           end
           expect(response).to be_successful
           expect(response.body).to be_a(String)
@@ -71,7 +71,6 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
       end
 
       context 'when there are cached folders' do
-        let(:user) { FactoryBot.build(:iam_user) }
         let(:params) { { useCache: true } }
 
         before do
@@ -82,7 +81,7 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
 
         it 'retrieve cached folders rather than hitting the service' do
           expect do
-            get('/mobile/v0/messaging/health/folders', headers: iam_headers, params:)
+            get('/mobile/v0/messaging/health/folders', headers: sis_headers, params:)
             expect(response).to be_successful
             expect(response.body).to be_a(String)
             parsed_response_contents = response.parsed_body['data']
@@ -96,7 +95,7 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
 
       it 'generates mobile-specific metadata links' do
         VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders') do
-          get '/mobile/v0/messaging/health/folders', headers: iam_headers
+          get '/mobile/v0/messaging/health/folders', headers: sis_headers
         end
 
         result = JSON.parse(response.body)
@@ -110,7 +109,7 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
       context 'with valid id' do
         it 'response to GET #show' do
           VCR.use_cassette('sm_client/folders/gets_a_single_folder') do
-            get "/mobile/v0/messaging/health/folders/#{inbox_id}", headers: iam_headers
+            get "/mobile/v0/messaging/health/folders/#{inbox_id}", headers: sis_headers
           end
 
           expect(response).to be_successful
@@ -126,7 +125,7 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
 
         it 'response to POST #create' do
           VCR.use_cassette('sm_client/folders/creates_a_folder_and_deletes_a_folder') do
-            post '/mobile/v0/messaging/health/folders', headers: iam_headers, params:
+            post '/mobile/v0/messaging/health/folders', headers: sis_headers, params:
           end
 
           expect(response).to be_successful
@@ -142,7 +141,7 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
 
         it 'responds to DELETE #destroy' do
           VCR.use_cassette('sm_client/folders/creates_a_folder_and_deletes_a_folder') do
-            delete "/mobile/v0/messaging/health/folders/#{id}", headers: iam_headers
+            delete "/mobile/v0/messaging/health/folders/#{id}", headers: sis_headers
           end
 
           expect(response).to be_successful
@@ -154,7 +153,7 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
     describe 'nested resources' do
       it 'gets messages#index' do
         VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
-          get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", headers: iam_headers
+          get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", headers: sis_headers
         end
 
         expect(response).to be_successful
@@ -168,7 +167,7 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
         it 'returns expected number of pages and items per pages' do
           VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
             get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", params: { page: 2, per_page: 6 },
-                                                                            headers: iam_headers
+                                                                            headers: sis_headers
           end
           expect(response).to be_successful
           expect(response).to have_http_status(:ok)
@@ -182,7 +181,6 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
       end
 
       context 'when there are cached folder messages' do
-        let(:user) { FactoryBot.build(:iam_user) }
         let(:params) { { useCache: true } }
 
         before do
@@ -193,7 +191,7 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
 
         it 'retrieve cached messages rather than hitting the service' do
           expect do
-            get("/mobile/v0/messaging/health/folders/#{inbox_id}/messages", headers: iam_headers, params:)
+            get("/mobile/v0/messaging/health/folders/#{inbox_id}/messages", headers: sis_headers, params:)
             expect(response).to be_successful
             expect(response.body).to be_a(String)
             parsed_response_contents = response.parsed_body['data']
