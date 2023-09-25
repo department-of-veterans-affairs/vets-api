@@ -5,24 +5,27 @@ module Mobile
     class FacilitiesInfoController < ApplicationController
       SORT_METHODS = %w[home current alphabetical appointments].freeze
 
+      before_action :validate_sort_method_inclusion!, only: %i[schedulable]
+      before_action :validate_home_sort!, only: %i[schedulable], if: -> { params[:sort] == 'home' }
+      before_action :validate_current_location_sort!, only: %i[schedulable], if: -> { params[:sort] == 'current' }
+
       def index
         facility_ids = @current_user.va_treatment_facility_ids
         facilities = Mobile::FacilitiesHelper.fetch_facilities_from_ids(@current_user, facility_ids,
                                                                         include_children: false, schedulable: nil)
         adapted_facilities = facilities.map do |facility|
-          Mobile::V0::Adapters::FacilityInfo.new.parse(facility, @current_user, params)
+          Mobile::V0::Adapters::FacilityInfo.new.parse(facility:, user: @current_user)
         end
         render json: Mobile::V0::FacilitiesInfoSerializer.new(@current_user.uuid, adapted_facilities)
       end
 
       def schedulable
-        raise_invalid_sort_method_error unless SORT_METHODS.include?(params[:sort])
-
         facility_ids = @current_user.va_treatment_facility_ids + @current_user.cerner_facility_ids
         facilities = Mobile::FacilitiesHelper.fetch_facilities_from_ids(@current_user, facility_ids,
                                                                         include_children: true, schedulable: true)
         adapted_facilities = facilities.map do |facility|
-          Mobile::V0::Adapters::FacilityInfo.new.parse(facility, @current_user, params)
+          Mobile::V0::Adapters::FacilityInfo.new.parse(facility:, user: @current_user, sort: params[:sort],
+                                                       lat: params[:lat], long: params[:long])
         end
         sorted_facilities = sort(adapted_facilities, params[:sort])
         render json: Mobile::V0::FacilitiesInfoSerializer.new(@current_user.uuid, sorted_facilities)
@@ -38,8 +41,6 @@ module Mobile
           sort_by_name(facilities)
         when 'appointments'
           sort_by_recent_appointment(sort_by_name(facilities))
-        else
-          raise Common::Exceptions::BackendServiceException, 'unimplemented_sort_method'
         end
       end
 
@@ -70,8 +71,24 @@ module Mobile
         Rails.logger.info('mobile facilities info appointments cache nil', user_uuid: @current_user.uuid)
       end
 
-      def raise_invalid_sort_method_error
-        raise Common::Exceptions::InvalidFieldValue.new('sort', params[:sort])
+      def validate_sort_method_inclusion!
+        unless SORT_METHODS.include?(params[:sort])
+          raise Common::Exceptions::InvalidFieldValue.new('sort', params[:sort])
+        end
+      end
+
+      def validate_home_sort!
+        home_address = @current_user.vet360_contact_info&.residential_address
+        unless home_address&.latitude && home_address&.longitude
+          raise Common::Exceptions::UnprocessableEntity.new(
+            detail: 'User has no home latitude and longitude', source: self.class.to_s
+          )
+        end
+      end
+
+      def validate_current_location_sort!
+        params.require(:lat)
+        params.require(:long)
       end
     end
   end

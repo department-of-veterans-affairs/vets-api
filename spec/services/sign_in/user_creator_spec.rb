@@ -19,7 +19,9 @@ RSpec.describe SignIn::UserCreator do
         current_ial:,
         max_ial:,
         multifactor:,
-        authn_context:
+        authn_context:,
+        first_name:,
+        last_name:
       }
     end
     let(:state_payload) do
@@ -51,6 +53,9 @@ RSpec.describe SignIn::UserCreator do
     let(:expected_last_signed_in) { '2023-1-1' }
     let(:expected_avc_at) { '2023-1-1' }
     let(:request_ip) { '123.456.78.90' }
+    let(:first_name) { Faker::Name.first_name }
+    let(:last_name) { Faker::Name.last_name }
+    let(:expected_user_attributes) { { first_name:, last_name:, email: csp_email } }
 
     before do
       allow(SecureRandom).to receive(:uuid).and_return(login_code)
@@ -102,6 +107,7 @@ RSpec.describe SignIn::UserCreator do
       expect(code_container.code_challenge).to eq(code_challenge)
       expect(code_container.credential_email).to eq(csp_email)
       expect(code_container.client_id).to eq(client_id)
+      expect(code_container.user_attributes).to eq(expected_user_attributes)
     end
   end
 end

@@ -18,6 +18,10 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
       'sub' => '0oa8r55rjdDAH5Vaj2p7' }
   end
 
+  before do
+    stub_jwt_valid_token_decode
+  end
+
   describe '5103 Waiver' do
     describe 'submit' do
       context 'Vet flow' do
@@ -66,8 +70,8 @@ RSpec.describe 'Evidence Waiver 5103', type: :request,
             it 'returns an error message' do
               mock_ccg(scopes) do |auth_header|
                 VCR.use_cassette('bgs/benefit_claim/update_5103_200') do
-                  allow_any_instance_of(ClaimsApi::LocalBGS)
-                    .to receive(:find_by_ssn).and_return({ file_nbr: nil })
+                  allow_any_instance_of(ClaimsApi::V2::Veterans::EvidenceWaiverController)
+                    .to receive(:file_number_check).and_return(@file_number = nil)
 
                   post sub_path, headers: auth_header
                   json = JSON.parse(response.body)

@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": [
+    "triage_team_id",
+    "name",
+    "station_number",
+    "blocked_status",
+    "preferred_team",
+    "relationship_type"
+  ],
+  "properties": {
+    "triage_team_id": {
+      "type": "integer"
+    },
+    "name": {
+      "type": "string"
+    },
+    "station_number": {
+      "type": "string"
+    },
+    "blocked_status": {
+      "type": "boolean"
+    },
+    "preferred_team": {
+      "type": "boolean"
+    },
+    "relationship_type": {
+      "type": "string"
+    }
+  }
+}

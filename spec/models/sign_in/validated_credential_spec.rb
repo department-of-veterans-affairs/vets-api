@@ -7,12 +7,18 @@ RSpec.describe SignIn::ValidatedCredential, type: :model do
     create(:validated_credential,
            user_verification:,
            credential_email:,
-           client_config:)
+           client_config:,
+           user_attributes:)
   end
 
   let(:user_verification) { create(:user_verification) }
   let(:credential_email) { 'some-credential-email' }
   let(:client_config) { create(:client_config) }
+  let(:user_attributes) do
+    { first_name: Faker::Name.first_name,
+      last_name: Faker::Name.last_name,
+      email: Faker::Internet.email }
+  end
 
   describe 'validations' do
     describe '#user_verification' do

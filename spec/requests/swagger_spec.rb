@@ -3066,7 +3066,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports getting connected applications' do
         with_okta_configured do
           expect(subject).to validate(:get, '/v0/profile/connected_applications', 401)
-          VCR.use_cassette('okta/grants') do
+          VCR.use_cassette('lighthouse/auth/client_credentials/connected_apps_200') do
             expect(subject).to validate(:get, '/v0/profile/connected_applications', 200, headers)
           end
         end
@@ -3076,7 +3076,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         with_okta_configured do
           parameters = { 'application_id' => '0oa2ey2m6kEL2897N2p7' }
           expect(subject).to validate(:delete, '/v0/profile/connected_applications/{application_id}', 401, parameters)
-          VCR.use_cassette('okta/delete_grants', allow_playback_repeats: true) do
+          VCR.use_cassette('lighthouse/auth/client_credentials/revoke_consent_204', allow_playback_repeats: true) do
             expect(subject).to(
               validate(
                 :delete,

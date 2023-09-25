@@ -45,12 +45,15 @@ describe SignIn::Logingov::Service do
   let(:expected_authorization_page) { 'https://idp.int.identitysandbox.gov/openid_connect/authorize' }
   let(:state) { 'some-state' }
   let(:acr) { 'some-acr' }
+  let(:operation) { 'some-operation' }
   let(:current_time) { 1_692_663_038 }
   let(:expiration_time) { 1_692_663_938 }
 
   describe '#render_auth' do
-    let(:response) { subject.render_auth(state:, acr:).to_s }
-    let(:expected_log) { "[SignIn][Logingov][Service] Rendering auth, state: #{state}, acr: #{acr}" }
+    let(:response) { subject.render_auth(state:, acr:, operation:).to_s }
+    let(:expected_log) do
+      "[SignIn][Logingov][Service] Rendering auth, state: #{state}, acr: #{acr}, operation: #{operation}"
+    end
 
     it 'logs information to rails logger' do
       expect(Rails.logger).to receive(:info).with(expected_log)

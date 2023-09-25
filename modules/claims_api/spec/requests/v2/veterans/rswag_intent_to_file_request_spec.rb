@@ -7,6 +7,10 @@ require_relative '../../../support/swagger_shared_components/v2'
 
 # doc generation for V2 ITFs temporarily disabled by API-13879
 describe 'IntentToFile', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do
+  before do
+    stub_jwt_valid_token_decode
+  end
+
   path '/veterans/{veteranId}/intent-to-file/{type}' do
     get "Returns last active Intent to File form submission for given 'type'." do
       tags 'Intent to File'

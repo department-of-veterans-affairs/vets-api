@@ -13,11 +13,11 @@ RSpec.describe MedicalCopays::Request do
 
   describe 'settings' do
     it 'has a host' do
-      expect(subject.host).to eq('fake_url.com:9000')
+      expect(subject.host).to eq('internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491')
     end
 
     it 'has base_path' do
-      expect(subject.base_path).to eq('/base/path')
+      expect(subject.base_path).to eq('/vbsapi')
     end
 
     it 'has service_name' do
@@ -25,7 +25,8 @@ RSpec.describe MedicalCopays::Request do
     end
 
     it 'has a url' do
-      expect(subject.url).to eq('https://fake_url.com:9000')
+      url = 'https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491'
+      expect(subject.url).to eq(url)
     end
   end
 
@@ -43,7 +44,8 @@ RSpec.describe MedicalCopays::Request do
 
   describe '#headers' do
     it 'has request headers' do
-      expect(subject.headers).to eq({ 'Host' => 'fake_url.com:9000',
+      host = 'internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491'
+      expect(subject.headers).to eq({ 'Host' => host,
                                       'Content-Type' => 'application/json',
                                       'apiKey' => 'abcd1234abcd1234abcd1234abcd1234abcd1234' })
     end

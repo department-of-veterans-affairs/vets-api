@@ -1,0 +1,71 @@
+type: object
+required:
+  - data
+  - meta
+properties:
+  data:
+    type: array
+    items:
+      type: object
+      required:
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+          example: 855912
+        type:
+          type: string
+          example: "al_triage_teams"
+        attributes:
+          type: object
+          required:
+            - triageTeamId
+            - name
+            - stationNumber
+            - blockedStatus
+            - preferredTeam
+            - relationshipType
+          properties:
+            triageTeamId:
+              type: integer
+              example: 855912
+            name:
+              type: string
+              example: RADIOLOGY_TRIAGE_GROUP_1
+            stationNumber:
+              type: string
+              example: 989
+            blockedStatus:
+              type: boolean
+              example: false
+            preferredTeam:
+              type: boolean
+              example: true
+            relationshipType:
+              type: string
+              enum: [PATIENT]
+              example: PATIENT
+  meta:
+    type: object
+    required:
+      - sort
+      - associatedTriageGroups
+      - associatedBlockedTriageGroups
+    properties:
+      sort:
+        type: object
+        required:
+          - name
+        properties:
+          name:
+            type: string
+            enum: [ASC, DESC]
+            example: ASC
+      associatedTriageGroups:
+        type: integer
+        example: 38
+      associatedBlockedTriageGroups:
+        type: integer
+        example: 1
