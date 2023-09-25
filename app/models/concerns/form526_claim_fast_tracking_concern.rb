@@ -106,17 +106,17 @@ module Form526ClaimFastTrackingConcern
     return unless increase_or_new?
     return unless disabilities.count == 1
 
-    diagnostic_code = diagnostic_codes.first
     claim_type = disabilities.pick('disabilityActionType').upcase
     if claim_type == 'INCREASE'
       claim_type = 'claim_for_increase'
-    elsif claim_type == 'NEW'
+    else
       claim_type = 'new'
     end
     if claim_type == 'new'
       return unless Flipper.enabled?(:disability_526_classifier_new_claims)
     end
 
+    diagnostic_code = diagnostic_codes.first
     params = {
       diagnostic_code:,
       claim_id: saved_claim_id,
