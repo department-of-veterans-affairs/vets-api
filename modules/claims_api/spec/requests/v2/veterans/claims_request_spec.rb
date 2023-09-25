@@ -712,6 +712,45 @@ RSpec.describe 'Claims', type: :request do
               end
             end
           end
+
+          describe 'when there is no file number returned from BGS' do
+            context 'when the file_number is nil' do
+              it 'returns an empty array and not a 404' do
+                mock_ccg(scopes) do |auth_header|
+                  VCR.use_cassette('bgs/tracked_items/find_tracked_items') do
+                    VCR.use_cassette('evss/documents/get_claim_documents') do
+                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
+                        .to receive(:benefits_documents_enabled?).and_return(true)
+
+                      local_bgs_service = double
+                      allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
+                        .to receive(:local_bgs_service)
+                        .and_return(local_bgs_service)
+
+                      allow(local_bgs_service)
+                        .to receive(:find_benefit_claim_details_by_benefit_claim_id)
+                        .and_return(bgs_claim)
+
+                      allow(local_bgs_service)
+                        .to receive(:find_by_ssn)
+                        .and_return(nil)
+
+                      allow(local_bgs_service)
+                        .to receive(:find_tracked_items)
+                        .and_return({ dvlpmt_items: [] })
+
+                      get claim_by_id_path, headers: auth_header
+
+                      json_response = JSON.parse(response.body)
+
+                      expect(json_response['data']['attributes']['supportingDocuments']).to eq([])
+                      expect(response.status).not_to eq(404)
+                    end
+                  end
+                end
+              end
+            end
+          end
         end
       end
 
