@@ -81,9 +81,10 @@ module Form526ClaimFastTrackingConcern
     form.dig('form526', 'form526', 'disabilities')
   end
 
-  def increase_only?
-    disabilities.all? { |disability| disability['disabilityActionType']&.upcase == 'INCREASE' }
-  end
+  def increase_or_new?
+    disabilities.all? do |disability|
+      disability['disabilityActionType']&.upcase == 'INCREASE' || disability['disabilityActionType']&.upcase == 'NEW'
+    end
 
   def diagnostic_codes
     disabilities.pluck('diagnosticCode')
@@ -102,18 +103,25 @@ module Form526ClaimFastTrackingConcern
   end
 
   def update_classification
-    return unless increase_only?
+    return unless increase_or_new?
     return unless disabilities.count == 1
-    return unless diagnostic_codes.count == 1
 
     diagnostic_code = diagnostic_codes.first
+    claim_type = disabilities.pick('disabilityActionType').upcase
+    if claim_type == 'INCREASE'
+      claim_type = 'claim_for_increase'
+    elsif claim_type == 'NEW'
+      claim_type = 'new'
+    end
     params = {
       diagnostic_code:,
       claim_id: saved_claim_id,
-      form526_submission_id: id
+      form526_submission_id: id,
+      claim_type:,
+      contention_text: disabilities.pick('name')
     }
 
-    classification = classify_by_diagnostic_code(params)
+    classification = get_classification(params)
     Rails.logger.info('CLassified 526Submission', id:, saved_claim_id:, classification:)
     update_form_with_classification_code(classification['classification_code']) if classification.present?
   end
