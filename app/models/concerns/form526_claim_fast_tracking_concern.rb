@@ -113,6 +113,10 @@ module Form526ClaimFastTrackingConcern
     elsif claim_type == 'NEW'
       claim_type = 'new'
     end
+    if claim_type == 'new'
+      return unless Flipper.enabled?(:disability_526_classifier_new_claims)
+    end
+
     params = {
       diagnostic_code:,
       claim_id: saved_claim_id,
