@@ -16,6 +16,8 @@ module V0
           error = { status: exception.status_code, body: exception.errors.first }
           response = Lighthouse::DirectDeposit::ErrorParser.parse(error)
 
+          log_failure(response)
+
           render status: response.status, json: response.body
         end
 
@@ -29,7 +31,7 @@ module V0
 
         def update
           response = client.update_payment_info(payment_account)
-          Rails.logger.warn('DisabilityCompensationsController#update request completed', sso_logging_info)
+          Rails.logger.info('DisabilityCompensationsController#update request completed', sso_logging_info)
           send_confirmation_email
 
           render status: response.status,
@@ -41,6 +43,11 @@ module V0
 
         def controller_enabled?
           routing_error unless Flipper.enabled?(:profile_lighthouse_direct_deposit, @current_user)
+        end
+
+        def log_failure(response)
+          error = response.body[:errors]&.first
+          StatsD.increment(error[:code]) if error
         end
 
         def client
