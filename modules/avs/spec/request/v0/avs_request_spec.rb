@@ -45,6 +45,13 @@ RSpec.describe 'V0::Avs', type: :request do
       end
     end
 
+    it 'returns 200 when ICN in response does not have checksum' do
+      VCR.use_cassette('avs/search/icn_short') do
+        get '/avs/v0/avs/search?stationNo=500&appointmentIen=9876543'
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
     it 'returns 200 when AVS found for appointment' do
       VCR.use_cassette('avs/search/9876543') do
         get '/avs/v0/avs/search?stationNo=500&appointmentIen=9876543'
@@ -78,6 +85,20 @@ RSpec.describe 'V0::Avs', type: :request do
       VCR.use_cassette('avs/show/unauthorized') do
         get '/avs/v0/avs/9A7AF40B2BC2471EA116891839113252'
         expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    it 'returns 401 when ICN is null in source file' do
+      VCR.use_cassette('avs/show/icn_null') do
+        get '/avs/v0/avs/9A7AF40B2BC2471EA116891839113252'
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    it 'returns 200 when ICN in AVS does not have checksum' do
+      VCR.use_cassette('avs/show/icn_short') do
+        get '/avs/v0/avs/9A7AF40B2BC2471EA116891839113252'
+        expect(response).to have_http_status(:ok)
       end
     end
 
