@@ -126,9 +126,9 @@ module Form526ClaimFastTrackingConcern
     update_form_with_classification_code(classification['classification_code']) if classification.present?
   end
 
-  def classify_by_diagnostic_code(params)
+  def classify_single_contention(params)
     vro_client = VirtualRegionalOffice::Client.new
-    response = vro_client.classify_contention_by_diagnostic_code(params)
+    response = vro_client.classify_single_contention(params)
     response.body
   end
 

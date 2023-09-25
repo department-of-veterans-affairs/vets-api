@@ -75,7 +75,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
         it 'does not call contention classification endpoint' do
           subject.perform_async(submission.id)
-          expect(submission).not_to receive(:classify_by_diagnostic_code)
+          expect(submission).not_to receive(:classify_single_contention)
           described_class.drain
         end
       end
@@ -147,7 +147,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
       it 'does not call contention classification endpoint' do
         subject.perform_async(submission.id)
-        expect(submission).not_to receive(:classify_by_diagnostic_code)
+        expect(submission).not_to receive(:classify_single_contention)
         described_class.drain
       end
 
