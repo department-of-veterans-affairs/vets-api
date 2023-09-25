@@ -350,44 +350,7 @@ FactoryBot.define do
     trait :api_auth do
       sign_in do
         {
-          client_id: SAML::URLService::MOBILE_CLIENT_ID
-        }
-      end
-
-      loa do
-        {
-          current: LOA::THREE,
-          highest: LOA::THREE
-        }
-      end
-    end
-
-    trait :mhv_api_auth do
-      authn_context { 'myhealthevet' }
-      uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
-      idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
-      last_signed_in { Faker::Time.between(from: 2.years.ago, to: 1.week.ago) }
-      mhv_last_signed_in { Faker::Time.between(from: 1.week.ago, to: 1.minute.ago) }
-      email { Faker::Internet.email }
-      first_name { Faker::Name.first_name }
-      last_name { Faker::Name.last_name }
-      icn { '1000123456V123456' }
-      gender { 'M' }
-      birth_date { Faker::Date.between(from: 40.years.ago, to: 10.years.ago) }
-      ssn { '796111864' }
-      multifactor { true }
-      mhv_account_type { 'Premium' }
-      va_patient { true }
-      cerner_id {}
-      cerner_facility_ids { [] }
-      vha_facility_ids { %w[358 200MHS] }
-      vha_facility_hash { { '358' => %w[998877], '200MHS' => %w[998877] } }
-      mhv_ids { %w[12345678901] }
-      active_mhv_ids { mhv_ids }
-
-      sign_in do
-        {
-          service_name: SAML::User::MHV_ORIGINAL_CSID,
+          service_name: SAML::User::AUTHN_CONTEXTS[authn_context][:sign_in][:service_name],
           auth_broker: 'sis',
           client_id: SAML::URLService::MOBILE_CLIENT_ID
         }
@@ -423,20 +386,20 @@ FactoryBot.define do
       vha_facility_hash { { '358' => %w[998877], '200MHS' => %w[998877] } }
       mhv_ids { %w[12345678901] }
       active_mhv_ids { mhv_ids }
-      sign_in {
-        attributes_for(:sign_in,
-                       service_name: SAML::User::MHV_ORIGINAL_CSID,
-                       auth_broker: SAML::URLService::BROKER_CODE,
-                       client_id: SAML::URLService::WEB_CLIENT_ID)
-              }
+      # sign_in {
+      #   attributes_for(:sign_in,
+      #                  service_name: SAML::User::MHV_ORIGINAL_CSID,
+      #                  auth_broker: SAML::URLService::BROKER_CODE,
+      #                  client_id: SAML::URLService::WEB_CLIENT_ID)
+              # }
 
-      # sign_in do
-      #   {
-      #     service_name: SAML::User::MHV_ORIGINAL_CSID,
-      #     auth_broker: SAML::URLService::BROKER_CODE,
-      #     client_id: SAML::URLService::WEB_CLIENT_ID
-      #   }
-      # end
+      sign_in do
+        {
+          service_name: SAML::User::MHV_ORIGINAL_CSID,
+          auth_broker: SAML::URLService::BROKER_CODE,
+          client_id: SAML::URLService::WEB_CLIENT_ID
+        }
+      end
 
       loa do
         {
@@ -489,12 +452,5 @@ FactoryBot.define do
       vha_facility_ids {}
       vha_facility_hash {}
     end
-  end
-
-  # move this and make less specific to mobile
-  factory :sign_in do
-    service_name { SAML::User::IDME_CSID }
-    auth_broker { 'sis' }
-    client_id { SAML::URLService::MOBILE_CLIENT_ID }
   end
 end

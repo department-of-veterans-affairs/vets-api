@@ -10,7 +10,7 @@ RSpec.describe 'demographics', type: :request do
                  icn: '1008596379V859838',
                  idme_uuid: nil,
                  logingov_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-                 sign_in: attributes_for(:sign_in, service_name: SAML::User::LOGINGOV_CSID)
+                 authn_context: 'dslogon_loa3'
                })
     end
 
