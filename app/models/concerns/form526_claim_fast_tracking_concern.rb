@@ -120,6 +120,12 @@ module Form526ClaimFastTrackingConcern
     return unless claim_type == 'claim_for_increase' || Flipper.enabled?(:disability_526_classifier_new_claims)
 
     diagnostic_code = diagnostic_codes.first
+    claim_type = disabilities.pick('disabilityActionType').upcase
+    if claim_type == 'INCREASE'
+      claim_type = 'claim_for_increase'
+    elsif claim_type == 'NEW'
+      claim_type = 'new'
+    end
     params = {
       diagnostic_code:,
       claim_id: saved_claim_id,
