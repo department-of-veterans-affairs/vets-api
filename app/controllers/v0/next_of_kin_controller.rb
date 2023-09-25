@@ -2,6 +2,9 @@
 
 module V0
   class NextOfKinController < ApplicationController
+    skip_before_action :authenticate, if:
+      -> { Settings.vet360.health_benefit.mock && Settings.vsp_environment != 'production' }
+
     # GET /v0/next_of_kin
     def index
       response = service.get_next_of_kin
