@@ -26,7 +26,7 @@ module VAProfile
           edipi_present!
 
           response = perform(:post, identity_path, VAProfile::Models::VeteranStatus.in_json)
-          VeteranStatusResponse.from(@current_user, response)
+          VeteranStatusResponse.from(response)
         end
       rescue Common::Client::Errors::ClientError => e
         additional_params = { edipi: @user&.identity&.edipi }
