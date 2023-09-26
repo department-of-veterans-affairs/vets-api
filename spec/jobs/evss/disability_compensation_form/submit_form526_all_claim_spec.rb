@@ -12,6 +12,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
   before do
     Sidekiq::Worker.clear_all
+    Flipper.disable(:disability_526_classifier_new_claims)
     Flipper.disable(:disability_compensation_lighthouse_submit_migration)
     Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
   end
@@ -75,8 +76,19 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
         it 'does not call contention classification endpoint' do
           subject.perform_async(submission.id)
-          expect(submission).not_to receive(:classify_single_contention)
+          expect_any_instance_of(Form526Submission).not_to receive(:classify_single_contention)
           described_class.drain
+        end
+
+        context 'contention classifier enabled for new claims' do
+          before { Flipper.enable(:disability_526_classifier_new_claims) }
+          after { Flipper.disable(:disability_526_classifier_new_claims) }
+
+          it 'does not call contention classification endpoint' do
+            subject.perform_async(submission.id)
+            expect_any_instance_of(Form526Submission).to receive(:classify_single_contention)
+            described_class.drain
+          end
         end
       end
 
