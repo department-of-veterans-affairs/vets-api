@@ -8,6 +8,9 @@ module AppealsApi::SupplementalClaims::V0
     include AppealsApi::PdfDownloads
 
     skip_before_action :validate_icn_header
+    skip_before_action :validate_json_format
+
+    prepend_before_action :validate_json_body, if: -> { request.post? }
     before_action :validate_icn_parameter, only: %i[index download]
 
     API_VERSION = 'V0'

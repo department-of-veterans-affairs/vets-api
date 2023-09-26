@@ -10,8 +10,10 @@ module AppealsApi::HigherLevelReviews::V0
     skip_before_action :validate_icn_header
     skip_before_action :new_higher_level_review
     skip_before_action :find_higher_level_review
+    skip_before_action :validate_json_format
 
     before_action :validate_icn_parameter, only: %i[download]
+    prepend_before_action :validate_json_body, if: -> { request.post? }
 
     API_VERSION = 'V0'
     SCHEMA_OPTIONS = { schema_version: 'v0', api_name: 'higher_level_reviews' }.freeze
