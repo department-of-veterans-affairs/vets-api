@@ -95,7 +95,26 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
     end
   end
 
-  context 'when submission raises error' do
+  context 'when submission raises error with central mail flipper on' do
+    before do
+      Flipper.enable(:dependents_central_submission)
+    end
+
+    it 'calls DependentsApplicationFailureMailer' do
+      client_stub = instance_double('BGS::Form686c')
+      allow(BGS::Form686c).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
+      expect(client_stub).to receive(:submit).and_raise(StandardError)
+
+      expect(CentralMail::SubmitCentralForm686cJob).to receive(:perform_async).with(dependency_claim.id, vet_info, an_instance_of(OpenStruct)) # rubocop:disable Layout/LineLength
+      subject
+    end
+  end
+
+  context 'when submission raises error with flipper off' do
+    before do
+      Flipper.disable(:dependents_central_submission)
+    end
+
     it 'calls DependentsApplicationFailureMailer' do
       client_stub = instance_double('BGS::Form686c')
       mailer_double = double('Mail::Message')
