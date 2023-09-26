@@ -12,7 +12,7 @@ module AppealsApi::SupplementalClaims::V0::SupplementalClaims
     class EvidenceSubmissionRequestValidatorError < StandardError; end
 
     skip_before_action :authenticate
-    before_action :validate_json_format, if: -> { request.post? }
+    before_action :validate_json_body, if: -> { request.post? }
 
     OAUTH_SCOPES = AppealsApi::SupplementalClaims::V0::SupplementalClaimsController::OAUTH_SCOPES
     SCHEMA_OPTIONS = { schema_version: 'v0', api_name: 'supplemental_claims' }.freeze

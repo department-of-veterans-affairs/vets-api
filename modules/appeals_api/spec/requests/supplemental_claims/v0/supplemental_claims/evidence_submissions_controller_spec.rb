@@ -69,7 +69,8 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmiss
     let!(:supplemental_claim) { create(:supplemental_claim_v0) }
     let(:sc_id) { supplemental_claim.id }
     let(:ssn) { '123456789' }
-    let(:params) { { ssn:, scId: sc_id } }
+    let(:data) { { ssn:, scId: sc_id } }
+    let(:params) { data.to_json }
     let(:consumer_username) { 'test' }
     let(:headers) { { 'X-Consumer-Username' => consumer_username, 'Content-Type' => 'application/json' } }
     let(:path) { '/services/appeals/supplemental-claims/v0/evidence-submissions' }
@@ -79,7 +80,7 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmiss
       before do
         stub_upload_location
         with_openid_auth(described_class::OAUTH_SCOPES[:POST]) do |auth_header|
-          post(path, params: params.to_json, headers: headers.merge(auth_header))
+          post(path, params:, headers: headers.merge(auth_header))
         end
       end
 
@@ -106,12 +107,12 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmiss
     describe 'errors' do
       before do
         with_openid_auth(described_class::OAUTH_SCOPES[:POST]) do |auth_header|
-          post(path, params: params.to_json, headers: headers.merge(auth_header))
+          post(path, params:, headers: headers.merge(auth_header))
         end
       end
 
       context 'when the corresponding supplemental claim record is not found' do
-        let(:params) { { scId: '00000000-0000-0000-0000-000000000000', ssn: } }
+        let(:data) { { scId: '00000000-0000-0000-0000-000000000000', ssn: } }
 
         it 'returns a 404 error' do
           expect(response).to have_http_status(:not_found)
@@ -120,7 +121,7 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmiss
 
       context 'when SSN and the SC UUID are provided' do
         context 'when the SSN provided does not match the SSN on the appeal record' do
-          let(:params) { { scId: sc_id, ssn: '000000000' } }
+          let(:data) { { scId: sc_id, ssn: '000000000' } }
 
           it 'returns a 422 error' do
             expect(response).to have_http_status(:unprocessable_entity)
@@ -128,6 +129,8 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmiss
         end
 
         context 'when a location cannot be generated' do
+          let(:data) { { scId: sc_id, ssn: } }
+
           before do
             allow_any_instance_of(VBADocuments::UploadSubmission).to(
               receive(:get_location).and_raise('Unable to provide document upload location')
@@ -141,7 +144,7 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmiss
       end
 
       context 'when SSN is missing' do
-        let(:params) { { scId: sc_id } }
+        let(:data) { { scId: sc_id } }
 
         it 'returns a 422 error' do
           expect(response).to have_http_status(:unprocessable_entity)
@@ -149,10 +152,18 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmiss
       end
 
       context 'when SC UUID is missing' do
-        let(:params) { { ssn: } }
+        let(:data) { { ssn: } }
 
         it 'returns a 422 error' do
           expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+
+      context 'when body is not JSON' do
+        let(:params) { 'this-is-not-json' }
+
+        it 'returns a 400 error' do
+          expect(response).to have_http_status(:bad_request)
         end
       end
     end
@@ -165,7 +176,7 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaims::EvidenceSubmiss
       ) do
         def make_request(auth_header)
           stub_upload_location
-          post(path, params: params.to_json, headers: headers.merge(auth_header))
+          post(path, params:, headers: headers.merge(auth_header))
         end
       end
     end
