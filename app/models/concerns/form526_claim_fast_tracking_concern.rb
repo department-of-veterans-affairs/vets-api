@@ -85,6 +85,7 @@ module Form526ClaimFastTrackingConcern
     disabilities.all? do |disability|
       disability['disabilityActionType']&.upcase == 'INCREASE' || disability['disabilityActionType']&.upcase == 'NEW'
     end
+  end
 
   def diagnostic_codes
     disabilities.pluck('diagnosticCode')
