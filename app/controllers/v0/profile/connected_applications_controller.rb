@@ -57,8 +57,10 @@ module V0
             app = build_apps_from_data(lh_app)
             (data ||= []) << app
           end
+          { 'data' => data }
         end
-        { 'data' => data }
+      rescue
+        { data: [] }
       end
 
       def build_apps_from_data(lh_app)
