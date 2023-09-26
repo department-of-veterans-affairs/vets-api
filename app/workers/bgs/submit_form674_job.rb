@@ -11,6 +11,10 @@ module BGS
 
     sidekiq_options retry: false
 
+    # rubocop:disable Metrics/MethodLength
+    # method length is currently disabled due to the two flippers currently enabled in this method.
+    # when both are resolved we will be able to remove the method length disabling.
+    # BlockNesting is also disabled for the same reason.
     def perform(user_uuid, icn, saved_claim_id, vet_info, user_struct_hash = {})
       Rails.logger.info('BGS::SubmitForm674Job running!', { user_uuid:, saved_claim_id:, icn: })
       in_progress_form = InProgressForm.find_by(form_id: FORM_ID, user_uuid:)
@@ -33,8 +37,20 @@ module BGS
       Rails.logger.error('BGS::SubmitForm674Job failed!', { user_uuid:, saved_claim_id:, icn:, error: e.message })
       log_message_to_sentry(e, :error, {}, { team: 'vfs-ebenefits' })
       salvage_save_in_progress_form(FORM_ID, user_uuid, in_progress_copy)
-      DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present?
+      if Flipper.enabled?(:dependents_central_submission)
+        # rubocop:disable Metrics/BlockNesting
+        if Flipper.enabled?(:dependents_submit_674_independently)
+          user_struct = user_struct_hash.present? ? OpenStruct.new(user_struct_hash) : generate_user_struct(vet_info['veteran_information']) # rubocop:disable Layout/LineLength
+        else
+          user_struct = OpenStruct.new(user_struct_hash)
+        end
+        # rubocop:enable Metrics/BlockNesting
+        CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id, vet_info, user_struct)
+      else
+        DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present? # rubocop:disable Style/IfInsideElse
+      end
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 

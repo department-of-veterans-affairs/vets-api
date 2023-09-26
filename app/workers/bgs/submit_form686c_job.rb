@@ -11,6 +11,7 @@ module BGS
 
     sidekiq_options retry: false
 
+    # rubocop:disable Metrics/MethodLength
     def perform(user_uuid, icn, saved_claim_id, vet_info)
       Rails.logger.info('BGS::SubmitForm686cJob running!', { user_uuid:, saved_claim_id:, icn: })
       in_progress_form = InProgressForm.find_by(form_id: FORM_ID, user_uuid:)
@@ -29,13 +30,20 @@ module BGS
 
       send_confirmation_email(user)
       in_progress_form&.destroy
+
       Rails.logger.info('BGS::SubmitForm686cJob succeeded!', { user_uuid:, saved_claim_id:, icn: })
     rescue => e
       Rails.logger.error('BGS::SubmitForm686cJob failed!', { user_uuid:, saved_claim_id:, icn:, error: e.message })
       log_message_to_sentry(e, :error, {}, { team: 'vfs-ebenefits' })
       salvage_save_in_progress_form(FORM_ID, user_uuid, in_progress_copy)
-      DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present?
+      if Flipper.enabled?(:dependents_central_submission)
+        user_struct = generate_user_struct(vet_info['veteran_information'])
+        CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id, vet_info, user_struct)
+      else
+        DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present? # rubocop:disable Style/IfInsideElse
+      end
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
