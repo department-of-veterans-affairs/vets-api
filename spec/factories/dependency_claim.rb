@@ -27,7 +27,7 @@ FactoryBot.define do
               address_line1: '8200 DOBY LN',
               city: 'PASADENA',
               stateCode: 'CA',
-              zipCode: '21122'
+              zip_code: '21122'
             },
             phone_number: '1112223333',
             email_address: 'vets.gov.user+228@gmail.com'
