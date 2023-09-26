@@ -131,21 +131,38 @@ RSpec.describe 'gender identity', type: :request do
   end
 
   describe 'unauthorized user' do
-    let!(:user) do
-      sis_user(attributes: { icn: nil, ssn: nil })
-    end
-
     describe 'GET /mobile/v0/gender_identity/edit' do
-      context 'returns 200' do
-        it 'returns 200', :aggregate_failures do
+      context 'without mpi acceess' do
+        let!(:user) do
+          sis_user(attributes: { icn: nil, ssn: nil })
+        end
+
+        it 'returns 403', :aggregate_failures do
           get('/mobile/v0/user/gender_identity/edit', headers: sis_headers(camelize: false))
-          expect(response).to have_http_status(:ok)
+          expect(response).to have_http_status(:forbidden)
         end
       end
     end
 
     describe 'PUT /mobile/v0/gender_identity' do
-      context 'returns 403' do
+      context 'without demographics access' do
+        let!(:user) do
+          sis_user(attributes: { idme_uuid: nil, logingov_uuid: nil })
+        end
+
+        it 'returns 403', :aggregate_failures do
+          gender_identity = VAProfile::Models::GenderIdentity.new(code: 'F')
+
+          put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'without mpi access' do
+        let!(:user) do
+          sis_user(attributes: { icn: nil, ssn: nil })
+        end
+
         it 'returns 403', :aggregate_failures do
           gender_identity = VAProfile::Models::GenderIdentity.new(code: 'F')
 
