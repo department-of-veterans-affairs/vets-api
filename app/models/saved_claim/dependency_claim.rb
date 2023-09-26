@@ -2,7 +2,7 @@
 
 require 'claims_api/vbms_uploader'
 
-class SavedClaim::DependencyClaim < SavedClaim
+class SavedClaim::DependencyClaim < CentralMailClaim
   FORM = '686C-674'
   STUDENT_ATTENDING_COLLEGE_KEYS = %w[
     student_name_and_ssn
