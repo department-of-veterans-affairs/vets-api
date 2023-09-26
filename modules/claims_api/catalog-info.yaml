@@ -20,6 +20,34 @@ metadata:
     - url: https://app.mural.co/t/departmentofveteransaffairs9999/m/departmentofveteransaffairs9999/1663867462895/b0161ab939bba7d08f6bea07e3663d9d5cea22d4?sender=u9943b9a042c336e83bb20590
       title: 526EZ Process Flow Diagram
       icon: web
+  api-attributes:
+    doc: 
+      - va-net
+      - pub
+      - oas
+    arch:
+      - rest
+    lower:
+      - auto
+    prod:
+      - approve
+      - more-than-2
+    perf:
+      - p95-greater
+    reli:
+      - slo-99
+    status:
+      - status-historic
+      - logs
+      - metrics
+    sup:
+      - contact
+      - sup-with-team
+      - maint-active
+    host:
+      - cloud-auto
+    test:
+      - test-avail-doc
 spec:
   type: openapi
   lifecycle: production
