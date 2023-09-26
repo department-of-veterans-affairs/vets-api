@@ -291,6 +291,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
     end
 
+    # this is a workaround to ensure Contention Classification API does in VRO does not get called, because
+    # rails.error statements will cause expect_retryable_error to fail in these tests
     context 'with a multi-contention claim' do
       let(:submission) do
         create(:form526_submission,
