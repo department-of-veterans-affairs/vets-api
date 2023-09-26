@@ -103,19 +103,21 @@ module Form526ClaimFastTrackingConcern
     save_metadata(forward_to_mas_all_claims: true)
   end
 
+  def get_claim_type
+    claim_type = disabilities.pick('disabilityActionType').upcase
+    if claim_type == 'INCREASE'
+      'claim_for_increase'
+    else
+      'new'
+    end
+  end
+
   def update_classification
     return unless increase_or_new?
     return unless disabilities.count == 1
 
-    claim_type = disabilities.pick('disabilityActionType').upcase
-    if claim_type == 'INCREASE'
-      claim_type = 'claim_for_increase'
-    else
-      claim_type = 'new'
-    end
-    if claim_type == 'new'
-      return unless Flipper.enabled?(:disability_526_classifier_new_claims)
-    end
+    claim_type = get_claim_type
+    return unless claim_type == 'claim_for_increase' || Flipper.enabled?(:disability_526_classifier_new_claims)
 
     diagnostic_code = diagnostic_codes.first
     params = {
@@ -126,7 +128,7 @@ module Form526ClaimFastTrackingConcern
       contention_text: disabilities.pick('name')
     }
 
-    classification = get_classification(params)
+    classification = classify_single_contention(params)
     Rails.logger.info('CLassified 526Submission', id:, saved_claim_id:, classification:)
     update_form_with_classification_code(classification['classification_code']) if classification.present?
   end
