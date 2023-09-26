@@ -54,7 +54,8 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceS
     let(:consumer_username) { 'test' }
     let(:file_number) { notice_of_disagreement.veteran.file_number }
     let(:nod_id) { notice_of_disagreement.id }
-    let(:params) { { fileNumber: file_number, nodId: nod_id } }
+    let(:params) { data.to_json }
+    let(:data) { { fileNumber: file_number, nodId: nod_id } }
     let(:headers) { { 'X-Consumer-Username' => consumer_username, 'Content-Type' => 'application/json' } }
     let(:path) { '/services/appeals/notice-of-disagreements/v0/evidence-submissions' }
     let(:response_data) { JSON.parse(response.body)&.dig('data') }
@@ -62,7 +63,7 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceS
     before do
       stub_upload_location
       with_openid_auth(described_class::OAUTH_SCOPES[:POST]) do |auth_header|
-        post(path, params: params.to_json, headers: headers.merge(auth_header))
+        post(path, params:, headers: headers.merge(auth_header))
       end
     end
 
@@ -122,6 +123,14 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceS
             expect(response).to have_http_status(:unprocessable_entity)
           end
         end
+
+        context 'when body is not JSON' do
+          let(:params) { 'this-is-not-json' }
+
+          it 'returns a 400 error' do
+            expect(response).to have_http_status(:bad_request)
+          end
+        end
       end
     end
 
@@ -131,7 +140,7 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements::EvidenceS
       success_status: :created
     ) do
       def make_request(auth_header)
-        post(path, params: params.to_json, headers: headers.merge(auth_header))
+        post(path, params:, headers: headers.merge(auth_header))
       end
     end
   end

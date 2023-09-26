@@ -202,6 +202,16 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
                         scopes:
       end
 
+      response '400', 'Bad request' do
+        schema '$ref' => '#/components/schemas/errorModel'
+        let(:nod_body) { nil }
+
+        it_behaves_like 'rswag example',
+                        desc: 'Not JSON object',
+                        extract_desc: true,
+                        scopes:
+      end
+
       response '422', 'Error' do
         schema '$ref' => '#/components/schemas/errorModel'
         let(:nod_body) do
@@ -212,16 +222,6 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
 
         it_behaves_like 'rswag example',
                         desc: 'Violates JSON schema',
-                        extract_desc: true,
-                        scopes:
-      end
-
-      response '422', 'Error' do
-        schema '$ref' => '#/components/schemas/errorModel'
-        let(:nod_body) { nil }
-
-        it_behaves_like 'rswag example',
-                        desc: 'Not JSON object',
                         extract_desc: true,
                         scopes:
       end
@@ -270,6 +270,17 @@ RSpec.describe 'Notice of Disagreements', swagger_doc:, type: :request do
         let(:nod_es_body) { { nodId: '00000000-0000-0000-0000-000000000000', fileNumber: } }
 
         it_behaves_like 'rswag example', desc: 'returns a 404 response', scopes:
+      end
+
+      response '400', 'Bad request' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:nod_es_body) { nil }
+
+        it_behaves_like 'rswag example',
+                        desc: 'Not JSON object',
+                        extract_desc: true,
+                        scopes:
       end
 
       response '422', 'Validation errors' do

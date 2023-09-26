@@ -102,6 +102,7 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
   describe '#create' do
     let(:path) { base_path 'forms/200995' }
     let(:data) { default_data }
+    let(:params) { data.to_json }
     let(:headers) { fixture_as_json 'supplemental_claims/v0/valid_200995_headers.json' }
 
     describe 'auth behavior' do
@@ -109,7 +110,7 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
         'an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:POST], success_status: :created
       ) do
         def make_request(auth_header)
-          post(path, params: default_data.to_json, headers: headers.merge(auth_header))
+          post(path, params:, headers: headers.merge(auth_header))
         end
       end
     end
@@ -119,7 +120,7 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
 
       before do
         with_openid_auth(described_class::OAUTH_SCOPES[:POST]) do |auth_header|
-          post(path, params: data.to_json, headers: headers.merge(auth_header))
+          post(path, params:, headers: headers.merge(auth_header))
         end
       end
 
@@ -168,6 +169,14 @@ describe AppealsApi::SupplementalClaims::V0::SupplementalClaimsController, type:
           expect(response).to have_http_status(:unprocessable_entity)
           expect(parsed_response['errors'][0]['detail']).to include('Date must be in the past')
           expect(parsed_response['errors'][0]['source']['pointer']).to eq('/data/attributes/claimant/birthDate')
+        end
+      end
+
+      context 'when body is not JSON' do
+        let(:params) { 'this-is-not-json' }
+
+        it 'returns a 400 error' do
+          expect(response).to have_http_status(:bad_request)
         end
       end
     end
