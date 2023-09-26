@@ -269,6 +269,17 @@ RSpec.describe 'Higher-Level Reviews', swagger_doc:, type: :request do
                         scopes:
       end
 
+      response '400', 'Bad request' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:hlr_body) { nil }
+
+        it_behaves_like 'rswag example',
+                        desc: 'Not JSON object',
+                        extract_desc: true,
+                        scopes:
+      end
+
       response '422', 'Error' do
         schema '$ref' => '#/components/schemas/errorModel'
 
@@ -280,17 +291,6 @@ RSpec.describe 'Higher-Level Reviews', swagger_doc:, type: :request do
 
         it_behaves_like 'rswag example',
                         desc: 'Violates JSON schema',
-                        extract_desc: true,
-                        scopes:
-      end
-
-      response '422', 'Error' do
-        schema '$ref' => '#/components/schemas/errorModel'
-
-        let(:hlr_body) { nil }
-
-        it_behaves_like 'rswag example',
-                        desc: 'Not JSON object',
                         extract_desc: true,
                         scopes:
       end

@@ -77,6 +77,17 @@ RSpec.describe 'Supplemental Claims', swagger_doc:, type: :request do
                                          scopes:
       end
 
+      response '400', 'Bad request' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:sc_body) { nil }
+
+        it_behaves_like 'rswag example',
+                        desc: 'Not JSON object',
+                        extract_desc: true,
+                        scopes:
+      end
+
       response '422', 'Violates JSON schema' do
         schema '$ref' => '#/components/schemas/errorModel'
 
