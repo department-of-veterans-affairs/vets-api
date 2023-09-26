@@ -19,6 +19,17 @@ RSpec.describe 'Connected Applications API endpoint' do
       end
     end
 
+    it 'handle non-200 calls from lh auth' do
+      with_okta_configured do
+        VCR.use_cassette('lighthouse/auth/client_credentials/connected_apps_400') do
+          get '/v0/profile/connected_applications'
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['data'].length).to eq(0)
+        end
+      end
+    end
+
     it 'deletes all the grants by app' do
       with_okta_configured do
         VCR.use_cassette('lighthouse/auth/client_credentials/revoke_consent_204', allow_playback_repeats: true) do
