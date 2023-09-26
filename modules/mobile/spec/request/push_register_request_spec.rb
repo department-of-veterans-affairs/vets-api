@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'push register', type: :request do
   include JsonSchemaMatchers
-  before { iam_sign_in }
 
-  let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let!(:user) { sis_user }
+  let(:headers) do
+    sis_headers(additional_headers: { 'Content-Type' => 'application/json', 'Accept' => 'application/json' })
+  end
 
   describe 'PUT /mobile/v0/push/register' do
     context 'with a valid put body' do
@@ -22,7 +24,7 @@ RSpec.describe 'push register', type: :request do
           debug: 'false'
         }
         VCR.use_cassette('vetext/register_success') do
-          put '/mobile/v0/push/register', headers: iam_headers(json_body_headers), params: params.to_json
+          put '/mobile/v0/push/register', headers:, params: params.to_json
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('push_register')
         end
@@ -37,7 +39,7 @@ RSpec.describe 'push register', type: :request do
           debug: 'false'
         }
         VCR.use_cassette('vetext/register_success') do
-          put '/mobile/v0/push/register', headers: iam_headers(json_body_headers), params: params.to_json
+          put '/mobile/v0/push/register', headers:, params: params.to_json
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('push_register')
         end
@@ -55,7 +57,7 @@ RSpec.describe 'push register', type: :request do
           debug: 'true'
         }
         VCR.use_cassette('vetext/register_success') do
-          put '/mobile/v0/push/register', headers: iam_headers(json_body_headers), params: params.to_json
+          put '/mobile/v0/push/register', headers:, params: params.to_json
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('push_register')
         end
@@ -72,7 +74,7 @@ RSpec.describe 'push register', type: :request do
           deviceName: 'My Iphone',
           debug: 'false'
         }
-        put '/mobile/v0/push/register', headers: iam_headers(json_body_headers), params: params.to_json
+        put '/mobile/v0/push/register', headers:, params: params.to_json
         expect(response).to have_http_status(:not_found)
         expect(response.body).to match_json_schema('errors')
       end
@@ -89,7 +91,7 @@ RSpec.describe 'push register', type: :request do
           debug: 'false'
         }
         VCR.use_cassette('vetext/register_bad_request') do
-          put '/mobile/v0/push/register', headers: iam_headers(json_body_headers), params: params.to_json
+          put '/mobile/v0/push/register', headers:, params: params.to_json
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to match_json_schema('errors')
         end
@@ -107,7 +109,7 @@ RSpec.describe 'push register', type: :request do
           debug: 'false'
         }
         VCR.use_cassette('vetext/register_internal_server_error') do
-          put '/mobile/v0/push/register', headers: iam_headers(json_body_headers), params: params.to_json
+          put '/mobile/v0/push/register', headers:, params: params.to_json
           expect(response).to have_http_status(:bad_gateway)
           expect(response.body).to match_json_schema('errors')
         end
