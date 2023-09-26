@@ -17,7 +17,7 @@ metadata:
 spec:
   type: openapi
   lifecycle: production
-  owner: lighthouse-ninjapigs
+  owner: lighthouse-banana-peels
   system: vets-api
   definition:
     $text: https://dev-api.va.gov/services/vba_documents/docs/v1/api
