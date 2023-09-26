@@ -78,9 +78,27 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       described_class.new.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
     end
 
-    context 'error' do
+    context 'error with central submission flipper on' do
       before do
         InProgressForm.create!(form_id: '686C-674', user_uuid: user.uuid, form_data: all_flows_payload)
+        Flipper.enable(:dependents_central_submission)
+      end
+
+      it 'calls #submit for 674 submission' do
+        job = described_class.new
+        client_stub = instance_double('BGS::Form674')
+        allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
+        expect(client_stub).to receive(:submit).and_raise(StandardError)
+        expect(job).to receive(:salvage_save_in_progress_form).with('686C-674', user.uuid, anything)
+
+        job.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
+      end
+    end
+
+    context 'error with central submission flipper off' do
+      before do
+        InProgressForm.create!(form_id: '686C-674', user_uuid: user.uuid, form_data: all_flows_payload)
+        Flipper.disable(:dependents_central_submission)
       end
 
       it 'calls #submit for 674 submission' do
@@ -128,12 +146,30 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       described_class.new.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
     end
 
-    context 'error' do
+    context 'error with central mail flipper on' do
       before do
         InProgressForm.create!(form_id: '686C-674', user_uuid: user.uuid, form_data: all_flows_payload)
+        Flipper.enable(:dependents_central_submission)
       end
 
-      it 'calls #submit for 674 submission' do
+      it 'calls #submit for 674 submission with central mail flipper on' do
+        job = described_class.new
+        client_stub = instance_double('BGS::Form674')
+        allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
+        expect(client_stub).to receive(:submit).and_raise(StandardError)
+        expect(job).to receive(:salvage_save_in_progress_form).with('686C-674', user.uuid, anything)
+        expect(CentralMail::SubmitCentralForm686cJob).to receive(:perform_async).with(dependency_claim.id, vet_info, an_instance_of(OpenStruct)) # rubocop:disable Layout/LineLength
+        job.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
+      end
+    end
+
+    context 'error with central mail flipper off' do
+      before do
+        InProgressForm.create!(form_id: '686C-674', user_uuid: user.uuid, form_data: all_flows_payload)
+        Flipper.disable(:dependents_central_submission)
+      end
+
+      it 'calls #submit for 674 submission with central mail flipper off' do
         job = described_class.new
         client_stub = instance_double('BGS::Form674')
         mailer_double = double('Mail::Message')

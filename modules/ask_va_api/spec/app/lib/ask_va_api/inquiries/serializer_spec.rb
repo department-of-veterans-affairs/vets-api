@@ -9,11 +9,10 @@ RSpec.describe AskVAApi::Inquiries::Serializer do
       inquiryTopic: 'Topic',
       submitterQuestions: 'This is a question',
       inquiryProcessingStatus: 'In Progress',
-      lastUpdate: '08/07/23',
-      userUuid: '6400bbf301eb4e6e95ccea7693eced6f'
+      lastUpdate: '08/07/23'
     }
   end
-  let(:inquiry) { AskVAApi::Inquiries::Inquiry.new(info) }
+  let(:inquiry) { AskVAApi::Inquiries::Entity.new(info) }
   let(:response) { described_class.new(inquiry) }
   let(:expected_response) do
     { data: { id: nil,
