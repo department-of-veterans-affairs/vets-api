@@ -1421,6 +1421,8 @@ paths:
               schema:
                 $ref: ./schemas/FacilitiesInfo.yml
           description: OK
+        '400':
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':

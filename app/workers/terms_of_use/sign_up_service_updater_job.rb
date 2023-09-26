@@ -6,6 +6,15 @@ module TermsOfUse
   class SignUpServiceUpdaterJob
     include Sidekiq::Worker
 
+    sidekiq_options retry: 15 # 2.1 days using exponential backoff
+
+    sidekiq_retries_exhausted do |job, exception|
+      Rails.logger.warn(
+        "[TermsOfUse][SignUpServiceUpdaterJob] Retries exhausted for #{job['name']} " \
+        "with args #{job['args']}: #{exception.message}"
+      )
+    end
+
     attr_reader :terms_of_use_agreement, :signature_name
 
     def perform(terms_of_use_agreement_id, signature_name)

@@ -5,6 +5,7 @@ require 'user_profile_attribute_service'
 module DebtsApi
   class V0::Form5655Submission < ApplicationRecord
     class StaleUserError < StandardError; end
+    enum state: { unassigned: 0, in_progress: 1, submitted: 2, failed: 3 }
 
     self.table_name = 'form5655_submissions'
     validates :user_uuid, presence: true

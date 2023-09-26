@@ -460,6 +460,27 @@ RSpec.describe HealthCareApplication, type: :model do
       end.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
     end
 
+    it 'logs form to pii logs' do
+      health_care_application.update!(state: 'failed')
+      pii_log = PersonalInformationLog.last
+      expect(pii_log.error_class).to eq('HealthCareApplication FailedWontRetry')
+      expect(pii_log.data).to eq(health_care_application.parsed_form)
+    end
+
+    it 'logs message to sentry' do
+      expect(health_care_application).to receive(:log_message_to_sentry).with(
+        'HCA total failure',
+        :error,
+        {
+          first_initial: 'F',
+          middle_initial: 'M',
+          last_initial: 'Z'
+        },
+        hca: :total_failure
+      )
+      health_care_application.update!(state: 'failed')
+    end
+
     it 'triggers short form statsd' do
       new_form = JSON.parse(health_care_application.form)
       new_form.delete('lastServiceBranch')

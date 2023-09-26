@@ -2,14 +2,17 @@
 
 require 'rails_helper'
 require_relative '../../../rails_helper'
-require 'token_validation/v2/client'
 
 RSpec.describe 'Disability Claims', type: :request do
   let(:scopes) { %w[claim.write claim.read] }
 
   before do
     stub_mpi
+    stub_jwt_valid_token_decode
     Timecop.freeze(Time.zone.now)
+    allow_any_instance_of(ClaimsApi::EVSSService::Base).to receive(:submit).and_return OpenStruct.new(claimId: 1337)
+    # evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
+    # allow(evss_service_stub).to receive(:submit) { OpenStruct.new(claimId: 1337) }
   end
 
   after do
@@ -29,34 +32,19 @@ RSpec.describe 'Disability Claims', type: :request do
 
       temp.to_json
     end
-    let(:veteran_id) { '1013062086V794840' }
     let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read }
+    let(:veteran_id) { '1013062086V794840' }
 
     context 'submit' do
       let(:submit_path) { "/services/claims/v2/veterans/#{veteran_id}/526" }
 
       context 'CCG (Client Credentials Grant) flow' do
-        let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
-
         context 'when provided' do
           context 'when valid' do
             it 'returns a 200' do
               mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:ok)
-              end
-            end
-          end
-        end
-
-        context 'when current user is not the target veteran' do
-          context 'when current user is not a representative of the target veteran' do
-            it 'returns a 422' do
-              mock_ccg(scopes) do |auth_header|
-                allow_any_instance_of(TokenValidation::V2::Client).to receive(:token_valid?).and_return(false)
-
-                post submit_path, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
               end
             end
           end
@@ -3120,7 +3108,6 @@ RSpec.describe 'Disability Claims', type: :request do
     context 'validate endpoint' do
       let(:veteran_id) { '1012832025V743496' }
       let(:validation_path) { "/services/claims/v2/veterans/#{veteran_id}/526/validate" }
-      let(:ccg_token) { OpenStruct.new(client_credentials_token?: true, payload: { 'scp' => [] }) }
 
       it 'returns a successful response when valid' do
         mock_ccg(scopes) do |auth_header|

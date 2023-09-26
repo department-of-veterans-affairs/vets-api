@@ -707,6 +707,10 @@ features:
     actor_type: user
     description: Use for experimental features for My VA application (fullstack)
     enable_in_development: true
+  my_va_hide_notifications_section:
+    actor_type: user
+    description: Hides the Notifications section on My VA
+    enable_in_development: true
   my_va_notification_component:
     actor_type: user
     description: Enable users to see va-notification component on My VA
@@ -1096,6 +1100,9 @@ features:
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
+  hlr_browser_monitoring_enabled:
+    actor_type: user
+    description: HLR Datadog RUM monitoring
   virtual_agent_enable_pva2_chatbot:
     actor_type: user
     description: If enabled, switches VA chatbot from PVA1 to PVA2

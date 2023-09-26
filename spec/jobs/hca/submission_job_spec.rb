@@ -6,7 +6,16 @@ RSpec.describe HCA::SubmissionJob, type: :job do
   let(:user) { create(:user) }
   let(:user_identifier) { HealthCareApplication.get_user_identifier(user) }
   let(:health_care_application) { create(:health_care_application) }
-  let(:form) { { foo: true, email: 'foo@example.com' } }
+  let(:form) do
+    {
+      foo: true,
+      email: 'foo@example.com',
+      veteranFullName: {
+        first: 'first',
+        last: 'last'
+      }
+    }.deep_stringify_keys
+  end
   let(:result) do
     {
       formSubmissionId: 123,
@@ -60,9 +69,8 @@ RSpec.describe HCA::SubmissionJob, type: :job do
         it 'creates a pii log' do
           subject
 
-          log = PersonalInformationLog.last
-          expect(log.data['form']).to eq(form.stringify_keys)
-          expect(log.error_class).to eq('HCA::SOAPParser::ValidationError')
+          log = PersonalInformationLog.where(error_class: 'HCA::SOAPParser::ValidationError').last
+          expect(log.data['form']).to eq(form)
         end
       end
 

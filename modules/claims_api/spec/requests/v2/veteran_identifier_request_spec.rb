@@ -20,6 +20,10 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request,
   let(:veteran) { ClaimsApi::Veteran.new }
   let(:veteran_mpi_data) { MPIData.new }
 
+  before do
+    stub_jwt_valid_token_decode
+  end
+
   describe 'Veteran Identifier' do
     context 'when auth header and body params are present' do
       context 'when veteran icn is found' do

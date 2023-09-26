@@ -299,6 +299,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
       service = described_class.new(user)
       expect { service.submit_combined_fsr(valid_form_data) }.to change(Form5655Submission, :count).by(1)
+      expect(DebtsApi::V0::Form5655Submission.last.in_progress?).to eq(true)
     end
   end
 

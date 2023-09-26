@@ -63,7 +63,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
 
   it 'submits successfully with BD' do
     allow(Flipper).to receive(:enabled?).with(:claims_claim_uploader_use_bd).and_return true
-    allow_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return true
+    expect_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return true
 
     subject.new.perform(supporting_document.id)
     supporting_document.reload

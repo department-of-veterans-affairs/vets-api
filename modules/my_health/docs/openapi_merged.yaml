@@ -1140,6 +1140,32 @@ paths:
       summary: /v1/messaging/recipients
       parameters:
         - $ref: '#/components/parameters/InflectionHeader'
+  /v1/messaging/allrecipients:
+    get:
+      description: List available recipients to which messages may be sent with advanced attributes
+      operationId: get_all_triage_teams
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureMessagingAllRecipients'
+          description: OK
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Unauthorized
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/allrecipients
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
   /v1/messaging/threads/{id}/move:
     patch:
       description: Moves all received messages in a secure message thread to a specified folder. Sent messages, draft messages, and deleted messages will not be moved.
@@ -2089,3 +2115,78 @@ components:
                     - ASC
                     - DESC
                   example: ASC
+    SecureMessagingAllRecipients:
+      type: object
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - type
+              - attributes
+            properties:
+              id:
+                type: string
+                example: 855912
+              type:
+                type: string
+                example: al_triage_teams
+              attributes:
+                type: object
+                required:
+                  - triageTeamId
+                  - name
+                  - stationNumber
+                  - blockedStatus
+                  - preferredTeam
+                  - relationshipType
+                properties:
+                  triageTeamId:
+                    type: integer
+                    example: 855912
+                  name:
+                    type: string
+                    example: RADIOLOGY_TRIAGE_GROUP_1
+                  stationNumber:
+                    type: string
+                    example: 989
+                  blockedStatus:
+                    type: boolean
+                    example: false
+                  preferredTeam:
+                    type: boolean
+                    example: true
+                  relationshipType:
+                    type: string
+                    enum:
+                      - PATIENT
+                    example: PATIENT
+        meta:
+          type: object
+          required:
+            - sort
+            - associatedTriageGroups
+            - associatedBlockedTriageGroups
+          properties:
+            sort:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  enum:
+                    - ASC
+                    - DESC
+                  example: ASC
+            associatedTriageGroups:
+              type: integer
+              example: 38
+            associatedBlockedTriageGroups:
+              type: integer
+              example: 1

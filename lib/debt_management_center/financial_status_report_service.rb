@@ -149,8 +149,12 @@ module DebtManagementCenter
       )
       vbs_response = vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
                                       { jsonDocument: vha_form.to_json })
-
+      form_submission.submitted!
       { status: vbs_response.status }
+    rescue => e
+      form_submission.failed!
+      form_submission.update(error_message: e.message)
+      raise e
     end
 
     def send_vha_confirmation_email(_status, options)
@@ -197,7 +201,8 @@ module DebtManagementCenter
         metadata:,
         user_uuid: @user.uuid,
         user_account: @user.user_account,
-        public_metadata: form_json.slice('streamlined')
+        public_metadata: form_json.slice('streamlined'),
+        state: 1
       )
     end
 
