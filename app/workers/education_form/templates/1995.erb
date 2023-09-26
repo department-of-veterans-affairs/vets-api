@@ -2,7 +2,7 @@
 <%= form_type %>
 *START*
 VA Form 22-1995
-OMB Control #: 2900-0074
+DEC 2016
 
 
             REQUEST FOR CHANGE OF PROGRAM OR PLACE OF TRAINING
@@ -64,9 +64,9 @@ Date Entered   Date Separated     Service Component
           ----------------------------------------------------------
 
 For Active Duty Claimants Only. Are you receiving or do you anticipate receiving any money (including but not limited to Federal Tuition Assistance) from the Armed Forces or Public Health Service for the course for which you have applied to the VA for Education Benefits?  If you receive such benefits during any part of your training, check 'Yes.' Note:  If you are only applying for Tuition Assistance Top-Up, check 'No' to this item.    <%= yesno(@applicant.nonVaAssistance) %>
-<% if Settings.vsp_environment.eql?('production') %>
+
 For Civilian Employees of the U.S. Federal Government Only. Are you receiving or do you anticipate receiving any money from your agency (including but not limited to the Government Employees Training Act) for the same period for which you have applied to the VA for Education Benefits? If you will receive such benefits during any part of your training, check Yes.    <%= yesno(@applicant.civilianBenefitsAssistance) %>
-<% end %>
+
 <% if Settings.vsp_environment.eql?('production') -%>
                         MARITAL AND DEPENDENCY STATUS
            (For Applicants with Military Service Before Jan 1, 1977)
@@ -81,19 +81,10 @@ Parent Dependent: <%= yesno(@applicant.serviceBefore1977.parentDependent) %>
 N/A
 <% end -%>
 <% end -%>
-<% if Settings.vsp_environment.eql?('production') -%>
       Certification and Signature of Applicant
 Signature of Applicant                                               Date
 
       Certification for Persons on Active Duty
 Signature/Title/Branch of Armed Forces Education Service Officer     Date
-<% else -%>
-<% if @applicant.isActiveDuty -%>
-As an active-duty service member, you have consulted with an Education Service Officer (ESO) regarding your education program.
-<% else -%>
-      Certification and Signature of Applicant
-Signature of Applicant                                               Date
-<% end -%>
-<% end -%>
 
 <%= parse_with_template_path('footer') %>
