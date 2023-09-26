@@ -73,7 +73,7 @@ RSpec.describe 'gender identity', type: :request do
   end
 
   describe 'idme user' do
-    let!(:user) { sis_user(attributes: { icn: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' })}
+    let!(:user) { sis_user(attributes: { icn: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }) }
     let(:csd) { 'IDM' }
 
     describe 'GET /mobile/v0/gender_identity/edit' do

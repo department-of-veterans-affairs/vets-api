@@ -8,7 +8,7 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
   include Mobile::MessagingClientHelper
   include SchemaMatchers
 
-  let!(:user) { sis_user(traits: [:mhv, :api_auth], attributes: { mhv_correlation_id: '123', mhv_account_type: })}
+  let!(:user) { sis_user(traits: %i[mhv api_auth], attributes: { mhv_correlation_id: '123', mhv_account_type: }) }
   let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
   let(:message_id) { 573_059 }

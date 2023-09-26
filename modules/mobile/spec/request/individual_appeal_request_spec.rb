@@ -28,7 +28,7 @@ RSpec.describe 'individual appeal', type: :request do
     end
 
     context 'with an unauthorized user' do
-      let!(:user) { sis_user(attributes: { loa: { current: LOA::TWO, highest: LOA::TWO } })}
+      let!(:user) { sis_user(attributes: { loa: { current: LOA::TWO, highest: LOA::TWO } }) }
 
       it 'returns 403 status' do
         VCR.use_cassette('caseflow/appeals') do

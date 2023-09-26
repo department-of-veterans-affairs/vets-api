@@ -35,10 +35,11 @@ RSpec.describe 'legacy claims document upload', type: :request do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.jpg'))]
     params = { files:, trackedItemId: tracked_item_id, documentType: document_type }
+    headers = sis_headers(additional_headers: json_body_headers)
     expect_any_instance_of(Mobile::V0::Claims::Proxy).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
-                                                               headers: sis_headers(additional_headers: json_body_headers)
+                                                               headers:
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
@@ -48,10 +49,11 @@ RSpec.describe 'legacy claims document upload', type: :request do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.gif')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
     params = { files:, trackedItemId: tracked_item_id, documentType: document_type }
+    headers = sis_headers(additional_headers: json_body_headers)
     expect_any_instance_of(Mobile::V0::Claims::Proxy).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
-                                                               headers: sis_headers(additional_headers: json_body_headers)
+                                                               headers:
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
@@ -61,10 +63,11 @@ RSpec.describe 'legacy claims document upload', type: :request do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
     params = { files:, trackedItemId: tracked_item_id, documentType: document_type }
+    headers = sis_headers(additional_headers: json_body_headers)
     expect_any_instance_of(Mobile::V0::Claims::Proxy).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
-                                                               headers: sis_headers(additional_headers: json_body_headers)
+                                                               headers:
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
