@@ -9,7 +9,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   subject { described_class }
 
   before do
-    Sidekiq::Worker.clear_all
+    Sidekiq::Job.clear_all
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
