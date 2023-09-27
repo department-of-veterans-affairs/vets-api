@@ -17,16 +17,16 @@ RSpec.describe V0::NextOfKinController, type: :controller do
       let(:fixture_path) { %w[spec fixtures va_profile health_benefit_v1_read_ap.json] }
 
       before do
-        Flipper.enable(:nok_ec_read_only)
         allow_any_instance_of(VAProfile::HealthBenefit::Service)
           .to receive(:get_associated_persons).and_return(response_object)
       end
 
       it 'returns emergency contacts' do
+        Flipper.enable(:nok_ec_read_only)
         sign_in_as user
         get :index
         expect(response).to have_http_status(:success)
-        expect(json['data'].length).to eq(3)
+        expect(json['data'].length).to eq(1)
         json['data'].each do |el|
           expect(el['attributes']['contact_type']).to match(/next of kin/i)
         end
@@ -35,6 +35,7 @@ RSpec.describe V0::NextOfKinController, type: :controller do
 
     context 'user is not authenticated' do
       it 'returns an unauthorized status code' do
+        Flipper.enable(:nok_ec_read_only)
         get :index
         expect(response).to have_http_status(:unauthorized)
       end
@@ -43,8 +44,9 @@ RSpec.describe V0::NextOfKinController, type: :controller do
     context 'feature is disabled' do
       it 'returns an unauthorized status code' do
         Flipper.disable(:nok_ec_read_only)
+        sign_in_as user
         get :index
-        expect(response).to have_http_status(:unauthorized)
+        expect(response).to have_http_status(:not_found)
       end
     end
   end
