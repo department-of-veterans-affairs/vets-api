@@ -6,7 +6,7 @@ require 'sidekiq/form526_job_status_tracker/job_tracker'
 describe Sidekiq::Form526JobStatusTracker::JobTracker do
   let(:worker_class) do
     Class.new do
-      include Sidekiq::Worker
+      include Sidekiq::Job
       include Sidekiq::Form526JobStatusTracker::JobTracker
     end
   end

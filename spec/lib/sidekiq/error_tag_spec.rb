@@ -5,7 +5,7 @@ require 'rails_helper'
 describe Sidekiq::ErrorTag do
   # rubocop:disable Style/GlobalVars
   class TestJob
-    include Sidekiq::Worker
+    include Sidekiq::Job
 
     def perform
       $named_tags = Sidekiq.logger.named_tags
