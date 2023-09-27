@@ -21,6 +21,18 @@ FactoryBot.define do
           birth_date: '1950-10-04'
         },
         dependents_application: {
+          veteran_information: {
+            full_name: {
+              first: 'Mark',
+              middle: 'A',
+              last: 'Webb',
+              suffix: 'Jr.'
+            },
+            ssn: '796104437',
+            va_file_number: '796104437',
+            service_number: '12345678',
+            birth_date: '1950-10-04'
+          },
           veteran_contact_information: {
             veteran_address: {
               country_name: 'USA',
