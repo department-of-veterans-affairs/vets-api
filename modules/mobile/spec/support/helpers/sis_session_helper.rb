@@ -16,12 +16,13 @@ module SISSessionHelper
     end
   end
 
-  def sis_headers(additional_headers: {}, camelize: true)
+  def sis_headers(additional_headers: {}, camelize: true, json: false)
     headers = {
       'Authorization' => "Bearer #{sis_bearer_token}",
       'Authentication-Method' => 'SIS'
     }
     headers.merge!('X-Key-Inflection' => 'camel') if camelize
+    headers.merge!({ 'Content-Type' => 'application/json', 'Accept' => 'application/json' }) if json
     headers.merge!(additional_headers) if additional_headers.any?
     headers
   end
