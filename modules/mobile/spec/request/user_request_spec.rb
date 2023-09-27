@@ -265,13 +265,15 @@ RSpec.describe 'user', type: :request do
     context 'when the upstream va profile service returns a 404' do
       before do
         allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
-          Faraday::ResourceNotFound.new('the resource could not be found')
+          Common::Exceptions::RecordNotFound.new(user.uuid)
         )
       end
 
       it 'returns a record not found error' do
-        VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/user', headers: sis_headers
+        VCR.use_cassette('mobile/va_profile/demographics/demographics') do
+          VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
+            get '/mobile/v0/user', headers: sis_headers
+          end
         end
 
         expect(response).to have_http_status(:not_found)
@@ -281,7 +283,7 @@ RSpec.describe 'user', type: :request do
             'errors' => [
               {
                 'title' => 'Record not found',
-                'detail' => 'The record identified by 1 could not be found',
+                'detail' => "The record identified by #{user.uuid} could not be found",
                 'code' => '404',
                 'status' => '404'
               }
