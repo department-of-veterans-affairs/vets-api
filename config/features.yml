@@ -789,6 +789,10 @@ features:
     actor_type: user
     description: Display an alert to unauthenticated users on the MEB introduction page.
     enable_in_development: true
+  show_meb_1990EZ_maintenance_alert:
+    actor_type: user
+    description: Display an alert to users on the 1990EZ introduction page when Backend Service is Down.
+    enable_in_development: true
   show_forms_app:
     actor_type: user
     description: This determines when the form should be displayed.
@@ -999,10 +1003,6 @@ features:
     actor_type: user
     description: Enables UI updates for meb dgi 42
     enable_in_development: true
-  show_meb_ch33_self_form:
-    actor_type: user
-    description: Enables the redirect of Ch33 form.
-    enable_in_development: true
   show_meb_enhancements:
     actor_type: user
     description: Provides a flag wrapper for minor code changes to be gated from Prod.
@@ -1021,6 +1021,7 @@ features:
   meb_gate_person_criteria:
     actor_type: user
     description: Flag to use Person Criteria on Submission service
+    enable_in_development: true
   supply_reordering_sleep_apnea_enabled:
     actor_type: user
     description: Enables sleep apnea supplies to be ordered in the supply reorder tool / MDOT.
