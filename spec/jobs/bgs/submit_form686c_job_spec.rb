@@ -105,7 +105,9 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
       allow(BGS::Form686c).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
       expect(client_stub).to receive(:submit).and_raise(StandardError)
 
-      expect(CentralMail::SubmitCentralForm686cJob).to receive(:perform_async).with(dependency_claim.id, vet_info, an_instance_of(OpenStruct)) # rubocop:disable Layout/LineLength
+      expect(CentralMail::SubmitCentralForm686cJob).to receive(:perform_async).with(dependency_claim.id,
+                                                                                    an_instance_of(String),
+                                                                                    an_instance_of(String))
       subject
     end
   end
