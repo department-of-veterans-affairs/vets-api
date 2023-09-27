@@ -457,7 +457,10 @@ module HCA
 
     def discharge_type(veteran)
       discharge_date = Validations.parse_date(veteran['lastDischargeDate'])
-      return '' if discharge_date&.future?
+
+      if discharge_date.present? && (discharge_date > Time.zone.now.in_time_zone('Central Time (US & Canada)').to_date)
+        return ''
+      end
 
       discharge_type_to_sds_code(veteran['dischargeType'])
     end
