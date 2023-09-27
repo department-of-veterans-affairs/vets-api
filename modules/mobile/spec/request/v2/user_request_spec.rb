@@ -27,13 +27,17 @@ RSpec.describe 'user', type: :request do
     end
 
     it 'includes the users names' do
-      expect(attributes['firstName']).to include(user.first_name)
-      expect(attributes['middleName']).to include(user.middle_name)
-      expect(attributes['lastName']).to include(user.last_name)
+      expect(attributes['firstName']).to eq(user.first_name)
+      expect(attributes['middleName']).to eq(user.middle_name)
+      expect(attributes['lastName']).to eq(user.last_name)
     end
 
-    it 'includes the users sign-in email' do
-      expect(attributes['signinEmail']).to include(user.email)
+    it 'eqs the users sign-in email' do
+      expect(attributes['signinEmail']).to eq(user.email)
+    end
+
+    it 'includes the user\'s birth_date' do
+      expect(attributes['birthDate']).to eq(Date.parse(user.birth_date).iso8601)
     end
 
     it 'includes sign-in service' do
