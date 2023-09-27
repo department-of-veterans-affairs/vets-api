@@ -8,7 +8,6 @@ RSpec.describe 'push send', type: :request do
   include JsonSchemaMatchers
   let!(:user) { sis_user }
 
-
   describe 'PUT /mobile/v0/push/send' do
     context 'with with valid request body' do
       let(:params) do

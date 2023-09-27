@@ -10,9 +10,8 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
   include JsonSchemaMatchers
   include Rx::ClientHelpers
 
-  let!(:user) { sis_user(traits: %i[mhv api_auth]) }
+  let!(:user) { sis_user(traits: %i[mhv api_auth], attributes: { mhv_account_type: }) }
   let(:mhv_account_type) { 'Premium' }
-  let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:upstream_mhv_history_url) { 'https://mhv-api.example.com/mhv-api/patient/v1/prescription/gethistoryrx' }
   let(:set_cache) do
     path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'prescriptions.json')
@@ -23,7 +22,6 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
 
   before do
     allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(true)
-    allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return(mhv_account_type)
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
   end
 

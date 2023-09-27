@@ -1,21 +1,30 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 require 'common/client/errors'
 
 RSpec.describe 'user', type: :request do
   include JsonSchemaMatchers
 
+  let!(:user) do
+    sis_user(
+      attributes: {
+        first_name: 'GREG',
+        middle_name: 'A',
+        last_name: 'ANDERSON',
+        email: 'va.api.user+idme.008@gmail.com',
+        birth_date: '1970-08-12',
+        idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+        cerner_facility_ids: %w[757 358 999],
+        vha_facility_ids: %w[757 358 999]
+      }
+    )
+  end
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
   describe 'GET /mobile/v0/user' do
-    before do
-      iam_sign_in(FactoryBot.build(:iam_user))
-      allow_any_instance_of(IAMUser).to receive(:idme_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
-    end
-
     before(:all) do
       Flipper.disable(:mobile_lighthouse_letters)
     end
@@ -25,7 +34,7 @@ RSpec.describe 'user', type: :request do
         VCR.use_cassette('mobile/payment_information/payment_information') do
           VCR.use_cassette('mobile/user/get_facilities') do
             VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-              get '/mobile/v0/user', headers: iam_headers
+              get '/mobile/v0/user', headers: sis_headers
             end
           end
         end
@@ -41,15 +50,15 @@ RSpec.describe 'user', type: :request do
 
       it 'includes the users names' do
         expect(attributes['profile']).to include(
-          'firstName' => 'GREG',
-          'middleName' => 'A',
-          'lastName' => 'ANDERSON'
+          'firstName' => user.first_name,
+          'middleName' => user.middle_name,
+          'lastName' => user.last_name
         )
       end
 
       it 'includes the users sign-in email' do
         expect(attributes['profile']).to include(
-          'signinEmail' => 'va.api.user+idme.008@gmail.com'
+          'signinEmail' => user.email
         )
       end
 
@@ -63,7 +72,7 @@ RSpec.describe 'user', type: :request do
 
       it 'includes the users birth date' do
         expect(attributes['profile']).to include(
-          'birthDate' => '1970-08-12'
+          'birthDate' => user.birth_date
         )
       end
 
@@ -147,7 +156,7 @@ RSpec.describe 'user', type: :request do
       end
 
       it 'includes sign-in service' do
-        expect(attributes['profile']['signinService']).to eq('IDME')
+        expect(attributes['profile']['signinService']).to eq('idme')
       end
 
       it 'includes the service the user has access to' do
@@ -206,7 +215,7 @@ RSpec.describe 'user', type: :request do
               },
               {
                 'facilityId' => '358',
-                'isCerner' => false,
+                'isCerner' => true,
                 'facilityName' => 'COLUMBUS VAMC'
               }
             ]
@@ -215,12 +224,13 @@ RSpec.describe 'user', type: :request do
       end
 
       context 'when user object birth_date is nil' do
+        let!(:user) { sis_user(attributes: { birth_date: nil }) }
+
         before do
-          iam_sign_in(FactoryBot.build(:iam_user, :no_birth_date))
           VCR.use_cassette('mobile/payment_information/payment_information') do
             VCR.use_cassette('mobile/user/get_facilities_no_ids', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-                get '/mobile/v0/user', headers: iam_headers
+                get '/mobile/v0/user', headers: sis_headers
               end
             end
           end
@@ -244,7 +254,7 @@ RSpec.describe 'user', type: :request do
 
       it 'returns a service unavailable error' do
         VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/user', headers: iam_headers
+          get '/mobile/v0/user', headers: sis_headers
         end
 
         expect(response).to have_http_status(:bad_gateway)
@@ -261,7 +271,7 @@ RSpec.describe 'user', type: :request do
 
       it 'returns a record not found error' do
         VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/user', headers: iam_headers
+          get '/mobile/v0/user', headers: sis_headers
         end
 
         expect(response).to have_http_status(:not_found)
@@ -289,7 +299,7 @@ RSpec.describe 'user', type: :request do
       end
 
       it 'returns a bad gateway error' do
-        get '/mobile/v0/user', headers: iam_headers
+        get '/mobile/v0/user', headers: sis_headers
 
         expect(response).to have_http_status(:internal_server_error)
         expect(response.body).to match_json_schema('errors')
@@ -305,7 +315,7 @@ RSpec.describe 'user', type: :request do
 
       it 'returns a bad gateway error' do
         VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/user', headers: iam_headers
+          get '/mobile/v0/user', headers: sis_headers
         end
 
         expect(response).to have_http_status(:bad_gateway)
@@ -322,7 +332,7 @@ RSpec.describe 'user', type: :request do
           VCR.use_cassette('mobile/payment_information/payment_information') do
             VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-                get '/mobile/v0/user', headers: iam_headers
+                get '/mobile/v0/user', headers: sis_headers
               end
             end
           end
@@ -339,7 +349,7 @@ RSpec.describe 'user', type: :request do
           VCR.use_cassette('mobile/payment_information/payment_information') do
             VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-                get '/mobile/v0/user', headers: iam_headers
+                get '/mobile/v0/user', headers: sis_headers
               end
             end
           end
@@ -352,7 +362,7 @@ RSpec.describe 'user', type: :request do
         VCR.use_cassette('mobile/payment_information/payment_information') do
           VCR.use_cassette('mobile/user/get_facilities_empty', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-              get '/mobile/v0/user', headers: iam_headers
+              get '/mobile/v0/user', headers: sis_headers
             end
           end
         end
@@ -384,7 +394,7 @@ RSpec.describe 'user', type: :request do
         VCR.use_cassette('mobile/payment_information/payment_information') do
           VCR.use_cassette('mobile/user/get_facilities', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-              get '/mobile/v0/user', headers: iam_headers
+              get '/mobile/v0/user', headers: sis_headers
             end
           end
         end
@@ -422,17 +432,13 @@ RSpec.describe 'user', type: :request do
 
     describe 'vet360 linking' do
       context 'when user has a vet360_id' do
-        let(:user) { FactoryBot.build(:iam_user) }
-
-        before { iam_sign_in(user) }
-
         it 'does not enqueue vet360 linking job' do
           expect(Mobile::V0::Vet360LinkingJob).not_to receive(:perform_async)
 
           VCR.use_cassette('mobile/payment_information/payment_information') do
             VCR.use_cassette('mobile/user/get_facilities') do
               VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-                get '/mobile/v0/user', headers: iam_headers
+                get '/mobile/v0/user', headers: sis_headers
               end
             end
           end
@@ -445,7 +451,7 @@ RSpec.describe 'user', type: :request do
           VCR.use_cassette('mobile/payment_information/payment_information') do
             VCR.use_cassette('mobile/user/get_facilities') do
               VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-                get '/mobile/v0/user', headers: iam_headers
+                get '/mobile/v0/user', headers: sis_headers
 
                 expect(Mobile::User.where(icn: user.icn, vet360_link_attempts: 1, vet360_linked: true)).to exist
               end
@@ -456,7 +462,7 @@ RSpec.describe 'user', type: :request do
       end
 
       context 'when user does not have a vet360_id' do
-        before { iam_sign_in(FactoryBot.build(:iam_user, :no_vet360_id)) }
+        let!(:user) { sis_user(attributes: { vet360_id: nil }) }
 
         it 'enqueues vet360 linking job' do
           expect(Mobile::V0::Vet360LinkingJob).to receive(:perform_async)
@@ -464,7 +470,7 @@ RSpec.describe 'user', type: :request do
           VCR.use_cassette('mobile/payment_information/payment_information') do
             VCR.use_cassette('mobile/user/get_facilities_no_ids') do
               VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-                get '/mobile/v0/user', headers: iam_headers
+                get '/mobile/v0/user', headers: sis_headers
               end
             end
           end
@@ -475,11 +481,9 @@ RSpec.describe 'user', type: :request do
   end
 
   describe 'GET /mobile/v0/user/logout' do
-    before { iam_sign_in }
-
     context 'with a 200 response' do
       before do
-        get '/mobile/v0/user/logout', headers: iam_headers
+        get '/mobile/v0/user/logout', headers: sis_headers
       end
 
       it 'returns an ok response' do
@@ -489,10 +493,8 @@ RSpec.describe 'user', type: :request do
   end
 
   describe 'POST /mobile/v0/user/logged-in' do
-    before { iam_sign_in }
-
     it 'returns an ok response' do
-      post '/mobile/v0/user/logged-in', headers: iam_headers
+      post '/mobile/v0/user/logged-in', headers: sis_headers
       expect(response).to have_http_status(:ok)
     end
 
@@ -502,7 +504,7 @@ RSpec.describe 'user', type: :request do
 
         it 'kicks off a pre cache appointments job' do
           expect(Mobile::V0::PreCacheAppointmentsJob).to receive(:perform_async).once
-          post '/mobile/v0/user/logged-in', headers: iam_headers
+          post '/mobile/v0/user/logged-in', headers: sis_headers
         end
       end
 
@@ -513,36 +515,32 @@ RSpec.describe 'user', type: :request do
 
         it 'does not kick off a pre cache appointments job' do
           expect(Mobile::V0::PreCacheAppointmentsJob).not_to receive(:perform_async)
-          post '/mobile/v0/user/logged-in', headers: iam_headers
+          post '/mobile/v0/user/logged-in', headers: sis_headers
         end
       end
     end
 
     describe 'vet360 linking' do
       context 'when user has a vet360_id' do
-        let(:user) { FactoryBot.build(:iam_user) }
-
-        before { iam_sign_in(user) }
-
         it 'does not enqueue vet360 linking job' do
           expect(Mobile::V0::Vet360LinkingJob).not_to receive(:perform_async)
 
-          post '/mobile/v0/user/logged-in', headers: iam_headers
+          post '/mobile/v0/user/logged-in', headers: sis_headers
         end
 
         it 'flips mobile user vet360_linked to true if record exists' do
           Mobile::User.create(icn: user.icn, vet360_link_attempts: 1, vet360_linked: false)
-          post '/mobile/v0/user/logged-in', headers: iam_headers
+          post '/mobile/v0/user/logged-in', headers: sis_headers
           expect(Mobile::User.where(icn: user.icn, vet360_link_attempts: 1, vet360_linked: true)).to exist
         end
       end
 
       context 'when user does not have a vet360_id' do
-        before { iam_sign_in(FactoryBot.build(:iam_user, :no_vet360_id)) }
+        let!(:user) { sis_user(attributes: { vet360_id: nil }) }
 
         it 'enqueues vet360 linking job' do
           expect(Mobile::V0::Vet360LinkingJob).to receive(:perform_async)
-          post '/mobile/v0/user/logged-in', headers: iam_headers
+          post '/mobile/v0/user/logged-in', headers: sis_headers
         end
       end
     end

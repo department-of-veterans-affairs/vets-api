@@ -9,13 +9,9 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
   include SchemaMatchers
 
   let!(:user) { sis_user(traits: %i[mhv api_auth], attributes: { mhv_correlation_id: '123', mhv_account_type: }) }
-  let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
-  let(:message_id) { 573_059 }
-  let(:va_patient) { true }
 
   before do
-    allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return(mhv_account_type)
     allow(Mobile::V0::Messaging::Client).to receive(:new).and_return(authenticated_client)
   end
 
