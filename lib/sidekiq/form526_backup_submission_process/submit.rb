@@ -6,7 +6,7 @@ module Sidekiq
   module Form526BackupSubmissionProcess
     class Form526BackgroundLoader
       extend ActiveSupport::Concern
-      include Sidekiq::Worker
+      include Sidekiq::Job
       sidekiq_options retry: false
 
       def perform(id)
@@ -18,7 +18,7 @@ module Sidekiq
     class Submit
       extend ActiveSupport::Concern
       include SentryLogging
-      include Sidekiq::Worker
+      include Sidekiq::Job
       sidekiq_options retry: 3
 
       def perform(form526_submission_id)

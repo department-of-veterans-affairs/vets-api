@@ -80,7 +80,7 @@ RSpec.describe Logging::ThirdPartyTransaction do
     let!(:test_object) do
       class TestWorker
         include TestObjectContent
-        include Sidekiq::Worker
+        include Sidekiq::Job
 
         self
       end.new
