@@ -24,33 +24,11 @@ module VAProfile
       def get_veteran_status
         with_monitoring do
           edipi_present!
-
           response = perform(:post, identity_path, VAProfile::Models::VeteranStatus.in_json)
           VeteranStatusResponse.from(response)
         end
       rescue Common::Client::Errors::ClientError => e
-        additional_params = { edipi: @user&.identity&.edipi }
-
-        if e.status == 404
-          log_exception_to_sentry(
-            e,
-            additional_params,
-            { va_profile: :veteran_status_title_not_found },
-            :warning
-          )
-
-          return VeteranStatusResponse.new(404, veteran_status_title: nil)
-        elsif e.status >= 400 && e.status < 500
-          log_exception_to_sentry(
-            e,
-            additional_params,
-            { va_profile: :client_error_related_to_title38 },
-            :warning
-          )
-          return VeteranStatusResponse.new(e.status, veteran_status_title: nil)
-        end
-
-        handle_error(e)
+        handle_client_error(e)
       rescue => e
         handle_error(e)
       end
@@ -82,8 +60,25 @@ module VAProfile
 
       private
 
+      def handle_client_error(e)
+        additional_params = { edipi: @user&.identity&.edipi }
+
+        if e.status == 404
+          log_exception_to_sentry(
+            e, additional_params, { va_profile: :veteran_status_title_not_found }, :warning
+          )
+          return VeteranStatusResponse.new(404, veteran_status_title: nil)
+        elsif e.status >= 400 && e.status < 500
+          log_exception_to_sentry(
+            e, additional_params, { va_profile: :client_error_related_to_title38 }, :warning
+          )
+          return VeteranStatusResponse.new(e.status, veteran_status_title: nil)
+        end
+
+        handle_error(e)
+      end
+
       def edipi_present!
-        # binding.pry
         raise 'User does not have a valid edipi' if @user&.identity&.edipi.blank?
       end
 

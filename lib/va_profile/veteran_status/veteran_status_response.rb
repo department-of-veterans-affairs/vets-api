@@ -11,7 +11,10 @@ module VAProfile
       def self.from(_, raw_response = nil)
         body = raw_response&.body
 
-        title38_status_code = body&.dig('profile', 'military_person', 'military_summary', 'title38_status_code')  # parse title_38 from the raw response
+        title38_status_code = body&.dig(
+          'profile', 'military_person',
+          'military_summary', 'title38_status_code'
+        )
         new(
           raw_response&.status,
           title38_status_code: VAProfile::Models::VeteranStatus.new(
