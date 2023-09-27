@@ -31,6 +31,20 @@ Datadog.configure do |c|
     c.appsec.enabled = true
     c.appsec.instrument :rails
 
+  elsif Settings.vsp_environment == 'localhost'
+    c.agent.host = 'localhost'
+    c.agent.port = 8126
+    c.service = 'vets-api'
+    c.env = Settings.vsp_environment unless ENV['DD_ENV']
+    c.tracing.instrument :rails
+    c.tracing.instrument :sidekiq, service_name: 'vets-api-sidekiq'
+    c.tracing.instrument :active_support, cache_service: 'vets-api-cache'
+    c.tracing.instrument :action_pack, service_name: 'vets-api-controllers'
+    c.tracing.instrument :active_record, service_name: 'vets-api-db'
+    c.tracing.instrument :redis, service_name: 'vets-api-redis'
+    c.tracing.instrument :pg, service_name: 'vets-api-pg'
+    c.tracing.instrument :http, service_name: 'vets-api-net-http'
+    
   elsif Settings.vsp_environment == 'test'
     # Set transport to no-op mode. Does not retain traces.
     c.tracing.transport_options = ->(t) { t.adapter :test }
