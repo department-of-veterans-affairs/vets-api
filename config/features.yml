@@ -131,6 +131,10 @@ features:
     actor_type: user
     description: Enables the travel reimbursement logic
     enable_in_development: true
+  check_in_experience_45_minute_reminder:
+    actor_type: user
+    description: Enables the 45 minute reminder
+    enable_in_development: true
   check_in_experience_browser_monitoring:
     actor_type: user
     description: Enables browser monitoring for check-in applications.
