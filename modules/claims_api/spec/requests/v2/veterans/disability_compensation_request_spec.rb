@@ -822,6 +822,51 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
         end
+
+        context 'when 526 form indicates a homeless situation' do
+          it 'sets the homeless flash' do
+            mock_ccg(scopes) do |auth_header|
+              json_data = JSON.parse data
+              params = json_data
+              params['data']['attributes']['homeless']['currentlyHomeless'] = {
+                homelessSituationOptions: 'FLEEING_CURRENT_RESIDENCE',
+                otherDescription: 'community help center'
+              }
+              post submit_path, params: params.to_json, headers: auth_header
+              token = JSON.parse(response.body)['data']['attributes']['token']
+              aec = ClaimsApi::AutoEstablishedClaim.find(token)
+              expect(aec.flashes).to eq(%w[Homeless])
+            end
+          end
+        end
+
+        context 'when 526 form indicates an at-risk of homelessness situation' do
+          let(:homeless) do
+            {
+              pointOfContact: 'john stewart',
+              pointOfContactNumber: {
+                telephone: '5555555555',
+                internationalTelephone: '+44 20 1234 5678'
+              }
+            }
+          end
+
+          it 'sets the hardship flash' do
+            mock_ccg(scopes) do |auth_header|
+              json_data = JSON.parse data
+              params = json_data
+              params['data']['attributes']['homeless'] = homeless
+              params['data']['attributes']['homeless']['riskOfBecomingHomeless'] = {
+                livingSituationOptions: 'HOUSING_WILL_BE_LOST_IN_30_DAYS',
+                otherDescription: 'other living situation'
+              }
+              post submit_path, params: params.to_json, headers: auth_header
+              token = JSON.parse(response.body)['data']['attributes']['token']
+              aec = ClaimsApi::AutoEstablishedClaim.find(token)
+              expect(aec.flashes).to eq(%w[Hardship])
+            end
+          end
+        end
       end
 
       describe 'Validation of toxicExposure elements' do
