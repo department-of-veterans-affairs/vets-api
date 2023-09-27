@@ -12,7 +12,6 @@ module VAProfile
       end
 
       def service_name
-        # can verify through swagger docs
         'VAProfileVeteranStatus'
       end
 

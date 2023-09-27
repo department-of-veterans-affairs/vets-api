@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
+RSpec.describe 'Veteran Status API endpoint', if: !Flipper.enabled?(:veteran_status_updated), type: :request, skip_emis: true do
   include SchemaMatchers
 
   let(:scopes) { %w[profile email openid veteran_status.read] }
