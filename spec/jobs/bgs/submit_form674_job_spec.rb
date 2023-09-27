@@ -158,8 +158,8 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
         allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
         expect(client_stub).to receive(:submit).and_raise(StandardError)
         expect(job).to receive(:salvage_save_in_progress_form).with('686C-674', user.uuid, anything)
-        expect(CentralMail::SubmitCentralForm686cJob).to receive(:perform_async).with(dependency_claim.id, vet_info, an_instance_of(OpenStruct)) # rubocop:disable Layout/LineLength
-        job.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
+        expect(CentralMail::SubmitCentralForm686cJob).to receive(:perform_async).with(dependency_claim.id, an_instance_of(String), an_instance_of(String)) # rubocop:disable Layout/LineLength
+        job.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct)
       end
     end
 

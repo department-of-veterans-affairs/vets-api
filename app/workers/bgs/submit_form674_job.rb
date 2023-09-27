@@ -45,7 +45,9 @@ module BGS
           user_struct = OpenStruct.new(user_struct_hash)
         end
         # rubocop:enable Metrics/BlockNesting
-        CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id, vet_info, user_struct)
+        CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
+                                                            KmsEncrypted::Box.new.encrypt(vet_info.to_json),
+                                                            KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json))
       else
         DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present? # rubocop:disable Style/IfInsideElse
       end

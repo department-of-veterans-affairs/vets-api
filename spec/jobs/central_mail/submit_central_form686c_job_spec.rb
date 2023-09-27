@@ -4,6 +4,8 @@ require 'rails_helper'
 
 RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
   stub_virus_scan
+  subject(:job) { described_class.new }
+
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:claim) { create(:dependency_claim) }
   let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
@@ -26,6 +28,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
       }
     }
   end
+  let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
   let(:central_mail_submission) { claim.central_mail_submission }
 
   let(:user_struct) do
@@ -42,23 +45,46 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
       common_name: vet_info['veteran_information']['common_name']
     )
   end
+  let(:encrypted_user_struct) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
 
   describe '#perform' do
-    let(:job) { described_class.new }
     let(:success) { true }
+    let(:path) { 'pdf_path' }
 
     before do
-      expect(job).to receive(:process_record).with(claim).and_return('pdf_path')
-      expect(job).to receive(:to_faraday_upload).with('pdf_path').and_return('faraday1')
-      expect(job).to receive(:generate_metadata).and_return(
-        metadata: {}
+      datestamp_double1 = double
+      datestamp_double2 = double
+
+      expect_any_instance_of(SavedClaim::DependencyClaim).to receive(:to_pdf).and_return('path1')
+      expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
+      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5).and_return('path2')
+      expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
+      expect(datestamp_double2).to receive(:run).with(
+        text: 'FDC Reviewed - va.gov Submission',
+        x: 429,
+        y: 770,
+        text_only: true
+      ).and_return(path)
+      expect(Digest::SHA256).to receive(:file).with(path).and_return(
+        OpenStruct.new(hexdigest: 'hexdigest')
       )
+      expect(PdfInfo::Metadata).to receive(:read).with(path).and_return(
+        OpenStruct.new(pages: 2)
+      )
+      expect(Faraday::UploadIO).to receive(:new).with(
+        path,
+        'application/pdf'
+      ).and_return('faraday1')
+
+      # subject.to_faraday_upload(file_path)
+
       body = 'Request was received successfully  [uuid: 0e95811d-55a9-4fb9-bc39-045e27b2c106]'
       expect_any_instance_of(CentralMail::Service).to receive(:upload).with(
-        'metadata' => '{"metadata":{}}', 'document' => 'faraday1'
+        'metadata' => instance_of(String),
+        'document' => 'faraday1'
       ).and_return(OpenStruct.new(success?: success, body:))
 
-      expect(File).to receive(:delete).with('pdf_path')
+      expect(File).to receive(:delete).with(path)
     end
 
     context 'with an response error' do
@@ -68,7 +94,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
         mailer_double = double('Mail::Message')
         allow(mailer_double).to receive(:deliver_now)
         expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(OpenStruct)) { mailer_double }
-        expect { job.perform(claim.id, vet_info, user_struct) }.to raise_error(CentralMail::SubmitCentralForm686cJob::CentralMailResponseError) # rubocop:disable Layout/LineLength
+        expect { subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct) }.to raise_error(CentralMail::SubmitCentralForm686cJob::CentralMailResponseError) # rubocop:disable Layout/LineLength
 
         expect(central_mail_submission.reload.state).to eq('failed')
       end
@@ -83,7 +109,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
           'first_name' => 'MARK'
         }
       )
-      job.perform(claim.id, vet_info, user_struct)
+      subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct)
       expect(central_mail_submission.reload.state).to eq('success')
     end
   end
@@ -136,21 +162,26 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
     end
 
     describe '#generate_metadata' do
-      let(:job) do
-        job = described_class.new
+      subject { job.generate_metadata }
+
+      before do
         job.instance_variable_set('@claim', claim)
         job.instance_variable_set('@pdf_path', 'pdf_path')
         job.instance_variable_set('@attachment_paths', ['attachment_path'])
 
-        expect(job).to receive(:get_hash_and_pages).with('pdf_path').and_return(
-          hash: 'hash1',
-          pages: 1
+        expect(Digest::SHA256).to receive(:file).with('pdf_path').and_return(
+          OpenStruct.new(hexdigest: 'hash1')
         )
-        expect(job).to receive(:get_hash_and_pages).with('attachment_path').and_return(
-          hash: 'hash2',
-          pages: 2
+        expect(PdfInfo::Metadata).to receive(:read).with('pdf_path').and_return(
+          OpenStruct.new(pages: 1)
         )
-        job
+
+        expect(Digest::SHA256).to receive(:file).with('attachment_path').and_return(
+          OpenStruct.new(hexdigest: 'hash2')
+        )
+        expect(PdfInfo::Metadata).to receive(:read).with('attachment_path').and_return(
+          OpenStruct.new(pages: 2)
+        )
       end
 
       context 'with a non us address' do
@@ -162,12 +193,12 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
         end
 
         it 'generates metadata with 00000 for zipcode' do
-          expect(job.generate_metadata['zipCode']).to eq('00000')
+          expect(subject['zipCode']).to eq('00000')
         end
       end
 
       it 'generates the metadata', run_at: '2017-01-04 03:00:00 EDT' do
-        expect(job.generate_metadata).to eq(
+        expect(subject).to eq(
           'veteranFirstName' => vet_info['veteran_information']['full_name']['first'],
           'veteranLastName' => vet_info['veteran_information']['full_name']['last'],
           'fileNumber' => vet_info['veteran_information']['va_file_number'],
