@@ -8,15 +8,15 @@ module VAProfile
     class VeteranStatusResponse < VAProfile::Response
       attribute :title38_status_code, VAProfile::Models::VeteranStatus
 
-      def self.from(_, raw_response = nil)
-        body = raw_response&.body
+      def self.from(response)
+        body = response&.body
 
         title38_status_code = body&.dig(
           'profile', 'military_person',
           'military_summary', 'title38_status_code'
         )
         new(
-          raw_response&.status,
+          response&.status,
           title38_status_code: VAProfile::Models::VeteranStatus.new(
             title38_status_code:
           )
