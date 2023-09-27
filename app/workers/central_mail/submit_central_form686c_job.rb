@@ -110,11 +110,11 @@ module CentralMail
 
     # rubocop:disable Metrics/MethodLength
     def generate_metadata
-      form = @claim.parsed_form
+      form = @claim.parsed_form['dependents_application']
       form_pdf_metadata = get_hash_and_pages(@pdf_path)
       number_attachments = @attachment_paths.size
       veteran_full_name = form['veteran_information']['full_name']
-      address = form['dependents_application']['veteran_contact_information']['veteran_address']
+      address = form['veteran_contact_information']['veteran_address']
       receive_date = @claim.created_at.in_time_zone('Central Time (US & Canada)')
 
       metadata = {
