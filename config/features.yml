@@ -322,6 +322,10 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
+  dependents_central_submission:
+    actor_type: user
+    description: Manage whether dependent claims will submit to central processing
+    enable_in_development: true
   dependents_submit_674_independently:
     actor_type: user
     description: Manage whether 674 can be submitted without an associated 686c
@@ -710,6 +714,10 @@ features:
     actor_type: user
     description: Use for experimental features for My VA application (fullstack)
     enable_in_development: true
+  my_va_hide_notifications_section:
+    actor_type: user
+    description: Hides the Notifications section on My VA
+    enable_in_development: true
   my_va_notification_component:
     actor_type: user
     description: Enable users to see va-notification component on My VA
@@ -783,6 +791,10 @@ features:
   show_meb_unverified_user_alert:
     actor_type: user
     description: Display an alert to unauthenticated users on the MEB introduction page.
+    enable_in_development: true
+  show_meb_1990EZ_maintenance_alert:
+    actor_type: user
+    description: Display an alert to users on the 1990EZ introduction page when Backend Service is Down.
     enable_in_development: true
   show_forms_app:
     actor_type: user
@@ -994,10 +1006,6 @@ features:
     actor_type: user
     description: Enables UI updates for meb dgi 42
     enable_in_development: true
-  show_meb_ch33_self_form:
-    actor_type: user
-    description: Enables the redirect of Ch33 form.
-    enable_in_development: true
   show_meb_enhancements:
     actor_type: user
     description: Provides a flag wrapper for minor code changes to be gated from Prod.
@@ -1016,6 +1024,7 @@ features:
   meb_gate_person_criteria:
     actor_type: user
     description: Flag to use Person Criteria on Submission service
+    enable_in_development: true
   supply_reordering_sleep_apnea_enabled:
     actor_type: user
     description: Enables sleep apnea supplies to be ordered in the supply reorder tool / MDOT.
@@ -1099,6 +1108,9 @@ features:
   nod_browser_monitoring_enabled:
     actor_type: user
     description: NOD Datadog RUM monitoring
+  hlr_browser_monitoring_enabled:
+    actor_type: user
+    description: HLR Datadog RUM monitoring
   virtual_agent_enable_pva2_chatbot:
     actor_type: user
     description: If enabled, switches VA chatbot from PVA1 to PVA2
@@ -1112,3 +1124,6 @@ features:
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
+  virtual_agent_decision_letter_download_tracking:
+    actor_type: user
+    description: Enable tracking of decision letter downloads in the VA Chatbot

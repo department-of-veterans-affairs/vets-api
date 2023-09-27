@@ -34,7 +34,6 @@ module ClaimsApi
 
       def validate(claim, data)
         @auth_headers = claim.auth_headers
-        @auth_headers['va_eauth_birlsfilenumber'] = @auth_headers['va_eauth_pnid']
 
         begin
           resp = client.post('validate', data)&.body
@@ -60,7 +59,7 @@ module ClaimsApi
 
         Faraday.new("#{base_name}/#{service_name}/rest/form526/v2",
                     # Disable SSL for (localhost) testing
-                    ssl: { verify: Settings.dvp&.ssl != false },
+                    ssl: { verify: Settings.evss&.dvp&.ssl != false },
                     headers:) do |f|
           f.request :json
           f.response :raise_error
@@ -76,7 +75,7 @@ module ClaimsApi
         @auth_headers.merge!({
                                Authorization: "Bearer #{access_token}",
                                'client-key': client_key,
-                               'Content-Type': 'application/json;charset=UTF-8'
+                               'content-type': 'application/json; charset=UTF-8'
                              })
         @auth_headers.transform_keys(&:to_s)
       end

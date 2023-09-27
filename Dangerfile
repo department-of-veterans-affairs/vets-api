@@ -147,10 +147,11 @@ module VSPDanger
       `git diff #{BASE_SHA}...#{HEAD_SHA} -- .github/CODEOWNERS`
     end
 
-    def error_message(required_group, index)
+    def error_message(required_group, index, line)
       <<~EMSG
         New entry on line #{index + 1} of CODEOWNERS does not include #{required_group}.
         Please add #{required_group} to the entry
+        Offending line: `#{line}`
       EMSG
     end
 
@@ -175,7 +176,10 @@ module VSPDanger
           next if clean_line.start_with?('#') || clean_line.empty? ||
                   exception_groups.any? { |group| clean_line.include?(group) }
 
-          return Result.error(error_message(required_group, index)) unless clean_line.include?(required_group)
+          unless clean_line.include?(required_group)
+            return Result.error(error_message(required_group, index,
+                                              clean_line))
+          end
         end
 
         Result.success("All new entries in CODEOWNERS include #{required_group}.")

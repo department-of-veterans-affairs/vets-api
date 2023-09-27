@@ -8,10 +8,11 @@ RSpec.describe 'Disability Claims', type: :request do
 
   before do
     stub_mpi
+    stub_jwt_valid_token_decode
     Timecop.freeze(Time.zone.now)
-    evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
-    allow(ClaimsApi::EVSSService::Base).to receive(:new) { evss_service_stub }
-    allow(evss_service_stub).to receive(:submit) { OpenStruct.new(claimId: 1337) }
+    allow_any_instance_of(ClaimsApi::EVSSService::Base).to receive(:submit).and_return OpenStruct.new(claimId: 1337)
+    # evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
+    # allow(evss_service_stub).to receive(:submit) { OpenStruct.new(claimId: 1337) }
   end
 
   after do
@@ -31,8 +32,8 @@ RSpec.describe 'Disability Claims', type: :request do
 
       temp.to_json
     end
-    let(:veteran_id) { '1013062086V794840' }
     let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read }
+    let(:veteran_id) { '1013062086V794840' }
 
     context 'submit' do
       let(:submit_path) { "/services/claims/v2/veterans/#{veteran_id}/526" }
@@ -818,6 +819,51 @@ RSpec.describe 'Disability Claims', type: :request do
                 '+44 20 1234 5678'
               post submit_path, params: params.to_json, headers: auth_header
               expect(response).to have_http_status(:ok)
+            end
+          end
+        end
+
+        context 'when 526 form indicates a homeless situation' do
+          it 'sets the homeless flash' do
+            mock_ccg(scopes) do |auth_header|
+              json_data = JSON.parse data
+              params = json_data
+              params['data']['attributes']['homeless']['currentlyHomeless'] = {
+                homelessSituationOptions: 'FLEEING_CURRENT_RESIDENCE',
+                otherDescription: 'community help center'
+              }
+              post submit_path, params: params.to_json, headers: auth_header
+              token = JSON.parse(response.body)['data']['attributes']['token']
+              aec = ClaimsApi::AutoEstablishedClaim.find(token)
+              expect(aec.flashes).to eq(%w[Homeless])
+            end
+          end
+        end
+
+        context 'when 526 form indicates an at-risk of homelessness situation' do
+          let(:homeless) do
+            {
+              pointOfContact: 'john stewart',
+              pointOfContactNumber: {
+                telephone: '5555555555',
+                internationalTelephone: '+44 20 1234 5678'
+              }
+            }
+          end
+
+          it 'sets the hardship flash' do
+            mock_ccg(scopes) do |auth_header|
+              json_data = JSON.parse data
+              params = json_data
+              params['data']['attributes']['homeless'] = homeless
+              params['data']['attributes']['homeless']['riskOfBecomingHomeless'] = {
+                livingSituationOptions: 'HOUSING_WILL_BE_LOST_IN_30_DAYS',
+                otherDescription: 'other living situation'
+              }
+              post submit_path, params: params.to_json, headers: auth_header
+              token = JSON.parse(response.body)['data']['attributes']['token']
+              aec = ClaimsApi::AutoEstablishedClaim.find(token)
+              expect(aec.flashes).to eq(%w[Hardship])
             end
           end
         end
