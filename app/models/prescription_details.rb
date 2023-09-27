@@ -10,18 +10,18 @@ class PrescriptionDetails < Prescription
   attribute :provider_last_name, String
   attribute :remarks, String
   attribute :division_name, String
-  attribute :modified_date, Common::UTCTime
+  attribute :modified_date, Common::UTCTime, sortable: { order: 'ASC' }
   attribute :institution_id, String
   attribute :dial_cmop_division_phone, String
-  attribute :disp_status, String
+  attribute :disp_status, String, sortable: { order: 'ASC' }
   attribute :ndc, String
   attribute :reason, String
   attribute :prescription_number_index, String
-  attribute :prescription_source, String
+  attribute :prescription_source, String, sortable: { order: 'ASC' }
   attribute :disclaimer, String
   attribute :indication_for_use, String
   attribute :indication_for_use_flag, String
-  attribute :category, String
+  attribute :category, String, sortable: { order: 'ASC' }
   attribute :tracking_list, Array[String]
   attribute :rx_rf_records, Array[String]
   attribute :tracking, Boolean
