@@ -246,7 +246,7 @@ vet360:
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
   health_benefit:
-    mock: false
+    mock: true
 
 # Settings for IHub
 ihub:

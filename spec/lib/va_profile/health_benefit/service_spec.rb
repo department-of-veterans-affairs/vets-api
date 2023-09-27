@@ -42,7 +42,7 @@ describe VAProfile::HealthBenefit::Service do
       end
     end
 
-    context 'when the server experiences an error' do
+    context 'when the service experiences an error' do
       it 'raises a BackendServiceException' do
         stub_request(:get, resource).to_return(status: 500)
         expect { service.get_emergency_contacts }.to raise_error Common::Exceptions::BackendServiceException
@@ -64,14 +64,14 @@ describe VAProfile::HealthBenefit::Service do
     end
 
     context 'when resource is not found' do
-      it "returns an AssociatedPersonsResponse with not-'ok' status" do
+      it 'raises a BackendServiceException' do
         stub_request(:get, resource).to_return(status: 404)
         expect { service.get_next_of_kin }.to raise_error Common::Exceptions::BackendServiceException
       end
     end
 
     context 'when the server experiences an error' do
-      it "returns an AssociatedPersonsResponse with not-'ok' status" do
+      it 'raises a BackendServiceException' do
         stub_request(:get, resource).to_return(status: 500)
         expect { service.get_next_of_kin }.to raise_error Common::Exceptions::BackendServiceException
       end
