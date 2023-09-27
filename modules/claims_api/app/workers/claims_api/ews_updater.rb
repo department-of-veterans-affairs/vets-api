@@ -17,7 +17,7 @@ module ClaimsApi
       bgs_claim = benefit_claim_service(ews).find_bnft_claim(claim_id: ews.claim_id)
 
       indicator = bgs_claim&.dig(:bnft_claim_dto, :filed5103_waiver_ind)
-      if indicator.present? && indicator != FILE_5103
+      if indicator.present?
         bgs_claim[:bnft_claim_dto][:filed5103_waiver_ind] = FILE_5103
         update_bgs_claim(ews, bgs_claim)
       end
