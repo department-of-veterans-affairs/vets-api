@@ -18,14 +18,13 @@ module BGS
       in_progress_copy = in_progress_form_copy(in_progress_form)
       claim_data = valid_claim_data(saved_claim_id, vet_info)
       normalize_names_and_addresses!(claim_data)
-      user_struct = generate_user_struct(vet_info['veteran_information'])
+      user = generate_user_struct(vet_info['veteran_information'])
 
-      user = user_struct
       BGS::Form686c.new(user).submit(claim_data)
 
       # If Form 686c job succeeds, then enqueue 674 job.
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
-      user_struct_hash = user_struct.to_h
+      user_struct_hash = user.to_h
       BGS::SubmitForm674Job.perform_async(user_uuid, icn, saved_claim_id, vet_info, user_struct_hash) if claim.submittable_674? # rubocop:disable Layout/LineLength
 
       send_confirmation_email(user)
@@ -37,8 +36,10 @@ module BGS
       log_message_to_sentry(e, :error, {}, { team: 'vfs-ebenefits' })
       salvage_save_in_progress_form(FORM_ID, user_uuid, in_progress_copy)
       if Flipper.enabled?(:dependents_central_submission)
-        user_struct = generate_user_struct(vet_info['veteran_information'])
-        CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id, vet_info, user_struct)
+        user ||= generate_user_struct(vet_info['veteran_information'])
+        CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
+                                                            KmsEncrypted::Box.new.encrypt(vet_info.to_json),
+                                                            KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
       else
         DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present? # rubocop:disable Style/IfInsideElse
       end
