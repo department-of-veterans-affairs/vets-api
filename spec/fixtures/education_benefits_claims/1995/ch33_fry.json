@@ -58,6 +58,7 @@
     "married": true,
     "parentDependent": false
   },
+  "isActiveDuty": true,
   "toursOfDuty": [{
     "dateRange": {
       "from": "2012-06-26",
