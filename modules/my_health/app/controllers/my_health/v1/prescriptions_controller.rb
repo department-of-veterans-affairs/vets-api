@@ -9,8 +9,8 @@ module MyHealth
       # @param refill_status - one refill status to filter on
       # @param page - the paginated page to fetch
       # @param per_page - the number of items to fetch per page
-      # @param sort - the attribute to sort on, negated for descending
-      #        (ie: ?sort=facility_name,-prescription_id)
+      # @param sort - the attribute to sort on, negated for descending, use sort[]= for multiple argument query params
+      #        (ie: ?sort[]=refill_status&sort[]=-prescription_id)
       def index
         resource = collection_resource
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
