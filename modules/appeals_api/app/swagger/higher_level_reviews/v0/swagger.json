@@ -2622,6 +2622,30 @@
               }
             }
           },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "Not JSON object": {
+                    "value": {
+                      "errors": [
+                        {
+                          "code": "109",
+                          "detail": "The request body isn't a JSON object",
+                          "status": "400",
+                          "title": "Bad Request"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/errorModel"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Error",
             "content": {
@@ -2643,18 +2667,6 @@
                               "informalConference"
                             ]
                           }
-                        }
-                      ]
-                    }
-                  },
-                  "Not JSON object": {
-                    "value": {
-                      "errors": [
-                        {
-                          "code": "109",
-                          "detail": "The request body isn't a JSON object",
-                          "status": "422",
-                          "title": "Validation error"
                         }
                       ]
                     }

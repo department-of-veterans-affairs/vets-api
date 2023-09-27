@@ -10,7 +10,9 @@ module AppealsApi::NoticeOfDisagreements::V0
     skip_before_action :new_notice_of_disagreement
     skip_before_action :find_notice_of_disagreement
     skip_before_action :validate_icn_header
+    skip_before_action :validate_json_format
 
+    prepend_before_action :validate_json_body, if: -> { request.post? }
     before_action :validate_icn_parameter, only: %i[download]
 
     API_VERSION = 'V0'
