@@ -370,8 +370,8 @@ Rails.application.routes.draw do
     post 'terms_of_use_agreements/:version/accept', to: 'terms_of_use_agreements#accept'
     post 'terms_of_use_agreements/:version/decline', to: 'terms_of_use_agreements#decline'
 
-    resources :emergency_contacts, only: %i[index create]
-    resources :next_of_kin, only: %i[index create]
+    resources :emergency_contacts, only: %i[index]
+    resources :next_of_kin, only: %i[index]
   end
   # end /v0
 

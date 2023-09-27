@@ -11,7 +11,7 @@ module VAProfile
 
       configuration VAProfile::HealthBenefit::Configuration
 
-      OID = '1.2.3'
+      OID = '1.2.3' # placeholder
 
       attr_reader :user
 
@@ -47,26 +47,6 @@ module VAProfile
         VAProfile::HealthBenefit::AssociatedPersonsResponse.from(response)
       end
 
-      def post_emergency_contacts(emergency_contact)
-        with_monitoring do
-          emergency_contact.source_system_user = user.icn
-          response = perform(:post, v1_update_path, emergency_contact.in_json)
-          VAProfile::HealthBenefit::AssociatedPersonsResponse.from(response)
-        end
-      rescue => e
-        handle_error(e)
-      end
-
-      def post_next_of_kin(next_of_kin)
-        with_monitoring do
-          next_of_kin.source_system_user = user.icn
-          response = perform(:post, v1_update_path, next_of_kin.in_json)
-          VAProfile::HealthBenefit::AssociatedPersonResponse.from(response)
-        end
-      rescue => e
-        handle_error(e)
-      end
-
       private
 
       ID_ME_AAID = '^PN^200VIDM^USDVA'
@@ -92,14 +72,6 @@ module VAProfile
 
       def v1_read_path
         "#{config.base_path}/v1/#{identity_path}/read"
-      end
-
-      def v1_update_path
-        "#{config.base_path}/v1/#{identity_path}/update"
-      end
-
-      def v1_notification_path
-        "#{config.base_path}/v1/#{identity_path}/notification"
       end
     end
   end

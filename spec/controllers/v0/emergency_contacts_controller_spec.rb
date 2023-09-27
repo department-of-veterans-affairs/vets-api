@@ -17,6 +17,7 @@ RSpec.describe V0::EmergencyContactsController, type: :controller do
       let(:fixture_path) { %w[spec fixtures va_profile health_benefit_v1_read_ap.json] }
 
       before do
+        Flipper.enable(:nok_ec_read_only)
         allow_any_instance_of(VAProfile::HealthBenefit::Service)
           .to receive(:get_associated_persons).and_return(response_object)
       end
@@ -38,50 +39,12 @@ RSpec.describe V0::EmergencyContactsController, type: :controller do
         expect(response).to have_http_status(:unauthorized)
       end
     end
-  end
 
-  describe '#create' do
-    let(:params) do
-      {
-        emergency_contact: {
-          contact_type: 'Emergency Contact',
-          given_name: 'Jonnie',
-          family_name: 'Shaye',
-          primary_phone: '111-222-3333'
-        }
-      }
-    end
-
-    context 'successful request' do
-      let(:service_status) { 200 }
-      let(:fixture_path) { %w[spec fixtures va_profile health_benefit_v1_messages.json] }
-
-      before do
-        allow_any_instance_of(VAProfile::HealthBenefit::Service)
-          .to receive(:post_emergency_contacts).and_return(response_object)
-      end
-
-      it 'creates an emergency contact' do
-        sign_in_as user
-        post(:create, params:)
-        expect(response).to have_http_status(:success)
-      end
-    end
-
-    context 'user is not authenticated' do
+    context 'feature is disabled' do
       it 'returns an unauthorized status code' do
-        post(:create, params:)
+        Flipper.disable(:nok_ec_read_only)
+        get :index
         expect(response).to have_http_status(:unauthorized)
-      end
-    end
-
-    context 'invalid data' do
-      it 'returns validation errors' do
-        sign_in_as user
-        params[:emergency_contact][:primary_phone] = ''
-        post(:create, params:)
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(json['errors']).not_to be_empty
       end
     end
   end

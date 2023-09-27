@@ -23,7 +23,7 @@ module Swagger::Schemas
 
     swagger_schema :NextOfKin do
       key :required, %i[contact_type given_name family_name primary_phone]
-      property :contact_type, type: :string, enum: VAProfile::Models::AssociatedPerson::EC_TYPES
+      property :contact_type, type: :string, enum: VAProfile::Models::AssociatedPerson::NOK_TYPES
       property :given_name, type: :string
       property :family_name, type: :string
       property :relationship, type: :string

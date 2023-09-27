@@ -18,7 +18,7 @@ describe VAProfile::HealthBenefit::Service do
   end
 
   around do |example|
-    # using webmock & json fixtures instead of VCR
+    # using webmock & json fixtures instead of VCR until VA Profile API access is granted
     VCR.turned_off { example.run }
   end
 
@@ -36,19 +36,15 @@ describe VAProfile::HealthBenefit::Service do
     end
 
     context 'when resource is not found' do
-      it "returns an AssociatedPersonsResponse with not-'ok' status" do
+      it 'raises a BackendServiceException' do
         stub_request(:get, resource).to_return(status: 404)
-        # result = service.get_emergency_contacts
-        # expect(result.ok?).to be(false)
         expect { service.get_emergency_contacts }.to raise_error Common::Exceptions::BackendServiceException
       end
     end
 
     context 'when the server experiences an error' do
-      it "returns an AssociatedPersonsResponse with not-'ok' status" do
+      it 'raises a BackendServiceException' do
         stub_request(:get, resource).to_return(status: 500)
-        # result = service.get_emergency_contacts
-        # expect(result.ok?).to be(false)
         expect { service.get_emergency_contacts }.to raise_error Common::Exceptions::BackendServiceException
       end
     end
@@ -80,27 +76,5 @@ describe VAProfile::HealthBenefit::Service do
         expect { service.get_next_of_kin }.to raise_error Common::Exceptions::BackendServiceException
       end
     end
-  end
-
-  describe '#post_emergency_contacts' do
-    let(:resource) { service.send(:v1_update_path) }
-
-    context 'successfully' do
-      it 'returns an AssociatedPersonsResponse with status: ok' do
-        stub = stub_request(:post, resource).to_return(body: '{}', status: 201)
-        emergency_contact = VAProfile::Models::AssociatedPerson.new(
-          contact_type: VAProfile::Models::AssociatedPerson::EMERGENCY_CONTACT,
-          given_name: 'Sam',
-          last_name: 'Smith',
-          primary_phone: '+15551234567'
-        )
-        response = service.post_emergency_contacts(emergency_contact)
-        expect(response).to be_a(VAProfile::HealthBenefit::AssociatedPersonsResponse)
-        expect(stub).to have_been_requested
-      end
-    end
-  end
-
-  describe '#post_next_of_kin' do
   end
 end

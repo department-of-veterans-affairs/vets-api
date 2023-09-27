@@ -610,6 +610,9 @@ features:
     description: >
       [Front-end only] When enabled, the 10-10EZ will collect a home and mailing address for the veteran
       vs only collecting a single, "permanent" address.
+  nok_ec_read_only:
+    actor_type: user
+    description: Enables read-only presentation of Next-of-Kin and Emergency Contact entries from VA Profile.
   omni_channel_link:
     actor_type: user
     description: This determines the visibility of the OmniChannel link in the claim status tool

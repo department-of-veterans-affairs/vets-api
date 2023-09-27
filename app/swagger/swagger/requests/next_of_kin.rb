@@ -21,29 +21,6 @@ module Swagger::Requests
           end
         end
       end
-
-      operation :post do
-        extend Swagger::Responses::AuthenticationError
-        extend Swagger::Responses::UnprocessableEntityError
-
-        key :summary, 'Create Next-of-Kin'
-        key :description, 'Creates a new Next-of-Kin for a Veteran'
-        key :tags, [:next_of_kin]
-
-        parameter :authorization
-
-        parameter name: :body, in: :body do
-          schema do
-            property :next_of_kin, type: :object do
-              key :$ref, :NextOfKin
-            end
-          end
-        end
-
-        response 200 do
-          key :description, 'Successful request'
-        end
-      end
     end
   end
 end
