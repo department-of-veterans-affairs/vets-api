@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'debts_api/v0/financial_status_report_service'
-require 'debt_management_center/workers/va_notify_email_job'
+require 'debt_management_center/sidekiq/va_notify_email_job'
 require 'debt_management_center/sharepoint/request'
 require_relative '../../../support/financial_status_report_helpers'
 
