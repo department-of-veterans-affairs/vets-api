@@ -1467,6 +1467,14 @@ describe HCA::EnrollmentSystem do
       it 'properlies set discharge type and discharge date' do
         expect(described_class.veteran_to_military_service_info(veteran)).to eq(expected)
       end
+
+      context 'with a discharge date of tomorrow', run_at: '2023-09-25 04:00:00' do
+        let(:discharge_date) { Date.parse('2023-09-25') }
+
+        it 'checks future discharge based on central time' do
+          expect(described_class.veteran_to_military_service_info(veteran)).to eq(expected)
+        end
+      end
     end
 
     context 'with an edge case future discharge date' do
