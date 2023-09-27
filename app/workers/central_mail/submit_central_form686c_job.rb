@@ -14,18 +14,19 @@ module CentralMail
 
     sidekiq_options retry: false
 
-    class CentralMailResponseError < StandardError
-    end
+    class CentralMailResponseError < StandardError; end
 
     def extract_uuid_from_central_mail_message(data)
       data.body[/(?<=\[).*?(?=\])/].split(': ').last if data.body.present?
     end
 
-    def perform(saved_claim_id, vet_info, user_struct)
-      Rails.logger.info('CentralMail::SubmitCentralForm686cJob running!',
-                        { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'] })
+    def perform(saved_claim_id, encrypted_vet_info, encrypted_user_struct)
+      vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
+      user_struct = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct))
       # if the 686c-674 has failed we want to call this central mail job (credit to submit_saved_claim_job.rb)
       # have to re-find the claim and add the relevant veteran info
+      Rails.logger.info('CentralMail::SubmitCentralForm686cJob running!',
+                        { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'] })
       @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
       @claim.add_veteran_info(vet_info)
 
@@ -42,12 +43,12 @@ module CentralMail
       @attachment_paths.each { |p| File.delete(p) }
 
       check_success(response, saved_claim_id, user_struct)
-    rescue
+    rescue => e
       # if we fail, update the associated central mail record to failed and send the user the failure email
       Rails.logger.warn('CentralMail::SubmitCentralForm686cJob failed!',
-                        { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'] })
+                        { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'], error: e.message })
       update_submission('failed')
-      DependentsApplicationFailureMailer.build(user_struct).deliver_now if user_struct&.email.present?
+      DependentsApplicationFailureMailer.build(OpenStruct.new(user_struct)).deliver_now if user_struct['email'].present?
       raise
     end
 
@@ -58,7 +59,7 @@ module CentralMail
                           { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'],
                             centralmail_uuid: extract_uuid_from_central_mail_message(response) })
         update_submission('success')
-        send_confirmation_email(user_struct)
+        send_confirmation_email(OpenStruct.new(user_struct))
       else
         raise CentralMailResponseError
       end
