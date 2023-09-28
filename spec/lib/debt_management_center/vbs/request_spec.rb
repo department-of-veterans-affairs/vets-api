@@ -44,7 +44,7 @@ RSpec.describe DebtManagementCenter::VBS::Request do
 
   describe '#headers' do
     it 'has request headers' do
-      expect(subject.headers).to eq({ 'Host' => 'internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491', # rubocop:disable Metrics/LineLength
+      expect(subject.headers).to eq({ 'Host' => 'internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491', # rubocop:disable Layout/LineLength
                                       'Content-Type' => 'application/json',
                                       'apiKey' => 'abcd1234abcd1234abcd1234abcd1234abcd1234' })
     end

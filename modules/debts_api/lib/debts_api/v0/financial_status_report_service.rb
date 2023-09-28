@@ -158,6 +158,15 @@ module DebtsApi
       raise e
     end
 
+    def submit_to_vbs(form_submission)
+      form = add_vha_specific_data(form_submission)
+
+      vbs_request = DebtManagementCenter::VBS::Request.build
+      Rails.logger.info('5655 Form Submitting to VBS API', submission_id: form_submission.id)
+      vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
+                       { jsonDocument: form.to_json })
+    end
+
     def send_vha_confirmation_email(_status, options)
       return if options['email'].blank?
 
@@ -169,6 +178,13 @@ module DebtsApi
     end
 
     private
+
+    def add_vha_specific_data(form_submission)
+      form = form_submission.form
+      form['transactionId'] = form_submission.id
+      form['timestamp'] = form_submission.created_at.strftime('%Y%m%dT%H%M%S')
+      streamline_adjustments(form)
+    end
 
     def streamline_adjustments(form)
       if form.key?('streamlined')
