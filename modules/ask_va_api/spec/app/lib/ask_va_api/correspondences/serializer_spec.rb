@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe AskVAApi::Replies::Serializer do
+RSpec.describe AskVAApi::Correspondences::Serializer do
   let(:info) do
     {
       inquiryNumber: 'A-1',
@@ -10,13 +10,13 @@ RSpec.describe AskVAApi::Replies::Serializer do
       reply: 'this is a reply'
     }
   end
-  let(:reply) { AskVAApi::Replies::Reply.new(info) }
-  let(:response) { described_class.new(reply) }
+  let(:correspondence) { AskVAApi::Correspondences::Entity.new(info) }
+  let(:response) { described_class.new(correspondence) }
   let(:expected_response) do
     { data: { id: 'R-1',
-              type: :reply,
+              type: :correspondence,
               attributes: { inquiry_number: 'A-1',
-                            reply: 'this is a reply' } } }
+                            correspondence: 'this is a reply' } } }
   end
 
   context 'when successful' do
