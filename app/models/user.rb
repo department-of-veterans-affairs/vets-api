@@ -9,6 +9,7 @@ require 'mpi/service'
 require 'saml/user'
 require 'formatters/date_formatter'
 require 'va_profile/configuration'
+require 'va_profile/veteran_status/service'
 
 class User < Common::RedisStore
   include Authorization
