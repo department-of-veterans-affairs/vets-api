@@ -10,6 +10,7 @@ module SignIn
     include Headers
     include SentryLogging
     include SentryControllerLogging
+    include Traceable
 
     skip_before_action :authenticate, only: :cors_preflight
 
