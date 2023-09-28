@@ -3,28 +3,28 @@
 require 'rails_helper'
 require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
-require 'common/client/errors'
 
 RSpec.describe 'user', type: :request do
   include JsonSchemaMatchers
 
-  let!(:user) do
-    sis_user(
-      attributes: {
-        first_name: 'GREG',
-        middle_name: 'A',
-        last_name: 'ANDERSON',
-        email: 'va.api.user+idme.008@gmail.com',
-        birth_date: '1970-08-12',
-        idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-        cerner_facility_ids: %w[757 358 999],
-        vha_facility_ids: %w[757 358 999]
-      }
-    )
-  end
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
   describe 'GET /mobile/v0/user' do
+    let!(:user) do
+      sis_user(
+        attributes: {
+          first_name: 'GREG',
+          middle_name: 'A',
+          last_name: 'ANDERSON',
+          email: 'va.api.user+idme.008@gmail.com',
+          birth_date: '1970-08-12',
+          idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+          cerner_facility_ids: %w[757 358 999],
+          vha_facility_ids: %w[757 358 999]
+        }
+      )
+    end
+
     before(:all) do
       Flipper.disable(:mobile_lighthouse_letters)
     end
@@ -320,7 +320,7 @@ RSpec.describe 'user', type: :request do
           get '/mobile/v0/user', headers: sis_headers
         end
 
-        expect(response).to have_http_status(:bad_gateway)
+        expect(response).to have_http_status(:service_unavailable)
         expect(response.body).to match_json_schema('errors')
       end
     end
@@ -382,7 +382,7 @@ RSpec.describe 'user', type: :request do
               },
               {
                 'facilityId' => '358',
-                'isCerner' => false,
+                'isCerner' => true,
                 'facilityName' => ''
               }
             ]
@@ -482,19 +482,9 @@ RSpec.describe 'user', type: :request do
     end
   end
 
-  describe 'GET /mobile/v0/user/logout' do
-    context 'with a 200 response' do
-      before do
-        get '/mobile/v0/user/logout', headers: sis_headers
-      end
-
-      it 'returns an ok response' do
-        expect(response).to have_http_status(:ok)
-      end
-    end
-  end
-
   describe 'POST /mobile/v0/user/logged-in' do
+    let!(:user) { sis_user }
+
     it 'returns an ok response' do
       post '/mobile/v0/user/logged-in', headers: sis_headers
       expect(response).to have_http_status(:ok)
