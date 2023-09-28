@@ -55,7 +55,8 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
       datestamp_double1 = double
       datestamp_double2 = double
 
-      expect_any_instance_of(SavedClaim::DependencyClaim).to receive(:to_pdf).and_return('path1')
+      expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
+      expect(claim).to receive(:to_pdf).and_return('path1')
       expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
       expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5).and_return('path2')
       expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
@@ -93,6 +94,8 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
       it 'raises CentralMailResponseError and updates submission to failed' do
         mailer_double = double('Mail::Message')
         allow(mailer_double).to receive(:deliver_now)
+        expect(claim).to receive(:submittable_686?).and_return(true)
+        expect(claim).to receive(:submittable_674?).and_return(false)
         expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(OpenStruct)) { mailer_double }
         expect { subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct) }.to raise_error(CentralMail::SubmitCentralForm686cJob::CentralMailResponseError) # rubocop:disable Layout/LineLength
 
@@ -109,6 +112,8 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
           'first_name' => 'MARK'
         }
       )
+      expect(claim).to receive(:submittable_686?).and_return(true)
+      expect(claim).to receive(:submittable_674?).and_return(false)
       subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct)
       expect(central_mail_submission.reload.state).to eq('success')
     end
@@ -125,13 +130,13 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
     end
   end
 
-  describe '#process_record' do
+  describe '#process_pdf' do
+    subject { job.process_pdf('path1') }
+
     it 'processes a record and add stamps' do
-      record = double
       datestamp_double1 = double
       datestamp_double2 = double
 
-      expect(record).to receive(:to_pdf).and_return('path1')
       expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
       expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5).and_return('path2')
       expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
@@ -142,7 +147,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
         text_only: true
       ).and_return('path3')
 
-      expect(described_class.new.process_record(record)).to eq('path3')
+      expect(subject).to eq('path3')
     end
 
     describe '#get_hash_and_pages' do
@@ -166,7 +171,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
 
       before do
         job.instance_variable_set('@claim', claim)
-        job.instance_variable_set('@pdf_path', 'pdf_path')
+        job.instance_variable_set('@form_686c_path', 'pdf_path')
         job.instance_variable_set('@attachment_paths', ['attachment_path'])
 
         expect(Digest::SHA256).to receive(:file).with('pdf_path').and_return(
