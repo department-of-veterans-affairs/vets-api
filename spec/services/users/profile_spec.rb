@@ -230,7 +230,9 @@ RSpec.describe Users::Profile do
         end
 
         it 'sets the status to 200' do
-          expect(subject.status).to eq 200
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method, :body], allow_playback_repeats: true) do
+            expect(subject.status).to eq 200
+          end
         end
       end
 
@@ -401,7 +403,9 @@ RSpec.describe Users::Profile do
         end
 
         it 'sets the status to 200' do
-          expect(subject.status).to eq 200
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method, :body], allow_playback_repeats: true) do
+            expect(subject.status).to eq 200
+          end
         end
       end
 
