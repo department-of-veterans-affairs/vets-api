@@ -429,6 +429,10 @@ features:
     actor_type: user
     description: Enables streamlined waiver flow for qualifying users completing the Financial Status Report (FSR) form
     enable_in_development: true
+  financial_status_report_streamlined_waiver_assets:
+    actor_type: user
+    description: Enables a simplified asset calculation flow, including Cash in Bank, for users completing the Financial Status Report (FSR) form.
+    enable_in_development: true
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
