@@ -6,7 +6,7 @@ module CARMA
   module Models
     class Attachment < Base
       DOCUMENT_TYPES = { '10-10CG' => '10-10CG', 'POA' => 'POA' }.freeze
-      LEGAL_REP = 'Legal Representative'.freeze
+      LEGAL_REP = 'Legal Representative'
 
       attr_accessor   :carma_case_id,
                       :veteran_name,
