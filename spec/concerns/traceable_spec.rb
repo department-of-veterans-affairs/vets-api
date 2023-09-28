@@ -34,10 +34,10 @@ RSpec.describe Traceable, type: :controller do
     context 'with a valid service_tag' do
       include_context 'stub controller'
 
-      before { allow(Tracers::DatadogAdapter).to receive(:set_tags) }
+      before { allow(Tracers::DatadogAdapter).to receive(:set_service_tag) }
 
       it 'calls set_tags on the Datadog adapter via a before_action when and endpoint is hit' do
-        expect(Tracers::DatadogAdapter).to receive(:set_tags).with(:secure_messaging)
+        expect(Tracers::DatadogAdapter).to receive(:set_service_tag).with(:secure_messaging)
         get :index
         expect(response.body).to eq 'OK'
       end
@@ -65,7 +65,7 @@ RSpec.describe Traceable, type: :controller do
     context 'when an error occurs while setting trace tags' do
       include_context 'stub controller'
 
-      before { allow(Tracers::DatadogAdapter).to receive(:set_tags).and_raise(StandardError, 'Mock Error') }
+      before { allow(Tracers::DatadogAdapter).to receive(:set_service_tag).and_raise(StandardError, 'Mock Error') }
 
       it 'logs "Error setting trace tags" and does not interrupt the response' do
         expect(Rails.logger).to receive(:error).with('Error setting service tag',

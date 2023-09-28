@@ -4,7 +4,7 @@ require_relative 'adapter'
 
 module Tracers
   class DatadogAdapter < Adapter
-    def self.set_tags(service)
+    def self.set_service_tag(service)
       Datadog::Tracing.active_span&.service = service
     end
   end

@@ -2,7 +2,7 @@
 
 module Tracers
   class Adapter
-    def self.set_tags(tags)
+    def self.set_service_tag(tags)
       raise NotImplementedError, 'Tracer must implement the `set_tags` method'
     end
   end

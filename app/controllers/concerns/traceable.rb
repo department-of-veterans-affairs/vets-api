@@ -19,7 +19,7 @@ require 'tracers/datadog_adapter'
 # @see Tracers::DatadogAdapter for details on how tags are set for external services.
 module Traceable
   extend ActiveSupport::Concern
-  
+
   # @!attribute [r] TRACE_ADAPTER
   #   @return [Tracers::DatadogAdapter] Adapter for interacting with external tracing services.
   TRACE_ADAPTER = Tracers::DatadogAdapter
@@ -58,7 +58,7 @@ module Traceable
 
     return Rails.logger.warn('Service tag missing', class: self.class.name) if service.blank?
 
-    TRACE_ADAPTER.set_tags(service)
+    TRACE_ADAPTER.set_service_tag(service)
   rescue => e
     Rails.logger.error('Error setting service tag', class: self.class.name, message: e.message)
   end
