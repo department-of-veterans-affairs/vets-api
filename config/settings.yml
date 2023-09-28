@@ -421,7 +421,7 @@ evss:
     timeout: 55 # ~1 minute
     submit_timeout: 355 # ~6 minutes
   dvp:
-    url: <%= ENV['EVSS_DVP_URL'] %>
+    url: http://fake.dvp-docker-container
   letters:
     url: https://csraciapp6.evss.srarad.com
     timeout: 55
