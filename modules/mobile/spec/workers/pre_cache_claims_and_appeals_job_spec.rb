@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
 
 RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
   before do
@@ -51,33 +50,6 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
           )
           subject.perform(user.uuid)
           expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
-        end
-      end
-    end
-
-    context 'with an IAM user' do
-      let(:user) { FactoryBot.build(:iam_user) }
-
-      before { iam_sign_in(user) }
-
-      it 'caches the expected claims and appeals' do
-        VCR.use_cassette('mobile/claims/claims') do
-          VCR.use_cassette('mobile/appeals/appeals') do
-            expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
-            subject.perform(user.uuid)
-            expect(Mobile::V0::ClaimOverview.get_cached(user).first.to_h).to eq(
-              {
-                id: 'SC1678',
-                type: 'appeal',
-                subtype: 'supplementalClaim',
-                completed: false,
-                date_filed: '2020-09-23',
-                updated_at: '2020-09-23',
-                display_title: 'supplemental claim for disability compensation',
-                decision_letter_sent: false
-              }
-            )
-          end
         end
       end
     end
