@@ -7,7 +7,7 @@ require_relative '../../support/helpers/mobile_sm_client_helper'
 RSpec.describe 'Mobile Messages V1 Integration', type: :request do
   include Mobile::MessagingClientHelper
 
-  let!(:user) { sis_user(traits: [:mhv, :api_auth], attributes: { mhv_correlation_id: '123', mhv_account_type: })}
+  let!(:user) { sis_user(:mhv, :api_auth, mhv_correlation_id: '123', mhv_account_type:) }
 
   before do
     allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return(mhv_account_type)

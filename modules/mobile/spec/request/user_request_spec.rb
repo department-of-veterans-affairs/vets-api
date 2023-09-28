@@ -12,16 +12,14 @@ RSpec.describe 'user', type: :request do
   describe 'GET /mobile/v0/user' do
     let!(:user) do
       sis_user(
-        attributes: {
-          first_name: 'GREG',
-          middle_name: 'A',
-          last_name: 'ANDERSON',
-          email: 'va.api.user+idme.008@gmail.com',
-          birth_date: '1970-08-12',
-          idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-          cerner_facility_ids: %w[757 358 999],
-          vha_facility_ids: %w[757 358 999]
-        }
+        first_name: 'GREG',
+        middle_name: 'A',
+        last_name: 'ANDERSON',
+        email: 'va.api.user+idme.008@gmail.com',
+        birth_date: '1970-08-12',
+        idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+        cerner_facility_ids: %w[757 358 999],
+        vha_facility_ids: %w[757 358 999]
       )
     end
 
@@ -50,15 +48,15 @@ RSpec.describe 'user', type: :request do
 
       it 'includes the users names' do
         expect(attributes['profile']).to include(
-          'firstName' => user.first_name,
-          'middleName' => user.middle_name,
-          'lastName' => user.last_name
+          'firstName' => 'GREG',
+          'middleName' => 'A',
+          'lastName' => 'ANDERSON'
         )
       end
 
       it 'includes the users sign-in email' do
         expect(attributes['profile']).to include(
-          'signinEmail' => user.email
+          'signinEmail' => 'va.api.user+idme.008@gmail.com'
         )
       end
 
@@ -72,7 +70,7 @@ RSpec.describe 'user', type: :request do
 
       it 'includes the users birth date' do
         expect(attributes['profile']).to include(
-          'birthDate' => user.birth_date
+          'birthDate' => '1970-08-12'
         )
       end
 
@@ -224,7 +222,7 @@ RSpec.describe 'user', type: :request do
       end
 
       context 'when user object birth_date is nil' do
-        let!(:user) { sis_user(attributes: { birth_date: nil }) }
+        let!(:user) { sis_user(birth_date: nil) }
 
         before do
           VCR.use_cassette('mobile/payment_information/payment_information') do
@@ -464,7 +462,7 @@ RSpec.describe 'user', type: :request do
       end
 
       context 'when user does not have a vet360_id' do
-        let!(:user) { sis_user(attributes: { vet360_id: nil }) }
+        let!(:user) { sis_user(vet360_id: nil) }
 
         it 'enqueues vet360 linking job' do
           expect(Mobile::V0::Vet360LinkingJob).to receive(:perform_async)
@@ -528,7 +526,7 @@ RSpec.describe 'user', type: :request do
       end
 
       context 'when user does not have a vet360_id' do
-        let!(:user) { sis_user(attributes: { vet360_id: nil }) }
+        let!(:user) { sis_user(vet360_id: nil) }
 
         it 'enqueues vet360 linking job' do
           expect(Mobile::V0::Vet360LinkingJob).to receive(:perform_async)

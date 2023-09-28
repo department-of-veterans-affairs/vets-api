@@ -108,7 +108,7 @@ RSpec.describe 'contact info', type: :request do
   end
 
   describe 'GET /mobile/v0/user/contact_info without vet360 id' do
-    let!(:user) { sis_user(attributes: { vet360_id: nil }) }
+    let!(:user) { sis_user(vet360_id: nil) }
 
     before do
       get('/mobile/v0/user/contact-info', headers: sis_headers)

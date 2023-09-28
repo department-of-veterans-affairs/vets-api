@@ -7,7 +7,7 @@ require_relative '../support/matchers/json_schema_matcher'
 RSpec.describe 'veterans Affairs Eligibility', type: :request do
   include JsonSchemaMatchers
 
-  let!(:user) { sis_user(attributes: { icn: '9000682' })}
+  let!(:user) { sis_user(attributes: { icn: '9000682' }) }
   let(:rsa_key) { OpenSSL::PKey::RSA.generate(2048) }
 
   before do
