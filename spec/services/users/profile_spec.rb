@@ -281,19 +281,27 @@ RSpec.describe Users::Profile do
     describe '#veteran_status' do
       context 'when a veteran status is successfully returned' do
         it 'includes is_veteran' do
-          expect(veteran_status[:is_veteran]).to eq(user.veteran?)
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method, :body], allow_playback_repeats: true) do
+            expect(veteran_status[:is_veteran]).to eq(user.veteran?)
+          end
         end
 
         it 'includes status' do
-          expect(veteran_status[:status]).to eq(Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok])
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method, :body], allow_playback_repeats: true) do
+            expect(veteran_status[:status]).to eq(Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok])
+          end
         end
 
         it 'includes served_in_military' do
-          expect(veteran_status[:served_in_military]).to eq(user.served_in_military?)
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method, :body], allow_playback_repeats: true) do
+            expect(veteran_status[:served_in_military]).to eq(user.served_in_military?)
+          end
         end
 
         it 'sets the status to 200' do
-          expect(subject.status).to eq 200
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method, :body], allow_playback_repeats: true) do
+            expect(subject.status).to eq 200
+          end
         end
       end
 
