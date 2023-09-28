@@ -20,6 +20,8 @@ module SISSessionHelper
       end
 
       user_attributes = { uuid: sis_access_token.user_uuid }.merge(*attributes)
+      # adds api_auth last by default to ensure that its default values win
+      # the order can be overridden by explicitly including it like `sis_user(:api_auth, :loa1)`
       traits |= [:api_auth]
       create(:user, *traits, **user_attributes)
     end

@@ -8,7 +8,7 @@ require 'lighthouse/benefits_documents/service'
 RSpec.describe 'claims document upload', type: :request do
   include JsonSchemaMatchers
 
-  let!(:user) { sis_user(:api_auth, :loa3, icn: '24811694708759028') }
+  let!(:user) { sis_user(icn: '24811694708759028') }
   let(:file) { fixture_file_upload('doctors-note.pdf', 'application/pdf') }
   let(:claim_id) { 33 }
   let(:tracked_item_ids) { [33] }
