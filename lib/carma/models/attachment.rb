@@ -6,6 +6,7 @@ module CARMA
   module Models
     class Attachment < Base
       DOCUMENT_TYPES = { '10-10CG' => '10-10CG', 'POA' => 'POA' }.freeze
+      LEGAL_REP = 'Legal Representative'.freeze
 
       attr_accessor   :carma_case_id,
                       :veteran_name,
@@ -79,7 +80,8 @@ module CARMA
           # comments:   Accepted values are '10-10CG' for the online application and 'POA'
           #             for Power of attorney document.
           # examples:   '10-10CG' | 'POA'
-          'CARMA_Document_Type__c' => document_type,
+          'CARMA_Document_Type__c' =>
+            document_type == DOCUMENT_TYPES['POA'] ? LEGAL_REP : document_type,
 
           # property:   CARMA_Document_Date__c
           # value:      Date when the document is uploaded.
