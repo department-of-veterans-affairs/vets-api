@@ -317,12 +317,14 @@ RSpec.describe Users::Profile do
         end
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
-          error = subject.errors.first
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method, :body], allow_playback_repeats: true) do
+            error = subject.errors.first
 
-          expect(error[:external_service]).to eq 'EMIS'
-          expect(error[:start_time]).to be_present
-          expect(error[:description]).to include 'NOT_FOUND'
-          expect(error[:status]).to eq 404
+            expect(error[:external_service]).to eq 'EMIS'
+            expect(error[:start_time]).to be_present
+            expect(error[:description]).to include 'NOT_FOUND'
+            expect(error[:status]).to eq 404
+          end
         end
 
         it 'sets the status to 296' do

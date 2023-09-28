@@ -33,7 +33,13 @@ module Users
       when Common::Exceptions::BaseError
         base_error
       when Common::Client::Errors::ClientError
-        client_error
+        if error.status == 404
+          title_error(:not_found)
+        elsif error.status >= 400 && error.status < 500
+          client_error_related_to_title38
+        else
+          client_error
+        end
       when EMISRedis::VeteranStatus::NotAuthorized
         emis_error(:not_authorized)
       when EMISRedis::VeteranStatus::RecordNotFound
@@ -76,6 +82,20 @@ module Users
     def emis_error(type)
       error_template.merge(
         description: "#{error.class}, #{RESPONSE_STATUS[type]}",
+        status: error.status.to_i
+      )
+    end
+
+    def title_error(type)
+      error_template.merge(
+        description: "#{error.class}, 404 Veteran Status title not found",
+        status: error.status.to_i
+      )
+    end
+
+    def client_error_related_to_title38
+      error_template.merge(
+        description: "#{error.class}, Client error related to title38",
         status: error.status.to_i
       )
     end
