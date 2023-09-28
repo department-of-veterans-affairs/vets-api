@@ -77,9 +77,9 @@ module CARMA
 
           # property:   CARMA_Document_Type__c
           # value:      Static string literal for the type of the document.
-          # comments:   Accepted values are '10-10CG' for the online application and 'POA'
+          # comments:   Accepted values are '10-10CG' for the online application and 'Legal Representative'
           #             for Power of attorney document.
-          # examples:   '10-10CG' | 'POA'
+          # examples:   '10-10CG' | 'Legal Representative'
           'CARMA_Document_Type__c' =>
             document_type == DOCUMENT_TYPES['POA'] ? LEGAL_REP : document_type,
 
