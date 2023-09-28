@@ -58,7 +58,7 @@ class IdCardAttributes
   def discharge_types
     discharges = military_info
                  .service_episodes_by_date
-                 .map(&:discharge_character_of_service_code)
+                 .map(&:character_of_discharge_code)
     discharges.compact.join(',')
   end
 

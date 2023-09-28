@@ -16,24 +16,24 @@ RSpec.describe 'Requesting ID Card Attributes' do
 
   describe '#show /v0/id_card/attributes' do
     it 'returns a signed redirect URL' do
-      expect_any_instance_of(HCA::MilitaryInformation)
-        .to receive(:service_episodes_by_date).at_least(:once).and_return(service_episodes)
-      expect_any_instance_of(EMISRedis::VeteranStatus)
-        .to receive(:title38_status).at_least(:once).and_return('V1')
-      get '/v0/id_card/attributes', headers: auth_header
-      expect(response).to have_http_status(:ok)
-      json = JSON.parse(response.body)
-      url = json['url']
-      expect(url).to be_truthy
-      traits = json['traits']
-      expect(traits).to be_key('edipi')
-      expect(traits).to be_key('firstname')
-      expect(traits).to be_key('lastname')
-      expect(traits).to be_key('title38status')
-      expect(traits).to be_key('branchofservice')
-      expect(traits).to be_key('dischargetype')
-      expect(traits).to be_key('timestamp')
-      expect(traits).to be_key('signature')
+      VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+        allow_any_instance_of(EMISRedis::VeteranStatus)
+          .to receive(:title38_status).and_return('V1')
+        get '/v0/id_card/attributes', headers: auth_header
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        url = json['url']
+        expect(url).to be_truthy
+        traits = json['traits']
+        expect(traits).to be_key('edipi')
+        expect(traits).to be_key('firstname')
+        expect(traits).to be_key('lastname')
+        expect(traits).to be_key('title38status')
+        expect(traits).to be_key('branchofservice')
+        expect(traits).to be_key('dischargetype')
+        expect(traits).to be_key('timestamp')
+        expect(traits).to be_key('signature')
+      end
     end
 
     it 'returns Bad Gateway if military information not retrievable' do
