@@ -7,7 +7,7 @@ require_relative '../support/matchers/json_schema_matcher'
 RSpec.describe 'appointment preferences', type: :request do
   include JsonSchemaMatchers
 
-  let!(:user) { sis_user(attributes: { icn: '24811694708759028' }) }
+  let!(:user) { sis_user(icn: '24811694708759028') }
 
   before do
     Flipper.enable('va_online_scheduling')

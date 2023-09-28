@@ -7,7 +7,7 @@ require_relative '../support/matchers/json_schema_matcher'
 RSpec.describe 'appointments', type: :request do
   include JsonSchemaMatchers
 
-  let!(:user) { sis_user(attributes: { icn: '24811694708759028' }) }
+  let!(:user) { sis_user(icn: '24811694708759028') }
 
   before do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')

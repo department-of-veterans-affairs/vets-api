@@ -11,7 +11,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
-  let!(:user) { sis_user(attributes: { icn: '1012846043V576341' }) }
+  let!(:user) { sis_user(icn: '1012846043V576341') }
 
   let(:mock_clinic) do
     mock_clinic = {
@@ -135,7 +135,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
                                                                            allow_playback_repeats: true) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_bad_facility_200',
                              match_requests_on: %i[method uri]) do
-              get '/mobile/v0/appointments', headers: iam_headers, params:
+              get '/mobile/v0/appointments', headers: sis_headers, params:
             end
           end
         end
@@ -180,7 +180,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
                          match_requests_on: %i[method uri]) do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_bad_facility_200',
                            match_requests_on: %i[method uri]) do
-            get '/mobile/v0/appointments', headers: iam_headers, params:
+            get '/mobile/v0/appointments', headers: sis_headers, params:
           end
         end
       end

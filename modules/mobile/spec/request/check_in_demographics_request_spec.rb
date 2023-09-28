@@ -6,17 +6,15 @@ require_relative '../support/helpers/sis_session_helper'
 RSpec.describe 'check in demographics', type: :request do
   let!(:user) do
     sis_user(
-      attributes: {
-        icn: '24811694708759028',
-        vha_facility_hash: {
-          '516' => ['12345'],
-          '553' => ['2'],
-          '200HD' => ['12345'],
-          '200IP' => ['TKIP123456'],
-          '200MHV' => ['123456']
-        },
-        vha_facility_ids: %w[516 553 200HD 200IP 200MHV]
-      }
+      icn: '24811694708759028',
+      vha_facility_hash: {
+        '516' => ['12345'],
+        '553' => ['2'],
+        '200HD' => ['12345'],
+        '200IP' => ['TKIP123456'],
+        '200MHV' => ['123456']
+      },
+      vha_facility_ids: %w[516 553 200HD 200IP 200MHV]
     )
   end
 
