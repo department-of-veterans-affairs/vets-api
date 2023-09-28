@@ -705,11 +705,11 @@ RSpec.describe Form1010cg::Service do
 
         claim_with_mpi_veteran.save!
 
-        # expect_any_instance_of(Form1010cg::Attachment).to receive(:to_local_file).and_return(
-        #   'spec/fixtures/files/doctors-note.jpg'
-        # )
+        expect_any_instance_of(Form1010cg::Attachment).to receive(:to_local_file).and_return(
+          'spec/fixtures/files/doctors-note.jpg'
+        )
 
-        # allow(File).to receive(:delete).with('spec/fixtures/files/doctors-note.jpg')
+        allow(File).to receive(:delete).with('spec/fixtures/files/doctors-note.jpg')
         res = described_class.new(claim_with_mpi_veteran).process_claim_v2!
         binding.pry; fail
       end
