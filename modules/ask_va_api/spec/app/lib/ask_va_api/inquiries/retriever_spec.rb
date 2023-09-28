@@ -7,7 +7,7 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
 
   let(:sec_id) { '123' }
   let(:service) { instance_double(Dynamics::Service) }
-  let(:reply_creator) { instance_double(AskVAApi::Replies::ReplyCreator) }
+  let(:correspondences) { instance_double(AskVAApi::Correspondences::Retriever) }
   let(:entity) { instance_double(AskVAApi::Inquiries::Entity) }
   let(:inquiry_number) { 'A-1' }
   let(:error_message) { 'Some error occurred' }
@@ -15,8 +15,8 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
 
   before do
     allow(Dynamics::Service).to receive(:new).and_return(service)
-    allow(AskVAApi::Replies::ReplyCreator).to receive(:new).and_return(reply_creator)
-    allow(reply_creator).to receive(:call).and_return(entity)
+    allow(AskVAApi::Correspondences::Retriever).to receive(:new).and_return(correspondences)
+    allow(correspondences).to receive(:call).and_return(entity)
     allow(AskVAApi::Inquiries::Entity).to receive(:new).and_return(entity)
     allow(service).to receive(:call)
   end

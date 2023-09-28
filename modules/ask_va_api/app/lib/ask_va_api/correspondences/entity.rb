@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
 module AskVAApi
-  module Replies
-    class Reply
+  module Correspondences
+    class Entity
       attr_reader :id,
                   :inquiry_number,
-                  :reply
+                  :correspondence
 
       def initialize(info)
         @id = info[:replyId]
         @inquiry_number = info[:inquiryNumber]
-        @reply = info[:reply]
+        @correspondence = info[:reply]
       end
     end
   end
