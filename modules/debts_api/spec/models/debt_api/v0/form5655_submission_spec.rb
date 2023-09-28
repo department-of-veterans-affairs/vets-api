@@ -55,10 +55,12 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
   describe '.submit_to_vha' do
     let(:form5655_submission) { create(:debts_api_form5655_submission) }
 
-    it 'enqueues a VHA submission job' do
+    it 'enqueues both VHA submission jobs' do
       expect do
         form5655_submission.submit_to_vha
-      end.to change(DebtsApi::V0::Form5655::VHASubmissionJob.jobs, :size).by(1)
+      end
+        .to change(DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs, :size).by(1)
+        .and change(DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs, :size).by(1)
     end
   end
 
@@ -80,6 +82,42 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
 
       it 'returns an error' do
         expect { form5655_submission.user_cache_id }.to raise_error(Form5655Submission::StaleUserError)
+      end
+    end
+  end
+
+  describe '.set_completed_state' do
+    let(:form5655_submission) { create(:debts_api_form5655_submission) }
+
+    before do
+      allow(DebtsApi::V0::Form5655Submission).to receive(:find).and_return(form5655_submission)
+    end
+
+    context 'success' do
+      let(:status) do
+        OpenStruct.new(
+          failures: 0,
+          failure_info: []
+        )
+      end
+
+      it 'sets the submission as submitted' do
+        described_class.new.set_completed_state(status, { 'submission_id' => form5655_submission.id })
+        expect(form5655_submission.submitted?).to eq(true)
+      end
+    end
+
+    context 'failure' do
+      let(:status) do
+        OpenStruct.new(
+          failures: 1,
+          failure_info: [SecureRandom.uuid]
+        )
+      end
+
+      it 'sets the submission as failed' do
+        described_class.new.set_completed_state(status, { 'submission_id' => form5655_submission.id })
+        expect(form5655_submission.failed?).to eq(true)
       end
     end
   end

@@ -272,7 +272,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       end
     end
 
-    it 'enqueues a VHA submission job' do
+    it 'enqueues VHA submission jobs' do
       valid_form_data['selectedDebtsAndCopays'] = [{
         'station' => {
           'facilitYNum' => '123'
@@ -283,7 +283,10 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       valid_form_data['personalIdentification'] = {}
       service = described_class.new(user)
       expect { service.submit_combined_fsr(valid_form_data) }
-        .to change { DebtsApi::V0::Form5655::VHASubmissionJob.jobs.size }
+        .to change { DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs.size }
+        .from(0)
+        .to(1)
+        .and change { DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs.size }
         .from(0)
         .to(1)
     end
@@ -332,7 +335,10 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       ]
       service = described_class.new(user)
       expect { service.create_vha_fsr(valid_form_data) }
-        .to change { DebtsApi::V0::Form5655::VHASubmissionJob.jobs.size }
+        .to change { DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs.size }
+        .from(0)
+        .to(2)
+        .and change { DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs.size }
         .from(0)
         .to(2)
     end
