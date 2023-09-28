@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 module AskVAApi
-  module Replies
+  module Correspondences
     class Serializer < ActiveModel::Serializer
       include JSONAPI::Serializer
-      set_type :reply
+      set_type :correspondence
 
       attributes :inquiry_number,
-                 :reply
+                 :correspondence
     end
   end
 end
