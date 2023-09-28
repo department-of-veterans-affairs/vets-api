@@ -48,7 +48,7 @@ RSpec.describe Users::Profile do
     end
 
     it 'sets the errors to nil' do
-      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method, :body]) do
+      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method, :body], allow_playback_repeats: true) do
         expect(subject.errors).to be_nil
       end
     end
