@@ -5,7 +5,7 @@ require_relative 'base'
 module CARMA
   module Models
     class Attachment < Base
-      DOCUMENT_TYPES = { '10-10CG' => '10-10CG', 'POA' => 'Legal Representative' }.freeze
+      DOCUMENT_TYPES = { '10-10CG' => '10-10CG', 'POA' => 'POA' }.freeze
 
       attr_accessor   :carma_case_id,
                       :veteran_name,
