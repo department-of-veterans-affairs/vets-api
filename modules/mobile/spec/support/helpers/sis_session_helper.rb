@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module SISSessionHelper
+  class SISSessionHelperError < StandardError; end
+
   def sis_access_token
     @sis_access_token ||= create(:access_token)
   end
@@ -9,14 +11,23 @@ module SISSessionHelper
     @sis_bearer_token ||= SignIn::AccessTokenJwtEncoder.new(access_token: sis_access_token).perform
   end
 
-  def sis_user(traits: [:api_auth], attributes: {})
+  def sis_user(*args)
     @sis_user ||= begin
-      user_attributes = { uuid: sis_access_token.user_uuid }.merge(attributes)
+      traits, attributes = args.partition do |arg|
+        raise SISSessionHelperError, "Invalid user arg: #{arg}" unless arg.class.in? [Symbol, Hash]
+
+        arg.is_a? Symbol
+      end
+
+      user_attributes = { uuid: sis_access_token.user_uuid }.merge(*attributes)
+      traits |= [:api_auth]
       create(:user, *traits, **user_attributes)
     end
   end
 
-  def sis_headers(additional_headers: {}, camelize: true, json: false)
+  def sis_headers(additional_headers = {}, camelize: true, json: false)
+    raise SISSessionHelperError, 'SIS user does not exist' unless defined?(@sis_user)
+
     headers = {
       'Authorization' => "Bearer #{sis_bearer_token}",
       'Authentication-Method' => 'SIS'
