@@ -14,7 +14,7 @@ module AskVAApi
                  :last_update
 
       attribute :reply do |obj|
-        AskVAApi::Replies::Serializer.new(obj.reply).serializable_hash
+        AskVAApi::Correspondences::Serializer.new(obj.reply).serializable_hash
       end
     end
   end
