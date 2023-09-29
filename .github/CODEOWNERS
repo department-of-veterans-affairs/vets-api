@@ -1345,6 +1345,7 @@ spec/lib/sftp_writer/remote_spec.rb @department-of-veterans-affairs/backend-revi
 spec/lib/sidekiq/error_tag_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq/form526_backup_submission_process @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq/form526_backup_submission_process/submit_spec.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/backend-review-group
+spec/lib/sidekiq/form526_historical_data_exporter @department-of-veterans-affairs/vagov-claim-classification @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq/form526_job_status_tracker @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq/retry_monitoring_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq/set_current_retry_spec.rb @department-of-veterans-affairs/backend-review-group
