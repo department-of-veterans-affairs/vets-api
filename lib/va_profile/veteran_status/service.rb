@@ -24,10 +24,13 @@ module VAProfile
       def get_veteran_status
         with_monitoring do
           edipi_present!
+          binding.pry
           response = perform(:post, identity_path, VAProfile::Models::VeteranStatus.in_json)
           VeteranStatusResponse.from(response)
         end
-      rescue Common::Client::Errors::ClientError => e
+      rescue 
+        Common::Client::Errors::ClientError => e
+        #binding.pry
         handle_client_error(e)
       rescue => e
         handle_error(e)
@@ -62,7 +65,7 @@ module VAProfile
 
       def handle_client_error(e)
         additional_params = { edipi: @user&.identity&.edipi }
-
+       # binding.pry
         if e.status == 404
           log_exception_to_sentry(
             e, additional_params, { va_profile: :veteran_status_title_not_found }, :warning

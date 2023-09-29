@@ -29,17 +29,12 @@ module Users
     # @see https://department-of-veterans-affairs.github.io/va-digital-services-platform-docs/api-reference/#/site/getMaintenanceWindows
     #
     def serialize_error
+      #binding.pry
       case error
       when Common::Exceptions::BaseError
         base_error
       when Common::Client::Errors::ClientError
-        if error.status == 404
-          title_error(:not_found)
-        elsif error.status >= 400 && error.status < 500
-          client_error_related_to_title38
-        else
-          client_error
-        end
+        client_error
       when EMISRedis::VeteranStatus::NotAuthorized
         emis_error(:not_authorized)
       when EMISRedis::VeteranStatus::RecordNotFound
