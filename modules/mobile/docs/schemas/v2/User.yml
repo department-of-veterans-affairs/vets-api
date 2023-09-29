@@ -26,6 +26,7 @@ properties:
         example: "John"
       middleName:
         type: string
+        nullable: true
         example: "A"
       lastName:
         type: string

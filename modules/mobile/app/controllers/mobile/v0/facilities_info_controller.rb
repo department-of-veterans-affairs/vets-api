@@ -20,7 +20,8 @@ module Mobile
       end
 
       def schedulable
-        facility_ids = @current_user.va_treatment_facility_ids + @current_user.cerner_facility_ids
+        facility_ids = (@current_user.va_treatment_facility_ids + @current_user.cerner_facility_ids).uniq
+
         facilities = Mobile::FacilitiesHelper.fetch_facilities_from_ids(@current_user, facility_ids,
                                                                         include_children: true, schedulable: true)
         adapted_facilities = facilities.map do |facility|

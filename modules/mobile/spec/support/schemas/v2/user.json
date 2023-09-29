@@ -38,7 +38,7 @@
               "type": "string"
             },
             "middleName": {
-              "type": "string"
+              "type": ["string", "null"]
             },
             "lastName": {
               "type": "string"
