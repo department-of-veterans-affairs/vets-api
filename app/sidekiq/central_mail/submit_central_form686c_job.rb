@@ -14,6 +14,8 @@ module CentralMail
 
     sidekiq_options retry: false
 
+    attr_reader :claim, :form_686c_path, :form_674_path, :attachment_paths
+
     class CentralMailResponseError < StandardError; end
 
     def extract_uuid_from_central_mail_message(data)
@@ -28,19 +30,19 @@ module CentralMail
       Rails.logger.info('CentralMail::SubmitCentralForm686cJob running!',
                         { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'] })
       @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
-      @claim.add_veteran_info(vet_info)
+      claim.add_veteran_info(vet_info)
 
       # process the main pdf record and the attachments as we would for a vbms submission
-      @pdf_path = process_record(@claim)
+      @form_686c_path = process_pdf(claim.to_pdf(form_id: '686C-674')) if claim.submittable_686?
+      @form_674_path = process_pdf(claim.to_pdf(form_id: '21-674')) if claim.submittable_674?
 
-      @attachment_paths = @claim.persistent_attachments.map do |record|
-        process_record(record)
-      end
+      @attachment_paths = claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf) }
 
       # upload with the request body (adapted from submit_saved_claim_job.rb)
       response = CentralMail::Service.new.upload(create_request_body)
-      File.delete(@pdf_path)
-      @attachment_paths.each { |p| File.delete(p) }
+      File.delete(form_686c_path) if form_686c_path.present?
+      File.delete(form_674_path) if form_674_path.present?
+      attachment_paths.each { |p| File.delete(p) }
 
       check_success(response, saved_claim_id, user_struct)
     rescue => e
@@ -69,18 +71,24 @@ module CentralMail
       body = {
         'metadata' => generate_metadata.to_json
       }
+      i = 0
 
-      body['document'] = to_faraday_upload(@pdf_path)
-      @attachment_paths.each_with_index do |file_path, i|
-        j = i + 1
-        body["attachment#{j}"] = to_faraday_upload(file_path)
+      if form_686c_path.present?
+        body['document'] = to_faraday_upload(form_686c_path)
+        body["attachment#{i += 1}"] = to_faraday_upload(form_674_path) if form_674_path.present?
+      else
+        body['document'] = to_faraday_upload(form_674_path)
+      end
+
+      attachment_paths.each do |file_path|
+        body["attachment#{i += 1}"] = to_faraday_upload(file_path)
       end
 
       body
     end
 
     def update_submission(state)
-      @claim.central_mail_submission.update!(state:) if @claim.respond_to?(:central_mail_submission)
+      claim.central_mail_submission.update!(state:) if claim.respond_to?(:central_mail_submission)
     end
 
     def to_faraday_upload(file_path)
@@ -90,8 +98,7 @@ module CentralMail
       )
     end
 
-    def process_record(record)
-      pdf_path = record.to_pdf
+    def process_pdf(pdf_path)
       stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5)
       CentralMail::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - va.gov Submission',
@@ -110,28 +117,28 @@ module CentralMail
 
     # rubocop:disable Metrics/MethodLength
     def generate_metadata
-      form = @claim.parsed_form['dependents_application']
-      form_pdf_metadata = get_hash_and_pages(@pdf_path)
-      number_attachments = @attachment_paths.size
+      form = claim.parsed_form['dependents_application']
+      form_pdf_metadata = get_hash_and_pages(form_686c_path || form_674_path)
+      number_attachments = attachment_paths.size
       veteran_full_name = form['veteran_information']['full_name']
       address = form['veteran_contact_information']['veteran_address']
-      receive_date = @claim.created_at.in_time_zone('Central Time (US & Canada)')
+      receive_date = claim.created_at.in_time_zone('Central Time (US & Canada)')
 
       metadata = {
         'veteranFirstName' => veteran_full_name['first'],
         'veteranLastName' => veteran_full_name['last'],
         'fileNumber' => form['veteran_information']['file_number'] || form['veteran_information']['ssn'],
         'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
-        'uuid' => @claim.guid,
+        'uuid' => claim.guid,
         'zipCode' => address['country_name'] == 'USA' ? address['zip_code'] : FOREIGN_POSTALCODE,
         'source' => 'va.gov',
         'hashV' => form_pdf_metadata[:hash],
         'numberAttachments' => number_attachments,
-        'docType' => @claim.form_id,
+        'docType' => claim.form_id,
         'numberPages' => form_pdf_metadata[:pages]
       }
 
-      @attachment_paths.each_with_index do |file_path, i|
+      attachment_paths.each_with_index do |file_path, i|
         j = i + 1
         attachment_pdf_metadata = get_hash_and_pages(file_path)
         metadata["ahash#{j}"] = attachment_pdf_metadata[:hash]

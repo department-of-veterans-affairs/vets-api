@@ -35,10 +35,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   validate :address_exists
 
   def upload_pdf(form_id, doc_type: '148')
-    self.form_id = form_id
-
-    form_path = PdfFill::Filler.fill_form(self)
-    upload_to_vbms(path: form_path, doc_type:)
+    upload_to_vbms(path: to_pdf(form_id:), doc_type:)
   end
 
   def add_veteran_info(va_file_number_with_payload)
@@ -103,6 +100,12 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     )
 
     uploader.upload!
+  end
+
+  def to_pdf(form_id: FORM)
+    self.form_id = form_id
+
+    PdfFill::Filler.fill_form(self)
   end
 
   private
