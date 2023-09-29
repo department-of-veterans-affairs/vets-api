@@ -1823,3 +1823,6 @@ spec/lib/central_mail @department-of-veterans-affairs/va-api-engineers @departme
 spec/lib/pdf_info @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-banana-peels
 spec/lib/pdf_utilities/pdf_validator @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-banana-peels
 spec/support/vcr_cassettes/central_mail @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-banana-peels
+
+# Global default code owners
+* @department-of-veterans-affairs/backend-review-group
