@@ -76,8 +76,14 @@ Rails.application.configure do
 
   ConfigHelper.setup_action_mailer(config)
 
-  config.rails_semantic_logger.semantic   = false
+  config.colorize_logging = false
+  config.rails_semantic_logger.format = :json
+  config.rails_semantic_logger.semantic   = true
   config.rails_semantic_logger.started    = true
   config.rails_semantic_logger.processing = true
   config.rails_semantic_logger.rendered   = true
+
+  logger = ActiveSupport::Logger.new($stdout)
+  logger.formatter = config.log_formatter
+  config.logger = ActiveSupport::TaggedLogging.new(logger)
 end

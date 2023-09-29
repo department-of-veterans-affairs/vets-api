@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'lighthouse/facilities/client'
+require 'ddtrace'
 
 class V1::Facilities::VAController < FacilitiesController
   # Index supports the following query parameters:
@@ -8,12 +9,16 @@ class V1::Facilities::VAController < FacilitiesController
   # @param type - Optional facility type, values = all (default), health, benefits, cemetery
   # @param services - Optional specialty services filter
   def index
+    Datadog::Tracing.active_span&.service = 'facilities-api'
+    
     api_results = api.get_facilities(lighthouse_params)
 
     render_json(serializer, lighthouse_params, api_results)
   end
 
   def show
+    Datadog::Tracing.active_span&.service = 'facilities-api'
+    Rails.logger.info('PV SPAN: ' + Datadog::Tracing.active_span&.to_json)
     api_result = api.get_by_id(params[:id])
 
     render_json(serializer, lighthouse_params, api_result)
