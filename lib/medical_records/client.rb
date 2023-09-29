@@ -84,7 +84,8 @@ module MedicalRecords
     end
 
     def list_vaccines
-      fhir_search(FHIR::Immunization, search: { parameters: { patient: patient_fhir_id } })
+      bundle = fhir_search(FHIR::Immunization, search: { parameters: { patient: patient_fhir_id } })
+      sort_bundle(bundle, :occurrenceDateTime, :desc)
     end
 
     def get_allergy(allergy_id)
@@ -93,7 +94,7 @@ module MedicalRecords
 
     def list_allergies
       bundle = fhir_search(FHIR::AllergyIntolerance, search: { parameters: { patient: patient_fhir_id } })
-      sort_bundle(bundle, :onsetDateTime, :desc)
+      sort_bundle(bundle, :recordedDate, :desc)
     end
 
     def get_clinical_note(note_id)
