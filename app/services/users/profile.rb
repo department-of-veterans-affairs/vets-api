@@ -174,6 +174,7 @@ module Users
 
     def update_status_and_errors
       if scaffold.errors.present?
+        Rails.logger.info("!!!!!!!!!!!!!! #{scaffold.errors}")
         scaffold.status = HTTP_SOME_ERRORS
       else
         scaffold.errors = nil
