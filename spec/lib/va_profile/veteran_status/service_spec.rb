@@ -43,10 +43,7 @@ describe VAProfile::VeteranStatus::Service, if: Flipper.enabled?(:veteran_status
             { va_profile: :client_error_related_to_title38 },
             :warning
           )
-          response = subject.get_veteran_status
-          expect(response).not_to be_ok
-          expect(response.status).to eq(400)
-          expect(response.title38_status_code).to eq(nil)
+          expect { subject.get_veteran_status }.to raise_error(VAProfile::VeteranStatus::VAProfileError)
         end
       end
 
@@ -59,10 +56,7 @@ describe VAProfile::VeteranStatus::Service, if: Flipper.enabled?(:veteran_status
             :warning
           )
 
-          response = subject.get_veteran_status
-          expect(response).not_to be_ok
-          expect(response.status).to eq(404)
-          expect(response.title38_status_code).to eq(nil)
+          expect { subject.get_veteran_status }.to raise_error(VAProfile::VeteranStatus::VAProfileError)
         end
       end
 
