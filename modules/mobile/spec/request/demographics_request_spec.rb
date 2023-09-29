@@ -6,12 +6,12 @@ require_relative '../support/helpers/sis_session_helper'
 RSpec.describe 'demographics', type: :request do
   describe 'logingov user' do
     let!(:user) do
-      sis_user(attributes: {
-                 icn: '1008596379V859838',
-                 idme_uuid: nil,
-                 logingov_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-                 authn_context: 'dslogon_loa3'
-               })
+      sis_user(
+        icn: '1008596379V859838',
+        idme_uuid: nil,
+        logingov_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+        authn_context: 'dslogon_loa3'
+      )
     end
 
     describe 'GET /mobile/v0/user/demographics' do
@@ -35,7 +35,7 @@ RSpec.describe 'demographics', type: :request do
 
   describe 'idme user' do
     let!(:user) do
-      sis_user(attributes: { icn: '1008596379V859838', idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' })
+      sis_user(icn: '1008596379V859838', idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef')
     end
 
     describe 'GET /mobile/v0/user/demographics' do
@@ -109,7 +109,7 @@ RSpec.describe 'demographics', type: :request do
   end
 
   describe 'unauthorized user' do
-    let!(:user) { sis_user(attributes: { idme_uuid: nil, logingov_uuid: nil }) }
+    let!(:user) { sis_user(idme_uuid: nil, logingov_uuid: nil) }
 
     context 'returns as expected' do
       before do

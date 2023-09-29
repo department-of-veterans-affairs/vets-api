@@ -10,11 +10,9 @@ RSpec.describe 'facilities info', type: :request do
   let(:params) { { lat: 40.5, long: 100.1 } }
   let!(:user) do
     sis_user(
-      attributes: {
-        icn: '24811694708759028',
-        cerner_facility_ids: %w[757 358 999],
-        vha_facility_ids: %w[757 358 999]
-      }
+      icn: '24811694708759028',
+      cerner_facility_ids: %w[757 358 999],
+      vha_facility_ids: %w[757 358 999]
     )
   end
   let(:facilities) { response.parsed_body.dig('data', 'attributes', 'facilities') }
@@ -70,7 +68,7 @@ RSpec.describe 'facilities info', type: :request do
         end
 
         context 'when user does not have a home address' do
-          let!(:user) { sis_user(attributes: { vet360_id: nil }) }
+          let!(:user) { sis_user(vet360_id: nil) }
 
           it 'returns facility details sorted by closest to user\'s home' do
             VCR.use_cassette('mobile/appointments/get_multiple_mfs_facilities_200',

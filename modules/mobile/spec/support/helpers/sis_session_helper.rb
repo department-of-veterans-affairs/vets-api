@@ -27,7 +27,7 @@ module SISSessionHelper
     end
   end
 
-  def sis_headers(additional_headers = {}, camelize: true, json: false)
+  def sis_headers(additional_headers = nil, camelize: true, json: false)
     raise SISSessionHelperError, 'SIS user does not exist' unless defined?(@sis_user)
 
     headers = {
@@ -36,7 +36,7 @@ module SISSessionHelper
     }
     headers.merge!('X-Key-Inflection' => 'camel') if camelize
     headers.merge!({ 'Content-Type' => 'application/json', 'Accept' => 'application/json' }) if json
-    headers.merge!(additional_headers) if additional_headers.any?
+    headers.merge!(additional_headers) if additional_headers
     headers
   end
 end

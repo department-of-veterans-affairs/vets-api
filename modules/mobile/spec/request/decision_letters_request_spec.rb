@@ -8,7 +8,7 @@ require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'fake_vbms.r
 RSpec.describe 'decision letters', type: :request do
   include JsonSchemaMatchers
 
-  let!(:user) { sis_user(attributes: { icn: '24811694708759028' }) }
+  let!(:user) { sis_user(icn: '24811694708759028') }
 
   before do
     allow(VBMS::Client).to receive(:from_env_vars).and_return(FakeVBMS.new)

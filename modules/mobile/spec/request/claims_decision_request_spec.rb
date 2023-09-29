@@ -5,7 +5,7 @@ require_relative '../support/helpers/sis_session_helper'
 
 RSpec.describe 'lighthouse claims decision request', type: :request do
   describe 'GET /v0/claim/:id/request-decision' do
-    let!(:user) { sis_user(traits: %i[api_auth loa3], attributes: { icn: '1008596379V859838' }) }
+    let!(:user) { sis_user(icn: '1008596379V859838') }
 
     before do
       token = 'abcdefghijklmnop'
