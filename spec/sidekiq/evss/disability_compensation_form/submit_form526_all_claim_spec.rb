@@ -12,7 +12,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
   before do
     Sidekiq::Job.clear_all
-    Flipper.disable(:disability_526_classifier)
+    Flipper.disable(:disability_526_classifier_new_claims)
     Flipper.disable(:disability_compensation_lighthouse_submit_migration)
     Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
   end
@@ -65,9 +65,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     end
 
     context 'with contention classification enabled' do
-      before { Flipper.enable(:disability_526_classifier) }
-      after { Flipper.disable(:disability_526_classifier) }
-
       context 'when diagnostic code is not set' do
         let(:submission) do
           create(:form526_submission,
@@ -79,8 +76,19 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
         it 'does not call contention classification endpoint' do
           subject.perform_async(submission.id)
-          expect(submission).not_to receive(:classify_by_diagnostic_code)
+          expect_any_instance_of(Form526Submission).not_to receive(:classify_single_contention)
           described_class.drain
+        end
+
+        context 'contention classifier enabled for new claims' do
+          before { Flipper.enable(:disability_526_classifier_new_claims) }
+          after { Flipper.disable(:disability_526_classifier_new_claims) }
+
+          it 'does not call contention classification endpoint' do
+            subject.perform_async(submission.id)
+            expect_any_instance_of(Form526Submission).to receive(:classify_single_contention)
+            described_class.drain
+          end
         end
       end
 
@@ -151,7 +159,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
       it 'does not call contention classification endpoint' do
         subject.perform_async(submission.id)
-        expect(submission).not_to receive(:classify_by_diagnostic_code)
+        expect(submission).not_to receive(:classify_single_contention)
         described_class.drain
       end
 
@@ -295,93 +303,105 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
     end
 
-    context 'with a submission timeout' do
-      before do
-        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+    # this is a workaround to ensure Contention Classification API in VRO does not get called, because
+    # rails.error statements will cause expect_retryable_error to fail in these tests
+    context 'with a multi-contention claim' do
+      let(:submission) do
+        create(:form526_submission,
+               :with_multiple_mas_diagnostic_code,
+               user_uuid: user.uuid,
+               auth_headers_json: auth_headers.to_json,
+               saved_claim_id: saved_claim.id)
       end
 
-      it 'runs the retryable_error_handler and raises a EVSS::DisabilityCompensationForm::GatewayTimeout' do
-        subject.perform_async(submission.id)
-        expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_retryable).once
-        expect(Rails.logger).to receive(:error).once
-        expect { described_class.drain }.to raise_error(Common::Exceptions::GatewayTimeout)
-        job_status = Form526JobStatus.find_by(form526_submission_id: submission.id,
-                                              job_class: 'SubmitForm526AllClaim')
-        expect(job_status.status).to eq 'retryable_error'
-        expect(job_status.error_class).to eq 'Common::Exceptions::GatewayTimeout'
-        expect(job_status.error_message).to eq 'Gateway timeout'
-      end
-    end
+      context 'with a submission timeout' do
+        before do
+          allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+        end
 
-    context 'with a 503 error' do
-      it 'runs the retryable_error_handler and raises a ServiceUnavailableException' do
-        expect_any_instance_of(EVSS::DisabilityCompensationForm::Service).to receive(:submit_form526).and_raise(
-          EVSS::DisabilityCompensationForm::ServiceUnavailableException
-        )
-        expect(Rails.logger).to receive(:error).once
-        expect_retryable_error(EVSS::DisabilityCompensationForm::ServiceUnavailableException)
-      end
-    end
-
-    context 'with a breakers outage' do
-      it 'runs the retryable_error_handler and raises a gateway timeout' do
-        allow_any_instance_of(Form526Submission).to receive(:prepare_for_evss!).and_return(nil)
-        EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
-        expect(Rails.logger).to receive(:error).once
-        expect_retryable_error(Breakers::OutageException)
-        EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.end_forced_outage!
-      end
-    end
-
-    context 'with a client error' do
-      it 'sets the job_status to "non_retryable_error"' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_400') do
-          expect_any_instance_of(described_class).to receive(:log_exception_to_sentry)
+        it 'runs the retryable_error_handler and raises a EVSS::DisabilityCompensationForm::GatewayTimeout' do
           subject.perform_async(submission.id)
-          expect_any_instance_of(
-            Sidekiq::Form526JobStatusTracker::Metrics
-          ).to receive(:increment_non_retryable).once
-          expect { described_class.drain }.to change(backup_klass.jobs, :size).by(1)
-          form_job_status = Form526JobStatus.last
-          expect(form_job_status.error_class).to eq 'EVSS::DisabilityCompensationForm::ServiceException'
-          expect(form_job_status.job_class).to eq 'SubmitForm526AllClaim'
-          expect(form_job_status.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
-          expect(form_job_status.error_message).to eq(
-            '[{"key"=>"form526.serviceInformation.ConfinementPastActiveDutyDate", ' \
-            '"severity"=>"ERROR", "text"=>"The ' \
-            'confinement start date is too far in the past"}, {"key"=>"form526.serviceInformation.' \
-            'ConfinementWithInServicePeriod", "severity"=>"ERROR", "text"=>"Your period of confinement must be ' \
-            'within a single period of service"}, {"key"=>"form526.veteran.homelessness.pointOfContact.' \
-            'pointOfContactName.Pattern", "severity"=>"ERROR", ' \
-            '"text"=>"must match \\"([a-zA-Z0-9-/]+( ?))*$\\""}]'
+          expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to receive(:increment_retryable).once
+          expect(Rails.logger).to receive(:error).once
+          expect { described_class.drain }.to raise_error(Common::Exceptions::GatewayTimeout)
+          job_status = Form526JobStatus.find_by(form526_submission_id: submission.id,
+                                                job_class: 'SubmitForm526AllClaim')
+          expect(job_status.status).to eq 'retryable_error'
+          expect(job_status.error_class).to eq 'Common::Exceptions::GatewayTimeout'
+          expect(job_status.error_message).to eq 'Gateway timeout'
+        end
+      end
+
+      context 'with a 503 error' do
+        it 'runs the retryable_error_handler and raises a ServiceUnavailableException' do
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::Service).to receive(:submit_form526).and_raise(
+            EVSS::DisabilityCompensationForm::ServiceUnavailableException
           )
-        end
-      end
-    end
-
-    context 'with an upstream service error' do
-      it 'sets the transaction to "retrying"' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_500_with_err_msg') do
-          expect(Rails.logger).to receive(:error).twice
-          expect_retryable_error(EVSS::DisabilityCompensationForm::ServiceException)
-        end
-      end
-    end
-
-    context 'with an upstream bad gateway' do
-      it 'sets the transaction to "retrying"' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_502') do
-          expect(Rails.logger).to receive(:error).twice
-          expect_retryable_error(Common::Exceptions::BackendServiceException)
-        end
-      end
-    end
-
-    context 'with an upstream service unavailable' do
-      it 'sets the transaction to "retrying"' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_503') do
-          expect(Rails.logger).to receive(:error).twice
+          expect(Rails.logger).to receive(:error).once
           expect_retryable_error(EVSS::DisabilityCompensationForm::ServiceUnavailableException)
+        end
+      end
+
+      context 'with a breakers outage' do
+        it 'runs the retryable_error_handler and raises a gateway timeout' do
+          allow_any_instance_of(Form526Submission).to receive(:prepare_for_evss!).and_return(nil)
+          EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
+          expect(Rails.logger).to receive(:error).once
+          expect_retryable_error(Breakers::OutageException)
+          EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.end_forced_outage!
+        end
+      end
+
+      context 'with a client error' do
+        it 'sets the job_status to "non_retryable_error"' do
+          VCR.use_cassette('evss/disability_compensation_form/submit_400') do
+            expect_any_instance_of(described_class).to receive(:log_exception_to_sentry)
+            subject.perform_async(submission.id)
+            expect_any_instance_of(
+              Sidekiq::Form526JobStatusTracker::Metrics
+            ).to receive(:increment_non_retryable).once
+            expect { described_class.drain }.to change(backup_klass.jobs, :size).by(1)
+            form_job_status = Form526JobStatus.last
+            expect(form_job_status.error_class).to eq 'EVSS::DisabilityCompensationForm::ServiceException'
+            expect(form_job_status.job_class).to eq 'SubmitForm526AllClaim'
+            expect(form_job_status.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+            expect(form_job_status.error_message).to eq(
+              '[{"key"=>"form526.serviceInformation.ConfinementPastActiveDutyDate", ' \
+              '"severity"=>"ERROR", "text"=>"The ' \
+              'confinement start date is too far in the past"}, {"key"=>"form526.serviceInformation.' \
+              'ConfinementWithInServicePeriod", "severity"=>"ERROR", "text"=>"Your period of confinement must be ' \
+              'within a single period of service"}, {"key"=>"form526.veteran.homelessness.pointOfContact.' \
+              'pointOfContactName.Pattern", "severity"=>"ERROR", ' \
+              '"text"=>"must match \\"([a-zA-Z0-9-/]+( ?))*$\\""}]'
+            )
+          end
+        end
+      end
+
+      context 'with an upstream service error' do
+        it 'sets the transaction to "retrying"' do
+          VCR.use_cassette('evss/disability_compensation_form/submit_500_with_err_msg') do
+            expect(Rails.logger).to receive(:error).twice
+            expect_retryable_error(EVSS::DisabilityCompensationForm::ServiceException)
+          end
+        end
+      end
+
+      context 'with an upstream bad gateway' do
+        it 'sets the transaction to "retrying"' do
+          VCR.use_cassette('evss/disability_compensation_form/submit_502') do
+            expect(Rails.logger).to receive(:error).twice
+            expect_retryable_error(Common::Exceptions::BackendServiceException)
+          end
+        end
+      end
+
+      context 'with an upstream service unavailable' do
+        it 'sets the transaction to "retrying"' do
+          VCR.use_cassette('evss/disability_compensation_form/submit_503') do
+            expect(Rails.logger).to receive(:error).twice
+            expect_retryable_error(EVSS::DisabilityCompensationForm::ServiceUnavailableException)
+          end
         end
       end
     end
