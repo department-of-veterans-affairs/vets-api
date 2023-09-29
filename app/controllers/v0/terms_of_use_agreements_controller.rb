@@ -2,6 +2,10 @@
 
 module V0
   class TermsOfUseAgreementsController < ApplicationController
+    skip_before_action :authenticate
+
+    before_action :terms_authenticate
+
     def latest
       terms_of_use_agreement = get_terms_of_use_agreements_for_version(params[:version]).last
       render_success(terms_of_use_agreement, :ok)
@@ -29,6 +33,19 @@ module V0
 
     def get_terms_of_use_agreements_for_version(version)
       current_user.user_account.terms_of_use_agreements.where(agreement_version: version)
+    end
+
+    def authenticate_one_time_terms_code
+      terms_code_container = SignIn::TermsCodeContainer.find(params[:terms_code])
+      @current_user = User.find(terms_code_container.user_uuid)
+    ensure
+      terms_code_container&.destroy
+    end
+
+    def terms_authenticate
+      params[:terms_code].present? ? authenticate_one_time_terms_code : load_user
+
+      raise Common::Exceptions::Unauthorized unless @current_user
     end
 
     def render_success(terms_of_use_agreement, status)
