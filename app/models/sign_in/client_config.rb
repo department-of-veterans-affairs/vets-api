@@ -16,6 +16,8 @@ module SignIn
     validates :authentication,
               presence: true,
               inclusion: { in: Constants::Auth::AUTHENTICATION_TYPES, allow_nil: false }
+    validates :enforced_terms, inclusion: { in: Constants::Auth::ENFORCED_TERMS, allow_nil: true }
+    validates :terms_of_use_url, presence: true, if: :enforced_terms
     validates :client_id, presence: true, uniqueness: true
     validates :logout_redirect_uri, presence: true, if: :cookie_auth?
     validates :access_token_attributes, inclusion: { in: Constants::AccessToken::USER_ATTRIBUTES }
@@ -40,6 +42,10 @@ module SignIn
 
     def mock_auth?
       authentication == Constants::Auth::MOCK && appropriate_mock_environment?
+    end
+
+    def va_terms_enforced?
+      enforced_terms == Constants::Auth::VA_TERMS
     end
 
     private

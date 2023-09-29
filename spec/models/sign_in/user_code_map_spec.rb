@@ -8,13 +8,15 @@ RSpec.describe SignIn::UserCodeMap, type: :model do
            login_code:,
            type:,
            client_state:,
-           client_config:)
+           client_config:,
+           terms_code:)
   end
 
   let(:login_code) { 'some-login-code' }
   let(:type) { 'some-type' }
   let(:client_state) { 'some-client-state' }
   let(:client_config) { create(:client_config) }
+  let(:terms_code) { 'some-terms-code' }
 
   describe 'validations' do
     describe '#login_code' do
