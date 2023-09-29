@@ -8,14 +8,12 @@ module Swagger::Schemas
 
     swagger_schema :EmergencyContacts do
       key :required, [:data]
-
-      property :data, type: :object do
-        key :required, [:attributes]
-        property :attributes, type: :object do
-          key :required, [:emergency_contacts]
-          property :emergency_contacts do
-            key :type, :array
-            items { key :$ref, :EmergencyContact }
+      property :data, type: :array do
+        items do
+          property :id, type: :string, example: 'dbbf9a58-41e5-40c0-bdb5-fc1407aa1f05'
+          property :type, type: :string, example: 'emergency_contact'
+          property :attributes do
+            key :$ref, :EmergencyContact
           end
         end
       end
