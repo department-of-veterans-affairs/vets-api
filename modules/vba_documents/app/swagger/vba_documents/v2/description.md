@@ -10,6 +10,8 @@ The Benefits Intake API allows authorized third-party systems used by Veteran Se
 
 This API also provides submission status updates until documents are successfully established for VBA claim processing, eliminating the need for users to switch between systems to manually check whether documents have been successfully uploaded.
 
+**Note**: This API may not be used for Veterans Health Administration (VHA) benefits, including 10-10EZ and 10-10d.
+
 ## Background
 This API provides a secure, efficient, and tracked alternative to mail or fax for VA benefit claim document submissions. Documents are uploaded directly to the VBA so they can be processed as quickly as possible.
 
