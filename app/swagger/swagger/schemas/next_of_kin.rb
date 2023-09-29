@@ -8,14 +8,12 @@ module Swagger::Schemas
 
     swagger_schema :NextOfKins do
       key :required, [:data]
-
-      property :data, type: :object do
-        key :required, [:attributes]
-        property :attributes, type: :object do
-          key :required, [:next_of_kin]
-          property :next_of_kin do
-            key :type, :array
-            items { key :$ref, :NextOfKin }
+      property :data, type: :array do
+        items do
+          property :id, type: :string, example: 'dbbf9a58-41e5-40c0-bdb5-fc1407aa1f05'
+          property :type, type: :string, example: 'next_of_kin'
+          property :attributes do
+            key :$ref, :NextOfKin
           end
         end
       end
@@ -23,7 +21,7 @@ module Swagger::Schemas
 
     swagger_schema :NextOfKin do
       key :required, %i[contact_type given_name family_name primary_phone]
-      property :contact_type, type: :string, enum: VAProfile::Models::AssociatedPerson::EC_TYPES
+      property :contact_type, type: :string, enum: VAProfile::Models::AssociatedPerson::NOK_TYPES
       property :given_name, type: :string
       property :family_name, type: :string
       property :relationship, type: :string

@@ -25,7 +25,7 @@ RSpec.describe V0::NextOfKinController, type: :controller do
         sign_in_as user
         get :index
         expect(response).to have_http_status(:success)
-        expect(json['data'].length).to eq(3)
+        expect(json['data'].length).to eq(1)
         json['data'].each do |el|
           expect(el['attributes']['contact_type']).to match(/next of kin/i)
         end
