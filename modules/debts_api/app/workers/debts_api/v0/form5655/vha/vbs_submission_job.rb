@@ -24,8 +24,7 @@ module DebtsApi
       DebtsApi::V0::FinancialStatusReportService.new(user).submit_to_vbs(submission)
       user.destroy
     rescue => e
-      submission.failed!
-      submission.update(error_message: "VBS Submission Failed: #{e.message}.")
+      submission.register_failure("VBS Submission Failed: #{e.message}.")
       raise e
     end
   end

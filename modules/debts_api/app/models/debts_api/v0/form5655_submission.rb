@@ -81,6 +81,12 @@ module DebtsApi
       end
     end
 
+    def register_failure(message)
+      failed!
+      update(error_message: message)
+      Rails.logger.error('Form5655Submission failed', message)
+    end
+
     def streamlined?
       public_metadata.dig('streamlined', 'value') == true
     end
