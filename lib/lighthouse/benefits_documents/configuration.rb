@@ -88,12 +88,14 @@ module BenefitsDocuments
       payload[:parameters] = Faraday::UploadIO.new(fn, 'application/json')
 
       file_type = MimeMagic.by_path(document_data[:file_name]).subtype
+      file_mime_Type = MimeMagic.by_path(document_data[:file_name]).type
+
       validate_filetype!(file_type)
 
       file = Tempfile.new(document_data[:file_name])
       File.write(file, file_body)
 
-      payload[:file] = Faraday::UploadIO.new(file, file_type)
+      payload[:file] = Faraday::UploadIO.new(file, file_mime_Type)
       payload
     end
     # rubocop:enable Metrics/MethodLength
@@ -151,14 +153,14 @@ module BenefitsDocuments
     # @return [BenefitsClaims::AccessToken::Service] Service used to generate access tokens.
     #
     def token_service(lighthouse_client_id, lighthouse_rsa_key_path, aud_claim_url = nil, host = nil)
-      lighthouse_client_id = global_settings.ccg.client_id if lighthouse_client_id.nil?
-      lighthouse_rsa_key_path = global_settings.ccg.rsa_key if lighthouse_rsa_key_path.nil?
-      host ||= base_path(host)
-      url = "#{host}/#{TOKEN_PATH}"
-      aud_claim_url ||= documents_settings.access_token.aud_claim_url
+      lighthouse_client_id = Settings.lighthouse.auth.ccg.client_id
+      lighthouse_rsa_key_path = Settings.lighthouse.auth.ccg.rsa_key
+      host ||= Settings.lighthouse.benefits_documents.host
+      url = "#{host}/oauth2/benefits-documents/system/v1/token"
+      aud_claim_url ||= Settings.lighthouse.benefits_documents.access_token.aud_claim_url
 
       @token_service ||= Auth::ClientCredentials::Service.new(
-        url, API_SCOPES, lighthouse_client_id, aud_claim_url, lighthouse_rsa_key_path, 'benefits-documents'
+        url, %w[documents.read documents.write], lighthouse_client_id, aud_claim_url, lighthouse_rsa_key_path, 'benefits-documents'
       )
     end
   end
