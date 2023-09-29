@@ -334,9 +334,9 @@ features:
     actor_type: user
     description: Manage whether 674 can be submitted without an associated 686c
     enable_in_development: true
-  disability_526_classifier:
+  disability_526_classifier_new_claims:
     actor_type: user
-    description: enables sending claims for increase to VRO Contention Classification service for more accurate classification entry.
+    description: enables sending new 526-ez claims to VRO Contention Classification service for more accurate classification entry.
     enable_in_development: true
   disability_526_maximum_rating:
     actor_type: user
