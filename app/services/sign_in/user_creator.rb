@@ -38,6 +38,7 @@ module SignIn
       create_authenticated_user
       create_credential_email
       create_user_acceptable_verified_credential
+      create_terms_code_container if needs_accepted_terms_of_use?
       create_code_container
       user_code_map
     end
@@ -45,13 +46,7 @@ module SignIn
     private
 
     def create_authenticated_user
-      user = User.new
-      user.instance_variable_set(:@identity, user_identity_for_user_creation)
-      user.uuid = user_uuid
-      user_identity_for_user_creation.uuid = user_uuid
-      user.last_signed_in = Time.zone.now
-      user.fingerprint = request_ip
-      user.save && user_identity_for_user_creation.save
+      user
     end
 
     def create_credential_email
@@ -61,6 +56,10 @@ module SignIn
 
     def create_user_acceptable_verified_credential
       Login::UserAcceptableVerifiedCredentialUpdater.new(user_account: user_verification.user_account).perform
+    end
+
+    def create_terms_code_container
+      TermsCodeContainer.new(code: terms_code, user_uuid:).save!
     end
 
     def create_code_container
@@ -96,7 +95,8 @@ module SignIn
       @user_code_map ||= UserCodeMap.new(login_code:,
                                          type: state_payload.type,
                                          client_state: state_payload.client_state,
-                                         client_config:)
+                                         client_config:,
+                                         terms_code:)
     end
 
     def user_verification
@@ -129,12 +129,35 @@ module SignIn
         email: credential_email }.compact
     end
 
+    def needs_accepted_terms_of_use?
+      client_config.va_terms_enforced? && user_verification.user_account.needs_accepted_terms_of_use?
+    end
+
     def client_config
       @client_config ||= SignIn::ClientConfig.find_by!(client_id: state_payload.client_id)
     end
 
     def login_code
       @login_code ||= SecureRandom.uuid
+    end
+
+    def terms_code
+      return nil unless needs_accepted_terms_of_use?
+
+      @terms_code ||= SecureRandom.uuid
+    end
+
+    def user
+      @user ||= begin
+        user = User.new
+        user.instance_variable_set(:@identity, user_identity_for_user_creation)
+        user.uuid = user_uuid
+        user_identity_for_user_creation.uuid = user_uuid
+        user.last_signed_in = Time.zone.now
+        user.fingerprint = request_ip
+        user.save && user_identity_for_user_creation.save
+        user
+      end
     end
   end
 end
