@@ -339,6 +339,8 @@ module V0
       params_hash.merge!(state: user_code_map.client_state) if user_code_map.client_state.present?
 
       render body: SignIn::RedirectUrlGenerator.new(redirect_uri: user_code_map.client_config.redirect_uri,
+                                                    terms_code: user_code_map.terms_code,
+                                                    terms_redirect_uri: user_code_map.client_config.terms_of_use_url,
                                                     params_hash:).perform,
              content_type: 'text/html'
     end
