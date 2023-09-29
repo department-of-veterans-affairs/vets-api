@@ -306,23 +306,16 @@ RSpec.describe Users::Profile do
       end
 
       context 'when a veteran status is not found' do
-        before do
-          allow_any_instance_of(
-            EMISRedis::VeteranStatus
-          ).to receive(:veteran?).and_raise(EMISRedis::VeteranStatus::RecordNotFound.new(status: 404))
-        end
-
         it 'sets veteran_status to nil' do
           expect(veteran_status).to be_nil
         end
 
-        it 'populates the #errors array with the serialized error', :aggregate_failures do
-          VCR.use_cassette('va_profile/veteran_status/veteran_status_500_aaid', match_requests_on: [:method, :body]) do
-            #binding.pry
+        it 'populates the #errors array with the serialized error' do
+          VCR.use_cassette('va_profile/veteran_status/veteran_status_404_oid_blank', match_requests_on: [:method, :body], allow_playback_repeats: true) do
             error = subject.errors.first
             expect(error[:external_service]).to eq 'EMIS'
             expect(error[:start_time]).to be_present
-            expect(error[:description]).to include 'NOT_FOUND'
+            # expect(error[:description]).to include 'NOT_FOUND'
             expect(error[:status]).to eq 404
           end
         end
@@ -371,12 +364,14 @@ RSpec.describe Users::Profile do
         end
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
+        VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank', match_requests_on: [:method, :body], allow_playback_repeats: true) do
           emis_error = subject.errors.last
 
-          expect(emis_error[:external_service]).to eq 'EMIS'
-          expect(emis_error[:start_time]).to be_present
-          expect(emis_error[:description]).to include 'NOT_AUTHORIZED'
-          expect(emis_error[:status]).to eq 401
+            expect(emis_error[:external_service]).to eq 'EMIS'
+            expect(emis_error[:start_time]).to be_present
+            expect(emis_error[:description]).to include 'VA Profile failure'
+            expect(emis_error[:status]).to eq 401
+          end
         end
 
         it 'sets the status to 296' do

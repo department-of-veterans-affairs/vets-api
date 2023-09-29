@@ -7,6 +7,7 @@ require 'va_profile/stats'
 require 'va_profile/models/veteran_status'
 require_relative 'configuration'
 require_relative 'veteran_status_response'
+require 'va_profile/veteran_status/va_profile_error'
 
 module VAProfile
   module VeteranStatus
@@ -24,13 +25,10 @@ module VAProfile
       def get_veteran_status
         with_monitoring do
           edipi_present!
-          binding.pry
           response = perform(:post, identity_path, VAProfile::Models::VeteranStatus.in_json)
           VeteranStatusResponse.from(response)
         end
-      rescue 
-        Common::Client::Errors::ClientError => e
-        #binding.pry
+      rescue Common::Client::Errors::ClientError => e
         handle_client_error(e)
       rescue => e
         handle_error(e)
@@ -43,7 +41,7 @@ module VAProfile
 
       # @return [String] Title 38 status code
       def title38_status
-        get_veteran_status&.title38_status_code
+          get_veteran_status&.title38_status_code
       end
 
       # Returns boolean for user being/not being considered a military person
@@ -65,17 +63,16 @@ module VAProfile
 
       def handle_client_error(e)
         additional_params = { edipi: @user&.identity&.edipi }
-       # binding.pry
         if e.status == 404
           log_exception_to_sentry(
             e, additional_params, { va_profile: :veteran_status_title_not_found }, :warning
           )
-          return VeteranStatusResponse.new(404, veteran_status_title: nil)
+          raise VAProfile::VeteranStatus::VAProfileError.new(status: 404)
         elsif e.status >= 400 && e.status < 500
           log_exception_to_sentry(
             e, additional_params, { va_profile: :client_error_related_to_title38 }, :warning
           )
-          return VeteranStatusResponse.new(e.status, veteran_status_title: nil)
+          raise VAProfile::VeteranStatus::VAProfileError.new(status: e.status)
         end
 
         handle_error(e)
