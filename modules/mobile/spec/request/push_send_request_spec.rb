@@ -7,7 +7,7 @@ require_relative '../support/matchers/json_schema_matcher'
 RSpec.describe 'push send', type: :request do
   include JsonSchemaMatchers
 
-  let!(:user) { sis_user(attributes: { icn: '1008596379V859838' }) }
+  let!(:user) { sis_user(icn: '1008596379V859838') }
 
   describe 'POST /mobile/v0/push/send' do
     context 'with with valid request body' do

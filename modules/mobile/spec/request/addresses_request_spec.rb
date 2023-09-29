@@ -68,7 +68,7 @@ RSpec.describe 'address', type: :request do
         before do
           address.address_line1 = ''
 
-          post('/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
+          post('/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true))
         end
 
         it 'returns a 422' do
@@ -147,7 +147,7 @@ RSpec.describe 'address', type: :request do
         before do
           address.address_line1 = ''
 
-          put('/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
+          put('/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true))
         end
 
         it 'returns a 422' do
@@ -226,7 +226,7 @@ RSpec.describe 'address', type: :request do
         before do
           address.address_line1 = ''
 
-          put('/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true)
+          put('/mobile/v0/user/addresses', params: address.to_json, headers: sis_headers(json: true))
         end
 
         it 'returns a 422' do

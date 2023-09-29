@@ -10,7 +10,7 @@ RSpec.describe 'phones', type: :request do
   let!(:user) { sis_user }
 
   let(:headers) do
-    sis_headers(additional_headers: { 'Content-Type' => 'application/json', 'Accept' => 'application/json' })
+    sis_headers(json: true)
   end
   let(:telephone) { build(:telephone, vet360_id: user.vet360_id) }
 

@@ -8,9 +8,7 @@ RSpec.describe 'push register', type: :request do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user }
-  let(:headers) do
-    sis_headers(additional_headers: { 'Content-Type' => 'application/json', 'Accept' => 'application/json' })
-  end
+  let(:headers) { sis_headers(json: true) }
 
   describe 'PUT /mobile/v0/push/register' do
     context 'with a valid put body' do

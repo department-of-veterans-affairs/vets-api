@@ -8,13 +8,12 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
   include Mobile::MessagingClientHelper
   include SchemaMatchers
 
-  let!(:user) { sis_user(traits: %i[mhv api_auth], attributes: { mhv_account_type: }) }
+  let!(:user) { sis_user(:mhv, mhv_account_type:) }
   let(:reply_id)               { 674_874 }
   let(:created_draft_id)       { 674_942 }
   let(:created_draft_reply_id) { 674_944 }
   let(:draft) { attributes_for(:message, body: 'Body 1', subject: 'Subject 1') }
   let(:params) { draft.slice(:category, :subject, :body, :recipient_id) }
-  let(:va_patient) { true }
   let(:draft_signature_only) { attributes_for(:message, body: '\n\n\n\nSignature\nExample', subject: 'Subject 1') }
 
   before do

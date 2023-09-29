@@ -8,7 +8,7 @@ RSpec.describe 'military_information', type: :request do
   include JsonSchemaMatchers
 
   describe 'GET /mobile/v0/military-service-history' do
-    let!(:user) { sis_user(attributes: { edipi: '1005079124' }) }
+    let!(:user) { sis_user(edipi: '1005079124') }
 
     context 'with a user who has a cached session' do
       let(:expected_body_multi) do
@@ -244,7 +244,7 @@ RSpec.describe 'military_information', type: :request do
     end
 
     context 'with a user not authorized' do
-      let!(:user) { sis_user(attributes: { edipi: nil }) }
+      let!(:user) { sis_user(edipi: nil) }
 
       it 'returns a forbidden response' do
         get '/mobile/v0/military-service-history', headers: sis_headers

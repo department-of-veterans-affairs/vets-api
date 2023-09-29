@@ -13,7 +13,7 @@ RSpec.describe 'legacy claims document upload', type: :request do
     FileUtils.rm_rf(Rails.root.join('tmp', 'uploads', 'cache', '*'))
   end
 
-  let!(:user) { sis_user(attributes: { icn: '1008596379V859838' }) }
+  let!(:user) { sis_user(icn: '1008596379V859838') }
   let(:file) { fixture_file_upload('doctors-note.pdf', 'application/pdf') }
   let(:tracked_item_id) { 33 }
   let(:document_type) { 'L023' }
@@ -35,7 +35,7 @@ RSpec.describe 'legacy claims document upload', type: :request do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.jpg'))]
     params = { files:, trackedItemId: tracked_item_id, documentType: document_type }
-    headers = sis_headers(additional_headers: json_body_headers)
+    headers = sis_headers(json_body_headers)
     expect_any_instance_of(Mobile::V0::Claims::Proxy).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
@@ -49,7 +49,7 @@ RSpec.describe 'legacy claims document upload', type: :request do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.gif')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
     params = { files:, trackedItemId: tracked_item_id, documentType: document_type }
-    headers = sis_headers(additional_headers: json_body_headers)
+    headers = sis_headers(json_body_headers)
     expect_any_instance_of(Mobile::V0::Claims::Proxy).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
@@ -63,7 +63,7 @@ RSpec.describe 'legacy claims document upload', type: :request do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
     params = { files:, trackedItemId: tracked_item_id, documentType: document_type }
-    headers = sis_headers(additional_headers: json_body_headers)
+    headers = sis_headers(json_body_headers)
     expect_any_instance_of(Mobile::V0::Claims::Proxy).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,

@@ -117,7 +117,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
                  'enteredDate' => '2016-02-04T17:51:56Z', 'releasedDate' => '2016-02-04T17:51:56Z' }] } } }
   end
 
-  let!(:user) { sis_user(attributes: { icn: '24811694708759028' }) }
+  let!(:user) { sis_user(icn: '24811694708759028') }
 
   before do
     token = 'abcdefghijklmnop'
@@ -275,7 +275,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
 
   describe 'Error Handling' do
     context 'when user is not authorized to use lighthouse' do
-      let!(:user) { sis_user(attributes: { icn: '24811694708759028', participant_id: nil }) }
+      let!(:user) { sis_user(icn: '24811694708759028', participant_id: nil) }
 
       it 'returns 403 forbidden' do
         get '/mobile/v0/letters', headers: sis_headers

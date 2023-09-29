@@ -9,11 +9,11 @@ RSpec.describe 'preferred_name', type: :request do
 
   describe 'logingov user' do
     let!(:user) do
-      sis_user(attributes: {
-                 idme_uuid: nil,
-                 logingov_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-                 authn_context: 'dslogon_loa3'
-               })
+      sis_user(
+        idme_uuid: nil,
+        logingov_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+        authn_context: 'dslogon_loa3'
+      )
     end
     let(:csd) { 'LGN' }
 
@@ -57,7 +57,7 @@ RSpec.describe 'preferred_name', type: :request do
   end
 
   describe 'idme user' do
-    let!(:user) { sis_user(attributes: { idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }) }
+    let!(:user) { sis_user(idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
     let(:csd) { 'IDM' }
 
     describe 'PUT /mobile/v0/profile/preferred_names' do
@@ -101,7 +101,7 @@ RSpec.describe 'preferred_name', type: :request do
   end
 
   describe 'unauthorized user' do
-    let!(:user) { sis_user(attributes: { idme_uuid: nil, logingov_uuid: nil }) }
+    let!(:user) { sis_user(idme_uuid: nil, logingov_uuid: nil) }
 
     describe 'PUT /mobile/v0/profile/preferred_names' do
       context 'when text is valid' do

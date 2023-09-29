@@ -10,7 +10,7 @@ RSpec.describe 'health/rx/prescriptions', type: :request do
   include JsonSchemaMatchers
   include Rx::ClientHelpers
 
-  let!(:user) { sis_user(traits: %i[mhv api_auth], attributes: { mhv_account_type: }) }
+  let!(:user) { sis_user(:mhv, mhv_account_type:) }
   let(:mhv_account_type) { 'Premium' }
   let(:upstream_mhv_history_url) { 'https://mhv-api.example.com/mhv-api/patient/v1/prescription/gethistoryrx' }
   let(:set_cache) do

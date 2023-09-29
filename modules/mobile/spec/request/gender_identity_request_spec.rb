@@ -9,12 +9,12 @@ RSpec.describe 'gender identity', type: :request do
 
   describe 'logingov user' do
     let!(:user) do
-      sis_user(attributes: {
-                 icn: '1008596379V859838',
-                 idme_uuid: nil,
-                 logingov_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-                 authn_context: 'dslogon_loa3'
-               })
+      sis_user(
+        icn: '1008596379V859838',
+        idme_uuid: nil,
+        logingov_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+        authn_context: 'dslogon_loa3'
+      )
     end
     let(:csd) { 'LGN' }
 
@@ -73,7 +73,7 @@ RSpec.describe 'gender identity', type: :request do
   end
 
   describe 'idme user' do
-    let!(:user) { sis_user(attributes: { icn: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }) }
+    let!(:user) { sis_user(icn: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
     let(:csd) { 'IDM' }
 
     describe 'GET /mobile/v0/gender_identity/edit' do
@@ -134,7 +134,7 @@ RSpec.describe 'gender identity', type: :request do
     describe 'GET /mobile/v0/gender_identity/edit' do
       context 'without mpi acceess' do
         let!(:user) do
-          sis_user(attributes: { icn: nil, ssn: nil })
+          sis_user(icn: nil, ssn: nil)
         end
 
         it 'returns 403', :aggregate_failures do
@@ -147,7 +147,7 @@ RSpec.describe 'gender identity', type: :request do
     describe 'PUT /mobile/v0/gender_identity' do
       context 'without demographics access' do
         let!(:user) do
-          sis_user(attributes: { idme_uuid: nil, logingov_uuid: nil })
+          sis_user(idme_uuid: nil, logingov_uuid: nil)
         end
 
         it 'returns 403', :aggregate_failures do
@@ -160,7 +160,7 @@ RSpec.describe 'gender identity', type: :request do
 
       context 'without mpi access' do
         let!(:user) do
-          sis_user(attributes: { icn: nil, ssn: nil })
+          sis_user(icn: nil, ssn: nil)
         end
 
         it 'returns 403', :aggregate_failures do

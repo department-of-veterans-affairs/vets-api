@@ -7,11 +7,11 @@ require_relative '../support/matchers/json_schema_matcher'
 RSpec.describe 'payment_history', type: :request do
   include JsonSchemaMatchers
 
-  let!(:user) { sis_user(attributes: { email: nil }) }
+  let!(:user) { sis_user(email: nil) }
 
   describe 'GET /mobile/v0/payment-history' do
     context 'without bgs access' do
-      let!(:user) { sis_user(attributes: { participant_id: nil }) }
+      let!(:user) { sis_user(participant_id: nil) }
 
       it 'returns 403' do
         get '/mobile/v0/payment-history', headers: sis_headers, params: nil

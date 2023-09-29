@@ -4,6 +4,7 @@ require 'rails_helper'
 require_relative '../support/helpers/sis_session_helper'
 
 RSpec.describe 'user', type: :request do
+  let!(:user) { sis_user }
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
   describe 'GET /mobile/v0/user/authorized-services' do

@@ -8,7 +8,7 @@ RSpec.describe 'Mobile Triage Teams Integration', type: :request do
   include Mobile::MessagingClientHelper
   include SchemaMatchers
 
-  let!(:user) { sis_user(traits: %i[mhv api_auth], attributes: { mhv_correlation_id: '123', mhv_account_type: }) }
+  let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type:) }
 
   before do
     allow(Mobile::V0::Messaging::Client).to receive(:new).and_return(authenticated_client)

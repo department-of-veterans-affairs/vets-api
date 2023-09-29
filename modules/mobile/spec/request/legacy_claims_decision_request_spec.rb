@@ -5,7 +5,7 @@ require_relative '../support/helpers/sis_session_helper'
 
 RSpec.describe 'claims decision request', type: :request do
   describe 'GET /v0/claim/:id/request-decision' do
-    let!(:user) { sis_user(attributes: { icn: '1008596379V859838' }) }
+    let!(:user) { sis_user(icn: '1008596379V859838') }
 
     before do
       FactoryBot.create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: user.uuid)

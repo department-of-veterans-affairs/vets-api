@@ -9,7 +9,7 @@ require 'lighthouse/benefits_claims/service'
 RSpec.describe 'lighthouse individual claim', type: :request do
   include JsonSchemaMatchers
 
-  let!(:user) { sis_user(attributes: { icn: '1008596379V859838' }) }
+  let!(:user) { sis_user(icn: '1008596379V859838') }
 
   describe 'GET /v0/claim/:id with lighthouse upstream service' do
     before do

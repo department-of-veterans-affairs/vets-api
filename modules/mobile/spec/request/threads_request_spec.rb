@@ -8,7 +8,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
   include Mobile::MessagingClientHelper
   include SchemaMatchers
 
-  let!(:user) { sis_user(traits: %i[mhv api_auth], attributes: { mhv_correlation_id: '123', mhv_account_type: }) }
+  let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type:) }
   let(:inbox_id) { 0 }
 
   before do

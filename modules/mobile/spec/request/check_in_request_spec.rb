@@ -5,7 +5,7 @@ require_relative '../support/helpers/sis_session_helper'
 
 RSpec.describe 'check in', type: :request do
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
-  let(:user) { sis_user(trait: :api_auth) }
+  let!(:user) { sis_user }
 
   describe 'POST /mobile/v0/appointments/check-in' do
     it 'correctly updates check in when 200' do
