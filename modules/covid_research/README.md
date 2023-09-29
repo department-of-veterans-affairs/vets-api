@@ -31,7 +31,7 @@ The data flow for this module is pretty simple. There is currently a single form
    1. Form encrypted and enqueued in Sidekiq ([#queue_delivery](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/covid_research/app/services/covid_research/volunteer/form_service.rb))
    2. Confirmation email delivery enqueued in Sidekiq ([#create](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/covid_research/app/controllers/covid_research/volunteer/submissions_controller.rb))
 3. Form data delivered to `genISIS` (via Sidekiq) ([#deliver_form](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/covid_research/app/services/covid_research/volunteer/genisis_service.rb))
-4. Confirmation email delivered (via Sidekiq) ([#perform](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/covid_research/app/workers/covid_research/volunteer/confirmation_mailer_job.rb))
+4. Confirmation email delivered (via Sidekiq) ([#perform](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/covid_research/app/sidekiq/covid_research/volunteer/confirmation_mailer_job.rb))
 
 ## Schema Changes
 

@@ -460,7 +460,7 @@ module Sidekiq
 
     class NonBreakeredForm526BackgroundLoader
       extend ActiveSupport::Concern
-      include Sidekiq::Worker
+      include Sidekiq::Job
       sidekiq_options retry: false
       def perform(id)
         NonBreakeredProcessor.new(id, get_upload_location_on_instantiation: false,

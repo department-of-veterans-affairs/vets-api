@@ -12,7 +12,7 @@ module AskVAApi
 
       def fetch_by_inquiry_number(inquiry_number:)
         validate_input(inquiry_number, 'Invalid Inquiry Number')
-        reply = Replies::ReplyCreator.new(inquiry_number:).call
+        reply = Correspondences::Retriever.new(inquiry_number:).call
         data = fetch_data(criteria: { inquiry_number: })
         Entity.new(data, reply)
       end

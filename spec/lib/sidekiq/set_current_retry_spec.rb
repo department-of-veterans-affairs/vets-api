@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 class RetryTestJob
-  include Sidekiq::Worker
+  include Sidekiq::Job
 
   attr_accessor :current_retry
 

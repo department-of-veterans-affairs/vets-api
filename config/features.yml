@@ -131,6 +131,10 @@ features:
     actor_type: user
     description: Enables the travel reimbursement logic
     enable_in_development: true
+  check_in_experience_45_minute_reminder:
+    actor_type: user
+    description: Enables the 45 minute reminder
+    enable_in_development: true
   check_in_experience_browser_monitoring:
     actor_type: user
     description: Enables browser monitoring for check-in applications.
@@ -330,9 +334,9 @@ features:
     actor_type: user
     description: Manage whether 674 can be submitted without an associated 686c
     enable_in_development: true
-  disability_526_classifier:
+  disability_526_classifier_new_claims:
     actor_type: user
-    description: enables sending claims for increase to VRO Contention Classification service for more accurate classification entry.
+    description: enables sending new 526-ez claims to VRO Contention Classification service for more accurate classification entry.
     enable_in_development: true
   disability_526_maximum_rating:
     actor_type: user
@@ -429,6 +433,10 @@ features:
     actor_type: user
     description: Enables streamlined waiver flow for qualifying users completing the Financial Status Report (FSR) form
     enable_in_development: true
+  financial_status_report_streamlined_waiver_assets:
+    actor_type: user
+    description: Enables a simplified asset calculation flow, including Cash in Bank, for users completing the Financial Status Report (FSR) form.
+    enable_in_development: true
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
@@ -476,6 +484,9 @@ features:
   form210845:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-0845
+  form210972:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21-0972
   form214142:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4142
@@ -789,6 +800,10 @@ features:
     actor_type: user
     description: Display an alert to unauthenticated users on the MEB introduction page.
     enable_in_development: true
+  show_meb_1990EZ_maintenance_alert:
+    actor_type: user
+    description: Display an alert to users on the 1990EZ introduction page when Backend Service is Down.
+    enable_in_development: true
   show_forms_app:
     actor_type: user
     description: This determines when the form should be displayed.
@@ -999,10 +1014,6 @@ features:
     actor_type: user
     description: Enables UI updates for meb dgi 42
     enable_in_development: true
-  show_meb_ch33_self_form:
-    actor_type: user
-    description: Enables the redirect of Ch33 form.
-    enable_in_development: true
   show_meb_enhancements:
     actor_type: user
     description: Provides a flag wrapper for minor code changes to be gated from Prod.
@@ -1021,6 +1032,7 @@ features:
   meb_gate_person_criteria:
     actor_type: user
     description: Flag to use Person Criteria on Submission service
+    enable_in_development: true
   supply_reordering_sleep_apnea_enabled:
     actor_type: user
     description: Enables sleep apnea supplies to be ordered in the supply reorder tool / MDOT.
@@ -1120,3 +1132,6 @@ features:
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
+  virtual_agent_decision_letter_download_tracking:
+    actor_type: user
+    description: Enable tracking of decision letter downloads in the VA Chatbot
