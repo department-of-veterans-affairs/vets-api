@@ -343,15 +343,15 @@ class User < Common::RedisStore
     super
   end
 
-  military_information_method = 'military_information'
-  define_method(military_information_method) do
-    model = instance_variable_get(:"@#{military_information_method}")
-    return model if model.present?
+  %w[military_information payment].each do |emis_method|
+    define_method(emis_method) do
+      emis_model = instance_variable_get(:"@#{emis_method}")
+      return emis_model if emis_model.present?
 
-    form_profile = FormProfile.new(form_id: nil, user: self)
-    model = form_profile.initialize_military_information
-    instance_variable_set(:"@#{military_information_method}", model)
-    model
+      emis_model = "EMISRedis::#{emis_method.camelize}".constantize.for_user(self)
+      instance_variable_set(:"@#{emis_method}", emis_model)
+      emis_model
+    end
   end
 
   def veteran_status

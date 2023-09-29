@@ -1892,6 +1892,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     it 'supports getting the user data' do
+      #binding.pry
       expect(subject).to validate(:get, '/v0/user', 200, headers)
       expect(subject).to validate(:get, '/v0/user', 401)
     end

@@ -318,7 +318,7 @@ RSpec.describe Users::Profile do
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
           VCR.use_cassette('va_profile/veteran_status/veteran_status_400_', match_requests_on: [:body], allow_playback_repeats: true) do
-            binding.pry
+            #binding.pry
             error = subject.errors.first
             expect(error[:external_service]).to eq 'EMIS'
             expect(error[:start_time]).to be_present
