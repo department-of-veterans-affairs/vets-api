@@ -7,7 +7,7 @@ module VirtualRegionalOffice
     include Common::Client::Concerns::Monitoring
     configuration VirtualRegionalOffice::Configuration
 
-    def classify_contention_by_diagnostic_code(params)
+    def classify_single_contention(params)
       perform(:post, Settings.virtual_regional_office.ctn_classification_path, params.to_json.to_s, headers_hash)
     end
 
