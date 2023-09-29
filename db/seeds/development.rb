@@ -11,6 +11,8 @@ vaweb.update!(authentication: SignIn::Constants::Auth::COOKIE,
               access_token_audience: 'va.gov',
               pkce: true,
               logout_redirect_uri: 'http://localhost:3001',
+              enforced_terms: SignIn::Constants::Auth::VA_TERMS,
+              terms_of_use_url: 'http://localhost:3001/terms-of-use',
               refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES)
 
 # Create Config for VA flagship mobile Sign in Service client
@@ -21,6 +23,8 @@ vamobile.update!(authentication: SignIn::Constants::Auth::API,
                  pkce: true,
                  access_token_duration: SignIn::Constants::AccessToken::VALIDITY_LENGTH_LONG_MINUTES,
                  access_token_audience: 'vamobile',
+                 enforced_terms: SignIn::Constants::Auth::VA_TERMS,
+                 terms_of_use_url: 'http://localhost:3001/terms-of-use',
                  refresh_token_duration: SignIn::Constants::RefreshToken::VALIDITY_LENGTH_LONG_DAYS)
 
 # Create Config for localhost mocked authentication client

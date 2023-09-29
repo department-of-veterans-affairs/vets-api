@@ -14,7 +14,9 @@ RSpec.describe SignIn::ClientConfig, type: :model do
            access_token_audience:,
            refresh_token_duration:,
            certificates:,
-           access_token_attributes:)
+           access_token_attributes:,
+           enforced_terms:,
+           terms_of_use_url:)
   end
   let(:client_id) { 'some-client-id' }
   let(:authentication) { SignIn::Constants::Auth::API }
@@ -26,6 +28,8 @@ RSpec.describe SignIn::ClientConfig, type: :model do
   let(:access_token_audience) { 'some-access-token-audience' }
   let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
   let(:access_token_attributes) { [] }
+  let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
+  let(:terms_of_use_url) { 'some-terms-of-use-url' }
 
   describe 'validations' do
     subject { client_config }
@@ -198,6 +202,56 @@ RSpec.describe SignIn::ClientConfig, type: :model do
         end
       end
     end
+
+    describe '#enforced_terms' do
+      context 'when enforced_terms is arbitrary' do
+        let(:enforced_terms) { 'some-enforced-terms' }
+        let(:expected_error_message) { 'Validation failed: Enforced terms is not included in the list' }
+        let(:expected_error) { ActiveRecord::RecordInvalid }
+
+        it 'raises validation error' do
+          expect { subject }.to raise_error(expected_error, expected_error_message)
+        end
+      end
+    end
+
+    describe '#terms_of_use_url' do
+      context 'when enforced_terms is nil' do
+        let(:enforced_terms) { nil }
+
+        context 'and terms_of_use_url is nil' do
+          let(:terms_of_use_url) { nil }
+          let(:expected_error_message) { "Validation failed: Terms of use url can't be blank" }
+          let(:expected_error) { ActiveRecord::RecordInvalid }
+
+          it 'does not raise validation error' do
+            expect { subject }.not_to raise_error
+          end
+        end
+      end
+
+      context 'when enforced_terms is not nil' do
+        let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
+
+        context 'and terms_of_use_url is nil' do
+          let(:terms_of_use_url) { nil }
+          let(:expected_error_message) { "Validation failed: Terms of use url can't be blank" }
+          let(:expected_error) { ActiveRecord::RecordInvalid }
+
+          it 'raises validation error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+
+        context 'and terms_of_use_url is not nil' do
+          let(:terms_of_use_url) { 'some-terms-of-use-url' }
+
+          it 'does not raise validation error' do
+            expect { subject }.not_to raise_error
+          end
+        end
+      end
+    end
   end
 
   describe '.valid_client_id?' do
@@ -283,6 +337,26 @@ RSpec.describe SignIn::ClientConfig, type: :model do
 
     context 'when authentication method is set to mock' do
       let(:authentication) { SignIn::Constants::Auth::MOCK }
+
+      it 'returns false' do
+        expect(subject).to be(false)
+      end
+    end
+  end
+
+  describe '#va_terms_enforced?' do
+    subject { client_config.va_terms_enforced? }
+
+    context 'when enforced terms is set to VA TERMS' do
+      let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
+
+      it 'returns true' do
+        expect(subject).to be(true)
+      end
+    end
+
+    context 'when enforced terms is nil' do
+      let(:enforced_terms) { nil }
 
       it 'returns false' do
         expect(subject).to be(false)
