@@ -7,7 +7,6 @@ module VAProfile
   module VeteranStatus
     class VeteranStatusResponse < VAProfile::Response
       attribute :title38_status_code, VAProfile::Models::VeteranStatus
-      attribute :status, Integer
 
       def self.from(response)
         body = response&.body
