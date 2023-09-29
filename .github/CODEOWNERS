@@ -256,16 +256,16 @@ app/models/message_thread.rb @department-of-veterans-affairs/vfs-mhv-secure-mess
 app/models/messaging_preference.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/mhv_opt_in_flag.rb @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/mpi_data.rb @department-of-veterans-affairs/vsp-identity
-app/models/okta_redis @department-of-veterans-affairs/lighthouse-pivot
-app/models/okta_redis/app.rb @department-of-veterans-affairs/lighthouse-pivot
-app/models/okta_redis/grants.rb @department-of-veterans-affairs/lighthouse-pivot
-app/models/okta_redis/model.rb @department-of-veterans-affairs/lighthouse-pivot
-app/models/okta_redis/profile.rb @department-of-veterans-affairs/lighthouse-pivot
+app/models/okta_redis @department-of-veterans-affairs/lighthouse-pivot @department-of-veterans-affairs/backend-review-group
+app/models/okta_redis/app.rb @department-of-veterans-affairs/lighthouse-pivot @department-of-veterans-affairs/backend-review-group
+app/models/okta_redis/grants.rb @department-of-veterans-affairs/lighthouse-pivot @department-of-veterans-affairs/backend-review-group
+app/models/okta_redis/model.rb @department-of-veterans-affairs/lighthouse-pivot @department-of-veterans-affairs/backend-review-group
+app/models/okta_redis/profile.rb @department-of-veterans-affairs/lighthouse-pivot @department-of-veterans-affairs/backend-review-group
 app/models/old_email.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/onsite_notification.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/opaque_token.rb @department-of-veterans-affairs/lighthouse-pivot
-app/models/openid_user_identity.rb @department-of-veterans-affairs/lighthouse-pivot
-app/models/openid_user.rb @department-of-veterans-affairs/lighthouse-pivot
+app/models/openid_user_identity.rb @department-of-veterans-affairs/lighthouse-pivot @department-of-veterans-affairs/backend-review-group
+app/models/openid_user.rb @department-of-veterans-affairs/lighthouse-pivot @department-of-veterans-affairs/backend-review-group
 app/models/payment_history.rb @department-of-veterans-affairs/vsa-ebenefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/persistent_attachment.rb @department-of-veterans-affairs/vsa-ebenefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/persistent_attachments @department-of-veterans-affairs/vsa-ebenefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
