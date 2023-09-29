@@ -3,6 +3,9 @@
 #  @department-of-veterans-affairs/backend-review-group and @department-of-veterans-affairs/va-api-engineers will be requested for
 # review when someone opens a pull request.
 
+# Global default code owners
+* @department-of-veterans-affairs/backend-review-group
+
 Dangerfile @department-of-veterans-affairs/backend-review-group
 Gemfile @department-of-veterans-affairs/backend-review-group
 Gemfile.lock @department-of-veterans-affairs/backend-review-group
@@ -1816,6 +1819,3 @@ spec/lib/central_mail @department-of-veterans-affairs/va-api-engineers @departme
 spec/lib/pdf_info @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-banana-peels
 spec/lib/pdf_utilities/pdf_validator @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-banana-peels
 spec/support/vcr_cassettes/central_mail @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/lighthouse-banana-peels
-
-# Global default code owners
-* @department-of-veterans-affairs/backend-review-group
