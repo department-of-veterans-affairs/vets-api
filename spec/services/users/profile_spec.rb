@@ -42,13 +42,15 @@ RSpec.describe Users::Profile do
     end
 
     it 'sets the status to 200' do
-      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method, :body], allow_playback_repeats: true) do
+      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[method body],
+                                                                                  allow_playback_repeats: true) do
         expect(subject.status).to eq 200
       end
     end
 
     it 'sets the errors to nil' do
-      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method, :body], allow_playback_repeats: true) do
+      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[method body],
+                                                                                  allow_playback_repeats: true) do
         expect(subject.errors).to be_nil
       end
     end
@@ -230,7 +232,8 @@ RSpec.describe Users::Profile do
         end
 
         it 'sets the status to 200' do
-          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method, :body], allow_playback_repeats: true) do
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
+                           match_requests_on: %i[method body], allow_playback_repeats: true) do
             expect(subject.status).to eq 200
           end
         end
@@ -281,25 +284,29 @@ RSpec.describe Users::Profile do
     describe '#veteran_status' do
       context 'when a veteran status is successfully returned' do
         it 'includes is_veteran' do
-          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method, :body], allow_playback_repeats: true) do
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
+                           match_requests_on: %i[method body], allow_playback_repeats: true) do
             expect(veteran_status[:is_veteran]).to eq(user.veteran?)
           end
         end
 
         it 'includes status' do
-          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method, :body], allow_playback_repeats: true) do
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
+                           match_requests_on: %i[method body], allow_playback_repeats: true) do
             expect(veteran_status[:status]).to eq(Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok])
           end
         end
 
         it 'includes served_in_military' do
-          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method, :body], allow_playback_repeats: true) do
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
+                           match_requests_on: %i[method body], allow_playback_repeats: true) do
             expect(veteran_status[:served_in_military]).to eq(user.served_in_military?)
           end
         end
 
         it 'sets the status to 200' do
-          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method, :body], allow_playback_repeats: true) do
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
+                           match_requests_on: %i[method body], allow_playback_repeats: true) do
             expect(subject.status).to eq 200
           end
         end
@@ -311,7 +318,8 @@ RSpec.describe Users::Profile do
         end
 
         it 'populates the #errors array with the serialized error' do
-          VCR.use_cassette('va_profile/veteran_status/veteran_status_404_oid_blank', match_requests_on: [:method, :body], allow_playback_repeats: true) do
+          VCR.use_cassette('va_profile/veteran_status/veteran_status_404_oid_blank',
+                           match_requests_on: %i[method body], allow_playback_repeats: true) do
             error = subject.errors.first
             expect(error[:external_service]).to eq 'EMIS'
             expect(error[:start_time]).to be_present
@@ -364,8 +372,9 @@ RSpec.describe Users::Profile do
         end
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
-        VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank', match_requests_on: [:method, :body], allow_playback_repeats: true) do
-          emis_error = subject.errors.last
+          VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank', match_requests_on: %i[method body],
+                                                                                     allow_playback_repeats: true) do
+            emis_error = subject.errors.last
 
             expect(emis_error[:external_service]).to eq 'EMIS'
             expect(emis_error[:start_time]).to be_present
@@ -408,7 +417,8 @@ RSpec.describe Users::Profile do
         end
 
         it 'sets the status to 200' do
-          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method, :body], allow_playback_repeats: true) do
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
+                           match_requests_on: %i[method body], allow_playback_repeats: true) do
             expect(subject.status).to eq 200
           end
         end

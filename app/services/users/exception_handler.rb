@@ -82,7 +82,7 @@ module Users
       )
     end
 
-    def title_error(type)
+    def title_error(_type)
       error_template.merge(
         description: "#{error.class}, 404 Veteran Status title not found",
         status: 404

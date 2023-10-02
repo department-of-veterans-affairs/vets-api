@@ -41,7 +41,7 @@ module VAProfile
 
       # @return [String] Title 38 status code
       def title38_status
-          get_veteran_status&.title38_status_code
+        get_veteran_status&.title38_status_code
       end
 
       # Returns boolean for user being/not being considered a military person
