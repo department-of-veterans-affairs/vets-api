@@ -21,7 +21,7 @@ RSpec.describe BenefitsDocuments::Configuration do
       let(:file_body) { File.read(fixture_file_upload('doctors-note.pdf', 'application/pdf')) }
 
       it 'uploads expected document' do
-        VCR.use_cassette('lighthouse/benefits_claims/documents/lighthouse_document_upload_200') do
+        VCR.use_cassette('lighthouse/benefits_claims/documents/lighthouse_document_upload_200_pdf') do
           response = BenefitsDocuments::Configuration.instance.post(file_body, document_data)
           expect(response.status).to eq(200)
           expect(response.body).to eq({ 'data' => { 'success' => true, 'requestId' => 74 } })
@@ -40,10 +40,10 @@ RSpec.describe BenefitsDocuments::Configuration do
       let(:file_body) { File.read(fixture_file_upload('doctors-note.jpg', 'image/jpeg')) }
 
       it 'uploads expected document' do
-        VCR.use_cassette('lighthouse/benefits_claims/documents/lighthouse_document_upload_200') do
+        VCR.use_cassette('lighthouse/benefits_claims/documents/lighthouse_document_upload_200_jpg') do
           response = BenefitsDocuments::Configuration.instance.post(file_body, document_data)
           expect(response.status).to eq(200)
-          expect(response.body).to eq({ 'data' => { 'success' => true, 'requestId' => 74 } })
+          expect(response.body).to eq({ 'data' => { 'success' => true, 'requestId' => 153 } })
         end
       end
     end
