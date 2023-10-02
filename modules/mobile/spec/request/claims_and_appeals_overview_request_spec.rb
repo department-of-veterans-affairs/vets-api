@@ -280,7 +280,6 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
     end
 
     context 'when there are cached claims and appeals' do
-      let!(:user) { sis_user }
       let(:params) { { useCache: true } }
 
       before do
