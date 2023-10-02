@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 module SISSessionHelper
-  class SISSessionHelperError < StandardError; end
-
   def sis_access_token
     @sis_access_token ||= create(:access_token)
   end
@@ -14,7 +12,7 @@ module SISSessionHelper
   def sis_user(*args)
     @sis_user ||= begin
       traits, attributes = args.partition do |arg|
-        raise SISSessionHelperError, "Invalid user arg: #{arg}" unless arg.class.in? [Symbol, Hash]
+        raise "Invalid user arg: #{arg}\nArg must be a symbol or hash" unless arg.class.in? [Symbol, Hash]
 
         arg.is_a? Symbol
       end
@@ -28,7 +26,7 @@ module SISSessionHelper
   end
 
   def sis_headers(additional_headers = nil, camelize: true, json: false)
-    raise SISSessionHelperError, 'SIS user does not exist' unless defined?(@sis_user)
+    raise 'Must instantiate user by calling `sis_user` before using headers' unless defined?(@sis_user)
 
     headers = {
       'Authorization' => "Bearer #{sis_bearer_token}",
