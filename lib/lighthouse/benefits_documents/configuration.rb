@@ -93,7 +93,8 @@ module BenefitsDocuments
       file = Tempfile.new(document_data[:file_name])
       File.write(file, file_body)
 
-      payload[:file] = Faraday::UploadIO.new(file, file_type)
+      file_mime_type = MimeMagic.by_path(document_data[:file_name]).type
+      payload[:file] = Faraday::UploadIO.new(file, file_mime_type)
       payload
     end
     # rubocop:enable Metrics/MethodLength
