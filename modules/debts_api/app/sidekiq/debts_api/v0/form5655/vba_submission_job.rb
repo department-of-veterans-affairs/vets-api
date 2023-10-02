@@ -25,8 +25,7 @@ module DebtsApi
       user.destroy
       submission.submitted!
     rescue => e
-      submission.failed!
-      submission.update(error_message: e.message)
+      submission.register_failure(e.message)
       raise e
     end
   end

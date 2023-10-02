@@ -48,6 +48,12 @@ RSpec.describe DecisionReview::SubmitUpload, type: :job do
           end
         end
       end
+
+      it 'increments statsd when job fails permanently' do
+        expect do
+          described_class.new.sidekiq_retries_exhausted_block.call
+        end.to trigger_statsd_increment('worker.decision_review.submit_upload.error')
+      end
     end
   end
 end

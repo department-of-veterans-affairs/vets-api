@@ -152,8 +152,7 @@ module DebtManagementCenter
       form_submission.submitted!
       { status: vbs_response.status }
     rescue => e
-      form_submission.failed!
-      form_submission.update(error_message: e.message)
+      form_submission.register_failure(e.message)
       raise e
     end
 

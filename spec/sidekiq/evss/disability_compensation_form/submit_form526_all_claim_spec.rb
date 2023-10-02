@@ -39,9 +39,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     let(:lh_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload_location' }
     let(:evss_get_pdf) { 'form526_backup/200_evss_get_pdf' }
     let(:lh_intake_upload) { 'lighthouse/benefits_intake/200_lighthouse_intake_upload' }
+    let(:lh_submission) { 'lighthouse/benefits_claims/submit526/200_response' }
     let(:cassettes) do
       [open_claims_cassette, rated_disabilities_cassette, submit_form_cassette, lh_upload, evss_get_pdf,
-       lh_intake_upload]
+       lh_intake_upload, lh_submission]
     end
     let(:backup_klass) { Sidekiq::Form526BackupSubmissionProcess::Submit }
 
@@ -256,6 +257,25 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             described_class.drain
             expect(ActionMailer::Base.deliveries.length).to eq 2
           end
+        end
+      end
+
+      context 'with Lighthouse as submission provider' do
+        before do
+          Flipper.enable(:disability_compensation_lighthouse_submit_migration)
+          allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
+        end
+
+        after do
+          Flipper.disable(:disability_compensation_lighthouse_submit_migration)
+        end
+
+        it 'performs a successful submission' do
+          subject.perform_async(submission.id)
+          expect { described_class.drain }.not_to change(backup_klass.jobs, :size)
+          expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:success]
+          submission.reload
+          expect(submission.submitted_claim_id).to eq(1_234_567_890)
         end
       end
     end

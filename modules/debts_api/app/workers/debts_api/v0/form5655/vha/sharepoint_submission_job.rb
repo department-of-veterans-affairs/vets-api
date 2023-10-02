@@ -26,8 +26,7 @@ module DebtsApi
         station_id: form_submission.form['facilityNum']
       )
     rescue => e
-      form_submission.failed!
-      form_submission.update(error_message: "SharePoint Submission Failed: #{e.message}.")
+      form_submission.register_failure("SharePoint Submission Failed: #{e.message}.")
       raise e
     end
   end

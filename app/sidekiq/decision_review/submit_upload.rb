@@ -14,6 +14,11 @@ module DecisionReview
     #
     # @param appeal_submission_upload_id [String] UUID in response from Lighthouse upload
     # @param type [Symbol|String] type of submission one of 'SC','NOD' or :SC, :NOD (case insensitive) default: NOD
+
+    sidekiq_retries_exhausted do |_msg, _ex|
+      StatsD.increment("#{STATSD_KEY_PREFIX}.error")
+    end
+
     def perform(appeal_submission_upload_id)
       appeal_submission_upload = AppealSubmissionUpload.find(appeal_submission_upload_id)
       appeal_submission = appeal_submission_upload.appeal_submission
@@ -33,13 +38,6 @@ module DecisionReview
       log_success(internal_id: appeal_submission.id, lighthouse_uuid: appeal_submission.submitted_appeal_uuid,
                   lighthouse_evidence_uuid: lh_upload_id, appeal_type: appeal_submission.type_of_appeal)
       StatsD.increment("#{STATSD_KEY_PREFIX}.success")
-    rescue => e
-      handle_error(e)
-    end
-
-    def handle_error(e)
-      StatsD.increment("#{STATSD_KEY_PREFIX}.error")
-      raise e
     end
 
     private
