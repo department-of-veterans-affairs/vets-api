@@ -129,7 +129,7 @@ module Form526ClaimFastTrackingConcern
     }
 
     classification = classify_single_contention(params)
-    Rails.logger.info('CLassified 526Submission', id:, saved_claim_id:, classification:)
+    Rails.logger.info('Classified 526Submission', id:, saved_claim_id:, classification:, claim_type:)
     update_form_with_classification_code(classification['classification_code']) if classification.present?
   end
 
