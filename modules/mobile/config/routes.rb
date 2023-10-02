@@ -31,6 +31,11 @@ Mobile::Engine.routes.draw do
     get '/facilities-info/:sort', to: 'facilities_info#schedulable'
     get '/health/immunizations', to: 'immunizations#index'
     get '/health/locations/:id', to: 'locations#show'
+    scope :health do
+      get 'labs-and-tests', to: 'labs_and_tests#index'
+      resources :labs_and_tests, only: %i[index], defaults: { format: :json }
+      resources :observations, only: %i[show], defaults: { format: :json }
+    end
     get '/letters', to: 'letters#index'
     get '/letters/beneficiary', to: 'letters#beneficiary'
     post '/letters/:type/download', to: 'letters#download'
