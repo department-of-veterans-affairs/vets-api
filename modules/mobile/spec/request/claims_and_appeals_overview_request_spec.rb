@@ -33,7 +33,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
   end
 
   describe 'GET /v0/claims-and-appeals-overview' do
-    let!(:user) { sis_user(:api_auth, icn: '1008596379V859838') }
+    let!(:user) { sis_user(icn: '1008596379V859838') }
     let(:params) { { useCache: false, page: { size: 60 } } }
 
     describe '#index (all user claims) is polled' do
@@ -327,7 +327,7 @@ RSpec.shared_examples 'claims and appeals overview' do |lighthouse_flag|
 
     context 'when user is only authorized to access appeals, not claims' do
       let!(:user) do
-        sis_user(:api_auth, icn: '1008596379V859838', participant_id: nil)
+        sis_user(icn: '1008596379V859838', participant_id: nil)
       end
 
       it 'and appeals service succeed' do
