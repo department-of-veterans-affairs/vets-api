@@ -80,17 +80,33 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       end
 
       context 'when an error occurs' do
-        let(:error_message) { 'Something went wrong' }
+        context 'when a service error' do
+          let(:error_message) { 'service error' }
 
-        before do
-          allow_any_instance_of(Dynamics::Service)
-            .to receive(:call)
-            .and_raise(Dynamics::ErrorHandler::BadRequestError.new(error_message))
-          subject
+          before do
+            allow_any_instance_of(Dynamics::Service)
+              .to receive(:call)
+              .and_raise(Dynamics::ErrorHandler::BadRequestError.new(error_message))
+            subject
+          end
+
+          it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                          'Bad Request Error: service error'
         end
 
-        it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                        'Bad Request Error: Something went wrong'
+        context 'when a standard error' do
+          let(:error_message) { 'standard error' }
+
+          before do
+            allow_any_instance_of(Dynamics::Service)
+              .to receive(:call)
+              .and_raise(StandardError.new(error_message))
+            subject
+          end
+
+          it_behaves_like 'common error handling', :internal_server_error, 'unexpected_error',
+                          'standard error'
+        end
       end
     end
 
