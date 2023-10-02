@@ -30,6 +30,22 @@ module Lighthouse
         raise ArgumentError, 'no ICN passed in for LH API request.' if icn.blank?
       end
 
+      def list_diagnostic_reports(params = {})
+        params = {
+          patient: @icn,
+          category: params[:category],
+          code: params[:code],
+          date: params[:date],
+          status: params[:status],
+          _lastUpdated: params[:lastUpdated],
+          page: params[:page],
+          _count: params[:count]
+        }
+
+        first_response = perform_get('services/fhir/v0/r4/DiagnosticReport', **params.compact)
+        get_list(first_response)
+      end
+
       def list_bp_observations
         params = {
           category: 'vital-signs',
