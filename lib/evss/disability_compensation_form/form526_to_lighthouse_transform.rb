@@ -56,9 +56,10 @@ module EVSS
         veteran_identification.email_address = Requests::EmailAddress.new
         veteran_identification.email_address.email = veteran['emailAddress']
         veteran_identification.veteran_number = Requests::VeteranNumber.new
-        veteran_identification.veteran_number.telephone = veteran['daytimePhone']['areaCode'] +
-                                                          veteran['daytimePhone']['phoneNumber']
-        transform_mailing_address(veteran, veteran_identification)
+
+        fill_phone_number(veteran, veteran_identification)
+
+        transform_mailing_address(veteran, veteran_identification) if veteran['currentMailingAddress'].present?
 
         veteran_identification
       end
@@ -80,8 +81,8 @@ module EVSS
         change_of_address.zip_last_four = change_of_address_source['zipLastFour']
         change_of_address.type_of_address_change = change_of_address_source['addressChangeType']
         change_of_address.dates = Requests::Dates.new
-        change_of_address.dates.begin_date = change_of_address_source['beginningDate']
-        change_of_address.dates.end_date = change_of_address_source['endingDate']
+
+        fill_change_of_address(change_of_address_source, change_of_address)
 
         change_of_address
       end
@@ -217,7 +218,10 @@ module EVSS
           service_period['serviceBranch'].downcase.include?('reserves') ||
             service_period['serviceBranch'].downcase.include?('national guard')
         end
-        component = convert_to_service_component(sorted_service_periods.first['serviceBranch'])
+
+        if sorted_service_periods.first.present?
+          component = convert_to_service_component(sorted_service_periods.first['serviceBranch'])
+        end
         service_information.reserves_national_guard_service.component = component
       end
 
@@ -228,10 +232,6 @@ module EVSS
             end_date: reserves_national_guard_service_source['obligationTermOfServiceToDate']
           ),
           unit_name: reserves_national_guard_service_source['unitName'],
-          unit_phone: Requests::UnitPhone.new(
-            area_code: reserves_national_guard_service_source['unitPhone']['areaCode'],
-            phone_number: reserves_national_guard_service_source['unitPhone']['phoneNumber']
-          ),
           receiving_inactive_duty_training_pay:
             reserves_national_guard_service_source['receivingInactiveDutyTrainingPay'],
           title_10_activation: Requests::Title10Activation.new(
@@ -239,6 +239,13 @@ module EVSS
             title_10_activation_date: reserves_national_guard_service_source['title10ActivationDate']
           )
         )
+
+        if reserves_national_guard_service_source['unitPhone']
+          service_information.reserves_national_guard_service.unit_phone = Requests::UnitPhone.new(
+            area_code: reserves_national_guard_service_source['unitPhone']['areaCode'],
+            phone_number: reserves_national_guard_service_source['unitPhone']['phoneNumber']
+          )
+        end
       end
 
       def transform_mailing_address(veteran, veteran_identification)
@@ -301,7 +308,7 @@ module EVSS
       def transform_disabilities(disabilities_source)
         disabilities_source.map do |disability_source|
           dis = Requests::Disability.new
-          dis.disability_action_type = disability_source['disabilityActionType ']
+          dis.disability_action_type = disability_source['disabilityActionType']
           dis.name = disability_source['name']
           dis.classification_code = disability_source['classificationCode'] if disability_source['classificationCode']
           dis.service_relevance = disability_source['serviceRelevance']
@@ -320,6 +327,7 @@ module EVSS
       def transform_secondary_disabilities(disability_source)
         disability_source['secondaryDisabilities'].map do |secondary_disability_source|
           sd = Requests::SecondaryDisability.new
+          sd.disability_action_type = 'SECONDARY'
           sd.name = secondary_disability_source['name']
           if secondary_disability_source['classificationCode']
             sd.classification_code = secondary_disability_source['classificationCode']
@@ -342,6 +350,31 @@ module EVSS
         direct_deposit.routing_number = direct_deposit_source['routingNumber'] if direct_deposit_source['routingNumber']
 
         direct_deposit
+      end
+
+      # @param [Hash] veteran: veteran info in EVSS format
+      # @param [Requests::Form526::VeteranIdentification] target: transform target
+      def fill_phone_number(veteran, target)
+        if veteran['daytimePhone'].present?
+          target.veteran_number.telephone = veteran['daytimePhone']['areaCode'] +
+                                            veteran['daytimePhone']['phoneNumber']
+        end
+      end
+
+      def fill_change_of_address(change_of_address_source, change_of_address)
+        # convert dates to MM-DD-YYYY
+        if change_of_address_source['beginningDate'].present?
+          change_of_address.dates.begin_date =
+            convert_date(change_of_address_source['beginningDate'])
+        end
+        if change_of_address_source['endingDate'].present?
+          change_of_address.dates.end_date =
+            convert_date(change_of_address_source['endingDate'])
+        end
+      end
+
+      def convert_date(date)
+        Date.parse(date).strftime('%m-%d-%Y')
       end
     end
   end
