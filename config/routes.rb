@@ -342,6 +342,9 @@ Rails.application.routes.draw do
       resource :preferred_names, only: :update
     end
 
+    post '/account-controls/csp-lock', to: 'account_controls#csp_lock'
+    post '/account-controls/csp-unlock', to: 'account_controls#csp_unlock'
+
     resources :search, only: :index
     resources :search_typeahead, only: :index
     resources :search_click_tracking, only: :create
