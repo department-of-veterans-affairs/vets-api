@@ -8,12 +8,16 @@ RSpec.describe 'Fetching user data' do
   context 'GET /v0/user - when an LOA 3 user is logged in' do
     let(:mhv_user) { build(:user, :mhv) }
     let(:v0_user_request_headers) { {} }
+    let(:edipi) { '384759483' }
 
     before do
       allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
       create(:account, idme_uuid: mhv_user.uuid)
       sign_in_as(mhv_user)
-      get v0_user_url, params: nil, headers: v0_user_request_headers
+      allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
+      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
+        get v0_user_url, params: nil, headers: v0_user_request_headers
+      end
     end
 
     context 'dont stub mpi' do
@@ -180,10 +184,15 @@ RSpec.describe 'Fetching user data' do
 
   context 'GET /v0/user - when an LOA 1 user is logged in', :skip_mvi do
     let(:v0_user_request_headers) { {} }
+    let(:edipi) { '384759483' }
 
     before do
-      sign_in_as(new_user(:loa1))
-      get v0_user_url, params: nil, headers: v0_user_request_headers
+      user = new_user(:loa1)
+      sign_in_as(user)
+      allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
+      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
+        get v0_user_url, params: nil, headers: v0_user_request_headers
+      end
     end
 
     it 'returns proper json' do
@@ -224,8 +233,14 @@ RSpec.describe 'Fetching user data' do
 
   context 'GET /v0/user - MVI Integration', :skip_mvi do
     let(:user) { create(:user, :loa3, :no_mpi_profile, icn: SecureRandom.uuid) }
+    let(:edipi) { '384759483' }
 
-    before { sign_in_as(user) }
+    before do
+      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
+        sign_in_as(user)
+        allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
+      end
+    end
 
     it 'MVI error should only make a request to MVI one time per request!', :aggregate_failures do
       stub_mpi_failure
