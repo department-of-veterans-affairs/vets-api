@@ -963,4 +963,3 @@
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/signup\/v1\/patients\/(\d{10}[V]\d{6})\/provisioning\/cerner'
-
