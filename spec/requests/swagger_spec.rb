@@ -1892,9 +1892,18 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     it 'supports getting the user data' do
-      # binding.pry
+      VCR.configure do |config|
+        config.ignore_request do |request|
+          request.uri.include?('int.vet360.va.gov')
+        end
+      end
+     # binding.pry
       expect(subject).to validate(:get, '/v0/user', 200, headers)
       expect(subject).to validate(:get, '/v0/user', 401)
+      VCR.configure do |config|
+        # Reset the ignore_request to avoid affecting other specs
+        config.ignore_request { false }
+      end
     end
 
     context '/v0/user endpoint with some external service errors' do
