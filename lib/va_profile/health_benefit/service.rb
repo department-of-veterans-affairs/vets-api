@@ -15,20 +15,6 @@ module VAProfile
 
       attr_reader :user
 
-      def get_next_of_kin
-        contact_types = VAProfile::Models::AssociatedPerson::NOK_TYPES
-        response = get_associated_persons
-        response.associated_persons.select! { |p| contact_types.include?(p.contact_type) }
-        response
-      end
-
-      def get_emergency_contacts
-        contact_types = VAProfile::Models::AssociatedPerson::EC_TYPES
-        response = get_associated_persons
-        response.associated_persons.select! { |p| contact_types.include?(p.contact_type) }
-        response
-      end
-
       def get_associated_persons
         return mock_get_associated_persons if config.mock_enabled?
 
@@ -41,7 +27,7 @@ module VAProfile
       end
 
       def mock_get_associated_persons
-        fixture_path = %w[spec fixtures va_profile health_benefit_v1_read_ap.json]
+        fixture_path = %w[spec fixtures va_profile health_benefit_v1_associated_persons.json]
         body = Rails.root.join(*fixture_path).read
         response = OpenStruct.new(status: 200, body:)
         VAProfile::HealthBenefit::AssociatedPersonsResponse.from(response)

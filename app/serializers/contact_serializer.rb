@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-class NextOfKinSerializer < ActiveModel::Serializer
-  type :next_of_kin
+class ContactSerializer < ActiveModel::Serializer
+  type :contact
 
   attributes(
     :contact_type,

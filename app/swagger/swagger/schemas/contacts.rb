@@ -3,23 +3,23 @@
 require 'va_profile/models/associated_person'
 
 module Swagger::Schemas
-  class NextOfKin
+  class Contacts
     include Swagger::Blocks
 
-    swagger_schema :NextOfKins do
+    swagger_schema :Contacts do
       key :required, [:data]
       property :data, type: :array do
         items do
           property :id, type: :string, example: 'dbbf9a58-41e5-40c0-bdb5-fc1407aa1f05'
           property :type, type: :string, example: 'next_of_kin'
           property :attributes do
-            key :$ref, :NextOfKin
+            key :$ref, :Contact
           end
         end
       end
     end
 
-    swagger_schema :NextOfKin do
+    swagger_schema :Contact do
       key :required, %i[contact_type given_name family_name primary_phone]
       property :contact_type, type: :string, enum: VAProfile::Models::AssociatedPerson::NOK_TYPES
       property :given_name, type: :string
