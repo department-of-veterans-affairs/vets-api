@@ -7,6 +7,11 @@ describe VAProfile::VeteranStatus::Service, if: Flipper.enabled?(:veteran_status
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :loa3) }
+  let(:edipi) { '384759483' }
+
+  before do
+    allow(user).to receive(:edipi).and_return(edipi)
+  end
 
   describe '#identity_path' do
     context 'when an edipi exists' do
@@ -36,19 +41,23 @@ describe VAProfile::VeteranStatus::Service, if: Flipper.enabled?(:veteran_status
 
     context 'throws an error' do
       it 'gives me a 400 response' do
-        VCR.use_cassette('va_profile/veteran_status/veteran_status_400_', match_requests_on: [:method]) do
+        VCR.use_cassette('va_profile/veteran_status/veteran_status_400_') do
           expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
             { edipi: '384759483' },
             { va_profile: :client_error_related_to_title38 },
             :warning
           )
-          expect { subject.get_veteran_status }.to raise_error(VAProfile::VeteranStatus::VAProfileError)
+          response = subject.get_veteran_status
+          expect(response).not_to be_ok
+          expect(response.status).to eq(400)
+          expect(response.title38_status_code).to eq(nil)
+          expect(response).to raise_error(VAProfile::VeteranStatus::VAProfileError)
         end
       end
 
       it 'gives me a 404 response' do
-        VCR.use_cassette('va_profile/veteran_status/veteran_status_404_oid_blank', match_requests_on: [:method]) do
+        VCR.use_cassette('va_profile/veteran_status/veteran_status_404_oid_blank') do
           expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
             { edipi: '384759483' },
@@ -56,15 +65,21 @@ describe VAProfile::VeteranStatus::Service, if: Flipper.enabled?(:veteran_status
             :warning
           )
 
-          expect { subject.get_veteran_status }.to raise_error(VAProfile::VeteranStatus::VAProfileError)
+          response = subject.get_veteran_status
+          expect(response).not_to be_ok
+          expect(response.status).to eq(404)
+          expect(response.title38_status_code).to eq(nil)
+          expect(response).to raise_error(VAProfile::VeteranStatus::VAProfileError)
         end
       end
 
       it 'gives me a 500 response' do
-        VCR.use_cassette('va_profile/veteran_status/veteran_status_500_aaid', match_requests_on: [:method]) do
-          expect do
-            subject.get_veteran_status
-          end.to raise_error(Common::Exceptions::BackendServiceException)
+        VCR.use_cassette('va_profile/veteran_status/veteran_status_500_aaid') do
+          response = subject.get_veteran_status
+          expect(response).not_to be_ok
+          expect(response.status).to eq(500)
+          expect(response.title38_status_code).to eq(nil)
+          expect(response).to raise_error(VAProfile::VeteranStatus::VAProfileError)
         end
       end
     end
