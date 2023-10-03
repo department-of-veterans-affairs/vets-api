@@ -9,9 +9,11 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
   let(:service_body) { Rails.root.join(*fixture_path).read }
   let(:service_response) { OpenStruct.new(status: service_status, body: service_body) }
   let(:response_object) { VAProfile::HealthBenefit::AssociatedPersonsResponse.from(service_response) }
-  let(:json) { JSON.parse(response.body) }
+  let(:json) { JSON.parse(subject.body) }
 
   describe '#index' do
+    subject { get :index }
+
     context 'successful request' do
       let(:service_status) { 200 }
       let(:fixture_path) { %w[spec fixtures va_profile health_benefit_v1_associated_persons.json] }
@@ -24,8 +26,7 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
       it 'returns emergency contacts' do
         Flipper.enable(:profile_contacts)
         sign_in_as user
-        get :index
-        expect(response).to have_http_status(:success)
+        expect(subject).to have_http_status(:success)
         expect(json['data'].length).to eq(2)
       end
     end
@@ -33,8 +34,7 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
     context 'user is not authenticated' do
       it 'returns an unauthorized status code' do
         Flipper.enable(:profile_contacts)
-        get :index
-        expect(response).to have_http_status(:unauthorized)
+        expect(subject).to have_http_status(:unauthorized)
       end
     end
 
@@ -42,8 +42,7 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
       it 'returns an unauthorized status code' do
         Flipper.disable(:profile_contacts)
         sign_in_as user
-        get :index
-        expect(response).to have_http_status(:not_found)
+        expect(subject).to have_http_status(:not_found)
       end
     end
   end
