@@ -209,6 +209,24 @@ RSpec.describe 'Fetching user data' do
       expect(error['status']).to eq 401
     end
 
+    context 'with camel inflection' do
+      let(:v0_user_request_headers) { { 'X-Key-Inflection' => 'camel' } }
+
+      it 'returns proper json' do
+        expect(response).to match_camelized_response_schema('user_loa1')
+      end
+    end
+  end
+
+  context 'GET /v0/user - when an LOA 1 user is logged in - no edipi', :skip_mvi do
+    let(:v0_user_request_headers) { {} }
+
+    before do
+      user = new_user(:loa1)
+      sign_in_as(user)
+      get v0_user_url, params: nil, headers: v0_user_request_headers
+    end
+
     it 'gives me the list of available services' do
       expect(JSON.parse(response.body)['data']['attributes']['services'].sort).to eq(
         [
@@ -220,14 +238,6 @@ RSpec.describe 'Fetching user data' do
           BackendServices::FORM_PREFILL
         ].sort
       )
-    end
-
-    context 'with camel inflection' do
-      let(:v0_user_request_headers) { { 'X-Key-Inflection' => 'camel' } }
-
-      it 'returns proper json' do
-        expect(response).to match_camelized_response_schema('user_loa1')
-      end
     end
   end
 
