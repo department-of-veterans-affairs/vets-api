@@ -27,8 +27,13 @@ module AskVAApi
       attr_reader :service, :sec_id
 
       def default_service
-        mock = !Rails.env.production?
+        # need to comment in the line below for production
+        # mock = !Rails.env.production?
+        mock = true
+
         Dynamics::Service.new(base_uri: URI, sec_id:, mock:)
+      rescue => e
+        ErrorHandler.handle_service_error(e)
       end
 
       def fetch_data(criteria: {})
