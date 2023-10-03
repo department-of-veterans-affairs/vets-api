@@ -1891,19 +1891,18 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    it 'supports getting the user data' do
-      VCR.configure do |config|
-        config.ignore_request do |request|
-          request.uri.include?('int.vet360.va.gov')
-        end
-      end
-     # binding.pry
-      expect(subject).to validate(:get, '/v0/user', 200, headers)
-      expect(subject).to validate(:get, '/v0/user', 401)
-      VCR.configure do |config|
-        # Reset the ignore_request to avoid affecting other specs
-        config.ignore_request { false }
-      end
+    it 'supports getting the 200 user data' do
+     VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[body],
+     allow_playback_repeats: true) do
+        expect(subject).to validate(:get, '/v0/user', 200, headers)
+     end
+    end
+
+    it 'supports getting the 401 user data' do
+     VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank', match_requests_on: %i[body],
+     allow_playback_repeats: true) do
+        expect(subject).to validate(:get, '/v0/user', 401)
+     end
     end
 
     context '/v0/user endpoint with some external service errors' do
