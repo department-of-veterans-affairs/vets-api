@@ -20,15 +20,21 @@ module ClaimsApi
         before_action :shared_validation, :file_number_check, only: %i[submit validate]
 
         def submit # rubocop:disable Metrics/MethodLength
-          auto_claim = ClaimsApi::AutoEstablishedClaim.create(
-            status: ClaimsApi::AutoEstablishedClaim::PENDING,
-            auth_headers:,
-            form_data: form_attributes,
-            flashes:,
-            cid: token.payload['cid'],
-            veteran_icn: target_veteran.mpi.icn
-          )
-
+          claim = ClaimsApi::AutoEstablishedClaim.find_using_identifier_and_source(source_name: source_data[:name],
+                                                                                   md5: set_md5(form_attributes))
+          if claim.nil?
+            auto_claim = ClaimsApi::AutoEstablishedClaim.create(
+              id: SecureRandom.uuid,
+              status: ClaimsApi::AutoEstablishedClaim::PENDING,
+              auth_headers:,
+              form_data: form_attributes,
+              flashes:,
+              source: source_data,
+              cid: token.payload['cid'],
+              veteran_icn: target_veteran.mpi.icn
+            )
+            auto_claim.save
+          end
           # .create returns the resulting object whether the object was saved successfully to the database or not.
           # If it's lacking the ID, that means the create was unsuccessful and an identical claim already exists.
           # Find and return that claim instead.
@@ -153,6 +159,35 @@ module ClaimsApi
 
         def benefits_doc_api
           ClaimsApi::BD.new
+        end
+
+        def source_name
+          "#{target_veteran.first_name} #{target_veteran.last_name}"
+        end
+
+        def source_data
+          {
+            name: source_name,
+            icn: nullable_icn
+          }
+        end
+
+        def nullable_icn
+          target_veteran.mhv_icn
+        rescue => e
+          log_message_to_sentry('Failed to retrieve icn for consumer',
+                                :warning,
+                                body: e.message)
+
+          nil
+        end
+
+        def set_md5(form_data)
+          headers = auth_headers.except('va_eauth_authenticationauthority',
+                                        'va_eauth_service_transaction_id',
+                                        'va_eauth_issueinstant',
+                                        'Authorization')
+          Digest::MD5.hexdigest form_data.merge(headers).to_json
         end
       end
     end

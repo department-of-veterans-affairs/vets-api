@@ -19,7 +19,6 @@ module ClaimsApi
     has_encrypted :auth_headers, :bgs_flash_responses, :bgs_special_issue_responses, :evss_response, :form_data,
                   key: :kms_key, **lockbox_options
     validate :validate_service_dates
-    before_validation :set_md5
     after_validation :remove_encrypted_fields, on: [:update]
     after_create :log_special_issues
     after_create :log_flashes
@@ -56,6 +55,19 @@ module ClaimsApi
     attribute :events_timeline, default: []
 
     alias token id
+
+    def self.find_using_identifier_and_source(source_name:, id: nil, md5: nil)
+      primary_identifier = {}
+      primary_identifier[:id] = id if id.present?
+      primary_identifier[:md5] = md5 if md5.present?
+      # it's possible to have duplicate claims, so be sure to return the most recently created match
+      claims = ClaimsApi::AutoEstablishedClaim.where(primary_identifier).order(created_at: :desc)
+      return nil if claims.blank?
+
+      claims = claims.select { |claim| claim.source['name'] == source_name if claim.source }
+
+      claims.last
+    end
 
     def to_internal # rubocop:disable Metrics/MethodLength
       form_data['applicationExpirationDate'] ||= build_application_expiration
@@ -102,14 +114,6 @@ module ClaimsApi
 
     def self.get_by_id_and_icn(id, icn)
       find_by(id:, veteran_icn: icn)
-    end
-
-    def set_md5
-      headers = auth_headers.except('va_eauth_authenticationauthority',
-                                    'va_eauth_service_transaction_id',
-                                    'va_eauth_issueinstant',
-                                    'Authorization')
-      self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
     end
 
     def status_from_phase(*)
