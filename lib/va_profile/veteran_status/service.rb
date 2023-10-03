@@ -79,7 +79,7 @@ module VAProfile
       end
 
       def edipi_present!
-        raise 'User does not have a valid edipi' if @user&.identity&.edipi.blank?
+        raise 'User does not have a valid edipi' if @user&.edipi.blank?
       end
 
       def edipi_with_aaid
@@ -87,11 +87,11 @@ module VAProfile
       end
 
       def edipi_id
-        @user&.identity&.edipi.presence
+        @user&.edipi.presence
       end
 
       def aaid
-        AAID if @user&.identity&.edipi.present?
+        AAID if @user&.edipi.present?
       end
     end
   end
