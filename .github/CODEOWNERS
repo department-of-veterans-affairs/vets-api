@@ -530,6 +530,7 @@ app/swagger/swagger/schemas/async_transaction/vet360.rb @department-of-veterans-
 app/swagger/swagger/schemas/bb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/bb/health_records.rb @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/connected_applications.rb @department-of-veterans-affairs/lighthouse-pivot
+app/swagger/swagger/schemas/contacts.rb @department-of-veterans-affairs/vfs-health-modernization-initiative @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/decision_review_evidence.rb @department-of-veterans-affairs/Benefits-Team-1 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/dependents.rb @department-of-veterans-affairs/vsa-ebenefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/dependents_verifications.rb @department-of-veterans-affairs/vsa-ebenefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -563,7 +564,6 @@ app/swagger/swagger/schemas/health/trackings.rb @department-of-veterans-affairs/
 app/swagger/swagger/schemas/health/triage_teams.rb @department-of-veterans-affairs/vfs-mhv-medications
 app/swagger/swagger/schemas/letter_beneficiary.rb@department-of-veterans-affairs/mobile-api-team
 app/swagger/swagger/schemas/maintenance_windows.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/swagger/swagger/schemas/next_of_kin.rb @department-of-veterans-affairs/vfs-health-modernization-initiative @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/onsite_notifications.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/payment_history.rb @department-of-veterans-affairs/vsa-ebenefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/ppiu.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group

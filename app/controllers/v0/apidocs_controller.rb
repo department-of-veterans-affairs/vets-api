@@ -237,7 +237,6 @@ module V0
       Swagger::Schemas::LetterBeneficiary,
       Swagger::Schemas::Letters,
       Swagger::Schemas::MaintenanceWindows,
-      Swagger::Schemas::NextOfKin,
       Swagger::Schemas::OnsiteNotifications,
       Swagger::Schemas::PhoneNumber,
       Swagger::Schemas::PPIU,
