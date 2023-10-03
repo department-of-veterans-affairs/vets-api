@@ -19,21 +19,23 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
       # mock service response
       allow_any_instance_of(VAProfile::HealthBenefit::Service)
         .to receive(:get_associated_persons).and_return(response_object)
+
+      Flipper.enable(:profile_contacts)
     end
 
     context 'successful request' do
       it 'returns emergency contacts' do
-        Flipper.enable(:profile_contacts)
         sign_in_as user
-        expect(subject).to have_http_status(:success) # 200
+        expect(subject.status).to eq(200)
+        # expect(subject).to have_http_status(:success)
         expect(json['data'].length).to eq(2)
       end
     end
 
     context 'user is not authenticated' do
       it 'returns an unauthorized status code' do
-        Flipper.enable(:profile_contacts)
-        expect(subject).to have_http_status(:unauthorized) # 401
+        expect(subject.status).to eq(401)
+        # expect(subject).to have_http_status(:unauthorized)
       end
     end
 
@@ -41,7 +43,8 @@ RSpec.describe V0::Profile::ContactsController, type: :controller do
       it 'returns an unauthorized status code' do
         Flipper.disable(:profile_contacts)
         sign_in_as user
-        expect(subject).to have_http_status(:not_found) # 404
+        expect(subject.status).to eq(404)
+        # expect(subject).to have_http_status(:not_found)
       end
     end
   end
