@@ -14,7 +14,7 @@ http_interactions:
         User-Agent:
           - Vets.gov Agent
         X-Authorization-Key:
-          - "<MHV_MR_X_AUTH_KEY>"
+          - "<MHV_MR_X_AUTH_TOKEN>"
         Accept-Encoding:
           - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
     response:
