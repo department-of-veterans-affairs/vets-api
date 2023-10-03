@@ -1,0 +1,63 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: array
+    items:
+      type: object
+      required:
+        - type
+        - id
+        - attributes
+      properties:
+        type:
+          type: string
+          example: letter
+        id:
+          type: string
+          example: abe3f152-90b0-45cb-8776-4958bad0e0ef
+        attributes:
+          type: object
+          required:
+            - category
+            - subject
+            - effectiveDateTime
+            - issued
+            - result
+          properties:
+            category:
+              type: string
+              example: 'Laboratory'
+            subject:
+              type: object
+              required:
+                - reference
+                - display
+              properties:
+                reference:
+                  type: string
+                  example: 'https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1000005'
+                display:
+                  type: string
+                  example: 'Mr. Shane235 Bartell116'
+            effectiveDateTime:
+              type: datetime
+              example: 2019-04-20T14:15:00.000-04:00
+            issued:
+              type: datetime
+              example: 2019-04-20T14:15:00.000-04:00
+            results:
+              type: array
+              items:
+                type: object
+                required:
+                  - reference
+                  - display
+                properties:
+                  reference:
+                    type: string
+                    example: 'https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-ILWORI4YUOUAR5H2GCH6ATEFRM000000'
+                  display:
+                    type: string
+                    example: 'Glucose'

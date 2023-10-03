@@ -131,6 +131,10 @@ features:
     actor_type: user
     description: Enables the travel reimbursement logic
     enable_in_development: true
+  check_in_experience_45_minute_reminder:
+    actor_type: user
+    description: Enables the 45 minute reminder
+    enable_in_development: true
   check_in_experience_browser_monitoring:
     actor_type: user
     description: Enables browser monitoring for check-in applications.
@@ -330,9 +334,9 @@ features:
     actor_type: user
     description: Manage whether 674 can be submitted without an associated 686c
     enable_in_development: true
-  disability_526_classifier:
+  disability_526_classifier_new_claims:
     actor_type: user
-    description: enables sending claims for increase to VRO Contention Classification service for more accurate classification entry.
+    description: enables sending new 526-ez claims to VRO Contention Classification service for more accurate classification entry.
     enable_in_development: true
   disability_526_maximum_rating:
     actor_type: user
@@ -429,6 +433,10 @@ features:
     actor_type: user
     description: Enables streamlined waiver flow for qualifying users completing the Financial Status Report (FSR) form
     enable_in_development: true
+  financial_status_report_streamlined_waiver_assets:
+    actor_type: user
+    description: Enables a simplified asset calculation flow, including Cash in Bank, for users completing the Financial Status Report (FSR) form.
+    enable_in_development: true
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
@@ -476,6 +484,9 @@ features:
   form210845:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-0845
+  form210972:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 21-0972
   form214142:
     actor_type: user
     description: If enabled shows the digital form experience for form 21-4142
@@ -964,6 +975,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for After visit summary feature.
+  va_online_scheduling_start_scheduling_link:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for Start Scheduling action link.
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
@@ -1112,6 +1127,9 @@ features:
   hlr_browser_monitoring_enabled:
     actor_type: user
     description: HLR Datadog RUM monitoring
+  sc_browser_monitoring_enabled:
+    actor_type: user
+    description: Supplemental Claim Datadog RUM monitoring
   virtual_agent_enable_pva2_chatbot:
     actor_type: user
     description: If enabled, switches VA chatbot from PVA1 to PVA2

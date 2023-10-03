@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe SidekiqStatsInstrumentation::ServerMiddleware do
   class MyWorker
-    include Sidekiq::Worker
+    include Sidekiq::Job
 
     def perform; end
   end

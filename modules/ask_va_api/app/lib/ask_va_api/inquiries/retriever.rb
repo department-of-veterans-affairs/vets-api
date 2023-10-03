@@ -12,7 +12,7 @@ module AskVAApi
 
       def fetch_by_inquiry_number(inquiry_number:)
         validate_input(inquiry_number, 'Invalid Inquiry Number')
-        reply = Replies::ReplyCreator.new(inquiry_number:).call
+        reply = Correspondences::Retriever.new(inquiry_number:).call
         data = fetch_data(criteria: { inquiry_number: })
         Entity.new(data, reply)
       end
@@ -27,8 +27,13 @@ module AskVAApi
       attr_reader :service, :sec_id
 
       def default_service
-        mock = !Rails.env.production?
+        # need to comment in the line below for production
+        # mock = !Rails.env.production?
+        mock = true
+
         Dynamics::Service.new(base_uri: URI, sec_id:, mock:)
+      rescue => e
+        ErrorHandler.handle_service_error(e)
       end
 
       def fetch_data(criteria: {})

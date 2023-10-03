@@ -389,6 +389,26 @@
       :uid_location: header
       :uid_locator: 'ssn'
 
+# EVSS Container
+- :name: 'EVSS Container'
+  :base_uri: <%= "#{URI(Settings.evss.dvp.url).host}:#{URI(Settings.evss.dvp.url).port}" %>
+  :endpoints:
+  # Disability Compensation Form
+  - :method: :post
+    :path: <%= "/#{Settings.evss.service_name}/rest/form526/v2/submit" %>
+    :file_path: "evss_container/disability_form/form526"
+    :symbolize_response: true
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+  - :method: :post
+    :path: <%= "/#{Settings.evss.service_name}/rest/form526/v2/validate" %>
+    :file_path: "evss_container/disability_form/form526_validate"
+    :symbolize_response: true
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+
 # MVI
 - :name: 'MVI'
   :base_uri: <%= "#{URI(Settings.mvi.url).host}:#{URI(Settings.mvi.url).port}" %>
@@ -613,7 +633,13 @@
       :uid_location: header
       :uid_locator: ssn
   - :method: :get
-    :path: "/api/v3/decision_reviews/higher_level_reviews/contestable_issues/compensation"
+    :path: "/api/v3/decision_reviews/supplemental_claims/contestable_issues/*"
+    :file_path: "modules_appeals_api/contestable_issues"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: X-VA-SSN
+  - :method: :get
+    :path: "/api/v3/decision_reviews/higher_level_reviews/contestable_issues/*"
     :file_path: "modules_appeals_api/contestable_issues"
     :cache_multiple_responses:
       :uid_location: header
@@ -621,12 +647,6 @@
   - :method: :get
     :path: "/api/v3/decision_reviews/appeals/contestable_issues"
     :file_path: "modules_appeals_api/notice_of_disagreements/contestable_issues"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: X-VA-SSN
-  - :method: :get
-    :path: "/api/v3/decision_reviews/supplemental_claims/contestable_issues/compensation"
-    :file_path: "modules_appeals_api/contestable_issues"
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: X-VA-SSN
