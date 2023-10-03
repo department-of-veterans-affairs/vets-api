@@ -40,7 +40,8 @@ describe VAProfile::VeteranStatus::Service do
 
     context 'throws an error' do
       it 'gives me a 400 response' do
-        VCR.use_cassette('va_profile/veteran_status/veteran_status_400_') do
+        VCR.use_cassette('va_profile/veteran_status/veteran_status_400') do
+
           expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
             { edipi: '1005127153' },
@@ -48,6 +49,7 @@ describe VAProfile::VeteranStatus::Service do
             :warning
           )
           response = subject.get_veteran_status
+
           expect(response).not_to be_ok
           expect(response.status).to eq(400)
           expect(response.title38_status_code).to eq(nil)
@@ -62,7 +64,7 @@ describe VAProfile::VeteranStatus::Service do
             { va_profile: :veteran_status_title_not_found },
             :warning
           )
-          
+
           response = subject.get_veteran_status
           expect(response).not_to be_ok
           expect(response.status).to eq(404)
