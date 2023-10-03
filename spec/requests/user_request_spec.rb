@@ -305,48 +305,55 @@ RSpec.describe 'Fetching user data' do
 
     context 'when breakers is used' do
       let(:user2) { create(:user, :loa3, :no_mpi_profile, icn: SecureRandom.uuid) }
+      let(:edipi) { '384759483' }
+
+      before do
+        allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
+      end
 
       it 'MVI raises a breakers exception after 50% failure rate', :aggregate_failures do
-        now = Time.current
-        start_time = now - 120
-        Timecop.freeze(start_time)
+        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
+          now = Time.current
+          start_time = now - 120
+          Timecop.freeze(start_time)
 
-        # starts out successful
-        stub_mpi_success
-        sign_in_as(user)
-        expect { get v0_user_url, params: nil }
-          .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
-          .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
-          .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
+          # starts out successful
+          stub_mpi_success
+          sign_in_as(user)
+          expect { get v0_user_url, params: nil }
+            .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
+            .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
+            .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
 
-        # encounters failure and breakers kicks in
-        stub_mpi_failure
-        sign_in_as(user2)
-        expect { get v0_user_url, params: nil }
-          .to trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
-          .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
-          .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
-        expect(MPI::Configuration.instance.breakers_service.latest_outage.start_time.to_i).to eq(start_time.to_i)
+          # encounters failure and breakers kicks in
+          stub_mpi_failure
+          sign_in_as(user2)
+          expect { get v0_user_url, params: nil }
+            .to trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
+            .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
+            .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
+          expect(MPI::Configuration.instance.breakers_service.latest_outage.start_time.to_i).to eq(start_time.to_i)
 
-        # skipped because breakers is active
-        stub_mpi_success
-        sign_in_as(user2)
-        expect { get v0_user_url, params: nil }
-          .to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
-          .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
-          .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
-        expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(false)
-        Timecop.freeze(now)
+          # skipped because breakers is active
+          stub_mpi_success
+          sign_in_as(user2)
+          expect { get v0_user_url, params: nil }
+            .to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
+            .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
+            .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
+          expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(false)
+          Timecop.freeze(now)
 
-        # sufficient time has elapsed that new requests are made, resulting in success
-        sign_in_as(user2)
-        expect { get v0_user_url, params: nil }
-          .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
-          .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
-          .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
-        expect(response.status).to eq(200)
-        expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(true)
-        Timecop.return
+          # sufficient time has elapsed that new requests are made, resulting in success
+          sign_in_as(user2)
+          expect { get v0_user_url, params: nil }
+            .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
+            .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
+            .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
+          expect(response.status).to eq(200)
+          expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(true)
+          Timecop.return
+        end
       end
     end
   end
