@@ -10,7 +10,7 @@ module V0
         response = service.get_associated_persons
         render(
           json: response.associated_persons,
-          each_serializer: ContactsSerializer
+          each_serializer: ContactSerializer
         )
       end
 
