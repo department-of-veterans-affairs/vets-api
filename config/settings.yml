@@ -809,7 +809,6 @@ oidc:
     veteran_verification: ~
     claims: ~
   charon:
-    enabled: ~
     endpoint: ~
     audience: ~
   base_api_url: https://example.com
