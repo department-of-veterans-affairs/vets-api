@@ -14,6 +14,7 @@ class HealthCareApplication < ApplicationRecord
   FORM_ID = '10-10EZ'
   ACTIVEDUTY_ELIGIBILITY = 'TRICARE'
   DISABILITY_THRESHOLD = 50
+  LOCKBOX = Lockbox.new(key: Settings.lockbox.master_key, encode: true)
 
   attr_accessor :user, :async_compatible, :google_analytics_client_id
 
@@ -223,12 +224,12 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_async(has_email)
-    submission_job = 'EncryptedSubmissionJob'
+    submission_job = 'SubmissionJob'
     submission_job = "Anon#{submission_job}" unless has_email
 
     "HCA::#{submission_job}".constantize.perform_async(
       self.class.get_user_identifier(user),
-      KmsEncrypted::Box.new.encrypt(parsed_form.to_json),
+      HealthCareApplication::LOCKBOX.encrypt(parsed_form.to_json),
       id,
       google_analytics_client_id
     )
