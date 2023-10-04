@@ -329,7 +329,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(recent_end).to eq({ month: '11', day: '30', year: '1991' })
         expect(addtl_start).to eq({ month: '11', day: '14', year: '1980' })
         expect(addtl_end).to eq({ month: '11', day: '30', year: '1991' })
-        expect(last_sep).to eq('ABCDEFGHIJKLMN')
+        expect(last_sep).to eq('98282')
         expect(pow).to eq('YES')
         expect(pow_start).to eq({ month: '06', day: '04', year: '2018' })
         expect(pow_end).to eq({ month: '06', day: '04', year: '2018' })
