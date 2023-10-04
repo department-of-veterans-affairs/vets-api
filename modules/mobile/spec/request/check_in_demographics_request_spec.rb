@@ -1,20 +1,21 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 
 RSpec.describe 'check in demographics', type: :request do
-  before do
-    allow_any_instance_of(User).to receive(:vha_facility_hash).and_return({
-                                                                            '516' => ['12345'],
-                                                                            '553' => ['2'],
-                                                                            '200HD' => ['12345'],
-                                                                            '200IP' => ['TKIP123456'],
-                                                                            '200MHV' => ['123456']
-                                                                          })
-    allow_any_instance_of(IAMUser).to receive(:icn).and_return('24811694708759028')
-
-    iam_sign_in(build(:iam_user))
+  let!(:user) do
+    sis_user(
+      icn: '24811694708759028',
+      vha_facility_hash: {
+        '516' => ['12345'],
+        '553' => ['2'],
+        '200HD' => ['12345'],
+        '200IP' => ['TKIP123456'],
+        '200MHV' => ['123456']
+      },
+      vha_facility_ids: %w[516 553 200HD 200IP 200MHV]
+    )
   end
 
   describe 'GET /mobile/v0/appointments/check-in/demographics' do
@@ -22,14 +23,14 @@ RSpec.describe 'check in demographics', type: :request do
       it 'returns expected check in demographics data' do
         VCR.use_cassette('mobile/check_in/token_200') do
           VCR.use_cassette('mobile/check_in/get_demographics_200') do
-            get '/mobile/v0/appointments/check-in/demographics', headers: iam_headers,
+            get '/mobile/v0/appointments/check-in/demographics', headers: sis_headers,
                                                                  params: { 'location_id' => '516' }
           end
         end
         expect(response).to have_http_status(:ok)
         expect(response.parsed_body).to eq(
           { 'data' =>
-             { 'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
+             { 'id' => user.uuid,
                'type' => 'checkInDemographics',
                'attributes' =>
                 { 'insuranceVerificationNeeded' => false,
@@ -97,7 +98,7 @@ RSpec.describe 'check in demographics', type: :request do
       it 'returns expected error' do
         VCR.use_cassette('mobile/check_in/token_200') do
           VCR.use_cassette('mobile/check_in/get_demographics_500') do
-            get '/mobile/v0/appointments/check-in/demographics', headers: iam_headers,
+            get '/mobile/v0/appointments/check-in/demographics', headers: sis_headers,
                                                                  params: { 'location_id' => '516' }
           end
         end
@@ -118,7 +119,7 @@ RSpec.describe 'check in demographics', type: :request do
         VCR.use_cassette('mobile/check_in/token_200') do
           VCR.use_cassette('mobile/check_in/update_demographics_200') do
             patch '/mobile/v0/appointments/check-in/demographics',
-                  headers: iam_headers,
+                  headers: sis_headers,
                   params: { 'location_id' => '418',
                             'demographic_confirmations' => { 'contact_needs_update' => false,
                                                              'emergency_contact_needs_update' => true,
@@ -143,7 +144,7 @@ RSpec.describe 'check in demographics', type: :request do
         VCR.use_cassette('mobile/check_in/token_200') do
           VCR.use_cassette('mobile/check_in/update_demographics_500') do
             patch '/mobile/v0/appointments/check-in/demographics',
-                  headers: iam_headers,
+                  headers: sis_headers,
                   params: { 'location_id' => '418',
                             'demographic_confirmations' => { 'contact_needs_update' => false,
                                                              'emergency_contact_needs_update' => true,
