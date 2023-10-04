@@ -31,7 +31,6 @@ module VAProfile
       rescue Common::Client::Errors::ClientError => e
         handle_client_error(e)
       rescue => e
-        binding.pry
         handle_error(e)
       end
 
@@ -63,7 +62,6 @@ module VAProfile
       private
 
       def handle_client_error(e)
-
         additional_params = { edipi: @user&.edipi }
         if e.status == 404
           log_exception_to_sentry(
@@ -79,7 +77,6 @@ module VAProfile
           )
           raise VAProfile::VeteranStatus::VAProfileError.new(status: e.status)
         end
-      rescue => e
         handle_error(e)
       end
 

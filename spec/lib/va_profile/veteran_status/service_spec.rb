@@ -76,12 +76,8 @@ describe VAProfile::VeteranStatus::Service, if: Flipper.enabled?(:veteran_status
       end
 
       it 'gives me a 500 response' do
-        VCR.use_cassette('va_profile/veteran_status/veteran_status_500_aaid', match_requests_on: [:method]) do
-
-          response = subject.get_veteran_status
-          expect(response).not_to be_ok
-          expect(response.status).to eq(500)
-          expect(response.title38_status_code).to eq(nil)
+        VCR.use_cassette('va_profile/veteran_status/veteran_status_500_aaid') do
+          expect { subject.get_veteran_status }.to raise_error(Common::Exceptions::BackendServiceException)
         end
       end
     end
