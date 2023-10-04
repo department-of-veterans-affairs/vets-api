@@ -33,8 +33,7 @@ Mobile::Engine.routes.draw do
     get '/health/locations/:id', to: 'locations#show'
     scope :health do
       get 'labs-and-tests', to: 'labs_and_tests#index'
-      resources :labs_and_tests, only: %i[index], defaults: { format: :json }
-      resources :observations, only: %i[show], defaults: { format: :json }
+      resources :observations, only: %i[show]
     end
     get '/letters', to: 'letters#index'
     get '/letters/beneficiary', to: 'letters#beneficiary'
