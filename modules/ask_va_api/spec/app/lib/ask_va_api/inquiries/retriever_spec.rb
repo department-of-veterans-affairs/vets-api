@@ -25,9 +25,9 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
     context 'when inquiry_number is blank' do
       let(:inquiry_number) { nil }
 
-      it 'raises an ArgumentError' do
+      it 'raises an ErrorHandler::ServiceError' do
         expect { retriever.fetch_by_inquiry_number(inquiry_number:) }
-          .to raise_error(ArgumentError, 'Invalid Inquiry Number')
+          .to raise_error(ErrorHandler::ServiceError, ': Invalid Inquiry Number')
       end
     end
 
@@ -62,9 +62,9 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
     context 'when sec_id is blank' do
       let(:sec_id) { nil }
 
-      it 'raises an ArgumentError' do
+      it 'raises an ErrorHandler::ServiceError' do
         expect { retriever.fetch_by_sec_id }
-          .to raise_error(ArgumentError, 'Invalid SEC_ID')
+          .to raise_error(ErrorHandler::ServiceError, ': Invalid SEC_ID')
       end
     end
 

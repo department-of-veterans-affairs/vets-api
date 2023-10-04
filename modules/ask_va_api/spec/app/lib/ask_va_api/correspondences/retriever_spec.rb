@@ -24,7 +24,7 @@ RSpec.describe AskVAApi::Correspondences::Retriever do
 
       it 'raises an ArgumentError' do
         expect { retriever.call }
-          .to raise_error(ArgumentError, 'Invalid Inquiry Number')
+          .to raise_error(ErrorHandler::ServiceError, ': Invalid Inquiry Number')
       end
     end
 
