@@ -5,8 +5,8 @@ require 'va_profile/veteran_status/veteran_status_response'
 
 RSpec.describe VAProfile::VeteranStatus::VeteranStatusResponse, if: Flipper.enabled?(:veteran_status_updated) do
   describe '.from' do
-    subject { described_class.from(raw_response) }
-
+    subject { described_class.from(user,raw_response) }
+    let(:user) { build(:user, :loa3) }
     let(:status_code) { 200 }
     let(:title38_status_code) { 'V1' }
     let(:raw_response) do
