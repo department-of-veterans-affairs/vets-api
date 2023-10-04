@@ -942,6 +942,7 @@
     - :method: :get
       :path: "/signup/v1/patients/*/status/summary"
       :file_path: "map/sign_up_service/status"
+<<<<<<< HEAD
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/signup\/v1\/patients\/(\d{10}[V]\d{6})\/status\/summary'
@@ -963,3 +964,14 @@
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/signup\/v1\/patients\/(\d{10}[V]\d{6})\/provisioning\/cerner'
+=======
+    - :method: :post
+      :path: "/signup/v1/patients/*/agreements"
+      :file_path: "map/sign_up_service/agreements_accept"
+    - :method: :delete
+      :path: "/signup/v1/patients/*/agreements"
+      :file_path: "map/sign_up_service/agreements_delete"
+    - :method: :put
+      :path: "/signup/v1/patients/*/provisioning/cerner"
+      :file_path: "map/sign_up_service/update_provisioning"=
+>>>>>>> 7d1de1a06 (Change the path to the betamocks files to include the whole service name path to match the changes in the vets-api-mockdata)
