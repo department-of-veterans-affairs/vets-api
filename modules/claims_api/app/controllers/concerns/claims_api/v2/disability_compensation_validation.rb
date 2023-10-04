@@ -482,6 +482,7 @@ module ClaimsApi
         validate_confinements!(service_information)
         validate_alternate_names!(service_information)
         validate_reserves_required_values!(service_information)
+        validate_form_526_location_codes!(service_information)
       end
 
       def validate_service_periods!(service_information)
@@ -498,6 +499,29 @@ module ClaimsApi
             )
           end
         end
+      end
+
+      def validate_form_526_location_codes!(service_information)
+        # only retrieve separation locations if we'll need them
+        need_locations = service_information['servicePeriods'].detect do |service_period|
+          Date.strptime(service_period['activeDutyEndDate'], '%m-%d-%Y') > Time.zone.today
+        end
+        separation_locations = retrieve_separation_locations if need_locations
+
+        service_information['servicePeriods'].each do |service_period|
+          next if Date.strptime(service_period['activeDutyEndDate'], '%m-%d-%Y') <= Time.zone.today
+          next if separation_locations.any? do |location|
+                    @location_code = service_period['separationLocationCode']
+                    location[:id].to_s == @location_code
+                  end
+
+          raise ::Common::Exceptions::InvalidFieldValue.new('separationLocationCode',
+                                                            @location_code)
+        end
+      end
+
+      def retrieve_separation_locations
+        @intake_sites ||= ClaimsApi::BRD.new.intake_sites
       end
 
       def validate_confinements!(service_information)
