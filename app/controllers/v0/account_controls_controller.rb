@@ -7,15 +7,15 @@ module V0
     before_action :authenticate_service_account, :validate_account_control_params
 
     def csp_lock
-      user_verification&.update!("#{type}_lock" => true)
+      user_verification&.update!(locked: true)
 
-      render json: { user_verification: }
+      render json: { data: serialize_user_verification }
     end
 
     def csp_unlock
-      user_verification&.update!("#{type}_lock" => false)
+      user_verification&.update!(locked: false)
 
-      render json: { user_verification: }
+      render json: { data: serialize_user_verification }
     end
 
     private
@@ -30,10 +30,19 @@ module V0
       @user_verification ||= UserVerification.find_by("#{type}_uuid" => csp_uuid)
     end
 
+    def serialize_user_verification
+      {
+        csp_uuid: user_verification&.send("#{type}_uuid"),
+        type:,
+        icn: @account&.icn || Account.find_by(uuid: user_verification.user_account_id).icn,
+        locked: user_verification.locked,
+      }.compact
+    end
+
     def fetch_csp_uuid
       return params[:csp_uuid] if params[:csp_uuid].presence
 
-      account = Account.find_by(icn:)
+      @account = Account.find_by(icn:) 
       account&.send("#{type}_uuid")
     end
 

@@ -47,6 +47,7 @@ module Login
 
       ActiveRecord::Base.transaction do
         if user_verification
+          validate_csp_lock
           update_existing_user_verification if user_verification_needs_to_be_updated?
           update_backing_idme_uuid if backing_idme_uuid_has_changed?
         else
@@ -75,6 +76,11 @@ module Login
       else
         update_newly_verified_user
       end
+    end
+
+    def validate_csp_lock
+      raise Errors::CSPLockedError if user_verification.locked == true
+
     end
 
     def update_backing_idme_uuid
