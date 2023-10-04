@@ -25,14 +25,14 @@ describe VAProfile::VeteranStatus::Service, if: Flipper.enabled?(:veteran_status
   describe 'get_veteran_status' do
     context 'with a valid request' do
       it 'calls the get_veteran_status endpoint with a proper message' do
-        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method]) do
+        VCR.use_cassette('va_profile/veteran_status/veteran_status_200', match_requests_on: [:method]) do
           response = subject.get_veteran_status
           expect(response).to be_ok
         end
       end
 
       it 'gives me the right values back' do
-        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: [:method]) do
+        VCR.use_cassette('va_profile/veteran_status/veteran_status_200', match_requests_on: [:method]) do
           response = subject.get_veteran_status
           expect(response.title38_status_code.title38_status_code).to eq('V1')
         end
