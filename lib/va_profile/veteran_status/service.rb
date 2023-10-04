@@ -31,6 +31,7 @@ module VAProfile
       rescue Common::Client::Errors::ClientError => e
         handle_client_error(e)
       rescue => e
+        binding.pry
         handle_error(e)
       end
 
