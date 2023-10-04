@@ -4,10 +4,10 @@ require 'rails_helper'
 require 'va_profile/veteran_status/service'
 
 describe VAProfile::VeteranStatus::Service, if: Flipper.enabled?(:veteran_status_updated) do
-  subject { described_class.new(user) }
 
   let(:user) { build(:user, :loa3) }
-  let(:edipi) { '384759483' }
+  let(:edipi) { '1005127153' }
+  subject { described_class.new(user) }
 
   before do
     allow(user).to receive(:edipi).and_return(edipi)
@@ -17,7 +17,7 @@ describe VAProfile::VeteranStatus::Service, if: Flipper.enabled?(:veteran_status
     context 'when an edipi exists' do
       it 'returns a valid identity path' do
         path = subject.identity_path
-        expect(path).to eq('2.16.840.1.113883.3.42.10001.100001.12/384759483%5ENI%5E200DOD%5EUSDOD')
+        expect(path).to eq('2.16.840.1.113883.3.42.10001.100001.12/1005127153%5ENI%5E200DOD%5EUSDOD')
       end
     end
   end
@@ -42,6 +42,10 @@ describe VAProfile::VeteranStatus::Service, if: Flipper.enabled?(:veteran_status
     context 'throws an error' do
       it 'gives me a 400 response' do
         VCR.use_cassette('va_profile/veteran_status/veteran_status_400_') do
+<<<<<<< HEAD
+
+=======
+>>>>>>> 751d843c0f5d093510bf2d20b1ba9db12b1a08c0
           expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
             { edipi: '384759483' },
@@ -49,10 +53,17 @@ describe VAProfile::VeteranStatus::Service, if: Flipper.enabled?(:veteran_status
             :warning
           )
           response = subject.get_veteran_status
+<<<<<<< HEAD
+
+          expect(response).not_to be_ok
+          expect(response.status).to eq(400)
+          expect(response.title38_status_code).to eq(nil)
+=======
           expect(response).not_to be_ok
           expect(response.status).to eq(400)
           expect(response.title38_status_code).to eq(nil)
           expect(response).to raise_error(VAProfile::VeteranStatus::VAProfileError)
+>>>>>>> 751d843c0f5d093510bf2d20b1ba9db12b1a08c0
         end
       end
 
@@ -69,7 +80,10 @@ describe VAProfile::VeteranStatus::Service, if: Flipper.enabled?(:veteran_status
           expect(response).not_to be_ok
           expect(response.status).to eq(404)
           expect(response.title38_status_code).to eq(nil)
+<<<<<<< HEAD
+=======
           expect(response).to raise_error(VAProfile::VeteranStatus::VAProfileError)
+>>>>>>> 751d843c0f5d093510bf2d20b1ba9db12b1a08c0
         end
       end
 
