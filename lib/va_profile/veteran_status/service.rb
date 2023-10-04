@@ -26,7 +26,7 @@ module VAProfile
         with_monitoring do
           edipi_present!
           response = perform(:post, identity_path, VAProfile::Models::VeteranStatus.in_json)
-          VeteranStatusResponse.from(response)
+          VeteranStatusResponse.from(@current_user, response)
         end
       rescue Common::Client::Errors::ClientError => e
         handle_client_error(e)
@@ -62,10 +62,14 @@ module VAProfile
       private
 
       def handle_client_error(e)
-        additional_params = { edipi: @user&.identity&.edipi }
+
+        additional_params = { edipi: @user&.edipi }
         if e.status == 404
           log_exception_to_sentry(
-            e, additional_params, { va_profile: :veteran_status_title_not_found }, :warning
+            e,
+            additional_params,
+            { va_profile: :veteran_status_title_not_found },
+            :warning
           )
           raise VAProfile::VeteranStatus::VAProfileError.new(status: 404)
         elsif e.status >= 400 && e.status < 500
@@ -74,12 +78,13 @@ module VAProfile
           )
           raise VAProfile::VeteranStatus::VAProfileError.new(status: e.status)
         end
-
+      rescue => e
         handle_error(e)
       end
 
       def edipi_present!
-        raise 'User does not have a valid edipi' if @user&.identity&.edipi.blank?
+        raise 'User does not have a valid edipi' if @user&.edipi.blank?
+        # raise 'User does not have a valid edipi' if @user&.identity&.edipi.blank?
       end
 
       def edipi_with_aaid

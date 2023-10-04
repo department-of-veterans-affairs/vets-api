@@ -8,7 +8,7 @@ http_interactions:
         string: '{"bios":[{"bioPath":"militaryPerson.militarySummary"}]}'
       headers:
         User-Agent:
-          - Faraday v2.7.10
+          - Faraday v0.17.6
         Content-Type:
           - application/json
         Accept-Encoding:
