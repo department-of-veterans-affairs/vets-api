@@ -60,7 +60,7 @@ module MobileApplicationPlatform
           request: request_options
         ) do |conn|
           conn.use :breakers
-          conn.response :betamocks if Settings.mobile_application_platform.sus.mock
+          conn.response :betamocks if Settings.mobile_application_platform.sign_up_service.mock
           conn.use Faraday::Response::RaiseError
           conn.adapter Faraday.default_adapter
         end
