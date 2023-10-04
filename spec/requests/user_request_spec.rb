@@ -8,7 +8,7 @@ RSpec.describe 'Fetching user data' do
   context 'GET /v0/user - when an LOA 3 user is logged in' do
     let(:mhv_user) { build(:user, :mhv) }
     let(:v0_user_request_headers) { {} }
-    let(:edipi) { '384759483' }
+    let(:edipi) { '1005127153' }
 
     before do
       allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
@@ -184,7 +184,7 @@ RSpec.describe 'Fetching user data' do
 
   context 'GET /v0/user - when an LOA 1 user is logged in', :skip_mvi do
     let(:v0_user_request_headers) { {} }
-    let(:edipi) { '384759483' }
+    let(:edipi) { '1005127153' }
 
     before do
       user = new_user(:loa1)
@@ -243,7 +243,7 @@ RSpec.describe 'Fetching user data' do
 
   context 'GET /v0/user - MVI Integration', :skip_mvi do
     let(:user) { create(:user, :loa3, :no_mpi_profile, icn: SecureRandom.uuid) }
-    let(:edipi) { '384759483' }
+    let(:edipi) { '1005127153' }
 
     before do
       VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
@@ -315,7 +315,7 @@ RSpec.describe 'Fetching user data' do
 
     context 'when breakers is used' do
       let(:user2) { create(:user, :loa3, :no_mpi_profile, icn: SecureRandom.uuid) }
-      let(:edipi) { '384759483' }
+      let(:edipi) { '1005127153' }
 
       before do
         allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
