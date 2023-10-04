@@ -4,9 +4,10 @@ require 'rails_helper'
 require 'va_profile/veteran_status/service'
 
 describe VAProfile::VeteranStatus::Service, if: Flipper.enabled?(:veteran_status_updated) do
+  subject { described_class.new(user) }
+
   let(:user) { build(:user, :loa3) }
   let(:edipi) { '1005127153' }
-  subject { described_class.new(user) }
 
   before do
     allow(user).to receive(:edipi).and_return(edipi)
@@ -59,7 +60,7 @@ describe VAProfile::VeteranStatus::Service, if: Flipper.enabled?(:veteran_status
             { va_profile: :client_error_related_to_title38 },
             :warning
           )
-         expect { subject.get_veteran_status }.to raise_error(VAProfile::VeteranStatus::VAProfileError)
+          expect { subject.get_veteran_status }.to raise_error(VAProfile::VeteranStatus::VAProfileError)
         end
       end
 
@@ -71,7 +72,7 @@ describe VAProfile::VeteranStatus::Service, if: Flipper.enabled?(:veteran_status
             { va_profile: :veteran_status_title_not_found },
             :warning
           )
-         expect { subject.get_veteran_status }.to raise_error(VAProfile::VeteranStatus::VAProfileError)
+          expect { subject.get_veteran_status }.to raise_error(VAProfile::VeteranStatus::VAProfileError)
         end
       end
 
