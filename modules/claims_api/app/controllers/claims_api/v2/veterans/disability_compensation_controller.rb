@@ -71,6 +71,8 @@ module ClaimsApi
             auto_claim.save!
             ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Uploaded 526EZ PDF to S3')
             ::Common::FileHelpers.delete_file_if_exists(path)
+            ClaimsApi::ClaimUploader.perform_async(auto_claim.id)
+            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Uploaded 526EZ PDF to VBMS')
           end
           get_benefits_documents_auth_token unless Rails.env.test?
 
