@@ -14,7 +14,7 @@ module CentralMail
 
     sidekiq_options retry: false
 
-    attr_reader :claim, :form_686c_path, :form_674_path, :attachment_paths
+    attr_reader :claim, :form_path, :attachment_paths
 
     class CentralMailResponseError < StandardError; end
 
@@ -33,18 +33,14 @@ module CentralMail
       claim.add_veteran_info(vet_info)
 
       # process the main pdf record and the attachments as we would for a vbms submission
-      @form_686c_path = process_pdf(claim.to_pdf(form_id: '686C-674')) if claim.submittable_686?
-      @form_674_path = process_pdf(claim.to_pdf(form_id: '21-674')) if claim.submittable_674?
-
+      form_674_path = process_pdf(claim.to_pdf(form_id: '21-674')) if claim.submittable_674?
+      form_686c_path = process_pdf(claim.to_pdf(form_id: '686C-674')) if claim.submittable_686?
+      @form_path = form_686c_path || form_674_path
       @attachment_paths = claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf) }
+      # Treat 674 as first attachment
+      attachment_paths.insert(0, form_674_path) if form_686c_path.present? && form_674_path.present?
 
-      # upload with the request body (adapted from submit_saved_claim_job.rb)
-      response = CentralMail::Service.new.upload(create_request_body)
-      File.delete(form_686c_path) if form_686c_path.present?
-      File.delete(form_674_path) if form_674_path.present?
-      attachment_paths.each { |p| File.delete(p) }
-
-      check_success(response, saved_claim_id, user_struct)
+      check_success(CentralMail::Service.new.upload(create_request_body), saved_claim_id, user_struct)
     rescue => e
       # if we fail, update the associated central mail record to failed and send the user the failure email
       Rails.logger.warn('CentralMail::SubmitCentralForm686cJob failed!',
@@ -52,6 +48,13 @@ module CentralMail
       update_submission('failed')
       DependentsApplicationFailureMailer.build(OpenStruct.new(user_struct)).deliver_now if user_struct['email'].present?
       raise
+    ensure
+      cleanup_file_paths
+    end
+
+    def cleanup_file_paths
+      File.delete(form_path)
+      attachment_paths.each { |p| File.delete(p) }
     end
 
     def check_success(response, saved_claim_id, user_struct)
@@ -63,6 +66,8 @@ module CentralMail
         update_submission('success')
         send_confirmation_email(OpenStruct.new(user_struct))
       else
+        Rails.logger.info('CentralMail::SubmitCentralForm686cJob Unsuccessful',
+                          { response: response.body })
         raise CentralMailResponseError
       end
     end
@@ -71,15 +76,10 @@ module CentralMail
       body = {
         'metadata' => generate_metadata.to_json
       }
+
+      body['document'] = to_faraday_upload(form_path)
+
       i = 0
-
-      if form_686c_path.present?
-        body['document'] = to_faraday_upload(form_686c_path)
-        body["attachment#{i += 1}"] = to_faraday_upload(form_674_path) if form_674_path.present?
-      else
-        body['document'] = to_faraday_upload(form_674_path)
-      end
-
       attachment_paths.each do |file_path|
         body["attachment#{i += 1}"] = to_faraday_upload(file_path)
       end
@@ -115,39 +115,38 @@ module CentralMail
       }
     end
 
-    # rubocop:disable Metrics/MethodLength
     def generate_metadata
       form = claim.parsed_form['dependents_application']
-      form_pdf_metadata = get_hash_and_pages(form_686c_path || form_674_path)
-      number_attachments = attachment_paths.size
-      veteran_full_name = form['veteran_information']['full_name']
+      form_pdf_metadata = get_hash_and_pages(form_path)
       address = form['veteran_contact_information']['veteran_address']
       receive_date = claim.created_at.in_time_zone('Central Time (US & Canada)')
-
       metadata = {
-        'veteranFirstName' => veteran_full_name['first'],
-        'veteranLastName' => veteran_full_name['last'],
+        'veteranFirstName' => form['veteran_information']['full_name']['first'],
+        'veteranLastName' => form['veteran_information']['full_name']['last'],
         'fileNumber' => form['veteran_information']['file_number'] || form['veteran_information']['ssn'],
         'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => claim.guid,
         'zipCode' => address['country_name'] == 'USA' ? address['zip_code'] : FOREIGN_POSTALCODE,
         'source' => 'va.gov',
         'hashV' => form_pdf_metadata[:hash],
-        'numberAttachments' => number_attachments,
+        'numberAttachments' => attachment_paths.size,
         'docType' => claim.form_id,
         'numberPages' => form_pdf_metadata[:pages]
       }
-
-      attachment_paths.each_with_index do |file_path, i|
-        j = i + 1
-        attachment_pdf_metadata = get_hash_and_pages(file_path)
-        metadata["ahash#{j}"] = attachment_pdf_metadata[:hash]
-        metadata["numberPages#{j}"] = attachment_pdf_metadata[:pages]
-      end
-
-      metadata
+      metadata.merge(generate_attachment_metadata(attachment_paths))
     end
-    # rubocop:enable Metrics/MethodLength
+
+    def generate_attachment_metadata(attachment_paths)
+      attachment_metadata = {}
+      i = 0
+      attachment_paths.each do |file_path|
+        i += 1
+        attachment_pdf_metadata = get_hash_and_pages(file_path)
+        attachment_metadata["ahash#{i}"] = attachment_pdf_metadata[:hash]
+        attachment_metadata["numberPages#{i}"] = attachment_pdf_metadata[:pages]
+      end
+      attachment_metadata
+    end
 
     def send_confirmation_email(user)
       return if user.va_profile_email.blank?

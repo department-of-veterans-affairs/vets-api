@@ -171,7 +171,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
 
       before do
         job.instance_variable_set('@claim', claim)
-        job.instance_variable_set('@form_686c_path', 'pdf_path')
+        job.instance_variable_set('@form_path', 'pdf_path')
         job.instance_variable_set('@attachment_paths', ['attachment_path'])
 
         expect(Digest::SHA256).to receive(:file).with('pdf_path').and_return(
