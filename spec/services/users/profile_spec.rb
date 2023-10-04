@@ -31,9 +31,14 @@ RSpec.describe Users::Profile do
   describe '#pre_serialize' do
     subject { Users::Profile.new(user).pre_serialize }
 
+    let(:edipi) { '1005127153' }
     let(:profile) { subject.profile }
     let(:va_profile) { subject.va_profile }
     let(:veteran_status) { subject.veteran_status }
+
+    before do
+      allow(user).to receive(:edipi).and_return(edipi)
+    end
 
     it 'does not include ssn anywhere', :aggregate_failures do
       expect(subject.try(:ssn)).to be_nil
