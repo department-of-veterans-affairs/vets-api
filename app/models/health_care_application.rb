@@ -59,6 +59,8 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_sync
+    override_parsed_form
+
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
     rescue Common::Client::Errors::ClientError => e
@@ -227,6 +229,8 @@ class HealthCareApplication < ApplicationRecord
     submission_job = 'SubmissionJob'
     submission_job = "Anon#{submission_job}" unless has_email
 
+    override_parsed_form
+
     "HCA::#{submission_job}".constantize.perform_async(
       self.class.get_user_identifier(user),
       HealthCareApplication::LOCKBOX.encrypt(parsed_form.to_json),
@@ -262,5 +266,10 @@ class HealthCareApplication < ApplicationRecord
 
   def send_failure_mail
     HCASubmissionFailureMailer.build(parsed_form['email'], google_analytics_client_id).deliver_now
+  end
+
+  def override_parsed_form
+    override_parser = HCA::OverridesParser.new(parsed_form)
+    @parsed_form = override_parser.override
   end
 end
