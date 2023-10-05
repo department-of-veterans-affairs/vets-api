@@ -960,10 +960,7 @@
     - :method: :put
       :path: "/signup/v1/patients/*/provisioning/cerner"
       :file_path: "map/sign_up_service/update_provisioning"
-<<<<<<< HEAD
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/signup\/v1\/patients\/(\d{10}[V]\d{6})\/provisioning\/cerner'
 
-=======
->>>>>>> e389a4082 (Adding new line at the end of the file)
