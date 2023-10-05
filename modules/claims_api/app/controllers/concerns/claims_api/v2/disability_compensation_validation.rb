@@ -47,7 +47,7 @@ module ClaimsApi
         change_of_address = form_attributes['changeOfAddress']
         coa_begin_date = change_of_address&.dig('dates', 'beginDate') # we can have a valid form without an endDate
         coa_type_of_address_change = change_of_address&.dig('typeOfAddressChange')
-        coa_number_and_street = change_of_address&.dig('numberAndStreet')
+        coa_number_and_street = change_of_address&.dig('addressLine1')
         coa_country = change_of_address&.dig('country')
 
         form_object_desc = 'change of address'
