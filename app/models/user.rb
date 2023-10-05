@@ -343,7 +343,18 @@ class User < Common::RedisStore
     super
   end
 
-  %w[military_information payment].each do |emis_method|
+  military_information_method = 'military_information'
+  define_method(military_information_method) do
+    model = instance_variable_get(:"@#{military_information_method}")
+    return model if model.present?
+
+    form_profile = FormProfile.new(form_id: nil, user: self)
+    model = form_profile.initialize_military_information
+    instance_variable_set(:"@#{military_information_method}", model)
+    model
+  end
+
+  %w[veteran_status payment].each do |emis_method|
     define_method(emis_method) do
       emis_model = instance_variable_get(:"@#{emis_method}")
       return emis_model if emis_model.present?
@@ -353,6 +364,17 @@ class User < Common::RedisStore
       emis_model
     end
   end
+
+  # veteran_status_method = 'veteran_status'
+  # define_method(veteran_status_method) do
+  #   veteran_status_instance = instance_variable_get(:"@#{veteran_status_method}")
+  #   return veteran_status_instance if veteran_status_instance.present?
+
+  #   veteran_status_instance = VeteranStatus.title38_status
+  #   instance_variable_set(:"@#{veteran_status_method}", veteran_status_instance)
+  #   veteran_status_instance
+  # end
+
 
   def veteran_status
     if Flipper.enabled?(:veteran_status_updated)

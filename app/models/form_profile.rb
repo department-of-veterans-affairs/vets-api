@@ -4,6 +4,7 @@ require 'string_helpers'
 require 'sentry_logging'
 require 'va_profile/configuration'
 require 'hca/military_information'
+require 'va_profile/prefill/military_information'
 
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
@@ -25,7 +26,7 @@ end
 class FormMilitaryInformation
   include Virtus.model
 
-  attribute :post_nov_1998_combat, Boolean
+  attribute :service_episodes_by_date, Array
   attribute :last_service_branch, String
   attribute :hca_last_service_branch, String
   attribute :last_entry_date, String
@@ -35,12 +36,10 @@ class FormMilitaryInformation
   attribute :sw_asia_combat, Boolean
   attribute :compensable_va_service_connected, Boolean
   attribute :is_va_service_connected, Boolean
-  attribute :receives_va_pension, Boolean
   attribute :tours_of_duty, Array
   attribute :currently_active_duty, Boolean
   attribute :currently_active_duty_hash, Hash
   attribute :va_compensation_type, String
-  attribute :vic_verified, Boolean
   attribute :service_branches, Array[String]
   attribute :service_periods, Array
   attribute :guard_reserve_service_history, Array[FormDate]
@@ -89,7 +88,7 @@ class FormProfile
   include Virtus.model
   include SentryLogging
 
-  EMIS_PREFILL_KEY = 'emis_prefill'
+  # EMIS_PREFILL_KEY = 'emis_prefill'
 
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
@@ -204,20 +203,24 @@ class FormProfile
     { form_data:, metadata: }
   end
 
+  def initialize_military_information
+    return {} unless user.authorize :va_profile, :access?
+
+    FormMilitaryInformation.new(initialize_hca_military_information
+                                .merge(initialize_va_profile_prefill_military_information))
+  end
+
   private
 
-  def initialize_military_information_vaprofile
-    military_information_data = {}
+  def initialize_hca_military_information
     military_information = HCA::MilitaryInformation.new(user)
 
-    HCA::MilitaryInformation::PREFILL_METHODS.each do |attr|
-      military_information_data[attr] = military_information.public_send(attr)
+    HCA::MilitaryInformation::PREFILL_METHODS.index_with do |attr|
+      military_information.public_send(attr)
     end
-
-    military_information_data
   rescue => e
     if Rails.env.production?
-      log_exception_to_sentry(e, {}, prefill: :vaprofile_military)
+      log_exception_to_sentry(e, {}, prefill: :hca_military_information)
 
       {}
     else
@@ -225,32 +228,20 @@ class FormProfile
     end
   end
 
-  def initialize_military_information
-    return {} unless user.authorize :va_profile, :access?
+  def initialize_va_profile_prefill_military_information
+    military_information = VAProfile::Prefill::MilitaryInformation.new(user)
 
-    military_information = user.military_information
-    military_information_data = {}
-
-    military_information_data.merge!(initialize_military_information_vaprofile) if Flipper.enabled?(
-      :hca_vaprofile_military_info, user
-    )
-
-    military_information_data[:vic_verified] = user.can_access_id_card?
-
-    begin
-      EMISRedis::MilitaryInformation::PREFILL_METHODS.each do |attr|
-        military_information_data[attr] = military_information.public_send(attr) if military_information_data[attr].nil?
-      end
-    rescue => e
-      if Rails.env.production?
-        # fail silently if emis is down
-        log_exception_to_sentry(e, {}, external_service: :emis)
-      else
-        raise e
-      end
+    VAProfile::Prefill::MilitaryInformation::PREFILL_METHODS.index_with do |attr|
+      military_information.public_send(attr)
     end
+  rescue => e
+    if Rails.env.production?
+      log_exception_to_sentry(e, {}, prefill: :va_profile_prefill_military_information)
 
-    FormMilitaryInformation.new(military_information_data)
+      {}
+    else
+      raise e
+    end
   end
 
   def initialize_identity_information
