@@ -75,7 +75,7 @@ module Lighthouse
       end
 
       def get_observation(id)
-        perform_get('services/fhir/v0/r4/Observation', id:)
+        perform_get("services/fhir/v0/r4/Observation/#{id}")
       end
 
       def list_medication_requests
