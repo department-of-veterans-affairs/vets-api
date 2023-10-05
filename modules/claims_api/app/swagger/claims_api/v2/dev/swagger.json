@@ -1360,25 +1360,39 @@
                             "type": "object",
                             "additionalProperties": false,
                             "required": [
-                              "numberAndStreet",
+                              "addressLine1",
                               "city",
                               "state",
                               "zipFirstFive",
                               "country"
                             ],
                             "properties": {
-                              "numberAndStreet": {
-                                "description": "Address Veteran resides in.",
+                              "addressLine1": {
+                                "description": "Address Line 1 for the Veteran's current mailing address.",
                                 "type": "string",
                                 "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                "maxLength": 30,
+                                "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
-                              "apartmentOrUnitNumber": {
-                                "description": "Apartment or unit number for the address where the Veteran resides.",
-                                "type": "string",
-                                "maxLength": 5,
-                                "example": "22"
+                              "addressLine2": {
+                                "description": "Address Line 2 for the Veteran's current mailing address.",
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "maxLength": 20,
+                                "example": "Unit 4",
+                                "nullable": true
+                              },
+                              "addressLine3": {
+                                "description": "Address Line 3 for the Veteran's current mailing address.",
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "maxLength": 20,
+                                "example": "Room 1",
+                                "nullable": true
                               },
                               "city": {
                                 "description": "City Veteran resides in.",
@@ -1445,18 +1459,32 @@
                             ],
                             "example": "PERMANENT"
                           },
-                          "numberAndStreet": {
-                            "description": "Number and street, rural route, or P.O. Box for the Veteran's new address.",
+                          "addressLine1": {
+                            "description": "Address Line 1 for the Veteran's new address.",
                             "type": "string",
                             "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                            "maxLength": 30,
+                            "maxLength": 20,
                             "example": "1234 Couch Street"
                           },
-                          "apartmentOrUnitNumber": {
-                            "description": "New Additional Address Information Veteran resides in.",
-                            "type": "string",
-                            "maxLength": 5,
-                            "example": "22"
+                          "addressLine2": {
+                            "description": "Address Line 2 for the Veteran's new address.",
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "maxLength": 20,
+                            "example": "Unit 4",
+                            "nullable": true
+                          },
+                          "addressLine3": {
+                            "description": "Address Line 3 for the Veteran's new address.",
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "maxLength": 20,
+                            "example": "Room 1",
+                            "nullable": true
                           },
                           "city": {
                             "description": "City for the Veteran's new address.",
@@ -2367,26 +2395,41 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "numberAndStreet",
+                                  "addressLine1",
                                   "city",
                                   "state",
                                   "zipFirstFive",
                                   "country"
                                 ],
                                 "properties": {
-                                  "numberAndStreet": {
-                                    "description": "Number and street, rural route, or P.O. Box for the Veteran's current mailing address.",
+                                  "addressLine1": {
+                                    "description": "Address Line 1 for the Veteran's current mailing address.",
                                     "type": "string",
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 30,
+                                    "maxLength": 20,
                                     "example": "1234 Couch Street"
                                   },
-                                  "apartmentOrUnitNumber": {
-                                    "description": "Apartment or unit number for the Veteran's current mailing address.",
-                                    "type": "string",
+                                  "addressLine2": {
+                                    "description": "Address Line 2 for the Veteran's current mailing address.",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
                                     "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                    "maxLength": 5,
-                                    "example": "22"
+                                    "maxLength": 20,
+                                    "example": "Unit 4",
+                                    "nullable": true
+                                  },
+                                  "addressLine3": {
+                                    "description": "Address Line 3 for the Veteran's current mailing address.",
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+                                    "maxLength": 20,
+                                    "example": "Room 1",
+                                    "nullable": true
                                   },
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
@@ -2451,18 +2494,32 @@
                                 ],
                                 "example": "PERMANENT"
                               },
-                              "numberAndStreet": {
-                                "description": "Number and street, rural route, or P.O. Box for the Veteran's new address.",
+                              "addressLine1": {
+                                "description": "Address Line 1 for the Veteran's new address.",
                                 "type": "string",
                                 "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-                                "maxLength": 30,
+                                "maxLength": 20,
                                 "example": "1234 Couch Street"
                               },
-                              "apartmentOrUnitNumber": {
-                                "description": "Apartment or unit number for the Veteran's new address.",
-                                "type": "string",
-                                "maxLength": 5,
-                                "example": "22"
+                              "addressLine2": {
+                                "description": "Address Line 2 for the Veteran's new address.",
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "maxLength": 20,
+                                "example": "Unit 4",
+                                "nullable": true
+                              },
+                              "addressLine3": {
+                                "description": "Address Line 3 for the Veteran's new address.",
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "maxLength": 20,
+                                "example": "Room 1",
+                                "nullable": true
                               },
                               "city": {
                                 "description": "City for the Veteran's new address.",
@@ -3325,8 +3382,9 @@
                       "veteranIdentification": {
                         "currentVaEmployee": false,
                         "mailingAddress": {
-                          "numberAndStreet": "1234 Couch Street",
-                          "apartmentOrUnitNumber": "22",
+                          "addressLine1": "1234 Couch Street",
+                          "addressLine2": "Unit 4",
+                          "addressLine3": "Room 1",
                           "city": "Portland",
                           "country": "USA",
                           "zipFirstFive": "41726",
@@ -3348,8 +3406,9 @@
                           "endDate": "10-11-2025"
                         },
                         "typeOfAddressChange": "TEMPORARY",
-                        "numberAndStreet": "10 Peach St",
-                        "apartmentOrUnitNumber": "22",
+                        "addressLine1": "10 Peach St",
+                        "addressLine2": "Unit 4",
+                        "addressLine3": "Room 1",
                         "city": "Atlanta",
                         "zipFirstFive": "42220",
                         "zipLastFour": "9897",
@@ -4117,8 +4176,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-09-19",
-                      "expirationDate": "2024-09-19",
+                      "creationDate": "2023-10-04",
+                      "expirationDate": "2024-10-04",
                       "type": "compensation",
                       "status": "active"
                     }
