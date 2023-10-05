@@ -9,7 +9,9 @@ module DecisionReview
 
     STATSD_KEY_PREFIX = 'worker.decision_review.form4142_submit'
 
-    sidekiq_options retry: 3
+    # 13 retries equates to roughly 1 day using exponential backoff, which should
+    # be long enough to resolve transient errors like temporary Central Mail outages.
+    sidekiq_options retry: 13
 
     def decrypt_form(encrypted_payload)
       JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_payload))
