@@ -89,9 +89,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         country = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:country]
         zip = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:zip]
         state = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:state]
-
-        expect(number_and_street).to eq('1234 Couch Street')
-        expect(apartment_or_unit_number).to eq('22')
+        expect(number_and_street).to eq('1234 Couch Street Unit 4 Room 1')
+        expect(apartment_or_unit_number).to eq(nil)
         expect(city).to eq('Portland')
         expect(country).to eq('US')
         expect(zip).to eq('41726-1234')
@@ -144,8 +143,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(begin_date).to eq({ month: '11', day: '30', year: '2012' })
         expect(end_date).to eq({ month: '10', day: '11', year: '2013' })
         expect(type_of_addr_change).to eq('TEMPORARY')
-        expect(number_and_street).to eq('10 Peach St')
-        expect(apartment_or_unit_number).to eq('22')
+        expect(number_and_street).to eq('10 Peach St Unit 4 Room 1')
+        expect(apartment_or_unit_number).to eq(nil)
         expect(city).to eq('Atlanta')
         expect(country).to eq('US')
         expect(zip).to eq('42220-9897')
@@ -329,7 +328,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(recent_end).to eq({ month: '11', day: '30', year: '1991' })
         expect(addtl_start).to eq({ month: '11', day: '14', year: '1980' })
         expect(addtl_end).to eq({ month: '11', day: '30', year: '1991' })
-        expect(last_sep).to eq('ABCDEFGHIJKLMN')
+        expect(last_sep).to eq('98282')
         expect(pow).to eq('YES')
         expect(pow_start).to eq({ month: '06', day: '04', year: '2018' })
         expect(pow_end).to eq({ month: '06', day: '04', year: '2018' })

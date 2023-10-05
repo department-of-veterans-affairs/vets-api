@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
   include JsonSchemaMatchers
 
-  let(:user) { build(:disabilities_compensation_user) }
+  let!(:user) { sis_user(icn: '1008596379V859838') }
   let(:expected_single_response) do
     {
       'data' => {
@@ -69,8 +69,6 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
     allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
     token = 'blahblech'
     allow_any_instance_of(VeteranVerification::Configuration).to receive(:access_token).and_return(token)
-    sign_in_as(user)
-
     Flipper.enable(:mobile_lighthouse_disability_rating, user)
   end
 
@@ -82,7 +80,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
         it 'matches the rated disabilities schema' do
           VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
             VCR.use_cassette('mobile/lighthouse_disability_rating/200_individual_response') do
-              get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+              get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
               expect(response).to have_http_status(:ok)
               expect(JSON.parse(response.body)).to eq(expected_single_response)
               expect(response.body).to match_json_schema('disability_rating_response')
@@ -95,7 +93,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
         it 'matches the rated disabilities schema' do
           VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
             VCR.use_cassette('mobile/lighthouse_disability_rating/200_multiple_response') do
-              get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+              get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
               expect(response).to have_http_status(:ok)
               expect(JSON.parse(response.body)).to eq(expected_multiple_response)
               expect(response.body).to match_json_schema('disability_rating_response')
@@ -108,7 +106,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
         it 'matches the rated disabilities schema' do
           VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
             VCR.use_cassette('mobile/lighthouse_disability_rating/200_no_individual_response') do
-              get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+              get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
               expect(response).to have_http_status(:ok)
               expect(JSON.parse(response.body)).to eq(expected_no_individual_rating_response)
               expect(response.body).to match_json_schema('disability_rating_response')
@@ -122,7 +120,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       before do
         VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
           VCR.use_cassette('mobile/lighthouse_disability_rating/200_Not_Connected_response') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
           end
         end
       end
@@ -156,7 +154,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a bad gateway response' do
         VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
           VCR.use_cassette('mobile/lighthouse_disability_rating/500_response') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:internal_server_error)
             expect(response.body).to match_json_schema('lighthouse_errors')
             expect(response.parsed_body).to eq({ 'errors' =>
@@ -178,7 +176,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a bad gateway response' do
         VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
           VCR.use_cassette('mobile/lighthouse_disability_rating/502_response') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:bad_gateway)
             expect(response.body).to match_json_schema('lighthouse_errors')
             expect(response.parsed_body).to eq({ 'errors' =>
@@ -197,7 +195,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a bad gateway response' do
         VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
           VCR.use_cassette('mobile/lighthouse_disability_rating/503_response') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:service_unavailable)
             expect(response.body).to match_json_schema('lighthouse_errors')
             expect(response.parsed_body).to eq({ 'errors' =>
@@ -214,7 +212,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a not found response' do
         VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
           VCR.use_cassette('mobile/lighthouse_disability_rating/400_response') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:bad_request)
             expect(response.body).to match_json_schema('lighthouse_errors')
             expect(response.parsed_body).to eq({ 'errors' =>
@@ -235,7 +233,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a 401 response' do
         VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
           VCR.use_cassette('mobile/lighthouse_disability_rating/401_response') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:unauthorized)
             expect(response.body).to match_json_schema('lighthouse_errors')
             expect(response.parsed_body).to eq({ 'errors' =>
@@ -255,7 +253,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a forbidden response' do
         VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
           VCR.use_cassette('mobile/lighthouse_disability_rating/403_response') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:forbidden)
             expect(response.body).to match_json_schema('lighthouse_errors')
             expect(response.parsed_body).to eq({ 'errors' =>
@@ -275,7 +273,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a not found response' do
         VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
           VCR.use_cassette('mobile/lighthouse_disability_rating/404_ICN_response') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:not_found)
             expect(response.body).to match_json_schema('lighthouse_errors')
             expect(response.parsed_body).to eq({ 'errors' =>
@@ -292,7 +290,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a not found response' do
         VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
           VCR.use_cassette('mobile/lighthouse_disability_rating/405_response') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:method_not_allowed)
             expect(response.body).to match_json_schema('lighthouse_errors')
             expect(response.parsed_body).to eq({ 'errors' =>
@@ -311,7 +309,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a not found response' do
         VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
           VCR.use_cassette('mobile/lighthouse_disability_rating/413_response') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:payload_too_large)
             expect(response.body).to match_json_schema('lighthouse_errors')
             expect(response.parsed_body).to eq({ 'errors' =>
@@ -329,7 +327,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a not found response' do
         VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
           VCR.use_cassette('mobile/lighthouse_disability_rating/429_response') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:too_many_requests)
             expect(response.body).to match_json_schema('lighthouse_errors')
             expect(response.parsed_body).to eq({ 'errors' =>

@@ -8,7 +8,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
   before do
     stub_mpi
-    stub_jwt_valid_token_decode
+
     Timecop.freeze(Time.zone.now)
     allow_any_instance_of(ClaimsApi::EVSSService::Base).to receive(:submit).and_return OpenStruct.new(claimId: 1337)
     # evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
@@ -315,8 +315,9 @@ RSpec.describe 'Disability Claims', type: :request do
                   endDate: ''
                 },
                 typeOfAddressChange: 'PERMANENT',
-                numberAndStreet: '10 Peach St',
-                apartmentOrUnitNumber: '22',
+                addressLine1: '10 Peach St',
+                addressLine2: 'Unit 4',
+                addressLine3: 'Room 1',
                 city: 'Atlanta',
                 zipFirstFive: '42220',
                 zipLastFour: '',
@@ -344,8 +345,9 @@ RSpec.describe 'Disability Claims', type: :request do
                   endDate: ''
                 },
                 typeOfAddressChange: 'PERMANENT',
-                numberAndStreet: '',
-                apartmentOrUnitNumber: '22',
+                addressLine1: '',
+                addressLine2: 'Unit 4',
+                addressLine3: 'Room 1',
                 city: '',
                 zipFirstFive: '42220',
                 zipLastFour: '',
@@ -377,8 +379,9 @@ RSpec.describe 'Disability Claims', type: :request do
                   endDate: ''
                 },
                 typeOfAddressChange: 'PERMANENT',
-                numberAndStreet: '10 Peach St',
-                apartmentOrUnitNumber: '',
+                addressLine1: '10 Peach St',
+                addressLine2: '',
+                addressLine3: '',
                 city: '',
                 zipFirstFive: '42220',
                 zipLastFour: '',
@@ -410,8 +413,9 @@ RSpec.describe 'Disability Claims', type: :request do
                   endDate: ''
                 },
                 typeOfAddressChange: 'PERMANENT',
-                numberAndStreet: '10 Peach St',
-                apartmentOrUnitNumber: '22',
+                addressLine1: '10 Peach St',
+                addressLine2: '22',
+                addressLine3: '',
                 city: 'Atlanta',
                 zipFirstFive: '42220',
                 zipLastFour: '',
@@ -443,8 +447,9 @@ RSpec.describe 'Disability Claims', type: :request do
                   endDate: ''
                 },
                 typeOfAddressChange: '',
-                numberAndStreet: '10 Peach St',
-                apartmentOrUnitNumber: '22',
+                addressLine1: '10 Peach St',
+                addressLine2: '22',
+                addressLine3: '',
                 city: 'Atlanta',
                 zipFirstFive: '42220',
                 zipLastFour: '',
