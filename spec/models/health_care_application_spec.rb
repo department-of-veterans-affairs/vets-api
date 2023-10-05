@@ -341,6 +341,24 @@ RSpec.describe HealthCareApplication, type: :model do
       health_care_application.process!
     end
 
+    describe '#parsed_form overrides' do
+      before do
+        health_care_application.parsed_form.tap do |form|
+          form['veteranAddress']['country'] = 'MEX'
+          form['veteranAddress']['state'] = 'aguascalientes'
+        end
+      end
+
+      it 'sets the proper abbreviation for states in Mexico' do
+        expect(health_care_application).to receive(:prefill_fields)
+
+        health_care_application.process!
+
+        form = health_care_application.parsed_form
+        expect(form['veteranAddress']['state']).to eq('AGS.')
+      end
+    end
+
     context 'with an invalid record' do
       it 'adds user loa to extra context' do
         expect(Raven).to receive(:extra_context).with(user_loa: { current: 1, highest: 3 })
@@ -417,6 +435,7 @@ RSpec.describe HealthCareApplication, type: :model do
           ).with(health_care_application.send(:parsed_form)).and_return(
             result
           )
+
           expect(health_care_application.process!).to eq(result)
         end
 
