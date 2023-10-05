@@ -19,7 +19,49 @@ module Sidekiq
       extend ActiveSupport::Concern
       include SentryLogging
       include Sidekiq::Job
+
       sidekiq_options retry: 3
+      STATSD_KEY = 'worker.evss.form526_backup_submission_process.exhausted'
+
+      sidekiq_retries_exhausted do |msg, _ex|
+        job_id = msg['jid']
+        error_class = msg['error_class']
+        error_message = msg['error_message']
+        timestamp = Time.now.utc
+        form526_submission_id = msg['args'].first
+
+        form_job_status = Form526JobStatus.find_by(job_id:)
+        bgjob_errors = form_job_status.bgjob_errors || {}
+        new_error = {
+          "#{timestamp.to_i}": {
+            caller_method: __method__.to_s,
+            error_class:,
+            error_message:,
+            timestamp:,
+            form526_submission_id:
+          }
+        }
+        form_job_status.update(
+          status: Form526JobStatus::STATUS[:exhausted],
+          bgjob_errors: bgjob_errors.merge(new_error)
+        )
+
+        StatsD.increment(STATSD_KEY)
+      rescue => e
+        Rails.logger.error(
+          'Failure in Form526BackupSubmission#sidekiq_retries_exhausted',
+          {
+            messaged_content: e.message,
+            job_id:,
+            submission_id: form526_submission_id,
+            pre_exhaustion_failure: {
+              error_class:,
+              error_message:
+            }
+          }
+        )
+        raise e
+      end
 
       def perform(form526_submission_id)
         return unless Settings.form526_backup.enabled
@@ -36,7 +78,7 @@ module Sidekiq
         )
         bgjob_errors = job_status.bgjob_errors || {}
         bgjob_errors.merge!(error_hash_for_job_status(e))
-        job_status.update(status: Form526JobStatus::STATUS[:exhausted], bgjob_errors:)
+        job_status.update(status: Form526JobStatus::STATUS[:retryable_error], bgjob_errors:)
         raise e
       end
 
