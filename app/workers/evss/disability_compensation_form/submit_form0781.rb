@@ -12,8 +12,8 @@ module EVSS
       attr_reader :submission_id, :evss_claim_id, :uuid
 
       wrap_with_logging(
-        :upload_to_vbms,
-        :perform_client_upload,
+        :upload_to_evss,
+        :perform_evss_client_upload,
         additional_class_logs: {
           action: 'upload form 21-0781 to EVSS'
         },
@@ -113,7 +113,7 @@ module EVSS
         @evss_claim_id = evss_claim_id
         # generate and stamp PDF file
         pdf_path0781 = generate_stamp_pdf(form_content, evss_claim_id, form_id)
-        upload ? upload_to_vbms(pdf_path0781, form_id) : pdf_path0781
+        upload ? upload_pdf(pdf_path0781, form_id) : pdf_path0781
       end
 
       # Invokes Filler ancillary form method to generate PDF document
@@ -129,6 +129,34 @@ module EVSS
           y: 775,
           text_only: true
         )
+      end
+
+      def upload_pdf(pdf_path0781, form_id)
+        if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
+          upload_to_lighthouse(pdf_path0781, form_id)
+        else
+          # Legacy EVSS path
+          upload_to_evss(pdf_path0781, form_id)
+        end
+      end
+
+      def upload_to_lighthouse(pdf_path0781, form_id)
+        submission_user = User.find(submission.user_uuid)
+
+        lighthouse_document = LighthouseDocument.new(
+          document_type: FORMS_METADATA[form_id][:docType],
+          file_name: pdf_path0781.split('/').last,
+          tracked_item_id: nil,
+          claim_id: submission.submitted_claim_id,
+          file_number: BenefitsDocuments::Service.new(submission_user).file_number || submission_user.ssn
+        )
+
+        raise Common::Exceptions::ValidationErrors, lighthouse_document unless lighthouse_document.valid?
+
+        Lighthouse::DocumentUpload.perform_async(submission_user.icn, lighthouse_document.to_serializable_hash)
+      ensure
+        # Delete the temporary PDF file
+        File.delete(pdf_path0781) if pdf_path0781.present?
       end
 
       def get_evss_claim_metadata(pdf_path, form_id)
@@ -148,7 +176,7 @@ module EVSS
         )
       end
 
-      def upload_to_vbms(pdf_path, form_id)
+      def upload_to_evss(pdf_path, form_id)
         upload_data = get_evss_claim_metadata(pdf_path, form_id)
         document_data = create_document_data(evss_claim_id, upload_data)
 
@@ -156,22 +184,18 @@ module EVSS
 
         # thin wrapper to isolate upload for logging
         file_body = File.open(pdf_path).read
-        perform_client_upload(file_body, document_data)
+        perform_evss_client_upload(file_body, document_data)
       ensure
         # Delete the temporary PDF file
         File.delete(pdf_path) if pdf_path.present?
       end
 
-      def perform_client_upload(file_body, document_data)
-        client.upload(file_body, document_data)
+      def perform_evss_client_upload(file_body, document_data)
+        evss_client.upload(file_body, document_data)
       end
 
-      def client
-        @client ||= if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
-                      # TODO: create client from lighthouse document service
-                    else
-                      EVSS::DocumentsService.new(submission.auth_headers)
-                    end
+      def evss_client
+        @evss_client ||= EVSS::DocumentsService.new(submission.auth_headers)
       end
     end
   end
