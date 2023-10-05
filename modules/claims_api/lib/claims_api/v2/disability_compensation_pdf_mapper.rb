@@ -104,10 +104,11 @@ module ClaimsApi
         )
         @pdf_data[:data][:attributes][:changeOfAddress][:effectiveDates][:end] =
           convert_date_to_object(@pdf_data[:data][:attributes][:changeOfAddress][:dates][:endDate])
-        number_and_street = @pdf_data[:data][:attributes][:changeOfAddress][:numberAndStreet]
-        @pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:numberAndStreet] = number_and_street
-        apartment_or_unit_number = @pdf_data[:data][:attributes][:changeOfAddress][:apartmentOrUnitNumber]
-        @pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:apartmentOrUnitNumber] = apartment_or_unit_number
+
+        change_addr = @pdf_data[:data][:attributes][:changeOfAddress]
+        @pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:numberAndStreet] =
+          concatenate_address(change_addr[:addressLine1], change_addr[:addressLine2], change_addr[:addressLine3])
+
         city = @pdf_data[:data][:attributes][:changeOfAddress][:city]
         @pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:city] = city
         state = @pdf_data[:data][:attributes][:changeOfAddress][:state]
@@ -116,6 +117,9 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:changeOfAddress][:dates].delete(:beginDate)
         @pdf_data[:data][:attributes][:changeOfAddress][:dates].delete(:endDate)
         @pdf_data[:data][:attributes][:changeOfAddress].delete(:dates)
+        @pdf_data[:data][:attributes][:changeOfAddress].delete(:addressLine1)
+        @pdf_data[:data][:attributes][:changeOfAddress].delete(:addressLine2)
+        @pdf_data[:data][:attributes][:changeOfAddress].delete(:addressLine3)
         @pdf_data[:data][:attributes][:changeOfAddress].delete(:numberAndStreet)
         @pdf_data[:data][:attributes][:changeOfAddress].delete(:apartmentOrUnitNumber)
         @pdf_data[:data][:attributes][:changeOfAddress].delete(:city)
@@ -245,13 +249,31 @@ module ClaimsApi
         additional_identification_info
 
         @pdf_data[:data][:attributes][:identificationInformation].delete(:veteranNumber)
+
+        mailing_address
+
+        @pdf_data[:data][:attributes].delete(:veteranIdentification)
+
+        @pdf_data
+      end
+
+      def mailing_address
+        mailing_addr = @auto_claim&.dig('veteranIdentification', 'mailingAddress')
+        @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:numberAndStreet] =
+          concatenate_address(mailing_addr['addressLine1'], mailing_addr['addressLine2'], mailing_addr['addressLine3'])
+        @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:addressLine1)
+        @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:addressLine2)
+        @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress].delete(:addressLine3)
+
         country = @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:country]
         abbr_country = country == 'USA' ? 'US' : country
         @pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:country] = abbr_country
         zip
-        @pdf_data[:data][:attributes].delete(:veteranIdentification)
+      end
 
-        @pdf_data
+      def concatenate_address(address_line_one, address_line_two, address_line_three)
+        concatted = "#{address_line_one || ''} #{address_line_two || ''} #{address_line_three || ''}"
+        concatted.strip
       end
 
       def zip
