@@ -6,6 +6,8 @@ module V0
     skip_before_action :authenticate, :verify_authenticity_token
     before_action :authenticate_service_account, :validate_account_control_params
 
+    attr_reader :account
+
     def csp_lock
       user_verification&.update!(locked: true)
 
@@ -28,37 +30,33 @@ module V0
                                                                                                       logingov].include?(type)
 
       if params[:icn].blank? && params[:csp_uuid].blank?
-        raise Common::Exceptions::ParameterMissing, 'csp_uuid',
-              'CSP UUID or ICN is required'
+        raise Common::Exceptions::ParameterMissing, 'csp_uuid', 'CSP UUID or ICN is required'
       end
     end
 
     def user_verification
       @user_verification ||= fetch_user_verification
     end
-
+    
     def fetch_user_verification
-      csp_uuid ? UserVerification.find_by!("#{type}_uuid" => csp_uuid) : fetch_verification_by_icn
+      csp_uuid.presence ? UserVerification.find_by!("#{type}_uuid" => csp_uuid) : fetch_verification_by_icn
     end
 
     def fetch_verification_by_icn
-      @account = UserAccount.find_by!(icn:)
-      verifications = UserVerification.where(user_account_id: account.id)
-      raise ActiveRecord::RecordNotFound unless verifications.exists?
+      user_verifications = UserVerification.where(user_account_id: account.id)
+      raise ActiveRecord::RecordNotFound unless user_verifications.exists?
 
-      verifications.where.not("#{type}_uuid": nil).first
+      user_verifications.where.not("#{type}_uuid": nil).first
+    end
+    
+    def account
+      @account ||= fetch_user_account
     end
 
-    def serialized_response
-      @serialized_response ||= {
-        csp_uuid: user_verification.send("#{type}_uuid"),
-        type:,
-        icn: @account&.icn || UserAccount.find(user_verification.user_account_id).icn,
-        locked: user_verification.locked,
-        updated_by: @service_account_access_token.user_identifier
-      }.compact
+    def fetch_user_account
+      icn.presence ? UserAccount.find_by!(icn:) : UserAccount.find(user_verification.user_account_id)
     end
-
+      
     def type
       @type ||= params[:type]
     end
@@ -69,6 +67,16 @@ module V0
 
     def icn
       @icn ||= params[:icn]
+    end
+
+    def serialized_response
+      @serialized_response ||= {
+        csp_uuid: user_verification.send("#{type}_uuid"),
+        type:,
+        icn: account.icn,
+        locked: user_verification.locked,
+        updated_by: @service_account_access_token&.user_identifier
+      }.compact
     end
 
     def not_found
