@@ -45,7 +45,7 @@ http_interactions:
     recorded_at: Fri, 14 Jan 2022 15:33:26 GMT
   - request:
       method: get
-      uri: https://sandbox-api.va.gov/services/fhir/v0/r4/Observation?id=I2-ILWORI4YUOUAR5H2GCH6ATEFRM000000
+      uri: https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-ILWORI4YUOUAR5H2GCH6ATEFRM000000
       body:
         encoding: US-ASCII
         string: ''
