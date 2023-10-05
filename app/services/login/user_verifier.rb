@@ -79,8 +79,7 @@ module Login
     end
 
     def validate_csp_lock
-      raise Errors::CSPLockedError if user_verification.locked == true
-
+      raise Errors::CSPLockedError, message: "#{type} credential has been locked" if user_verification.locked == true
     end
 
     def update_backing_idme_uuid
