@@ -926,3 +926,11 @@
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator:  '\/avs\/(.*)'
+
+# Security Token Service API
+- :name: "MAP STS"
+  :base_uri: <%= "#{URI(Settings.mobile_application_platform.oauth_url).host}:#{URI(Settings.mobile_application_platform.oauth_url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/sts/oauth/v1/token"
+      :file_path: "map/secure_token_service/token"
