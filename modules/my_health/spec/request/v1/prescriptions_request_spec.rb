@@ -60,7 +60,7 @@ RSpec.describe 'prescriptions', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('prescription_single')
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescription_single')
       end
 
       it 'responds to GET #show with camel-inlfection' do
@@ -70,7 +70,7 @@ RSpec.describe 'prescriptions', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('prescription_single')
+        expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescription_single')
       end
 
       it 'responds to GET #index with no parameters' do
@@ -80,7 +80,7 @@ RSpec.describe 'prescriptions', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('prescriptions_list')
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list')
         expect(JSON.parse(response.body)['meta']['sort']).to eq('prescription_name' => 'ASC')
       end
 
@@ -91,8 +91,32 @@ RSpec.describe 'prescriptions', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('prescriptions_list')
+        expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescriptions_list')
         expect(JSON.parse(response.body)['meta']['sort']).to eq('prescriptionName' => 'ASC')
+      end
+
+      it 'responds to GET #index with pagination parameters' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_paginated_list_of_prescriptions') do
+          get '/my_health/v1/prescriptions?page=1&per_page=10'
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
+        expect(JSON.parse(response.body)['meta']['pagination']['current_page']).to eq(1)
+        expect(JSON.parse(response.body)['meta']['pagination']['per_page']).to eq(10)
+      end
+
+      it 'responds to GET #index with pagination parameters when camel-inflected' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_paginated_list_of_prescriptions') do
+          get '/my_health/v1/prescriptions?page=2&per_page=20', headers: inflection_header
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
+        expect(JSON.parse(response.body)['meta']['pagination']['currentPage']).to eq(2)
+        expect(JSON.parse(response.body)['meta']['pagination']['perPage']).to eq(20)
       end
 
       it 'responds to GET #index with refill_status=active' do
@@ -102,7 +126,7 @@ RSpec.describe 'prescriptions', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('prescriptions_list')
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list')
         expect(JSON.parse(response.body)['meta']['sort']).to eq('prescription_name' => 'ASC')
       end
 
@@ -113,7 +137,7 @@ RSpec.describe 'prescriptions', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('prescriptions_list')
+        expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescriptions_list')
         expect(JSON.parse(response.body)['meta']['sort']).to eq('prescriptionName' => 'ASC')
       end
 
@@ -124,7 +148,7 @@ RSpec.describe 'prescriptions', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('prescription_list_filtered')
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescription_list_filtered')
       end
 
       it 'responds to GET #index with filter when camel-inflected' do
@@ -134,7 +158,7 @@ RSpec.describe 'prescriptions', type: :request do
 
         expect(response).to be_successful
         expect(response.body).to be_a(String)
-        expect(response).to match_camelized_response_schema('prescription_list_filtered')
+        expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescription_list_filtered')
       end
 
       it 'responds to POST #refill' do
