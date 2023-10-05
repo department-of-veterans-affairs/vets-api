@@ -78,6 +78,7 @@ module MobileApplicationPlatform
         ) do |conn|
           conn.use :breakers
           conn.use Faraday::Response::RaiseError
+          conn.response :betamocks if Settings.mobile_application_platform.secure_token_service.mock
           conn.adapter Faraday.default_adapter
         end
       end
