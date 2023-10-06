@@ -34,6 +34,21 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
     end
   end
 
+  context 'catastrophic failure state' do
+    describe 'when all retries are exhausted' do
+      let!(:form526_submission) { create(:form526_submission) }
+      let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
+
+      it 'updates a StatsD counter and updates the status on and exhaustion event' do
+        subject.within_sidekiq_retries_exhausted_block({ 'jid' => form526_job_status.job_id }) do
+          expect(StatsD).to receive(:increment).with(subject::STATSD_KEY)
+        end
+        form526_job_status.reload
+        expect(form526_job_status.status).to eq(Form526JobStatus::STATUS[:exhausted])
+      end
+    end
+  end
+
   %w[single multi].each do |payload_method|
     describe ".perform_async, enabled, #{payload_method} payload" do
       before do
@@ -93,7 +108,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
           expect(job_status.form526_submission_id).to eq(submission.id)
           expect(job_status.job_class).to eq('BackupSubmission')
           expect(job_status.job_id).to eq(jid)
-          expect(job_status.status).to eq('exhausted')
+          expect(job_status.status).to eq('retryable_error')
           error = job_status.bgjob_errors
           expect(error.first.last['error_class']).to eq('Common::Exceptions::GatewayTimeout')
           expect(error.first.last['error_message']).to eq('Gateway timeout')
@@ -112,7 +127,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
           expect(job_status.form526_submission_id).to eq(submission.id)
           expect(job_status.job_class).to eq('BackupSubmission')
           expect(job_status.job_id).to eq(jid)
-          expect(job_status.status).to eq('exhausted')
+          expect(job_status.status).to eq('retryable_error')
           error = job_status.bgjob_errors
           expect(error.first.last['error_class']).to eq('StandardError')
           expect(error.first.last['error_message']).to eq('foo')

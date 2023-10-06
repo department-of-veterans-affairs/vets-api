@@ -7,6 +7,14 @@ RSpec.describe HealthCareApplication, type: :model do
   let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE }
   let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
 
+  describe 'LOCKBOX' do
+    it 'can encrypt strings over 4kb' do
+      str = 'f' * 6000
+      lockbox = described_class::LOCKBOX
+      expect(lockbox.decrypt(lockbox.encrypt(str))).to eq(str)
+    end
+  end
+
   describe 'schema' do
     it 'is deep frozen' do
       expect do
@@ -333,6 +341,24 @@ RSpec.describe HealthCareApplication, type: :model do
       health_care_application.process!
     end
 
+    describe '#parsed_form overrides' do
+      before do
+        health_care_application.parsed_form.tap do |form|
+          form['veteranAddress']['country'] = 'MEX'
+          form['veteranAddress']['state'] = 'aguascalientes'
+        end
+      end
+
+      it 'sets the proper abbreviation for states in Mexico' do
+        expect(health_care_application).to receive(:prefill_fields)
+
+        health_care_application.process!
+
+        form = health_care_application.parsed_form
+        expect(form['veteranAddress']['state']).to eq('AGS.')
+      end
+    end
+
     context 'with an invalid record' do
       it 'adds user loa to extra context' do
         expect(Raven).to receive(:extra_context).with(user_loa: { current: 1, highest: 3 })
@@ -380,12 +406,14 @@ RSpec.describe HealthCareApplication, type: :model do
         allow_any_instance_of(HealthCareApplication).to receive(:id).and_return(1)
         expect_any_instance_of(HealthCareApplication).to receive(:save!)
 
-        expect(job).to receive(:perform_async).with(
-          nil,
-          KmsEncrypted::Box.new.encrypt(health_care_application.parsed_form.to_json),
-          1,
-          nil
-        )
+        expect(job).to receive(:perform_async) do |
+            user_identifier, encrypted_form, health_care_application_id, google_analytics_client_id
+          |
+          expect(user_identifier).to eq(nil)
+          expect(HCA::BaseSubmissionJob.decrypt_form(encrypted_form)).to eq(health_care_application.parsed_form)
+          expect(health_care_application_id).to eq(1)
+          expect(google_analytics_client_id).to eq(nil)
+        end
 
         expect(health_care_application.process!).to eq(health_care_application)
       end
@@ -407,6 +435,7 @@ RSpec.describe HealthCareApplication, type: :model do
           ).with(health_care_application.send(:parsed_form)).and_return(
             result
           )
+
           expect(health_care_application.process!).to eq(result)
         end
 
@@ -438,12 +467,12 @@ RSpec.describe HealthCareApplication, type: :model do
       context 'with async_compatible set' do
         before { health_care_application.async_compatible = true }
 
-        expect_job_submission(HCA::AnonEncryptedSubmissionJob)
+        expect_job_submission(HCA::AnonSubmissionJob)
       end
     end
 
     context 'with an email' do
-      expect_job_submission(HCA::EncryptedSubmissionJob)
+      expect_job_submission(HCA::SubmissionJob)
     end
   end
 

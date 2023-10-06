@@ -1,0 +1,196 @@
+---
+http_interactions:
+  - request:
+      method: post
+      uri: https://sandbox-api.va.gov/oauth2/health/system/v1/token
+      body:
+        encoding: US-ASCII
+        string: grant_type=client_credentials&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&client_assertion=eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiIwb2FheTM4a3I4TFFicU5XUTJwNyIsInN1YiI6IjBvYWF5MzhrcjhMUWJxTldRMnA3IiwiYXVkIjoiaHR0cHM6Ly9kZXB0dmEtZXZhbC5va3RhLmNvbS9vYXV0aDIvYXVzOG5tMXEwZjdWUTBhNDgycDcvdjEvdG9rZW4iLCJleHAiOjE2NDIxNzUzMDR9.ayiX8jlDeVNd96yA8P8YG32Mg6Q-t9nUMH1aQfNyiR9dRn6JSNXn9dBCOkcar2wMCCcfUkaKpJhbjDSmDqvI8_1dsqkiulDvJSZlRDZ_cwq2EWQtc9vO-n-YnD3tHRg5_ueNJQbg9EcX_puyRuX-uVGQ6BwuMr0iBylnKV8i8YwFgFxsIkD0jRWrFQYZ_ncsgB04NWB_IBs_Hy2uJEaWj8X4tyK7_Bt6UD12xuww0Djs5wECE9cyzhUnttqWzA_tIQt1hpXo-QhaoMSJj3Ar_pznCN-QDV0v7CoDVWgsgoQm8NOcdi7B_rQb_MPt9h-JmpST_lxXor19mhzORT979XTaCQiqGZL8J-KLVtSTFIQe5Pty0w6r3vcsyBLdCvYKz8rv9OIXsUqLzd82ljuEjwF_oq5GcqJ3HbxQ4DJr0VDh17ERcleOuNErhwaGu9E6FqVEP-XckYyAOPtCQ3gwBJdSxzPzLSQJp9BgV04N5gJMNYaLILMbNNIiW0NgFezyX0X316X22UFnqgqxZScU4siUb9quWGbW0d4cJKP-sgJdcESzZfh3LQHFOPaIf3P4-FLMrTXh02ebz9rMw_3WPYwwo2LOAL27wiJlz6IUv_gla775GWiHtpHEEocGmelF9LA3O7qNzSlgsI75D9as8W2Y0yUk14j8PhPKxAR3noU&scope=launch+patient%2FPatient.read+system%2FPatient.read+patient%2FObservation.read+patient%2FPractitioner.read+patient%2FMedicationRequest.read&launch=eyJwYXRpZW50IjogIjIwMDAxNjMifQ%3D%3D
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/x-www-form-urlencoded
+        User-Agent:
+          - Vets.gov Agent
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Fri, 14 Jan 2022 15:33:26 GMT
+        Content-Type:
+          - application/json; charset=utf-8
+        Connection:
+          - keep-alive
+        Vary:
+          - Origin
+        Etag:
+          - W/"4c9-zj58MCW5f9/ieErvQeTUMT0QGQ4"
+        Cache-Control:
+          - ''
+        Set-Cookie:
+          - TS01dd66bd=01c16e2d81491058af0fd9996e16905bd92872778ec13b93835f179eaa5cfe61f4407a56d70943d6da746e16b65b0e58a48352d0aa;
+            Max-Age=900; Path=/
+        Transfer-Encoding:
+          - chunked
+      body:
+        encoding: ASCII-8BIT
+        string: '{"access_token":"eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULjdzR1R0ZzBPd0VySGlHcWg5ZTQ0LUkyT0I0T09SMjhlbktYXzc1b2tucG8iLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2NDIxNzQ0MDYsImV4cCI6MTY0MjE3NDcwNiwiY2lkIjoiMG9hYXkzOGtyOExRYnFOV1EycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJwYXRpZW50L1ByYWN0aXRpb25lci5yZWFkIiwicGF0aWVudC9PYnNlcnZhdGlvbi5yZWFkIiwicGF0aWVudC9NZWRpY2F0aW9uUmVxdWVzdC5yZWFkIiwic3lzdGVtL1BhdGllbnQucmVhZCJdLCJzdWIiOiIwb2FheTM4a3I4TFFicU5XUTJwNyJ9.bzRLlkRLlD7HSH_4OQXDTUOKZ_Mt2u6eEf7_QfJmsbr261-hNIDzxm2_sCp2dbHZ98uLdM-0YiT8Me8p8HPmY4bSA4Q7_9C3K2EGxPdCAaTDjj7wAqU-tLvoFow7606-Om9H7IkFVZ7HYSLC9ilsjZ2aHZ6USsT4KURetXUYkEZplWvBwF4vD1Vc4xa_DPu1HpS4p9PYHCggYqjQGmZFzRV8Vi4UtVTt94HmPJhZDcIoaL4X1IReQY_yyyK0-GZuUUlO5IifEQ9P-7dxhpj0Xo9m-FoAPxqbAJC9poNRFpSj0lRZplT1wEydqxR1F3wWrWeVbkHfvSJVHH4tTjpmDQ","token_type":"Bearer","scope":"launch
+          patient/Patient.read patient/Practitioner.read patient/Observation.read patient/MedicationRequest.read
+          system/Patient.read","expires_in":300,"state":null,"patient":"2000163"}'
+    recorded_at: Fri, 14 Jan 2022 15:33:26 GMT
+  - request:
+      method: get
+      uri: https://sandbox-api.va.gov/services/fhir/v0/r4/DiagnosticReport?patient=32000225
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Authorization:
+          - Bearer eyJraWQiOiIyWGlHcG5XRjR0U0wtdENPX19zNDZhMGlkd3I1UUd6YVlwTm4xeEZNX1Y4IiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULnZIYlBtU0JOR3NnOXQwTHdHbEZqZFBsZHo5T3YzVWJxR3hCby1oOFdaUGMiLCJpc3MiOiJodHRwczovL2RlcHR2YS1ldmFsLm9rdGEuY29tL29hdXRoMi9hdXM4bm0xcTBmN1ZRMGE0ODJwNyIsImF1ZCI6Imh0dHBzOi8vc2FuZGJveC1hcGkudmEuZ292L3NlcnZpY2VzL2ZoaXIiLCJpYXQiOjE2NDE4NzA2MDcsImV4cCI6MTY0MTg3MDkwNywiY2lkIjoiMG9hYXhrcDBhZVhFSmtNRncycDciLCJzY3AiOlsibGF1bmNoIiwicGF0aWVudC9QYXRpZW50LnJlYWQiLCJwYXRpZW50L1ByYWN0aXRpb25lci5yZWFkIiwicGF0aWVudC9PYnNlcnZhdGlvbi5yZWFkIiwicGF0aWVudC9NZWRpY2F0aW9uUmVxdWVzdC5yZWFkIiwic3lzdGVtL1BhdGllbnQucmVhZCJdLCJzdWIiOiIwb2FheGtwMGFlWEVKa01GdzJwNyJ9.DSgQt4xC6FgqXuHo1OarhhFAR3jwnVfuZ9a_zI31cVGnG59IlfKMSCfPFnl-kDx-_snjcPkTg5sVMcxY8z8-oy5AWI3LKCW5fHPVea1UWD6OV_lEs07z1oGms6yjj7fhgBdak-utJdDElLeNLes7WScAf2M8kt7mKdfffepd6odaNTP7VR8pHkfx0VFGe-tdUGeXe6-359PtQsJz2jLJ9Fw0QxdawLVjsnCZLVBiHl6zENJHxLHNxL16V9ZPSpABuQlLBCDOnJbr5moeaUP9Ubmym4bVyYMJGqNcL1B5vKenyMdzHyYw2t92f2nsNTL_6QLUG_-adqkdioDZj2alRw
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: ''
+      headers:
+        Date:
+          - Tue, 11 Jan 2022 03:10:12 GMT
+        Content-Type:
+          - application/json
+        Connection:
+          - keep-alive
+        X-Ratelimit-Remaining-Minute:
+          - '298'
+        X-Ratelimit-Limit-Minute:
+          - '300'
+        Ratelimit-Remaining:
+          - '298'
+        Ratelimit-Limit:
+          - '300'
+        Ratelimit-Reset:
+          - '50'
+        Vary:
+          - Accept-Encoding
+          - Origin
+        X-Va-Includes-Icn:
+          - '32000225'
+        Pragma:
+          - no-cache
+          - no-cache
+        X-Kong-Upstream-Latency:
+          - '1360'
+        X-Kong-Proxy-Latency:
+          - '1'
+        Via:
+          - kong/2.3.2
+        Strict-Transport-Security:
+          - max-age=15724800; includeSubDomains
+          - max-age=31536000; includeSubDomains; preload
+        Access-Control-Allow-Origin:
+          - "*"
+        Cache-Control:
+          - no-cache, no-store
+        Set-Cookie:
+          - TS01dd66bd=01874af5a47a9b5a825856055ff5930d3ef9f2b08cb28c9992b9824bd5091f5c38f282d3d0c13825918a439c6d7f33c5e194da0a37;
+            Max-Age=900; Path=/
+        Transfer-Encoding:
+          - chunked
+      body:
+        encoding: ASCII-8BIT
+        string: '{
+          "resourceType": "Bundle",
+          "type": "searchset",
+          "total": 22,
+          "link": [
+            {
+              "relation": "first",
+              "url": "https://sandbox-api.va.gov/services/fhir/v0/r4/DiagnosticReport?patient=1000005&_count=1&page=1"
+            },
+            {
+              "relation": "self",
+              "url": "https://sandbox-api.va.gov/services/fhir/v0/r4/DiagnosticReport?patient=1000005&_count=1&page=1"
+            }
+          ],
+          "entry": [
+            {
+              "fullUrl": "https://sandbox-api.va.gov/services/fhir/v0/r4/DiagnosticReport/I2-EWSRFHMJRWT3KNBUB542ZJYEKM000000",
+              "resource": {
+                "resourceType": "DiagnosticReport",
+                "id": "I2-EWSRFHMJRWT3KNBUB542ZJYEKM000000",
+                "status": "final",
+                "category": [
+                  {
+                    "coding": [
+                      {
+                        "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                        "code": "LAB",
+                        "display": "Laboratory"
+                      }
+                    ],
+                    "text": "Laboratory"
+                  }
+                ],
+                "code": {
+                  "text": "panel"
+                },
+                "subject": {
+                  "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Patient/1000005",
+                  "display": "Mr. Shane235 Bartell116"
+                },
+                "effectiveDateTime": "1998-03-16T05:56:37Z",
+                "issued": "1998-03-16T05:56:37Z",
+                "result": [
+                  {
+                    "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-ILWORI4YUOUAR5H2GCH6ATEFRM000000",
+                    "display": "Glucose"
+                  },
+                  {
+                    "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-6DTSU5DDGS3NBDOKN4BOZDISGE000000",
+                    "display": "Urea Nitrogen"
+                  },
+                  {
+                    "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-4OWFD25REFR6P362ZJ2PY3ACWU000000",
+                    "display": "Creatinine"
+                  },
+                  {
+                    "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-35GNQKPTBRNMPBTUGEF4F62HNI000000",
+                    "display": "Calcium"
+                  },
+                  {
+                    "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-OOVHBIQFYCOORXPBB74H42FPJU000000",
+                    "display": "Sodium"
+                  },
+                  {
+                    "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-C3P7YCD3DCX7KNRRR5DOKLDCGA000000",
+                    "display": "Potassium"
+                  },
+                  {
+                    "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-K4NGUOCHCS3ULYOFMDN5ZRJW6U000000",
+                    "display": "Chloride"
+                  },
+                  {
+                    "reference": "https://sandbox-api.va.gov/services/fhir/v0/r4/Observation/I2-D5TBNWZQSFRRBOBSBCC7QQRPQY000000",
+                    "display": "Carbon Dioxide"
+                  }
+                ]
+              },
+              "search": {
+                "mode": "match"
+              }
+            }
+          ]
+        }'
+    recorded_at: Tue, 11 Jan 2022 03:10:12 GMT
+recorded_with: VCR 6.0.0

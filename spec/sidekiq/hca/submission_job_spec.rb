@@ -16,6 +16,7 @@ RSpec.describe HCA::SubmissionJob, type: :job do
       }
     }.deep_stringify_keys
   end
+  let(:encrypted_form) { HealthCareApplication::LOCKBOX.encrypt(form.to_json) }
   let(:result) do
     {
       formSubmissionId: 123,
@@ -29,8 +30,17 @@ RSpec.describe HCA::SubmissionJob, type: :job do
   describe 'when job has failed' do
     let(:msg) do
       {
-        'args' => [nil, form, health_care_application.id]
+        'args' => [nil, encrypted_form, health_care_application.id, 'google_analytics_client_id']
       }
+    end
+
+    it 'passes unencrypted form to health_care_application' do
+      expect_any_instance_of(HealthCareApplication).to receive(:update!).with(
+        state: 'failed',
+        form: form.to_json,
+        google_analytics_client_id: 'google_analytics_client_id'
+      )
+      described_class.new.sidekiq_retries_exhausted_block.call(msg)
     end
 
     it 'sets the health_care_application state to failed' do
@@ -41,7 +51,7 @@ RSpec.describe HCA::SubmissionJob, type: :job do
 
   describe '#perform' do
     subject do
-      described_class.new.perform(user_identifier, form, health_care_application.id, '123456789')
+      described_class.new.perform(user_identifier, encrypted_form, health_care_application.id, '123456789')
     end
 
     before do

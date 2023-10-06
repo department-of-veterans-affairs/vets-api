@@ -47,17 +47,18 @@ module Common
           decoded_token = begin
             JWT.decode jwt_token, nil, false
           rescue JWT::DecodeError
-            raise Common::Exceptions::Unauthorized, 'Invalid JWT token'
+            raise Common::Exceptions::Unauthorized, detail: 'Invalid JWT token'
           end
 
           subject_id = decoded_token[0]['subjectId']
-          raise Common::Exceptions::Unauthorized, 'JWT token does not contain subjectId' if subject_id.nil?
+          raise Common::Exceptions::Unauthorized, detail: 'JWT token does not contain subjectId' if subject_id.nil?
 
           # Get the patient's FHIR ID
           fhir_client = sessionless_fhir_client(jwt_token)
           patient = get_patient_by_identifier(fhir_client, subject_id)
           if patient.nil? || patient.entry.empty? || !patient.entry[0].resource.respond_to?(:id)
-            raise Common::Exceptions::Unauthorized, 'Patient record not found or does not contain a valid FHIR ID'
+            raise Common::Exceptions::Unauthorized,
+                  detail: 'Patient record not found or does not contain a valid FHIR ID'
           end
 
           patient.entry[0].resource.id
@@ -80,7 +81,7 @@ module Common
           # Get the JWT token from the headers
           auth_header = res_headers['authorization']
           if auth_header.nil? || !auth_header.start_with?('Bearer ')
-            raise Common::Exceptions::Unauthorized, 'Invalid or missing authorization header'
+            raise Common::Exceptions::Unauthorized, detail: 'Invalid or missing authorization header'
           end
 
           jwt_token = auth_header.sub('Bearer ', '')
@@ -112,7 +113,7 @@ module Common
         private
 
         def validate_session_params
-          raise Common::Exceptions::ParameterMissing, 'MHV Correlation ID' if session.user_id.blank?
+          raise Common::Exceptions::ParameterMissing, 'ICN' if session.icn.blank?
           raise Common::Exceptions::ParameterMissing, 'MHV MR App Token' if config.app_token.blank?
         end
 
@@ -139,10 +140,10 @@ module Common
           {
             'appId' => '103',
             'appToken' => config.app_token,
-            'subject' => session.user_id.to_s,
+            'subject' => session.icn,
             'userType' => 'PATIENT',
             'authParams' => {
-              'PATIENT_SUBJECT_ID_TYPE' => 'USER_PROFILE_ID'
+              'PATIENT_SUBJECT_ID_TYPE' => 'ICN'
             }
           }
         end

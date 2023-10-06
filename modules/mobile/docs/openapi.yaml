@@ -1477,6 +1477,121 @@ paths:
       security:
         - Bearer: []
       summary: /v0/health/immunizations
+  /v0/health/labs-and-tests:
+    get:
+      description: >
+        List patient labs and tests. Each report contains a list of which tests were a part of the report, along with
+        links to get the results for those tests.
+      operationId: list_labs_and_tests
+      parameters:
+        - description: The category classifies the clinical discipline, department, or diagnostic service that created the report
+          in: query
+          name: category
+          required: false
+          schema:
+            type: string
+        - description: A code that indicates the type of information contained within the diagnostic report. Supported values are from the LOINC diagnostic report codes.
+          in: query
+          name: code
+          required: false
+          schema:
+            type: string
+        - description: "A date or range of dates (maximum of 2) that describe the date that the diagnostic report was recorded. Supported formats are: YYYY, YYYY-MM, YYYY-MM-DD, YYYY-MM-DD'T'HH:MM:SSZ"
+          in: query
+          name: date
+          required: false
+          schema:
+            type: datetime
+        - description: The status of the report.
+          in: query
+          name: status
+          required: false
+          schema:
+            type: datetime
+        - description: "The date when the record was last updated. Supported formats are: YYYY, YYYY-MM, YYYY-MM-DD, YYYY-MM-DD'T'HH:MM:SSZ"
+          in: query
+          name: lastUpdated
+          required: false
+          schema:
+            type: datetime
+        - description: The page number being requested.
+          in: query
+          name: page
+          required: false
+          schema:
+            type: integer
+        - description: The number of resources that should be returned in a single page. The maximum count size is 100. Defaults to 30.
+          in: query
+          name: count
+          required: false
+          schema:
+            type: integer
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/LabsAndTests.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      summary: /v0/health/labs-and-tests
+  /v0/health/observations/{id}:
+    get:
+      description: >
+        Gets an observation from a user's diagnostic report
+      operationId: get_observation
+      parameters:
+        - description: id of observation
+          in: path
+          name: id
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Observation.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      summary: /v0/health/observations/{id}
   /v0/health/locations/{id}:
     get:
       description: Returns location info based on location id from vaccine record

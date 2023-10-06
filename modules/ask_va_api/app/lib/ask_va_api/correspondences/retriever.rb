@@ -17,19 +17,21 @@ module AskVAApi
         validate_input(inquiry_number, 'Invalid Inquiry Number')
         correspondences = fetch_data(criteria: { inquiry_number: })
         Entity.new(correspondences)
+      rescue => e
+        ErrorHandler.handle_service_error(e)
       end
 
       private
 
       def default_service
-        mock = !Rails.env.production?
+        # mock = !Rails.env.production?
+        mock = true
+
         Dynamics::Service.new(base_uri: URI, sec_id: nil, mock:)
       end
 
       def fetch_data(criteria: {})
         service.call(endpoint: ENDPOINT, criteria:)
-      rescue Dynamics::ErrorHandler::ServiceError => e
-        ErrorHandler.handle_service_error(e)
       end
 
       def validate_input(input, error_message)

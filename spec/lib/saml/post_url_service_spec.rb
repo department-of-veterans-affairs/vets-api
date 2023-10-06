@@ -620,6 +620,15 @@ RSpec.describe SAML::PostURLService do
               end
             end
 
+            context 'when tracker application is nil' do
+              let(:application) { nil }
+
+              it 'has a login redirect url as a parameter embedded in terms of use page with success' do
+                expect(subject.terms_of_use_redirect_url)
+                  .to eq("#{values[:base_redirect]}/terms-of-use?#{expected_redirect_url_param}")
+              end
+            end
+
             context 'when tracker application is not within TERMS_OF_USE_ENABLED_CLIENTS' do
               let(:application) { 'some-application' }
 

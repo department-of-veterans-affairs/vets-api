@@ -157,7 +157,7 @@ Rails.application.routes.draw do
     end
 
     resources :evss_claims_async, only: %i[index show]
-    resources :evss_benefits_claims, only: %i[index show]
+    resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
 
     namespace :virtual_agent do
       get 'claim', to: 'virtual_agent_claim#index'

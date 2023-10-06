@@ -80,17 +80,33 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       end
 
       context 'when an error occurs' do
-        let(:error_message) { 'Something went wrong' }
+        context 'when a service error' do
+          let(:error_message) { 'service error' }
 
-        before do
-          allow_any_instance_of(Dynamics::Service)
-            .to receive(:call)
-            .and_raise(Dynamics::ErrorHandler::BadRequestError.new(error_message))
-          subject
+          before do
+            allow_any_instance_of(Dynamics::Service)
+              .to receive(:call)
+              .and_raise(Dynamics::ErrorHandler::BadRequestError.new(error_message))
+            subject
+          end
+
+          it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                          'Bad Request Error: service error'
         end
 
-        it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                        'Bad Request Error: Something went wrong'
+        context 'when a standard error' do
+          let(:error_message) { 'standard error' }
+
+          before do
+            allow_any_instance_of(Dynamics::Service)
+              .to receive(:call)
+              .and_raise(StandardError.new(error_message))
+            subject
+          end
+
+          it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                          ': standard error'
+        end
       end
     end
 
@@ -141,6 +157,16 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
         it_behaves_like 'common error handling', :bad_request, 'invalid_inquiry_error',
                         'AskVAApi::V0::InquiriesController::InvalidInquiryError'
       end
+    end
+
+    context 'when an error occur' do
+      before do
+        allow(Dynamics::Service).to receive(:new).and_raise(ErrorHandler::ServiceError)
+        sign_in(authorized_user)
+        subject
+      end
+
+      it { expect(JSON.parse(response.body)).to eq('error' => 'ErrorHandler::ServiceError') }
     end
 
     context 'when user is not signed in' do
