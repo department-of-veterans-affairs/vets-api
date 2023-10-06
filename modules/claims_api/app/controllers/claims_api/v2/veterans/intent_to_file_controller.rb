@@ -52,13 +52,19 @@ module ClaimsApi
           options = build_options_and_validate(type)
 
           bgs_response = local_bgs_service.insert_intent_to_file(options)
+          if bgs_response.empty?
+            ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: token.payload['cid'])
+            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Veteran ID not found')
+          else
+            ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::SUBMITTED, cid: token.payload['cid'])
+            ClaimsApi::Logger.log('itf', detail: 'Submitted to BGS')
+            lighthouse_itf = bgs_itf_to_lighthouse_itf(bgs_itf: bgs_response)
 
-          lighthouse_itf = bgs_itf_to_lighthouse_itf(bgs_itf: bgs_response)
-
-          itf_id = bgs_response.is_a?(Array) ? bgs_response[0][:intent_to_file_id] : bgs_response[:intent_to_file_id]
-          ClaimsApi::Logger.log('ITF', type: type.to_s,
-                                       detail: "ending itf submit, ift_id: #{itf_id}")
-          render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(lighthouse_itf, root: :data)
+            itf_id = bgs_response.is_a?(Array) ? bgs_response[0][:intent_to_file_id] : bgs_response[:intent_to_file_id]
+            ClaimsApi::Logger.log('ITF', type: type.to_s,
+                                         detail: "ending itf submit, ift_id: #{itf_id}")
+            render json: ClaimsApi::V2::Blueprints::IntentToFileBlueprint.render(lighthouse_itf, root: :data)
+          end
         end
 
         def validate

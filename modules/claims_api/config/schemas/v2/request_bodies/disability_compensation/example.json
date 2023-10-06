@@ -8,8 +8,9 @@
       "veteranIdentification": {
         "currentVaEmployee": false,
         "mailingAddress": {
-          "numberAndStreet": "1234 Couch Street",
-          "apartmentOrUnitNumber": "22",
+          "addressLine1": "1234 Couch Street",
+          "addressLine2": "Unit 4",
+          "addressLine3": "Room 1",
           "city": "Portland",
           "country": "USA",
           "zipFirstFive": "41726",
@@ -31,8 +32,9 @@
           "endDate": "10-11-2025"
         },
         "typeOfAddressChange": "TEMPORARY",
-        "numberAndStreet": "10 Peach St",
-        "apartmentOrUnitNumber": "22",
+        "addressLine1": "10 Peach St",
+        "addressLine2": "Unit 4",
+        "addressLine3": "Room 1",
         "city": "Atlanta",
         "zipFirstFive": "42220",
         "zipLastFour": "9897",
@@ -149,10 +151,10 @@
         "servicePeriods": [
           {
             "serviceBranch": "Public Health Service",
-            "activeDutyBeginDate": "11-14-2015",
-            "activeDutyEndDate": "11-30-2018",
+            "activeDutyBeginDate": "11-14-2023",
+            "activeDutyEndDate": "11-30-2025",
             "serviceComponent": "Active",
-            "separationLocationCode": "V01D"
+            "separationLocationCode": "25077"
           }
         ],
         "confinements": [

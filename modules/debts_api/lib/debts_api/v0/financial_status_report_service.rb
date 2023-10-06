@@ -5,7 +5,7 @@ require 'debts_api/v0/financial_status_report_configuration'
 require 'debts_api/v0/responses/financial_status_report_response'
 require 'debt_management_center/models/financial_status_report'
 require 'debts_api/v0/financial_status_report_downloader'
-require 'debt_management_center/workers/va_notify_email_job'
+require 'debt_management_center/sidekiq/va_notify_email_job'
 require 'debt_management_center/vbs/request'
 require 'debt_management_center/sharepoint/request'
 require 'pdf_fill/filler'
@@ -153,9 +153,17 @@ module DebtsApi
       form_submission.submitted!
       { status: vbs_response.status }
     rescue => e
-      form_submission.failed!
-      form_submission.update(error_message: e.message)
+      form_submission.register_failure(e.message)
       raise e
+    end
+
+    def submit_to_vbs(form_submission)
+      form = add_vha_specific_data(form_submission)
+
+      vbs_request = DebtManagementCenter::VBS::Request.build
+      Rails.logger.info('5655 Form Submitting to VBS API', submission_id: form_submission.id)
+      vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
+                       { jsonDocument: form.to_json })
     end
 
     def send_vha_confirmation_email(_status, options)
@@ -169,6 +177,13 @@ module DebtsApi
     end
 
     private
+
+    def add_vha_specific_data(form_submission)
+      form = form_submission.form
+      form['transactionId'] = form_submission.id
+      form['timestamp'] = form_submission.created_at.strftime('%Y%m%dT%H%M%S')
+      streamline_adjustments(form)
+    end
 
     def streamline_adjustments(form)
       if form.key?('streamlined')

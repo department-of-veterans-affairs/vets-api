@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_09_14_180448) do
+ActiveRecord::Schema.define(version: 2023_09_29_163207) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -346,6 +346,8 @@ ActiveRecord::Schema.define(version: 2023_09_14_180448) do
     t.string "certificates", array: true
     t.text "description"
     t.string "access_token_attributes", default: [], array: true
+    t.text "terms_of_use_url"
+    t.text "enforced_terms"
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
   end
 
@@ -1058,6 +1060,7 @@ ActiveRecord::Schema.define(version: 2023_09_14_180448) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "backing_idme_uuid"
+    t.boolean "locked", null: false, default: false
     t.index ["backing_idme_uuid"], name: "index_user_verifications_on_backing_idme_uuid"
     t.index ["dslogon_uuid"], name: "index_user_verifications_on_dslogon_uuid", unique: true
     t.index ["idme_uuid"], name: "index_user_verifications_on_idme_uuid", unique: true

@@ -1157,6 +1157,32 @@ paths:
       summary: /v1/messaging/recipients
       parameters:
         - $ref: "#/components/parameters/InflectionHeader"
+  /v1/messaging/allrecipients:
+    get:
+      description: List available recipients to which messages may be sent with advanced attributes
+      operationId: get_all_triage_teams
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/SecureMessagingAllRecipients.yml
+          description: OK
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Errors.yml
+          description: Not authorized for access to secure messages
+      summary: /v1/messaging/allrecipients
+      parameters:
+        - $ref: "#/components/parameters/InflectionHeader"
   /v1/messaging/threads/{id}/move:
     patch:
       description:

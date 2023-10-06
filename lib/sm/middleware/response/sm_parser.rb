@@ -26,8 +26,9 @@ module SM
           @errors = @parsed_json.delete(:errors) || {}
 
           data =  parsed_threads_object ||
-                  preferences     ||
+                  parsed_all_triage ||
                   parsed_triage   ||
+                  preferences     ||
                   parsed_folders  ||
                   normalize_message(parsed_messages) ||
                   parsed_categories ||
@@ -37,7 +38,6 @@ module SM
             errors: @errors,
             metadata: @meta_attributes
           }
-
           @parsed_json
         end
 
@@ -61,6 +61,24 @@ module SM
           @parsed_json.key?(:triage_team_id) ? @parsed_json : @parsed_json[:triage_team]
         end
 
+        def parsed_all_triage
+          if @parsed_json.is_a?(Array) && @parsed_json.any? do |k|
+            k.key?(:associated_triage_groups)
+          end
+            @parsed_json[1][:triage_team]
+          else
+            @parsed_json[:associated_triage_groups]
+          end
+        end
+
+        def parsed_all_triage_meta
+          if @parsed_json.is_a?(Array) && @parsed_json.any? do |k|
+            k.key?(:associated_triage_groups)
+          end
+            @parsed_json[0]
+          end
+        end
+
         def parsed_messages
           @parsed_json.key?(:recipient_id) ? @parsed_json : @parsed_json[:message]
         end
@@ -78,7 +96,7 @@ module SM
         end
 
         def split_meta_fields!
-          {}
+          parsed_all_triage_meta || {}
         end
 
         def normalize_message(object)

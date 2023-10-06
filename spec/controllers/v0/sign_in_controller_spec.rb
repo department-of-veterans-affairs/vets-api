@@ -547,7 +547,9 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:mpi_profile) { nil }
     let(:client_id) { client_config.client_id }
     let(:authentication) { SignIn::Constants::Auth::API }
-    let!(:client_config) { create(:client_config, authentication:) }
+    let!(:client_config) { create(:client_config, authentication:, enforced_terms:, terms_of_use_url:) }
+    let(:enforced_terms) { nil }
+    let(:terms_of_use_url) { 'some-terms-of-use-url' }
 
     before do
       allow(Rails.logger).to receive(:info)
@@ -785,7 +787,8 @@ RSpec.describe V0::SignInController, type: :controller do
                     client_id:,
                     ial:,
                     acr:,
-                    icn: mpi_profile.icn
+                    icn: mpi_profile.icn,
+                    uuid: logingov_uuid
                   }
                 end
                 let(:expected_user_attributes) do
@@ -816,8 +819,35 @@ RSpec.describe V0::SignInController, type: :controller do
                   expect(subject.body).to include(meta_refresh_tag)
                 end
 
-                it 'directs to the given redirect url set in the client configuration' do
-                  expect(subject.body).to include(client_redirect_uri)
+                context 'and client configuration is configured to enforce terms of use' do
+                  let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
+
+                  context 'and the authenticated user has previously accepted terms of use' do
+                    let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:) }
+                    let(:user_account) { user_verification.user_account }
+                    let(:user_verification) { create(:logingov_user_verification, logingov_uuid:) }
+
+                    it 'directs to the given redirect url set in the client configuration' do
+                      expect(subject.body).to include(client_redirect_uri)
+                    end
+                  end
+
+                  context 'and the authenticated user has not previously accepted terms of use' do
+                    let(:terms_of_use_redirect_uri) { "#{terms_of_use_url}?#{embedded_params}" }
+                    let(:embedded_params) { { redirect_url: client_redirect_uri }.to_query }
+
+                    it 'directs to the terms of use url and embeds redirect url set in the client configuration' do
+                      expect(subject.body).to include(terms_of_use_redirect_uri)
+                    end
+                  end
+                end
+
+                context 'and client configuration is not configured to enforce terms of use' do
+                  let(:enforced_terms) { nil }
+
+                  it 'directs to the given redirect url set in the client configuration' do
+                    expect(subject.body).to include(client_redirect_uri)
+                  end
                 end
 
                 it 'includes expected code param' do
@@ -854,9 +884,10 @@ RSpec.describe V0::SignInController, type: :controller do
 
           context 'when type in state JWT is idme' do
             let(:type) { SignIn::Constants::Auth::IDME }
+            let(:idme_uuid) { 'some-idme-uuid' }
             let(:user_info) do
               OpenStruct.new(
-                sub: 'some-sub',
+                sub: idme_uuid,
                 level_of_assurance:,
                 credential_ial:,
                 social: '123456789',
@@ -946,7 +977,8 @@ RSpec.describe V0::SignInController, type: :controller do
                     client_id:,
                     ial:,
                     acr:,
-                    icn: mpi_profile.icn
+                    icn: mpi_profile.icn,
+                    uuid: idme_uuid
                   }
                 end
                 let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
@@ -963,8 +995,35 @@ RSpec.describe V0::SignInController, type: :controller do
                   expect(subject.body).to include(meta_refresh_tag)
                 end
 
-                it 'directs to the given redirect url set in the client configuration' do
-                  expect(subject.body).to include(client_redirect_uri)
+                context 'and client configuration is configured to enforce terms of use' do
+                  let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
+
+                  context 'and the authenticated user has previously accepted terms of use' do
+                    let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:) }
+                    let(:user_account) { user_verification.user_account }
+                    let(:user_verification) { create(:idme_user_verification, idme_uuid:) }
+
+                    it 'directs to the given redirect url set in the client configuration' do
+                      expect(subject.body).to include(client_redirect_uri)
+                    end
+                  end
+
+                  context 'and the authenticated user has not previously accepted terms of use' do
+                    let(:terms_of_use_redirect_uri) { "#{terms_of_use_url}?#{embedded_params}" }
+                    let(:embedded_params) { { redirect_url: client_redirect_uri }.to_query }
+
+                    it 'directs to the terms of use url and embeds redirect url set in the client configuration' do
+                      expect(subject.body).to include(terms_of_use_redirect_uri)
+                    end
+                  end
+                end
+
+                context 'and client configuration is not configured to enforce terms of use' do
+                  let(:enforced_terms) { nil }
+
+                  it 'directs to the given redirect url set in the client configuration' do
+                    expect(subject.body).to include(client_redirect_uri)
+                  end
                 end
 
                 it 'includes expected code param' do
@@ -998,9 +1057,11 @@ RSpec.describe V0::SignInController, type: :controller do
 
           context 'when type in state JWT is dslogon' do
             let(:type) { SignIn::Constants::Auth::DSLOGON }
+            let(:backing_idme_uuid) { 'some-backing-idme-uuid' }
+            let(:dslogon_uuid) { 'some-dslogon-uuid' }
             let(:user_info) do
               OpenStruct.new(
-                sub: 'some-sub',
+                sub: backing_idme_uuid,
                 level_of_assurance:,
                 credential_ial:,
                 dslogon_idvalue: '123456789',
@@ -1008,7 +1069,7 @@ RSpec.describe V0::SignInController, type: :controller do
                 dslogon_fname: 'some-name',
                 dslogon_mname: 'some-middle-name',
                 dslogon_lname: 'some-family-name',
-                dslogon_uuid: '987654321',
+                dslogon_uuid:,
                 dslogon_assurance:,
                 email: 'some-email'
               )
@@ -1067,7 +1128,8 @@ RSpec.describe V0::SignInController, type: :controller do
                   client_id:,
                   ial:,
                   acr:,
-                  icn: expected_icn
+                  icn: expected_icn,
+                  uuid: backing_idme_uuid
                 }
               end
               let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
@@ -1149,18 +1211,51 @@ RSpec.describe V0::SignInController, type: :controller do
                 end
 
                 it_behaves_like 'dslogon successful callback'
+
+                context 'and client configuration is configured to enforce terms of use' do
+                  let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
+
+                  context 'and the authenticated user has previously accepted terms of use' do
+                    let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:) }
+                    let(:user_account) { user_verification.user_account }
+                    let(:user_verification) { create(:dslogon_user_verification, dslogon_uuid:, backing_idme_uuid:) }
+
+                    it 'directs to the given redirect url set in the client configuration' do
+                      expect(subject.body).to include(client_redirect_uri)
+                    end
+                  end
+
+                  context 'and the authenticated user has not previously accepted terms of use' do
+                    let(:terms_of_use_redirect_uri) { "#{terms_of_use_url}?#{embedded_params}" }
+                    let(:embedded_params) { { redirect_url: client_redirect_uri }.to_query }
+
+                    it 'directs to the terms of use url and embeds redirect url set in the client configuration' do
+                      expect(subject.body).to include(terms_of_use_redirect_uri)
+                    end
+                  end
+                end
+
+                context 'and client configuration is not configured to enforce terms of use' do
+                  let(:enforced_terms) { nil }
+
+                  it 'directs to the given redirect url set in the client configuration' do
+                    expect(subject.body).to include(client_redirect_uri)
+                  end
+                end
               end
             end
           end
 
           context 'when type in state JWT is mhv' do
             let(:type) { SignIn::Constants::Auth::MHV }
+            let(:backing_idme_uuid) { 'some-backing-idme-uuid' }
+            let(:mhv_uuid) { 'some-mhv-uuid' }
             let(:user_info) do
               OpenStruct.new(
-                sub: 'some-sub',
+                sub: backing_idme_uuid,
                 level_of_assurance:,
                 credential_ial:,
-                mhv_uuid: '123456789',
+                mhv_uuid:,
                 mhv_icn:,
                 mhv_assurance:,
                 email: 'some-email'
@@ -1209,7 +1304,8 @@ RSpec.describe V0::SignInController, type: :controller do
                   client_id:,
                   ial:,
                   acr:,
-                  icn: expected_icn
+                  icn: expected_icn,
+                  uuid: backing_idme_uuid
                 }
               end
               let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
@@ -1283,6 +1379,37 @@ RSpec.describe V0::SignInController, type: :controller do
                 end
 
                 it_behaves_like 'mhv successful callback'
+
+                context 'and client configuration is configured to enforce terms of use' do
+                  let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
+
+                  context 'and the authenticated user has previously accepted terms of use' do
+                    let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:) }
+                    let(:user_account) { user_verification.user_account }
+                    let(:user_verification) { create(:mhv_user_verification, mhv_uuid:, backing_idme_uuid:) }
+
+                    it 'directs to the given redirect url set in the client configuration' do
+                      expect(subject.body).to include(client_redirect_uri)
+                    end
+                  end
+
+                  context 'and the authenticated user has not previously accepted terms of use' do
+                    let(:terms_of_use_redirect_uri) { "#{terms_of_use_url}?#{embedded_params}" }
+                    let(:embedded_params) { { redirect_url: client_redirect_uri }.to_query }
+
+                    it 'directs to the terms of use url and embeds redirect url set in the client configuration' do
+                      expect(subject.body).to include(terms_of_use_redirect_uri)
+                    end
+                  end
+                end
+
+                context 'and client configuration is not configured to enforce terms of use' do
+                  let(:enforced_terms) { nil }
+
+                  it 'directs to the given redirect url set in the client configuration' do
+                    expect(subject.body).to include(client_redirect_uri)
+                  end
+                end
               end
             end
           end

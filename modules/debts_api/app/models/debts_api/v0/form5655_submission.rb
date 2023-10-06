@@ -59,7 +59,32 @@ module DebtsApi
     end
 
     def submit_to_vha
-      DebtsApi::V0::Form5655::VHASubmissionJob.perform_async(id, user_cache_id)
+      batch = Sidekiq::Batch.new
+      batch.on(
+        :complete,
+        'DebtsApi::V0::Form5655Submission#set_completed_state',
+        'submission_id' => id
+      )
+      batch.jobs do
+        DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.perform_async(id, user_cache_id)
+        DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.perform_async(id)
+      end
+    end
+
+    def set_completed_state(status, options)
+      submission = DebtsApi::V0::Form5655Submission.find(options['submission_id'])
+      if status.failures.zero?
+        submission.submitted!
+      else
+        submission.failed!
+        Rails.logger.error('Batch FSR Processing Failed', status.failure_info)
+      end
+    end
+
+    def register_failure(message)
+      failed!
+      update(error_message: message)
+      Rails.logger.error('Form5655Submission failed', message)
     end
 
     def streamlined?

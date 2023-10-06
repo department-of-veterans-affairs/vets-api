@@ -327,7 +327,8 @@ module V0
         client_id: state_payload.client_id,
         ial: credential_level.current_ial,
         acr: state_payload.acr,
-        icn: verified_icn
+        icn: verified_icn,
+        uuid: user_info.sub
       }
       sign_in_logger.info('callback', context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS,
@@ -339,6 +340,8 @@ module V0
       params_hash.merge!(state: user_code_map.client_state) if user_code_map.client_state.present?
 
       render body: SignIn::RedirectUrlGenerator.new(redirect_uri: user_code_map.client_config.redirect_uri,
+                                                    terms_code: user_code_map.terms_code,
+                                                    terms_redirect_uri: user_code_map.client_config.terms_of_use_url,
                                                     params_hash:).perform,
              content_type: 'text/html'
     end

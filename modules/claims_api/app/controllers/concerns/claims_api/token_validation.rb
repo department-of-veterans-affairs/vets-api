@@ -32,6 +32,8 @@ module ClaimsApi
         token_string = token_string_from_request
         audience = "#{root_url}/services/claims"
         ValidatedToken.new(token_validation_url, token_string, audience)
+      rescue ::Common::Exceptions::TokenValidationError => e
+        raise ::Common::Exceptions::Unauthorized.new(detail: e.detail)
       rescue => e
         raise ::Common::Exceptions::Unauthorized if e.to_s.include?('401')
       end

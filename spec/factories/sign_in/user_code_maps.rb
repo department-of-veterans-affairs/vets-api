@@ -8,12 +8,14 @@ FactoryBot.define do
     type { SignIn::Constants::Auth::CSP_TYPES.first }
     client_state { SecureRandom.hex }
     client_config { create(:client_config) }
+    terms_code { SecureRandom.uuid }
 
     initialize_with do
       new(login_code:,
           client_state:,
           client_config:,
-          type:)
+          type:,
+          terms_code:)
     end
   end
 end

@@ -5,7 +5,7 @@ require 'debt_management_center/financial_status_report_configuration'
 require 'debt_management_center/responses/financial_status_report_response'
 require 'debt_management_center/models/financial_status_report'
 require 'debt_management_center/financial_status_report_downloader'
-require 'debt_management_center/workers/va_notify_email_job'
+require 'debt_management_center/sidekiq/va_notify_email_job'
 require 'debt_management_center/vbs/request'
 require 'debt_management_center/sharepoint/request'
 require 'pdf_fill/filler'
@@ -152,8 +152,7 @@ module DebtManagementCenter
       form_submission.submitted!
       { status: vbs_response.status }
     rescue => e
-      form_submission.failed!
-      form_submission.update(error_message: e.message)
+      form_submission.register_failure(e.message)
       raise e
     end
 

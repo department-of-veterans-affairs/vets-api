@@ -84,7 +84,8 @@ module MedicalRecords
     end
 
     def list_vaccines
-      fhir_search(FHIR::Immunization, search: { parameters: { patient: patient_fhir_id } })
+      bundle = fhir_search(FHIR::Immunization, search: { parameters: { patient: patient_fhir_id } })
+      sort_bundle(bundle, :occurrenceDateTime, :desc)
     end
 
     def get_allergy(allergy_id)
@@ -93,7 +94,7 @@ module MedicalRecords
 
     def list_allergies
       bundle = fhir_search(FHIR::AllergyIntolerance, search: { parameters: { patient: patient_fhir_id } })
-      sort_bundle(bundle, :onsetDateTime, :desc)
+      sort_bundle(bundle, :recordedDate, :desc)
     end
 
     def get_clinical_note(note_id)
@@ -223,14 +224,15 @@ module MedicalRecords
     end
 
     ##
-    # Perform a FHIR search. This method will return the first page of results only.
+    # Perform a FHIR search. Returns the first page of results only. Filters out FHIR records
+    # that are not active.
     #
     # @param fhir_model [FHIR::Model] The type of resource to search
     # @param params [Hash] The parameters to pass the search
     # @return [FHIR::ClientReply]
     #
     def fhir_search_query(fhir_model, params)
-      params[:search][:parameters].merge!(_count: DEFAULT_COUNT)
+      params[:search][:parameters].merge!(_count: DEFAULT_COUNT, 'clinical-status': 'active')
       result = fhir_client.search(fhir_model, params)
       handle_api_errors(result) if result.resource.nil?
       result

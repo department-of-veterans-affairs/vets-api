@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'payment information', type: :request do
@@ -11,7 +11,7 @@ RSpec.describe 'payment information', type: :request do
   let(:get_payment_info_body) do
     {
       'data' => {
-        'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
+        'id' => user.uuid,
         'type' => 'paymentInformation',
         'attributes' => {
           'accountControl' => {
@@ -36,13 +36,9 @@ RSpec.describe 'payment information', type: :request do
       }
     }
   end
-  let(:user) { build(:iam_user) }
+  let!(:user) { sis_user(icn: '1012666073V986297', sign_in: { service_name: SAML::User::IDME_CSID }) }
 
   before do
-    iam_sign_in(user)
-    allow_any_instance_of(UserIdentity).to receive(:icn).and_return('1012666073V986297')
-    allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: SAML::User::IDME_CSID)
-
     Flipper.disable(:mobile_lighthouse_direct_deposit)
   end
 
@@ -50,7 +46,7 @@ RSpec.describe 'payment information', type: :request do
     context 'with a valid response' do
       it 'matches the payment information schema' do
         VCR.use_cassette('evss/ppiu/payment_information') do
-          get '/mobile/v0/payment-information/benefits', headers: iam_headers
+          get '/mobile/v0/payment-information/benefits', headers: sis_headers
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(get_payment_info_body)
           expect(response.body).to match_json_schema('payment_information')
@@ -61,7 +57,7 @@ RSpec.describe 'payment information', type: :request do
     context 'with a 403 response' do
       it 'returns a not authorized response' do
         VCR.use_cassette('evss/ppiu/forbidden') do
-          get '/mobile/v0/payment-information/benefits', headers: iam_headers
+          get '/mobile/v0/payment-information/benefits', headers: sis_headers
           expect(response).to have_http_status(:forbidden)
           expect(response.body).to match_json_schema('evss_errors')
         end
@@ -71,7 +67,7 @@ RSpec.describe 'payment information', type: :request do
     context 'with a 500 server error type' do
       it 'returns a service error response' do
         VCR.use_cassette('evss/ppiu/service_error') do
-          get '/mobile/v0/payment-information/benefits', headers: iam_headers
+          get '/mobile/v0/payment-information/benefits', headers: sis_headers
           expect(response).to have_http_status(:service_unavailable)
           expect(response.body).to match_json_schema('evss_errors')
         end
@@ -82,7 +78,7 @@ RSpec.describe 'payment information', type: :request do
       let(:get_payment_info_body) do
         {
           'data' => {
-            'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
+            'id' => user.uuid,
             'type' => 'paymentInformation',
             'attributes' => {
               'accountControl' => {
@@ -110,7 +106,7 @@ RSpec.describe 'payment information', type: :request do
 
       it 'has canUpdatePayment as false' do
         VCR.use_cassette('mobile/payment_information/payment_information_unauthorized_to_update') do
-          get '/mobile/v0/payment-information/benefits', headers: iam_headers
+          get '/mobile/v0/payment-information/benefits', headers: sis_headers
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(get_payment_info_body)
           expect(response.body).to match_json_schema('payment_information')
@@ -120,11 +116,11 @@ RSpec.describe 'payment information', type: :request do
 
     context 'with a non idme user' do
       before do
-        allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: 'iam_ssoe')
+        allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: 'sis_ssoe')
       end
 
       it 'returns forbidden' do
-        get '/mobile/v0/payment-information/benefits', headers: iam_headers
+        get '/mobile/v0/payment-information/benefits', headers: sis_headers
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -144,7 +140,7 @@ RSpec.describe 'payment information', type: :request do
     let(:post_payment_info_body) do
       {
         'data' => {
-          'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
+          'id' => user.uuid,
           'type' => 'paymentInformation',
           'attributes' => {
             'accountControl' => {
@@ -175,7 +171,7 @@ RSpec.describe 'payment information', type: :request do
         allow(DirectDepositEmailJob).to receive(:send_to_emails)
         VCR.use_cassette('evss/ppiu/update_payment_information') do
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                         headers: iam_headers.merge(content_type)
+                                                         headers: sis_headers(content_type)
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(post_payment_info_body)
           expect(response.body).to match_json_schema('payment_information')
@@ -208,7 +204,7 @@ RSpec.describe 'payment information', type: :request do
           expect(Raven).to receive(:capture_message).once
 
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                         headers: iam_headers.merge(content_type)
+                                                         headers: sis_headers(content_type)
           expect(response).to have_http_status(:ok)
         end
       end
@@ -225,7 +221,7 @@ RSpec.describe 'payment information', type: :request do
 
       it 'returns a validation error' do
         put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                       headers: iam_headers.merge(content_type)
+                                                       headers: sis_headers(content_type)
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
@@ -234,7 +230,7 @@ RSpec.describe 'payment information', type: :request do
       it 'returns a not authorized response' do
         VCR.use_cassette('evss/ppiu/update_forbidden') do
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                         headers: iam_headers.merge(content_type)
+                                                         headers: sis_headers(content_type)
           expect(response).to have_http_status(:forbidden)
           expect(response.body).to match_json_schema('evss_errors')
         end
@@ -245,7 +241,7 @@ RSpec.describe 'payment information', type: :request do
       it 'returns a service error response' do
         VCR.use_cassette('evss/ppiu/service_error') do
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                         headers: iam_headers.merge(content_type)
+                                                         headers: sis_headers(content_type)
           expect(response).to have_http_status(:service_unavailable)
           expect(response.body).to match_json_schema('evss_errors')
         end
@@ -256,7 +252,7 @@ RSpec.describe 'payment information', type: :request do
       it 'returns a service error response', :aggregate_failures do
         VCR.use_cassette('evss/ppiu/update_fraud') do
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                         headers: iam_headers.merge(content_type)
+                                                         headers: sis_headers(content_type)
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response.body).to match_json_schema('evss_errors')
         end
@@ -267,7 +263,7 @@ RSpec.describe 'payment information', type: :request do
       it 'returns a service error response', :aggregate_failures do
         VCR.use_cassette('evss/ppiu/update_flagged') do
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
-                                                         headers: iam_headers.merge(content_type)
+                                                         headers: sis_headers(content_type)
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response.body).to match_json_schema('evss_errors')
         end

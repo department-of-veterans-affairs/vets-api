@@ -157,7 +157,7 @@ Rails.application.routes.draw do
     end
 
     resources :evss_claims_async, only: %i[index show]
-    resources :evss_benefits_claims, only: %i[index show]
+    resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
 
     namespace :virtual_agent do
       get 'claim', to: 'virtual_agent_claim#index'
@@ -367,6 +367,7 @@ Rails.application.routes.draw do
       post 'document_upload'
     end
 
+    get 'terms_of_use_agreements/:version/latest', to: 'terms_of_use_agreements#latest'
     post 'terms_of_use_agreements/:version/accept', to: 'terms_of_use_agreements#accept'
     post 'terms_of_use_agreements/:version/decline', to: 'terms_of_use_agreements#decline'
   end

@@ -40,11 +40,7 @@ module ClaimsApi
         addr = @data.dig(:veteranIdentification, :mailingAddress) || {}
         @evss_claim[:veteran] ||= {}
         @evss_claim[:veteran][:currentMailingAddress] = addr
-        @evss_claim[:veteran][:currentMailingAddress].merge!({
-                                                               addressLine1: addr[:numberAndStreet],
-                                                               addressLines2: addr[:apartmentOrUnitNumber],
-                                                               type: 'DOMESTIC'
-                                                             })
+        @evss_claim[:veteran][:currentMailingAddress].merge!({ type: 'DOMESTIC' })
         @evss_claim[:veteran][:currentMailingAddress].except!(:numberAndStreet, :apartmentOrUnitNumber)
         if @evss_claim[:veteran][:currentMailingAddress][:zipLastFour].blank?
           @evss_claim[:veteran][:currentMailingAddress].except!(:zipLastFour)

@@ -5,7 +5,7 @@ http_interactions:
       uri: "<MHV_MR_HOST>/mhvapi/security/v1/login"
       body:
         encoding: UTF-8
-        string: '{"appId":"103","appToken":"<MHV_MR_APP_TOKEN>","subject":"11898795","userType":"PATIENT","authParams":{"PATIENT_SUBJECT_ID_TYPE":"USER_PROFILE_ID"}}'
+        string: '{"appId":"103","appToken":"<MHV_MR_APP_TOKEN>","subject":"1013868614V792025","userType":"PATIENT","authParams":{"PATIENT_SUBJECT_ID_TYPE":"ICN"}}'
       headers:
         Accept:
           - application/json
@@ -21,7 +21,7 @@ http_interactions:
         message: ""
       headers:
         Date:
-          - Tue, 27 Jun 2023 14:03:43 GMT
+          - Thu, 28 Sep 2023 18:19:02 GMT
         Content-Type:
           - application/json
         Transfer-Encoding:
@@ -36,7 +36,7 @@ http_interactions:
         X-Content-Type-Options:
           - nosniff
         X-Xss-Protection:
-          - 1; mode=block
+          - "0"
         Cache-Control:
           - no-cache, no-store, max-age=0, must-revalidate
         Pragma:
@@ -50,5 +50,4 @@ http_interactions:
       body:
         encoding: UTF-8
         string: '{"id":101,"name":"VA.gov Medical Records","permissions":["Patient"]}'
-    recorded_at: Tue, 27 Jun 2023 14:03:43 GMT
-recorded_with: VCR 6.1.0
+    recorded_at: Thu, 28 Sep 2023 18:19:02 GMT
