@@ -19,6 +19,7 @@ FactoryBot.define do
     mhv_uuid { nil }
     backing_idme_uuid { nil }
     verified_at { Time.zone.now }
+    locked { false }
   end
 
   factory :logingov_user_verification, class: 'UserVerification' do
@@ -29,6 +30,7 @@ FactoryBot.define do
     mhv_uuid { nil }
     backing_idme_uuid { nil }
     verified_at { Time.zone.now }
+    locked { false }
   end
 
   factory :dslogon_user_verification, class: 'UserVerification' do
@@ -40,6 +42,7 @@ FactoryBot.define do
     mhv_uuid { nil }
     backing_idme_uuid { Faker::Internet.uuid }
     verified_at { Time.zone.now }
+    locked { false }
   end
 
   factory :mhv_user_verification, class: 'UserVerification' do
@@ -50,5 +53,6 @@ FactoryBot.define do
     mhv_uuid { Faker::Internet.uuid }
     backing_idme_uuid { Faker::Internet.uuid }
     verified_at { Time.zone.now }
+    locked { false }
   end
 end
