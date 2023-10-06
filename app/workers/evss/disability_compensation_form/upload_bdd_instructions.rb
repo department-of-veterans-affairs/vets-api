@@ -51,19 +51,22 @@ module EVSS
       private
 
       def upload_bdd_instructions
-        client.upload(file_body, document_data)
+        if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
+          submission_user = User.find(submission.user_uuid)
+
+          client = BenefitsDocuments::WorkerService.new(submission_user.icn)
+          client.upload_document(file_body, lighthouse_document_data)
+        else
+          evss_client.upload(file_body, evss_document_data)
+        end
       end
 
       def file_body
         @file_body ||= File.read('lib/evss/disability_compensation_form/bdd_instructions.pdf')
       end
 
-      def client
-        @client ||= if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
-                      # TODO: create client from lighthouse document service
-                    else
-                      EVSS::DocumentsService.new(submission.auth_headers)
-                    end
+      def evss_client
+        @evss_client ||= EVSS::DocumentsService.new(submission.auth_headers)
       end
 
       def retryable_error_handler(error)
@@ -71,8 +74,17 @@ module EVSS
         raise error
       end
 
-      def document_data
-        @document_data ||= EVSSClaimDocument.new(
+      def lighthouse_document_data
+        @lighthouse_document_data ||= LighthouseDocument.new(
+          evss_claim_id: submission.submitted_claim_id,
+          file_name: 'BDD_Instructions.pdf',
+          tracked_item_id: nil,
+          document_type: 'L023'
+        )
+      end
+
+      def evss_document_data
+        @evss_document_data ||= EVSSClaimDocument.new(
           evss_claim_id: submission.submitted_claim_id,
           file_name: 'BDD_Instructions.pdf',
           tracked_item_id: nil,
