@@ -188,6 +188,14 @@ RSpec/SpecFilePathFormat:
   CustomTransform:
     SSOeSettingsService: ssoe_settings_service
 
+# Use in conjunction with SpecFilePathFormat
+RSpec/SpecFilePathSuffix:
+  Enabled: true
+
+# This can be false if we have RSpec/SpecFilePathSuffix and RSpec/SpecFilePathFormat enabled.
+RSpec/FilePath:
+  Enabled: false
+
 # Was determined that using described_class makes the code less readable.
 RSpec/DescribedClass:
   Enabled: false
