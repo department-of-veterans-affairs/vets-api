@@ -1,16 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'email', type: :request do
   include JsonSchemaMatchers
 
-  before { iam_sign_in(user) }
-
-  let(:user) { FactoryBot.build(:iam_user) }
-  let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let!(:user) { sis_user }
 
   describe 'POST /mobile/v0/user/emails' do
     context 'with a valid email that takes two tries to complete' do
@@ -20,7 +17,7 @@ RSpec.describe 'email', type: :request do
             VCR.use_cassette('mobile/profile/post_email_initial') do
               post '/mobile/v0/user/emails',
                    params: { id: 42, email_address: 'person42@example.com' }.to_json,
-                   headers: iam_headers(json_body_headers)
+                   headers: sis_headers(json: true)
             end
           end
         end
@@ -42,7 +39,8 @@ RSpec.describe 'email', type: :request do
 
     context 'with email missing from params' do
       before do
-        put('/mobile/v0/user/emails', params: { email_address: '' }.to_json, headers: iam_headers(json_body_headers))
+        put('/mobile/v0/user/emails', params: { email_address: '' }.to_json,
+                                      headers: sis_headers(json: true))
       end
 
       it 'returns a 422' do
@@ -78,7 +76,7 @@ RSpec.describe 'email', type: :request do
             VCR.use_cassette('mobile/profile/put_email_initial') do
               put '/mobile/v0/user/emails',
                   params: { id: 42, email_address: 'person42@example.com' }.to_json,
-                  headers: iam_headers(json_body_headers)
+                  headers: sis_headers(json: true)
             end
           end
         end
@@ -100,7 +98,8 @@ RSpec.describe 'email', type: :request do
 
     context 'with email missing from params' do
       before do
-        put('/mobile/v0/user/emails', params: { email_address: '' }.to_json, headers: iam_headers(json_body_headers))
+        put('/mobile/v0/user/emails', params: { email_address: '' }.to_json,
+                                      headers: sis_headers(json: true))
       end
 
       it 'returns a 422' do
@@ -145,7 +144,7 @@ RSpec.describe 'email', type: :request do
             VCR.use_cassette('mobile/profile/delete_email_initial') do
               delete '/mobile/v0/user/emails',
                      params: { id: 42, email_address: 'person42@example.com' }.to_json,
-                     headers: iam_headers(json_body_headers)
+                     headers: sis_headers(json: true)
             end
           end
         end
@@ -169,7 +168,7 @@ RSpec.describe 'email', type: :request do
       before do
         delete '/mobile/v0/user/emails',
                params: { id: 42, email_address: '' }.to_json,
-               headers: iam_headers(json_body_headers)
+               headers: sis_headers(json: true)
       end
 
       it 'returns a 422' do
