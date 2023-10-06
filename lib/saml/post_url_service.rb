@@ -75,7 +75,11 @@ module SAML
     private
 
     def terms_of_use_url
-      "#{base_redirect_url}/terms-of-use"
+      if Settings.review_instance_slug.present?
+        "#{Settings.review_instance_slug}.review.vetsgov-internal/terms-of-use"
+      else
+        "#{base_redirect_url}/terms-of-use"
+      end
     end
 
     def client_redirect_target
