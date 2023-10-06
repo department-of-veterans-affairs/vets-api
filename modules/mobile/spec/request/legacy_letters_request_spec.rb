@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'letters', type: :request do
   include JsonSchemaMatchers
   before do
     Flipper.disable(:mobile_lighthouse_letters)
-    iam_sign_in
   end
 
+  let!(:user) { sis_user }
   let(:letters_body) do
     {
       'data' => {
-        'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
+        'id' => user.uuid,
         'type' => 'letters',
         'attributes' => {
           'letters' =>
@@ -61,7 +61,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a valid evss response' do
       it 'matches the letters schema' do
         VCR.use_cassette('evss/letters/letters') do
-          get '/mobile/v0/letters', headers: iam_headers
+          get '/mobile/v0/letters', headers: sis_headers
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(letters_body)
           expect(response.body).to match_json_schema('letters')
@@ -72,7 +72,7 @@ RSpec.describe 'letters', type: :request do
     unauthorized_five_hundred = { cassette_name: 'evss/letters/unauthorized' }
     context 'with an 500 unauthorized response', vcr: unauthorized_five_hundred do
       it 'returns a bad gateway response' do
-        get '/mobile/v0/letters', headers: iam_headers
+        get '/mobile/v0/letters', headers: sis_headers
         expect(response).to have_http_status(:bad_gateway)
         expect(response.body).to match_json_schema('evss_errors')
       end
@@ -81,7 +81,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a 403 response' do
       it 'returns a not authorized response' do
         VCR.use_cassette('evss/letters/letters_403') do
-          get '/mobile/v0/letters', headers: iam_headers
+          get '/mobile/v0/letters', headers: sis_headers
           expect(response).to have_http_status(:forbidden)
           expect(response.body).to match_json_schema('evss_errors')
         end
@@ -91,7 +91,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a generic 500 response' do
       it 'returns a not found response' do
         VCR.use_cassette('evss/letters/letters_500') do
-          get '/mobile/v0/letters', headers: iam_headers
+          get '/mobile/v0/letters', headers: sis_headers
           expect(response).to have_http_status(:internal_server_error)
           expect(response.body).to match_json_schema('evss_errors')
         end
@@ -103,7 +103,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a valid veteran response' do
       it 'matches the letter beneficiary schema' do
         VCR.use_cassette('evss/letters/beneficiary_veteran') do
-          get '/mobile/v0/letters/beneficiary', headers: iam_headers
+          get '/mobile/v0/letters/beneficiary', headers: sis_headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('letter_beneficiary', strict: true)
         end
@@ -113,7 +113,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a valid dependent response' do
       it 'does not include those properties' do
         VCR.use_cassette('evss/letters/beneficiary_dependent') do
-          get '/mobile/v0/letters/beneficiary', headers: iam_headers
+          get '/mobile/v0/letters/beneficiary', headers: sis_headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('letter_beneficiary', strict: true)
         end
@@ -123,7 +123,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a 403 response' do
       it 'returns a not authorized response' do
         VCR.use_cassette('evss/letters/beneficiary_403') do
-          get '/mobile/v0/letters/beneficiary', headers: iam_headers
+          get '/mobile/v0/letters/beneficiary', headers: sis_headers
           expect(response).to have_http_status(:forbidden)
           expect(response.body).to match_json_schema('evss_errors')
         end
@@ -133,7 +133,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a 500 response' do
       it 'returns a not found response' do
         VCR.use_cassette('evss/letters/beneficiary_500') do
-          get '/mobile/v0/letters/beneficiary', headers: iam_headers
+          get '/mobile/v0/letters/beneficiary', headers: sis_headers
           expect(response).to have_http_status(:internal_server_error)
           expect(response.body).to match_json_schema('evss_errors')
         end
@@ -145,7 +145,7 @@ RSpec.describe 'letters', type: :request do
     context 'with no options' do
       it 'downloads a PDF' do
         VCR.use_cassette('evss/letters/download') do
-          post '/mobile/v0/letters/commissary/download', headers: iam_headers
+          post '/mobile/v0/letters/commissary/download', headers: sis_headers
           expect(response).to have_http_status(:ok)
         end
       end
@@ -170,7 +170,7 @@ RSpec.describe 'letters', type: :request do
 
       it 'downloads a PDF' do
         VCR.use_cassette('evss/letters/download_options') do
-          post '/mobile/v0/letters/commissary/download', params: options, headers: iam_headers
+          post '/mobile/v0/letters/commissary/download', params: options, headers: sis_headers
           expect(response).to have_http_status(:ok)
         end
       end
@@ -179,7 +179,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a 404 evss response' do
       it 'returns a 404' do
         VCR.use_cassette('evss/letters/download_404') do
-          post '/mobile/v0/letters/commissary/download', headers: iam_headers
+          post '/mobile/v0/letters/commissary/download', headers: sis_headers
           expect(response).to have_http_status(:not_found)
         end
       end
@@ -188,7 +188,7 @@ RSpec.describe 'letters', type: :request do
     context 'when evss returns lettergenerator.notEligible' do
       it 'raises a 502' do
         VCR.use_cassette('evss/letters/download_not_eligible') do
-          post '/mobile/v0/letters/civil_service/download', headers: iam_headers
+          post '/mobile/v0/letters/civil_service/download', headers: sis_headers
           expect(response).to have_http_status(:bad_gateway)
         end
       end
@@ -213,7 +213,7 @@ RSpec.describe 'letters', type: :request do
 
       it 'returns a 502' do
         VCR.use_cassette('evss/letters/download_unexpected') do
-          post '/mobile/v0/letters/benefit_summary/download', params: options, headers: iam_headers
+          post '/mobile/v0/letters/benefit_summary/download', params: options, headers: sis_headers
           expect(response).to have_http_status(:bad_gateway)
         end
       end
@@ -227,7 +227,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a letter generator service error' do
       it 'returns a not found response' do
         VCR.use_cassette('evss/letters/letters_letter_generator_service_error') do
-          get '/mobile/v0/letters', headers: iam_headers
+          get '/mobile/v0/letters', headers: sis_headers
           expect(response).to have_http_status(:service_unavailable)
           expect(response.body).to match_json_schema('evss_errors')
         end
@@ -237,7 +237,7 @@ RSpec.describe 'letters', type: :request do
     context 'with one or more letter destination errors' do
       it 'returns a not found response' do
         VCR.use_cassette('evss/letters/letters_letter_destination_error') do
-          get '/mobile/v0/letters', headers: iam_headers
+          get '/mobile/v0/letters', headers: sis_headers
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response.body).to match_json_schema('evss_errors')
         end
@@ -248,7 +248,7 @@ RSpec.describe 'letters', type: :request do
       context 'when the user has not been logged' do
         it 'logs the user edipi' do
           VCR.use_cassette('evss/letters/letters_invalid_address') do
-            expect { get '/mobile/v0/letters', headers: iam_headers }.to change(InvalidLetterAddressEdipi, :count).by(1)
+            expect { get '/mobile/v0/letters', headers: sis_headers }.to change(InvalidLetterAddressEdipi, :count).by(1)
             expect(response).to have_http_status(:unprocessable_entity)
           end
         end
@@ -258,7 +258,7 @@ RSpec.describe 'letters', type: :request do
         it 'stills return unprocessable_entity' do
           VCR.use_cassette('evss/letters/letters_invalid_address') do
             allow(InvalidLetterAddressEdipi).to receive(:find_or_create_by).and_raise(ActiveRecord::ActiveRecordError)
-            expect { get '/mobile/v0/letters', headers: iam_headers }.not_to change(InvalidLetterAddressEdipi, :count)
+            expect { get '/mobile/v0/letters', headers: sis_headers }.not_to change(InvalidLetterAddressEdipi, :count)
             expect(response).to have_http_status(:unprocessable_entity)
           end
         end
@@ -268,7 +268,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a not eligible error' do
       it 'returns a not found response' do
         VCR.use_cassette('evss/letters/letters_not_eligible_error') do
-          get '/mobile/v0/letters', headers: iam_headers
+          get '/mobile/v0/letters', headers: sis_headers
           expect(response).to have_http_status(:bad_gateway)
           expect(response.body).to match_json_schema('evss_errors')
           expect(JSON.parse(response.body)).to have_deep_attributes(
@@ -298,7 +298,7 @@ RSpec.describe 'letters', type: :request do
     context 'with can not determine eligibility error' do
       it 'returns a not found response' do
         VCR.use_cassette('evss/letters/letters_determine_eligibility_error') do
-          get '/mobile/v0/letters', headers: iam_headers
+          get '/mobile/v0/letters', headers: sis_headers
           expect(response).to have_http_status(:bad_gateway)
           expect(response.body).to match_json_schema('evss_errors')
           expect(JSON.parse(response.body)).to have_deep_attributes(
