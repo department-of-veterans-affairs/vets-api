@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 require 'evss/disability_compensation_form/service_unavailable_exception'
 
@@ -9,10 +9,10 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
   include JsonSchemaMatchers
 
   before do
-    iam_sign_in
     Flipper.disable(:mobile_lighthouse_disability_ratings)
   end
 
+  let!(:user) { sis_user }
   let(:expected_response) do
     {
       'data' => {
@@ -44,7 +44,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'matches the rated disabilities schema' do
         VCR.use_cassette('mobile/profile/rating_info') do
           VCR.use_cassette('mobile/profile/rated_disabilities') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_response)
             expect(response.body).to match_json_schema('disability_rating_response')
@@ -57,7 +57,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       before do
         VCR.use_cassette('mobile/profile/rating_info') do
           VCR.use_cassette('mobile/profile/rated_disabilities_mixed_service_connected') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
           end
         end
       end
@@ -91,7 +91,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a bad gateway response' do
         VCR.use_cassette('mobile/profile/rating_info') do
           VCR.use_cassette('mobile/profile/rated_disabilities_500') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:bad_gateway)
             expect(response.body).to match_json_schema('evss_errors')
           end
@@ -103,7 +103,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a bad gateway response' do
         VCR.use_cassette('mobile/profile/rating_info_500') do
           VCR.use_cassette('mobile/profile/rated_disabilities') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:bad_gateway)
             expect(response.body).to match_json_schema('evss_errors')
           end
@@ -115,7 +115,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a bad gateway response' do
         VCR.use_cassette('mobile/profile/rating_info_500') do
           VCR.use_cassette('mobile/profile/rated_disabilities_500') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:bad_gateway)
             expect(response.body).to match_json_schema('evss_errors')
           end
@@ -127,7 +127,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a not found response' do
         VCR.use_cassette('mobile/profile/rating_info') do
           VCR.use_cassette('mobile/profile/rated_disabilities_400') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:not_found)
             expect(response.body).to match_json_schema('evss_errors')
           end
@@ -139,7 +139,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a not found response' do
         VCR.use_cassette('mobile/profile/rating_info_400') do
           VCR.use_cassette('mobile/profile/rated_disabilities') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:not_found)
             expect(response.body).to match_json_schema('evss_errors')
           end
@@ -151,7 +151,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a not found response' do
         VCR.use_cassette('mobile/profile/rating_info_400') do
           VCR.use_cassette('mobile/profile/rated_disabilities_400') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:not_found)
             expect(response.body).to match_json_schema('evss_errors')
           end
@@ -163,7 +163,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a forbidden response' do
         VCR.use_cassette('mobile/profile/rating_info') do
           VCR.use_cassette('mobile/profile/rated_disabilities_403') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:forbidden)
             expect(response.body).to match_json_schema('evss_errors')
           end
@@ -175,7 +175,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a not found response' do
         VCR.use_cassette('mobile/profile/rating_info_403') do
           VCR.use_cassette('mobile/profile/rated_disabilities') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:forbidden)
             expect(response.body).to match_json_schema('evss_errors')
           end
@@ -187,7 +187,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'returns a not found response' do
         VCR.use_cassette('mobile/profile/rating_info_403') do
           VCR.use_cassette('mobile/profile/rated_disabilities_403') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:forbidden)
             expect(response.body).to match_json_schema('evss_errors')
           end
@@ -205,7 +205,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
       it 'raises backend service exception' do
         VCR.use_cassette('mobile/profile/rating_info') do
           VCR.use_cassette('mobile/profile/rated_disabilities') do
-            get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
+            get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:bad_gateway)
             expect(response.body).to match_json_schema('evss_errors')
             expect(response.parsed_body).to eq({ 'errors' =>
