@@ -10,7 +10,8 @@ class Form526Submission < ApplicationRecord
   include SentryLogging
   include Form526ClaimFastTrackingConcern
 
-  wrap_with_logging(:enqueue_backup_submission,
+  wrap_with_logging(:start_evss_submission_job,
+                    :enqueue_backup_submission,
                     :submit_form_4142,
                     :submit_uploads,
                     :submit_form_0781,
