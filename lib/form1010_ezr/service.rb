@@ -5,53 +5,39 @@ require 'hca/enrollment_system'
 require 'hca/configuration'
 require 'va_1010_forms/service_utils'
 
-module HCA
+module Form1010EzrSubmission
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
     include VA1010Forms::ServiceUtils
 
-    STATSD_KEY_PREFIX = 'api.1010ez'
+    STATSD_KEY_PREFIX = 'api.1010ezr'
 
     configuration HCA::Configuration
 
     # @param [Hash] user_identifier
     def initialize(user_identifier = nil)
+      super()
       @user_identifier = user_identifier
     end
 
     # @param [HashWithIndifferentAccess] form JSON form data
-    def submit_form(form)
+    def submit(form)
+      # parsed_form = JSON.parse(form)
       formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(form, @user_identifier)
       content = Gyoku.xml(formatted)
       submission = soap.build_request(:save_submit_form, message: content)
 
-      is_short_form = HealthCareApplication.new(form: form.to_json).short_form?
-
-      response = with_monitoring do
-        perform(:post, '', submission.body)
-      rescue => e
-        increment_failure('submit_form_short_form', e) if is_short_form
-        raise e
-      ensure
-        increment_total('submit_form_short_form') if is_short_form
-      end
+      response =
+        with_monitoring do
+          perform(:post, '', submission.body)
+        rescue => e
+          Rails.logger.error "Form1010EzrSubmission failed: #{e}"
+          raise e
+        end
 
       root = response.body.locate('S:Envelope/S:Body/submitFormResponse').first
       {
         success: true,
-        formSubmissionId: root.locate('formSubmissionId').first.text.to_i,
-        timestamp: root.locate('timeStamp').first&.text || Time.now.getlocal.to_s
-      }
-    end
-
-    def health_check
-      submission = soap.build_request(:get_form_submission_status, message:
-        { formSubmissionId: HCA::Configuration::HEALTH_CHECK_ID })
-      response = with_monitoring do
-        perform(:post, '', submission.body)
-      end
-      root = response.body.locate('S:Envelope/S:Body/retrieveFormSubmissionStatusResponse').first
-      {
         formSubmissionId: root.locate('formSubmissionId').first.text.to_i,
         timestamp: root.locate('timeStamp').first&.text || Time.now.getlocal.to_s
       }
