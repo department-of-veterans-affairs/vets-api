@@ -1,29 +1,25 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/helpers/mobile_sm_client_helper'
 
 RSpec.describe 'Mobile Messages Integration', type: :request do
   include Mobile::MessagingClientHelper
   include SchemaMatchers
 
-  let(:user_id) { '10616687' }
-  let(:inbox_id) { 0 }
+  let!(:user) { sis_user(:mhv, mhv_account_type:) }
   let(:message_id) { 573_059 }
-  let(:va_patient) { true }
 
   before do
-    allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return(mhv_account_type)
     allow(Mobile::V0::Messaging::Client).to receive(:new).and_return(authenticated_client)
-    iam_sign_in(build(:iam_user, iam_mhv_id: '123'))
   end
 
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
 
     it 'is not authorized' do
-      get '/mobile/v0/messaging/health/messages/categories', headers: iam_headers
+      get '/mobile/v0/messaging/health/messages/categories', headers: sis_headers
       expect(response).not_to be_successful
       expect(response.status).to eq(403)
     end
@@ -33,7 +29,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
     let(:mhv_account_type) { 'Advanced' }
 
     it 'is not authorized' do
-      get '/mobile/v0/messaging/health/messages/categories', headers: iam_headers
+      get '/mobile/v0/messaging/health/messages/categories', headers: sis_headers
       expect(response).not_to be_successful
       expect(response.status).to eq(403)
     end
@@ -44,7 +40,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
 
     it 'responds to GET messages/categories' do
       VCR.use_cassette('sm_client/messages/gets_message_categories') do
-        get '/mobile/v0/messaging/health/messages/categories', headers: iam_headers
+        get '/mobile/v0/messaging/health/messages/categories', headers: sis_headers
       end
 
       expect(response).to be_successful
@@ -54,7 +50,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
 
     it 'responds to GET #show' do
       VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
-        get "/mobile/v0/messaging/health/messages/#{message_id}", headers: iam_headers
+        get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
       end
 
       expect(response).to be_successful
@@ -64,7 +60,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
 
     it 'generates mobile-specific metadata links' do
       VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
-        get "/mobile/v0/messaging/health/messages/#{message_id}", headers: iam_headers
+        get "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
       end
 
       result = JSON.parse(response.body)
@@ -73,7 +69,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
 
     it 'returns message signature preferences' do
       VCR.use_cassette('sm_client/messages/gets_message_signature') do
-        get '/mobile/v0/messaging/health/messages/signature', headers: iam_headers
+        get '/mobile/v0/messaging/health/messages/signature', headers: sis_headers
       end
 
       result = JSON.parse(response.body)
@@ -85,7 +81,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
     context 'when signature prefs are empty' do
       it 'returns empty message signature preferences' do
         VCR.use_cassette('sm_client/messages/gets_empty_message_signature') do
-          get '/mobile/v0/messaging/health/messages/signature', headers: iam_headers
+          get '/mobile/v0/messaging/health/messages/signature', headers: sis_headers
         end
 
         result = JSON.parse(response.body)
@@ -112,7 +108,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
       context 'message' do
         it 'without attachments' do
           VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
-            post '/mobile/v0/messaging/health/messages', headers: iam_headers, params: { message: params }
+            post '/mobile/v0/messaging/health/messages', headers: sis_headers, params: { message: params }
           end
 
           expect(response).to be_successful
@@ -124,7 +120,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
 
         it 'with attachments' do
           VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
-            post '/mobile/v0/messaging/health/messages', headers: iam_headers, params: params_with_attachments
+            post '/mobile/v0/messaging/health/messages', headers: sis_headers, params: params_with_attachments
           end
 
           expect(response).to be_successful
@@ -141,7 +137,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
         it 'without attachments' do
           VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
             post "/mobile/v0/messaging/health/messages/#{reply_message_id}/reply",
-                 headers: iam_headers, params: { message: params }
+                 headers: sis_headers, params: { message: params }
           end
 
           expect(response).to be_successful
@@ -154,7 +150,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
         it 'with attachments' do
           VCR.use_cassette('sm_client/messages/creates/a_reply_with_4_attachments') do
             post "/mobile/v0/messaging/health/messages/#{reply_message_id}/reply",
-                 headers: iam_headers, params: params_with_attachments
+                 headers: sis_headers, params: params_with_attachments
           end
 
           expect(response).to be_successful
@@ -172,7 +168,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
 
       it 'responds to GET #thread' do
         VCR.use_cassette('sm_client/messages/gets_a_message_thread') do
-          get "/mobile/v0/messaging/health/messages/#{thread_id}/thread", headers: iam_headers
+          get "/mobile/v0/messaging/health/messages/#{thread_id}/thread", headers: sis_headers
         end
 
         expect(response).to be_successful
@@ -186,7 +182,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
 
       it 'responds to DELETE' do
         VCR.use_cassette('sm_client/messages/deletes_the_message_with_id') do
-          delete "/mobile/v0/messaging/health/messages/#{message_id}", headers: iam_headers
+          delete "/mobile/v0/messaging/health/messages/#{message_id}", headers: sis_headers
         end
 
         expect(response).to be_successful
@@ -199,7 +195,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
 
       it 'responds to PATCH messages/move' do
         VCR.use_cassette('sm_client/messages/moves_a_message_with_id') do
-          patch "/mobile/v0/messaging/health/messages/#{message_id}/move?folder_id=0", headers: iam_headers
+          patch "/mobile/v0/messaging/health/messages/#{message_id}/move?folder_id=0", headers: sis_headers
         end
 
         expect(response).to be_successful
