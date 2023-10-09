@@ -9,7 +9,7 @@ module Formatters
       return if date_to_format.nil?
 
       begin
-        Date.parse(date_to_format.to_s).to_s(format)
+        Date.parse(date_to_format.to_s).to_formatted_s(format)
       rescue ArgumentError
         Rails.logger.error "[Formatters/DateFormatter] Cannot parse given date: #{date_to_format}"
         nil
