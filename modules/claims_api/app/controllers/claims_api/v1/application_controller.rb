@@ -192,6 +192,14 @@ module ClaimsApi
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end
       end
+
+      def claims_v1_logging(icn, poa = nil)
+        ClaimsApi::Logger.log('traceability',
+                              icn:,
+                              cid: token&.payload&.[]('cid'),
+                              current_user: current_user&.uuid,
+                              poa:)
+      end
     end
   end
 end
