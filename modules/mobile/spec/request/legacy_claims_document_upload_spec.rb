@@ -1,32 +1,31 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'legacy claims document upload', type: :request do
   include JsonSchemaMatchers
+
   before do
-    iam_sign_in
-    iam_sign_in user
     Flipper.disable(:mobile_lighthouse_document_upload)
     Flipper.disable(:mobile_lighthouse_document_upload, user)
     FileUtils.rm_rf(Rails.root.join('tmp', 'uploads', 'cache', '*'))
   end
 
-  let(:user) { FactoryBot.build(:iam_user) }
+  let!(:user) { sis_user(icn: '1008596379V859838') }
   let(:file) { fixture_file_upload('doctors-note.pdf', 'application/pdf') }
   let(:tracked_item_id) { 33 }
   let(:document_type) { 'L023' }
   let!(:claim) do
-    FactoryBot.create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: '3097e489-ad75-5746-ab1a-e0aabc1b426a')
+    FactoryBot.create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: user.uuid)
   end
   let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
   it 'uploads a file' do
     params = { file:, trackedItemId: tracked_item_id, documentType: document_type }
     expect do
-      post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
+      post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
@@ -36,10 +35,11 @@ RSpec.describe 'legacy claims document upload', type: :request do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.jpg'))]
     params = { files:, trackedItemId: tracked_item_id, documentType: document_type }
+    headers = sis_headers(json_body_headers)
     expect_any_instance_of(Mobile::V0::Claims::Proxy).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
-                                                               headers: iam_headers(json_body_headers)
+                                                               headers:
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
@@ -49,10 +49,11 @@ RSpec.describe 'legacy claims document upload', type: :request do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.gif')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
     params = { files:, trackedItemId: tracked_item_id, documentType: document_type }
+    headers = sis_headers(json_body_headers)
     expect_any_instance_of(Mobile::V0::Claims::Proxy).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
-                                                               headers: iam_headers(json_body_headers)
+                                                               headers:
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
@@ -62,10 +63,11 @@ RSpec.describe 'legacy claims document upload', type: :request do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
     params = { files:, trackedItemId: tracked_item_id, documentType: document_type }
+    headers = sis_headers(json_body_headers)
     expect_any_instance_of(Mobile::V0::Claims::Proxy).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
-                                                               headers: iam_headers(json_body_headers)
+                                                               headers:
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
@@ -73,7 +75,7 @@ RSpec.describe 'legacy claims document upload', type: :request do
 
   it 'rejects files with invalid document_types' do
     params = { file:, trackedItemId: tracked_item_id, documentType: 'invalid type' }
-    post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
+    post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
     expect(response).to have_http_status(:unprocessable_entity)
     expect(
       response.parsed_body['errors'].first['title']
@@ -82,7 +84,7 @@ RSpec.describe 'legacy claims document upload', type: :request do
 
   it 'normalizes requests with a null tracked_item_id' do
     params = { file:, tracked_item_id: 'null', documentType: document_type }
-    post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
+    post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
     args = EVSS::DocumentUpload.jobs.first['args'][2]
     expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
@@ -95,7 +97,7 @@ RSpec.describe 'legacy claims document upload', type: :request do
 
     it 'rejects files with invalid document_types' do
       params = { file:, trackedItemId: tracked_item_id, documentType: document_type }
-      post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
+      post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response).to have_http_status(:unprocessable_entity)
       expect(response.parsed_body['errors'].first['title']).to eq('Unprocessable Entity')
     end
@@ -106,21 +108,21 @@ RSpec.describe 'legacy claims document upload', type: :request do
 
     it 'rejects locked PDFs if no password is provided' do
       params = { file: locked_file, trackedItemId: tracked_item_id, documentType: document_type }
-      post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
+      post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response).to have_http_status(:unprocessable_entity)
       expect(response.parsed_body['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.pdf.locked'))
     end
 
     it 'accepts locked PDFs with the correct password' do
       params = { file: locked_file, trackedItemId: tracked_item_id, documentType: document_type, password: 'test' }
-      post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
+      post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response).to have_http_status(:accepted)
       expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
     end
 
     it 'rejects locked PDFs with the incocorrect password' do
       params = { file: locked_file, trackedItemId: tracked_item_id, documentType: document_type, password: 'bad' }
-      post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
+      post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response).to have_http_status(:unprocessable_entity)
       expect(
         response.parsed_body['errors'].first['title']
@@ -138,7 +140,7 @@ RSpec.describe 'legacy claims document upload', type: :request do
 
     it 'rejects a file that is not really a PDF' do
       params = { file: tempfile, trackedItemId: tracked_item_id, documentType: document_type }
-      post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
+      post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response).to have_http_status(:unprocessable_entity)
       expect(
         response.parsed_body['errors'].first['title']
@@ -151,7 +153,7 @@ RSpec.describe 'legacy claims document upload', type: :request do
 
     it 'rejects a text file with no body' do
       params = { file:, trackedItemId: tracked_item_id, documentType: document_type }
-      post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
+      post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response).to have_http_status(:unprocessable_entity)
       expect(
         response.parsed_body['errors'].first['detail']
@@ -169,7 +171,7 @@ RSpec.describe 'legacy claims document upload', type: :request do
 
     it 'rejects a text file containing untranslatable characters' do
       params = { file: tempfile, trackedItemId: tracked_item_id, documentType: document_type }
-      post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
+      post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response).to have_http_status(:unprocessable_entity)
       expect(
         response.parsed_body['errors'].first['title']
@@ -187,7 +189,7 @@ RSpec.describe 'legacy claims document upload', type: :request do
 
     it 'accepts a text file containing translatable characters' do
       params = { file: tempfile, trackedItemId: tracked_item_id, documentType: document_type }
-      post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
+      post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response).to have_http_status(:accepted)
       expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
     end
@@ -205,7 +207,7 @@ RSpec.describe 'legacy claims document upload', type: :request do
 
     it 'rejects a text file containing binary data' do
       params = { file: tempfile, tracked_item_id:, document_type: }
-      post '/mobile/v0/claim/600117255/documents', params:, headers: iam_headers
+      post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response).to have_http_status(:unprocessable_entity)
       expect(
         response.parsed_body['errors'].first['title']
