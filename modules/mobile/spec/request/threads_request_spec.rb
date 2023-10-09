@@ -1,22 +1,18 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/helpers/mobile_sm_client_helper'
 
 RSpec.describe 'Mobile Messages Integration', type: :request do
   include Mobile::MessagingClientHelper
   include SchemaMatchers
 
-  let(:user_id) { '10616687' }
+  let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type:) }
   let(:inbox_id) { 0 }
-  let(:message_id) { 573_059 }
-  let(:va_patient) { true }
 
   before do
-    allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return(mhv_account_type)
     allow(Mobile::V0::Messaging::Client).to receive(:new).and_return(authenticated_client)
-    iam_sign_in(build(:iam_user, iam_mhv_id: '123'))
   end
 
   context 'Basic User' do
@@ -24,7 +20,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
 
     it 'is not authorized' do
       get "/mobile/v0/messaging/health/folders/#{inbox_id}/threads",
-          headers: iam_headers,
+          headers: sis_headers,
           params: { page_size: '5', page: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC' }
       expect(response).not_to be_successful
       expect(response).to have_http_status(:forbidden)
@@ -36,7 +32,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
 
     it 'is not authorized' do
       get "/mobile/v0/messaging/health/folders/#{inbox_id}/threads",
-          headers: iam_headers,
+          headers: sis_headers,
           params: { page_size: '5', page: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC' }
       expect(response).not_to be_successful
       expect(response).to have_http_status(:forbidden)
@@ -73,7 +69,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
     it 'responds to GET #index' do
       VCR.use_cassette('sm_client/threads/gets_threads_in_a_folder') do
         get "/mobile/v0/messaging/health/folders/#{inbox_id}/threads",
-            headers: iam_headers,
+            headers: sis_headers,
             params: { page_size: '5', page: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC' }
       end
 
@@ -85,7 +81,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
     it 'responds 400 to GET #index with none existent folder' do
       VCR.use_cassette('mobile/messages/get_threads_in_folder_400') do
         get '/mobile/v0/messaging/health/folders/100/threads',
-            headers: iam_headers,
+            headers: sis_headers,
             params: { page_size: '5', page: '1', sort_field: 'SENDER_NAME', sort_order: 'ASC' }
       end
 
