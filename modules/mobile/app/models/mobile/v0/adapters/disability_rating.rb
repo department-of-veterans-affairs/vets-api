@@ -21,13 +21,15 @@ module Mobile
           return [] unless response['individual_ratings']
 
           response['individual_ratings'].map do |rating|
-            Mobile::V0::IndividualRating.new(
-              decision: rating['decision'],
-              effective_date: parse_date(rating['effective_date']),
-              rating_percentage: rating['rating_percentage']&.to_i,
-              diagnostic_text: rating['diagnostic_type_name']
-            )
-          end
+            unless rating['rating_end_date']
+              Mobile::V0::IndividualRating.new(
+                decision: rating['decision'],
+                effective_date: parse_date(rating['effective_date']),
+                rating_percentage: rating['rating_percentage']&.to_i,
+                diagnostic_text: rating['diagnostic_text']
+              )
+            end
+          end.compact
         end
 
         def parse_date(date)
