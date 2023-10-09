@@ -13,8 +13,7 @@ RSpec.describe 'check in demographics', type: :request do
         '200HD' => ['12345'],
         '200IP' => ['TKIP123456'],
         '200MHV' => ['123456']
-      },
-      vha_facility_ids: %w[516 553 200HD 200IP 200MHV]
+      }
     )
   end
 
