@@ -622,7 +622,7 @@ RSpec.describe SAML::PostURLService do
 
                 it 'has a login redirect url as a parameter embedded in review instance terms of use page' do
                   expect(subject.terms_of_use_redirect_url)
-                    .to eq("#{review_instance_url}/terms-of-use?#{expected_redirect_url_param}")
+                    .to eq("http://#{review_instance_url}/terms-of-use?#{expected_redirect_url_param}")
                 end
               end
 
