@@ -19,6 +19,36 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
   end
 
   describe '#after_submit' do
+    context "sends email confirmation via VANotify (with feature flag)" do
+      it 'is skipped when feature flag is turned off' do
+        Flipper.disable(:form21_10203_confirmation_email)
+        allow(VANotify::EmailJob).to receive(:perform_async)
+
+        instance.after_submit(user)
+
+        expect(VANotify::EmailJob).not_to have_received(:perform_async)
+        Flipper.enable(:form21_10203_confirmation_email)
+      end
+
+      it 'sends with form data' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
+
+        subject = instance
+        subject.after_submit(user)
+        confirmation_number = subject.education_benefits_claim.confirmation_number
+
+        expect(VANotify::EmailJob).to have_received(:perform_async).with(
+          'test@sample.com',
+          'form21_10203_confirmation_email_template_id',
+          {
+            'first_name' => 'MARK',
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => confirmation_number
+          }
+        )
+      end
+    end
+
     context 'FeatureFlipper send email disabled' do
       before do
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(false)
