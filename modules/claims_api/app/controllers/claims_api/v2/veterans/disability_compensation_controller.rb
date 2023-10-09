@@ -5,6 +5,7 @@ require 'jsonapi/parser'
 require 'claims_api/v2/disability_compensation_validation'
 require 'claims_api/v2/disability_compensation_pdf_mapper'
 require 'claims_api/v2/disability_compensation_evss_mapper'
+require 'claims_api/v2/disability_compensation_claim_processor'
 require 'evss_service/base'
 require 'pdf_generator_service/pdf_client'
 
@@ -38,8 +39,12 @@ module ClaimsApi
           end
 
           track_pact_counter auto_claim
-          pdf_data = get_pdf_data
-          pdf_mapper_service(form_attributes, pdf_data, target_veteran).map_claim
+          #pdf_data = get_pdf_data
+          byebug
+          #pdf_mapper_service(form_attributes, pdf_data, target_veteran).map_claim
+byebug
+          #generate_526_pdf(pdf_data)
+          process_pdf_job(auto_claim)
 
           if auto_claim.evss_id.nil?
             ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Mapping EVSS Data')
@@ -53,29 +58,29 @@ module ClaimsApi
             ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'EVSS Skipped',
                                             evss_id: auto_claim.evss_id)
           end
+byebug
+          ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Starting call to 526EZ PDF generator')
 
-          #ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Starting call to 526EZ PDF generator')
-          pdf_generator_service.perform(auto_claim, target_veteran)
-          #pdf_string = generate_526_pdf(pdf_data)
+          # pdf_string = generate_526_pdf(pdf_data)
 
-          #ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Completed call to 526EZ PDF generator')
-          #if pdf_string.empty?
-            #ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: '526EZ PDF generator failed.')
-          elsif pdf_string
-            # file_name = "#{SecureRandom.hex}.pdf"
-            # path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
-            # upload = ActionDispatch::Http::UploadedFile.new({
-            #                                                   filename: file_name,
-            #                                                   type: 'application/pdf',
-            #                                                   tempfile: File.open(path)
-            #                                                 })
-            # auto_claim.set_file_data!(upload, EVSS_DOCUMENT_TYPE)
-            # auto_claim.save!
-            # ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Uploaded 526EZ PDF to S3')
-            # ::Common::FileHelpers.delete_file_if_exists(path)
-            # ClaimsApi::ClaimUploader.perform_async(auto_claim.id)
-            # ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Uploaded 526EZ PDF to VBMS')
-          #end
+          # ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Completed call to 526EZ PDF generator')
+          # if pdf_string.empty?
+          #   ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: '526EZ PDF generator failed.')
+          # elsif pdf_string
+          #   file_name = "#{SecureRandom.hex}.pdf"
+          #   path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
+          #   upload = ActionDispatch::Http::UploadedFile.new({
+          #                                                     filename: file_name,
+          #                                                     type: 'application/pdf',
+          #                                                     tempfile: File.open(path)
+          #                                                   })
+          #   auto_claim.set_file_data!(upload, EVSS_DOCUMENT_TYPE)
+          #   auto_claim.save!
+          #   ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Uploaded 526EZ PDF to S3')
+          #   ::Common::FileHelpers.delete_file_if_exists(path)
+          #   ClaimsApi::ClaimUploader.perform_async(auto_claim.id)
+          #   ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Uploaded 526EZ PDF to VBMS')
+          # end
 
           get_benefits_documents_auth_token unless Rails.env.test?
 
@@ -93,6 +98,14 @@ module ClaimsApi
         end
 
         private
+
+        def process_pdf_job(auto_claim)
+          byebug
+          ClaimsApi::V2::DisabilityCompensationClaimProcessor.new
+                .process_claim(
+                  auto_claim.id,
+                  target_veteran.veteran_id)
+        end
 
         def flashes
           veteran_flashes = []
@@ -135,9 +148,9 @@ module ClaimsApi
           ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, @file_number)
         end
 
-        def pdf_generator_service
-          ClaimsApi::V2::DisabilityCompensationPdfGenerator.new
-        end
+        # def pdf_generator_service(auto_claim, target_veteran)
+        #   ClaimsApi::V2::DisabilityCompensationPDFGenerator
+        # end
 
         def track_pact_counter(claim)
           return unless form_attributes['disabilities']&.map { |d| d['isRelatedToToxicExposure'] }&.include? true

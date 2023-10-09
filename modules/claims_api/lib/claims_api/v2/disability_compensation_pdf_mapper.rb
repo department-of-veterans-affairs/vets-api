@@ -27,6 +27,7 @@ module ClaimsApi
       end
 
       def map_claim
+        byebug
         claim_attributes
         toxic_exposure_attributes
         homeless_attributes
@@ -42,6 +43,7 @@ module ClaimsApi
       end
 
       def claim_attributes
+        byebug
         @pdf_data[:data][:attributes] = @auto_claim&.deep_symbolize_keys
         @pdf_data[:data][:attributes].delete(:claimantCertification)
         claim_date_and_signature
