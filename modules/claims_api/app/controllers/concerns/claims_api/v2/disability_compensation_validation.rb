@@ -11,7 +11,7 @@ module ClaimsApi
         4 => 'yyyy'
       }.freeze
 
-      def validate_form_526_submission_values!
+      def validate_form_526_submission_values!(target_veteran)
         # ensure 'claimDate', if provided, is a valid date not in the future
         validate_form_526_submission_claim_date!
         # ensure 'claimantCertification' is true
@@ -29,7 +29,7 @@ module ClaimsApi
         # ensure treament centers information is valid
         validate_form_526_treatments!
         # ensure service information is valid
-        validate_form_526_service_information!
+        validate_form_526_service_information!(target_veteran)
         # ensure direct deposit information is valid
         validate_form_526_direct_deposit!
       end
@@ -469,7 +469,7 @@ module ClaimsApi
         names
       end
 
-      def validate_form_526_service_information!
+      def validate_form_526_service_information!(target_veteran)
         service_information = form_attributes['serviceInformation']
 
         if service_information.blank?
@@ -477,7 +477,7 @@ module ClaimsApi
             detail: 'Service information is required'
           )
         end
-        validate_service_periods!(service_information)
+        validate_service_periods!(service_information, target_veteran)
         validate_service_branch_names!(service_information)
         validate_confinements!(service_information)
         validate_alternate_names!(service_information)
@@ -485,11 +485,19 @@ module ClaimsApi
         validate_form_526_location_codes!(service_information)
       end
 
-      def validate_service_periods!(service_information)
+      def validate_service_periods!(service_information, target_veteran)
+        date_of_birth = Date.strptime(target_veteran.birth_date, '%Y%m%d')
+        age_thirteen = date_of_birth.next_year(13)
         service_information['servicePeriods'].each do |sp|
           if Date.strptime(sp['activeDutyBeginDate'], '%m-%d-%Y') > Date.strptime(sp['activeDutyEndDate'], '%m-%d-%Y')
             raise ::Common::Exceptions::UnprocessableEntity.new(
               detail: 'Active Duty End Date needs to be after Active Duty Start Date'
+            )
+          end
+
+          if Date.strptime(sp['activeDutyBeginDate'], '%m-%d-%Y') <= age_thirteen
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: "Active Duty Begin Date cannot be on or before Veteran's thirteenth birthday."
             )
           end
 
