@@ -3,7 +3,7 @@
 module V0
   class AccountControlsController < ApplicationController
     rescue_from ActiveRecord::RecordNotFound, with: :not_found
-    skip_before_action :authenticate, :verify_authenticity_token
+    skip_before_action :authenticate
     before_action :authenticate_service_account, :validate_account_control_params
 
     def csp_lock
@@ -79,12 +79,12 @@ module V0
         type:,
         icn: account.icn,
         locked: user_verification.reload.locked,
-        updated_by: @service_account_access_token&.user_identifier
+        updated_by: @service_account_access_token.user_identifier
       }.compact
     end
 
     def not_found
-      raise StandardError, "User record not found. ICN:#{params[:icn]} #{type}_uuid:#{params[:csp_uuid]}"
+      raise StandardError, "User record not found. ICN:#{icn} #{type}_uuid:#{csp_uuid}"
     end
   end
 end

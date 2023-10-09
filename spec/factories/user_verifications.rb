@@ -9,6 +9,7 @@ FactoryBot.define do
     mhv_uuid { nil }
     backing_idme_uuid { nil }
     verified_at { Time.zone.now }
+    locked { false }
   end
 
   factory :idme_user_verification, class: 'UserVerification' do

@@ -550,6 +550,7 @@ RSpec.describe V0::SignInController, type: :controller do
     let!(:client_config) { create(:client_config, authentication:, enforced_terms:, terms_of_use_url:) }
     let(:enforced_terms) { nil }
     let(:terms_of_use_url) { 'some-terms-of-use-url' }
+    let(:sis_standard_error) { true }
 
     before do
       allow(Rails.logger).to receive(:info)
@@ -577,7 +578,7 @@ RSpec.describe V0::SignInController, type: :controller do
       end
 
       it 'logs the failed callback' do
-        expect(Rails.logger).to receive(:info).with(expected_error_log, expected_error_message)
+        expect(Rails.logger).to receive(:info).with(expected_error_log, expected_error_message) if sis_standard_error
         subject
       end
 
@@ -631,7 +632,7 @@ RSpec.describe V0::SignInController, type: :controller do
         end
 
         it 'logs the failed callback' do
-          expect(Rails.logger).to receive(:info).with(expected_error_log, expected_error_message)
+          expect(Rails.logger).to receive(:info).with(expected_error_log, expected_error_message) if sis_standard_error
           subject
         end
 
@@ -857,6 +858,20 @@ RSpec.describe V0::SignInController, type: :controller do
                   end
                 end
 
+                context 'and the retrieved Login.gov UserVerification is locked' do
+                  let(:user_verification) { create(:logingov_user_verification, logingov_uuid:, locked: true) }
+                  let(:expected_error) { 'Login.gov credential has been locked' }
+                  let(:error_code) { '400' }
+                  let(:sis_standard_error) { false }
+
+                  before do
+                    allow_any_instance_of(Login::UserVerifier).to receive(:user_verification)
+                      .and_return(user_verification)
+                  end
+
+                  it_behaves_like 'error response'
+                end
+
                 it 'includes expected code param' do
                   expect(subject.body).to include(client_code)
                 end
@@ -1033,6 +1048,20 @@ RSpec.describe V0::SignInController, type: :controller do
                   it 'directs to the given redirect url set in the client configuration' do
                     expect(subject.body).to include(client_redirect_uri)
                   end
+                end
+
+                context 'and the retrieved ID.me UserVerification is locked' do
+                  let(:user_verification) { create(:idme_user_verification, idme_uuid:, locked: true) }
+                  let(:expected_error) { 'ID.me credential has been locked' }
+                  let(:error_code) { '400' }
+                  let(:sis_standard_error) { false }
+
+                  before do
+                    allow_any_instance_of(Login::UserVerifier).to receive(:user_verification)
+                      .and_return(user_verification)
+                  end
+
+                  it_behaves_like 'error response'
                 end
 
                 it 'includes expected code param' do
@@ -1253,6 +1282,20 @@ RSpec.describe V0::SignInController, type: :controller do
                     expect(subject.body).to include(client_redirect_uri)
                   end
                 end
+
+                context 'and the retrieved ID.me-backed UserVerification is locked' do
+                  let(:user_verification) { create(:dslogon_user_verification, backing_idme_uuid:, locked: true) }
+                  let(:expected_error) { 'ID.me credential has been locked' }
+                  let(:error_code) { '400' }
+                  let(:sis_standard_error) { false }
+
+                  before do
+                    allow_any_instance_of(Login::UserVerifier).to receive(:user_verification)
+                      .and_return(user_verification)
+                  end
+
+                  it_behaves_like 'error response'
+                end
               end
             end
           end
@@ -1422,6 +1465,20 @@ RSpec.describe V0::SignInController, type: :controller do
                   it 'directs to the given redirect url set in the client configuration' do
                     expect(subject.body).to include(client_redirect_uri)
                   end
+                end
+
+                context 'and the retrieved ID.me-backed UserVerification is locked' do
+                  let(:user_verification) { create(:mhv_user_verification, backing_idme_uuid:, locked: true) }
+                  let(:expected_error) { 'ID.me credential has been locked' }
+                  let(:error_code) { '400' }
+                  let(:sis_standard_error) { false }
+
+                  before do
+                    allow_any_instance_of(Login::UserVerifier).to receive(:user_verification)
+                      .and_return(user_verification)
+                  end
+
+                  it_behaves_like 'error response'
                 end
               end
             end

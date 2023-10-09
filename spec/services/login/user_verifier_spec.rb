@@ -25,6 +25,7 @@ RSpec.describe Login::UserVerifier do
     let(:mhv_correlation_id_identifier) { 'some-correlation-id' }
     let(:idme_uuid_identifier) { 'some-idme-uuid' }
     let(:logingov_uuid_identifier) { 'some-logingov-uuid' }
+    let(:locked) { false }
 
     let(:icn) { nil }
     let(:login_value) { nil }
@@ -63,9 +64,20 @@ RSpec.describe Login::UserVerifier do
         let!(:user_verification) do
           UserVerification.create!(type => idme_uuid_identifier,
                                    backing_idme_uuid:,
-                                   user_account:)
+                                   user_account:,
+                                   locked:)
         end
         let(:user_account) { UserAccount.new }
+
+        context 'and user verification locked attribute is true' do
+          let(:locked) { true }
+          let(:expected_error) { Login::Errors::CSPLockedError }
+          let(:expected_log) { 'ID.me credential has been locked' }
+
+          it 'raises a CSP Locked error detailing the CSP that has been locked' do
+            expect { subject }.to raise_exception(expected_error, expected_log)
+          end
+        end
 
         it 'logs messages to rails logger' do
           expect(Rails.logger).to receive(:info).with(expected_log).ordered
@@ -90,7 +102,8 @@ RSpec.describe Login::UserVerifier do
             UserVerification.create!(authn_identifier_type => authn_identifier,
                                      user_account:,
                                      backing_idme_uuid:,
-                                     verified_at:)
+                                     verified_at:,
+                                     locked:)
           end
           let(:verified_at) { Time.zone.now - 1.day }
 
@@ -101,6 +114,17 @@ RSpec.describe Login::UserVerifier do
 
           it 'does not create a new user_verification' do
             expect { subject }.not_to change(UserVerification, :count)
+          end
+
+          context 'and user verification locked attribute is true' do
+            let(:locked) { true }
+            let(:expected_error) { Login::Errors::CSPLockedError }
+            let(:csp_block_type) { login_value == SignIn::Constants::Auth::LOGINGOV ? 'Login.gov' : 'ID.me' }
+            let(:expected_log) { "#{csp_block_type} credential has been locked" }
+
+            it 'raises a CSP Locked error detailing the CSP that has been locked' do
+              expect { subject }.to raise_exception(expected_error, expected_log)
+            end
           end
 
           context 'and determined backing idme uuid is different than existing backing idme uuid' do

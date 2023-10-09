@@ -18,7 +18,15 @@ RSpec.describe V1::SessionsController, type: :controller do
   let(:loa) { :loa3 }
   let(:uuid) { SecureRandom.uuid }
   let(:token) { 'abracadabra-open-sesame' }
-  let(:saml_user_attributes) { user.attributes.merge(user.identity.attributes) }
+  let(:loa1_user) { build(:user, :loa1, uuid:, idme_uuid: uuid) }
+  let(:loa3_user) { build(:user, :loa3, uuid:, idme_uuid: uuid) }
+  let!(:user_verification) { create(:idme_user_verification, idme_uuid: loa3_user.idme_uuid, locked:) }
+  let(:locked) { false }
+  let!(:terms_of_use_agreement_loa3_user) do
+    create(:terms_of_use_agreement, user_account: user_verification.user_account)
+  end
+  let(:ial1_user) { build(:user, :ial1, uuid:, logingov_uuid: uuid) }
+  let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
   let(:user_attributes) { double('user_attributes', saml_user_attributes) }
   let(:saml_user) do
     instance_double('SAML::User',
@@ -715,6 +723,24 @@ RSpec.describe V1::SessionsController, type: :controller do
 
             expect { call_endpoint }
               .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_SUCCESS, tags: callback_tags, **once)
+          end
+        end
+
+        context 'when a locked UserVerification is found' do
+          let(:locked) { true }
+          let(:expected_error_message) { 'ID.me credential has been locked' }
+
+          before do
+            allow_any_instance_of(Login::UserVerifier).to receive(:user_verification).and_return(user_verification)
+          end
+
+          it 'redirects to an auth failure page' do
+            expect(Raven).to receive(:tags_context).once
+            expect(controller).to receive(:log_message_to_sentry).with(expected_error_message,
+                                                                       :error,
+                                                                       extra_context: {})
+            expect(post(:saml_callback)).to redirect_to(expected_redirect)
+            expect(response).to have_http_status(:redirect)
           end
         end
 

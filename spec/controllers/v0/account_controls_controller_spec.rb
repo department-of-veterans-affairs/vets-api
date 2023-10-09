@@ -3,8 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe V0::AccountControlsController, type: :controller do
-  subject { V0::AccountControlsController.new }
-
   let(:service_account_access_token) { build(:service_account_access_token) }
   let(:user_account) { create(:user_account) }
   let!(:logingov_user_verification) { create(:logingov_user_verification, user_account:, locked:) }
@@ -22,12 +20,13 @@ RSpec.describe V0::AccountControlsController, type: :controller do
     { 'csp_uuid' => csp_uuid,
       'type' => type,
       'icn' => icn,
-      'locked' => expected_lock_status }
+      'locked' => expected_lock_status,
+      'updated_by' => service_account_access_token.user_identifier }
   end
 
   before do
     allow_any_instance_of(V0::AccountControlsController).to receive(:authenticate_service_account).and_return(true)
-    subject.instance_variable_set(:@service_account_access_token, service_account_access_token)
+    controller.instance_variable_set(:@service_account_access_token, service_account_access_token)
   end
 
   shared_context 'when validating params and querying a UserVerification' do
