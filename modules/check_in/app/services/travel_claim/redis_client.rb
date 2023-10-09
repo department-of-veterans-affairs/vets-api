@@ -33,33 +33,39 @@ module TravelClaim
     end
 
     def icn(uuid:)
-      appointment_identifiers = Rails.cache.read(
-        "check_in_lorota_v2_appointment_identifiers_#{uuid}",
-        namespace: 'check-in-lorota-v2-cache'
-      )
-      return nil if appointment_identifiers.nil?
+      return nil if appointment_identifiers(uuid:).nil?
 
-      Oj.load(appointment_identifiers).with_indifferent_access.dig(:data, :attributes, :icn)
+      Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :icn)
     end
 
     def mobile_phone(uuid:)
-      appointment_identifiers = Rails.cache.read(
-        "check_in_lorota_v2_appointment_identifiers_#{uuid}",
-        namespace: 'check-in-lorota-v2-cache'
-      )
-      return nil if appointment_identifiers.nil?
+      return nil if appointment_identifiers(uuid:).nil?
 
-      Oj.load(appointment_identifiers).with_indifferent_access.dig(:data, :attributes, :mobilePhone)
+      Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :mobilePhone)
     end
 
     def patient_cell_phone(uuid:)
-      appointment_identifiers = Rails.cache.read(
-        "check_in_lorota_v2_appointment_identifiers_#{uuid}",
-        namespace: 'check-in-lorota-v2-cache'
-      )
-      return nil if appointment_identifiers.nil?
+      return nil if appointment_identifiers(uuid:).nil?
 
-      Oj.load(appointment_identifiers).with_indifferent_access.dig(:data, :attributes, :patientCellPhone)
+      Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :patientCellPhone)
+    end
+
+    def station_number(uuid:)
+      return nil if appointment_identifiers(uuid:).nil?
+
+      Oj.load(appointment_identifiers(uuid:)).with_indifferent_access.dig(:data, :attributes, :stationNo)
+    end
+
+    private
+
+    def appointment_identifiers(uuid:)
+      @appointment_identifiers ||= Hash.new do |h, key|
+        h[key] = Rails.cache.read(
+          "check_in_lorota_v2_appointment_identifiers_#{key}",
+          namespace: 'check-in-lorota-v2-cache'
+        )
+      end
+      @appointment_identifiers[uuid]
     end
   end
 end
