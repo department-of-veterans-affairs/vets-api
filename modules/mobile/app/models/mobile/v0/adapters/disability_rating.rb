@@ -20,7 +20,7 @@ module Mobile
         def individual_ratings(response)
           return [] unless response['individual_ratings']
 
-          response['individual_ratings'].map do |rating|
+          individual_ratings = response['individual_ratings'].map do |rating|
             unless rating['rating_end_date']
               Mobile::V0::IndividualRating.new(
                 decision: rating['decision'],
@@ -29,7 +29,8 @@ module Mobile
                 diagnostic_text: rating['diagnostic_text']
               )
             end
-          end.compact
+          end
+          individual_ratings.compact.sort_by { |rating| (rating.effective_date || '1/1/1800').to_datetime }.reverse!
         end
 
         def parse_date(date)
