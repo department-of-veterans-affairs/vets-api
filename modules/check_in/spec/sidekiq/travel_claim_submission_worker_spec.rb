@@ -10,6 +10,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
     let(:mobile_phone_last_four) { '4566' }
     let(:patient_cell_phone) { '123-345-7777' }
     let(:patient_cell_phone_last_four) { '7777' }
+    let(:station_number) { '500xyz' }
     let(:redis_token) { '123-456' }
     let(:icn) { '123456' }
     let(:notify_appt_date) { 'Sep 01' }
@@ -26,6 +27,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
       allow(redis_client).to receive(:patient_cell_phone).and_return(patient_cell_phone)
       allow(redis_client).to receive(:token).and_return(redis_token)
       allow(redis_client).to receive(:icn).and_return(icn)
+      allow(redis_client).to receive(:station_number).and_return(station_number)
 
       allow(StatsD).to receive(:increment)
     end
