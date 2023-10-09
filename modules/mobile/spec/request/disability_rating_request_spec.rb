@@ -20,38 +20,14 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
               'decision' => 'Service Connected',
               'effectiveDate' => '2018-03-27T00:00:00+00:00',
               'ratingPercentage' => 50,
-              'diagnosticText' => 'Diabetes mellitus0'
+              'diagnosticText' => 'Diabetes'
             }
           ]
         }
       }
     }
   end
-  let(:expected_multiple_response) do
-    {
-      'data' => {
-        'id' => '0',
-        'type' => 'disabilityRating',
-        'attributes' => {
-          'combinedDisabilityRating' => 100,
-          'individualRatings' => [
-            {
-              'decision' => 'Service Connected',
-              'effectiveDate' => '2018-03-27T00:00:00+00:00',
-              'ratingPercentage' => 50,
-              'diagnosticText' => 'Diabetes mellitus0'
-            },
-            {
-              'decision' => 'Service Connected',
-              'effectiveDate' => '2018-05-27T00:00:00+00:00',
-              'ratingPercentage' => 50,
-              'diagnosticText' => 'Hearing Loss'
-            }
-          ]
-        }
-      }
-    }
-  end
+
   let(:expected_no_individual_rating_response) do
     {
       'data' => {
@@ -94,8 +70,12 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
           VCR.use_cassette('mobile/lighthouse_disability_rating/introspect_active') do
             VCR.use_cassette('mobile/lighthouse_disability_rating/200_multiple_response') do
               get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
+              individual_ratings = JSON.parse(response.body).dig('data', 'attributes', 'individualRatings')
               expect(response).to have_http_status(:ok)
-              expect(JSON.parse(response.body)).to eq(expected_multiple_response)
+              expect(individual_ratings.length).to eq(5)
+              expect(individual_ratings[0]['diagnosticText']).to eq('Hearing Loss')
+              expect(individual_ratings[1]['diagnosticText']).to eq('Allergies due to Hearing Loss')
+              expect(individual_ratings[4]['diagnosticText']).to eq('Diabetes')
               expect(response.body).to match_json_schema('disability_rating_response')
             end
           end
@@ -131,7 +111,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
                                            'decision' => 'Service Connected',
                                            'effectiveDate' => '2018-03-27T00:00:00+00:00',
                                            'ratingPercentage' => 50,
-                                           'diagnosticText' => 'Diabetes mellitus0'
+                                           'diagnosticText' => 'Diabetes'
                                          })
       end
 
@@ -141,7 +121,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
                                                'decision' => 'Not Service Connected',
                                                'effectiveDate' => '2018-03-27T00:00:00+00:00',
                                                'ratingPercentage' => 50,
-                                               'diagnosticText' => 'Diabetes mellitus0'
+                                               'diagnosticText' => 'Diabetes'
                                              })
       end
 
