@@ -1,30 +1,24 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../support/helpers/iam_session_helper'
+require_relative '../../support/helpers/sis_session_helper'
 require_relative '../../support/helpers/mobile_sm_client_helper'
-require_relative '../../support/matchers/json_schema_matcher'
 
 RSpec.describe 'Mobile Messages V1 Integration', type: :request do
   include Mobile::MessagingClientHelper
-  include JsonSchemaMatchers
 
-  let(:user_id) { '10616687' }
-  let(:inbox_id) { 0 }
-  let(:message_id) { 573_059 }
-  let(:va_patient) { true }
+  let!(:user) { sis_user(:mhv, :api_auth, mhv_correlation_id: '123', mhv_account_type:) }
 
   before do
     allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return(mhv_account_type)
     allow(Mobile::V0::Messaging::Client).to receive(:new).and_return(authenticated_client)
-    iam_sign_in(build(:iam_user, iam_mhv_id: '123'))
   end
 
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
 
     it 'is not authorized' do
-      get '/mobile/v0/messaging/health/messages/categories', headers: iam_headers
+      get '/mobile/v0/messaging/health/messages/categories', headers: sis_headers
       expect(response).not_to be_successful
       expect(response).to have_http_status(:forbidden)
     end
@@ -34,7 +28,7 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
     let(:mhv_account_type) { 'Advanced' }
 
     it 'is not authorized' do
-      get '/mobile/v0/messaging/health/messages/categories', headers: iam_headers
+      get '/mobile/v0/messaging/health/messages/categories', headers: sis_headers
       expect(response).not_to be_successful
       expect(response).to have_http_status(:forbidden)
     end
@@ -137,7 +131,7 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
 
       it 'includes provided message' do
         VCR.use_cassette('mobile/messages/v1_get_thread') do
-          get "/mobile/v1/messaging/health/messages/#{thread_id}/thread", headers: iam_headers
+          get "/mobile/v1/messaging/health/messages/#{thread_id}/thread", headers: sis_headers
         end
 
         expect(response).to be_successful
@@ -148,7 +142,7 @@ RSpec.describe 'Mobile Messages V1 Integration', type: :request do
       it 'filters the provided message' do
         VCR.use_cassette('mobile/messages/v1_get_thread') do
           get "/mobile/v1/messaging/health/messages/#{thread_id}/thread",
-              headers: iam_headers,
+              headers: sis_headers,
               params: { excludeProvidedMessage: true }
         end
 
