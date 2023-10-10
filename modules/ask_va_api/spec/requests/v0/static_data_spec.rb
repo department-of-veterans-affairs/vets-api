@@ -135,4 +135,58 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       end
     end
   end
+
+  describe 'GET #SubTopics' do
+    let(:topic) do
+      AskVAApi::Topics::Entity.new({ id: 2, topic: 'All other Questions' })
+    end
+    let(:expected_response) do
+      { 'data' =>
+        [{
+          'id' => '2',
+          'type' => 'subtopics',
+          'attributes' => { 'name' => 'All other Questions' }
+        },
+         {
+           'id' => '3',
+           'type' => 'subtopics',
+           'attributes' => { 'name' => 'Claim Access Issue' }
+         }] }
+    end
+    let(:subtopics_path) { "/ask_va_api/v0/topics/#{topic.id}/subtopics" }
+
+    context 'when successful' do
+      before { get subtopics_path }
+
+      it 'returns subtopics data' do
+        expect(JSON.parse(response.body)).to eq(expected_response)
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when an error occurs' do
+      before do
+        allow_any_instance_of(Dynamics::Service)
+          .to receive(:call)
+          .and_raise(Dynamics::ErrorHandler::BadRequestError.new('bad request'))
+        get subtopics_path
+      end
+
+      it 'handles other exceptions and returns an internal server error response' do
+        expect(JSON.parse(response.body)).to eq({ 'error' => 'Dynamics::ErrorHandler::BadRequestError: bad request' })
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'logs and renders error and sets datadog tags' do
+        expect(JSON.parse(response.body)['error']).to eq('Dynamics::ErrorHandler::BadRequestError: bad request')
+        expect(response).to have_http_status(status)
+        expect(datadog_logger).to have_received(:call).with('service_error')
+        expect(span).to have_received(:set_tag).with('error', true)
+        expect(span).to have_received(:set_tag).with('error.msg',
+                                                     'Dynamics::ErrorHandler::BadRequestError: bad request')
+        expect(Rails.logger).to have_received(:error)
+          .with('Error during service_error: Dynamics::ErrorHandler::BadRequestError: bad request')
+      end
+    end
+  end
 end
