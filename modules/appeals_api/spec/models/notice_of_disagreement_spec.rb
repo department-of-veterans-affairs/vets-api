@@ -6,6 +6,40 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::NoticeOfDisagreement, type: :model do
   include FixtureHelpers
 
+  shared_examples 'NOD metadata' do |opts|
+    let(:nod) { create(opts[:factory]) }
+
+    it 'saves central_mail_business_line to metadata' do
+      expect(nod.metadata['central_mail_business_line']).to eq 'BVA'
+    end
+
+    describe 'potential_write_in_issue_count' do
+      context 'with no write-in issues' do
+        it 'saves the correct value to metadata' do
+          expect(nod.metadata['potential_write_in_issue_count']).to eq(0)
+        end
+      end
+
+      context 'with write-in issues' do
+        let(:form_data) do
+          data = fixture_as_json(opts[:form_data_fixture])
+          data['included'].push(
+            {
+              'type' => 'appealableIssue',
+              'attributes' => { 'issue' => 'write-in issue text', 'decisionDate' => '1999-09-09' }
+            }
+          )
+          data
+        end
+        let(:nod) { create(opts[:factory], form_data:) }
+
+        it 'saves the correct value to metadata' do
+          expect(nod.metadata['potential_write_in_issue_count']).to eq(1)
+        end
+      end
+    end
+  end
+
   let(:auth_headers) { fixture_as_json 'decision_reviews/v1/valid_10182_headers.json' }
   let(:form_data) { fixture_as_json 'decision_reviews/v1/valid_10182.json' }
   let(:notice_of_disagreement) do
@@ -27,8 +61,17 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       create(:notice_of_disagreement, form_data:, auth_headers:, board_review_option: bro)
     end
 
-    it 'saves consumer benefit type to metadata' do
-      expect(nod.metadata['central_mail_business_line']).to eq 'BVA'
+    describe 'metadata' do
+      # Not using shared examples here because v1 example data is different from v2/v0
+      it 'saves consumer benefit type to metadata' do
+        expect(nod.metadata['central_mail_business_line']).to eq 'BVA'
+      end
+
+      describe 'potential_write_in_issue_count' do
+        it 'saves the correct value' do
+          expect(nod.metadata['potential_write_in_issue_count']).to eq(3)
+        end
+      end
     end
   end
 
@@ -278,6 +321,13 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         end
       end
     end
+
+    describe 'metadata' do
+      include_examples 'NOD metadata', {
+        factory: :notice_of_disagreement_v2,
+        form_data_fixture: 'decision_reviews/v2/valid_10182.json'
+      }
+    end
   end
 
   describe 'when api_version is V0' do
@@ -289,5 +339,12 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
                                     contestable_issue_dates_are_in_the_past
                                     claimant_birth_date_is_in_the_past
                                     country_codes_valid]
+
+    describe 'metadata' do
+      include_examples 'NOD metadata', {
+        factory: :notice_of_disagreement_v0,
+        form_data_fixture: 'notice_of_disagreements/v0/valid_10182.json'
+      }
+    end
   end
 end

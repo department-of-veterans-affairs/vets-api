@@ -204,6 +204,9 @@ module AppealsApi
 
     def assign_metadata
       metadata['central_mail_business_line'] = lob
+      metadata['potential_write_in_issue_count'] = contestable_issues.filter do |issue|
+        issue['attributes']['ratingIssueReferenceId'].blank?
+      end.count
     end
 
     def accepts_evidence?
