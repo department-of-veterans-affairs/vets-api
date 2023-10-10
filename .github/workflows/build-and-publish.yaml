@@ -59,4 +59,4 @@ jobs:
         run: |
           helm package vets-api
           aws ecr get-login-password --region us-gov-west-1 | helm registry login --username AWS --password-stdin 008577686731.dkr.ecr.us-gov-west-1.amazonaws.com
-          helm push vets-api-${{ steps.version.outputs.version }}.tgz oci://008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/helm
+          helm push vets-api-${{ steps.version.outputs.version}}.tgz oci://008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/helm
