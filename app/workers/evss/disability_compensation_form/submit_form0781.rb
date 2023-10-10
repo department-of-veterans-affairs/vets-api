@@ -153,7 +153,10 @@ module EVSS
 
         raise Common::Exceptions::ValidationErrors, lighthouse_document unless lighthouse_document.valid?
 
-        Lighthouse::DocumentUpload.perform_async(submission_user.icn, lighthouse_document.to_serializable_hash)
+        file_body = File.read(pdf_path0781)
+        lighthouse_client = BenefitsDocuments::WorkerService.new(submission_user.icn)
+
+        lighthouse_client.upload_document(file_body, lighthouse_document)
       ensure
         # Delete the temporary PDF file
         File.delete(pdf_path0781) if pdf_path0781.present?

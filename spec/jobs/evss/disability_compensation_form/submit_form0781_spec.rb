@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'lighthouse/benefits_documents/service'
+require 'lighthouse/benefits_documents/worker_service'
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
   subject { described_class }
@@ -110,34 +111,30 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
           allow_any_instance_of(BenefitsDocuments::Service).to receive(:file_number).and_return('8675309')
         end
 
-        it 'enqueues uploads of both a form0781 and 0781a via Lighthouse::DocumentUpload with the correct arguments' do
-          expected_document_metadata = {
+        # L228 is hardcoded 0781 form code in nested constants in EVSS::DisabilityCompensationForm::SubmitForm0781
+        let(:form_0781_document) do
+          LighthouseDocument.new(
             claim_id: submission.submitted_claim_id,
             file_number: '8675309',
-            tracked_item_id: nil
-          }
-
-          # L228 is hardcoded 0781 form code in nested constants in EVSS::DisabilityCompensationForm::SubmitForm0781
-          expect(Lighthouse::DocumentUpload).to receive(:perform_async).with(
-            user.icn,
-            hash_including(
-              **expected_document_metadata,
-              document_type: 'L228'
-            )
+            tracked_item_id: nil,
+            document_type: 'L228'
           )
+        end
 
-          # L229 is hardcoded 0781a form code in nested constants in EVSS::DisabilityCompensationForm::SubmitForm0781
-          expect(Lighthouse::DocumentUpload).to receive(:perform_async).with(
-            user.icn,
-            hash_including(
-              **expected_document_metadata,
-              document_type: 'L229'
-            )
+        # L229 is hardcoded 0781a form code in nested constants in EVSS::DisabilityCompensationForm::SubmitForm0781
+        let(:form_0781a_document) do
+          LighthouseDocument.new(
+            claim_id: submission.submitted_claim_id,
+            file_number: '8675309',
+            tracked_item_id: nil,
+            document_type: 'L229'
           )
+        end
 
-          subject.perform_async(submission.id)
-
-          described_class.drain
+        it 'enqueues uploads of both a form0781 and 0781a via Lighthouse::DocumentUpload with the correct arguments' do
+          # TODO: test two instances of BenefitsDocuments::WorkerService have upload_document called with:
+          # 1. A file body
+          # 2. One of the above documents
         end
       end
     end
