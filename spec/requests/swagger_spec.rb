@@ -2261,21 +2261,21 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
         it 'returns a 400' do
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          VCR.use_cassette('lighthouse/direct_deposit/show/400_invalid_icn') do
+          VCR.use_cassette('lighthouse/direct_deposit/show/errors/400_invalid_icn') do
             expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 400, headers)
           end
         end
 
         it 'returns a 401' do
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          VCR.use_cassette('lighthouse/direct_deposit/show/401_invalid_token') do
+          VCR.use_cassette('lighthouse/direct_deposit/show/errors/401_invalid_token') do
             expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 401, headers)
           end
         end
 
         it 'returns a 404' do
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          VCR.use_cassette('lighthouse/direct_deposit/show/404_icn_not_found') do
+          VCR.use_cassette('lighthouse/direct_deposit/show/errors/404_response') do
             expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 404, headers)
           end
         end

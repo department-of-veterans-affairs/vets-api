@@ -67,7 +67,7 @@ RSpec.describe 'payment information', type: :request do
 
     context 'with a 500 server error type' do
       it 'returns a service error response' do
-        VCR.use_cassette('lighthouse/direct_deposit/show/400_unspecified_error') do
+        VCR.use_cassette('lighthouse/direct_deposit/show/errors/400_unspecified_error') do
           get '/mobile/v0/payment-information/benefits', headers: sis_headers
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to match_json_schema('lighthouse_errors')
