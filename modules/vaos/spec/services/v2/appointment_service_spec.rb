@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 describe VAOS::V2::AppointmentsService do
+  include ActiveSupport::Testing::TimeHelpers
+
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :jac) }
@@ -739,7 +741,7 @@ describe VAOS::V2::AppointmentsService do
           { name: { family: 'Roe' } }
         ]
 
-      it 'returns a string of practitioner full names joined by comma' do
+      it 'returns the practitioner family name' do
         expect(subject.send(:extract_names, practitioners)).to eq 'Roe'
       end
     end
@@ -750,7 +752,7 @@ describe VAOS::V2::AppointmentsService do
           {}
         ]
 
-      it 'returns a string of practitioner full names joined by comma' do
+      it 'returns nil' do
         expect(subject.send(:extract_names, practitioners)).to be_nil
       end
     end
@@ -797,6 +799,152 @@ describe VAOS::V2::AppointmentsService do
       it 'logs the telehealth data' do
         expect(Rails.logger).to receive(:info).with(arg1, arg2)
         subject.send(:log_telehealth_data, appt)
+      end
+    end
+  end
+
+  describe '#extract_station_and_ien' do
+    it 'returns nil if the appointment does not have any identifiers' do
+      appointment = {}
+
+      expect(subject.send(:extract_station_and_ien, appointment)).to be_nil
+    end
+
+    it 'returns nil if the identifier with the system VistADefinedTerms/409_84 is not found' do
+      appointment = { identifier: [{ system: 'some_other_system', value: 'some_value' }] }
+
+      expect(subject.send(:extract_station_and_ien, appointment)).to be_nil
+    end
+
+    it 'returns the station id and ien if the identifier with the system VistADefinedTerms/409_84 is found' do
+      appointment = { identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }] }
+      expected_result = %w[983 12345678]
+
+      expect(subject.send(:extract_station_and_ien, appointment)).to eq(expected_result)
+    end
+  end
+
+  describe '#avs_applicable?' do
+    before { travel_to(DateTime.parse('2023-09-26T10:00:00-07:00')) }
+    after { travel_back }
+
+    let(:past_appointment) { { status: 'booked', start: '2023-09-25T10:00:00-07:00' } }
+    let(:future_appointment) { { status: 'booked', start: '2023-09-27T11:00:00-07:00' } }
+    let(:unbooked_appointment) { { status: 'pending', start: '2023-09-25T10:00:00-07:00' } }
+
+    it 'returns true if the appointment is booked and is in the past' do
+      expect(subject.send(:avs_applicable?, past_appointment)).to be true
+    end
+
+    it 'returns false if the appointment is not booked' do
+      expect(subject.send(:avs_applicable?, unbooked_appointment)).to be false
+    end
+
+    it 'returns false on a booked future appointment' do
+      expect(subject.send(:avs_applicable?, future_appointment)).to be false
+    end
+  end
+
+  describe '#normalize_icn' do
+    context 'when icn is nil' do
+      it 'returns nil' do
+        expect(subject.send(:normalize_icn, nil)).to be_nil
+      end
+    end
+
+    context 'when icn is an empty string' do
+      it 'returns an empty string' do
+        expect(subject.send(:normalize_icn, '')).to eq('')
+      end
+    end
+
+    context 'when icn does not end with "V" followed by six digits' do
+      icn = '123456AA789012'
+
+      it 'returns the same icn' do
+        expect(subject.send(:normalize_icn, icn)).to eq(icn)
+      end
+    end
+
+    context 'when icn ends with "V" followed by six digits' do
+      icn = '1234567890V654321'
+
+      it 'removes trailing "V" followed by six digits' do
+        expect(subject.send(:normalize_icn, icn)).to eq('1234567890')
+      end
+    end
+  end
+
+  describe '#icns_match?' do
+    context 'when either icn is nil' do
+      it 'returns false' do
+        expect(subject.send(:icns_match?, nil, '1234567890V123456')).to eq(false)
+        expect(subject.send(:icns_match?, '1234567890V123456', nil)).to eq(false)
+      end
+    end
+
+    context 'when both icns are not nil and match' do
+      it 'returns true' do
+        expect(subject.send(:icns_match?, '1234567890V654321', '1234567890V654321')).to eq(true)
+      end
+    end
+
+    context 'when both icns are not nil and do not match' do
+      it 'returns false' do
+        expect(subject.send(:icns_match?, '1234567890V123456', '1234567899V123456')).to eq(false)
+      end
+    end
+  end
+
+  describe '#get_avs_link' do
+    let(:user) { build(:user, :loa3, icn: '123498767V234859') }
+    let(:expected_avs_link) do
+      '/my-health/medical-records/summaries-and-notes/visit-summary/9A7AF40B2BC2471EA116891839113252'
+    end
+
+    context 'with good station number and ien' do
+      appt =
+        {
+          identifier: [
+            {
+              system: 'Appointment/',
+              value: '4139383338323131'
+            },
+            {
+              system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_84',
+              value: '500:9876543'
+            }
+          ]
+        }
+
+      it 'returns avs link' do
+        VCR.use_cassette('vaos/v2/appointments/avs-search-9876543', match_requests_on: %i[method path query]) do
+          expect(subject.send(:get_avs_link, appt)).to eq(expected_avs_link)
+        end
+      end
+    end
+  end
+
+  describe '#fetch_avs_and_update_appt_body' do
+    let(:avs_resp) { double(body: [{ icn: '1012846043V576341', sid: '12345' }], status: 200) }
+    let(:avs_link) { '/my-health/medical-records/summaries-and-notes/visit-summary/12345' }
+    let(:appt) { { identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }] } }
+
+    context 'when AVS successfully retrieved the AVS link' do
+      it 'fetches the avs link and updates the appt hash' do
+        allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment).and_return(avs_resp)
+        subject.send(:fetch_avs_and_update_appt_body, appt)
+        expect(appt[:avs_path]).to eq(avs_link)
+      end
+    end
+
+    context 'when an error occurs while retrieving AVS link' do
+      it 'logs the error and sets the avs_path to nil' do
+        allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment)
+          .and_raise(Common::Exceptions::BackendServiceException)
+        expect(Rails.logger).to receive(:error)
+        subject.send(:fetch_avs_and_update_appt_body, appt)
+        expect(appt[:avs_path]).to be_nil
       end
     end
   end
