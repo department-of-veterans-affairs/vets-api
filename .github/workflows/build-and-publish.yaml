@@ -41,6 +41,6 @@ jobs:
             USER_ID=${{ env.VETS_API_USER_ID }}
             RAILS_ENV=production
           context: .
-          push: false
+          push: true
           tags: |
             ${{ steps.ecr-login.outputs.registry }}/dsva/vets-api-image:${{ steps.version.outputs.version }}
