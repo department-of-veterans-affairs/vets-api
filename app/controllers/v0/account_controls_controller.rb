@@ -3,8 +3,10 @@
 module V0
   class AccountControlsController < ApplicationController
     rescue_from ActiveRecord::RecordNotFound, with: :not_found
-    skip_before_action :authenticate
+    skip_before_action :authenticate, :verify_authenticity_token
     before_action :authenticate_service_account, :validate_account_control_params
+
+    VALID_CSP_TYPES = %w[logingov idme].freeze
 
     def csp_lock
       update_user_verifications(locked: true)
@@ -34,7 +36,7 @@ module V0
 
     def validate_account_control_params
       raise Common::Exceptions::ParameterMissing, 'type' if params[:type].blank?
-      raise Common::Exceptions::InvalidFieldValue.new('type', type) unless %w[idme logingov].include?(type)
+      raise Common::Exceptions::InvalidFieldValue.new('type', type) unless VALID_CSP_TYPES.include?(type)
       raise Common::Exceptions::ParameterMissing, 'csp_uuid' if params[:icn].blank? && params[:csp_uuid].blank?
     end
 
