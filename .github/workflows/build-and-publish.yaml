@@ -43,4 +43,4 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ steps.ecr-login.outputs.registry }}/dsva/vets-api-image:${{ steps.version.outputs.version }}
+            ${{ steps.ecr-login.outputs.registry }}/dsva/preview-environment/vets-api:${{ steps.version.outputs.version }}
