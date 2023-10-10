@@ -20,7 +20,7 @@ module ClaimsApi
         before_action :shared_validation, :file_number_check, only: %i[submit validate]
 
         def submit # rubocop:disable Metrics/MethodLength
-          auto_claim = ClaimsApi::AutoEstablishedClaim.create(
+          auto_claim = ClaimsApi::V2::AutoEstablishedClaim.create!(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:,
             form_data: form_attributes,
