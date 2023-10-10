@@ -44,3 +44,19 @@ jobs:
           push: true
           tags: |
             ${{ steps.ecr-login.outputs.registry }}/dsva/preview-environment/vets-api:${{ steps.version.outputs.version }}
+      - name: Create git tag if on master
+        if: github.ref == 'refs/heads/master'
+        run: |
+          git tag ${{ steps.version.outputs.version }}
+          git push origin ${{ steps.version.outputs.version }}
+      - name: Inject Version into helm chart
+        working-directory: ./helmCharts/vets-api
+        run: |
+          yq e -i '.image.tag = "${{ steps.version.outputs.version }}"' values.yaml
+          yq e -i '.version = "${{ steps.version.outputs.version }}"' Chart.yaml
+      - name: helm Package and Publish
+        working-directory: ./helmCharts
+        run: |
+          helm package vets-api
+          aws ecr get-login-password --region us-gov-west-1 | helm registry login --username AWS --password-stdin 008577686731.dkr.ecr.us-gov-west-1.amazonaws.com
+          helm push vets-api-${{ steps.version.outputs.version }}.tgz oci://008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/helm

@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vets-api-service-routing
+spec:
+  rules:
+    - host: "{{ .Values.domainName }}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vets-api-service
+                port:
+                  name: web
