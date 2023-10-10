@@ -1,13 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
 
 describe Mobile::V0::Profile::SyncUpdateService do
-  let(:user) { FactoryBot.build(:iam_user) }
+  let(:user) { create(:user, :api_auth) }
   let(:service) { Mobile::V0::Profile::SyncUpdateService.new(user) }
-
-  before { iam_sign_in(user) }
 
   describe '#save_and_await_response' do
     let(:params) { build(:va_profile_address, vet360_id: user.vet360_id, validation_key: nil) }
