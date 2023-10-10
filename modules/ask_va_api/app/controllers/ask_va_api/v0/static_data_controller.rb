@@ -29,10 +29,15 @@ module AskVAApi
         render json: @topics.payload, status: @topics.status
       end
 
+      def subtopics
+        get_resource('sub_topics', topic_id: params[:topic_id])
+        render json: @sub_topics.payload, status: @sub_topics.status
+      end
+
       private
 
       def get_resource(resource_type, options = {})
-        camelize_resource = resource_type.to_s.camelize
+        camelize_resource = resource_type.camelize
         retriever_class = "AskVAApi::#{camelize_resource}::Retriever".constantize
         serializer_class = "AskVAApi::#{camelize_resource}::Serializer".constantize
         data = retriever_class.new(**options).call
