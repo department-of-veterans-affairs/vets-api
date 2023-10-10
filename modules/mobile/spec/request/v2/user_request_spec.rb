@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../support/helpers/iam_session_helper'
+require_relative '../../support/helpers/sis_session_helper'
 require_relative '../../support/matchers/json_schema_matcher'
 require 'common/client/errors'
 
@@ -9,13 +9,11 @@ RSpec.describe 'user', type: :request do
   include JsonSchemaMatchers
 
   describe 'GET /mobile/v2/user' do
-    let(:user) { build(:iam_user) }
+    let!(:user) { sis_user(idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
     let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
     before do
-      iam_sign_in(user)
-      allow_any_instance_of(IAMUser).to receive(:idme_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
-      get '/mobile/v2/user', headers: iam_headers
+      get '/mobile/v2/user', headers: sis_headers
     end
 
     it 'returns an ok response' do
@@ -41,7 +39,7 @@ RSpec.describe 'user', type: :request do
     end
 
     it 'includes sign-in service' do
-      expect(attributes['signinService']).to eq('IDME')
+      expect(attributes['signinService']).to eq('idme')
     end
   end
 end
