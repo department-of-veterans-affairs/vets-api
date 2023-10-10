@@ -3,6 +3,86 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
+shared_examples 'SC metadata' do |opts|
+  let(:api_version) { opts[:api_version] }
+  let(:flag_enabled) { false }
+  let(:sc) do
+    flag = :decision_review_sc_pact_act_boolean
+    flag_enabled ? Flipper.enable(flag) : Flipper.disable(flag)
+    create(opts[:factory], api_version:)
+  end
+
+  it 'saves evidence type to metadata' do
+    expect(sc.metadata.dig('form_data', 'evidence_type')).to eq(%w[upload])
+  end
+
+  it 'saves benefit type to metadata' do
+    expect(sc.metadata.dig('form_data', 'benefit_type')).to eq('fiduciary')
+  end
+
+  it 'saves the central mail business line to metadata' do
+    expect(sc.metadata['central_mail_business_line']).to eq('FID')
+  end
+
+  describe 'write-in issue count' do
+    context 'with only write-in issues' do
+      it 'saves the correct value to metadata' do
+        expect(sc.metadata['potential_write_in_issue_count']).to eq(1)
+      end
+    end
+
+    context 'with mixed write-in and non-write-in issues' do
+      let(:form_data) do
+        data = fixture_as_json(opts[:form_data_fixture])
+        data['included'].push(
+          {
+            'type' => 'appealableIssue',
+            'attributes' => {
+              'issue' => 'issue text with ID', 'decisionDate' => '1999-09-09', 'ratingIssueReferenceId' => '2'
+            }
+          },
+          {
+            'type' => 'appealableIssue',
+            'attributes' => { 'issue' => 'write-in issue text', 'decisionDate' => '2000-02-02' }
+          }
+        )
+        data
+      end
+      let(:sc) { create(opts[:factory], form_data:, api_version:) }
+
+      it 'saves the correct value to metadata' do
+        expect(sc.metadata['potential_write_in_issue_count']).to eq(2)
+      end
+    end
+  end
+
+  describe 'potential_pact_act' do
+    context 'when flag is off' do
+      it 'does not set metadata for potential_pact_act' do
+        expect(sc.metadata.dig('form_data', 'potential_pact_act')).to be_nil
+        expect(sc.metadata.dig('pact', 'potential_pact_act')).to be_nil
+      end
+    end
+
+    context 'when flag is on' do
+      let(:flag_enabled) { true }
+
+      it 'sets metadata for potential_pact_act' do
+        expect(sc.metadata.dig('form_data', 'potential_pact_act')).to be false
+        expect(sc.metadata.dig('pact', 'potential_pact_act')).to be false
+      end
+    end
+  end
+
+  context 'when api_version is not V2 or V0' do
+    let(:api_version) { 'V1' } # (does not exist)
+
+    it 'assigns no metadata' do
+      expect(sc.metadata).to eql({})
+    end
+  end
+end
+
 describe AppealsApi::SupplementalClaim, type: :model do
   include FixtureHelpers
 
@@ -24,6 +104,13 @@ describe AppealsApi::SupplementalClaim, type: :model do
 
         it('ignores the user-provided value') { is_expected.to eq(true) }
       end
+    end
+
+    describe 'metadata' do
+      include_examples 'SC metadata',
+                       api_version: 'V0',
+                       factory: :supplemental_claim_v0,
+                       form_data_fixture: 'supplemental_claims/v0/valid_200995.json'
     end
 
     describe 'validations' do
@@ -59,42 +146,11 @@ describe AppealsApi::SupplementalClaim, type: :model do
       end
     end
 
-    describe 'before hooks' do
-      let(:supplemental_claim) { build(:extra_supplemental_claim) }
-
-      describe 'assign_metadata' do
-        it 'assigns all metadata fields when pact act boolean feature flag is enabled' do
-          Flipper.enable(:decision_review_sc_pact_act_boolean)
-
-          supplemental_claim.save
-
-          expect(supplemental_claim.metadata.dig('form_data', 'evidence_type')).to eq %w[upload retrieval]
-          expect(supplemental_claim.metadata.dig('form_data', 'potential_pact_act')).to be true
-          expect(supplemental_claim.metadata.dig('pact', 'potential_pact_act')).to be true
-        end
-
-        it 'assigns only evidence_type when pact act boolean feature flag is disabled' do
-          Flipper.disable(:decision_review_sc_pact_act_boolean)
-
-          supplemental_claim.save
-
-          expect(supplemental_claim.metadata.dig('form_data', 'evidence_type')).to eq %w[upload retrieval]
-          expect(supplemental_claim.metadata.dig('form_data', 'potential_pact_act')).to be_nil
-          expect(supplemental_claim.metadata.dig('pact', 'potential_pact_act')).to be_nil
-        end
-
-        it 'saves consumer benefit type to metadata' do
-          expect(supplemental_claim_veteran_only.metadata.dig('form_data', 'benefit_type')).to eq 'fiduciary'
-          expect(supplemental_claim_veteran_only.metadata['central_mail_business_line']).to eq 'FID'
-        end
-
-        it 'assigns no metadata when api_version is not V2 or V0' do
-          supplemental_claim.api_version = 'V1'
-          supplemental_claim.save
-
-          expect(supplemental_claim.metadata).to eql({})
-        end
-      end
+    describe 'metadata' do
+      include_examples 'SC metadata',
+                       api_version: 'V2',
+                       factory: :minimal_supplemental_claim,
+                       form_data_fixture: 'decision_reviews/v2/valid_200995.json'
     end
 
     describe 'validations' do
