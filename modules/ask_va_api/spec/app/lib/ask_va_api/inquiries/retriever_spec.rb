@@ -27,7 +27,7 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
 
       it 'raises an ErrorHandler::ServiceError' do
         expect { retriever.fetch_by_inquiry_number(inquiry_number:) }
-          .to raise_error(ErrorHandler::ServiceError, ': Invalid Inquiry Number')
+          .to raise_error(ErrorHandler::ServiceError, 'ArgumentError: Invalid Inquiry Number')
       end
     end
 
@@ -46,7 +46,7 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
       it 'raises a FetchInquiriesError' do
         expect do
           retriever.fetch_by_inquiry_number(inquiry_number: 'A-1')
-        end.to raise_error(ErrorHandler::ServiceError, "Bad Request Error: #{error_message}")
+        end.to raise_error(ErrorHandler::ServiceError, "Dynamics::ErrorHandler::BadRequestError: #{error_message}")
       end
     end
 
@@ -64,7 +64,7 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
 
       it 'raises an ErrorHandler::ServiceError' do
         expect { retriever.fetch_by_sec_id }
-          .to raise_error(ErrorHandler::ServiceError, ': Invalid SEC_ID')
+          .to raise_error(ErrorHandler::ServiceError, 'ArgumentError: Invalid SEC_ID')
       end
     end
 
