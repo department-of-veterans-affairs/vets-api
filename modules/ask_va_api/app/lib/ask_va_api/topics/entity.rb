@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 module AskVAApi
-  module Categories
+  module Topics
     class Entity
       attr_reader :id,
                   :name
 
       def initialize(info)
         @id = info[:id]
-        @name = info[:category]
+        @name = info[:topic]
       end
     end
   end
