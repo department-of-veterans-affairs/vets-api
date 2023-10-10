@@ -150,8 +150,5 @@ PERIODIC_JOBS = lambda { |mgr|
   # Notifies slack channel if certain benefits states get stuck
   mgr.register('0 2,9,16 * * 1-5', 'VBADocuments::FlipperStatusAlert')
   # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
-
-  # Rotates Lockbox/KMS record keys and ciphertexts every October 12th (when the KMS key auto-rotate)
-  mgr.register('0 0 12 10 *', 'KmsKeyRotation::BatchInitiatorJob')
 }
 # rubocop:enable Metrics/BlockLength
