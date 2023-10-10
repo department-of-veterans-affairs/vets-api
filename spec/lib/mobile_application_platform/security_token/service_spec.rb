@@ -16,8 +16,8 @@ describe MobileApplicationPlatform::SecurityToken::Service do
         context 'when an issue occurs with the client request' do
           let(:expected_error) { Common::Client::Errors::ClientError }
           let(:expected_error_message) do
-            "#{log_prefix} Token failed, client error, status: #{status}, description: #{description}," \
-              " application: #{application}, icn: #{icn}"
+            "#{log_prefix} Token failed, client error, status: #{status}," \
+              " application: #{application}, icn: #{icn}, context: #{expected_error_body}"
           end
 
           before do
@@ -32,48 +32,51 @@ describe MobileApplicationPlatform::SecurityToken::Service do
 
       context 'when the status is 500' do
         let(:status) { 500 }
-        let(:description) { 'Internal Server error' }
-        let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, description) }
+        let(:expected_error_body) { { error: 'Client returned an invalid JSON' } }
+        let(:error_description) { nil }
+        let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, expected_error_body.to_json) }
 
         it_behaves_like 'Client Errors'
       end
 
       context 'when the status is 401 and the key for the error is error:' do
         let(:status) { 401 }
-        let(:description) { 'some error' }
-        let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, { error: description }) }
-
-        it_behaves_like 'Client Errors'
-      end
-
-      context 'when the status is 401 and the key for the error is error_description:' do
-        let(:status) { 401 }
-        let(:description) { 'some error' }
-        let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, { error_description: description }) }
+        let(:expected_error_body) { { error: 'invalid_client' } }
+        let(:raised_error) do
+          Common::Client::Errors::ClientError.new(nil, status, expected_error_body.to_json)
+        end
 
         it_behaves_like 'Client Errors'
       end
 
       context 'when the status is 400 and the key for the error is error:' do
         let(:status) { 400 }
-        let(:description) { 'some error' }
-        let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, { error: description }) }
+        let(:expected_error_body) { { error: 'invalid_client' } }
+        let(:raised_error) do
+          Common::Client::Errors::ClientError.new(nil, status, expected_error_body.to_json)
+        end
 
         it_behaves_like 'Client Errors'
       end
 
       context 'when the status is 400 and the key for the error is error_description:' do
         let(:status) { 400 }
-        let(:description) { 'some error' }
-        let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, { error_description: description }) }
+        let(:expected_error_body) do
+          { error_description: 'OAuth 2.0 Parameter: grant_type',
+            error: 'unsupported_grant_type',
+            error_uri: 'https://datatracker.ietf.org/doc/html/rfc6749#section-5.2' }
+        end
+        let(:raised_error) do
+          Common::Client::Errors::ClientError.new(nil, status, expected_error_body.to_json)
+        end
 
         it_behaves_like 'Client Errors'
       end
 
       context 'when the description body is empty or unknown:' do
         let(:status) { 999 }
-        let(:description) { nil }
-        let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status) }
+        let(:expected_error_body) { {} }
+        let(:raised_error) { Common::Client::Errors::ClientError.new(nil, status, expected_error_body) }
 
         it_behaves_like 'Client Errors'
       end

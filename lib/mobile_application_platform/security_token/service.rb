@@ -16,22 +16,28 @@ module MobileApplicationPlatform
         Rails.logger.info("#{config.logging_prefix} token success, application: #{application}, icn: #{icn}")
         parse_response(response, application, icn)
       rescue Common::Client::Errors::ClientError => e
-        description = case e
-                      in _msg, 500, _body
-                        'Internal Server error'
-                      in _msg, (400|401), { error: }
-                        error
-                      in _msg, (400|401), { error_description: }
-                        error_description
-                      else
-                        e.body
-                      end
-        status = e.status
-        raise e, "#{config.logging_prefix} Token failed, client error, status: #{status}," \
-                 " description: #{description}, application: #{application}, icn: #{icn}"
+        parse_and_raise_error(e, icn, application)
       end
 
       private
+
+      def parse_and_raise_error(e, icn, application)
+        status = e.status
+        parse_body = e.body.present? ? parse_json(e.body) : {}
+        context = {
+          error_description: parse_body['error_description'],
+          error: parse_body['error'],
+          error_uri: parse_body['error_uri']
+        }.compact
+        raise e, "#{config.logging_prefix} Token failed, client error, status: #{status}," \
+                 " application: #{application}, icn: #{icn}, context: #{context}"
+      end
+
+      def parse_json(to_parse)
+        JSON.parse(to_parse)
+      rescue JSON::ParserError
+        { error: 'Client returned an invalid JSON' }
+      end
 
       def parse_response(response, application, icn)
         response_body = JSON.parse(response.body)
