@@ -1,5 +1,5 @@
 class DropPostgisExtension < ActiveRecord::Migration[6.1]
-  def change
+  def up
     connection.execute('drop extension if exists "postgis"')
   end
 end
