@@ -1764,7 +1764,9 @@
                             "name": {
                               "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
                               "type": "string",
-                              "example": "Traumatic Brain Injury"
+                              "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                              "example": "PTSD (post traumatic stress disorder)",
+                              "maxLength": 255
                             },
                             "classificationCode": {
                               "type": "string",
@@ -1814,7 +1816,9 @@
                                   "name": {
                                     "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
                                     "type": "string",
-                                    "example": "Cancer - Musculoskeletal - Elbow"
+                                    "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                    "example": "PTSD (post traumatic stress disorder)",
+                                    "maxLength": 255
                                   },
                                   "disabilityActionType": {
                                     "description": "The status of the secondary disability.",
@@ -2812,7 +2816,9 @@
                                 "name": {
                                   "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
                                   "type": "string",
-                                  "example": "PTSD (post traumatic stress disorder)"
+                                  "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                                  "example": "PTSD (post traumatic stress disorder)",
+                                  "maxLength": 255
                                 },
                                 "classificationCode": {
                                   "type": "string",
@@ -3533,10 +3539,10 @@
                         "servicePeriods": [
                           {
                             "serviceBranch": "Public Health Service",
-                            "activeDutyBeginDate": "11-14-2015",
-                            "activeDutyEndDate": "11-30-2018",
+                            "activeDutyBeginDate": "11-14-2021",
+                            "activeDutyEndDate": "11-30-2022",
                             "serviceComponent": "Active",
-                            "separationLocationCode": "V01D"
+                            "separationLocationCode": "25077"
                           }
                         ],
                         "confinements": [
@@ -3551,7 +3557,7 @@
                         ],
                         "federalActivation": {
                           "anticipatedSeparationDate": "10-03-2025",
-                          "activationDate": "02-11-2018"
+                          "activationDate": "02-10-2023"
                         },
                         "reservesNationalGuardService": {
                           "obligationTermsOfService": {
@@ -4176,8 +4182,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-10-04",
-                      "expirationDate": "2024-10-04",
+                      "creationDate": "2023-10-11",
+                      "expirationDate": "2024-10-11",
                       "type": "compensation",
                       "status": "active"
                     }
