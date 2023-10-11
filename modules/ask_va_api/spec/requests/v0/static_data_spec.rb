@@ -157,14 +157,14 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       let(:error_message) { 'service error' }
 
       before do
-        allow_any_instance_of(Dynamics::Service)
+        allow_any_instance_of(AskVAApi::SubTopics::Retriever)
           .to receive(:call)
-          .and_raise(Dynamics::ErrorHandler::BadRequestError.new(error_message))
+          .and_raise(StandardError, 'standard error')
         get subtopics_path
       end
 
-      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'Dynamics::ErrorHandler::BadRequestError: service error'
+      it_behaves_like 'common error handling', :internal_server_error, 'unexpected_error',
+                      'standard error'
     end
   end
 
@@ -212,13 +212,47 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
 
       before do
         allow_any_instance_of(AskVAApi::Zipcodes::Retriever)
-          .to receive(:call)
+          .to receive(:fetch_data)
           .and_raise(StandardError.new(error_message))
         get zipcodes_path
       end
 
-      it_behaves_like 'common error handling', :internal_server_error, 'unexpected_error',
-                      'standard error'
+      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                      'StandardError: standard error'
+    end
+  end
+
+  describe 'GET #States' do
+    let(:states_path) { '/ask_va_api/v0/states' }
+    let(:scoped_response) do
+      [
+        { 'id' => nil, 'type' => 'states', 'attributes' => { 'name' => 'Alabama', 'code' => 'AL' } },
+        { 'id' => nil, 'type' => 'states', 'attributes' => { 'name' => 'Alaska', 'code' => 'AK' } },
+        { 'id' => nil, 'type' => 'states', 'attributes' => { 'name' => 'Arizona', 'code' => 'AZ' } }
+      ]
+    end
+
+    context 'when successful' do
+      before { get states_path }
+
+      it 'returns all the states' do
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['data'].first(3)).to eq(scoped_response)
+      end
+    end
+
+    context 'when an error occurs' do
+      let(:error_message) { 'standard error' }
+
+      before do
+        allow_any_instance_of(AskVAApi::States::Retriever)
+          .to receive(:fetch_data)
+          .and_raise(StandardError.new(error_message))
+        get states_path
+      end
+
+      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                      'StandardError: standard error'
     end
   end
 end
