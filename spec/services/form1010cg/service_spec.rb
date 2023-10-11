@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../support/form1010cg_helpers/build_claim_data_for'
+require 'common/file_helpers'
 
 RSpec.describe Form1010cg::Service do
   include Form1010cgHelpers
@@ -667,10 +668,10 @@ RSpec.describe Form1010cg::Service do
                'CARMA_Document_Type__c' => '10-10CG',
                'CARMA_Document_Date__c' => '2022-08-03',
                'VersionData' => 'Zm9v' },
-             { 'attributes' => { 'type' => 'ContentVersion', 'referenceId' => 'POA' },
-               'Title' => 'POA_Jane Doe_Doe_08-03-2022',
+             { 'attributes' => { 'type' => 'ContentVersion', 'referenceId' => 'Legal Representative' },
+               'Title' => 'Legal Representative_Jane Doe_Doe_08-03-2022',
                'PathOnClient' => 'poa.pdf',
-               'CARMA_Document_Type__c' => 'POA',
+               'CARMA_Document_Type__c' => 'Legal Representative',
                'CARMA_Document_Date__c' => '2022-08-03',
                'VersionData' => 'Zm9v' }]
           )
