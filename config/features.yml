@@ -437,6 +437,10 @@ features:
     actor_type: user
     description: Enables a simplified asset calculation flow, including Cash in Bank, for users completing the Financial Status Report (FSR) form.
     enable_in_development: true
+  financial_status_report_review_page_navigation:
+    actor_type: user
+    description: Enables new review page navigation for users completing the Financial Status Report (FSR) form.
+    enable_in_development: true
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
