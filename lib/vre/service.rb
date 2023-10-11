@@ -8,22 +8,6 @@ module VRE
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
 
-    # Makes call to VRE and retrieves a token. Token is valid for 3 minutes so we just fire this on every api call
-    #
-    # @return [Hash] the student's address
-    #
-    def get_token
-      with_monitoring do
-        conn = Faraday.new(
-          "#{Settings.veteran_readiness_and_employment.auth_endpoint}?grant_type=client_credentials",
-          headers: { 'Authorization' => "Basic #{Settings.veteran_readiness_and_employment.credentials}" }
-        )
-
-        request = conn.post
-        JSON.parse(request.body)['access_token']
-      end
-    end
-
     def send_to_vre(payload:)
       with_monitoring do
         perform(
@@ -33,18 +17,26 @@ module VRE
           request_headers
         ) # see lib/common/client/base.rb#L94
       end
+    rescue Common::Client::Errors::ClientError => e
+      log_message_to_sentry(
+        "VRE form submission failed with http status: #{e.status}",
+        :error,
+        { message: e.message, status: e.status, body: e.body },
+        { team: 'vfs-ebenefits' }
+      )
+      raise e
     end
 
     def request_headers
       {
-        Authorization: "Bearer #{get_token}"
+        'Appian-API-Key': Settings.veteran_readiness_and_employment.api_key
       }
     end
 
     private
 
     def end_point
-      "#{Settings.veteran_readiness_and_employment.base_url}/api/endpoints/vaGov/new_application"
+      "#{Settings.veteran_readiness_and_employment.base_url}/suite/webapi/form281900"
     end
   end
 end

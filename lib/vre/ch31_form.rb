@@ -48,7 +48,6 @@ module VRE
 
     def format_payload_for_vre
       form_data = claim_form_hash
-
       vre_payload = {
         data: {
           educationLevel: form_data['yearsOfEducation'],
@@ -57,8 +56,9 @@ module VRE
           meetingTime: form_data['appointmentTimePreferences'],
           isMoving: form_data['isMoving'],
           mainPhone: form_data['mainPhone'],
-          cellPhone: form_data['cellPhone'],
-          emailAddress: form_data['email']
+          cellNumber: form_data['cellPhone'],
+          emailAddress: form_data['email'],
+          receivedDate: @claim[:created_at]
         }
       }
 

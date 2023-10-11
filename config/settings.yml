@@ -1354,8 +1354,7 @@ vetext_push:
 
 veteran_readiness_and_employment:
   base_url: ~
-  credentials: ~
-  auth_endpoint: ~
+  api_key: ~
   daily_report:
     emails:
       - VRC.VBABOS@va.gov
