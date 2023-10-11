@@ -593,6 +593,10 @@ features:
     actor_type: user
     description: Enables/disbales the PHR refresh for MHV users when logging into VA.gov
     enable_in_development: true
+  mhv_medical_records_to_va_gov_release:
+    actor_type: user
+    description: Enables/disbales Medical Records on VA.gov (intial transition from MHV to VA.gov)
+    enable_in_development: true
   mhv_medical_records_display_domains:
     actor_type: user
     description: Show/hide in-progress Medical Records domains
