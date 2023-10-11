@@ -34,8 +34,8 @@ RSpec.describe V0::AccountControlsController, type: :controller do
       let(:expected_error_message) { "User record not found. ICN:#{icn_param} #{type_param}_uuid:#{csp_uuid_param}" }
 
       it 'returns a not found error' do
-        expect { post lock_action, params: account_controls_params }
-          .to raise_error(StandardError, expected_error_message)
+        post lock_action, params: account_controls_params
+        expect(JSON.parse(response.body)['error']).to eq(expected_error_message)
       end
     end
 

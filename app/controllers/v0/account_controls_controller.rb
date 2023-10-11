@@ -86,7 +86,7 @@ module V0
     end
 
     def not_found
-      raise StandardError, "User record not found. ICN:#{icn} #{type}_uuid:#{csp_uuid}"
+      render json: { error: "User record not found. ICN:#{icn} #{type}_uuid:#{csp_uuid}" }, status: :not_found
     end
   end
 end
