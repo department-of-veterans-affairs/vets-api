@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 require 'lighthouse/letters_generator/configuration'
 
@@ -12,7 +12,7 @@ RSpec.describe 'letters', type: :request do
     {
       'data' =>
         {
-          'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
+          'id' => user.uuid,
           'type' => 'letter',
           'attributes' => {
             'letter' =>
@@ -51,7 +51,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
   let(:letters_body) do
     {
       'data' => {
-        'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
+        'id' => user.uuid,
         'type' => 'letters',
         'attributes' => {
           'letters' =>
@@ -96,7 +96,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
 
   let(:beneficiary_body) do
     { 'data' =>
-       { 'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
+       { 'id' => user.uuid,
          'type' => 'LettersBeneficiaryResponses',
          'attributes' =>
           { 'benefitInformation' =>
@@ -117,13 +117,11 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
                  'enteredDate' => '2016-02-04T17:51:56Z', 'releasedDate' => '2016-02-04T17:51:56Z' }] } } }
   end
 
-  let(:user) { build(:iam_user) }
+  let!(:user) { sis_user(icn: '24811694708759028') }
 
   before do
     token = 'abcdefghijklmnop'
     allow_any_instance_of(Lighthouse::LettersGenerator::Configuration).to receive(:get_access_token).and_return(token)
-    allow_any_instance_of(IAMUser).to receive(:icn).and_return('24811694708759028')
-    iam_sign_in(user)
     Flipper.enable(:mobile_lighthouse_letters, user)
   end
 
@@ -131,7 +129,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
     context 'with a valid lighthouse response' do
       it 'matches the letters schema' do
         VCR.use_cassette('mobile/lighthouse_letters/letters_200', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/letters', headers: iam_headers
+          get '/mobile/v0/letters', headers: sis_headers
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(letters_body)
           expect(response.body).to match_json_schema('letters')
@@ -141,7 +139,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
       it 'filters unlisted letter types' do
         VCR.use_cassette('mobile/lighthouse_letters/letters_with_extra_types_200',
                          match_requests_on: %i[method uri]) do
-          get '/mobile/v0/letters', headers: iam_headers
+          get '/mobile/v0/letters', headers: sis_headers
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(letters_body)
           expect(response.body).to match_json_schema('letters')
@@ -154,7 +152,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
     context 'with a valid lighthouse response' do
       it 'matches the letters beneficiary schema' do
         VCR.use_cassette('mobile/lighthouse_letters/letters_200', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/letters/beneficiary', headers: iam_headers
+          get '/mobile/v0/letters/beneficiary', headers: sis_headers
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(beneficiary_body)
           expect(response.body).to match_json_schema('letter_beneficiary')
@@ -168,7 +166,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
       context 'when format is unspecified' do
         it 'downloads a PDF' do
           VCR.use_cassette('mobile/lighthouse_letters/download') do
-            post '/mobile/v0/letters/benefit_summary/download', headers: iam_headers
+            post '/mobile/v0/letters/benefit_summary/download', headers: sis_headers
             expect(response).to have_http_status(:ok)
             expect(response.media_type).to eq('application/pdf')
           end
@@ -178,7 +176,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
       context 'when format is pdf' do
         it 'downloads a PDF' do
           VCR.use_cassette('mobile/lighthouse_letters/download') do
-            post '/mobile/v0/letters/benefit_summary/download', headers: iam_headers, params: { format: 'pdf' },
+            post '/mobile/v0/letters/benefit_summary/download', headers: sis_headers, params: { format: 'pdf' },
                                                                 as: :json
             expect(response).to have_http_status(:ok)
             expect(response.media_type).to eq('application/pdf')
@@ -189,7 +187,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
       context 'when format is json' do
         it 'returns json that matches the letter schema' do
           VCR.use_cassette('mobile/lighthouse_letters/download_as_json', match_requests_on: %i[method uri]) do
-            post '/mobile/v0/letters/proof_of_service/download', headers: iam_headers, params: { format: 'json' },
+            post '/mobile/v0/letters/proof_of_service/download', headers: sis_headers, params: { format: 'json' },
                                                                  as: :json
 
             expect(response).to have_http_status(:ok)
@@ -203,7 +201,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
       context 'when format is something else' do
         it 'returns unprocessable entity' do
           VCR.use_cassette('mobile/lighthouse_letters/download') do
-            post '/mobile/v0/letters/benefit_summary/download', headers: iam_headers, params: { format: 'floormat' },
+            post '/mobile/v0/letters/benefit_summary/download', headers: sis_headers, params: { format: 'floormat' },
                                                                 as: :json
             expect(response).to have_http_status(:unprocessable_entity)
           end
@@ -230,7 +228,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
 
       it 'downloads a PDF' do
         VCR.use_cassette('mobile/lighthouse_letters/download_with_options') do
-          post '/mobile/v0/letters/benefit_summary/download', params: options, headers: iam_headers, as: :json
+          post '/mobile/v0/letters/benefit_summary/download', params: options, headers: sis_headers, as: :json
           expect(response).to have_http_status(:ok)
           expect(response.media_type).to eq('application/pdf')
         end
@@ -239,7 +237,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
       it 'downloads json' do
         VCR.use_cassette('mobile/lighthouse_letters/download_as_json_with_options',
                          match_requests_on: %i[method uri]) do
-          post '/mobile/v0/letters/proof_of_service/download', headers: iam_headers,
+          post '/mobile/v0/letters/proof_of_service/download', headers: sis_headers,
                                                                params: options.merge({ format: 'json' }),
                                                                as: :json
 
@@ -254,7 +252,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
     context 'when an error occurs' do
       it 'raises lighthouse service error' do
         VCR.use_cassette('mobile/lighthouse_letters/download_error') do
-          post '/mobile/v0/letters/benefit_summary/download', headers: iam_headers
+          post '/mobile/v0/letters/benefit_summary/download', headers: sis_headers
 
           expect(response).to have_http_status(:unprocessable_entity)
         end
@@ -263,7 +261,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
 
     context 'with an invalid letter type' do
       it 'returns 400 bad request' do
-        post '/mobile/v0/letters/not_real/download', headers: iam_headers
+        post '/mobile/v0/letters/not_real/download', headers: sis_headers
 
         expect(response).to have_http_status(:bad_request)
         expect(response.parsed_body['errors'][0]).to include(
@@ -277,9 +275,10 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
 
   describe 'Error Handling' do
     context 'when user is not authorized to use lighthouse' do
+      let!(:user) { sis_user(icn: '24811694708759028', participant_id: nil) }
+
       it 'returns 403 forbidden' do
-        allow_any_instance_of(IAMUser).to receive(:participant_id).and_return(nil)
-        get '/mobile/v0/letters', headers: iam_headers
+        get '/mobile/v0/letters', headers: sis_headers
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -287,7 +286,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
     context 'when upstream is unavailable' do
       it 'returns 503 service unavailable' do
         VCR.use_cassette('mobile/lighthouse_letters/letters_503', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/letters', headers: iam_headers
+          get '/mobile/v0/letters', headers: sis_headers
           expect(response).to have_http_status(:service_unavailable)
           expect(response.parsed_body).to eq(
             { 'errors' =>
@@ -305,7 +304,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
     context 'with upstream service error' do
       it 'returns a internal server error response' do
         VCR.use_cassette('mobile/lighthouse_letters/letters_500_error_bgs', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/letters/beneficiary', headers: iam_headers
+          get '/mobile/v0/letters/beneficiary', headers: sis_headers
           expect(response).to have_http_status(:internal_server_error)
           error = response.parsed_body['errors']
           expect(error[0]).to include(
@@ -320,7 +319,7 @@ Send electronic inquiries through the Internet at https://www.va.gov/contact-us.
     context 'when user is not found' do
       it 'returns a not found response' do
         VCR.use_cassette('mobile/lighthouse_letters/letters_404', match_requests_on: %i[method uri]) do
-          get '/mobile/v0/letters', headers: iam_headers
+          get '/mobile/v0/letters', headers: sis_headers
         end
         expect(response).to have_http_status(:not_found)
         expect(response.parsed_body['errors'][0]).to include(

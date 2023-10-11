@@ -31,9 +31,10 @@ module Mobile
 
           while queue.size != 0
             s = queue.shift
-            if s && s.name != name && s.leaf?
+            dss = downstream_windows[s&.name]
+            if s && s.name != name && s.leaf? && (dss.nil? || window.start_time < dss&.start_time)
               downstream_windows[s.name] =
-                create_or_update_window(downstream_windows[s.name], s.name, window)
+                create_or_update_window(s.name, window)
             end
             s&.dependent_services&.each do |ds|
               queue.push(ds)
@@ -53,15 +54,10 @@ module Mobile
         @services[upstream_name].add_service(@services[downstream_name])
       end
 
-      def create_or_update_window(current_window, downstream_name, update_window)
-        if current_window
-          start_time = [current_window.start_time, update_window.start_time].min
-          end_time = [current_window.end_time, update_window.end_time].max
-        else
-          start_time = update_window.start_time
-          end_time = update_window.end_time
-          description = update_window.description
-        end
+      def create_or_update_window(downstream_name, update_window)
+        start_time = update_window.start_time
+        end_time = update_window.end_time
+        description = update_window.description
 
         MaintenanceWindow.new(
           id: Digest::UUID.uuid_v5('MaintenanceWindow', downstream_name.to_s),

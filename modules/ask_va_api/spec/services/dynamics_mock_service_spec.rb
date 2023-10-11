@@ -66,12 +66,6 @@ RSpec.describe DynamicsMockService do
           expect(service.call).to eq(expected_result)
         end
       end
-
-      context 'without specific criteria' do
-        it 'returns the full mock data' do
-          expect(service.call).to eq(mock_data[:data])
-        end
-      end
     end
   end
 end

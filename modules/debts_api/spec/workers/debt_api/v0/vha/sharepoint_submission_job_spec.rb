@@ -8,18 +8,15 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob, type: :work
   describe '#perform' do
     let(:form_submission) { build(:debts_api_form5655_submission) }
 
-    context 'failure' do
+    context 'when all retries are exhausted' do
       before do
-        sp_stub = instance_double(DebtManagementCenter::Sharepoint::Request)
-        allow(DebtManagementCenter::Sharepoint::Request).to receive(:new).and_return(sp_stub)
-        allow(sp_stub).to receive(:upload).and_raise('Server Error')
         allow(DebtsApi::V0::Form5655Submission).to receive(:find).and_return(form_submission)
       end
 
       it 'sets submission to failure' do
-        expect { described_class.new.perform(form_submission.id) }.to raise_exception('Server Error')
-        expect(form_submission.failed?).to eq(true)
-        expect(form_submission.error_message).to eq('SharePoint Submission Failed: Server Error.')
+        described_class.within_sidekiq_retries_exhausted_block({ 'jid' => 123 }) do
+          expect(form_submission).to receive(:register_failure)
+        end
       end
     end
   end

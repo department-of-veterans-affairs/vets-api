@@ -21,7 +21,7 @@ module ClaimsApi
         before_action :shared_validation, :file_number_check, only: %i[submit validate]
 
         def submit # rubocop:disable Metrics/MethodLength
-          auto_claim = ClaimsApi::AutoEstablishedClaim.create(
+          auto_claim = ClaimsApi::V2::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:,
             form_data: form_attributes,
@@ -34,8 +34,12 @@ module ClaimsApi
           # If it's lacking the ID, that means the create was unsuccessful and an identical claim already exists.
           # Find and return that claim instead.
           unless auto_claim.id
-            existing_auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5)
+            existing_auto_claim = ClaimsApi::V2::AutoEstablishedClaim.find_by(md5: auto_claim.md5)
             auto_claim = existing_auto_claim if existing_auto_claim.present?
+          end
+
+          if auto_claim.errors.present?
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: auto_claim.errors.messages.to_s)
           end
 
           track_pact_counter auto_claim
@@ -120,7 +124,7 @@ byebug
 
         def shared_validation
           validate_json_schema
-          validate_form_526_submission_values!
+          validate_form_526_submission_values!(target_veteran)
         end
 
         def valid_526_response
@@ -157,7 +161,7 @@ byebug
 
           # Fetch the claim by md5 if it doesn't have an ID (given duplicate md5)
           if claim.id.nil? && claim.errors.find { |e| e.attribute == :md5 }&.type == :taken
-            claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: claim.md5) || claim
+            claim = ClaimsApi::V2::AutoEstablishedClaim.find_by(md5: claim.md5) || claim
           end
           ClaimsApi::ClaimSubmission.create claim:, claim_type: 'PACT',
                                             consumer_label: token.payload['label'] || token.payload['cid']

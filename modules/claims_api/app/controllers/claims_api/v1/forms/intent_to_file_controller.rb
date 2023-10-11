@@ -35,6 +35,8 @@ module ClaimsApi
           else
             ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::SUBMITTED, cid: token.payload['cid'])
             ClaimsApi::Logger.log('itf', detail: 'Submitted to BGS')
+            claims_v1_logging(target_veteran&.mpi_icn)
+
             render json: bgs_response,
                    serializer: ClaimsApi::IntentToFileSerializer
           end
@@ -64,6 +66,8 @@ module ClaimsApi
             raise ::Common::Exceptions::ResourceNotFound.new(detail: message)
           end
 
+          claims_v1_logging(target_veteran&.mpi_icn)
+
           render json: bgs_active, serializer: ClaimsApi::IntentToFileSerializer
         end
 
@@ -78,6 +82,8 @@ module ClaimsApi
           check_for_invalid_burial_submission! if form_type == 'burial'
 
           ClaimsApi::Logger.log('itf', detail: '0966/validate - Request Completed')
+          claims_v1_logging(target_veteran&.mpi_icn)
+
           render json: validation_success
         end
 

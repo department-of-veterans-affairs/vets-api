@@ -11,6 +11,27 @@ ALLOWLIST = %w[
   to_date
   qqtotalfilesize
   type
+  folder_id
+  startDate
+  endDate
+  included
+  page
+  useCache
+  number
+  size
+  sort
+  showCompleted
+  excludeProvidedMessage
+  document_id
+  category
+  cookie_id
+  reply_id
+  ids
+  code
+  endpoint_sid
+  message_id
+  os_name
+  filter
 ].freeze
 Rails.application.config.filter_parameters = [lambda do |k, v|
   v.replace('FILTERED') if v.is_a?(String) && ALLOWLIST.exclude?(k)

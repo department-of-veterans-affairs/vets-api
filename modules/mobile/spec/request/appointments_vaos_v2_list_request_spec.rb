@@ -45,6 +45,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
     allow_any_instance_of(Mobile::AppointmentsHelper).to \
       receive(:get_facility).and_return(mock_facility)
 
+    allow(Rails.cache).to receive(:fetch).and_call_original
     known_ids.each do |facility_id|
       allow(Rails.cache).to receive(:fetch).with("vaos_facility_#{facility_id}",
                                                  {

@@ -787,7 +787,8 @@ RSpec.describe V0::SignInController, type: :controller do
                     client_id:,
                     ial:,
                     acr:,
-                    icn: mpi_profile.icn
+                    icn: mpi_profile.icn,
+                    uuid: logingov_uuid
                   }
                 end
                 let(:expected_user_attributes) do
@@ -976,7 +977,8 @@ RSpec.describe V0::SignInController, type: :controller do
                     client_id:,
                     ial:,
                     acr:,
-                    icn: mpi_profile.icn
+                    icn: mpi_profile.icn,
+                    uuid: idme_uuid
                   }
                 end
                 let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
@@ -1126,7 +1128,8 @@ RSpec.describe V0::SignInController, type: :controller do
                   client_id:,
                   ial:,
                   acr:,
-                  icn: expected_icn
+                  icn: expected_icn,
+                  uuid: backing_idme_uuid
                 }
               end
               let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
@@ -1301,7 +1304,8 @@ RSpec.describe V0::SignInController, type: :controller do
                   client_id:,
                   ial:,
                   acr:,
-                  icn: expected_icn
+                  icn: expected_icn,
+                  uuid: backing_idme_uuid
                 }
               end
               let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }

@@ -114,9 +114,7 @@ class ApiProviderFactory
     when API_PROVIDER[:evss]
       EvssPPIUProvider.new(@current_user)
     when API_PROVIDER[:lighthouse]
-      # TODO: Implement in #59698 - Lighthouse provider
-      # LighthousePPIUProvider.new(current_user)
-      raise NotImplementedError, 'Lighthouse PPIU Provider not implemented yet'
+      LighthousePPIUProvider.new(@current_user)
     else
       raise NotImplementedError, 'No known PPIU Api Provider type provided'
     end

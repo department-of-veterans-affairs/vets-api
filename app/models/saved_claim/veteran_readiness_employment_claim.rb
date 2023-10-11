@@ -117,7 +117,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       begin
         upload_to_vbms
         send_vbms_confirmation_email(user)
-      rescue
+      rescue => e
+        log_message_to_sentry('Error uploading VRE claim to VBMS', :warn)
+        log_exception_to_sentry(e)
         send_to_central_mail!(user)
       end
     end
@@ -125,6 +127,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     @office_location = check_office_location[0] if @office_location.nil?
 
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
+
+    log_message_to_sentry('Not delivering VRE email for VRE Claim submission, form 28-1900', :warn) if user.blank?
 
     VeteranReadinessEmploymentMailer.build(user.participant_id, email_addr, @sent_to_cmp).deliver_later if user.present?
 

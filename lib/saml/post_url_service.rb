@@ -59,7 +59,8 @@ module SAML
     end
 
     def terms_of_use_redirect_url
-      if TERMS_OF_USE_ENABLED_CLIENTS.include?(@tracker&.payload_attr(:application))
+      application = @tracker&.payload_attr(:application) || 'vaweb'
+      if TERMS_OF_USE_ENABLED_CLIENTS.include?(application)
         add_query(terms_of_use_url, { redirect_url: login_redirect_url })
       else
         login_redirect_url
@@ -74,7 +75,11 @@ module SAML
     private
 
     def terms_of_use_url
-      "#{base_redirect_url}/terms-of-use"
+      if Settings.review_instance_slug.present?
+        "http://#{Settings.review_instance_slug}.review.vetsgov-internal/terms-of-use"
+      else
+        "#{base_redirect_url}/terms-of-use"
+      end
     end
 
     def client_redirect_target
