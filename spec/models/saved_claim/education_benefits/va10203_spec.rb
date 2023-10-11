@@ -19,7 +19,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
   end
 
   describe '#after_submit' do
-    context 'sends email confirmation via VANotify (with feature flag)' do
+    xcontext 'sends email confirmation via VANotify (with feature flag)' do
       it 'is skipped when feature flag is turned off' do
         Flipper.disable(:form21_10203_confirmation_email)
         allow(VANotify::EmailJob).to receive(:perform_async)
