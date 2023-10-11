@@ -40,7 +40,7 @@ RSpec.describe 'payment information', type: :request do
   before do
     Settings.mobile_lighthouse.rsa_key = rsa_key.to_s
     Settings.lighthouse.direct_deposit.use_mocks = true
-    Flipper.enable(:mobile_lighthouse_direct_deposit, user)
+    Flipper.enable_actor(:mobile_lighthouse_direct_deposit, user)
   end
 
   describe 'GET /mobile/v0/payment-information/benefits lighthouse' do
