@@ -433,6 +433,7 @@ module ClaimsApi
         return if treatments.blank?
 
         validate_treated_disability_names!(treatments)
+        validate_treatment_dates(treatments)
       end
 
       def validate_treated_disability_names!(treatments)
@@ -456,6 +457,32 @@ module ClaimsApi
           end
         end
         names
+      end
+
+      def validate_treatment_dates(treatments)
+        first_service_period = form_attributes['serviceInformation']['servicePeriods'].min_by do |per|
+          per['activeDutyBeginDate']
+        end
+        first_service_date = Date.strptime(first_service_period['activeDutyBeginDate'], '%m-%d-%Y')
+        treatments.each do |treatment|
+          next if treatment['beginDate'].nil?
+
+          treatment_begin_date = if type_of_date_format?(treatment['beginDate']) == 'mm-yyyy'
+                                   Date.strptime(treatment['beginDate'], '%m-%Y')
+                                 elsif type_of_date_format?(treatment['beginDate']) == 'yyyy'
+                                   Date.strptime(treatment['beginDate'], '%Y')
+
+                                 else
+                                   raise ::Common::Exceptions::UnprocessableEntity.new(
+                                     detail: 'Each treatment begin date must be in the format of mm-yyyy or yyyy.'
+                                   )
+                                 end
+          next if treatment_begin_date >= first_service_date
+
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: "Each treatment begin date must be after the first 'servicePeriod.activeDutyBeginDate'."
+          )
+        end
       end
 
       def collect_primary_secondary_disability_names(disabilities)
