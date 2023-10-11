@@ -7,6 +7,7 @@ module SimpleFormsApi
   module V1
     class UploadsController < ApplicationController
       skip_before_action :authenticate
+      before_action :authenticate, if: :form_is210966
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
@@ -22,8 +23,41 @@ module SimpleFormsApi
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
-        form_id = FORM_NUMBER_MAP[params[:form_number]]
+        if form_is210966 && icn
+          handle_210966_authenticated
+        else
+          submit_form_to_central_mail
+        end
+      rescue => e
+        raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
+      end
+
+      def authenticate
+        super
+      rescue Common::Exceptions::Unauthorized
+        Rails.logger.info(
+          "Simple forms api - unauthenticated user submitting form: #{params[:form_number]}"
+        )
+      end
+
+      private
+
+      def handle_210966_authenticated
+        intent_service = SimpleFormsApi::IntentToFile.new(params, icn)
+        existing_intents = intent_service.existing_intents
+        expiration_date = intent_service.submit
+
+        render json: {
+          expiration_date:,
+          compensation_intent: existing_intents[:compensation],
+          pension_intent: existing_intents[:pension],
+          survivor_intent: existing_intents[:survivor]
+        }
+      end
+
+      def submit_form_to_central_mail
         parsed_form_data = JSON.parse(params.to_json)
+        form_id = FORM_NUMBER_MAP[params[:form_number]]
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, data: parsed_form_data)
 
         file_path = filler.generate
@@ -42,11 +76,7 @@ module SimpleFormsApi
             status: #{status}, uuid #{confirmation_number}"
         )
         render json: { confirmation_number: }, status:
-      rescue => e
-        raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
       end
-
-      private
 
       def get_upload_location_and_uuid(lighthouse_service)
         upload_location = lighthouse_service.get_upload_location.body
@@ -71,6 +101,14 @@ module SimpleFormsApi
         )
 
         [response.status, uuid_and_location[:uuid]]
+      end
+
+      def form_is210966
+        params[:form_number] == '21-0966'
+      end
+
+      def icn
+        @current_user&.icn
       end
     end
   end

@@ -620,10 +620,11 @@
                 "additionalProperties": false,
                 "properties": {
                   "beginDate": {
-                    "description": "Begin date for treatment. If treatment began from 2005 to present, you do not need to provide dates.",
+                    "description": "Begin date for treatment. If treatment began from 2005 to present, you do not need to provide dates. Each treatment begin date must be after the first 'servicePeriod.activeDutyBeginDate'.",
                     "type": ["null", "string"],
                     "pattern": "^$|^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
-                    "example": "02-2018 or 2018"
+                    "example": "02-2018 or 2018",
+                    "nullable": true
                   },
                   "treatedDisabilityNames": {
                     "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
