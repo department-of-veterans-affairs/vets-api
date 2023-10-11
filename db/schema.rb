@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_09_29_163207) do
+ActiveRecord::Schema.define(version: 2023_10_10_190950) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -1191,6 +1191,27 @@ ActiveRecord::Schema.define(version: 2023_09_29_163207) do
     t.text "encrypted_kms_key"
     t.date "verified_decryptable_at"
     t.string "middle_initial"
+    t.string "address_line_1"
+    t.string "address_line_2"
+    t.string "address_line_3"
+    t.string "address_type"
+    t.string "city"
+    t.string "country_code_iso3"
+    t.string "country_name"
+    t.string "county_name"
+    t.string "county_code"
+    t.string "international_postal_code"
+    t.string "province"
+    t.string "state_code"
+    t.string "zip_code"
+    t.string "zip_suffix"
+    t.float "lat"
+    t.float "long"
+    t.geography "location", limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
+    t.jsonb "raw_address"
+    t.string "full_name"
+    t.index ["full_name"], name: "index_veteran_representatives_on_full_name"
+    t.index ["location"], name: "index_veteran_representatives_on_location", using: :gist
     t.index ["representative_id", "first_name", "last_name"], name: "index_vso_grp", unique: true
     t.check_constraint "representative_id IS NOT NULL", name: "veteran_representatives_representative_id_null"
   end
