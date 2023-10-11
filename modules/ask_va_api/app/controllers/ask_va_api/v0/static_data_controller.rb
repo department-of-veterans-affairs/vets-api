@@ -4,7 +4,13 @@ module AskVAApi
   module V0
     class StaticDataController < ApplicationController
       skip_before_action :authenticate
-      around_action :handle_exceptions, only: %i[categories topics subtopics zipcodes]
+      around_action :handle_exceptions, only: %i[
+        categories
+        states
+        subtopics
+        topics
+        zipcodes
+      ]
 
       def index
         data = {
@@ -24,14 +30,19 @@ module AskVAApi
         render json: @categories.payload, status: @categories.status
       end
 
-      def topics
-        get_resource('topics', category_id: params[:category_id])
-        render json: @topics.payload, status: @topics.status
+      def states
+        get_resource('states')
+        render json: @states.payload, status: @states.status
       end
 
       def subtopics
         get_resource('sub_topics', topic_id: params[:topic_id])
         render json: @sub_topics.payload, status: @sub_topics.status
+      end
+
+      def topics
+        get_resource('topics', category_id: params[:category_id])
+        render json: @topics.payload, status: @topics.status
       end
 
       def zipcodes
