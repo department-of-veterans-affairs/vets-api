@@ -38,6 +38,34 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     test_submit_request 'vba_21_0972.json'
     test_submit_request 'vba_21_0845.json'
 
+    def self.test_submit_request_with_intent_to_file(test_payload)
+      before do
+        sign_in
+        allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
+        allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_token')
+      end
+
+      it 'makes the request with an intent to file' do
+        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response') do
+          VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension') do
+            VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_survivor') do
+              VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
+                fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                               test_payload)
+                data = JSON.parse(fixture_path.read)
+
+                post '/simple_forms_api/v1/simple_forms', params: data
+
+                expect(response).to have_http_status(:ok)
+              end
+            end
+          end
+        end
+      end
+    end
+
+    test_submit_request_with_intent_to_file 'vha_21_0966.json'
+
     def self.test_failed_request_scrubs_error_message_unhandled_form
       it 'makes the request for an unhandled form and expects a failure' do
         fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
@@ -56,6 +84,7 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     end
 
     test_failed_request_scrubs_error_message_unhandled_form
+
     def self.test_failed_request_scrubs_error_message214142
       it 'makes the request for 21-4142 and expects a failure' do
         fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
