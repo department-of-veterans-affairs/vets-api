@@ -5,7 +5,7 @@ require_relative 'base'
 module CARMA
   module Models
     class Attachment < Base
-      DOCUMENT_TYPES = { '10-10CG' => '10-10CG', 'POA' => 'POA' }.freeze
+      DOCUMENT_TYPES = { '10-10CG' => '10-10CG', 'POA' => 'Legal Representative' }.freeze
 
       attr_accessor   :carma_case_id,
                       :veteran_name,
@@ -53,7 +53,7 @@ module CARMA
             # value:      Any unique string that maps to the file that is posted.
             # comments:   A string that will be returned in the response that can be correlated
             #             to the salesforce unique id of the created file. This is not persisted in salesforce.
-            # examples:   '1010CG' | 'POA'
+            # examples:   '1010CG' | 'Legal Representative'
             'referenceId' => reference_id
           },
 
@@ -62,9 +62,9 @@ module CARMA
           # comments:   The expected format is:
           #             <CARMA_Document_Type__c>_<VeteranFirstName>_<VeteranLastName>_<SubmittedDateMM-DD-YYYY>
           #               1.  <CARMA_Document_Type__c> - Type litral for the document valid values are
-          #                 '10-10CG' for the online application and 'POA' for Power of attorney
+          #                 '10-10CG' for the online application and 'Legal Representative' for Power of attorney
           #               2.  <VeteranFirstName> - First Name of the Veteran.
-          # examples:   '10-10CG_John_Doe_03-30-2020' | 'POA_John_Doe_03-30-2020'
+          # examples:   '10-10CG_John_Doe_03-30-2020' | 'Legal Representative_John_Doe_03-30-2020'
           'Title' => title,
 
           # property:   PathOnClient
@@ -76,9 +76,9 @@ module CARMA
 
           # property:   CARMA_Document_Type__c
           # value:      Static string literal for the type of the document.
-          # comments:   Accepted values are '10-10CG' for the online application and 'POA'
+          # comments:   Accepted values are '10-10CG' for the online application and 'Legal Representative'
           #             for Power of attorney document.
-          # examples:   '10-10CG' | 'POA'
+          # examples:   '10-10CG' | 'Legal Representative'
           'CARMA_Document_Type__c' => document_type,
 
           # property:   CARMA_Document_Date__c
