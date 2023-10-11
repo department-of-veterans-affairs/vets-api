@@ -1000,7 +1000,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 },
                 treatedDisabilityNames: ['Traumatic Brain Injury',
                                          'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders'],
-                beginDate: '03-1985'
+                beginDate: '03-2009'
               }
             ]
           end
@@ -1384,7 +1384,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when treatment beginDate is included and in the YYYY pattern' do
-          let(:treatment_begin_date) { '1999' }
+          let(:treatment_begin_date) { '2009' }
 
           it 'returns a 200' do
             mock_ccg(scopes) do |auth_header|
@@ -1393,6 +1393,37 @@ RSpec.describe 'Disability Claims', type: :request do
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:ok)
+            end
+          end
+        end
+
+        context 'the begin date' do
+          it 'is not after the first service period begin date it is unprocessable' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['treatments'][0]['beginDate'] = '12-2007'
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+
+          it 'is after the first service period begin date, it succeeds' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:ok)
+            end
+          end
+
+          it 'is the wrong format it is unprocessable' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['treatments'][0]['beginDate'] = '12-01-2008'
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
@@ -2120,7 +2151,7 @@ RSpec.describe 'Disability Claims', type: :request do
                         },
                         'treatedDisabilityNames' => ['Traumatic Brain Injury',
                                                      'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders'],
-                        'beginDate' => '03-1985'
+                        'beginDate' => '03-2009'
                       }
                     ]
                   params['data']['attributes']['disabilities'] = disabilities
@@ -2538,7 +2569,7 @@ RSpec.describe 'Disability Claims', type: :request do
                       'city' => 'Decatur'
                     },
                     'treatedDisabilityNames' => ['Traumatic Brain Injury', 'PTSD'],
-                    'beginDate' => '03-1985'
+                    'beginDate' => '03-2009'
                   }
                 ]
               params['data']['attributes']['disabilities'] = disabilities

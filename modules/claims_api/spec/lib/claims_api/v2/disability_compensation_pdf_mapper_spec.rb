@@ -281,7 +281,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         no_date = tx_center_data[0][:doNotHaveDate]
         treatment_details = tx_center_data[0][:treatmentDetails]
 
-        expect(start_date).to eq({ month: '03', year: '1985' })
+        expect(start_date).to eq({ month: '03', year: '2009' })
         expect(no_date).to eq(false)
         expect(treatment_details).to eq('Traumatic Brain Injury, Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders, Cancer - Musculoskeletal - Elbow - Center One, Decatur, GA') # rubocop:disable Layout/LineLength
       end
