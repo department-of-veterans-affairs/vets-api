@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_10_213112) do
+ActiveRecord::Schema.define(version: 2023_10_11_002405) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 2023_10_10_213112) do
   enable_extension "pg_trgm"
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
+  enable_extension "postgis"
   enable_extension "uuid-ossp"
 
   create_table "account_login_stats", force: :cascade do |t|
