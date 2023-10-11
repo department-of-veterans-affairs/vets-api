@@ -13,13 +13,14 @@ module ClaimsApi
       include Sidekiq::MonitoredWorker
 
       def perform(claim_id)
-        byebug
         log_job_progress('dis_comp_pdf_generator', 
             claim_id, 
             '526EZ PDF generator started')
 
+        @claim = get_claim(claim_id)
+      byebug
         pdf_data = get_pdf_data # {data: {}}
-        pdf_mapper_service(auto_claim.form_data, pdf_data, @target_veteran).map_claim #{data: {attributes: {...}}}
+        pdf_mapper_service(@claim.form_data, pdf_data, @claim.auth_headers).map_claim #{data: {attributes: {...}}}
         # Common::Exceptions::BackendServiceException
 
         pdf_string = generate_526_pdf(pdf_data)
@@ -55,8 +56,8 @@ module ClaimsApi
 
       private
 
-      def pdf_mapper_service(form_data, pdf_data)
-        ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_data, pdf_data, @target_veteran)
+      def pdf_mapper_service(form_data, pdf_data, auth_headers)
+        ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_data, pdf_data, auth_headers)
       end
 
       def start_docker_container_upload()

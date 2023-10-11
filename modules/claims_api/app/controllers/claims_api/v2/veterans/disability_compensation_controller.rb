@@ -100,11 +100,11 @@ byebug
         private
 
         def process_pdf_job(auto_claim)
-          byebug
+          auto_claim.auth_headers = auto_claim.auth_headers.merge!({'middleName' => @target_veteran.middle_name || ''})
+          auto_claim.save!
+byebug
           ClaimsApi::V2::DisabilityCompensationClaimProcessor.new
-                .process_claim(
-                  auto_claim.id,
-                  target_veteran.veteran_id)
+                .process_claim(auto_claim.id)
         end
 
         def flashes

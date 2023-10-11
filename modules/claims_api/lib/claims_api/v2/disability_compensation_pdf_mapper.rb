@@ -20,14 +20,16 @@ module ClaimsApi
         4 => :convert_date_string_to_format_yyyy
       }.freeze
 
-      def initialize(auto_claim, pdf_data, target_veteran)
+      def initialize(auto_claim, pdf_data, auth_headers)
+        byebug
         @auto_claim = auto_claim
         @pdf_data = pdf_data
-        @target_veteran = target_veteran
+        # @target_veteran = target_veteran
+        @auth_headers = auth_headers&.deep_symbolize_keys
+        @veteran_data = JSON.parse(auth_headers['va_eauth_authorization'])&.deep_symbolize_keys
       end
 
       def map_claim
-        byebug
         claim_attributes
         toxic_exposure_attributes
         homeless_attributes
@@ -226,7 +228,8 @@ module ClaimsApi
         @pdf_data[:data][:attributes].merge!(
           identificationInformation: @auto_claim&.dig('veteranIdentification')&.deep_symbolize_keys
         )
-        @pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber] = @target_veteran.mpi.birls_id
+        byebug
+        @pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber] = @auth_headers[:va_eauth_birlsfilenumber]
         vet_number = @pdf_data[:data][:attributes][:identificationInformation][:veteranNumber].present?
         if vet_number
           phone = convert_phone(@pdf_data[:data][:attributes][:identificationInformation][:veteranNumber][:telephone])
@@ -544,7 +547,9 @@ module ClaimsApi
       end
 
       def claim_date_and_signature
-        name = "#{@target_veteran[:first_name]} #{@target_veteran[:last_name]}"
+        # name = "#{@target_veteran[:first_name]} #{@target_veteran[:last_name]}"
+        byebug
+        name = "#{@veteran_data[:authorizationResponse][:firstName]} #{@veteran_data[:authorizationResponse][:lastName]}"
         claim_date = Date.parse @auto_claim&.dig('claimDate')
         claim_date_mdy = claim_date.strftime('%m-%d-%Y')
         @pdf_data[:data][:attributes].merge!(claimCertificationAndSignature: {
@@ -639,19 +644,19 @@ module ClaimsApi
 
       def additional_identification_info
         name = {
-          lastName: @target_veteran.last_name,
-          firstName: @target_veteran.first_name,
-          middleInitial: (@target_veteran.middle_name.presence || '')
+          lastName: @veteran_data[:authorizationResponse][:lastName],
+          firstName: @veteran_data[:authorizationResponse][:firstName],
+          middleInitial: (@auth_headers[:va_eauth_pnid] || '')
         }
         if @target_veteran.birth_date
           birth_date =
             {
-              month: @target_veteran.birth_date[4..5].to_s,
-              day: @target_veteran.birth_date[6..7].to_s,
+              month: @target_veteran.birth_date[5..6].to_s,
+              day: @target_veteran.birth_date[8..9].to_s,
               year: @target_veteran.birth_date[0..3].to_s
             }
         end
-        ssn = @target_veteran.ssn
+        ssn = @auth_headers[:va_eauth_pnid]
         formated_ssn = "#{ssn[0..2]}-#{ssn[3..4]}-#{ssn[5..8]}"
         @pdf_data[:data][:attributes][:identificationInformation][:name] = name
         @pdf_data[:data][:attributes][:identificationInformation][:ssn] = formated_ssn
