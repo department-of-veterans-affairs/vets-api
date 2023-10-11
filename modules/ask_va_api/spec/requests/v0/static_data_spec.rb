@@ -13,6 +13,17 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     allow(Rails.logger).to receive(:error)
   end
 
+  shared_examples_for 'common error handling' do |status, action, error_message|
+    it 'logs and renders error and sets datadog tags' do
+      expect(response).to have_http_status(status)
+      expect(JSON.parse(response.body)['error']).to eq(error_message)
+      expect(datadog_logger).to have_received(:call).with(action)
+      expect(span).to have_received(:set_tag).with('error', true)
+      expect(span).to have_received(:set_tag).with('error.msg', error_message)
+      expect(Rails.logger).to have_received(:error).with("Error during #{action}: #{error_message}")
+    end
+  end
+
   describe 'GET #index' do
     let(:index_path) { '/ask_va_api/v0/static_data' }
     let(:expected_response) do
@@ -61,28 +72,17 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     end
 
     context 'when an error occurs' do
+      let(:error_message) { 'service error' }
+
       before do
         allow_any_instance_of(Dynamics::Service)
           .to receive(:call)
-          .and_raise(Dynamics::ErrorHandler::BadRequestError.new('bad request'))
+          .and_raise(Dynamics::ErrorHandler::BadRequestError.new(error_message))
         get categories_path
       end
 
-      it 'handles other exceptions and returns an internal server error response' do
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)).to eq({ 'error' => 'Dynamics::ErrorHandler::BadRequestError: bad request' })
-      end
-
-      it 'logs and renders error and sets datadog tags' do
-        expect(response).to have_http_status(status)
-        expect(JSON.parse(response.body)['error']).to eq('Dynamics::ErrorHandler::BadRequestError: bad request')
-        expect(datadog_logger).to have_received(:call).with('service_error')
-        expect(span).to have_received(:set_tag).with('error', true)
-        expect(span).to have_received(:set_tag).with('error.msg',
-                                                     'Dynamics::ErrorHandler::BadRequestError: bad request')
-        expect(Rails.logger).to have_received(:error)
-          .with('Error during service_error: Dynamics::ErrorHandler::BadRequestError: bad request')
-      end
+      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                      'Dynamics::ErrorHandler::BadRequestError: service error'
     end
   end
 
@@ -111,28 +111,17 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     end
 
     context 'when an error occurs' do
+      let(:error_message) { 'service error' }
+
       before do
         allow_any_instance_of(Dynamics::Service)
           .to receive(:call)
-          .and_raise(Dynamics::ErrorHandler::BadRequestError.new('bad request'))
+          .and_raise(Dynamics::ErrorHandler::BadRequestError.new(error_message))
         get topics_path
       end
 
-      it 'handles other exceptions and returns an internal server error response' do
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)).to eq({ 'error' => 'Dynamics::ErrorHandler::BadRequestError: bad request' })
-      end
-
-      it 'logs and renders error and sets datadog tags' do
-        expect(response).to have_http_status(status)
-        expect(JSON.parse(response.body)['error']).to eq('Dynamics::ErrorHandler::BadRequestError: bad request')
-        expect(datadog_logger).to have_received(:call).with('service_error')
-        expect(span).to have_received(:set_tag).with('error', true)
-        expect(span).to have_received(:set_tag).with('error.msg',
-                                                     'Dynamics::ErrorHandler::BadRequestError: bad request')
-        expect(Rails.logger).to have_received(:error)
-          .with('Error during service_error: Dynamics::ErrorHandler::BadRequestError: bad request')
-      end
+      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                      'Dynamics::ErrorHandler::BadRequestError: service error'
     end
   end
 
@@ -165,28 +154,71 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     end
 
     context 'when an error occurs' do
+      let(:error_message) { 'service error' }
+
       before do
         allow_any_instance_of(Dynamics::Service)
           .to receive(:call)
-          .and_raise(Dynamics::ErrorHandler::BadRequestError.new('bad request'))
+          .and_raise(Dynamics::ErrorHandler::BadRequestError.new(error_message))
         get subtopics_path
       end
 
-      it 'handles other exceptions and returns an internal server error response' do
-        expect(JSON.parse(response.body)).to eq({ 'error' => 'Dynamics::ErrorHandler::BadRequestError: bad request' })
-        expect(response).to have_http_status(:unprocessable_entity)
+      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                      'Dynamics::ErrorHandler::BadRequestError: service error'
+    end
+  end
+
+  describe 'GET #Zipcode' do
+    let(:expected_response) do
+      [{ 'id' => nil,
+         'type' => 'zipcodes',
+         'attributes' =>
+          { 'zipcode' => '36010', 'city' => 'Autaugaville', 'state' => 'AL', 'lat' => 32.4312, 'lng' => -86.6549 } },
+       { 'id' => nil,
+         'type' => 'zipcodes',
+         'attributes' => { 'zipcode' => '36011', 'city' => 'Millbrook', 'state' => 'AL', 'lat' => 32.5002,
+                           'lng' => -86.3691 } },
+       { 'id' => nil,
+         'type' => 'zipcodes',
+         'attributes' => { 'zipcode' => '36012', 'city' => 'Deatsville', 'state' => 'AL', 'lat' => 32.5997,
+                           'lng' => -86.324 } }]
+    end
+    let(:zipcodes_path) { '/ask_va_api/v0/zipcodes' }
+
+    context 'when successful' do
+      before { get zipcodes_path, params: { zipcode: zip } }
+
+      context 'when zipcodes are found' do
+        let(:zip) { '3601' }
+
+        it 'returns zipcode data' do
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['data'].first(3)).to eq(expected_response)
+        end
       end
 
-      it 'logs and renders error and sets datadog tags' do
-        expect(JSON.parse(response.body)['error']).to eq('Dynamics::ErrorHandler::BadRequestError: bad request')
-        expect(response).to have_http_status(status)
-        expect(datadog_logger).to have_received(:call).with('service_error')
-        expect(span).to have_received(:set_tag).with('error', true)
-        expect(span).to have_received(:set_tag).with('error.msg',
-                                                     'Dynamics::ErrorHandler::BadRequestError: bad request')
-        expect(Rails.logger).to have_received(:error)
-          .with('Error during service_error: Dynamics::ErrorHandler::BadRequestError: bad request')
+      context 'when no zipcode is found' do
+        let(:zip) { '4000' }
+
+        it 'returns an empty array' do
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['data']).to eq([])
+        end
       end
+    end
+
+    context 'when an error occurs' do
+      let(:error_message) { 'standard error' }
+
+      before do
+        allow_any_instance_of(AskVAApi::Zipcodes::Retriever)
+          .to receive(:call)
+          .and_raise(StandardError.new(error_message))
+        get zipcodes_path
+      end
+
+      it_behaves_like 'common error handling', :internal_server_error, 'unexpected_error',
+                      'standard error'
     end
   end
 end
