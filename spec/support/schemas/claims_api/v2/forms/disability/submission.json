@@ -457,7 +457,9 @@
             "name": {
               "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
               "type": "string",
-              "example": "Traumatic Brain Injury"
+              "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+              "example": "PTSD (post traumatic stress disorder)",
+              "maxLength": 255
             },
             "classificationCode": {
               "type": "string",
@@ -507,7 +509,9 @@
                   "name": {
                     "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
                     "type": "string",
-                    "example": "Cancer - Musculoskeletal - Elbow"
+                    "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+                    "example": "PTSD (post traumatic stress disorder)",
+                    "maxLength": 255
                   },
                   "disabilityActionType": {
                     "description": "The status of the secondary disability.",
