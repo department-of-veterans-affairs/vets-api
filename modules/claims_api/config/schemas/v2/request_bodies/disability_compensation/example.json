@@ -135,7 +135,7 @@
             "state": "GA",
             "city": "Decatur"
           },
-          "beginDate": "03-1985"
+          "beginDate": "04-2009"
         },
         {
           "treatedDisabilityNames": ["Musculoskeletal - Foot"],
@@ -144,15 +144,15 @@
             "state": "GA",
             "city": "Decatur"
           },
-          "beginDate": "03-1985"
+          "beginDate": "03-2009"
         }
       ],
       "serviceInformation": {
         "servicePeriods": [
           {
             "serviceBranch": "Public Health Service",
-            "activeDutyBeginDate": "11-14-2021",
-            "activeDutyEndDate": "11-30-2022",
+            "activeDutyBeginDate": "11-14-2008",
+            "activeDutyEndDate": "11-30-2025",
             "serviceComponent": "Active",
             "separationLocationCode": "25077"
           }
