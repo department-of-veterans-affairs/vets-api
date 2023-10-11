@@ -15,5 +15,6 @@ AskVAApi::Engine.routes.draw do
     get '/topics/:topic_id/subtopics', to: 'static_data#subtopics'
     get '/zipcodes', to: 'static_data#zipcodes'
     get '/states', to: 'static_data#states'
+    get '/provinces', to: 'static_data#provinces'
   end
 end
