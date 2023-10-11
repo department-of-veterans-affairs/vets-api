@@ -255,4 +255,38 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
                       'StandardError: standard error'
     end
   end
+
+  describe 'GET #Provinces' do
+    let(:provinces_path) { '/ask_va_api/v0/provinces' }
+    let(:scoped_response) do
+      [
+        { 'id' => nil, 'type' => 'provinces', 'attributes' => { 'name' => 'Alberta', 'abv' => 'AB' } },
+        { 'id' => nil, 'type' => 'provinces', 'attributes' => { 'name' => 'British Columbia', 'abv' => 'BC' } },
+        { 'id' => nil, 'type' => 'provinces', 'attributes' => { 'name' => 'Manitoba', 'abv' => 'MB' } }
+      ]
+    end
+
+    context 'when successful' do
+      before { get provinces_path }
+
+      it 'returns all the provinces' do
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['data'].first(3)).to eq(scoped_response)
+      end
+    end
+
+    context 'when an error occurs' do
+      let(:error_message) { 'standard error' }
+
+      before do
+        allow_any_instance_of(AskVAApi::Provinces::Retriever)
+          .to receive(:fetch_data)
+          .and_raise(StandardError.new(error_message))
+        get provinces_path
+      end
+
+      it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                      'StandardError: standard error'
+    end
+  end
 end
