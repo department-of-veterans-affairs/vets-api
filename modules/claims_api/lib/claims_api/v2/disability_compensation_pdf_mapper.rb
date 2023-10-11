@@ -648,12 +648,13 @@ module ClaimsApi
           firstName: @veteran_data[:authorizationResponse][:firstName],
           middleInitial: (@auth_headers[:va_eauth_pnid] || '')
         }
-        if @target_veteran.birth_date
+        birth_date_data = @veteran_data[:authorizationResponse][:birthDate]
+        if birth_date_data
           birth_date =
             {
-              month: @target_veteran.birth_date[5..6].to_s,
-              day: @target_veteran.birth_date[8..9].to_s,
-              year: @target_veteran.birth_date[0..3].to_s
+              month: birth_date_data[5..6].to_s,
+              day: birth_date_data[8..9].to_s,
+              year: birth_date_data[0..3].to_s
             }
         end
         ssn = @auth_headers[:va_eauth_pnid]
