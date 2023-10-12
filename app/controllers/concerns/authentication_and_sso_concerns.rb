@@ -2,15 +2,12 @@
 
 # This module only gets mixed in to one place, but is that cleanest way to organize everything in one place related
 # to this responsibility alone.
-module AuthenticationAndSSOConcerns
+module AuthenticationAndSSOConcerns # rubocop:disable Metrics/ModuleLength
   extend ActiveSupport::Concern
   include ActionController::Cookies
   include SignIn::Authentication
 
-  included do
-    before_action :authenticate
-    before_action :set_session_expiration_header
-  end
+  included { before_action :authenticate, :set_session_expiration_header }
 
   protected
 
@@ -56,12 +53,14 @@ module AuthenticationAndSSOConcerns
     @current_user.present?
   end
 
-  def load_user
+  def load_user(skip_terms_check: false)
+    skip_terms_check = true if Settings.vsp_environment == 'production'
+
     if cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME]
-      super
+      super()
     else
-      @session_object = Session.find(session[:token])
-      @current_user = User.find(@session_object.uuid) if @session_object&.uuid
+      set_session_object
+      set_current_user(skip_terms_check)
     end
   end
 
@@ -114,6 +113,17 @@ module AuthenticationAndSSOConcerns
   end
 
   private
+
+  def set_session_object
+    @session_object = Session.find(session[:token])
+  end
+
+  def set_current_user(skip_terms_check)
+    return unless @session_object
+
+    user = User.find(@session_object.uuid)
+    @current_user = user if skip_terms_check || !user&.needs_accepted_terms_of_use
+  end
 
   def sso_cookie_content
     return nil if @current_user.blank?
