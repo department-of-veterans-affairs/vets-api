@@ -19,7 +19,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     email_sent(false)
     return unless FeatureFlipper.send_email?
 
-    StemApplicantConfirmationMailer.build(self, nil).deliver_now
+    StemApplicantConfirmationMailer.build(self, nil).deliver_now if Settings.vsp_environment.eql?('production')
 
     if @user.present?
       education_benefits_claim.education_stem_automated_decision.update(confirmation_email_sent_at: Time.zone.now)
