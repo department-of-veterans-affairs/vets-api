@@ -180,7 +180,6 @@ PATH
       rails (~> 6.1.4, >= 6.1.4.7)
     my_health (0.1.0)
       rails (~> 6.1.4, >= 6.1.4.7)
-    openid_auth (0.0.1)
     simple_forms_api (0.1.0)
     test_user_dashboard (0.1.0)
       rails (~> 6.1.5)
@@ -1116,7 +1115,6 @@ DEPENDENCIES
   oj
   okcomputer
   olive_branch
-  openid_auth!
   operating_hours
   ox
   paper_trail
