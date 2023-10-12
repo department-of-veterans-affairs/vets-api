@@ -18,6 +18,9 @@ spec:
         - name: vets-api
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: "Settings.database_url"
+              value: "{{ .Values.databaseUrl }}"
           ports:
             - name: http
               containerPort: 3000
