@@ -111,7 +111,8 @@ module ClaimsApi
 
         # Only value required by background jobs that is missing in headers is middle name
         def adjust_headers_for_sidekiq_requirements(auto_claim)
-          auto_claim.auth_headers = auto_claim.auth_headers.merge!({'middleName' => @target_veteran.middle_name || ''})
+          # auto_claim.auth_headers = auto_claim.auth_headers.merge!({'middleName' => @target_veteran.middle_name || ''})
+          auto_claim.auth_headers = auto_claim.auth_headers.merge!({'middleName' => 'Lee' || ''})
           auto_claim.save!
         end
 
@@ -167,8 +168,10 @@ module ClaimsApi
           if claim.id.nil? && claim.errors.find { |e| e.attribute == :md5 }&.type == :taken
             claim = ClaimsApi::V2::AutoEstablishedClaim.find_by(md5: claim.md5) || claim
           end
-          ClaimsApi::ClaimSubmission.create claim:, claim_type: 'PACT',
-                                            consumer_label: token.payload['label'] || token.payload['cid']
+          if claim.id
+            ClaimsApi::ClaimSubmission.create claim:, claim_type: 'PACT',
+                                              consumer_label: token.payload['label'] || token.payload['cid']
+          end
         end
 
         def evss_service
