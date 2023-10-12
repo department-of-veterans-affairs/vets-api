@@ -73,7 +73,6 @@ class SimpleCovHelper
     add_group 'IncomeLimits', 'modules/income_limits/'
     add_group 'MebApi', 'modules/meb_api/'
     add_group 'MyHealth', 'modules/my_health/'
-    add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'Policies', 'app/policies'
     add_group 'Serializers', 'app/serializers'
     add_group 'Services', 'app/services'
