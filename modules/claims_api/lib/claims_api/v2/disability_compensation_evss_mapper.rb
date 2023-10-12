@@ -88,9 +88,13 @@ module ClaimsApi
       # Convert 12-05-1984 to 1984-12-05 for Docker container
       def format_service_periods(service_period_dates)
         service_period_dates.each do |sp_date|
+          next if sp_date[:activeDutyBeginDate].nil?
+
           begin_year = Date.strptime(sp_date[:activeDutyBeginDate], '%m-%d-%Y')
-          end_year = Date.strptime(sp_date[:activeDutyEndDate], '%m-%d-%Y')
           sp_date[:activeDutyBeginDate] = begin_year.strftime('%Y-%m-%d')
+          next if sp_date[:activeDutyEndDate].nil?
+
+          end_year = Date.strptime(sp_date[:activeDutyEndDate], '%m-%d-%Y')
           sp_date[:activeDutyEndDate] = end_year.strftime('%Y-%m-%d')
         end
       end

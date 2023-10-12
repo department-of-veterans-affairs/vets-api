@@ -8,7 +8,7 @@
       "veteranIdentification": {
         "currentVaEmployee": false,
         "mailingAddress": {
-          "addressLine1": "1234 Couch Street",
+          "addressLine1": "1234 Test Street",
           "addressLine2": "Unit 4",
           "addressLine3": "Room 1",
           "city": "Portland",
