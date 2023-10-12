@@ -4,10 +4,9 @@ module KmsKeyRotation
   class RotateKeysJob
     include Sidekiq::Worker
 
-    sidekiq_options retry: 5, queue: :low
+    sidekiq_options retry: false, queue: :low
 
-    def perform(args)
-      gids = args['gids'] || args[:gids] # rspec didn't like args['gids']
+    def perform(gids)
       Rails.logger.info { "Re-encrypting records: #{gids.join ', '}" }
       records = GlobalID::Locator.locate_many gids
 
@@ -15,7 +14,7 @@ module KmsKeyRotation
         records.each do |r|
           r.rotate_kms_key!
         rescue => e
-          Rails.logger.error("Error rotating record (id: #{r.id}): #{e.message}")
+          Rails.logger.error("Error rotating record (id: #{r.to_global_id}): #{e.message}")
           raise
         end
       end

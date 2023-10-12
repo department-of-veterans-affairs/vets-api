@@ -41,8 +41,7 @@ RSpec.describe KmsKeyRotation::BatchInitiatorJob, type: :job do
       expect(job_class).to eq('KmsKeyRotation::RotateKeysJob')
 
       job_args = rotate_jobs.first['args'].first
-      expect(job_args.keys).to eq(['gids'])
-      expect(job_args['gids'].size).to eq(KmsKeyRotation::BatchInitiatorJob::RECORDS_PER_JOB)
+      expect(job_args.size).to eq(KmsKeyRotation::BatchInitiatorJob::RECORDS_PER_JOB)
     end
 
     it 're-raises errors raised while batching gids' do
