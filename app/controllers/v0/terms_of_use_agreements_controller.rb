@@ -15,6 +15,7 @@ module V0
       terms_of_use_agreement = TermsOfUse::Acceptor.new(user_account: current_user.user_account,
                                                         common_name: current_user.common_name,
                                                         version: params[:version]).perform!
+      recache_user
       render_success(terms_of_use_agreement, :created)
     rescue ActiveRecord::RecordInvalid => e
       render_error(e.message)
@@ -24,12 +25,18 @@ module V0
       terms_of_use_agreement = TermsOfUse::Decliner.new(user_account: current_user.user_account,
                                                         common_name: current_user.common_name,
                                                         version: params[:version]).perform!
+      recache_user
       render_success(terms_of_use_agreement, :created)
     rescue ActiveRecord::RecordInvalid => e
       render_error(e.message)
     end
 
     private
+
+    def recache_user
+      current_user.needs_accepted_terms_of_use = current_user.user_account&.needs_accepted_terms_of_use?
+      current_user.save
+    end
 
     def get_terms_of_use_agreements_for_version(version)
       current_user.user_account.terms_of_use_agreements.where(agreement_version: version)
@@ -43,7 +50,7 @@ module V0
     end
 
     def terms_authenticate
-      params[:terms_code].present? ? authenticate_one_time_terms_code : load_user
+      params[:terms_code].present? ? authenticate_one_time_terms_code : load_user(skip_terms_check: true)
 
       raise Common::Exceptions::Unauthorized unless @current_user
     end
