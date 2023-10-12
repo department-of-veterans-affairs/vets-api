@@ -17,7 +17,8 @@ module SimpleFormsApi
         '21-4142' => 'vba_21_4142',
         '21P-0847' => 'vba_21p_0847',
         '26-4555' => 'vba_26_4555',
-        '10-10D' => 'vha_10_10d'
+        '10-10D' => 'vha_10_10d',
+        '40-0247' => 'vba_40_0247'
       }.freeze
 
       def submit
@@ -30,6 +31,17 @@ module SimpleFormsApi
         end
       rescue => e
         raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
+      end
+
+      def submit_supporting_documents
+        if params[:form_id] == '40-0247'
+          attachment = PersistentAttachments::MilitaryRecords.new(form_id: '40-0247')
+          attachment.file = params['file']
+          raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+
+          attachment.save
+          render json: attachment
+        end
       end
 
       def authenticate
@@ -62,6 +74,8 @@ module SimpleFormsApi
 
         file_path = filler.generate
         metadata = filler.metadata
+
+        handle_attachments(file_path) if form_id == 'vba_40_0247'
 
         status, confirmation_number = upload_pdf_to_benefits_intake(file_path, metadata)
 
@@ -109,6 +123,27 @@ module SimpleFormsApi
 
       def icn
         @current_user&.icn
+      end
+
+      def handle_attachments(file_path)
+        attachments = get_attachments
+        if attachments.count.positive?
+          combined_pdf = CombinePDF.new
+          combined_pdf << CombinePDF.load(file_path)
+          attachments.each do |attachment|
+            combined_pdf << CombinePDF.load(attachment.to_pdf)
+          end
+
+          combined_pdf.save file_path
+        end
+      end
+
+      def get_attachments
+        confirmation_codes = []
+        supporting_documents = params['veteran_supporting_documents']
+        supporting_documents&.map { |doc| confirmation_codes << doc['confirmation_code'] }
+
+        PersistentAttachment.where(guid: confirmation_codes)
       end
     end
   end
