@@ -159,6 +159,8 @@ Rails.application.routes.draw do
     resources :evss_claims_async, only: %i[index show]
     resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
 
+    resource :rated_disabilities, only: %i[show]
+
     namespace :virtual_agent do
       get 'claim', to: 'virtual_agent_claim#index'
       get 'claim/:id', to: 'virtual_agent_claim#show'
