@@ -46,24 +46,24 @@ module ClaimsApi
           #pdf_data = get_pdf_data
           byebug
           #pdf_mapper_service(form_attributes, pdf_data, target_veteran).map_claim
-byebug
+
           #generate_526_pdf(pdf_data)
           process_pdf_job(auto_claim)
 
-          if auto_claim.evss_id.nil?
-            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Mapping EVSS Data')
-            evss_data = evss_mapper_service(auto_claim).map_claim
-            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Submitting to EVSS')
-            evss_res = evss_service.submit(auto_claim, evss_data)
-            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Successfully submitted to EVSS',
-                                            evss_id: evss_res[:claimId])
-            auto_claim.update(evss_id: evss_res[:claimId])
-          else
-            ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'EVSS Skipped',
-                                            evss_id: auto_claim.evss_id)
-          end
-byebug
-          ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Starting call to 526EZ PDF generator')
+          # if auto_claim.evss_id.nil?
+          #   ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Mapping EVSS Data')
+          #   evss_data = evss_mapper_service(auto_claim).map_claim
+          #   ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Submitting to EVSS')
+          #   evss_res = evss_service.submit(auto_claim, evss_data)
+          #   ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Successfully submitted to EVSS',
+          #                                   evss_id: evss_res[:claimId])
+          #   auto_claim.update(evss_id: evss_res[:claimId])
+          # else
+          #   ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'EVSS Skipped',
+          #                                   evss_id: auto_claim.evss_id)
+          # end
+
+          # ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Starting call to 526EZ PDF generator')
 
           # pdf_string = generate_526_pdf(pdf_data)
 
@@ -104,11 +104,15 @@ byebug
         private
 
         def process_pdf_job(auto_claim)
+          adjust_headers_for_sidekiq_requirements(auto_claim)
+
+          ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(auto_claim.id)
+        end
+
+        # Only value required by background jobs that is missing in headers is middle name
+        def adjust_headers_for_sidekiq_requirements(auto_claim)
           auto_claim.auth_headers = auto_claim.auth_headers.merge!({'middleName' => @target_veteran.middle_name || ''})
           auto_claim.save!
-byebug
-          ClaimsApi::V2::DisabilityCompensationClaimProcessor.new
-                .process_claim(auto_claim.id)
         end
 
         def flashes

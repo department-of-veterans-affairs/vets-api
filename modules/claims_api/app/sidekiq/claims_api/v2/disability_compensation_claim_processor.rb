@@ -6,21 +6,10 @@ module ClaimsApi
   module V2
     class DisabilityCompensationClaimProcessor
 
-      def process_claim(claim_id)
-        log_job_progress('dis_comp_claim_processor', 
-            claim_id, 
-            '526EZ Claim Processor started')
-
-        ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(claim_id)
-        #log_job_progress('dis_comp_claim_processor', 
-            # claim_id, 
-            # '526EZ Claim Processor finished')
-      end
-
       protected
 
       def get_claim(claim_id)
-        ClaimsApi::AutoEstablishedClaim.find(claim_id)
+        ClaimsApi::V2::AutoEstablishedClaim.find(claim_id)
       end
 
       def log_job_progress(tag, claim_id, detail)

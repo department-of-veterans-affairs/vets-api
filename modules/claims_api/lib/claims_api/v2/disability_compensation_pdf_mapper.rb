@@ -21,10 +21,8 @@ module ClaimsApi
       }.freeze
 
       def initialize(auto_claim, pdf_data, auth_headers)
-        byebug
         @auto_claim = auto_claim
         @pdf_data = pdf_data
-        # @target_veteran = target_veteran
         @auth_headers = auth_headers&.deep_symbolize_keys
         @veteran_data = JSON.parse(auth_headers['va_eauth_authorization'])&.deep_symbolize_keys
       end
@@ -45,7 +43,6 @@ module ClaimsApi
       end
 
       def claim_attributes
-        byebug
         @pdf_data[:data][:attributes] = @auto_claim&.deep_symbolize_keys
         @pdf_data[:data][:attributes].delete(:claimantCertification)
         claim_date_and_signature
@@ -228,7 +225,6 @@ module ClaimsApi
         @pdf_data[:data][:attributes].merge!(
           identificationInformation: @auto_claim&.dig('veteranIdentification')&.deep_symbolize_keys
         )
-        byebug
         @pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber] = @auth_headers[:va_eauth_birlsfilenumber]
         vet_number = @pdf_data[:data][:attributes][:identificationInformation][:veteranNumber].present?
         if vet_number
@@ -547,8 +543,6 @@ module ClaimsApi
       end
 
       def claim_date_and_signature
-        # name = "#{@target_veteran[:first_name]} #{@target_veteran[:last_name]}"
-        byebug
         name = "#{@veteran_data[:authorizationResponse][:firstName]} #{@veteran_data[:authorizationResponse][:lastName]}"
         claim_date = Date.parse @auto_claim&.dig('claimDate')
         claim_date_mdy = claim_date.strftime('%m-%d-%Y')
