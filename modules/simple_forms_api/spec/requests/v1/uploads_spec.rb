@@ -37,6 +37,7 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     test_submit_request 'vba_21p_0847.json'
     test_submit_request 'vba_21_0972.json'
     test_submit_request 'vba_21_0845.json'
+    test_submit_request 'vba_40_0247.json'
 
     def self.test_submit_request_with_intent_to_file(test_payload)
       before do
@@ -65,6 +66,50 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     end
 
     test_submit_request_with_intent_to_file 'vha_21_0966.json'
+
+    def self.test_submit_supporting_documents
+      it 'renders the attachment as json' do
+        allow(ClamScan::Client).to receive(:scan)
+          .and_return(instance_double(ClamScan::Response, safe?: true))
+        file = fixture_file_upload('doctors-note.gif')
+        data = { form_id: '40-0247', file: }
+
+        expect do
+          post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+        end.to change(PersistentAttachment, :count).by(1)
+
+        expect(response).to have_http_status(:ok)
+        resp = JSON.parse(response.body)
+        expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+        expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
+      end
+    end
+
+    test_submit_supporting_documents
+
+    def self.test_submit_form_with_attachments(test_payload)
+      it 'appends the attachments to the PDF' do
+        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', test_payload)
+            pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
+            data = JSON.parse(fixture_path.read)
+            attachment = double
+            allow(attachment).to receive(:to_pdf).and_return(pdf_path)
+            allow(PersistentAttachment).to receive(:where).with(guid: ['a-random-uuid']).and_return([attachment])
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            expect(response).to have_http_status(:ok)
+          ensure
+            metadata_file = Dir['tmp/*.SimpleFormsApi.metadata.json'][0]
+            Common::FileHelpers.delete_file_if_exists(metadata_file) if defined?(metadata_file)
+          end
+        end
+      end
+    end
+
+    test_submit_form_with_attachments 'vba_40_0247_with_supporting_document.json'
 
     def self.test_failed_request_scrubs_error_message_unhandled_form
       it 'makes the request for an unhandled form and expects a failure' do
