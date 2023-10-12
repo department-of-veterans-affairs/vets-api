@@ -518,6 +518,10 @@ mhv:
     base_path: https://mhv-api.example.com
     app_token: fake-app-token
     mock: true
+  medical_records:
+    host: fake-host
+    app_token: fake-app-token
+    x_auth_key: fake-x-auth-key
 
 # Settings for alternate MHV integration for mobile app
 mhv_mobile:
@@ -1630,3 +1634,6 @@ avs:
   timeout: 55
   url: "https://something.fake.va.gov"
   api_jwt: abcd1234abcd1234abcd1234abcd1234abcd1234
+
+brd:
+  api_key: 'fake_key'
