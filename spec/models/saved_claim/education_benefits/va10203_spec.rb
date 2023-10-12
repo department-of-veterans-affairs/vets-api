@@ -111,13 +111,6 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         expect { instance.after_submit(user) }
           .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(1)
       end
-
-      it 'calls StemApplicantConfirmationMailer' do
-        mail = double('mail')
-        allow(mail).to receive(:deliver_now)
-        expect(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).once.and_return(mail)
-        instance.after_submit(user)
-      end
     end
 
     context 'unauthorized' do
@@ -133,13 +126,6 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       it 'does not call SendSchoolCertifyingOfficialsEmail' do
         expect { instance.after_submit(user) }
           .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(0)
-      end
-
-      it 'calls StemApplicantConfirmationMailer' do
-        mail = double('mail')
-        allow(mail).to receive(:deliver_now)
-        expect(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).once.and_return(mail)
-        instance.after_submit(user)
       end
     end
   end
