@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Bearer blahblahblah
+      - Bearer blahblech
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -23,7 +23,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 28 Feb 2023 21:02:39 GMT
+      - Wed, 11 Oct 2023 17:22:38 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
@@ -99,10 +99,31 @@ http_interactions:
           "diagnostic_type_name": "Diabetes Mellitus",          
           "disability_rating_id": "1",
           "diagnostic_text": "Diabetes mellitus0"
+        },
+        {
+          "description": "Service Connected",
+          "decision": "Service Connected",
+          "effective_date": "2018-03-12",
+          "rating_end_date": "2020-10-05",
+          "rating_percentage": 30,
+          "diagnostic_type_code": "6260",
+          "diagnostic_type_name": "Tinnitus",          
+          "disability_rating_id": "2",
+          "diagnostic_text": "Tinnitus"
+        },
+        {
+          "decision": "Not Service Connected",
+          "effective_date": "2018-03-27",
+          "rating_end_date": null,
+          "rating_percentage": 50,
+          "diagnostic_type_code": "1134",
+          "diagnostic_type_name": "Schizophrenia, disorganized type",
+          "disability_rating_id": "2",
+          "diagnostic_text": "bilateral hearing loss"
         }
       ]
     }
   }
 }'
-  recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Wed, 11 Oct 2023 17:22:38 GMT
+recorded_with: VCR 6.2.0
