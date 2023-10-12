@@ -62,7 +62,7 @@ module SignIn
 
       def parse_public_jwks(response:)
         jwks = JWT::JWK::Set.new(response.body)
-        jwks.select! { |key| key[:use] == 'sig' }
+        jwks.select! { |key| key[:use] == 'sig' && key[:kid] == Rails.cache.read(config.jwks_primary_kid) }
         jwks
       end
 
@@ -174,6 +174,7 @@ module SignIn
 
       def jwt_decode(encoded_jwt)
         verify_expiration = true
+        set_jwks_primary_kid(encoded_jwt:)
         decoded_jwt = JWT.decode(
           encoded_jwt,
           nil,
@@ -191,6 +192,13 @@ module SignIn
         raise Errors::JWTExpiredError, '[SignIn][Idme][Service] JWT has expired'
       rescue JWT::DecodeError
         raise Errors::JWTDecodeError, '[SignIn][Idme][Service] JWT is malformed'
+      end
+
+      def set_jwks_primary_kid(encoded_jwt:)
+        Rails.cache.fetch(config.jwks_primary_kid, expires_in: config.jwks_cache_expiration) do
+          decoded_token_info = JWT.decode(encoded_jwt, nil, false).last
+          decoded_token_info['kid']
+        end
       end
 
       def log_parsed_credential(decoded_jwt)

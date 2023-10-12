@@ -94,6 +94,10 @@ module SignIn
         'idme_public_jwks'
       end
 
+      def jwks_primary_kid
+        'idme_public_jwks_primary_kid'
+      end
+
       def jwks_cache_expiration
         30.minutes
       end

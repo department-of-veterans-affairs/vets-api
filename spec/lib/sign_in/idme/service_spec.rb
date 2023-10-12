@@ -155,8 +155,14 @@ describe SignIn::Idme::Service do
     let(:test_client_cert_path) { 'spec/fixtures/sign_in/oauth_test.crt' }
     let(:test_client_key_path) { 'spec/fixtures/sign_in/oauth_test.key' }
     let(:expected_jwks_log) { '[SignIn][Idme][Service] Get Public JWKs Success' }
+    let(:cache_kid) { 'idme_public_jwks_primary_kid' }
+    let(:cache_expiration) { 30.minutes }
+    let(:jwks_primary_kid) { '9WSOx_eAXYDxiFou_suVIzGiNxBarsylEONVPbv1yTg' }
 
     before do
+      allow(Rails.cache).to receive(:fetch).and_call_original
+      allow(Rails.cache).to receive(:fetch).with(cache_kid, expires_in: cache_expiration).and_return(jwks_primary_kid)
+      allow(Rails.cache).to receive(:read).with(cache_kid).and_return(jwks_primary_kid)
       allow(Settings.idme).to receive(:client_cert_path).and_return(test_client_cert_path)
       allow(Settings.idme).to receive(:client_key_path).and_return(test_client_key_path)
     end
@@ -256,11 +262,24 @@ describe SignIn::Idme::Service do
           subject.user_info(token)
         end
       end
+
+      context 'when filtering for the appropriate public JWK to cache' do
+        let(:idme_responses) { File.read('spec/support/vcr_cassettes/identity/idme_200_responses.yml') }
+        let(:idme_jwks) { YAML.load(idme_responses)['http_interactions'].first['response']['body']['string'] }
+
+        it 'uses the sourced KID to filter for the appropriate public JWK to cache' do
+          VCR.use_cassette('identity/idme_200_responses') do
+            subject.user_info(token)
+            parsed_keys = subject.send(:public_jwks).keys
+            expect(parsed_keys.length).to be < idme_jwks.length
+            expect(parsed_keys.first.kid).to eq(jwks_primary_kid)
+          end
+        end
+      end
     end
 
     context 'when the public JWK response is cached' do
       let(:cache_key) { 'idme_public_jwks' }
-      let(:cache_expiration) { 30.minutes }
       let(:response) { double(body: 'some-body') }
 
       before do
