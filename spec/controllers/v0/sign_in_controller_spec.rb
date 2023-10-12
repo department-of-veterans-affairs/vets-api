@@ -1484,7 +1484,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
     let(:user_verification) { create(:user_verification) }
     let(:user_verification_id) { user_verification.id }
-    let!(:user) { create(:user, uuid: user_uuid) }
+    let!(:user) { create(:user, :loa3, uuid: user_uuid) }
     let(:user_uuid) { user_verification.credential_identifier }
     let(:code) { { code: code_value } }
     let(:code_verifier) { { code_verifier: code_verifier_value } }
@@ -1502,8 +1502,14 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:client_id) { client_config.client_id }
     let(:authentication) { SignIn::Constants::Auth::API }
     let!(:client_config) do
-      create(:client_config, authentication:, anti_csrf:, pkce:, certificates: [client_assertion_certificate])
+      create(:client_config,
+             authentication:,
+             anti_csrf:,
+             pkce:,
+             certificates: [client_assertion_certificate],
+             enforced_terms:)
     end
+    let(:enforced_terms) { nil }
     let(:client_assertion_certificate) { nil }
     let(:pkce) { true }
     let(:anti_csrf) { false }
@@ -1693,6 +1699,25 @@ RSpec.describe V0::SignInController, type: :controller do
 
               before { allow(Rails.logger).to receive(:info) }
 
+              context 'and client config is configured with enforced terms' do
+                let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
+
+                context 'and authenticating user has accepted current terms of use' do
+                  let(:user_account) { user_verification.user_account }
+                  let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:) }
+
+                  it 'returns ok status' do
+                    expect(subject).to have_http_status(:ok)
+                  end
+                end
+
+                context 'and authenticating user has not accepted current terms of use' do
+                  let(:expected_error) { 'Terms of Use has not been accepted' }
+
+                  it_behaves_like 'error response'
+                end
+              end
+
               it 'creates an OAuthSession' do
                 expect { subject }.to change(SignIn::OAuthSession, :count).by(1)
               end
@@ -1833,6 +1858,25 @@ RSpec.describe V0::SignInController, type: :controller do
 
                 before { allow(Rails.logger).to receive(:info) }
 
+                context 'and client config is configured with enforced terms' do
+                  let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
+
+                  context 'and authenticating user has accepted current terms of use' do
+                    let(:user_account) { user_verification.user_account }
+                    let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account:) }
+
+                    it 'returns ok status' do
+                      expect(subject).to have_http_status(:ok)
+                    end
+                  end
+
+                  context 'and authenticating user has not accepted current terms of use' do
+                    let(:expected_error) { 'Terms of Use has not been accepted' }
+
+                    it_behaves_like 'error response'
+                  end
+                end
+
                 it 'creates an OAuthSession' do
                   expect { subject }.to change(SignIn::OAuthSession, :count).by(1)
                 end
@@ -1944,7 +1988,8 @@ RSpec.describe V0::SignInController, type: :controller do
       create(:validated_credential, user_verification:, client_config:)
     end
     let(:authentication) { SignIn::Constants::Auth::API }
-    let!(:client_config) { create(:client_config, authentication:, anti_csrf:) }
+    let!(:client_config) { create(:client_config, authentication:, anti_csrf:, enforced_terms:) }
+    let(:enforced_terms) { nil }
     let(:anti_csrf) { false }
 
     before { allow(Rails.logger).to receive(:info) }
@@ -2224,7 +2269,8 @@ RSpec.describe V0::SignInController, type: :controller do
       create(:validated_credential, user_verification:, client_config:)
     end
     let(:authentication) { SignIn::Constants::Auth::API }
-    let!(:client_config) { create(:client_config, authentication:, anti_csrf:) }
+    let!(:client_config) { create(:client_config, authentication:, anti_csrf:, enforced_terms:) }
+    let(:enforced_terms) { nil }
     let(:anti_csrf) { false }
 
     shared_examples 'error response' do
