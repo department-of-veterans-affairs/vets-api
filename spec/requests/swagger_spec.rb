@@ -73,8 +73,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           create(:code_container,
                  code:,
                  code_challenge:,
-                 user_verification_id:)
+                 user_verification_id:,
+                 client_id: client_config.client_id)
         end
+        let(:client_config) { create(:client_config, enforced_terms: nil) }
 
         it 'validates the authorization_code & returns tokens' do
           expect(subject).to validate(
@@ -88,7 +90,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       describe 'POST v0/sign_in/refresh' do
         let(:user_verification) { create(:user_verification) }
-        let(:validated_credential) { create(:validated_credential, user_verification:) }
+        let(:validated_credential) { create(:validated_credential, user_verification:, client_config:) }
+        let(:client_config) { create(:client_config, enforced_terms: nil) }
         let(:session_container) do
           SignIn::SessionCreator.new(validated_credential:).perform
         end
@@ -126,7 +129,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       describe 'POST v0/sign_in/revoke' do
         let(:user_verification) { create(:user_verification) }
-        let(:validated_credential) { create(:validated_credential, user_verification:) }
+        let(:validated_credential) { create(:validated_credential, user_verification:, client_config:) }
+        let(:client_config) { create(:client_config, enforced_terms: nil) }
         let(:session_container) do
           SignIn::SessionCreator.new(validated_credential:).perform
         end
@@ -147,7 +151,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       describe 'GET v0/sign_in/revoke_all_sessions' do
         let(:user_verification) { create(:user_verification) }
-        let(:validated_credential) { create(:validated_credential, user_verification:) }
+        let(:validated_credential) { create(:validated_credential, user_verification:, client_config:) }
+        let(:client_config) { create(:client_config, enforced_terms: nil) }
         let(:session_container) do
           SignIn::SessionCreator.new(validated_credential:).perform
         end
