@@ -13,3 +13,5 @@ service:
 ingress:
   tls: []
 resources: {}
+
+databaseUrl: ""
