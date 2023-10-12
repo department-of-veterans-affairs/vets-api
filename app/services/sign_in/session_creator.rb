@@ -9,6 +9,7 @@ module SignIn
     end
 
     def perform
+      validate_terms_of_use if client_config.enforced_terms.present?
       SessionContainer.new(session:,
                            refresh_token:,
                            access_token:,
@@ -17,6 +18,12 @@ module SignIn
     end
 
     private
+
+    def validate_terms_of_use
+      if user_account.needs_accepted_terms_of_use?
+        raise Errors::TermsOfUseNotAcceptedError.new message: 'Terms of Use has not been accepted'
+      end
+    end
 
     def anti_csrf_token
       @anti_csrf_token ||= SecureRandom.hex
