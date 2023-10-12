@@ -20,10 +20,11 @@ module ClaimsApi
         4 => :convert_date_string_to_format_yyyy
       }.freeze
 
-      def initialize(auto_claim, pdf_data, auth_headers)
+      def initialize(auto_claim, pdf_data, auth_headers, middle_initial)
         @auto_claim = auto_claim
         @pdf_data = pdf_data
         @auth_headers = auth_headers&.deep_symbolize_keys
+        @middle_initial = middle_initial
         @veteran_data = JSON.parse(auth_headers['va_eauth_authorization'])&.deep_symbolize_keys
       end
 
@@ -661,7 +662,7 @@ module ClaimsApi
         name = {
           lastName: @veteran_data[:authorizationResponse][:lastName],
           firstName: @veteran_data[:authorizationResponse][:firstName],
-          middleInitial: (@auth_headers[:middleName] || '')
+          middleInitial: @middle_initial # is either the middle initial or ''
         }
         birth_date_data = @veteran_data[:authorizationResponse][:birthDate]
         if birth_date_data

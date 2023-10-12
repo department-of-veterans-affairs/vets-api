@@ -12,7 +12,6 @@ module ClaimsApi
     end
 
     def generate_pdf
-      byebug
       url = Settings.claims_api.pdf_generator_526.url
       path = Settings.claims_api.pdf_generator_526.path
       content_type = Settings.claims_api.pdf_generator_526.content_type
@@ -27,10 +26,8 @@ module ClaimsApi
                    bodies: false,
                    log_level: :debug
         f.adapter Faraday.default_adapter
-        byebug
       end
       conn.post('526', @request_body).body
-      byebug
     end
   end
 end

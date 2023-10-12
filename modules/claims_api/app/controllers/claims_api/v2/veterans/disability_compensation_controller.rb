@@ -44,8 +44,8 @@ module ClaimsApi
 
           track_pact_counter auto_claim
           #pdf_data = get_pdf_data
-          byebug
-          #pdf_mapper_service(form_attributes, pdf_data, target_veteran).map_claim
+
+          #pdf_mapper_service(form_attributes, pdf_data, auto_claim.auth_headers, 'L').map_claim
 
           #generate_526_pdf(pdf_data)
           process_pdf_job(auto_claim)
@@ -65,8 +65,8 @@ module ClaimsApi
 
           # ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Starting call to 526EZ PDF generator')
 
-          # pdf_string = generate_526_pdf(pdf_data)
-
+          #pdf_string = generate_526_pdf(pdf_data)
+byebug
           # ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Completed call to 526EZ PDF generator')
           # if pdf_string.empty?
           #   ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: '526EZ PDF generator failed.')
@@ -104,16 +104,15 @@ module ClaimsApi
         private
 
         def process_pdf_job(auto_claim)
-          adjust_headers_for_sidekiq_requirements(auto_claim)
-
-          ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(auto_claim.id)
+          ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(
+                auto_claim.id,
+                veteran_middle_initial) # PDF mapper just needs middle initial
         end
 
         # Only value required by background jobs that is missing in headers is middle name
-        def adjust_headers_for_sidekiq_requirements(auto_claim)
-          # auto_claim.auth_headers = auto_claim.auth_headers.merge!({'middleName' => @target_veteran.middle_name || ''})
-          auto_claim.auth_headers = auto_claim.auth_headers.merge!({'middleName' => 'Lee' || ''})
-          auto_claim.save!
+        def veteran_middle_initial
+          byebug
+          @target_veteran.middle_name ? @target_veteran.middle_name[0].uppercase : 'L'         
         end
 
         def flashes
@@ -144,13 +143,14 @@ module ClaimsApi
         end
 
         def generate_526_pdf(pdf_data)
+          byebug
           pdf_data[:data] = pdf_data[:data][:attributes]
           client = PDFClient.new(pdf_data.to_json)
           client.generate_pdf
         end
 
-        def pdf_mapper_service(auto_claim, pdf_data, target_veteran)
-          ClaimsApi::V2::DisabilityCompensationPdfMapper.new(auto_claim, pdf_data, target_veteran)
+        def pdf_mapper_service(auto_claim, pdf_data, target_veteran, middle_initial)
+          ClaimsApi::V2::DisabilityCompensationPdfMapper.new(auto_claim, pdf_data, target_veteran, 'L')
         end
 
         def evss_mapper_service(auto_claim)

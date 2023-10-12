@@ -12,18 +12,19 @@ module ClaimsApi
       include SentryLogging
       include Sidekiq::MonitoredWorker
 
-      def perform(claim_id)
+      def perform(claim_id, middle_initial)
         log_job_progress('dis_comp_pdf_generator', 
             claim_id, 
             '526EZ PDF generator started')
 
         @claim = get_claim(claim_id)
 
-        byebug
+byebug
 
         pdf_data = get_pdf_data
-        pdf_mapper_service(@claim.form_data, pdf_data, @claim.auth_headers).map_claim
+        pdf_mapper_service(@claim.form_data, pdf_data, @claim.auth_headers, middle_initial).map_claim
 
+byebug
         pdf_string = generate_526_pdf(pdf_data, @claim.form_data)
 
         if pdf_string.empty?
@@ -56,7 +57,7 @@ module ClaimsApi
           claim_id, 
           "526EZ PDF generator errored #{e.status_code} #{e.original_body}")
         raise e
-      rescue e
+      rescue => e
         set_errored_state(e)
         log_job_progress('dis_comp_pdf_generator', 
           claim_id, 
@@ -81,8 +82,8 @@ module ClaimsApi
         @claim.save
       end
 
-      def pdf_mapper_service(form_data, pdf_data, auth_headers)
-        ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_data, pdf_data, auth_headers)
+      def pdf_mapper_service(form_data, pdf_data, auth_headers, middle_initial)
+        ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_data, pdf_data, auth_headers, middle_initial)
       end
 
       def start_docker_container_upload()
@@ -90,6 +91,7 @@ module ClaimsApi
       end
 
       def generate_526_pdf(pdf_data, form_data)
+        byebug
         pdf_data[:data] = form_data
         client = PDFClient.new(pdf_data.to_json)
         client.generate_pdf
