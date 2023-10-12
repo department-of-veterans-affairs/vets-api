@@ -23,7 +23,6 @@ path 'modules' do
   gem 'mobile'
   gem 'mocked_authentication'
   gem 'my_health'
-  gem 'openid_auth'
   gem 'simple_forms_api'
   gem 'test_user_dashboard'
   gem 'va_forms'
