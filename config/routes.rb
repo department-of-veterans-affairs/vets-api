@@ -423,10 +423,6 @@ Rails.application.routes.draw do
 
   root 'v0/example#index', module: 'v0'
 
-  scope '/internal' do
-    mount OpenidAuth::Engine, at: '/auth'
-  end
-
   scope '/services' do
     mount AppsApi::Engine, at: '/apps'
     mount VBADocuments::Engine, at: '/vba_documents'
