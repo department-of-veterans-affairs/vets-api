@@ -7,7 +7,7 @@ GeneralError = Class.new(StandardError)
 RSpec.describe KmsKeyRotation::RotateKeysJob, type: :job do
   let(:job) { described_class.new }
   let(:records) { create_list(:burial_claim, 3) }
-  let(:args) { { gids: records.map(&:to_global_id) } }
+  let(:args) { records.map(&:to_global_id) }
 
   describe '#perform' do
     it 'calls rotate_kms_key! on each record' do
