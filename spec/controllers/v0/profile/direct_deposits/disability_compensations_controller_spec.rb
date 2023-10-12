@@ -85,7 +85,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
 
     context 'when not authorized' do
       it 'returns a status of 401' do
-        VCR.use_cassette('lighthouse/direct_deposit/show/401_invalid_token') do
+        VCR.use_cassette('lighthouse/direct_deposit/show/errors/401_invalid_token') do
           get(:show)
         end
 
