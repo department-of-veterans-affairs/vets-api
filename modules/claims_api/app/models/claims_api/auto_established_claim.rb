@@ -220,7 +220,9 @@ module ClaimsApi
     end
 
     def validate_service_dates # rubocop:disable Metrics/MethodLength
-      service_periods = form_data.dig('serviceInformation', 'servicePeriods')
+      service_periods = form_data&.dig('serviceInformation', 'servicePeriods')
+      return if service_periods.nil?
+
       service_periods.each do |service_period|
         if service_period['activeDutyBeginDate'].present?
           start_date = if DATE_REGEX.match?((service_period['activeDutyBeginDate']))
