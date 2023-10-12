@@ -47,6 +47,11 @@ module Sidekiq
         )
 
         StatsD.increment(STATSD_KEY)
+
+        Rails.logger.warn(
+          'Form 526 Backup Submission Retries exhausted',
+          { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
+        )
       rescue => e
         Rails.logger.error(
           'Failure in Form526BackupSubmission#sidekiq_retries_exhausted',
