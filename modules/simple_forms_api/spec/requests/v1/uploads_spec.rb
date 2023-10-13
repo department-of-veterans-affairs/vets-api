@@ -216,6 +216,26 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
 
     test_failed_request_scrubs_error_message21p0847
 
+    def self.test_failed_request_scrubs_error_message210845
+      it 'makes the request for 21-0845 and expects a failure' do
+        fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                       'form_with_dangerous_characters_21_0845.json')
+        data = JSON.parse(fixture_path.read)
+
+        post '/simple_forms_api/v1/simple_forms', params: data
+
+        expect(response).to have_http_status(:error)
+        # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
+        expect(response.body).to include('unexpected token t')
+        expect(response.body).not_to include(data.dig('authorizer_address', 'postal_code')&.[](0..4))
+        expect(response.body).not_to include(data['veteran_ssn']&.[](0..2))
+        expect(response.body).not_to include(data['veteran_ssn']&.[](3..4))
+        expect(response.body).not_to include(data['veteran_ssn']&.[](5..8))
+      end
+    end
+
+    test_failed_request_scrubs_error_message210845
+
     describe 'email confirmations' do
       let(:confirmation_number) { 'some_confirmation_number' }
 
