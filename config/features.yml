@@ -818,11 +818,27 @@ features:
     enable_in_development: true
   show_meb_1990EZ_maintenance_alert:
     actor_type: user
-    description: Display an alert to users on the 1990EZ introduction page when Backend Service is Down.
+    description: Displays an alert to users on 1990EZ intro page that the Backend Service is Down.
+    enable_in_development: false
+  show_meb_1990E_maintenance_alert:
+    actor_type: user
+    description: Displays an alert to users on 1990E intro page that the Backend Service is Down.
+    enable_in_development: false
+  show_meb_letters_maintenance_alert:
+    actor_type: user
+    description: Displays an alert to users on Letters Inbox page that the Backend Service is Down.
+    enable_in_development: false
+  show_meb_enrollment_verification_maintenance_alert:
+    actor_type: user
+    description: Displays an alert to users on Enrollment Verification intro page that the Backend Service is Down.
+    enable_in_development: false
+  show_meb_international_address_prefill:
+    actor_type: user
+    description: Enhances form prefilling to include international address.
     enable_in_development: true
   show_forms_app:
     actor_type: user
-    description: This determines when the form should be displayed.
+    description: Enables the TOE form to be displayed.
     enable_in_development: true
   show_medical_copays:
     actor_type: user
