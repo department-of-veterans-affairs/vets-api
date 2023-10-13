@@ -320,6 +320,60 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
           expect(VANotify::EmailJob).not_to have_received(:perform_async)
         end
       end
+
+      describe '21p_0847' do
+        let(:data) do
+          fixture_path = Rails.root.join(
+            'modules',
+            'simple_forms_api',
+            'spec',
+            'fixtures',
+            'form_json',
+            'vba_21p_0847.json'
+          )
+          JSON.parse(fixture_path.read)
+        end
+
+        it 'successful submission' do
+          allow(VANotify::EmailJob).to receive(:perform_async)
+
+          allow_any_instance_of(
+            SimpleFormsApi::V1::UploadsController
+          ).to receive(
+            :upload_pdf_to_benefits_intake
+          ).and_return([200, confirmation_number])
+
+          post '/simple_forms_api/v1/simple_forms', params: data
+
+          expect(response).to have_http_status(:ok)
+
+          expect(VANotify::EmailJob).to have_received(:perform_async).with(
+            'preparer_address@email.com',
+            'form21p_0847_confirmation_email_template_id',
+            {
+              'first_name' => 'ARTHUR',
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+              'confirmation_number' => confirmation_number
+            }
+          )
+        end
+
+        it 'unsuccessful submission' do
+          allow(VANotify::EmailJob).to receive(:perform_async)
+
+          allow_any_instance_of(
+            SimpleFormsApi::V1::UploadsController
+          ).to receive(
+            :upload_pdf_to_benefits_intake
+          ).and_return([500, confirmation_number])
+
+          post '/simple_forms_api/v1/simple_forms', params: data
+
+          expect(response).to have_http_status(:error)
+
+          expect(VANotify::EmailJob).not_to have_received(:perform_async)
+        end
+      end
     end
   end
 end
