@@ -1,6 +1,6 @@
 # frozen_string_literal: true
+  # rubocop:disable Metrics/MethodLength
 
-# rubocop:disable Metrics/MethodLength
 require 'rails_helper'
 
 RSpec.describe 'Dynamic forms uploader', type: :request do
@@ -57,7 +57,9 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
                 fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
                                                test_payload)
                 data = JSON.parse(fixture_path.read)
+
                 post '/simple_forms_api/v1/simple_forms', params: data
+
                 expect(response).to have_http_status(:ok)
               end
             end
@@ -326,4 +328,4 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     end
   end
 end
-# rubocop:enable Metrics/MethodLength
+  # rubocop:enable Metrics/MethodLength
