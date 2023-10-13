@@ -328,7 +328,8 @@ module V0
         ial: credential_level.current_ial,
         acr: state_payload.acr,
         icn: verified_icn,
-        uuid: user_info.sub
+        uuid: user_info.sub,
+        authentication_time: Time.zone.now.to_i - state_payload.created_at
       }
       sign_in_logger.info('callback', context)
       StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS,
