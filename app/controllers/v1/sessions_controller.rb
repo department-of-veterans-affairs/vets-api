@@ -257,7 +257,8 @@ module V1
         'id' => uuid,
         'authn' => saml_response.authn_context,
         'type' => tracker&.payload_attr(:type),
-        'transaction_id' => tracker&.payload_attr(:transaction_id)
+        'transaction_id' => tracker&.payload_attr(:transaction_id),
+        'authentication_time' => tracker&.created_at ? Time.zone.now.to_i - tracker.created_at : 'unknown'
       }
       Rails.logger.info("SSOe: SAML Response => #{values}")
       StatsD.increment(STATSD_SSO_SAMLRESPONSE_KEY,
