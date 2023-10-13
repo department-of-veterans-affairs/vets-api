@@ -12,7 +12,7 @@ module Veteran
       array_of_organizations = reload_representatives
 
       # This Where Not statement is for removing anyone no longer on the lists pulled down from OGC
-      Veteran::Service::Representative.where.not(representative_id: array_of_organizations).each do |rep|
+      Veteran::Service::Representative.where.not(representative_id: array_of_organizations).find_each do |rep|
         # These are test users that Sandbox requires.  Don't delete them.
         next if rep.first_name == 'Tamara' && rep.last_name == 'Ellis'
         next if rep.first_name == 'John' && rep.last_name == 'Doe'
