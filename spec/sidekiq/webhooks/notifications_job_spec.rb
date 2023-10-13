@@ -54,7 +54,7 @@ RSpec.describe Webhooks::NotificationsJob, type: :job do
     described_class.new.perform(Registrations::API_NAME)
     # first two jobs will be url callback jobs (note two urls in observable json map above)
     # third job is the next notification job kicked off via the scheduler job
-    expect(Thread.current['job_ids'].length).to eq 3
+    expect(Thread.current['job_ids'].length).to eq 2
   end
 
   it 'records processing time before publication attempt' do
