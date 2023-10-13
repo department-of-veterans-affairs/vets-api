@@ -34,7 +34,7 @@ class ClaimsBaseController < ApplicationController
   end
 
   def show
-    render(json: CentralMailSubmission.joins(:central_mail_claim).where(saved_claims: { guid: params[:id] }).take)
+    render(json: CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] }))
   end
 
   private
