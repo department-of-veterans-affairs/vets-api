@@ -138,7 +138,7 @@ module AppealsApi::V2
       def invalid_decision_review_type?
         raw_decision_review_type = params[:decision_review_type]
         !raw_decision_review_type.in?(VALID_DECISION_REVIEW_TYPES)
-      endmodules/ask_va_api/app/controllers/ask_va_api/v0/static_data_auth_controller.rb
+      end
 
       def invalid_benefit_type?
         return false if params[:decision_review_type] == 'notice_of_disagreements'

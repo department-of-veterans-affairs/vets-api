@@ -1,5 +1,6 @@
 # frozen_string_literal: true
-  # rubocop:disable Metrics/MethodLength
+
+# rubocop:disable Metrics/MethodLength
 
 require 'rails_helper'
 
@@ -328,4 +329,4 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     end
   end
 end
-  # rubocop:enable Metrics/MethodLength
+# rubocop:enable Metrics/MethodLength
