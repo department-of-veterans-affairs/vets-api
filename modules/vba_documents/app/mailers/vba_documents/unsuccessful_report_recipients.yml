@@ -1,6 +1,5 @@
 common:
   - 'kristen.brown@adhocteam.us'
-  - 'drew.fisher@adhocteam.us'
   - 'michael.hobson@adhocteam.us'
   - 'casey.williams@adhocteam.us'
   - 'michel.mcdonald@adhocteam.us'
@@ -12,11 +11,11 @@ dev:
 staging:
 sandbox:
 prod:
+  - 'drew.fisher@adhocteam.us'
   - 'david.mazik@va.gov'
   - 'stone_christopher@bah.com'
   - 'valerie.hase@va.gov'
   - 'janet.coutinho@va.gov'
   - 'matthew.self2@va.gov'
   - 'zachary.goldfine@va.gov'
-  - 'lee.helmer@adhocteam.us'
   - 'megan.siddle@oddball.io' # Forms Modernization Team
