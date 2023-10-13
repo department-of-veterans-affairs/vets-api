@@ -68,10 +68,17 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     test_submit_request_with_intent_to_file 'vha_21_0966.json'
 
     def self.test_submit_supporting_documents
+      let(:file) do
+        fixture_file_upload('doctors-note.pdf')
+      end
+
+      before do
+        allow(Common::VirusScan).to receive(:scan).and_return(true)
+        allow_any_instance_of(Common::VirusScan).to receive(:scan).and_return(true)
+      end
+
       it 'renders the attachment as json' do
-        allow(ClamScan::Client).to receive(:scan)
-          .and_return(instance_double(ClamScan::Response, safe?: true))
-        file = fixture_file_upload('doctors-note.gif')
+        allow_any_instance_of(ClamAV::PatchClient).to receive(:safe?).and_return(true)
         data = { form_id: '40-0247', file: }
 
         expect do
