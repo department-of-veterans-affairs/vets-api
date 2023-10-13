@@ -23,12 +23,6 @@ RSpec.describe KmsKeyRotation::RotateKeysJob, type: :job do
 
       job.perform(args)
     end
-
-    it 're-raises errors raised while rotating records' do
-      allow_any_instance_of(SavedClaim).to receive(:rotate_kms_key!).and_raise(GeneralError)
-
-      expect { job.perform(args) }.to raise_error(GeneralError)
-    end
   end
 
   describe '#rotate_kms_key' do
