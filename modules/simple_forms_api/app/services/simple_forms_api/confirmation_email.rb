@@ -5,6 +5,7 @@ module SimpleFormsApi
     attr_reader :form_number, :confirmation_number
 
     TEMPLATE_IDS = {
+      'vba_21p_0847' => Settings.vanotify.services.va_gov.template_id.form21p_0847_confirmation_email,
       'vba_21_4142' => Settings.vanotify.services.va_gov.template_id.form21_4142_confirmation_email,
       'vba_21_10210' => Settings.vanotify.services.va_gov.template_id.form21_10210_confirmation_email
     }.freeze
@@ -40,6 +41,10 @@ module SimpleFormsApi
 
     def form_specific_data
       email, first_name = case @form_number
+                          when 'vba_21p_0847'
+                            return unless Flipper.enabled?(:form21p_0847_confirmation_email)
+
+                            [@form_data['preparer_email'], @form_data.dig('preparer_name', 'first')]
                           when 'vba_21_4142'
                             return unless Flipper.enabled?(:form21_4142_confirmation_email)
 
