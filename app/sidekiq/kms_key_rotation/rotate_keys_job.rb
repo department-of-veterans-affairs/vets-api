@@ -15,7 +15,6 @@ module KmsKeyRotation
           r.rotate_kms_key!
         rescue => e
           Rails.logger.error("Error rotating record (id: #{r.to_global_id}): #{e.message}")
-          raise
         end
       end
     end
