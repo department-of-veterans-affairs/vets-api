@@ -781,6 +781,7 @@ RSpec.describe V0::SignInController, type: :controller do
                 let(:client_redirect_uri) { client_config.redirect_uri }
                 let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
                 let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
+                let(:authentication_time) { 0 }
                 let(:expected_logger_context) do
                   {
                     type:,
@@ -788,7 +789,8 @@ RSpec.describe V0::SignInController, type: :controller do
                     ial:,
                     acr:,
                     icn: mpi_profile.icn,
-                    uuid: logingov_uuid
+                    uuid: logingov_uuid,
+                    authentication_time:
                   }
                 end
                 let(:expected_user_attributes) do
@@ -809,7 +811,12 @@ RSpec.describe V0::SignInController, type: :controller do
                 end
                 let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 
-                before { allow(SecureRandom).to receive(:uuid).and_return(client_code) }
+                before do
+                  allow(SecureRandom).to receive(:uuid).and_return(client_code)
+                  Timecop.freeze
+                end
+
+                after { Timecop.return }
 
                 it 'returns ok status' do
                   expect(subject).to have_http_status(:ok)
@@ -971,6 +978,7 @@ RSpec.describe V0::SignInController, type: :controller do
                 let(:client_redirect_uri) { client_config.redirect_uri }
                 let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
                 let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
+                let(:authentication_time) { 0 }
                 let(:expected_logger_context) do
                   {
                     type:,
@@ -978,7 +986,8 @@ RSpec.describe V0::SignInController, type: :controller do
                     ial:,
                     acr:,
                     icn: mpi_profile.icn,
-                    uuid: idme_uuid
+                    uuid: idme_uuid,
+                    authentication_time:
                   }
                 end
                 let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
@@ -1121,6 +1130,7 @@ RSpec.describe V0::SignInController, type: :controller do
               let(:client_redirect_uri) { client_config.redirect_uri }
               let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
               let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
+              let(:authentication_time) { 0 }
               let(:expected_icn) { nil }
               let(:expected_logger_context) do
                 {
@@ -1129,7 +1139,8 @@ RSpec.describe V0::SignInController, type: :controller do
                   ial:,
                   acr:,
                   icn: expected_icn,
-                  uuid: backing_idme_uuid
+                  uuid: backing_idme_uuid,
+                  authentication_time:
                 }
               end
               let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
@@ -1298,6 +1309,7 @@ RSpec.describe V0::SignInController, type: :controller do
               let(:expected_log) { '[SignInService] [V0::SignInController] callback' }
               let(:statsd_callback_success) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_SUCCESS }
               let(:expected_icn) { mpi_profile.icn }
+              let(:authentication_time) { 0 }
               let(:expected_logger_context) do
                 {
                   type:,
@@ -1305,7 +1317,8 @@ RSpec.describe V0::SignInController, type: :controller do
                   ial:,
                   acr:,
                   icn: expected_icn,
-                  uuid: backing_idme_uuid
+                  uuid: backing_idme_uuid,
+                  authentication_time:
                 }
               end
               let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }

@@ -60,7 +60,8 @@ module SignIn
         client_id: state_payload.client_id,
         code_challenge: state_payload.code_challenge,
         client_state: state_payload.client_state,
-        code: state_payload.code
+        code: state_payload.code,
+        created_at: state_payload.created_at
       }
     end
 
