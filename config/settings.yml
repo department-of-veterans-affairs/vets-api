@@ -350,13 +350,7 @@ modules_appeals_api:
     daily_error:
       enabled: false
     weekly_error:
-      # See features.yml for enablement
-      recipients:
-        - drew.fisher@adhocteam.us
-        - matt.kelly@adhocteam.us
-        - casey.williams@adhocteam.us
-        - michel.mcdonald@adhocteam.us
-
+      enabled: false
   schema_dir: config/schemas
   evidence_submissions:
     location:
