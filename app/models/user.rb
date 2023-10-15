@@ -46,7 +46,9 @@ class User < Common::RedisStore
   end
 
   def needs_accepted_terms_of_use
-    @needs_accepted_terms_of_use ||= user_account&.needs_accepted_terms_of_use?
+    return @needs_accepted_terms_of_use unless @needs_accepted_terms_of_use.nil?
+
+    @needs_accepted_terms_of_use = user_account&.needs_accepted_terms_of_use?
   end
 
   def user_verification

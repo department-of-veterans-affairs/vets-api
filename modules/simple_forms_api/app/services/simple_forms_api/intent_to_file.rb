@@ -36,9 +36,9 @@ module SimpleFormsApi
 
     def existing_intents
       @existing_intents ||= {
-        compensation: existing_compensation_intent,
-        pension: existing_pension_intent,
-        survivor: existing_survivor_intent
+        'compensation' => existing_compensation_intent,
+        'pension' => existing_pension_intent,
+        'survivor' => existing_survivor_intent
       }
     end
 

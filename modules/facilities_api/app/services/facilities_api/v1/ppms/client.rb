@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'json'
 require 'common/client/base'
 require_relative 'configuration'
 require_relative 'response'
@@ -25,6 +26,10 @@ module FacilitiesApi
         def facility_service_locator(params)
           qparams = facility_service_locator_params(params)
           response = perform(:get, facility_service_locator_url, qparams)
+
+          unless response.body.nil? || response.body['value'].nil?
+            Rails.logger.info("FacilitiesApi::V1::PPMS::Response.facility_service_locator: #{response.body.to_json}")
+          end
 
           return [] if response.body.nil? || response.body['value'].nil?
 

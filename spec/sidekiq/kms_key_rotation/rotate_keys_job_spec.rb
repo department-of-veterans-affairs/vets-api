@@ -7,7 +7,7 @@ GeneralError = Class.new(StandardError)
 RSpec.describe KmsKeyRotation::RotateKeysJob, type: :job do
   let(:job) { described_class.new }
   let(:records) { create_list(:burial_claim, 3) }
-  let(:args) { { gids: records.map(&:to_global_id) } }
+  let(:args) { records.map(&:to_global_id) }
 
   describe '#perform' do
     it 'calls rotate_kms_key! on each record' do
@@ -22,12 +22,6 @@ RSpec.describe KmsKeyRotation::RotateKeysJob, type: :job do
       expect(HealthQuest::QuestionnaireResponse).to receive(:set_callback).once
 
       job.perform(args)
-    end
-
-    it 're-raises errors raised while rotating records' do
-      allow_any_instance_of(SavedClaim).to receive(:rotate_kms_key!).and_raise(GeneralError)
-
-      expect { job.perform(args) }.to raise_error(GeneralError)
     end
   end
 

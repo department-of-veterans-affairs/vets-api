@@ -34,7 +34,7 @@ module CheckIn
       station_number = redis_client.station_number(uuid:)
 
       logger.info({
-                    message: 'Submitting travel claim',
+                    message: "Submitting travel claim for #{uuid}, #{appointment_date}, #{station_number}",
                     uuid:,
                     appointment_date:,
                     station_number:
@@ -83,9 +83,10 @@ module CheckIn
     def send_notification(opts = {})
       notify_client = VaNotify::Service.new(Settings.vanotify.services.check_in.api_key)
 
+      phone_last_four = opts[:mobile_phone].delete('^0-9').last(4)
       logger.info({
-                    message: 'Sending travel claim notification',
-                    phone_last_four: opts[:mobile_phone].delete('^0-9').last(4),
+                    message: "Sending travel claim notification to #{phone_last_four}, #{opts[:template_id]}",
+                    phone_last_four:,
                     template_id: opts[:template_id]
                   })
       appt_date_in_mmm_dd_format = DateTime.strptime(opts[:appointment_date], '%Y-%m-%d').to_date.strftime('%b %d')

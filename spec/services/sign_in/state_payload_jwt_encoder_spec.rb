@@ -28,10 +28,14 @@ RSpec.describe SignIn::StatePayloadJwtEncoder do
       let(:acr) { SignIn::Constants::Auth::ACR_VALUES.first }
       let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
       let(:client_state) { SecureRandom.alphanumeric(client_state_minimum_length + 1) }
+      let(:created_at) { Time.zone.now.to_i }
 
       before do
         allow(SecureRandom).to receive(:hex).and_return(code)
+        Timecop.freeze
       end
+
+      after { Timecop.return }
 
       shared_context 'properly encoded state payload jwt' do
         it 'returns an encoded jwt value' do
@@ -42,6 +46,7 @@ RSpec.describe SignIn::StatePayloadJwtEncoder do
           expect(decoded_jwt.code_challenge).to eq(code_challenge)
           expect(decoded_jwt.client_state).to eq(client_state)
           expect(decoded_jwt.code).to eq(code)
+          expect(decoded_jwt.created_at).to eq(created_at)
         end
 
         it 'saves a StateCode in redis' do

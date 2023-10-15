@@ -350,12 +350,7 @@ modules_appeals_api:
     daily_error:
       enabled: false
     weekly_error:
-      # See features.yml for enablement
-      recipients:
-        - drew.fisher@adhocteam.us
-        - casey.williams@adhocteam.us
-        - michel.mcdonald@adhocteam.us
-
+      enabled: false
   schema_dir: config/schemas
   evidence_submissions:
     location:
@@ -515,6 +510,10 @@ mhv:
     base_path: https://mhv-api.example.com
     app_token: fake-app-token
     mock: true
+  medical_records:
+    host: fake-host
+    app_token: fake-app-token
+    x_auth_key: fake-x-auth-key
 
 # Settings for alternate MHV integration for mobile app
 mhv_mobile:
@@ -1269,6 +1268,7 @@ vanotify:
         form1990e_confirmation_email: form1990e_confirmation_email_template_id
         form1995_confirmation_email: form1995_confirmation_email_template_id
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
+        form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
         form526_confirmation_email: fake_template_id
         form526_submission_failed_email: fake_template_id
@@ -1627,3 +1627,6 @@ avs:
   timeout: 55
   url: "https://something.fake.va.gov"
   api_jwt: abcd1234abcd1234abcd1234abcd1234abcd1234
+
+brd:
+  api_key: 'fake_key'

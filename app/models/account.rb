@@ -44,6 +44,10 @@ class Account < ApplicationRecord
                                   none
                                 end
                               }
+  class << self
+    extend Gem::Deprecate
+    instance_methods(false).each { |method| deprecate(method, 'UserAccount', 2024, 3) }
+  end
 
   # @param user_uuid [String] The uuid of current_user in ApplicationController;
   #                           may refer to the idme_uuid (preferred) or logingov_uuid
