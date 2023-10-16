@@ -727,13 +727,14 @@
                 },
                 "confinements": {
                   "type": "array",
-                  "description": "If 'confinements' is included, the following attributes are required: 'approximateBeginDate',  'approximateEndDate'.",
+                  "description": "If 'confinements' is included, the following attributes are required: 'approximateBeginDate',  'approximateEndDate'. The confinement dates must fall within one of the service period dates.",
                   "uniqueItems": true,
                   "items": {
                     "additionalProperties": false,
                     "type": "object",
                     "properties": {
                       "approximateBeginDate": {
+                        "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
                         "pattern": "^$|^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
                         "type": "string",
                         "example": "06-12-2019 or 06-2019"
