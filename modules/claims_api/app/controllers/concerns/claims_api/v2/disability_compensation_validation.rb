@@ -588,7 +588,7 @@ module ClaimsApi
         @intake_sites ||= ClaimsApi::BRD.new.intake_sites
       end
 
-      def validate_confinements!(service_information)
+      def validate_confinements!(service_information) # rubocop:disable Metrics/MethodLength
         confinements = service_information&.dig('confinements')
 
         return if confinements.blank?
@@ -607,12 +607,57 @@ module ClaimsApi
                                                  form_object_desc)
           end
 
-          if begin_date_is_not_after_end_date?(approximate_begin_date, approximate_end_date)
+          if begin_date_is_after_end_date?(approximate_begin_date, approximate_end_date)
             raise ::Common::Exceptions::UnprocessableEntity.new(
-              detail: 'Approximate end date must be after approximate begin date.'
+              detail: 'Confinement approximate end date must be after approximate begin date.'
+            )
+          end
+
+          service_periods = service_information&.dig('servicePeriods')
+          earliest_active_duty_begin_date = find_earliest_active_duty_begin_date(service_periods)
+          # if confinementBeginDate is before earliest activeDutyBeginDate, raise error
+          if begin_date_is_after_end_date?(earliest_active_duty_begin_date['activeDutyBeginDate'],
+                                           approximate_begin_date)
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: 'Confinement approximate begin date must be after earliest active duty begin date.'
+            )
+          end
+
+          unless confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date,
+                                                              service_periods)
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: 'Confinement dates must be within one of the service period dates.'
             )
           end
         end
+      end
+
+      def confinement_dates_are_within_service_period?(approximate_begin_date, approximate_end_date, service_periods)
+        service_periods.each do |sp|
+          active_duty_begin_date = Date.strptime(sp['activeDutyBeginDate'], '%m-%d-%Y')
+          active_duty_end_date = Date.strptime(sp['activeDutyEndDate'], '%m-%d-%Y')
+          begin_date_has_day = date_has_day?(approximate_begin_date)
+          end_date_has_day = date_has_day?(approximate_end_date)
+          if begin_date_has_day && end_date_has_day
+            unless date_is_within_range?(Date.strptime(approximate_begin_date, '%m-%d-%Y'),
+                                         Date.strptime(approximate_end_date, '%m-%d-%Y'),
+                                         active_duty_begin_date, active_duty_end_date)
+              return false
+            end
+          elsif !begin_date_has_day && !end_date_has_day
+            unless date_is_within_range?(Date.strptime(approximate_begin_date, '%m-%Y'),
+                                         Date.strptime(approximate_end_date, '%m-%Y'),
+                                         active_duty_begin_date, active_duty_end_date)
+              return false
+            end
+          end
+        end
+        true
+      end
+
+      def date_is_within_range?(conf_begin, conf_end, service_begin, service_end)
+        conf_begin.between?(service_begin, service_end) &&
+          conf_end.between?(service_begin, service_end)
       end
 
       def validate_alternate_names!(service_information)
@@ -716,15 +761,19 @@ module ClaimsApi
         service_information = form_attributes['serviceInformation']
         service_periods = service_information&.dig('servicePeriods')
 
-        earliest_active_duty_begin_date = service_periods.max_by do |a|
-          Date.strptime(a['activeDutyBeginDate'], '%m-%d-%Y') if a['activeDutyBeginDate']
-        end
+        earliest_active_duty_begin_date = find_earliest_active_duty_begin_date(service_periods)
 
         # return true if activationDate is an earlier date
         return false if earliest_active_duty_begin_date['activeDutyBeginDate'].nil?
 
         Date.parse(activation_date) < Date.strptime(earliest_active_duty_begin_date['activeDutyBeginDate'],
                                                     '%m-%d-%Y')
+      end
+
+      def find_earliest_active_duty_begin_date(service_periods)
+        service_periods.max_by do |a|
+          Date.strptime(a['activeDutyBeginDate'], '%m-%d-%Y') if a['activeDutyBeginDate']
+        end
       end
 
       def validate_anticipated_seperation_date_in_past!(date)
@@ -787,20 +836,22 @@ module ClaimsApi
       private
 
       # Used for confinements dates
-      def begin_date_is_not_after_end_date?(begin_date, end_date)
+      def begin_date_is_after_end_date?(begin_date, end_date)
         # see what format each date is in
         begin_date_has_day = date_has_day?(begin_date)
         end_date_has_day = date_has_day?(end_date)
         # determine how to compare, being = is ok
-        if (begin_date_has_day && end_date_has_day) || (!begin_date_has_day && !end_date_has_day) # same format
-          begin_date > end_date
+        if begin_date_has_day && end_date_has_day
+          Date.strptime(begin_date, '%m-%d-%Y') > Date.strptime(end_date, '%m-%d-%Y')
+        elsif !begin_date_has_day && !end_date_has_day
+          Date.strptime(begin_date, '%m-%Y') > Date.strptime(end_date, '%m-%Y')
         else # mixed formats on dates
-          begin_date_not_after_end_date_with_mixed_format_dates?(begin_date, end_date)
+          begin_date_after_end_date_with_mixed_format_dates?(begin_date, end_date)
         end
       end
 
       # Either date could be in MM-YYYY or MM-DD-YYYY format
-      def begin_date_not_after_end_date_with_mixed_format_dates?(begin_date, end_date)
+      def begin_date_after_end_date_with_mixed_format_dates?(begin_date, end_date)
         # figure out if either has the day and remove it to compare
         if type_of_date_format?(begin_date) == 'mm-dd-yyyy'
           begin_date = remove_chars(begin_date.dup)
