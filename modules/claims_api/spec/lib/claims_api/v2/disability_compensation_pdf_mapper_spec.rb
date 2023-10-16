@@ -120,7 +120,34 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(email).to eq('valid@somedomain.com')
         expect(agree_to_email).to eq(true)
         expect(telephone).to eq('555-555-5555')
-        expect(international_telephone).to eq('+44 20 1234 5678')
+        expect(international_telephone).to eq('44-20-1234-5678')
+      end
+
+      it 'maps veteran info correctly with a nil phone number' do
+        form_attributes['veteranIdentification']['veteranNumber']['telephone'] = nil
+        mapper.map_claim
+
+        actual = pdf_data[:data][:attributes][:identificationInformation][:phoneNumber]
+        expected = { internationalTelephone: '44-20-1234-5678' }
+        expect(actual).to eq(expected)
+      end
+
+      it 'maps veteran info correctly with a nil international phone number' do
+        form_attributes['veteranIdentification']['veteranNumber']['internationalTelephone'] = nil
+        mapper.map_claim
+
+        actual = pdf_data[:data][:attributes][:identificationInformation][:phoneNumber]
+        expected = { telephone: '555-555-5555' }
+        expect(actual).to eq(expected)
+      end
+
+      it 'maps veteran info correctly with an empty phone object' do
+        form_attributes['veteranIdentification']['veteranNumber']['internationalTelephone'] = nil
+        form_attributes['veteranIdentification']['veteranNumber']['telephone'] = nil
+        mapper.map_claim
+
+        actual = pdf_data[:data][:attributes][:identificationInformation][:phoneNumber]
+        expect(actual).to eq(nil)
       end
     end
 
@@ -170,10 +197,37 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
         expect(homeless_point_of_contact).to eq('john stewart')
         expect(homeless_telephone).to eq('555-555-5555')
-        expect(homeless_international_telephone).to eq('+44 20 1234 5678')
+        expect(homeless_international_telephone).to eq('44-20-1234-5678')
         expect(homeless_currently).to eq('YES') # can't be both homess & at risk
         expect(homeless_situation_options).to eq('FLEEING_CURRENT_RESIDENCE')
         expect(homeless_currently_other_description).to eq('ABCDEFGHIJKLM')
+      end
+
+      it 'maps homeless info correctly with a nil phone number' do
+        form_attributes['homeless']['pointOfContactNumber']['telephone'] = nil
+        mapper.map_claim
+
+        actual = pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber]
+        expected = { internationalTelephone: '44-20-1234-5678' }
+        expect(actual).to eq(expected)
+      end
+
+      it 'maps homeless info correctly with a nil international phone number' do
+        form_attributes['homeless']['pointOfContactNumber']['internationalTelephone'] = nil
+        mapper.map_claim
+
+        actual = pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber]
+        expected = { telephone: '555-555-5555' }
+        expect(actual).to eq(expected)
+      end
+
+      it 'maps homeless info correctly with an empty phone object' do
+        form_attributes['homeless']['pointOfContactNumber']['internationalTelephone'] = nil
+        form_attributes['homeless']['pointOfContactNumber']['telephone'] = nil
+        mapper.map_claim
+
+        actual = pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber]
+        expect(actual).to eq(nil)
       end
     end
 
@@ -340,7 +394,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(obl_end).to eq({ month: '06', day: '04', year: '2020' })
         expect(unit_name).to eq('National Guard Unit Name')
         expect(unit_address).to eq('1243 pine court')
-        expect(unit_phone).to eq('5555555555')
+        expect(unit_phone).to eq('555-555-5555')
         expect(act_duty_pay).to eq('YES')
         expect(other_name).to eq('YES')
         expect(alt_names).to eq(['john jacob', 'johnny smith'])
@@ -348,6 +402,15 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(fed_act).to eq({ month: '02', day: '11', year: '3619' })
         expect(fed_sep).to eq({ month: '10', day: '03', year: '6705' })
         expect(served_after_nine_eleven).to eq('NO')
+      end
+
+      it 'maps homservice info correctly with a nil phone number' do
+        form_attributes['serviceInformation']['reservesNationalGuardService']['unitPhone']['areaCode'] = nil
+        form_attributes['serviceInformation']['reservesNationalGuardService']['unitPhone']['phoneNumber'] = nil
+        mapper.map_claim
+
+        actual = pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:unitPhoneNumber]
+        expect(actual).to eq(nil)
       end
     end
 
