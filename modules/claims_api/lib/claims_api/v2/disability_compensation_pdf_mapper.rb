@@ -52,25 +52,32 @@ module ClaimsApi
       def homeless_attributes
         if @auto_claim&.dig('homeless').present?
           @pdf_data[:data][:attributes][:homelessInformation] = @auto_claim&.dig('homeless')&.deep_symbolize_keys
-          @pdf_data&.dig(:data, :attributes, :homelessInformation).present?
-          homeless_point_of_contact_telephone =
-            @pdf_data.dig(:data, :attributes, :homeless, :pointOfContactNumber, :telephone)
-          homeless_point_of_contact_international =
-            @pdf_data.dig(:data, :attributes, :homeless, :pointOfContactNumber, :internationalTelephone)
-          phone = convert_phone(homeless_point_of_contact_telephone)
-          if homeless_point_of_contact_telephone.present? && !phone.nil?
-            @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber][:telephone] =
-              phone
+
+          homeless_info = @pdf_data&.dig(:data, :attributes, :homelessInformation)
+          new_homeless_info = @pdf_data&.dig(:data, :attributes, :homeless)
+
+          homeless_phone_info(homeless_info, new_homeless_info) if homeless_info && new_homeless_info
+          if @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber].empty?
+            @pdf_data[:data][:attributes][:homelessInformation].delete(:pointOfContactNumber)
           end
-          if homeless_point_of_contact_international
-            @pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber][:internationalTelephone] =
-              homeless_point_of_contact_international
-          end
+          homeless_at_risk_or_currently
         end
         @pdf_data[:data][:attributes].delete(:homeless)
-        homeless_at_risk_or_currently
 
         @pdf_data
+      end
+
+      def homeless_phone_info(homeless_info, new_homeless_info)
+        poc_phone = new_homeless_info&.dig(:pointOfContactNumber, :telephone)
+        poc_international = new_homeless_info&.dig(:pointOfContactNumber, :internationalTelephone)
+
+        phone = convert_phone(poc_phone) if poc_phone.present?
+        international = convert_phone(poc_international) if poc_international.present?
+
+        homeless_info[:pointOfContactNumber][:telephone] = phone unless phone.nil?
+        homeless_info[:pointOfContactNumber].delete(:telephone) if phone.nil?
+        homeless_info[:pointOfContactNumber][:internationalTelephone] = international unless international.nil?
+        homeless_info[:pointOfContactNumber].delete(:internationalTelephone) if international.nil?
       end
 
       def homeless_at_risk_or_currently
@@ -232,7 +239,7 @@ module ClaimsApi
         if vet_number
           phone = convert_phone(@pdf_data[:data][:attributes][:identificationInformation][:veteranNumber][:telephone])
           international_telephone =
-            @pdf_data[:data][:attributes][:identificationInformation][:veteranNumber][:internationalTelephone]
+            convert_phone(@pdf_data[:data][:attributes][:identificationInformation][:veteranNumber][:internationalTelephone])
         end
         if phone
           @pdf_data[:data][:attributes][:identificationInformation].merge!(
@@ -504,7 +511,7 @@ module ClaimsApi
 
       def national_guard # rubocop:disable Metrics/MethodLength
         si = {}
-        reserves = @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService]
+        reserves = @pdf_data&.dig(:data, :attributes, :serviceInformation, :reservesNationalGuardService)
         si[:servedInReservesOrNationalGuard] = 'YES' if reserves
         @pdf_data[:data][:attributes][:serviceInformation].merge!(si)
         if reserves[:obligationTermsOfService].present?
@@ -519,9 +526,9 @@ module ClaimsApi
         map_component = NATIONAL_GUARD_COMPONENTS[component]
         reserves[:component] = map_component
 
-        area_code = reserves[:unitPhone][:areaCode]
-        phone_number = reserves[:unitPhone][:phoneNumber]
-        reserves[:unitPhoneNumber] = area_code + phone_number
+        area_code = reserves&.dig(:unitPhone, :areaCode)
+        phone_number = reserves&.dig(:unitPhone, :phoneNumber)
+        reserves[:unitPhoneNumber] = convert_phone(area_code + phone_number) if area_code && phone_number
         reserves.delete(:unitPhone)
 
         receiving_inactive_duty_training_pay = reserves[:receivingInactiveDutyTrainingPay]
@@ -636,7 +643,9 @@ module ClaimsApi
         phone&.gsub!(/[^0-9]/, '')
         return nil if phone.nil? || (phone.length < 10)
 
-        "#{phone[0..2]}-#{phone[3..5]}-#{phone[6..9]}"
+        return "#{phone[0..2]}-#{phone[3..5]}-#{phone[6..9]}" if phone.length == 10
+
+        "#{phone[0..1]}-#{phone[2..3]}-#{phone[4..7]}-#{phone[8..11]}" if phone.length > 10
       end
 
       def convert_date_string_to_format_yyyy(date_string)
