@@ -9,8 +9,23 @@ RSpec.describe V0::AccountControlsController, type: :controller do
   let(:logingov_uuid) { logingov_user_verification.logingov_uuid }
   let!(:idme_user_verification) { create(:idme_user_verification, user_account:, locked:) }
   let(:idme_uuid) { idme_user_verification.idme_uuid }
+  let!(:dslogon_user_verification) { create(:dslogon_user_verification, user_account:, locked:) }
+  let(:dslogon_uuid) { dslogon_user_verification.dslogon_uuid }
+  let!(:mhv_user_verification) { create(:mhv_user_verification, user_account:, locked:) }
+  let(:mhv_uuid) { mhv_user_verification.mhv_uuid }
   let(:type) { 'logingov' }
-  let(:csp_uuid) { type == 'logingov' ? logingov_uuid : idme_uuid }
+  let(:csp_uuid) do
+    case type
+    when 'logingov'
+      logingov_uuid
+    when 'idme'
+      idme_uuid
+    when 'dslogon'
+      dslogon_uuid
+    when 'mhv'
+      mhv_uuid
+    end
+  end
   let(:icn) { user_account.icn }
   let(:type_param) { type }
   let(:csp_uuid_param) { csp_uuid }
@@ -30,7 +45,7 @@ RSpec.describe V0::AccountControlsController, type: :controller do
   end
 
   shared_context 'when validating params and querying a UserVerification' do
-    shared_context 'when a record is not found' do
+    shared_examples 'when a record is not found' do
       let(:expected_error_message) { "User record not found. ICN:#{icn_param} #{type_param}_uuid:#{csp_uuid_param}" }
 
       it 'returns a not found error' do
@@ -67,7 +82,7 @@ RSpec.describe V0::AccountControlsController, type: :controller do
       end
     end
 
-    context 'when a request is made with a type that is not logingov or idme' do
+    context 'when a request is made with a type that is not found in VALID_CSP_TYPES' do
       let(:type_param) { 'some-csp-type' }
       let(:expected_error_message) { "\"#{type_param}\" is not a valid value for \"type\"" }
 
@@ -76,18 +91,6 @@ RSpec.describe V0::AccountControlsController, type: :controller do
 
         expect(response).to have_http_status(:bad_request)
         expect(JSON.parse(response.body)['errors'].first['detail']).to eq(expected_error_message)
-      end
-    end
-
-    context 'when a request is made with an ICN' do
-      context 'when a UserAccount matches the requested ICN' do
-        it_behaves_like 'when a record is found'
-      end
-
-      context 'when a UserAccount does not match the requested ICN' do
-        let(:icn_param) { 'some-icn' }
-
-        it_behaves_like 'when a record is not found'
       end
     end
 
@@ -118,17 +121,39 @@ RSpec.describe V0::AccountControlsController, type: :controller do
         end
       end
     end
-  end
 
-  shared_context 'when a requested idme uuid is connected to multiple idme-backed UserVerifications' do
-    let!(:dslogon_user_verification) { create(:dslogon_user_verification, backing_idme_uuid: idme_uuid, user_account:) }
-    let!(:mhv_user_verification) { create(:mhv_user_verification, backing_idme_uuid: idme_uuid, user_account:) }
+    context 'when a request is made with an ICN' do
+      context 'when a CSP uuid is also provided' do
+        it 'uses the CSP uuid to query for a UserVerification' do
+          expect(UserVerification).not_to receive(:where).with(user_account_id: user_account.id)
 
-    it 'updates all UserVerifications with a matching UserAccount id that are not logingov' do
-      post lock_action, params: account_controls_params
+          post lock_action, params: account_controls_params
+        end
 
-      expect(dslogon_user_verification.reload.locked).to eq(expected_lock_status)
-      expect(mhv_user_verification.reload.locked).to eq(expected_lock_status)
+        it_behaves_like 'when a record is found'
+      end
+
+      context 'when a CSP uuid is not provided' do
+        let(:csp_uuid_param) { nil }
+
+        it 'uses the ICN to query for a UserAccount to look up child UserVerifications with' do
+          user_verification = UserVerification.find_by("#{type}_uuid": csp_uuid)
+          expect(UserVerification).to receive(:where).with(user_account_id: user_account.id)
+                                                     .and_return(user_verification)
+
+          post lock_action, params: account_controls_params
+        end
+
+        context 'when a UserAccount matches the requested ICN' do
+          it_behaves_like 'when a record is found'
+        end
+
+        context 'when a UserAccount does not match the requested ICN' do
+          let(:icn_param) { 'some-icn' }
+
+          it_behaves_like 'when a record is not found'
+        end
+      end
     end
   end
 
@@ -145,7 +170,18 @@ RSpec.describe V0::AccountControlsController, type: :controller do
       let(:type) { 'idme' }
 
       it_behaves_like 'when validating params and querying a UserVerification'
-      it_behaves_like 'when a requested idme uuid is connected to multiple idme-backed UserVerifications'
+    end
+
+    context 'when a dslogon uuid is requested' do
+      let(:type) { 'dslogon' }
+
+      it_behaves_like 'when validating params and querying a UserVerification'
+    end
+
+    context 'when an mhv uuid is requested' do
+      let(:type) { 'mhv' }
+
+      it_behaves_like 'when validating params and querying a UserVerification'
     end
   end
 
@@ -162,7 +198,18 @@ RSpec.describe V0::AccountControlsController, type: :controller do
       let(:type) { 'idme' }
 
       it_behaves_like 'when validating params and querying a UserVerification'
-      it_behaves_like 'when a requested idme uuid is connected to multiple idme-backed UserVerifications'
+    end
+
+    context 'when a dslogon uuid is requested' do
+      let(:type) { 'dslogon' }
+
+      it_behaves_like 'when validating params and querying a UserVerification'
+    end
+
+    context 'when an mhv uuid is requested' do
+      let(:type) { 'mhv' }
+
+      it_behaves_like 'when validating params and querying a UserVerification'
     end
   end
 end

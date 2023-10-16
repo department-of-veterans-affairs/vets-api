@@ -6,33 +6,23 @@ module V0
     skip_before_action :authenticate, :verify_authenticity_token
     before_action :authenticate_service_account, :validate_account_control_params
 
-    VALID_CSP_TYPES = %w[logingov idme].freeze
+    VALID_CSP_TYPES = %w[logingov idme dslogon mhv].freeze
 
     def csp_lock
-      update_user_verifications(locked: true)
+      user_verification.update!(locked: true)
 
       Rails.logger.info('UserAccount CSP Lock', serialized_response)
       render json: { data: serialized_response }
     end
 
     def csp_unlock
-      update_user_verifications(locked: false)
+      user_verification.update!(locked: false)
 
       Rails.logger.info('UserAccount CSP Unlock', serialized_response)
       render json: { data: serialized_response }
     end
 
     private
-
-    def update_user_verifications(locked:)
-      if type == 'logingov'
-        user_verification&.update!(locked:)
-      else
-        UserVerification.where(user_account_id: account.id, logingov_uuid: nil).each do |idme_backed_verification|
-          idme_backed_verification.update!(locked:)
-        end
-      end
-    end
 
     def validate_account_control_params
       raise Common::Exceptions::ParameterMissing, 'type' if params[:type].blank?
@@ -45,7 +35,7 @@ module V0
     end
 
     def fetch_user_verification
-      icn.presence ? fetch_verification_by_icn : UserVerification.find_by!("#{type}_uuid" => csp_uuid)
+      csp_uuid.presence ? UserVerification.find_by!("#{type}_uuid" => csp_uuid) : fetch_verification_by_icn
     end
 
     def fetch_verification_by_icn
