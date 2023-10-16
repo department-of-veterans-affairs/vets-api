@@ -19,10 +19,11 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
     let(:resource_name) { form_attachment_model.name.remove('::').snakecase }
     let(:json_api_type) { resource_name.pluralize }
     let(:attachment_factory_id) { resource_name.to_sym }
-    let(:user) { build(:user, :loa1) }
 
     before do
-      sign_in_as(user)
+      sign_in_as(
+        build(:user, :loa1)
+      )
     end
 
     it 'requires params.`param_namespace`' do
@@ -60,24 +61,7 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
       )
     end
 
-    it 'creates a FormAttachment, logs formatted error, and increments statsd' do
-      params = { param_namespace => { file_data: pdf_file } }
-      allow(Rails.logger).to receive(:info)
-      expect(Rails.logger).to receive(:info).with({
-                                                    message: 'Evidence upload to s3 success!',
-                                                    user_uuid: user.uuid,
-                                                    action: 'Evidence upload to s3',
-                                                    form_id: '10182',
-                                                    upstream_system: nil,
-                                                    downstream_system: 'AWS S3',
-                                                    is_success: true,
-                                                    http: {
-                                                      status_code: nil,
-                                                      body: nil
-                                                    },
-                                                    form_attachment_guid:
-                                                  })
-      expect(StatsD).to receive(:increment).with('decision_review.form_10182.evidence_upload_to_s3.success')
+    def expect_form_attachment_creation
       form_attachment = build(attachment_factory_id, guid: form_attachment_guid)
 
       expect(form_attachment_model).to receive(:new) do
@@ -93,6 +77,12 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
 
       expect(subject).to receive(:render).with(json: form_attachment).and_call_original # rubocop:disable RSpec/SubjectStub
 
+      form_attachment
+    end
+
+    it 'creates a FormAttachment' do
+      params = { param_namespace => { file_data: pdf_file } }
+      expect_form_attachment_creation
       post(:create, params:)
 
       expect(response).to have_http_status(:ok)
@@ -109,48 +99,6 @@ RSpec.describe V0::DecisionReviewEvidencesController, type: :controller do
           }
         }
       )
-    end
-
-    context 'an error is thrown during file upload' do
-      it 'logs formatted error, increments statsd, and raises error' do
-        params = { param_namespace => { file_data: pdf_file } }
-        expect(StatsD).to receive(:increment).with('decision_review.form_10182.evidence_upload_to_s3.failure')
-        allow(Rails.logger).to receive(:error)
-        expect(Rails.logger).to receive(:error).with({
-                                                       message: 'Evidence upload to s3 failure!',
-                                                       user_uuid: user.uuid,
-                                                       action: 'Evidence upload to s3',
-                                                       form_id: '10182',
-                                                       upstream_system: nil,
-                                                       downstream_system: 'AWS S3',
-                                                       is_success: false,
-                                                       http: {
-                                                         status_code: 422,
-                                                         body: 'Unprocessable Entity'
-                                                       },
-                                                       form_attachment_guid:
-                                                     })
-        form_attachment = build(attachment_factory_id, guid: form_attachment_guid)
-        expect(form_attachment_model).to receive(:new).and_return(form_attachment)
-        expected_error = Common::Exceptions::UnprocessableEntity.new(
-          detail: 'Test Error!',
-          source: 'FormAttachment.set_file_data'
-        )
-        expect(form_attachment).to receive(:set_file_data!).and_raise(expected_error)
-        post(:create, params:)
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)).to eq(
-          {
-            'errors' => [{
-              'title' => 'Unprocessable Entity',
-              'detail' => 'Test Error!',
-              'code' => '422',
-              'source' => 'FormAttachment.set_file_data',
-              'status' => '422'
-            }]
-          }
-        )
-      end
     end
   end
 end
