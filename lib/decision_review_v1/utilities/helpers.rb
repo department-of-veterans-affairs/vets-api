@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
 require 'decision_review_v1/utilities/constants'
+require 'decision_review_v1/utilities/logging_utils'
 
 module DecisionReviewV1
   module Appeals
     module Helpers
+      # Included in https://github.com/department-of-veterans-affairs/vets-api/pull/13973/files
+      # for backwards compatibility. We may consider keeping these modules completely separate
+      # in the future.
+      include DecisionReviewV1::Appeals::LoggingUtils
+
       def middle_initial(user)
         user.middle_name.to_s.strip.presence&.first&.upcase
       end
@@ -55,69 +61,6 @@ module DecisionReviewV1
         end
 
         headers
-      end
-
-      def benchmark?
-        Settings.decision_review.benchmark_performance
-      end
-
-      ##
-      # Takes a block and runs it. If benchmarking is enabled it will benchmark and return the results.
-      # Returns a tuple of what the block returns, and either nil (if benchmarking disabled), or the benchmark results
-      #
-      # @param block [block] block to run
-      # @return [result, benchmark]
-      #
-      def run_and_benchmark_if_enabled(&block)
-        bm = nil
-        block_result = nil
-        if benchmark?
-          bm = Benchmark.measure do
-            block_result = block.call
-          end
-        else
-          block_result = block.call
-        end
-        [block_result, bm]
-      end
-
-      def benchmark_to_log_data_hash(bm)
-        { benchmark: { user: bm.utime, system: bm.stime, total: bm.total, real: bm.real } }
-      end
-
-      def extract_uuid_from_central_mail_message(data)
-        data.body[/(?<=\[).*?(?=\])/].split(': ').last
-      end
-
-      def parse_form412_response_to_log_msg(appeal_submission_id:, data:, bm: nil)
-        log_data = { message: 'Supplemental Claim 4142 submitted.',
-                     lighthouse_submission: {
-                       id: appeal_submission_id
-                     },
-                     form_id: FORM4142_ID, parent_form_id: SUPP_CLAIM_FORM_ID,
-                     response_body: data.body,
-                     response_status: data.status }
-        log_data[:extracted_uuid] = extract_uuid_from_central_mail_message(data) if data.success?
-        log_data[:meta] = benchmark_to_log_data_hash(bm) unless bm.nil?
-        log_data
-      end
-
-      def parse_lighthouse_response_to_log_msg(data:, bm: nil)
-        log_data = {
-          form_id: SUPP_CLAIM_FORM_ID,
-          message: 'Successful Lighthouse Supplemental Claim Submission',
-          lighthouse_submission: {
-            id: data['id'],
-            appeal_type: data['type'],
-            attributes: {
-              status: data['attributes']['status'],
-              updatedAt: data['attributes']['updatedAt'],
-              createdAt: data['attributes']['createdAt']
-            }
-          }
-        }
-        log_data[:meta] = benchmark_to_log_data_hash(bm) unless bm.nil?
-        log_data
       end
     end
   end
