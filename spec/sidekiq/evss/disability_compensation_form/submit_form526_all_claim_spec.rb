@@ -137,7 +137,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           let(:open_claims_cassette) { 'evss/claims/claims' }
 
           before do
-            allow(StatsD).to receive(:histogram)
+            allow(StatsD).to receive(:distribution)
             Timecop.freeze('2018-09-28T13:00:00ZZ')
           end
 
@@ -148,8 +148,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             VCR.use_cassette('virtual_regional_office/contention_classification') do
               described_class.drain
             end
-            expect(StatsD).to have_received(:histogram).with('worker.ep_merge.pending_ep_count', 1)
-            expect(StatsD).to have_received(:histogram).with('worker.ep_merge.pending_ep_age', 365)
+            expect(StatsD).to have_received(:distribution).with('worker.ep_merge.pending_ep_count', 1)
+            expect(StatsD).to have_received(:distribution).with('worker.ep_merge.pending_ep_age', 365)
           end
         end
       end
