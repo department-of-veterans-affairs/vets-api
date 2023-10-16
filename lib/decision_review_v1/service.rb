@@ -9,6 +9,7 @@ require 'decision_review_v1/utilities/constants'
 require 'decision_review_v1/configuration'
 require 'decision_review_v1/service_exception'
 require 'decision_review_v1/appeals/supplemental_claim_services'
+require 'decision_review_v1/utilities/logging_utils'
 
 module DecisionReviewV1
   ##
@@ -18,6 +19,7 @@ module DecisionReviewV1
     include SentryLogging
     include Common::Client::Concerns::Monitoring
     include DecisionReviewV1::Appeals::SupplementalClaimServices
+    include DecisionReviewV1::Appeals::LoggingUtils
 
     STATSD_KEY_PREFIX = 'api.decision_review'
     ZIP_REGEX = /^\d{5}(-\d{4})?$/
@@ -117,10 +119,22 @@ module DecisionReviewV1
     # @param user [User] Veteran who the form is in regard to
     # @return [Faraday::Response]
     #
-    def create_notice_of_disagreement(request_body:, user:)
+    def create_notice_of_disagreement(request_body:, user:) # rubocop:disable Metrics/MethodLength
       with_monitoring_and_error_handling do
         headers = create_notice_of_disagreement_headers(user)
-        response = perform :post, 'notice_of_disagreements', request_body, headers
+        common_log_params = {
+          key: :overall_claim_submission,
+          form_id: '10182',
+          user_uuid: user.uuid,
+          downstream_system: 'Lighthouse'
+        }
+        begin
+          response = perform :post, 'notice_of_disagreements', request_body, headers
+          log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
+        rescue => e
+          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          raise e
+        end
         raise_schema_error_unless_200_status response.status
         validate_against_schema(
           json: response.body, schema: NOD_CREATE_RESPONSE_SCHEMA, append_to_error_class: ' (NOD_V1)'
@@ -174,10 +188,30 @@ module DecisionReviewV1
     # @param file_number [Integer] The file number or ssn
     # @return [Faraday::Response]
     #
-    def get_notice_of_disagreement_upload_url(nod_uuid:, file_number:)
+    def get_notice_of_disagreement_upload_url(nod_uuid:, file_number:, user_uuid: nil, appeal_submission_upload_id: nil) # rubocop:disable Metrics/MethodLength
       with_monitoring_and_error_handling do
-        perform :post, 'notice_of_disagreements/evidence_submissions', { nod_uuid: },
-                { 'X-VA-File-Number' => file_number.to_s.strip.presence }
+        headers = { 'X-VA-File-Number' => file_number.to_s.strip.presence }
+        common_log_params = {
+          key: :get_lighthouse_evidence_upload_url,
+          form_id: '10182',
+          user_uuid:,
+          upstream_system: 'Lighthouse',
+          downstream_system: 'Lighthouse',
+          params: {
+            nod_uuid:,
+            appeal_submission_upload_id:
+          }
+        }
+        begin
+          response = perform :post, 'notice_of_disagreements/evidence_submissions', { nod_uuid: }, headers
+          log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: response.body))
+          response
+        rescue => e
+          # We can freely log Lighthouse's error responses because they do not include PII or PHI.
+          # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v2
+          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          raise e
+        end
       end
     end
 
@@ -190,7 +224,8 @@ module DecisionReviewV1
     #
     # @return [Faraday::Response]
     #
-    def put_notice_of_disagreement_upload(upload_url:, file_upload:, metadata_string:)
+    # rubocop:disable Metrics/MethodLength
+    def put_notice_of_disagreement_upload(upload_url:, file_upload:, metadata_string:, user_uuid: nil, appeal_submission_upload_id: nil) # rubocop:disable Layout/LineLength
       content_tmpfile = Tempfile.new(file_upload.filename, encoding: file_upload.read.encoding)
       content_tmpfile.write(file_upload.read)
       content_tmpfile.rewind
@@ -205,8 +240,25 @@ module DecisionReviewV1
       # when we upgrade to Faraday >1.0
       # params = { metadata: Faraday::FilePart.new(json_tmpfile, Mime[:json].to_s, 'metadata.json'),
       #            content: Faraday::FilePart.new(content_tmpfile, Mime[:pdf].to_s, file_upload.filename) }
+      common_log_params = {
+        key: :evidence_upload_to_lighthouse,
+        form_id: '10182',
+        user_uuid:,
+        downstream_system: 'Lighthouse',
+        params: {
+          upload_url:,
+          appeal_submission_upload_id:
+        }
+      }
       with_monitoring_and_error_handling do
-        perform :put, upload_url, params, { 'Content-Type' => 'multipart/form-data' }
+        response = perform :put, upload_url, params, { 'Content-Type' => 'multipart/form-data' }
+        log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
+        response
+      rescue => e
+        # We can freely log Lighthouse's error responses because they do not include PII or PHI.
+        # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v2
+        log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+        raise e
       end
     ensure
       content_tmpfile.close
@@ -214,6 +266,7 @@ module DecisionReviewV1
       json_tmpfile.close
       json_tmpfile.unlink
     end
+    # rubocop:enable Metrics/MethodLength
 
     ##
     # Returns all of the data associated with a specific Notice of Disagreement Evidence Submission.
