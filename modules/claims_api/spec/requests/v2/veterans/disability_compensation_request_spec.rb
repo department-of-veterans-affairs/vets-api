@@ -2094,6 +2094,49 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
+        context 'when serviceInformation.confinements.approximateBeginDate is before earliest activeDutyBeginDate' do
+          let(:active_duty_begin_date) { '05-08-2015' }
+          let(:approximate_begin_date) { '05-06-2015' }
+          let(:approximate_end_date) { '05-06-2016' }
+
+          it 'responds with a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] =
+                active_duty_begin_date
+              confinement = json['data']['attributes']['serviceInformation']['confinements'][0]
+              confinement['approximateEndDate'] = approximate_end_date
+              confinement['approximateBeginDate'] = approximate_begin_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when confinement dates are not within one of the service period date ranges' do
+          let(:active_duty_begin_date) { '05-08-2015' }
+          let(:active_duty_end_date) { '09-08-2015' }
+          let(:approximate_begin_date) { '05-06-2016' }
+          let(:approximate_end_date) { '06-06-2016' }
+
+          it 'responds with a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyBeginDate'] =
+                active_duty_begin_date
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                active_duty_end_date
+              confinement = json['data']['attributes']['serviceInformation']['confinements'][0]
+              confinement['approximateEndDate'] = approximate_end_date
+              confinement['approximateBeginDate'] = approximate_begin_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
         context 'when confinements are not present in service Information' do
           it 'responds with a 200' do
             mock_ccg(scopes) do |auth_header|
