@@ -1175,6 +1175,10 @@ features:
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
+  veteran_status_updated:
+    actor_type: user
+    description: Enable the veteran post-emis status
+    enable_in_development: false
   virtual_agent_decision_letter_download_tracking:
     actor_type: user
     description: Enable tracking of decision letter downloads in the VA Chatbot
