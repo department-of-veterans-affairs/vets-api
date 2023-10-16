@@ -18,7 +18,7 @@ RSpec.describe 'Requesting ID Card Attributes' do
     it 'returns a signed redirect URL' do
       expect_any_instance_of(EMISRedis::MilitaryInformation)
         .to receive(:service_episodes_by_date).at_least(:once).and_return(service_episodes)
-      expect_any_instance_of(EMISRedis::VeteranStatus)
+      expect_any_instance_of(VAProfile::VeteranStatus::Service)
         .to receive(:title38_status).at_least(:once).and_return('V1')
       get '/v0/id_card/attributes', headers: auth_header
       expect(response).to have_http_status(:ok)
@@ -37,7 +37,7 @@ RSpec.describe 'Requesting ID Card Attributes' do
     end
 
     it 'returns Bad Gateway if military information not retrievable' do
-      expect_any_instance_of(EMISRedis::VeteranStatus)
+      expect_any_instance_of(VAProfile::VeteranStatus::Service)
         .to receive(:title38_status).at_least(:once).and_return('V1')
       expect_any_instance_of(EMISRedis::MilitaryInformation)
         .to receive(:service_episodes_by_date).and_raise(StandardError)
@@ -46,7 +46,7 @@ RSpec.describe 'Requesting ID Card Attributes' do
     end
 
     it 'returns VIC002 if title38status is not retrievable' do
-      allow_any_instance_of(EMISRedis::VeteranStatus)
+      allow_any_instance_of(VAProfile::VeteranStatus::Service)
         .to receive(:title38_status).and_return(nil)
       get '/v0/id_card/attributes', headers: auth_header
       expect(JSON.parse(response.body)['errors'][0]['code']).to eq(
@@ -55,7 +55,7 @@ RSpec.describe 'Requesting ID Card Attributes' do
     end
 
     it 'returns Forbidden for non-veteran user' do
-      allow_any_instance_of(EMISRedis::VeteranStatus)
+      allow_any_instance_of(VAProfile::VeteranStatus::Service)
         .to receive(:title38_status).and_return('V2')
       get '/v0/id_card/attributes', headers: auth_header
       expect(response).to have_http_status(:forbidden)
@@ -65,7 +65,7 @@ RSpec.describe 'Requesting ID Card Attributes' do
     end
 
     it 'returns Forbidden when veteran status not retrievable' do
-      expect_any_instance_of(EMISRedis::VeteranStatus)
+      expect_any_instance_of(VAProfile::VeteranStatus::Service)
         .to receive(:title38_status).and_raise(StandardError)
       get '/v0/id_card/attributes', headers: auth_header
       expect(response).to have_http_status(:forbidden)

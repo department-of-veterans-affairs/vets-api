@@ -9,6 +9,7 @@ require 'mpi/service'
 require 'saml/user'
 require 'formatters/date_formatter'
 require 'va_profile/configuration'
+require 'va_profile/veteran_status/service'
 
 class User < Common::RedisStore
   include Authorization
@@ -343,7 +344,7 @@ class User < Common::RedisStore
     super
   end
 
-  %w[veteran_status military_information payment].each do |emis_method|
+  %w[military_information payment].each do |emis_method|
     define_method(emis_method) do
       emis_model = instance_variable_get(:"@#{emis_method}")
       return emis_model if emis_model.present?
@@ -351,6 +352,21 @@ class User < Common::RedisStore
       emis_model = "EMISRedis::#{emis_method.camelize}".constantize.for_user(self)
       instance_variable_set(:"@#{emis_method}", emis_model)
       emis_model
+    end
+  end
+
+  def veteran_status
+    if Flipper.enabled?(:veteran_status_updated)
+      @veteran_status ||= VAProfile::VeteranStatus::Service.new(self)
+    else
+      define_method(emis_method) do
+        emis_model = instance_variable_get(:"@#{emis_method}")
+        return emis_model if emis_model.present?
+
+        emis_model = "EMISRedis::#{emis_method.camelize}".constantize.for_user(self)
+        instance_variable_set(:"@#{emis_method}", emis_model)
+        emis_model
+      end
     end
   end
 
