@@ -157,7 +157,9 @@ Rails.application.routes.draw do
     end
 
     resources :evss_claims_async, only: %i[index show]
-    resources :evss_benefits_claims, only: %i[index show]
+    resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
+
+    resource :rated_disabilities, only: %i[show]
 
     namespace :virtual_agent do
       get 'claim', to: 'virtual_agent_claim#index'
@@ -420,10 +422,6 @@ Rails.application.routes.draw do
   end
 
   root 'v0/example#index', module: 'v0'
-
-  scope '/internal' do
-    mount OpenidAuth::Engine, at: '/auth'
-  end
 
   scope '/services' do
     mount AppsApi::Engine, at: '/apps'

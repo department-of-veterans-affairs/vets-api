@@ -138,24 +138,12 @@ RSpec.describe ApiProviderFactory do
     end
 
     it 'provides a Lighthouse ppiu direct deposit provider' do
-      # TODO: Uncomment once Lighthouse provider is implemented in #59698
-      # expect(provider(:lighthouse).class).to equal(LighthousePPIUProvider)
-
-      # TODO: Remove once Lighthouse provider is implemented in #59698
-      expect do
-        provider(:lighthouse)
-      end.to raise_error NotImplementedError
+      expect(provider(:lighthouse).class).to equal(LighthousePPIUProvider)
     end
 
     it 'provides ppiu direct deposit provider based on Flipper' do
       Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
-      # TODO: Uncomment once Lighthouse provider is implemented in #59698
-      # expect(provider.class).to equal(LighthousePPIUProvider)
-
-      # TODO: Remove once Lighthouse provider is implemented in #59698
-      expect do
-        provider
-      end.to raise_error NotImplementedError
+      expect(provider.class).to equal(LighthousePPIUProvider)
 
       Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
       expect(provider.class).to equal(EvssPPIUProvider)

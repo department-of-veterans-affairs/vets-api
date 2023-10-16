@@ -69,7 +69,7 @@ RSpec.describe Users::ExceptionHandler do
       let(:results) { Users::ExceptionHandler.new(error, service).serialize_error }
 
       it 'returns a serialized version of the error' do
-        expect(results[:description]).to include 'NOT_AUTHORIZED', 'EMISRedis::VeteranStatus::NotAuthorized'
+        expect(results[:description]).to include 'EMISRedis::VeteranStatus::NotAuthorized'
       end
 
       it 'returns a status' do
@@ -82,7 +82,7 @@ RSpec.describe Users::ExceptionHandler do
       let(:results) { Users::ExceptionHandler.new(error, service).serialize_error }
 
       it 'returns a serialized version of the error' do
-        expect(results[:description]).to include 'NOT_FOUND', 'EMISRedis::VeteranStatus::RecordNotFound'
+        expect(results[:description]).to include 'EMISRedis::VeteranStatus::RecordNotFound'
       end
 
       it 'returns a status' do

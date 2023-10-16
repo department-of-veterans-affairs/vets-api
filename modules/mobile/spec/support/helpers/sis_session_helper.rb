@@ -9,6 +9,11 @@ module SISSessionHelper
     @sis_bearer_token ||= SignIn::AccessTokenJwtEncoder.new(access_token: sis_access_token).perform
   end
 
+  # Accepts a list of FactoryBot User traits (symbols) and attributes (hashes).
+  # example: sis_user(:mhv, mhv_correlation_id: '123')
+  # Returns an instance of User created by feeding those values into the user factory along with the api_auth trait.
+  # When other traits are provided, it adds api_auth last to ensure that its default values win.
+  # The order can be overridden by explicitly including it like: `sis_user(:api_auth, :loa1)`
   def sis_user(*args)
     @sis_user ||= begin
       traits, attributes = args.partition do |arg|
@@ -18,8 +23,6 @@ module SISSessionHelper
       end
 
       user_attributes = { uuid: sis_access_token.user_uuid }.merge(*attributes)
-      # adds api_auth last by default to ensure that its default values win
-      # the order can be overridden by explicitly including it like `sis_user(:api_auth, :loa1)`
       traits |= [:api_auth]
       create(:user, *traits, **user_attributes)
     end

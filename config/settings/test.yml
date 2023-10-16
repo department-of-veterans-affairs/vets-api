@@ -96,11 +96,7 @@ bd:
 
 # Put a real api_key in the BRD_API_KEY environment variable to record VCR cassettes
 # Be sure to not commit the api key and the cassettes.
-# If used the tunnel and localhost for the base_name, then you don't need an api key
-# If you use localhost, uncomment `ssl: false`.
 brd:
-  # base_name: localhost:4451
-  # ssl: false
   base_name: staging-api.va.gov/services
   api_key: testapikeyhere
 

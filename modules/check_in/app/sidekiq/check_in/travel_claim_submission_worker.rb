@@ -22,15 +22,23 @@ module CheckIn
     STATSD_BTSSS_ERROR = 'worker.checkin.travel_claim.btsss.error'
     STATSD_BTSSS_DUPLICATE = 'worker.checkin.travel_claim.btsss.duplicate'
 
+    # rubocop:disable Metrics/MethodLength
     def perform(uuid, appointment_date)
       check_in_session = CheckIn::V2::Session.build(data: { uuid: })
+      redis_client = TravelClaim::RedisClient.build
       mobile_phone = if Flipper.enabled?('check_in_experience_patient_cell_phone')
-                       TravelClaim::RedisClient.build.patient_cell_phone(uuid:)
+                       redis_client.patient_cell_phone(uuid:)
                      else
-                       TravelClaim::RedisClient.build.mobile_phone(uuid:)
+                       redis_client.mobile_phone(uuid:)
                      end
+      station_number = redis_client.station_number(uuid:)
 
-      logger.info("Submitting travel claim for #{uuid}, #{appointment_date}")
+      logger.info({
+                    message: "Submitting travel claim for #{uuid}, #{appointment_date}, #{station_number}",
+                    uuid:,
+                    appointment_date:,
+                    station_number:
+                  })
 
       begin
         claims_resp = TravelClaim::Service.build(
@@ -40,7 +48,12 @@ module CheckIn
 
         claim_number, template_id = handle_response(claims_resp:)
       rescue Common::Exceptions::BackendServiceException => e
-        logger.error("Error calling BTSSS Service for: #{uuid}, #{appointment_date}. #{e.message}")
+        logger.error({
+                       message: "Error calling BTSSS Service: #{e.message}",
+                       uuid:,
+                       appointment_date:,
+                       station_number:
+                     })
         StatsD.increment(STATSD_BTSSS_ERROR)
         template_id = ERROR_TEMPLATE_ID
       end
@@ -48,6 +61,7 @@ module CheckIn
       send_notification(mobile_phone:, appointment_date:, template_id:, claim_number:)
       StatsD.increment(STATSD_NOTIFY_SUCCESS)
     end
+    # rubocop:enable Metrics/MethodLength
 
     def handle_response(claims_resp:)
       claim_number = claims_resp&.dig(:data, :claimNumber)&.last(4)
@@ -69,8 +83,12 @@ module CheckIn
     def send_notification(opts = {})
       notify_client = VaNotify::Service.new(Settings.vanotify.services.check_in.api_key)
 
-      logger.info("Sending notification to (phone last four): #{opts[:mobile_phone].delete('^0-9').last(4)}," \
-                  " using template_id: #{opts[:template_id]}")
+      phone_last_four = opts[:mobile_phone].delete('^0-9').last(4)
+      logger.info({
+                    message: "Sending travel claim notification to #{phone_last_four}, #{opts[:template_id]}",
+                    phone_last_four:,
+                    template_id: opts[:template_id]
+                  })
       appt_date_in_mmm_dd_format = DateTime.strptime(opts[:appointment_date], '%Y-%m-%d').to_date.strftime('%b %d')
 
       notify_client.send_sms(

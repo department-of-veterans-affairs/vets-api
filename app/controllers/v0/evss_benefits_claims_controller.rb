@@ -30,6 +30,11 @@ module V0
     end
 
     def get_claim(evss_id)
+      # Make sure that the claim ID belongs to the authenticated user
+      claim = EVSSClaim.for_user(current_user).find_by(evss_id:)
+
+      raise Common::Exceptions::RecordNotFound, params[:id] unless claim
+
       headers = get_auth_headers
       EVSS::ClaimsService.new(headers).find_claim_with_docs_by_id(evss_id).body
     end

@@ -31,8 +31,12 @@ class DynamicsMockService
       data.find { |i| i[:inquiryNumber] == @criteria[:inquiry_number] } || {}
     elsif @criteria[:sec_id]
       data.select { |i| i[:sec_id] == @criteria[:sec_id] }.map { |i| i.except(:attachments) }
-    else
+    elsif @criteria.blank?
       data
+    else
+      key = @criteria.keys.first
+      symbolize_key = key.to_s.gsub(/_([a-z])/) { ::Regexp.last_match(1).upcase }.to_sym
+      data.select { |i| i[symbolize_key] == @criteria[key].to_i }
     end
   end
 end

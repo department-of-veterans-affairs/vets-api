@@ -78,9 +78,8 @@ Did you have a period of active duty that the Department of Defense counts for p
 
         End Date: <%= to_date(@applicant.activeDutyRepayingPeriod&.to) %>
 
-<%= parse_with_template_path('non_va_assistance') %>
-
 <% if @applicant.minorHighSchoolQuestions -%>
+
           GUARDIAN INFORMATION
           --------------------
 First name of Parent, Guardian or Custodian: <%= @applicant.minorQuestions.guardianFirstName %>

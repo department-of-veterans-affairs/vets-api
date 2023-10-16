@@ -92,10 +92,11 @@ http_interactions:
         {
           "description": "Service Connected",
           "decision": "Service Connected",
-          "effective_date": "2018-03-27",
+          "effective_date": "2018-03-29",
           "rating_percentage": 50,
           "diagnostic_type_code": "5238",
-          "diagnostic_type_name": "Diabetes mellitus0"
+          "diagnostic_type_name": "Diabetes mellitus0",
+          "diagnostic_text": "Diabetes"
         },
         {
           "description": "Not Service Connected",
@@ -103,7 +104,8 @@ http_interactions:
           "effective_date": "2018-03-27",
           "rating_percentage": 50,
           "diagnostic_type_code": "5238",
-          "diagnostic_type_name": "Diabetes mellitus0"
+          "diagnostic_type_name": "Diabetes mellitus0",
+          "diagnostic_text": "Diabetes"
         }
       ]
     }

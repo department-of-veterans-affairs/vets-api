@@ -24,7 +24,7 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
 
     context 'with minimum required headers' do
       it 'returns all HLRs for the given Veteran' do
-        uuid_1 = create(:higher_level_review_v2, veteran_icn: '1013062086V794840', form_data: nil).id
+        uuid_1 = create(:higher_level_review_v2, veteran_icn: '1013062086V794840', form_data: {}).id
         uuid_2 = create(:higher_level_review_v2, veteran_icn: '1013062086V794840').id
         create(:higher_level_review_v2, veteran_icn: 'something_else')
 

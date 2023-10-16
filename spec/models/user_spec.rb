@@ -50,7 +50,7 @@ RSpec.describe User, type: :model do
 
   describe '#needs_accepted_terms_of_use' do
     context 'when user is verified' do
-      let(:user) { build(:user, :loa3) }
+      let(:user) { build(:user, :loa3, needs_accepted_terms_of_use: nil) }
       let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
 
       context 'and user has an associated current terms of use agreements' do

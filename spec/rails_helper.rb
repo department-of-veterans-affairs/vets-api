@@ -192,3 +192,5 @@ end
 BGS.configure do |config|
   config.logger = Rails.logger
 end
+
+Gem::Deprecate.skip = true

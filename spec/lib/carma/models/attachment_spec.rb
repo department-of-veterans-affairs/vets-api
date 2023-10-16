@@ -7,7 +7,7 @@ RSpec.describe CARMA::Models::Attachment, type: :model do
   describe '::DOCUMENT_TYPES' do
     it 'has two DOCUMENT_TYPE' do
       expect(described_class::DOCUMENT_TYPES['10-10CG']).to eq('10-10CG')
-      expect(described_class::DOCUMENT_TYPES['POA']).to eq('POA')
+      expect(described_class::DOCUMENT_TYPES['POA']).to eq('Legal Representative')
     end
   end
 
@@ -72,7 +72,7 @@ RSpec.describe CARMA::Models::Attachment, type: :model do
       value = described_class::DOCUMENT_TYPES['POA']
 
       subject.document_type = value
-      expect(subject.document_type).to eq('POA')
+      expect(subject.document_type).to eq('Legal Representative')
     end
   end
 

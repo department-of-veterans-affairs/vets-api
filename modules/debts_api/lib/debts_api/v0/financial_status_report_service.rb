@@ -22,6 +22,7 @@ module DebtsApi
 
     class FSRNotFoundInRedis < StandardError; end
     class FSRInvalidRequest < StandardError; end
+    class FailedFormToPdfResponse < StandardError; end
 
     configuration DebtsApi::V0::FinancialStatusReportConfiguration
 
@@ -126,8 +127,9 @@ module DebtsApi
       form.delete('streamlined')
       response = perform(:post, 'financial-status-report/formtopdf', form)
       fsr_response = DebtsApi::V0::FinancialStatusReportResponse.new(response.body)
+      raise FailedFormToPdfResponse unless response.success?
 
-      send_confirmation_email(VBA_CONFIRMATION_TEMPLATE) if response.success?
+      send_confirmation_email(VBA_CONFIRMATION_TEMPLATE)
 
       update_filenet_id(fsr_response)
 

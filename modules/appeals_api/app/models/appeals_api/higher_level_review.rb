@@ -299,6 +299,9 @@ module AppealsApi
       self.metadata = { form_data: { benefit_type: } }
 
       metadata['central_mail_business_line'] = lob
+      metadata['potential_write_in_issue_count'] = contestable_issues.filter do |issue|
+        issue['attributes']['ratingIssueReferenceId'].blank?
+      end.count
     end
 
     private

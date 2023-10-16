@@ -114,6 +114,41 @@ describe AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreementsController,
           expect(response).to have_http_status(:bad_request)
         end
       end
+
+      describe 'metadata' do
+        let(:saved_appeal) { AppealsApi::NoticeOfDisagreement.find(parsed_response['data']['id']) }
+
+        context 'central_mail_business_line' do
+          it 'is populated with the correct value' do
+            expect(saved_appeal.metadata).to include({ 'central_mail_business_line' => 'BVA' })
+          end
+        end
+
+        context 'potential_write_in_issue_count' do
+          context 'with no write-in issues' do
+            it 'is populated with the correct value' do
+              expect(saved_appeal.metadata).to include({ 'potential_write_in_issue_count' => 0 })
+            end
+          end
+
+          context 'with write-in issues' do
+            let(:data) do
+              d = default_data
+              d['included'].push(
+                {
+                  'type' => 'appealableIssue',
+                  'attributes' => { 'issue' => 'write-in issue text', 'decisionDate' => '1999-09-09' }
+                }
+              )
+              d
+            end
+
+            it 'is populated with the correct value' do
+              expect(saved_appeal.metadata).to include({ 'potential_write_in_issue_count' => 1 })
+            end
+          end
+        end
+      end
     end
   end
 

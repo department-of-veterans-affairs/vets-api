@@ -91,7 +91,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
           end
 
           it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                          'Bad Request Error: service error'
+                          'Dynamics::ErrorHandler::BadRequestError: service error'
         end
 
         context 'when a standard error' do
@@ -104,8 +104,8 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
             subject
           end
 
-          it_behaves_like 'common error handling', :internal_server_error, 'unexpected_error',
-                          'standard error'
+          it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
+                          'StandardError: standard error'
         end
       end
     end
@@ -157,6 +157,16 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
         it_behaves_like 'common error handling', :bad_request, 'invalid_inquiry_error',
                         'AskVAApi::V0::InquiriesController::InvalidInquiryError'
       end
+    end
+
+    context 'when an error occur' do
+      before do
+        allow(Dynamics::Service).to receive(:new).and_raise(ErrorHandler::ServiceError)
+        sign_in(authorized_user)
+        subject
+      end
+
+      it { expect(JSON.parse(response.body)).to eq('error' => 'ErrorHandler::ServiceError') }
     end
 
     context 'when user is not signed in' do
