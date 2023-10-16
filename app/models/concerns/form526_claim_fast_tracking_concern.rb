@@ -110,11 +110,11 @@ module Form526ClaimFastTrackingConcern
 
   def measure_ep_merge_stats
     pending_eps = open_claims.select { |claim| EP_MERGE_BASE_CODES.include?(claim['base_end_product_code']) }
-    StatsD.histogram("#{EP_MERGE_STATSD_KEY_PREFIX}.pending_ep_count", pending_eps.count)
+    StatsD.distribution("#{EP_MERGE_STATSD_KEY_PREFIX}.pending_ep_count", pending_eps.count)
     if pending_eps.count == 1
       date = Date.strptime(pending_eps.first['date'], '%m/%d/%Y')
       days_ago = (Time.zone.today - date).round
-      StatsD.histogram("#{EP_MERGE_STATSD_KEY_PREFIX}.pending_ep_age", days_ago)
+      StatsD.distribution("#{EP_MERGE_STATSD_KEY_PREFIX}.pending_ep_age", days_ago)
     end
   end
 
