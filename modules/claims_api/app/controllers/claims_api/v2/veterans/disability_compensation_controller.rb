@@ -5,7 +5,6 @@ require 'jsonapi/parser'
 require 'claims_api/v2/disability_compensation_validation'
 require 'claims_api/v2/disability_compensation_pdf_mapper'
 require 'claims_api/v2/disability_compensation_evss_mapper'
-require 'claims_api/v2/disability_compensation_claim_processor'
 require 'evss_service/base'
 require 'pdf_generator_service/pdf_client'
 
@@ -16,7 +15,7 @@ module ClaimsApi
         include ClaimsApi::V2::DisabilityCompensationValidation
 
         FORM_NUMBER = '526'
-        EVSS_DOCUMENT_TYPE = 'L023'
+        # EVSS_DOCUMENT_TYPE = 'L023'
 
         before_action :shared_validation, :file_number_check, only: %i[submit validate]
 
@@ -43,50 +42,12 @@ module ClaimsApi
           end
 
           track_pact_counter auto_claim
-          #pdf_data = get_pdf_data
 
-          #pdf_mapper_service(form_attributes, pdf_data, auto_claim.auth_headers, 'L').map_claim
+          # This kicks off the first of three jobs required to fully establish the claim
+          process_claim(auto_claim)
 
-          #generate_526_pdf(pdf_data)
-          process_pdf_job(auto_claim)
-
-          # if auto_claim.evss_id.nil?
-          #   ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Mapping EVSS Data')
-          #   evss_data = evss_mapper_service(auto_claim).map_claim
-          #   ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Submitting to EVSS')
-          #   evss_res = evss_service.submit(auto_claim, evss_data)
-          #   ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Successfully submitted to EVSS',
-          #                                   evss_id: evss_res[:claimId])
-          #   auto_claim.update(evss_id: evss_res[:claimId])
-          # else
-          #   ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'EVSS Skipped',
-          #                                   evss_id: auto_claim.evss_id)
-          # end
-
-          # ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Starting call to 526EZ PDF generator')
-
-          #pdf_string = generate_526_pdf(pdf_data)
-byebug
-          # ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Completed call to 526EZ PDF generator')
-          # if pdf_string.empty?
-          #   ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: '526EZ PDF generator failed.')
-          # elsif pdf_string
-          #   file_name = "#{SecureRandom.hex}.pdf"
-          #   path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
-          #   upload = ActionDispatch::Http::UploadedFile.new({
-          #                                                     filename: file_name,
-          #                                                     type: 'application/pdf',
-          #                                                     tempfile: File.open(path)
-          #                                                   })
-          #   auto_claim.set_file_data!(upload, EVSS_DOCUMENT_TYPE)
-          #   auto_claim.save!
-          #   ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Uploaded 526EZ PDF to S3')
-          #   ::Common::FileHelpers.delete_file_if_exists(path)
-          #   ClaimsApi::ClaimUploader.perform_async(auto_claim.id)
-          #   ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Uploaded 526EZ PDF to VBMS')
-          # end
-
-          get_benefits_documents_auth_token unless Rails.env.test?
+          # Is this even needed here anymore ???
+          # get_benefits_documents_auth_token unless Rails.env.test?
 
           render json: auto_claim
         end
@@ -103,15 +64,15 @@ byebug
 
         private
 
-        def process_pdf_job(auto_claim)
+        def process_claim(auto_claim)
           ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(
-                auto_claim.id,
-                veteran_middle_initial) # PDF mapper just needs middle initial
+              auto_claim.id,
+              veteran_middle_initial, # PDF mapper just needs middle initial
+              @file_number) # EVSS mapper needs this number
         end
 
         # Only value required by background jobs that is missing in headers is middle name
         def veteran_middle_initial
-          byebug
           @target_veteran.middle_name ? @target_veteran.middle_name[0].uppercase : 'L'         
         end
 
@@ -142,25 +103,6 @@ byebug
           }
         end
 
-        def generate_526_pdf(pdf_data)
-          byebug
-          pdf_data[:data] = pdf_data[:data][:attributes]
-          client = PDFClient.new(pdf_data.to_json)
-          client.generate_pdf
-        end
-
-        def pdf_mapper_service(auto_claim, pdf_data, target_veteran, middle_initial)
-          ClaimsApi::V2::DisabilityCompensationPdfMapper.new(auto_claim, pdf_data, target_veteran, 'L')
-        end
-
-        def evss_mapper_service(auto_claim)
-          ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, @file_number)
-        end
-
-        # def pdf_generator_service(auto_claim, target_veteran)
-        #   ClaimsApi::V2::DisabilityCompensationPDFGenerator
-        # end
-
         def track_pact_counter(claim)
           return unless form_attributes['disabilities']&.map { |d| d['isRelatedToToxicExposure'] }&.include? true
 
@@ -174,19 +116,9 @@ byebug
           end
         end
 
-        def evss_service
-          ClaimsApi::EVSSService::Base.new(request)
-        end
-
-        def get_pdf_data
-          {
-            data: {}
-          }
-        end
-
-        def benefits_doc_api
-          ClaimsApi::BD.new
-        end
+        # def benefits_doc_api
+        #   ClaimsApi::BD.new
+        # end
       end
     end
   end

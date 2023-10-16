@@ -229,6 +229,7 @@ module ClaimsApi
         @pdf_data[:data][:attributes].merge!(
           identificationInformation: @auto_claim&.dig('veteranIdentification')&.deep_symbolize_keys
         )
+        # @pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber] = @target_veteran.mpi.birls_id
         @pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber] = @auth_headers[:va_eauth_birlsfilenumber]
         vet_number = @pdf_data[:data][:attributes][:identificationInformation][:veteranNumber].present?
         if vet_number
@@ -662,7 +663,7 @@ module ClaimsApi
         name = {
           lastName: @veteran_data[:authorizationResponse][:lastName],
           firstName: @veteran_data[:authorizationResponse][:firstName],
-          middleInitial: @middle_initial # is either the middle initial or ''
+          middleInitial: @middle_initial
         }
         birth_date_data = @veteran_data[:authorizationResponse][:birthDate]
         if birth_date_data
