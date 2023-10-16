@@ -31,6 +31,9 @@ RSpec.describe V1::NoticeOfDisagreementsController do
     it 'creates an NOD' do
       VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-200_V1') do
         previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
+        # Create an InProgressForm
+        in_progress_form = create(:in_progress_form, user_uuid: user.uuid, form_id: '10182')
+        expect(in_progress_form).not_to be_nil
         subject
         expect(response).to be_successful
         parsed_response = JSON.parse(response.body)
@@ -38,6 +41,9 @@ RSpec.describe V1::NoticeOfDisagreementsController do
         expect(previous_appeal_submission_ids).not_to include id
         appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
         expect(appeal_submission.type_of_appeal).to eq('NOD')
+        # InProgressForm should be destroyed after successful submission
+        in_progress_form = InProgressForm.find_by(user_uuid: user.uuid, form_id: '10182')
+        expect(in_progress_form).to be_nil
       end
     end
 
