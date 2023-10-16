@@ -3,7 +3,7 @@
 require 'common/exceptions'
 require 'common/client/concerns/service_status'
 require 'mpi/errors/errors'
-
+require 'va_profile/veteran_status/va_profile_error'
 module Users
   class ExceptionHandler
     include Common::Client::Concerns::ServiceStatus
@@ -32,12 +32,14 @@ module Users
       case error
       when Common::Exceptions::BaseError
         base_error
+      when VAProfile::VeteranStatus::VAProfileError
+        if error.status == 404
+          title_error(:not_found)
+        else
+          standard_va_profile_error
+        end
       when Common::Client::Errors::ClientError
         client_error
-      when EMISRedis::VeteranStatus::NotAuthorized
-        emis_error(:not_authorized)
-      when EMISRedis::VeteranStatus::RecordNotFound
-        emis_error(:not_found)
       when MPI::Errors::RecordNotFound
         mpi_error(404)
       when MPI::Errors::FailedRequestError
@@ -77,6 +79,27 @@ module Users
       error_template.merge(
         description: "#{error.class}, #{RESPONSE_STATUS[type]}",
         status: error.status.to_i
+      )
+    end
+
+    def title_error(_type)
+      error_template.merge(
+        description: "#{error.class}, 404 Veteran Status title not found",
+        status: 404
+      )
+    end
+
+    def standard_va_profile_error
+      error_template.merge(
+        description: "#{error.class}, #{error.message}, #{error} VA Profile failure",
+        status: standard_error_status(error)
+      )
+    end
+
+    def client_error_related_to_title38
+      error_template.merge(
+        description: "#{error.class}, Client error related to title38",
+        status: 404
       )
     end
 
