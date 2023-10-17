@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/MethodLength
-
 require 'rails_helper'
 
 RSpec.describe 'Dynamic forms uploader', type: :request do
@@ -76,6 +74,8 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
       end
 
       it 'renders the attachment as json' do
+        allow(Common::VirusScan).to receive(:scan).and_return(true)
+        allow_any_instance_of(Common::VirusScan).to receive(:scan).and_return(true)
         allow_any_instance_of(ClamAV::PatchClient).to receive(:safe?).and_return(true)
         data = { form_id: '40-0247', file: }
 
@@ -423,4 +423,3 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     end
   end
 end
-# rubocop:enable Metrics/MethodLength
