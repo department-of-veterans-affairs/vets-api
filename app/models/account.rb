@@ -7,6 +7,8 @@
 # The account.uuid is intended to become the Vets-API user's uuid.
 #
 class Account < ApplicationRecord
+  ActiveSupport::Deprecation.warn('Account is deprecated and will be removed. Use UserAccount instead.')
+
   has_one  :login_stats,
            class_name: 'AccountLoginStat',
            dependent: :destroy,
@@ -44,10 +46,6 @@ class Account < ApplicationRecord
                                   none
                                 end
                               }
-  class << self
-    extend Gem::Deprecate
-    instance_methods(false).each { |method| deprecate(method, 'UserAccount', 2024, 3) }
-  end
 
   # @param user_uuid [String] The uuid of current_user in ApplicationController;
   #                           may refer to the idme_uuid (preferred) or logingov_uuid
