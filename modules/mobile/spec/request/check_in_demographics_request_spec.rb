@@ -141,7 +141,7 @@ RSpec.describe 'check in demographics', type: :request do
     context 'when upstream service fails' do
       it 'throws an exception' do
         VCR.use_cassette('mobile/check_in/token_200') do
-          VCR.use_cassette('mobile/check_in/update_demographics_500') do
+          VCR.use_cassette('chip/authenticated_demographics/update_demographics_500') do
             patch '/mobile/v0/appointments/check-in/demographics',
                   headers: sis_headers,
                   params: { 'location_id' => '418',
@@ -150,14 +150,19 @@ RSpec.describe 'check in demographics', type: :request do
                                                              'next_of_kin_needs_update' => false } }
           end
         end
-        expect(response).to have_http_status(:bad_request)
+        expect(response).to have_http_status(:internal_server_error)
         expect(response.parsed_body).to eq(
           { 'errors' =>
               [
-                { 'title' => 'Operation failed',
-                  'detail' => 'The upstream server returned an error code that is unmapped',
-                  'code' => 'unmapped_service_exception',
-                  'status' => '400' }
+                { 'title' => 'Internal Server Error',
+                  'detail' => [{
+                    'errors' => [{
+                      'status' => '500',
+                      'title' => 'Problem getting token from VistA APIs'
+                    }]
+                  }],
+                  'code' => 'CHIP_500',
+                  'status' => '500' }
               ] }
         )
       end

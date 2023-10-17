@@ -2357,3 +2357,13 @@ en:
         detail: The upstream server returned an error code that is unmapped
         code: unmapped_service_exception
         status: 400
+      CHIP_400:
+        <<: *defaults
+        title: 'Unsuccessful Operation'
+        code: CHIP_400
+        status: 400
+      CHIP_500:
+        <<: *defaults
+        title: 'Internal Server Error'
+        code: CHIP_500
+        status: 500
