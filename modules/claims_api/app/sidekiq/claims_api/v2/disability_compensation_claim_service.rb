@@ -17,7 +17,7 @@ module ClaimsApi
       def set_errored_state(error, claim_id)
         claim = get_claim(claim_id)
         error_key = get_error_key(error)
-        error_message = get_error_message(error)
+        error_message = get_error_status_code(error)
 
         claim.status = ClaimsApi::V2::AutoEstablishedClaim::ERRORED
         claim.evss_response = [{ 'key' => error_key , 'severity' => 'FATAL', 'text' => error_message }]
@@ -28,11 +28,11 @@ module ClaimsApi
         ClaimsApi::V2::AutoEstablishedClaim.find(claim_id)
       end
 
-      def get_error_key(error)
+      def get_error_status_code(error)
         if error.respond_to? :status_code
           error.status_code
         else
-          "No key for error: #{error}"
+          "No status code for error: #{error}"
         end
       end
 
