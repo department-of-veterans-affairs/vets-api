@@ -7,7 +7,9 @@ describe SimpleFormsApi::IntentToFile do
   describe 'an Intent To File has previously been submitted' do
     let(:params) do
       {
-        'benefit_selection' => 'Compensation',
+        'benefit_selection' => {
+          'COMPENSATION' => true
+        },
         'preparer_identification' => 'VETERAN',
         'preparer_id' => {
           'ssn' => 'fake-ssn'
@@ -41,7 +43,9 @@ describe SimpleFormsApi::IntentToFile do
     let(:ssn) { 'fake-ssn' }
     let(:params) do
       {
-        'benefit_selection' => 'Compensation',
+        'benefit_selection' => {
+          'COMPENSATION' => true
+        },
         'preparer_identification' => 'VETERAN',
         'preparer_id' => {
           'ssn' => ssn
