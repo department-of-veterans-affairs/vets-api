@@ -4,7 +4,7 @@ require 'rails_helper'
 require_relative '../../rails_helper'
 require 'claims_api/v2/disability_compensation_pdf_generator'
 
-RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
+RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type: :job do
   subject { described_class }
 
   before do
@@ -15,7 +15,8 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
   let(:user) { FactoryBot.create(:user, :loa3) }
 
   let(:auth_headers) do
-    {'Authorization' => 'Bearer faketokenhere'}
+    EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+    # {'Authorization' => 'Bearer faketokenhere'}
   end
 
   let(:claim_date) { (Time.zone.today - 1.day).to_s }
@@ -29,7 +30,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
     attributes['claimDate'] = claim_date
     attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
 
-    temp.to_json
+    temp['data']['attributes']
   end
 
   let(:claim) do
@@ -40,42 +41,12 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
   end
 
   describe 'successful submission' do
+    let(:file_number) { '123456' }
+
     it 'submits successfully' do
       expect do
-        subject.new.perform(claim)
+        subject.perform_async(claim.id, file_number)
       end.to change(subject.jobs, :size).by(1)
-    end
-
-    it 'handles the claim' do
-      subject.new.perform(claim)
-    end
-  end
-
-  describe '#log_job_progress' do
-    let(:claim) { double('Claim', id: 123) }
-    let(:start_detail) { '526EZ PDF generator started.' }
-    let(:finish_detail) { '526EZ PDF generator finished.' }
-
-    subject { described_class.new }
-
-    it 'logs the progress when starting' do
-      logger = instance_double(ClaimsApi::Logger)
-      expect(ClaimsApi::Logger).to receive(:log)
-        .with('dis_comp_pdf_generator', 
-              claim_id: claim.id, 
-              detail: "#{start_detail}")
-
-      subject.send(:log_job_progress, claim, start_detail)
-    end
-
-    it 'logs the progress when finished' do
-      logger = instance_double(ClaimsApi::Logger)
-      expect(ClaimsApi::Logger).to receive(:log)
-        .with('dis_comp_pdf_generator', 
-              claim_id: claim.id, 
-              detail: "#{finish_detail}")
-
-      subject.send(:log_job_progress, claim, finish_detail)
     end
   end
 end

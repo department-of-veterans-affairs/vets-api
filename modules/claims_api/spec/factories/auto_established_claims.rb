@@ -3,7 +3,7 @@
 require 'claims_api/special_issue_mappers/bgs'
 
 FactoryBot.define do
-  factory :auto_established_claim, class: 'ClaimsApi::AutoEstablishedClaim' do
+  factory :auto_established_claim, class: 'ClaimsApi::V2::AutoEstablishedClaim' do
     id { SecureRandom.uuid }
     status { 'pending' }
     source { 'oddball' }
@@ -53,7 +53,7 @@ FactoryBot.define do
     end
   end
 
-  factory :auto_established_claim_without_flashes_or_special_issues, class: 'ClaimsApi::AutoEstablishedClaim' do
+  factory :auto_established_claim_without_flashes_or_special_issues, class: 'ClaimsApi::V2::AutoEstablishedClaim' do
     id { SecureRandom.uuid }
     status { 'pending' }
     source { 'oddball' }
@@ -73,7 +73,7 @@ FactoryBot.define do
     end
   end
 
-  factory :auto_established_claim_with_auth_headers, class: 'ClaimsApi::AutoEstablishedClaim' do
+  factory :auto_established_claim_with_auth_headers, class: 'ClaimsApi::V2::AutoEstablishedClaim' do
     id { SecureRandom.uuid }
     status { 'pending' }
     source { 'oddball' }

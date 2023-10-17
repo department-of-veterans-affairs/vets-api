@@ -19,7 +19,7 @@ module ClaimsApi
         claim = get_claim(claim_id)
 
         claim.status = ClaimsApi::V2::AutoEstablishedClaim::ERRORED
-        claim.evss_response = [{ 'key' => error&.status_code, 'severity' => 'FATAL', 'text' => error.original_body }]
+        claim.evss_response = [{ 'key' => error&.status_code, 'severity' => 'FATAL', 'text' => error&.original_body }]
         claim.save
       end
 

@@ -72,7 +72,6 @@ module ClaimsApi
 
       def start_evss_job(file_number)
         ClaimsApi::V2::DisabilityCompensationDockerContainerUpload.perform_async(@claim.id, file_number)
-        # @uploader ||= ClaimsApi::SupportingDocumentUploader.new(@claim.id)
       end
 
       def pdf_mapper_service(form_data, pdf_data, auth_headers, middle_initial)

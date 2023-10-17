@@ -21,6 +21,7 @@ module ClaimsApi
       }.freeze
 
       def initialize(auto_claim, pdf_data, auth_headers, middle_initial)
+        byebug
         @auto_claim = auto_claim
         @pdf_data = pdf_data
         @auth_headers = auth_headers&.deep_symbolize_keys
@@ -29,6 +30,7 @@ module ClaimsApi
       end
 
       def map_claim
+        byebug
         claim_attributes
         toxic_exposure_attributes
         homeless_attributes
@@ -233,6 +235,7 @@ module ClaimsApi
       end
 
       def veteran_info # rubocop:disable Metrics/MethodLength
+        byebug
         @pdf_data[:data][:attributes].merge!(
           identificationInformation: @auto_claim&.dig('veteranIdentification')&.deep_symbolize_keys
         )
