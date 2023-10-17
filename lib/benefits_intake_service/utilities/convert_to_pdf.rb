@@ -3,7 +3,7 @@
 require 'mini_magick'
 require 'common/file_helpers'
 
-module Form526BackupSubmission
+module BenefitsIntakeService
   module Utilities
     class ConvertToPdf
       CAN_CONVERT = %w[.jpg .jpeg .png .gif .bmp .txt].freeze
