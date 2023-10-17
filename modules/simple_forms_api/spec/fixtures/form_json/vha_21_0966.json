@@ -20,7 +20,9 @@
   "preparer_id": {
     "ssn": "554565676"
   },
-  "benefit_selection": "Compensation",
+  "benefit_selection": {
+    "COMPENSATION": true
+  },
   "statement_of_truth_signature": "Vinnie V. Vet",
   "statement_of_truth_certified": true,
   "format": "json",
