@@ -71,6 +71,7 @@ module SimpleFormsApi
         "Simple forms api - #{type} intent to file not found. Form number: #{params[:form_number]},
           error: #{e}, ICN #{icn}"
       )
+      nil
     end
   end
 end
