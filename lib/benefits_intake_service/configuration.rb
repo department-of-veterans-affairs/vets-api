@@ -7,6 +7,7 @@ module BenefitsIntakeService
     def initialize
       super
       Settings.benefits_intake_service.api_key ||= Settings.form526_backup.api_key
+      Settings.benefits_intake_service.url ||= Settings.form526_backup.url
     end
 
     self.read_timeout = Settings.caseflow.timeout || 20 # using the same timeout as lighthouse
