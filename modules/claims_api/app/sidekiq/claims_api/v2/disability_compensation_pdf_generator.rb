@@ -15,6 +15,7 @@ module ClaimsApi
       EVSS_DOCUMENT_TYPE = 'L023'
 
       def perform(claim_id, middle_initial, file_number) # rubocop:disable Metrics/MethodLength
+        byebug
         log_job_progress('dis_comp_pdf_generator',
                          claim_id,
                          '526EZ PDF generator started')
@@ -57,16 +58,24 @@ module ClaimsApi
         log_job_progress('dis_comp_pdf_generator',
                          @claim.id,
                          "526EZ PDF generator errored #{e.status_code} #{e.original_body}")
+
+        reschedule_job(claim_id, middle_initial, file_number)
         raise e
       rescue => e
         set_errored_state(e, @claim.id)
         log_job_progress('dis_comp_pdf_generator',
                          @claim.id,
                          "526EZ PDF generator errored #{e}")
+
+        reschedule_job()
         raise e
       end
 
       private
+
+      def reschedule_job(claim_id, middle_initial, file_number)
+        self.class.perform_in(30.minutes, [claim_id, middle_initial, file_number])
+      end
 
       def start_evss_job(file_number)
         ClaimsApi::V2::DisabilityCompensationDockerContainerUpload.perform_async(@claim.id, file_number)

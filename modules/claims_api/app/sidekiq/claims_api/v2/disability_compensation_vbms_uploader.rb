@@ -12,6 +12,7 @@ module ClaimsApi
       include Sidekiq::MonitoredWorker
 
       def perform(claim_id) # rubocop:disable Metrics/MethodLength
+        byebug
         log_job_progress('dis_comp_vbms_uploader',
                          claim_id,
                          'VBMS upload job started')
@@ -28,12 +29,18 @@ module ClaimsApi
 
         bd_upload_body(auto_claim:, file_body:)
 
-        # ClaimsApi::ClaimUploader.perform_async(auto_claim.id)
         log_job_progress('dis_comp_vbms_uploader',
                          claim_id,
                          'Uploaded 526EZ PDF to VBMS')
 
-        set_claim_as_established(auto_claim.id)
+        unless @claim.status == 'errored'
+          set_claim_as_established(auto_claim.id)
+        end
+
+        log_job_progress('dis_comp_vbms_uploader',
+                         claim_id,
+                         'VBMS uploaded succeeded, claim established')
+
       # Temporary errors (returning HTML, connection timeout), retry call
       rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
         log_job_progress('dis_comp_vbms_uploader',

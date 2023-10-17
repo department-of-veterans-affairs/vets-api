@@ -16,14 +16,32 @@ module ClaimsApi
 
       def set_errored_state(error, claim_id)
         claim = get_claim(claim_id)
+        error_key = get_error_key(error)
+        error_message = get_error_message(error)
 
         claim.status = ClaimsApi::V2::AutoEstablishedClaim::ERRORED
-        claim.evss_response = [{ 'key' => error&.status_code, 'severity' => 'FATAL', 'text' => error&.original_body }]
+        claim.evss_response = [{ 'key' => error_key , 'severity' => 'FATAL', 'text' => error_message }]
         claim.save
       end
 
       def get_claim(claim_id)
         ClaimsApi::V2::AutoEstablishedClaim.find(claim_id)
+      end
+
+      def get_error_key(error)
+        if error.respond_to? :status_code
+          error.status_code
+        else
+          "No key for error: #{error}"
+        end
+      end
+
+      def get_error_message(error)
+        if error.respond_to? :original_body
+          error.original_body
+        else
+          error.message
+        end
       end
 
       def log_job_progress(tag, claim_id, detail)

@@ -14,47 +14,55 @@ module ClaimsApi
       include Sidekiq::MonitoredWorker
 
       def perform(claim_id, file_number) # rubocop:disable Metrics/MethodLength
+        byebug
         @claim = get_claim(claim_id)
         @file_number = file_number
 
         log_job_progress('dis_comp_evss',
-                         claim_id,
+                         @claim&.id,
                          'EVSS job started')
 
         if @claim.evss_id.nil?
           evss_data = evss_mapper_service.map_claim
           log_job_progress('dis_comp_evss',
-                           claim_id,
+                           @claim&.id,
                            'Submitting to EVSS')
 
           evss_res = evss_service.submit(@claim, evss_data)
           log_job_progress('dis_comp_evss',
-                           claim_id,
+                           @claim&.id,
                            'Successfully submitted to EVSS')
 
           @claim.update(evss_id: evss_res[:claimId])
-        else
-          self.class.perform_in(30.minutes, claim_id)
+        elsif @claim.status == 'errored' # We have an EVSS id but an error, whiich happened after setting EVSS ID
+          self.class.perform_in(30.minutes, [@claim&.id, @file_number])
         end
 
         start_vbms_job if @claim.status != 'errored' && !@claim.evss_id.nil?
+
       rescue ::Common::Exceptions::BackendServiceException => e
         log_job_progress('dis_comp_evss',
-                         claim_id,
+                         @claim&.id,
                          "Docker container submit failed for claimId #{@claim&.id}: #{e.original_body}")
         set_errored_state(e, @claim.id)
         raise e
       rescue => e
         log_job_progress('dis_comp_evss',
-                         claim_id,
-                         "Docker container submit failed for claimId #{@claim&.id}: #{e.detailed_message}")
+                         @claim&.id,
+                         "Docker container job failed before completing for claimId #{@claim&.id}: #{e.detailed_message}")
         set_errored_state(e, @claim.id)
         raise e
       end
 
       private
 
-      def start_vbms_job; end
+      def start_vbms_job
+        vbms_service.perform_async(@claim.id)
+      end
+
+      def vbms_service
+        ClaimsApi::V2::DisabilityCompensationVBMSUploader
+      end
 
       def evss_mapper_service
         ClaimsApi::V2::DisabilityCompensationEvssMapper.new(@claim, @file_number)
