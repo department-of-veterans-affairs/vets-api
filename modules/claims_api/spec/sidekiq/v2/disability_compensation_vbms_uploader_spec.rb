@@ -16,7 +16,6 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationVBMSUploader, type: :job do
 
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-    # {'Authorization' => 'Bearer faketokenhere'}
   end
 
   let(:claim_date) { (Time.zone.today - 1.day).to_s }
@@ -48,9 +47,5 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationVBMSUploader, type: :job do
         subject.perform_async(claim.id, file_number)
       end.to change(subject.jobs, :size).by(1)
     end
-
-    # it 'handles the claim' do
-    #   subject.new.perform(claim)
-    # end
   end
 end

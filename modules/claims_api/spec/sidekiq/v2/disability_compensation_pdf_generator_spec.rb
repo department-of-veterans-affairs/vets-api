@@ -16,7 +16,6 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
 
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-    # {'Authorization' => 'Bearer faketokenhere'}
   end
 
   let(:claim_date) { (Time.zone.today - 1.day).to_s }
@@ -49,14 +48,5 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
         subject.perform_async(claim.id, middle_initial, file_number)
       end.to change(subject.jobs, :size).by(1)
     end
-
-    # it 'handles the claim' do
-    #   subject.new.perform(claim)
-    # end
   end
-
-  # describe 'failed submission' do
-  #   it 'does not trigger the next job' do
-  #   end
-  # end
 end

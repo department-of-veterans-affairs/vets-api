@@ -16,7 +16,6 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
 
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-    # {'Authorization' => 'Bearer faketokenhere'}
   end
 
   let(:claim_date) { (Time.zone.today - 1.day).to_s }
