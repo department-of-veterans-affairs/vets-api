@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'form526_backup_submission/utilities/convert_to_pdf'
+require 'benefits_intake_service/utilities/convert_to_pdf'
 
-RSpec.describe Form526BackupSubmission::Utilities::ConvertToPdf do
+RSpec.describe BenefitsIntakeService::Utilities::ConvertToPdf do
   subject { described_class }
 
   let(:txt_file) { 'spec/fixtures/files/buddy_statement.txt' }
@@ -21,7 +21,7 @@ RSpec.describe Form526BackupSubmission::Utilities::ConvertToPdf do
         converted = described_class.new(file_path)
         expect(converted.original_file).to eq(file_path)
         expect(converted.original_filename).to eq(File.basename(file_path))
-        expect(converted.converted_filename).not_to be(nil)
+        expect(converted.converted_filename).not_to be_nil
         expect(File.extname(converted.converted_filename).downcase).to eq('.pdf')
       end
     end
@@ -34,7 +34,7 @@ RSpec.describe Form526BackupSubmission::Utilities::ConvertToPdf do
       converted = described_class.new(txt_file)
       expect(converted.original_file).to eq(txt_file)
       expect(converted.original_filename).to eq(File.basename(txt_file))
-      expect(converted.converted_filename).not_to be(nil)
+      expect(converted.converted_filename).not_to be_nil
       expect(File.extname(converted.converted_filename).downcase).to eq('.pdf')
     end
   end
