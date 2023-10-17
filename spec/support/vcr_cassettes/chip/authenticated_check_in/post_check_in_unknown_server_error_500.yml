@@ -16,6 +16,14 @@ http_interactions:
           - application/json
       body:
         encoding: UTF-8
-        string: '{ "title": "Error setting eCheckInStatus for station: 500 and ien test-appt-ien" }'
+        string: |-
+          {
+            "errors": [
+              {
+                "status": "500",
+                "title": "Authenticated Check-in vista error"
+              }
+            ]
+          }
     recorded_at: 'Mon, 29 Jun 2020 15:46:52 GMT'
 recorded_with: VCR 6.0.0
