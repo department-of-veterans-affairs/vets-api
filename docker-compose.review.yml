@@ -1,10 +1,10 @@
 version: '3.4'
 services:
   redis:
-    image: redis:5.0-alpine
+    image: 008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/redis:5.0-alpine
     restart: unless-stopped
   postgres:
-    image: mdillon/postgis:11-alpine
+    image: 008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/mdillon/postgis:11-alpine
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
