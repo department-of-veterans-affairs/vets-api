@@ -5,7 +5,9 @@ require 'claims_api/claim_logger'
 module ClaimsApi
   module V2
     class DisabilityCompensationClaimService
-      protected
+      def get_pending_claim(claim_id)
+        ClaimsApi::V2::AutoEstablishedClaim.find(claim_id)
+      end
 
       def set_claim_as_established(claim_id)
         claim = get_claim(claim_id)
@@ -16,16 +18,12 @@ module ClaimsApi
 
       def set_errored_state(error, claim_id)
         claim = get_claim(claim_id)
-        error_key = get_error_key(error)
-        error_message = get_error_status_code(error)
+        get_error_status_code(error)
+        error_message = get_error_message(error)
 
         claim.status = ClaimsApi::V2::AutoEstablishedClaim::ERRORED
-        claim.evss_response = [{ 'key' => error_key , 'severity' => 'FATAL', 'text' => error_message }]
+        claim.evss_response = [{ 'key' => error_key, 'severity' => 'FATAL', 'text' => error_message }]
         claim.save
-      end
-
-      def get_claim(claim_id)
-        ClaimsApi::V2::AutoEstablishedClaim.find(claim_id)
       end
 
       def get_error_status_code(error)

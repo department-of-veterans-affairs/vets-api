@@ -15,12 +15,11 @@ module ClaimsApi
       EVSS_DOCUMENT_TYPE = 'L023'
 
       def perform(claim_id, middle_initial, file_number) # rubocop:disable Metrics/MethodLength
-        byebug
         log_job_progress('dis_comp_pdf_generator',
                          claim_id,
                          '526EZ PDF generator started')
 
-        @claim = get_claim(claim_id)
+        @claim = get_pending_claim(claim_id)
 
         pdf_data = get_pdf_data
         mapped_claim = pdf_mapper_service(@claim.form_data, pdf_data, @claim.auth_headers, middle_initial).map_claim
@@ -30,6 +29,8 @@ module ClaimsApi
           log_job_progress('dis_comp_pdf_generator',
                            @claim.id,
                            '526EZ PDF generator failed')
+
+          set_errored_state('PDF string came back empty', @claim.id)
         elsif pdf_string
           log_job_progress('dis_comp_pdf_generator',
                            @claim.id,
@@ -42,14 +43,18 @@ module ClaimsApi
                                                             type: 'application/pdf',
                                                             tempfile: File.open(path)
                                                           })
+          # Sets fle_data on the claim, @claim.file_data
+          # Example:
+          # {"filename"=>"cd04fc6704292a0c9851d872c3583c9e.pdf", "doc_type"=>"L023", "description"=>nil}
           @claim.set_file_data!(upload, EVSS_DOCUMENT_TYPE)
           @claim.save!
 
           log_job_progress('dis_comp_pdf_generator',
                            @claim.id,
-                           '526EZ PDF generator Uploaded 526EZ PDF to S3')
+                           "526EZ PDF generator Uploaded 526EZ PDF #{file_name} to S3")
 
           ::Common::FileHelpers.delete_file_if_exists(path)
+
         end
 
         start_evss_job(file_number) if @claim.status != 'errored'
@@ -67,7 +72,7 @@ module ClaimsApi
                          @claim.id,
                          "526EZ PDF generator errored #{e}")
 
-        reschedule_job()
+        reschedule_job
         raise e
       end
 
@@ -83,10 +88,6 @@ module ClaimsApi
 
       def pdf_mapper_service(form_data, pdf_data, auth_headers, middle_initial)
         ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_data, pdf_data, auth_headers, middle_initial)
-      end
-
-      def start_docker_container_upload
-        # ClaimsApi::DockerContainer.perform_async
       end
 
       # Docker container wants data: but not attributes:

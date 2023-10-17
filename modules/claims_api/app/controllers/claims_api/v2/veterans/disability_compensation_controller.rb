@@ -68,8 +68,8 @@ module ClaimsApi
           ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(
             auto_claim.id,
             veteran_middle_initial, # PDF mapper just needs middle initial
-            @file_number
-          ) # EVSS mapper needs this number
+            @file_number # EVSS mapper needs this number
+          )
         end
 
         # Only value required by background jobs that is missing in headers is middle name
@@ -116,10 +116,6 @@ module ClaimsApi
                                               consumer_label: token.payload['label'] || token.payload['cid']
           end
         end
-
-        # def benefits_doc_api
-        #   ClaimsApi::BD.new
-        # end
       end
     end
   end

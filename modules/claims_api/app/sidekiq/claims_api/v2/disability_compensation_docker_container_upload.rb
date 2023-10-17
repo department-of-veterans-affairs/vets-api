@@ -14,8 +14,7 @@ module ClaimsApi
       include Sidekiq::MonitoredWorker
 
       def perform(claim_id, file_number) # rubocop:disable Metrics/MethodLength
-        byebug
-        @claim = get_claim(claim_id)
+        @claim = get_pending_claim(claim_id)
         @file_number = file_number
 
         log_job_progress('dis_comp_evss',
@@ -31,7 +30,7 @@ module ClaimsApi
           evss_res = evss_service.submit(@claim, evss_data)
           log_job_progress('dis_comp_evss',
                            @claim&.id,
-                           'Successfully submitted to EVSS')
+                           "Successfully submitted to EVSS with response: #{evss_res}")
 
           @claim.update(evss_id: evss_res[:claimId])
 
@@ -40,7 +39,6 @@ module ClaimsApi
         elsif @claim.status == 'errored'
           self.class.perform_in(30.minutes, [@claim&.id, @file_number])
         end
-
       rescue ::Common::Exceptions::BackendServiceException => e
         log_job_progress('dis_comp_evss',
                          @claim&.id,
@@ -50,7 +48,7 @@ module ClaimsApi
       rescue => e
         log_job_progress('dis_comp_evss',
                          @claim&.id,
-                         "Docker container job failed before completing for claimId #{@claim&.id}: #{e.detailed_message}")
+                         "Docker container job failed for claimId #{@claim&.id}: #{e.detailed_message}")
         set_errored_state(e, @claim.id)
         raise e
       end
