@@ -40,8 +40,9 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     test_submit_request 'vba_21_0972.json'
     test_submit_request 'vba_21_0845.json'
     test_submit_request 'vba_40_0247.json'
+    test_submit_request 'vba_21_0966.json'
 
-    def self.test_submit_request_with_intent_to_file(test_payload)
+    describe 'request with intent to file' do
       before do
         sign_in
         allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
@@ -56,7 +57,7 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
             VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_survivor') do
               VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
                 fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                               test_payload)
+                                               'vba_21_0966.json')
                 data = JSON.parse(fixture_path.read)
 
                 post '/simple_forms_api/v1/simple_forms', params: data
@@ -68,8 +69,6 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
         end
       end
     end
-
-    test_submit_request_with_intent_to_file 'vha_21_0966.json'
 
     def self.test_submit_supporting_documents
       let(:file) do
