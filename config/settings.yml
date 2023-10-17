@@ -1585,7 +1585,7 @@ form526_backup:
 benefits_intake_service:
   enabled: true
   api_key: ~
-  url: https://sandbox-api.va.gov/services/vba_documents/v1/
+  url: ~
   aws:
     bucket: ~
     region: ~
