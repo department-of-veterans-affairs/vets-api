@@ -3,7 +3,7 @@
 require 'common/client/configuration/rest'
 require 'common/client/middleware/logging'
 
-module MobileApplicationPlatform
+module MAP
   module SignUp
     class Configuration < Common::Client::Configuration::REST
       def base_path
@@ -15,7 +15,7 @@ module MobileApplicationPlatform
       end
 
       def service_name
-        'mobile_application_platform_sign_up_service'
+        'map_sign_up_service'
       end
 
       def status_unauthenticated_path(icn)
@@ -50,7 +50,7 @@ module MobileApplicationPlatform
       end
 
       def logging_prefix
-        '[MobileApplicationPlatform][SignUp][Service]'
+        '[MAP][SignUp][Service]'
       end
 
       def connection
