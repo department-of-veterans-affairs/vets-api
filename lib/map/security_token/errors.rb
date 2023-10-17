@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module MobileApplicationPlatform
+module MAP
   module SecurityToken
     module Errors
       class ApplicationMismatchError < StandardError; end
