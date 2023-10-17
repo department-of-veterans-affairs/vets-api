@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+# delete
+
 require 'rails_helper'
-require 'support/stub_financial_status_report'
+require_relative '../../../modules/debts_api/spec/support/stub_financial_status_report'
 require 'support/financial_status_report_helpers'
 
 RSpec.describe V0::FinancialStatusReportsController, type: :controller do
-  let(:service_class) { DebtManagementCenter::FinancialStatusReportService }
+  let(:service_class) { DebtsApi::V0::FinancialStatusReportService }
   let(:valid_form_data) { get_fixture('dmc/fsr_submission') }
   let(:user) { build(:user, :loa3) }
   let(:filenet_id) { '93631483-E9F9-44AA-BB55-3552376400D8' }

@@ -43,11 +43,11 @@ class Form5655Submission < ApplicationRecord
   end
 
   def submit_to_vba
-    Form5655::VBASubmissionJob.perform_async(id, user_cache_id)
+    DebtsApi::V0::Form5655::VBASubmissionJob.perform_async(id, user_cache_id)
   end
 
   def submit_to_vha
-    Form5655::VHASubmissionJob.perform_async(id, user_cache_id)
+    DebtsApi::V0::Form5655::VHASubmissionJob.perform_async(id, user_cache_id)
   end
 
   def register_failure(message)
