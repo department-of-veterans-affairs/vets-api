@@ -80,7 +80,17 @@ module Login
 
     def validate_csp_lock
       if user_verification.locked == true
-        csp_block_type = type == LOGINGOV_TYPE ? 'Login.gov' : 'ID.me'
+        csp_block_type = case type
+        when LOGINGOV_TYPE
+          'Login.gov'
+        when IDME_TYPE
+          'ID.me'
+        when DSLOGON_TYPE
+          'DS Logon'
+        when MHV_TYPE
+          'MyHealtheVet'
+        end
+
         raise Errors::CSPLockedError, "#{csp_block_type} credential has been locked"
       end
     end

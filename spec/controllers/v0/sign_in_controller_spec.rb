@@ -578,7 +578,11 @@ RSpec.describe V0::SignInController, type: :controller do
       end
 
       it 'logs the failed callback' do
-        expect(Rails.logger).to receive(:info).with(expected_error_log, expected_error_message) if sis_standard_error
+        if sis_standard_error
+          expect(Rails.logger).to receive(:info).with(expected_error_log, expected_error_message)
+        else
+          expect(Rails.logger).to receive(:error).with(expected_error)
+        end
         subject
       end
 
@@ -597,9 +601,7 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:expected_error_status) { :ok }
         let(:auth_param) { 'fail' }
         let(:expected_error_log) { '[SignInService] [V0::SignInController] callback error' }
-        let(:expected_error_message) do
-          { errors: expected_error, client_id:, type:, acr: }
-        end
+        let(:expected_error_message) { { errors: expected_error, client_id:, type:, acr: } }
         let(:request_id) { SecureRandom.uuid }
         let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 
@@ -632,7 +634,11 @@ RSpec.describe V0::SignInController, type: :controller do
         end
 
         it 'logs the failed callback' do
-          expect(Rails.logger).to receive(:info).with(expected_error_log, expected_error_message) if sis_standard_error
+          if sis_standard_error
+            expect(Rails.logger).to receive(:info).with(expected_error_log, expected_error_message)
+          else
+            expect(Rails.logger).to receive(:error).with(expected_error)
+          end
           subject
         end
 
@@ -1283,9 +1289,9 @@ RSpec.describe V0::SignInController, type: :controller do
                   end
                 end
 
-                context 'and the retrieved ID.me-backed UserVerification is locked' do
-                  let(:user_verification) { create(:dslogon_user_verification, backing_idme_uuid:, locked: true) }
-                  let(:expected_error) { 'ID.me credential has been locked' }
+                context 'and the retrieved DS Logon UserVerification is locked' do
+                  let(:user_verification) { create(:dslogon_user_verification, locked: true) }
+                  let(:expected_error) { 'DS Logon credential has been locked' }
                   let(:error_code) { '400' }
                   let(:sis_standard_error) { false }
 
@@ -1467,9 +1473,9 @@ RSpec.describe V0::SignInController, type: :controller do
                   end
                 end
 
-                context 'and the retrieved ID.me-backed UserVerification is locked' do
-                  let(:user_verification) { create(:mhv_user_verification, backing_idme_uuid:, locked: true) }
-                  let(:expected_error) { 'ID.me credential has been locked' }
+                context 'and the retrieved MHV UserVerification is locked' do
+                  let(:user_verification) { create(:mhv_user_verification, locked: true) }
+                  let(:expected_error) { 'MHV credential has been locked' }
                   let(:error_code) { '400' }
                   let(:sis_standard_error) { false }
 

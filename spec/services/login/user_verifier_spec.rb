@@ -119,7 +119,18 @@ RSpec.describe Login::UserVerifier do
           context 'and user verification locked attribute is true' do
             let(:locked) { true }
             let(:expected_error) { Login::Errors::CSPLockedError }
-            let(:csp_block_type) { login_value == SignIn::Constants::Auth::LOGINGOV ? 'Login.gov' : 'ID.me' }
+            let(:csp_block_type) do
+              case login_value
+              when SignIn::Constants::Auth::LOGINGOV
+                'Login.gov'
+              when SignIn::Constants::Auth::IDME
+                'ID.me'
+              when SignIn::Constants::Auth::DSLOGON
+                'DS Logon'
+              when SignIn::Constants::Auth::MHV
+                'MyHealtheVet'
+              end
+            end
             let(:expected_log) { "#{csp_block_type} credential has been locked" }
 
             it 'raises a CSP Locked error detailing the CSP that has been locked' do
