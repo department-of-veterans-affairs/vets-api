@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'mobile_application_platform/sign_up/configuration'
-require 'mobile_application_platform/security_token/service'
+require 'map/sign_up/configuration'
+require 'map/security_token/service'
 
-module MobileApplicationPlatform
+module MAP
   module SignUp
     class Service < Common::Client::Base
       configuration Configuration
