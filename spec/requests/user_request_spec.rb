@@ -48,6 +48,7 @@ RSpec.describe 'Fetching user data' do
           BackendServices::RX,
           BackendServices::MESSAGING,
           BackendServices::HEALTH_RECORDS,
+          BackendServices::ID_CARD,
           # BackendServices::MHV_AC, this will be false if mhv account is premium
           BackendServices::FORM_PREFILL,
           BackendServices::SAVE_IN_PROGRESS,
