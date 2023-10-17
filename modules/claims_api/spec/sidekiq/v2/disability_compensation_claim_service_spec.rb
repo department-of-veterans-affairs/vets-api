@@ -43,9 +43,10 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimService do
 
   describe '#set_errored_state' do
     error = OpenStruct.new(
-      title: 'Error', 
-      status_code: '500', 
-      original_body: 'Error message')
+      title: 'Error',
+      status_code: '500',
+      original_body: 'Error message'
+    )
 
     it 'updates claim status as ERRORED with error details' do
       service = described_class.new
@@ -58,9 +59,10 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimService do
 
   describe '#log_job_progress' do
     let(:detail) { 'PDF mapper succeeded' }
+
     it 'logs job progress' do
       service = described_class.new
-      expect(ClaimsApi::Logger).to receive(:log).with('compensation_job', claim_id: claim.id, detail: detail)
+      expect(ClaimsApi::Logger).to receive(:log).with('compensation_job', claim_id: claim.id, detail:)
 
       service.send(:log_job_progress, 'compensation_job', claim.id, detail)
     end

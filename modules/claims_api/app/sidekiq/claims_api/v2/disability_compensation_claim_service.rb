@@ -5,7 +5,6 @@ require 'claims_api/claim_logger'
 module ClaimsApi
   module V2
     class DisabilityCompensationClaimService
-
       protected
 
       def set_claim_as_established(claim_id)
@@ -28,9 +27,9 @@ module ClaimsApi
       end
 
       def log_job_progress(tag, claim_id, detail)
-        ClaimsApi::Logger.log(tag, 
-            claim_id: claim_id, 
-            detail: detail)
+        ClaimsApi::Logger.log(tag,
+                              claim_id:,
+                              detail:)
       end
     end
   end

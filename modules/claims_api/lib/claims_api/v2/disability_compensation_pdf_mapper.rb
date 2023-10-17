@@ -21,7 +21,6 @@ module ClaimsApi
       }.freeze
 
       def initialize(auto_claim, pdf_data, auth_headers, middle_initial)
-        byebug
         @auto_claim = auto_claim
         @pdf_data = pdf_data
         @auth_headers = auth_headers&.deep_symbolize_keys
@@ -30,7 +29,6 @@ module ClaimsApi
       end
 
       def map_claim
-        byebug
         claim_attributes
         toxic_exposure_attributes
         homeless_attributes
@@ -235,7 +233,6 @@ module ClaimsApi
       end
 
       def veteran_info # rubocop:disable Metrics/MethodLength
-        byebug
         @pdf_data[:data][:attributes].merge!(
           identificationInformation: @auto_claim&.dig('veteranIdentification')&.deep_symbolize_keys
         )
@@ -576,7 +573,9 @@ module ClaimsApi
       end
 
       def claim_date_and_signature
-        name = "#{@veteran_data[:authorizationResponse][:firstName]} #{@veteran_data[:authorizationResponse][:lastName]}"
+        first_name = @veteran_data[:authorizationResponse][:firstName]
+        last_name = @veteran_data[:authorizationResponse][:lastName]
+        name = "#{first_name} #{last_name}"
         claim_date = Date.parse(@auto_claim&.dig('claimDate').presence || Time.zone.today.to_s)
         claim_date_mdy = claim_date.strftime('%m-%d-%Y')
         @pdf_data[:data][:attributes].merge!(claimCertificationAndSignature: {
