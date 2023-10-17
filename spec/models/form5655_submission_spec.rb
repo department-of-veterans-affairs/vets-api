@@ -34,7 +34,7 @@ RSpec.describe Form5655Submission do
     let(:form5655_submission) { create(:form5655_submission) }
 
     it 'enqueues a VBA submission job' do
-      expect { form5655_submission.submit_to_vba }.to change(Form5655::VBASubmissionJob.jobs, :size).by(1)
+      expect { form5655_submission.submit_to_vba }.to change(DebtsApi::V0::Form5655::VBASubmissionJob.jobs, :size).by(1)
     end
   end
 
@@ -42,7 +42,7 @@ RSpec.describe Form5655Submission do
     let(:form5655_submission) { create(:form5655_submission) }
 
     it 'enqueues a VHA submission job' do
-      expect { form5655_submission.submit_to_vha }.to change(Form5655::VHASubmissionJob.jobs, :size).by(1)
+      expect { form5655_submission.submit_to_vha }.to change(DebtsApi::V0::Form5655::VHASubmissionJob.jobs, :size).by(1)
     end
   end
 
