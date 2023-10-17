@@ -11,6 +11,7 @@ module SimpleFormsApi
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
+        '21-0966' => 'vba_21_0966',
         '21-0972' => 'vba_21_0972',
         '21-0845' => 'vba_21_0845',
         '21-10210' => 'vba_21_10210',
