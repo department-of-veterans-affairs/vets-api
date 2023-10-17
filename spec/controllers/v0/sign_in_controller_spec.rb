@@ -1475,7 +1475,7 @@ RSpec.describe V0::SignInController, type: :controller do
 
                 context 'and the retrieved MHV UserVerification is locked' do
                   let(:user_verification) { create(:mhv_user_verification, locked: true) }
-                  let(:expected_error) { 'MHV credential has been locked' }
+                  let(:expected_error) { 'MyHealtheVet credential has been locked' }
                   let(:error_code) { '400' }
                   let(:sis_standard_error) { false }
 
