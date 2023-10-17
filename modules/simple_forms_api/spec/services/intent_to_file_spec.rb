@@ -47,7 +47,7 @@ describe SimpleFormsApi::IntentToFile do
           'COMPENSATION' => true
         },
         'preparer_identification' => 'VETERAN',
-        'preparer_id' => {
+        'veteran_id' => {
           'ssn' => ssn
         }
       }
