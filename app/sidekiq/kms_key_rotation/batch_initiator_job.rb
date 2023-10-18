@@ -23,7 +23,7 @@ module KmsKeyRotation
           break
         end
 
-        Rails.logger.info("Enqueuing #{model} records for key rotation")
+        Rails.logger.info("Enqueuing #{model} records for key rotation. #{records_enqueued} records enqueued so far.")
 
         offset = 0
 
