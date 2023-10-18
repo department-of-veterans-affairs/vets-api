@@ -29,10 +29,7 @@ module KmsKeyRotation
         loop do
           break if records_enqueued >= MAX_RECORDS_PER_BATCH
 
-          records =
-            model
-            .where.not('encrypted_kms_key LIKE ?', "v#{KmsEncryptedModelPatch.kms_version}:%")
-            .limit(MAX_RECORDS_PER_JOB).offset(offset)
+          records = records_for_model(model, offset)
 
           break if records.size < MAX_RECORDS_PER_JOB
 
@@ -50,6 +47,13 @@ module KmsKeyRotation
 
     def models
       @models ||= ApplicationRecord.descendants_using_encryption.map(&:name).map(&:constantize)
+    end
+
+    def records_for_model(model, offset)
+      model = MODELS_FOR_QUERY[model.name] if MODELS_FOR_QUERY.key?(model.name)
+      model
+        .where.not('encrypted_kms_key LIKE ?', "v#{KmsEncryptedModelPatch.kms_version}:%")
+        .limit(MAX_RECORDS_PER_JOB).offset(offset)
     end
   end
 end
