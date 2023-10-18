@@ -8,22 +8,29 @@ module ClaimsApi
       protected
 
       def get_pending_claim(claim_id)
-        ClaimsApi::V2::AutoEstablishedClaim.find(claim_id)
+        ClaimsApi::AutoEstablishedClaim.find(claim_id)
       end
 
       def set_claim_as_established(claim_id)
         claim = get_pending_claim(claim_id)
 
-        claim.status = ClaimsApi::V2::AutoEstablishedClaim::ESTABLISHED
+        claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
         claim.save!
       end
 
-      def set_errored_state(error, claim_id)
+      def set_errored_state(_error, claim_id)
+        claim = get_pending_claim(claim_id)
+
+        claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+        claim.save!
+      end
+
+      def set_evss_status(error, claim_id)
         claim = get_pending_claim(claim_id)
         error_status = get_error_status_code(error)
         error_message = get_error_message(error)
 
-        claim.status = ClaimsApi::V2::AutoEstablishedClaim::ERRORED
+        claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
         claim.evss_response = [{ 'key' => error_status, 'severity' => 'FATAL', 'text' => error_message }]
         claim.save!
       end
@@ -39,8 +46,10 @@ module ClaimsApi
       def get_error_message(error)
         if error.respond_to? :original_body
           error.original_body
-        else
+        elsif error.respond_to? :messagae
           error.message
+        elsif error.is_a?(String)
+          error
         end
       end
 

@@ -18,7 +18,7 @@ module ClaimsApi
                          'VBMS upload job started')
 
         claim_object = ClaimsApi::SupportingDocument.find_by(id: claim_id) ||
-                       ClaimsApi::V2::AutoEstablishedClaim.find_by(id: claim_id)
+                       ClaimsApi::AutoEstablishedClaim.find_by(id: claim_id)
 
         claim = claim_object.try(:auto_established_claim) || claim_object
 

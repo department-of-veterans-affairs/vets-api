@@ -43,7 +43,7 @@ module ClaimsApi
                                                             type: 'application/pdf',
                                                             tempfile: File.open(path)
                                                           })
-          # Sets fle_data on the claim, @claim.file_data
+          # Sets file_data on the claim, @claim.file_data
           # Example:
           # {"filename"=>"cd04fc6704292a0c9851d872c3583c9e.pdf", "doc_type"=>"L023", "description"=>nil}
           @claim.set_file_data!(upload, EVSS_DOCUMENT_TYPE)
@@ -58,22 +58,27 @@ module ClaimsApi
         end
 
         start_evss_job(file_number) if @claim.status != 'errored'
-      rescue ::Common::Exceptions::BackendServiceException => e
+      rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
         set_errored_state(e, @claim.id)
         log_job_progress('dis_comp_pdf_generator',
                          @claim.id,
                          "526EZ PDF generator errored #{e.status_code} #{e.original_body}")
 
-        reschedule_job(claim_id, middle_initial, file_number)
         raise e
+      rescue ::Common::Exceptions::BackendServiceException => e
+        set_errored_state(e, @claim.id)
+        log_job_progress('dis_comp_pdf_generator',
+                         @claim.id,
+                         "526EZ PDF generator errored #{e.status_code} #{e.original_body}, will not retry")
+
+        {} # bad data so it will not pass until we fix
       rescue => e
         set_errored_state(e, @claim.id)
         log_job_progress('dis_comp_pdf_generator',
                          claim_id,
-                         "526EZ PDF generator errored #{e}")
+                         "526EZ PDF generator errored #{e}, will not retry")
 
-        reschedule_job
-        raise e
+        {} # Permanent failures, don't retry
       end
 
       private

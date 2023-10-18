@@ -36,7 +36,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimService do
       service = described_class.new
 
       returned_claim = service.send(:get_pending_claim, claim.id) # Invoke the protected method using send
-      expect(claim).to be_instance_of(ClaimsApi::V2::AutoEstablishedClaim)
+      expect(claim).to be_instance_of(ClaimsApi::AutoEstablishedClaim)
       expect(returned_claim.id).to eq(claim.id)
     end
   end

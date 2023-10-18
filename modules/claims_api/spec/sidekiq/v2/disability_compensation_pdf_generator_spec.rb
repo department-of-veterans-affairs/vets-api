@@ -39,20 +39,66 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
     claim
   end
 
-  describe 'successful submission' do
+  describe '#perform' do
     let(:file_number) { '123456' }
     let(:middle_initial) { '' }
 
-    it 'submits successfully' do
-      expect do
-        subject.perform_async(claim.id, middle_initial, file_number)
-      end.to change(subject.jobs, :size).by(1)
+    describe 'handles a successful claim correctly' do
+      service = described_class.new
+
+      it 'submits successfully' do
+        expect do
+          subject.perform_async(claim.id, middle_initial, file_number)
+        end.to change(subject.jobs, :size).by(1)
+      end
+
+      it 'sets gets claim correctly' do
+        returned_claim = service.send(:get_pending_claim, claim.id)
+        expect(claim).to be_instance_of(ClaimsApi::AutoEstablishedClaim)
+        expect(returned_claim.id).to eq(claim.id)
+      end
+
+      # Not working yet
+      # it 'calls the next job when the claim.status is not errored' do
+      #   file_data = {'filename' => 'cd04fc6704292a0c9851d872c3583c9e.pdf', 'doc_type' => 'L023', 'description' => nil}
+      #   upload = double('upload')
+      #   allow(ActionDispatch::Http::UploadedFile).to receive(:new).and_return(upload)
+      #   allow(ClaimsApi::AutoEstablishedClaim).to receive(:find).with(claim.id).and_return(claim)
+      #   allow(service).to receive(:generate_526_pdf).and_return({ data: claim.form_data })
+      #   expect(claim).to receive(:set_file_data!).with(upload, 'L023').and_return(file_data)
+      #   expect(claim).to receive(:save!)
+
+      #   service.perform(claim.id, middle_initial, file_number)
+
+      #   claim.reload
+      #   expect(service).to receive(:start_evss_job).with(file_number) # it would be 'pending'
+      # end
+    end
+
+    describe 'handles an errored claim correctly' do
+      service = described_class.new
+
+      it 'sets claim state to errored when pdf_string is empty' do
+        allow(ClaimsApi::AutoEstablishedClaim).to receive(:find).with(claim.id).and_return(claim)
+        allow(service).to receive(:generate_526_pdf).and_return('')
+
+        service.perform(claim.id, middle_initial, file_number)
+
+        claim.reload
+        expect(claim.status).to eq('errored')
+      end
+
+      it 'does not call the next job when the claim.status is errored' do
+        allow(ClaimsApi::AutoEstablishedClaim).to receive(:find).with(claim.id).and_return(claim)
+        allow(service).to receive(:generate_526_pdf).and_return('')
+
+        service.perform(claim.id, middle_initial, file_number)
+
+        claim.reload
+        expect(service).not_to receive(:start_evss_job)
+      end
     end
   end
 
-  # get the claim correctly
-  # when pdf_string.empty? it sets state as errored
-  # if @claim.status == 'errored' it does not start next job
   # if @claim.status != 'errored' it does start next job
-  # if data is bad it does not set the job to retry
 end
