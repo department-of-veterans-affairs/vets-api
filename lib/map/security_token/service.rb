@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'mobile_application_platform/security_token/configuration'
-require 'mobile_application_platform/security_token/errors'
+require 'map/security_token/configuration'
+require 'map/security_token/errors'
 
-module MobileApplicationPlatform
+module MAP
   module SecurityToken
     class Service < Common::Client::Base
       configuration Configuration

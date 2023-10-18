@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mobile_application_platform/security_token/service'
+require 'map/security_token/service'
 
-describe MobileApplicationPlatform::SecurityToken::Service do
+describe MAP::SecurityToken::Service do
   describe '#token' do
     subject { described_class.new.token(application:, icn:) }
 
     let(:application) { :some_application }
     let(:icn) { 'some-icn' }
-    let(:log_prefix) { '[MobileApplicationPlatform][SecurityToken][Service]' }
+    let(:log_prefix) { '[MAP][SecurityToken][Service]' }
 
     shared_examples 'STS token request' do
       context 'when an issue occurs with the client request' do
@@ -53,18 +53,18 @@ describe MobileApplicationPlatform::SecurityToken::Service do
         let(:expected_log_message) { "#{log_prefix} token success, application: #{application}, icn: #{icn}" }
 
         it 'logs a token success message',
-           vcr: { cassette_name: 'mobile_application_platform/security_token_service_200_response' } do
+           vcr: { cassette_name: 'map/security_token_service_200_response' } do
           expect(Rails.logger).to receive(:info).with(expected_log_message)
           subject
         end
 
         it 'returns an access token field',
-           vcr: { cassette_name: 'mobile_application_platform/security_token_service_200_response' } do
+           vcr: { cassette_name: 'map/security_token_service_200_response' } do
           expect(subject[:access_token]).not_to be_nil
         end
 
         it 'returns an expiration field',
-           vcr: { cassette_name: 'mobile_application_platform/security_token_service_200_response' } do
+           vcr: { cassette_name: 'map/security_token_service_200_response' } do
           expect(subject[:expiration]).not_to be_nil
         end
       end
@@ -84,7 +84,7 @@ describe MobileApplicationPlatform::SecurityToken::Service do
 
     context 'when input application is arbitrary' do
       let(:application) { :some_application }
-      let(:expected_error) { MobileApplicationPlatform::SecurityToken::Errors::ApplicationMismatchError }
+      let(:expected_error) { MAP::SecurityToken::Errors::ApplicationMismatchError }
       let(:expected_error_message) { "#{log_prefix} application mismatch detected" }
 
       it 'raises an application mismatch error' do

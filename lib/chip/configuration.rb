@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'error_middleware'
+
 module Chip
   class Configuration < Common::Client::Configuration::REST
     ##
@@ -37,7 +39,7 @@ module Chip
         faraday.use :breakers
         faraday.request :json
 
-        faraday.response :raise_error, error_prefix: service_name
+        faraday.response :chip_error
         faraday.response :betamocks if settings.mock
 
         faraday.adapter Faraday.default_adapter

@@ -9,6 +9,12 @@ class DecisionReviewEvidenceAttachment < FormAttachment
 
   validate :validate_pdf
 
+  belongs_to :appeal_submission_upload,
+             primary_key: 'guid',
+             foreign_key: 'decision_review_evidence_attachment_guid',
+             inverse_of: :decision_review_evidence_attachment,
+             optional: true
+
   def validate_pdf
     validation_enabled = Settings.decision_review.pdf_validation.enabled
     validation_enabled ? decision_review_pdf_service.validate_pdf_with_lighthouse(get_file) : true

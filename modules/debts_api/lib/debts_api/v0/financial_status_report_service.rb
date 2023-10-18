@@ -71,13 +71,12 @@ module DebtsApi
 
     def submit_combined_fsr(form)
       Rails.logger.info('Submitting Combined FSR')
-
+      needs_vba = form['selectedDebtsAndCopays'].blank? || selected_vba_debts(form['selectedDebtsAndCopays']).present?
+      needs_vha = selected_vha_copays(form['selectedDebtsAndCopays']).present?
+      form['combined'] = true if needs_vba && needs_vha
       # Edge case for old flow (pre-combined) that didn't include this field
-      if form['selectedDebtsAndCopays'].blank? || selected_vba_debts(form['selectedDebtsAndCopays']).present?
-        create_vba_fsr(form)
-      end
-      create_vha_fsr(form) if selected_vha_copays(form['selectedDebtsAndCopays']).present?
-
+      create_vba_fsr(form) if needs_vba
+      create_vha_fsr(form) if needs_vha
       aggregate_fsr_reasons(form, form['selectedDebtsAndCopays'])
 
       {
@@ -181,10 +180,19 @@ module DebtsApi
     private
 
     def add_vha_specific_data(form_submission)
+      combined_adjustments(form_submission)
       form = form_submission.form
       form['transactionId'] = form_submission.id
       form['timestamp'] = form_submission.created_at.strftime('%Y%m%dT%H%M%S')
       streamline_adjustments(form)
+    end
+
+    def combined_adjustments(submission)
+      form = submission.form
+      if submission.public_metadata['combined']
+        comments = form['additionalData']['additionalComments']
+        form['additionalData']['additionalComments'] = "Combined FSR. #{comments}"
+      end
     end
 
     def streamline_adjustments(form)
@@ -205,6 +213,19 @@ module DebtsApi
       raise Common::Client::Errors::ClientError.new('malformed request', 400)
     end
 
+    def build_public_metadata(form)
+      {
+        'combined' => form['combined'],
+        'streamlined' => form['streamlined']
+      }
+    end
+
+    def sanitize_submission_form(form)
+      form.delete('selectedDebtsAndCopays')
+      form.delete('combined')
+      form
+    end
+
     def persist_form_submission(form, debts)
       metadata = {
         debts: selected_vba_debts(debts),
@@ -212,14 +233,15 @@ module DebtsApi
       }.to_json
       form_json = form.deep_dup
 
-      form_json.delete('selectedDebtsAndCopays')
+      public_metadata = build_public_metadata(form_json)
+      form_json = sanitize_submission_form(form_json)
 
       DebtsApi::V0::Form5655Submission.create(
         form_json: form_json.to_json,
         metadata:,
         user_uuid: @user.uuid,
         user_account: @user.user_account,
-        public_metadata: form_json.slice('streamlined'),
+        public_metadata:,
         state: 1
       )
     end

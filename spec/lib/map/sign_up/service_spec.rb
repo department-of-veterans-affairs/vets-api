@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mobile_application_platform/sign_up/service'
+require 'map/sign_up/service'
 
-describe MobileApplicationPlatform::SignUp::Service do
+describe MAP::SignUp::Service do
   let(:icn) { '10101V964144' }
   let(:signature_name) { 'some-signature-name' }
   let(:version) { 'v1' }
-  let(:log_prefix) { '[MobileApplicationPlatform][SignUp][Service]' }
+  let(:log_prefix) { '[MAP][SignUp][Service]' }
 
   shared_examples 'error response' do
     let(:context) do
@@ -25,7 +25,7 @@ describe MobileApplicationPlatform::SignUp::Service do
     let(:expected_error) { Common::Client::Errors::ClientError }
 
     it 'raises a client error with expected message' do
-      VCR.use_cassette('mobile_application_platform/security_token_service_200_response') do
+      VCR.use_cassette('map/security_token_service_200_response') do
         VCR.use_cassette(vcr_cassette) do
           expect { subject }.to raise_error(expected_error, expected_message)
         end
@@ -37,7 +37,7 @@ describe MobileApplicationPlatform::SignUp::Service do
     subject { described_class.new.status(icn:) }
 
     context 'when response is not successful with a 400 error' do
-      let(:vcr_cassette) { 'mobile_application_platform/sign_up_service_400_responses' }
+      let(:vcr_cassette) { 'map/sign_up_service_400_responses' }
       let(:action) { 'status' }
       let(:expected_error_id) { '381e5926-12f4-48f7-9ca5-2ed2f631daab' }
       let(:expected_error_code) { 14 }
@@ -60,13 +60,13 @@ describe MobileApplicationPlatform::SignUp::Service do
       end
 
       it 'logs a token success message',
-         vcr: { cassette_name: 'mobile_application_platform/sign_up_service_200_responses' } do
+         vcr: { cassette_name: 'map/sign_up_service_200_responses' } do
         expect(Rails.logger).to receive(:info).with(expected_log_message)
         subject
       end
 
       it 'returns response hash with expected fields',
-         vcr: { cassette_name: 'mobile_application_platform/sign_up_service_200_responses' } do
+         vcr: { cassette_name: 'map/sign_up_service_200_responses' } do
         expect(subject).to eq(expected_response_hash)
       end
     end
@@ -76,7 +76,7 @@ describe MobileApplicationPlatform::SignUp::Service do
     subject { described_class.new.agreements_accept(icn:, signature_name:, version:) }
 
     context 'when response is not successful with a 400 error' do
-      let(:vcr_cassette) { 'mobile_application_platform/sign_up_service_400_responses' }
+      let(:vcr_cassette) { 'map/sign_up_service_400_responses' }
       let(:action) { 'agreements accept' }
       let(:expected_error_id) { 'df5decee-8161-4c30-af74-7e030d2048e5' }
       let(:expected_error_code) { 11 }
@@ -88,7 +88,7 @@ describe MobileApplicationPlatform::SignUp::Service do
     end
 
     context 'when response is not successful with a 401 error' do
-      let(:vcr_cassette) { 'mobile_application_platform/sign_up_service_401_responses' }
+      let(:vcr_cassette) { 'map/sign_up_service_401_responses' }
       let(:action) { 'agreements accept' }
       let(:expected_error_id) { nil }
       let(:expected_error_code) { nil }
@@ -105,8 +105,8 @@ describe MobileApplicationPlatform::SignUp::Service do
       before { allow(Rails.logger).to receive(:info) }
 
       it 'logs an agreements accept success message' do
-        VCR.use_cassette('mobile_application_platform/security_token_service_200_response') do
-          VCR.use_cassette('mobile_application_platform/sign_up_service_200_responses') do
+        VCR.use_cassette('map/security_token_service_200_response') do
+          VCR.use_cassette('map/sign_up_service_200_responses') do
             expect(Rails.logger).to receive(:info).with(expected_log_message)
             subject
           end
@@ -119,7 +119,7 @@ describe MobileApplicationPlatform::SignUp::Service do
     subject { described_class.new.agreements_decline(icn:) }
 
     context 'when response is not successful with a 400 error' do
-      let(:vcr_cassette) { 'mobile_application_platform/sign_up_service_400_responses' }
+      let(:vcr_cassette) { 'map/sign_up_service_400_responses' }
       let(:action) { 'agreements decline' }
       let(:expected_error_id) { '892994ef-7e92-42fb-b0c2-98fa396eec4e' }
       let(:expected_error_code) { 15 }
@@ -131,7 +131,7 @@ describe MobileApplicationPlatform::SignUp::Service do
     end
 
     context 'when response is not successful with a 401 error' do
-      let(:vcr_cassette) { 'mobile_application_platform/sign_up_service_401_responses' }
+      let(:vcr_cassette) { 'map/sign_up_service_401_responses' }
       let(:action) { 'agreements decline' }
       let(:expected_error_id) { nil }
       let(:expected_error_code) { nil }
@@ -148,8 +148,8 @@ describe MobileApplicationPlatform::SignUp::Service do
       before { allow(Rails.logger).to receive(:info) }
 
       it 'logs an agreements decline success message' do
-        VCR.use_cassette('mobile_application_platform/security_token_service_200_response') do
-          VCR.use_cassette('mobile_application_platform/sign_up_service_200_responses') do
+        VCR.use_cassette('map/security_token_service_200_response') do
+          VCR.use_cassette('map/sign_up_service_200_responses') do
             expect(Rails.logger).to receive(:info).with(expected_log_message).once
             subject
           end
@@ -170,7 +170,7 @@ describe MobileApplicationPlatform::SignUp::Service do
     end
 
     context 'when response is not successful with a 400 error' do
-      let(:vcr_cassette) { 'mobile_application_platform/sign_up_service_400_responses' }
+      let(:vcr_cassette) { 'map/sign_up_service_400_responses' }
       let(:action) { 'update provisioning' }
       let(:expected_error_id) { nil }
       let(:expected_error_code) { nil }
@@ -193,13 +193,13 @@ describe MobileApplicationPlatform::SignUp::Service do
       end
 
       it 'logs a token success message',
-         vcr: { cassette_name: 'mobile_application_platform/sign_up_service_200_responses' } do
+         vcr: { cassette_name: 'map/sign_up_service_200_responses' } do
         expect(Rails.logger).to receive(:info).with(expected_log_message)
         subject
       end
 
       it 'returns response hash with expected fields',
-         vcr: { cassette_name: 'mobile_application_platform/sign_up_service_200_responses' } do
+         vcr: { cassette_name: 'map/sign_up_service_200_responses' } do
         expect(subject).to eq(expected_response_hash)
       end
     end
@@ -216,13 +216,13 @@ describe MobileApplicationPlatform::SignUp::Service do
       end
 
       it 'logs a token success message',
-         vcr: { cassette_name: 'mobile_application_platform/sign_up_service_406_responses' } do
+         vcr: { cassette_name: 'map/sign_up_service_406_responses' } do
         expect(Rails.logger).to receive(:info).with(expected_log_message)
         subject
       end
 
       it 'returns response hash with expected fields',
-         vcr: { cassette_name: 'mobile_application_platform/sign_up_service_406_responses' } do
+         vcr: { cassette_name: 'map/sign_up_service_406_responses' } do
         expect(subject).to eq(expected_response_hash)
       end
     end
@@ -239,13 +239,13 @@ describe MobileApplicationPlatform::SignUp::Service do
       end
 
       it 'logs a token success message',
-         vcr: { cassette_name: 'mobile_application_platform/sign_up_service_412_responses' } do
+         vcr: { cassette_name: 'map/sign_up_service_412_responses' } do
         expect(Rails.logger).to receive(:info).with(expected_log_message)
         subject
       end
 
       it 'returns response hash with expected fields',
-         vcr: { cassette_name: 'mobile_application_platform/sign_up_service_412_responses' } do
+         vcr: { cassette_name: 'map/sign_up_service_412_responses' } do
         expect(subject).to eq(expected_response_hash)
       end
     end

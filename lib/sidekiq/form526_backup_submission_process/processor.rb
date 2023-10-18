@@ -8,7 +8,6 @@ require 'evss/disability_compensation_form/form4142'
 require 'evss/disability_compensation_form/service'
 require 'evss/disability_compensation_form/non_breakered_service'
 require 'form526_backup_submission/service'
-require 'form526_backup_submission/utilities/convert_to_pdf'
 require 'decision_review_v1/utilities/form_4142_processor'
 require 'central_mail/datestamp_pdf'
 require 'pdf_fill/filler'
@@ -109,7 +108,7 @@ module Sidekiq
         params_docs = docs.map do |doc|
           doc_type = doc[:evssDocType] || doc[:metadata][:docType]
           {
-            file_path: lighthouse_service.get_file_path_from_objs(doc[:file]),
+            file_path: BenefitsIntakeService::Service.get_file_path_from_objs(doc[:file]),
             docType: DOCTYPE_MAPPING[doc_type] || doc_type,
             file_name: DOCTYPE_NAMES.include?(doc_type) ? "#{doc_type}.pdf" : "attachment#{i += 1}.pdf"
           }
@@ -122,10 +121,9 @@ module Sidekiq
       private
 
       def instantiate_upload_info_from_lighthouse
-        @initial_upload = get_upload_info
-        uuid_and_location = upload_location_to_location_and_uuid(initial_upload)
-        @initial_upload_uuid = uuid_and_location[:uuid]
-        @initial_upload_location = uuid_and_location[:location]
+        initial_upload = @lighthouse_service.get_location_and_uuid
+        @initial_upload_uuid = initial_upload[:uuid]
+        @initial_upload_location = initial_upload[:location]
         @initial_upload_fetched = true
       end
 
@@ -179,17 +177,6 @@ module Sidekiq
           uuid: upload_return.dig('data', 'id'),
           location: upload_return.dig('data', 'attributes', 'location')
         }
-      end
-
-      # Instantiates a new location and uuid via lighthouse
-      def get_upload_info
-        lighthouse_service.get_upload_location.body
-      end
-
-      # Combines instantiating a new location/uuid and returning the important bits
-      def get_upload_location_and_uuid
-        upload_info = get_upload_info
-        upload_location_to_location_and_uuid(upload_info)
       end
 
       def received_date
@@ -406,7 +393,7 @@ module Sidekiq
           { submission_id:, initial_upload_uuid: }
         )
 
-        klass = Form526BackupSubmission::Utilities::ConvertToPdf
+        klass = BenefitsIntakeService::Utilities::ConvertToPdf
         result = docs.each do |doc|
           convert_doc_to_pdf(doc, klass)
         end

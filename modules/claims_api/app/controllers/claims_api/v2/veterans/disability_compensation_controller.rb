@@ -26,7 +26,8 @@ module ClaimsApi
             form_data: form_attributes,
             flashes:,
             cid: token.payload['cid'],
-            veteran_icn: target_veteran.mpi.icn
+            veteran_icn: target_veteran.mpi.icn,
+            validation_method: ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
           )
 
           # .create returns the resulting object whether the object was saved successfully to the database or not.

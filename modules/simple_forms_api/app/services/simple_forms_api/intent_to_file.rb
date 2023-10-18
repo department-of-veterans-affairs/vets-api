@@ -14,12 +14,7 @@ module SimpleFormsApi
     def submit
       benefit_selections = []
       params['benefit_selection'].each { |benefit_type, is_selected| benefit_selections << benefit_type if is_selected }
-      ssn = if params['preparer_identification'] == 'VETERAN'
-              params.dig('preparer_id',
-                         'ssn')
-            else
-              params.dig('veteran_id', 'ssn')
-            end
+      ssn = params.dig('veteran_id', 'ssn')
       expiration_date = ''
       benefit_selections.each do |benefit_type|
         type = benefit_type.downcase
@@ -76,6 +71,7 @@ module SimpleFormsApi
         "Simple forms api - #{type} intent to file not found. Form number: #{params[:form_number]},
           error: #{e}, ICN #{icn}"
       )
+      nil
     end
   end
 end

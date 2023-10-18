@@ -3,7 +3,7 @@
 require 'common/client/configuration/rest'
 require 'common/client/middleware/logging'
 
-module MobileApplicationPlatform
+module MAP
   module SecurityToken
     class Configuration < Common::Client::Configuration::REST
       def base_path
@@ -27,7 +27,7 @@ module MobileApplicationPlatform
       end
 
       def service_name
-        'mobile_application_platform_security_token_service'
+        'map_security_token_service'
       end
 
       def token_path
@@ -59,7 +59,7 @@ module MobileApplicationPlatform
       end
 
       def logging_prefix
-        '[MobileApplicationPlatform][SecurityToken][Service]'
+        '[MAP][SecurityToken][Service]'
       end
 
       def client_assertion_private_key
