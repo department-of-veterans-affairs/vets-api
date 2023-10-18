@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module V1
+module V0
   class Form1010EzrsController < ApplicationController
     skip_before_action :authenticate, only: %i[create]
     before_action :load_user, only: %i[create]

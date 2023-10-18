@@ -372,6 +372,8 @@ Rails.application.routes.draw do
     get 'terms_of_use_agreements/:version/latest', to: 'terms_of_use_agreements#latest'
     post 'terms_of_use_agreements/:version/accept', to: 'terms_of_use_agreements#accept'
     post 'terms_of_use_agreements/:version/decline', to: 'terms_of_use_agreements#decline'
+
+    resources :form1010_ezrs, only: %i[create]
   end
 
   namespace :v1, defaults: { format: 'json' } do
@@ -419,7 +421,6 @@ Rails.application.routes.draw do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
     resources :supplemental_claims, only: %i[create show]
-    resources :form1010_ezrs, only: %i[create]
   end
 
   root 'v0/example#index', module: 'v0'

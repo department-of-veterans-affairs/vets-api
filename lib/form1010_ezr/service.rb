@@ -12,10 +12,10 @@ module Form1010Ezr
 
     FORM_ID = '10-10EZ'
 
-    # @param [Hash] user_identifier
-    def initialize(user_identifier)
+    # @param [Object] user
+    def initialize(user)
       super()
-      @user_identifier = user_identifier
+      @user = user
     end
 
     # @param [HashWithIndifferentAccess] form JSON form data
@@ -25,7 +25,7 @@ module Form1010Ezr
 
         validate_form(parsed_form)
 
-        formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user_identifier)
+        formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user)
         content = Gyoku.xml(formatted)
         submission = soap.build_request(:save_submit_form, message: content)
 
