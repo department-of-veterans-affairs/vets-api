@@ -13,30 +13,30 @@ module Form1010Ezr
     FORM_ID = '10-10EZ'
 
     # @param [Hash] user_identifier
-    def initialize(user_identifier = nil)
+    def initialize(user_identifier)
       super()
       @user_identifier = user_identifier
     end
 
     # @param [HashWithIndifferentAccess] form JSON form data
     def submit_form(form)
-      parsed_form = parsed_form(form)
+      begin
+        parsed_form = parsed_form(form)
 
-      validate_form(parsed_form)
+        validate_form(parsed_form)
 
-      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user_identifier)
-      content = Gyoku.xml(formatted)
-      submission = soap.build_request(:save_submit_form, message: content)
+        formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user_identifier)
+        content = Gyoku.xml(formatted)
+        submission = soap.build_request(:save_submit_form, message: content)
 
-      response =
-        with_monitoring do
-          perform(:post, '', submission.body)
-        rescue => e
-          Rails.logger.error "Form1010EzrSubmission failed: #{e}"
-          raise e
-        end
+        response = perform(:post, '', submission.body)
+      rescue => e
+        Rails.logger.error "10-10EZR form submission failed: #{e}"
+        raise e
+      end
 
       root = response.body.locate('S:Envelope/S:Body/submitFormResponse').first
+
       {
         success: true,
         formSubmissionId: root.locate('formSubmissionId').first.text.to_i,
@@ -51,7 +51,7 @@ module Form1010Ezr
       validation_errors = JSON::Validator.fully_validate(schema, parsed_form)
 
       if validation_errors.any?
-        failed_form_message = '1010EZR form validation failed. Form does not match schema.'
+        failed_form_message = '10-10EZR form validation failed. Form does not match schema.'
 
         Rails.logger.error(failed_form_message)
         raise StandardError, failed_form_message

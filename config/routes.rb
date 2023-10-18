@@ -419,6 +419,7 @@ Rails.application.routes.draw do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
     resources :supplemental_claims, only: %i[create show]
+    resources :form1010_ezrs, only: %i[create]
   end
 
   root 'v0/example#index', module: 'v0'
