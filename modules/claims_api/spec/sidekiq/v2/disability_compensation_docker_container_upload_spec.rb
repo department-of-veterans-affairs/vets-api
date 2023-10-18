@@ -41,7 +41,6 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
 
   describe '#perform' do
     let(:file_number) { '123456' }
-    let(:evss_id) { '999999999' }
 
     context 'successful submission' do
       service = described_class.new
