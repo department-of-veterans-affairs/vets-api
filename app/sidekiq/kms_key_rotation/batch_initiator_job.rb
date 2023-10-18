@@ -40,6 +40,8 @@ module KmsKeyRotation
           records_enqueued += records.size
         end
       end
+    rescue => e
+      Rails.logger.error("An error occurred during processing: #{e.message}")
     end
 
     private
