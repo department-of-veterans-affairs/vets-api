@@ -24,18 +24,21 @@ module KmsKeyRotation
 
         Rails.logger.info("Enqueuing #{model} records for key rotation")
 
-        records =
-          model
-            .where.not('encrypted_kms_key LIKE ?', "v#{KmsEncryptedModelPatch.kms_version}:%")
-            .limit(records_limit)
+        offset = 0
 
-        batched_gids = records.map(&:to_global_id).each_slice(MAX_RECORDS_PER_JOB).to_a
+        until records.size < MAX_RECORDS_PER_JOB
+          offset += MAX_RECORDS_PER_JOB
 
-        batched_gids.each do |gids|
-          KmsKeyRotation::RotateKeysJob.perform_async(gids)
+          records =
+            model
+              .where.not('encrypted_kms_key LIKE ?', "v#{KmsEncryptedModelPatch.kms_version}:%")
+              .limit(MAX_RECORDS_PER_JOB).offset(offset)
+
+
+          KmsKeyRotation::RotateKeysJob.perform_async(records.map(&:to_global_id).to_a)
+
+          records_enqueued += records.size
         end
-
-        records_enqueued += records.size
       end
     end
 
