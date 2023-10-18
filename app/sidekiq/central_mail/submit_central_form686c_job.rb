@@ -81,9 +81,21 @@ module CentralMail
       attachment_paths.each { |p| File.delete(p) }
     end
 
+    # rubocop:disable Metrics/MethodLength #Temporary disable until flipper removed
     def check_success(response, saved_claim_id, user_struct)
-      if response.success?
-        # if a success, update the associated central mail submission record to success and send confirmation
+      if Flipper.enabled?(:dependents_central_submission_lighthouse)
+        if response.success?
+          Rails.logger.info('CentralMail::SubmitCentralForm686cJob succeeded!',
+                            { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'],
+                              benefits_intake_guid: response['data']['id'] })
+          update_submission('success')
+          send_confirmation_email(OpenStruct.new(user_struct))
+        else
+          Rails.logger.info('CentralMail::SubmitCentralForm686cJob Unsuccessful',
+                            { response: response.message, errors: response.errors })
+          raise CentralMailResponseError
+        end
+      elsif response.success?
         Rails.logger.info('CentralMail::SubmitCentralForm686cJob succeeded!',
                           { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'],
                             centralmail_uuid: extract_uuid_from_central_mail_message(response) })
@@ -95,6 +107,8 @@ module CentralMail
         raise CentralMailResponseError
       end
     end
+
+    # rubocop:enable Metrics/MethodLength
 
     def create_request_body
       body = {
