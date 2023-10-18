@@ -26,18 +26,20 @@ module KmsKeyRotation
 
         offset = 0
 
-        until records.size < MAX_RECORDS_PER_JOB
-          offset += MAX_RECORDS_PER_JOB
+        loop do
+          break if records_enqueued >= MAX_RECORDS_PER_BATCH
 
           records =
             model
-              .where.not('encrypted_kms_key LIKE ?', "v#{KmsEncryptedModelPatch.kms_version}:%")
-              .limit(MAX_RECORDS_PER_JOB).offset(offset)
+            .where.not('encrypted_kms_key LIKE ?', "v#{KmsEncryptedModelPatch.kms_version}:%")
+            .limit(MAX_RECORDS_PER_JOB).offset(offset)
 
+          break if records.size < MAX_RECORDS_PER_JOB
 
           KmsKeyRotation::RotateKeysJob.perform_async(records.map(&:to_global_id).to_a)
 
           records_enqueued += records.size
+          offset += MAX_RECORDS_PER_JOB
         end
       end
     rescue => e
