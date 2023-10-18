@@ -148,12 +148,12 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, uploader_helpers: true do
           text_only: true
         ).and_return(path)
 
-        body = 'Request was received successfully  [uuid: 0e95811d-55a9-4fb9-bc39-045e27b2c106]'
+        data = JSON.parse('{"id":"6d8433c1-cd55-4c24-affd-f592287a7572","type":"document_upload"}')
         expect(lighthouse_mock).to receive(:upload_form).with(
           main_document: { file: path, file_name: 'pdf_path' },
           attachments: [],
           form_metadata: hash_including(fileNumber: '796104437')
-        ).and_return(OpenStruct.new(success?: success, body:))
+        ).and_return(OpenStruct.new(success?: success, data:))
 
         expect(File).to receive(:delete).with(path)
       end
