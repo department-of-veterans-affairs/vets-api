@@ -31,12 +31,12 @@ module KmsKeyRotation
 
           records = records_for_model(model, offset)
 
-          break if records.size < MAX_RECORDS_PER_JOB
-
           KmsKeyRotation::RotateKeysJob.perform_async(records.map(&:to_global_id).to_a)
 
           records_enqueued += records.size
           offset += MAX_RECORDS_PER_JOB
+
+          break if records.size < MAX_RECORDS_PER_JOB
         end
       end
     rescue => e
