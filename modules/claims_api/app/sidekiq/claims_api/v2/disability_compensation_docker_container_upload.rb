@@ -41,15 +41,15 @@ module ClaimsApi
         end
       rescue ::Common::Exceptions::BackendServiceException => e
         log_job_progress('dis_comp_evss',
-                         @claim&.id,
-                         "Docker container submit failed for claimId #{@claim&.id}: #{e.original_body}")
-        set_errored_state(e, @claim.id)
+                         claim_id,
+                         "Docker container submit failed for claimId #{claim_id}: #{e.original_body}")
+        set_errored_state(e, claim_id)
         raise e
       rescue => e
         log_job_progress('dis_comp_evss',
-                         @claim&.id,
-                         "Docker container job failed for claimId #{@claim&.id}: #{e.detailed_message}")
-        set_errored_state(e, @claim.id)
+                         claim_id,
+                         "Docker container job failed for claimId #{claim_id}: #{e.detailed_message}")
+        set_errored_state(e, claim_id)
         raise e
       end
 

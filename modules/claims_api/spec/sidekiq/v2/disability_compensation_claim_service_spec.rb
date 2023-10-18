@@ -31,11 +31,21 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimService do
     claim
   end
 
+  describe '#get_pending_claim' do
+    it 'returns claim' do
+      service = described_class.new
+
+      returned_claim = service.send(:get_pending_claim, claim.id) # Invoke the protected method using send
+      expect(claim).to be_instance_of(ClaimsApi::V2::AutoEstablishedClaim)
+      expect(returned_claim.id).to eq(claim.id)
+    end
+  end
+
   describe '#set_claim_as_established' do
     it 'updates claim status as ESTABLISHED' do
       service = described_class.new
 
-      service.send(:set_claim_as_established, claim.id) # Invoke the protected method using send
+      service.send(:set_claim_as_established, claim.id)
       claim.reload
       expect(claim.status).to eq('established')
     end

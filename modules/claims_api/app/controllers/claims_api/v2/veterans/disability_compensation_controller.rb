@@ -19,7 +19,7 @@ module ClaimsApi
 
         before_action :shared_validation, :file_number_check, only: %i[submit validate]
 
-        def submit
+        def submit # rubocop:disable Metrics/MethodLength
           auto_claim = ClaimsApi::V2::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:,
@@ -42,6 +42,13 @@ module ClaimsApi
           end
 
           track_pact_counter auto_claim
+
+          # Test fix
+          auth_headers = auto_claim.auth_headers
+          auth_headers['va_eauth_birlsfilenumber'] = auth_headers['va_eauth_pnid']
+          auto_claim.auth_headers = auth_headers
+          auto_claim.save!
+          # End test fix
 
           # This kicks off the first of three jobs required to fully establish the claim
           process_claim(auto_claim)

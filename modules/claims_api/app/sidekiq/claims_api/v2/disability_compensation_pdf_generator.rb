@@ -69,7 +69,7 @@ module ClaimsApi
       rescue => e
         set_errored_state(e, @claim.id)
         log_job_progress('dis_comp_pdf_generator',
-                         @claim.id,
+                         claim_id,
                          "526EZ PDF generator errored #{e}")
 
         reschedule_job

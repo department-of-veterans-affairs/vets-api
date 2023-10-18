@@ -49,4 +49,9 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
       end.to change(subject.jobs, :size).by(1)
     end
   end
+
+  # get the claim correctly
+  # when pdf_string.empty? it sets state as errored
+  # if @claim.status == 'errored' it does not start next job
+  # if @claim.status != 'errored' it does start next job
 end
