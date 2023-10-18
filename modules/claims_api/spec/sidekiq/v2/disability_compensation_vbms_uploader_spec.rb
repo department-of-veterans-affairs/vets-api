@@ -74,23 +74,8 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationVBMSUploader, type: :job do
         subject.perform_async(claim.id, file_number)
       end.to change(subject.jobs, :size).by(1)
     end
-
-    # it 'submits successfully' do
-    #   expect_any_instance_of(ClaimsApi::BD).to receive(:upload).and_return true
-
-    #   subject.new.perform(claim.id)
-    #   supporting_document.reload
-    #   expect(claim.uploader.blank?).to eq(false)
-    # end
   end
 
-  # it 'if an evss_id is nil, it reschedules the sidekiq job to the future' do
-  #   bd_service_stub = instance_double('ClaimsApi::BD')
-  #   allow(ClaimsApi::BD).to receive(:new) { bd_service_stub }
-  #   allow(bd_service_stub).to receive(:upload) { OpenStruct.new(response: 200) }
-
-  #   subject.new.perform(supporting_document_failed_submission.id)
-  #   supporting_document_failed_submission.reload
-  #   expect(supporting_document.uploader.blank?).to eq(false)
-  # end
+  # gets the claim as expected
+  # sets claim as established if it is not errored
 end
