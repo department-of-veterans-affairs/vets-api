@@ -83,7 +83,7 @@ module CentralMail
 
     # rubocop:disable Metrics/MethodLength #Temporary disable until flipper removed
     def check_success(response, saved_claim_id, user_struct)
-      Rails.logger.info('CentralMail::SubmitCentralForm686cJob temporary log',{ response: })
+      Rails.logger.info('CentralMail::SubmitCentralForm686cJob temporary log', { response: })
       if Flipper.enabled?(:dependents_central_submission_lighthouse)
         if response.success?
           Rails.logger.info('CentralMail::SubmitCentralForm686cJob succeeded!',
