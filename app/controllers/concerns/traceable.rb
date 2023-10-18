@@ -11,7 +11,7 @@
 #   end
 module Traceable
   extend ActiveSupport::Concern
-  
+
   included do
     before_action :set_trace_tags
   end
@@ -36,7 +36,7 @@ module Traceable
     service = self.class.trace_service_tag
 
     return Rails.logger.warn('Service tag missing', class: self.class.name) if service.blank?
-    
+
     Datadog::Tracing.active_span&.service = service
   rescue => e
     Rails.logger.error('Error setting service tag', class: self.class.name, message: e.message)

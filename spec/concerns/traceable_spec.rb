@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe Traceable, type: :controller do
   describe 'service_tag' do
-    let(:mock_span) { double("Span") }
-    
+    let(:mock_span) { double('Span') }
+
     let(:controller_class) do
       Class.new(ApplicationController) do
         skip_before_action :authenticate
@@ -16,7 +16,7 @@ RSpec.describe Traceable, type: :controller do
         end
       end
     end
-    
+
     before do
       allow(Datadog::Tracing).to receive(:active_span).and_return(mock_span)
     end
@@ -28,7 +28,7 @@ RSpec.describe Traceable, type: :controller do
     shared_context 'stub controller' do
       before do
         stub_const('TestTraceableController', controller_class)
-        
+
         Rails.application.routes.draw do
           get 'test_traceable', to: 'test_traceable#index'
         end
@@ -39,7 +39,7 @@ RSpec.describe Traceable, type: :controller do
 
     context 'with a service_tag' do
       include_context 'stub controller'
-      
+
       it 'calls set_tags on the Datadog adapter via a before_action when and endpoint is hit' do
         expect(Datadog::Tracing.active_span).to receive(:service=).with(:secure_messaging)
         get :index
@@ -50,7 +50,7 @@ RSpec.describe Traceable, type: :controller do
     context 'when an error occurs while setting trace tags' do
       include_context 'stub controller'
 
-      before { allow(mock_span).to receive(:service=).and_raise(StandardError, "Mock Error") }
+      before { allow(mock_span).to receive(:service=).and_raise(StandardError, 'Mock Error') }
 
       it 'logs "Error setting trace tags" and does not interrupt the response' do
         expect(Rails.logger).to receive(:error).with('Error setting service tag',
