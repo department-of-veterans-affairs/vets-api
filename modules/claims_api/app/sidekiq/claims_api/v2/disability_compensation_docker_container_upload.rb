@@ -34,11 +34,13 @@ module ClaimsApi
 
           @claim.update(evss_id: evss_res[:claimId])
 
-          start_vbms_job if @claim.status != 'errored' && !@claim.evss_id.nil?
         # We have an EVSS id but an error, which happened after setting EVSS ID
         elsif @claim.status == 'errored'
           self.class.perform_in(30.minutes, [@claim&.id, @file_number])
         end
+
+        start_vbms_job if @claim.status != 'errored' && !@claim.evss_id.nil?
+
       rescue ::Common::Exceptions::BackendServiceException => e
         log_job_progress('dis_comp_evss',
                          claim_id,

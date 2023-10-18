@@ -54,4 +54,5 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
   # when pdf_string.empty? it sets state as errored
   # if @claim.status == 'errored' it does not start next job
   # if @claim.status != 'errored' it does start next job
+  # if data is bad it does not set the job to retry
 end

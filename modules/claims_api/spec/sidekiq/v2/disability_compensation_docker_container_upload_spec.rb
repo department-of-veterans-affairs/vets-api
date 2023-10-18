@@ -48,4 +48,10 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
       end.to change(subject.jobs, :size).by(1)
     end
   end
+
+  # get the claim correctly
+  # if claim.status == 'errored' it restarts the job
+  # if evss_id.nil? then is runs the process
+  # evss_res == sampel_res and then it updates the evss_id for claim
+  # if data is bad it does not set the job to retry
 end
