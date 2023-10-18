@@ -71,7 +71,7 @@ module ClaimsApi
 
         # If the date parse fails, then fall back to the InvalidFieldValue
         begin
-          return if Date.strptime(date, '%m-%d-%Y') < Time.zone.now
+          return if Date.strptime(date, '%Y-%m-%d') < Time.zone.now
         rescue
           raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.beginDate', date)
         end
@@ -89,7 +89,7 @@ module ClaimsApi
         raise_exception_if_value_not_present('end date', form_object_desc) if date.blank?
 
         return if Date.strptime(date,
-                                '%m-%d-%Y') > Date.strptime(change_of_address.dig('dates', 'beginDate'), '%m-%d-%Y')
+                                '%Y-%m-%d') > Date.strptime(change_of_address.dig('dates', 'beginDate'), '%Y-%m-%d')
 
         raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.endDate', date)
       end
