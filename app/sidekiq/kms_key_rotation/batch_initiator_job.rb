@@ -6,37 +6,39 @@ module KmsKeyRotation
 
     sidekiq_options retry: false, queue: :low
 
-    RECORDS_PER_BATCH = 1_000_000
-    RECORDS_PER_JOB = 100
+    MAX_RECORDS_PER_BATCH = 1_000_000
+    MAX_RECORDS_PER_JOB = 100
 
     MODELS_FOR_QUERY = {
       'ClaimsApi::V2::AutoEstablishedClaim' => ClaimsApi::AutoEstablishedClaim
     }.freeze
 
     def perform
-      return nil if records.empty?
+      records_enqueued = 0
 
-      batched_gids.each do |gids|
-        KmsKeyRotation::RotateKeysJob.perform_async(gids)
-      end
-    end
+      models.each do |model|
+        if records_enqueued >= MAX_RECORDS_PER_BATCH
+          Rails.logger.info("Maximum enqueued #{records_enqueued} records for key rotation reached. Stopping.")
+          break
+        end
 
-    def records
-      @records ||= begin
-        version = KmsEncryptedModelPatch.kms_version
+        Rails.logger.info("Enqueuing #{model} records for key rotation")
 
-        models.each_with_object([]) do |model, records|
-          needed = RECORDS_PER_BATCH - records.size
+        offset = 0
 
-          break records if needed.zero?
+        loop do
+          records = records_for_model(model, offset)
 
-          model = MODELS_FOR_QUERY[model.name] if MODELS_FOR_QUERY.key?(model.name)
+          KmsKeyRotation::RotateKeysJob.perform_async(records.map(&:to_global_id).to_a)
 
-          records.concat(
-            model.where.not('encrypted_kms_key LIKE ?', "v#{version}:%").limit(needed)
-          )
+          records_enqueued += records.size
+          offset += MAX_RECORDS_PER_JOB
+
+          break if records_enqueued >= MAX_RECORDS_PER_BATCH || records.size < MAX_RECORDS_PER_JOB
         end
       end
+    rescue => e
+      Rails.logger.error("An error occurred during processing: #{e.message}")
     end
 
     private
@@ -45,8 +47,11 @@ module KmsKeyRotation
       @models ||= ApplicationRecord.descendants_using_encryption.map(&:name).map(&:constantize)
     end
 
-    def batched_gids
-      records.map(&:to_global_id).each_slice(RECORDS_PER_JOB).to_a
+    def records_for_model(model, offset)
+      model = MODELS_FOR_QUERY[model.name] if MODELS_FOR_QUERY.key?(model.name)
+      model
+        .where.not('encrypted_kms_key LIKE ?', "v#{KmsEncryptedModelPatch.kms_version}:%")
+        .limit(MAX_RECORDS_PER_JOB).offset(offset)
     end
   end
 end
