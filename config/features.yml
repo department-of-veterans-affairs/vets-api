@@ -851,6 +851,9 @@ features:
     actor_type: user
     description: Enhances form prefilling to include international address.
     enable_in_development: true
+  show_meb_service_history_categorize_disagreement:
+    actor_type: user
+    enable_in_development: false
   show_forms_app:
     actor_type: user
     description: Enables the TOE form to be displayed.
