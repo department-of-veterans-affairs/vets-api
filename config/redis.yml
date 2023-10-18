@@ -169,6 +169,9 @@ development: &defaults
   sign_in_state_code:
     namespace: sign_in_state_code
     each_ttl: 1800
+  sign_in_terms_code_container:
+    namespace: sign_in_terms_code_container
+    each_ttl: 1800
   mock_credential_info:
     namespace: mock_credential_info
     each_ttl: 300

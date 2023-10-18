@@ -33,7 +33,7 @@ RSpec.describe SignIn::UserCreator do
     end
     let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
     let(:client_id) { client_config.client_id }
-    let(:client_config) { create(:client_config) }
+    let(:client_config) { create(:client_config, enforced_terms:) }
     let(:code_challenge) { 'some-code-challenge' }
     let(:type) { service_name }
     let(:current_ial) { SignIn::Constants::Auth::IAL_TWO }
@@ -55,6 +55,7 @@ RSpec.describe SignIn::UserCreator do
     let(:request_ip) { '123.456.78.90' }
     let(:first_name) { Faker::Name.first_name }
     let(:last_name) { Faker::Name.last_name }
+    let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
     let(:expected_user_attributes) { { first_name:, last_name:, email: csp_email } }
 
     before do
@@ -98,6 +99,36 @@ RSpec.describe SignIn::UserCreator do
       expect(user_code_map.type).to eq(type)
       expect(user_code_map.client_state).to eq(client_state)
       expect(user_code_map.client_config).to eq(client_config)
+    end
+
+    context 'if client config enforced terms is set to va terms' do
+      let(:enforced_terms) { SignIn::Constants::Auth::VA_TERMS }
+
+      context 'and user needs accepted terms of use' do
+        it 'sets terms_code on returned user code map' do
+          expect(subject.terms_code).not_to eq(nil)
+        end
+
+        it 'creates a terms code container associated with terms code' do
+          expect(SignIn::TermsCodeContainer.find(subject.terms_code)).not_to eq(nil)
+        end
+      end
+
+      context 'and user does not need accepted terms of use' do
+        let!(:accepted_terms_of_use) { create(:terms_of_use_agreement, user_account: user_verification.user_account) }
+
+        it 'does not set terms_code on returned user code map' do
+          expect(subject.terms_code).to eq(nil)
+        end
+      end
+    end
+
+    context 'if client config enforced terms is set to nil' do
+      let(:enforced_terms) { nil }
+
+      it 'does not set terms_code on returned user code map' do
+        expect(subject.terms_code).to eq(nil)
+      end
     end
 
     it 'creates a code container mapped to expected login code' do

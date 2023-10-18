@@ -1,19 +1,17 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/helpers/mobile_sm_client_helper'
 
 RSpec.describe 'Mobile Triage Teams Integration', type: :request do
   include Mobile::MessagingClientHelper
   include SchemaMatchers
 
-  let(:va_patient) { true }
+  let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type:) }
 
   before do
-    allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return(mhv_account_type)
     allow(Mobile::V0::Messaging::Client).to receive(:new).and_return(authenticated_client)
-    iam_sign_in(build(:iam_user, iam_mhv_id: '123'))
   end
 
   context 'Premium User' do
@@ -21,7 +19,7 @@ RSpec.describe 'Mobile Triage Teams Integration', type: :request do
 
     it 'responds to GET #index' do
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
-        get '/mobile/v0/messaging/health/recipients', headers: iam_headers
+        get '/mobile/v0/messaging/health/recipients', headers: sis_headers
       end
 
       expect(response).to be_successful
@@ -30,7 +28,6 @@ RSpec.describe 'Mobile Triage Teams Integration', type: :request do
     end
 
     context 'when there are cached triage teams' do
-      let(:user) { FactoryBot.build(:iam_user) }
       let(:params) { { useCache: true } }
 
       before do
@@ -41,7 +38,7 @@ RSpec.describe 'Mobile Triage Teams Integration', type: :request do
 
       it 'retrieve cached triage teams rather than hitting the service' do
         expect do
-          get('/mobile/v0/messaging/health/recipients', headers: iam_headers, params:)
+          get('/mobile/v0/messaging/health/recipients', headers: sis_headers, params:)
           expect(response).to be_successful
           expect(response.body).to be_a(String)
           parsed_response_contents = response.parsed_body['data']
@@ -58,7 +55,7 @@ RSpec.describe 'Mobile Triage Teams Integration', type: :request do
     let(:mhv_account_type) { 'Advanced' }
 
     it 'is not authorized' do
-      get '/mobile/v0/messaging/health/recipients', headers: iam_headers
+      get '/mobile/v0/messaging/health/recipients', headers: sis_headers
       expect(response).not_to be_successful
       expect(response.status).to eq(403)
     end
@@ -68,7 +65,7 @@ RSpec.describe 'Mobile Triage Teams Integration', type: :request do
     let(:mhv_account_type) { 'Basic' }
 
     it 'is not authorized' do
-      get '/mobile/v0/messaging/health/recipients', headers: iam_headers
+      get '/mobile/v0/messaging/health/recipients', headers: sis_headers
       expect(response).not_to be_successful
       expect(response.status).to eq(403)
     end

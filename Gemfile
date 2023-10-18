@@ -23,7 +23,6 @@ path 'modules' do
   gem 'mobile'
   gem 'mocked_authentication'
   gem 'my_health'
-  gem 'openid_auth'
   gem 'simple_forms_api'
   gem 'test_user_dashboard'
   gem 'va_forms'
@@ -168,6 +167,7 @@ group :test do
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'
   gem 'rspec-retry'
+  gem 'rspec-sidekiq'
   gem 'rubocop-junit-formatter'
   gem 'rufus-scheduler'
   gem 'simplecov', require: false

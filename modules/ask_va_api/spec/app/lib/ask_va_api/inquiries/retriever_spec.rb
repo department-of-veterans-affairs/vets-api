@@ -7,7 +7,7 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
 
   let(:sec_id) { '123' }
   let(:service) { instance_double(Dynamics::Service) }
-  let(:reply_creator) { instance_double(AskVAApi::Replies::ReplyCreator) }
+  let(:correspondences) { instance_double(AskVAApi::Correspondences::Retriever) }
   let(:entity) { instance_double(AskVAApi::Inquiries::Entity) }
   let(:inquiry_number) { 'A-1' }
   let(:error_message) { 'Some error occurred' }
@@ -15,8 +15,8 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
 
   before do
     allow(Dynamics::Service).to receive(:new).and_return(service)
-    allow(AskVAApi::Replies::ReplyCreator).to receive(:new).and_return(reply_creator)
-    allow(reply_creator).to receive(:call).and_return(entity)
+    allow(AskVAApi::Correspondences::Retriever).to receive(:new).and_return(correspondences)
+    allow(correspondences).to receive(:call).and_return(entity)
     allow(AskVAApi::Inquiries::Entity).to receive(:new).and_return(entity)
     allow(service).to receive(:call)
   end
@@ -25,9 +25,9 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
     context 'when inquiry_number is blank' do
       let(:inquiry_number) { nil }
 
-      it 'raises an ArgumentError' do
+      it 'raises an ErrorHandler::ServiceError' do
         expect { retriever.fetch_by_inquiry_number(inquiry_number:) }
-          .to raise_error(ArgumentError, 'Invalid Inquiry Number')
+          .to raise_error(ErrorHandler::ServiceError, 'ArgumentError: Invalid Inquiry Number')
       end
     end
 
@@ -46,7 +46,7 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
       it 'raises a FetchInquiriesError' do
         expect do
           retriever.fetch_by_inquiry_number(inquiry_number: 'A-1')
-        end.to raise_error(ErrorHandler::ServiceError, "Bad Request Error: #{error_message}")
+        end.to raise_error(ErrorHandler::ServiceError, "Dynamics::ErrorHandler::BadRequestError: #{error_message}")
       end
     end
 
@@ -62,9 +62,9 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
     context 'when sec_id is blank' do
       let(:sec_id) { nil }
 
-      it 'raises an ArgumentError' do
+      it 'raises an ErrorHandler::ServiceError' do
         expect { retriever.fetch_by_sec_id }
-          .to raise_error(ArgumentError, 'Invalid SEC_ID')
+          .to raise_error(ErrorHandler::ServiceError, 'ArgumentError: Invalid SEC_ID')
       end
     end
 

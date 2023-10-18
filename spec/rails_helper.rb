@@ -179,7 +179,7 @@ RSpec.configure do |config|
     stub_emis unless example.metadata[:skip_emis]
     stub_vet360 unless example.metadata[:skip_vet360]
 
-    Sidekiq::Worker.clear_all
+    Sidekiq::Job.clear_all
   end
 
   # clean up carrierwave uploads
@@ -192,3 +192,5 @@ end
 BGS.configure do |config|
   config.logger = Rails.logger
 end
+
+Gem::Deprecate.skip = true

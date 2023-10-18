@@ -10,25 +10,14 @@ module DebtsApi
     self.table_name = 'form5655_submissions'
     validates :user_uuid, presence: true
     belongs_to :user_account, dependent: nil, optional: true
-    has_kms_key version: 2,
-                previous_versions: {
-                  1 => { key_id: KmsEncrypted.key_id }
-                }
-
+    has_kms_key
     has_encrypted :form_json, :metadata, key: :kms_key, **lockbox_options
 
-    def kms_encryption_context(version:)
-      if version == 1
-        {
-          model_name: model_name.to_s,
-          model_id: id
-        }
-      else
-        {
-          model_name: Form5655Submission.model_name.to_s,
-          model_id: id
-        }
-      end
+    def kms_encryption_context
+      {
+        model_name: Form5655Submission.model_name.to_s,
+        model_id: id
+      }
     end
 
     scope :streamlined, -> { where("(public_metadata -> 'streamlined' ->> 'value')::boolean") }
@@ -59,7 +48,32 @@ module DebtsApi
     end
 
     def submit_to_vha
-      DebtsApi::V0::Form5655::VHASubmissionJob.perform_async(id, user_cache_id)
+      batch = Sidekiq::Batch.new
+      batch.on(
+        :complete,
+        'DebtsApi::V0::Form5655Submission#set_completed_state',
+        'submission_id' => id
+      )
+      batch.jobs do
+        DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.perform_async(id, user_cache_id)
+        DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.perform_async(id)
+      end
+    end
+
+    def set_completed_state(status, options)
+      submission = DebtsApi::V0::Form5655Submission.find(options['submission_id'])
+      if status.failures.zero?
+        submission.submitted!
+      else
+        submission.failed!
+        Rails.logger.error('Batch FSR Processing Failed', status.failure_info)
+      end
+    end
+
+    def register_failure(message)
+      failed!
+      update(error_message: message)
+      Rails.logger.error('Form5655Submission failed', message)
     end
 
     def streamlined?

@@ -614,6 +614,29 @@ RSpec.describe SAML::PostURLService do
             context 'when tracker application is within TERMS_OF_USE_ENABLED_CLIENTS' do
               let(:application) { SAML::URLService::TERMS_OF_USE_ENABLED_CLIENTS.first }
 
+              context 'and authentication is occuring on a review instance' do
+                let(:review_instance_slug) { 'some-review-instance-slug' }
+                let(:review_instance_url) { "#{review_instance_slug}.review.vetsgov-internal" }
+
+                before { allow(Settings).to receive(:review_instance_slug).and_return(review_instance_slug) }
+
+                it 'has a login redirect url as a parameter embedded in review instance terms of use page' do
+                  expect(subject.terms_of_use_redirect_url)
+                    .to eq("http://#{review_instance_url}/terms-of-use?#{expected_redirect_url_param}")
+                end
+              end
+
+              context 'and authentication is not occurring on a review instance' do
+                it 'has a login redirect url as a parameter embedded in terms of use page with success' do
+                  expect(subject.terms_of_use_redirect_url)
+                    .to eq("#{values[:base_redirect]}/terms-of-use?#{expected_redirect_url_param}")
+                end
+              end
+            end
+
+            context 'when tracker application is nil' do
+              let(:application) { nil }
+
               it 'has a login redirect url as a parameter embedded in terms of use page with success' do
                 expect(subject.terms_of_use_redirect_url)
                   .to eq("#{values[:base_redirect]}/terms-of-use?#{expected_redirect_url_param}")

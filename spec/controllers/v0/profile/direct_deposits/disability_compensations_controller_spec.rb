@@ -70,7 +70,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
 
     context 'when invalid scopes are provided' do
       it 'returns a 400' do
-        VCR.use_cassette('lighthouse/direct_deposit/show/400_invalid_scopes') do
+        VCR.use_cassette('lighthouse/direct_deposit/show/errors/400_invalid_scopes') do
           expect { get(:show) }
             .to trigger_statsd_increment('cnp.payment.invalid.scopes')
         end
@@ -85,7 +85,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
 
     context 'when not authorized' do
       it 'returns a status of 401' do
-        VCR.use_cassette('lighthouse/direct_deposit/show/401_invalid_token') do
+        VCR.use_cassette('lighthouse/direct_deposit/show/errors/401_invalid_token') do
           get(:show)
         end
 
@@ -99,7 +99,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
 
     context 'when ICN not found' do
       it 'returns a status of 404' do
-        VCR.use_cassette('lighthouse/direct_deposit/show/404_icn_not_found') do
+        VCR.use_cassette('lighthouse/direct_deposit/show/errors/404_response') do
           expect { get(:show) }
             .to trigger_statsd_increment('cnp.payment.icn.not.found')
         end
@@ -114,7 +114,7 @@ RSpec.describe V0::Profile::DirectDeposits::DisabilityCompensationsController, t
 
     context 'when there is a gateway timeout' do
       it 'returns a status of 504' do
-        VCR.use_cassette('lighthouse/direct_deposit/show/504_gateway_timeout') do
+        VCR.use_cassette('lighthouse/direct_deposit/show/errors/504_response') do
           expect { get(:show) }
             .to trigger_statsd_increment('cnp.payment.api.gateway.timeout')
         end

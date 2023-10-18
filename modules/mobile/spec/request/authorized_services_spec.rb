@@ -1,18 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 
 RSpec.describe 'user', type: :request do
+  let!(:user) { sis_user }
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
   describe 'GET /mobile/v0/user/authorized-services' do
-    before do
-      iam_sign_in(FactoryBot.build(:iam_user))
-    end
-
     it 'includes a hash with all available services and a boolean value of if the user has access' do
-      get '/mobile/v0/user/authorized-services', headers: iam_headers,
+      get '/mobile/v0/user/authorized-services', headers: sis_headers,
                                                  params: { 'appointmentIEN' => '123', 'locationId' => '123' }
       expect(response).to have_http_status(:ok)
 
@@ -24,13 +21,13 @@ RSpec.describe 'user', type: :request do
           'directDepositBenefits' => true,
           'directDepositBenefitsUpdate' => true,
           'disabilityRating' => true,
-          'genderIdentity' => false,
+          'genderIdentity' => true,
           'lettersAndDocuments' => true,
           'militaryServiceHistory' => true,
           'paymentHistory' => true,
-          'preferredName' => false,
+          'preferredName' => true,
           'prescriptions' => false,
-          'scheduleAppointments' => true,
+          'scheduleAppointments' => false,
           'secureMessaging' => false,
           'userProfileUpdate' => true }
       )

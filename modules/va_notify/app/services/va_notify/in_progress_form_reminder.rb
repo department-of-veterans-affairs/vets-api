@@ -4,7 +4,7 @@ require 'va_notify/in_progress_form_helper'
 
 module VANotify
   class InProgressFormReminder
-    include Sidekiq::Worker
+    include Sidekiq::Job
     include SentryLogging
     sidekiq_options retry: 14
 

@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+    paths:
+      - '.github/CODEOWNERS'
 permissions:
   contents: read
   checks: write
@@ -33,11 +35,11 @@ jobs:
           files: |
             .github/CODEOWNERS
 
-      - name: Pushes test file
+      - name: Pushes CODEOWNERS updates to Atlas
         if: steps.check-codeowner-changes.outputs.any_changed == 'true'
         uses: dmnemec/copy_file_to_another_repo_action@main
         env:
-          API_TOKEN_GITHUB: ${{  env.VA_VSP_BOT_GITHUB_TOKEN }}
+          API_TOKEN_GITHUB: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
         with:
           source_file: '.github/CODEOWNERS'
           destination_repo: 'department-of-veterans-affairs/platform-atlas'
@@ -45,5 +47,5 @@ jobs:
           destination_branch: 'master'
           user_email: 'devops@va.gov'
           user_name: 'va-vsp-bot'
-          commit_message: 'Auto update Vets-API CODEOWNERS'
+          commit_message: 'Auto update Atlas with Vets-API CODEOWNERS'
 

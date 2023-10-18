@@ -30,10 +30,12 @@ mobile_application_platform:
   chatbot_client_id: 2bb9803acfc3
   sign_up_service_client_id: c7d6e0fc9a39
   oauth_url: https://veteran.apps-staging.va.gov
-  client_cert_path: spec/fixtures/mobile_application_platform/oauth.crt
-  client_key_path: spec/fixtures/mobile_application_platform/oauth.key
+  client_cert_path: spec/fixtures/map/oauth.crt
+  client_key_path: spec/fixtures/map/oauth.key
   sign_up_service_url: https://cerner.apps-staging.va.gov
   sign_up_service_provisioning_api_key: abcd1234
+  secure_token_service:
+    mock: true
 
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
@@ -348,12 +350,7 @@ modules_appeals_api:
     daily_error:
       enabled: false
     weekly_error:
-      # See features.yml for enablement
-      recipients:
-        - drew.fisher@adhocteam.us
-        - casey.williams@adhocteam.us
-        - michel.mcdonald@adhocteam.us
-
+      enabled: false
   schema_dir: config/schemas
   evidence_submissions:
     location:
@@ -418,7 +415,7 @@ evss:
     timeout: 55 # ~1 minute
     submit_timeout: 355 # ~6 minutes
   dvp:
-    url: <%= ENV['EVSS_DVP_URL'] %>
+    url: http://fake.dvp-docker-container
   letters:
     url: https://csraciapp6.evss.srarad.com
     timeout: 55
@@ -513,6 +510,10 @@ mhv:
     base_path: https://mhv-api.example.com
     app_token: fake-app-token
     mock: true
+  medical_records:
+    host: fake-host
+    app_token: fake-app-token
+    x_auth_key: fake-x-auth-key
 
 # Settings for alternate MHV integration for mobile app
 mhv_mobile:
@@ -806,7 +807,6 @@ oidc:
     veteran_verification: ~
     claims: ~
   charon:
-    enabled: ~
     endpoint: ~
     audience: ~
   base_api_url: https://example.com
@@ -1029,6 +1029,8 @@ lighthouse:
       client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
       api_scope:
         - "launch"
+        - "patient/AllergyIntolerance.read"
+        - "patient/DiagnosticReport.read"
         - "patient/Patient.read"
         - "system/Patient.read"
         - "patient/Observation.read"
@@ -1266,7 +1268,9 @@ vanotify:
         form1990_confirmation_email: form1990_confirmation_email_template_id
         form1990e_confirmation_email: form1990e_confirmation_email_template_id
         form1995_confirmation_email: form1995_confirmation_email_template_id
+        form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
+        form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
         form526_confirmation_email: fake_template_id
         form526_submission_failed_email: fake_template_id
@@ -1579,6 +1583,16 @@ form526_backup:
     access_key_id: ~
     secret_access_key: ~
 
+benefits_intake_service:
+  enabled: true
+  api_key: ~
+  url: ~
+  aws:
+    bucket: ~
+    region: ~
+    access_key_id: ~
+    secret_access_key: ~
+
 form526_export:
   aws:
     bucket: ~
@@ -1625,3 +1639,6 @@ avs:
   timeout: 55
   url: "https://something.fake.va.gov"
   api_jwt: abcd1234abcd1234abcd1234abcd1234abcd1234
+
+brd:
+  api_key: 'fake_key'

@@ -199,7 +199,7 @@ module ClaimsApi
           ClaimsApi::Logger.log('missing_file_number',
                                 detail: 'missing_file_number on request in application controller.')
 
-          raise ::CommonExceptions::UnprocessableEntity.new(detail:
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail:
             "Unable to locate Veteran's 'File Number' in Master Person Index (MPI). " \
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end

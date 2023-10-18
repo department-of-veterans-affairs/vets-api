@@ -12,12 +12,7 @@ HEAD_SHA=$(git rev-parse HEAD)
 BASE_SHA=$(git rev-parse origin/master)
 
 # Get the list of changed files between the base and head commits
-CHANGED_FILES=$(git diff --name-only ${BASE_SHA}...${HEAD_SHA})
-
-
-# All files that are added, copied, modified, renamed, or have their type changed in the latest push
-# This will cover scenarios where a file/directory is deleted and then re-added in another commit
-CHANGED_FILES=$(git diff --name-only ${BASE_SHA}...${HEAD_SHA})
+CHANGED_FILES=$(git diff --name-only --diff-filter=AMR ${BASE_SHA}...${HEAD_SHA})
 echo "Changed files: $CHANGED_FILES"
 
 check_in_codeowners() {

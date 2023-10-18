@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'json_marshal/marshaller'
-# require 'common/exceptions'
 
 module AppealsApi
   class SupplementalClaim < ApplicationRecord
@@ -63,7 +62,7 @@ module AppealsApi
     end
 
     def assign_metadata
-      return unless %w[v2 v0].include?(api_version.downcase)
+      return unless %w[v2 v0].include?(api_version&.downcase)
 
       # retain original incoming non-pii form_data in metadata since this model's form_data is eventually removed
       self.metadata = if Flipper.enabled?(:decision_review_sc_pact_act_boolean)
@@ -72,8 +71,10 @@ module AppealsApi
                         { form_data: { evidence_type: } }
                       end
       metadata['form_data']['benefit_type'] = benefit_type
-
       metadata['central_mail_business_line'] = lob
+      metadata['potential_write_in_issue_count'] = contestable_issues.filter do |issue|
+        issue['attributes']['ratingIssueReferenceId'].blank?
+      end.count
     end
 
     def veteran
