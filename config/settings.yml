@@ -1029,6 +1029,7 @@ lighthouse:
       client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
       api_scope:
         - "launch"
+        - "patient/AllergyIntolerance.read"
         - "patient/DiagnosticReport.read"
         - "patient/Patient.read"
         - "system/Patient.read"
