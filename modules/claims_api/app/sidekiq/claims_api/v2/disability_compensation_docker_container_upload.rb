@@ -33,10 +33,6 @@ module ClaimsApi
                            "Successfully submitted to Docker container with response: #{evss_res}")
 
           @claim.update(evss_id: evss_res[:claimId])
-
-        # We have an EVSS id but an error, which happened after setting EVSS ID, so data is good
-        elsif @claim.status == 'errored'
-          self.class.perform_in(30.minutes, [@claim&.id, @file_number])
         end
 
         start_vbms_job if @claim.status != 'errored' && !@claim.evss_id.nil?

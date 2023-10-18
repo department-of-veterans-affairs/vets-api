@@ -39,19 +39,38 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
     claim
   end
 
-  describe 'successful submission' do
+  describe '#perform' do
     let(:file_number) { '123456' }
+    let(:evss_id) { '999999999' }
 
-    it 'submits successfully' do
-      expect do
-        subject.perform_async(claim.id, file_number)
-      end.to change(subject.jobs, :size).by(1)
+    context 'successful submission' do
+      service = described_class.new
+
+      it 'submits successfully' do
+        expect do
+          subject.perform_async(claim.id, file_number)
+        end.to change(subject.jobs, :size).by(1)
+      end
+
+      it 'sets gets claim correctly' do
+        returned_claim = service.send(:get_pending_claim, claim.id)
+        expect(claim).to be_instance_of(ClaimsApi::AutoEstablishedClaim)
+        expect(returned_claim.id).to eq(claim.id)
+      end
+    end
+
+    context 'handles an errored claim correctly' do
+      service = described_class.new
+
+      it 'does not call the next job when the claim.status is errored' do
+        allow(ClaimsApi::AutoEstablishedClaim).to receive(:find).with(claim.id).and_return(claim)
+        allow(claim).to receive(:status).and_return('errored')
+
+        service.perform(claim.id, file_number)
+
+        claim.reload
+        expect(service).not_to receive(:start_vbms_job)
+      end
     end
   end
-
-  # get the claim correctly
-  # if claim.status == 'errored' it restarts the job
-  # if evss_id.nil? then is runs the process
-  # evss_res == sampel_res and then it updates the evss_id for claim
-  # if data is bad it does not set the job to retry
 end
