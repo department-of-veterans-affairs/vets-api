@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_10_12_185517) do
+ActiveRecord::Schema.define(version: 2023_10_18_192312) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -1060,7 +1060,7 @@ ActiveRecord::Schema.define(version: 2023_10_12_185517) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "backing_idme_uuid"
-    t.boolean "locked", null: false, default: false
+    t.boolean "locked", default: false, null: false
     t.index ["backing_idme_uuid"], name: "index_user_verifications_on_backing_idme_uuid"
     t.index ["dslogon_uuid"], name: "index_user_verifications_on_dslogon_uuid", unique: true
     t.index ["idme_uuid"], name: "index_user_verifications_on_idme_uuid", unique: true
