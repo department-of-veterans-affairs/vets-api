@@ -9,6 +9,10 @@ module KmsKeyRotation
     RECORDS_PER_BATCH = 1_000_000
     RECORDS_PER_JOB = 100
 
+    MODELS_FOR_QUERY = {
+      'ClaimsApi::V2::AutoEstablishedClaim' => ClaimsApi::AutoEstablishedClaim
+    }.freeze
+
     def perform
       return nil if records.empty?
 
@@ -25,6 +29,8 @@ module KmsKeyRotation
           needed = RECORDS_PER_BATCH - records.size
 
           break records if needed.zero?
+
+          model = MODELS_FOR_QUERY[model.name] if MODELS_FOR_QUERY.key?(model.name)
 
           records.concat(
             model.where.not('encrypted_kms_key LIKE ?', "v#{version}:%").limit(needed)

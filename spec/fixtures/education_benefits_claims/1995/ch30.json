@@ -1,0 +1,20 @@
+{
+  "veteranFullName": {
+    "first": "Joe",
+    "last": "Tester"
+  },
+  "veteranSocialSecurityNumber": "223334444",
+  "veteranAddress": {
+    "city": "Austin",
+    "country": "USA",
+    "postalCode": "73301",
+    "state": "TX",
+    "street": "123 Test St"
+  },
+  "email": "test@test.com",
+  "benefit": "chapter30",
+  "benefitUpdate": "chapter30",
+  "remarks": "remarks",
+  "programName": "program name",
+  "privacyAgreementAccepted": true
+}

@@ -40,6 +40,12 @@ describe MedicalRecords::Client do
     VCR.use_cassette 'mr_client/get_a_list_of_vaccines' do
       vaccine_list = client.list_vaccines
       expect(vaccine_list).to be_a(FHIR::Bundle)
+      # Verify that the list is sorted reverse chronologically (with nil values to the end).
+      vaccine_list.entry.each_cons(2) do |prev, curr|
+        prev_date = prev.resource.occurrenceDateTime
+        curr_date = curr.resource.occurrenceDateTime
+        expect(curr_date.nil? || prev_date >= curr_date).to be true
+      end
     end
   end
 
@@ -47,6 +53,32 @@ describe MedicalRecords::Client do
     VCR.use_cassette 'mr_client/get_a_vaccine' do
       vaccine_list = client.get_vaccine(2_954)
       expect(vaccine_list).to be_a(FHIR::Immunization)
+    end
+  end
+
+  it 'gets a list of vitals', :vcr do
+    VCR.use_cassette 'mr_client/get_a_list_of_vitals' do
+      vitals_list = client.list_vitals
+      expect(vitals_list).to be_a(FHIR::Bundle)
+      # Verify that the list is sorted reverse chronologically (with nil values to the end).
+      vitals_list.entry.each_cons(2) do |prev, curr|
+        prev_date = prev.resource.effectiveDateTime
+        curr_date = curr.resource.effectiveDateTime
+        expect(curr_date.nil? || prev_date >= curr_date).to be true
+      end
+    end
+  end
+
+  it 'gets a list of health conditions', :vcr do
+    VCR.use_cassette 'mr_client/get_a_list_of_health_conditions' do
+      condition_list = client.list_conditions
+      expect(condition_list).to be_a(FHIR::Bundle)
+      # Verify that the list is sorted reverse chronologically (with nil values to the end).
+      condition_list.entry.each_cons(2) do |prev, curr|
+        prev_date = prev.resource.recordedDate
+        curr_date = curr.resource.recordedDate
+        expect(curr_date.nil? || prev_date >= curr_date).to be true
+      end
     end
   end
 
@@ -137,9 +169,9 @@ describe MedicalRecords::Client do
       end
 
       context 'in descending order' do
-        it 'places the entry with the missing field at the beginning' do
+        it 'places the entry with the missing field at the end' do
           sorted = client.sort_bundle(bundle_with_missing_field, :onsetDateTime, :desc)
-          expect(sorted.entry.first.resource.onsetDateTime).to be_nil
+          expect(sorted.entry.last.resource.onsetDateTime).to be_nil
         end
       end
     end

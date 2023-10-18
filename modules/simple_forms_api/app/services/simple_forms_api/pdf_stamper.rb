@@ -4,7 +4,7 @@ require 'central_mail/datestamp_pdf'
 
 module SimpleFormsApi
   class PdfStamper
-    FORM_REQUIRES_STAMP = %w[26-4555 21-4142 21-10210 21-0845 21P-0847 21-0972].freeze
+    FORM_REQUIRES_STAMP = %w[26-4555 21-4142 21-10210 21-0845 21P-0847 21-0966 21-0972].freeze
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
 
     def self.stamp_pdf(stamped_template_path, data)
@@ -96,6 +96,17 @@ module SimpleFormsApi
       multistamp(stamped_template_path, signature_text, page_configuration)
     end
 
+    def self.stamp210966(stamped_template_path, data)
+      desired_stamps = [[50, 415]]
+      signature_text = signature_text_for210966(data)
+      page_configuration = [
+        { type: :new_page },
+        { type: :text, position: desired_stamps[0] }
+      ]
+
+      multistamp(stamped_template_path, signature_text, page_configuration)
+    end
+
     def self.multistamp(stamped_template_path, signature_text, page_configuration)
       stamp_path = Common::FileHelpers.random_file_path
       Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
@@ -156,6 +167,26 @@ module SimpleFormsApi
     rescue
       Common::FileHelpers.delete_file_if_exists(out_path)
       raise
+    end
+
+    def self.signature_text_for210966(data)
+      identity = data['preparer_identification']
+      first_name, middle_name, last_name = ''
+      if identity == 'VETERAN'
+        first_name = data.dig('veteran_full_name', 'first')
+        middle_name = data.dig('veteran_full_name', 'middle')
+        last_name = data.dig('veteran_full_name', 'last')
+      elsif identity == 'SURVIVING_DEPENDENT'
+        first_name = data.dig('surviving_dependent_full_name', 'first')
+        middle_name = data.dig('surviving_dependent_full_name', 'middle')
+        last_name = data.dig('surviving_dependent_full_name', 'last')
+      else
+        first_name = data.dig('third_party_preparer_full_name', 'first')
+        middle_name = data.dig('third_party_preparer_full_name', 'middle')
+        last_name = data.dig('third_party_preparer_full_name', 'last')
+      end
+
+      "#{first_name} #{middle_name} #{last_name}"
     end
   end
 end

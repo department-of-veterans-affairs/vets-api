@@ -28,7 +28,7 @@ module DebtsApi
 
       DebtsApi::V0::FinancialStatusReportService.new(user).submit_to_vbs(submission)
       user.destroy
-      StatsD.increment("#{stats_key}.success")
+      StatsD.increment("#{STATS_KEY}.success")
     end
   end
 end

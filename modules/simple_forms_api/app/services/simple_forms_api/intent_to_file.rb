@@ -12,19 +12,16 @@ module SimpleFormsApi
     end
 
     def submit
-      types = params['benefit_selection'].split(',')
-      ssn = if params['preparer_identification'] == 'VETERAN'
-              params.dig('preparer_id',
-                         'ssn')
-            else
-              params.dig('veteran_id', 'ssn')
-            end
+      benefit_selections = []
+      params['benefit_selection'].each { |benefit_type, is_selected| benefit_selections << benefit_type if is_selected }
+      ssn = params.dig('veteran_id', 'ssn')
       expiration_date = ''
-      types.each do |type|
-        if existing_intents[type.downcase]
-          expiration_date = existing_intents[type.downcase]['expirationDate']
+      benefit_selections.each do |benefit_type|
+        type = benefit_type.downcase
+        if existing_intents[type]
+          expiration_date = existing_intents[type]['expirationDate']
         else
-          response = benefits_claims_lighthouse_service.create_intent_to_file(type.downcase, ssn)
+          response = benefits_claims_lighthouse_service.create_intent_to_file(type, ssn)
           # This only retains the last response. Is that ok?
           # Are we safe to assume that the expiration dates for two simultaneously-created ITFs will be the same?
           expiration_date = response.dig('data', 'attributes', 'expirationDate')
@@ -74,6 +71,7 @@ module SimpleFormsApi
         "Simple forms api - #{type} intent to file not found. Form number: #{params[:form_number]},
           error: #{e}, ICN #{icn}"
       )
+      nil
     end
   end
 end
