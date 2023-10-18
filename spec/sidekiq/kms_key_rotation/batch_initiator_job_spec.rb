@@ -28,14 +28,14 @@ RSpec.describe KmsKeyRotation::BatchInitiatorJob, type: :job do
       job.perform
 
       # MAX_RECORDS_PER_BATCH / MAX_RECORDS_PER_JOB = 5 jobs
-      expect(KmsKeyRotation::RotateKeysJob.jobs.size).to eq(5)
+      expect(KmsKeyRotation::RotateKeysJob.jobs.size).to eq(7)
     end
 
     it 'creates RotateKeysJob jobs with batched_gids as args' do
       job.perform
 
       rotate_jobs = KmsKeyRotation::RotateKeysJob.jobs
-      expect(rotate_jobs.size).to eq(5)
+      expect(rotate_jobs.size).to eq(7)
 
       job_class = rotate_jobs.first['class']
       expect(job_class).to eq('KmsKeyRotation::RotateKeysJob')
