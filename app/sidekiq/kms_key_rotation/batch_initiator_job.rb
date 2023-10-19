@@ -24,14 +24,14 @@ module KmsKeyRotation
 
         Rails.logger.info("Enqueuing #{model} records for key rotation. #{records_enqueued} records enqueued so far")
 
-        gids_for_model(model).each_slice(MAX_RECORDS_PER_JOB) do |slice|
+        gids = gids_for_model(model)
+
+        gids.each_slice(MAX_RECORDS_PER_JOB) do |slice|
           KmsKeyRotation::RotateKeysJob.perform_async(slice)
         end
 
         records_enqueued += gids.size
       end
-    rescue => e
-      Rails.logger.error("An error occurred during processing: #{e.message}")
     end
 
     private
