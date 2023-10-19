@@ -20,6 +20,9 @@ module ClaimsApi
                               claim_id:,
                               detail: "526EZ PDF generator started for claim #{claim_id}")
 
+        # Reset for a rerun on this
+        set_pending_state(claim_id)
+
         auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
 
         pdf_data = get_pdf_data
@@ -97,8 +100,15 @@ module ClaimsApi
         auto_claim.save!
       end
 
+      def set_pending_state(claim_id)
+        auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+
+        auto_claim.status = ClaimsApi::AutoEstablishedClaim::PENDING
+        auto_claim.save!
+      end
+
       def start_evss_job(auto_claim, file_number)
-        ClaimsApi::V2::DisabilityCompensationDockerContainerUpload.perform_async(auto_claim, file_number)
+        ClaimsApi::V2::DisabilityCompensationDockerContainerUpload.new.perform(auto_claim, file_number)
       end
 
       def pdf_mapper_service(form_data, pdf_data, auth_headers, middle_initial)

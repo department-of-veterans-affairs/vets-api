@@ -20,6 +20,9 @@ module ClaimsApi
                               claim_id:,
                               detail: 'VBMS upload job started')
 
+        # Reset for a rerun on this
+        set_pending_state(claim_id)
+
         claim_object = ClaimsApi::SupportingDocument.find_by(id: claim_id) ||
                        ClaimsApi::AutoEstablishedClaim.find_by(id: claim_id)
 
@@ -35,11 +38,11 @@ module ClaimsApi
                               claim_id:,
                               detail: 'Uploaded 526EZ PDF to VBMS')
 
-        start_claim_establsher_job(auto_claim) if auto_claim.status != 'errored'
-
         ClaimsApi::Logger.log('526 v2 VBMS Uploader job',
                               claim_id:,
                               detail: 'VBMS uploaded succeeded')
+
+        start_claim_establsher_job(auto_claim) if auto_claim.status != 'errored'
 
       # Temporary errors (returning HTML, connection timeout), retry call
       rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
@@ -92,6 +95,13 @@ module ClaimsApi
 
       def claim_establisher_service
         ClaimsApi::V2::DisabilityCompensationClaimEstablisher
+      end
+
+      def set_pending_state(claim_id)
+        auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+
+        auto_claim.status = ClaimsApi::AutoEstablishedClaim::PENDING
+        auto_claim.save!
       end
 
       def bd_upload_body(auto_claim:, file_body:)

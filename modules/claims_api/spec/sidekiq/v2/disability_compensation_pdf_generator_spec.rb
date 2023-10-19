@@ -52,20 +52,15 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
         end.to change(subject.jobs, :size).by(1)
       end
 
-      # Not working yet
       # it 'calls the next job when the claim.status is not errored' do
-      #   file_data = {'filename' => 'cd04fc6704292a0c9851d872c3583c9e.pdf', 'doc_type' => 'L023', 'description' => nil}
-      #   upload = double('upload')
-      #   allow(ActionDispatch::Http::UploadedFile).to receive(:new).and_return(upload)
-      #   allow(ClaimsApi::AutoEstablishedClaim).to receive(:find).with(claim.id).and_return(claim)
-      #   allow(service).to receive(:generate_526_pdf).and_return({ data: claim.form_data })
-      #   expect(claim).to receive(:set_file_data!).with(upload, 'L023').and_return(file_data)
-      #   expect(claim).to receive(:save!)
+      #   allow(service).to receive(:generate_526_pdf).and_return('sample pdf string')
+
+      #   service.instance_variable_set(:@pdf_string, 'sample pdf string')
 
       #   service.perform(claim.id, middle_initial, file_number)
 
       #   claim.reload
-      #   expect(service).to receive(:start_evss_job).with(file_number) # it would be 'pending'
+      #   expect(subject).to receive(:start_evss_job).with(claim.id, file_number)
       # end
     end
 

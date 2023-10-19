@@ -7,11 +7,17 @@ require 'claims_api/claim_logger'
 module ClaimsApi
   module V2
     class DisabilityCompensationClaimEstablisher
+      include Sidekiq::Job
+      include SentryLogging
+      include Sidekiq::MonitoredWorker
       # Mark as established, set flashes and special issues
       def perform(claim_id)
         ClaimsApi::Logger.log('********** 526 v2 Claim Establisher job',
                               claim_id:,
                               detail: 'Beginning 526 v2 Claim Establisher job')
+
+        # Reset for a rerun on this
+        set_pending_state(claim_id)
 
         auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
 
@@ -38,6 +44,13 @@ module ClaimsApi
         auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
 
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+        auto_claim.save!
+      end
+
+      def set_pending_state(claim_id)
+        auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+
+        auto_claim.status = ClaimsApi::AutoEstablishedClaim::PENDING
         auto_claim.save!
       end
 

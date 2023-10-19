@@ -18,7 +18,8 @@ module ClaimsApi
         ClaimsApi::Logger.log('********** 526 v2 Docker Container job',
                               claim_id:,
                               detail: 'Docker container job started')
-
+        # Reset for a rerun on this
+        set_pending_state(claim_id)
         auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
 
         if auto_claim.evss_id.nil?
@@ -39,7 +40,7 @@ module ClaimsApi
 
         start_vbms_job(auto_claim) if auto_claim.status != 'errored' && !auto_claim.evss_id.nil?
       rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
-        set_evss_errored_state(claim_id)
+        set_errored_state(claim_id)
         set_evss_response(auto_claim, e)
         ClaimsApi::Logger.log('526 v2 Docker Container job',
                               claim_id:,
@@ -47,7 +48,7 @@ module ClaimsApi
 
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
-        set_evss_errored_state(claim_id)
+        set_errored_state(claim_id)
         set_evss_response(auto_claim, e)
         ClaimsApi::Logger.log('526 v2 Docker Container job',
                               claim_id:,
@@ -55,7 +56,7 @@ module ClaimsApi
         # {}
         raise e
       rescue => e
-        set_evss_errored_state(claim_id)
+        set_errored_state(claim_id)
         set_evss_response(auto_claim, e)
         ClaimsApi::Logger.log('526 v2 Docker Container job',
                               claim_id:,
@@ -67,10 +68,17 @@ module ClaimsApi
 
       private
 
-      def set_evss_errored_state(claim_id)
+      def set_errored_state(claim_id)
         auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
 
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+        auto_claim.save!
+      end
+
+      def set_pending_state(claim_id)
+        auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+
+        auto_claim.status = ClaimsApi::AutoEstablishedClaim::PENDING
         auto_claim.save!
       end
 
@@ -102,7 +110,7 @@ module ClaimsApi
       end
 
       def start_vbms_job(auto_claim)
-        vbms_service.new.perform_async(auto_claim.id)
+        vbms_service.new.perform(auto_claim.id)
       end
 
       def vbms_service

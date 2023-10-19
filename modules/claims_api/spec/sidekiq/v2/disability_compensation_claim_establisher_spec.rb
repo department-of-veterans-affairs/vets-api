@@ -3,7 +3,14 @@
 require 'rails_helper'
 require_relative '../../rails_helper'
 
-RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimEstablisher do
+RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimEstablisher, type: :job do
+  subject { described_class }
+
+  before do
+    Sidekiq::Job.clear_all
+    stub_claims_api_auth_token
+  end
+
   let(:user) { FactoryBot.create(:user, :loa3) }
 
   let(:auth_headers) do
@@ -29,5 +36,13 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimEstablisher do
     claim.auth_headers = auth_headers
     claim.save
     claim
+  end
+
+  describe 'successful submission' do
+    it 'successful submit should add the job' do
+      expect do
+        subject.perform_async(claim.id)
+      end.to change(subject.jobs, :size).by(1)
+    end
   end
 end

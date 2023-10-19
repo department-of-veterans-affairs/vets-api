@@ -43,8 +43,6 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
     let(:file_number) { '123456' }
 
     context 'successful submission' do
-      service = described_class.new
-
       it 'submits successfully' do
         expect do
           subject.perform_async(claim.id, file_number)
@@ -59,7 +57,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         allow(ClaimsApi::AutoEstablishedClaim).to receive(:find).with(claim.id).and_return(claim)
         allow(claim).to receive(:status).and_return('errored')
 
-        service.perform(claim.id, file_number)
+        subject.perform_async(claim.id, file_number)
 
         claim.reload
         expect(service).not_to receive(:start_vbms_job)
