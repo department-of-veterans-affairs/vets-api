@@ -24,17 +24,12 @@ RSpec.describe Form1010Ezr::Service do
   end
   let(:current_user) { FactoryBot.build(:user, :loa3, icn: nil) }
 
-  def expect_to_raise_and_log_error(
-    method,
-    error_message,
-    error_message_2 = nil
-  )
+  def allow_logger_to_receive_error
     allow(Rails.logger).to receive(:error)
+  end
 
-    expect { method }.to raise_error(StandardError, error_message)
-    expect(Rails.logger).to have_received(:error).with(
-      (error_message_2.presence || error_message)
-    )
+  def expect_logger_error(error_message)
+    expect(Rails.logger).to have_received(:error).with(error_message)
   end
 
   describe 'submit_form' do
@@ -64,25 +59,16 @@ RSpec.describe Form1010Ezr::Service do
         ).to receive(:perform).and_raise(
           StandardError.new('Uh oh. Some bad error occurred.')
         )
-      end
-
-      it 'logs an error message and raises an exception' do
-        allow(Rails.logger).to receive(:error)
-
-        expect do
-          described_class.new(current_user).submit_form(form)
-        end.to raise_error(StandardError, 'Uh oh. Some bad error occurred.')
-        expect(Rails.logger).to have_received(:error).with(
-          '10-10EZR form submission failed: Uh oh. Some bad error occurred.'
-        )
+        allow_logger_to_receive_error
       end
 
       it 'logs and raises the error' do
-        expect_to_raise_and_log_error(
-          described_class.new(current_user).submit_form(form),
-          'Uh oh. Some bad error occurred.',
-          '10-10EZR form submission failed: Uh oh. Some bad error occurred.'
+        expect do
+          described_class.new(current_user).submit_form(form)
+        end.to raise_error(
+          StandardError, 'Uh oh. Some bad error occurred.'
         )
+        expect_logger_error('10-10EZR form submission failed: Uh oh. Some bad error occurred.')
       end
     end
   end
@@ -97,11 +83,19 @@ RSpec.describe Form1010Ezr::Service do
     end
 
     context 'when there are validation errors' do
+      before do
+        allow_logger_to_receive_error
+      end
+
       it 'logs and raises a StandardError' do
-        expect_to_raise_and_log_error(
-          described_class.new(current_user).validate_form({}),
-          '10-10EZR form validation failed. Form does not match schema.'
+        error_message = '10-10EZR form validation failed. Form does not match schema.'
+
+        expect do
+          described_class.new(current_user).validate_form({})
+        end.to raise_error(
+          StandardError, error_message
         )
+        expect_logger_error(error_message)
       end
     end
   end

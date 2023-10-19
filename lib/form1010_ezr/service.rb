@@ -10,7 +10,7 @@ module Form1010Ezr
     include Common::Client::Concerns::Monitoring
     include VA1010Forms::ServiceUtils
 
-    FORM_ID = '10-10EZ'
+    FORM_ID = '10-10EZR'
 
     # @param [Object] user
     def initialize(user)
@@ -31,7 +31,7 @@ module Form1010Ezr
 
         response = perform(:post, '', submission.body)
       rescue => e
-        Rails.logger.error "10-10EZR form submission failed: #{e}"
+        Rails.logger.error "10-10EZR form submission failed: #{e.message}"
         raise e
       end
 

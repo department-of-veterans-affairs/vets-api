@@ -6,10 +6,12 @@ module V0
     before_action :load_user, only: %i[create]
 
     def create
+      raise Common::Exceptions::BackendServiceException, '1010EZR_401' if @current_user.nil?
+
       begin
         result = Form1010Ezr::Service.new(@current_user).submit_form(params[:form])
-      rescue HCA::SOAPParser::ValidationError
-        raise Common::Exceptions::BackendServiceException.new('1010EZR422', status: 422)
+      rescue
+        raise Common::Exceptions::BackendServiceException, '1010EZR_400'
       end
 
       clear_saved_form('1010ezr')

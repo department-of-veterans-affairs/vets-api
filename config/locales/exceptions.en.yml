@@ -2071,6 +2071,16 @@ en:
         code: 'VETEXT_PUSH_502'
         detail: Received an invalid response from the upstream server
         status: 502
+      1010EZR_400:
+        <<: *external_defaults
+        code: '1010_EZR_400'
+        detail: The Form1010Ezr service responded with something other than the expected submission object
+        status: 400
+      1010EZR_401:
+        <<: *external_defaults
+        code: '1010_EZR_401'
+        detail: 'Missing user credentials'
+        status: 401
 
   decision_review:
     exceptions:
