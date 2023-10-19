@@ -32,8 +32,6 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   end
 
   describe 'GET #index' do
-    subject { get inquiry_path }
-
     context 'when user is signed in' do
       before { sign_in(authorized_user) }
 
@@ -73,7 +71,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
           ] }
         end
 
-        before { subject }
+        before { get inquiry_path, params: { mock: true } }
 
         it { expect(response).to have_http_status(:ok) }
         it { expect(JSON.parse(response.body)).to eq(json_response) }
@@ -86,12 +84,12 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
           before do
             allow_any_instance_of(Dynamics::Service)
               .to receive(:call)
-              .and_raise(Dynamics::ErrorHandler::BadRequestError.new(error_message))
-            subject
+              .and_raise(Dynamics::ErrorHandler::ServiceError.new(error_message))
+            get inquiry_path
           end
 
           it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                          'Dynamics::ErrorHandler::BadRequestError: service error'
+                          'Dynamics::ErrorHandler::ServiceError: service error'
         end
 
         context 'when a standard error' do
@@ -101,7 +99,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
             allow_any_instance_of(Dynamics::Service)
               .to receive(:call)
               .and_raise(StandardError.new(error_message))
-            subject
+            get inquiry_path
           end
 
           it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
@@ -111,15 +109,13 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     end
 
     context 'when user is not signed in' do
-      before { subject }
+      before { get inquiry_path }
 
       it { expect(response).to have_http_status(:unauthorized) }
     end
   end
 
   describe 'GET #show' do
-    subject { get "#{inquiry_path}/#{inquiry_number}" }
-
     let(:inquiry_number) { valid_inquiry_number }
     let(:expected_response) do
       { 'data' =>
@@ -143,7 +139,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     context 'when user is signed in' do
       before do
         sign_in(authorized_user)
-        subject
+        get "#{inquiry_path}/#{inquiry_number}", params: { mock: true }
       end
 
       it { expect(response).to have_http_status(:ok) }
@@ -163,14 +159,16 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
       before do
         allow(Dynamics::Service).to receive(:new).and_raise(ErrorHandler::ServiceError)
         sign_in(authorized_user)
-        subject
+        get "#{inquiry_path}/#{inquiry_number}"
       end
 
       it { expect(JSON.parse(response.body)).to eq('error' => 'ErrorHandler::ServiceError') }
     end
 
     context 'when user is not signed in' do
-      before { subject }
+      before do
+        get "#{inquiry_path}/#{inquiry_number}"
+      end
 
       it { expect(response).to have_http_status(:unauthorized) }
     end
