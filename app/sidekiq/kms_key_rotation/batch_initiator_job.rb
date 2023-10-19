@@ -7,7 +7,6 @@ module KmsKeyRotation
     sidekiq_options retry: false, queue: :low
 
     MAX_RECORDS_PER_BATCH = 100_000
-    CHUNK_SIZE = 1000
     MAX_RECORDS_PER_JOB = 100
 
     MODELS_FOR_QUERY = {
@@ -23,20 +22,18 @@ module KmsKeyRotation
           break
         end
 
-        Rails.logger.info("Enqueuing #{model} records for key rotation")
+        Rails.logger.info("Enqueuing #{model} records for key rotation. #{records_enqueued} records enqueued so far")
 
         offset = 0
 
         while records_enqueued < MAX_RECORDS_PER_BATCH
-          records = records_for_model(model, offset)
-          break if records.empty?
+          gids = gids_for_model(model, offset)
+          break if gids.empty?
 
-          records.each_slice(MAX_RECORDS_PER_JOB) do |recs|
-            KmsKeyRotation::RotateKeysJob.perform_async(recs.map(&:to_global_id).to_a)
-          end
+          KmsKeyRotation::RotateKeysJob.perform_async(gids)
 
-          records_enqueued += records.size
-          offset += CHUNK_SIZE
+          records_enqueued += gids.size
+          offset += MAX_RECORDS_PER_JOB
         end
       end
     rescue => e
@@ -49,11 +46,15 @@ module KmsKeyRotation
       @models ||= ApplicationRecord.descendants_using_encryption.map(&:name).map(&:constantize)
     end
 
-    def records_for_model(model, offset)
+    def gids_for_model(model, offset)
       model = MODELS_FOR_QUERY[model.name] if MODELS_FOR_QUERY.key?(model.name)
+
       model
         .where.not('encrypted_kms_key LIKE ?', "v#{KmsEncryptedModelPatch.kms_version}:%")
-        .limit(CHUNK_SIZE).offset(offset)
+        .limit(MAX_RECORDS_PER_JOB)
+        .offset(offset)
+        .pluck(model.primary_key)
+        .map { |id| URI::GID.build(app: GlobalID.app, model_name: model.name, model_id: id).to_s }
     end
   end
 end
