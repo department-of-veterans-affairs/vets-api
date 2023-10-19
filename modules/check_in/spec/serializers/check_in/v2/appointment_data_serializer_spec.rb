@@ -266,7 +266,8 @@ RSpec.describe CheckIn::V2::AppointmentDataSerializer do
                 nextOfKinConfirmedAt: '2021-12-10T05:15:00.000-05:00',
                 emergencyContactNeedsUpdate: true,
                 emergencyContactConfirmedAt: '2021-12-10T05:30:00.000-05:00'
-              }
+              },
+              setECheckInCalled: nil
             }
           }
         }

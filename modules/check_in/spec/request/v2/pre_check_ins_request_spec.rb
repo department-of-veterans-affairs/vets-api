@@ -11,6 +11,7 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_pre_check_in_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_45_minute_reminder').and_return(false)
 
     Rails.cache.clear
   end
@@ -158,7 +159,8 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
           'payload' => {
             'demographics' => demographics,
             'appointments' => [appointment1],
-            'patientDemographicsStatus' => patient_demographic_status
+            'patientDemographicsStatus' => patient_demographic_status,
+            'setECheckInCalled' => nil
           }
         }
       end
