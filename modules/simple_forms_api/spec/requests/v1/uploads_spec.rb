@@ -40,7 +40,31 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
     test_submit_request 'vba_40_0247.json'
     test_submit_request 'vba_21_0966.json'
 
-    describe 'request with intent to file' do
+    describe 'request with intent to file unauthenticated' do
+      let(:expiration_date) { Time.zone.now }
+
+      before do
+        allow_any_instance_of(ActiveSupport::TimeZone).to receive(:now).and_return(expiration_date)
+      end
+
+      it 'returns an expiration date' do
+        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+            fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
+                                           'vba_21_0966.json')
+            data = JSON.parse(fixture_path.read)
+
+            post '/simple_forms_api/v1/simple_forms', params: data
+
+            parsed_response_body = JSON.parse(response.body)
+            parsed_expiration_date = Time.zone.parse(parsed_response_body['expiration_date'])
+            expect(parsed_expiration_date.to_s).to eq (expiration_date + 1.year).to_s
+          end
+        end
+      end
+    end
+
+    describe 'request with intent to file authenticated' do
       before do
         sign_in
         allow_any_instance_of(User).to receive(:icn).and_return('123498767V234859')
