@@ -77,8 +77,8 @@ module CentralMail
     end
 
     def cleanup_file_paths
-      File.delete(form_path)
-      attachment_paths.each { |p| File.delete(p) }
+      Common::FileHelpers.delete_file_if_exists(form_path)
+      attachment_paths.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     end
 
     # rubocop:disable Metrics/MethodLength #Temporary disable until flipper removed
@@ -86,13 +86,12 @@ module CentralMail
       if Flipper.enabled?(:dependents_central_submission_lighthouse)
         if response.success?
           Rails.logger.info('CentralMail::SubmitCentralForm686cJob succeeded!',
-                            { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'],
-                              benefits_intake_guid: response['data']['id'] })
+                            { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'] })
           update_submission('success')
           send_confirmation_email(OpenStruct.new(user_struct))
         else
           Rails.logger.info('CentralMail::SubmitCentralForm686cJob Unsuccessful',
-                            { response: response.message, errors: response.errors })
+                            { response: response['message'].presence || response['errors'] })
           raise CentralMailResponseError
         end
       elsif response.success?
@@ -178,12 +177,12 @@ module CentralMail
       form = claim.parsed_form['dependents_application']
       address = form['veteran_contact_information']['veteran_address']
       {
-        veteranFirstName: form['veteran_information']['full_name']['first'],
-        veteranLastName: form['veteran_information']['full_name']['last'],
-        fileNumber: form['veteran_information']['file_number'] || form['veteran_information']['ssn'],
-        zipCode: address['country_name'] == 'USA' ? address['zip_code'] : FOREIGN_POSTALCODE,
-        docType: claim.form_id,
-        claimDate: claim.created_at
+        veteran_first_name: form['veteran_information']['full_name']['first'],
+        veteran_last_name: form['veteran_information']['full_name']['last'],
+        file_number: form['veteran_information']['file_number'] || form['veteran_information']['ssn'],
+        zip_code: address['country_name'] == 'USA' ? address['zip_code'] : FOREIGN_POSTALCODE,
+        doc_type: claim.form_id,
+        claim_date: claim.created_at
       }
     end
 
