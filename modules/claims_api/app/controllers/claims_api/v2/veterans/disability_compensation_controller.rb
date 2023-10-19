@@ -83,7 +83,7 @@ module ClaimsApi
           end
           get_benefits_documents_auth_token unless Rails.env.test?
 
-          render json: auto_claim
+          render json: auto_claim, status: :accepted, location: "#{request.url[0..-4]}claims/#{auto_claim.id}"
         end
 
         def validate
