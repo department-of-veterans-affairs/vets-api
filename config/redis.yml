@@ -187,6 +187,9 @@ development: &defaults
   vanotify_confirmation_email_store:
     namespace: confirmation_email
     each_ttl: 600 # 10 minutes
+  ask_va_response:
+    namespace: ask_va_response
+    each_ttl: 1800 #30 minutes
 test:
   <<: *defaults
   redis:
