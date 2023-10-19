@@ -58,6 +58,7 @@ RSpec.describe Rack::Attack do
         before do
           allow_any_instance_of(CheckIn::V2::Session).to receive(:authorized?).and_return(true)
           allow_any_instance_of(V2::Lorota::Service).to receive(:check_in_data).and_return(data)
+          allow_any_instance_of(V2::Chip::Service).to receive(:set_echeckin_started).and_return(data)
 
           10.times do
             get('/check_in/v2/patient_check_ins/d602d9eb-9a31-484f-9637-13ab0b507e0d', headers:)

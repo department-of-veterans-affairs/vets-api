@@ -219,9 +219,8 @@ describe V2::Chip::Client do
       it 'handles the exception and returns original error' do
         expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry)
 
-        response = subject.set_echeckin_started(token:, appointment_attributes:)
-        expect(response.status).to eq(resp.status)
-        expect(response.body).to eq(resp.body)
+        expect { subject.set_echeckin_started(token:, appointment_attributes:) }
+          .to raise_error Common::Exceptions::BackendServiceException
       end
     end
   end
