@@ -143,31 +143,31 @@
         "gulfWarHazardService": {
           "servedInGulfWarHazardLocations": "YES",
           "serviceDates": {
-            "beginDate": "07-2018",
-            "endDate": "08-2018"
+            "beginDate": "2018-07",
+            "endDate": "2018-08"
           }
         },
         "herbicideHazardService": {
           "servedInHerbicideHazardLocations": "YES",
           "otherLocationsServed": "ABCDEFGHIJKLM",
           "serviceDates": {
-            "beginDate": "07-2018",
-            "endDate": "08-2018"
+            "beginDate": "2018-07",
+            "endDate": "2018-08"
           }
         },
         "additionalHazardExposures": {
           "additionalExposures": ["ASBESTOS", "SHIPBOARD_HAZARD_AND_DEFENSE"],
           "specifyOtherExposures": "Other exposure details",
           "exposureDates": {
-            "beginDate": "07-2018",
-            "endDate": "08-2018"
+            "beginDate": "2018-07",
+            "endDate": "2018-08"
           }
         },
         "multipleExposures": [
           {
             "exposureDates": {
-              "beginDate": "12-2012",
-              "endDate": "07-2013"
+              "beginDate": "2012-12",
+              "endDate": "2013-07"
             },
             "exposureLocation": "Guam",
             "hazardExposedTo": "RADIATION"
@@ -186,7 +186,7 @@
             "state": "GA",
             "city": "Decatur"
           },
-          "beginDate": "03-2009"
+          "beginDate": "2009-03"
         }
       ],
       "servicePay": {
