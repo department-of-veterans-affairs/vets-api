@@ -6,7 +6,8 @@ module KmsKeyRotation
 
     sidekiq_options retry: false, queue: :low
 
-    MAX_RECORDS_PER_BATCH = 1_000_000
+    MAX_RECORDS_PER_BATCH = 100_000
+    CHUNK_SIZE = 1000
     MAX_RECORDS_PER_JOB = 100
 
     MODELS_FOR_QUERY = {
@@ -26,15 +27,16 @@ module KmsKeyRotation
 
         offset = 0
 
-        loop do
+        while records_enqueued < MAX_RECORDS_PER_BATCH
           records = records_for_model(model, offset)
+          break if records.empty?
 
-          KmsKeyRotation::RotateKeysJob.perform_async(records.map(&:to_global_id).to_a)
+          records.each_slice(MAX_RECORDS_PER_JOB) do |recs|
+            KmsKeyRotation::RotateKeysJob.perform_async(recs.map(&:to_global_id).to_a)
+          end
 
           records_enqueued += records.size
-          offset += MAX_RECORDS_PER_JOB
-
-          break if records_enqueued >= MAX_RECORDS_PER_BATCH || records.size < MAX_RECORDS_PER_JOB
+          offset += CHUNK_SIZE
         end
       end
     rescue => e
@@ -51,7 +53,7 @@ module KmsKeyRotation
       model = MODELS_FOR_QUERY[model.name] if MODELS_FOR_QUERY.key?(model.name)
       model
         .where.not('encrypted_kms_key LIKE ?', "v#{KmsEncryptedModelPatch.kms_version}:%")
-        .limit(MAX_RECORDS_PER_JOB).offset(offset)
+        .limit(CHUNK_SIZE).offset(offset)
     end
   end
 end
