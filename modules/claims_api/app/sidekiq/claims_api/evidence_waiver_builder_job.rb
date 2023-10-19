@@ -23,6 +23,7 @@ module ClaimsApi
       ::Common::FileHelpers.delete_file_if_exists(output_path)
     rescue VBMS::Unknown
       rescue_vbms_error(evidence_waiver_submission)
+      raise VBMS::Unknown # for sidekiq retries
     rescue Errno::ENOENT
       rescue_file_not_found(evidence_waiver_submission)
     end

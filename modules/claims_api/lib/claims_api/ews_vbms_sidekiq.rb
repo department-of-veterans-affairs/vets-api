@@ -7,7 +7,7 @@ module ClaimsApi
     include SentryLogging
 
     def upload_to_vbms(evidence_waiver_submission, path)
-      uploader = VBMSUploader.new(
+      uploader = ClaimsApi::VBMSUploader.new(
         filepath: path,
         file_number: evidence_waiver_submission.auth_headers['va_eauth_birlsfilenumber'],
         doc_type: '705'
