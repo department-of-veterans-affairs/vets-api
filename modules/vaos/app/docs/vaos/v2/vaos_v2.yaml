@@ -868,6 +868,9 @@ components:
           "$ref": "#/components/schemas/AppointmentExtensions"
         preferredProviderName:
           type: string
+        avsPath:
+          type: string
+          description: URL path for the After Visit Summary, for past booked appointments.
     AppointmentExtensions:
       type: object
       properties:

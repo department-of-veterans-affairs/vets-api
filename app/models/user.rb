@@ -9,6 +9,7 @@ require 'mpi/service'
 require 'saml/user'
 require 'formatters/date_formatter'
 require 'va_profile/configuration'
+require 'va_profile/veteran_status/service'
 
 class User < Common::RedisStore
   include Authorization
@@ -46,7 +47,9 @@ class User < Common::RedisStore
   end
 
   def needs_accepted_terms_of_use
-    @needs_accepted_terms_of_use ||= user_account&.needs_accepted_terms_of_use?
+    return @needs_accepted_terms_of_use unless @needs_accepted_terms_of_use.nil?
+
+    @needs_accepted_terms_of_use = user_account&.needs_accepted_terms_of_use?
   end
 
   def user_verification
@@ -341,7 +344,7 @@ class User < Common::RedisStore
     super
   end
 
-  %w[veteran_status military_information payment].each do |emis_method|
+  %w[military_information payment].each do |emis_method|
     define_method(emis_method) do
       emis_model = instance_variable_get(:"@#{emis_method}")
       return emis_model if emis_model.present?
@@ -350,6 +353,14 @@ class User < Common::RedisStore
       instance_variable_set(:"@#{emis_method}", emis_model)
       emis_model
     end
+  end
+
+  def veteran_status
+    @veteran_status ||= if Flipper.enabled?(:veteran_status_updated)
+                          VAProfile::VeteranStatus::Service.new(self)
+                        else
+                          EMISRedis::VeteranStatus.for_user(self)
+                        end
   end
 
   %w[profile grants].each do |okta_model_name|

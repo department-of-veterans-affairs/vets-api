@@ -75,6 +75,7 @@ Layout/LineLength:
   Max: 120
   Exclude:
     - 'Gemfile'
+    - 'Dangerfile'
 
 Rails:
   Enabled: true
@@ -89,6 +90,7 @@ Metrics/MethodLength:
     - 'spec/support/form1010cg_helpers/build_claim_data_for.rb'
     - 'spec/simplecov_helper.rb'
     - 'app/sidekiq/education_form/create_daily_spool_files.rb'
+    - 'Dangerfile'
 
 Metrics/ClassLength:
   Max: 400
@@ -187,6 +189,14 @@ RSpec/SpecFilePathFormat:
     - 'spec/rakelib/piilog_repl/piilog_helpers_spec.rb'
   CustomTransform:
     SSOeSettingsService: ssoe_settings_service
+
+# Use in conjunction with SpecFilePathFormat
+RSpec/SpecFilePathSuffix:
+  Enabled: true
+
+# This can be false if we have RSpec/SpecFilePathSuffix and RSpec/SpecFilePathFormat enabled.
+RSpec/FilePath:
+  Enabled: false
 
 # Was determined that using described_class makes the code less readable.
 RSpec/DescribedClass:

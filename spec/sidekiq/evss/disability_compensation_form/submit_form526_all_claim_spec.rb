@@ -132,6 +132,26 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             end
           end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
         end
+
+        context 'when veteran has open claims' do
+          let(:open_claims_cassette) { 'evss/claims/claims' }
+
+          before do
+            allow(StatsD).to receive(:distribution)
+            Timecop.freeze('2018-09-28T13:00:00ZZ')
+          end
+
+          after { Timecop.return }
+
+          it 'reports the expected stats for EP 400 merge eligibility' do
+            subject.perform_async(submission.id)
+            VCR.use_cassette('virtual_regional_office/contention_classification') do
+              described_class.drain
+            end
+            expect(StatsD).to have_received(:distribution).with('worker.ep_merge.pending_ep_count', 1)
+            expect(StatsD).to have_received(:distribution).with('worker.ep_merge.pending_ep_age', 365)
+          end
+        end
       end
     end
 

@@ -93,6 +93,7 @@ http_interactions:
           "description": "Service Connected",
           "decision": "Service Connected",
           "effective_date": "2018-03-27",
+          "rating_end_date": null,
           "rating_percentage": 50,
           "diagnostic_type_code": "5238",
           "diagnostic_type_name": "Diabetes Mellitus",          

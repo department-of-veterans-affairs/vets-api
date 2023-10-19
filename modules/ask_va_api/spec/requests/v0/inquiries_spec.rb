@@ -91,7 +91,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
           end
 
           it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                          'Bad Request Error: service error'
+                          'Dynamics::ErrorHandler::BadRequestError: service error'
         end
 
         context 'when a standard error' do
@@ -105,7 +105,7 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
           end
 
           it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                          ': standard error'
+                          'StandardError: standard error'
         end
       end
     end

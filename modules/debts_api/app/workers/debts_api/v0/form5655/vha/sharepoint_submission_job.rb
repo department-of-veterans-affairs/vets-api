@@ -6,8 +6,16 @@ module DebtsApi
   class V0::Form5655::VHA::SharepointSubmissionJob
     include Sidekiq::Worker
     include SentryLogging
+    STATS_KEY = 'api.vha_sharepoint_submission'
 
-    sidekiq_options retry: false
+    sidekiq_options retry: 4
+
+    sidekiq_retries_exhausted do |job, _ex|
+      StatsD.increment("#{STATS_KEY}.failure")
+      submission_id = job['args'][0]
+      submission = DebtsApi::V0::Form5655Submission.find(submission_id)
+      submission.register_failure("SharePoint Submission Failed: #{job['error_message']}.")
+    end
 
     #
     # Separate submission job for VHA SharePoint PDF uploads
@@ -25,9 +33,7 @@ module DebtsApi
         form_submission:,
         station_id: form_submission.form['facilityNum']
       )
-    rescue => e
-      form_submission.register_failure("SharePoint Submission Failed: #{e.message}.")
-      raise e
+      StatsD.increment("#{STATS_KEY}.success")
     end
   end
 end

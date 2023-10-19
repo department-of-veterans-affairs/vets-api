@@ -330,6 +330,10 @@ features:
     actor_type: user
     description: Manage whether dependent claims will submit to central processing
     enable_in_development: true
+  dependents_central_submission_lighthouse:
+    actor_type: user
+    description: Manage whether central processing submission uses Lighthouse API
+    enable_in_development: true
   dependents_submit_674_independently:
     actor_type: user
     description: Manage whether 674 can be submitted without an associated 686c
@@ -337,6 +341,10 @@ features:
   disability_526_classifier_new_claims:
     actor_type: user
     description: enables sending new 526-ez claims to VRO Contention Classification service for more accurate classification entry.
+    enable_in_development: true
+  disability_526_reduced_contention_list:
+    actor_type: user
+    description: enableds reduced 526-ez contention dropdown list to improve usability. See https://github.com/department-of-veterans-affairs/vagov-claim-classification/issues/259
     enable_in_development: true
   disability_526_maximum_rating:
     actor_type: user
@@ -437,6 +445,10 @@ features:
     actor_type: user
     description: Enables a simplified asset calculation flow, including Cash in Bank, for users completing the Financial Status Report (FSR) form.
     enable_in_development: true
+  financial_status_report_review_page_navigation:
+    actor_type: user
+    description: Enables new review page navigation for users completing the Financial Status Report (FSR) form.
+    enable_in_development: true
   form526_legacy:
     actor_type: user
     description: If true, points controllers to the legacy EVSS Form 526 instance. If false, the controllers will use the Dockerized instance running in DVP.
@@ -461,9 +473,17 @@ features:
     actor_type: user
     description: Enables form 1990e email submission confirmation (VaNotify)
     enable_in_development: true
+  form21_0972_confirmation_email:
+    actor_type: user
+    description: Enables form 21-0972 email submission confirmation (VaNotify)
+    enable_in_development: true
   form21_10210_confirmation_email:
     actor_type: user
     description: Enables form 21-10210 email submission confirmation (VaNotify)
+    enable_in_development: true
+  form21p_0847_confirmation_email:
+    actor_type: user
+    description: Enables form 21p-0847 email submission confirmation (VaNotify)
     enable_in_development: true
   form21_4142_confirmation_email:
     actor_type: user
@@ -581,9 +601,17 @@ features:
     actor_type: user
     description: Enables/disbales Secure Messaging Patient on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
+  mhv_secure_messaging_to_phase_1:
+    actor_type: user
+    description: Enables/disbales Secure Messaging Phase 1 on VA.gov
+    enable_in_development: true
   mhv_medical_records_phr_refresh_on_login:
     actor_type: user
     description: Enables/disbales the PHR refresh for MHV users when logging into VA.gov
+    enable_in_development: true
+  mhv_medical_records_to_va_gov_release:
+    actor_type: user
+    description: Enables/disbales Medical Records on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
   mhv_medical_records_display_domains:
     actor_type: user
@@ -736,6 +764,9 @@ features:
   my_va_update_errors_warnings:
     actor_type: user
     description: Update all errors and warnings on My VA for consistency (will remove when va-notification component is released)
+  my_va_show_header_link:
+    actor_type: user
+    description: Show the My VA link on the global site header
   rated_disabilities_use_lighthouse:
     actor_type: user
     description: When enabled, the rated disabilities application uses Lighthouse instead of EVSS
@@ -802,11 +833,30 @@ features:
     enable_in_development: true
   show_meb_1990EZ_maintenance_alert:
     actor_type: user
-    description: Display an alert to users on the 1990EZ introduction page when Backend Service is Down.
+    description: Displays an alert to users on 1990EZ intro page that the Backend Service is Down.
+    enable_in_development: false
+  show_meb_1990E_maintenance_alert:
+    actor_type: user
+    description: Displays an alert to users on 1990E intro page that the Backend Service is Down.
+    enable_in_development: false
+  show_meb_letters_maintenance_alert:
+    actor_type: user
+    description: Displays an alert to users on Letters Inbox page that the Backend Service is Down.
+    enable_in_development: false
+  show_meb_enrollment_verification_maintenance_alert:
+    actor_type: user
+    description: Displays an alert to users on Enrollment Verification intro page that the Backend Service is Down.
+    enable_in_development: false
+  show_meb_international_address_prefill:
+    actor_type: user
+    description: Enhances form prefilling to include international address.
     enable_in_development: true
+  show_meb_service_history_categorize_disagreement:
+    actor_type: user
+    enable_in_development: false
   show_forms_app:
     actor_type: user
-    description: This determines when the form should be displayed.
+    description: Enables the TOE form to be displayed.
     enable_in_development: true
   show_medical_copays:
     actor_type: user
@@ -1139,6 +1189,10 @@ features:
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
+  veteran_status_updated:
+    actor_type: user
+    description: Enable the veteran post-emis status
+    enable_in_development: false
   virtual_agent_decision_letter_download_tracking:
     actor_type: user
     description: Enable tracking of decision letter downloads in the VA Chatbot

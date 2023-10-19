@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
-require 'debt_management_center/financial_status_report_service'
 require 'debts_api/v0/financial_status_report_service'
 
 module V0
   class FinancialStatusReportsController < ApplicationController
     before_action { authorize :debt, :access? }
 
-    rescue_from ::DebtManagementCenter::FinancialStatusReportService::FSRNotFoundInRedis, with: :render_not_found
+    rescue_from ::DebtsApi::V0::FinancialStatusReportService::FSRNotFoundInRedis, with: :render_not_found
 
     def create
       render json: service.submit_financial_status_report(fsr_form)
@@ -153,11 +152,7 @@ module V0
     # rubocop:enable Metrics/MethodLength
 
     def service
-      if Flipper.enabled?(:financial_status_report_debts_api_module)
-        DebtsApi::V0::FinancialStatusReportService.new(current_user)
-      else
-        DebtManagementCenter::FinancialStatusReportService.new(current_user)
-      end
+      DebtsApi::V0::FinancialStatusReportService.new(current_user)
     end
   end
 end

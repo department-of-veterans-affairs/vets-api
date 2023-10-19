@@ -46,6 +46,16 @@ module Lighthouse
         get_list(first_response)
       end
 
+      def list_allergy_intolerances
+        params = {
+          patient: @icn,
+          _count: 100
+        }
+
+        first_response = perform_get('services/fhir/v0/r4/AllergyIntolerance', **params.compact)
+        get_list(first_response)
+      end
+
       def list_bp_observations
         params = {
           category: 'vital-signs',
@@ -72,6 +82,10 @@ module Lighthouse
 
         first_response = perform_get('services/fhir/v0/r4/Observation', **params)
         get_list(first_response)
+      end
+
+      def get_observation(id)
+        perform_get("services/fhir/v0/r4/Observation/#{id}")
       end
 
       def list_medication_requests

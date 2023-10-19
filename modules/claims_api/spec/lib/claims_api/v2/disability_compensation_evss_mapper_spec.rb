@@ -112,10 +112,10 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
         service_periods = evss_data[:serviceInformation][:servicePeriods][0]
 
         expect(service_periods[:serviceBranch]).to eq('Public Health Service')
-        expect(service_periods[:activeDutyBeginDate]).to eq('1980-11-14')
-        expect(service_periods[:activeDutyEndDate]).to eq('1991-11-30')
+        expect(service_periods[:activeDutyBeginDate]).to eq('2008-11-14')
+        expect(service_periods[:activeDutyEndDate]).to eq('2021-11-30')
         expect(service_periods[:serviceComponent]).to eq('Active')
-        expect(service_periods[:separationLocationCode]).to eq('ABCDEFGHIJKLMN')
+        expect(service_periods[:separationLocationCode]).to eq('98282')
       end
     end
 

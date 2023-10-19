@@ -384,7 +384,13 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
 
           context 'and authentication occurred with an application not in TERMS_OF_USE_ENABLED_CLIENTS' do
+            let(:application) { 'mhv' }
+            let!(:tracker) { SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: }) }
             let(:expected_redirect_url) { 'http://127.0.0.1:3001/auth/login/callback' }
+
+            before do
+              stub_const('SAML::URLService::TERMS_OF_USE_ENABLED_CLIENTS', ['vaweb'])
+            end
 
             it 'redirects to expected auth page page' do
               expect(post(:saml_callback)).to redirect_to(expected_redirect_url)

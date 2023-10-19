@@ -8,7 +8,7 @@ module AskVAApi
 
       def initialize(info)
         @id = info[:id]
-        @name = info[:value]
+        @name = info[:category]
       end
     end
   end

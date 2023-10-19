@@ -15,6 +15,12 @@ http_interactions:
           - application/json
       body:
         encoding: UTF-8
-        string: '{ "title": "Error Fetching Demographic Updates" }'
+        string: |-
+          {
+            "errors": [{
+              "status": "500",
+              "title": "Error getting demographics from VistA API: Request failed with status code 500"
+            }]
+          }
     recorded_at: Thu, 19 Nov 2020 16:45:03 GMT
 recorded_with: VCR 6.0.0

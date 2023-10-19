@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'mobile_application_platform/sign_up/service'
+require 'map/sign_up/service'
 
 module TermsOfUse
   class SignUpServiceUpdaterJob
@@ -26,11 +26,11 @@ module TermsOfUse
     private
 
     def accept
-      MobileApplicationPlatform::SignUp::Service.new.agreements_accept(icn:, signature_name:, version:)
+      MAP::SignUp::Service.new.agreements_accept(icn:, signature_name:, version:)
     end
 
     def decline
-      MobileApplicationPlatform::SignUp::Service.new.agreements_decline(icn:)
+      MAP::SignUp::Service.new.agreements_decline(icn:)
     end
 
     def icn

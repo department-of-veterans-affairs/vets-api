@@ -8,7 +8,7 @@ require 'support/pagerduty/services/spec_setup'
 require 'support/stub_debt_letters'
 require 'support/medical_copays/stub_medical_copays'
 require 'support/stub_efolder_documents'
-require 'support/stub_financial_status_report'
+require_relative '../../modules/debts_api/spec/support/stub_financial_status_report'
 require 'support/sm_client_helpers'
 require 'support/rx_client_helpers'
 require 'bgs/service'
@@ -73,8 +73,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           create(:code_container,
                  code:,
                  code_challenge:,
-                 user_verification_id:)
+                 user_verification_id:,
+                 client_id: client_config.client_id)
         end
+        let(:client_config) { create(:client_config, enforced_terms: nil) }
 
         it 'validates the authorization_code & returns tokens' do
           expect(subject).to validate(
@@ -88,7 +90,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       describe 'POST v0/sign_in/refresh' do
         let(:user_verification) { create(:user_verification) }
-        let(:validated_credential) { create(:validated_credential, user_verification:) }
+        let(:validated_credential) { create(:validated_credential, user_verification:, client_config:) }
+        let(:client_config) { create(:client_config, enforced_terms: nil) }
         let(:session_container) do
           SignIn::SessionCreator.new(validated_credential:).perform
         end
@@ -126,7 +129,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       describe 'POST v0/sign_in/revoke' do
         let(:user_verification) { create(:user_verification) }
-        let(:validated_credential) { create(:validated_credential, user_verification:) }
+        let(:validated_credential) { create(:validated_credential, user_verification:, client_config:) }
+        let(:client_config) { create(:client_config, enforced_terms: nil) }
         let(:session_container) do
           SignIn::SessionCreator.new(validated_credential:).perform
         end
@@ -147,7 +151,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       describe 'GET v0/sign_in/revoke_all_sessions' do
         let(:user_verification) { create(:user_verification) }
-        let(:validated_credential) { create(:validated_credential, user_verification:) }
+        let(:validated_credential) { create(:validated_credential, user_verification:, client_config:) }
+        let(:client_config) { create(:client_config, enforced_terms: nil) }
         let(:session_container) do
           SignIn::SessionCreator.new(validated_credential:).perform
         end
@@ -1891,9 +1896,18 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    it 'supports getting the user data' do
-      expect(subject).to validate(:get, '/v0/user', 200, headers)
-      expect(subject).to validate(:get, '/v0/user', 401)
+    it 'supports getting the 200 user data' do
+      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[body],
+                                                                                  allow_playback_repeats: true) do
+        expect(subject).to validate(:get, '/v0/user', 200, headers)
+      end
+    end
+
+    it 'supports getting the 401 user data' do
+      VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank', match_requests_on: %i[body],
+                                                                                 allow_playback_repeats: true) do
+        expect(subject).to validate(:get, '/v0/user', 401)
+      end
     end
 
     context '/v0/user endpoint with some external service errors' do
@@ -2261,21 +2275,21 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
         it 'returns a 400' do
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          VCR.use_cassette('lighthouse/direct_deposit/show/400_invalid_icn') do
+          VCR.use_cassette('lighthouse/direct_deposit/show/errors/400_invalid_icn') do
             expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 400, headers)
           end
         end
 
         it 'returns a 401' do
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          VCR.use_cassette('lighthouse/direct_deposit/show/401_invalid_token') do
+          VCR.use_cassette('lighthouse/direct_deposit/show/errors/401_invalid_token') do
             expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 401, headers)
           end
         end
 
         it 'returns a 404' do
           headers = { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
-          VCR.use_cassette('lighthouse/direct_deposit/show/404_icn_not_found') do
+          VCR.use_cassette('lighthouse/direct_deposit/show/errors/404_response') do
             expect(subject).to validate(:get, '/v0/profile/direct_deposits/disability_compensations', 404, headers)
           end
         end

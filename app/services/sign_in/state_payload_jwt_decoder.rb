@@ -21,7 +21,8 @@ module SignIn
         type: decoded_jwt.type,
         code_challenge: decoded_jwt.code_challenge,
         client_state: decoded_jwt.client_state,
-        code: decoded_jwt.code
+        code: decoded_jwt.code,
+        created_at: decoded_jwt.created_at
       )
     end
 

@@ -72,6 +72,8 @@ module ClaimsApi
           end
 
           ClaimsApi::Logger.log('526', detail: '526 - Request Completed')
+          claims_v1_logging(target_veteran&.mpi_icn)
+
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
         end
 
@@ -79,7 +81,7 @@ module ClaimsApi
         # Required if first ever claim for Veteran.
         #
         # @return [JSON] Claim record
-        def upload_form_526
+        def upload_form_526 # rubocop:disable Metrics/MethodLength
           validate_document_provided
           validate_documents_content_type
           validate_documents_page_size
@@ -93,6 +95,7 @@ module ClaimsApi
             ClaimsApi::Logger.log('526', claim_id: pending_claim.id, detail: 'Uploaded PDF to S3')
             ClaimsApi::ClaimEstablisher.perform_async(pending_claim.id)
             ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
+            claims_v1_logging(target_veteran&.mpi_icn)
 
             render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
           elsif pending_claim && (pending_claim.form_data['autoCestPDFGenerationDisabled'] == false)
@@ -128,6 +131,8 @@ module ClaimsApi
             claim_document.save!
             ClaimsApi::ClaimUploader.perform_async(claim_document.id)
           end
+
+          claims_v1_logging(target_veteran&.mpi_icn)
 
           render json: claim, serializer: ClaimsApi::ClaimDetailSerializer, uuid: claim.id
         end
@@ -170,6 +175,8 @@ module ClaimsApi
           end
 
           ClaimsApi::Logger.log('526', detail: '526/validate - Request Completed')
+          claims_v1_logging(target_veteran&.mpi_icn)
+
           render json: valid_526_response
         rescue ::EVSS::DisabilityCompensationForm::ServiceException, EVSS::ErrorMiddleware::EVSSError => e
           error_details = e.is_a?(EVSS::ErrorMiddleware::EVSSError) ? e.details : e.messages
