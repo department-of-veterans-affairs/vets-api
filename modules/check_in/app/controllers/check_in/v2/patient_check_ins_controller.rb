@@ -14,9 +14,16 @@ module CheckIn
           render json: check_in_session.unauthorized_message, status: :unauthorized and return
         end
 
-        resp = ::V2::Lorota::Service.build(check_in: check_in_session).check_in_data
+        patient_check_in_data = ::V2::Lorota::Service.build(check_in: check_in_session).check_in_data
 
-        render json: resp
+        if Flipper.enabled?('check_in_experience_45_minute_reminder') && !start_check_in_called?(patient_check_in_data)
+          ::V2::Chip::Service.build(check_in: check_in_session).set_echeckin_started
+        end
+
+        # Remove stale setECheckInCalled data from appointment data
+        appointment_data = patient_check_in_data.tap { |appt_data| appt_data[:payload]&.delete(:setECheckInCalled) }
+
+        render json: appointment_data
       end
 
       def create
@@ -45,6 +52,10 @@ module CheckIn
 
       def handoff?
         params[:handoff]&.downcase == 'true'
+      end
+
+      def start_check_in_called?(patient_check_in_data)
+        patient_check_in_data.dig(:payload, :setECheckInCalled)
       end
     end
   end

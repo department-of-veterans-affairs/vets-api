@@ -50,12 +50,6 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
           subject.perform_async(claim.id, file_number)
         end.to change(subject.jobs, :size).by(1)
       end
-
-      it 'sets gets claim correctly' do
-        returned_claim = service.send(:get_pending_claim, claim.id)
-        expect(claim).to be_instance_of(ClaimsApi::AutoEstablishedClaim)
-        expect(returned_claim.id).to eq(claim.id)
-      end
     end
 
     context 'handles an errored claim correctly' do

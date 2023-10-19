@@ -10,6 +10,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
     allow(Rails).to receive(:cache).and_return(memory_store)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_45_minute_reminder').and_return(false)
 
     Rails.cache.clear
   end
@@ -184,6 +185,79 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
         end
         expect(response.status).to eq(200)
         expect(JSON.parse(response.body)).to eq(resp)
+      end
+
+      context 'when check_in_experience_45_minute_reminder feature flag is on' do
+        before do
+          allow(Flipper).to receive(:enabled?).with('check_in_experience_45_minute_reminder').and_return(true)
+        end
+
+        context 'when set_echeckin_started call succeeds' do
+          it 'returns valid response' do
+            VCR.use_cassette 'check_in/lorota/token/token_200' do
+              post '/check_in/v2/sessions', **session_params
+              expect(response.status).to eq(200)
+            end
+
+            VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
+              VCR.use_cassette 'check_in/chip/set_echeckin_started/set_echeckin_started_200' do
+                VCR.use_cassette 'check_in/chip/token/token_200' do
+                  get "/check_in/v2/patient_check_ins/#{id}"
+                end
+              end
+            end
+            expect(response.status).to eq(200)
+            expect(JSON.parse(response.body)).to eq(resp)
+          end
+        end
+
+        context 'when setECheckinStartedCalled set to true' do
+          it 'returns valid response without calling set_echeckin_started' do
+            VCR.use_cassette 'check_in/lorota/token/token_200' do
+              post '/check_in/v2/sessions', **session_params
+              expect(response.status).to eq(200)
+            end
+
+            VCR.use_cassette('check_in/lorota/data/data_with_echeckin_started_200', match_requests_on: [:host]) do
+              get "/check_in/v2/patient_check_ins/#{id}"
+            end
+            expect(response.status).to eq(200)
+            expect(JSON.parse(response.body)).to eq(resp)
+          end
+        end
+
+        context 'when set_echeckin_started call fails' do
+          let(:error_body) do
+            {
+              'errors' => [
+                {
+                  'title' => 'Internal Server Error',
+                  'detail' => 'Internal Server Error',
+                  'code' => 'CHIP-API_500',
+                  'status' => '500'
+                }
+              ]
+            }
+          end
+          let(:error_resp) { Faraday::Response.new(body: error_body, status: 500) }
+
+          it 'returns error response' do
+            VCR.use_cassette 'check_in/lorota/token/token_200' do
+              post '/check_in/v2/sessions', **session_params
+              expect(response.status).to eq(200)
+            end
+
+            VCR.use_cassette('check_in/lorota/data/data_200', match_requests_on: [:host]) do
+              VCR.use_cassette 'check_in/chip/set_echeckin_started/set_echeckin_started_500' do
+                VCR.use_cassette 'check_in/chip/token/token_200' do
+                  get "/check_in/v2/patient_check_ins/#{id}"
+                end
+              end
+            end
+            expect(response.status).to eq(error_resp.status)
+            expect(response.body).to eq(error_resp.body.to_json)
+          end
+        end
       end
     end
   end

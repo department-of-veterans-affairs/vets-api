@@ -11,6 +11,7 @@ RSpec.describe 'V2::Demographics', type: :request do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_enabled').and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_enabled', anything).and_return(true)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
+    allow(Flipper).to receive(:enabled?).with('check_in_experience_45_minute_reminder').and_return(false)
 
     Rails.cache.clear
   end

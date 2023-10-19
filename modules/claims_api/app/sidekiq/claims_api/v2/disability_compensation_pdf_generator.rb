@@ -67,7 +67,7 @@ module ClaimsApi
         set_errored_state(claim_id)
         ClaimsApi::Logger.log('526 v2 PDf Generator job',
                               claim_id:,
-                              detail: "526EZ PDF generator errored #{e.status_code} #{e.original_body}")
+                              detail: "526EZ PDF generator faraday errored #{e.status_code} #{e.original_body}")
 
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e

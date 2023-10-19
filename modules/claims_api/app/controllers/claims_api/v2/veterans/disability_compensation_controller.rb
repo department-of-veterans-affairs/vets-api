@@ -57,8 +57,9 @@ module ClaimsApi
                                   detail: 'Background job started')
 
             process_claim(auto_claim)
-            render json: auto_claim
+            render json: auto_claim, status: :accepted, location: "#{request.url[0..-4]}claims/#{auto_claim.id}"
           end
+
           # Is this even needed here anymore ???
           # get_benefits_documents_auth_token unless Rails.env.test?
         end
