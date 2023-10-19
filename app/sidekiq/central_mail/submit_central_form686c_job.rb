@@ -83,17 +83,15 @@ module CentralMail
 
     # rubocop:disable Metrics/MethodLength #Temporary disable until flipper removed
     def check_success(response, saved_claim_id, user_struct)
-      Rails.logger.info('CentralMail::SubmitCentralForm686cJob temporary log', { response: })
       if Flipper.enabled?(:dependents_central_submission_lighthouse)
         if response.success?
           Rails.logger.info('CentralMail::SubmitCentralForm686cJob succeeded!',
-                            { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'],
-                              benefits_intake_guid: response['data']['id'] })
+                            { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'] })
           update_submission('success')
           send_confirmation_email(OpenStruct.new(user_struct))
         else
           Rails.logger.info('CentralMail::SubmitCentralForm686cJob Unsuccessful',
-                            { response: response['message'], errors: response['errors'] })
+                            { response: (response['message'].presence || response['errors']) })
           raise CentralMailResponseError
         end
       elsif response.success?
