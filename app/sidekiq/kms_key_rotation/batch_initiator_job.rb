@@ -24,17 +24,11 @@ module KmsKeyRotation
 
         Rails.logger.info("Enqueuing #{model} records for key rotation. #{records_enqueued} records enqueued so far")
 
-        offset = 0
-
-        while records_enqueued < MAX_RECORDS_PER_BATCH
-          gids = gids_for_model(model, offset)
-          break if gids.empty?
-
-          KmsKeyRotation::RotateKeysJob.perform_async(gids)
-
-          records_enqueued += gids.size
-          offset += MAX_RECORDS_PER_JOB
+        gids_for_model(model).each_slice(MAX_RECORDS_PER_JOB) do |slice|
+          KmsKeyRotation::RotateKeysJob.perform_async(slice)
         end
+
+        records_enqueued += gids.size
       end
     rescue => e
       Rails.logger.error("An error occurred during processing: #{e.message}")
@@ -46,13 +40,12 @@ module KmsKeyRotation
       @models ||= ApplicationRecord.descendants_using_encryption.map(&:name).map(&:constantize)
     end
 
-    def gids_for_model(model, offset)
+    def gids_for_model(model)
       model = MODELS_FOR_QUERY[model.name] if MODELS_FOR_QUERY.key?(model.name)
 
       model
         .where.not('encrypted_kms_key LIKE ?', "v#{KmsEncryptedModelPatch.kms_version}:%")
-        .limit(MAX_RECORDS_PER_JOB)
-        .offset(offset)
+        .limit(MAX_RECORDS_PER_BATCH)
         .pluck(model.primary_key)
         .map { |id| URI::GID.build(app: GlobalID.app, model_name: model.name, model_id: id).to_s }
     end
