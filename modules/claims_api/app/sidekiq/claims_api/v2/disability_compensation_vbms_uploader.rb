@@ -4,64 +4,95 @@ require 'sidekiq'
 require 'sidekiq/monitored_worker'
 require 'pdf_generator_service/pdf_client'
 require 'bd/bd'
+require 'claims_api/claim_logger'
+require 'claims_api/vbms_uploader'
+require 'claims_api/poa_vbms_sidekiq'
 
 module ClaimsApi
   module V2
-    class DisabilityCompensationVBMSUploader < DisabilityCompensationClaimService
+    class DisabilityCompensationVBMSUploader
       include Sidekiq::Job
       include SentryLogging
       include Sidekiq::MonitoredWorker
 
       def perform(claim_id) # rubocop:disable Metrics/MethodLength
-        log_job_progress('dis_comp_vbms_uploader',
-                         claim_id,
-                         'VBMS upload job started')
+        ClaimsApi::Logger.log('********** 526 v2 VBMS Uploader job',
+                              claim_id:,
+                              detail: 'VBMS upload job started')
 
         claim_object = ClaimsApi::SupportingDocument.find_by(id: claim_id) ||
                        ClaimsApi::AutoEstablishedClaim.find_by(id: claim_id)
 
-        claim = claim_object.try(:auto_established_claim) || claim_object
+        auto_claim = claim_object.try(:auto_established_claim) || claim_object
 
         uploader = claim_object.uploader
         uploader.retrieve_from_store!(claim_object.file_data['filename'])
         file_body = uploader.read
 
-        bd_upload_body(claim:, file_body:)
+        bd_upload_body(auto_claim:, file_body:)
 
-        log_job_progress('dis_comp_vbms_uploader',
-                         claim_id,
-                         'Uploaded 526EZ PDF to VBMS')
+        ClaimsApi::Logger.log('526 v2 VBMS Uploader job',
+                              claim_id:,
+                              detail: 'Uploaded 526EZ PDF to VBMS')
 
-        set_claim_as_established(claim.id) unless claim.status == 'errored'
+        start_claim_establsher_job(auto_claim) if auto_claim.status != 'errored'
 
-        log_job_progress('dis_comp_vbms_uploader',
-                         claim_id,
-                         'VBMS uploaded succeeded, claim established')
+        ClaimsApi::Logger.log('526 v2 VBMS Uploader job',
+                              claim_id:,
+                              detail: 'VBMS uploaded succeeded')
 
       # Temporary errors (returning HTML, connection timeout), retry call
       rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
-        log_job_progress('dis_comp_vbms_uploader',
-                         claim_id,
-                         "/upload failure for claimId #{claim_id}: #{e.message}, will retry")
-
-        set_errored_state(e, claim_id)
+        set_errored_state(claim_id)
+        ClaimsApi::Logger.log('526 v2 VBMS Uploader job',
+                              claim_id:,
+                              detail: "VBMS failure for claimId #{auto_claim&.id}: #{e.message}")
         raise e
       # Permanent failures, don't retry
+      rescue VBMS::Unknown
+        rescue_vbms_error(claim)
+      rescue Errno::ENOENT
+        rescue_file_not_found(claim)
+        raise
+      rescue VBMS::FilenumberDoesNotExist
+        rescue_vbms_file_number_not_found(claim)
+        raise
       rescue => e
-        message = if e.respond_to? :original_body
-                    e.original_body
-                  else
-                    e.message
-                  end
-        log_job_progress('benefits_documents',
-                         claim_id,
-                         "/upload failure for claimId #{claim_id}: #{message}, will not retry")
+        set_errored_state(claim_id)
+        message = get_error_message(e)
 
-        set_errored_state(e, claim_id)
-        {}
+        ClaimsApi::Logger.log('526 v2 VBMS Uploader job',
+                              claim_id:,
+                              detail: "VBMS failure for claimId #{auto_claim&.id}: #{message}")
+
+        # {}
+        raise e
       end
 
       private
+
+      def set_errored_state(claim_id)
+        auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+
+        auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+        auto_claim.save!
+      end
+
+      def get_error_message(e)
+        if e.respond_to? :original_body
+          e.original_body
+        else
+          e.message
+        end
+      end
+
+      def start_claim_establsher_job(auto_claim)
+        claim_establisher_service.new.perform(auto_claim&.id)
+      end
+
+      def claim_establisher_service
+        ClaimsApi::V2::DisabilityCompensationClaimEstablisher
+      end
 
       def bd_upload_body(auto_claim:, file_body:)
         fh = Tempfile.new(['pdf_path', '.pdf'], binmode: true)

@@ -4,10 +4,11 @@ require 'sidekiq'
 require 'sidekiq/monitored_worker'
 require 'claims_api/v2/disability_compensation_pdf_mapper'
 require 'pdf_generator_service/pdf_client'
+require 'claims_api/claim_logger'
 
 module ClaimsApi
   module V2
-    class DisabilityCompensationPdfGenerator < DisabilityCompensationClaimService
+    class DisabilityCompensationPdfGenerator
       include Sidekiq::Job
       include SentryLogging
       include Sidekiq::MonitoredWorker
@@ -15,26 +16,28 @@ module ClaimsApi
       EVSS_DOCUMENT_TYPE = 'L023'
 
       def perform(claim_id, middle_initial, file_number) # rubocop:disable Metrics/MethodLength
-        log_job_progress('dis_comp_pdf_generator',
-                         claim_id,
-                         '526EZ PDF generator started')
+        ClaimsApi::Logger.log('********** 526 v2 PDf Generator job',
+                              claim_id:,
+                              detail: "526EZ PDF generator started for claim #{claim_id}")
 
-        @claim = get_pending_claim(claim_id)
+        auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
 
         pdf_data = get_pdf_data
-        mapped_claim = pdf_mapper_service(@claim.form_data, pdf_data, @claim.auth_headers, middle_initial).map_claim
+        mapped_claim = pdf_mapper_service(auto_claim.form_data, pdf_data, auto_claim.auth_headers,
+                                          middle_initial).map_claim
         pdf_string = generate_526_pdf(mapped_claim)
 
         if pdf_string.empty?
-          log_job_progress('dis_comp_pdf_generator',
-                           @claim.id,
-                           '526EZ PDF generator failed')
+          ClaimsApi::Logger.log('526 v2 PDf Generator job',
+                                claim_id:,
+                                detail: '526EZ PDF generator failed for claim')
 
-          set_errored_state('PDF string came back empty', @claim.id)
+          set_errored_state(claim_id)
+          # restart?
         elsif pdf_string
-          log_job_progress('dis_comp_pdf_generator',
-                           @claim.id,
-                           '526EZ PDF generator PDF upload completed')
+          ClaimsApi::Logger.log('526 v2 PDf Generator job',
+                                claim_id:,
+                                detail: '526EZ PDF generator PDF string returned')
 
           file_name = "#{SecureRandom.hex}.pdf"
           path = ::Common::FileHelpers.generate_temp_file(pdf_string, file_name)
@@ -43,52 +46,59 @@ module ClaimsApi
                                                             type: 'application/pdf',
                                                             tempfile: File.open(path)
                                                           })
-          # Sets file_data on the claim, @claim.file_data
-          # Example:
-          # {"filename"=>"cd04fc6704292a0c9851d872c3583c9e.pdf", "doc_type"=>"L023", "description"=>nil}
-          @claim.set_file_data!(upload, EVSS_DOCUMENT_TYPE)
-          @claim.save!
 
-          log_job_progress('dis_comp_pdf_generator',
-                           @claim.id,
-                           "526EZ PDF generator Uploaded 526EZ PDF #{file_name} to S3")
+          ClaimsApi::Logger.log('526 v2 PDf Generator job',
+                                claim_id:,
+                                detail: "526EZ PDF generator Uploaded 526EZ PDF #{file_name} to S3")
+
+          auto_claim.set_file_data!(upload, EVSS_DOCUMENT_TYPE)
+          auto_claim.save!
 
           ::Common::FileHelpers.delete_file_if_exists(path)
 
         end
 
-        start_evss_job(file_number) if @claim.status != 'errored'
+        start_evss_job(auto_claim&.id, file_number) if auto_claim.status != 'errored'
+
+        ClaimsApi::Logger.log('********** 526 v2 PDf Generator job done',
+                              claim_id:,
+                              detail: '526EZ PDF generator job finished')
       rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
-        set_errored_state(e, @claim.id)
-        log_job_progress('dis_comp_pdf_generator',
-                         @claim.id,
-                         "526EZ PDF generator errored #{e.status_code} #{e.original_body}")
+        set_errored_state(claim_id)
+        ClaimsApi::Logger.log('526 v2 PDf Generator job',
+                              claim_id:,
+                              detail: "526EZ PDF generator errored #{e.status_code} #{e.original_body}")
 
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
-        set_errored_state(e, @claim.id)
-        log_job_progress('dis_comp_pdf_generator',
-                         @claim.id,
-                         "526EZ PDF generator errored #{e.status_code} #{e.original_body}, will not retry")
+        set_errored_state(claim_id)
+        ClaimsApi::Logger.log('526 v2 PDf Generator job',
+                              claim_id:,
+                              detail: "526EZ PDF generator errored #{e.status_code} #{e.original_body}")
 
-        {} # bad data so it will not pass until we fix
+        raise e
+        # {} # bad data so it will not pass until we fix
       rescue => e
-        set_errored_state(e, @claim.id)
-        log_job_progress('dis_comp_pdf_generator',
-                         claim_id,
-                         "526EZ PDF generator errored #{e}, will not retry")
+        set_errored_state(claim_id)
+        ClaimsApi::Logger.log('526 v2 PDf Generator job',
+                              claim_id:,
+                              detail: "526EZ PDF generator errored #{e}")
 
-        {} # Permanent failures, don't retry
+        raise e
+        # {} # Permanent failures, don't retry
       end
 
       private
 
-      def reschedule_job(claim_id, middle_initial, file_number)
-        self.class.perform_in(30.minutes, [claim_id, middle_initial, file_number])
+      def set_errored_state(claim_id)
+        auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+
+        auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+        auto_claim.save!
       end
 
-      def start_evss_job(file_number)
-        ClaimsApi::V2::DisabilityCompensationDockerContainerUpload.perform_async(@claim.id, file_number)
+      def start_evss_job(auto_claim, file_number)
+        ClaimsApi::V2::DisabilityCompensationDockerContainerUpload.perform_async(auto_claim, file_number)
       end
 
       def pdf_mapper_service(form_data, pdf_data, auth_headers, middle_initial)

@@ -44,18 +44,12 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
     let(:middle_initial) { '' }
 
     describe 'handles a successful claim correctly' do
-      service = described_class.new
+      described_class.new
 
       it 'submits successfully' do
         expect do
           subject.perform_async(claim.id, middle_initial, file_number)
         end.to change(subject.jobs, :size).by(1)
-      end
-
-      it 'sets gets claim correctly' do
-        returned_claim = service.send(:get_pending_claim, claim.id)
-        expect(claim).to be_instance_of(ClaimsApi::AutoEstablishedClaim)
-        expect(returned_claim.id).to eq(claim.id)
       end
 
       # Not working yet

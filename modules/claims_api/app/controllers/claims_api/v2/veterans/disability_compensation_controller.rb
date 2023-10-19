@@ -15,7 +15,6 @@ module ClaimsApi
         include ClaimsApi::V2::DisabilityCompensationValidation
 
         FORM_NUMBER = '526'
-        # EVSS_DOCUMENT_TYPE = 'L023'
 
         before_action :shared_validation, :file_number_check, only: %i[submit validate]
 
@@ -52,12 +51,16 @@ module ClaimsApi
           # End test fix
 
           # This kicks off the first of three jobs required to fully establish the claim
-          process_claim(auto_claim)
+          if auto_claim.save!
+            ClaimsApi::Logger.log('********** 526 v2 Background job',
+                                  claim_id: auto_claim.id,
+                                  detail: 'Background job started')
 
+            process_claim(auto_claim)
+            render json: auto_claim
+          end
           # Is this even needed here anymore ???
           # get_benefits_documents_auth_token unless Rails.env.test?
-
-          render json: auto_claim
         end
 
         def validate
