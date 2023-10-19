@@ -50,8 +50,11 @@ module KmsKeyRotation
     end
 
     def records_for_model(model, offset)
+      fields_for_select = [model.primary_key]
+      fields_for_select += ['guid'] if model.column_names.include?('guid')
       model = MODELS_FOR_QUERY[model.name] if MODELS_FOR_QUERY.key?(model.name)
       model
+        .select(fields_for_select)
         .where.not('encrypted_kms_key LIKE ?', "v#{KmsEncryptedModelPatch.kms_version}:%")
         .limit(CHUNK_SIZE).offset(offset)
     end
