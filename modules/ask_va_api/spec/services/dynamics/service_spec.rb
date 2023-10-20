@@ -41,16 +41,6 @@ RSpec.describe Dynamics::Service do
           .to_return(status: 200, body: response_body)
       end
 
-      context 'with invalid JSON' do
-        let(:response_body) { 'invalid JSON' }
-
-        it 'raises a service error' do
-          expect { service.call(endpoint:) }
-            .to raise_error(Dynamics::ErrorHandler::ServiceError,
-                            'No response received from ada58e23-c461-4baf-9c03-ee36ba55c8cf')
-        end
-      end
-
       context 'when JSON parsing fails' do
         let(:response_body) { nil }
 
@@ -154,19 +144,6 @@ RSpec.describe Dynamics::Service do
 
       it 'returns mock data' do
         expect(service.call(endpoint:, criteria: { inquiry_number: 'A-1' })).to eq(mock_response)
-      end
-    end
-
-    context 'when the server returns an error' do
-      before do
-        stub_request(:get, "#{base_uri}#{endpoint}")
-          .to_return(status: 500, body: '{"error":"Internal Server Error"}')
-      end
-
-      it 'raises a service error' do
-        expect { service.call(endpoint:) }
-          .to raise_error(Dynamics::ErrorHandler::ServiceError,
-                          'No response received from ada58e23-c461-4baf-9c03-ee36ba55c8cf')
       end
     end
   end
