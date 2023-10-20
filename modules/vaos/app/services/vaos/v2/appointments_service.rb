@@ -79,6 +79,7 @@ module VAOS
         params.compact_blank!
         with_monitoring do
           response = perform(:post, appointments_base_path, params, headers)
+          convert_appointment_time(response.body)
           log_telehealth_data(response.body) unless response.body[:telehealth].nil?
           OpenStruct.new(response.body)
         rescue Common::Exceptions::BackendServiceException => e
@@ -92,6 +93,7 @@ module VAOS
         params = VAOS::V2::UpdateAppointmentForm.new(status:).params
         with_monitoring do
           response = perform(:put, url_path, params, headers)
+          convert_appointment_time(response.body)
           OpenStruct.new(response.body)
         end
       end
