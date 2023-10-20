@@ -1,0 +1,59 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://int.vet360.va.gov/profile-service/profile/v3/2.16.840.1.113883.3.42.10001.100001.12/1148152574%5ENI%5E200DOD%5EUSDOD
+    body:
+      encoding: UTF-8
+      string: '{"bios":[{"bioPath":"disabilityRating"}]}'
+    headers:
+      User-Agent:
+      - Faraday v0.17.6
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="351464428", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - cc58b978-0dde-4649-9f11-3029297175cf
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Content-Type:
+      - application/json
+      Date:
+      - Mon, 14 Aug 2023 15:29:21 GMT
+      Content-Length:
+      - '1174'
+      Referrer-Policy:
+      - no-referrer
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"profile":{"disabilityRating":{"serviceConnectedIndicator":true,"combinedNonServiceConnectedRatingPercentage":"30","combinedServiceConnectedRatingPercentage":"30","combinedServiceConnectedLegalEffectiveDate":"1995-01-10T06:00:00Z","combinedServiceConnectedAwardEffectiveDate":"2012-07-01T05:00:00Z","promulgationDate":"2012-10-26T12:49:49Z","profileDate":"2012-10-25T18:15:20Z","disabilities":[{"disabilityEvaluationDiagnosticTypeCode":"8100","disabilityEvaluationDiagnosticTypeName":"Migraine","disabilityIdentifier":"1067933","disabilityMilitaryServicePeriodTypeCode":"4","disabilityMilitaryServicePeriodTypeName":"Peacetime","disabilityDecisionBasisTypeCode":"INC","disabilityDecisionBasisTypeName":"Incurred","disabilityDecisionTypeCode":"SVCCONNCTED","disabilityDecisionTypeName":"Service
+        Connected","disabilityEvaluations":[{"ratingDecisionBeginDate":"2012-06-01T05:00:00Z","disabilityEvaluationDiagnosticText":"headaches","disabilityEvaluationPercentNumber":"30"}]}],"ratingEvaluationHistory":[{"combinedServiceConnectedRatingPercentage":"30","combinedNonServiceConnectedRatingPercentage":"30","combinedServiceConnectedLegalEffectiveDate":"2012-06-01T05:00:00Z"}]}}}'
+  recorded_at: Mon, 14 Aug 2023 15:29:21 GMT
+recorded_with: VCR 6.2.0
