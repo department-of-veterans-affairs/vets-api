@@ -71,6 +71,13 @@ RSpec.describe Form1010Ezr::Service do
         expect_logger_error('10-10EZR form submission failed: Uh oh. Some bad error occurred.')
       end
     end
+
+    it 'records a cassette' do
+      VCR.use_cassette('ezr_example', :record => :once) do
+        # submit_form = described_class.new(current_user).submit_form(form)
+        # expect(submit_form).to be_a(Object)
+      end
+    end
   end
 
   describe 'validate_form' do
