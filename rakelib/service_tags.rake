@@ -1,62 +1,55 @@
 # frozen_string_literal: true
 
 namespace :service_tags do
-  desc 'List all routable controller files, their class names, and all their ancestors'
+  desc 'List all routable controller files, their class names, and check for service tag implementation'
   task lint: :environment do
-    def fileclass(controller)
-      file = "#{controller}_controller"
-      c = file.split('/').map(&:camelize).join('::')
-      return [file, c]
-    end
-    
-    def routable_controllers
-      result = []
-      all_controllers = Rails.application.routes.routes.map do |route|
-        route.defaults[:controller]
-      end.uniq.compact
-      
-      controllers = all_controllers.reject { |x| x =~ /active_storage|rails|action_mailbox|devise|service_worker/ }
-      
-      controllers.each do |c|
-        file, klass = fileclass(c)
-        result << [file, klass]
+    def find_non_compliant_controllers(routes)
+      non_compliant_controllers = Set.new
+
+      routes.each do |route|
+        controller_class = controller_class_from_route(route)
+        next unless controller_class
+        next if has_valid_service_tag?(controller_class)
+
+        non_compliant_controllers << controller_class.name
       end
-      
-      Rails::Engine.subclasses.each do |engine|
-        englist = engine.routes.routes.map(&:defaults).map{|x|x[:controller]}.uniq
-        englist.each do |c|
-          file, klass = fileclass(c)
-          result << [file, klass]
-        end
-      end
-      result
+
+      non_compliant_controllers
     end
-    
-    def implements_traceable?(klass)
-      return false unless klass.include? Traceable
-      return false if klass.trace_service_tag.nil?
-      
-      true
+
+    def controller_class_from_route(route)
+      controller = route.defaults[:controller]
+      return unless controller
+
+      controller.camelize.concat('Controller').constantize
+    rescue NameError
+      nil
     end
-    
-    non_compliant_controllers = []
-    
-    routable_controllers.each do |(_file, klass_str)|
-      klass = klass_str.constantize
-      unless implements_traceable?(klass)
-        non_compliant_controllers << klass_str
+
+    def has_valid_service_tag?(klass)
+      klass.ancestors.any? do |ancestor|
+        ancestor.included_modules.include?(Traceable) &&
+          ancestor.respond_to?(:trace_service_tag) &&
+          ancestor.try(:trace_service_tag).present?
       end
     end
-    
+
+    non_compliant_controllers = Set.new
+
+    non_compliant_controllers += find_non_compliant_controllers(Rails.application.routes.routes)
+
+    Rails::Engine.subclasses.each do |engine|
+      non_compliant_controllers += find_non_compliant_controllers(engine.routes.routes)
+    end
+
     if non_compliant_controllers.any?
-      puts "The following controllers have not implemented set_trace_tags correctly from the Traceable concern:"
-      non_compliant_controllers.each do |controller|
-        puts "- #{controller}"
-      end
+      puts "\nNon-compliant Controllers:\n\n"
+      non_compliant_controllers.each { |name| puts name }
+      puts "\n#{non_compliant_controllers.count} non-compliant controllers found"
+      exit 1
     else
-      puts "All controllers have implemented set_trace_tags correctly."
+      puts 'All controllers are compliant!'
+      exit 0
     end
-    
-    puts "\nTotal Controllers Checked: #{routable_controllers.count}"
   end
 end
