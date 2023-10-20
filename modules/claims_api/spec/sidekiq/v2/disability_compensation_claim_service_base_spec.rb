@@ -42,12 +42,6 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
   end
 
   describe '#set_errored_state_on_claim' do
-    error = OpenStruct.new(
-      title: 'Error',
-      status_code: '500',
-      original_body: 'Error message'
-    )
-
     it 'updates claim status as ERRORED with error details' do
       service = described_class.new
 
