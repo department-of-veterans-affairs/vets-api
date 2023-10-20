@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 namespace :service_tags do
-  desc 'List all routable controller files, their class names, and check for service tag implementation'
-  task lint: :environment do
+  desc 'Lints all the route connected controllers to ensure they have a service tag'
+  task lint_controllers: :environment do
     def find_non_compliant_controllers(routes)
       non_compliant_controllers = Set.new
 
