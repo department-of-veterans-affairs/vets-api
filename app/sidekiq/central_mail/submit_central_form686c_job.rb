@@ -180,7 +180,7 @@ module CentralMail
         veteran_first_name: form['veteran_information']['full_name']['first'],
         veteran_last_name: form['veteran_information']['full_name']['last'],
         file_number: form['veteran_information']['file_number'] || form['veteran_information']['ssn'],
-        zip_code: address['country_name'] == 'USA' ? address['zip_code'] : FOREIGN_POSTALCODE,
+        zip: address['country_name'] == 'USA' ? address['zip_code'] : FOREIGN_POSTALCODE,
         doc_type: claim.form_id,
         claim_date: claim.created_at
       }
