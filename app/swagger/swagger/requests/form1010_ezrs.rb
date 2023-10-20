@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Requests
     class Form1010Ezrs
@@ -6,14 +7,14 @@ module Swagger
 
       swagger_path '/v0/form1010_ezrs' do
         operation :post do
-          extend Swagger::Responses::ValidationError
+          extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::BackendServiceError
 
           key :description, 'Submit a 10-10EZR form'
-          key :operationId, 'addForm1010Ezr'
+          key :operationId, 'postForm1010Ezr'
           key :tags, %w[benefits_forms]
 
-          parameter :optional_authorization
+          parameter :authorization
 
           parameter do
             key :name, :form

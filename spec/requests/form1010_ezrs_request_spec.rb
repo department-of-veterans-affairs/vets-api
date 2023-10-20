@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'hca/service'
+require 'form1010_ezr/service'
 
 RSpec.describe 'Form1010 Ezrs', type: :request do
   let(:test_veteran) do
@@ -21,6 +21,12 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
     end
 
     context 'while unauthenticated' do
+      let(:params) do
+        {
+          form: test_veteran
+        }
+      end
+
       it 'returns an error in the response body' do
         subject
 
@@ -39,6 +45,32 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
       before do
         sign_in_as(current_user)
       end
+      # let(:params) do
+      #   {
+      #     form: test_veteran
+      #   }
+      # end
+
+      # context 'when no error occurs' do
+      #   before do
+      #     sign_in_as(current_user)
+      #     test_veteran.delete('email')
+      #   end
+      #
+      #   let(:body) do
+      #     { 'formSubmissionId' => 40_125_311_094,
+      #       'timestamp' => '2017-02-08T13:50:32.020-06:00',
+      #       'success' => true }
+      #   end
+      #
+      #   it 'renders success and delete the saved form', run_at: '2022-01-31' do
+      #     VCR.use_cassette('form1010_ezr/submit_auth', match_requests_on: [:body]) do
+      #       expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('1010ezr').once
+      #       subject
+      #       expect(JSON.parse(response.body)).to eq(body)
+      #     end
+      #   end
+      # end
 
       context 'when an error occurs' do
         let(:params) do
@@ -47,7 +79,7 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
           }
         end
 
-        it 'returns the error in the response body' do
+        it 'shows the validation errors' do
           subject
 
           expect(response).to have_http_status(:bad_request)
@@ -58,28 +90,6 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
           ).to eq(true)
         end
       end
-
-      # context 'when no error occurs' do
-      #   let(:params) do
-      #     {
-      #       form: test_veteran.to_json
-      #     }
-      #   end
-      #   let(:body) do
-      #     { 'formSubmissionId' => 40_125_311_094,
-      #       'timestamp' => '2017-02-08T13:50:32.020-06:00',
-      #       'success' => true }
-      #   end
-      #
-      #   it 'renders success and delete the saved form', run_at: '2022-01-31' do
-      #     VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
-      #       expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('1010ez').once
-      #       expect_any_instance_of(HealthCareApplication).to receive(:prefill_fields)
-      #       subject
-      #       expect(JSON.parse(response.body)).to eq(body)
-      #     end
-      #   end
-      # end
     end
   end
 end

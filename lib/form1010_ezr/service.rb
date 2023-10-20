@@ -10,6 +10,8 @@ module Form1010Ezr
     include Common::Client::Concerns::Monitoring
     include VA1010Forms::ServiceUtils
 
+    configuration HCA::Configuration
+
     FORM_ID = '10-10EZR'
 
     # @param [Object] user
