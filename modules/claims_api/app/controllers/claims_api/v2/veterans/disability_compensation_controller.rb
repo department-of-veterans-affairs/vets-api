@@ -43,7 +43,7 @@ module ClaimsApi
 
           track_pact_counter auto_claim
 
-          # Test fix
+          # Test fix so headers work with the sidekiq jobs
           auth_headers = auto_claim.auth_headers
           auth_headers['va_eauth_birlsfilenumber'] = auth_headers['va_eauth_pnid']
           auto_claim.auth_headers = auth_headers
@@ -51,7 +51,6 @@ module ClaimsApi
           # End test fix
 
           # This kicks off the first of three jobs required to fully establish the claim
-
           process_claim(auto_claim)
 
           # Is this even needed here anymore ???
