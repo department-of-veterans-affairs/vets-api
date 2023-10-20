@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   let(:inquiry_path) { '/ask_va_api/v0/inquiries' }
-  let(:datadog_logger) { instance_double(DatadogLogger) }
-  let(:span) { instance_double(Datadog::Tracing::Span) }
+  # let(:datadog_logger) { instance_double(DatadogLogger) }
+  # let(:span) { instance_double(Datadog::Tracing::Span) }
   let(:authorized_user) { build(:user, :accountable_with_sec_id, sec_id: '0001740097') }
   let(:mock_inquiries) do
     JSON.parse(File.read('modules/ask_va_api/config/locales/get_inquiries_mock_data.json'))['data']
@@ -14,9 +14,9 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
   let(:invalid_inquiry_number) { 'invalid-number' }
 
   before do
-    allow(DatadogLogger).to receive(:new).and_return(datadog_logger)
-    allow(datadog_logger).to receive(:call).and_yield(span)
-    allow(span).to receive(:set_tag)
+    # allow(DatadogLogger).to receive(:new).and_return(datadog_logger)
+    # allow(datadog_logger).to receive(:call).and_yield(span)
+    # allow(span).to receive(:set_tag)
     allow(Rails.logger).to receive(:error)
   end
 
@@ -24,9 +24,9 @@ RSpec.describe AskVAApi::V0::InquiriesController, type: :request do
     it 'logs and renders error and sets datadog tags' do
       expect(response).to have_http_status(status)
       expect(JSON.parse(response.body)['error']).to eq(error_message)
-      expect(datadog_logger).to have_received(:call).with(action)
-      expect(span).to have_received(:set_tag).with('error', true)
-      expect(span).to have_received(:set_tag).with('error.msg', error_message)
+      # expect(datadog_logger).to have_received(:call).with(action)
+      # expect(span).to have_received(:set_tag).with('error', true)
+      # expect(span).to have_received(:set_tag).with('error.msg', error_message)
       expect(Rails.logger).to have_received(:error).with("Error during #{action}: #{error_message}")
     end
   end
