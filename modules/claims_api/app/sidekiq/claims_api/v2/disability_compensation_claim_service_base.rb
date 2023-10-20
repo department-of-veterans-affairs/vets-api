@@ -17,7 +17,7 @@ module ClaimsApi
       def set_established_state_on_claim(claim_id)
         claim = get_claim(claim_id)
         claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
-        claim.save
+        claim.save!
       end
 
       def set_errored_state_on_claim(claim_id)

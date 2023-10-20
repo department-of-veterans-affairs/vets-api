@@ -51,7 +51,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
     it 'updates claim status as ERRORED with error details' do
       service = described_class.new
 
-      service.send(:set_errored_state_on_claim, error, claim.id)
+      service.send(:set_errored_state_on_claim, claim.id)
       claim.reload
       expect(claim.status).to eq('errored')
     end
