@@ -51,17 +51,12 @@ module ClaimsApi
           # End test fix
 
           # This kicks off the first of three jobs required to fully establish the claim
-          if auto_claim.save!
-            ClaimsApi::Logger.log('********** 526 v2 Background job',
-                                  claim_id: auto_claim.id,
-                                  detail: 'Background job started')
 
-            process_claim(auto_claim)
-            render json: auto_claim, status: :accepted, location: "#{request.url[0..-4]}claims/#{auto_claim.id}"
-          end
+          process_claim(auto_claim)
 
           # Is this even needed here anymore ???
           # get_benefits_documents_auth_token unless Rails.env.test?
+          render json: auto_claim, status: :accepted, location: "#{request.url[0..-4]}claims/#{auto_claim.id}"
         end
 
         def validate

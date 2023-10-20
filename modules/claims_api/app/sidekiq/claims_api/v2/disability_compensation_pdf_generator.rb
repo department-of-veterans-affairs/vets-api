@@ -21,13 +21,14 @@ module ClaimsApi
                               detail: "526EZ PDF generator started for claim #{claim_id}")
 
         # Reset for a rerun on this
-        set_pending_state(claim_id)
+        set_pending_state_on_claim(claim_id)
 
         auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
 
         pdf_data = get_pdf_data
         mapped_claim = pdf_mapper_service(auto_claim.form_data, pdf_data, auto_claim.auth_headers,
                                           middle_initial).map_claim
+
         pdf_string = generate_526_pdf(mapped_claim)
 
         if pdf_string.empty?
@@ -35,7 +36,7 @@ module ClaimsApi
                                 claim_id:,
                                 detail: '526EZ PDF generator failed for claim')
 
-          set_errored_state(claim_id)
+          set_errored_state_on_claim(claim_id)
           # restart?
         elsif pdf_string
           ClaimsApi::Logger.log('526 v2 PDf Generator job',
@@ -67,14 +68,14 @@ module ClaimsApi
                               claim_id:,
                               detail: '526EZ PDF generator job finished')
       rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
-        set_errored_state(claim_id)
+        set_errored_state_on_claim(claim_id)
         ClaimsApi::Logger.log('526 v2 PDf Generator job',
                               claim_id:,
                               detail: "526EZ PDF generator faraday errored #{e.status_code} #{e.original_body}")
 
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
-        set_errored_state(claim_id)
+        set_errored_state_on_claim(claim_id)
         ClaimsApi::Logger.log('526 v2 PDf Generator job',
                               claim_id:,
                               detail: "526EZ PDF generator errored #{e.status_code} #{e.original_body}")
@@ -82,7 +83,7 @@ module ClaimsApi
         raise e
         # {} # bad data so it will not pass until we fix
       rescue => e
-        set_errored_state(claim_id)
+        set_errored_state_on_claim(claim_id)
         ClaimsApi::Logger.log('526 v2 PDf Generator job',
                               claim_id:,
                               detail: "526EZ PDF generator errored #{e}")
@@ -93,14 +94,14 @@ module ClaimsApi
 
       private
 
-      def set_errored_state(claim_id)
+      def set_errored_state_on_claim(claim_id)
         auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
 
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
         auto_claim.save!
       end
 
-      def set_pending_state(claim_id)
+      def set_pending_state_on_claim(claim_id)
         auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
 
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::PENDING
@@ -108,7 +109,7 @@ module ClaimsApi
       end
 
       def start_evss_job(auto_claim, file_number)
-        ClaimsApi::V2::DisabilityCompensationDockerContainerUpload.new.perform(auto_claim, file_number)
+        ClaimsApi::V2::DisabilityCompensationDockerContainerUpload.perform_async(auto_claim, file_number)
       end
 
       def pdf_mapper_service(form_data, pdf_data, auth_headers, middle_initial)

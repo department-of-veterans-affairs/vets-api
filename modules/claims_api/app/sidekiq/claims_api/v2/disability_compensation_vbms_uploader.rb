@@ -21,7 +21,7 @@ module ClaimsApi
                               detail: 'VBMS upload job started')
 
         # Reset for a rerun on this
-        set_pending_state(claim_id)
+        set_pending_state_on_claim(claim_id)
 
         claim_object = ClaimsApi::SupportingDocument.find_by(id: claim_id) ||
                        ClaimsApi::AutoEstablishedClaim.find_by(id: claim_id)
@@ -46,7 +46,7 @@ module ClaimsApi
 
       # Temporary errors (returning HTML, connection timeout), retry call
       rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
-        set_errored_state(claim_id)
+        set_errored_state_on_claim(claim_id)
         ClaimsApi::Logger.log('526 v2 VBMS Uploader job',
                               claim_id:,
                               detail: "VBMS failure for claimId #{auto_claim&.id}: #{e.message}")
@@ -61,7 +61,7 @@ module ClaimsApi
         rescue_vbms_file_number_not_found(claim)
         raise
       rescue => e
-        set_errored_state(claim_id)
+        set_errored_state_on_claim(claim_id)
         message = get_error_message(e)
 
         ClaimsApi::Logger.log('526 v2 VBMS Uploader job',
@@ -74,7 +74,7 @@ module ClaimsApi
 
       private
 
-      def set_errored_state(claim_id)
+      def set_errored_state_on_claim(claim_id)
         auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
 
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
@@ -90,14 +90,14 @@ module ClaimsApi
       end
 
       def start_claim_establsher_job(auto_claim)
-        claim_establisher_service.new.perform(auto_claim&.id)
+        claim_establisher_service.perform_async(auto_claim&.id)
       end
 
       def claim_establisher_service
         ClaimsApi::V2::DisabilityCompensationClaimEstablisher
       end
 
-      def set_pending_state(claim_id)
+      def set_pending_state_on_claim(claim_id)
         auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
 
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::PENDING

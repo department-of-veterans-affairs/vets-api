@@ -39,8 +39,18 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
     claim
   end
 
+  let(:errored_claim) do
+    claim = create(:auto_established_claim, form_data:)
+    claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+    claim.auth_headers = auth_headers
+    claim.save
+    claim
+  end
+
   describe '#perform' do
     let(:file_number) { '123456' }
+
+    service = described_class.new
 
     context 'successful submission' do
       it 'submits successfully' do
@@ -48,11 +58,21 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
           subject.perform_async(claim.id, file_number)
         end.to change(subject.jobs, :size).by(1)
       end
+
+      it 'sets the claim status to pending when starting/rerunning' do
+        VCR.use_cassette('claims_api/evss/submit') do
+          allow(ClaimsApi::AutoEstablishedClaim).to receive(:find).with(errored_claim.id).and_return(errored_claim)
+          expect(errored_claim.status).to eq('errored')
+
+          service.perform(errored_claim.id, file_number)
+
+          errored_claim.reload
+          expect(errored_claim.status).to eq('pending')
+        end
+      end
     end
 
     context 'handles an errored claim correctly' do
-      service = described_class.new
-
       it 'does not call the next job when the claim.status is errored' do
         allow(ClaimsApi::AutoEstablishedClaim).to receive(:find).with(claim.id).and_return(claim)
         allow(claim).to receive(:status).and_return('errored')

@@ -39,34 +39,41 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
     claim
   end
 
+  let(:errored_claim) do
+    claim = create(:auto_established_claim, form_data:)
+    claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+    claim.auth_headers = auth_headers
+    claim.save
+    claim
+  end
+
   describe '#perform' do
     let(:file_number) { '123456' }
     let(:middle_initial) { '' }
 
-    describe 'handles a successful claim correctly' do
-      described_class.new
+    service = described_class.new
 
+    context 'handles a successful claim correctly' do
       it 'submits successfully' do
         expect do
           subject.perform_async(claim.id, middle_initial, file_number)
         end.to change(subject.jobs, :size).by(1)
       end
 
-      # it 'calls the next job when the claim.status is not errored' do
-      #   allow(service).to receive(:generate_526_pdf).and_return('sample pdf string')
+      it 'sets the claim status to pending when starting/rerunning' do
+        VCR.use_cassette('claims_api/disability_comp') do
+          allow(ClaimsApi::AutoEstablishedClaim).to receive(:find).with(errored_claim.id).and_return(errored_claim)
+          expect(errored_claim.status).to eq('errored')
 
-      #   service.instance_variable_set(:@pdf_string, 'sample pdf string')
+          service.perform(errored_claim.id, middle_initial, file_number)
 
-      #   service.perform(claim.id, middle_initial, file_number)
-
-      #   claim.reload
-      #   expect(subject).to receive(:start_evss_job).with(claim.id, file_number)
-      # end
+          errored_claim.reload
+          expect(errored_claim.status).to eq('pending')
+        end
+      end
     end
 
-    describe 'handles an errored claim correctly' do
-      service = described_class.new
-
+    context 'handles an errored claim correctly' do
       it 'sets claim state to errored when pdf_string is empty' do
         allow(ClaimsApi::AutoEstablishedClaim).to receive(:find).with(claim.id).and_return(claim)
         allow(service).to receive(:generate_526_pdf).and_return('')
@@ -88,6 +95,4 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
       end
     end
   end
-
-  # if @claim.status != 'errored' it does start next job
 end

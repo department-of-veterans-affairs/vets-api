@@ -17,7 +17,7 @@ module ClaimsApi
                               detail: 'Beginning 526 v2 Claim Establisher job')
 
         # Reset for a rerun on this
-        set_pending_state(claim_id)
+        set_pending_state_on_claim(claim_id)
 
         auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
 
@@ -30,7 +30,7 @@ module ClaimsApi
                               claim_id:,
                               detail: 'Disablity compensation claim establisher job completed')
       rescue => e
-        set_errored_state(claim_id)
+        set_errored_state_on_claim(claim_id)
         ClaimsApi::Logger.log('526 v2 Claim Establisher job',
                               claim_id:,
                               detail: "Disablity compensation claim establisher job error: #{e}")
@@ -40,14 +40,14 @@ module ClaimsApi
 
       private
 
-      def set_errored_state(claim_id)
+      def set_errored_state_on_claim(claim_id)
         auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
 
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
         auto_claim.save!
       end
 
-      def set_pending_state(claim_id)
+      def set_pending_state_on_claim(claim_id)
         auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
 
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::PENDING

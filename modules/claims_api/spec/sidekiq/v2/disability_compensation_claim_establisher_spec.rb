@@ -28,21 +28,44 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimEstablisher, type: :job
     attributes['claimDate'] = claim_date
     attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
 
-    temp.to_json
+    temp['data']['attributes']
   end
 
   let(:claim) do
-    claim = create(:auto_established_claim)
+    claim = create(:auto_established_claim, form_data:)
     claim.auth_headers = auth_headers
     claim.save
     claim
   end
 
-  describe 'successful submission' do
+  let(:errored_claim) do
+    claim = create(:auto_established_claim, form_data:)
+    claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+    claim.auth_headers = auth_headers
+    claim.save
+    claim
+  end
+
+  context 'successful submission' do
+    service = described_class.new
+
     it 'successful submit should add the job' do
       expect do
         subject.perform_async(claim.id)
       end.to change(subject.jobs, :size).by(1)
+    end
+
+    it 'sets the claim status to established' do
+      allow(ClaimsApi::AutoEstablishedClaim).to receive(:find).with(errored_claim.id).and_return(errored_claim)
+      expect(errored_claim.status).to eq('errored')
+
+      expect(errored_claim).to receive(:status=).with('pending').ordered
+      expect(errored_claim).to receive(:save!).ordered
+
+      expect(errored_claim).to receive(:status=).with('established').ordered
+      expect(errored_claim).to receive(:save!).ordered
+
+      service.perform(errored_claim.id)
     end
   end
 end
