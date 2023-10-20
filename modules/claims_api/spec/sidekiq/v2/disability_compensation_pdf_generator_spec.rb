@@ -91,7 +91,8 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
         service.perform(claim.id, middle_initial, file_number)
 
         claim.reload
-        expect(service).not_to receive(:start_evss_job)
+        expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
+        expect(service).not_to receive(:start_docker_container_job)
       end
     end
   end

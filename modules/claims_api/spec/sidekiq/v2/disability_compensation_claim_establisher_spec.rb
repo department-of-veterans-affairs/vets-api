@@ -8,7 +8,6 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimEstablisher, type: :job
 
   before do
     Sidekiq::Job.clear_all
-    stub_claims_api_auth_token
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -38,14 +37,6 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimEstablisher, type: :job
     claim
   end
 
-  let(:errored_claim) do
-    claim = create(:auto_established_claim, form_data:)
-    claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-    claim.auth_headers = auth_headers
-    claim.save
-    claim
-  end
-
   context 'successful submission' do
     service = described_class.new
 
@@ -56,16 +47,13 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimEstablisher, type: :job
     end
 
     it 'sets the claim status to established' do
-      allow(ClaimsApi::AutoEstablishedClaim).to receive(:find).with(errored_claim.id).and_return(errored_claim)
-      expect(errored_claim.status).to eq('errored')
+      allow(ClaimsApi::AutoEstablishedClaim).to receive(:find).with(claim.id).and_return(claim)
+      expect(claim.status).to eq('pending')
 
-      expect(errored_claim).to receive(:status=).with('pending').ordered
-      expect(errored_claim).to receive(:save!).ordered
+      expect(claim).to receive(:status=).with('established').ordered
+      expect(claim).to receive(:save!).ordered
 
-      expect(errored_claim).to receive(:status=).with('established').ordered
-      expect(errored_claim).to receive(:save!).ordered
-
-      service.perform(errored_claim.id)
+      service.perform(claim.id)
     end
   end
 end

@@ -1,87 +1,68 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
-require 'sidekiq/monitored_worker'
 require 'pdf_generator_service/pdf_client'
 require 'claims_api/v2/disability_compensation_evss_mapper'
 require 'evss_service/base'
-require 'claims_api/claim_logger'
 
 module ClaimsApi
   module V2
-    class DisabilityCompensationDockerContainerUpload
-      include Sidekiq::Job
-      include SentryLogging
-      include Sidekiq::MonitoredWorker
-
+    class DisabilityCompensationDockerContainerUpload < DisabilityCompensationClaimServiceBase
       def perform(claim_id, file_number) # rubocop:disable Metrics/MethodLength
-        ClaimsApi::Logger.log('********** 526 v2 Docker Container job',
-                              claim_id:,
-                              detail: 'Docker container job started')
-        # Reset for a rerun on this
-        set_pending_state_on_claim(claim_id)
+        log_job_progress('526 v2 Docker Container job',
+                         claim_id,
+                         'Docker container job started')
 
-        auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+        auto_claim = get_claim(claim_id)
+        # Reset for a rerun on this
+        set_pending_state_on_claim(claim_id) unless auto_claim.status == pending_state_value
 
         if auto_claim.evss_id.nil?
           evss_data = evss_mapper_service(auto_claim, file_number).map_claim
 
-          ClaimsApi::Logger.log('526 v2 Docker Container job',
-                                claim_id:,
-                                detail: 'Submitting to Docker container')
+          log_job_progress('526 v2 Docker Container job',
+                           claim_id,
+                           'Submitting to Docker container')
 
           evss_res = evss_service.submit(auto_claim, evss_data)
 
-          ClaimsApi::Logger.log('526 v2 Docker container job',
-                                claim_id:,
-                                detail: "Successfully submitted to Docker container with response: #{evss_res}")
+          log_job_progress('526 v2 Docker container job',
+                           claim_id,
+                           "Successfully submitted to Docker container with response: #{evss_res}")
 
           auto_claim.update(evss_id: evss_res[:claimId])
         end
 
-        start_vbms_job(auto_claim) if auto_claim.status != 'errored' && !auto_claim.evss_id.nil?
+        start_vbms_job(auto_claim) if auto_claim.status != errored_state_value && !auto_claim.evss_id.nil?
       rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
         set_errored_state_on_claim(claim_id)
         set_evss_response(auto_claim, e)
-        ClaimsApi::Logger.log('526 v2 Docker Container job',
-                              claim_id:,
-                              detail: "526EZ PDF generator errored #{e.status_code} #{e.original_body}")
+        log_job_progress('526 v2 Docker Container job',
+                         claim_id,
+                         "526EZ PDF generator errored #{e.status_code} #{e.original_body}")
+        log_exception_to_sentry(e)
 
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
         set_errored_state_on_claim(claim_id)
         set_evss_response(auto_claim, e)
-        ClaimsApi::Logger.log('526 v2 Docker Container job',
-                              claim_id:,
-                              detail: "Submit failed for claimId #{auto_claim&.id}: #{e.original_body}")
+        log_job_progress('526 v2 Docker Container job',
+                         claim_id,
+                         "Submit failed for claimId #{auto_claim&.id}: #{e.original_body}")
+        log_exception_to_sentry(e)
         # {}
         raise e
       rescue => e
         set_errored_state_on_claim(claim_id)
         set_evss_response(auto_claim, e)
-        ClaimsApi::Logger.log('526 v2 Docker Container job',
-                              claim_id:,
-                              detail: "Submit failed for claimId #{auto_claim&.id}: #{e.detailed_message}")
-
+        log_job_progress('526 v2 Docker Container job',
+                         claim_id,
+                         "Submit failed for claimId #{auto_claim&.id}: #{e.detailed_message}")
+        log_exception_to_sentry(e)
         # {}
         raise e
       end
 
       private
-
-      def set_errored_state_on_claim(claim_id)
-        auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-
-        auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-        auto_claim.save!
-      end
-
-      def set_pending_state_on_claim(claim_id)
-        auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-
-        auto_claim.status = ClaimsApi::AutoEstablishedClaim::PENDING
-        auto_claim.save!
-      end
 
       def set_evss_response(auto_claim, error)
         error_status = get_error_status_code(error)
@@ -97,16 +78,6 @@ module ClaimsApi
           error.status_code
         else
           "No status code for error: #{error}"
-        end
-      end
-
-      def get_error_message(error)
-        if error.respond_to? :original_body
-          error.original_body
-        elsif error.respond_to? :messagae
-          error.message
-        elsif error.is_a?(String)
-          error
         end
       end
 

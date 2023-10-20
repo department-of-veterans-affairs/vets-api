@@ -1,58 +1,37 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
-require 'sidekiq/monitored_worker'
-require 'claims_api/claim_logger'
-
 module ClaimsApi
   module V2
-    class DisabilityCompensationClaimEstablisher
-      include Sidekiq::Job
-      include SentryLogging
-      include Sidekiq::MonitoredWorker
+    class DisabilityCompensationClaimEstablisher < DisabilityCompensationClaimServiceBase
       # Mark as established, set flashes and special issues
       def perform(claim_id)
-        ClaimsApi::Logger.log('********** 526 v2 Claim Establisher job',
-                              claim_id:,
-                              detail: 'Beginning 526 v2 Claim Establisher job')
+        log_job_progress('526 v2 Claim Establisher job',
+                         claim_id,
+                         'Beginning 526 v2 Claim Establisher job')
 
+        auto_claim = get_claim(claim_id)
         # Reset for a rerun on this
-        set_pending_state_on_claim(claim_id)
-
-        auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-
-        set_claim_as_established(auto_claim)
+        set_pending_state_on_claim(claim_id) unless auto_claim.status == pending_state_value
 
         queue_flash_updater(auto_claim.flashes, auto_claim&.id)
         queue_special_issues_updater(auto_claim.special_issues, auto_claim)
 
-        ClaimsApi::Logger.log('526 v2 Claim Establisher job',
-                              claim_id:,
-                              detail: 'Disablity compensation claim establisher job completed')
+        set_established_state_on_claim(auto_claim)
+
+        log_job_progress('526 v2 Claim Establisher job',
+                         claim_id,
+                         'Disablity compensation claim establisher job completed')
       rescue => e
         set_errored_state_on_claim(claim_id)
-        ClaimsApi::Logger.log('526 v2 Claim Establisher job',
-                              claim_id:,
-                              detail: "Disablity compensation claim establisher job error: #{e}")
+        log_job_progress('526 v2 Claim Establisher job',
+                         claim_id,
+                         "Disablity compensation claim establisher job error: #{e}")
+        log_exception_to_sentry(e)
 
         raise e
       end
 
       private
-
-      def set_errored_state_on_claim(claim_id)
-        auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-
-        auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-        auto_claim.save!
-      end
-
-      def set_pending_state_on_claim(claim_id)
-        auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-
-        auto_claim.status = ClaimsApi::AutoEstablishedClaim::PENDING
-        auto_claim.save!
-      end
 
       def queue_special_issues_updater(special_issues_per_disability, auto_claim)
         return if special_issues_per_disability.blank?
