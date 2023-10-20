@@ -73,20 +73,30 @@ describe VAOS::V2::AppointmentsService do
       it 'returns the created appointment - va - booked' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M',
                          match_requests_on: %i[method path query]) do
-          allow(Rails.logger).to receive(:info).at_least(:once)
-          response = subject.post_appointment(va_booked_request_body)
-          expect(response[:id]).to be_a(String)
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                           match_requests_on: %i[method path query]) do
+            allow(Rails.logger).to receive(:info).at_least(:once)
+            response = subject.post_appointment(va_booked_request_body)
+            expect(response[:id]).to be_a(String)
+            expect(response[:local_start_time])
+              .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+          end
         end
       end
 
       it 'returns the created appointment and logs data' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_and_logs_data',
                          match_requests_on: %i[method path query]) do
-          allow(Rails.logger).to receive(:info).at_least(:once)
-          response = subject.post_appointment(va_booked_request_body)
-          expect(response[:id]).to be_a(String)
-          expect(Rails.logger).to have_received(:info).with('VAOS telehealth atlas details',
-                                                            any_args).at_least(:once)
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                           match_requests_on: %i[method path query]) do
+            allow(Rails.logger).to receive(:info).at_least(:once)
+            response = subject.post_appointment(va_booked_request_body)
+            expect(response[:id]).to be_a(String)
+            expect(Rails.logger).to have_received(:info).with('VAOS telehealth atlas details',
+                                                              any_args).at_least(:once)
+            expect(response[:local_start_time])
+              .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+          end
         end
       end
 
@@ -103,8 +113,13 @@ describe VAOS::V2::AppointmentsService do
       it 'returns the created appointment - cc - proposed' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200_2222022',
                          match_requests_on: %i[method path query]) do
-          response = subject.post_appointment(community_cares_request_body)
-          expect(response[:id]).to be_a(String)
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                           match_requests_on: %i[method path query]) do
+            response = subject.post_appointment(community_cares_request_body)
+            expect(response[:id]).to be_a(String)
+            expect(response.dig(:requested_periods, 0, :local_start_time))
+              .to eq(DateTime.parse('2021-06-15T06:00:00-06:00'))
+          end
         end
       end
     end
@@ -406,8 +421,11 @@ describe VAOS::V2::AppointmentsService do
       context 'with Jaqueline Morgan' do
         it 'returns a cancelled status and the cancelled appointment information' do
           VCR.use_cassette('vaos/v2/appointments/cancel_appointments_200', match_requests_on: %i[method path query]) do
-            response = subject.update_appointment('70060', 'cancelled')
-            expect(response.status).to eq('cancelled')
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              response = subject.update_appointment('70060', 'cancelled')
+              expect(response.status).to eq('cancelled')
+            end
           end
         end
       end

@@ -58,7 +58,7 @@ gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/conn
 gem 'coverband', require: false
 gem 'date_validator'
 gem 'ddtrace'
-gem 'dogstatsd-ruby'
+gem 'dogstatsd-ruby', '5.6.0'
 gem 'dry-struct'
 gem 'dry-types'
 gem 'ethon', '>=0.13.0'
