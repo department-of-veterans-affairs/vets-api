@@ -45,7 +45,7 @@ RSpec.describe Form1010Ezr::Service do
         expect(submit_form).to eq(
           {
             success: true,
-            formSubmissionId: 40124668140,
+            formSubmissionId: 40_124_668_140,
             timestamp: '2023-06-25T04:59:39.345-05:00'
           }
         )

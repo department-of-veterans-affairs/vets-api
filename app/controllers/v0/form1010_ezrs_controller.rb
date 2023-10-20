@@ -3,7 +3,7 @@
 module V0
   class Form1010EzrsController < ApplicationController
     def create
-      # As of 10/20/23, Unathenticated users cannot submit an EZR
+      # As of 10/20/23, unauthenticated users cannot submit an EZR
       raise Common::Exceptions::BackendServiceException, '1010EZR_401' if @current_user.nil?
 
       begin
