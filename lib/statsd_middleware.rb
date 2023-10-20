@@ -85,6 +85,7 @@ class StatsdMiddleware
     medical-records
     static-pages
     terms-of-use
+    va-health-benefits-app
     vaos
     verify
     veteran-id-card
