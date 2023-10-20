@@ -1189,6 +1189,74 @@ describe HCA::EnrollmentSystem do
           wantsInitialVaContact: true,
           email: 'foo@example.com',
           homePhone: '1231241234',
+          isWhite: true,
+          maritalStatus: 'Married',
+          vaMedicalFacility: '608',
+          isEssentialAcaCoverage: true
+        }.deep_stringify_keys,
+        {
+          'appointmentRequestResponse' => true,
+          'contactInfo' => {
+            'addresses' => {
+              'address' => [
+                {
+                  'city' => 'Ontario',
+                  'country' => 'CAN',
+                  'line1' => '123 NW 5th St',
+                  'provinceCode' => 'ON',
+                  'postalCode' => '21231',
+                  'addressTypeCode' => 'P'
+                },
+                {
+                  'city' => 'Ontario',
+                  'country' => 'CAN',
+                  'line1' => '567 SW 9th Ave.',
+                  'line2' => '#102',
+                  'provinceCode' => 'ON',
+                  'postalCode' => '21231',
+                  'addressTypeCode' => 'R'
+                }
+              ]
+            },
+            'emails' => [
+              { 'email' => { 'address' => 'foo@example.com', 'type' => '1' } }
+            ],
+            'phones' => {
+              'phone' => [{ 'phoneNumber' => '1231241234', 'type' => '1' }]
+            }
+          },
+          'maritalStatus' => 'M',
+          'preferredFacility' => '608',
+          'races' => { 'race' => ['2106-3'] },
+          'acaIndicator' => true
+        }
+      ],
+
+      [
+        {
+          veteranAddress: {
+            street: '123 NW 5th St',
+            street2: '',
+            street3: '',
+            city: 'Ontario',
+            country: 'CAN',
+            state: 'ON',
+            provinceCode: 'ProvinceName',
+            postalCode: '21231'
+          },
+          veteranHomeAddress: {
+            street: '567 SW 9th Ave.',
+            street2: '#102',
+            street3: '',
+            city: 'Ontario',
+            country: 'CAN',
+            state: 'ON',
+            provinceCode: 'ProvinceName',
+            postalCode: '21231'
+          },
+          wantsInitialVaContact: true,
+          email: 'foo@example.com',
+          homePhone: '1231241234',
           isSpanishHispanicLatino: true,
           isWhite: true,
           maritalStatus: 'Married',
