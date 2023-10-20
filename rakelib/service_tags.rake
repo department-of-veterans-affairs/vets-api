@@ -4,12 +4,14 @@ namespace :service_tags do
   desc 'Lints all the route connected controllers to ensure they have a service tag'
   task audit_controllers: :environment do
     def find_non_compliant_controllers(routes)
+      excluded = %w[ActiveStorage:: ApplicationController OkComputer:: Rails::]
       non_compliant_controllers = Set.new
 
       routes.each do |route|
         controller_class = controller_class_from_route(route)
         next unless controller_class
-        next if has_valid_service_tag?(controller_class)
+        next if excluded.any? { |prefix| controller_class.name.start_with?(prefix) }
+        next if valid_service_tag?(controller_class)
 
         non_compliant_controllers << controller_class.name
       end
@@ -26,7 +28,8 @@ namespace :service_tags do
       nil
     end
 
-    def has_valid_service_tag?(klass)
+    def valid_service_tag?(klass)
+      # klass.ancestors includes the top level class
       klass.ancestors.any? do |ancestor|
         ancestor.included_modules.include?(Traceable) &&
           ancestor.respond_to?(:trace_service_tag) &&
