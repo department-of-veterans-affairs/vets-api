@@ -6,7 +6,7 @@ require 'form1010_ezr/service'
 RSpec.describe Form1010Ezr::Service do
   include SchemaMatchers
 
-  let(:form) { File.read('spec/lib/form1010_ezr/support/valid_form.json') }
+  let(:form) { get_fixture('form1010_ezr/valid_form') }
   let(:response) do
     double(body: Ox.parse(%(
     <?xml version='1.0' encoding='UTF-8'?>
@@ -71,21 +71,12 @@ RSpec.describe Form1010Ezr::Service do
         expect_logger_error('10-10EZR form submission failed: Uh oh. Some bad error occurred.')
       end
     end
-
-    it 'records a cassette' do
-      VCR.use_cassette('ezr_example', :record => :once) do
-        # submit_form = described_class.new(current_user).submit_form(form)
-        # expect(submit_form).to be_a(Object)
-      end
-    end
   end
 
   describe 'validate_form' do
     context 'when there are no validation errors' do
       it 'returns nil' do
-        parsed_form = JSON.parse(form)
-
-        expect(described_class.new(current_user).validate_form(parsed_form)).to eq(nil)
+        expect(described_class.new(current_user).validate_form(form)).to eq(nil)
       end
     end
 

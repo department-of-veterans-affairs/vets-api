@@ -14,7 +14,8 @@ module VA1010Forms
         namespaces: {
           'xmlns:tns': 'http://va.gov/service/esr/voa/v1'
         },
-        namespace: 'http://va.gov/schema/esr/voa/v1')
+        namespace: 'http://va.gov/schema/esr/voa/v1'
+      )
     end
   end
 end

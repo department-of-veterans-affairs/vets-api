@@ -20,11 +20,9 @@ module Form1010Ezr
       @user = user
     end
 
-    # @param [HashWithIndifferentAccess] form JSON form data
-    def submit_form(form)
+    # @param [HashWithIndifferentAccess] parsed_form JSON form data
+    def submit_form(parsed_form)
       begin
-        parsed_form = parsed_form(form)
-
         validate_form(parsed_form)
 
         formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user)
@@ -58,12 +56,6 @@ module Form1010Ezr
         Rails.logger.error(failed_form_message)
         raise StandardError, failed_form_message
       end
-    end
-
-    private
-
-    def parsed_form(form)
-      JSON.parse(form)
     end
   end
 end

@@ -4,8 +4,8 @@ require 'rails_helper'
 require 'form1010_ezr/service'
 
 RSpec.describe 'Form1010 Ezrs', type: :request do
-  let(:test_veteran) do
-    JSON.parse(File.read('spec/lib/form1010_ezr/support/valid_form.json'))
+  let(:form) do
+    File.read('spec/fixtures/form1010_ezr/valid_form.json')
   end
 
   describe 'POST create' do
@@ -22,9 +22,7 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
 
     context 'while unauthenticated' do
       let(:params) do
-        {
-          form: test_veteran
-        }
+        { form: }
       end
 
       it 'returns an error in the response body' do
@@ -40,42 +38,40 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
     end
 
     context 'while authenticated', skip_mvi: true do
-      let(:current_user) { build(:user, :mhv) }
+      let(:current_user) { build(:evss_user, :loa3) }
 
       before do
         sign_in_as(current_user)
       end
-      # let(:params) do
-      #   {
-      #     form: test_veteran
-      #   }
-      # end
 
-      # context 'when no error occurs' do
-      #   before do
-      #     sign_in_as(current_user)
-      #     test_veteran.delete('email')
-      #   end
-      #
-      #   let(:body) do
-      #     { 'formSubmissionId' => 40_125_311_094,
-      #       'timestamp' => '2017-02-08T13:50:32.020-06:00',
-      #       'success' => true }
-      #   end
-      #
-      #   it 'renders success and delete the saved form', run_at: '2022-01-31' do
-      #     VCR.use_cassette('form1010_ezr/submit_auth', match_requests_on: [:body]) do
-      #       expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('1010ezr').once
-      #       subject
-      #       expect(JSON.parse(response.body)).to eq(body)
-      #     end
-      #   end
-      # end
+      context 'when no error occurs' do
+        let(:params) do
+          { form: }
+        end
+        let(:body) do
+          {
+            'formSubmissionId' => 432_137_192,
+            'timestamp' => '2023-10-20T14:41:58.948-05:00',
+            'success' => true
+          }
+        end
+
+        it 'renders success and delete the saved form', run_at: 'Fri, 20 Oct 2023 19:41:58 GMT' do
+          VCR.use_cassette(
+            'form1010_ezr/authorized_submit',
+            VCR::MATCH_EVERYTHING.merge(erb: true)
+          ) do
+            expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('1010ezr').once
+            subject
+            expect(JSON.parse(response.body)).to eq(body)
+          end
+        end
+      end
 
       context 'when an error occurs' do
         let(:params) do
           {
-            form: test_veteran.except('privacyAgreementAccepted').to_json
+            form: JSON.parse(form).except('privacyAgreementAccepted').to_json
           }
         end
 
