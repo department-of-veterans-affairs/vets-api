@@ -89,11 +89,18 @@ RSpec.describe InProgressForm, type: :model do
     let!(:first_record) do
       create(:in_progress_form, metadata: { submission: { hasAttemptedSubmit: true,
                                                           errors: 'foo',
-                                                          errorMessage: 'bar' } })
+                                                          errorMessage: 'bar',
+                                                          status: 'serverError' } })
     end
-    let!(:second_record) { create(:in_progress_form, metadata: { submission: { hasAttemptedSubmit: false } }) }
+    let!(:second_record) do
+      create(:in_progress_form, metadata: { submission: { hasAttemptedSubmit: false, status: false } })
+    end
     let!(:third_record) do
       create(:in_progress_form, form_id: '5655', metadata: { submission: { hasAttemptedSubmit: true, status: false } })
+    end
+    let!(:fourth_record) do
+      create(:in_progress_form, form_id: '5655',
+                                metadata: { submission: { hasAttemptedSubmit: true, status: 'applicationSubmitted' } })
     end
 
     it 'includes records within scope' do
@@ -102,6 +109,7 @@ RSpec.describe InProgressForm, type: :model do
       expect(described_class.has_error_message).to include(first_record)
       expect(described_class.has_no_errors).to include(second_record)
       expect(described_class.unsubmitted_fsr).to include(third_record)
+      expect(described_class.unsubmitted_fsr.length).to eq(1)
     end
   end
 
