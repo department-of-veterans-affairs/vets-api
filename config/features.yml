@@ -342,10 +342,6 @@ features:
     actor_type: user
     description: enables sending new 526-ez claims to VRO Contention Classification service for more accurate classification entry.
     enable_in_development: true
-  disability_526_reduced_contention_list:
-    actor_type: user
-    description: enableds reduced 526-ez contention dropdown list to improve usability. See https://github.com/department-of-veterans-affairs/vagov-claim-classification/issues/259
-    enable_in_development: true
   disability_526_maximum_rating:
     actor_type: user
     description: enables displaying a short education blurb alongside rated disabilities already at maximum rating.
