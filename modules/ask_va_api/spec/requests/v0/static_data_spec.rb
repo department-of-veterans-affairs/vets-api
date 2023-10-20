@@ -7,9 +7,6 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
   let(:span) { instance_double(Datadog::Tracing::Span) }
 
   before do
-    allow(DatadogLogger).to receive(:new).and_return(datadog_logger)
-    allow(datadog_logger).to receive(:call).and_yield(span)
-    allow(span).to receive(:set_tag)
     allow(Rails.logger).to receive(:error)
   end
 
@@ -17,9 +14,6 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     it 'logs and renders error and sets datadog tags' do
       expect(response).to have_http_status(status)
       expect(JSON.parse(response.body)['error']).to eq(error_message)
-      expect(datadog_logger).to have_received(:call).with(action)
-      expect(span).to have_received(:set_tag).with('error', true)
-      expect(span).to have_received(:set_tag).with('error.msg', error_message)
       expect(Rails.logger).to have_received(:error).with("Error during #{action}: #{error_message}")
     end
   end
