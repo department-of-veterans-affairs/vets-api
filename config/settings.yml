@@ -36,6 +36,8 @@ mobile_application_platform:
   sign_up_service_provisioning_api_key: abcd1234
   secure_token_service:
     mock: true
+  sign_up_service:
+    mock: true
 
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
