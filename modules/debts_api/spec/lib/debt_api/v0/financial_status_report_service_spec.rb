@@ -304,6 +304,24 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       expect { service.submit_combined_fsr(valid_form_data) }.to change(Form5655Submission, :count).by(1)
       expect(DebtsApi::V0::Form5655Submission.last.in_progress?).to eq(true)
     end
+
+    context 'with both debts and copays' do
+      it 'adds combined key to forms' do
+        valid_form_data['selectedDebtsAndCopays'] = [{
+          'station' => {
+            'facilitYNum' => '123'
+          },
+          'resolutionOption' => 'waiver',
+          'debtType' => 'COPAY'
+        },
+                                                     { 'foo' => 'bar', 'debtType' => 'DEBT' }]
+        valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
+        service = described_class.new(user)
+
+        expect { service.submit_combined_fsr(valid_form_data) }.to change(Form5655Submission, :count).by(2)
+        expect(DebtsApi::V0::Form5655Submission.last.public_metadata['combined']).to eq(true)
+      end
+    end
   end
 
   describe '#create_vha_fsr' do

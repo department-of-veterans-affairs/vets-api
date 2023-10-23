@@ -62,9 +62,9 @@ module SimpleFormsApi
 
         render json: {
           expiration_date:,
-          compensation_intent: existing_intents[:compensation],
-          pension_intent: existing_intents[:pension],
-          survivor_intent: existing_intents[:survivor]
+          compensation_intent: existing_intents['compensation'],
+          pension_intent: existing_intents['pension'],
+          survivor_intent: existing_intents['survivor']
         }
       end
 
@@ -90,7 +90,11 @@ module SimpleFormsApi
           "Simple forms api - sent to benefits intake: #{params[:form_number]},
             status: #{status}, uuid #{confirmation_number}"
         )
-        render json: { confirmation_number: }, status:
+
+        json = { confirmation_number: }
+        json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
+
+        render json:, status:
       end
 
       def get_upload_location_and_uuid(lighthouse_service)

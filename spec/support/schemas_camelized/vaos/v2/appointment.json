@@ -153,6 +153,10 @@
           "type": ["object", null],
           "format": "date-time"
         },
+        "localStartTime": {
+          "description": "The start time of the appointment in the local timezone.",
+          "type": "string"
+        },
         "end": {
           "description": "The end time of the appointment.",
           "type": ["object", null],
@@ -192,6 +196,10 @@
                 "type": "string",
                 "description": "start time of period",
                 "format": "date-time"
+              },
+              "localStartTime": {
+                "type": "string",
+                "description": "start time of period in local timezone"
               },
               "end": {
                 "type": "string",

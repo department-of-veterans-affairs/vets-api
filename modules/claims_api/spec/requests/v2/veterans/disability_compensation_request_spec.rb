@@ -44,7 +44,10 @@ RSpec.describe 'Disability Claims', type: :request do
             it 'returns a 200' do
               mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:ok)
+
+                expected = 'http://www.example.com/services/claims/v2/veterans/1013062086V794840/claims/'
+                expect(response).to have_http_status(:accepted)
+                expect(response.location).to include(expected)
               end
             end
           end
@@ -68,7 +71,7 @@ RSpec.describe 'Disability Claims', type: :request do
             it 'responds with a 200' do
               mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -79,7 +82,7 @@ RSpec.describe 'Disability Claims', type: :request do
             it 'responds with a 200' do
               mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -111,7 +114,7 @@ RSpec.describe 'Disability Claims', type: :request do
             it 'responds with a 200' do
               mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -122,7 +125,7 @@ RSpec.describe 'Disability Claims', type: :request do
             it 'responds with a 200' do
               mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -144,7 +147,7 @@ RSpec.describe 'Disability Claims', type: :request do
             it 'responds with a 200' do
               mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -155,7 +158,7 @@ RSpec.describe 'Disability Claims', type: :request do
             it 'responds with a 200' do
               mock_ccg(scopes) do |auth_header|
                 post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -223,7 +226,7 @@ RSpec.describe 'Disability Claims', type: :request do
         it 'succeeds' do
           mock_ccg(scopes) do |auth_header|
             post submit_path, params: data, headers: auth_header
-            expect(response).to have_http_status(:ok)
+            expect(response).to have_http_status(:accepted)
           end
         end
       end
@@ -284,7 +287,7 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['veteranIdentification']['mailingAddress']['country'] = country
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -343,7 +346,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 json['data']['attributes']['changeOfAddress'] = valid_change_of_address
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -489,7 +492,7 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['changeOfAddress']['country'] = country
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -523,6 +526,23 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
         end
+
+        context 'when the type is permanent the end date is prohibited' do
+          let(:begin_date) { '01-01-2023' }
+          let(:end_date) { '01-01-2024' }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['changeOfAddress']['typeOfAddressChange'] = 'PERMANENT'
+              json['data']['attributes']['changeOfAddress']['dates']['beginDate'] = begin_date
+              json['data']['attributes']['changeOfAddress']['dates']['endDate'] = end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
       end
 
       describe 'veteranIdentification' do
@@ -550,7 +570,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 international_telephone
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -693,7 +713,7 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['veteranIdentification']['serviceNumber'] = service_number
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -752,7 +772,7 @@ RSpec.describe 'Disability Claims', type: :request do
               agree_to_email_related_to_claim
             data = json.to_json
             post submit_path, params: data, headers: auth_header
-            expect(response).to have_http_status(:ok)
+            expect(response).to have_http_status(:accepted)
           end
         end
       end
@@ -862,7 +882,7 @@ RSpec.describe 'Disability Claims', type: :request do
               params['data']['attributes']['homeless']['pointOfContactNumber']['internationalTelephone'] =
                 '+44 20 1234 5678'
               post submit_path, params: params.to_json, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -1133,7 +1153,7 @@ RSpec.describe 'Disability Claims', type: :request do
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
                     post submit_path, params: params.to_json, headers: auth_header
-                    expect(response).to have_http_status(:ok)
+                    expect(response).to have_http_status(:accepted)
                   end
                 end
               end
@@ -1148,7 +1168,7 @@ RSpec.describe 'Disability Claims', type: :request do
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
                     post submit_path, params: params.to_json, headers: auth_header
-                    expect(response).to have_http_status(:ok)
+                    expect(response).to have_http_status(:accepted)
                   end
                 end
               end
@@ -1204,7 +1224,7 @@ RSpec.describe 'Disability Claims', type: :request do
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
                   post submit_path, params: params.to_json, headers: auth_header
-                  expect(response).to have_http_status(:ok)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -1254,7 +1274,7 @@ RSpec.describe 'Disability Claims', type: :request do
                     params = json_data
                     params['data']['attributes']['servicePay'] = service_pay_attribute
                     post submit_path, params: params.to_json, headers: auth_header
-                    expect(response).to have_http_status(:ok)
+                    expect(response).to have_http_status(:accepted)
                   end
                 end
               end
@@ -1312,7 +1332,7 @@ RSpec.describe 'Disability Claims', type: :request do
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
                   post submit_path, params: params.to_json, headers: auth_header
-                  expect(response).to have_http_status(:ok)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -1353,7 +1373,7 @@ RSpec.describe 'Disability Claims', type: :request do
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
                   post submit_path, params: params.to_json, headers: auth_header
-                  expect(response).to have_http_status(:ok)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -1381,7 +1401,7 @@ RSpec.describe 'Disability Claims', type: :request do
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
                   post submit_path, params: params.to_json, headers: auth_header
-                  expect(response).to have_http_status(:ok)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -1409,7 +1429,7 @@ RSpec.describe 'Disability Claims', type: :request do
                   params = json_data
                   params['data']['attributes']['servicePay'] = service_pay_attribute
                   post submit_path, params: params.to_json, headers: auth_header
-                  expect(response).to have_http_status(:ok)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -1425,7 +1445,7 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['treatments'] = []
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -1434,7 +1454,7 @@ RSpec.describe 'Disability Claims', type: :request do
           it 'returns a 200' do
             mock_ccg(scopes) do |auth_header|
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -1448,7 +1468,7 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['treatments'][0]['beginDate'] = treatment_begin_date
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -1469,7 +1489,7 @@ RSpec.describe 'Disability Claims', type: :request do
               json = JSON.parse(data)
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
 
@@ -1488,7 +1508,7 @@ RSpec.describe 'Disability Claims', type: :request do
           it 'returns a 200, and gets the signature' do
             mock_ccg(scopes) do |auth_header|
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -1517,7 +1537,7 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['treatments'][0]['beginDate'] = nil
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -1548,7 +1568,7 @@ RSpec.describe 'Disability Claims', type: :request do
               attrs['treatments'][0]['treatedDisabilityNames'][1] = treated_disability_name
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -1557,7 +1577,7 @@ RSpec.describe 'Disability Claims', type: :request do
           it 'returns a 200' do
             mock_ccg(scopes) do |auth_header|
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
 
@@ -1571,7 +1591,7 @@ RSpec.describe 'Disability Claims', type: :request do
                   treated_disability_name
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -1586,7 +1606,7 @@ RSpec.describe 'Disability Claims', type: :request do
                   treated_disability_name
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -1601,7 +1621,7 @@ RSpec.describe 'Disability Claims', type: :request do
                   treated_disability_name
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -1655,7 +1675,7 @@ RSpec.describe 'Disability Claims', type: :request do
               it 'returns a 200' do
                 mock_ccg(scopes) do |auth_header|
                   post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:ok)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -1666,7 +1686,7 @@ RSpec.describe 'Disability Claims', type: :request do
               it 'returns a 200' do
                 mock_ccg(scopes) do |auth_header|
                   post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:ok)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -1695,7 +1715,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 json['data']['attributes']['treatments'][0]['center']['city'] = treated_center_city
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -1705,7 +1725,7 @@ RSpec.describe 'Disability Claims', type: :request do
               it 'returns a 200' do
                 mock_ccg(scopes) do |auth_header|
                   post submit_path, params: data, headers: auth_header
-                  expect(response).to have_http_status(:ok)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -1861,7 +1881,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 service_branch
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -1937,7 +1957,7 @@ RSpec.describe 'Disability Claims', type: :request do
                   active_duty_end_date
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
 
@@ -1995,7 +2015,7 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['serviceInformation']['confinements'] = confinements
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -2020,7 +2040,7 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['serviceInformation']['confinements'] = confinements
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -2143,7 +2163,7 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['serviceInformation']['confinements'] = []
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -2192,7 +2212,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 json['data']['attributes']['disabilities'][0]['isRelatedToToxicExposure'] = nil
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -2204,7 +2224,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 json['data']['attributes']['disabilities'][0]['exposureOrEventOrInjury'] = nil
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -2219,7 +2239,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 json_data = JSON.parse data
                 params = json_data
                 post submit_path, params: params.to_json, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -2243,7 +2263,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['classificationCode'] = nil
                 post submit_path, params: params.to_json, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -2308,7 +2328,7 @@ RSpec.describe 'Disability Claims', type: :request do
                   params['data']['attributes']['disabilities'] = disabilities
                   params['data']['attributes']['treatments'] = treatments
                   post submit_path, params: params.to_json, headers: auth_header
-                  expect(response).to have_http_status(:ok)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -2403,7 +2423,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 json_data = JSON.parse data
                 params = json_data
                 post submit_path, params: params.to_json, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -2416,7 +2436,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 json_data = JSON.parse data
                 params = json_data
                 post submit_path, params: params.to_json, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -2444,7 +2464,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
                 post submit_path, params: params.to_json, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -2458,7 +2478,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
                 post submit_path, params: params.to_json, headers: auth_header
-                expect(response).to have_http_status(:ok)
+                expect(response).to have_http_status(:accepted)
               end
             end
           end
@@ -2740,7 +2760,7 @@ RSpec.describe 'Disability Claims', type: :request do
               params['data']['attributes']['disabilities'] = disabilities
               params['data']['attributes']['treatments'] = treatments
               post submit_path, params: params.to_json, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
 
@@ -2804,7 +2824,7 @@ RSpec.describe 'Disability Claims', type: :request do
               disabilities = params['data']['attributes']['disabilities']
               disabilities[0]['approximateDate'] = '2018'
               post submit_path, params: params.to_json, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -3344,7 +3364,7 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['directDeposit'] = direct_deposit
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:ok)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end

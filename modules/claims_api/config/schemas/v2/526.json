@@ -162,8 +162,8 @@
           "properties": {
             "beginDate": {
               "description": "Date in YYYY-MM-DD the Veteran changed address. Date must be in the future if change is temporary.",
+              "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
               "type": "string",
-              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
               "example": "2018-06-04"
             },
             "endDate": {
