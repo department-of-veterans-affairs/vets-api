@@ -45,6 +45,8 @@ module Form1010Ezr
       }
     end
 
+    private
+
     # Compare the 'parsed_form' to the form schema in vets-json-schema
     def validate_form(parsed_form)
       schema = VetsJsonSchema::SCHEMAS[FORM_ID]
