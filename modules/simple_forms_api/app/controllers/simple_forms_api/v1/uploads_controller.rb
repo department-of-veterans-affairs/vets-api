@@ -82,7 +82,7 @@ module SimpleFormsApi
 
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
           SimpleFormsApi::ConfirmationEmail.new(
-            form_data: parsed_form_data, form_number: form_id, confirmation_number:
+            form_data: parsed_form_data, form_number: form_id, confirmation_number:, user: @user
           ).send
         end
 
