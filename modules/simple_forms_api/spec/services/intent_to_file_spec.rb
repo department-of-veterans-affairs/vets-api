@@ -17,7 +17,7 @@ describe SimpleFormsApi::IntentToFile do
       }
     end
 
-    it 'returns the expiration date of the previously-submitted Intent To File' do
+    it 'returns nil if no new ITF is filed' do
       icn = 'fake-icn'
       intent_to_file_service = SimpleFormsApi::IntentToFile.new(params, icn)
       expiration_date = 'fake-expiration-date'
@@ -35,7 +35,7 @@ describe SimpleFormsApi::IntentToFile do
 
       result = intent_to_file_service.submit
 
-      expect(result).to eq expiration_date
+      expect(result).to eq nil
     end
   end
 
