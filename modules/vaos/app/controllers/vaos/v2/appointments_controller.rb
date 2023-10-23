@@ -3,6 +3,7 @@
 require 'common/exceptions'
 require 'memoist'
 
+# DO NOT MERGE
 module VAOS
   module V2
     class AppointmentsController < VAOS::BaseController
