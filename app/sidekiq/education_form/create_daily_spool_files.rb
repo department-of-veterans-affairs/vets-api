@@ -131,7 +131,12 @@ module EducationForm
                           end
             exception = DailySpoolFileError.new("Error creating #{filename} during #{attempt_msg}.\n\n#{e}")
             log_exception(exception, region)
-            next
+            if spool_file_event.retry_attempt < MAX_RETRIES
+              spool_file_event.update(retry_attempt: spool_file_event.retry_attempt + 1)
+              retry
+            else
+              next
+            end
           end
         end
       end

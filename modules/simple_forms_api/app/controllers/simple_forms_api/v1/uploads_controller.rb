@@ -62,9 +62,9 @@ module SimpleFormsApi
 
         render json: {
           expiration_date:,
-          compensation_intent: existing_intents[:compensation],
-          pension_intent: existing_intents[:pension],
-          survivor_intent: existing_intents[:survivor]
+          compensation_intent: existing_intents['compensation'],
+          pension_intent: existing_intents['pension'],
+          survivor_intent: existing_intents['survivor']
         }
       end
 
