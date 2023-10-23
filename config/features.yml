@@ -633,6 +633,10 @@ features:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer urgent experience (Identity)
     enable_in_development: false
+  military_information:
+    actor_type: user
+    description: Enables the post-EMIS military information of VAProfile
+    enable_in_development: false
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)
