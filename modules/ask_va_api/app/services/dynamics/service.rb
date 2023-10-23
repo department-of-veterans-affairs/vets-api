@@ -5,9 +5,9 @@ module Dynamics
     SUPPORTED_METHODS = %i[get post patch put].freeze
     attr_reader :base_uri, :sec_id, :mock, :logger, :conn
 
-    def initialize(base_uri:, sec_id:, mock: false, logger: nil)
-      @base_uri = base_uri
+    def initialize(base_uri:, sec_id:, mock: false, logger: LogService.new)
       @sec_id = sec_id
+      @base_uri = base_uri
       @mock = mock
       @logger = logger
       setup_connection unless mock
@@ -52,7 +52,9 @@ module Dynamics
     end
 
     def invoke_request(endpoint, method, payload, params)
-      conn.public_send(method, endpoint, prepare_payload(method, payload, params))
+      logger.call("api_call.#{method}", tags: build_tags(endpoint)) do
+        conn.public_send(method, endpoint, prepare_payload(method, payload, params))
+      end
     end
 
     def prepare_payload(method, payload, params)
@@ -75,7 +77,7 @@ module Dynamics
     end
 
     def log_error(endpoint, error_type)
-      logger&.call('api_call.error', tags: build_tags(endpoint, error_type))
+      logger.call('api_call.error', tags: build_tags(endpoint, error_type))
     end
   end
 end
