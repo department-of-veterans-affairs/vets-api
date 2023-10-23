@@ -67,21 +67,23 @@ module ClaimsApi
       def validate_form_526_change_of_address_beginning_date!
         change_of_address = form_attributes['changeOfAddress']
         date = change_of_address.dig('dates', 'beginDate')
-        return unless 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange'])
 
         # If the date parse fails, then fall back to the InvalidFieldValue
         begin
-          return if Date.strptime(date, '%m-%d-%Y') < Time.zone.now
+          Date.strptime(date, '%m-%d-%Y')
         rescue
           raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.beginDate', date)
         end
-
-        raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.beginDate', date)
       end
 
       def validate_form_526_change_of_address_ending_date!
         change_of_address = form_attributes['changeOfAddress']
         date = change_of_address.dig('dates', 'endDate')
+        if 'PERMANENT'.casecmp?(change_of_address['typeOfAddressChange']) && date.present?
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: '"changeOfAddress.dates.endDate" cannot be included when typeOfAddressChange is PERMANENT'
+          )
+        end
         return unless 'TEMPORARY'.casecmp?(change_of_address['typeOfAddressChange'])
 
         form_object_desc = 'a TEMPORARY change of address'
