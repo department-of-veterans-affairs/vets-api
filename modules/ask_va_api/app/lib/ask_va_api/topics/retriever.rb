@@ -3,7 +3,6 @@
 module AskVAApi
   module Topics
     ENDPOINT = 'get_topics_mock_data'
-    URI = 'get_topics_from_dynamics.com'
 
     class Retriever
       attr_reader :service, :category_id
@@ -14,7 +13,7 @@ module AskVAApi
       end
 
       def call
-        topics_array = fetch_data(criteria: { category_id: })
+        topics_array = fetch_data(payload: { category_id: })
 
         topics_array.map do |topic|
           Entity.new(topic)
@@ -26,13 +25,11 @@ module AskVAApi
       private
 
       def default_service
-        # mock = !Rails.env.production?
-        mock = true
-        Dynamics::Service.new(base_uri: URI, sec_id: nil, mock:)
+        Dynamics::Service.new(sec_id: nil)
       end
 
-      def fetch_data(criteria:)
-        service.call(endpoint: ENDPOINT, criteria:)
+      def fetch_data(payload:)
+        service.call(endpoint: ENDPOINT, payload:)
       end
     end
   end
