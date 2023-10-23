@@ -3,7 +3,6 @@
 require 'common/client/base'
 require 'hca/enrollment_system'
 require 'hca/configuration'
-require 'va_1010_forms/service_utils'
 require 'hca/ezr_postfill'
 
 module Form1010Ezr

@@ -38,7 +38,6 @@ RSpec.describe Form1010Ezr::Service do
 
   describe '#submit_form' do
     context 'when successful' do
-
       it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'",
          run_at: 'Fri, 20 Oct 2023 19:41:58 GMT' do
         VCR.use_cassette(
