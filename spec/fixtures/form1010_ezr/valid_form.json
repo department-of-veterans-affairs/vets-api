@@ -112,8 +112,5 @@
   "deductibleMedicalExpenses": 33.3,
   "deductibleFuneralExpenses": 44.44,
   "deductibleEducationExpenses": 77.77,
-  "vaMedicalFacility": "608",
-  "isSpanishHispanicLatino": true,
-  "isEssentialAcaCoverage": false,
   "privacyAgreementAccepted": true
 }

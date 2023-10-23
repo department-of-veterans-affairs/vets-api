@@ -59,6 +59,36 @@ RSpec.describe Form1010Ezr::Service do
       end
     end
 
+    context 'post-filling required fields' do
+      before do
+        allow(current_user).to receive(:icn).and_return('1013032368V065534')
+      end
+
+      it 'adds the required fields to the form hash and returns a successful response',
+         run_at: 'Fri, 08 Feb 2019 02:50:45 GMT' do
+        form_sans_required_fields =
+          form.except(
+            'isEssentialAcaCoverage',
+            'vaMedicalFacility'
+          )
+
+        VCR.use_cassette(
+          'hca/ee/lookup_user',
+          VCR::MATCH_EVERYTHING.merge(erb: true)
+        ) do
+          submit_form = submit_form(form_sans_required_fields)
+
+          expect(submit_form).to eq(
+            {
+              success: true,
+              formSubmissionId: 40_124_668_140,
+              timestamp: '2023-06-25T04:59:39.345-05:00'
+            }
+          )
+        end
+      end
+    end
+
     context 'when an error occurs' do
       context 'schema validation failure' do
         before do

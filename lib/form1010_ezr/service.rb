@@ -4,6 +4,7 @@ require 'common/client/base'
 require 'hca/enrollment_system'
 require 'hca/configuration'
 require 'va_1010_forms/service_utils'
+require 'hca/ezr_postfill'
 
 module Form1010Ezr
   class Service < Common::Client::Base
@@ -27,6 +28,7 @@ module Form1010Ezr
     # @param [HashWithIndifferentAccess] parsed_form JSON form data
     def submit_form(parsed_form)
       begin
+        post_fill_required_fields(parsed_form)
         validate_form(parsed_form)
 
         formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user)
@@ -60,6 +62,14 @@ module Form1010Ezr
         Rails.logger.error('10-10EZR form validation failed. Form does not match schema.')
         raise Common::Exceptions::SchemaValidationErrors, validation_errors
       end
+    end
+
+    # Add required fields not included in the JSON schema, but are
+    # required in the Enrollment System API
+    def post_fill_required_fields(parsed_form)
+      required_fields = HCA::EzrPostfill.post_fill_hash(@user)
+
+      parsed_form.merge!(required_fields)
     end
   end
 end
