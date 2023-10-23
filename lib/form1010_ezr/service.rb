@@ -7,7 +7,10 @@ require 'va_1010_forms/service_utils'
 
 module Form1010Ezr
   class Service < Common::Client::Base
+    include Common::Client::Concerns::Monitoring
     include VA1010Forms::ServiceUtils
+
+    STATSD_KEY_PREFIX = 'api.1010ezr'
 
     # Due to using the same endpoint as the 10-10EZ (HealthCareApplication), we
     # can utilize the same client configuration
