@@ -20,6 +20,10 @@ module AskVAApi
     end
 
     def log_error(action, exception)
+      LogService.new.call(action) do |span|
+        span.set_tag('error', true)
+        span.set_tag('error.msg', exception.message)
+      end
       Rails.logger.error("Error during #{action}: #{exception.message}")
     end
 

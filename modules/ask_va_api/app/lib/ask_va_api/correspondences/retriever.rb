@@ -3,7 +3,6 @@
 module AskVAApi
   module Correspondences
     ENDPOINT = 'get_replies_mock_data'
-    URI = 'example.com'
 
     class Retriever
       attr_reader :inquiry_number, :service
@@ -15,7 +14,7 @@ module AskVAApi
 
       def call
         validate_input(inquiry_number, 'Invalid Inquiry Number')
-        correspondences = fetch_data(criteria: { inquiry_number: })
+        correspondences = fetch_data(payload: { inquiry_number: })
         Entity.new(correspondences)
       rescue => e
         ErrorHandler.handle_service_error(e)
@@ -24,14 +23,11 @@ module AskVAApi
       private
 
       def default_service
-        # mock = !Rails.env.production?
-        mock = true
-
-        Dynamics::Service.new(base_uri: URI, sec_id: nil, mock:)
+        Dynamics::Service.new(sec_id: nil)
       end
 
-      def fetch_data(criteria: {})
-        service.call(endpoint: ENDPOINT, criteria:)
+      def fetch_data(payload: {})
+        service.call(endpoint: ENDPOINT, payload:)
       end
 
       def validate_input(input, error_message)

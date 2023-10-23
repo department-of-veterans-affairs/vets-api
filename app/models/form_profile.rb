@@ -97,7 +97,7 @@ class FormProfile
     edu: %w[22-1990 22-1990N 22-1990E 22-1990EMEB 22-1995 22-5490 22-5490E
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ],
     evss: ['21-526EZ'],
-    hca: ['1010ez'],
+    hca: %w[1010ez 10-10EZR],
     pension_burial: %w[21P-530 21P-527EZ],
     dependents: ['686C-674'],
     decision_review: %w[20-0995 20-0996 10182],
@@ -112,6 +112,7 @@ class FormProfile
   FORM_ID_TO_CLASS = {
     '0873' => ::FormProfiles::VA0873,
     '1010EZ' => ::FormProfiles::VA1010ez,
+    '10-10EZR' => ::FormProfiles::VA1010ezr,
     '10182' => ::FormProfiles::VA10182,
     '20-0995' => ::FormProfiles::VA0995,
     '20-0996' => ::FormProfiles::VA0996,

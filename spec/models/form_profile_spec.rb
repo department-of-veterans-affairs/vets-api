@@ -490,6 +490,30 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v10_10_ezr_expected) do
+    {
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.suffix
+      },
+      'veteranSocialSecurityNumber' => user.ssn,
+      'gender' => user.gender,
+      'veteranDateOfBirth' => user.birth_date,
+      'homePhone' => us_phone,
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.address[:city],
+        'state' => user.address[:state],
+        'country' => user.address[:country],
+        'postal_code' => user.address[:postal_code][0..4]
+      },
+      'email' => user.pciu_email
+    }
+  end
+
   let(:v1010ez_expected) do
     {
       'veteranFullName' => {
@@ -1279,6 +1303,7 @@ RSpec.describe FormProfile, type: :model do
           22-5495
           40-10007
           1010ez
+          10-10EZR
           22-0993
           FEEDBACK-TOOL
           686C-674
