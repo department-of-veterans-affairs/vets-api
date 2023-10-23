@@ -22,7 +22,7 @@ RSpec.describe Form1010Ezr::Service do
     </S:Envelope>
      )))
   end
-  let(:current_user) { FactoryBot.build(:user, :loa3, icn: nil) }
+  let(:current_user) { build(:evss_user, :loa3) }
 
   def allow_logger_to_receive_error
     allow(Rails.logger).to receive(:error)
@@ -38,21 +38,24 @@ RSpec.describe Form1010Ezr::Service do
 
   describe '#submit_form' do
     context 'when successful' do
-      before do
-        allow_any_instance_of(Common::Client::Base).to receive(:perform).and_return(response)
-      end
 
-      it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'" do
-        response = submit_form(form)
+      it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'",
+         run_at: 'Fri, 20 Oct 2023 19:41:58 GMT' do
+        VCR.use_cassette(
+          'form1010_ezr/authorized_submit',
+          VCR::MATCH_EVERYTHING.merge(erb: true)
+        ) do
+          submission_response = submit_form(form)
 
-        expect(response).to be_a(Object)
-        expect(response).to eq(
-          {
-            success: true,
-            formSubmissionId: 40_124_668_140,
-            timestamp: '2023-06-25T04:59:39.345-05:00'
-          }
-        )
+          expect(submission_response).to be_a(Object)
+          expect(submission_response).to eq(
+            {
+              success: true,
+              formSubmissionId: 432_137_192,
+              timestamp: '2023-10-20T14:41:58.948-05:00'
+            }
+          )
+        end
       end
     end
 
