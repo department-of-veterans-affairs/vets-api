@@ -3,17 +3,10 @@
 module V0
   class Form1010EzrsController < ApplicationController
     def create
-      # As of 10/20/23, unauthenticated users cannot submit an EZR
-      raise Common::Exceptions::BackendServiceException, '1010EZR_401' if @current_user.nil?
+      parsed_form = parse_form(params[:form])
+      result = Form1010Ezr::Service.new(@current_user).submit_form(parsed_form)
 
-      begin
-        parsed_form = parse_form(params[:form])
-        result = Form1010Ezr::Service.new(@current_user).submit_form(parsed_form)
-      rescue
-        raise Common::Exceptions::BackendServiceException, '1010EZR_400'
-      end
-
-      clear_saved_form('1010ezr')
+      clear_saved_form('10-10EZR')
 
       render(json: result)
     end

@@ -53,11 +53,9 @@ module Form1010Ezr
       # @return [Array<String>] array of strings detailing schema validation failures
       validation_errors = JSON::Validator.fully_validate(schema, parsed_form)
 
-      if validation_errors.any?
-        failed_form_message = '10-10EZR form validation failed. Form does not match schema.'
-
-        Rails.logger.error(failed_form_message)
-        raise StandardError, failed_form_message
+      if validation_errors.present?
+        Rails.logger.error('10-10EZR form validation failed. Form does not match schema.')
+        raise Common::Exceptions::SchemaValidationErrors, validation_errors
       end
     end
   end

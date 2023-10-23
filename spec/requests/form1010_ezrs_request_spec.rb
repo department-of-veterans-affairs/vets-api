@@ -29,11 +29,7 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
         subject
 
         expect(response).to have_http_status(:unauthorized)
-        expect(
-          JSON.parse(response.body)['errors'][0]['detail'].include?(
-            'Missing user credentials'
-          )
-        ).to eq(true)
+        expect(JSON.parse(response.body)['errors'][0]['detail']).to eq('Not authorized')
       end
     end
 
@@ -61,7 +57,7 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
             'form1010_ezr/authorized_submit',
             VCR::MATCH_EVERYTHING.merge(erb: true)
           ) do
-            expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('1010ezr').once
+            expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('10-10EZR').once
             subject
             expect(JSON.parse(response.body)).to eq(body)
           end
@@ -75,13 +71,15 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
           }
         end
 
-        it 'shows the validation errors' do
+        it 'returns an error in the response body' do
           subject
 
-          expect(response).to have_http_status(:bad_request)
+          response_error = JSON.parse(response.body)['errors'][0]
+
+          expect(response_error['status']).to eq('422')
           expect(
-            JSON.parse(response.body)['errors'][0]['detail'].include?(
-              'The Form1010Ezr service responded with something other than the expected submission object'
+            response_error['detail'].include?(
+              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
             )
           ).to eq(true)
         end

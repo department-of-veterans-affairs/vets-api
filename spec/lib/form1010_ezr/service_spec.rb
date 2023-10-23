@@ -32,6 +32,10 @@ RSpec.describe Form1010Ezr::Service do
     expect(Rails.logger).to have_received(:error).with(error_message)
   end
 
+  def submit_form(form)
+    described_class.new(current_user).submit_form(form)
+  end
+
   describe '#submit_form' do
     context 'when successful' do
       before do
@@ -39,10 +43,10 @@ RSpec.describe Form1010Ezr::Service do
       end
 
       it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'" do
-        submit_form = described_class.new(current_user).submit_form(form)
+        response = submit_form(form)
 
-        expect(submit_form).to be_a(Object)
-        expect(submit_form).to eq(
+        expect(response).to be_a(Object)
+        expect(response).to eq(
           {
             success: true,
             formSubmissionId: 40_124_668_140,
@@ -59,18 +63,19 @@ RSpec.describe Form1010Ezr::Service do
         end
 
         it 'logs and raises a StandardError' do
-          error_message = '10-10EZR form validation failed. Form does not match schema.'
-
-          expect do
-            described_class.new(current_user).submit_form({})
-          end.to raise_error(
-            StandardError, error_message
-          )
-          expect_logger_error(error_message)
+          expect { submit_form({}) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
+            expect(e.errors[0].title).to eq('Validation error')
+            expect(e.errors[0].detail).to include(
+              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+            )
+            expect(e.errors[0].status).to eq('422')
+          end
+          expect_logger_error('10-10EZR form validation failed. Form does not match schema.')
         end
       end
 
-      context 'any other StandardError' do
+      context 'any other error' do
         before do
           allow_any_instance_of(
             Common::Client::Base
@@ -82,7 +87,7 @@ RSpec.describe Form1010Ezr::Service do
 
         it 'logs and raises the error' do
           expect do
-            described_class.new(current_user).submit_form(form)
+            submit_form(form)
           end.to raise_error(
             StandardError, 'Uh oh. Some bad error occurred.'
           )
