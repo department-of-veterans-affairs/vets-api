@@ -88,20 +88,6 @@ module ClaimsApi
 
       private
 
-      def set_errored_state_on_claim(claim_id)
-        auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-
-        auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-        auto_claim.save!
-      end
-
-      def set_pending_state_on_claim(claim_id)
-        auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-
-        auto_claim.status = ClaimsApi::AutoEstablishedClaim::PENDING
-        auto_claim.save!
-      end
-
       def start_docker_container_job(auto_claim, file_number)
         docker_contaner_service.perform_async(auto_claim, file_number)
       end
