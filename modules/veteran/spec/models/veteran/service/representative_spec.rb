@@ -72,4 +72,106 @@ describe Veteran::Service::Representative, type: :model do
       end
     end
   end
+
+  describe '.find_within_max_distance' do
+    before do
+      create(:representative, representative_id: '456', long: -77.050552, lat: 38.820450,
+                              location: 'POINT(-77.050552 38.820450)') # ~6 miles from Washington, D.C.
+
+      create(:representative, representative_id: '789', long: -76.609383, lat: 39.299236,
+                              location: 'POINT(-76.609383 39.299236)') # ~35 miles from Washington, D.C.
+
+      create(:representative, representative_id: '123', long: -77.466316, lat: 38.309875,
+                              location: 'POINT(-77.466316 38.309875)') # ~47 miles from Washington, D.C.
+
+      create(:representative, representative_id: '246', long: -76.609383, lat: 39.299236,
+                              location: 'POINT(-76.3483 39.5359)') # ~57 miles from Washington, D.C.
+    end
+
+    context 'when there are representatives within the max search distance' do
+      it 'returns all representatives located within the default max distance' do
+        # check within 50 miles of Washington, D.C.
+        results = described_class.find_within_max_distance(-77.0369, 38.9072)
+
+        expect(results.pluck(:representative_id)).to match_array(%w[123 456 789])
+      end
+
+      it 'returns all representatives located within the specified max distance' do
+        # check within 40 miles of Washington, D.C.
+        results = described_class.find_within_max_distance(-77.0369, 38.9072, 64_373.8)
+
+        expect(results.pluck(:representative_id)).to match_array(%w[456 789])
+      end
+    end
+
+    context 'when there are no representatives within the max search distance' do
+      it 'returns an empty array' do
+        # check within 1 mile of Washington, D.C.
+        results = described_class.find_within_max_distance(-77.0369, 38.9072, 1609.344)
+
+        expect(results).to eq([])
+      end
+    end
+  end
+
+  describe '.find_with_full_name_similar_to' do
+    before do
+      # word similarity value = 1
+      create(:representative, representative_id: '456', first_name: 'Bob', last_name: 'Law')
+
+      # word similarity value = 0.375
+      create(:representative, representative_id: '789', first_name: 'Bobby', last_name: 'Low')
+
+      # word similarity value = 0.375
+      create(:representative, representative_id: '123', first_name: 'Bobbie', last_name: 'Lew')
+
+      # word similarity value = 0.25
+      create(:representative, representative_id: '246', first_name: 'Robert', last_name: 'Lanyard')
+    end
+
+    context 'when there are representatives with full names similar to the search phrase' do
+      it 'returns all representatives with full names >= the word similarity threshold' do
+        results = described_class.find_with_full_name_similar_to('Bob Law')
+
+        expect(results.pluck(:representative_id)).to match_array(%w[123 456 789])
+      end
+    end
+
+    context 'when there are no representatives with full names similar to the search phrase' do
+      it 'returns an empty array' do
+        results = described_class.find_with_full_name_similar_to('No Name')
+
+        expect(results.pluck(:representative_id)).to eq([])
+      end
+    end
+  end
+
+  describe 'callbacks' do
+    describe '#set_full_name' do
+      context 'creating a new representative' do
+        it 'sets the full_name attribute as first_name + last_name' do
+          rep = described_class.new(representative_id: 'abc', poa_codes: ['123'], first_name: 'Joe',
+                                    last_name: 'Smith')
+
+          expect(rep.full_name).to be_nil
+
+          rep.save!
+
+          expect(rep.reload.full_name).to eq('Joe Smith')
+        end
+      end
+
+      context 'updating an existing representative' do
+        it 'sets the full_name attribute as first_name + last_name' do
+          rep = create(:representative, first_name: 'Joe', last_name: 'Smith')
+
+          expect(rep.full_name).to eq('Joe Smith')
+
+          rep.update(first_name: 'Bob')
+
+          expect(rep.reload.full_name).to eq('Bob Smith')
+        end
+      end
+    end
+  end
 end
