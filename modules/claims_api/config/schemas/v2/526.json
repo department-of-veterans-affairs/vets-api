@@ -745,8 +745,8 @@
             "anticipatedSeparationDate": {
               "description": "Anticipated date of separation. Date must be in the future.",
               "type": ["string", "null"],
-              "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-              "example": "06-04-2018",
+              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+              "example": "2018-06-06",
               "nullable": true
             },
             "activationDate": {

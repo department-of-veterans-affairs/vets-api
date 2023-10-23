@@ -21,7 +21,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
   describe '#526', vcr: 'claims_api/disability_comp' do
     let(:claim_date) { (Time.zone.today - 1.day).to_s }
-    let(:anticipated_separation_date) { 2.days.from_now.strftime('%m-%d-%Y') }
+    let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:data) do
       temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
                              'form_526_json_api.json').read
@@ -1033,7 +1033,7 @@ RSpec.describe 'Disability Claims', type: :request do
               name: 'Traumatic Brain Injury',
               classificationCode: '9020',
               serviceRelevance: 'ABCDEFG',
-              approximateDate: '03-11-2018',
+              approximateDate: '2018-11-03',
               ratedDisabilityId: 'ABCDEFGHIJKLMNOPQRSTUVWX',
               diagnosticCode: 9020,
               secondaryDisabilities: [
@@ -1042,7 +1042,7 @@ RSpec.describe 'Disability Claims', type: :request do
                   disabilityActionType: 'SECONDARY',
                   serviceRelevance: 'ABCDEFGHIJKLMNOPQ',
                   classificationCode: '9010',
-                  approximateDate: '03-12-2018',
+                  approximateDate: '2018-12-03',
                   exposureOrEventOrInjury: 'EXPOSURE'
                 }
               ],
@@ -1060,7 +1060,7 @@ RSpec.describe 'Disability Claims', type: :request do
                 },
                 treatedDisabilityNames: ['Traumatic Brain Injury',
                                          'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders'],
-                beginDate: '03-2009'
+                beginDate: '2009-03'
               }
             ]
           end
@@ -1272,7 +1272,7 @@ RSpec.describe 'Disability Claims', type: :request do
               {
                 receivedSeparationOrSeverancePay: 'YES',
                 separationSeverancePay: {
-                  datePaymentReceived: (Time.zone.today - 1.year).strftime('%m-%d-%Y'),
+                  datePaymentReceived: (Time.zone.today - 1.year).strftime('%Y-%m-%d'),
                   branchOfService: 'Air Force',
                   preTaxAmountReceived: separation_payment_amount
                 }
@@ -1335,7 +1335,7 @@ RSpec.describe 'Disability Claims', type: :request do
             end
 
             context "when 'datePaymentReceived' is not in the past" do
-              let(:received_date) { (Time.zone.today + 1.day).strftime('%m-%d-%Y') }
+              let(:received_date) { (Time.zone.today + 1.day).strftime('%Y-%m-%d') }
 
               it 'responds with a bad request' do
                 mock_ccg(scopes) do |auth_header|
@@ -1349,7 +1349,7 @@ RSpec.describe 'Disability Claims', type: :request do
             end
 
             context "when 'datePaymentReceived' is in the past" do
-              let(:received_date) { (Time.zone.today - 1.year).strftime('%m-%d-%Y') }
+              let(:received_date) { (Time.zone.today - 1.year).strftime('%Y-%m-%d') }
 
               it 'responds with a 200' do
                 mock_ccg(scopes) do |auth_header|
@@ -1461,7 +1461,7 @@ RSpec.describe 'Disability Claims', type: :request do
           it 'is not after the first service period begin date it is unprocessable' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
-              json['data']['attributes']['treatments'][0]['beginDate'] = '12-2007'
+              json['data']['attributes']['treatments'][0]['beginDate'] = '2007-12'
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
@@ -1480,7 +1480,7 @@ RSpec.describe 'Disability Claims', type: :request do
           it 'is the wrong format it is unprocessable' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
-              json['data']['attributes']['treatments'][0]['beginDate'] = '12-01-2008'
+              json['data']['attributes']['treatments'][0]['beginDate'] = '2008-01-12'
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
@@ -1498,7 +1498,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when treatment beginDate is in the wrong pattern' do
-          let(:treatment_begin_date) { '12/01/1999' }
+          let(:treatment_begin_date) { '1999/12/01' }
           let(:active_duty_begin_date) { '1981-11-15' }
 
           it 'returns a 422' do
@@ -1871,7 +1871,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when the activeDutyBeginDate is after the activeDutyEndDate' do
-          let(:active_duty_end_date) { '01-01-1979' }
+          let(:active_duty_end_date) { '1979-01-01' }
 
           it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
@@ -1886,7 +1886,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context "when the activeDutyBeginDate is on or before the Veteran's 13th birthday" do
-          let(:active_duty_begin_date) { '01-01-1904' }
+          let(:active_duty_begin_date) { '1904-01-01-' }
 
           it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
@@ -1931,7 +1931,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when the activeDutyEndDate is in the future' do
-          let(:active_duty_end_date) { 2.months.from_now.strftime('%m-%d-%Y') }
+          let(:active_duty_end_date) { 2.months.from_now.strftime('%Y-%m-%d') }
 
           context 'and the seperationLocationCode is present' do
             it 'responds with a 200' do
@@ -1983,12 +1983,12 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:confinements) do
             [
               {
-                approximateBeginDate: '01-11-2016',
-                approximateEndDate: '01-13-2016'
+                approximateBeginDate: '2016-11-01',
+                approximateEndDate: '2016-13-01'
               },
               {
-                approximateBeginDate: '01-11-2017',
-                approximateEndDate: '01-13-2017'
+                approximateBeginDate: '2017-11-01',
+                approximateEndDate: '2017-13-01'
               }
             ]
           end
@@ -2008,12 +2008,12 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:confinements) do
             [
               {
-                approximateBeginDate: '01-11-2016',
-                approximateEndDate: '01-2016'
+                approximateBeginDate: '2016-11-01',
+                approximateEndDate: '2016-01'
               },
               {
-                approximateBeginDate: '01-11-2017',
-                approximateEndDate: '02-2017'
+                approximateBeginDate: '2017-11-01',
+                approximateEndDate: '2017-02'
               }
             ]
           end
@@ -2033,8 +2033,8 @@ RSpec.describe 'Disability Claims', type: :request do
           let(:confinements) do
             [
               {
-                approximateBeginDate: '02-11-2016',
-                approximateEndDate: '01-2016'
+                approximateBeginDate: '2016-11-02',
+                approximateEndDate: '2016-01'
               }
             ]
           end
@@ -2081,8 +2081,8 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when confinements.confinement.approximateBeginDate is after approximateEndDate' do
-          let(:approximate_end_date) { '05-06-2015' }
-          let(:approximate_begin_date) { '05-06-2016' }
+          let(:approximate_end_date) { '2015-06-05' }
+          let(:approximate_begin_date) { '2016-06-05' }
 
           it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
@@ -2098,9 +2098,9 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when serviceInformation.confinements.approximateBeginDate is before earliest activeDutyBeginDate' do
-          let(:active_duty_begin_date) { '05-08-2015' }
-          let(:approximate_begin_date) { '05-06-2015' }
-          let(:approximate_end_date) { '05-06-2016' }
+          let(:active_duty_begin_date) { '2015-08-05' }
+          let(:approximate_begin_date) { '2015-06-05' }
+          let(:approximate_end_date) { '2016-06-05' }
 
           it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
@@ -2118,10 +2118,10 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when confinement dates are not within one of the service period date ranges' do
-          let(:active_duty_begin_date) { '05-08-2015' }
-          let(:active_duty_end_date) { '09-08-2015' }
-          let(:approximate_begin_date) { '05-06-2016' }
-          let(:approximate_end_date) { '06-06-2016' }
+          let(:active_duty_begin_date) { '2015-08-05' }
+          let(:active_duty_end_date) { '2015-08-09' }
+          let(:approximate_begin_date) { '2016-06-05' }
+          let(:approximate_end_date) { '2016-06-06' }
 
           it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
@@ -2306,7 +2306,7 @@ RSpec.describe 'Disability Claims', type: :request do
                         },
                         'treatedDisabilityNames' => ['Traumatic Brain Injury',
                                                      'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders'],
-                        'beginDate' => '03-2009'
+                        'beginDate' => '2009-03'
                       }
                     ]
                   params['data']['attributes']['disabilities'] = disabilities
@@ -2386,7 +2386,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         describe "'disabilites.approximateDate' validations" do
           context "when 'approximateDate' is in the future" do
-            let(:approximate_date) { (Time.zone.today + 1.year).strftime('%m-%d-%Y') }
+            let(:approximate_date) { (Time.zone.today + 1.year).strftime('%Y-%m-%d') }
 
             it 'responds with a bad request' do
               mock_ccg(scopes) do |auth_header|
@@ -2400,7 +2400,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           context "when 'approximateDate' is in the past" do
-            let(:approximate_date) { (Time.zone.today - 1.year).strftime('%m-%d-%Y') }
+            let(:approximate_date) { (Time.zone.today - 1.year).strftime('%Y-%m-%d') }
 
             it 'responds with a 200' do
               mock_ccg(scopes) do |auth_header|
@@ -2698,7 +2698,7 @@ RSpec.describe 'Disability Claims', type: :request do
                       disabilityActionType: 'SECONDARY',
                       name: 'PTSD',
                       serviceRelevance: 'Caused by a service-connected disability.',
-                      approximateDate: '02-30-2019'
+                      approximateDate: '2019-30-02'
                     }
                   ]
                 }
@@ -2724,7 +2724,7 @@ RSpec.describe 'Disability Claims', type: :request do
                       disabilityActionType: 'SECONDARY',
                       name: 'PTSD',
                       serviceRelevance: 'Caused by a service-connected disability.',
-                      approximateDate: '02-2019'
+                      approximateDate: '2019-02'
                     }
                   ]
                 }
@@ -2738,7 +2738,7 @@ RSpec.describe 'Disability Claims', type: :request do
                       'city' => 'Decatur'
                     },
                     'treatedDisabilityNames' => ['Traumatic Brain Injury', 'PTSD'],
-                    'beginDate' => '03-2009'
+                    'beginDate' => '2009-03'
                   }
                 ]
               params['data']['attributes']['disabilities'] = disabilities
@@ -2949,7 +2949,7 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           context 'when anticipatedSeparationDate is not in the future' do
-            let(:anticipated_separation_date) { 1.month.ago.strftime('%m-%d-%Y') }
+            let(:anticipated_separation_date) { 1.month.ago.strftime('%Y-%m-%d') }
 
             it 'responds with a 422' do
               mock_ccg(scopes) do |auth_header|
@@ -2979,20 +2979,20 @@ RSpec.describe 'Disability Claims', type: :request do
           end
 
           context 'when activationDate is not after the earliest servicePeriod.activeDutyBeginDate' do
-            let(:title_10_activation_date) { '05-05-2005' }
+            let(:title_10_activation_date) { '2005-05-05' }
             let(:service_periods) do
               [
                 {
                   serviceBranch: 'Public Health Service',
-                  activeDutyBeginDate: '02-05-1980',
-                  activeDutyEndDate: '01-02-1990',
+                  activeDutyBeginDate: '1980-02-05',
+                  activeDutyEndDate: '1990-01-02',
                   serviceComponent: 'Reserves',
                   separationLocationCode: 'ABCDEFGHIJKLMN'
                 },
                 {
                   serviceBranch: 'Public Health Service',
-                  activeDutyBeginDate: '02-05-2006',
-                  activeDutyEndDate: '01-02-2016',
+                  activeDutyBeginDate: '2006-05-02',
+                  activeDutyEndDate: '2016-02-01',
                   serviceComponent: 'Active',
                   separationLocationCode: 'OPQRSTUVWXYZ'
                 }
