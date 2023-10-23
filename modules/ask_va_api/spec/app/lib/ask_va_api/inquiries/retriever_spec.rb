@@ -11,7 +11,7 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
   let(:entity) { instance_double(AskVAApi::Inquiries::Entity) }
   let(:inquiry_number) { 'A-1' }
   let(:error_message) { 'Some error occurred' }
-  let(:criteria) { { inquiry_number: 'A-1' } }
+  let(:payload) { { inquiry_number: 'A-1' } }
 
   before do
     allow(Dynamics::Service).to receive(:new).and_return(service)
@@ -32,27 +32,27 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
     end
 
     context 'when Dynamics raise an error' do
-      let(:criteria) { { inquiry_number: 'A-1' } }
+      let(:payload) { { inquiry_number: 'A-1' } }
       let(:response) { instance_double(Faraday::Response, status: 400, body: 'Bad Request') }
       let(:endpoint) { AskVAApi::Inquiries::ENDPOINT }
       let(:error_message) { "Bad request to #{endpoint}: #{response.body}" }
 
       before do
         allow(service).to receive(:call)
-          .with(endpoint:, criteria:)
-          .and_raise(Dynamics::ErrorHandler::BadRequestError, error_message)
+          .with(endpoint:, payload:)
+          .and_raise(Dynamics::ErrorHandler::ServiceError, error_message)
       end
 
       it 'raises a FetchInquiriesError' do
         expect do
           retriever.fetch_by_inquiry_number(inquiry_number: 'A-1')
-        end.to raise_error(ErrorHandler::ServiceError, "Dynamics::ErrorHandler::BadRequestError: #{error_message}")
+        end.to raise_error(ErrorHandler::ServiceError, "Dynamics::ErrorHandler::ServiceError: #{error_message}")
       end
     end
 
     it 'returns an Entity object with correct data' do
       allow(service).to receive(:call)
-        .with(endpoint: 'get_inquiries_mock_data', criteria: { inquiry_number: })
+        .with(endpoint: 'get_inquiries_mock_data', payload: { inquiry_number: })
         .and_return([double])
       expect(retriever.fetch_by_inquiry_number(inquiry_number:)).to eq(entity)
     end

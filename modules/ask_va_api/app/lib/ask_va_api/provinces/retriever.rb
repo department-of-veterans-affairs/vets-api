@@ -5,6 +5,10 @@ module AskVAApi
     ENDPOINT = 'get_provinces_mock_data.json'
 
     class Retriever
+      def initialize(service: nil)
+        @service = service
+      end
+
       def call
         provinces_array = fetch_data
 
