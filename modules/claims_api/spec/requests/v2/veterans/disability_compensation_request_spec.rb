@@ -527,6 +527,23 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
         end
+
+        context 'when the type is permanent the end date is prohibited' do
+          let(:begin_date) { '01-01-2023' }
+          let(:end_date) { '01-01-2024' }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['changeOfAddress']['typeOfAddressChange'] = 'PERMANENT'
+              json['data']['attributes']['changeOfAddress']['dates']['beginDate'] = begin_date
+              json['data']['attributes']['changeOfAddress']['dates']['endDate'] = end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
       end
 
       describe 'veteranIdentification' do
