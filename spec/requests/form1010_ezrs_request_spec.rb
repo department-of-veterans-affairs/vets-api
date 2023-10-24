@@ -38,6 +38,7 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
 
       before do
         sign_in_as(current_user)
+        allow(current_user).to receive(:icn).and_return('1013032368V065534')
       end
 
       context 'when no error occurs' do
@@ -46,17 +47,21 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
         end
         let(:body) do
           {
-            'formSubmissionId' => 432_137_192,
-            'timestamp' => '2023-10-20T14:41:58.948-05:00',
+            'formSubmissionId' => 432_236_891,
+            'timestamp' => '2023-10-23T18:12:24.628-05:00',
             'success' => true
           }
         end
 
-        it 'renders success and delete the saved form', run_at: 'Fri, 20 Oct 2023 19:41:58 GMT' do
+        it 'renders a successful response and deletes the saved form', run_at: 'Mon, 23 Oct 2023 23:09:43 GMT' do
           VCR.use_cassette(
             'form1010_ezr/authorized_submit',
-            VCR::MATCH_EVERYTHING.merge(erb: true)
+            match_requests_on: [:method]
           ) do
+            # The required fields for the Enrollment System should be absent from the form data initially
+            # and then added via the 'post_fill_required_fields' method
+            expect(params[:form].to_json['isEssentialAcaCoverage']).to eq(nil)
+            expect(params[:form].to_json['vaMedicalFacility']).to eq(nil)
             expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('10-10EZR').once
             subject
             expect(JSON.parse(response.body)).to eq(body)
@@ -69,6 +74,12 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
           {
             form: JSON.parse(form).except('privacyAgreementAccepted').to_json
           }
+        end
+
+        before do
+          allow_any_instance_of(
+            HCA::EnrollmentEligibility::Service
+          ).to receive(:lookup_user).and_return({ preferred_facility: '988' })
         end
 
         it 'returns an error in the response body' do

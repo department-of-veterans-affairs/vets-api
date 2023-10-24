@@ -37,51 +37,30 @@ RSpec.describe Form1010Ezr::Service do
   end
 
   describe '#submit_form' do
+    before do
+      allow(current_user).to receive(:icn).and_return('1013032368V065534')
+    end
+
     context 'when successful' do
       it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'",
-         run_at: 'Fri, 20 Oct 2023 19:41:58 GMT' do
+         run_at: 'Mon, 23 Oct 2023 23:09:43 GMT' do
         VCR.use_cassette(
           'form1010_ezr/authorized_submit',
-          VCR::MATCH_EVERYTHING.merge(erb: true)
+          match_requests_on: [:body]
         ) do
+          # The required fields for the Enrollment System should be absent from the form data initially
+          # and then added via the 'post_fill_required_fields' method
+          expect(form['isEssentialAcaCoverage']).to eq(nil)
+          expect(form['vaMedicalFacility']).to eq(nil)
+
           submission_response = submit_form(form)
 
           expect(submission_response).to be_a(Object)
           expect(submission_response).to eq(
             {
               success: true,
-              formSubmissionId: 432_137_192,
-              timestamp: '2023-10-20T14:41:58.948-05:00'
-            }
-          )
-        end
-      end
-    end
-
-    context 'post-filling required fields' do
-      before do
-        allow(current_user).to receive(:icn).and_return('1013032368V065534')
-      end
-
-      it 'adds the required fields to the form hash and returns a successful response',
-         run_at: 'Fri, 08 Feb 2019 02:50:45 GMT' do
-        form_sans_required_fields =
-          form.except(
-            'isEssentialAcaCoverage',
-            'vaMedicalFacility'
-          )
-
-        VCR.use_cassette(
-          'hca/ee/lookup_user',
-          VCR::MATCH_EVERYTHING.merge(erb: true)
-        ) do
-          submit_form = submit_form(form_sans_required_fields)
-
-          expect(submit_form).to eq(
-            {
-              success: true,
-              formSubmissionId: 40_124_668_140,
-              timestamp: '2023-06-25T04:59:39.345-05:00'
+              formSubmissionId: 432_236_891,
+              timestamp: '2023-10-23T18:12:24.628-05:00'
             }
           )
         end
@@ -92,10 +71,15 @@ RSpec.describe Form1010Ezr::Service do
       context 'schema validation failure' do
         before do
           allow_logger_to_receive_error
+          allow_any_instance_of(
+            HCA::EnrollmentEligibility::Service
+          ).to receive(:lookup_user).and_return({ preferred_facility: '988' })
         end
 
-        it 'logs and raises a StandardError' do
-          expect { submit_form({}) }.to raise_error do |e|
+        it 'logs and raises a schema validation error' do
+          form_sans_required_field = form.except('privacyAgreementAccepted')
+
+          expect { submit_form(form_sans_required_field) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
             expect(e.errors[0].title).to eq('Validation error')
             expect(e.errors[0].detail).to include(
