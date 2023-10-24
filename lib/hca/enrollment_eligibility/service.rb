@@ -17,7 +17,7 @@ module HCA
       # rubocop:disable Metrics/MethodLength
       def lookup_user(icn)
         response = with_monitoring do
-          perform(:post, '', build_lookup_user_xml(icn)).body
+          lookup_user_req(icn)
         end
 
         {
@@ -62,6 +62,10 @@ module HCA
       # rubocop:enable Metrics/MethodLength
 
       private
+
+      def lookup_user_req(icn)
+        perform(:post, '', build_lookup_user_xml(icn)).body
+      end
 
       def get_xpath(response, xpath)
         node = response.locate(xpath)
