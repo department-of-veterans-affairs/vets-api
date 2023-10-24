@@ -1353,11 +1353,7 @@
                           },
                           "veteranNumber": {
                             "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
-                            "type": [
-                              "object",
-                              "null"
-                            ],
-                            "nullable": true,
+                            "type": "object",
                             "properties": {
                               "telephone": {
                                 "type": [
@@ -1624,11 +1620,7 @@
                         }
                       },
                       "toxicExposure": {
-                        "type": [
-                          "object",
-                          "null"
-                        ],
-                        "nullable": true,
+                        "type": "object",
                         "properties": {
                           "gulfWarHazardService": {
                             "type": "object",
@@ -2124,11 +2116,7 @@
                           },
                           "federalActivation": {
                             "description": "Include if the Veteran is currently activated on federal orders within the National Guard or Reserves",
-                            "type": [
-                              "object",
-                              "null"
-                            ],
-                            "nullable": true,
+                            "type": "object",
                             "additionalProperties": false,
                             "properties": {
                               "anticipatedSeparationDate": {
@@ -2150,11 +2138,7 @@
                             "additionalProperties": false,
                             "properties": {
                               "obligationTermsOfService": {
-                                "type": [
-                                  "object",
-                                  "null"
-                                ],
-                                "nullable": true,
+                                "type": "object",
                                 "description": "If 'obligationTermsOfService' is included, the following attributes are required: 'beginDate ' and 'endDate'.",
                                 "additionalProperties": false,
                                 "properties": {
@@ -2490,11 +2474,7 @@
                               },
                               "veteranNumber": {
                                 "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
-                                "type": [
-                                  "object",
-                                  "null"
-                                ],
-                                "nullable": true,
+                                "type": "object",
                                 "properties": {
                                   "telephone": {
                                     "type": [
@@ -2757,11 +2737,7 @@
                             }
                           },
                           "toxicExposure": {
-                            "type": [
-                              "object",
-                              "null"
-                            ],
-                            "nullable": true,
+                            "type": "object",
                             "properties": {
                               "gulfWarHazardService": {
                                 "type": "object",
@@ -3271,11 +3247,7 @@
                               },
                               "federalActivation": {
                                 "description": "If 'federalActivation' is included, the following attributes are required: 'anticipatedSeparationDate' and 'activationDate'.",
-                                "type": [
-                                  "object",
-                                  "null"
-                                ],
-                                "nullable": true,
+                                "type": "object",
                                 "additionalProperties": false,
                                 "properties": {
                                   "anticipatedSeparationDate": {
@@ -3297,11 +3269,7 @@
                                 "additionalProperties": false,
                                 "properties": {
                                   "obligationTermsOfService": {
-                                    "type": [
-                                      "object",
-                                      "null"
-                                    ],
-                                    "nullable": true,
+                                    "type": "object",
                                     "description": "If 'obligationTermsOfService' is included, the following attributes are required: 'beginDate ' and 'endDate'.",
                                     "additionalProperties": false,
                                     "properties": {
@@ -4383,8 +4351,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-10-12",
-                      "expirationDate": "2024-10-12",
+                      "creationDate": "2023-10-18",
+                      "expirationDate": "2024-10-18",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -4926,7 +4894,6 @@
       }
     }
   },
-  "basePath": "/services/claims/v2",
   "servers": [
     {
       "url": "https://sandbox-api.va.gov/services/claims/{version}",
