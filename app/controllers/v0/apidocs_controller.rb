@@ -199,6 +199,7 @@ module V0
       Swagger::Schemas::BB::HealthRecords,
       Swagger::Schemas::Countries,
       Swagger::Schemas::ConnectedApplications,
+      Swagger::Schemas::Contacts,
       Swagger::Schemas::DecisionReviewEvidence,
       Swagger::Schemas::Dependents,
       Swagger::Schemas::DependentsVerifications,
