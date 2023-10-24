@@ -204,42 +204,104 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
         client.provider_locator(params.merge(specialties: %w[Code1]))
       end
 
-      it 'maxResults cannot be greater then 50' do
+      it 'returns paginated results' do
         expect(client).to receive(:perform).with(
           :get,
           path,
           {
             address: '40.415217,-74.057114',
             homeHealthSearch: 0,
-            maxResults: 50,
+            maxResults: 11,
+            pageNumber: 1,
+            pageSize: 10,
             radius: 200,
             specialtycode1: 'Code1',
             telehealthSearch: 0
           }
-        ).exactly(3).and_return(fake_response)
+        ).and_return(fake_response)
+
+        client.provider_locator(params.merge(specialties: %w[Code1], page: 1, per_page: 10))
+      end
+
+      it 'maxResults cannot be greater then 50' do
+        test_params = {
+          address: '40.415217,-74.057114',
+          homeHealthSearch: 0,
+          maxResults: 50,
+          pageNumber: 1,
+          pageSize: 60,
+          radius: 200,
+          specialtycode1: 'Code1',
+          telehealthSearch: 0
+        }
+
+        expect(client).to receive(:perform).with(
+          :get,
+          path,
+          test_params.merge({ pageNumber: 1, pageSize: 60 })
+        ).and_return(fake_response)
 
         client.provider_locator(params.merge(specialties: %w[Code1], page: 1, per_page: 60))
+
+        expect(client).to receive(:perform).with(
+          :get,
+          path,
+          test_params.merge({ pageNumber: 60, pageSize: 1 })
+        ).and_return(fake_response)
+
         client.provider_locator(params.merge(specialties: %w[Code1], page: 60, per_page: 1))
+
+        expect(client).to receive(:perform).with(
+          :get,
+          path,
+          test_params.merge({ pageNumber: 60, pageSize: 60 })
+        ).and_return(fake_response)
+
         client.provider_locator(params.merge(specialties: %w[Code1], page: 60, per_page: 60))
       end
 
       it 'maxResults cannot be less than 2' do
+        test_params = {
+          address: '40.415217,-74.057114',
+          homeHealthSearch: 0,
+          maxResults: 2,
+          pageNumber: 1,
+          pageSize: 1,
+          radius: 200,
+          specialtycode1: 'Code1',
+          telehealthSearch: 0
+        }
+
         expect(client).to receive(:perform).with(
           :get,
           path,
-          {
-            address: '40.415217,-74.057114',
-            homeHealthSearch: 0,
-            maxResults: 2,
-            radius: 200,
-            specialtycode1: 'Code1',
-            telehealthSearch: 0
-          }
-        ).exactly(4).and_return(fake_response)
+          test_params.merge({ pageNumber: 1, pageSize: 1 })
+        ).and_return(fake_response)
 
         client.provider_locator(params.merge(specialties: %w[Code1], page: 1, per_page: 1))
+
+        expect(client).to receive(:perform).with(
+          :get,
+          path,
+          test_params.merge({ pageNumber: 1, pageSize: 0 })
+        ).and_return(fake_response)
+
         client.provider_locator(params.merge(specialties: %w[Code1], page: 1, per_page: 0))
+
+        expect(client).to receive(:perform).with(
+          :get,
+          path,
+          test_params.merge({ pageNumber: 0, pageSize: 0 })
+        ).and_return(fake_response)
+
         client.provider_locator(params.merge(specialties: %w[Code1], page: 0, per_page: 0))
+
+        expect(client).to receive(:perform).with(
+          :get,
+          path,
+          test_params.merge({ pageNumber: -10, pageSize: 1 })
+        ).and_return(fake_response)
+
         client.provider_locator(params.merge(specialties: %w[Code1], page: -10, per_page: 1))
       end
     end

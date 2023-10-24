@@ -2,6 +2,7 @@
 
 class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
+  self.ignored_columns += ['verified_decryptable_at']
 
   def self.lockbox_options
     {
@@ -28,5 +29,14 @@ class ApplicationRecord < ActiveRecord::Base
 
     # If update is due to kms key, don't update updated_at
     kms_key_changed || called_from_kms_encrypted ? [] : super
+  end
+
+  def valid?(context = nil)
+    kms_key_changed = changed.include?('encrypted_kms_key')
+    only_kms_changes = changed.all? { |f| f == 'encrypted_kms_key' || f.include?('_ciphertext') }
+
+    # Skip validation ONLY during the case where only KMS fields are being updated
+    # AND the encrypted_kms_key is present
+    kms_key_changed && only_kms_changes ? true : super
   end
 end

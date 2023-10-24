@@ -51,40 +51,56 @@ module BGS
       # This is because we are currently relying on the presence of a PDF and
       # absence of a BGS-established claim to identify cases where Form 686c-674
       # submission failed.
-      VBMS::SubmitDependentsPdfJob.perform_async(
-        claim.id,
-        form_hash_686c,
-        claim.submittable_686?,
-        claim.submittable_674?
-      )
-      if Flipper.enabled?(:dependents_submit_674_independently)
-        if claim.submittable_686? || claim.submittable_674?
-          # Previously, we would wait until `BGS::Service#create_person`'s call to
-          # BGS's `vnp_person_create` endpoint to fail due to an invalid file number
-          # or file number / SSN mismatch. Unfortunately, BGS's error response is
-          # so verbose that Sentry is unable to capture the portion of the message
-          # detailing this specific file number / SSN error, and is therefore unable
-          # to distinguish this error from others in our Sentry dashboards. That is
-          # why I am deliberately raising these errors here.
-          validate_file_number_format!(file_number:)
-          validate_file_number_matches_ssn!(file_number:)
-          claim.submittable_686? ? BGS::SubmitForm686cJob.perform_async(uuid, @icn, claim.id, form_hash_686c) : BGS::SubmitForm674Job.perform_async(uuid, @icn, claim.id, form_hash_686c) # rubocop:disable Layout/LineLength
-          Rails.logger.info('BGS::DependentService succeeded!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
-        end
+
+      if Flipper.enabled?(:dependents_encrypt_jobs)
+        encrypted_vet_info = KmsEncrypted::Box.new.encrypt(form_hash_686c.to_json)
+        VBMS::SubmitDependentsPdfEncryptedJob.perform_async(
+          claim.id,
+          encrypted_vet_info,
+          claim.submittable_686?,
+          claim.submittable_674?
+        )
       else
-        if claim.submittable_686? # rubocop:disable Style/IfInsideElse
-          # Previously, we would wait until `BGS::Service#create_person`'s call to
-          # BGS's `vnp_person_create` endpoint to fail due to an invalid file number
-          # or file number / SSN mismatch. Unfortunately, BGS's error response is
-          # so verbose that Sentry is unable to capture the portion of the message
-          # detailing this specific file number / SSN error, and is therefore unable
-          # to distinguish this error from others in our Sentry dashboards. That is
-          # why I am deliberately raising these errors here.
-          validate_file_number_format!(file_number:)
-          validate_file_number_matches_ssn!(file_number:)
-          BGS::SubmitForm686cJob.perform_async(uuid, @icn, claim.id, form_hash_686c)
-          Rails.logger.info('BGS::DependentService succeeded!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
+        VBMS::SubmitDependentsPdfJob.perform_async(
+          claim.id,
+          form_hash_686c,
+          claim.submittable_686?,
+          claim.submittable_674?
+        )
+      end
+
+      if claim.submittable_686? || claim.submittable_674?
+        # Previously, we would wait until `BGS::Service#create_person`'s call to
+        # BGS's `vnp_person_create` endpoint to fail due to an invalid file number
+        # or file number / SSN mismatch. Unfortunately, BGS's error response is
+        # so verbose that Sentry is unable to capture the portion of the message
+        # detailing this specific file number / SSN error, and is therefore unable
+        # to distinguish this error from others in our Sentry dashboards. That is
+        # why I am deliberately raising these errors here.
+        validate_file_number_format!(file_number:)
+        validate_file_number_matches_ssn!(file_number:)
+        if claim.submittable_686?
+          if Flipper.enabled?(:dependents_encrypt_jobs)
+            BGS::SubmitForm686cEncryptedJob.perform_async(
+              uuid, @icn, claim.id, encrypted_vet_info
+            )
+          else
+            BGS::SubmitForm686cJob.perform_async(
+              uuid, @icn, claim.id, form_hash_686c
+            )
+          end
+        else
+          if Flipper.enabled?(:dependents_encrypt_jobs) # rubocop:disable Style/IfInsideElse
+            BGS::SubmitForm674EncryptedJob.perform_async(
+              uuid, @icn, claim.id, encrypted_vet_info
+            )
+          else
+            BGS::SubmitForm674Job.perform_async(
+              uuid, @icn, claim.id, form_hash_686c
+            )
+          end
         end
+        Rails.logger.info('BGS::DependentService succeeded!', { user_uuid: uuid, saved_claim_id: claim.id, icn: })
       end
     rescue => e
       Rails.logger.error('BGS::DependentService failed!', { user_uuid: uuid, saved_claim_id: claim.id, icn:, error: e.message }) # rubocop:disable Layout/LineLength
@@ -133,7 +149,7 @@ module BGS
       # tell BGS the kinds of file numbers we are seeing.
       if file_number.length < 8 || file_number.length > 9
         file_number_pattern = file_number.gsub(/[0-9]/, 'X')
-        raise Flipper.enabled?(:dependents_submit_674_independently) ? "Aborting Form 686c/674 submission: BGS file_nbr has invalid format! (#{file_number_pattern})" : "Aborting Form 686c submission: BGS file_nbr has invalid format! (#{file_number_pattern})" # rubocop:disable Layout/LineLength
+        raise "Aborting Form 686c/674 submission: BGS file_nbr has invalid format! (#{file_number_pattern})"
       end
     end
 
@@ -143,7 +159,7 @@ module BGS
       # we can inform MPI and others of instances where veteran account data is
       # screwed up.
       if file_number.length == 9 && file_number != ssn
-        raise Flipper.enabled?(:dependents_submit_674_independently) ? 'Aborting Form 686c/674 submission: VA.gov SSN does not match BGS file_nbr!' : 'Aborting Form 686c submission: VA.gov SSN does not match BGS file_nbr!' # rubocop:disable Layout/LineLength
+        raise 'Aborting Form 686c/674 submission: VA.gov SSN does not match BGS file_nbr!'
       end
     end
   end
