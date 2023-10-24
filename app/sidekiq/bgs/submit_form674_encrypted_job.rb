@@ -3,7 +3,7 @@
 require 'bgs/form674'
 
 module BGS
-  class SubmitForm674Job < Job
+  class SubmitForm674EncryptedJob < Job
     class Invalid674Claim < StandardError; end
     FORM_ID = '686C-674'
     include Sidekiq::Job
@@ -15,7 +15,11 @@ module BGS
     # method length is currently disabled due to the two flippers currently enabled in this method.
     # when both are resolved we will be able to remove the method length disabling.
     # BlockNesting is also disabled for the same reason.
-    def perform(user_uuid, icn, saved_claim_id, vet_info, user_struct_hash = {})
+    def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = nil)
+      vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
+      if encrypted_user_struct_hash.present?
+        user_struct_hash = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct_hash))
+      end
       Rails.logger.info('BGS::SubmitForm674Job running!', { user_uuid:, saved_claim_id:, icn: })
       in_progress_form = InProgressForm.find_by(form_id: FORM_ID, user_uuid:)
       in_progress_copy = in_progress_form_copy(in_progress_form)
@@ -34,10 +38,8 @@ module BGS
       log_message_to_sentry(e, :error, {}, { team: 'vfs-ebenefits' })
       salvage_save_in_progress_form(FORM_ID, user_uuid, in_progress_copy)
       if Flipper.enabled?(:dependents_central_submission)
-        user_struct = user_struct_hash.present? ? OpenStruct.new(user_struct_hash) : generate_user_struct(vet_info['veteran_information']) # rubocop:disable Layout/LineLength
-        CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
-                                                            KmsEncrypted::Box.new.encrypt(vet_info.to_json),
-                                                            KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json))
+        CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id, encrypted_vet_info,
+                                                            encrypted_user_struct_hash)
       else
         DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present? # rubocop:disable Style/IfInsideElse
       end
