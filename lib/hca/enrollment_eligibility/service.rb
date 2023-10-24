@@ -14,6 +14,10 @@ module HCA
 
       STATSD_KEY_PREFIX = 'api.hca_ee'
 
+      def get_ezr_data(icn)
+        lookup_user_req(icn)
+      end
+
       # rubocop:disable Metrics/MethodLength
       def lookup_user(icn)
         response = with_monitoring do

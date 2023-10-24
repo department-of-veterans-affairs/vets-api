@@ -28,6 +28,15 @@ describe HCA::EnrollmentEligibility::Service do
       end
     end
 
+    it 'f' do
+      VCR.use_cassette(
+        'hca/ee/lookup_user_2023',
+        record: :once
+      ) do
+        described_class.new.lookup_user('1013032368V065534')
+      end
+    end
+
     it 'lookups the user through the hca ee api', run_at: 'Fri, 08 Feb 2019 02:50:45 GMT' do
       VCR.use_cassette(
         'hca/ee/lookup_user',
