@@ -2,6 +2,7 @@
 
 class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
+  self.ignored_columns += ['verified_decryptable_at']
 
   def self.lockbox_options
     {
