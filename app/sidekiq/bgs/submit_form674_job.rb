@@ -21,11 +21,7 @@ module BGS
       in_progress_copy = in_progress_form_copy(in_progress_form)
       claim_data = valid_claim_data(saved_claim_id, vet_info)
       normalize_names_and_addresses!(claim_data)
-      if Flipper.enabled?(:dependents_submit_674_independently)
-        user_struct = user_struct_hash.present? ? OpenStruct.new(user_struct_hash) : generate_user_struct(vet_info['veteran_information']) # rubocop:disable Layout/LineLength
-      else
-        user_struct = OpenStruct.new(user_struct_hash)
-      end
+      user_struct = user_struct_hash.present? ? OpenStruct.new(user_struct_hash) : generate_user_struct(vet_info['veteran_information']) # rubocop:disable Layout/LineLength
 
       user = user_struct
       BGS::Form674.new(user).submit(claim_data)
@@ -38,13 +34,7 @@ module BGS
       log_message_to_sentry(e, :error, {}, { team: 'vfs-ebenefits' })
       salvage_save_in_progress_form(FORM_ID, user_uuid, in_progress_copy)
       if Flipper.enabled?(:dependents_central_submission)
-        # rubocop:disable Metrics/BlockNesting
-        if Flipper.enabled?(:dependents_submit_674_independently)
-          user_struct = user_struct_hash.present? ? OpenStruct.new(user_struct_hash) : generate_user_struct(vet_info['veteran_information']) # rubocop:disable Layout/LineLength
-        else
-          user_struct = OpenStruct.new(user_struct_hash)
-        end
-        # rubocop:enable Metrics/BlockNesting
+        user_struct = user_struct_hash.present? ? OpenStruct.new(user_struct_hash) : generate_user_struct(vet_info['veteran_information']) # rubocop:disable Layout/LineLength
         CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
                                                             KmsEncrypted::Box.new.encrypt(vet_info.to_json),
                                                             KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json))

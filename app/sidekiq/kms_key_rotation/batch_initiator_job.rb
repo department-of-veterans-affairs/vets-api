@@ -6,7 +6,7 @@ module KmsKeyRotation
 
     sidekiq_options retry: false, queue: :low
 
-    MAX_RECORDS_PER_BATCH = 100_000
+    MAX_RECORDS_PER_BATCH = 15_000_000
     MAX_RECORDS_PER_JOB = 100
 
     MODELS_FOR_QUERY = {
