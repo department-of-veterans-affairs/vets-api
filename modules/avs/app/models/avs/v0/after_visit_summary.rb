@@ -23,6 +23,7 @@ module Avs
     attribute :primary_care_providers, Array
     attribute :primary_care_team, String
     attribute :primary_care_team_members, Array
+    attribute :problems, Array
     attribute :allergies_reactions, Object
     attribute :va_medications, Array
     attribute :lab_results, Array
