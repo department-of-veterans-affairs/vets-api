@@ -330,13 +330,13 @@ features:
     actor_type: user
     description: Manage whether dependent claims will submit to central processing
     enable_in_development: true
+  dependents_encrypt_jobs:
+    actor_type: user
+    description: Manage whether Sidekiq Jobs used for Dependents Claims will encrypt arguments considered potential PII.
+    enable_in_development: true
   dependents_central_submission_lighthouse:
     actor_type: user
     description: Manage whether central processing submission uses Lighthouse API
-    enable_in_development: true
-  dependents_submit_674_independently:
-    actor_type: user
-    description: Manage whether 674 can be submitted without an associated 686c
     enable_in_development: true
   disability_526_classifier_new_claims:
     actor_type: user

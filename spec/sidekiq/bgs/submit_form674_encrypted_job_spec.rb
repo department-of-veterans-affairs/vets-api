@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe BGS::SubmitForm674Job, type: :job do
+RSpec.describe BGS::SubmitForm674EncryptedJob, type: :job do
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:dependency_claim) { create(:dependency_claim) }
   let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
@@ -25,6 +25,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       }
     }
   end
+  let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
   let(:user_struct) do
     OpenStruct.new(
       first_name: vet_info['veteran_information']['full_name']['first'],
@@ -39,25 +40,26 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       common_name: vet_info['veteran_information']['common_name']
     )
   end
+  let(:encrypted_user_struct) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
 
   it 'calls #submit for 674 submission' do
-    client_stub = instance_double('BGS::Form674')
+    client_stub = instance_double(BGS::Form674)
     allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
     expect(client_stub).to receive(:submit).once
 
-    described_class.new.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
+    described_class.new.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
   end
 
   it 'calls #submit without a user_struct passed in by 686c' do
-    client_stub = instance_double('BGS::Form674')
+    client_stub = instance_double(BGS::Form674)
     allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
     expect(client_stub).to receive(:submit).once
 
-    described_class.new.perform(user.uuid, user.icn, dependency_claim.id, vet_info)
+    described_class.new.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info)
   end
 
   it 'sends confirmation email' do
-    client_stub = instance_double('BGS::Form674')
+    client_stub = instance_double(BGS::Form674)
     allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
     expect(client_stub).to receive(:submit).once
 
@@ -70,7 +72,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       }
     )
 
-    described_class.new.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
+    described_class.new.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
   end
 
   context 'error with central submission flipper on' do
@@ -81,12 +83,12 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
 
     it 'calls #submit for 674 submission' do
       job = described_class.new
-      client_stub = instance_double('BGS::Form674')
+      client_stub = instance_double(BGS::Form674)
       allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
       expect(client_stub).to receive(:submit).and_raise(StandardError)
       expect(job).to receive(:salvage_save_in_progress_form).with('686C-674', user.uuid, anything)
 
-      job.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
+      job.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
     end
   end
 
@@ -98,7 +100,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
 
     it 'calls #submit for 674 submission' do
       job = described_class.new
-      client_stub = instance_double('BGS::Form674')
+      client_stub = instance_double(BGS::Form674)
       mailer_double = double('Mail::Message')
       allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
       expect(client_stub).to receive(:submit).and_raise(StandardError)
@@ -106,7 +108,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(OpenStruct)) { mailer_double }
       expect(job).to receive(:salvage_save_in_progress_form).with('686C-674', user.uuid, anything)
 
-      job.perform(user.uuid, user.icn, dependency_claim.id, vet_info, user_struct.to_h)
+      job.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
     end
   end
 end
