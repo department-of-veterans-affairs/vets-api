@@ -65,8 +65,7 @@
         },
         "veteranNumber": {
           "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
-          "type": ["object", "null"],
-          "nullable": true,
+          "type": "object",
           "properties": {
             "telephone": {
               "description": "Veteran's phone number.",
@@ -247,7 +246,6 @@
         "pointOfContactNumber": {
           "type": ["object", "null"],
           "additionalProperties": false,
-          "nullable": true,
           "properties": {
             "telephone": {
               "description": "Primary phone of Point of Contact.",
@@ -315,8 +313,7 @@
       }
     },
     "toxicExposure": {
-      "type": ["object", "null"],
-      "nullable": true,
+      "type": "object",
       "properties": {
         "gulfWarHazardService": {
           "type": "object",
@@ -738,8 +735,7 @@
           }
         },
         "federalActivation": {
-          "type": ["object", "null"],
-          "nullable": true,
+          "type": "object",
           "additionalProperties": false,
           "properties": {
             "anticipatedSeparationDate": {
@@ -763,8 +759,7 @@
           "additionalProperties": false,
           "properties": {
             "obligationTermsOfService": {
-              "type": ["object", "null"],
-              "nullable": true,
+              "type": "object",
               "description": "If 'obligationTermsOfService' is included, the following attributes are required: 'beginDate ' and 'endDate'.",
               "additionalProperties": false,
               "properties": {
