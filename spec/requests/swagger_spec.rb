@@ -3594,6 +3594,14 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           end
         end
       end
+
+      describe '/v0/profile/contacts' do
+        it 'has a valid spec' do
+          expect(Flipper).to receive(:enabled?).with('profile_contacts').and_return(true)
+          expect(subject).to validate(:get, '/v0/profile/contacts', 200, headers)
+          expect(subject).to validate(:get, '/v0/profile/contacts', 401)
+        end
+      end
     end
   end
 
