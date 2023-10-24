@@ -1,48 +1,46 @@
 # frozen_string_literal: true
 
-require 'bgs/form674'
+require 'bgs/form686c'
 
 module BGS
-  class SubmitForm674Job < Job
-    class Invalid674Claim < StandardError; end
+  class SubmitForm686cEncryptedJob < Job
+    class Invalid686cClaim < StandardError; end
     FORM_ID = '686C-674'
     include Sidekiq::Job
     include SentryLogging
 
     sidekiq_options retry: false
 
-    # rubocop:disable Metrics/MethodLength
-    # method length is currently disabled due to the two flippers currently enabled in this method.
-    # when both are resolved we will be able to remove the method length disabling.
-    # BlockNesting is also disabled for the same reason.
-    def perform(user_uuid, icn, saved_claim_id, vet_info, user_struct_hash = {})
-      Rails.logger.info('BGS::SubmitForm674Job running!', { user_uuid:, saved_claim_id:, icn: })
+    def perform(user_uuid, icn, saved_claim_id, encrypted_vet_info) # rubocop:disable Metrics/MethodLength # Disabling until flipper removal in rescue
+      vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
+      Rails.logger.info('BGS::SubmitForm686cJob running!', { user_uuid:, saved_claim_id:, icn: })
       in_progress_form = InProgressForm.find_by(form_id: FORM_ID, user_uuid:)
       in_progress_copy = in_progress_form_copy(in_progress_form)
-      claim_data = valid_claim_data(saved_claim_id, vet_info)
-      normalize_names_and_addresses!(claim_data)
-      user_struct = user_struct_hash.present? ? OpenStruct.new(user_struct_hash) : generate_user_struct(vet_info['veteran_information']) # rubocop:disable Layout/LineLength
+      claim_data = normalize_names_and_addresses!(valid_claim_data(saved_claim_id, vet_info))
+      user = generate_user_struct(vet_info['veteran_information'])
 
-      user = user_struct
-      BGS::Form674.new(user).submit(claim_data)
+      BGS::Form686c.new(user).submit(claim_data)
+
+      # If Form 686c job succeeds, then enqueue 674 job.
+      claim = SavedClaim::DependencyClaim.find(saved_claim_id)
+      BGS::SubmitForm674EncryptedJob.perform_async(user_uuid, icn, saved_claim_id, encrypted_vet_info, KmsEncrypted::Box.new.encrypt(user.to_h.to_json)) if claim.submittable_674? # rubocop:disable Layout/LineLength
 
       send_confirmation_email(user)
       in_progress_form&.destroy
-      Rails.logger.info('BGS::SubmitForm674Job succeeded!', { user_uuid:, saved_claim_id:, icn: })
+
+      Rails.logger.info('BGS::SubmitForm686cJob succeeded!', { user_uuid:, saved_claim_id:, icn: })
     rescue => e
-      Rails.logger.error('BGS::SubmitForm674Job failed!', { user_uuid:, saved_claim_id:, icn:, error: e.message })
+      Rails.logger.error('BGS::SubmitForm686cJob failed!', { user_uuid:, saved_claim_id:, icn:, error: e.message })
       log_message_to_sentry(e, :error, {}, { team: 'vfs-ebenefits' })
       salvage_save_in_progress_form(FORM_ID, user_uuid, in_progress_copy)
       if Flipper.enabled?(:dependents_central_submission)
-        user_struct = user_struct_hash.present? ? OpenStruct.new(user_struct_hash) : generate_user_struct(vet_info['veteran_information']) # rubocop:disable Layout/LineLength
-        CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
-                                                            KmsEncrypted::Box.new.encrypt(vet_info.to_json),
+        user_struct = generate_user_struct(vet_info['veteran_information'])
+        CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id, encrypted_vet_info,
                                                             KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json))
       else
         DependentsApplicationFailureMailer.build(user).deliver_now if user&.email.present? # rubocop:disable Style/IfInsideElse
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
@@ -51,9 +49,9 @@ module BGS
 
       claim.add_veteran_info(vet_info)
 
-      raise Invalid674Claim unless claim.valid?(:run_686_form_jobs)
+      raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
 
-      claim.formatted_674_data(vet_info)
+      claim.formatted_686_data(vet_info)
     end
 
     def send_confirmation_email(user)
