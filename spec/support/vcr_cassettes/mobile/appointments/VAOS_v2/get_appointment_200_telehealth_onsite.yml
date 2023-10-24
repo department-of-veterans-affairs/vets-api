@@ -67,7 +67,7 @@ http_interactions:
       "kind": "telehealth",
       "status": "booked",
       "patientIcn": "1012845331V153043",
-      "locationId": "984",
+      "locationId": "983",
       "practitioners": [
           {
               "identifier": [
@@ -103,12 +103,12 @@ http_interactions:
       },
       "localStartTime": "2024-03-28T13:25:00.000-04:00",
       "location": {
-          "id": "984",
+          "id": "983",
           "type": "appointments",
           "attributes": {
-              "id": "984",
-              "vistaSite": "984",
-              "vastParent": "984",
+              "id": "983",
+              "vistaSite": "983",
+              "vastParent": "983",
               "type": "va_health_facility",
               "name": "Dayton VA Medical Center",
               "classification": "VA Medical Center (VAMC)",
