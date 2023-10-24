@@ -213,10 +213,17 @@ module DebtsApi
       raise Common::Client::Errors::ClientError.new('malformed request', 400)
     end
 
-    def build_public_metadata(form)
+    def build_public_metadata(form, debts)
+      enabled_flags = Flipper.features.select { |feature| feature.enabled?(@user) }.map(&:name).sort
+      debt_amounts = debts.nil? ? [] : debts.map { |debt| debt['current_ar'] || debt['p_h_amt_due'] }
+      debt_type = debts&.pluck('debt_type')&.first
       {
         'combined' => form['combined'],
-        'streamlined' => form['streamlined']
+        'debt_amounts' => debt_amounts,
+        'debt_type' => debt_type,
+        'flags' => enabled_flags,
+        'streamlined' => form['streamlined'],
+        'zipcode' => (form.dig('personalData', 'address', 'zipOrPostalCode') || '???')
       }
     end
 
@@ -233,7 +240,7 @@ module DebtsApi
       }.to_json
       form_json = form.deep_dup
 
-      public_metadata = build_public_metadata(form_json)
+      public_metadata = build_public_metadata(form_json, debts)
       form_json = sanitize_submission_form(form_json)
 
       DebtsApi::V0::Form5655Submission.create(
