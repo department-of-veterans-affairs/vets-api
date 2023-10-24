@@ -477,6 +477,10 @@ features:
     actor_type: user
     description: Enables form 21-10210 email submission confirmation (VaNotify)
     enable_in_development: true
+  form21_0845_confirmation_email:
+    actor_type: user
+    description: Enables form 21-0845 email submission confirmation (VaNotify)
+    enable_in_development: true
   form21p_0847_confirmation_email:
     actor_type: user
     description: Enables form 21p-0847 email submission confirmation (VaNotify)
@@ -605,6 +609,10 @@ features:
     actor_type: user
     description: Enables/disbales the PHR refresh for MHV users when logging into VA.gov
     enable_in_development: true
+  mhv_medical_records_redact_fhir_client_logs:
+    actor_type: user
+    description: Replaces IDs in fhir_client INFO-level logs with X's when enabled
+    enable_in_development: true
   mhv_medical_records_to_va_gov_release:
     actor_type: user
     description: Enables/disbales Medical Records on VA.gov (intial transition from MHV to VA.gov)
@@ -616,6 +624,10 @@ features:
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
+    enable_in_development: true
+  mhv_medications_to_va_gov_release:
+    actor_type: user
+    description: Enables/disbales Medications on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
@@ -632,6 +644,10 @@ features:
   mhv_to_logingov_account_transition_urgent:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer urgent experience (Identity)
+    enable_in_development: false
+  military_information:
+    actor_type: user
+    description: Enables the post-EMIS military information of VAProfile
     enable_in_development: false
   mobile_api:
     actor_type: user
@@ -1189,6 +1205,3 @@ features:
     actor_type: user
     description: Enable the veteran post-emis status
     enable_in_development: false
-  virtual_agent_decision_letter_download_tracking:
-    actor_type: user
-    description: Enable tracking of decision letter downloads in the VA Chatbot

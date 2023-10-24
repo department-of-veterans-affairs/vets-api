@@ -3,10 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
-  let(:datadog_logger) { instance_double(DatadogLogger) }
+  let(:logger) { instance_double(LogService) }
   let(:span) { instance_double(Datadog::Tracing::Span) }
 
   before do
+    allow(LogService).to receive(:new).and_return(logger)
+    allow(logger).to receive(:call).and_yield(span)
+    allow(span).to receive(:set_tag)
     allow(Rails.logger).to receive(:error)
   end
 
@@ -14,6 +17,9 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     it 'logs and renders error and sets datadog tags' do
       expect(response).to have_http_status(status)
       expect(JSON.parse(response.body)['error']).to eq(error_message)
+      expect(logger).to have_received(:call).with(action)
+      expect(span).to have_received(:set_tag).with('error', true)
+      expect(span).to have_received(:set_tag).with('error.msg', error_message)
       expect(Rails.logger).to have_received(:error).with("Error during #{action}: #{error_message}")
     end
   end
@@ -56,7 +62,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
 
     context 'when successful' do
       before do
-        get categories_path
+        get categories_path, params: { mock: true }
       end
 
       it 'returns categories data' do
@@ -71,12 +77,12 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       before do
         allow_any_instance_of(Dynamics::Service)
           .to receive(:call)
-          .and_raise(Dynamics::ErrorHandler::BadRequestError.new(error_message))
+          .and_raise(Dynamics::ErrorHandler::ServiceError.new(error_message))
         get categories_path
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'Dynamics::ErrorHandler::BadRequestError: service error'
+                      'Dynamics::ErrorHandler::ServiceError: service error'
     end
   end
 
@@ -96,7 +102,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     let(:topics_path) { "/ask_va_api/v0/categories/#{category.id}/topics" }
 
     context 'when successful' do
-      before { get topics_path }
+      before { get topics_path, params: { mock: true } }
 
       it 'returns topics data' do
         expect(JSON.parse(response.body)).to eq(expected_response)
@@ -110,12 +116,12 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
       before do
         allow_any_instance_of(Dynamics::Service)
           .to receive(:call)
-          .and_raise(Dynamics::ErrorHandler::BadRequestError.new(error_message))
+          .and_raise(Dynamics::ErrorHandler::ServiceError.new(error_message))
         get topics_path
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
-                      'Dynamics::ErrorHandler::BadRequestError: service error'
+                      'Dynamics::ErrorHandler::ServiceError: service error'
     end
   end
 
@@ -139,7 +145,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     let(:subtopics_path) { "/ask_va_api/v0/topics/#{topic.id}/subtopics" }
 
     context 'when successful' do
-      before { get subtopics_path }
+      before { get subtopics_path, params: { mock: true } }
 
       it 'returns subtopics data' do
         expect(JSON.parse(response.body)).to eq(expected_response)
@@ -154,7 +160,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
         allow_any_instance_of(AskVAApi::SubTopics::Retriever)
           .to receive(:call)
           .and_raise(StandardError, 'standard error')
-        get subtopics_path
+        get subtopics_path, params: { mock: true }
       end
 
       it_behaves_like 'common error handling', :internal_server_error, 'unexpected_error',
@@ -180,7 +186,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     let(:zipcodes_path) { '/ask_va_api/v0/zipcodes' }
 
     context 'when successful' do
-      before { get zipcodes_path, params: { zipcode: zip } }
+      before { get zipcodes_path, params: { zipcode: zip, mock: true } }
 
       context 'when zipcodes are found' do
         let(:zip) { '3601' }
@@ -208,7 +214,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
         allow_any_instance_of(AskVAApi::Zipcodes::Retriever)
           .to receive(:fetch_data)
           .and_raise(StandardError.new(error_message))
-        get zipcodes_path
+        get zipcodes_path, params: { mock: true }
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
@@ -227,7 +233,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     end
 
     context 'when successful' do
-      before { get states_path }
+      before { get states_path, params: { mock: true } }
 
       it 'returns all the states' do
         expect(response).to have_http_status(:ok)
@@ -242,7 +248,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
         allow_any_instance_of(AskVAApi::States::Retriever)
           .to receive(:fetch_data)
           .and_raise(StandardError.new(error_message))
-        get states_path
+        get states_path, params: { mock: true }
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',
@@ -261,7 +267,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
     end
 
     context 'when successful' do
-      before { get provinces_path }
+      before { get provinces_path, params: { mock: true } }
 
       it 'returns all the provinces' do
         expect(response).to have_http_status(:ok)
@@ -276,7 +282,7 @@ RSpec.describe AskVAApi::V0::StaticDataController, type: :request do
         allow_any_instance_of(AskVAApi::Provinces::Retriever)
           .to receive(:fetch_data)
           .and_raise(StandardError.new(error_message))
-        get provinces_path
+        get provinces_path, params: { mock: true }
       end
 
       it_behaves_like 'common error handling', :unprocessable_entity, 'service_error',

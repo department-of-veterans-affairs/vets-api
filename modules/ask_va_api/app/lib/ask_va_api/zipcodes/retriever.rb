@@ -3,13 +3,13 @@
 module AskVAApi
   module Zipcodes
     ENDPOINT = 'get_zipcodes_mock_data.json'
-    URI = 'get_zipcodes_from_dynamics.com'
 
     class Retriever
       attr_reader :service, :zip
 
-      def initialize(zip:)
+      def initialize(zip:, service: nil)
         @zip = zip
+        @service = service
       end
 
       def call
