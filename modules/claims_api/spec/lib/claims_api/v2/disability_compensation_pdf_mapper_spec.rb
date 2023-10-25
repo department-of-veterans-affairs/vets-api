@@ -107,7 +107,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         ssn = pdf_data[:data][:attributes][:identificationInformation][:ssn]
         name = pdf_data[:data][:attributes][:identificationInformation][:name]
         birth_date = pdf_data[:data][:attributes][:identificationInformation][:dateOfBirth]
-        va_file_number = pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber] # TO-DO
+        va_file_number = pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber]
         email = pdf_data[:data][:attributes][:identificationInformation][:emailAddress][:email]
         agree_to_email =
           pdf_data[:data][:attributes][:identificationInformation][:emailAddress][:agreeToEmailRelatedToClaim]

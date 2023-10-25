@@ -2,9 +2,9 @@
 
 require 'rails_helper'
 require_relative '../../rails_helper'
-require 'claims_api/v2/disability_compensation_vbms_uploader'
+require 'claims_api/v2/disability_compensation_benefits_documents_uploader'
 
-RSpec.describe ClaimsApi::V2::DisabilityCompensationVBMSUploader, type: :job do
+RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, type: :job do
   subject { described_class }
 
   before do

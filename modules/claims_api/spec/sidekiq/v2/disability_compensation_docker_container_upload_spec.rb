@@ -76,7 +76,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
         subject.perform_async(claim.id)
 
         claim.reload
-        expect(service).not_to receive(:start_vbms_job)
+        expect(service).not_to receive(:start_bd_uploader_job)
       end
     end
   end

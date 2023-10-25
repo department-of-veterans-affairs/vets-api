@@ -3,9 +3,11 @@
 module ClaimsApi
   module V2
     class DisabilityCompensationClaimEstablisher < DisabilityCompensationClaimServiceBase
+      LOG_TAG = '526 v2 Claim Establisher job'
+
       # Mark as established, set flashes and special issues
       def perform(claim_id)
-        log_job_progress('526 v2 Claim Establisher job',
+        log_job_progress(LOG_TAG,
                          claim_id,
                          'Beginning 526 v2 Claim Establisher job')
 
@@ -19,12 +21,12 @@ module ClaimsApi
 
         set_established_state_on_claim(auto_claim)
 
-        log_job_progress('526 v2 Claim Establisher job',
+        log_job_progress(LOG_TAG,
                          claim_id,
                          'Disablity compensation claim establisher job completed')
       rescue => e
         set_errored_state_on_claim(claim)
-        log_job_progress('526 v2 Claim Establisher job',
+        log_job_progress(LOG_TAG,
                          claim_id,
                          "Disablity compensation claim establisher job error: #{e}")
         log_exception_to_sentry(e)

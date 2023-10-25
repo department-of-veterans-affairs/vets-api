@@ -7,9 +7,10 @@ module ClaimsApi
   module V2
     class DisabilityCompensationPdfGenerator < DisabilityCompensationClaimServiceBase
       EVSS_DOCUMENT_TYPE = 'L023'
+      LOG_TAG = '526 v2 PDF Generator job'
 
       def perform(claim_id, middle_initial) # rubocop:disable Metrics/MethodLength
-        log_job_progress('526 v2 PDF Generator job',
+        log_job_progress(LOG_TAG,
                          claim_id,
                          "526EZ PDF generator started for claim #{claim_id}")
 
@@ -24,13 +25,13 @@ module ClaimsApi
         pdf_string = generate_526_pdf(mapped_claim)
 
         if pdf_string.empty?
-          log_job_progress('526 v2 PDF Generator job',
+          log_job_progress(LOG_TAG,
                            claim_id,
                            '526EZ PDF generator failed to return PDF string for claim')
 
           set_errored_state_on_claim(auto_claim)
         elsif pdf_string
-          log_job_progress('526 v2 PDF Generator job',
+          log_job_progress(LOG_TAG,
                            claim_id,
                            '526EZ PDF generator PDF string returned')
 
@@ -42,7 +43,7 @@ module ClaimsApi
                                                             tempfile: File.open(path)
                                                           })
 
-          log_job_progress('526 v2 PDF Generator job',
+          log_job_progress(LOG_TAG,
                            claim_id,
                            "526EZ PDF generator Uploaded 526EZ PDF #{file_name} to S3")
 
@@ -52,14 +53,14 @@ module ClaimsApi
           ::Common::FileHelpers.delete_file_if_exists(path)
         end
 
-        start_docker_container_job(auto_claim&.id) if auto_claim.status != errored_state_value
-
-        log_job_progress('526 v2 PDF Generator job done',
+        log_job_progress(LOG_TAG,
                          claim_id,
                          '526EZ PDF generator job finished')
+
+        start_docker_container_job(auto_claim&.id) if auto_claim.status != errored_state_value
       rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
         set_errored_state_on_claim(auto_claim)
-        log_job_progress('526 v2 PDF Generator job',
+        log_job_progress(LOG_TAG,
                          claim_id,
                          "526EZ PDF generator faraday errored #{e.status_code} #{e.original_body}")
         log_exception_to_sentry(e)
@@ -67,7 +68,7 @@ module ClaimsApi
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
         set_errored_state_on_claim(auto_claim)
-        log_job_progress('526 v2 PDF Generator job',
+        log_job_progress(LOG_TAG,
                          claim_id,
                          "526EZ PDF generator errored #{e.status_code} #{e.original_body}")
         log_exception_to_sentry(e)
@@ -75,7 +76,7 @@ module ClaimsApi
         raise e
       rescue => e
         set_errored_state_on_claim(auto_claim)
-        log_job_progress('526 v2 PDF Generator job',
+        log_job_progress(LOG_TAG,
                          claim_id,
                          "526EZ PDF generator errored #{e}")
         log_exception_to_sentry(e)

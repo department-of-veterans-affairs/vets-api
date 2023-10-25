@@ -5,11 +5,13 @@ require 'bd/bd'
 
 module ClaimsApi
   module V2
-    class DisabilityCompensationVBMSUploader < DisabilityCompensationClaimServiceBase
+    class DisabilityCompensationBenefitsDocumentsUploader < DisabilityCompensationClaimServiceBase
+      LOG_TAG = '526 v2 Benefits Documents Uploader job'
+
       def perform(claim_id) # rubocop:disable Metrics/MethodLength
-        log_job_progress('526 v2 VBMS Uploader job',
+        log_job_progress(LOG_TAG,
                          claim_id,
-                         'VBMS upload job started')
+                         'BD upload job started')
 
         claim_object = ClaimsApi::SupportingDocument.find_by(id: claim_id) ||
                        ClaimsApi::AutoEstablishedClaim.find_by(id: claim_id)
@@ -25,22 +27,22 @@ module ClaimsApi
 
         bd_upload_body(auto_claim:, file_body:)
 
-        log_job_progress('526 v2 VBMS Uploader job',
+        log_job_progress(LOG_TAG,
                          claim_id,
-                         'Uploaded 526EZ PDF to VBMS')
+                         'Uploaded 526EZ PDF to BD')
 
-        log_job_progress('526 v2 VBMS Uploader job',
+        log_job_progress(LOG_TAG,
                          claim_id,
-                         'VBMS upload succeeded')
+                         'BD upload succeeded')
 
         start_claim_establsher_job(auto_claim) if auto_claim.status != errored_state_value
 
       # Temporary errors (returning HTML, connection timeout), retry call
       rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
         set_errored_state_on_claim(auto_claim)
-        log_job_progress('526 v2 VBMS Uploader job',
+        log_job_progress(LOG_TAG,
                          claim_id,
-                         "VBMS failure for claimId #{auto_claim&.id}: #{e.message}")
+                         "BD failure for claimId #{auto_claim&.id}: #{e.message}")
         log_exception_to_sentry(e)
 
         raise e
@@ -48,9 +50,9 @@ module ClaimsApi
         set_errored_state_on_claim(auto_claim)
         message = get_error_message(e)
 
-        log_job_progress('526 v2 VBMS Uploader job',
+        log_job_progress(LOG_TAG,
                          claim_id,
-                         "VBMS failure for claimId #{auto_claim&.id}: #{message}")
+                         "BD failure for claimId #{auto_claim&.id}: #{message}")
         log_exception_to_sentry(e)
 
         raise e

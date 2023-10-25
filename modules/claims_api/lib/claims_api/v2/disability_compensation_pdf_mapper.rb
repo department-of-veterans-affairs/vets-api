@@ -25,7 +25,6 @@ module ClaimsApi
         @pdf_data = pdf_data
         @auth_headers = auth_headers&.deep_symbolize_keys
         @middle_initial = middle_initial
-        @veteran_data = JSON.parse(auth_headers['va_eauth_authorization'])&.deep_symbolize_keys
       end
 
       def map_claim
@@ -247,7 +246,6 @@ module ClaimsApi
         @pdf_data[:data][:attributes].merge!(
           identificationInformation: @auto_claim&.dig('veteranIdentification')&.deep_symbolize_keys
         )
-        # @pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber] = @target_veteran.mpi.birls_id
         @pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber] = @auth_headers[:va_eauth_birlsfilenumber]
         vet_number = @pdf_data[:data][:attributes][:identificationInformation][:veteranNumber].present?
         if vet_number
@@ -584,8 +582,8 @@ module ClaimsApi
       end
 
       def claim_date_and_signature
-        first_name = @veteran_data[:authorizationResponse][:firstName]
-        last_name = @veteran_data[:authorizationResponse][:lastName]
+        first_name = @auth_headers[:va_eauth_firstName]
+        last_name = @auth_headers[:va_eauth_lastName]
         name = "#{first_name} #{last_name}"
         claim_date = Date.parse(@auto_claim&.dig('claimDate').presence || Time.zone.today.to_s)
         claim_date_mdy = claim_date.strftime('%m-%d-%Y')
@@ -683,11 +681,11 @@ module ClaimsApi
 
       def additional_identification_info
         name = {
-          lastName: @veteran_data[:authorizationResponse][:lastName],
-          firstName: @veteran_data[:authorizationResponse][:firstName],
+          lastName: @auth_headers[:va_eauth_lastName],
+          firstName: @auth_headers[:va_eauth_firstName],
           middleInitial: @middle_initial
         }
-        birth_date_data = @veteran_data[:authorizationResponse][:birthDate]
+        birth_date_data = @auth_headers[:va_eauth_birthdate]
         if birth_date_data
           birth_date =
             {

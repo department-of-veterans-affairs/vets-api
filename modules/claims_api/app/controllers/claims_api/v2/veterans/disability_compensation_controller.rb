@@ -62,7 +62,7 @@ module ClaimsApi
         private
 
         def process_claim(auto_claim)
-          ClaimsApi::V2::DisabilityCompensationPdfGenerator.perform_async(
+          ClaimsApi::V2::DisabilityCompensationPdfGenerator.new.perform(
             auto_claim.id,
             veteran_middle_initial # PDF mapper just needs middle initial
           )
