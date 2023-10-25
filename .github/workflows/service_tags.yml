@@ -29,5 +29,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run audit task
-        run: |
-          bundle exec rake service_tags:audit_controllers
+        run: rake service_tags:audit_controllers
