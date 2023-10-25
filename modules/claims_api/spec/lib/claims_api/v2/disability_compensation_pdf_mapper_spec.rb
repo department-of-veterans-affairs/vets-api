@@ -74,6 +74,18 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
         expect(claim_process_type).to eq('STANDARD_CLAIM_PROCESS')
       end
+
+      describe 'when the claimProcessType is BDD_PROGRAM' do
+        let(:claim_process_type) { 'BDD_PROGRAM' }
+
+        it 'maps correctly to BDD_PROGRAM_CLAIM' do
+          form_attributes['claimProcessType'] = claim_process_type
+          mapper.map_claim
+
+          claim_process_type = pdf_data[:data][:attributes][:claimProcessType]
+          expect(claim_process_type).to eq('BDD_PROGRAM_CLAIM')
+        end
+      end
     end
 
     context '526 section 1' do

@@ -45,6 +45,15 @@ module ClaimsApi
         @pdf_data[:data][:attributes] = @auto_claim&.deep_symbolize_keys
         @pdf_data[:data][:attributes].delete(:claimantCertification)
         claim_date_and_signature
+        claim_process_type
+
+        @pdf_data
+      end
+
+      def claim_process_type
+        if @auto_claim&.dig('claimProcessType') == 'BDD_PROGRAM'
+          @pdf_data[:data][:attributes][:claimProcessType] = 'BDD_PROGRAM_CLAIM'
+        end
 
         @pdf_data
       end
