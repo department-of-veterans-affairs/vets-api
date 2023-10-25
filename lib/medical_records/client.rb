@@ -79,8 +79,14 @@ module MedicalRecords
       resource
     end
 
-    def get_vaccine(vaccine_id)
-      fhir_read(FHIR::Immunization, vaccine_id)
+    def list_allergies
+      bundle = fhir_search(FHIR::AllergyIntolerance,
+                           search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active' } })
+      sort_bundle(bundle, :recordedDate, :desc)
+    end
+
+    def get_allergy(allergy_id)
+      fhir_read(FHIR::AllergyIntolerance, allergy_id)
     end
 
     def list_vaccines
@@ -88,23 +94,33 @@ module MedicalRecords
       sort_bundle(bundle, :occurrenceDateTime, :desc)
     end
 
-    def get_allergy(allergy_id)
-      fhir_read(FHIR::AllergyIntolerance, allergy_id)
+    def get_vaccine(vaccine_id)
+      fhir_read(FHIR::Immunization, vaccine_id)
     end
 
-    def list_allergies
-      bundle = fhir_search(FHIR::AllergyIntolerance, search: { parameters: { patient: patient_fhir_id } })
+    def list_vitals
+      loinc_codes = "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT}"
+      bundle = fhir_search(FHIR::Observation, search: { parameters: { patient: patient_fhir_id, code: loinc_codes } })
+      sort_bundle(bundle, :effectiveDateTime, :desc)
+    end
+
+    def list_conditions
+      bundle = fhir_search(FHIR::Condition, search: { parameters: { patient: patient_fhir_id } })
       sort_bundle(bundle, :recordedDate, :desc)
     end
 
-    def get_clinical_note(note_id)
-      fhir_read(FHIR::DocumentReference, note_id)
+    def get_condition(condition_id)
+      fhir_search(FHIR::Condition, search: { parameters: { _id: condition_id, _include: '*' } })
     end
 
     def list_clinical_notes
       loinc_codes = "#{PHYSICIAN_PROCEDURE_NOTE},#{DISCHARGE_SUMMARY}"
       fhir_search(FHIR::DocumentReference,
                   search: { parameters: { patient: patient_fhir_id, type: loinc_codes } })
+    end
+
+    def get_clinical_note(note_id)
+      fhir_read(FHIR::DocumentReference, note_id)
     end
 
     def get_diagnostic_report(record_id)
@@ -153,19 +169,6 @@ module MedicalRecords
       combined_bundle.entry = paginate_bundle_entries(combined_bundle.entry, page_size, page_num)
 
       combined_bundle
-    end
-
-    def list_vitals
-      loinc_codes = "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT}"
-      fhir_search(FHIR::Observation, search: { parameters: { patient: patient_fhir_id, code: loinc_codes } })
-    end
-
-    def get_condition(condition_id)
-      fhir_search(FHIR::Condition, search: { parameters: { _id: condition_id, _include: '*' } })
-    end
-
-    def list_conditions
-      fhir_search(FHIR::Condition, search: { parameters: { patient: patient_fhir_id } })
     end
 
     protected
@@ -232,7 +235,7 @@ module MedicalRecords
     # @return [FHIR::ClientReply]
     #
     def fhir_search_query(fhir_model, params)
-      params[:search][:parameters].merge!(_count: DEFAULT_COUNT, 'clinical-status': 'active')
+      params[:search][:parameters].merge!(_count: DEFAULT_COUNT)
       result = fhir_client.search(fhir_model, params)
       handle_api_errors(result) if result.resource.nil?
       result
@@ -320,14 +323,21 @@ module MedicalRecords
     # @param order [Symbol] the sort order, :asc (default) or :desc
     #
     def sort_bundle(bundle, field, order = :asc)
-      sorted_entries = bundle.entry.sort_by do |entry|
-        if entry.resource.respond_to?(field) && !entry.resource.send(field).nil?
-          [0, entry.resource.send(field)]
+      sorted_entries = bundle.entry.sort do |entry1, entry2|
+        value1 = if entry1.resource.respond_to?(field) && !entry1.resource.send(field).nil?
+                   entry1.resource.send(field)
+                 end
+        value2 = if entry2.resource.respond_to?(field) && !entry2.resource.send(field).nil?
+                   entry2.resource.send(field)
+                 end
+        if value1.nil?
+          1
+        elsif value2.nil?
+          -1
         else
-          [1, Float::INFINITY]
+          order == :asc ? value1 <=> value2 : value2 <=> value1
         end
       end
-      sorted_entries.reverse! if order == :desc
       bundle.entry = sorted_entries
       bundle
     end

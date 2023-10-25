@@ -28,9 +28,28 @@ RSpec.describe V1::NoticeOfDisagreementsController do
            headers:
     end
 
-    it 'creates an NOD' do
+    it 'creates an NOD and logs to StatsD and logger' do
       VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-200_V1') do
+        allow(Rails.logger).to receive(:info)
+        expect(Rails.logger).to receive(:info).with({
+                                                      message: 'Overall claim submission success!',
+                                                      user_uuid: user.uuid,
+                                                      action: 'Overall claim submission',
+                                                      form_id: '10182',
+                                                      upstream_system: nil,
+                                                      downstream_system: 'Lighthouse',
+                                                      is_success: true,
+                                                      http: {
+                                                        status_code: 200,
+                                                        body: '[Redacted]'
+                                                      }
+                                                    })
+        allow(StatsD).to receive(:increment)
+        expect(StatsD).to receive(:increment).with('decision_review.form_10182.overall_claim_submission.success')
         previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
+        # Create an InProgressForm
+        in_progress_form = create(:in_progress_form, user_uuid: user.uuid, form_id: '10182')
+        expect(in_progress_form).not_to be_nil
         subject
         expect(response).to be_successful
         parsed_response = JSON.parse(response.body)
@@ -38,11 +57,30 @@ RSpec.describe V1::NoticeOfDisagreementsController do
         expect(previous_appeal_submission_ids).not_to include id
         appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
         expect(appeal_submission.type_of_appeal).to eq('NOD')
+        # InProgressForm should be destroyed after successful submission
+        in_progress_form = InProgressForm.find_by(user_uuid: user.uuid, form_id: '10182')
+        expect(in_progress_form).to be_nil
       end
     end
 
-    it 'adds to the PersonalInformationLog when an exception is thrown' do
+    it 'adds to the PersonalInformationLog when an exception is thrown and logs to StatsD and logger' do
       VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-422_V1') do
+        allow(Rails.logger).to receive(:error)
+        expect(Rails.logger).to receive(:error).with({
+                                                       message: 'Overall claim submission failure!',
+                                                       user_uuid: user.uuid,
+                                                       action: 'Overall claim submission',
+                                                       form_id: '10182',
+                                                       upstream_system: nil,
+                                                       downstream_system: 'Lighthouse',
+                                                       is_success: false,
+                                                       http: {
+                                                         status_code: 422,
+                                                         body: anything
+                                                       }
+                                                     })
+        allow(StatsD).to receive(:increment)
+        expect(StatsD).to receive(:increment).with('decision_review.form_10182.overall_claim_submission.failure')
         expect(personal_information_logs.count).to be 0
         subject
         expect(personal_information_logs.count).to be 1

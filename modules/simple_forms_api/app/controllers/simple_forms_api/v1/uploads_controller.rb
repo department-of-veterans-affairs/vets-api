@@ -11,6 +11,7 @@ module SimpleFormsApi
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
+        '21-0966' => 'vba_21_0966',
         '21-0972' => 'vba_21_0972',
         '21-0845' => 'vba_21_0845',
         '21-10210' => 'vba_21_10210',
@@ -61,9 +62,9 @@ module SimpleFormsApi
 
         render json: {
           expiration_date:,
-          compensation_intent: existing_intents[:compensation],
-          pension_intent: existing_intents[:pension],
-          survivor_intent: existing_intents[:survivor]
+          compensation_intent: existing_intents['compensation'],
+          pension_intent: existing_intents['pension'],
+          survivor_intent: existing_intents['survivor']
         }
       end
 
@@ -81,7 +82,7 @@ module SimpleFormsApi
 
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
           SimpleFormsApi::ConfirmationEmail.new(
-            form_data: parsed_form_data, form_number: form_id, confirmation_number:
+            form_data: parsed_form_data, form_number: form_id, confirmation_number:, user: @user
           ).send
         end
 
@@ -89,7 +90,11 @@ module SimpleFormsApi
           "Simple forms api - sent to benefits intake: #{params[:form_number]},
             status: #{status}, uuid #{confirmation_number}"
         )
-        render json: { confirmation_number: }, status:
+
+        json = { confirmation_number: }
+        json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
+
+        render json:, status:
       end
 
       def get_upload_location_and_uuid(lighthouse_service)

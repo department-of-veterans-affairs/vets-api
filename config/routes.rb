@@ -327,6 +327,7 @@ Rails.application.routes.draw do
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
       resources :communication_preferences, only: %i[index create update]
+      resources :contacts, only: %i[index]
 
       resources :ch33_bank_accounts, only: %i[index]
       put 'ch33_bank_accounts', to: 'ch33_bank_accounts#update'
@@ -372,7 +373,10 @@ Rails.application.routes.draw do
     get 'terms_of_use_agreements/:version/latest', to: 'terms_of_use_agreements#latest'
     post 'terms_of_use_agreements/:version/accept', to: 'terms_of_use_agreements#accept'
     post 'terms_of_use_agreements/:version/decline', to: 'terms_of_use_agreements#decline'
+
+    resources :form1010_ezrs, only: %i[create]
   end
+  # end /v0
 
   namespace :v1, defaults: { format: 'json' } do
     resources :apidocs, only: [:index]

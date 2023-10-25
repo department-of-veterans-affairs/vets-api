@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'medical_records/client'
+require 'stringio'
 
 describe MedicalRecords::Client do
   before(:all) do
@@ -18,21 +19,79 @@ describe MedicalRecords::Client do
 
   before do
     MedicalRecords::Client.send(:public, *MedicalRecords::Client.protected_instance_methods)
+
+    # Redirect FHIR logger's output to the buffer before each test
+    @original_output = FHIR.logger.instance_variable_get(:@logdev).dev
+    FHIR.logger.instance_variable_set(:@logdev, Logger::LogDevice.new(info_log_buffer))
   end
 
   after do
     MedicalRecords::Client.send(:protected, *MedicalRecords::Client.protected_instance_methods)
+
+    # Restore original logger output after each test
+    FHIR.logger.instance_variable_set(:@logdev, Logger::LogDevice.new(@original_output))
   end
 
   let(:client) { @client }
   let(:entries) { ['Entry 1', 'Entry 2', 'Entry 3', 'Entry 4', 'Entry 5'] }
+  let(:info_log_buffer) { StringIO.new }
 
-  it 'gets a patient by identifer', :vcr do
-    VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
-      patient_bundle = client.get_patient_by_identifier(client.fhir_client, 12_345)
-      expect(patient_bundle).to be_a(FHIR::Bundle)
-      expect(patient_bundle.entry[0].resource).to be_a(FHIR::Patient)
-      expect(patient_bundle.entry[0].resource.id).to eq('2952')
+  describe 'Getting a patient by identifier' do
+    let(:patient_id) { 12_345 }
+
+    context 'when the redaction feature toggle is enabled', :vcr do
+      before do
+        Flipper.enable(:mhv_medical_records_redact_fhir_client_logs)
+      end
+
+      it 'gets a patient by identifer', :vcr do
+        VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
+          patient_id = 12_345
+          patient_bundle = client.get_patient_by_identifier(client.fhir_client, patient_id)
+          expect(patient_bundle).to be_a(FHIR::Bundle)
+          expect(patient_bundle.entry[0].resource).to be_a(FHIR::Patient)
+          expect(patient_bundle.entry[0].resource.id).to eq('2952')
+          expect(info_log_buffer.string).not_to include(patient_id.to_s)
+        end
+      end
+    end
+
+    context 'when the redaction feature toggle is disabled', :vcr do
+      before do
+        Flipper.disable(:mhv_medical_records_redact_fhir_client_logs)
+      end
+
+      it 'gets a patient by identifer', :vcr do
+        VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
+          patient_id = 12_345
+          client.get_patient_by_identifier(client.fhir_client, patient_id)
+          expect(info_log_buffer.string).to include(patient_id.to_s)
+        end
+      end
+    end
+  end
+
+  it 'gets a list of allergies', :vcr do
+    VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
+      allergy_list = client.list_allergies
+      expect(allergy_list).to be_a(FHIR::Bundle)
+      expect(info_log_buffer.string).not_to include('2952')
+      # Verify that the list is sorted reverse chronologically (with nil values to the end).
+      allergy_list.entry.each_cons(2) do |prev, curr|
+        prev_date = prev.resource.recordedDate
+        curr_date = curr.resource.recordedDate
+        expect(curr_date.nil? || prev_date >= curr_date).to be true
+      end
+    end
+  end
+
+  it 'gets a single allergy', :vcr do
+    VCR.use_cassette 'mr_client/get_an_allergy' do
+      allergy_id = 30_242
+      allergy = client.get_allergy(allergy_id)
+      expect(allergy).to be_a(FHIR::AllergyIntolerance)
+      expect(allergy.id).to eq(allergy_id.to_s)
+      expect(info_log_buffer.string).not_to include(allergy_id.to_s)
     end
   end
 
@@ -40,13 +99,45 @@ describe MedicalRecords::Client do
     VCR.use_cassette 'mr_client/get_a_list_of_vaccines' do
       vaccine_list = client.list_vaccines
       expect(vaccine_list).to be_a(FHIR::Bundle)
+      # Verify that the list is sorted reverse chronologically (with nil values to the end).
+      vaccine_list.entry.each_cons(2) do |prev, curr|
+        prev_date = prev.resource.occurrenceDateTime
+        curr_date = curr.resource.occurrenceDateTime
+        expect(curr_date.nil? || prev_date >= curr_date).to be true
+      end
     end
   end
 
   it 'gets a single vaccine', :vcr do
     VCR.use_cassette 'mr_client/get_a_vaccine' do
-      vaccine_list = client.get_vaccine(2_954)
-      expect(vaccine_list).to be_a(FHIR::Immunization)
+      vaccine = client.get_vaccine(2_954)
+      expect(vaccine).to be_a(FHIR::Immunization)
+    end
+  end
+
+  it 'gets a list of vitals', :vcr do
+    VCR.use_cassette 'mr_client/get_a_list_of_vitals' do
+      vitals_list = client.list_vitals
+      expect(vitals_list).to be_a(FHIR::Bundle)
+      # Verify that the list is sorted reverse chronologically (with nil values to the end).
+      vitals_list.entry.each_cons(2) do |prev, curr|
+        prev_date = prev.resource.effectiveDateTime
+        curr_date = curr.resource.effectiveDateTime
+        expect(curr_date.nil? || prev_date >= curr_date).to be true
+      end
+    end
+  end
+
+  it 'gets a list of health conditions', :vcr do
+    VCR.use_cassette 'mr_client/get_a_list_of_health_conditions' do
+      condition_list = client.list_conditions
+      expect(condition_list).to be_a(FHIR::Bundle)
+      # Verify that the list is sorted reverse chronologically (with nil values to the end).
+      condition_list.entry.each_cons(2) do |prev, curr|
+        prev_date = prev.resource.recordedDate
+        curr_date = curr.resource.recordedDate
+        expect(curr_date.nil? || prev_date >= curr_date).to be true
+      end
     end
   end
 
@@ -137,9 +228,9 @@ describe MedicalRecords::Client do
       end
 
       context 'in descending order' do
-        it 'places the entry with the missing field at the beginning' do
+        it 'places the entry with the missing field at the end' do
           sorted = client.sort_bundle(bundle_with_missing_field, :onsetDateTime, :desc)
-          expect(sorted.entry.first.resource.onsetDateTime).to be_nil
+          expect(sorted.entry.last.resource.onsetDateTime).to be_nil
         end
       end
     end

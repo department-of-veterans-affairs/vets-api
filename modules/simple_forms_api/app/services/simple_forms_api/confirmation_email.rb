@@ -2,18 +2,22 @@
 
 module SimpleFormsApi
   class ConfirmationEmail
-    attr_reader :form_number, :confirmation_number
+    attr_reader :form_number, :confirmation_number, :user
 
     TEMPLATE_IDS = {
+      'vba_21_0845' => Settings.vanotify.services.va_gov.template_id.form21_0845_confirmation_email,
+      'vba_21p_0847' => Settings.vanotify.services.va_gov.template_id.form21p_0847_confirmation_email,
+      'vba_21_0972' => Settings.vanotify.services.va_gov.template_id.form21_0972_confirmation_email,
       'vba_21_4142' => Settings.vanotify.services.va_gov.template_id.form21_4142_confirmation_email,
       'vba_21_10210' => Settings.vanotify.services.va_gov.template_id.form21_10210_confirmation_email
     }.freeze
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
-    def initialize(form_data:, form_number:, confirmation_number:)
+    def initialize(form_data:, form_number:, confirmation_number:, user: nil)
       @form_data = form_data
       @form_number = form_number
       @confirmation_number = confirmation_number
+      @user = user
     end
 
     def send
@@ -40,6 +44,18 @@ module SimpleFormsApi
 
     def form_specific_data
       email, first_name = case @form_number
+                          when 'vba_21_0845'
+                            return unless Flipper.enabled?(:form21_0845_confirmation_email)
+
+                            form21_0845_contact_info(@form_data)
+                          when 'vba_21p_0847'
+                            return unless Flipper.enabled?(:form21p_0847_confirmation_email)
+
+                            [@form_data['preparer_email'], @form_data.dig('preparer_name', 'first')]
+                          when 'vba_21_0972'
+                            return unless Flipper.enabled?(:form21_0972_confirmation_email)
+
+                            [@form_data['preparer_email'], @form_data.dig('preparer_full_name', 'first')]
                           when 'vba_21_4142'
                             return unless Flipper.enabled?(:form21_4142_confirmation_email)
 
@@ -53,6 +69,21 @@ module SimpleFormsApi
                           end
 
       [email, first_name]
+    end
+
+    def form21_0845_contact_info(form_data)
+      # (vet && signed in)
+      if form_data['authorizer_type'] == 'veteran' && @user
+        [User.find(@user.uuid).email, form_data.dig('veteran_full_name', 'first')]
+
+      # (non-vet && signed in) || (non-vet && anon)
+      elsif form_data['authorizer_type'] == 'nonVeteran'
+        [form_data['authorizer_email'], form_data.dig('authorizer_full_name', 'first')]
+
+      # (vet && anon)
+      else
+        [nil, nil]
+      end
     end
 
     def form21_10210_contact_info(form_data)

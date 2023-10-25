@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: "<MHV_MR_HOST>/fhir/Observation?_count=9999&clinical-status=active&code=85354-9,9279-1,8867-4,8302-2,8310-5,29463-7&patient=2952"
+      uri: "<MHV_MR_HOST>/fhir/Observation?_count=9999&code=85354-9,9279-1,8867-4,8302-2,8310-5,29463-7&patient=2952"
       body:
         encoding: US-ASCII
         string: ""
@@ -78,7 +78,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/30163"
                 },
-                "effectiveDateTime": "2019-09-26T16:34:42+02:00",
+                "effectiveDateTime": "2019-09-20T16:34:42+02:00",
                 "valueQuantity": {
                   "value": 36.2,
                   "unit": "C"

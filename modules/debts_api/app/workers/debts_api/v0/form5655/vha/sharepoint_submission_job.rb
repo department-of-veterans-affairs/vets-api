@@ -33,7 +33,7 @@ module DebtsApi
         form_submission:,
         station_id: form_submission.form['facilityNum']
       )
-      StatsD.increment("#{stats_key}.success")
+      StatsD.increment("#{STATS_KEY}.success")
     end
   end
 end

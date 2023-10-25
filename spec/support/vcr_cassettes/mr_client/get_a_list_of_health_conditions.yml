@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: "<MHV_MR_HOST>/fhir/Condition?_count=9999&clinical-status=active&patient=2952"
+      uri: "<MHV_MR_HOST>/fhir/Condition?_count=9999&patient=2952"
       body:
         encoding: US-ASCII
         string: ""
@@ -80,7 +80,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1999-03"
+                "recordedDate": "1999-03"
               },
               "search": {
                 "mode": "match"
@@ -112,7 +112,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1997-01"
+                "recordedDate": "1997-01"
               },
               "search": {
                 "mode": "match"
@@ -144,7 +144,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1950"
+                "recordedDate": "1950"
               },
               "search": {
                 "mode": "match"
@@ -176,7 +176,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1997-01"
+                "recordedDate": "1997-01"
               },
               "search": {
                 "mode": "match"
@@ -208,7 +208,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1999-03"
+                "recordedDate": "1999-03"
               },
               "search": {
                 "mode": "match"
@@ -240,7 +240,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1997-01"
+                "recordedDate": "1997-01"
               },
               "search": {
                 "mode": "match"
@@ -272,7 +272,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1950"
+                "recordedDate": "1950"
               },
               "search": {
                 "mode": "match"
@@ -304,7 +304,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1997-01"
+                "recordedDate": "1997-01"
               },
               "search": {
                 "mode": "match"
@@ -336,7 +336,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1999-03"
+                "recordedDate": "1999-03"
               },
               "search": {
                 "mode": "match"
@@ -368,7 +368,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1997-01"
+                "recordedDate": "1997-01"
               },
               "search": {
                 "mode": "match"
@@ -400,7 +400,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1950"
+                "recordedDate": "1950"
               },
               "search": {
                 "mode": "match"
@@ -432,7 +432,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1997-01"
+                "recordedDate": "1997-01"
               },
               "search": {
                 "mode": "match"
@@ -464,7 +464,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1999-03"
+                "recordedDate": "1999-03"
               },
               "search": {
                 "mode": "match"
@@ -496,7 +496,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1997-01"
+                "recordedDate": "1997-01"
               },
               "search": {
                 "mode": "match"
@@ -528,7 +528,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1950"
+                "recordedDate": "1950"
               },
               "search": {
                 "mode": "match"
@@ -560,7 +560,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1997-01"
+                "recordedDate": "1997-01"
               },
               "search": {
                 "mode": "match"
@@ -591,8 +591,7 @@ http_interactions:
                 },
                 "subject": {
                   "reference": "Patient/39254"
-                },
-                "onsetDateTime": "1999-03"
+                }
               },
               "search": {
                 "mode": "match"
@@ -624,7 +623,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1997-01"
+                "recordedDate": "1997-01"
               },
               "search": {
                 "mode": "match"
@@ -656,7 +655,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1950"
+                "recordedDate": "1950"
               },
               "search": {
                 "mode": "match"
@@ -688,7 +687,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/39254"
                 },
-                "onsetDateTime": "1997-01"
+                "recordedDate": "1997-01"
               },
               "search": {
                 "mode": "match"

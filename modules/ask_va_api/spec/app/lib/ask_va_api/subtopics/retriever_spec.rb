@@ -24,20 +24,20 @@ RSpec.describe AskVAApi::SubTopics::Retriever do
 
       before do
         allow(service).to receive(:call)
-          .with(endpoint:, criteria: { topic_id: topic.id })
-          .and_raise(Dynamics::ErrorHandler::BadRequestError, error_message)
+          .with(endpoint:, payload: { topic_id: topic.id })
+          .and_raise(Dynamics::ErrorHandler::ServiceError, error_message)
       end
 
       it 'raises an Error' do
         expect do
           retriever.call
-        end.to raise_error(ErrorHandler::ServiceError, "Dynamics::ErrorHandler::BadRequestError: #{error_message}")
+        end.to raise_error(ErrorHandler::ServiceError, "Dynamics::ErrorHandler::ServiceError: #{error_message}")
       end
     end
 
     it 'returns an Entity object with correct data' do
       allow(service).to receive(:call)
-        .with(endpoint: 'get_subtopics_mock_data', criteria: { topic_id: topic.id })
+        .with(endpoint: 'get_subtopics_mock_data', payload: { topic_id: topic.id })
         .and_return([double])
       expect(retriever.call).to eq([entity])
     end

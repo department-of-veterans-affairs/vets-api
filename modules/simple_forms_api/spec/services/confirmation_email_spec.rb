@@ -100,4 +100,105 @@ describe SimpleFormsApi::ConfirmationEmail do
       end
     end
   end
+
+  describe '21_0845' do
+    let(:data) do
+      fixture_path = Rails.root.join(
+        'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_0845.json'
+      )
+      JSON.parse(fixture_path.read)
+    end
+
+    describe 'signed in user' do
+      it 'non-veteran authorizer' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
+        data['authorizer_email'] = 'authorizer_email@example.com'
+
+        subject = described_class.new(
+          form_data: data,
+          form_number: 'vba_21_0845',
+          confirmation_number: 'confirmation_number',
+          user: create(:user)
+        )
+
+        subject.send
+
+        expect(VANotify::EmailJob).to have_received(:perform_async).with(
+          'authorizer_email@example.com',
+          'form21_0845_confirmation_email_template_id',
+          {
+            'first_name' => 'JACK',
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => 'confirmation_number'
+          }
+        )
+      end
+
+      it 'veteran authorizer' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
+        data['authorizer_type'] = 'veteran'
+
+        subject = described_class.new(
+          user: create(:user),
+          form_data: data,
+          form_number: 'vba_21_0845',
+          confirmation_number: 'confirmation_number'
+        )
+
+        subject.send
+
+        expect(VANotify::EmailJob).to have_received(:perform_async).with(
+          'abraham.lincoln@vets.gov',
+          'form21_0845_confirmation_email_template_id',
+          {
+            'first_name' => 'JOHN',
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => 'confirmation_number'
+          }
+        )
+      end
+    end
+
+    describe 'not signed in user' do
+      it 'non-veteran authorizer' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
+        # form requires email
+        data['authorizer_email'] = 'authorizer_email@example.com'
+
+        subject = described_class.new(
+          form_data: data,
+          form_number: 'vba_21_0845',
+          confirmation_number: 'confirmation_number'
+        )
+
+        subject.send
+
+        expect(VANotify::EmailJob).to have_received(:perform_async).with(
+          'authorizer_email@example.com',
+          'form21_0845_confirmation_email_template_id',
+          {
+            'first_name' => 'JACK',
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => 'confirmation_number'
+          }
+        )
+      end
+
+      it 'veteran authorizer' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
+        # form does not require email
+        data['authorizer_type'] = 'veteran'
+
+        subject = described_class.new(
+          form_data: data,
+          form_number: 'vba_21_0845',
+          confirmation_number: 'confirmation_number'
+        )
+
+        subject.send
+
+        expect(VANotify::EmailJob).not_to have_received(:perform_async)
+      end
+    end
+  end
 end

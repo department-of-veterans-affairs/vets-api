@@ -5,6 +5,7 @@ require 'jsonapi/parser'
 require 'claims_api/v2/disability_compensation_validation'
 require 'claims_api/v2/disability_compensation_pdf_mapper'
 require 'claims_api/v2/disability_compensation_evss_mapper'
+require 'claims_api/v2/disability_compensation_documents'
 require 'evss_service/base'
 require 'pdf_generator_service/pdf_client'
 
@@ -17,23 +18,25 @@ module ClaimsApi
         FORM_NUMBER = '526'
         EVSS_DOCUMENT_TYPE = 'L023'
 
+        skip_before_action :validate_json_format, only: [:attachments]
         before_action :shared_validation, :file_number_check, only: %i[submit validate]
 
         def submit # rubocop:disable Metrics/MethodLength
-          auto_claim = ClaimsApi::V2::AutoEstablishedClaim.create(
+          auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:,
             form_data: form_attributes,
             flashes:,
             cid: token.payload['cid'],
-            veteran_icn: target_veteran.mpi.icn
+            veteran_icn: target_veteran.mpi.icn,
+            validation_method: ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
           )
 
           # .create returns the resulting object whether the object was saved successfully to the database or not.
           # If it's lacking the ID, that means the create was unsuccessful and an identical claim already exists.
           # Find and return that claim instead.
           unless auto_claim.id
-            existing_auto_claim = ClaimsApi::V2::AutoEstablishedClaim.find_by(md5: auto_claim.md5)
+            existing_auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5)
             auto_claim = existing_auto_claim if existing_auto_claim.present?
           end
 
@@ -52,7 +55,8 @@ module ClaimsApi
             evss_res = evss_service.submit(auto_claim, evss_data)
             ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Successfully submitted to EVSS',
                                             evss_id: evss_res[:claimId])
-            auto_claim.update(evss_id: evss_res[:claimId])
+            auto_claim.update(evss_id: evss_res[:claimId],
+                              validation_method: ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD)
           else
             ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'EVSS Skipped',
                                             evss_id: auto_claim.evss_id)
@@ -72,6 +76,7 @@ module ClaimsApi
                                                               tempfile: File.open(path)
                                                             })
             auto_claim.set_file_data!(upload, EVSS_DOCUMENT_TYPE)
+            auto_claim.validation_method = ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
             auto_claim.save!
             ClaimsApi::Logger.log('526_v2', claim_id: auto_claim.id, detail: 'Uploaded 526EZ PDF to S3')
             ::Common::FileHelpers.delete_file_if_exists(path)
@@ -80,14 +85,25 @@ module ClaimsApi
           end
           get_benefits_documents_auth_token unless Rails.env.test?
 
-          render json: auto_claim
+          render json: auto_claim, status: :accepted, location: "#{request.url[0..-4]}claims/#{auto_claim.id}"
         end
 
         def validate
           render json: valid_526_response
         end
 
-        def attachments; end
+        def attachments
+          if params.keys.select { |key| key.include? 'attachment' }.count > 3
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'Too many attachments.')
+          end
+
+          claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless claim
+
+          documents_service(params, claim).process_documents
+
+          render json: claim, status: :accepted
+        end
 
         def get_pdf
           # Returns filled out 526EZ form as PDF
@@ -136,12 +152,16 @@ module ClaimsApi
           ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, @file_number)
         end
 
+        def documents_service(params, claim)
+          ClaimsApi::V2::DisabilityCompensationDocuments.new(params, claim)
+        end
+
         def track_pact_counter(claim)
           return unless form_attributes['disabilities']&.map { |d| d['isRelatedToToxicExposure'] }&.include? true
 
           # Fetch the claim by md5 if it doesn't have an ID (given duplicate md5)
           if claim.id.nil? && claim.errors.find { |e| e.attribute == :md5 }&.type == :taken
-            claim = ClaimsApi::V2::AutoEstablishedClaim.find_by(md5: claim.md5) || claim
+            claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: claim.md5) || claim
           end
           if claim.id
             ClaimsApi::ClaimSubmission.create claim:, claim_type: 'PACT',

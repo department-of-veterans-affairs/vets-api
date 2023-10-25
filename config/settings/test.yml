@@ -380,7 +380,7 @@ claims_api:
     path: '/form-526ez-pdf-generator/v1/forms/'
     content_type: 'application/vnd.api+json'
   benefits_documents:
-    host: https://sandbox-api.va.gov
+    host: https://staging-api.va.gov
     auth:
       ccg:
         client_id: fakekeyvaluehere

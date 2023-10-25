@@ -8,7 +8,7 @@ require 'support/pagerduty/services/spec_setup'
 require 'support/stub_debt_letters'
 require 'support/medical_copays/stub_medical_copays'
 require 'support/stub_efolder_documents'
-require 'support/stub_financial_status_report'
+require_relative '../../modules/debts_api/spec/support/stub_financial_status_report'
 require 'support/sm_client_helpers'
 require 'support/rx_client_helpers'
 require 'bgs/service'
@@ -1896,9 +1896,18 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    it 'supports getting the user data' do
-      expect(subject).to validate(:get, '/v0/user', 200, headers)
-      expect(subject).to validate(:get, '/v0/user', 401)
+    it 'supports getting the 200 user data' do
+      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[body],
+                                                                                  allow_playback_repeats: true) do
+        expect(subject).to validate(:get, '/v0/user', 200, headers)
+      end
+    end
+
+    it 'supports getting the 401 user data' do
+      VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank', match_requests_on: %i[body],
+                                                                                 allow_playback_repeats: true) do
+        expect(subject).to validate(:get, '/v0/user', 401)
+      end
     end
 
     context '/v0/user endpoint with some external service errors' do
@@ -3583,6 +3592,14 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             }
             expect(subject).to validate(:post, '/v0/coe/document_upload', 200, headers.merge({ '_data' => params }))
           end
+        end
+      end
+
+      describe '/v0/profile/contacts' do
+        it 'has a valid spec' do
+          expect(Flipper).to receive(:enabled?).with('profile_contacts').and_return(true)
+          expect(subject).to validate(:get, '/v0/profile/contacts', 200, headers)
+          expect(subject).to validate(:get, '/v0/profile/contacts', 401)
         end
       end
     end

@@ -1477,6 +1477,39 @@ paths:
       security:
         - Bearer: []
       summary: /v0/health/immunizations
+  /v0/health/allergy-intolerances:
+    get:
+      description: >
+        Retrieves a list of the user's known allergies related to medication, food, or other substances
+      operationId: list_allergy_intolerances
+      parameters:
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AllergyIntolerances.yml
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      summary: /v0/health/allergy-intolerances
   /v0/health/labs-and-tests:
     get:
       description: >
