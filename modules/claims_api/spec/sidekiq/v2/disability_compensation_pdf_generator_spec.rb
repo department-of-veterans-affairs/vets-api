@@ -48,7 +48,6 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
   end
 
   describe '#perform' do
-    let(:file_number) { '123456' }
     let(:middle_initial) { '' }
 
     service = described_class.new
@@ -56,16 +55,15 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
     context 'handles a successful claim correctly' do
       it 'submits successfully' do
         expect do
-          subject.perform_async(claim.id, middle_initial, file_number)
+          subject.perform_async(claim.id, middle_initial)
         end.to change(subject.jobs, :size).by(1)
       end
 
       it 'sets the claim status to pending when starting/rerunning' do
         VCR.use_cassette('claims_api/disability_comp') do
-          allow(ClaimsApi::AutoEstablishedClaim).to receive(:find).with(errored_claim.id).and_return(errored_claim)
           expect(errored_claim.status).to eq('errored')
 
-          service.perform(errored_claim.id, middle_initial, file_number)
+          service.perform(errored_claim.id, middle_initial)
 
           errored_claim.reload
           expect(errored_claim.status).to eq('pending')
@@ -75,20 +73,18 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
 
     context 'handles an errored claim correctly' do
       it 'sets claim state to errored when pdf_string is empty' do
-        allow(ClaimsApi::AutoEstablishedClaim).to receive(:find).with(claim.id).and_return(claim)
         allow(service).to receive(:generate_526_pdf).and_return('')
 
-        service.perform(claim.id, middle_initial, file_number)
+        service.perform(claim.id, middle_initial)
 
         claim.reload
         expect(claim.status).to eq('errored')
       end
 
       it 'does not call the next job when the claim.status is errored' do
-        allow(ClaimsApi::AutoEstablishedClaim).to receive(:find).with(claim.id).and_return(claim)
         allow(service).to receive(:generate_526_pdf).and_return('')
 
-        service.perform(claim.id, middle_initial, file_number)
+        service.perform(claim.id, middle_initial)
 
         claim.reload
         expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)

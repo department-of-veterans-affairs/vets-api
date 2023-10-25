@@ -35,9 +35,19 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
     it 'updates claim status as ESTABLISHED' do
       service = described_class.new
 
-      service.send(:set_established_state_on_claim, claim.id) # Invoke the protected method using send
+      service.send(:set_established_state_on_claim, claim) # Invoke the protected method using send
       claim.reload
       expect(claim.status).to eq('established')
+    end
+  end
+
+  describe '#set_pending_state_on_claim' do
+    it 'updates claim status as PENDING' do
+      service = described_class.new
+
+      service.send(:set_pending_state_on_claim, claim)
+      claim.reload
+      expect(claim.status).to eq('pending')
     end
   end
 
@@ -45,7 +55,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
     it 'updates claim status as ERRORED with error details' do
       service = described_class.new
 
-      service.send(:set_errored_state_on_claim, claim.id)
+      service.send(:set_errored_state_on_claim, claim)
       claim.reload
       expect(claim.status).to eq('errored')
     end

@@ -11,18 +11,18 @@ module ClaimsApi
 
         auto_claim = get_claim(claim_id)
         # Reset for a rerun on this
-        set_pending_state_on_claim(claim_id) unless auto_claim.status == pending_state_value
+        set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
 
         queue_flash_updater(auto_claim.flashes, auto_claim&.id)
         queue_special_issues_updater(auto_claim.special_issues, auto_claim)
 
-        set_established_state_on_claim(auto_claim.id)
+        set_established_state_on_claim(auto_claim)
 
         log_job_progress('526 v2 Claim Establisher job',
                          claim_id,
                          'Disablity compensation claim establisher job completed')
       rescue => e
-        set_errored_state_on_claim(claim_id)
+        set_errored_state_on_claim(claim)
         log_job_progress('526 v2 Claim Establisher job',
                          claim_id,
                          "Disablity compensation claim establisher job error: #{e}")

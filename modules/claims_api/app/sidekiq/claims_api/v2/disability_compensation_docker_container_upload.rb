@@ -7,17 +7,17 @@ require 'evss_service/base'
 module ClaimsApi
   module V2
     class DisabilityCompensationDockerContainerUpload < DisabilityCompensationClaimServiceBase
-      def perform(claim_id, file_number) # rubocop:disable Metrics/MethodLength
+      def perform(claim_id) # rubocop:disable Metrics/MethodLength
         log_job_progress('526 v2 Docker Container job',
                          claim_id,
                          'Docker container job started')
 
         auto_claim = get_claim(claim_id)
         # Reset for a rerun on this
-        set_pending_state_on_claim(claim_id) unless auto_claim.status == pending_state_value
+        set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
 
         if auto_claim.evss_id.nil?
-          evss_data = evss_mapper_service(auto_claim, file_number).map_claim
+          evss_data = evss_mapper_service(auto_claim, veteran_file_number(auto_claim)).map_claim
 
           log_job_progress('526 v2 Docker Container job',
                            claim_id,
@@ -34,7 +34,7 @@ module ClaimsApi
 
         start_vbms_job(auto_claim) if auto_claim.status != errored_state_value && !auto_claim.evss_id.nil?
       rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
-        set_errored_state_on_claim(claim_id)
+        set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)
         log_job_progress('526 v2 Docker Container job',
                          claim_id,
@@ -43,7 +43,7 @@ module ClaimsApi
 
         raise e
       rescue ::Common::Exceptions::BackendServiceException => e
-        set_errored_state_on_claim(claim_id)
+        set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)
         log_job_progress('526 v2 Docker Container job',
                          claim_id,
@@ -52,7 +52,7 @@ module ClaimsApi
         # {}
         raise e
       rescue => e
-        set_errored_state_on_claim(claim_id)
+        set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)
         log_job_progress('526 v2 Docker Container job',
                          claim_id,
@@ -91,6 +91,11 @@ module ClaimsApi
 
       def evss_mapper_service(auto_claim, file_number)
         ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim, file_number)
+      end
+
+      def veteran_file_number(auto_claim)
+        headers = auto_claim.auth_headers
+        headers['va_eauth_birlsfilenumber']
       end
 
       def evss_service

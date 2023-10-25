@@ -85,7 +85,6 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationVBMSUploader, type: :job do
 
     it 'sets the claim status to pending when starting/rerunning' do
       VCR.use_cassette('bd/upload') do
-        allow(ClaimsApi::AutoEstablishedClaim).to receive(:find).with(errored_claim.id).and_return(errored_claim)
         expect(errored_claim.status).to eq('errored')
 
         service.perform(errored_claim.id)

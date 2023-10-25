@@ -17,7 +17,7 @@ module ClaimsApi
         auto_claim = claim_object.try(:auto_established_claim) || claim_object
 
         # Reset for a rerun on this
-        set_pending_state_on_claim(claim_id) unless auto_claim.status == pending_state_value
+        set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
 
         uploader = claim_object.uploader
         uploader.retrieve_from_store!(claim_object.file_data['filename'])
@@ -31,13 +31,13 @@ module ClaimsApi
 
         log_job_progress('526 v2 VBMS Uploader job',
                          claim_id,
-                         'VBMS uploaded succeeded')
+                         'VBMS upload succeeded')
 
         start_claim_establsher_job(auto_claim) if auto_claim.status != errored_state_value
 
       # Temporary errors (returning HTML, connection timeout), retry call
       rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
-        set_errored_state_on_claim(claim_id)
+        set_errored_state_on_claim(auto_claim)
         log_job_progress('526 v2 VBMS Uploader job',
                          claim_id,
                          "VBMS failure for claimId #{auto_claim&.id}: #{e.message}")
@@ -45,7 +45,7 @@ module ClaimsApi
 
         raise e
       rescue => e
-        set_errored_state_on_claim(claim_id)
+        set_errored_state_on_claim(auto_claim)
         message = get_error_message(e)
 
         log_job_progress('526 v2 VBMS Uploader job',

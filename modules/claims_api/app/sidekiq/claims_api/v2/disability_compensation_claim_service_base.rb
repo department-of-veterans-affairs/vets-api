@@ -14,22 +14,17 @@ module ClaimsApi
 
       protected
 
-      def set_established_state_on_claim(claim_id)
-        claim = get_claim(claim_id)
-        claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
-        claim.save!
+      def set_established_state_on_claim(auto_claim)
+        auto_claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
+        auto_claim.save!
       end
 
-      def set_errored_state_on_claim(claim_id)
-        auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-
+      def set_errored_state_on_claim(auto_claim)
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
         auto_claim.save!
       end
 
-      def set_pending_state_on_claim(claim_id)
-        auto_claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
-
+      def set_pending_state_on_claim(auto_claim)
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::PENDING
         auto_claim.save!
       end
