@@ -106,6 +106,10 @@ module EducationForm
           begin
             writer.write(contents, filename)
 
+            ## Testing to see if writer is the cause for retry attempt failures
+            ## If we get to this message, it's not the writer object
+            log_info("Successfully wrote to filename: #{filename}")
+
             # send copy of staging spool files to testers
             # This mailer is intended to only work for development, staging and NOT production
             # Rails.env will return 'production' on the development & staging servers and  which
@@ -133,6 +137,9 @@ module EducationForm
             log_exception(exception, region)
             if spool_file_event.retry_attempt < MAX_RETRIES
               spool_file_event.update(retry_attempt: spool_file_event.retry_attempt + 1)
+
+              # Reinstantiate the writer before retrying
+              writer = SFTPWriter::Factory.get_writer(Settings.edu.sftp).new(Settings.edu.sftp, logger:)
               retry
             else
               next
