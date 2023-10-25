@@ -325,8 +325,7 @@ module ClaimsApi
         claim_disabilities = @auto_claim&.dig('disabilities')&.map do |disability|
           disability['disability'] = disability['name']
           if disability['approximateDate'].present?
-            regex_date = regex_date_conversion(disability['approximateDate'])
-            approx_date = format_date_string(regex_date)
+            approx_date = format_date_string(disability['approximateDate'])
 
             disability['approximateDate'] = approx_date
           end
@@ -657,13 +656,12 @@ module ClaimsApi
       end
 
       def format_date_string(date_string)
-        date = date_string.to_date
         if date_string.length == 4
-          Date.strptime(date, '%Y').strftime('%Y')
+          Date.strptime(date_string, '%Y').strftime('%Y')
         elsif date_string.length == 7
-          Date.strptime(date, '%m-%Y').strftime('%Y %B')
+          Date.strptime(date_string, '%Y-%m').strftime('%B %Y')
         else
-          Date.strptime(date, '%m-%d-%Y').strftime('%Y %B')
+          Date.strptime(date_string, '%Y-%m-%d').strftime('%B %Y')
         end
       end
 
@@ -700,11 +698,11 @@ module ClaimsApi
       end
 
       def make_date_object(date, date_length)
-        if date_length == 4
+        if date.present? && date_length == 4
           { year: date[:year] }
-        elsif date_length == 7
+        elsif date.present? && date_length == 7
           { month: date[:month], year: date[:year] }
-        else
+        elsif date.present?
           { year: date[:year], month: date[:month], day: date[:day] }
         end
       end

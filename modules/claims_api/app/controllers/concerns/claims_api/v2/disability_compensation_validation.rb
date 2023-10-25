@@ -614,7 +614,7 @@ module ClaimsApi
               detail: 'Confinement approximate end date must be after approximate begin date.'
             )
           end
-          
+
           service_periods = service_information&.dig('servicePeriods')
           earliest_active_duty_begin_date = find_earliest_active_duty_begin_date(service_periods)
           # if confinementBeginDate is before earliest activeDutyBeginDate, raise error
@@ -897,20 +897,18 @@ module ClaimsApi
 
       def date_regex_groups(date)
         date_object = date.match(/^(?:(?<year>\d{4})(?:-(?<month>\d{2}))?(?:-(?<day>\d{2}))*|(?<month>\d{2})?(?:-(?<day>\d{2}))?-?(?<year>\d{4}))$/) # rubocop:disable Layout/LineLength
-        
-        date = make_date_string(date_object, date.length)
-        date
+
+        make_date_string(date_object, date.length)
       end
 
       def make_date_string(date_object, date_length)
-        date = if date_length == 4
+        if date_length == 4
           "#{date_object[:year]}-01-01".to_date
         elsif date_length == 7
           "#{date_object[:year]}-#{date_object[:month]}-01".to_date
         else
           "#{date_object[:year]}-#{date_object[:month]}-#{date_object[:day]}".to_date
         end
-        date
       end
 
       def begin_date_is_after_end_date?(begin_date, end_date)
