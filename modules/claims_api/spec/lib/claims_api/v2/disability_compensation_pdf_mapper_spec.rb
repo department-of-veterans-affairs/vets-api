@@ -179,8 +179,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         zip = pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:zip]
         state = pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:state]
 
-        expect(begin_date).to eq({ month: '11', day: '30', year: '2012' })
-        expect(end_date).to eq({ month: '10', day: '11', year: '2013' })
+        expect(begin_date).to eq({ month: '06', day: '04', year: '2023' })
+        expect(end_date).to eq({ month: '12', day: '04', year: '2023' })
         expect(type_of_addr_change).to eq('TEMPORARY')
         expect(number_and_street).to eq('10 Peach St Unit 4 Room 1')
         expect(apartment_or_unit_number).to eq(nil)
@@ -271,21 +271,21 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         multi_exp_hazard = toxic_exp_data[:multipleExposures][0][:hazardExposedTo]
 
         expect(gulf_locations).to eq('YES')
-        expect(gulf_begin_date).to eq({ month: '07', year: '2018' })
+        expect(gulf_begin_date).to eq({ month: '06', year: '2018' })
         expect(gulf_end_date).to eq({ month: '08', year: '2018' })
 
         expect(herbicide_locations).to eq('YES')
         expect(other_locations).to eq('ABCDEFGHIJKLM')
-        expect(herb_begin_date).to eq({ month: '07', year: '2018' })
+        expect(herb_begin_date).to eq({ month: '06', year: '2018' })
         expect(herb_end_date).to eq({ month: '08', year: '2018' })
 
         expect(additional_exposures).to eq(%w[ASBESTOS SHIPBOARD_HAZARD_AND_DEFENSE])
         expect(specify_other_exp).to eq('Other exposure details')
-        expect(exp_begin_date).to eq({ month: '07', year: '2018' })
+        expect(exp_begin_date).to eq({ month: '06', year: '2018' })
         expect(exp_end_date).to eq({ month: '08', year: '2018' })
 
-        expect(multi_exp_begin_date).to eq({ month: '12', year: '2012' })
-        expect(multi_exp_end_date).to eq({ month: '07', year: '2013' })
+        expect(multi_exp_begin_date).to eq({ month: '06', year: '2018' })
+        expect(multi_exp_end_date).to eq({ month: '08', year: '2018' })
         expect(multi_exp_location).to eq('Guam')
         expect(multi_exp_hazard).to eq('RADIATION')
       end
