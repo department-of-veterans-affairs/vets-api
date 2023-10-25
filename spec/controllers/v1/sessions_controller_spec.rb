@@ -18,15 +18,7 @@ RSpec.describe V1::SessionsController, type: :controller do
   let(:loa) { :loa3 }
   let(:uuid) { SecureRandom.uuid }
   let(:token) { 'abracadabra-open-sesame' }
-  let(:loa1_user) { build(:user, :loa1, uuid:, idme_uuid: uuid) }
-  let(:loa3_user) { build(:user, :loa3, uuid:, idme_uuid: uuid) }
-  let!(:user_verification) { create(:idme_user_verification, idme_uuid: loa3_user.idme_uuid, locked:) }
-  let(:locked) { false }
-  let!(:terms_of_use_agreement_loa3_user) do
-    create(:terms_of_use_agreement, user_account: user_verification.user_account)
-  end
-  let(:ial1_user) { build(:user, :ial1, uuid:, logingov_uuid: uuid) }
-  let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
+  let(:saml_user_attributes) { user.attributes.merge(user.identity.attributes) }
   let(:user_attributes) { double('user_attributes', saml_user_attributes) }
   let(:saml_user) do
     instance_double('SAML::User',
@@ -727,8 +719,8 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         context 'when a locked UserVerification is found' do
-          let(:locked) { true }
           let(:expected_error_message) { 'ID.me credential has been locked' }
+          let(:user_verification) { build(:idme_user_verification, idme_uuid: uuid, locked: true) }
 
           before do
             allow_any_instance_of(Login::UserVerifier).to receive(:user_verification).and_return(user_verification)
