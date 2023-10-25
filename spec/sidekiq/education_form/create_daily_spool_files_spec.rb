@@ -288,7 +288,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       let(:file_path) { "tmp/spool_files/#{filename}" }
 
       before do
-        expect(Rails.env).to receive('development?').once.and_return(true)
+        expect(Rails.env).to receive('development?').and_return(true).at_least(:once)
         expect(Flipper).to receive(:enabled?).with(:spool_testing_error_3).and_return(false).at_least(:once)
         expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
       end
@@ -297,7 +297,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         local_mock = instance_double('SFTPWriter::Local')
 
         expect(EducationBenefitsClaim.unprocessed).not_to be_empty
-        expect(SFTPWriter::Local).to receive(:new).once.and_return(local_mock)
+        expect(SFTPWriter::Local).to receive(:new).exactly(6).and_return(local_mock)
         expect(local_mock).to receive(:write).exactly(6).times.and_raise('boom')
         expect(local_mock).to receive(:close).once.and_return(true)
         expect(subject).to receive(:log_exception_to_sentry).exactly(6)
