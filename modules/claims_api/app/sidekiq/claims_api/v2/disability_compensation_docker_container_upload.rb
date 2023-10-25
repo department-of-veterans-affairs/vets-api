@@ -18,23 +18,25 @@ module ClaimsApi
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
 
-        if auto_claim.evss_id.nil?
-          evss_data = evss_mapper_service(auto_claim, veteran_file_number(auto_claim)).map_claim
+        evss_data = evss_mapper_service(auto_claim, veteran_file_number(auto_claim)).map_claim
 
-          log_job_progress(LOG_TAG,
-                           claim_id,
-                           'Submitting to Docker container')
+        log_job_progress(LOG_TAG,
+                         claim_id,
+                         'Submitting mapped data to Docker container')
 
-          evss_res = evss_service.submit(auto_claim, evss_data)
+        evss_res = evss_service.submit(auto_claim, evss_data)
 
-          log_job_progress(LOG_TAG,
-                           claim_id,
-                           "Successfully submitted to Docker container with response: #{evss_res}")
-
-          auto_claim.update(evss_id: evss_res[:claimId])
-        end
-
-        start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value && !auto_claim.evss_id.nil?
+        log_job_progress(LOG_TAG,
+                         claim_id,
+                         "Successfully submitted to Docker container with response: #{evss_res}")
+        # update with the evss_id returned
+        auto_claim.update(evss_id: evss_res[:claimId])
+        # set claim.status == 'established'
+        set_established_state_on_claim(auto_claim)
+        # queue flashes job
+        queue_flash_updater(auto_claim.flashes, auto_claim&.id)
+        # now upload to benefits documents
+        start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value
       rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
         set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)
@@ -66,6 +68,12 @@ module ClaimsApi
 
       private
 
+      def queue_flash_updater(flashes, auto_claim_id)
+        return if flashes.blank?
+
+        ClaimsApi::FlashUpdater.perform_async(flashes, auto_claim_id)
+      end
+
       def set_evss_response(auto_claim, error)
         error_status = get_error_status_code(error)
         error_message = get_error_message(error)
@@ -96,8 +104,7 @@ module ClaimsApi
       end
 
       def veteran_file_number(auto_claim)
-        headers = auto_claim.auth_headers
-        headers['va_eauth_birlsfilenumber']
+        auto_claim.auth_headers['va_eauth_birlsfilenumber']
       end
 
       def evss_service

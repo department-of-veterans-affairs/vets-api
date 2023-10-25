@@ -13,16 +13,10 @@ module ClaimsApi
                          claim_id,
                          'BD upload job started')
 
-        claim_object = ClaimsApi::SupportingDocument.find_by(id: claim_id) ||
-                       ClaimsApi::AutoEstablishedClaim.find_by(id: claim_id)
+        auto_claim = get_claim(claim_id)
 
-        auto_claim = claim_object.try(:auto_established_claim) || claim_object
-
-        # Reset for a rerun on this
-        set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
-
-        uploader = claim_object.uploader
-        uploader.retrieve_from_store!(claim_object.file_data['filename'])
+        uploader = auto_claim.uploader
+        uploader.retrieve_from_store!(auto_claim.file_data['filename'])
         file_body = uploader.read
 
         bd_upload_body(auto_claim:, file_body:)
@@ -33,13 +27,10 @@ module ClaimsApi
 
         log_job_progress(LOG_TAG,
                          claim_id,
-                         'BD upload succeeded')
-
-        start_claim_establsher_job(auto_claim) if auto_claim.status != errored_state_value
+                         'BD upload succeeded, Claim workflow finished')
 
       # Temporary errors (returning HTML, connection timeout), retry call
       rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
-        set_errored_state_on_claim(auto_claim)
         log_job_progress(LOG_TAG,
                          claim_id,
                          "BD failure for claimId #{auto_claim&.id}: #{e.message}")
@@ -47,7 +38,6 @@ module ClaimsApi
 
         raise e
       rescue => e
-        set_errored_state_on_claim(auto_claim)
         message = get_error_message(e)
 
         log_job_progress(LOG_TAG,
@@ -59,14 +49,6 @@ module ClaimsApi
       end
 
       private
-
-      def start_claim_establsher_job(auto_claim)
-        claim_establisher_service.perform_async(auto_claim&.id)
-      end
-
-      def claim_establisher_service
-        ClaimsApi::V2::DisabilityCompensationClaimEstablisher
-      end
 
       def bd_upload_body(auto_claim:, file_body:)
         fh = Tempfile.new(['pdf_path', '.pdf'], binmode: true)

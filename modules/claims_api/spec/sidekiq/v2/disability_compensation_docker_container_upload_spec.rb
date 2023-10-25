@@ -39,6 +39,15 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
     claim
   end
 
+  let(:claim_with_evss_response) do
+    claim = create(:auto_established_claim, form_data:)
+    claim.auth_headers = auth_headers
+    claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+    claim.evss_response = 'Just a test evss error response'
+    claim.save
+    claim
+  end
+
   let(:errored_claim) do
     claim = create(:auto_established_claim, form_data:)
     claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
@@ -59,23 +68,47 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
 
       it 'sets the claim status to pending when starting/rerunning' do
         VCR.use_cassette('claims_api/evss/submit') do
-          expect(errored_claim.status).to eq('errored')
+          expect(claim.status).to eq('pending')
 
-          service.perform(errored_claim.id)
+          service.perform(claim.id)
 
-          errored_claim.reload
-          expect(errored_claim.status).to eq('pending')
+          claim.reload
+          expect(claim.status).to eq('established')
         end
+      end
+    end
+
+    it 'sets the claim status to established' do
+      VCR.use_cassette('claims_api/evss/submit') do
+        expect(errored_claim.status).to eq('errored')
+
+        service.perform(errored_claim.id)
+
+        errored_claim.reload
+        expect(errored_claim.status).to eq('established')
+      end
+    end
+
+    it 'sets the record straight when establishing the claim' do
+      VCR.use_cassette('claims_api/evss/submit') do
+        expect(claim_with_evss_response.status).to eq('errored')
+        expect(claim_with_evss_response.evss_response).to eq('Just a test evss error response')
+
+        service.perform(claim_with_evss_response.id)
+
+        claim_with_evss_response.reload
+        expect(claim_with_evss_response.status).to eq('established')
+        expect(claim_with_evss_response.evss_response).to eq(nil)
       end
     end
 
     context 'handles an errored claim correctly' do
       it 'does not call the next job when the claim.status is errored' do
-        allow(claim).to receive(:status).and_return('errored')
+        allow(errored_claim).to receive(:status).and_return('errored')
 
-        subject.perform_async(claim.id)
+        subject.perform_async(errored_claim.id)
 
-        claim.reload
+        errored_claim.reload
         expect(service).not_to receive(:start_bd_uploader_job)
       end
     end

@@ -38,6 +38,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationClaimServiceBase do
       service.send(:set_established_state_on_claim, claim) # Invoke the protected method using send
       claim.reload
       expect(claim.status).to eq('established')
+      expect(claim.evss_response).to eq(nil)
     end
   end
 

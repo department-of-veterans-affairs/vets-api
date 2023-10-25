@@ -16,6 +16,7 @@ module ClaimsApi
 
       def set_established_state_on_claim(auto_claim)
         auto_claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
+        auto_claim.evss_response = nil
         auto_claim.save!
       end
 
@@ -41,6 +42,10 @@ module ClaimsApi
 
       def get_claim(claim_id)
         ClaimsApi::AutoEstablishedClaim.find(claim_id)
+      end
+
+      def established_state_value
+        ClaimsApi::AutoEstablishedClaim::ESTABLISHED
       end
 
       def pending_state_value

@@ -41,37 +41,9 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
       'docType',
       'description'
     )
+    claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
     claim.save!
     claim
-  end
-
-  let(:errored_claim) do
-    claim = create(:auto_established_claim, form_data:)
-    claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-    claim.auth_headers = auth_headers
-    claim.set_file_data!(
-      Rack::Test::UploadedFile.new(
-        Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
-      ),
-      'docType',
-      'description'
-    )
-    claim.save
-    claim
-  end
-
-  let(:supporting_document) do
-    claim = create(:auto_established_claim_with_supporting_documents, :status_established)
-    supporting_document = claim.supporting_documents[0]
-    supporting_document.set_file_data!(
-      Rack::Test::UploadedFile.new(
-        Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
-      ),
-      'docType',
-      'description'
-    )
-    supporting_document.save!
-    supporting_document
   end
 
   context 'successful submission' do
@@ -83,14 +55,14 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
       end.to change(subject.jobs, :size).by(1)
     end
 
-    it 'sets the claim status to pending when starting/rerunning' do
+    it 'the claim should still be established on a successful BD submission' do
       VCR.use_cassette('bd/upload') do
-        expect(errored_claim.status).to eq('errored')
+        expect(claim.status).to eq('established')
 
-        service.perform(errored_claim.id)
+        service.perform(claim.id)
 
-        errored_claim.reload
-        expect(errored_claim.status).to eq('pending')
+        claim.reload
+        expect(claim.status).to eq('established')
       end
     end
 

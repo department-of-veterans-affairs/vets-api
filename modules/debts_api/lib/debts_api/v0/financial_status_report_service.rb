@@ -214,7 +214,14 @@ module DebtsApi
     end
 
     def build_public_metadata(form, debts)
-      enabled_flags = Flipper.features.select { |feature| feature.enabled?(@user) }.map(&:name).sort
+      begin
+        enabled_flags = Flipper.features.select { |feature| feature.enabled?(@user) }.map do |feature|
+          feature.name.to_s
+        end.sort
+      rescue => e
+        Rails.logger.error('Failed to source user flags', e.message)
+        enabled_flags = []
+      end
       debt_amounts = debts.nil? ? [] : debts.map { |debt| debt['current_ar'] || debt['p_h_amt_due'] }
       debt_type = debts&.pluck('debt_type')&.first
       {
