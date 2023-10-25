@@ -325,8 +325,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:valid_change_of_address) do
               {
                 dates: {
-                  beginDate: '11-30-2012',
-                  endDate: ''
+                  beginDate: '2012-11-30'
                 },
                 typeOfAddressChange: 'PERMANENT',
                 addressLine1: '10 Peach St',
@@ -355,8 +354,8 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:invalid_change_of_address) do
               {
                 dates: {
-                  beginDate: '11-30-2012',
-                  endDate: ''
+                  beginDate: '2012-11-30',
+                  endDate: '2013-11-12'
                 },
                 typeOfAddressChange: 'PERMANENT',
                 addressLine1: '',
@@ -389,8 +388,8 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:invalid_change_of_address) do
               {
                 dates: {
-                  beginDate: '11-31-2012',
-                  endDate: ''
+                  beginDate: '2012-11-31',
+                  endDate: '2013-11-31'
                 },
                 typeOfAddressChange: 'PERMANENT',
                 addressLine1: '10 Peach St',
@@ -423,8 +422,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:invalid_change_of_address) do
               {
                 dates: {
-                  beginDate: '',
-                  endDate: ''
+                  endDate: '2013-11-30'
                 },
                 typeOfAddressChange: 'PERMANENT',
                 addressLine1: '10 Peach St',
@@ -457,7 +455,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:invalid_change_of_address) do
               {
                 dates: {
-                  beginDate: '11-31-2012',
+                  beginDate: '2012-11-31',
                   endDate: ''
                 },
                 typeOfAddressChange: '',
@@ -513,8 +511,8 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when the begin date is after the end date' do
-          let(:begin_date) { '01-01-2023' }
-          let(:end_date) { '01-01-2022' }
+          let(:begin_date) { '2023-01-01' }
+          let(:end_date) { '2022-01-01' }
 
           it 'responds with bad request' do
             mock_ccg(scopes) do |auth_header|
