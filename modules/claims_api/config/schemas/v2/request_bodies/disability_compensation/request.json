@@ -165,7 +165,7 @@
                   "type": "object",
                   "properties": {
                     "beginDate": {
-                      "description": "Date in MM-DD-YYYY the Veteran changed address. Date must be in the future if change is temporary.",
+                      "description": "Begin date for the Veteran's new address.",
                       "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
                       "type": "string",
                       "example": "2018-06-04"
