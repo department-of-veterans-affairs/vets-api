@@ -39,7 +39,7 @@
   "F[0].Page_2[0].ADDRESS_OF_PERSON_ZIPOrPostalCode_FirstFiveNumbers[0]": "<%= data.dig('person_address', 'postal_code')&.[](0..4) %>",
   "F[0].Page_2[0].ADDRESS_OF_PERSON_ZIPOrPostalCode_LastFourNumbers[0]": "<%= data.dig('person_address', 'postal_code')&.[](5..8) %>",
 
-  "F[0].Page_2[0].International_Telephone_Number_If_Applicable[1]": "<%= data['organization_name']&.+('\n')&.+(data['organization_representatives']&.map { |rep| rep['representative_name'] }.join(', ')) %>",
+  "F[0].Page_2[0].International_Telephone_Number_If_Applicable[1]": "<%= data['organization_name']&.+('\n')&.+(data['organization_representatives']&.map { |rep| rep['representative_name'] }&.join(', ')) %>",
   
   "F[0].#subform[2].VeteransSocialSecurityNumber_FirstThreeNumbers[0]": "<%= data['veteran_ssn']&.[](0..2) %>",
   "F[0].#subform[2].VeteransSocialSecurityNumber_SecondTwoNumbers[0]": "<%= data['veteran_ssn']&.[](3..4) %>",
