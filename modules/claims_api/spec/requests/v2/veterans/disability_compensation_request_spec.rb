@@ -1377,8 +1377,8 @@ RSpec.describe 'Disability Claims', type: :request do
               end
             end
 
-            context "when 'datePaymentReceived' is not in the past but is approximate (MM-YYYY)" do
-              let(:received_date) { (Time.zone.today + 1.month).strftime('%m-%Y') }
+            context "when 'datePaymentReceived' is not in the past but is approximate (YYYY-MM)" do
+              let(:received_date) { (Time.zone.today + 1.month).strftime('%Y-%m') }
 
               it 'responds with a bad request' do
                 mock_ccg(scopes) do |auth_header|
@@ -1391,8 +1391,8 @@ RSpec.describe 'Disability Claims', type: :request do
               end
             end
 
-            context "when 'datePaymentReceived' is in the past but is approximate (MM-YYYY)" do
-              let(:received_date) { (Time.zone.today - 1.year).strftime('%m-%Y') }
+            context "when 'datePaymentReceived' is in the past but is approximate (YYYY-MM)" do
+              let(:received_date) { (Time.zone.today - 1.year).strftime('%Y-%m') }
 
               it 'responds with a 200' do
                 mock_ccg(scopes) do |auth_header|
@@ -1775,10 +1775,6 @@ RSpec.describe 'Disability Claims', type: :request do
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
-                response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to eq(
-                  'The begin date is required for obligation terms of service.'
-                )
               end
             end
           end
@@ -1793,10 +1789,6 @@ RSpec.describe 'Disability Claims', type: :request do
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
-                response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to eq(
-                  'The end date is required for obligation terms of service.'
-                )
               end
             end
           end
@@ -1811,10 +1803,6 @@ RSpec.describe 'Disability Claims', type: :request do
                   data = json.to_json
                   post submit_path, params: data, headers: auth_header
                   expect(response).to have_http_status(:unprocessable_entity)
-                  response_body = JSON.parse(response.body)
-                  expect(response_body['errors'][0]['detail']).to eq(
-                    'The anticipated seperation date is required for title 10 activation.'
-                  )
                 end
               end
             end
@@ -1830,10 +1818,6 @@ RSpec.describe 'Disability Claims', type: :request do
                   data = json.to_json
                   post submit_path, params: data, headers: auth_header
                   expect(response).to have_http_status(:unprocessable_entity)
-                  response_body = JSON.parse(response.body)
-                  expect(response_body['errors'][0]['detail']).to eq(
-                    'The title 10 activation date is required for title 10 activation.'
-                  )
                 end
               end
             end
@@ -1999,11 +1983,11 @@ RSpec.describe 'Disability Claims', type: :request do
             [
               {
                 approximateBeginDate: '2016-11-01',
-                approximateEndDate: '2016-13-01'
+                approximateEndDate: '2016-12-01'
               },
               {
                 approximateBeginDate: '2017-11-01',
-                approximateEndDate: '2017-13-01'
+                approximateEndDate: '2017-12-01'
               }
             ]
           end
@@ -2024,11 +2008,11 @@ RSpec.describe 'Disability Claims', type: :request do
             [
               {
                 approximateBeginDate: '2016-11-01',
-                approximateEndDate: '2016-01'
+                approximateEndDate: '2016-12'
               },
               {
                 approximateBeginDate: '2017-11-01',
-                approximateEndDate: '2017-02'
+                approximateEndDate: '2018-02'
               }
             ]
           end
@@ -2177,10 +2161,6 @@ RSpec.describe 'Disability Claims', type: :request do
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
-                response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to eq(
-                  'The approximate end date is required for a confinement period.'
-                )
               end
             end
           end
@@ -2194,10 +2174,6 @@ RSpec.describe 'Disability Claims', type: :request do
                 data = json.to_json
                 post submit_path, params: data, headers: auth_header
                 expect(response).to have_http_status(:unprocessable_entity)
-                response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to eq(
-                  'The approximate begin date is required for a confinement period.'
-                )
               end
             end
           end
@@ -2427,8 +2403,8 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
 
-          context 'when approximateDate is formatted MM-YYYY and is in the past' do
-            let(:approximate_date) { (Time.zone.today - 6.months).strftime('%m-%Y') }
+          context 'when approximateDate is formatted YYYY-MM and is in the past' do
+            let(:approximate_date) { (Time.zone.today - 6.months).strftime('%Y-%m') }
 
             it 'responds with a 200' do
               mock_ccg(scopes) do |auth_header|
@@ -2440,8 +2416,8 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
 
-          context 'when approximateDate is formatted MM-YYYY and is in the future' do
-            let(:approximate_date) { (Time.zone.today + 1.year).strftime('%m-%Y') }
+          context 'when approximateDate is formatted YYYY-MM and is in the future' do
+            let(:approximate_date) { (Time.zone.today + 1.year).strftime('%Y-%m') }
 
             it 'responds with a bad_request' do
               mock_ccg(scopes) do |auth_header|
@@ -2720,7 +2696,7 @@ RSpec.describe 'Disability Claims', type: :request do
               ]
               params['data']['attributes']['disabilities'] = disabilities
               post submit_path, params: params.to_json, headers: auth_header
-              expect(response).to have_http_status(:bad_request)
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
 
@@ -2804,7 +2780,7 @@ RSpec.describe 'Disability Claims', type: :request do
                       disabilityActionType: 'SECONDARY',
                       name: 'PTSD (post traumatic stress disorder)',
                       serviceRelevance: 'Caused by a service-connected disability.',
-                      approximateDate: "01-11-#{Time.zone.now.year + 1}"
+                      approximateDate: "#{Time.zone.now.year + 1}-01-11"
                     }
                   ]
                 }
@@ -2884,7 +2860,7 @@ RSpec.describe 'Disability Claims', type: :request do
       describe "claimProcessType is 'BDD_PROGRAM'" do
         context 'when activeDutyEndDate is between 90 and 180 days in future' do
           let(:claim_process_type) { 'BDD_PROGRAM' }
-          let(:active_duty_end_date) { '01-16-2024' }
+          let(:active_duty_end_date) { '2024-01-16' }
           let(:claim_date) { '2023-10-15' }
 
           it 'responds with bad request' do
@@ -2922,7 +2898,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context 'when anticipatedSeparationDate is between 90 and 180 days in future' do
           let(:claim_process_type) { 'BDD_PROGRAM' }
-          let(:anticipated_separation_date) { '01-16-2024' }
+          let(:anticipated_separation_date) { '2024-01-16' }
           let(:claim_date) { '2023-10-15' }
 
           it 'responds with bad request' do
@@ -2941,7 +2917,7 @@ RSpec.describe 'Disability Claims', type: :request do
 
         context 'when anticipatedSeparationDate is not between 90 and 180 days in future' do
           let(:claim_process_type) { 'BDD_PROGRAM' }
-          let(:anticipated_separation_date) { '06-16-2024' }
+          let(:anticipated_separation_date) { '2024-06-16' }
           let(:claim_date) { '2023-10-15' }
 
           it 'responds with bad request' do

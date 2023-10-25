@@ -846,7 +846,7 @@ module ClaimsApi
         active_dates << service_information&.dig('federalActivation', 'anticipatedSeparationDate')
 
         unless active_dates.compact.any? do |a|
-          Date.strptime(a, '%m-%d-%Y').between?(claim_date.next_day(BDD_LOWER_LIMIT),
+          Date.strptime(a, '%Y-%m-%d').between?(claim_date.next_day(BDD_LOWER_LIMIT),
                                                 claim_date.next_day(BDD_UPPER_LIMIT))
         end
           raise ::Common::Exceptions::UnprocessableEntity.new(

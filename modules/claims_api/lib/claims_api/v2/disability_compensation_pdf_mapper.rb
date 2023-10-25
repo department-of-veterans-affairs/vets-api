@@ -118,15 +118,10 @@ module ClaimsApi
             regex_date_conversion(@pdf_data[:data][:attributes][:changeOfAddress][:dates][:beginDate])
           }
         )
-<<<<<<< HEAD
-        @pdf_data[:data][:attributes][:changeOfAddress][:effectiveDates][:end] =
-          regex_date_conversion(@pdf_data[:data][:attributes][:changeOfAddress][:dates][:endDate])
-=======
         if @pdf_data[:data][:attributes][:changeOfAddress][:dates][:endDate].present?
           @pdf_data[:data][:attributes][:changeOfAddress][:effectiveDates][:end] =
             regex_date_conversion(@pdf_data[:data][:attributes][:changeOfAddress][:dates][:endDate])
         end
->>>>>>> master
 
         change_addr = @pdf_data[:data][:attributes][:changeOfAddress]
         @pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:numberAndStreet] =

@@ -165,13 +165,13 @@
                   "type": "object",
                   "properties": {
                     "beginDate": {
-                      "description": "Date in MM-DD-YYYY the Veteran changed address. Date must be in the future if change is temporary.",
+                      "description": "Date in YYYY-MM-DD the Veteran changed address. Date must be in the future if change is temporary.",
                       "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
                       "type": "string",
                       "example": "2018-06-04"
                     },
                     "endDate": {
-                      "description": "Date in MM-DD-YYYY the changed address expires, if change is temporary.",
+                      "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
                       "type": "string",
                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                       "example": "2018-06-04"
@@ -506,7 +506,7 @@
                     "example": "Heavy equipment operator in service."
                   },
                   "approximateDate": {
-                    "description": "Approximate date disability began. Date must be in the past. \n Format can be either MM-DD-YYYY or MM-YYYY or YYYY",
+                    "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                     "type": ["string", "null"],
                     "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                     "example": "2018-03-02 or 2018-03 or 2018",
@@ -561,7 +561,7 @@
                           "nullable": true
                         },
                         "approximateDate": {
-                          "description": "Approximate date disability began. Date must be in the past. \n Format can be either MM-DD-YYYY or MM-YYYY or YYYY",
+                          "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                           "type": ["string", "null"],
                           "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                           "example": "2018-03-02 or 2018-03 or 2018",
@@ -922,7 +922,7 @@
                   "description": "",
                   "properties": {
                     "datePaymentReceived": {
-                      "description": "Approximate date separation pay was received. \n Format can be either MM-DD-YYYY or MM-YYYY or YYYY",
+                      "description": "Approximate date separation pay was received. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                       "type": "string",
                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
                       "example": "2018-03-02 or 2018-03 or 2018"
