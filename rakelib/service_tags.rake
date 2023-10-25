@@ -1,35 +1,41 @@
 # frozen_string_literal: true
 
+require 'rails/all'
+
 namespace :service_tags do
-  desc 'Lints all the route connected controllers to ensure they have a service tag'
+  desc 'Audit controllers for Traceable concern'
   task audit_controllers: :environment do
-    def find_non_compliant_controllers(routes)
-      excluded = %w[ActiveStorage:: ApplicationController OkComputer:: Rails::]
-      non_compliant_controllers = Set.new
+    EXCLUDED_PREFIXES = %w[ActionMailbox:: ActiveStorage:: ApplicationController OkComputer:: Rails::].freeze
 
-      routes.each do |route|
-        controller_class = controller_class_from_route(route)
-        next unless controller_class
-        next if excluded.any? { |prefix| controller_class.name.start_with?(prefix) }
-        next if valid_service_tag?(controller_class)
-
-        non_compliant_controllers << controller_class.name
-      end
-
-      non_compliant_controllers
+    def changed_files
+      ENV['CHANGED_FILES'] || []
     end
 
-    def controller_class_from_route(route)
-      controller = route.defaults[:controller]
-      return unless controller
+    def controller_info_from_route(route)
+      return unless route.defaults[:controller]
 
-      controller.camelize.concat('Controller').constantize
-    rescue NameError
-      nil
+      controller_name = "#{route.defaults[:controller].camelize}Controller"
+      return unless Object.const_defined?(controller_name)
+
+      controller_class = controller_name.constantize
+      exclusive_methods = controller_class.instance_methods(false)
+      return if exclusive_methods.empty?
+
+      method_name = exclusive_methods.first
+      file_path = controller_class.instance_method(method_name).source_location.first
+      relative_path = Pathname.new(file_path).relative_path_from(Rails.root).to_s
+
+      {
+        name: controller_name,
+        path: relative_path
+      }
+    end
+
+    def controllers_from_routes(routes)
+      routes.map { |route| controller_info_from_route(route) }.compact.uniq { |info| info[:name] }
     end
 
     def valid_service_tag?(klass)
-      # klass.ancestors includes the top level class
       klass.ancestors.any? do |ancestor|
         ancestor.included_modules.include?(Traceable) &&
           ancestor.respond_to?(:trace_service_tag) &&
@@ -37,22 +43,40 @@ namespace :service_tags do
       end
     end
 
-    non_compliant_controllers = Set.new
+    def find_invalid_controllers(controllers)
+      errors = []
+      warnings = []
 
-    non_compliant_controllers += find_non_compliant_controllers(Rails.application.routes.routes)
+      controllers.each do |controller|
+        next if EXCLUDED_PREFIXES.any? { |prefix| controller[:name].start_with?(prefix) }
 
-    Rails::Engine.subclasses.each do |engine|
-      non_compliant_controllers += find_non_compliant_controllers(engine.routes.routes)
+        klass = controller[:name].constantize
+
+        next if valid_service_tag?(klass)
+
+        if changed_files.include?(controller[:path])
+          errors << controller
+        else
+          warnings << controller
+        end
+      end
+
+      [errors, warnings]
     end
 
-    if non_compliant_controllers.any?
-      puts "\nNon-compliant Controllers:\n\n"
-      non_compliant_controllers.each { |name| puts name }
-      puts "\n#{non_compliant_controllers.count} non-compliant controllers found"
-      exit 1
-    else
-      puts 'All controllers are compliant!'
-      exit 0
+    main_app_controllers = controllers_from_routes(Rails.application.routes.routes)
+    engine_controllers = Rails::Engine.subclasses.flat_map { |engine| controllers_from_routes(engine.routes.routes) }
+
+    errors, warnings = find_invalid_controllers(main_app_controllers + engine_controllers)
+
+    errors.each do |controller|
+      puts "::error file=#{controller[:path]}::#{controller[:name]} is missing a service tag."
     end
+    
+    warnings.each do |controller|
+      puts "::warning file=#{controller[:path]}::#{controller[:name]} is missing a service tag."
+    end
+
+    exit(errors.any? ? 1 : 0)
   end
 end

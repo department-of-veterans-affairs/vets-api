@@ -26,9 +26,6 @@ jobs:
       - name: Run Brakeman
         run:  bundle exec brakeman --ensure-latest --confidence-level=2 --format github
 
-      - name: Run service tag audit
-        run: bundle exec rake service_tags:audit_controllers
-
   tests:
     name: Test
     env:

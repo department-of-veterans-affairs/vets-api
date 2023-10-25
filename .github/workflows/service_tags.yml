@@ -1,0 +1,36 @@
+name: Audit Service Tags
+
+on:
+  pull_request:
+    types:
+      - synchronize
+      - opened
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2.2
+
+      - name: Install dependencies
+        run: |
+          bundle install
+
+      - name: Get changed files
+        id: getfile
+        run: |
+          FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files -q '.files[].path' | tr '\n' ',')
+          echo "CHANGED_FILES=$FILES" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run audit task
+        run: |
+          bundle exec rake audit:controllers
