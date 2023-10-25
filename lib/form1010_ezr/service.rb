@@ -9,6 +9,7 @@ module Form1010Ezr
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
     include VA1010Forms::ServiceUtils
+    include SentryLogging
 
     STATSD_KEY_PREFIX = 'api.1010ezr'
 
@@ -34,8 +35,12 @@ module Form1010Ezr
         content = Gyoku.xml(formatted)
         submission = soap.build_request(:save_submit_form, message: content)
 
-        response = perform(:post, '', submission.body)
+        response = with_monitoring do
+          perform(:post, '', submission.body)
+        end
       rescue => e
+        log_submission_failure(parsed_form)
+
         Rails.logger.error "10-10EZR form submission failed: #{e.message}"
         raise e
       end
@@ -69,6 +74,28 @@ module Form1010Ezr
       required_fields = HCA::EzrPostfill.post_fill_hash(@user)
 
       parsed_form.merge!(required_fields)
+    end
+
+    def log_submission_failure(parsed_form)
+      StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
+
+      if form.present?
+        PersonalInformationLog.create!(
+          data: parsed_form,
+          error_class: 'Form1010Ezr FailedWontRetry'
+        )
+
+        log_message_to_sentry(
+          '1010EZR total failure',
+          :error,
+          {
+            first_initial: parsed_form['veteranFullName']['first'][0],
+            middle_initial: parsed_form['veteranFullName']['middle'].try(:[], 0),
+            last_initial: parsed_form['veteranFullName']['last'][0]
+          },
+          ezr: :total_failure
+        )
+      end
     end
   end
 end
