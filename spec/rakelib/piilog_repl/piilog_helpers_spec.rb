@@ -61,6 +61,6 @@ describe PersonalInformationLogQueryBuilder do
     ]
 
   ].each do |desc, relation, expected_sql|
-    # it(desc) { expect(relation.to_sql).to eq expected_sql }
+    it(desc) { expect(relation.to_sql).to eq expected_sql }
   end
 end
