@@ -22,6 +22,7 @@ Rails.application.routes.draw do
   get '/v0/sign_in/logout', to: 'v0/sign_in#logout'
   get '/v0/sign_in/logingov_logout_proxy', to: 'v0/sign_in#logingov_logout_proxy'
   get '/v0/sign_in/revoke_all_sessions', to: 'v0/sign_in#revoke_all_sessions'
+  get '/v0/sign_in/logout_and_revoke_all_sessions', to: 'v0/sign_in#logout_and_revoke_all_sessions'
 
   get '/sign_in/openid_connect/certs' => 'sign_in/openid_connect_certificates#index'
 

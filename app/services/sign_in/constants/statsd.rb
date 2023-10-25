@@ -19,6 +19,8 @@ module SignIn
       STATSD_SIS_LOGOUT_FAILURE = 'api.sis.logout.failure'
       STATSD_SIS_REVOKE_ALL_SESSIONS_SUCCESS = 'api.sis.revoke_all_sessions.success'
       STATSD_SIS_REVOKE_ALL_SESSIONS_FAILURE = 'api.sis.revoke_all_sessions.failure'
+      STATSD_SIS_LOGOUT_REVOKE_ALL_SESSIONS_SUCCESS = 'api.sis.logout_and_revoke_all_sessions.success'
+      STATSD_SIS_LOGOUT_REVOKE_ALL_SESSIONS_FAILURE = 'api.sis.logout_and_revoke_all_sessions.failure'
     end
   end
 end

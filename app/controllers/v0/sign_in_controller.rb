@@ -5,7 +5,8 @@ require 'sign_in/logger'
 module V0
   class SignInController < SignIn::ApplicationController
     skip_before_action :authenticate,
-                       only: %i[authorize callback token refresh revoke logout logingov_logout_proxy]
+                       only: %i[authorize callback token refresh revoke logout logingov_logout_proxy
+                                logout_and_revoke_all_sessions]
 
     def authorize # rubocop:disable Metrics/MethodLength
       type = params[:type].presence
@@ -219,6 +220,42 @@ module V0
              content_type: 'text/html'
     rescue => e
       sign_in_logger.info('logingov_logout_proxy error', { errors: e.message })
+
+      render json: { errors: e }, status: :bad_request
+    end
+
+    def logout_and_revoke_all_sessions # rubocop:disable Metrics/MethodLength
+      client_id = params[:client_id].presence
+      user_loaded = load_user(skip_expiration_check: true)
+
+      raise SignIn::Errors::MalformedParamsError, 'Client id is not valid' if client_config(client_id).blank?
+      raise SignIn::Errors::LogoutAuthorizationError, 'Unable to Authorize User' unless user_loaded
+
+      SignIn::RevokeSessionsForUser.new(user_account: current_user.user_account).perform
+      delete_cookies if token_cookies
+
+      logout_redirect = SignIn::LogoutRedirectGenerator.new(user: current_user, client_config: client_config(client_id))
+                                                       .perform
+
+      sign_in_logger.info('logout and revoke all sessions', @access_token.to_s)
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_REVOKE_ALL_SESSIONS_SUCCESS)
+
+      return redirect_to(logout_redirect) if logout_redirect
+
+      render status: :ok
+    rescue SignIn::Errors::StandardError => e
+      sign_in_logger.info('logout and revoke all sessions error', { errors: e.message })
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_REVOKE_ALL_SESSIONS_FAILURE)
+
+      logout_redirect = SignIn::LogoutRedirectGenerator.new(user: current_user, client_config: client_config(client_id))
+                                                       .perform
+
+      return redirect_to(logout_redirect) if logout_redirect
+
+      render status: :ok
+    rescue => e
+      sign_in_logger.info('logout and revoke all sessions error', { errors: e.message })
+      StatsD.increment(SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_REVOKE_ALL_SESSIONS_FAILURE)
 
       render json: { errors: e }, status: :bad_request
     end

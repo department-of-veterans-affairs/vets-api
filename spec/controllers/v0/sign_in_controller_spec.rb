@@ -2827,4 +2827,184 @@ RSpec.describe V0::SignInController, type: :controller do
       end
     end
   end
+
+  describe 'GET logout_and_revoke_all_sessions' do
+    subject { get(:logout_and_revoke_all_sessions, params:) }
+
+    let(:params) do
+      {}.merge(client_id)
+    end
+    let(:client_id) { { client_id: client_id_value } }
+    let(:client_id_value) { client_config.client_id }
+    let!(:client_config) { create(:client_config, logout_redirect_uri:) }
+    let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
+
+    context 'when successfully authenticated' do
+      let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+      let(:authorization) { "Bearer #{access_token}" }
+      let!(:user_account) { Login::UserVerifier.new(user.identity).perform.user_account }
+      let(:user) { create(:user, :loa3) }
+      let(:user_uuid) { user.uuid }
+      let(:oauth_session) { create(:oauth_session, user_account:) }
+      let(:access_token_object) do
+        create(:access_token, session_handle: oauth_session.handle, user_uuid:)
+      end
+      let(:oauth_session_count) { SignIn::OAuthSession.where(user_account:).count }
+      let(:statsd_success) { SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_REVOKE_ALL_SESSIONS_SUCCESS }
+      let(:expected_log) { '[SignInService] [V0::SignInController] logout and revoke all sessions' }
+      let(:expected_log_params) do
+        {
+          uuid: access_token_object.uuid,
+          user_uuid: access_token_object.user_uuid,
+          session_handle: access_token_object.session_handle,
+          client_id: access_token_object.client_id,
+          audience: access_token_object.audience,
+          version: access_token_object.version,
+          last_regeneration_time: access_token_object.last_regeneration_time.to_i,
+          created_time: access_token_object.created_time.to_i,
+          expiration_time: access_token_object.expiration_time.to_i
+        }
+      end
+      let(:expected_status) { :redirect }
+
+      before do
+        request.headers['Authorization'] = authorization
+        allow(Rails.logger).to receive(:info)
+      end
+
+      it 'deletes all OAuthSession objects associated with current user user_account' do
+        expect { subject }.to change(SignIn::OAuthSession, :count).from(oauth_session_count).to(0)
+      end
+
+      it 'logs the revoke all sessions call' do
+        expect(Rails.logger).to receive(:info).with(expected_log, expected_log_params)
+        subject
+      end
+
+      it 'triggers statsd increment for successful call' do
+        expect { subject }.to trigger_statsd_increment(statsd_success)
+      end
+
+      context 'and authenticated credential is Login.gov' do
+        let!(:user) { create(:user, :ial1) }
+
+        context 'and client configuration has not configured a logout redirect uri' do
+          let(:logout_redirect_uri) { nil }
+          let(:expected_status) { :ok }
+
+          it 'returns ok status' do
+            expect(subject).to have_http_status(expected_status)
+          end
+        end
+
+        context 'and client configuration has configured a logout redirect uri' do
+          let(:logingov_client_id) { Settings.logingov.client_id }
+          let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
+          let(:logingov_logout_redirect_uri) { Settings.logingov.logout_redirect_uri }
+          let(:random_seed) { 'some-random-seed' }
+          let(:logout_state_payload) do
+            {
+              logout_redirect: client_config.logout_redirect_uri,
+              seed: random_seed
+            }
+          end
+          let(:state) { Base64.encode64(logout_state_payload.to_json) }
+          let(:expected_url_params) do
+            {
+              client_id: logingov_client_id,
+              post_logout_redirect_uri: logingov_logout_redirect_uri,
+              state:
+            }
+          end
+          let(:expected_url_host) { Settings.logingov.oauth_url }
+          let(:expected_url_path) { 'openid_connect/logout' }
+          let(:expected_url) { "#{expected_url_host}/#{expected_url_path}?#{expected_url_params.to_query}" }
+          let(:expected_status) { :redirect }
+
+          before { allow(SecureRandom).to receive(:hex).and_return(random_seed) }
+
+          it 'returns redirect status' do
+            expect(subject).to have_http_status(expected_status)
+          end
+
+          it 'redirects to login gov single sign out URL' do
+            expect(subject).to redirect_to(expected_url)
+          end
+        end
+      end
+
+      context 'and authenticated credential is not Login.gov' do
+        context 'and client configuration has not configured a logout redirect uri' do
+          let(:logout_redirect_uri) { nil }
+          let(:expected_status) { :ok }
+
+          it 'returns ok status' do
+            expect(subject).to have_http_status(expected_status)
+          end
+        end
+
+        context 'and client configuration has configured a logout redirect uri' do
+          let(:logout_redirect_uri) { 'some-logout-redirect-uri' }
+          let(:expected_status) { :redirect }
+
+          it 'returns redirect status' do
+            expect(subject).to have_http_status(expected_status)
+          end
+
+          it 'redirects to the configured logout redirect uri' do
+            expect(subject).to redirect_to(logout_redirect_uri)
+          end
+        end
+      end
+
+      context 'and some arbitrary Sign In Error is raised' do
+        let(:expected_error) { SignIn::Errors::StandardError }
+        let(:statsd_failure) { SignIn::Constants::Statsd::STATSD_SIS_LOGOUT_REVOKE_ALL_SESSIONS_FAILURE }
+        let(:expected_error_json) { { 'errors' => expected_error.to_s } }
+        let(:expected_error_status) { :unauthorized }
+        let(:expected_error_log) { '[SignInService] [V0::SignInController] logout and revoke all sessions error' }
+        let(:expected_error_context) { { errors: expected_error.to_s } }
+
+        before do
+          allow(SignIn::RevokeSessionsForUser).to receive(:new).and_raise(expected_error.new(message: expected_error))
+          allow(Rails.logger).to receive(:info)
+        end
+
+        context 'and client configuration has not configured a logout redirect uri' do
+          let(:logout_redirect_uri) { nil }
+          let(:expected_status) { :ok }
+
+          it 'returns expected status' do
+            expect(subject).to have_http_status(expected_status)
+          end
+
+          it 'logs the failed revoke all sessions call' do
+            expect(Rails.logger).to receive(:info).with(expected_error_log, expected_error_context)
+            subject
+          end
+
+          it 'triggers statsd increment for failed call' do
+            expect { subject }.to trigger_statsd_increment(statsd_failure)
+          end
+        end
+
+        context 'and client configuration has configured a logout redirect uri' do
+          let(:expected_status) { :redirect }
+
+          it 'returns expected status' do
+            expect(subject).to have_http_status(expected_status)
+          end
+
+          it 'logs the failed revoke all sessions call' do
+            expect(Rails.logger).to receive(:info).with(expected_error_log, expected_error_context)
+            subject
+          end
+
+          it 'triggers statsd increment for failed call' do
+            expect { subject }.to trigger_statsd_increment(statsd_failure)
+          end
+        end
+      end
+    end
+  end
 end
