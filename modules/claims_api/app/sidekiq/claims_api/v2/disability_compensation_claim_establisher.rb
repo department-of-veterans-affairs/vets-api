@@ -10,6 +10,7 @@ module ClaimsApi
                          'Beginning 526 v2 Claim Establisher job')
 
         auto_claim = get_claim(claim_id)
+
         # Reset for a rerun on this
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
 

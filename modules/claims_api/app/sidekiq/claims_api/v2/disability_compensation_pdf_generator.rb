@@ -73,7 +73,6 @@ module ClaimsApi
         log_exception_to_sentry(e)
 
         raise e
-        # {} # bad data so it will not pass until we fix
       rescue => e
         set_errored_state_on_claim(auto_claim)
         log_job_progress('526 v2 PDF Generator job',
@@ -82,7 +81,6 @@ module ClaimsApi
         log_exception_to_sentry(e)
 
         raise e
-        # {} # Permanent failures, don't retry
       end
 
       private

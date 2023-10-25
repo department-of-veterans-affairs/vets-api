@@ -49,7 +49,7 @@ module ClaimsApi
                          claim_id,
                          "Submit failed for claimId #{auto_claim&.id}: #{e.original_body}")
         log_exception_to_sentry(e)
-        # {}
+
         raise e
       rescue => e
         set_errored_state_on_claim(auto_claim)
@@ -58,7 +58,7 @@ module ClaimsApi
                          claim_id,
                          "Submit failed for claimId #{auto_claim&.id}: #{e.detailed_message}")
         log_exception_to_sentry(e)
-        # {}
+
         raise e
       end
 

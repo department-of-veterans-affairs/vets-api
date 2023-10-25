@@ -52,7 +52,7 @@ module ClaimsApi
                          claim_id,
                          "VBMS failure for claimId #{auto_claim&.id}: #{message}")
         log_exception_to_sentry(e)
-        # {}
+
         raise e
       end
 
