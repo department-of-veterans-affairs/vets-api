@@ -12,16 +12,11 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.2.2
-
-      - name: Install dependencies
-        run: |
-          bundle install
+          bundler-cache: true
 
       - name: Get changed files
         id: getfile
