@@ -24,6 +24,7 @@ module ClaimsApi
         current_mailing_address
         disabilities
         standard_claim
+        claim_process_type
         veteran_meta
       end
 
@@ -69,6 +70,10 @@ module ClaimsApi
 
       def standard_claim
         @evss_claim[:standardClaim] = @data[:claimProcessType] == 'STANDARD_CLAIM_PROCESS'
+      end
+
+      def claim_process_type
+        @evss_claim[:claimProcessType] = 'BDD_PROGRAM_CLAIM' if @data[:claimProcessType] == 'BDD_PROGRAM'
       end
 
       def claim_meta

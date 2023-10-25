@@ -2883,6 +2883,84 @@ RSpec.describe 'Disability Claims', type: :request do
         end
       end
 
+      describe "claimProcessType is 'BDD_PROGRAM'" do
+        context 'when activeDutyEndDate is between 90 and 180 days in future' do
+          let(:claim_process_type) { 'BDD_PROGRAM' }
+          let(:active_duty_end_date) { '01-16-2024' }
+          let(:claim_date) { '2023-10-15' }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['claimDate'] = claim_date
+              json['data']['attributes']['claimProcessType'] = claim_process_type
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                active_duty_end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when activeDutyEndDate is not between 90 and 180 days in future' do
+          let(:claim_process_type) { 'BDD_PROGRAM' }
+          let(:active_duty_end_date) { '01-16-2023' }
+          let(:claim_date) { '2023-10-15' }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['claimDate'] = claim_date
+              json['data']['attributes']['claimProcessType'] = claim_process_type
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                active_duty_end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when anticipatedSeparationDate is between 90 and 180 days in future' do
+          let(:claim_process_type) { 'BDD_PROGRAM' }
+          let(:anticipated_separation_date) { '01-16-2024' }
+          let(:claim_date) { '2023-10-15' }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['claimDate'] = claim_date
+              json['data']['attributes']['claimProcessType'] = claim_process_type
+              json['data']['attributes']['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+                anticipated_separation_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when anticipatedSeparationDate is not between 90 and 180 days in future' do
+          let(:claim_process_type) { 'BDD_PROGRAM' }
+          let(:anticipated_separation_date) { '06-16-2024' }
+          let(:claim_date) { '2023-10-15' }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['claimDate'] = claim_date
+              json['data']['attributes']['claimProcessType'] = claim_process_type
+              json['data']['attributes']['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+                anticipated_separation_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+      end
+
       describe 'service periods' do
         context 'when obligationTermsOfService is empty' do
           let(:empty_date) { '' }

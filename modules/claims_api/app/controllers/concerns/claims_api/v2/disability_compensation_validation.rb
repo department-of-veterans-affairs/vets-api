@@ -10,6 +10,8 @@ module ClaimsApi
         7 => 'mm-yyyy',
         4 => 'yyyy'
       }.freeze
+      BDD_LOWER_LIMIT = 90
+      BDD_UPPER_LIMIT = 180
 
       def validate_form_526_submission_values!(target_veteran)
         # ensure 'claimDate', if provided, is a valid date not in the future
@@ -32,6 +34,7 @@ module ClaimsApi
         validate_form_526_service_information!(target_veteran)
         # ensure direct deposit information is valid
         validate_form_526_direct_deposit!
+        validate_claim_process_type_bdd! if bdd_claim?
       end
 
       def validate_form_526_change_of_address!
@@ -835,7 +838,30 @@ module ClaimsApi
         )
       end
 
+      def validate_claim_process_type_bdd!
+        date = form_attributes['claimDate'] || Time.find_zone!('Central Time (US & Canada)').today
+        claim_date = Date.parse(date.to_s)
+        service_information = form_attributes['serviceInformation']
+        active_dates = service_information['servicePeriods']&.pluck('activeDutyEndDate')
+        active_dates << service_information&.dig('federalActivation', 'anticipatedSeparationDate')
+
+        unless active_dates.compact.any? do |a|
+          Date.strptime(a, '%m-%d-%Y').between?(claim_date.next_day(BDD_LOWER_LIMIT),
+                                                claim_date.next_day(BDD_UPPER_LIMIT))
+        end
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: "Must have an activeDutyEndDate or anticipatedSeparationDate between #{BDD_LOWER_LIMIT}" \
+                    " & #{BDD_UPPER_LIMIT} days from claim date."
+          )
+        end
+      end
+
       private
+
+      def bdd_claim?
+        claim_process_type = form_attributes['claimProcessType']
+        claim_process_type == 'BDD_PROGRAM'
+      end
 
       # Used for confinements dates
       def begin_date_is_after_end_date?(begin_date, end_date)
