@@ -28,8 +28,8 @@
       },
       "changeOfAddress": {
         "dates": {
-          "beginDate": "11-29-2013",
-          "endDate": "10-11-2025"
+          "beginDate": "2018-06-04",
+          "endDate": "2019-06-04"
         },
         "typeOfAddressChange": "TEMPORARY",
         "addressLine1": "10 Peach St",
@@ -55,31 +55,31 @@
         "gulfWarHazardService": {
           "servedInGulfWarHazardLocations": "YES",
           "serviceDates": {
-            "beginDate": "07-1999",
-            "endDate": "01-2005"
+            "beginDate": "2018-06",
+            "endDate": "2018-08"
           }
         },
         "herbicideHazardService": {
           "servedInHerbicideHazardLocations": "YES",
           "otherLocationsServed": "Guam",
           "serviceDates": {
-            "beginDate": "03-2002",
-            "endDate": "10-2004"
+            "beginDate": "2018-06",
+            "endDate": "2018-08"
           }
         },
         "additionalHazardExposures": {
           "additionalExposures": ["ASBESTOS", "SHIPBOARD_HAZARD_AND_DEFENSE"],
           "specifyOtherExposures": "Other exposure details",
           "exposureDates": {
-            "beginDate": "07-2011",
-            "endDate": "10-2013"
+            "beginDate": "2018-06",
+            "endDate": "2018-08"
           }
         },
         "multipleExposures": [
           {
             "exposureDates": {
-              "beginDate": "12-2012",
-              "endDate": "07-2013"
+              "beginDate": "2018-06",
+              "endDate": "2018-08"
             },
             "exposureLocation": "Guam",
             "hazardExposedTo": "RADIATION"

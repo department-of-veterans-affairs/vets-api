@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DatadogLogger do
+RSpec.describe LogService do
   subject(:logger) { described_class.new }
 
   let(:statsd) { instance_double(Datadog::Statsd) }
@@ -31,11 +31,6 @@ RSpec.describe DatadogLogger do
           expect(span).to have_received(:set_tag).with(key, value)
         end
         expect(span).to have_received(:set_metric).with("#{action}.time", anything)
-      end
-
-      it 'logs the elapsed time' do
-        logger.call(action, tags:) { 'Success' }
-        expect(statsd).to have_received(:timing).with("#{action}.time", anything)
       end
 
       it 'returns the result of the block' do

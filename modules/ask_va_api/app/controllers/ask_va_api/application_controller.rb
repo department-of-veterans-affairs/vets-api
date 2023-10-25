@@ -20,7 +20,7 @@ module AskVAApi
     end
 
     def log_error(action, exception)
-      DatadogLogger.new.call(action) do |span|
+      LogService.new.call(action) do |span|
         span.set_tag('error', true)
         span.set_tag('error.msg', exception.message)
       end

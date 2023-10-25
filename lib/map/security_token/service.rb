@@ -16,13 +16,18 @@ module MAP
         Rails.logger.info("#{config.logging_prefix} token success, application: #{application}, icn: #{icn}")
         parse_response(response, application, icn)
       rescue Common::Client::Errors::ClientError => e
-        status = e.status
-        description = e.body.presence && e.body[:error_description]
-        raise e, "#{config.logging_prefix} token failed, client error, status: #{status}," \
-                 " description: #{description}, application: #{application}, icn: #{icn}"
+        parse_and_raise_error(e, icn, application)
       end
 
       private
+
+      def parse_and_raise_error(e, icn, application)
+        status = e.status
+        parse_body = e.body.present? ? JSON.parse(e.body) : {}
+        context = { error: parse_body['error'] }
+        raise e, "#{config.logging_prefix} token failed, client error, status: #{status}," \
+                 " application: #{application}, icn: #{icn}, context: #{context}"
+      end
 
       def parse_response(response, application, icn)
         response_body = JSON.parse(response.body)

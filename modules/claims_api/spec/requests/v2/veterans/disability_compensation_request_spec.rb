@@ -325,8 +325,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:valid_change_of_address) do
               {
                 dates: {
-                  beginDate: '11-30-2012',
-                  endDate: ''
+                  beginDate: '2012-11-30'
                 },
                 typeOfAddressChange: 'PERMANENT',
                 addressLine1: '10 Peach St',
@@ -355,8 +354,8 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:invalid_change_of_address) do
               {
                 dates: {
-                  beginDate: '11-30-2012',
-                  endDate: ''
+                  beginDate: '2012-11-30',
+                  endDate: '2013-11-12'
                 },
                 typeOfAddressChange: 'PERMANENT',
                 addressLine1: '',
@@ -389,8 +388,8 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:invalid_change_of_address) do
               {
                 dates: {
-                  beginDate: '11-31-2012',
-                  endDate: ''
+                  beginDate: '2012-11-31',
+                  endDate: '2013-11-31'
                 },
                 typeOfAddressChange: 'PERMANENT',
                 addressLine1: '10 Peach St',
@@ -423,8 +422,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:invalid_change_of_address) do
               {
                 dates: {
-                  beginDate: '',
-                  endDate: ''
+                  endDate: '2013-11-30'
                 },
                 typeOfAddressChange: 'PERMANENT',
                 addressLine1: '10 Peach St',
@@ -457,7 +455,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:invalid_change_of_address) do
               {
                 dates: {
-                  beginDate: '11-31-2012',
+                  beginDate: '2012-11-31',
                   endDate: ''
                 },
                 typeOfAddressChange: '',
@@ -513,8 +511,8 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when the begin date is after the end date' do
-          let(:begin_date) { '01-01-2023' }
-          let(:end_date) { '01-01-2022' }
+          let(:begin_date) { '2023-01-01' }
+          let(:end_date) { '2022-01-01' }
 
           it 'responds with bad request' do
             mock_ccg(scopes) do |auth_header|
@@ -524,6 +522,23 @@ RSpec.describe 'Disability Claims', type: :request do
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:bad_request)
+            end
+          end
+        end
+
+        context 'when the type is permanent the end date is prohibited' do
+          let(:begin_date) { '01-01-2023' }
+          let(:end_date) { '01-01-2024' }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['changeOfAddress']['typeOfAddressChange'] = 'PERMANENT'
+              json['data']['attributes']['changeOfAddress']['dates']['beginDate'] = begin_date
+              json['data']['attributes']['changeOfAddress']['dates']['endDate'] = end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end
@@ -2860,6 +2875,84 @@ RSpec.describe 'Disability Claims', type: :request do
               ]
               params['data']['attributes']['disabilities'] = disabilities
               post submit_path, params: params.to_json, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+      end
+
+      describe "claimProcessType is 'BDD_PROGRAM'" do
+        context 'when activeDutyEndDate is between 90 and 180 days in future' do
+          let(:claim_process_type) { 'BDD_PROGRAM' }
+          let(:active_duty_end_date) { '01-16-2024' }
+          let(:claim_date) { '2023-10-15' }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['claimDate'] = claim_date
+              json['data']['attributes']['claimProcessType'] = claim_process_type
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                active_duty_end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when activeDutyEndDate is not between 90 and 180 days in future' do
+          let(:claim_process_type) { 'BDD_PROGRAM' }
+          let(:active_duty_end_date) { '01-16-2023' }
+          let(:claim_date) { '2023-10-15' }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['claimDate'] = claim_date
+              json['data']['attributes']['claimProcessType'] = claim_process_type
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                active_duty_end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when anticipatedSeparationDate is between 90 and 180 days in future' do
+          let(:claim_process_type) { 'BDD_PROGRAM' }
+          let(:anticipated_separation_date) { '01-16-2024' }
+          let(:claim_date) { '2023-10-15' }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['claimDate'] = claim_date
+              json['data']['attributes']['claimProcessType'] = claim_process_type
+              json['data']['attributes']['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+                anticipated_separation_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when anticipatedSeparationDate is not between 90 and 180 days in future' do
+          let(:claim_process_type) { 'BDD_PROGRAM' }
+          let(:anticipated_separation_date) { '06-16-2024' }
+          let(:claim_date) { '2023-10-15' }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['claimDate'] = claim_date
+              json['data']['attributes']['claimProcessType'] = claim_process_type
+              json['data']['attributes']['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+                anticipated_separation_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
             end
           end

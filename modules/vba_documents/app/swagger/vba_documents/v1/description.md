@@ -37,7 +37,7 @@ A status of `received` means that the document package has been transmitted, but
 If the document status is `error`, VA has not received the submission and cannot honor the submission date as the date of receipt.
 
 ### Authentication and Authorization
-API requests are authorized through a symmetric API token, provided in an HTTP header with name 'apikey'. [Request an API key.](https://developer.va.gov/apply)
+API requests are authorized through a symmetric API token, provided in an HTTP header with name 'apikey'. [Request an API key](https://developer.va.gov/explore/api/benefits-intake/sandbox-access).
 
 ### Testing in the sandbox environment
 In the sandbox environment, the final status of a submission is `received` and submissions do not actually progress to the central mail repository or VBMS. 

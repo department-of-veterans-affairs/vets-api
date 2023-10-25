@@ -3,7 +3,6 @@
 module AskVAApi
   module Categories
     ENDPOINT = 'get_categories_mock_data'
-    URI = 'get_categories_from_dynamics.com'
 
     class Retriever
       attr_reader :service
@@ -25,9 +24,7 @@ module AskVAApi
       private
 
       def default_service
-        # mock = !Rails.env.production?
-        mock = true
-        Dynamics::Service.new(base_uri: URI, sec_id: nil, mock:)
+        Dynamics::Service.new(sec_id: nil)
       end
 
       def fetch_data

@@ -24,13 +24,13 @@ RSpec.describe AskVAApi::Categories::Retriever do
       before do
         allow(service).to receive(:call)
           .with(endpoint:)
-          .and_raise(Dynamics::ErrorHandler::BadRequestError, error_message)
+          .and_raise(Dynamics::ErrorHandler::ServiceError, error_message)
       end
 
       it 'raises an Error' do
         expect do
           retriever.call
-        end.to raise_error(ErrorHandler::ServiceError, "Dynamics::ErrorHandler::BadRequestError: #{error_message}")
+        end.to raise_error(ErrorHandler::ServiceError, "Dynamics::ErrorHandler::ServiceError: #{error_message}")
       end
     end
 
