@@ -373,6 +373,8 @@ Rails.application.routes.draw do
     get 'terms_of_use_agreements/:version/latest', to: 'terms_of_use_agreements#latest'
     post 'terms_of_use_agreements/:version/accept', to: 'terms_of_use_agreements#accept'
     post 'terms_of_use_agreements/:version/decline', to: 'terms_of_use_agreements#decline'
+
+    resources :form1010_ezrs, only: %i[create]
   end
   # end /v0
 

@@ -112,6 +112,7 @@ Layout/LineContinuationSpacing:
     - 'app/controllers/v1/sessions_controller.rb'
     - 'app/models/in_progress_form.rb'
     - 'app/swagger/swagger/requests/health_care_applications.rb'
+    - 'app/swagger/swagger/requests/form1010_ezrs.rb'
     - 'app/swagger/swagger/requests/profile.rb'
     - 'app/swagger/swagger/requests/user.rb'
     - 'app/sidekiq/cypress_viewport_updater/viewport.rb'
