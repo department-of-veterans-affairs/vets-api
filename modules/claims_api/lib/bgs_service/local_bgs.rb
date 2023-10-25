@@ -105,21 +105,27 @@ module ClaimsApi
       end
       connection.options.timeout = @timeout
 
-      wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
-        connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
+      begin
+        wsdl = log_duration(event: 'connection_wsdl_get', endpoint:) do
+          connection.get("#{Settings.bgs.url}/#{endpoint}?WSDL")
+        end
+        target_namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace')
+        response = log_duration(event: 'connection_post', endpoint:, action:) do
+          connection.post("#{Settings.bgs.url}/#{endpoint}", full_body(action:,
+                                                                       body:,
+                                                                       namespace: target_namespace),
+                          {
+                            'Content-Type' => 'text/xml;charset=UTF-8',
+                            'Host' => "#{@env}.vba.va.gov",
+                            'Soapaction' => "\"#{action}\""
+                          })
+        end
+      rescue Faraday::TimeoutError, Faraday::ConnectionFailed => e
+        ClaimsApi::Logger.log('local_bgs',
+                              retry: true,
+                              detail: "local BGS Faraday Timeout: #{e.message}")
+        raise ::Common::Exceptions::BadGateway
       end
-      target_namespace = Hash.from_xml(wsdl.body).dig('definitions', 'targetNamespace')
-      response = log_duration(event: 'connection_post', endpoint:, action:) do
-        connection.post("#{Settings.bgs.url}/#{endpoint}", full_body(action:,
-                                                                     body:,
-                                                                     namespace: target_namespace),
-                        {
-                          'Content-Type' => 'text/xml;charset=UTF-8',
-                          'Host' => "#{@env}.vba.va.gov",
-                          'Soapaction' => "\"#{action}\""
-                        })
-      end
-
       soap_error_handler.handle_errors(response) if response
 
       log_duration(event: 'parsed_response', key:) do
