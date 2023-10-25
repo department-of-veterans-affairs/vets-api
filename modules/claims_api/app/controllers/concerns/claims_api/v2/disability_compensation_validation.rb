@@ -863,21 +863,6 @@ module ClaimsApi
         claim_process_type == 'BDD_PROGRAM'
       end
 
-      # Used for confinements dates
-      # def begin_date_is_after_end_date?(begin_date, end_date)
-      #   # see what format each date is in
-      #   begin_date_has_day = date_has_day?(begin_date)
-      #   end_date_has_day = date_has_day?(end_date)
-      #   # determine how to compare, being = is ok
-      #   if begin_date_has_day && end_date_has_day
-      #     Date.strptime(begin_date, '%Y-%m-%d') > Date.strptime(end_date, '%Y-%m-%d')
-      #   elsif !begin_date_has_day && !end_date_has_day
-      #     Date.strptime(begin_date, '%Y-%m') > Date.strptime(end_date, '%Y-%m')
-      #   else # mixed formats on dates
-      #     begin_date_after_end_date_with_mixed_format_dates?(begin_date, end_date)
-      #   end
-      # end
-
       # Either date could be in MM-YYYY or MM-DD-YYYY format
       def begin_date_after_end_date_with_mixed_format_dates?(begin_date, end_date)
         # figure out if either has the day and remove it to compare
