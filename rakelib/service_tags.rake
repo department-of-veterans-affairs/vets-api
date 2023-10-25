@@ -5,8 +5,6 @@ require 'rails/all'
 namespace :service_tags do
   desc 'Audit controllers for Traceable concern'
   task audit_controllers: :environment do
-    EXCLUDED_PREFIXES = %w[ActionMailbox:: ActiveStorage:: ApplicationController OkComputer:: Rails::].freeze
-
     def changed_files
       ENV['CHANGED_FILES'] || []
     end
@@ -48,10 +46,10 @@ namespace :service_tags do
       warnings = []
 
       controllers.each do |controller|
-        next if EXCLUDED_PREFIXES.any? { |prefix| controller[:name].start_with?(prefix) }
+        excluded_prefixes = %w[ActionMailbox:: ActiveStorage:: ApplicationController OkComputer:: Rails::].freeze
+        next if excluded_prefixes.any? { |prefix| controller[:name].start_with?(prefix) }
 
         klass = controller[:name].constantize
-
         next if valid_service_tag?(klass)
 
         if changed_files.include?(controller[:path])
@@ -72,7 +70,7 @@ namespace :service_tags do
     errors.each do |controller|
       puts "::error file=#{controller[:path]}::#{controller[:name]} is missing a service tag."
     end
-    
+
     warnings.each do |controller|
       puts "::warning file=#{controller[:path]}::#{controller[:name]} is missing a service tag."
     end

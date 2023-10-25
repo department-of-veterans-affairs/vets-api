@@ -33,4 +33,4 @@ jobs:
 
       - name: Run audit task
         run: |
-          bundle exec rake audit:controllers
+          bundle exec rake service_tags:audit_controllers
