@@ -1189,6 +1189,74 @@ describe HCA::EnrollmentSystem do
           wantsInitialVaContact: true,
           email: 'foo@example.com',
           homePhone: '1231241234',
+          isWhite: true,
+          maritalStatus: 'Married',
+          vaMedicalFacility: '608',
+          isEssentialAcaCoverage: true
+        }.deep_stringify_keys,
+        {
+          'appointmentRequestResponse' => true,
+          'contactInfo' => {
+            'addresses' => {
+              'address' => [
+                {
+                  'city' => 'Ontario',
+                  'country' => 'CAN',
+                  'line1' => '123 NW 5th St',
+                  'provinceCode' => 'ON',
+                  'postalCode' => '21231',
+                  'addressTypeCode' => 'P'
+                },
+                {
+                  'city' => 'Ontario',
+                  'country' => 'CAN',
+                  'line1' => '567 SW 9th Ave.',
+                  'line2' => '#102',
+                  'provinceCode' => 'ON',
+                  'postalCode' => '21231',
+                  'addressTypeCode' => 'R'
+                }
+              ]
+            },
+            'emails' => [
+              { 'email' => { 'address' => 'foo@example.com', 'type' => '1' } }
+            ],
+            'phones' => {
+              'phone' => [{ 'phoneNumber' => '1231241234', 'type' => '1' }]
+            }
+          },
+          'maritalStatus' => 'M',
+          'preferredFacility' => '608',
+          'races' => { 'race' => ['2106-3'] },
+          'acaIndicator' => true
+        }
+      ],
+
+      [
+        {
+          veteranAddress: {
+            street: '123 NW 5th St',
+            street2: '',
+            street3: '',
+            city: 'Ontario',
+            country: 'CAN',
+            state: 'ON',
+            provinceCode: 'ProvinceName',
+            postalCode: '21231'
+          },
+          veteranHomeAddress: {
+            street: '567 SW 9th Ave.',
+            street2: '#102',
+            street3: '',
+            city: 'Ontario',
+            country: 'CAN',
+            state: 'ON',
+            provinceCode: 'ProvinceName',
+            postalCode: '21231'
+          },
+          wantsInitialVaContact: true,
+          email: 'foo@example.com',
+          homePhone: '1231241234',
           isSpanishHispanicLatino: true,
           isWhite: true,
           maritalStatus: 'Married',
@@ -1466,6 +1534,14 @@ describe HCA::EnrollmentSystem do
 
       it 'properlies set discharge type and discharge date' do
         expect(described_class.veteran_to_military_service_info(veteran)).to eq(expected)
+      end
+
+      context 'with a discharge date of tomorrow', run_at: '2023-09-25 04:00:00' do
+        let(:discharge_date) { Date.parse('2023-09-25') }
+
+        it 'checks future discharge based on central time' do
+          expect(described_class.veteran_to_military_service_info(veteran)).to eq(expected)
+        end
       end
     end
 

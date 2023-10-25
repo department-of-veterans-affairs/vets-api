@@ -13,30 +13,31 @@ module ClaimsApi
       def initialize(request = nil)
         @request = request
         @auth_headers = {}
+        @use_mock = Settings.evss.mock_claims || false
       end
 
       def submit(claim, data)
         @auth_headers = claim.auth_headers
 
         begin
-          resp = client.post('submit', data)&.body
+          resp = client.post('submit', data)&.body&.deep_symbolize_keys
           log_outcome_for_claims_api('submit', 'success', resp, claim)
 
           resp # return is for v1 Sidekiq worker
         rescue => e
           detail = e.respond_to?(:original_body) ? e.original_body : e
           log_outcome_for_claims_api('submit', 'error', detail, claim)
-
-          e # return is for v1 Sidekiq worker
+          ClaimsApi::Logger.log('526',
+                                detail: "EVSS DOCKER CONTAINER submit error: #{detail}", claim_id: claim&.id)
+          raise e
         end
       end
 
       def validate(claim, data)
         @auth_headers = claim.auth_headers
-        @auth_headers['va_eauth_birlsfilenumber'] = @auth_headers['va_eauth_pnid']
 
         begin
-          resp = client.post('validate', data)&.body
+          resp = client.post('validate', data)&.body&.deep_symbolize_keys
           log_outcome_for_claims_api('validate', 'success', resp, claim)
 
           resp
@@ -59,9 +60,10 @@ module ClaimsApi
 
         Faraday.new("#{base_name}/#{service_name}/rest/form526/v2",
                     # Disable SSL for (localhost) testing
-                    ssl: { verify: Settings.dvp&.ssl != false },
+                    ssl: { verify: Settings.evss&.dvp&.ssl != false },
                     headers:) do |f|
           f.request :json
+          f.response :betamocks if @use_mock
           f.response :raise_error
           f.response :json, parser_options: { symbolize_names: true }
           f.adapter Faraday.default_adapter
@@ -69,12 +71,15 @@ module ClaimsApi
       end
 
       def headers
+        return @auth_headers if @use_mock # no sense in getting a token if the target request is mocked
+
         client_key = Settings.claims_api.evss_container&.client_key || ENV.fetch('EVSS_CLIENT_KEY', '')
         raise StandardError, 'EVSS client_key missing' if client_key.blank?
 
         @auth_headers.merge!({
                                Authorization: "Bearer #{access_token}",
-                               'client-key': client_key
+                               'client-key': client_key,
+                               'content-type': 'application/json; charset=UTF-8'
                              })
         @auth_headers.transform_keys(&:to_s)
       end

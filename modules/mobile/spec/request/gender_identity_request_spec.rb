@@ -1,24 +1,27 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require 'va_profile/demographics/service'
 
 RSpec.describe 'gender identity', type: :request do
   include SchemaMatchers
 
   describe 'logingov user' do
-    let(:csd) { 'LGN' }
-
-    before do
-      iam_sign_in(FactoryBot.build(:iam_user, :logingov))
-      allow_any_instance_of(IAMUser).to receive(:logingov_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
+    let!(:user) do
+      sis_user(
+        icn: '1008596379V859838',
+        idme_uuid: nil,
+        logingov_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+        authn_context: 'dslogon_loa3'
+      )
     end
+    let(:csd) { 'LGN' }
 
     describe 'GET /mobile/v0/gender_identity/edit' do
       context 'requested' do
         before do
-          get('/mobile/v0/user/gender_identity/edit', headers: iam_headers_no_camel)
+          get('/mobile/v0/user/gender_identity/edit', headers: sis_headers(camelize: false))
         end
 
         it 'returns a list of valid ids' do
@@ -39,7 +42,7 @@ RSpec.describe 'gender identity', type: :request do
           gender_identity = VAProfile::Models::GenderIdentity.new(code: 'F')
 
           VCR.use_cassette('mobile/va_profile/post_gender_identity_success', erb: { csd: }) do
-            put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: iam_headers)
+            put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
             expect(response).to have_http_status(:no_content)
           end
         end
@@ -49,7 +52,7 @@ RSpec.describe 'gender identity', type: :request do
         it 'when code is blank', :aggregate_failures do
           gender_identity = VAProfile::Models::GenderIdentity.new(code: nil)
 
-          put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: iam_headers)
+          put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_response_schema('errors')
@@ -59,7 +62,7 @@ RSpec.describe 'gender identity', type: :request do
         it 'when code is an invalid option', :aggregate_failures do
           gender_identity = VAProfile::Models::GenderIdentity.new(code: 'A')
 
-          put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: iam_headers)
+          put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_response_schema('errors')
@@ -70,17 +73,13 @@ RSpec.describe 'gender identity', type: :request do
   end
 
   describe 'idme user' do
+    let!(:user) { sis_user(icn: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
     let(:csd) { 'IDM' }
-
-    before do
-      iam_sign_in(FactoryBot.build(:iam_user))
-      allow_any_instance_of(IAMUser).to receive(:idme_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
-    end
 
     describe 'GET /mobile/v0/gender_identity/edit' do
       context 'requested' do
         before do
-          get('/mobile/v0/user/gender_identity/edit', headers: iam_headers_no_camel)
+          get('/mobile/v0/user/gender_identity/edit', headers: sis_headers(camelize: false))
         end
 
         it 'returns a list of valid ids' do
@@ -101,7 +100,7 @@ RSpec.describe 'gender identity', type: :request do
           gender_identity = VAProfile::Models::GenderIdentity.new(code: 'F')
 
           VCR.use_cassette('mobile/va_profile/post_gender_identity_success', erb: { csd: }) do
-            put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: iam_headers)
+            put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
             expect(response).to have_http_status(:no_content)
           end
         end
@@ -111,7 +110,7 @@ RSpec.describe 'gender identity', type: :request do
         it 'when code is blank', :aggregate_failures do
           gender_identity = VAProfile::Models::GenderIdentity.new(code: nil)
 
-          put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: iam_headers)
+          put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_response_schema('errors')
@@ -121,7 +120,7 @@ RSpec.describe 'gender identity', type: :request do
         it 'when code is an invalid option', :aggregate_failures do
           gender_identity = VAProfile::Models::GenderIdentity.new(code: 'A')
 
-          put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: iam_headers)
+          put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_response_schema('errors')
@@ -132,25 +131,42 @@ RSpec.describe 'gender identity', type: :request do
   end
 
   describe 'unauthorized user' do
-    before do
-      iam_sign_in(FactoryBot.build(:iam_user, :no_multifactor))
-    end
-
     describe 'GET /mobile/v0/gender_identity/edit' do
-      context 'returns 200' do
-        it 'returns 200', :aggregate_failures do
-          get('/mobile/v0/user/gender_identity/edit', headers: iam_headers_no_camel)
-          expect(response).to have_http_status(:ok)
+      context 'without mpi acceess' do
+        let!(:user) do
+          sis_user(icn: nil, ssn: nil)
+        end
+
+        it 'returns 403', :aggregate_failures do
+          get('/mobile/v0/user/gender_identity/edit', headers: sis_headers(camelize: false))
+          expect(response).to have_http_status(:forbidden)
         end
       end
     end
 
     describe 'PUT /mobile/v0/gender_identity' do
-      context 'returns 403' do
-        it 'returns 402', :aggregate_failures do
+      context 'without demographics access' do
+        let!(:user) do
+          sis_user(idme_uuid: nil, logingov_uuid: nil)
+        end
+
+        it 'returns 403', :aggregate_failures do
           gender_identity = VAProfile::Models::GenderIdentity.new(code: 'F')
 
-          put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: iam_headers)
+          put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'without mpi access' do
+        let!(:user) do
+          sis_user(icn: nil, ssn: nil)
+        end
+
+        it 'returns 403', :aggregate_failures do
+          gender_identity = VAProfile::Models::GenderIdentity.new(code: 'F')
+
+          put('/mobile/v0/user/gender_identity', params: gender_identity.to_h, headers: sis_headers)
           expect(response).to have_http_status(:forbidden)
         end
       end

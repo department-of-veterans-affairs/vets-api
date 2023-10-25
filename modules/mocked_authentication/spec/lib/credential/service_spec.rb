@@ -10,11 +10,12 @@ describe MockedAuthentication::Credential::Service do
   before { mock_credential_instance.type = type }
 
   describe '#render_auth' do
-    subject { mock_credential_instance.render_auth(state:, acr:) }
+    subject { mock_credential_instance.render_auth(state:, acr:, operation:) }
 
     let(:state) { 'some-state' }
     let(:acr) { 'some-acr' }
     let(:type) { 'some-type' }
+    let(:operation) { 'some-operation' }
     let(:expected_redirect_url) { Settings.sign_in.mock_auth_url }
     let(:meta_refresh_tag) { '<meta http-equiv="refresh" content="0;' }
 

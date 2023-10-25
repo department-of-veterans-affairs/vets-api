@@ -9,7 +9,7 @@ properties:
     example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
   type:
     type: string
-    example: "user"
+    example: "contact_info"
   attributes:
     type: object
     required:
@@ -20,208 +20,27 @@ properties:
       - workPhone
     properties:
       residentialAddress:
-        type: object
-        required:
-          - id
-          - addressLine1
-          - addressLine2
-          - addressLine3
-          - addressPou
-          - addressType
-          - city
-          - countryCode
-          - internationalPostalCode
-          - province
-          - stateCode
-          - zipCode
-          - zipCodeSuffix
-        properties:
-          id:
-            type: integer
-            example: 157032
-          addressLine1:
-            type: string
-            example: "1493 Martin Luther King Rd"
-          addressLine2:
-            type: string, null
-          addressLine3:
-            type: string, null
-          addressPou:
-            type: string
-            enum: [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ]
-            example: "RESIDENCE/CHOICE"
-          addressType:
-            type: string
-            enum: [ "DOMESTIC", "INTERNATIONAL", "MILITARY" ]
-            example: "DOMESTIC"
-          city:
-            type: string
-            example: "Fulton"
-          countryCode:
-            type: string
-            example: "US"
-          internationalPostalCode:
-            type: string, null
-            example: null
-          province:
-            type: string, null
-            example: null
-          stateCode:
-            type: string
-            example: "NY"
-          zipCode:
-            type: string
-            example: "97062"
-          zipCodeSuffix:
-            type: string, null
-            example: "1234"
-        nullable: true
+        $ref: "./UserContactInfoAddress.yml"
       mailingAddress:
-        type: object
-        required:
-          - id
-          - addressLine1
-          - addressLine2
-          - addressLine3
-          - addressPou
-          - addressType
-          - city
-          - countryCode
-          - internationalPostalCode
-          - province
-          - stateCode
-          - zipCode
-          - zipCodeSuffix
-        properties:
-          id:
-            type: integer
-            example: 157032
-          addressLine1:
-            type: string
-            example: "1493 Martin Luther King Rd"
-          addressLine2:
-            type: string, null
-          addressLine3:
-            type: string, null
-          addressPou:
-            type: string
-            enum: [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ]
-            example: "RESIDENCE/CHOICE"
-          addressType:
-            type: string
-            enum: [ "DOMESTIC", "INTERNATIONAL", "MILITARY" ]
-            example: "DOMESTIC"
-          city:
-            type: string
-            example: "Fulton"
-          countryCode:
-            type: string
-            example: "US"
-          internationalPostalCode:
-            type: string, null
-            example: null
-          province:
-            type: string, null
-            example: null
-          stateCode:
-            type: string
-            example: "NY"
-          zipCode:
-            type: string
-            example: "97062"
-          zipCodeSuffix:
-            type: string, null
-            example: "1234"
-        nullable: true
+        $ref: "./UserContactInfoAddress.yml"
       homePhone:
-        type: object
-        required:
-          - id
-          - areaCode
-          - countryCode
-          - phoneNumber
-          - phoneType
-          - extension
-        properties:
-          id:
-            type: integer
-            example: 157032
-          areaCode:
-            type: string
-            example: "704"
-          countryCode:
-            type: string
-            example: "1"
-          phoneNumber:
-            type: string
-            example: "7749069"
-          phoneType:
-            type: string
-            enum: [ "HOME", "FAX", "MOBILE", "WORK" ]
-            example: "HOME"
-          extension:
-            type: string
-            example: "4567"
-          nullable: true
+        $ref: "./UserContactInfoPhone.yml"
       mobilePhone:
-        type: object
-        required:
-          - id
-          - areaCode
-          - countryCode
-          - phoneNumber
-          - phoneType
-          - extension
-        properties:
-          id:
-            type: integer
-            example: 157032
-          areaCode:
-            type: string
-            example: "704"
-          countryCode:
-            type: string
-            example: "1"
-          phoneNumber:
-            type: string
-            example: "7749069"
-          phoneType:
-            type: string
-            enum: [ "HOME", "FAX", "MOBILE", "WORK" ]
-            example: "HOME"
-          extension:
-            type: string
-            example: "4567"
-            nullable: true
-        nullable: true
+        $ref: "./UserContactInfoPhone.yml"
       workPhone:
+        $ref: "./UserContactInfoPhone.yml"
+      contactEmail:
         type: object
+        nullable: true
         required:
           - id
-          - areaCode
-          - countryCode
-          - phoneNumber
-          - phoneType
-          - extension
+          - emailAddress
         properties:
           id:
             type: integer
             example: 157032
-          areaCode:
+          contactEmail:
             type: string
-            example: "704"
-          countryCode:
-            type: string
-            example: "1"
-          phoneNumber:
-            type: string
-            example: "7749069"
-          phoneType:
-            type: string
-            enum: [ "HOME", "FAX", "MOBILE", "WORK" ]
-            example: "HOME"
-          extension:
-            type: string
-            example: "4567"
-            nullable: true
-        nullable: true
+            example: "person@example.com"
+
+

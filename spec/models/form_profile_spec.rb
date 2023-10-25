@@ -13,6 +13,7 @@ RSpec.describe FormProfile, type: :model do
     Flipper.disable(:hca_vaprofile_military_info)
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)
+    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
   end
 
   let(:street_check) { build(:street_check) }
@@ -486,6 +487,30 @@ RSpec.describe FormProfile, type: :model do
       },
       'relativeSocialSecurityNumber' => user.ssn,
       'relativeDateOfBirth' => user.birth_date
+    }
+  end
+
+  let(:v10_10_ezr_expected) do
+    {
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.suffix
+      },
+      'veteranSocialSecurityNumber' => user.ssn,
+      'gender' => user.gender,
+      'veteranDateOfBirth' => user.birth_date,
+      'homePhone' => us_phone,
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.address[:city],
+        'state' => user.address[:state],
+        'country' => user.address[:country],
+        'postal_code' => user.address[:postal_code][0..4]
+      },
+      'email' => user.pciu_email
     }
   end
 
@@ -1278,6 +1303,7 @@ RSpec.describe FormProfile, type: :model do
           22-5495
           40-10007
           1010ez
+          10-10EZR
           22-0993
           FEEDBACK-TOOL
           686C-674

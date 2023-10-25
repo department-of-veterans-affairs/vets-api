@@ -23,7 +23,6 @@ path 'modules' do
   gem 'mobile'
   gem 'mocked_authentication'
   gem 'my_health'
-  gem 'openid_auth'
   gem 'simple_forms_api'
   gem 'test_user_dashboard'
   gem 'va_forms'
@@ -59,7 +58,7 @@ gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/conn
 gem 'coverband', require: false
 gem 'date_validator'
 gem 'ddtrace'
-gem 'dogstatsd-ruby'
+gem 'dogstatsd-ruby', '5.6.0'
 gem 'dry-struct'
 gem 'dry-types'
 gem 'ethon', '>=0.13.0'
@@ -168,6 +167,7 @@ group :test do
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'
   gem 'rspec-retry'
+  gem 'rspec-sidekiq'
   gem 'rubocop-junit-formatter'
   gem 'rufus-scheduler'
   gem 'simplecov', require: false

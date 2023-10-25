@@ -86,6 +86,10 @@ module SignIn
         false
       end
 
+      def sign_up_operation
+        'signup'
+      end
+
       def jwks_cache_key
         'idme_public_jwks'
       end

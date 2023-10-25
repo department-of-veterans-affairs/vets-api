@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'debts_api/v0/financial_status_report_service'
-require 'debt_management_center/workers/va_notify_email_job'
+require 'debt_management_center/sidekiq/va_notify_email_job'
 require 'debt_management_center/sharepoint/request'
 require_relative '../../../support/financial_status_report_helpers'
 
@@ -186,17 +186,14 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     let(:user_data) { build(:user_profile_attributes) }
 
     before do
-      response = Faraday::Response.new(status: 200, body:
-      {
-        message: 'Success'
-      })
-      allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post).and_return(response)
       mock_sharepoint_upload
     end
 
     it 'submits to the VBS endpoint' do
       service = described_class.new(user_data)
-      expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+      VCR.use_cassette('dmc/submit_to_vbs') do
+        expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+      end
     end
 
     it 'parses out delimiter characters' do
@@ -211,8 +208,10 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       let(:non_streamlined_form_submission) { build(:debts_api_non_sw_form5655_submission) }
 
       it 'submits to the VBS endpoint' do
-        service = described_class.new(user_data)
-        expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+        VCR.use_cassette('dmc/submit_to_vbs') do
+          service = described_class.new(user_data)
+          expect(service.submit_vha_fsr(form_submission)).to eq({ status: 200 })
+        end
       end
 
       it 'makes streamlined the last key in the form hash' do
@@ -241,12 +240,6 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
     before do
       valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
-      response = Faraday::Response.new(status: 200, body:
-      {
-        message: 'Success'
-      })
-      allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post)
-        .and_return(response)
       mock_sharepoint_upload
       allow(User).to receive(:find).with(user.uuid).and_return(user)
     end
@@ -279,7 +272,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       end
     end
 
-    it 'enqueues a VHA submission job' do
+    it 'enqueues VHA submission jobs' do
       valid_form_data['selectedDebtsAndCopays'] = [{
         'station' => {
           'facilitYNum' => '123'
@@ -290,7 +283,10 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       valid_form_data['personalIdentification'] = {}
       service = described_class.new(user)
       expect { service.submit_combined_fsr(valid_form_data) }
-        .to change { DebtsApi::V0::Form5655::VHASubmissionJob.jobs.size }
+        .to change { DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs.size }
+        .from(0)
+        .to(1)
+        .and change { DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs.size }
         .from(0)
         .to(1)
     end
@@ -306,6 +302,25 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
       service = described_class.new(user)
       expect { service.submit_combined_fsr(valid_form_data) }.to change(Form5655Submission, :count).by(1)
+      expect(DebtsApi::V0::Form5655Submission.last.in_progress?).to eq(true)
+    end
+
+    context 'with both debts and copays' do
+      it 'adds combined key to forms' do
+        valid_form_data['selectedDebtsAndCopays'] = [{
+          'station' => {
+            'facilitYNum' => '123'
+          },
+          'resolutionOption' => 'waiver',
+          'debtType' => 'COPAY'
+        },
+                                                     { 'foo' => 'bar', 'debtType' => 'DEBT' }]
+        valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
+        service = described_class.new(user)
+
+        expect { service.submit_combined_fsr(valid_form_data) }.to change(Form5655Submission, :count).by(2)
+        expect(DebtsApi::V0::Form5655Submission.last.public_metadata['combined']).to eq(true)
+      end
     end
   end
 
@@ -315,11 +330,6 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
 
     before do
       valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
-      response = Faraday::Response.new(status: 200, body:
-      {
-        message: 'Success'
-      })
-      allow_any_instance_of(DebtManagementCenter::VBS::Request).to receive(:post).and_return(response)
       mock_sharepoint_upload
       allow(User).to receive(:find).with(user.uuid).and_return(user)
     end
@@ -343,7 +353,10 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       ]
       service = described_class.new(user)
       expect { service.create_vha_fsr(valid_form_data) }
-        .to change { DebtsApi::V0::Form5655::VHASubmissionJob.jobs.size }
+        .to change { DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs.size }
+        .from(0)
+        .to(2)
+        .and change { DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs.size }
         .from(0)
         .to(2)
     end

@@ -1,23 +1,23 @@
 The Higher-Level Reviews API lets you create and manage Higher-Level Reviews. Higher-Level Reviews can be requested after receiving an initial claim or a Supplemental Claims decision. [Learn more about VA Higher-Level Reviews](https://www.va.gov/decision-reviews/higher-level-review/).
 
-To check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](https://dev-developer.va.gov/explore/api/appeals-status/docs).
+To check the status of all decision reviews and appeals for a specified individual, use the [Appeals Status API](/explore/api/appeals-status/docs).
 
 ## Technical overview
 The Higher-Level Reviews API pulls data from Caseflow, a case management system. It provides decision review and appeal data that can be used for submitting a Higher-Level Review.
 
 ### Authorization and Access
 The authentication model for the Higher-Level Reviews API uses OAuth 2.0/OpenID Connect. The following authorization models are supported:
-* [Authorization code flow](https://dev-developer.va.gov/explore/api/higher-level-reviews/authorization-code)
-* [Client Credentials Grant (CCG)](https://dev-developer.va.gov/explore/api/higher-level-reviews/client-credentials)
+* [Authorization code flow](/explore/api/higher-level-reviews/authorization-code)
+* [Client Credentials Grant (CCG)](/explore/api/higher-level-reviews/client-credentials)
 
-**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://dev-developer.va.gov/support/contact-us).
+**Important:** To get production access using client credentials grant, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](/support/contact-us).
 
 ### Submission Statuses
 Use the correct GET endpoint to check the status of a Higher-Level Review submission.
 
 These endpoints return the status of the submission in Caseflow but not the status of the submission in VBMS, which is the status visible to claimants. Therefore, VBMS statuses are different from the statuses this API returns.
 
-To check the status of an appeal as it will appear to a claimant, use the [Appeals Status API](https://dev-developer.va.gov/explore/api/appeals-status/docs).
+To check the status of an appeal as it will appear to a claimant, use the [Appeals Status API](/explore/api/appeals-status/docs).
 
 | Status      | What it means |
 | ---        |     ---     |

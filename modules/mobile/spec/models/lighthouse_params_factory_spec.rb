@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe Mobile::V0::LighthouseParamsFactory, type: :model do
   describe '#params' do
-    context 'with an iam user' do
-      let(:user) { FactoryBot.build(:iam_user) }
+    context 'with a user' do
+      let(:user) { FactoryBot.build(:user) }
       let(:factory) { Mobile::V0::LighthouseParamsFactory.new(user.icn, :health) }
 
       before do
@@ -19,7 +19,7 @@ RSpec.describe Mobile::V0::LighthouseParamsFactory, type: :model do
             ['client_assertion_type', 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'],
             %w[client_assertion abc123],
             ['scope', 'launch launch/patient patient/Immunization.read patient/Location.read'],
-            ['launch', 'eyJwYXRpZW50IjoiMTAwODU5NjM3OVY4NTk4MzgifQ==']
+            ['launch', 'eyJwYXRpZW50IjoiMTIzNDk4NzY3VjIzNDg1OSJ9']
           ]
         )
       end

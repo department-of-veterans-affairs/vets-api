@@ -16,12 +16,15 @@ module V0
           error = { status: exception.status_code, body: exception.errors.first }
           response = Lighthouse::DirectDeposit::ErrorParser.parse(error)
 
+          log_failure(response)
+
           render status: response.status, json: response.body
         end
 
         def show
           response = client.get_payment_info
 
+          log_success
           render status: response.status,
                  json: response.body,
                  serializer: DisabilityCompensationsSerializer
@@ -29,7 +32,7 @@ module V0
 
         def update
           response = client.update_payment_info(payment_account)
-          Rails.logger.warn('DisabilityCompensationsController#update request completed', sso_logging_info)
+          log_success
           send_confirmation_email
 
           render status: response.status,
@@ -41,6 +44,17 @@ module V0
 
         def controller_enabled?
           routing_error unless Flipper.enabled?(:profile_lighthouse_direct_deposit, @current_user)
+        end
+
+        def log_success
+          Rails.logger.info('DisabilityCompensationsController request completed', sso_logging_info)
+        end
+
+        def log_failure(response)
+          Rails.logger.info('DisabilityCompensationsController request failed', sso_logging_info)
+
+          error = response.body[:errors]&.first
+          StatsD.increment(error[:code]) if error
         end
 
         def client
@@ -56,7 +70,7 @@ module V0
         end
 
         def send_confirmation_email
-          VANotifyDdEmailJob.send_to_emails(current_user.all_emails, :comp_and_pen)
+          VANotifyDdEmailJob.send_to_emails(current_user.all_emails, 'comp_and_pen')
         end
       end
     end

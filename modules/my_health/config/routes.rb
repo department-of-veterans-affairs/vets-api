@@ -15,6 +15,7 @@ MyHealth::Engine.routes.draw do
 
     scope :messaging do
       resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'
+      resources :all_triage_teams, only: [:index], defaults: { format: :json }, path: 'allrecipients'
 
       resources :folders, only: %i[index show create update destroy], defaults: { format: :json } do
         resources :messages, only: [:index], defaults: { format: :json }

@@ -8,8 +8,9 @@
       "veteranIdentification": {
         "currentVaEmployee": false,
         "mailingAddress": {
-          "numberAndStreet": "1234 Couch Street",
-          "apartmentOrUnitNumber": "22",
+          "addressLine1": "1234 Test Street",
+          "addressLine2": "Unit 4",
+          "addressLine3": "Room 1",
           "city": "Portland",
           "country": "USA",
           "zipFirstFive": "41726",
@@ -23,17 +24,17 @@
         },
         "veteranNumber": {
           "internationalTelephone": "+44 20 1234 5678"
-        },
-        "vaFileNumber": "AB123CDEF"
+        }
       },
       "changeOfAddress": {
         "dates": {
-          "beginDate": "11-29-2013",
-          "endDate": "10-11-2025"
+          "beginDate": "2018-06-04",
+          "endDate": "2019-06-04"
         },
         "typeOfAddressChange": "TEMPORARY",
-        "numberAndStreet": "10 Peach St",
-        "apartmentOrUnitNumber": "22",
+        "addressLine1": "10 Peach St",
+        "addressLine2": "Unit 4",
+        "addressLine3": "Room 1",
         "city": "Atlanta",
         "zipFirstFive": "42220",
         "zipLastFour": "9897",
@@ -54,31 +55,31 @@
         "gulfWarHazardService": {
           "servedInGulfWarHazardLocations": "YES",
           "serviceDates": {
-            "beginDate": "07-1999",
-            "endDate": "01-2005"
+            "beginDate": "2018-06",
+            "endDate": "2018-08"
           }
         },
         "herbicideHazardService": {
           "servedInHerbicideHazardLocations": "YES",
           "otherLocationsServed": "Guam",
           "serviceDates": {
-            "beginDate": "03-2002",
-            "endDate": "10-2004"
+            "beginDate": "2018-06",
+            "endDate": "2018-08"
           }
         },
         "additionalHazardExposures": {
           "additionalExposures": ["ASBESTOS", "SHIPBOARD_HAZARD_AND_DEFENSE"],
           "specifyOtherExposures": "Other exposure details",
           "exposureDates": {
-            "beginDate": "07-2011",
-            "endDate": "10-2013"
+            "beginDate": "2018-06",
+            "endDate": "2018-08"
           }
         },
         "multipleExposures": [
           {
             "exposureDates": {
-              "beginDate": "12-2012",
-              "endDate": "07-2013"
+              "beginDate": "2018-06",
+              "endDate": "2018-08"
             },
             "exposureLocation": "Guam",
             "hazardExposedTo": "RADIATION"
@@ -134,7 +135,7 @@
             "state": "GA",
             "city": "Decatur"
           },
-          "beginDate": "03-1985"
+          "beginDate": "04-2009"
         },
         {
           "treatedDisabilityNames": ["Musculoskeletal - Foot"],
@@ -143,17 +144,17 @@
             "state": "GA",
             "city": "Decatur"
           },
-          "beginDate": "03-1985"
+          "beginDate": "03-2009"
         }
       ],
       "serviceInformation": {
         "servicePeriods": [
           {
             "serviceBranch": "Public Health Service",
-            "activeDutyBeginDate": "11-14-2015",
-            "activeDutyEndDate": "11-30-2018",
+            "activeDutyBeginDate": "11-14-2008",
+            "activeDutyEndDate": "11-30-2025",
             "serviceComponent": "Active",
-            "separationLocationCode": "V01D"
+            "separationLocationCode": "25077"
           }
         ],
         "confinements": [
@@ -166,6 +167,10 @@
             "approximateEndDate": "07-2019"
           }
         ],
+        "federalActivation": {
+          "anticipatedSeparationDate": "10-03-2025",
+          "activationDate": "02-10-2023"
+        },
         "reservesNationalGuardService": {
           "obligationTermsOfService": {
             "beginDate": "11-24-2016",
@@ -174,10 +179,6 @@
           "unitName": "National Guard Unit Name",
           "unitAddress": "1243 pine court",
           "component": "National Guard",
-          "title10Activation": {
-            "anticipatedSeparationDate": "10-03-2025",
-            "title10ActivationDate": "02-11-2018"
-          },
           "unitPhone": {
             "areaCode": "555",
             "phoneNumber": "5555555"

@@ -58,12 +58,29 @@ module SAML
       "#{base_redirect_url}#{LOGOUT_REDIRECT_PARTIAL}"
     end
 
+    def terms_of_use_redirect_url
+      application = @tracker&.payload_attr(:application) || 'vaweb'
+      if TERMS_OF_USE_ENABLED_CLIENTS.include?(application)
+        add_query(terms_of_use_url, { redirect_url: login_redirect_url })
+      else
+        login_redirect_url
+      end
+    end
+
     # logout URL for SSOe
     def ssoe_slo_url
       Settings.saml_ssoe.logout_url
     end
 
     private
+
+    def terms_of_use_url
+      if Settings.review_instance_slug.present?
+        "http://#{Settings.review_instance_slug}.review.vetsgov-internal/terms-of-use"
+      else
+        "#{base_redirect_url}/terms-of-use"
+      end
+    end
 
     def client_redirect_target
       redirect_target = @tracker.payload_attr(:redirect)

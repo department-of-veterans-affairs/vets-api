@@ -12,7 +12,7 @@ module Mobile
         if (error = parse_error(attributes))
           raise(*error)
         else
-          render json: Mobile::V0::CheckInSerializer.new(@current_user.id, attributes)
+          render json: Mobile::V0::CheckInSerializer.new(@current_user.uuid, attributes)
         end
       end
 

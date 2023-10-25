@@ -21,7 +21,7 @@ module FacilitiesApi
       api_results = if provider_urgent_care?
                       api.pos_locator(ppms_action_params)
                     else
-                      provider_locator(ppms_provider_params)
+                      api.provider_locator(ppms_provider_params)
                     end
 
       render_json(V1::PPMS::ProviderSerializer, ppms_action_params, api_results)

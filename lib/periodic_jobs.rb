@@ -40,9 +40,6 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')
   # Clear out processed 22-1990 applications that are older than 1 month
 
-  mgr.register('35 * * * *', 'AppsApi::FetchConnections')
-  # "Fetches and handles notifications for recent application connections and disconnections
-
   mgr.register('20 0 * * *', 'TestUserDashboard::DailyMaintenance')
   # Checks in TUD users that weren't properly checked in.
   mgr.register('0 0 1 */3 *', 'IncomeLimits::GmtThresholdsImport')
@@ -153,5 +150,8 @@ PERIODIC_JOBS = lambda { |mgr|
   # Notifies slack channel if certain benefits states get stuck
   mgr.register('0 2,9,16 * * 1-5', 'VBADocuments::FlipperStatusAlert')
   # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
+
+  # Rotates Lockbox/KMS record keys and _ciphertext fields every October 12th (when the KMS key auto-rotate)
+  mgr.register('0 3 * * *', 'KmsKeyRotation::BatchInitiatorJob')
 }
 # rubocop:enable Metrics/BlockLength

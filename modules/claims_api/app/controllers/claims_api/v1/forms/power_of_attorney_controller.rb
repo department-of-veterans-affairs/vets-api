@@ -69,6 +69,7 @@ module ClaimsApi
           end
 
           ClaimsApi::Logger.log('poa', detail: '2122 - Request Completed')
+          claims_v1_logging(target_veteran&.mpi_icn, power_of_attorney&.id)
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
@@ -90,6 +91,7 @@ module ClaimsApi
 
           # If upload is successful, then the PoaUpater job is also called to update the code in BGS.
           ClaimsApi::PoaVBMSUploadJob.perform_async(@power_of_attorney.id)
+          claims_v1_logging(target_veteran&.mpi_icn, @power_of_attorney&.id)
 
           render json: @power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
@@ -99,6 +101,8 @@ module ClaimsApi
         # @return [JSON] POA record with current status
         def status
           find_poa_by_id
+          claims_v1_logging(target_veteran&.mpi_icn, @power_of_attorney&.id)
+
           render json: @power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
@@ -111,6 +115,7 @@ module ClaimsApi
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'POA not found') unless current_poa_code
 
           representative_info = build_representative_info(current_poa_code)
+          claims_v1_logging(target_veteran&.mpi_icn, @power_of_attorney&.id)
 
           render json: {
             data: {
@@ -146,6 +151,7 @@ module ClaimsApi
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
           ClaimsApi::Logger.log('poa', detail: '2122/validate - Request Completed')
+          claims_v1_logging(target_veteran&.mpi_icn, @power_of_attorney&.id)
 
           render json: validation_success
         end

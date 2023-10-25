@@ -2,22 +2,28 @@
 
 module SignIn
   class RedirectUrlGenerator
-    attr_reader :redirect_uri, :params_hash
+    attr_reader :redirect_uri, :params_hash, :terms_code, :terms_redirect_uri
 
-    def initialize(redirect_uri:, params_hash: {})
+    def initialize(redirect_uri:, terms_redirect_uri: nil, terms_code: nil, params_hash: {})
       @redirect_uri = redirect_uri
+      @terms_redirect_uri = terms_redirect_uri
+      @terms_code = terms_code
       @params_hash = params_hash
     end
 
     def perform
       renderer.render(template: 'oauth_get_form',
-                      locals: { url: redirect_uri_with_params },
+                      locals: { url: full_redirect_uri },
                       format: :html)
     end
 
     private
 
-    def redirect_uri_with_params
+    def full_redirect_uri
+      terms_code ? terms_of_use_redirect_url : original_redirect_uri_with_params
+    end
+
+    def original_redirect_uri_with_params
       "#{redirect_uri}?#{params_hash.to_query}"
     end
 
@@ -27,6 +33,14 @@ module SignIn
         renderer.controller.prepend_view_path(Rails.root.join('lib', 'sign_in', 'templates'))
         renderer
       end
+    end
+
+    def terms_of_use_redirect_url
+      "#{terms_redirect_uri}?#{terms_of_use_params.to_query}"
+    end
+
+    def terms_of_use_params
+      { redirect_url: original_redirect_uri_with_params, terms_code: }
     end
   end
 end

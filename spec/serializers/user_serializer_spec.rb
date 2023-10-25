@@ -34,7 +34,10 @@ RSpec.describe UserSerializer do
   end
 
   it 'returns serialized #veteran_status data' do
-    expect(attributes['veteran_status']).to be_present
+    VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[body],
+                                                                                allow_playback_repeats: true) do
+      expect(attributes['veteran_status']).to be_present
+    end
   end
 
   it 'returns serialized #in_progress_forms data' do

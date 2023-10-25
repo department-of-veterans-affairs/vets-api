@@ -11,7 +11,10 @@ RSpec.shared_examples 'sso logging' do |type|
       allow(Rails.logger).to receive(:warn)
 
       if type == :sis
+        user = sis_user
         @new_headers = sis_headers
+        # prevent fingerprint mismatch that raises a warning and complicates tests
+        request.remote_ip = user.fingerprint
       else
         @new_headers = iam_headers
         iam_sign_in

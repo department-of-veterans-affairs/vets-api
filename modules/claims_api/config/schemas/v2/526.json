@@ -13,9 +13,10 @@
   "properties": {
     "claimDate": {
       "description": "Date of claim submission to be applied to signature on form 21-526EZ. Date cannot be in the future.",
+      "type": ["string", "null"],
+      "example": "2018-08-28T19:53:45+00:00",
       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])(?:T[0-1][0-9]:[0-5][0-9]:[0-5][0-9](?:[-+][0-9]{2}:[0-9]{2}|Z))*$",
-      "type": "string",
-      "example": "2018-06-04"
+      "nullable": true
     },
     "claimProcessType": {
       "type": "string",
@@ -39,9 +40,9 @@
           "nullable": false
         },
         "serviceNumber": {
-          "type": "string",
+          "type": ["string", "null"],
           "description": "Service identification number",
-          "maxLength": 9
+          "nullable": true
         },
         "emailAddress": {
           "description": "Information associated with the Veteran's email address.",
@@ -54,16 +55,16 @@
               "maxLength": 50
             },
             "agreeToEmailRelatedToClaim": {
-              "type": "boolean",
+              "type": ["boolean", "null"],
               "description": "Agreement to email information relating to this claim.",
               "example": true,
               "default": false,
-              "nullable": false
+              "nullable": true
             }
           }
         },
         "veteranNumber": {
-          "description": "",
+          "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
           "type": "object",
           "properties": {
             "telephone": {
@@ -76,42 +77,46 @@
               "nullable": true
             },
             "internationalTelephone": {
-              "type": "string",
+              "type": ["string", "null"],
               "description": "Veteran's international phone number.",
               "example": "+44 20 1234 5678",
-              "maxLength": 25
+              "nullable": true
             }
           }
-        },
-        "vaFileNumber": {
-          "type": "string",
-          "description": "VA File Number associated to the Veteran.",
-          "maxLength": 9
         },
         "mailingAddress": {
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "numberAndStreet",
+            "addressLine1",
             "city",
             "state",
             "zipFirstFive",
             "country"
           ],
           "properties": {
-            "numberAndStreet": {
-              "description": "Number and street, rural route, or P.O. Box for the Veteran's current mailing address.",
+            "addressLine1": {
+              "description": "Address line 1 for the Veteran's current mailing address.",
               "type": "string",
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-              "maxLength": 30,
+              "maxLength": 20,
               "example": "1234 Couch Street"
             },
-            "apartmentOrUnitNumber": {
-              "description": "Apartment or unit number for the Veteran's current mailing address.",
-              "type": "string",
+            "addressLine2": {
+              "description": "Address line 2 for the Veteran's current mailing address.",
+              "type": ["string", "null"],
               "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-              "maxLength": 5,
-              "example": "22"
+              "maxLength": 20,
+              "example": "Unit 4",
+              "nullable": true
+            },
+            "addressLine3": {
+              "description": "Address line 3 for the Veteran's current mailing address.",
+              "type": ["string", "null"],
+              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+              "maxLength": 20,
+              "example": "Room 1",
+              "nullable": true
             },
             "city": {
               "description": "City for the Veteran's current mailing address.",
@@ -148,23 +153,23 @@
     },
     "changeOfAddress": {
       "type": "object",
-      "description": "If 'changeOfAddress' is included, then following attributes are required: 'dates.beginDate', 'numberAndStreet', 'typeOfAddressChange', 'country'.",
+      "description": "If 'changeOfAddress' is included, then following attributes are required: 'dates.beginDate', 'addressLine1', 'typeOfAddressChange', 'country'.",
       "additionalProperties": false,
       "properties": {
         "dates": {
           "type": "object",
           "properties": {
             "beginDate": {
-              "description": "Date in MM-DD-YYYY the Veteran changed address. Date must be in the future if change is temporary.",
-              "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+              "description": "Begin date for the Veteran's new address.",
+              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
               "type": "string",
-              "example": "06-04-2018"
+              "example": "2018-06-04"
             },
             "endDate": {
-              "description": "Date in MM-DD-YYYY the changed address expires, if change is temporary.",
+              "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
               "type": "string",
-              "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-              "example": "06-04-2018"
+              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+              "example": "2018-06-04"
             }
           }
         },
@@ -174,18 +179,26 @@
           "enum": ["TEMPORARY", "PERMANENT"],
           "example": "PERMANENT"
         },
-        "numberAndStreet": {
-          "description": "Number and street, rural route, or P.O. Box for the Veteran's new address.",
+        "addressLine1": {
+          "description": "Address line 1 for the Veteran's new address.",
           "type": "string",
           "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
-          "maxLength": 30,
+          "maxLength": 20,
           "example": "1234 Couch Street"
         },
-        "apartmentOrUnitNumber": {
-          "description": "Apartment or unit number for the Veteran's new address.",
-          "type": "string",
-          "maxLength": 5,
-          "example": "22"
+        "addressLine2": {
+          "description": "Address line 2 for the Veteran's new address.",
+          "type": ["string", "null"],
+          "maxLength": 20,
+          "example": "Unit 4",
+          "nullable": true
+        },
+        "addressLine3": {
+          "description": "Address line 3 for the Veteran's new address.",
+          "type": ["string", "null"],
+          "maxLength": 20,
+          "example": "Room 1",
+          "nullable": true
         },
         "city": {
           "description": "City for the Veteran's new address.",
@@ -231,7 +244,7 @@
           "example": "Jane Doe"
         },
         "pointOfContactNumber": {
-          "type": "object",
+          "type": ["object", "null"],
           "additionalProperties": false,
           "properties": {
             "telephone": {
@@ -245,9 +258,9 @@
             },
             "internationalTelephone": {
               "description": "international phone of Point of Contact.",
-              "type": "string",
+              "type": ["string", "null"],
               "example": "+44 20 1234 5678",
-              "maxLength": 25
+              "nullable": true
             }
           }
         },
@@ -307,7 +320,7 @@
           "description": "Toxic exposure related to the Gulf war.",
           "properties": {
             "servedInGulfWarHazardLocations": {
-              "type": "string",
+              "type": ["string", "null"],
               "description": "Did the Veteran serve in any of the following Gulf War hazard locations? Iraq; Kuwait; Saudi Arabia; the neutral zone between Iraq and Saudi Arabia; Bahrain; Qatar; the United Arab Emirates; Oman; Yemen; Lebanon; Somalia; Afghanistan; Israel; Egypt; Turkey; Syria; Jordan; Djibouti; Uzbekistan; the Gulf of Aden; the Gulf of Oman; the Persian Gulf; the Arabian Sea; and the Red Sea.",
               "example": "YES",
               "enum": ["NO", "YES"],
@@ -318,16 +331,16 @@
               "description": "Date range for when the exposure happened.",
               "properties": {
                 "beginDate": {
-                  "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                   "type": "string",
                   "description": "Approximate begin date for serving in Gulf War hazard location.",
-                  "example": "06-2018 or 2018"
+                  "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                  "example": "2018-06 or 2018"
                 },
                 "endDate": {
-                  "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                   "type": "string",
                   "description": "Approximate end date for serving in Gulf War hazard location.",
-                  "example": "06-2018 or 2018"
+                  "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                  "example": "2018-06 or 2018"
                 }
               }
             }
@@ -338,7 +351,7 @@
           "description": "Toxic exposure related to herbicide hazards.",
           "properties": {
             "servedInHerbicideHazardLocations": {
-              "type": "string",
+              "type": ["string", "null"],
               "description": "Did the Veteran serve in any of the following Herbicide (e.g., Agent Orange) locations? These locations include: Republic of Vietnam to include the 12 nautical mile territorial waters; Thailand at any United States or Royal Thai base; Laos; Cambodia at Mimot or Krek; Kampong Cham Province; Guam or American Samoa; or in the territorial waters thereof; Johnston Atoll or a ship that called at Johnston Atoll; Korean demilitarized zone; aboard (to include repeated operations and maintenance with) a C-123 aircraft known to have been used to spray an herbicide agent (during service in the Air Force and Air Force Reserves).",
               "example": "YES",
               "enum": ["NO", "YES"],
@@ -354,16 +367,16 @@
               "description": "Date range for when the exposure happened.",
               "properties": {
                 "beginDate": {
-                  "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                   "type": "string",
                   "description": "Approximate begin date for serving in herbicide location.",
-                  "example": "06-2018 or 2018"
+                  "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                  "example": "2018-06 or 2018"
                 },
                 "endDate": {
-                  "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                   "type": "string",
                   "description": "Approximate end date for serving in herbicide location.",
-                  "example": "06-2018 or 2018"
+                  "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                  "example": "2018-06 or 2018"
                 }
               }
             }
@@ -401,16 +414,16 @@
               "description": "Date range for when the exposure happened.",
               "properties": {
                 "beginDate": {
-                  "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                   "type": "string",
                   "description": "Approximate begin date for exposure.",
-                  "example": "06-2018 or 2018"
+                  "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                  "example": "2018-06 or 2018"
                 },
                 "endDate": {
-                  "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                   "type": "string",
                   "description": "Approximate end date for exposure.",
-                  "example": "06-2018 or 2018"
+                  "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                  "example": "2018-06 or 2018"
                 }
               }
             }
@@ -429,16 +442,16 @@
                 "description": "Date range for when the exposure happened.",
                 "properties": {
                   "beginDate": {
-                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                     "type": "string",
                     "description": "Approximate begin date for exposure.",
-                    "example": "06-2018 or 2018"
+                    "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                    "example": "2018-06 or 2018"
                   },
                   "endDate": {
-                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                     "type": "string",
                     "description": "Approximate end date for exposure.",
-                    "example": "06-2018 or 2018"
+                    "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                    "example": "2018-06 or 2018"
                   }
                 }
               },
@@ -470,12 +483,15 @@
           "name": {
             "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
             "type": "string",
-            "example": "PTSD (post traumatic stress disorder)"
+            "pattern": "^$|([a-zA-Z0-9\"\\/&\\(\\)\\-'.,# ]([a-zA-Z0-9(\\)\\-'.,# ])?)+$",
+            "example": "PTSD (post traumatic stress disorder)",
+            "maxLength": 255
           },
           "classificationCode": {
-            "type": "string",
+            "type": ["string", "null"],
             "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the Benefits Reference Data API.",
-            "example": "249470"
+            "example": "249470",
+            "nullable": true
           },
           "serviceRelevance": {
             "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
@@ -484,9 +500,10 @@
           },
           "approximateDate": {
             "description": "Approximate date disability began. Date must be in the past. \n Format can be either MM-DD-YYYY or MM-YYYY or YYYY",
-            "type": "string",
+            "type": ["string", "null"],
             "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$|^\\d{4}$",
-            "example": "03-12-2019 or 03-2019 or 2019"
+            "example": "03-12-2019 or 03-2019 or 2019",
+            "nullable": true
           },
           "ratedDisabilityId": {
             "description": "When submitting a contention with action type INCREASE, the previously rated disability id may be included.",
@@ -531,34 +548,38 @@
                   "example": "Heavy equipment operator in service."
                 },
                 "classificationCode": {
+                  "type": ["string", "null"],
                   "description": "Classification code for the associated body system. Must match an active code returned by the /disabilities endpoint on the Benefits Reference Data API.",
-                  "type": "string",
-                  "example": "249470"
+                  "example": "249470",
+                  "nullable": true
                 },
                 "approximateDate": {
-                  "description": "Approximate date disability began. \n Format can be either MM-DD-YYYY or MM-YYYY or YYYY",
-                  "type": "string",
-                  "pattern": "^$|^((0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$|^\\d{4}$)?",
-                  "example": "03-12-2019 or 03-2019 or 2019"
+                  "description": "Approximate date disability began. Date must be in the past. \n Format can be either MM-DD-YYYY or MM-YYYY or YYYY",
+                  "type": ["string", "null"],
+                  "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$|^\\d{4}$",
+                  "example": "03-12-2019 or 03-2019 or 2019",
+                  "nullable": true
                 },
                 "exposureOrEventOrInjury": {
-                  "type": "string",
+                  "type": ["string", "null"],
                   "description": "What caused the disability?",
-                  "enum": ["EXPOSURE", "EVENT", "INJURY"]
+                  "nullable": true,
+                  "examples": ["Agent Orange", "radiation", "burn pits"]
                 }
               }
             }
           },
           "isRelatedToToxicExposure": {
-            "type": "boolean",
+            "type": ["boolean", "null"],
             "description": "Is the disability related to toxic exposures? If true, related 'toxicExposure' must be included.",
             "example": true,
             "default": false,
-            "nullable": false
+            "nullable": true
           },
           "exposureOrEventOrInjury": {
-            "type": "string",
-            "description": "Type of exposure, event, or injury.",
+            "type": ["string", "null"],
+            "description": "What caused the disability?",
+            "nullable": true,
             "examples": ["Agent Orange", "radiation", "burn pits"]
           }
         },
@@ -600,10 +621,11 @@
         "additionalProperties": false,
         "properties": {
           "beginDate": {
-            "description": "Begin date for treatment. If treatment began from 2005 to present, you do not need to provide dates.",
+            "description": "Begin date for treatment. If treatment began from 2005 to present, you do not need to provide dates. Each treatment begin date must be after the first 'servicePeriod.activeDutyBeginDate'.",
             "type": ["null", "string"],
             "pattern": "^$|^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
-            "example": "02-2018 or 2018"
+            "example": "02-2018 or 2018",
+            "nullable": true
           },
           "treatedDisabilityNames": {
             "description": "Name(s) of disabilities treated in this time frame. Name must match 'name' of a disability included on this claim.",
@@ -629,15 +651,17 @@
               },
               "city": {
                 "description": "City of treatment facility.",
-                "type": "string",
+                "type": ["string", "null"],
                 "pattern": "^$|^([-a-zA-Z'.#]([-a-zA-Z'.# ])?)+$",
-                "example": "Portland"
+                "example": "Portland",
+                "nullable": true
               },
               "state": {
                 "description": "State of treatment facility.",
-                "type": "string",
+                "type": ["string", "null"],
                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                "example": "OR"
+                "example": "OR",
+                "nullable": true
               }
             }
           }
@@ -656,12 +680,7 @@
           "uniqueItems": true,
           "items": {
             "type": "object",
-            "required": [
-              "serviceBranch",
-              "activeDutyBeginDate",
-              "activeDutyEndDate",
-              "serviceComponent"
-            ],
+            "required": ["serviceBranch", "serviceComponent"],
             "properties": {
               "serviceBranch": {
                 "description": "Branch of service. The /service-branches endpoint on the Benefits Reference Data API may be used to retrieve list of possible service branches.",
@@ -695,13 +714,14 @@
         },
         "confinements": {
           "type": "array",
-          "description": "If 'confinements' is included, the following attributes are required: 'approximateBeginDate',  'approximateEndDate'.",
+          "description": "If 'confinements' is included, the following attributes are required: 'approximateBeginDate',  'approximateEndDate'. The confinement dates must fall within one of the service period dates.",
           "uniqueItems": true,
           "items": {
             "additionalProperties": false,
             "type": "object",
             "properties": {
               "approximateBeginDate": {
+                "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
                 "pattern": "^$|^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
                 "type": "string",
                 "example": "06-12-2019 or 06-2019"
@@ -711,6 +731,26 @@
                 "type": "string",
                 "example": "07-12-2019 or 07-2019"
               }
+            }
+          }
+        },
+        "federalActivation": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "anticipatedSeparationDate": {
+              "description": "Anticipated date of separation. Date must be in the future.",
+              "type": ["string", "null"],
+              "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+              "example": "06-04-2018",
+              "nullable": true
+            },
+            "activationDate": {
+              "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
+              "type": ["string", "null"],
+              "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
+              "example": "06-04-2018",
+              "nullable": true
             }
           }
         },
@@ -738,34 +778,16 @@
             "component": {
               "type": "string",
               "description": "",
-              "enum": ["Active", "Reserves", "National Guard"]
-            },
-            "title10Activation": {
-              "description": "If 'title10Activation' is included, the following attributes are required: 'anticipatedSeparationDate' and 'title10ActivationDate'.",
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "anticipatedSeparationDate": {
-                  "description": "Anticipated date of separation. Date must be in the future.",
-                  "type": "string",
-                  "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                  "example": "06-04-2018"
-                },
-                "title10ActivationDate": {
-                  "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
-                  "type": "string",
-                  "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                  "example": "06-04-2018"
-                }
-              }
+              "enum": ["Reserves", "National Guard"]
             },
             "unitName": {
               "type": "string",
               "pattern": "^$|([a-zA-Z0-9\\-'.,# ][a-zA-Z0-9\\-'.,# ]?)*$"
             },
             "unitAddress": {
-              "type": "string",
-              "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$"
+              "type": ["string", "null"],
+              "pattern": "^$|^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+              "nullable": true
             },
             "unitPhone": {
               "type": "object",
@@ -779,14 +801,13 @@
                 },
                 "phoneNumber": {
                   "type": "string",
-                  "maxLength": 7,
-                  "pattern": "^$|^\\d{7}$",
+                  "maxLength": 20,
                   "example": "5555555"
                 }
               }
             },
             "receivingInactiveDutyTrainingPay": {
-              "type": "string",
+              "type": ["string", "null"],
               "enum": ["YES", "NO"],
               "nullable": true,
               "example": "YES"
@@ -805,7 +826,7 @@
           }
         },
         "servedInActiveCombatSince911": {
-          "type": "string",
+          "type": ["string", "null"],
           "enum": ["YES", "NO"],
           "description": "Did Veteran serve in a combat zone since 9-11-2001?",
           "example": "YES",
@@ -833,22 +854,23 @@
         },
         "receivingMilitaryRetiredPay": {
           "description": "Is the Veteran receiving military retired pay?",
-          "type": "string",
+          "type": ["string", "null"],
           "enum": ["YES", "NO"],
           "example": "YES",
           "nullable": true
         },
         "futureMilitaryRetiredPay": {
           "description": "Will the Veteran receive military retired pay pay in future? \n If true, then 'futurePayExplanation' is required.",
-          "type": "string",
+          "type": ["string", "null"],
           "enum": ["YES", "NO"],
           "example": "YES",
           "nullable": true
         },
         "futureMilitaryRetiredPayExplanation": {
           "description": "Explains why future pay will be received.",
-          "type": "string",
-          "example": "Will be retiring soon."
+          "type": ["string", "null"],
+          "example": "Will be retiring soon.",
+          "nullable": true
         },
         "militaryRetiredPay": {
           "type": "object",
@@ -879,7 +901,7 @@
         },
         "receivedSeparationOrSeverancePay": {
           "description": "Has the Veteran ever received separation pay, disability severance pay, or any other lump sum payment from their branch of service?",
-          "type": "string",
+          "type": ["string", "null"],
           "enum": ["YES", "NO"],
           "example": "YES",
           "nullable": true

@@ -73,27 +73,8 @@ module ClaimsApi
         def find_bgs_claim!(claim_id:)
           return if claim_id.blank?
 
-          bgs_service.ebenefits_benefit_claims_status.find_benefit_claim_details_by_benefit_claim_id(
-            benefit_claim_id: claim_id
-          )
-        rescue Savon::SOAPFault => e
-          # the ebenefits service raises an exception if a claim is not found,
-          # so catch the exception here and return a 404 instead
-          if e.message.include?("No BnftClaim found for #{claim_id}") || e.message.include?("The object [#{claim_id}]")
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
-          end
-
-          raise
-        end
-
-        def file_number_check
-          @file_number = local_bgs_service.find_by_ssn(target_veteran.ssn)&.dig(:file_nbr) # rubocop:disable Rails/DynamicFindBy
-
-        # catch any other errors related to this call failing
-        rescue => e
-          log_exception_to_sentry(e, nil, { message: e.errors[0].detail }, 'warn')
-          raise ::Common::Exceptions::FailedDependency.new(
-            detail: "An external system failure occurred while trying to retrieve Veteran 'FileNumber'"
+          local_bgs_service.find_benefit_claim_details_by_benefit_claim_id(
+            claim_id
           )
         end
       end

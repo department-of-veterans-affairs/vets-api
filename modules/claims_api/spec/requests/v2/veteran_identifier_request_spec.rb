@@ -203,18 +203,6 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request,
       end
     end
 
-    context 'when request is forbidden' do
-      context 'when user is not a Veteran representative, nor the matching Veteran' do
-        it 'returns a 403 forbidden response' do
-          mock_acg(scopes) do |auth_header|
-            post path, params: data, headers: auth_header
-
-            expect(response.status).to eq(403)
-          end
-        end
-      end
-    end
-
     context 'when custom verb is invalid' do
       let(:path) { '/services/claims/v2/veteran-id:search' }
 

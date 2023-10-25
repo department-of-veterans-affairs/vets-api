@@ -10,4 +10,14 @@ class UserAccount < ApplicationRecord
   def verified?
     icn.present?
   end
+
+  def needs_accepted_terms_of_use?
+    verified? && !accepted_current_terms_of_use?
+  end
+
+  private
+
+  def accepted_current_terms_of_use?
+    terms_of_use_agreements.current.last&.accepted?
+  end
 end

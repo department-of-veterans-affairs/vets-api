@@ -135,7 +135,12 @@ module V1
       @current_user, @session_object = user_session_form.persist
       set_cookies
       after_login_actions
-      redirect_to url_service.login_redirect_url
+
+      if Settings.vsp_environment != 'production' && @current_user.needs_accepted_terms_of_use
+        redirect_to url_service.terms_of_use_redirect_url
+      else
+        redirect_to url_service.login_redirect_url
+      end
       login_stats(:success)
     end
 
@@ -252,7 +257,8 @@ module V1
         'id' => uuid,
         'authn' => saml_response.authn_context,
         'type' => tracker&.payload_attr(:type),
-        'transaction_id' => tracker&.payload_attr(:transaction_id)
+        'transaction_id' => tracker&.payload_attr(:transaction_id),
+        'authentication_time' => tracker&.created_at ? Time.zone.now.to_i - tracker.created_at : 'unknown'
       }
       Rails.logger.info("SSOe: SAML Response => #{values}")
       StatsD.increment(STATSD_SSO_SAMLRESPONSE_KEY,

@@ -16,7 +16,8 @@ module SignIn
       :parent_refresh_token_hash,
       :version,
       :expiration_time,
-      :created_time
+      :created_time,
+      :user_attributes
     )
 
     validates(
@@ -48,7 +49,8 @@ module SignIn
                    parent_refresh_token_hash: nil,
                    version: nil,
                    expiration_time: nil,
-                   created_time: nil)
+                   created_time: nil,
+                   user_attributes: nil)
       @uuid = uuid || create_uuid
       @session_handle = session_handle
       @client_id = client_id
@@ -61,6 +63,7 @@ module SignIn
       @version = version || Constants::AccessToken::CURRENT_VERSION
       @expiration_time = expiration_time || set_expiration_time
       @created_time = created_time || set_created_time
+      @user_attributes = filter_user_attributes(user_attributes:)
 
       validate!
     end
@@ -100,6 +103,12 @@ module SignIn
 
     def validity_length
       client_config.access_token_duration
+    end
+
+    def filter_user_attributes(user_attributes:)
+      return nil unless user_attributes.presence
+
+      user_attributes.with_indifferent_access.select { |key| client_config&.access_token_attributes&.include?(key) }
     end
 
     def client_config

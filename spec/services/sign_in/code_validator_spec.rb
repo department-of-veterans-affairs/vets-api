@@ -77,16 +77,13 @@ RSpec.describe SignIn::CodeValidator do
             let(:user_verification_id) { user_verification.id }
             let(:expected_email) { code_container.credential_email }
             let(:expected_client_config) { SignIn::ClientConfig.find_by(client_id: code_container.client_id) }
-            let(:expected_validated_credential) do
-              SignIn::ValidatedCredential.new(user_verification:,
-                                              credential_email: expected_email,
-                                              client_id: expected_client_id)
-            end
+            let(:expected_user_attributes) { code_container.user_attributes }
 
             it 'returns a validated credential object with expected attributes' do
               expect(subject).to have_attributes(credential_email: expected_email,
                                                  client_config: expected_client_config,
-                                                 user_verification:)
+                                                 user_verification:,
+                                                 user_attributes: expected_user_attributes)
             end
 
             it 'returns a validated credential object with expected credential email' do
@@ -95,6 +92,10 @@ RSpec.describe SignIn::CodeValidator do
 
             it 'returns a validated credential object with expected client_config' do
               expect(subject.client_config).to eq(expected_client_config)
+            end
+
+            it 'returns a validated credential object with expected expected_user_attributes' do
+              expect(subject.user_attributes).to eq(expected_user_attributes)
             end
           end
         end
@@ -224,21 +225,18 @@ RSpec.describe SignIn::CodeValidator do
                     end
                   end
 
-                  context 'and user verification uuid in code condainter does match an existing user verification' do
+                  context 'and user verification uuid in code container does match an existing user verification' do
                     let(:user_verification) { create(:user_verification) }
                     let(:user_verification_id) { user_verification.id }
                     let(:expected_email) { code_container.credential_email }
                     let(:expected_client_config) { SignIn::ClientConfig.find_by(client_id: code_container.client_id) }
-                    let(:expected_validated_credential) do
-                      SignIn::ValidatedCredential.new(user_verification:,
-                                                      credential_email: expected_email,
-                                                      client_id: expected_client_id)
-                    end
+                    let(:expected_user_attributes) { code_container.user_attributes }
 
                     it 'returns a validated credential object with expected attributes' do
                       expect(subject).to have_attributes(credential_email: expected_email,
                                                          client_config: expected_client_config,
-                                                         user_verification:)
+                                                         user_verification:,
+                                                         user_attributes: expected_user_attributes)
                     end
 
                     it 'returns a validated credential object with expected credential email' do
@@ -247,6 +245,10 @@ RSpec.describe SignIn::CodeValidator do
 
                     it 'returns a validated credential object with expected client_config' do
                       expect(subject.client_config).to eq(expected_client_config)
+                    end
+
+                    it 'returns a validated credential object with expected user_attributes' do
+                      expect(subject.user_attributes).to eq(expected_user_attributes)
                     end
                   end
                 end

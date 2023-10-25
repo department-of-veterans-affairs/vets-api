@@ -11,9 +11,10 @@ module SignIn
 
       attr_accessor :type
 
-      def render_auth(state: SecureRandom.hex, acr: Constants::Auth::IDME_LOA1)
-        Rails.logger.info("[SignIn][Idme][Service] Rendering auth, state: #{state}, acr: #{acr}")
-        RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(acr, state)).perform
+      def render_auth(state: SecureRandom.hex, acr: Constants::Auth::IDME_LOA1, operation: Constants::Auth::AUTHORIZE)
+        Rails.logger.info('[SignIn][Idme][Service] Rendering auth, ' \
+                          "state: #{state}, acr: #{acr}, operation: #{operation}")
+        RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(acr, state, operation)).perform
       end
 
       def normalized_attributes(user_info, credential_level)
@@ -65,14 +66,22 @@ module SignIn
         jwks
       end
 
-      def auth_params(acr, state)
+      def auth_params(acr, state, operation)
         {
           scope: acr,
           state:,
           client_id: config.client_id,
           redirect_uri: config.redirect_uri,
-          response_type: config.response_type
-        }
+          response_type: config.response_type,
+          op: convert_operation(operation)
+        }.compact
+      end
+
+      def convert_operation(operation)
+        case operation
+        when Constants::Auth::SIGN_UP
+          config.sign_up_operation
+        end
       end
 
       def raise_client_error(client_error, function_name)

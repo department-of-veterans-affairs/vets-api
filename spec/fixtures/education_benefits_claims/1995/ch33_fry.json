@@ -41,9 +41,12 @@
   "civilianBenefitsAssistance": true,
   "email": "test@sample.com",
   "benefit": "chapter33FryScholarship",
+  "benefitUpdate": "chapter33FryScholarship",
   "educationType": "tuitionTopUp",
+  "educationTypeUpdate": "prepCourseForLoC",
   "educationObjective": "bachelor's degree",
   "bankAccountChange": "startUpdate",
+  "bankAccountChangeUpdate": "startUpdate",
   "bankAccount": {
     "accountNumber": "88888888888",
     "accountType": "checking",
@@ -55,6 +58,7 @@
     "married": true,
     "parentDependent": false
   },
+  "isActiveDuty": true,
   "toursOfDuty": [{
     "dateRange": {
       "from": "2012-06-26",

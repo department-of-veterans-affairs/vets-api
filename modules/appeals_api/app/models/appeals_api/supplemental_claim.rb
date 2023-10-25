@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'json_marshal/marshaller'
-# require 'common/exceptions'
 
 module AppealsApi
   class SupplementalClaim < ApplicationRecord
@@ -52,6 +51,7 @@ module AppealsApi
       :contestable_issue_dates_are_in_the_past,
       :validate_retrieve_from_date_range,
       :claimant_birth_date_is_in_the_past,
+      :country_codes_valid,
       if: proc { |a| a.form_data.present? }
     )
 
@@ -62,7 +62,7 @@ module AppealsApi
     end
 
     def assign_metadata
-      return unless %w[v2 v0].include?(api_version.downcase)
+      return unless %w[v2 v0].include?(api_version&.downcase)
 
       # retain original incoming non-pii form_data in metadata since this model's form_data is eventually removed
       self.metadata = if Flipper.enabled?(:decision_review_sc_pact_act_boolean)
@@ -71,8 +71,10 @@ module AppealsApi
                         { form_data: { evidence_type: } }
                       end
       metadata['form_data']['benefit_type'] = benefit_type
-
       metadata['central_mail_business_line'] = lob
+      metadata['potential_write_in_issue_count'] = contestable_issues.filter do |issue|
+        issue['attributes']['ratingIssueReferenceId'].blank?
+      end.count
     end
 
     def veteran
@@ -249,7 +251,7 @@ module AppealsApi
             statusable_id: id,
             code:,
             detail:
-          }.stringify_keys
+          }.deep_stringify_keys
         )
 
         return if auth_headers.blank? # Go no further if we've removed PII
@@ -264,7 +266,7 @@ module AppealsApi
               guid: id,
               claimant_email: claimant.email,
               claimant_first_name: claimant.first_name
-            }.stringify_keys
+            }.deep_stringify_keys
           )
         end
       end

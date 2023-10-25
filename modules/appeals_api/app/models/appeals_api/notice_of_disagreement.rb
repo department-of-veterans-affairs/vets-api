@@ -65,6 +65,7 @@ module AppealsApi
     # V2 validations
     validate  :required_claimant_data_is_present,
               :claimant_birth_date_is_in_the_past,
+              :country_codes_valid,
               if: proc { |a| a.api_version.upcase != 'V1' && a.form_data.present? }
 
     validate :validate_requesting_extension, if: proc { |a| a.api_version.upcase != 'V1' && a.form_data.present? }
@@ -203,6 +204,9 @@ module AppealsApi
 
     def assign_metadata
       metadata['central_mail_business_line'] = lob
+      metadata['potential_write_in_issue_count'] = contestable_issues.filter do |issue|
+        issue['attributes']['ratingIssueReferenceId'].blank?
+      end.count
     end
 
     def accepts_evidence?
@@ -251,7 +255,7 @@ module AppealsApi
             statusable_id: id,
             code:,
             detail:
-          }.stringify_keys
+          }.deep_stringify_keys
         )
 
         return if auth_headers.blank? # Go no further if we've removed PII
@@ -266,7 +270,7 @@ module AppealsApi
               guid: id,
               claimant_email: claimant.email,
               claimant_first_name: claimant.first_name
-            }.stringify_keys
+            }.deep_stringify_keys
           )
         end
       end

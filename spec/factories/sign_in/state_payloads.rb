@@ -10,6 +10,7 @@ FactoryBot.define do
     code_challenge { Base64.urlsafe_encode64(SecureRandom.hex) }
     client_state { SecureRandom.hex }
     code { SecureRandom.hex }
+    created_at { Time.zone.now.to_i }
 
     initialize_with do
       new(acr:,
@@ -17,7 +18,8 @@ FactoryBot.define do
           client_state:,
           client_id:,
           type:,
-          code:)
+          code:,
+          created_at:)
     end
   end
 end

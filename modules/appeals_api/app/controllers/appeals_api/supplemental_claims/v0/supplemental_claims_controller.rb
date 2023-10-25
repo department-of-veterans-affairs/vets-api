@@ -8,6 +8,9 @@ module AppealsApi::SupplementalClaims::V0
     include AppealsApi::PdfDownloads
 
     skip_before_action :validate_icn_header
+    skip_before_action :validate_json_format
+
+    prepend_before_action :validate_json_body, if: -> { request.post? }
     before_action :validate_icn_parameter, only: %i[index download]
 
     API_VERSION = 'V0'
@@ -23,7 +26,7 @@ module AppealsApi::SupplementalClaims::V0
       veteran_scs = AppealsApi::SupplementalClaim.select(ALLOWED_COLUMNS)
                                                  .where(veteran_icn: params[:icn])
                                                  .order(created_at: :desc)
-      render json: AppealsApi::SupplementalClaimSerializer.new(veteran_scs).serializable_hash
+      render_supplemental_claim(veteran_scs)
     end
 
     def show
@@ -49,7 +52,7 @@ module AppealsApi::SupplementalClaims::V0
 
       sc.save
       AppealsApi::PdfSubmitJob.perform_async(sc.id, 'AppealsApi::SupplementalClaim', 'v3')
-      render_supplemental_claim(sc)
+      render_supplemental_claim(sc, status: :created)
     end
 
     def download
@@ -75,8 +78,8 @@ module AppealsApi::SupplementalClaims::V0
       raise Common::Exceptions::UnprocessableEntity.new(detail:) if detail.present?
     end
 
-    def render_supplemental_claim(sc)
-      render json: AppealsApi::SupplementalClaimSerializer.new(sc).serializable_hash
+    def render_supplemental_claim(sc, **)
+      render(json: SupplementalClaimSerializer.new(sc).serializable_hash, **)
     end
 
     def token_validation_api_key

@@ -24,6 +24,7 @@ properties:
     description: Is facility a cerner facility?
   miles:
     type: string
+    nullable: true
     example: "3.17"
     description: Distance from requested location (current/home) based on haversine distance
 

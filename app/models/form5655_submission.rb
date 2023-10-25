@@ -5,12 +5,11 @@ require 'user_profile_attribute_service'
 class Form5655Submission < ApplicationRecord
   class StaleUserError < StandardError; end
 
+  enum state: { unassigned: 0, in_progress: 1, submitted: 2, failed: 3 }
+
   validates :user_uuid, presence: true
   belongs_to :user_account, dependent: nil, optional: true
-  has_kms_key version: 2,
-              previous_versions: {
-                1 => { key_id: KmsEncrypted.key_id }
-              }
+  has_kms_key
   has_encrypted :form_json, :metadata, key: :kms_key, **lockbox_options
 
   def kms_encryption_context(*)
@@ -44,11 +43,17 @@ class Form5655Submission < ApplicationRecord
   end
 
   def submit_to_vba
-    Form5655::VBASubmissionJob.perform_async(id, user_cache_id)
+    DebtsApi::V0::Form5655::VBASubmissionJob.perform_async(id, user_cache_id)
   end
 
   def submit_to_vha
-    Form5655::VHASubmissionJob.perform_async(id, user_cache_id)
+    DebtsApi::V0::Form5655::VHASubmissionJob.perform_async(id, user_cache_id)
+  end
+
+  def register_failure(message)
+    failed!
+    update(error_message: message)
+    Rails.logger.error('Form5655Submission failed', message)
   end
 
   def streamlined?

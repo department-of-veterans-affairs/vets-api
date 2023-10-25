@@ -5,6 +5,8 @@ required:
   - endDate
   - formattedBeginDate
   - formattedEndDate
+  - characterOfDischarge
+  - honorableServiceIndicator
 properties:
   branchOfService:
     type: string
@@ -22,10 +24,39 @@ properties:
     example: "1997-09-17"
   endDate:
     type: string
+    nullable: true
     example: "2002-12-31"
   formattedBeginDate:
     type: string
     example: "September 17, 1997"
   formattedEndDate:
     type: string
+    nullable: true
     example: "December 31, 2002"
+  characterOfDischarge:
+    type: string
+    nullable: true
+    example: Honorable
+    enum:
+      - Honorable
+      - Under honorable conditions (general)'
+      - Bad conduct
+      - Under other than honorable conditions
+      - Dishonorable
+      - Honorable (Assumed) - GRAS periods only
+      - Honorable for VA purposes
+      - Dishonorable for VA purposes
+      - Uncharacterized
+      - Unknown
+      - DoD provided a NULL or blank value
+      - DoD provided a value not in the reference table
+      - Value is calculated but created an invalid value
+      - Value is not applicable for this record type
+  honorableServiceIndicator:
+    type: string
+    nullable: true
+    example: Y
+    enum:
+      - Y
+      - N
+      - Z

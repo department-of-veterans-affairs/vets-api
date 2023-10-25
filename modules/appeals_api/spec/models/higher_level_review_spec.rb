@@ -6,6 +6,48 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::HigherLevelReview, type: :model do
   include FixtureHelpers
 
+  shared_examples 'HLR metadata' do |opts|
+    let(:hlr) { create(opts[:factory]) }
+
+    it 'saves central_mail_business_line to metadata' do
+      expect(hlr.metadata['central_mail_business_line']).to eq('FID')
+    end
+
+    it 'save benefit_type to metadata' do
+      expect(hlr.metadata['form_data']['benefit_type']).to eq('fiduciary')
+    end
+
+    describe 'potential_write_in_issue_count' do
+      it 'saves the correct value to metadata' do
+        expect(hlr.metadata['potential_write_in_issue_count']).to eq(3)
+      end
+
+      context 'with mixed write-in and non-write-in issues' do
+        let(:form_data) do
+          data = fixture_as_json(opts[:form_data_fixture])
+          data['included'].push(
+            {
+              'type' => 'appealableIssue',
+              'attributes' => {
+                'issue' => 'issue text with ID', 'decisionDate' => '1999-09-09', 'ratingIssueReferenceId' => '2'
+              }
+            },
+            {
+              'type' => 'appealableIssue',
+              'attributes' => { 'issue' => 'write-in issue text', 'decisionDate' => '2000-02-02' }
+            }
+          )
+          data
+        end
+        let(:sc) { create(opts[:factory], form_data:) }
+
+        it 'saves the correct value to metadata' do
+          expect(sc.metadata['potential_write_in_issue_count']).to eq(4)
+        end
+      end
+    end
+  end
+
   shared_examples 'HLR record attributes from delegators' do |opts|
     let(:higher_level_review) { create(opts[:factory], status: 'pending') }
 
@@ -75,6 +117,10 @@ describe AppealsApi::HigherLevelReview, type: :model do
 
     include_examples 'HLR record attributes from delegators', factory: :higher_level_review_v0
 
+    include_examples 'HLR metadata',
+                     factory: :higher_level_review_v0,
+                     form_data_fixture: 'higher_level_reviews/v0/valid_200996.json'
+
     describe '#soc_opt_in' do
       describe 'by default' do
         subject { higher_level_review.soc_opt_in }
@@ -94,6 +140,22 @@ describe AppealsApi::HigherLevelReview, type: :model do
         it('ignores the user-provided value') { is_expected.to eq true }
       end
     end
+
+    describe 'validations' do
+      let(:appeal) do
+        described_class.new(form_data:, auth_headers:, api_version: 'V0')
+      end
+      let(:auth_headers) { fixture_as_json 'higher_level_reviews/v0/valid_200996_headers.json' }
+      let(:form_data) { fixture_as_json 'higher_level_reviews/v0/valid_200996_extra.json' }
+
+      it_behaves_like 'shared model validations', {
+        validations: %i[veteran_birth_date_is_in_the_past
+                        contestable_issue_dates_are_in_the_past
+                        claimant_birth_date_is_in_the_past
+                        country_codes_valid],
+        required_claimant_headers: described_class.required_nvc_headers
+      }
+    end
   end
 
   describe 'when api_version is v2' do
@@ -106,6 +168,10 @@ describe AppealsApi::HigherLevelReview, type: :model do
     let(:form_data_attributes) { form_data.dig('data', 'attributes') }
 
     include_examples 'HLR record attributes from delegators', factory: :higher_level_review_v2
+
+    include_examples 'HLR metadata',
+                     factory: :higher_level_review_v2,
+                     form_data_fixture: 'decision_reviews/v2/valid_200996.json'
 
     describe '#full_name' do
       subject { higher_level_review.full_name }
@@ -257,7 +323,8 @@ describe AppealsApi::HigherLevelReview, type: :model do
         validations: %i[veteran_birth_date_is_in_the_past
                         contestable_issue_dates_are_in_the_past
                         required_claimant_data_is_present
-                        claimant_birth_date_is_in_the_past],
+                        claimant_birth_date_is_in_the_past
+                        country_codes_valid],
         required_claimant_headers: described_class.required_nvc_headers
       }
     end
