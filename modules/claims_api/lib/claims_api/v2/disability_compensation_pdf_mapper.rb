@@ -45,6 +45,15 @@ module ClaimsApi
         @pdf_data[:data][:attributes] = @auto_claim&.deep_symbolize_keys
         @pdf_data[:data][:attributes].delete(:claimantCertification)
         claim_date_and_signature
+        claim_process_type
+
+        @pdf_data
+      end
+
+      def claim_process_type
+        if @auto_claim&.dig('claimProcessType') == 'BDD_PROGRAM'
+          @pdf_data[:data][:attributes][:claimProcessType] = 'BDD_PROGRAM_CLAIM'
+        end
 
         @pdf_data
       end
@@ -109,8 +118,15 @@ module ClaimsApi
             regex_date_conversion(@pdf_data[:data][:attributes][:changeOfAddress][:dates][:beginDate])
           }
         )
+<<<<<<< HEAD
         @pdf_data[:data][:attributes][:changeOfAddress][:effectiveDates][:end] =
           regex_date_conversion(@pdf_data[:data][:attributes][:changeOfAddress][:dates][:endDate])
+=======
+        if @pdf_data[:data][:attributes][:changeOfAddress][:dates][:endDate].present?
+          @pdf_data[:data][:attributes][:changeOfAddress][:effectiveDates][:end] =
+            regex_date_conversion(@pdf_data[:data][:attributes][:changeOfAddress][:dates][:endDate])
+        end
+>>>>>>> master
 
         change_addr = @pdf_data[:data][:attributes][:changeOfAddress]
         @pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:numberAndStreet] =
