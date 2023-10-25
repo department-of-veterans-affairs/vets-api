@@ -1,0 +1,472 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYyODUzMTMzOCwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYyODUzMjIzOCwianRpIjoiMDFkOWZmNGItYjg4Ny00ODFlLTlhNjQtOGY1OWRlNDI1MjI4IiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjI4NTMxMTU4LCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.GKidQabckZtnD1mlhvjiaflm1K_2kea5sk05ywz_I5b7LyWXuiFsjgUycxSZ_JzodiJDei8MuJCbaPAXsN6FBYmn-mPGCPoMD2BwjVm8hh_jSRZW838jxW5T9Oh5B77EI1pWBmxdTeXEHQFStv1Sf9vVWy2U3MLbV2LqGdU8hWjeQlJk6heJXdWCk0PGOPJo1PQzfTV_XZnsJsSxs8hL9npbAFrW3SAYpLM4Yjw33R0ruWBg68AyS0boq19fsNe8GUtrtBTYYtQau5Xq6Q4S8g0_zMVha9_hH7ZCnlkZ3UzPbgkH2VEh9xc2H0nYS9BXd4SZ0yZb8PDow0eb33CQIQ
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 09 Aug 2021 17:48:58 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1114'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.8.0
+      B3:
+      - 531af1d2054d758c-b79b44f980a35120-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - '6026315'
+      X-Vamf-Timestamp:
+      - '2021-07-06T17:59:37+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id" : "983",
+          "facilitiesApiId" : "vha_983",
+          "vistaSite" : "983",
+          "vastParent" : "983",
+          "type" : "va_health_facility",
+          "name" : "Cheyenne VA Medical Center",
+          "classification" : "VA Medical Center (VAMC)",
+          "timezone" : {
+            "timeZoneId" : "America/Denver"
+          },
+          "lat" : 41.148026,
+          "long" : -104.786255,
+          "website" : "https://www.va.gov/cheyenne-health-care/locations/cheyenne-va-medical-center/",
+          "phone" : {
+            "main" : "307-778-7550",
+            "fax" : "307-778-7381",
+            "pharmacy" : "866-420-6337",
+            "afterHours" : "307-778-7550",
+            "patientAdvocate" : "307-778-7550 x7573",
+            "mentalHealthClinic" : "307-778-7349",
+            "enrollmentCoordinator" : "307-778-7550 x7579"
+          },
+          "mailingAddress" : {
+            "type" : "postal",
+            "line" : [ null, null, null ]
+          },
+          "physicalAddress" : {
+            "type" : "physical",
+            "line" : [ "2360 East Pershing Boulevard", null, null ],
+            "city" : "Cheyenne",
+            "state" : "WY",
+            "postalCode" : "82001-5356"
+          },
+          "mobile" : false,
+          "healthService" : [ "Audiology", "Cardiology", "CaregiverSupport", "Covid19Vaccine", "DentalServices", "Dermatology", "EmergencyCare", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "Urology", "WomensHealth" ],
+          "operatingStatus" : {
+            "code" : "NORMAL"
+          },
+          "visn" : "19"
+        }
+  recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/438
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 18 Oct 2023 19:00:46 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1406'
+      Connection:
+      - keep-alive
+      X-Vamf-Version:
+      - 2.22.0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 3ca7eeb
+      X-Vamf-Timestamp:
+      - '2023-08-09T18:25:45+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '3'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id" : "438",
+          "facilitiesApiId" : "vha_438",
+          "vistaSite" : "438",
+          "vastParent" : "438",
+          "type" : "va_health_facility",
+          "name" : "Royal C. Johnson Veterans' Memorial Hospital",
+          "classification" : "VA Medical Center (VAMC)",
+          "timezone" : {
+            "timeZoneId" : "America/Chicago"
+          },
+          "lat" : 43.531235,
+          "long" : -96.75762,
+          "website" : "https://www.va.gov/sioux-falls-health-care/locations/royal-c-johnson-veterans-memorial-hospital/",
+          "phone" : {
+            "main" : "605-336-3230",
+            "fax" : "605-333-6878",
+            "pharmacy" : "800-316-8387",
+            "afterHours" : "605-336-3230",
+            "patientAdvocate" : "605-336-3230 x6688",
+            "mentalHealthClinic" : "605-336-3230 x 6890",
+            "enrollmentCoordinator" : "605-373-4196"
+          },
+          "mailingAddress" : {
+            "type" : "postal",
+            "line" : [ null, null, null ]
+          },
+          "physicalAddress" : {
+            "type" : "physical",
+            "line" : [ "2501 West 22nd Street", null, null ],
+            "city" : "Sioux Falls",
+            "state" : "SD",
+            "postalCode" : "57105-5046"
+          },
+          "mobile" : false,
+          "healthService" : [ "Audiology", "Cardiology", "CaregiverSupport", "Covid19Vaccine", "DentalServices", "Dermatology", "EmergencyCare", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "Urology", "WomensHealth" ],
+          "operatingStatus" : {
+            "code" : "NORMAL"
+          },
+          "visn" : "23"
+        }
+  recorded_at: Sat, 01 Jan 2022 19:25:00 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/442
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 18 Oct 2023 19:00:47 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1373'
+      Connection:
+      - keep-alive
+      X-Vamf-Version:
+      - 2.22.0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 3ca7eeb
+      X-Vamf-Timestamp:
+      - '2023-08-09T18:25:45+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '2'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id" : "442",
+          "facilitiesApiId" : "vha_442",
+          "vistaSite" : "442",
+          "vastParent" : "442",
+          "type" : "va_health_facility",
+          "name" : "Cheyenne VA Medical Center",
+          "classification" : "VA Medical Center (VAMC)",
+          "timezone" : {
+            "timeZoneId" : "America/Denver"
+          },
+          "lat" : 41.148026,
+          "long" : -104.786255,
+          "website" : "https://www.va.gov/cheyenne-health-care/locations/cheyenne-va-medical-center/",
+          "phone" : {
+            "main" : "307-778-7550",
+            "fax" : "307-778-7381",
+            "pharmacy" : "866-420-6337",
+            "afterHours" : "307-778-7550",
+            "patientAdvocate" : "307-778-7550 x7573",
+            "mentalHealthClinic" : "307-778-7349",
+            "enrollmentCoordinator" : "307-778-7550 x7579"
+          },
+          "mailingAddress" : {
+            "type" : "postal",
+            "line" : [ null, null, null ]
+          },
+          "physicalAddress" : {
+            "type" : "physical",
+            "line" : [ "2360 East Pershing Boulevard", null, null ],
+            "city" : "Cheyenne",
+            "state" : "WY",
+            "postalCode" : "82001-5356"
+          },
+          "mobile" : false,
+          "healthService" : [ "Audiology", "Cardiology", "CaregiverSupport", "Covid19Vaccine", "DentalServices", "Dermatology", "EmergencyCare", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "Urology", "WomensHealth" ],
+          "operatingStatus" : {
+            "code" : "NORMAL"
+          },
+          "visn" : "19"
+        }
+  recorded_at: Sat, 01 Jan 2022 19:25:00 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/984
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 23 Oct 2023 20:30:56 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1356'
+      Connection:
+      - keep-alive
+      X-Vamf-Version:
+      - 2.22.0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 3ca7eeb
+      X-Vamf-Timestamp:
+      - '2023-08-09T18:25:45+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '4'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "id" : "984",
+          "facilitiesApiId" : "vha_984",
+          "vistaSite" : "984",
+          "vastParent" : "984",
+          "type" : "va_health_facility",
+          "name" : "Dayton VA Medical Center",
+          "classification" : "VA Medical Center (VAMC)",
+          "timezone" : {
+            "timeZoneId" : "America/New_York"
+          },
+          "lat" : 39.74935,
+          "long" : -84.2532,
+          "website" : "https://www.va.gov/dayton-health-care/locations/dayton-va-medical-center/",
+          "phone" : {
+            "main" : "937-268-6511",
+            "fax" : "937-262-2179",
+            "pharmacy" : "800-368-8262 x1",
+            "afterHours" : "888-838-6446",
+            "patientAdvocate" : "800-368-8262 x2164",
+            "mentalHealthClinic" : "937-262-2186",
+            "enrollmentCoordinator" : "800-368-8262 x5336"
+          },
+          "mailingAddress" : {
+            "type" : "postal",
+            "line" : [ null, null, null ]
+          },
+          "physicalAddress" : {
+            "type" : "physical",
+            "line" : [ "4100 West Third Street", null, null ],
+            "city" : "Dayton",
+            "state" : "OH",
+            "postalCode" : "45428-9000"
+          },
+          "mobile" : false,
+          "healthService" : [ "Audiology", "Cardiology", "CaregiverSupport", "DentalServices", "Dermatology", "EmergencyCare", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "UrgentCare", "Urology", "WomensHealth" ],
+          "operatingStatus" : {
+            "code" : "NORMAL"
+          },
+          "visn" : "10"
+        }
+  recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/983GB
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 09 Aug 2021 17:48:58 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1114'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.8.0
+      B3:
+      - 531af1d2054d758c-b79b44f980a35120-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - '6026315'
+      X-Vamf-Timestamp:
+      - '2021-07-06T17:59:37+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+           "id" : "983GB",
+           "vistaSite" : "983",
+           "vastParent" : "983",
+           "type" : "va_facilities",
+           "name" : "Sidney VA Clinic",
+           "classification" : "Other Outpatient Services (OOS)",
+           "timezone" : {
+             "timeZoneId" : "America/Denver"
+           },
+           "lat" : 41.142464,
+           "long" : -102.97669,
+           "website" : "https://www.cheyenne.va.gov/locations/Sidney_VA_MSOC.asp",
+           "phone" : {
+             "main" : "308-254-6085"
+           },
+           "physicalAddress" : {
+             "type" : "physical",
+             "line" : [ "1116 10th Avenue" ],
+             "city" : "Sidney",
+             "state" : "NE",
+             "postalCode" : "69162-2001"
+           },
+           "healthService" : [ "EmergencyCare", "MentalHealthCare", "PrimaryCare" ]
+        }
+  recorded_at: Mon, 09 Aug 2021 17:48:58 GMT
+recorded_with: VCR 6.0.0

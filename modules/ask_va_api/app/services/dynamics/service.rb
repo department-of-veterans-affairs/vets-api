@@ -3,19 +3,18 @@
 module Dynamics
   class Service
     SUPPORTED_METHODS = %i[get post patch put].freeze
-    attr_reader :base_uri, :sec_id, :mock, :logger, :conn
+    attr_reader :sec_id, :conn, :logger
 
-    def initialize(base_uri:, sec_id:, mock: false, logger: DatadogLogger.new)
-      @base_uri = base_uri
+    BASE_URI = 'https://run.mocky.io/v3/'
+
+    def initialize(sec_id:, logger: LogService.new)
       @sec_id = sec_id
-      @mock = mock
       @logger = logger
-      setup_connection unless mock
+      setup_connection
     end
 
-    def call(endpoint:, method: :get, payload: {}, criteria: {})
+    def call(endpoint:, method: :get, payload: {})
       validate_method!(method)
-      return mock_service(endpoint, method, criteria) if mock
 
       params = { sec_id: }
       execute_api_call(endpoint, method, payload, params)
@@ -27,12 +26,8 @@ module Dynamics
       raise ArgumentError, "Unsupported HTTP method: #{method}" unless SUPPORTED_METHODS.include?(method)
     end
 
-    def mock_service(endpoint, method, criteria)
-      ::DynamicsMockService.new(endpoint, method, criteria).call
-    end
-
     def setup_connection
-      @conn = Faraday.new(url: base_uri) do |f|
+      @conn = Faraday.new(url: BASE_URI) do |f|
         f.headers['Content-Type'] = 'application/json'
         f.request :url_encoded
         f.adapter Faraday.default_adapter
@@ -46,9 +41,6 @@ module Dynamics
     rescue ErrorHandler::ServiceError => e
       log_error(endpoint, e.class.name)
       raise e
-    rescue JSON::ParserError => e
-      log_error(endpoint, 'JSON::ParserError')
-      raise ErrorHandler::ServiceError, "Error parsing response from #{endpoint}: #{e.message}"
     end
 
     def invoke_request(endpoint, method, payload, params)

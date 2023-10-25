@@ -15,17 +15,13 @@ module SimpleFormsApi
       benefit_selections = []
       params['benefit_selection'].each { |benefit_type, is_selected| benefit_selections << benefit_type if is_selected }
       ssn = params.dig('veteran_id', 'ssn')
-      expiration_date = ''
+      expiration_date = nil
       benefit_selections.each do |benefit_type|
         type = benefit_type.downcase
-        if existing_intents[type]
-          expiration_date = existing_intents[type]['expirationDate']
-        else
-          response = benefits_claims_lighthouse_service.create_intent_to_file(type, ssn)
-          # This only retains the last response. Is that ok?
-          # Are we safe to assume that the expiration dates for two simultaneously-created ITFs will be the same?
-          expiration_date = response.dig('data', 'attributes', 'expirationDate')
-        end
+        next if existing_intents[type]
+
+        response = benefits_claims_lighthouse_service.create_intent_to_file(type, ssn)
+        expiration_date = response.dig('data', 'attributes', 'expirationDate')
       end
 
       expiration_date

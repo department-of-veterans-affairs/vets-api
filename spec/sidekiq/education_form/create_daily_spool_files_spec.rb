@@ -298,9 +298,10 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
         expect(EducationBenefitsClaim.unprocessed).not_to be_empty
         expect(SFTPWriter::Local).to receive(:new).once.and_return(local_mock)
-        expect(local_mock).to receive(:write).and_raise('boom')
+        expect(local_mock).to receive(:write).exactly(6).times.and_raise('boom')
         expect(local_mock).to receive(:close).once.and_return(true)
-        expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::DailySpoolFileError))
+        expect(subject).to receive(:log_exception_to_sentry).exactly(6)
+                                                            .times.with(instance_of(EducationForm::DailySpoolFileError))
 
         subject.perform
       end

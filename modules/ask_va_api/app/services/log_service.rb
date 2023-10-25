@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
-class DatadogLogger
-  attr_reader :datadog_logger, :elapsed_time, :result, :span
-
-  def initialize(host: 'localhost', port: 8125, namespace: 'AskVAApi')
-    @datadog_logger = Datadog::Statsd.new(host, port, namespace:)
-  end
+class LogService
+  attr_reader :elapsed_time, :result, :span
 
   def call(action, tags: {}, &block)
+    return if Rails.env.production?
+
     trace_and_annotate_action(action, tags) { time_action(&block) }
     log_timing_metric(action)
     result
@@ -27,15 +25,15 @@ class DatadogLogger
 
   def set_tags_and_metrics(action, tags)
     tags.each { |key, value| span.set_tag(key, value) }
-    span.set_metric("#{action}.time", elapsed_time * 1000)
+    span.set_metric("#{action}.time", (elapsed_time * 1000).to_i)
   end
 
   def time_action
-    @elapsed_time ||= Benchmark.realtime { @result = yield }
+    @elapsed_time = Benchmark.realtime { @result = yield }
   end
 
   def log_timing_metric(action)
-    datadog_logger.timing("#{action}.time", elapsed_time * 1000)
+    Rails.logger.info("Timing for #{action}: #{(elapsed_time * 1000).to_i}ms")
   end
 
   def handle_logging_error(action, error)

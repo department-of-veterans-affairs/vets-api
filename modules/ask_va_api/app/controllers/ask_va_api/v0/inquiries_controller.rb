@@ -29,8 +29,12 @@ module AskVAApi
         @user_inquiries = Result.new(payload: Inquiries::Serializer.new(inquiries).serializable_hash, status: :ok)
       end
 
+      def mock_service
+        DynamicsMockService.new(sec_id: nil, logger: nil) if params[:mock]
+      end
+
       def retriever
-        @retriever ||= Inquiries::Retriever.new(sec_id: current_user.account.sec_id)
+        @retriever ||= Inquiries::Retriever.new(sec_id: current_user.sec_id, service: mock_service)
       end
 
       Result = Struct.new(:payload, :status, keyword_init: true)

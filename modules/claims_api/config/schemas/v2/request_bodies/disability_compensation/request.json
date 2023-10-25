@@ -74,8 +74,7 @@
                 },
                 "veteranNumber": {
                   "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
-                  "type": ["object", "null"],
-                  "nullable": true,
+                  "type": "object",
                   "properties": {
                     "telephone": {
                       "type": ["string", "null"],
@@ -166,7 +165,7 @@
                   "type": "object",
                   "properties": {
                     "beginDate": {
-                      "description": "Date in MM-DD-YYYY the Veteran changed address. Date must be in the future if change is temporary.",
+                      "description": "Begin date for the Veteran's new address.",
                       "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
                       "type": "string",
                       "example": "06-04-2018"
@@ -317,8 +316,7 @@
               }
             },
             "toxicExposure": {
-              "type": ["object", "null"],
-              "nullable": true,
+              "type": "object",
               "properties": {
                 "gulfWarHazardService": {
                   "type": "object",
@@ -749,8 +747,7 @@
                 },
                 "federalActivation": {
                   "description": "If 'federalActivation' is included, the following attributes are required: 'anticipatedSeparationDate' and 'activationDate'.",
-                  "type": ["object", "null"],
-                  "nullable": true,
+                  "type": "object",
                   "additionalProperties": false,
                   "properties": {
                     "anticipatedSeparationDate": {
@@ -772,8 +769,7 @@
                   "additionalProperties": false,
                   "properties": {
                     "obligationTermsOfService": {
-                      "type": ["object", "null"],
-                      "nullable": true,
+                      "type": "object",
                       "description": "If 'obligationTermsOfService' is included, the following attributes are required: 'beginDate ' and 'endDate'.",
                       "additionalProperties": false,
                       "properties": {

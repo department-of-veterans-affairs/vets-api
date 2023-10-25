@@ -330,21 +330,17 @@ features:
     actor_type: user
     description: Manage whether dependent claims will submit to central processing
     enable_in_development: true
+  dependents_encrypt_jobs:
+    actor_type: user
+    description: Manage whether Sidekiq Jobs used for Dependents Claims will encrypt arguments considered potential PII.
+    enable_in_development: true
   dependents_central_submission_lighthouse:
     actor_type: user
     description: Manage whether central processing submission uses Lighthouse API
     enable_in_development: true
-  dependents_submit_674_independently:
-    actor_type: user
-    description: Manage whether 674 can be submitted without an associated 686c
-    enable_in_development: true
   disability_526_classifier_new_claims:
     actor_type: user
     description: enables sending new 526-ez claims to VRO Contention Classification service for more accurate classification entry.
-    enable_in_development: true
-  disability_526_reduced_contention_list:
-    actor_type: user
-    description: enableds reduced 526-ez contention dropdown list to improve usability. See https://github.com/department-of-veterans-affairs/vagov-claim-classification/issues/259
     enable_in_development: true
   disability_526_maximum_rating:
     actor_type: user
@@ -477,9 +473,16 @@ features:
     actor_type: user
     description: Enables form 21-0972 email submission confirmation (VaNotify)
     enable_in_development: true
+  form21_10203_confirmation_email:
+    actor_type: user
+    description: Enables form 21-10203 email submission confirmation (VaNotify)
   form21_10210_confirmation_email:
     actor_type: user
     description: Enables form 21-10210 email submission confirmation (VaNotify)
+    enable_in_development: true
+  form21_0845_confirmation_email:
+    actor_type: user
+    description: Enables form 21-0845 email submission confirmation (VaNotify)
     enable_in_development: true
   form21p_0847_confirmation_email:
     actor_type: user
@@ -609,6 +612,10 @@ features:
     actor_type: user
     description: Enables/disbales the PHR refresh for MHV users when logging into VA.gov
     enable_in_development: true
+  mhv_medical_records_redact_fhir_client_logs:
+    actor_type: user
+    description: Replaces IDs in fhir_client INFO-level logs with X's when enabled
+    enable_in_development: true
   mhv_medical_records_to_va_gov_release:
     actor_type: user
     description: Enables/disbales Medical Records on VA.gov (intial transition from MHV to VA.gov)
@@ -620,6 +627,10 @@ features:
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
+    enable_in_development: true
+  mhv_medications_to_va_gov_release:
+    actor_type: user
+    description: Enables/disbales Medications on VA.gov (intial transition from MHV to VA.gov)
     enable_in_development: true
   mhv_to_logingov_account_transition:
     actor_type: cookie_id
@@ -636,6 +647,10 @@ features:
   mhv_to_logingov_account_transition_urgent:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer urgent experience (Identity)
+    enable_in_development: false
+  military_information:
+    actor_type: user
+    description: Enables the post-EMIS military information of VAProfile
     enable_in_development: false
   mobile_api:
     actor_type: user
@@ -731,6 +746,10 @@ features:
     enable_in_development: true
   profile_use_vafsc:
     description: Use VA Forms System Core for forms instead of schema based forms
+    actor_type: user
+    enable_in_development: true
+  profile_contacts:
+    description: Enable the Personal Health Care Contacts API endpoint. Data provided by the VA Profile Health Benefit Service.
     actor_type: user
     enable_in_development: true
   pw_ehr_cta_drupal_source_of_truth:
@@ -1193,6 +1212,3 @@ features:
     actor_type: user
     description: Enable the veteran post-emis status
     enable_in_development: false
-  virtual_agent_decision_letter_download_tracking:
-    actor_type: user
-    description: Enable tracking of decision letter downloads in the VA Chatbot
