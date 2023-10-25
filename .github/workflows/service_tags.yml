@@ -8,7 +8,9 @@ on:
 
 jobs:
   audit:
-    runs-on: ubuntu-latest
+    env:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+    runs-on: ubuntu-16-cores-latest
 
     steps:
       - name: Checkout code
