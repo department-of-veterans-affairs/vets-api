@@ -1656,3 +1656,4 @@ avs:
 
 brd:
   api_key: 'fake_key'
+  base_name: 'https://something.fake.va.gov'
