@@ -3479,6 +3479,59 @@ RSpec.describe 'Disability Claims', type: :request do
     end
 
     context 'attachments' do
+      let(:auto_claim) { create(:auto_established_claim) }
+      let(:attachments_path) do
+        "/services/claims/v2/veterans/#{veteran_id}/526/#{auto_claim.id}/attachments"
+      end
+      let(:target_veteran) do
+        OpenStruct.new(
+          icn: veteran_id,
+          first_name: 'abraham',
+          last_name: 'lincoln',
+          loa: { current: 3, highest: 3 },
+          ssn: '796111863',
+          edipi: '8040545646',
+          participant_id: '600061742',
+          mpi: OpenStruct.new(
+            icn: veteran_id,
+            profile: OpenStruct.new(ssn: '796111863')
+          )
+        )
+      end
+
+      describe 'with binary params' do
+        let(:binary_params) do
+          { attachment1: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+                                                                         .split('/')).to_s),
+            attachment2: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+                                                                         .split('/')).to_s) }
+        end
+
+        it 'responds with a 202' do
+          mock_ccg(scopes) do |auth_header|
+            allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+              .to receive(:target_veteran).and_return(target_veteran)
+            post attachments_path, params: binary_params, headers: auth_header
+            expect(response).to have_http_status(:accepted)
+          end
+        end
+      end
+
+      describe 'with base 64 params' do
+        let(:base64_params) do
+          { attachment1: File.read(Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s),
+            attachment2: File.read(Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s) }
+        end
+
+        it 'responds with a 202' do
+          mock_ccg(scopes) do |auth_header|
+            allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+              .to receive(:target_veteran).and_return(target_veteran)
+            post attachments_path, params: base64_params, headers: auth_header
+            expect(response).to have_http_status(:accepted)
+          end
+        end
+      end
     end
   end
 end
