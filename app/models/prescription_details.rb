@@ -25,4 +25,5 @@ class PrescriptionDetails < Prescription
   attribute :tracking_list, Array[String]
   attribute :rx_rf_records, Array[String]
   attribute :tracking, Boolean
+  attribute :orderable_item, String
 end
