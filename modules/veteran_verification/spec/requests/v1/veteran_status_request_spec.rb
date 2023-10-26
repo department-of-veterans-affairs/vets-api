@@ -39,10 +39,6 @@ RSpec.describe 'Veteran Status API endpoint', if: !Flipper.enabled?(:veteran_sta
     end
 
     context 'when emis response is invalid' do
-      before do
-        allow(EMISRedis::MilitaryInformation).to receive(:for_user).and_return(nil)
-      end
-
       it 'matches the errors schema', :aggregate_failures do
         with_okta_user(scopes) do |auth_header|
           get '/services/veteran_verification/v1/status', params: nil, headers: auth_header
@@ -97,10 +93,6 @@ RSpec.describe 'Veteran Status API endpoint', if: !Flipper.enabled?(:veteran_sta
     end
 
     context 'when emis response is invalid' do
-      before do
-        allow(EMISRedis::MilitaryInformation).to receive(:for_user).and_return(nil)
-      end
-
       it 'matches the errors schema', :aggregate_failures do
         with_okta_user(scopes) do |auth_header|
           get '/services/veteran_verification/v1/status', params: nil, headers: auth_header
