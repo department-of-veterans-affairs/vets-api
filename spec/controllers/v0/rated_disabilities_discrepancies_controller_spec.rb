@@ -2,13 +2,15 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::RatedDisabilitiesController, type: :controller do
-  let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
+RSpec.describe V0::RatedDisabilitiesDiscrepanciesController, type: :controller do
+  let(:user) { create(:user, :loa3, icn: '123498767V234859') }
 
   before do
     sign_in_as(user)
 
     token = 'blahblech'
+
+    allow(Rails.logger).to receive(:info)
 
     allow_any_instance_of(VeteranVerification::Configuration).to receive(:access_token).and_return(token)
   end
@@ -17,23 +19,29 @@ RSpec.describe V0::RatedDisabilitiesController, type: :controller do
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
-          get(:show)
+          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_tinnitus_max_rated') do
+            get(:show)
+          end
         end
 
         expect(response).to have_http_status(:ok)
       end
 
-      it 'only returns active ratings' do
+      it 'detects discrepancies in the number of disability ratings returned' do
         VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
-          get(:show)
+          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_tinnitus_max_rated') do
+            get(:show)
+          end
         end
 
         expect(response).to have_http_status(:ok)
 
-        # VCR Cassette should have 3 items in the individual_ratings array, only 2 should
-        # be "active"
-        parsed_body = JSON.parse(response.body)
-        expect(parsed_body.dig('data', 'attributes', 'individual_ratings').length).to eq(2)
+        # Lighthouse should return 2 items, EVSS should return 1, so there should be a discrepancy
+        # of 1 disability rating
+        expect(Rails.logger).to have_received(:info).with(
+          'Discrepancy of 1 disability ratings',
+          { message_type: 'lh.rated_disabilities.length_discrepancy' }
+        )
       end
     end
 
