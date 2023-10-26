@@ -8,10 +8,8 @@ RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
 
   let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:mpi_profile_address)) }
-  let(:edipi) { '1005079124' }
 
   before do
-    allow(user).to receive(:edipi).and_return(edipi)
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
