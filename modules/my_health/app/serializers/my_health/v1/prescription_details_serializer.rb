@@ -28,6 +28,7 @@ module MyHealth
       attribute :tracking_list
       attribute :rx_rf_records
       attribute :tracking
+      attribute :orderable_item
     end
   end
 end
