@@ -222,8 +222,8 @@ module DebtsApi
         Rails.logger.error('Failed to source user flags', e.message)
         enabled_flags = []
       end
-      debt_amounts = debts.nil? ? [] : debts.map { |debt| debt['current_ar'] || debt['p_h_amt_due'] }
-      debt_type = debts&.pluck('debt_type')&.first
+      debt_amounts = debts.nil? ? [] : debts.map { |debt| debt['currentAR'] || debt['pHAmtDue'] }
+      debt_type = debts&.pluck('debtType')&.first
       {
         'combined' => form['combined'],
         'debt_amounts' => debt_amounts,
