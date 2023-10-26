@@ -342,6 +342,7 @@ Rails.application.routes.draw do
       resource :preferred_names, only: :update
     end
 
+    get '/account-controls/csp-index', to: 'account_controls#csp_index'
     post '/account-controls/csp-lock', to: 'account_controls#csp_lock'
     post '/account-controls/csp-unlock', to: 'account_controls#csp_unlock'
 
