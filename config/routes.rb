@@ -160,6 +160,7 @@ Rails.application.routes.draw do
     resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
 
     resource :rated_disabilities, only: %i[show]
+    resource :rated_disabilities_discrepancies, only: %i[show]
 
     namespace :virtual_agent do
       get 'claim', to: 'virtual_agent_claim#index'

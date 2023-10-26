@@ -8,16 +8,20 @@ module V0
 
     def show
       response = service.get_rated_disabilities(@current_user.icn)
-      individual_ratings = response.dig('data', 'attributes', 'individual_ratings')
 
       # We only want active ratings
-      active_ratings = individual_ratings.select { |rating| active?(rating) }
-      response['data']['attributes']['individual_ratings'] = active_ratings
+      if response.dig('data', 'attributes', 'individual_ratings')
+        remove_inactive_ratings!(response['data']['attributes']['individual_ratings'])
+      end
 
       render json: response
     end
 
     private
+
+    def remove_inactive_ratings!(ratings)
+      ratings.select! { |rating| active?(rating) }
+    end
 
     def active?(rating)
       rating['rating_end_date'].nil?
