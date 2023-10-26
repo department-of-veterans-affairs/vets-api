@@ -156,7 +156,7 @@ module AppealsApi::V2
               status: '422'
             }
           ]
-        }, status: :unprocessable_entity
+        }, status: '422'
       end
 
       def request_headers
