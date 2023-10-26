@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'In Progress Forms - FSR (5655)' do
   let(:user_loa3) { build(:user, :loa3) }
+  let(:edipi) { '1005127153' }
   let(:vcr_options) { { match_requests_on: %i[path query] } }
 
   def with_vcr(&block)
