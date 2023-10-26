@@ -53,8 +53,12 @@ module ClaimsApi
                          claim_id,
                          "Submit failed for claimId #{auto_claim&.id}: #{e.original_body}")
         log_exception_to_sentry(e)
-
-        raise e
+        # if will_retry?
+        if will_retry?(e)
+          raise e
+        else # form526.submit.noRetryError OR form526.inProcess error retruned
+          {}
+        end
       rescue => e
         set_errored_state_on_claim(auto_claim)
         set_evss_response(auto_claim, e)

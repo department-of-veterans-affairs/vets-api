@@ -12,6 +12,8 @@ module ClaimsApi
       include SentryLogging
       include Sidekiq::MonitoredWorker
 
+      NONRETRY_ERROR_MESSAGES = %[form526.submit.noRetryError form526.inProcess]
+
       protected
 
       def set_established_state_on_claim(auto_claim)
@@ -33,10 +35,22 @@ module ClaimsApi
       def get_error_message(error)
         if error.respond_to? :original_body
           error.original_body
-        elsif error.respond_to? :messagae
+        elsif error.respond_to? :message
           error.message
         elsif error.is_a?(String)
           error
+        end
+      end
+
+      def will_retry?(error)
+        if error.respond_to? :original_body
+          msg = error.original_body[:messages][0][:key]
+        end
+
+        if msg.include?(NONRETRY_ERROR_MESSAGES)
+          false
+        else
+          true
         end
       end
 
