@@ -58,7 +58,7 @@ RSpec.describe 'service_history', skip_emis: true do
       end
 
       it 'returns no service history episodes' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200_empty') do
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200_empty_384759483_edipi') do
           get '/v0/profile/service_history'
           json = json_body_for(response)
           expect(response).to be_ok
@@ -123,7 +123,7 @@ RSpec.describe 'service_history', skip_emis: true do
     context 'when not successful' do
       context 'when external service returns 400 response' do
         it 'returns 400 with nil service history' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_history_400') do
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_history_400_384759483_edipi') do
             get '/v0/profile/service_history'
 
             expect(response.status).to eq(400)
