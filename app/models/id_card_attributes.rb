@@ -47,16 +47,20 @@ class IdCardAttributes
   end
 
   def branches_of_service
-    branches = @user.military_information.service_episodes_by_date.map do |ep|
+    branches = military_info.service_episodes_by_date.map do |ep|
       SERVICE_KEYS[ep.branch_of_service_code]
     end
     branches.compact.join(',')
   end
 
   def discharge_types
-    discharges = @user.military_information
-                      .service_episodes_by_date
-                      .map(&:discharge_character_of_service_code)
+    discharges = military_info
+                 .service_episodes_by_date
+                 .map(&:character_of_discharge_code)
     discharges.compact.join(',')
+  end
+
+  def military_info
+    @military_info ||= VAProfile::Prefill::MilitaryInformation.new(user)
   end
 end

@@ -344,15 +344,12 @@ class User < Common::RedisStore
     super
   end
 
-  %w[military_information payment].each do |emis_method|
-    define_method(emis_method) do
-      emis_model = instance_variable_get(:"@#{emis_method}")
-      return emis_model if emis_model.present?
-
-      emis_model = "EMISRedis::#{emis_method.camelize}".constantize.for_user(self)
-      instance_variable_set(:"@#{emis_method}", emis_model)
-      emis_model
-    end
+  def military_information
+    @military_information ||= if Flipper.enabled?(:military_information_vaprofile)
+                                FormProfile.new(form_id: nil, user: self).initialize_military_information
+                              else
+                                EMISRedis::MilitaryInformation.for_user(self)
+                              end
   end
 
   def veteran_status
