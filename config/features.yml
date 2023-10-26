@@ -789,6 +789,14 @@ features:
   my_va_show_header_link:
     actor_type: user
     description: Show the My VA link on the global site header
+  rated_disabilities_detect_discrepancies:
+    actor_type: user
+    description: When enabled, the rated disabilities application will check for discrepancies between
+      the number of rated disabilities returned by EVSS and Lighthouse 
+    enable_in_development: true
+  rated_disabilities_sort_ab_test:
+    actor_type: user
+    description: Allows us to set up AB test of sorting on rated disabilities app
   rated_disabilities_use_lighthouse:
     actor_type: user
     description: When enabled, the rated disabilities application uses Lighthouse instead of EVSS
@@ -1058,9 +1066,6 @@ features:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
     enable_in_development: true
-  rated_disabilities_sort_ab_test:
-    actor_type: user
-    description: Allows us to set up AB test of sorting on rated disabilities app
   show_dashboard_notifications:
     actor_type: user
     description: Enables on-site notifications
