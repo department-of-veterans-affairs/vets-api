@@ -15,12 +15,12 @@ module Traceable
   included do
     before_action :set_trace_tags
 
-    # @!attribute [rw] trace_service_tag
-    #   @return [Symbol] the service tag for a specific controller.
-    thread_mattr_accessor :trace_service_tag
+    # A class_attribute is appropriate here as it allows overriding within subclasses (child controllers)
+    # It is set via the service_tag method during controller declaration, and only read thereafter
+    class_attribute :trace_service_tag # rubocop:disable ThreadSafety/ClassAndModuleAttributes
   end
 
-  module ClassMethods
+  class_methods do
     # Assigns a service tag to the controller class.
     # @param service_name [Symbol] the name of the service tag.
     # @return [Symbol] the set service tag.
