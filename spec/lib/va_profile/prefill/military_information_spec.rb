@@ -177,7 +177,7 @@ describe VAProfile::Prefill::MilitaryInformation do
         end
 
         it 'returns hca formatted last service branch' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi',
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                            match_requests_on: %i[method body]) do
             expect(subject.hca_last_service_branch).to eq('army')
           end
@@ -204,7 +204,7 @@ describe VAProfile::Prefill::MilitaryInformation do
         end
 
         it 'returns sorted military_service_episodes' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi',
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                            match_requests_on: %i[method body]) do
             service_episodes_by_date = subject.service_episodes_by_date
             expect(service_episodes_by_date[0].end_date).to eq('2018-10-31')
@@ -215,7 +215,7 @@ describe VAProfile::Prefill::MilitaryInformation do
 
       describe '#military_service_episodes' do
         it 'returns military_service_episodes' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi',
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                            match_requests_on: %i[method body]) do
             military_service_episodes = subject.military_service_episodes
             expect(military_service_episodes.size).to eq(3)
@@ -258,7 +258,7 @@ describe VAProfile::Prefill::MilitaryInformation do
 
       describe '#service_periods' do
         it 'returns an array of service periods with service branch and date range' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi',
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                            match_requests_on: %i[method body]) do
             response = subject.service_periods
 
