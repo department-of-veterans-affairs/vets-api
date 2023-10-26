@@ -10,14 +10,10 @@ describe VAProfile::Prefill::MilitaryInformation do
 
   context 'disability service' do
     context 'using bio path disabilityRating, HIGH PERCENTAGE' do
-      let(:edipi) { '1005079124' }
-
-      before do
-        allow(user).to receive(:edipi).and_return(edipi)
-      end
 
       describe '#is_va_service_connected' do
         it 'returns true if veteran is paid for a disability with a high disability percentage' do
+
           VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability') do
             response = subject.is_va_service_connected
 
@@ -88,7 +84,7 @@ describe VAProfile::Prefill::MilitaryInformation do
     context 'military personnel service' do
       describe '#sw_asia_combat' do
         it 'returns if veteran was deployed to sw asia during gulf war' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200_1005079124_edipi',
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200',
                            match_requests_on: %i[method body]) do
             expect(subject.sw_asia_combat).to eq(false)
           end
@@ -97,7 +93,7 @@ describe VAProfile::Prefill::MilitaryInformation do
 
       describe '#discharge_type' do
         it 'returns discharge type' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200_1005079124_edipi',
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200',
                            match_requests_on: %i[method body]) do
             expect(subject.discharge_type).to eq('general')
           end
@@ -118,7 +114,7 @@ describe VAProfile::Prefill::MilitaryInformation do
 
       describe '#last_discharge_date' do
         it 'returns last end date' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi',
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                            match_requests_on: %i[method body]) do
             expect(subject.last_discharge_date).to eq('2018-10-31')
           end
@@ -127,7 +123,7 @@ describe VAProfile::Prefill::MilitaryInformation do
 
       describe '#last_entry_date' do
         it 'returns last begin date' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi',
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                            match_requests_on: %i[method body]) do
             expect(subject.last_entry_date).to eq('2012-03-02')
           end
@@ -137,7 +133,7 @@ describe VAProfile::Prefill::MilitaryInformation do
       describe '#post_nov111998_combat' do
         context 'with no post 1998 deployment' do
           it 'returns false' do
-            VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi',
+            VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                              match_requests_on: %i[method body]) do
               expect(subject.post_nov111998_combat).to eq(false)
             end
@@ -146,7 +142,7 @@ describe VAProfile::Prefill::MilitaryInformation do
 
         context 'with a post 1998 deployment' do
           it 'returns true' do
-            VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200_1005079124_edipi',
+            VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200',
                              match_requests_on: %i[method body]) do
               expect(subject.post_nov111998_combat).to eq(true)
             end
@@ -156,7 +152,7 @@ describe VAProfile::Prefill::MilitaryInformation do
 
       describe '#deployments' do
         it 'returns deployments' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200_1005079124_edipi',
+          VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200',
                            match_requests_on: %i[method body]) do
             expect(
               subject.deployments.pluck('deployment_end_date')
