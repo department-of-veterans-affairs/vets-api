@@ -79,6 +79,9 @@ RSpec.describe Form1010Ezr::Service do
         it 'logs and raises a schema validation error' do
           form_sans_required_field = form.except('privacyAgreementAccepted')
 
+          expect(StatsD).to receive(:increment).with('api.1010ezr.validation_error')
+          expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
+
           expect { submit_form(form_sans_required_field) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
             expect(e.errors[0].title).to eq('Validation error')
