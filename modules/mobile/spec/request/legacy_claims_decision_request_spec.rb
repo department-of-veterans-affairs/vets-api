@@ -9,7 +9,7 @@ RSpec.describe 'claims decision request', type: :request do
 
     before do
       FactoryBot.create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: user.uuid)
-      Flipper.disable(:mobile_lighthouse_claims)
+      Flipper.disable(:mobile_lighthouse_request_decision)
     end
 
     it 'returns jid with 202 status' do
