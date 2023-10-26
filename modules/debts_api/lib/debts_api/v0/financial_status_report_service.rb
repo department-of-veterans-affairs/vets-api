@@ -359,7 +359,13 @@ module DebtsApi
     end
 
     def remove_form_delimiters(form)
-      JSON.parse(form.to_s.gsub(/[\^|\n]/, '').gsub('=>', ':'))
+      form.deep_transform_values do |val|
+        if val.is_a?(String)
+          val.gsub(/[\^|\n]/, '')
+        else
+          val
+        end
+      end
     end
 
     def vbs_settings
