@@ -8,7 +8,9 @@ namespace :service_tags do
     Rails.application.eager_load!
 
     (ApplicationController.descendants + SignIn::ApplicationController.descendants).each do |descendant|
-      non_compliant_controllers << descendant.name if not descendant.respond_to?(:trace_service_tag) or descendant.trace_service_tag.nil?
+      if !descendant.respond_to?(:trace_service_tag) || descendant.trace_service_tag.nil?
+        non_compliant_controllers << descendant.name
+      end
     end
 
     if non_compliant_controllers.any?
