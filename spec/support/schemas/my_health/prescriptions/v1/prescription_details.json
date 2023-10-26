@@ -47,7 +47,8 @@
         "category",
         "tracking_list",
         "rx_rf_records",
-        "tracking"],
+        "tracking",
+        "orderable_item"],
       "properties": {
         "prescription_id": { "type": ["integer", "null"] },
         "prescription_number": { "type": ["string", "null"] },
@@ -160,7 +161,8 @@
             }
           }
         },
-        "tracking": { "type": ["boolean", "null"] }
+        "tracking": { "type": ["boolean", "null"] },
+        "orderable_item": { "type": ["string", "null"] }
       }
     },
     "links": {
