@@ -8,7 +8,6 @@ describe VAProfile::MilitaryPersonnel::Service do
 
   let(:user) { build(:user, :loa3) }
 
-
   describe '#identity_path' do
     context 'when an edipi exists' do
       it 'returns a valid identity path' do

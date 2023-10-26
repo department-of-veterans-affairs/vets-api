@@ -10,10 +10,8 @@ describe VAProfile::Prefill::MilitaryInformation do
 
   context 'disability service' do
     context 'using bio path disabilityRating, HIGH PERCENTAGE' do
-
       describe '#is_va_service_connected' do
         it 'returns true if veteran is paid for a disability with a high disability percentage' do
-
           VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability') do
             response = subject.is_va_service_connected
 
