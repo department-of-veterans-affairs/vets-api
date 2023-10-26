@@ -19,7 +19,7 @@ module Traceable
   module ClassMethods
     # @!attribute [rw] trace_service_tag
     #   @return [Symbol] the service tag for a specific controller.
-    attr_accessor :trace_service_tag
+    mattr_accessor :trace_service_tag
 
     # Assigns a service tag to the controller class.
     # @param service_name [Symbol] the name of the service tag.
