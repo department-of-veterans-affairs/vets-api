@@ -3,12 +3,12 @@
 require 'common/client/base'
 require 'hca/enrollment_system'
 require 'hca/configuration'
-require 'va_1010_forms/service_utils'
+require 'va1010_forms/utils'
 
 module HCA
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
-    include VA1010Forms::ServiceUtils
+    include VA1010Forms::Utils
 
     STATSD_KEY_PREFIX = 'api.1010ez'
 
