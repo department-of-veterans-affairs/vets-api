@@ -2428,7 +2428,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'profiles' do
       let(:mhv_user) { create(:user, :loa3) }
-      let(:edipi) { '1005079124' }
 
       it 'supports getting email address data' do
         expect(subject).to validate(:get, '/v0/profile/email', 401)
@@ -2454,7 +2453,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports getting service history data' do
         expect(subject).to validate(:get, '/v0/profile/service_history', 401)
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
-          allow(mhv_user).to receive(:edipi).and_return(edipi)
           expect(subject).to validate(:get, '/v0/profile/service_history', 200, headers)
         end
       end
@@ -3109,7 +3107,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'when EVSS authorization requirements are not met' do
       let(:unauthorized_evss_user) { build(:unauthorized_evss_user, :loa3) }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(unauthorized_evss_user, nil, true) } } }
-      let(:edipi) { '1005079124' }
 
       it 'supports returning a custom 403 Forbidden response', :aggregate_failures do
         expect(subject).to validate(:get, '/v0/profile/email', 403, headers)
@@ -3140,11 +3137,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'when VA Profile returns an unexpected response body' do
-      let(:user) { create(:user, :loa3, uuid: '1847a3eb4b904102882e24e4ddf12ff3') }
-      let(:edipi) { '1005079124' }
-
       it 'supports returning a custom 400 response' do
-        allow(user).to receive(:edipi).and_return(edipi)
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_500') do
           expect(subject).to validate(:get, '/v0/profile/service_history', 400, headers)
         end
