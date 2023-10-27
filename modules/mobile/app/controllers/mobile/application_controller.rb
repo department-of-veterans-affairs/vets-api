@@ -4,6 +4,8 @@ module Mobile
   class ApplicationController < SignIn::ApplicationController
     include Traceable
 
+    SERVICE_TAG = 'mobile-app'
+
     before_action :authenticate
     before_action :set_tags_and_extra_context
     skip_before_action :authenticate, only: :cors_preflight
