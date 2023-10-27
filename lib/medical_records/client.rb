@@ -73,7 +73,10 @@ module MedicalRecords
     end
 
     def get_patient_by_identifier(fhir_client, identifier)
-      result = fhir_client.search(FHIR::Patient, search: { parameters: { identifier: } })
+      result = fhir_client.search(FHIR::Patient, {
+                                    search: { parameters: { identifier: } },
+                                    headers: { 'Cache-Control': 'no-cache' }
+                                  })
       resource = result.resource
       handle_api_errors(result) if resource.nil?
       resource
@@ -81,7 +84,10 @@ module MedicalRecords
 
     def list_allergies
       bundle = fhir_search(FHIR::AllergyIntolerance,
-                           search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active' } })
+                           {
+                             search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active' } },
+                             headers: { 'Cache-Control': 'no-cache' }
+                           })
       sort_bundle(bundle, :recordedDate, :desc)
     end
 
