@@ -34,11 +34,10 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
     end
 
     context 'while authenticated', skip_mvi: true do
-      let(:current_user) { build(:evss_user, :loa3) }
+      let(:current_user) { build(:evss_user, :loa3, icn: '1013032368V065534') }
 
       before do
         sign_in_as(current_user)
-        allow(current_user).to receive(:icn).and_return('1013032368V065534')
       end
 
       context 'when no error occurs' do
@@ -56,7 +55,7 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
         it 'renders a successful response and deletes the saved form', run_at: 'Mon, 23 Oct 2023 23:09:43 GMT' do
           VCR.use_cassette(
             'form1010_ezr/authorized_submit',
-            match_requests_on: [:method]
+            { match_requests_on: %i[method uri body], erb: true }
           ) do
             # The required fields for the Enrollment System should be absent from the form data initially
             # and then added via the 'post_fill_required_fields' method
@@ -65,6 +64,36 @@ RSpec.describe 'Form1010 Ezrs', type: :request do
             expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('10-10EZR').once
             subject
             expect(JSON.parse(response.body)).to eq(body)
+          end
+        end
+
+        context 'when the form includes a Mexican province' do
+          let(:params) do
+            {
+              form: File.read('spec/fixtures/form1010_ezr/valid_form_with_mexican_province.json')
+            }
+          end
+          let(:body) do
+            {
+              'formSubmissionId' => 432_236_923,
+              'timestamp' => '2023-10-23T18:42:52.975-05:00',
+              'success' => true
+            }
+          end
+
+          it "overrides the original province 'state' with the correct province initial and renders a " \
+             'successful response', run_at: 'Mon, 23 Oct 2023 23:42:13 GMT' do
+            VCR.use_cassette(
+              'form1010_ezr/authorized_submit_with_mexican_province',
+              { match_requests_on: %i[method uri body], erb: true }
+            ) do
+              # The initial form data should include the JSON schema Mexican provinces before they're overridden
+              expect(JSON.parse(params[:form])['veteranAddress']['state']).to eq('chihuahua')
+              expect(JSON.parse(params[:form])['veteranHomeAddress']['state']).to eq('chihuahua')
+              subject
+
+              expect(JSON.parse(response.body)).to eq(body)
+            end
           end
         end
       end
