@@ -67,8 +67,9 @@ module EVSS
       def transform_change_of_address(veteran)
         change_of_address = Requests::ChangeOfAddress.new
         change_of_address_source = veteran['changeOfAddress']
-        change_of_address.city = change_of_address_source['city']
-        change_of_address.state = change_of_address_source['state']
+        change_of_address.city = change_of_address_source['militaryPostOfficeTypeCode'] ||
+                                 change_of_address_source['city']
+        change_of_address.state = change_of_address_source['militaryStateCode'] || change_of_address_source['state']
         change_of_address.country = change_of_address_source['country']
         change_of_address.number_and_street = change_of_address_source['addressLine1']
         change_of_address.apartment_or_unit_number = change_of_address_source['addressLine2']
@@ -77,7 +78,8 @@ module EVSS
           change_of_address.apartment_or_unit_number += change_of_address_source['addressLine3']
         end
 
-        change_of_address.zip_first_five = change_of_address_source['zipFirstFive']
+        change_of_address.zip_first_five = change_of_address_source['internationalPostalCode'] ||
+                                           change_of_address_source['zipFirstFive']
         change_of_address.zip_last_four = change_of_address_source['zipLastFour']
         change_of_address.type_of_address_change = change_of_address_source['addressChangeType']
         change_of_address.dates = Requests::Dates.new
@@ -258,9 +260,13 @@ module EVSS
           veteran_identification.mailing_address.apartment_or_unit_number +=
             veteran['currentMailingAddress']['addressLine3']
         end
-        veteran_identification.mailing_address.city = veteran['currentMailingAddress']['city']
-        veteran_identification.mailing_address.state = veteran['currentMailingAddress']['state']
-        veteran_identification.mailing_address.zip_first_five = veteran['currentMailingAddress']['zipFirstFive']
+        veteran_identification.mailing_address.city = veteran['currentMailingAddress']['militaryPostOfficeTypeCode'] ||
+                                                      veteran['currentMailingAddress']['city']
+        veteran_identification.mailing_address.state = veteran['currentMailingAddress']['militaryStateCode'] ||
+                                                       veteran['currentMailingAddress']['state']
+        veteran_identification.mailing_address.zip_first_five =
+          veteran['currentMailingAddress']['internationalPostalCode'] ||
+          veteran['currentMailingAddress']['zipFirstFive']
         veteran_identification.mailing_address.zip_last_four = veteran['currentMailingAddress']['zipLastFour']
         veteran_identification.mailing_address.country = veteran['currentMailingAddress']['country']
       end
