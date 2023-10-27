@@ -103,6 +103,17 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.veteran_number).not_to be_nil
       expect(result.mailing_address).not_to be_nil
     end
+
+    it 'sets military/intl address correctly' do
+      data['form526']['veteran']['currentMailingAddress']['militaryPostOfficeTypeCode'] = 'APO'
+      data['form526']['veteran']['currentMailingAddress']['militaryStateCode'] = 'AE'
+      data['form526']['veteran']['currentMailingAddress']['internationalPostalCode'] = '817'
+
+      result = transformer.transform_veteran(data['form526']['veteran'])
+      expect(result.mailing_address.city).to eq('APO')
+      expect(result.mailing_address.state).to eq('AE')
+      expect(result.mailing_address.zip_first_five).to eq('817')
+    end
   end
 
   describe 'transform change of address' do
@@ -112,6 +123,18 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
     it 'sets change of address correctly' do
       result = transformer.transform_change_of_address(data['form526']['veteran'])
       expect(result.city).to eq('Portland')
+      expect(result.dates).not_to be_nil
+    end
+
+    it 'sets military/intl address correctly' do
+      data['form526']['veteran']['changeOfAddress']['militaryPostOfficeTypeCode'] = 'APO'
+      data['form526']['veteran']['changeOfAddress']['militaryStateCode'] = 'AE'
+      data['form526']['veteran']['changeOfAddress']['internationalPostalCode'] = '817'
+
+      result = transformer.transform_change_of_address(data['form526']['veteran'])
+      expect(result.city).to eq('APO')
+      expect(result.state).to eq('AE')
+      expect(result.zip_first_five).to eq('817')
       expect(result.dates).not_to be_nil
     end
   end
