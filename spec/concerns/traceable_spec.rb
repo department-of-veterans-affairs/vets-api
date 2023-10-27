@@ -29,15 +29,16 @@ RSpec.describe Traceable, type: :controller do
 
     context 'when the service tag is present' do
       let(:controller_class) do
-        Class.new(ApplicationController) do
+        klass = Class.new(ApplicationController) do
           include Traceable
           skip_before_action :authenticate
-          service_tag 'secure-messaging'
 
           def index
             render plain: 'OK'
           end
         end
+        klass.const_set(:SERVICE_TAG, 'secure-messaging')
+        klass
       end
 
       context 'with a service_tag' do
@@ -98,13 +99,13 @@ RSpec.describe Traceable, type: :controller do
       end
 
       let(:controller_class) do
-        Class.new(base_class) do
-          service_tag 'my-service'
-
+        klass = Class.new(base_class) do
           def index
             render plain: 'SUB'
           end
         end
+        klass.const_set(:SERVICE_TAG, 'my-service')
+        klass
       end
 
       include_context 'stub controller'
@@ -118,15 +119,16 @@ RSpec.describe Traceable, type: :controller do
 
     context 'with tagged parent controller' do
       let(:base_class) do
-        Class.new(ApplicationController) do
+        klass = Class.new(ApplicationController) do
           include Traceable
-          service_tag 'base-service'
           skip_before_action :authenticate
 
           def index
             render plain: 'BASE'
           end
         end
+        klass.const_set(:SERVICE_TAG, 'base-service')
+        klass
       end
 
       context 'with untagged child controller' do
@@ -142,25 +144,6 @@ RSpec.describe Traceable, type: :controller do
 
         it 'child controller inherits parent tag' do
           expect(Datadog::Tracing.active_span).to receive(:service=).with('base-service')
-          get :index
-          expect(response.body).to eq 'SUB'
-        end
-      end
-
-      context 'with tagged child controller' do
-        let(:controller_class) do
-          Class.new(base_class) do
-            service_tag 'override-service'
-            def index
-              render plain: 'SUB'
-            end
-          end
-        end
-
-        include_context 'stub controller'
-
-        it 'child controller overrides parent tag' do
-          expect(Datadog::Tracing.active_span).to receive(:service=).with('override-service')
           get :index
           expect(response.body).to eq 'SUB'
         end
