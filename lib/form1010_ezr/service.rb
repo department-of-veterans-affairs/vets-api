@@ -4,11 +4,12 @@ require 'common/client/base'
 require 'hca/enrollment_system'
 require 'hca/configuration'
 require 'hca/ezr_postfill'
+require 'va1010_forms/utils'
 
 module Form1010Ezr
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
-    include VA1010Forms::ServiceUtils
+    include VA1010Forms::Utils
     include SentryLogging
 
     STATSD_KEY_PREFIX = 'api.1010ezr'
@@ -28,19 +29,16 @@ module Form1010Ezr
     # @param [HashWithIndifferentAccess] parsed_form JSON form data
     def submit_form(parsed_form)
       begin
-        post_fill_required_fields(parsed_form)
-        validate_form(parsed_form)
+        configure_and_validate_form(parsed_form)
 
         formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, @user)
         content = Gyoku.xml(formatted)
         submission = soap.build_request(:save_submit_form, message: content)
-
         response = with_monitoring do
           perform(:post, '', submission.body)
         end
       rescue => e
         log_submission_failure(parsed_form)
-
         Rails.logger.error "10-10EZR form submission failed: #{e.message}"
         raise e
       end
@@ -56,7 +54,7 @@ module Form1010Ezr
 
     private
 
-    # Compare the 'parsed_form' to the form schema in vets-json-schema
+    # Compare the 'parsed_form' to the JSON form schema in vets-json-schema
     def validate_form(parsed_form)
       schema = VetsJsonSchema::SCHEMAS[FORM_ID]
       # @return [Array<String>] array of strings detailing schema validation failures
@@ -76,6 +74,13 @@ module Form1010Ezr
       required_fields = HCA::EzrPostfill.post_fill_hash(@user)
 
       parsed_form.merge!(required_fields)
+    end
+
+    def configure_and_validate_form(parsed_form)
+      post_fill_required_fields(parsed_form)
+      validate_form(parsed_form)
+      # Due to overriding the JSON form schema, we need to do so after the form has been validated
+      override_parsed_form(parsed_form)
     end
 
     def log_validation_errors(parsed_form)
