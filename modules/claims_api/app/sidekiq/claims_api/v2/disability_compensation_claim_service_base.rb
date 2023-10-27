@@ -12,7 +12,7 @@ module ClaimsApi
       include SentryLogging
       include Sidekiq::MonitoredWorker
 
-      NONRETRY_ERROR_MESSAGES = %[form526.submit.noRetryError form526.inProcess]
+      NO_RETRY_ERROR_MESSAGES = %[form526.submit.noRetryError form526.inProcess]
 
       protected
 
@@ -49,7 +49,7 @@ module ClaimsApi
           msg = ''
         end
 
-        if NONRETRY_ERROR_MESSAGES.include?(msg)
+        if NO_RETRY_ERROR_MESSAGES.include?(msg)
           false
         else
           true

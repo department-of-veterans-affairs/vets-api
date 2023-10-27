@@ -8,7 +8,7 @@ module ClaimsApi
   module V2
     class DisabilityCompensationDockerContainerUpload < DisabilityCompensationClaimServiceBase
       LOG_TAG = '526 v2 Docker Container job'
-
+      
       def perform(claim_id) # rubocop:disable Metrics/MethodLength
         log_job_progress(LOG_TAG,
                          claim_id,

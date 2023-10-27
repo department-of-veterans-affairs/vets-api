@@ -3,6 +3,7 @@
 require 'rails_helper'
 require_relative '../../rails_helper'
 require 'claims_api/v2/disability_compensation_pdf_generator'
+require 'sidekiq/testing'
 
 RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type: :job do
   subject { described_class }
@@ -60,7 +61,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
     service = described_class.new
 
     context 'successful submission' do
-      it 'submits successfully' do
+      it 'queues the job' do
         expect do
           subject.perform_async(claim.id)
         end.to change(subject.jobs, :size).by(1)
@@ -100,16 +101,38 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
           expect(claim_with_evss_response.evss_response).to eq(nil)
         end
       end
+
+      it 'does retry when form526.submit.establshClaim.serviceError gets retruned' do
+        body = {
+          messages: [
+            { key: 'form526.submit.establshClaim.serviceError', 
+              severity: 'FATAL', 
+              text: 'Error calling external service to establish the claim during submit.' 
+            }
+          ]}
+
+        allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
+          receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
+            'form526.submit.establshClaim.serviceError', {}, nil, body)
+          )
+        )
+        
+        expect do
+          service.perform(claim.id)
+        end.to raise_error(Common::Exceptions::BackendServiceException)
+      end
     end
 
     context 'errored submission' do
       it 'does not call the next job when the claim.status is errored' do
-        allow(errored_claim).to receive(:status).and_return('errored')
+        VCR.use_cassette('claims_api/evss/submit') do
+          allow(errored_claim).to receive(:status).and_return('errored')
 
-        subject.perform_async(errored_claim.id)
+          service.perform(errored_claim.id)
 
-        errored_claim.reload
-        expect(service).not_to receive(:start_bd_uploader_job)
+          errored_claim.reload
+          expect(service).not_to receive(:start_bd_uploader_job)
+        end
       end
 
       it 'does not retry when form526.submit.noRetryError error gets retruned' do
