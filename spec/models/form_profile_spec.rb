@@ -8,10 +8,9 @@ RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
 
   let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:mpi_profile_address)) }
-  let(:edipi) { '1005079124' }
 
   before do
-    allow(user).to receive(:edipi).and_return(edipi)
+    Flipper.disable(:hca_vaprofile_military_info)
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
@@ -38,10 +37,10 @@ RSpec.describe FormProfile, type: :model do
     {
       'dateOfBirth' => user.birth_date,
       'socialSecurityNumber' => user.ssn,
-      'branchOfService' => 'Army',
+      'branchOfService' => 'Air Force',
       'serviceDateRange' => {
-        'from' => '2012-03-02',
-        'to' => '2018-10-31'
+        'from' => '2007-04-01',
+        'to' => '2007-04-02'
       }
     }
   end
@@ -67,31 +66,6 @@ RSpec.describe FormProfile, type: :model do
     {
       'veteranAddress' => address
     }
-  end
-
-  let(:tours_of_duty) do
-    [
-      {
-        'service_branch' => 'Army',
-        'date_range' => { 'from' => '1985-08-19', 'to' => '1989-08-19' }
-      },
-      {
-        'service_branch' => 'Army',
-        'date_range' => { 'from' => '1989-08-20', 'to' => '1992-08-23' }
-      },
-      {
-        'service_branch' => 'Army',
-        'date_range' => { 'from' => '1989-08-20', 'to' => '2002-07-01' }
-      },
-      {
-        'service_branch' => 'Air Force',
-        'date_range' => { 'from' => '2000-04-07', 'to' => '2009-01-23' }
-      },
-      {
-        'service_branch' => 'Army',
-        'date_range' => { 'from' => '2002-07-02', 'to' => '2014-08-31' }
-      }
-    ]
   end
 
   let(:v40_10007_expected) do
@@ -281,9 +255,16 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v22_1990_expected) do
     {
-      'toursOfDuty' => tours_of_duty,
+      'toursOfDuty' => [
+        {
+          'service_branch' => 'Air Force',
+          'date_range' => {
+            'from' => '2007-04-01', 'to' => '2016-06-01'
+          }
+        }
+      ],
       'currentlyActiveDuty' => {
-        'yes' => false
+        'yes' => true
       },
       'veteranAddress' => {
         'street' => street_check[:street],
@@ -321,7 +302,7 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v22_0994_expected) do
     {
-      'activeDuty' => false,
+      'activeDuty' => true,
       'mailingAddress' => {
         'street' => street_check[:street],
         'street2' => street_check[:street2],
@@ -346,9 +327,16 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v22_1990_n_expected) do
     {
-      'toursOfDuty' => tours_of_duty,
+      'toursOfDuty' => [
+        {
+          'service_branch' => 'Air Force',
+          'date_range' => {
+            'from' => '2007-04-01', 'to' => '2016-06-01'
+          }
+        }
+      ],
       'currentlyActiveDuty' => {
-        'yes' => false
+        'yes' => true
       },
       'veteranAddress' => {
         'street' => street_check[:street],
@@ -460,8 +448,15 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v22_5490_expected) do
     {
-      'toursOfDuty' => tours_of_duty,
-      'currentlyActiveDuty' => false,
+      'toursOfDuty' => [
+        {
+          'service_branch' => 'Air Force',
+          'date_range' => {
+            'from' => '2007-04-01', 'to' => '2016-06-01'
+          }
+        }
+      ],
+      'currentlyActiveDuty' => true,
       'relativeFullName' => {
         'first' => user.first_name&.capitalize,
         'middle' => user.middle_name&.capitalize,
@@ -475,8 +470,15 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v22_5495_expected) do
     {
-      'toursOfDuty' => tours_of_duty,
-      'currentlyActiveDuty' => false,
+      'toursOfDuty' => [
+        {
+          'service_branch' => 'Air Force',
+          'date_range' => {
+            'from' => '2007-04-01', 'to' => '2016-06-01'
+          }
+        }
+      ],
+      'currentlyActiveDuty' => true,
       'relativeFullName' => {
         'first' => user.first_name&.capitalize,
         'middle' => user.middle_name&.capitalize,
@@ -548,10 +550,12 @@ RSpec.describe FormProfile, type: :model do
         'country' => user.address[:country],
         'postal_code' => user.address[:postal_code][0..4]
       },
-      'swAsiaCombat' => false,
-      'lastServiceBranch' => 'army',
-      'lastEntryDate' => '2002-07-02',
-      'lastDischargeDate' => '2014-08-31',
+      'swAsiaCombat' => true,
+      'lastServiceBranch' => 'air force',
+      'lastEntryDate' => '2007-04-01',
+      'lastDischargeDate' => '2007-04-02',
+      'dischargeType' => 'honorable',
+      'postNov111998Combat' => true,
       'gender' => user.gender,
       'homePhone' => us_phone,
       'veteranSocialSecurityNumber' => user.ssn
@@ -755,30 +759,17 @@ RSpec.describe FormProfile, type: :model do
       ],
       'servicePeriods' => [
         {
-          'serviceBranch' => 'Army',
-          'dateRange' => { 'from' => '2002-07-02', 'to' => '2014-08-31' }
-        },
-        {
-          'serviceBranch' => 'Air National Guard',
-          'dateRange' => { 'from' => '2000-04-07', 'to' => '2009-01-23' }
-        },
-        {
-          'serviceBranch' => 'Army Reserve',
-          'dateRange' => { 'from' => '1989-08-20', 'to' => '2002-07-01' }
-        },
-        {
-          'serviceBranch' => 'Army Reserve',
-          'dateRange' => { 'from' => '1989-08-20', 'to' => '1992-08-23' }
-        },
-        {
-          'serviceBranch' => 'Army',
-          'dateRange' => { 'from' => '1985-08-19', 'to' => '1989-08-19' }
+          'serviceBranch' => 'Air Force Reserve',
+          'dateRange' => {
+            'from' => '2007-04-01',
+            'to' => '2016-06-01'
+          }
         }
       ],
       'reservesNationalGuardService' => {
         'obligationTermOfServiceDateRange' => {
-          'from' => '2000-04-07',
-          'to' => '2009-01-23'
+          'from' => '2007-04-01',
+          'to' => '2016-06-01'
         }
       },
       'veteran' => {
@@ -809,7 +800,7 @@ RSpec.describe FormProfile, type: :model do
         'country' => 'US',
         'postal_code' => user.address[:postal_code][0..4]
       },
-      'serviceBranch' => 'Army',
+      'serviceBranch' => 'Air Force',
       'fullName' => {
         'first' => user.first_name&.capitalize,
         'middle' => user.middle_name&.capitalize,
@@ -819,8 +810,8 @@ RSpec.describe FormProfile, type: :model do
       'applicantEmail' => user.pciu_email,
       'phone' => us_phone,
       'serviceDateRange' => {
-        'from' => '2002-07-02',
-        'to' => '2014-08-31'
+        'from' => '2007-04-01',
+        'to' => '2007-04-02'
       }
     }
   end
@@ -844,11 +835,19 @@ RSpec.describe FormProfile, type: :model do
       },
       'contactPhone' => us_phone,
       'contactEmail' => user.pciu_email,
-      'periodsOfService' => tours_of_duty,
+      'periodsOfService' => [
+        {
+          'serviceBranch' => 'Air Force',
+          'dateRange' => {
+            'from' => '2007-04-01',
+            'to' => '2016-06-01'
+          }
+        }
+      ],
       'currentlyActiveDuty' => {
-        'yes' => false
+        'yes' => true
       },
-      'activeDuty' => false
+      'activeDuty' => true
     }
   end
 
@@ -915,129 +914,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  let(:initialize_va_profile_prefill_military_information_expected) do
-    expected_service_episodes_by_date = [
-      {
-        begin_date: '2012-03-02',
-        branch_of_service: 'Army',
-        branch_of_service_code: 'A',
-        character_of_discharge_code: nil,
-        deployments: [],
-        end_date: '2018-10-31',
-        personnel_category_type_code: 'N',
-        service_type: 'Military Service',
-        termination_reason_code: 'C',
-        termination_reason_text: 'Completion of Active Service period'
-      },
-      {
-        begin_date: '2009-03-01',
-        branch_of_service: 'Navy',
-        branch_of_service_code: 'N',
-        character_of_discharge_code: nil,
-        deployments: [],
-        end_date: '2012-12-31',
-        personnel_category_type_code: 'N',
-        service_type: 'Military Service',
-        termination_reason_code: 'C',
-        termination_reason_text: 'Completion of Active Service period'
-      },
-      {
-        begin_date: '2002-02-02',
-        branch_of_service: 'Army',
-        branch_of_service_code: 'A',
-        character_of_discharge_code: nil,
-        deployments: [],
-        end_date: '2008-12-01',
-        personnel_category_type_code: 'N',
-        service_type: 'Military Service',
-        termination_reason_code: 'C',
-        termination_reason_text: 'Completion of Active Service period'
-      }
-    ]
-
-    {
-      'currently_active_duty' => false,
-      'currently_active_duty_hash' => {
-        yes: false
-      },
-      'discharge_type' => nil,
-      'guard_reserve_service_history' => [
-        {
-          from: '2012-03-02',
-          to: '2018-10-31'
-        },
-        {
-          from: '2009-03-01',
-          to: '2012-12-31'
-        },
-        {
-          from: '2002-02-02',
-          to: '2008-12-01'
-        }
-      ],
-      'hca_last_service_branch' => 'army',
-      'last_discharge_date' => '2018-10-31',
-      'last_entry_date' => '2012-03-02',
-      'last_service_branch' => 'Army',
-      'latest_guard_reserve_service_period' => {
-        from: '2012-03-02',
-        to: '2018-10-31'
-      },
-      'post_nov111998_combat' => false,
-      'service_branches' => %w[A N],
-      'service_episodes_by_date' => expected_service_episodes_by_date,
-      'service_periods' => [
-        { service_branch: 'Army National Guard', date_range: { from: '2012-03-02', to: '2018-10-31' } },
-        { service_branch: 'Army National Guard', date_range: { from: '2002-02-02', to: '2008-12-01' } }
-      ],
-      'sw_asia_combat' => false,
-      'tours_of_duty' => [
-        { service_branch: 'Army', date_range: { from: '2002-02-02', to: '2008-12-01' } },
-        { service_branch: 'Navy', date_range: { from: '2009-03-01', to: '2012-12-31' } },
-        { service_branch: 'Army', date_range: { from: '2012-03-02', to: '2018-10-31' } }
-      ],
-      'is_va_service_connected' => true,
-      'compensable_va_service_connected' => false,
-      'va_compensation_type' => 'highDisability'
-    }
-  end
-
-  describe '#initialize_military_information', skip_va_profile: true do
-    it 'prefills military data from va profile' do
-      VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                       allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi',
-                         allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-          output = form_profile.send(:initialize_military_information).attributes.transform_keys(&:to_s)
-
-          expected_output = initialize_va_profile_prefill_military_information_expected
-
-          actual_service_histories = output.delete('service_episodes_by_date')
-          actual_guard_reserve_service_history = output.delete('guard_reserve_service_history')
-          actual_latest_guard_reserve_service_period = output.delete('latest_guard_reserve_service_period')
-
-          expected_service_histories = expected_output.delete('service_episodes_by_date')
-          expected_guard_reserve_service_history = expected_output.delete('guard_reserve_service_history')
-          expected_latest_guard_reserve_service_period = expected_output.delete('latest_guard_reserve_service_period')
-
-          # Now that the nested structures are removed from the outputs, compare the rest of the structure.
-          expect(output).to eq(expected_output)
-          # Compare the nested structures VAProfile::Models::ServiceHistory objects separately.
-          expect(actual_service_histories.map(&:attributes)).to eq(expected_service_histories)
-
-          first_item = actual_guard_reserve_service_history.map(&:attributes).first
-          expect(first_item[:from].to_s).to eq(expected_guard_reserve_service_history.first[:from])
-          expect(first_item[:to].to_s).to eq(expected_guard_reserve_service_history.first[:to])
-
-          guard_period = actual_latest_guard_reserve_service_period.attributes.transform_keys(&:to_s)
-          expect(guard_period['from'].to_s).to eq(expected_latest_guard_reserve_service_period[:from])
-          expect(guard_period['to'].to_s).to eq(expected_latest_guard_reserve_service_period[:to])
-        end
-      end
-    end
-  end
-
-  describe '#initialize_va_profile_prefill_military_information' do
+  describe '#initialize_military_information_vaprofile' do
     context 'when va profile is down in production' do
       before do
         allow(Rails.env).to receive(:production?).and_return(true)
@@ -1045,32 +922,25 @@ RSpec.describe FormProfile, type: :model do
 
       it 'logs exception and returns empty hash' do
         expect(form_profile).to receive(:log_exception_to_sentry).with(
-          instance_of(VCR::Errors::UnhandledHTTPRequestError), {}, prefill: :va_profile_prefill_military_information
+          instance_of(VCR::Errors::UnhandledHTTPRequestError), {}, prefill: :vaprofile_military
         )
-        expect(form_profile.send(:initialize_va_profile_prefill_military_information)).to eq({})
+
+        expect(form_profile.send(:initialize_military_information_vaprofile)).to eq({})
       end
     end
 
     it 'prefills military data from va profile' do
-      VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                       allow_playback_repeats: true, match_requests_on: %i[method body]) do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi',
-                         allow_playback_repeats: true, match_requests_on: %i[method body]) do
-          output = form_profile.send(:initialize_va_profile_prefill_military_information)
-          # Extract service_episodes_by_date and then compare their attributes
-          actual_service_histories = output.delete('service_episodes_by_date')
-          expected_service_histories = initialize_va_profile_prefill_military_information_expected
-                                       .delete('service_episodes_by_date')
-
-          # Now that service_episodes_by_date is removed from output and from
-          # initialize_va_profile_prefill_military_information_expected, compare the rest of the structure.
-          expect(output).to eq(initialize_va_profile_prefill_military_information_expected)
-
-          # Compare service_episodes_by_date separately.
-          # Convert each VAProfile::Models::ServiceHistory object to a hash of attributes so it can be
-          # compared to the expected output.
-          expect(actual_service_histories.map(&:attributes)).to eq(expected_service_histories)
-        end
+      VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
+        expect(form_profile.send(:initialize_military_information_vaprofile)).to eq(
+          {
+            'hca_last_service_branch' => 'army',
+            'last_entry_date' => '2012-03-02',
+            'last_discharge_date' => '2018-10-31',
+            'discharge_type' => nil,
+            'post_nov111998_combat' => false,
+            'sw_asia_combat' => false
+          }
+        )
       end
     end
   end
@@ -1138,15 +1008,15 @@ RSpec.describe FormProfile, type: :model do
         form_id
       end.tap do |schema_form_id|
         schema = strip_required(VetsJsonSchema::SCHEMAS[schema_form_id]).except('anyOf')
+
         schema_data = prefilled_data.deep_dup
+
         errors = JSON::Validator.fully_validate(
           schema,
           schema_data.deep_transform_keys { |key| key.camelize(:lower) }, validate_schema: true
         )
-
         expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end
-
       expect(prefilled_data).to eq(
         form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
       )
@@ -1170,16 +1040,12 @@ RSpec.describe FormProfile, type: :model do
     context 'with a user that can prefill mdot' do
       before do
         expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
-        expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
         expect(user.authorize(:mdot, :access?)).to eq(true)
       end
 
-      it 'returns a prefilled MDOT form', skip_va_profile: true do
+      it 'returns a prefilled MDOT form' do
         VCR.use_cassette('mdot/get_supplies_200') do
-          VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                           allow_playback_repeats: true) do
-            expect_prefilled('MDOT')
-          end
+          expect_prefilled('MDOT')
         end
       end
     end
@@ -1209,10 +1075,7 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'returns a prefilled 5655 form' do
-        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                         allow_playback_repeats: true) do
-          expect_prefilled('5655')
-        end
+        expect_prefilled('5655')
       end
 
       context 'payment window' do
@@ -1229,11 +1092,9 @@ RSpec.describe FormProfile, type: :model do
         end
 
         it 'filters older payments when window is present' do
-          VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                           allow_playback_repeats: true) do
-            allow(Settings.dmc).to receive(:fsr_payment_window).and_return(30)
-            expect_prefilled('5655')
-          end
+          allow(Settings.dmc).to receive(:fsr_payment_window).and_return(30)
+
+          expect_prefilled('5655')
         end
 
         context 'no window present' do
@@ -1261,81 +1122,78 @@ RSpec.describe FormProfile, type: :model do
           end
 
           it 'includes older payments when no window is present' do
-            VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                             allow_playback_repeats: true) do
-              allow(Settings.dmc).to receive(:fsr_payment_window).and_return(nil)
+            allow(Settings.dmc).to receive(:fsr_payment_window).and_return(nil)
 
-              expect_prefilled('5655')
-            end
+            expect_prefilled('5655')
           end
         end
       end
     end
 
-    context 'when VA Profile returns 404', skip_va_profile: true do
-      it 'returns default values' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_404',
-                         allow_playback_repeats: true, match_requests_on: %i[method body]) do
-          VCR.use_cassette('va_profile/disability/disability_rating_404',
-                           allow_playback_repeats: true, match_requests_on: %i[method body]) do
-            can_prefill_emis(true)
-            output = form_profile.send(:initialize_military_information).attributes.transform_keys(&:to_s)
-            expect(output['currently_active_duty']).to eq(false)
-            expect(output['currently_active_duty_hash']).to eq({ yes: false })
-            expect(output['discharge_type']).to eq(nil)
-            expect(output['guard_reserve_service_history']).to eq([])
-            expect(output['hca_last_service_branch']).to eq('other')
-            expect(output['last_discharge_date']).to eq(nil)
-            expect(output['last_entry_date']).to eq(nil)
-            expect(output['last_service_branch']).to eq(nil)
-            expect(output['latest_guard_reserve_service_period']).to eq(nil)
-            expect(output['post_nov111998_combat']).to eq(false)
-            expect(output['service_branches']).to eq([])
-            expect(output['service_episodes_by_date']).to eq([])
-            expect(output['service_periods']).to eq([])
-            expect(output['sw_asia_combat']).to eq(false)
-            expect(output['tours_of_duty']).to eq([])
-          end
-        end
-      end
-    end
-
-    context 'when VA Profile returns 500', skip_va_profile: true do
-      it 'sends a BackendServiceException to Sentry and returns and empty hash' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_500',
-                         allow_playback_repeats: true, match_requests_on: %i[method uri]) do
-          VCR.use_cassette('va_profile/disability/disability_rating_500',
-                           allow_playback_repeats: true, match_requests_on: %i[method uri]) do
-            expect(form_profile).to receive(:log_exception_to_sentry).with(
-              instance_of(Common::Exceptions::BackendServiceException),
-              {}, prefill: :va_profile_prefill_military_information
-            )
-            expect(form_profile.send(:initialize_va_profile_prefill_military_information)).to eq({})
-          end
-        end
+    context 'when emis is down', skip_emis: true do
+      it 'logs the error to sentry' do
+        can_prefill_emis(true)
+        error = RuntimeError.new('foo')
+        expect(Rails.env).to receive(:production?).and_return(true)
+        expect(user.military_information).to receive(:hca_last_service_branch).and_return('air force').and_raise(error)
+        form_profile = described_class.for(form_id: '1010ez', user:)
+        expect(form_profile).to receive(:log_exception_to_sentry).with(error, {}, external_service: :emis)
+        form_profile.prefill
       end
     end
 
     context 'user without an address' do
       it 'prefills properly' do
-        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                         allow_playback_repeats: true) do
-          expect(user).to receive(:address).exactly(6).times.and_return(
-            street: nil,
-            street2: nil,
-            city: nil,
-            state: nil,
-            country: nil,
-            postal_code: nil
-          )
-          described_class.for(form_id: '22-1990e', user:).prefill
-        end
+        expect(user).to receive(:address).exactly(6).times.and_return(
+          street: nil,
+          street2: nil,
+          city: nil,
+          state: nil,
+          country: nil,
+          postal_code: nil
+        )
+        described_class.for(form_id: '22-1990e', user:).prefill
       end
     end
 
-    context 'with military information data', skip_va_profile: true do
+    context 'with emis data', skip_emis: true do
+      # rubocop:disable Metrics/MethodLength
+      def stub_methods_for_emis_data
+        military_information = user.military_information
+        expect(military_information).to receive(:last_service_branch).and_return('Air Force')
+        expect(military_information).to receive(:hca_last_service_branch).and_return('air force')
+        expect(military_information).to receive(:last_entry_date).and_return('2007-04-01')
+        expect(military_information).to receive(:last_discharge_date).and_return('2007-04-02')
+        expect(military_information).to receive(:discharge_type).and_return('honorable')
+        expect(military_information).to receive(:post_nov111998_combat).and_return(true)
+        expect(military_information).to receive(:sw_asia_combat).and_return(true)
+        expect(military_information).to receive(:compensable_va_service_connected).and_return(true).twice
+        expect(military_information).to receive(:is_va_service_connected).and_return(true).twice
+        expect(military_information).to receive(:tours_of_duty).and_return(
+          [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
+        )
+        expect(military_information).to receive(:service_branches).and_return(['F'])
+        allow(military_information).to receive(:currently_active_duty_hash).and_return(
+          yes: true
+        )
+        expect(user).to receive(:can_access_id_card?).and_return(true)
+        expect(military_information).to receive(:service_periods).and_return(
+          [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
+        )
+        expect(military_information).to receive(:guard_reserve_service_history).and_return(
+          [{ from: '2007-04-01', to: '2016-06-01' }, { from: '2002-02-14', to: '2007-01-01' }]
+        )
+        expect(military_information).to receive(:latest_guard_reserve_service_period).and_return(
+          from: '2007-04-01',
+          to: '2016-06-01'
+        )
+      end
+
+      # rubocop:enable Metrics/MethodLength
+
       context 'with va profile prefill on' do
         before do
+          stub_methods_for_emis_data
           VAProfile::Configuration::SETTINGS.prefill = true
 
           v22_1990_expected['email'] = VAProfileRedis::ContactInformation.for_user(user).email.email_address
@@ -1355,36 +1213,26 @@ RSpec.describe FormProfile, type: :model do
         end
 
         it 'prefills 1990' do
-          VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
-                           allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-            VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                             allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-              expect_prefilled('22-1990')
-            end
-          end
+          expect_prefilled('22-1990')
         end
       end
 
       context 'with emis prefill for 0994' do
         before do
+          stub_methods_for_emis_data
+          can_prefill_emis(true)
           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-          expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
         end
 
         it 'prefills 0994' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi',
-                           allow_playback_repeats: true) do
-            VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                             allow_playback_repeats: true) do
-              expect_prefilled('22-0994')
-            end
-          end
+          expect_prefilled('22-0994')
         end
       end
 
       context 'with emis and ppiu prefill for 0994' do
         before do
+          stub_methods_for_emis_data
           can_prefill_emis(true)
           expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
@@ -1400,13 +1248,7 @@ RSpec.describe FormProfile, type: :model do
           VCR.use_cassette('evss/pciu_address/address_domestic') do
             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
               VCR.use_cassette('evss/ppiu/payment_information') do
-                VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi',
-                                 allow_playback_repeats: true) do
-                  VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                                   allow_playback_repeats: true) do
-                    expect_prefilled('22-0994')
-                  end
-                end
+                expect_prefilled('22-0994')
               end
             end
           end
@@ -1414,36 +1256,31 @@ RSpec.describe FormProfile, type: :model do
       end
 
       context 'with emis and vet360 prefill for 0873' do
+        before do
+          stub_methods_for_emis_data
+          can_prefill_emis(true)
+        end
+
         it 'prefills 0873' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi',
-                           allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-            VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                             allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-              expect_prefilled('0873')
-            end
-          end
+          expect_prefilled('0873')
         end
       end
 
       context 'with emis prefill for 10203' do
         before do
+          stub_methods_for_emis_data
           can_prefill_emis(true)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
         end
 
         it 'prefills 10203' do
-          VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi',
-                           allow_playback_repeats: true) do
-            VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                             allow_playback_repeats: true) do
-              expect_prefilled('22-10203')
-            end
-          end
+          expect_prefilled('22-10203')
         end
       end
 
       context 'with emis and GiBillStatus prefill for 10203' do
         before do
+          stub_methods_for_emis_data
           can_prefill_emis(true)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           v22_10203_expected['remainingEntitlement'] = {
@@ -1461,16 +1298,10 @@ RSpec.describe FormProfile, type: :model do
             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
               VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
                 VCR.use_cassette('gi_client/gets_the_institution_details') do
-                  VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi',
-                                   allow_playback_repeats: true) do
-                    VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                                     allow_playback_repeats: true) do
-                      prefilled_data = Oj.load(
-                        described_class.for(form_id: '22-10203', user:).prefill.to_json
-                      )['form_data']
-                      expect(prefilled_data).to eq(form_profile.send(:clean!, v22_10203_expected))
-                    end
-                  end
+                  prefilled_data = Oj.load(
+                    described_class.for(form_id: '22-10203', user:).prefill.to_json
+                  )['form_data']
+                  expect(prefilled_data).to eq(form_profile.send(:clean!, v22_10203_expected))
                 end
               end
             end
@@ -1480,6 +1311,7 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with a user that can prefill emis' do
         before do
+          stub_methods_for_emis_data
           can_prefill_emis(true)
         end
 
@@ -1489,15 +1321,9 @@ RSpec.describe FormProfile, type: :model do
           end
 
           it 'omits address fields in 686c-674 form' do
-            VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi',
-                             allow_playback_repeats: true) do
-              VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                               allow_playback_repeats: true) do
-                prefilled_data = described_class.for(form_id: '686C-674', user:).prefill[:form_data]
-                v686_c_674_expected['veteranContactInformation'].delete('veteranAddress')
-                expect(prefilled_data).to eq(v686_c_674_expected)
-              end
-            end
+            prefilled_data = described_class.for(form_id: '686C-674', user:).prefill[:form_data]
+            v686_c_674_expected['veteranContactInformation'].delete('veteranAddress')
+            expect(prefilled_data).to eq(v686_c_674_expected)
           end
         end
 
@@ -1519,13 +1345,7 @@ RSpec.describe FormProfile, type: :model do
           26-4555
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
-            VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                             allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-              VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
-                               allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-                expect_prefilled(form_id)
-              end
-            end
+            expect_prefilled(form_id)
           end
         end
 
@@ -1546,67 +1366,49 @@ RSpec.describe FormProfile, type: :model do
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
                   VCR.use_cassette('evss/ppiu/payment_information') do
-                    VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
-                                     allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-                      VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                                       allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-                        VCR.use_cassette('virtual_regional_office/max_ratings') do
-                          expect_prefilled('21-526EZ')
-                        end
-                      end
+                    VCR.use_cassette('virtual_regional_office/max_ratings') do
+                      expect_prefilled('21-526EZ')
                     end
                   end
                 end
               end
             end
           end
-        end
 
-        context 'without ppiu' do
-          context 'when Vet360 prefill is enabled' do
-            before do
-              VAProfile::Configuration::SETTINGS.prefill = true # TODO: - is this missing in the failures above?
-              expected_veteran_info = v21_526_ez_expected['veteran']
-              expected_veteran_info['emailAddress'] =
-                VAProfileRedis::ContactInformation.for_user(user).email.email_address
-              expected_veteran_info['primaryPhone'] = '3035551234'
+          context 'without ppiu' do
+            context 'when Vet360 prefill is enabled' do
+              before do
+                VAProfile::Configuration::SETTINGS.prefill = true
+                expected_veteran_info = v21_526_ez_expected['veteran']
+                expected_veteran_info['emailAddress'] =
+                  VAProfileRedis::ContactInformation.for_user(user).email.email_address
+                expected_veteran_info['primaryPhone'] = '3035551234'
+              end
+
+              after do
+                VAProfile::Configuration::SETTINGS.prefill = false
+              end
+
+              it 'returns prefilled 21-526EZ' do
+                Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
+                expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
+                expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+                VCR.use_cassette('evss/pciu_address/address_domestic') do
+                  VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+                    VCR.use_cassette('evss/ppiu/payment_information') do
+                      VCR.use_cassette('virtual_regional_office/max_ratings') do
+                        expect_prefilled('21-526EZ')
+                      end
+                    end
+                  end
+                end
+              end
             end
 
-            after do
-              VAProfile::Configuration::SETTINGS.prefill = false
-            end
-
-            it 'returns prefilled 21-526EZ' do
-              Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
-              expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
+            it 'returns prefilled 21-686C' do
               expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-              VCR.use_cassette('evss/pciu_address/address_domestic') do
-                VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                  VCR.use_cassette('evss/ppiu/payment_information') do
-                    VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
-                                     allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-                      VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                                       allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-                        VCR.use_cassette('virtual_regional_office/max_ratings') do
-                          expect_prefilled('21-526EZ')
-                        end
-                      end
-                    end
-                  end
-                end
-              end
-            end
-          end
-
-          it 'returns prefilled 21-686C' do
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-            VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
-              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi',
-                               allow_playback_repeats: true) do
-                VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                                 allow_playback_repeats: true) do
-                  expect_prefilled('21-686C')
-                end
+              VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
+                expect_prefilled('21-686C')
               end
             end
           end
@@ -1616,10 +1418,7 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with a burial application form' do
       it 'returns the va profile mapped to the burial form' do
-        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                         allow_playback_repeats: true) do
-          expect_prefilled('21P-530')
-        end
+        expect_prefilled('21P-530')
       end
 
       context 'without address' do
@@ -1640,10 +1439,7 @@ RSpec.describe FormProfile, type: :model do
         end
 
         it "doesn't throw an exception" do
-          VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                           allow_playback_repeats: true) do
-            expect_prefilled('21P-530')
-          end
+          expect_prefilled('21P-530')
         end
       end
     end
@@ -1651,12 +1447,8 @@ RSpec.describe FormProfile, type: :model do
     context 'with a higher level review form' do
       let(:schema_name) { '20-0996' }
       let(:schema) { VetsJsonSchema::SCHEMAS[schema_name] }
-
-      VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                       allow_playback_repeats: true) do
-        let(:form_profile) { described_class.for(form_id: schema_name, user:) }
-        let(:prefill) { Oj.load(form_profile.prefill.to_json)['form_data'] }
-      end
+      let(:form_profile) { described_class.for(form_id: schema_name, user:) }
+      let(:prefill) { Oj.load(form_profile.prefill.to_json)['form_data'] }
 
       before do
         allow_any_instance_of(BGS::People::Service).to(
@@ -1672,35 +1464,29 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'prefills' do
-        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                         allow_playback_repeats: true) do
-          expect(prefill.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')).to be_a(String).or be_nil
-          expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'areaCode')).to be_a(String).or be_nil
-          expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'phoneNumber')).to be_a(String).or be_nil
-          expect(prefill.dig('nonPrefill', 'veteranAddress', 'street')).to be_a(String).or be_nil
-          expect(prefill.dig('nonPrefill', 'veteranAddress', 'street2')).to be_a(String).or be_nil
-          expect(prefill.dig('nonPrefill', 'veteranAddress', 'street3')).to be_a(String).or be_nil
-          expect(prefill.dig('nonPrefill', 'veteranAddress', 'city')).to be_a(String).or be_nil
-          expect(prefill.dig('nonPrefill', 'veteranAddress', 'state')).to be_a(String).or be_nil
-          expect(prefill.dig('nonPrefill', 'veteranAddress', 'country')).to be_a(String).or be_nil
-          expect(prefill.dig('nonPrefill', 'veteranAddress', 'postalCode')).to be_a(String).or be_nil
-          expect(prefill.dig('nonPrefill', 'veteranSsnLastFour')).to be_a(String).or be_nil
-          expect(prefill.dig('nonPrefill', 'veteranVaFileNumberLastFour')).to be_a(String)
-        end
+        expect(prefill.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')).to be_a(String).or be_nil
+        expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'areaCode')).to be_a(String).or be_nil
+        expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'phoneNumber')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street2')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street3')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'city')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'state')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'country')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'postalCode')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranSsnLastFour')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranVaFileNumberLastFour')).to be_a(String)
       end
 
       it 'prefills an object that passes the schema' do
-        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                         allow_playback_repeats: true) do
-          full_example = VetsJsonSchema::EXAMPLES['HLR-CREATE-REQUEST-BODY']
-          test_data = full_example.deep_merge prefill
-          errors = JSON::Validator.fully_validate(
-            schema,
-            test_data,
-            validate_schema: true
-          )
-          expect(errors.empty?).to eq(true), "schema errors: #{errors}"
-        end
+        full_example = VetsJsonSchema::EXAMPLES['HLR-CREATE-REQUEST-BODY']
+        test_data = full_example.deep_merge prefill
+        errors = JSON::Validator.fully_validate(
+          schema,
+          test_data,
+          validate_schema: true
+        )
+        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end
     end
 
@@ -1710,11 +1496,8 @@ RSpec.describe FormProfile, type: :model do
         DecisionReview::Schemas::NOD_CREATE_REQUEST.merge '$schema': 'http://json-schema.org/draft-04/schema#'
       end
 
-      VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                       allow_playback_repeats: true) do
-        let(:form_profile) { described_class.for(form_id: schema_name, user:) }
-        let(:prefill) { Oj.load(form_profile.prefill.to_json)['form_data'] }
-      end
+      let(:form_profile) { described_class.for(form_id: schema_name, user:) }
+      let(:prefill) { Oj.load(form_profile.prefill.to_json)['form_data'] }
 
       before do
         allow_any_instance_of(BGS::People::Service).to(
@@ -1730,60 +1513,48 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'prefills' do
-        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                         allow_playback_repeats: true) do
-          veteran = prefill.dig 'data', 'attributes', 'veteran'
-          address = veteran['address']
-          phone = veteran['phone']
-          expect(address['addressLine1']).to be_a String
-          expect(address['addressLine2']).to be_a(String).or be_nil
-          expect(address['addressLine3']).to be_a(String).or be_nil
-          expect(address['city']).to be_a String
-          expect(address['stateCode']).to be_a String
-          expect(address['zipCode5']).to be_a String
-          expect(address['countryName']).to be_a String
-          expect(address['internationalPostalCode']).to be_a(String).or be_nil
-          expect(phone['areaCode']).to be_a String
-          expect(phone['phoneNumber']).to be_a String
-          expect(veteran['emailAddressText']).to be_a String
-          non_prefill = prefill['nonPrefill']
-          expect(non_prefill['veteranSsnLastFour']).to be_a String
-          expect(non_prefill['veteranVaFileNumberLastFour']).to be_a String
-        end
+        veteran = prefill.dig 'data', 'attributes', 'veteran'
+        address = veteran['address']
+        phone = veteran['phone']
+        expect(address['addressLine1']).to be_a String
+        expect(address['addressLine2']).to be_a(String).or be_nil
+        expect(address['addressLine3']).to be_a(String).or be_nil
+        expect(address['city']).to be_a String
+        expect(address['stateCode']).to be_a String
+        expect(address['zipCode5']).to be_a String
+        expect(address['countryName']).to be_a String
+        expect(address['internationalPostalCode']).to be_a(String).or be_nil
+        expect(phone['areaCode']).to be_a String
+        expect(phone['phoneNumber']).to be_a String
+        expect(veteran['emailAddressText']).to be_a String
+        non_prefill = prefill['nonPrefill']
+        expect(non_prefill['veteranSsnLastFour']).to be_a String
+        expect(non_prefill['veteranVaFileNumberLastFour']).to be_a String
       end
 
       it 'prefills an object that passes the schema' do
-        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                         allow_playback_repeats: true) do
-          full_example = JSON.parse File.read Rails.root.join 'spec', 'fixtures', 'notice_of_disagreements',
-                                                              'valid_NOD_create_request.json'
+        full_example = JSON.parse File.read Rails.root.join 'spec', 'fixtures', 'notice_of_disagreements',
+                                                            'valid_NOD_create_request.json'
 
-          test_data = full_example.deep_merge prefill.except('nonPrefill')
-          errors = JSON::Validator.fully_validate(
-            schema,
-            test_data,
-            validate_schema: true
-          )
-          expect(errors.empty?).to eq(true), "schema errors: #{errors}"
-        end
+        test_data = full_example.deep_merge prefill.except('nonPrefill')
+        errors = JSON::Validator.fully_validate(
+          schema,
+          test_data,
+          validate_schema: true
+        )
+        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end
     end
 
     context 'with a pension application form' do
       it 'returns the va profile mapped to the pension form' do
-        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                         allow_playback_repeats: true) do
-          expect_prefilled('21P-527EZ')
-        end
+        expect_prefilled('21P-527EZ')
       end
     end
 
     context 'when the form mapping can not be found' do
       it 'raises an IOError' do
-        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                         allow_playback_repeats: true) do
-          expect { described_class.new(form_id: 'foo', user:).prefill }.to raise_error(IOError)
-        end
+        expect { described_class.new(form_id: 'foo', user:).prefill }.to raise_error(IOError)
       end
     end
   end
@@ -1794,18 +1565,15 @@ RSpec.describe FormProfile, type: :model do
       let(:instance2) { FormProfile.new(form_id: '1010ez', user:) }
 
       it 'loads the yaml file only once' do
-        VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability_updated_edipi',
-                         allow_playback_repeats: true) do
-          expect(YAML).to receive(:load_file).once.and_return(
-            'veteran_full_name' => %w[identity_information full_name],
-            'gender' => %w[identity_information gender],
-            'veteran_date_of_birth' => %w[identity_information date_of_birth],
-            'veteran_address' => %w[contact_information address],
-            'home_phone' => %w[contact_information home_phone]
-          )
-          instance1.prefill
-          instance2.prefill
-        end
+        expect(YAML).to receive(:load_file).once.and_return(
+          'veteran_full_name' => %w[identity_information full_name],
+          'gender' => %w[identity_information gender],
+          'veteran_date_of_birth' => %w[identity_information date_of_birth],
+          'veteran_address' => %w[contact_information address],
+          'home_phone' => %w[contact_information home_phone]
+        )
+        instance1.prefill
+        instance2.prefill
       end
     end
   end
