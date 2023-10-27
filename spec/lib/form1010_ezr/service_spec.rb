@@ -7,22 +7,7 @@ RSpec.describe Form1010Ezr::Service do
   include SchemaMatchers
 
   let(:form) { get_fixture('form1010_ezr/valid_form') }
-  let(:response) do
-    double(body: Ox.parse(%(
-    <?xml version='1.0' encoding='UTF-8'?>
-    <S:Envelope>
-      <S:Body>
-        <submitFormResponse>
-          <status>100</status>
-          <formSubmissionId>40124668140</formSubmissionId>
-          <message><type>Form successfully received for EE processing</type></message>
-          <timeStamp>2023-06-25T04:59:39.345-05:00</timeStamp>
-        </submitFormResponse>
-      </S:Body>
-    </S:Envelope>
-     )))
-  end
-  let(:current_user) { build(:evss_user, :loa3) }
+  let(:current_user) { build(:evss_user, :loa3, icn: '1013032368V065534') }
 
   def allow_logger_to_receive_error
     allow(Rails.logger).to receive(:error)
@@ -37,16 +22,12 @@ RSpec.describe Form1010Ezr::Service do
   end
 
   describe '#submit_form' do
-    before do
-      allow(current_user).to receive(:icn).and_return('1013032368V065534')
-    end
-
     context 'when successful' do
       it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'",
          run_at: 'Mon, 23 Oct 2023 23:09:43 GMT' do
         VCR.use_cassette(
           'form1010_ezr/authorized_submit',
-          match_requests_on: [:body]
+          { match_requests_on: %i[method uri body], erb: true }
         ) do
           # The required fields for the Enrollment System should be absent from the form data initially
           # and then added via the 'post_fill_required_fields' method
@@ -63,6 +44,29 @@ RSpec.describe Form1010Ezr::Service do
               timestamp: '2023-10-23T18:12:24.628-05:00'
             }
           )
+        end
+      end
+
+      context 'when the form includes a Mexican province' do
+        let(:form) { get_fixture('form1010_ezr/valid_form_with_mexican_province') }
+
+        it "overrides the original province 'state' with the correct province initial and renders a " \
+           'successful response', run_at: 'Mon, 23 Oct 2023 23:42:13 GMT' do
+          VCR.use_cassette(
+            'form1010_ezr/authorized_submit_with_mexican_province',
+            { match_requests_on: %i[method uri body], erb: true }
+          ) do
+            # The initial form data should include the JSON schema Mexican provinces before they're overridden
+            expect(form['veteranAddress']['state']).to eq('chihuahua')
+            expect(form['veteranHomeAddress']['state']).to eq('chihuahua')
+            expect(submit_form(form)).to eq(
+              {
+                success: true,
+                formSubmissionId: 432_236_923,
+                timestamp: '2023-10-23T18:42:52.975-05:00'
+              }
+            )
+          end
         end
       end
     end
