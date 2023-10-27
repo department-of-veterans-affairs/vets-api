@@ -7,7 +7,7 @@ describe VAProfile::MilitaryPersonnel::Service do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :loa3) }
-  let(:edipi) { '1005079124' }
+  let(:edipi) { '384759483' }
 
   before do
     allow(user).to receive(:edipi).and_return(edipi)
@@ -17,7 +17,7 @@ describe VAProfile::MilitaryPersonnel::Service do
     context 'when an edipi exists' do
       it 'returns a valid identity path' do
         path = subject.identity_path
-        expect(path).to eq('2.16.840.1.113883.3.42.10001.100001.12/1005079124%5ENI%5E200DOD%5EUSDOD')
+        expect(path).to eq('2.16.840.1.113883.3.42.10001.100001.12/384759483%5ENI%5E200DOD%5EUSDOD')
       end
     end
   end
@@ -25,7 +25,7 @@ describe VAProfile::MilitaryPersonnel::Service do
   describe '#get_service_history' do
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200_1005079124_edipi') do
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
           response = subject.get_service_history
 
           expect(response).to be_ok
@@ -34,7 +34,7 @@ describe VAProfile::MilitaryPersonnel::Service do
       end
 
       it 'returns a single service history episode' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200_1005079124_edipi') do
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
           response = subject.get_service_history
           episode = response.episodes.first
 
@@ -43,7 +43,7 @@ describe VAProfile::MilitaryPersonnel::Service do
       end
 
       it 'returns multiple service history episodes' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi') do
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
           response = subject.get_service_history
           episodes = response.episodes
 
@@ -57,7 +57,7 @@ describe VAProfile::MilitaryPersonnel::Service do
       end
 
       it 'sorts service history episodes' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200_1005079124_edipi') do
+        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
           response = subject.get_service_history
           episodes = response.episodes
 
@@ -85,7 +85,7 @@ describe VAProfile::MilitaryPersonnel::Service do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_404') do
           expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
-            { edipi: '1005079124' },
+            { edipi: '384759483' },
             { va_profile: :service_history_not_found },
             :warning
           )
@@ -99,17 +99,11 @@ describe VAProfile::MilitaryPersonnel::Service do
     end
 
     context 'when service returns a 500 error code' do
-      let(:edipi) { '384759483' }
-
-      before do
-        allow(user).to receive(:edipi).and_return(edipi)
-      end
-
       it 'raises a BackendServiceException error' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_history_500') do
           expect { subject.get_service_history }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(400)  # VET360_CORE100 status set in exceptions.en.yml
+            expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_CORE100')
           end
         end
