@@ -5,6 +5,7 @@ require 'va_profile/health_benefit/service'
 module V0
   module Profile
     class ContactsController < ApplicationController
+      service_tag 'profile'
       before_action :check_feature_enabled
       before_action { authorize :vet360, :access? }
 

@@ -306,6 +306,9 @@ features:
   decision_review_sc_pact_act_boolean:
     actor_type: user
     description: Adds a 'potentialPactAct' field to the Supplemental Claims V2 API schema
+  decision_review_delay_evidence:
+    actor_type: user
+    description: Ensures that NOD and SC evidence is not received in Central Mail before the appeal itself
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -728,6 +731,9 @@ features:
   profile_show_quick_submit_notification_setting:
     actor_type: user
     description: Show/Hide the quick submit section of notification settings in profile
+  profile_show_proof_of_veteran_status:
+    actor_type: user
+    description: Show/Hide the proof of veteran status page and links
   profile_use_experimental:
     description: Use experimental features for Profile application - Do not remove
     enable_in_development: true
@@ -786,6 +792,14 @@ features:
   my_va_show_header_link:
     actor_type: user
     description: Show the My VA link on the global site header
+  rated_disabilities_detect_discrepancies:
+    actor_type: user
+    description: When enabled, the rated disabilities application will check for discrepancies between
+      the number of rated disabilities returned by EVSS and Lighthouse 
+    enable_in_development: true
+  rated_disabilities_sort_ab_test:
+    actor_type: user
+    description: Allows us to set up AB test of sorting on rated disabilities app
   rated_disabilities_use_lighthouse:
     actor_type: user
     description: When enabled, the rated disabilities application uses Lighthouse instead of EVSS
@@ -1055,9 +1069,6 @@ features:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
     enable_in_development: true
-  rated_disabilities_sort_ab_test:
-    actor_type: user
-    description: Allows us to set up AB test of sorting on rated disabilities app
   show_dashboard_notifications:
     actor_type: user
     description: Enables on-site notifications
@@ -1067,7 +1078,6 @@ features:
   dhp_connected_devices_fitbit:
     actor_type: user
     description: Enables linking between VA.gov account and fitbit account
-    enable_in_development: true
   show_expandable_vamc_alert:
     actor_type: user
     description: Allows expandable alerts to be visible in vamc
@@ -1126,6 +1136,9 @@ features:
   mobile_lighthouse_claims:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our claims endpoints upstream service
+  mobile_lighthouse_request_decision:
+    actor_type: user
+    description: For mobile app, use Lighthouse instead of EVSS for our request decision endpoints upstream service
   mobile_lighthouse_document_upload:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our document uploads

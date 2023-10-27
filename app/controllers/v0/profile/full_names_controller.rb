@@ -3,6 +3,8 @@
 module V0
   module Profile
     class FullNamesController < ApplicationController
+      service_tag 'profile'
+
       # Fetches the full name details for the current user.
       # Namely their first/middle/last name, and suffix.
       #

@@ -15,8 +15,16 @@ module Mobile
       include IgnoreNotFound
       before_action(only: %i[get_appeal]) { authorize :appeals, :access? }
 
-      before_action(only: %i[get_claim request_decision]) do
+      before_action(only: %i[get_claim]) do
         if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
+          authorize :lighthouse, :access?
+        else
+          authorize :evss, :access?
+        end
+      end
+
+      before_action(only: %i[request_decision]) do
+        if Flipper.enabled?(:mobile_lighthouse_request_decision, @current_user)
           authorize :lighthouse, :access?
         else
           authorize :evss, :access?
@@ -61,7 +69,7 @@ module Mobile
       end
 
       def request_decision
-        jid = if Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
+        jid = if Flipper.enabled?(:mobile_lighthouse_request_decision, @current_user)
                 response = lighthouse_claims_proxy.request_decision(params[:id])
                 adapt_response(response)
               else
@@ -201,18 +209,23 @@ module Mobile
       end
 
       def service
-        lighthouse? ? lighthouse_claims_proxy : evss_claims_proxy
+        claim_status_lighthouse? ? lighthouse_claims_proxy : evss_claims_proxy
       end
 
       def claims_access?
-        lighthouse? ? @current_user.authorize(:lighthouse, :access?) : @current_user.authorize(:evss, :access?)
+        if claim_status_lighthouse?
+          @current_user.authorize(:lighthouse,
+                                  :access?)
+        else
+          @current_user.authorize(:evss, :access?)
+        end
       end
 
       def appeals_access?
         @current_user.authorize(:appeals, :access?)
       end
 
-      def lighthouse?
+      def claim_status_lighthouse?
         Flipper.enabled?(:mobile_lighthouse_claims, @current_user)
       end
     end

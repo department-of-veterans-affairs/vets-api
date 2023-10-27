@@ -160,6 +160,7 @@ Rails.application.routes.draw do
     resources :evss_benefits_claims, only: %i[index show] unless Settings.vsp_environment == 'production'
 
     resource :rated_disabilities, only: %i[show]
+    resource :rated_disabilities_discrepancies, only: %i[show]
 
     namespace :virtual_agent do
       get 'claim', to: 'virtual_agent_claim#index'
@@ -373,6 +374,8 @@ Rails.application.routes.draw do
     get 'terms_of_use_agreements/:version/latest', to: 'terms_of_use_agreements#latest'
     post 'terms_of_use_agreements/:version/accept', to: 'terms_of_use_agreements#accept'
     post 'terms_of_use_agreements/:version/decline', to: 'terms_of_use_agreements#decline'
+
+    resources :form1010_ezrs, only: %i[create]
   end
   # end /v0
 
