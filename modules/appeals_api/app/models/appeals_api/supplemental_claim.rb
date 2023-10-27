@@ -13,6 +13,7 @@ module AppealsApi
     attr_readonly :form_data
 
     before_create :assign_metadata
+    before_update :submit_evidence_to_central_mail, if: -> { status_changed_to_success? && delay_evidence_enabled? }
 
     def self.past?(date)
       date < Time.zone.today
@@ -277,6 +278,10 @@ module AppealsApi
       update_status(status:, code:, detail:, raise_on_error: true)
     end
 
+    def submit_evidence_to_central_mail
+      evidence_submissions&.each(&:submit_to_central_mail)
+    end
+
     def lob
       {
         'compensation' => 'CMP',
@@ -334,6 +339,14 @@ module AppealsApi
 
     def email_present?
       claimant.email.present? || email_identifier.present?
+    end
+
+    def status_changed_to_success?
+      status_changed? && status == 'success'
+    end
+
+    def delay_evidence_enabled?
+      Flipper.enabled?(:decision_review_delay_evidence)
     end
 
     def clear_memoized_values
