@@ -42,7 +42,7 @@ module ClaimsApi
         set_evss_response(auto_claim, e)
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "526EZ PDF generator errored #{e.status_code} #{e.original_body}")
+                         "526EZ PDF generator errored #{e&.status_code} #{e&.original_body}")
         log_exception_to_sentry(e)
 
         raise e
@@ -51,7 +51,7 @@ module ClaimsApi
         set_evss_response(auto_claim, e)
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "Submit failed for claimId #{auto_claim&.id}: #{e.original_body}")
+                         "Submit failed for claimId #{auto_claim&.id}: #{e&.original_body}")
         log_exception_to_sentry(e)
         # if will_retry?
         if will_retry?(e)
@@ -64,7 +64,7 @@ module ClaimsApi
         set_evss_response(auto_claim, e)
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "Submit failed for claimId #{auto_claim&.id}: #{e.detailed_message}")
+                         "Submit failed for claimId #{auto_claim&.id}: #{e&.detailed_message}")
         log_exception_to_sentry(e)
 
         raise e

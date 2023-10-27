@@ -44,10 +44,12 @@ module ClaimsApi
 
       def will_retry?(error)
         if error.respond_to? :original_body
-          msg = error.original_body[:messages][0][:key]
+          msg = error&.original_body[:messages][0][:key]
+        else
+          msg = ''
         end
 
-        if msg.include?(NONRETRY_ERROR_MESSAGES)
+        if NONRETRY_ERROR_MESSAGES.include?(msg)
           false
         else
           true

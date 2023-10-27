@@ -76,33 +76,33 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
           expect(claim.status).to eq('established')
         end
       end
-    end
 
-    it 'sets the claim status to established' do
-      VCR.use_cassette('claims_api/evss/submit') do
-        expect(errored_claim.status).to eq('errored')
+      it 'sets the claim status to established' do
+        VCR.use_cassette('claims_api/evss/submit') do
+          expect(errored_claim.status).to eq('errored')
 
-        service.perform(errored_claim.id)
+          service.perform(errored_claim.id)
 
-        errored_claim.reload
-        expect(errored_claim.status).to eq('established')
+          errored_claim.reload
+          expect(errored_claim.status).to eq('established')
+        end
+      end
+
+      it 'sets the record straight when establishing the claim' do
+        VCR.use_cassette('claims_api/evss/submit') do
+          expect(claim_with_evss_response.status).to eq('errored')
+          expect(claim_with_evss_response.evss_response).to eq('Just a test evss error response')
+
+          service.perform(claim_with_evss_response.id)
+
+          claim_with_evss_response.reload
+          expect(claim_with_evss_response.status).to eq('established')
+          expect(claim_with_evss_response.evss_response).to eq(nil)
+        end
       end
     end
 
-    it 'sets the record straight when establishing the claim' do
-      VCR.use_cassette('claims_api/evss/submit') do
-        expect(claim_with_evss_response.status).to eq('errored')
-        expect(claim_with_evss_response.evss_response).to eq('Just a test evss error response')
-
-        service.perform(claim_with_evss_response.id)
-
-        claim_with_evss_response.reload
-        expect(claim_with_evss_response.status).to eq('established')
-        expect(claim_with_evss_response.evss_response).to eq(nil)
-      end
-    end
-
-    context 'handles an errored claim correctly' do
+    context 'errored submission' do
       it 'does not call the next job when the claim.status is errored' do
         allow(errored_claim).to receive(:status).and_return('errored')
 
@@ -110,6 +110,46 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationDockerContainerUpload, type:
 
         errored_claim.reload
         expect(service).not_to receive(:start_bd_uploader_job)
+      end
+
+      it 'does not retry when form526.submit.noRetryError error gets retruned' do
+        body = {
+          messages: [
+            { key: 'form526.submit.noRetryError', 
+              severity: 'FATAL', 
+              text: 'Claim could not be established. Retries will fail.' 
+            }
+          ]}
+
+        allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
+          receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
+            'form526.submit.noRetryError', {}, nil, body)
+          )
+        )
+        
+        expect do
+          service.perform(claim.id)
+        end.to change(subject.jobs, :size).by(0)
+      end
+
+      it 'does not retry when form526.inProcess error gets retruned' do
+        body = {
+          messages: [
+            { key: 'form526.inProcess', 
+              severity: 'FATAL', 
+              text: 'Form 526 is already in-process' 
+            }
+          ]}
+
+        allow_any_instance_of(ClaimsApi::EVSSService::Base).to(
+          receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
+            'form526.inProcess', {}, nil, body)
+          )
+        )
+        
+        expect do
+          service.perform(claim.id)
+        end.to change(subject.jobs, :size).by(0)
       end
     end
   end
