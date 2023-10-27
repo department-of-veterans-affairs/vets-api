@@ -71,6 +71,10 @@ module VBADocuments
           if upload.status.eql?('pending')
             Rails.logger.info("VBADocuments: Processing: #{upload.inspect}")
             upload.update(status: 'uploaded')
+
+            # Appeals evidence is processed at a later time (after the appeal reaches a "success" status)
+            return if upload.appeals_consumer? && Flipper.enabled?(:decision_review_delay_evidence)
+
             VBADocuments::UploadProcessor.perform_async(upload_id, caller: self.class.name)
           else
             Rails.logger.info("VBADocuments: upload_complete_controller late/duplicate notification: #{upload.inspect}")
