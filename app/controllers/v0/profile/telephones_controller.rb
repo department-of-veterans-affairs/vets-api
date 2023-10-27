@@ -4,6 +4,7 @@ module V0
   module Profile
     class TelephonesController < ApplicationController
       include Vet360::Writeable
+      service_tag 'profile'
 
       before_action { authorize :vet360, :access? }
       after_action :invalidate_cache

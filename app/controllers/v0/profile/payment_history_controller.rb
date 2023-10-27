@@ -3,6 +3,7 @@
 module V0
   module Profile
     class PaymentHistoryController < ApplicationController
+      service_tag 'payment-history'
       before_action { authorize :bgs, :access? }
 
       def index
