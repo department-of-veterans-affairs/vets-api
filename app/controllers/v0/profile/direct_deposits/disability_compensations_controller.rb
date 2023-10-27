@@ -9,6 +9,7 @@ module V0
   module Profile
     module DirectDeposits
       class DisabilityCompensationsController < ApplicationController
+        service_tag 'direct-deposit'
         before_action :controller_enabled?
         before_action { authorize :lighthouse, :access_disability_compensations? }
 

@@ -6,6 +6,7 @@ module V0
   module Profile
     class ConnectedApplicationsController < ApplicationController
       include IgnoreNotFound
+      service_tag 'profile'
 
       def index
         render json: apps_from_grants, each_serializer: OktaAppSerializer

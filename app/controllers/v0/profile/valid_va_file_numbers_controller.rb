@@ -3,6 +3,7 @@
 module V0
   module Profile
     class ValidVAFileNumbersController < ApplicationController
+      service_tag 'profile'
       before_action { authorize :bgs, :access? }
 
       def show
