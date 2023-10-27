@@ -193,11 +193,13 @@ module ClaimsApi
         end
       end
 
-      def claims_v1_logging(icn, poa = nil)
+      def claims_v1_logging(icn, location = nil, poa = nil)
         ClaimsApi::Logger.log('traceability',
                               icn:,
                               cid: token&.payload&.[]('cid'),
                               current_user: current_user&.uuid,
+                              location: location,
+                              api_version: 'V1',
                               poa:)
       end
     end

@@ -22,11 +22,9 @@ module ClaimsApi
         #
         # @return [JSON] Response from BGS
         def submit_form_0966
-          ClaimsApi::Logger.log('itf', detail: '0966 - Request Started')
           validate_json_schema
           validate_veteran_identifiers(require_birls: true)
           check_for_invalid_burial_submission! if form_type == 'burial'
-          ClaimsApi::Logger.log('itf', detail: '0966 - Controller Actions Completed')
 
           bgs_response = local_bgs_service.insert_intent_to_file(intent_to_file_options)
           if bgs_response.empty?
@@ -34,8 +32,7 @@ module ClaimsApi
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Veteran ID not found')
           else
             ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::SUBMITTED, cid: token.payload['cid'])
-            ClaimsApi::Logger.log('itf', detail: 'Submitted to BGS')
-            claims_v1_logging(target_veteran&.mpi_icn)
+            claims_v1_logging(target_veteran&.mpi_icn, location: 'itf_submit')
 
             render json: bgs_response,
                    serializer: ClaimsApi::IntentToFileSerializer
@@ -66,7 +63,7 @@ module ClaimsApi
             raise ::Common::Exceptions::ResourceNotFound.new(detail: message)
           end
 
-          claims_v1_logging(target_veteran&.mpi_icn)
+          claims_v1_logging(target_veteran&.mpi_icn, location: 'itf_active')
 
           render json: bgs_active, serializer: ClaimsApi::IntentToFileSerializer
         end
@@ -75,14 +72,12 @@ module ClaimsApi
         #
         # @return [JSON] Success if valid, error messages if invalid.
         def validate
-          ClaimsApi::Logger.log('itf', detail: '0966/validate - Request Started')
           add_deprecation_headers_to_response(response:, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           validate_json_schema
           validate_veteran_identifiers(require_birls: true)
           check_for_invalid_burial_submission! if form_type == 'burial'
 
-          ClaimsApi::Logger.log('itf', detail: '0966/validate - Request Completed')
-          claims_v1_logging(target_veteran&.mpi_icn)
+          claims_v1_logging(target_veteran&.mpi_icn, location: 'itf_validate')
 
           render json: validation_success
         end

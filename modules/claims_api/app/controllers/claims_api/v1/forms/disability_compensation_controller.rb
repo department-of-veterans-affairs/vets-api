@@ -71,8 +71,7 @@ module ClaimsApi
             ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
           end
 
-          ClaimsApi::Logger.log('526', detail: '526 - Request Completed')
-          claims_v1_logging(target_veteran&.mpi_icn)
+          claims_v1_logging(target_veteran&.mpi_icn, location: '526_submit')
 
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
         end
@@ -95,7 +94,7 @@ module ClaimsApi
             ClaimsApi::Logger.log('526', claim_id: pending_claim.id, detail: 'Uploaded PDF to S3')
             ClaimsApi::ClaimEstablisher.perform_async(pending_claim.id)
             ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
-            claims_v1_logging(target_veteran&.mpi_icn)
+            claims_v1_logging(target_veteran&.mpi_icn, location: '526_upload')
 
             render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
           elsif pending_claim && (pending_claim.form_data['autoCestPDFGenerationDisabled'] == false)
@@ -132,7 +131,7 @@ module ClaimsApi
             ClaimsApi::ClaimUploader.perform_async(claim_document.id)
           end
 
-          claims_v1_logging(target_veteran&.mpi_icn)
+          claims_v1_logging(target_veteran&.mpi_icn, location: '526_supporting_docs')
 
           render json: claim, serializer: ClaimsApi::ClaimDetailSerializer, uuid: claim.id
         end
@@ -175,7 +174,7 @@ module ClaimsApi
           end
 
           ClaimsApi::Logger.log('526', detail: '526/validate - Request Completed')
-          claims_v1_logging(target_veteran&.mpi_icn)
+          claims_v1_logging(target_veteran&.mpi_icn, location: '526_validate')
 
           render json: valid_526_response
         rescue ::EVSS::DisabilityCompensationForm::ServiceException, EVSS::ErrorMiddleware::EVSSError => e

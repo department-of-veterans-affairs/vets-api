@@ -14,7 +14,7 @@ module ClaimsApi
         claims = claims_status_service.all(target_veteran.participant_id)
         raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claims not found') if claims == []
 
-        claims_v1_logging(target_veteran&.mpi_icn)
+        claims_v1_logging(target_veteran&.mpi_icn, location: 'claims_index')
 
         render json: claims,
                serializer: ActiveModel::Serializer::CollectionSerializer,
@@ -43,7 +43,7 @@ module ClaimsApi
         else
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
         end
-        claims_v1_logging(target_veteran&.mpi_icn)
+        claims_v1_logging(target_veteran&.mpi_icn, location: 'claims_show')
       rescue => e
         unless e.is_a?(::Common::Exceptions::ResourceNotFound)
           log_message_to_sentry('Error in claims show',
