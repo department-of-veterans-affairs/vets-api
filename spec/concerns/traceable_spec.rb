@@ -8,6 +8,7 @@ RSpec.describe Traceable, type: :controller do
 
     before do
       allow(Datadog::Tracing).to receive(:active_span).and_return(mock_span)
+      @controller = controller_class.new
     end
 
     after do
@@ -31,7 +32,7 @@ RSpec.describe Traceable, type: :controller do
         Class.new(ApplicationController) do
           include Traceable
           skip_before_action :authenticate
-          service_tag :secure_messaging
+          service_tag 'secure-messaging'
 
           def index
             render plain: 'OK'
@@ -43,7 +44,7 @@ RSpec.describe Traceable, type: :controller do
         include_context 'stub controller'
 
         it 'calls set_tags on the Datadog adapter via a before_action when and endpoint is hit' do
-          expect(Datadog::Tracing.active_span).to receive(:service=).with(:secure_messaging)
+          expect(Datadog::Tracing.active_span).to receive(:service=).with('secure-messaging')
           get :index
           expect(response.body).to eq 'OK'
         end
@@ -77,10 +78,92 @@ RSpec.describe Traceable, type: :controller do
 
       include_context 'stub controller'
 
-      it 'logs "Trace tag for service missing"' do
-        expect(Rails.logger).to receive(:warn).with('Service tag missing', { class: 'TestTraceableController' })
+      it 'silently does not set a span tag' do
+        expect(Datadog::Tracing.active_span).not_to receive(:service=)
         get :index
         expect(response.body).to eq 'OK'
+      end
+    end
+
+    context 'with untagged parent controller' do
+      let(:base_class) do
+        Class.new(ApplicationController) do
+          include Traceable
+          skip_before_action :authenticate
+
+          def index
+            render plain: 'BASE'
+          end
+        end
+      end
+
+      let(:controller_class) do
+        Class.new(base_class) do
+          service_tag 'my-service'
+
+          def index
+            render plain: 'SUB'
+          end
+        end
+      end
+
+      include_context 'stub controller'
+
+      it 'calls set_tags on the span for the sub-controller' do
+        expect(Datadog::Tracing.active_span).to receive(:service=).with('my-service')
+        get :index
+        expect(response.body).to eq 'SUB'
+      end
+    end
+
+    context 'with tagged parent controller' do
+      let(:base_class) do
+        Class.new(ApplicationController) do
+          include Traceable
+          service_tag 'base-service'
+          skip_before_action :authenticate
+
+          def index
+            render plain: 'BASE'
+          end
+        end
+      end
+
+      context 'with untagged child controller' do
+        let(:controller_class) do
+          Class.new(base_class) do
+            def index
+              render plain: 'SUB'
+            end
+          end
+        end
+
+        include_context 'stub controller'
+
+        it 'child controller inherits parent tag' do
+          expect(Datadog::Tracing.active_span).to receive(:service=).with('base-service')
+          get :index
+          expect(response.body).to eq 'SUB'
+        end
+      end
+
+      context 'with tagged child controller' do
+        let(:controller_class) do
+          Class.new(base_class) do
+            service_tag 'override-service'
+            def index
+              render plain: 'SUB'
+            end
+          end
+        end
+
+        include_context 'stub controller'
+
+        it 'child controller overrides parent tag' do
+          expect(Datadog::Tracing.active_span).to receive(:service=).with('override-service')
+          get :index
+          expect(response.body).to eq 'SUB'
+        end
       end
     end
   end
