@@ -14,13 +14,13 @@ module Traceable
 
   included do
     before_action :set_trace_tags
+
+    # A class_attribute is appropriate here as it allows overriding within subclasses (child controllers)
+    # It is set via the service_tag method during controller declaration, and only read thereafter
+    class_attribute :trace_service_tag # rubocop:disable ThreadSafety/ClassAndModuleAttributes
   end
 
-  module ClassMethods
-    # @!attribute [rw] trace_service_tag
-    #   @return [Symbol] the service tag for a specific controller.
-    attr_accessor :trace_service_tag
-
+  class_methods do
     # Assigns a service tag to the controller class.
     # @param service_name [Symbol] the name of the service tag.
     # @return [Symbol] the set service tag.
@@ -29,15 +29,15 @@ module Traceable
     end
   end
 
-  # Sets trace tags for the current action. If no service tag is set, logs a warning.
-  # If an error occurs while setting the trace tag, logs an error.
+  # Sets trace tags for the current action. If no service tag is set, do nothing.
   # @note After all current controllers implement service tagging, this could raise an error instead.
   def set_trace_tags
     service = self.class.trace_service_tag
 
-    return Rails.logger.warn('Service tag missing', class: self.class.name) if service.blank?
+    # Not warning for now, re-introduce once we are at 100% of controllers tagged
+    # return Rails.logger.warn('Service tag missing', class: self.class.name) if service.blank?
 
-    Datadog::Tracing.active_span&.service = service
+    Datadog::Tracing.active_span&.service = service if service.present?
   rescue => e
     Rails.logger.error('Error setting service tag', class: self.class.name, message: e.message)
   end
