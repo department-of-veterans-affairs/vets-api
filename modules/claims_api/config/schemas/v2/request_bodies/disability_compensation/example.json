@@ -55,31 +55,31 @@
         "gulfWarHazardService": {
           "servedInGulfWarHazardLocations": "YES",
           "serviceDates": {
-            "beginDate": "2018-06",
-            "endDate": "2018-08"
+            "beginDate": "1999-07",
+            "endDate": "2005-01"
           }
         },
         "herbicideHazardService": {
           "servedInHerbicideHazardLocations": "YES",
           "otherLocationsServed": "Guam",
           "serviceDates": {
-            "beginDate": "2018-06",
-            "endDate": "2018-08"
+            "beginDate": "2002-03",
+            "endDate": "2004-10"
           }
         },
         "additionalHazardExposures": {
           "additionalExposures": ["ASBESTOS", "SHIPBOARD_HAZARD_AND_DEFENSE"],
           "specifyOtherExposures": "Other exposure details",
           "exposureDates": {
-            "beginDate": "2018-06",
-            "endDate": "2018-08"
+            "beginDate": "2011-07",
+            "endDate": "2013-10"
           }
         },
         "multipleExposures": [
           {
             "exposureDates": {
-              "beginDate": "2018-06",
-              "endDate": "2018-08"
+              "beginDate": "2012-12",
+              "endDate": "2013-07"
             },
             "exposureLocation": "Guam",
             "hazardExposedTo": "RADIATION"
@@ -92,7 +92,7 @@
           "name": "Hearing Loss",
           "classificationCode": "3140",
           "serviceRelevance": "Heavy equipment operator in service",
-          "approximateDate": "10-1988",
+          "approximateDate": "1988-10",
           "isRelatedToToxicExposure": false,
           "exposureOrEventOrInjury": "Noise"
         },
@@ -101,7 +101,7 @@
           "name": "Musculoskeletal - Foot",
           "classificationCode": "8994",
           "serviceRelevance": "Service in Vietnam War",
-          "approximateDate": "12-1972",
+          "approximateDate": "1972-12",
           "ratedDisabilityId": "1234567",
           "diagnosticCode": 9999,
           "isRelatedToToxicExposure": true,
@@ -112,7 +112,7 @@
           "name": "Traumatic Brain Injury",
           "classificationCode": "9020",
           "serviceRelevance": "Explanation of service connection",
-          "approximateDate": "11-04-2019",
+          "approximateDate": "2019-11-04",
           "ratedDisabilityId": "1234567",
           "diagnosticCode": 9999,
           "isRelatedToToxicExposure": false,
@@ -122,7 +122,7 @@
               "disabilityActionType": "SECONDARY",
               "classificationCode": "249470",
               "serviceRelevance": "Injured left knee when brace on right knee failed",
-              "approximateDate": "06-11-2008"
+              "approximateDate": "2008-06-11"
             }
           ]
         }
@@ -135,7 +135,7 @@
             "state": "GA",
             "city": "Decatur"
           },
-          "beginDate": "04-2009"
+          "beginDate": "2009-04"
         },
         {
           "treatedDisabilityNames": ["Musculoskeletal - Foot"],
@@ -144,37 +144,37 @@
             "state": "GA",
             "city": "Decatur"
           },
-          "beginDate": "03-2009"
+          "beginDate": "2009-03"
         }
       ],
       "serviceInformation": {
         "servicePeriods": [
           {
             "serviceBranch": "Public Health Service",
-            "activeDutyBeginDate": "11-14-2008",
-            "activeDutyEndDate": "11-30-2025",
+            "activeDutyBeginDate": "2008-11-14",
+            "activeDutyEndDate": "2025-11-30",
             "serviceComponent": "Active",
             "separationLocationCode": "25077"
           }
         ],
         "confinements": [
           {
-            "approximateBeginDate": "06-11-2016",
-            "approximateEndDate": "09-11-2016"
+            "approximateBeginDate": "2016-06-11",
+            "approximateEndDate": "2016-09-11"
           },
           {
-            "approximateBeginDate": "06-2019",
-            "approximateEndDate": "07-2019"
+            "approximateBeginDate": "2019-06",
+            "approximateEndDate": "2019-07"
           }
         ],
         "federalActivation": {
-          "anticipatedSeparationDate": "10-03-2025",
-          "activationDate": "02-10-2023"
+          "anticipatedSeparationDate": "2025-10-03",
+          "activationDate": "2023-02-10"
         },
         "reservesNationalGuardService": {
           "obligationTermsOfService": {
-            "beginDate": "11-24-2016",
-            "endDate": "11-17-2017"
+            "beginDate": "2016-11-24",
+            "endDate": "2017-11-17"
           },
           "unitName": "National Guard Unit Name",
           "unitAddress": "1243 pine court",
@@ -200,7 +200,7 @@
         "retiredStatus": "PERMANENT_DISABILITY_RETIRED_LIST",
         "receivedSeparationOrSeverancePay": "NO",
         "separationSeverancePay": {
-          "datePaymentReceived": "07-31-2018",
+          "datePaymentReceived": "2018-07-31",
           "branchOfService": "Naval Academy",
           "preTaxAmountReceived": 379.25
         }
