@@ -30,6 +30,8 @@ module BGS
     end
 
     def get_dependents
+      return { persons: [] } if participant_id.blank?
+
       service.claimant.find_dependents_by_participant_id(participant_id, ssn) || { persons: [] }
     end
 
