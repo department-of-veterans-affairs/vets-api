@@ -28,6 +28,10 @@ module VBADocuments
       return false unless object.exists?
 
       upload.update(status: 'uploaded')
+
+      # Appeals evidence is processed at a later time (after the appeal reaches a "success" status)
+      return true if upload.appeals_consumer? && Flipper.enabled?(:decision_review_delay_evidence)
+
       VBADocuments::UploadProcessor.perform_async(upload.guid, caller: self.class.name)
       true
     end

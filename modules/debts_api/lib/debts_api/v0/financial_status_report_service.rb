@@ -213,10 +213,24 @@ module DebtsApi
       raise Common::Client::Errors::ClientError.new('malformed request', 400)
     end
 
-    def build_public_metadata(form)
+    def build_public_metadata(form, debts)
+      begin
+        enabled_flags = Flipper.features.select { |feature| feature.enabled?(@user) }.map do |feature|
+          feature.name.to_s
+        end.sort
+      rescue => e
+        Rails.logger.error('Failed to source user flags', e.message)
+        enabled_flags = []
+      end
+      debt_amounts = debts.nil? ? [] : debts.map { |debt| debt['currentAR'] || debt['pHAmtDue'] }
+      debt_type = debts&.pluck('debtType')&.first
       {
         'combined' => form['combined'],
-        'streamlined' => form['streamlined']
+        'debt_amounts' => debt_amounts,
+        'debt_type' => debt_type,
+        'flags' => enabled_flags,
+        'streamlined' => form['streamlined'],
+        'zipcode' => (form.dig('personalData', 'address', 'zipOrPostalCode') || '???')
       }
     end
 
@@ -233,7 +247,7 @@ module DebtsApi
       }.to_json
       form_json = form.deep_dup
 
-      public_metadata = build_public_metadata(form_json)
+      public_metadata = build_public_metadata(form_json, debts)
       form_json = sanitize_submission_form(form_json)
 
       DebtsApi::V0::Form5655Submission.create(
@@ -345,7 +359,13 @@ module DebtsApi
     end
 
     def remove_form_delimiters(form)
-      JSON.parse(form.to_s.gsub(/[\^|\n]/, '').gsub('=>', ':'))
+      form.deep_transform_values do |val|
+        if val.is_a?(String)
+          val.gsub(/[\^|\n]/, '')
+        else
+          val
+        end
+      end
     end
 
     def vbs_settings

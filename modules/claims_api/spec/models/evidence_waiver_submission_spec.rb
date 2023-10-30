@@ -6,7 +6,7 @@ RSpec.describe ClaimsApi::EvidenceWaiverSubmission, type: :model do
   describe 'requiring fields' do
     context "when 'auth_headers' is not provided" do
       it 'fails validation' do
-        ews = ClaimsApi::EvidenceWaiverSubmission.new(encrypted_kms_key: 'bgdhjs')
+        ews = ClaimsApi::EvidenceWaiverSubmission.new
 
         expect(ews.valid?).to be(false)
       end
@@ -14,8 +14,7 @@ RSpec.describe ClaimsApi::EvidenceWaiverSubmission, type: :model do
 
     context "when 'cid' is not provided" do
       it 'fails validation' do
-        ews = ClaimsApi::EvidenceWaiverSubmission.new(auth_headers: 'cghdsjg',
-                                                      encrypted_kms_key: 'bgdhjs')
+        ews = ClaimsApi::EvidenceWaiverSubmission.new(auth_headers: 'cghdsjg')
         expect(ews.valid?).to be(false)
       end
     end
@@ -23,7 +22,7 @@ RSpec.describe ClaimsApi::EvidenceWaiverSubmission, type: :model do
     context 'when all required attributes are provided' do
       it 'saves the record' do
         ews = ClaimsApi::EvidenceWaiverSubmission.create!(auth_headers: 'cghdsjg',
-                                                          encrypted_kms_key: 'bgdhjs', cid: '21635')
+                                                          cid: '21635')
 
         expect { ews.save! }.not_to raise_error
       end

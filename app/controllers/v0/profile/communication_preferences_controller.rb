@@ -5,6 +5,7 @@ require 'va_profile/communication/service'
 module V0
   module Profile
     class CommunicationPreferencesController < ApplicationController
+      service_tag 'profile'
       before_action { authorize :vet360, :access? }
       before_action { authorize :communication_preferences, :access? }
 

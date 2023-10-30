@@ -3,10 +3,12 @@
 require 'common/client/base'
 require 'hca/enrollment_system'
 require 'hca/configuration'
+require 'va1010_forms/utils'
 
 module HCA
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
+    include VA1010Forms::Utils
 
     STATSD_KEY_PREFIX = 'api.1010ez'
 
@@ -53,20 +55,6 @@ module HCA
         formSubmissionId: root.locate('formSubmissionId').first.text.to_i,
         timestamp: root.locate('timeStamp').first&.text || Time.now.getlocal.to_s
       }
-    end
-
-    private
-
-    def soap
-      # Savon *seems* like it should be setting these things correctly
-      # from what the docs say. Our WSDL file is weird, maybe?
-      Savon.client(wsdl: HCA::Configuration::WSDL,
-                   env_namespace: :soap,
-                   element_form_default: :qualified,
-                   namespaces: {
-                     'xmlns:tns': 'http://va.gov/service/esr/voa/v1'
-                   },
-                   namespace: 'http://va.gov/schema/esr/voa/v1')
     end
   end
 end

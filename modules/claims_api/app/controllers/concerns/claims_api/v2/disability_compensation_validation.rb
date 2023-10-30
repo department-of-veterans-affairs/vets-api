@@ -10,6 +10,8 @@ module ClaimsApi
         7 => 'mm-yyyy',
         4 => 'yyyy'
       }.freeze
+      BDD_LOWER_LIMIT = 90
+      BDD_UPPER_LIMIT = 180
 
       def validate_form_526_submission_values!(target_veteran)
         # ensure 'claimDate', if provided, is a valid date not in the future
@@ -32,6 +34,7 @@ module ClaimsApi
         validate_form_526_service_information!(target_veteran)
         # ensure direct deposit information is valid
         validate_form_526_direct_deposit!
+        validate_claim_process_type_bdd! if bdd_claim?
       end
 
       def validate_form_526_change_of_address!
@@ -70,7 +73,7 @@ module ClaimsApi
 
         # If the date parse fails, then fall back to the InvalidFieldValue
         begin
-          Date.strptime(date, '%m-%d-%Y')
+          nil if Date.strptime(date, '%Y-%m-%d') < Time.zone.now
         rescue
           raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.beginDate', date)
         end
@@ -91,7 +94,7 @@ module ClaimsApi
         raise_exception_if_value_not_present('end date', form_object_desc) if date.blank?
 
         return if Date.strptime(date,
-                                '%m-%d-%Y') > Date.strptime(change_of_address.dig('dates', 'beginDate'), '%m-%d-%Y')
+                                '%Y-%m-%d') > Date.strptime(change_of_address.dig('dates', 'beginDate'), '%Y-%m-%d')
 
         raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.dates.endDate', date)
       end
@@ -145,7 +148,6 @@ module ClaimsApi
 
       def validate_form_526_disabilities!
         validate_form_526_disability_classification_code!
-        validate_form_526_diagnostic_code!
         validate_form_526_disability_approximate_begin_date!
         validate_form_526_disability_secondary_disabilities!
       end
@@ -202,22 +204,8 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_diagnostic_code!
-        form_attributes['disabilities'].each do |disability|
-          next unless disability['disabilityActionType'] == 'NONE' && disability['secondaryDisabilities'].present?
-
-          if disability['diagnosticCode'].blank?
-            raise ::Common::Exceptions::UnprocessableEntity.new(
-              detail: "'disabilities.diagnosticCode' is required if 'disabilities.disabilityActionType' " \
-                      "is 'NONE' and there are secondary disbilities included with the primary."
-            )
-          end
-        end
-      end
-
       def validate_form_526_disability_secondary_disabilities!
         form_attributes['disabilities'].each do |disability|
-          validate_form_526_disability_secondary_disability_disability_action_type!(disability)
           next if disability['secondaryDisabilities'].blank?
 
           validate_form_526_disability_secondary_disability_required_fields!(disability)
@@ -252,17 +240,6 @@ module ClaimsApi
             raise_exception_if_value_not_present('service relevance',
                                                  form_object_desc)
           end
-        end
-      end
-
-      def validate_form_526_disability_secondary_disability_disability_action_type!(disability)
-        return unless disability['disabilityActionType'] == 'NONE' && disability['secondaryDisabilities'].present?
-
-        if disability['diagnosticCode'].blank?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: "'disabilities.diagnosticCode' is required if 'disabilities.disabilityActionType' " \
-                    "is 'NONE' and there are secondary disbilities included with the primary."
-          )
         end
       end
 
@@ -835,7 +812,30 @@ module ClaimsApi
         )
       end
 
+      def validate_claim_process_type_bdd!
+        date = form_attributes['claimDate'] || Time.find_zone!('Central Time (US & Canada)').today
+        claim_date = Date.parse(date.to_s)
+        service_information = form_attributes['serviceInformation']
+        active_dates = service_information['servicePeriods']&.pluck('activeDutyEndDate')
+        active_dates << service_information&.dig('federalActivation', 'anticipatedSeparationDate')
+
+        unless active_dates.compact.any? do |a|
+          Date.strptime(a, '%m-%d-%Y').between?(claim_date.next_day(BDD_LOWER_LIMIT),
+                                                claim_date.next_day(BDD_UPPER_LIMIT))
+        end
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: "Must have an activeDutyEndDate or anticipatedSeparationDate between #{BDD_LOWER_LIMIT}" \
+                    " & #{BDD_UPPER_LIMIT} days from claim date."
+          )
+        end
+      end
+
       private
+
+      def bdd_claim?
+        claim_process_type = form_attributes['claimProcessType']
+        claim_process_type == 'BDD_PROGRAM'
+      end
 
       # Used for confinements dates
       def begin_date_is_after_end_date?(begin_date, end_date)

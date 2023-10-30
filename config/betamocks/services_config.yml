@@ -498,7 +498,6 @@
       :uid_locator: 'id (?:root="2.16.840.1.113883.3.42.10001.100001.12" )?extension="(.*)\^NI\^200DOD\^USDOD\^A"(?:root="2.16.840.1.113883.3.42.10001.100001.12")?'
       :optional_code_locator: 'PRPA_IN201302UV02'
 
-
 # EMIS
 - :name: 'EMIS'
   :base_uri: <%= "#{URI(Settings.emis.host).host}:#{URI(Settings.emis.host).port}" %>
@@ -901,6 +900,13 @@
       :cache_multiple_responses:
         :uid_location: "url"
         :uid_locator: "\/services/claims/v2/veterans\/(?:.+)\/claims\/(.+)/5103"
+    # Benefits Documents API
+    - :method: :post
+      :path: "/services/benefits-documents/v1/documents"
+      :file_path: "/lighthouse/claims_api/benefits_documents/upload"
+    - :method: :post
+      :path: "/services/benefits-documents/v1/documents/search"
+      :file_path: "/lighthouse/claims_api/benefits_documents/search/default"
 
 # Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"

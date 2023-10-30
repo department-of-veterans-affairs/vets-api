@@ -840,6 +840,13 @@ describe VAOS::V2::AppointmentsService do
 
       expect(subject.send(:extract_station_and_ien, appointment)).to eq(expected_result)
     end
+
+    it 'returns the station id and ien if the identifier with the system VistADefinedTerms/409_85 is found' do
+      appointment = { identifier: [{ system: '/Terminology/VistADefinedTerms/409_85', value: '983:12345678' }] }
+      expected_result = %w[983 12345678]
+
+      expect(subject.send(:extract_station_and_ien, appointment)).to eq(expected_result)
+    end
   end
 
   describe '#avs_applicable?' do

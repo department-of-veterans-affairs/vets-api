@@ -39,6 +39,15 @@ describe MedicalRecords::Client do
   describe 'Getting a patient by identifier' do
     let(:patient_id) { 12_345 }
 
+    it 'adds adds a custom header to bypass FHIR server cache', :vcr do
+      VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
+        client.get_patient_by_identifier(client.fhir_client, patient_id)
+        expect(
+          a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
+        ).to have_been_made.once
+      end
+    end
+
     context 'when the redaction feature toggle is enabled', :vcr do
       before do
         Flipper.enable(:mhv_medical_records_redact_fhir_client_logs)
@@ -46,7 +55,6 @@ describe MedicalRecords::Client do
 
       it 'gets a patient by identifer', :vcr do
         VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
-          patient_id = 12_345
           patient_bundle = client.get_patient_by_identifier(client.fhir_client, patient_id)
           expect(patient_bundle).to be_a(FHIR::Bundle)
           expect(patient_bundle.entry[0].resource).to be_a(FHIR::Patient)
@@ -63,7 +71,6 @@ describe MedicalRecords::Client do
 
       it 'gets a patient by identifer', :vcr do
         VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
-          patient_id = 12_345
           client.get_patient_by_identifier(client.fhir_client, patient_id)
           expect(info_log_buffer.string).to include(patient_id.to_s)
         end

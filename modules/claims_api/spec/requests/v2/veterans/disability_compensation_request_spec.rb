@@ -325,8 +325,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:valid_change_of_address) do
               {
                 dates: {
-                  beginDate: '11-30-2012',
-                  endDate: ''
+                  beginDate: '2012-11-30'
                 },
                 typeOfAddressChange: 'PERMANENT',
                 addressLine1: '10 Peach St',
@@ -355,8 +354,8 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:invalid_change_of_address) do
               {
                 dates: {
-                  beginDate: '11-30-2012',
-                  endDate: ''
+                  beginDate: '2012-11-30',
+                  endDate: '2013-11-12'
                 },
                 typeOfAddressChange: 'PERMANENT',
                 addressLine1: '',
@@ -389,8 +388,8 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:invalid_change_of_address) do
               {
                 dates: {
-                  beginDate: '11-31-2012',
-                  endDate: ''
+                  beginDate: '2012-11-31',
+                  endDate: '2013-11-31'
                 },
                 typeOfAddressChange: 'PERMANENT',
                 addressLine1: '10 Peach St',
@@ -423,8 +422,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:invalid_change_of_address) do
               {
                 dates: {
-                  beginDate: '',
-                  endDate: ''
+                  endDate: '2013-11-30'
                 },
                 typeOfAddressChange: 'PERMANENT',
                 addressLine1: '10 Peach St',
@@ -457,7 +455,7 @@ RSpec.describe 'Disability Claims', type: :request do
             let(:invalid_change_of_address) do
               {
                 dates: {
-                  beginDate: '11-31-2012',
+                  beginDate: '2012-11-31',
                   endDate: ''
                 },
                 typeOfAddressChange: '',
@@ -513,8 +511,8 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when the begin date is after the end date' do
-          let(:begin_date) { '01-01-2023' }
-          let(:end_date) { '01-01-2022' }
+          let(:begin_date) { '2023-01-01' }
+          let(:end_date) { '2022-01-01' }
 
           it 'responds with bad request' do
             mock_ccg(scopes) do |auth_header|
@@ -2273,7 +2271,7 @@ RSpec.describe 'Disability Claims', type: :request do
         describe "'disabilities.ratedDisabilityId' validations" do
           context "when 'disabilites.disabilityActionType' equals 'INCREASE'" do
             context "and 'disabilities.ratedDisabilityId' is not provided" do
-              it 'returns an unprocessible entity status' do
+              it 'responds with a 202' do
                 mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
@@ -2285,9 +2283,21 @@ RSpec.describe 'Disability Claims', type: :request do
                       name: 'PTSD (post traumatic stress disorder)'
                     }
                   ]
+                  treatments = [
+                    {
+                      center: {
+                        name: 'Center One',
+                        state: 'GA',
+                        city: 'Decatur'
+                      },
+                      treatedDisabilityNames: ['PTSD (post traumatic stress disorder)'],
+                      beginDate: '03-2009'
+                    }
+                  ]
                   params['data']['attributes']['disabilities'] = disabilities
+                  params['data']['attributes']['treatments'] = treatments
                   post submit_path, params: params.to_json, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -2313,19 +2323,17 @@ RSpec.describe 'Disability Claims', type: :request do
                       ]
                     }
                   ]
-                  treatments =
-                    [
-                      {
-                        'center' => {
-                          'name' => 'Center One',
-                          'state' => 'GA',
-                          'city' => 'Decatur'
-                        },
-                        'treatedDisabilityNames' => ['Traumatic Brain Injury',
-                                                     'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders'],
-                        'beginDate' => '03-2009'
-                      }
-                    ]
+                  treatments = [
+                    {
+                      center: {
+                        name: 'Center One',
+                        state: 'GA',
+                        city: 'Decatur'
+                      },
+                      treatedDisabilityNames: ['Traumatic Brain Injury'],
+                      beginDate: '03-2009'
+                    }
+                  ]
                   params['data']['attributes']['disabilities'] = disabilities
                   params['data']['attributes']['treatments'] = treatments
                   post submit_path, params: params.to_json, headers: auth_header
@@ -2335,7 +2343,7 @@ RSpec.describe 'Disability Claims', type: :request do
             end
 
             context "and 'disabilities.diagnosticCode' is not provided" do
-              it 'returns an unprocessible entity status' do
+              it 'responds with a 202' do
                 mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
@@ -2347,9 +2355,21 @@ RSpec.describe 'Disability Claims', type: :request do
                       name: 'PTSD (post traumatic stress disorder)'
                     }
                   ]
+                  treatments = [
+                    {
+                      center: {
+                        name: 'Center One',
+                        state: 'GA',
+                        city: 'Decatur'
+                      },
+                      treatedDisabilityNames: ['PTSD (post traumatic stress disorder)'],
+                      beginDate: '03-2009'
+                    }
+                  ]
                   params['data']['attributes']['disabilities'] = disabilities
+                  params['data']['attributes']['treatments'] = treatments
                   post submit_path, params: params.to_json, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -2358,7 +2378,7 @@ RSpec.describe 'Disability Claims', type: :request do
           context "when 'disabilites.disabilityActionType' equals 'NONE'" do
             context "and 'disabilites.secondaryDisabilities' is defined" do
               context "and 'disabilites.diagnosticCode is not provided" do
-                it 'returns an unprocessible entity status' do
+                it 'responds with a 202' do
                   mock_ccg(scopes) do |auth_header|
                     json_data = JSON.parse data
                     params = json_data
@@ -2369,16 +2389,28 @@ RSpec.describe 'Disability Claims', type: :request do
                         serviceRelevance: 'Heavy equipment operator in service.',
                         secondaryDisabilities: [
                           {
-                            name: 'PTSD personal trauma',
+                            name: 'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders',
                             disabilityActionType: 'SECONDARY',
                             serviceRelevance: 'Caused by a service-connected disability\\nLengthy description'
                           }
                         ]
                       }
                     ]
+                    treatments = [
+                      {
+                        center: {
+                          name: 'Center One',
+                          state: 'GA',
+                          city: 'Decatur'
+                        },
+                        treatedDisabilityNames: ['PTSD (post traumatic stress disorder)'],
+                        beginDate: '03-2009'
+                      }
+                    ]
                     params['data']['attributes']['disabilities'] = disabilities
+                    params['data']['attributes']['treatments'] = treatments
                     post submit_path, params: params.to_json, headers: auth_header
-                    expect(response).to have_http_status(:unprocessable_entity)
+                    expect(response).to have_http_status(:accepted)
                   end
                 end
               end
@@ -2387,14 +2419,14 @@ RSpec.describe 'Disability Claims', type: :request do
 
           context "when 'disabilites.disabilityActionType' equals value other than 'INCREASE'" do
             context "and 'disabilities.ratedDisabilityId' is not provided" do
-              it 'responds with a 200' do
+              it 'responds with a 202' do
                 mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['disabilities'][0]['disabilityActionType'] = 'NEW'
                   params['data']['attributes']['disabilities'][0]['ratedDisabilityId'] = nil
                   post submit_path, params: params.to_json, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -2419,7 +2451,7 @@ RSpec.describe 'Disability Claims', type: :request do
           context "when 'approximateDate' is in the past" do
             let(:approximate_date) { (Time.zone.today - 1.year).strftime('%m-%d-%Y') }
 
-            it 'responds with a 200' do
+            it 'responds with a 202' do
               mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
@@ -2432,7 +2464,7 @@ RSpec.describe 'Disability Claims', type: :request do
           context 'when approximateDate is formatted MM-YYYY and is in the past' do
             let(:approximate_date) { (Time.zone.today - 6.months).strftime('%m-%Y') }
 
-            it 'responds with a 200' do
+            it 'responds with a 202' do
               mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
@@ -2547,10 +2579,9 @@ RSpec.describe 'Disability Claims', type: :request do
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
                 expect(response_body['errors'][0]['detail']).to include(
-                  "Action type requested for the disability. If 'INCREASE', then " \
-                  "'ratedDisabilityId' and 'diagnosticCode' are required. " \
-                  "'NONE' should be used when including a secondary disability. " \
-                  "If 'NONE', then 'diagnosticCode' is required."
+                  'Action type requested for the disability. ' \
+                  "If 'INCREASE' or 'NONE', then 'ratedDisabilityId' and 'diagnosticCode' " \
+                  "should be included. 'NONE' should be used when including a secondary disability." \
                 )
               end
             end
@@ -2591,7 +2622,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when disabilityActionType is NONE with secondaryDisabilities but no diagnosticCode' do
-          it 'raises an exception' do
+          it 'responds with a 202' do
             mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
@@ -2602,16 +2633,28 @@ RSpec.describe 'Disability Claims', type: :request do
                   serviceRelevance: 'Heavy equipment operator in service.',
                   secondaryDisabilities: [
                     {
-                      disabilityActionType: 'NEW',
+                      disabilityActionType: 'SECONDARY',
                       name: 'PTSD',
                       serviceRelevance: 'Caused by a service-connected disability.'
                     }
                   ]
                 }
               ]
+              treatments = [
+                {
+                  center: {
+                    name: 'Center One',
+                    state: 'GA',
+                    city: 'Decatur'
+                  },
+                  treatedDisabilityNames: ['PTSD (post traumatic stress disorder)'],
+                  beginDate: '03-2009'
+                }
+              ]
               params['data']['attributes']['disabilities'] = disabilities
+              params['data']['attributes']['treatments'] = treatments
               post submit_path, params: params.to_json, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
@@ -2877,6 +2920,84 @@ RSpec.describe 'Disability Claims', type: :request do
               ]
               params['data']['attributes']['disabilities'] = disabilities
               post submit_path, params: params.to_json, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+      end
+
+      describe "claimProcessType is 'BDD_PROGRAM'" do
+        context 'when activeDutyEndDate is between 90 and 180 days in future' do
+          let(:claim_process_type) { 'BDD_PROGRAM' }
+          let(:active_duty_end_date) { '01-16-2024' }
+          let(:claim_date) { '2023-10-15' }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['claimDate'] = claim_date
+              json['data']['attributes']['claimProcessType'] = claim_process_type
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                active_duty_end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when activeDutyEndDate is not between 90 and 180 days in future' do
+          let(:claim_process_type) { 'BDD_PROGRAM' }
+          let(:active_duty_end_date) { '01-16-2023' }
+          let(:claim_date) { '2023-10-15' }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['claimDate'] = claim_date
+              json['data']['attributes']['claimProcessType'] = claim_process_type
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                active_duty_end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when anticipatedSeparationDate is between 90 and 180 days in future' do
+          let(:claim_process_type) { 'BDD_PROGRAM' }
+          let(:anticipated_separation_date) { '01-16-2024' }
+          let(:claim_date) { '2023-10-15' }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['claimDate'] = claim_date
+              json['data']['attributes']['claimProcessType'] = claim_process_type
+              json['data']['attributes']['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+                anticipated_separation_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when anticipatedSeparationDate is not between 90 and 180 days in future' do
+          let(:claim_process_type) { 'BDD_PROGRAM' }
+          let(:anticipated_separation_date) { '06-16-2024' }
+          let(:claim_date) { '2023-10-15' }
+
+          it 'responds with bad request' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['claimDate'] = claim_date
+              json['data']['attributes']['claimProcessType'] = claim_process_type
+              json['data']['attributes']['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+                anticipated_separation_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
             end
           end
@@ -3403,6 +3524,59 @@ RSpec.describe 'Disability Claims', type: :request do
     end
 
     context 'attachments' do
+      let(:auto_claim) { create(:auto_established_claim) }
+      let(:attachments_path) do
+        "/services/claims/v2/veterans/#{veteran_id}/526/#{auto_claim.id}/attachments"
+      end
+      let(:target_veteran) do
+        OpenStruct.new(
+          icn: veteran_id,
+          first_name: 'abraham',
+          last_name: 'lincoln',
+          loa: { current: 3, highest: 3 },
+          ssn: '796111863',
+          edipi: '8040545646',
+          participant_id: '600061742',
+          mpi: OpenStruct.new(
+            icn: veteran_id,
+            profile: OpenStruct.new(ssn: '796111863')
+          )
+        )
+      end
+
+      describe 'with binary params' do
+        let(:binary_params) do
+          { attachment1: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+                                                                         .split('/')).to_s),
+            attachment2: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+                                                                         .split('/')).to_s) }
+        end
+
+        it 'responds with a 202' do
+          mock_ccg(scopes) do |auth_header|
+            allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+              .to receive(:target_veteran).and_return(target_veteran)
+            post attachments_path, params: binary_params, headers: auth_header
+            expect(response).to have_http_status(:accepted)
+          end
+        end
+      end
+
+      describe 'with base 64 params' do
+        let(:base64_params) do
+          { attachment1: File.read(Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s),
+            attachment2: File.read(Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s) }
+        end
+
+        it 'responds with a 202' do
+          mock_ccg(scopes) do |auth_header|
+            allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+              .to receive(:target_veteran).and_return(target_veteran)
+            post attachments_path, params: base64_params, headers: auth_header
+            expect(response).to have_http_status(:accepted)
+          end
+        end
+      end
     end
   end
 end

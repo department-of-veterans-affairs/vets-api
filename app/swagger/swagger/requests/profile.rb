@@ -1654,6 +1654,24 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/profile/contacts' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, "Returns a Veteran's Next-of-Kin and Emergency Contacts"
+          key :tags, [:profile]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Successful request'
+            schema do
+              key :$ref, :Contacts
+            end
+          end
+        end
+      end
     end
   end
 end

@@ -141,8 +141,10 @@ module V0
           veteran_signature
         ],
         selected_debts_and_copays: [
+          :current_ar,
           :debt_type,
           :deduction_code,
+          :p_h_amt_due,
           :resolution_comment,
           :resolution_option,
           { station: [:facilit_y_num] }

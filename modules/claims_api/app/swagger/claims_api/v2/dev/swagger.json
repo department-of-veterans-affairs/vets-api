@@ -95,7 +95,7 @@
             "content": {
               "application/json": {
                 "example": {
-                  "id": "1013062086V794840"
+                  "id": "1012667145V762142"
                 },
                 "schema": {
                   "additionalProperties": false,
@@ -1294,8 +1294,8 @@
                           "null"
                         ],
                         "description": "Date (or Timestamp with TimeZone) when claim is being submitted to the VA. Date cannot be in the future. UTC TimeZone is assumed unless otherwise specified.",
-                        "example": "2018-08-28T19:53:45+00:00",
                         "nullable": true,
+                        "example": "2018-08-28T19:53:45+00:00",
                         "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])(?:T[0-1][0-9]:[0-5][0-9]:[0-5][0-9](?:[-+][0-9]{2}:[0-9]{2}|Z))*$"
                       },
                       "claimProcessType": {
@@ -1353,11 +1353,7 @@
                           },
                           "veteranNumber": {
                             "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
-                            "type": [
-                              "object",
-                              "null"
-                            ],
-                            "nullable": true,
+                            "type": "object",
                             "properties": {
                               "telephone": {
                                 "type": [
@@ -1463,13 +1459,13 @@
                                 "description": "Begin date for the Veteran's new address.",
                                 "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
                                 "type": "string",
-                                "example": "06-04-2018"
+                                "example": "2018-06-04"
                               },
                               "endDate": {
                                 "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
                                 "type": "string",
-                                "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                                "example": "06-04-2018"
+                                "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                                "example": "2018-06-04"
                               }
                             }
                           },
@@ -1624,11 +1620,7 @@
                         }
                       },
                       "toxicExposure": {
-                        "type": [
-                          "object",
-                          "null"
-                        ],
-                        "nullable": true,
+                        "type": "object",
                         "properties": {
                           "gulfWarHazardService": {
                             "type": "object",
@@ -1652,16 +1644,16 @@
                                 "description": "Date range for when the exposure happened.",
                                 "properties": {
                                   "beginDate": {
-                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                     "type": "string",
                                     "description": "Approximate begin date for serving in Gulf War hazard location.",
-                                    "example": "06-2018 or 2018"
+                                    "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                    "example": "2018-06 or 2018"
                                   },
                                   "endDate": {
-                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                     "type": "string",
                                     "description": "Approximate end date for serving in Gulf War hazard location.",
-                                    "example": "06-2018 or 2018"
+                                    "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                    "example": "2018-06 or 2018"
                                   }
                                 }
                               }
@@ -1684,16 +1676,16 @@
                                 "description": "Date range for when the exposure happened.",
                                 "properties": {
                                   "beginDate": {
-                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                     "type": "string",
                                     "description": "Approximate begin date for serving in herbicide location.",
-                                    "example": "06-2018 or 2018"
+                                    "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                    "example": "2018-06 or 2018"
                                   },
                                   "endDate": {
-                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                     "type": "string",
                                     "description": "Approximate end date for serving in herbicide location.",
-                                    "example": "06-2018 or 2018"
+                                    "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                    "example": "2018-06 or 2018"
                                   }
                                 }
                               }
@@ -1725,16 +1717,16 @@
                                 "description": "Date range for when the exposure happened.",
                                 "properties": {
                                   "beginDate": {
-                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                     "type": "string",
                                     "description": "Approximate begin date for exposure.",
-                                    "example": "06-2018 or 2018"
+                                    "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                    "example": "2018-06 or 2018"
                                   },
                                   "endDate": {
-                                    "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                     "type": "string",
                                     "description": "Approximate end date for exposure.",
-                                    "example": "06-2018 or 2018"
+                                    "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                    "example": "2018-06 or 2018"
                                   }
                                 }
                               }
@@ -1753,16 +1745,16 @@
                                   "description": "Date range for when the exposure happened.",
                                   "properties": {
                                     "beginDate": {
-                                      "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                       "type": "string",
                                       "description": "Approximate begin date for exposure.",
-                                      "example": "06-2018 or 2018"
+                                      "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                      "example": "2018-06 or 2018"
                                     },
                                     "endDate": {
-                                      "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                       "type": "string",
                                       "description": "Approximate end date for exposure.",
-                                      "example": "06-2018 or 2018"
+                                      "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                      "example": "2018-06 or 2018"
                                     }
                                   }
                                 },
@@ -1827,17 +1819,25 @@
                               "nullable": true
                             },
                             "ratedDisabilityId": {
-                              "description": "When submitting a contention with action type INCREASE, the previously rated disability id may be included.",
-                              "type": "string",
-                              "example": "1100583"
+                              "description": "When submitting a contention with action type 'INCREASE', the previously rated disability id may be included.",
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "example": "1100583",
+                              "nullable": true
                             },
                             "diagnosticCode": {
-                              "description": "The diagnosticCode is required if disabilityActionType is NONE and there are secondary disabilities included with the primary. The diagnosticCode must match an existing rated disability if disabilityActionType is NONE and there are secondary disabilities included with the primary.",
-                              "type": "integer",
-                              "example": 9999
+                              "description": "If the disabilityActionType is 'NONE' or 'INCREASE', the diagnosticCode should correspond to an existing rated disability.",
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "example": 9999,
+                              "nullable": true
                             },
                             "disabilityActionType": {
-                              "description": "The status of the current disability.  \n If value is \"INCREASE\", then \"ratedDisabilityId\" and \"diagnosticCode\" are required.",
+                              "description": "Action type requested for the disability. If 'INCREASE' or 'NONE', then 'ratedDisabilityId' and 'diagnosticCode' should be included. 'NONE' should be used when including a secondary disability.",
                               "type": "string",
                               "enum": [
                                 "NONE",
@@ -1933,45 +1933,7 @@
                                 "burn pits"
                               ]
                             }
-                          },
-                          "allOf": [
-                            {
-                              "if": {
-                                "properties": {
-                                  "disabilityActionType": {
-                                    "enum": [
-                                      "INCREASE"
-                                    ]
-                                  }
-                                }
-                              },
-                              "then": {
-                                "required": [
-                                  "ratedDisabilityId",
-                                  "diagnosticCode"
-                                ]
-                              }
-                            },
-                            {
-                              "if": {
-                                "properties": {
-                                  "disabilityActionType": {
-                                    "enum": [
-                                      "NONE"
-                                    ]
-                                  }
-                                },
-                                "required": [
-                                  "secondaryDisabilities"
-                                ]
-                              },
-                              "then": {
-                                "required": [
-                                  "diagnosticCode"
-                                ]
-                              }
-                            }
-                          ]
+                          }
                         }
                       },
                       "treatments": {
@@ -2124,11 +2086,7 @@
                           },
                           "federalActivation": {
                             "description": "Include if the Veteran is currently activated on federal orders within the National Guard or Reserves",
-                            "type": [
-                              "object",
-                              "null"
-                            ],
-                            "nullable": true,
+                            "type": "object",
                             "additionalProperties": false,
                             "properties": {
                               "anticipatedSeparationDate": {
@@ -2150,11 +2108,7 @@
                             "additionalProperties": false,
                             "properties": {
                               "obligationTermsOfService": {
-                                "type": [
-                                  "object",
-                                  "null"
-                                ],
-                                "nullable": true,
+                                "type": "object",
                                 "description": "If 'obligationTermsOfService' is included, the following attributes are required: 'beginDate ' and 'endDate'.",
                                 "additionalProperties": false,
                                 "properties": {
@@ -2428,7 +2382,7 @@
                               "string",
                               "null"
                             ],
-                            "example": "2018-06-04",
+                            "example": "2018-08-28T19:53:45+00:00",
                             "nullable": true
                           },
                           "claimProcessType": {
@@ -2490,11 +2444,7 @@
                               },
                               "veteranNumber": {
                                 "description": "If there is no phone number in VBMS for the Veteran, the exams will not be ordered. Including the phone number is recommended to avoid claim processing delays.",
-                                "type": [
-                                  "object",
-                                  "null"
-                                ],
-                                "nullable": true,
+                                "type": "object",
                                 "properties": {
                                   "telephone": {
                                     "type": [
@@ -2600,13 +2550,13 @@
                                     "description": "Begin date for the Veteran's new address.",
                                     "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
                                     "type": "string",
-                                    "example": "06-04-2018"
+                                    "example": "2018-06-04"
                                   },
                                   "endDate": {
                                     "description": "Date in MM-DD-YYYY the changed address expires, if change is temporary.",
                                     "type": "string",
-                                    "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                                    "example": "06-04-2018"
+                                    "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                                    "example": "2018-06-04"
                                   }
                                 }
                               },
@@ -2757,11 +2707,7 @@
                             }
                           },
                           "toxicExposure": {
-                            "type": [
-                              "object",
-                              "null"
-                            ],
-                            "nullable": true,
+                            "type": "object",
                             "properties": {
                               "gulfWarHazardService": {
                                 "type": "object",
@@ -2785,16 +2731,16 @@
                                     "description": "Date range for when the exposure happened.",
                                     "properties": {
                                       "beginDate": {
-                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                         "type": "string",
                                         "description": "Approximate begin date for serving in Gulf War hazard location.",
-                                        "example": "06-2018 or 2018"
+                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                        "example": "2018-06 or 2018"
                                       },
                                       "endDate": {
-                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                         "type": "string",
                                         "description": "Approximate end date for serving in Gulf War hazard location.",
-                                        "example": "06-2018 or 2018"
+                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                        "example": "2018-06 or 2018"
                                       }
                                     }
                                   }
@@ -2827,16 +2773,16 @@
                                     "description": "Date range for when the exposure happened.",
                                     "properties": {
                                       "beginDate": {
-                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                         "type": "string",
                                         "description": "Approximate begin date for serving in herbicide location.",
-                                        "example": "06-2018 or 2018"
+                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                        "example": "2018-06 or 2018"
                                       },
                                       "endDate": {
-                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                         "type": "string",
                                         "description": "Approximate end date for serving in herbicide location.",
-                                        "example": "06-2018 or 2018"
+                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                        "example": "2018-06 or 2018"
                                       }
                                     }
                                   }
@@ -2874,16 +2820,16 @@
                                     "description": "Date range for when the exposure happened.",
                                     "properties": {
                                       "beginDate": {
-                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                         "type": "string",
                                         "description": "Approximate begin date for exposure.",
-                                        "example": "06-2018 or 2018"
+                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                        "example": "2018-06 or 2018"
                                       },
                                       "endDate": {
-                                        "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                         "type": "string",
                                         "description": "Approximate end date for exposure.",
-                                        "example": "06-2018 or 2018"
+                                        "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                        "example": "2018-06 or 2018"
                                       }
                                     }
                                   }
@@ -2902,16 +2848,16 @@
                                       "description": "Date range for when the exposure happened.",
                                       "properties": {
                                         "beginDate": {
-                                          "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                           "type": "string",
                                           "description": "Approximate begin date for exposure.",
-                                          "example": "06-2018 or 2018"
+                                          "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                          "example": "2018-06 or 2018"
                                         },
                                         "endDate": {
-                                          "pattern": "^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
                                           "type": "string",
                                           "description": "Approximate end date for exposure.",
-                                          "example": "06-2018 or 2018"
+                                          "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                                          "example": "2018-06 or 2018"
                                         }
                                       }
                                     },
@@ -2976,17 +2922,25 @@
                                   "nullable": true
                                 },
                                 "ratedDisabilityId": {
-                                  "description": "When submitting a contention with action type INCREASE, the previously rated disability id may be included.",
-                                  "type": "string",
-                                  "example": "1100583"
+                                  "description": "When submitting a contention with action type 'INCREASE', the previously rated disability id may be included.",
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ],
+                                  "example": "1100583",
+                                  "nullable": true
                                 },
                                 "diagnosticCode": {
-                                  "description": "The diagnosticCode is required if disabilityActionType is NONE and there are secondary disabilities included with the primary. The diagnosticCode must match an existing rated disability if disabilityActionType is NONE and there are secondary disabilities included with the primary.",
-                                  "type": "integer",
-                                  "example": 9999
+                                  "description": "If the disabilityActionType is 'NONE' or 'INCREASE', the diagnosticCode should correspond to an existing rated disability.",
+                                  "type": [
+                                    "integer",
+                                    "null"
+                                  ],
+                                  "example": 9999,
+                                  "nullable": true
                                 },
                                 "disabilityActionType": {
-                                  "description": "Action type requested for the disability. If 'INCREASE', then 'ratedDisabilityId' and 'diagnosticCode' are required.  'NONE' should be used when including a secondary disability. If 'NONE', then 'diagnosticCode' is required.",
+                                  "description": "Action type requested for the disability. If 'INCREASE' or 'NONE', then 'ratedDisabilityId' and 'diagnosticCode' should be included. 'NONE' should be used when including a secondary disability.",
                                   "type": "string",
                                   "enum": [
                                     "NONE",
@@ -2996,7 +2950,7 @@
                                   "example": "NEW"
                                 },
                                 "secondaryDisabilities": {
-                                  "description": "If secondaryDisability is included, the following attributes are required:  'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
+                                  "description": "If secondaryDisability is included, the following attributes are required: 'secondaryDisability.name', 'secondaryDisability.disabilityActionType' and 'secondaryDisability.serviceRelevance'",
                                   "type": "array",
                                   "uniqueItems": true,
                                   "items": {
@@ -3081,45 +3035,7 @@
                                     "burn pits"
                                   ]
                                 }
-                              },
-                              "allOf": [
-                                {
-                                  "if": {
-                                    "properties": {
-                                      "disabilityActionType": {
-                                        "enum": [
-                                          "INCREASE"
-                                        ]
-                                      }
-                                    }
-                                  },
-                                  "then": {
-                                    "required": [
-                                      "ratedDisabilityId",
-                                      "diagnosticCode"
-                                    ]
-                                  }
-                                },
-                                {
-                                  "if": {
-                                    "properties": {
-                                      "disabilityActionType": {
-                                        "enum": [
-                                          "NONE"
-                                        ]
-                                      }
-                                    },
-                                    "required": [
-                                      "secondaryDisabilities"
-                                    ]
-                                  },
-                                  "then": {
-                                    "required": [
-                                      "diagnosticCode"
-                                    ]
-                                  }
-                                }
-                              ]
+                              }
                             }
                           },
                           "treatments": {
@@ -3271,11 +3187,7 @@
                               },
                               "federalActivation": {
                                 "description": "If 'federalActivation' is included, the following attributes are required: 'anticipatedSeparationDate' and 'activationDate'.",
-                                "type": [
-                                  "object",
-                                  "null"
-                                ],
-                                "nullable": true,
+                                "type": "object",
                                 "additionalProperties": false,
                                 "properties": {
                                   "anticipatedSeparationDate": {
@@ -3297,11 +3209,7 @@
                                 "additionalProperties": false,
                                 "properties": {
                                   "obligationTermsOfService": {
-                                    "type": [
-                                      "object",
-                                      "null"
-                                    ],
-                                    "nullable": true,
+                                    "type": "object",
                                     "description": "If 'obligationTermsOfService' is included, the following attributes are required: 'beginDate ' and 'endDate'.",
                                     "additionalProperties": false,
                                     "properties": {
@@ -3609,8 +3517,8 @@
                       },
                       "changeOfAddress": {
                         "dates": {
-                          "beginDate": "11-29-2013",
-                          "endDate": "10-11-2025"
+                          "beginDate": "2018-06-04",
+                          "endDate": "2019-06-04"
                         },
                         "typeOfAddressChange": "TEMPORARY",
                         "addressLine1": "10 Peach St",
@@ -3636,16 +3544,16 @@
                         "gulfWarHazardService": {
                           "servedInGulfWarHazardLocations": "YES",
                           "serviceDates": {
-                            "beginDate": "07-1999",
-                            "endDate": "01-2005"
+                            "beginDate": "2018-06",
+                            "endDate": "2018-08"
                           }
                         },
                         "herbicideHazardService": {
                           "servedInHerbicideHazardLocations": "YES",
                           "otherLocationsServed": "Guam",
                           "serviceDates": {
-                            "beginDate": "03-2002",
-                            "endDate": "10-2004"
+                            "beginDate": "2018-06",
+                            "endDate": "2018-08"
                           }
                         },
                         "additionalHazardExposures": {
@@ -3655,15 +3563,15 @@
                           ],
                           "specifyOtherExposures": "Other exposure details",
                           "exposureDates": {
-                            "beginDate": "07-2011",
-                            "endDate": "10-2013"
+                            "beginDate": "2018-06",
+                            "endDate": "2018-08"
                           }
                         },
                         "multipleExposures": [
                           {
                             "exposureDates": {
-                              "beginDate": "12-2012",
-                              "endDate": "07-2013"
+                              "beginDate": "2018-06",
+                              "endDate": "2018-08"
                             },
                             "exposureLocation": "Guam",
                             "hazardExposedTo": "RADIATION"
@@ -4383,8 +4291,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-10-12",
-                      "expirationDate": "2024-10-12",
+                      "creationDate": "2023-10-26",
+                      "expirationDate": "2024-10-26",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -4926,7 +4834,6 @@
       }
     }
   },
-  "basePath": "/services/claims/v2",
   "servers": [
     {
       "url": "https://sandbox-api.va.gov/services/claims/{version}",

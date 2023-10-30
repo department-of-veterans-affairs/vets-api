@@ -35,7 +35,7 @@ module ClaimsApi
           detail: 'Please try again after checking your input values.'
         )
       else
-        soap_logging('500') if has_errors
+        soap_logging('500')
         raise ::Common::Exceptions::ServiceError.new(detail: 'An external server is experiencing difficulty.')
       end
     end
