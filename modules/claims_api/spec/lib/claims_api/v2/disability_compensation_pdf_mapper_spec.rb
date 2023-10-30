@@ -271,21 +271,21 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         multi_exp_hazard = toxic_exp_data[:multipleExposures][0][:hazardExposedTo]
 
         expect(gulf_locations).to eq('YES')
-        expect(gulf_begin_date).to eq({ month: '06', year: '2018' })
+        expect(gulf_begin_date).to eq({ month: '07', year: '2018' })
         expect(gulf_end_date).to eq({ month: '08', year: '2018' })
 
         expect(herbicide_locations).to eq('YES')
         expect(other_locations).to eq('ABCDEFGHIJKLM')
-        expect(herb_begin_date).to eq({ month: '06', year: '2018' })
+        expect(herb_begin_date).to eq({ month: '07', year: '2018' })
         expect(herb_end_date).to eq({ month: '08', year: '2018' })
 
         expect(additional_exposures).to eq(%w[ASBESTOS SHIPBOARD_HAZARD_AND_DEFENSE])
         expect(specify_other_exp).to eq('Other exposure details')
-        expect(exp_begin_date).to eq({ month: '06', year: '2018' })
+        expect(exp_begin_date).to eq({ month: '07', year: '2018' })
         expect(exp_end_date).to eq({ month: '08', year: '2018' })
 
-        expect(multi_exp_begin_date).to eq({ month: '06', year: '2018' })
-        expect(multi_exp_end_date).to eq({ month: '08', year: '2018' })
+        expect(multi_exp_begin_date).to eq({ month: '12', year: '2012' })
+        expect(multi_exp_end_date).to eq({ month: '07', year: '2013' })
         expect(multi_exp_location).to eq('Guam')
         expect(multi_exp_hazard).to eq('RADIATION')
       end
@@ -397,9 +397,9 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(last_sep).to eq('98282')
         expect(pow).to eq('YES')
         expect(pow_start).to eq({ month: '06', day: '04', year: '2018' })
-        expect(pow_end).to eq({ month: '06', day: '04', year: '2018' })
+        expect(pow_end).to eq({ month: '07', day: '04', year: '2018' })
         expect(pow_start_two).to eq({ month: '06', year: '2020' })
-        expect(pow_end_two).to eq({ month: '06', year: '2020' })
+        expect(pow_end_two).to eq({ month: '07', year: '2020' })
         expect(natl_guard).to eq('YES')
         expect(natl_guard_comp).to eq('NATIONAL_GUARD')
         expect(obl_begin).to eq({ month: '06', day: '04', year: '2019' })
@@ -411,8 +411,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(other_name).to eq('YES')
         expect(alt_names).to eq(['john jacob', 'johnny smith'])
         expect(fed_orders).to eq('YES')
-        expect(fed_act).to eq({ month: '02', day: '11', year: '3619' })
-        expect(fed_sep).to eq({ month: '10', day: '03', year: '6705' })
+        expect(fed_act).to eq({ month: '10', day: '01', year: '2025' })
+        expect(fed_sep).to eq({ month: '10', day: '31', year: '2027' })
         expect(served_after_nine_eleven).to eq('NO')
       end
 
