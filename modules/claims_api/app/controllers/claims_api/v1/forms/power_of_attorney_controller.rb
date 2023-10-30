@@ -241,15 +241,19 @@ module ClaimsApi
         def check_file_number_exists!
           ssn = target_veteran.ssn
 
-          response = find_by_ssn(ssn)
-          unless response && response[:file_nbr].present?
-            error_message = "Unable to locate Veteran's File Number in Master Person Index (MPI). " \
-                            'Please submit an issue at ask.va.gov ' \
-                            'or call 1-800-MyVA411 (800-698-2411) for assistance.'
-            claims_v1_logging(target_veteran&.mpi_icn, @power_of_attorney&.id, location: 'poa_find_file_number_by_ssn')
-            ClaimsApi::Logger.log('poa_v1', detail: 'file_number not located, 422')
-
-            raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_message)
+          begin
+            response = find_by_ssn(ssn)
+            ClaimsApi::Logger.log('poa', detail: 'file_number located')
+            unless response && response[:file_nbr].present?
+              error_message = "Unable to locate Veteran's File Number in Master Person Index (MPI). " \
+                              'Please submit an issue at ask.va.gov ' \
+                              'or call 1-800-MyVA411 (800-698-2411) for assistance.'
+              raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_message)
+            end
+          rescue BGS::ShareError => e
+            error_message = "A BGS failure occurred while trying to retrieve Veteran 'FileNumber'"
+            log_exception_to_sentry(e, nil, { message: error_message }, 'warn')
+            raise ::Common::Exceptions::FailedDependency
           end
         end
       end
