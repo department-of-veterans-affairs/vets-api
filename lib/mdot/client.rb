@@ -54,7 +54,7 @@ module MDOT
     def submit_order(request_body)
       request_body.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
 
-      if request_body['order'].empty?
+      if request_body['order'].blank?
         raise_backend_exception(
           MDOT::ExceptionKey.new('MDOT_supplies_not_selected'),
           self.class
