@@ -125,7 +125,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           pdf_data[:data][:attributes][:identificationInformation][:phoneNumber][:internationalTelephone]
 
         expect(ssn).to eq('796-11-1863')
-        expect(name).to eq({ lastName: 'lincoln', middleInitial: '', firstName: 'abraham' })
+        expect(name).to eq({ lastName: 'lincoln', firstName: 'abraham' })
         expect(birth_date).to eq({ month: '11', day: '30', year: '2012' })
         expect(current_va_employee).to eq(false)
         expect(va_file_number).to eq('796111863')
@@ -477,6 +477,59 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
         expect(date).to eq({ month: '02', day: '18', year: '2023' })
         expect(signature).to eq('abraham lincoln')
+      end
+    end
+
+    context '526 #deep_compact' do
+      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
+
+      it 'eliminates nil string values' do
+        form_attributes['veteranIdentification']['mailingAddress']['addressLine2'] = nil
+        form_attributes['veteranIdentification']['mailingAddress']['addressLine3'] = nil
+
+        mapper.map_claim
+        number_and_street = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:numberAndStreet]
+
+        expect(number_and_street).to eq('1234 Couch Street')
+      end
+
+      it 'eliminates empty objects' do
+        form_attributes['servicePay']['militaryRetiredPay'] = nil
+        form_attributes['servicePay']['separationSeverancePay'] = nil
+        form_attributes['servicePay']['preTaxAmountReceived'] = nil
+        form_attributes['servicePay']['futureMilitaryRetiredPayExplanation'] = nil
+
+        mapper.map_claim
+        service_pay = pdf_data[:data][:attributes][:servicePay]
+        expected = { favorTrainingPay: true, favorMilitaryRetiredPay: false, receivingMilitaryRetiredPay: 'YES',
+                     futureMilitaryRetiredPay: 'YES', retiredStatus: 'PERMANENT_DISABILITY_RETIRED_LIST',
+                     receivedSeparationOrSeverancePay: 'YES' }
+
+        expect(service_pay).to eq(expected)
+      end
+
+      it 'eliminates empty strings and nil values' do
+        form_attributes['servicePay']['favorTrainingPay'] = nil
+
+        form_attributes['servicePay']['favorMilitaryRetiredPay'] = nil
+        form_attributes['servicePay']['receivingMilitaryRetiredPay'] = nil
+        form_attributes['servicePay']['militaryRetiredPay']['monthlyAmount'] = nil
+        form_attributes['servicePay']['militaryRetiredPay']['branchOfService'] = ''
+        form_attributes['servicePay']['futureMilitaryRetiredPay'] = nil
+        form_attributes['servicePay']['receivedSeparationOrSeverancePay'] = ''
+        form_attributes['servicePay']['retiredStatus'] = ''
+        form_attributes['servicePay']['separationSeverancePay']['preTaxAmountReceived'] = nil
+        form_attributes['servicePay']['separationSeverancePay']['datePaymentReceived'] = nil
+
+        mapper.map_claim
+
+        service_pay = pdf_data[:data][:attributes][:servicePay]
+        expected = { receivingMilitaryRetiredPay: 'NO', futureMilitaryRetiredPay: 'NO',
+                     futureMilitaryRetiredPayExplanation: 'ABCDEFGHIJKLMNOPQRSTUVW',
+                     receivedSeparationOrSeverancePay: 'YES',
+                     separationSeverancePay: { branchOfService: { branch: 'Naval Academy' } } }
+
+        expect(service_pay).to eq(expected)
       end
     end
   end
