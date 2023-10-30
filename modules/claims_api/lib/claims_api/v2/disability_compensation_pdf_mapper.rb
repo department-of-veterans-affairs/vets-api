@@ -37,6 +37,7 @@ module ClaimsApi
         treatment_centers
         get_service_pay
         direct_deposit_information
+        deep_compact(@pdf_data[:data][:attributes])
 
         @pdf_data
       end
@@ -239,6 +240,22 @@ module ClaimsApi
           end
         end
         @pdf_data
+      end
+
+      def deep_compact(hash)
+        hash.each { |_, value| deep_compact(value) if value.is_a? Hash }
+        hash.select! { |_, value| exists?(value) }
+        hash
+      end
+
+      def exists?(value)
+        if [true, false].include?(value)
+          true
+        elsif value.is_a?(String) || value.is_a?(Hash)
+          !value.empty?
+        else
+          !value.nil?
+        end
       end
 
       def veteran_info # rubocop:disable Metrics/MethodLength
