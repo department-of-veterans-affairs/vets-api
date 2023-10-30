@@ -2271,7 +2271,7 @@ RSpec.describe 'Disability Claims', type: :request do
         describe "'disabilities.ratedDisabilityId' validations" do
           context "when 'disabilites.disabilityActionType' equals 'INCREASE'" do
             context "and 'disabilities.ratedDisabilityId' is not provided" do
-              it 'returns an unprocessible entity status' do
+              it 'responds with a 202' do
                 mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
@@ -2283,9 +2283,21 @@ RSpec.describe 'Disability Claims', type: :request do
                       name: 'PTSD (post traumatic stress disorder)'
                     }
                   ]
+                  treatments = [
+                    {
+                      center: {
+                        name: 'Center One',
+                        state: 'GA',
+                        city: 'Decatur'
+                      },
+                      treatedDisabilityNames: ['PTSD (post traumatic stress disorder)'],
+                      beginDate: '03-2009'
+                    }
+                  ]
                   params['data']['attributes']['disabilities'] = disabilities
+                  params['data']['attributes']['treatments'] = treatments
                   post submit_path, params: params.to_json, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -2311,19 +2323,17 @@ RSpec.describe 'Disability Claims', type: :request do
                       ]
                     }
                   ]
-                  treatments =
-                    [
-                      {
-                        'center' => {
-                          'name' => 'Center One',
-                          'state' => 'GA',
-                          'city' => 'Decatur'
-                        },
-                        'treatedDisabilityNames' => ['Traumatic Brain Injury',
-                                                     'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders'],
-                        'beginDate' => '03-2009'
-                      }
-                    ]
+                  treatments = [
+                    {
+                      center: {
+                        name: 'Center One',
+                        state: 'GA',
+                        city: 'Decatur'
+                      },
+                      treatedDisabilityNames: ['Traumatic Brain Injury'],
+                      beginDate: '03-2009'
+                    }
+                  ]
                   params['data']['attributes']['disabilities'] = disabilities
                   params['data']['attributes']['treatments'] = treatments
                   post submit_path, params: params.to_json, headers: auth_header
@@ -2333,7 +2343,7 @@ RSpec.describe 'Disability Claims', type: :request do
             end
 
             context "and 'disabilities.diagnosticCode' is not provided" do
-              it 'returns an unprocessible entity status' do
+              it 'responds with a 202' do
                 mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
@@ -2345,9 +2355,21 @@ RSpec.describe 'Disability Claims', type: :request do
                       name: 'PTSD (post traumatic stress disorder)'
                     }
                   ]
+                  treatments = [
+                    {
+                      center: {
+                        name: 'Center One',
+                        state: 'GA',
+                        city: 'Decatur'
+                      },
+                      treatedDisabilityNames: ['PTSD (post traumatic stress disorder)'],
+                      beginDate: '03-2009'
+                    }
+                  ]
                   params['data']['attributes']['disabilities'] = disabilities
+                  params['data']['attributes']['treatments'] = treatments
                   post submit_path, params: params.to_json, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -2356,7 +2378,7 @@ RSpec.describe 'Disability Claims', type: :request do
           context "when 'disabilites.disabilityActionType' equals 'NONE'" do
             context "and 'disabilites.secondaryDisabilities' is defined" do
               context "and 'disabilites.diagnosticCode is not provided" do
-                it 'returns an unprocessible entity status' do
+                it 'responds with a 202' do
                   mock_ccg(scopes) do |auth_header|
                     json_data = JSON.parse data
                     params = json_data
@@ -2367,16 +2389,28 @@ RSpec.describe 'Disability Claims', type: :request do
                         serviceRelevance: 'Heavy equipment operator in service.',
                         secondaryDisabilities: [
                           {
-                            name: 'PTSD personal trauma',
+                            name: 'Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders',
                             disabilityActionType: 'SECONDARY',
                             serviceRelevance: 'Caused by a service-connected disability\\nLengthy description'
                           }
                         ]
                       }
                     ]
+                    treatments = [
+                      {
+                        center: {
+                          name: 'Center One',
+                          state: 'GA',
+                          city: 'Decatur'
+                        },
+                        treatedDisabilityNames: ['PTSD (post traumatic stress disorder)'],
+                        beginDate: '03-2009'
+                      }
+                    ]
                     params['data']['attributes']['disabilities'] = disabilities
+                    params['data']['attributes']['treatments'] = treatments
                     post submit_path, params: params.to_json, headers: auth_header
-                    expect(response).to have_http_status(:unprocessable_entity)
+                    expect(response).to have_http_status(:accepted)
                   end
                 end
               end
@@ -2385,14 +2419,14 @@ RSpec.describe 'Disability Claims', type: :request do
 
           context "when 'disabilites.disabilityActionType' equals value other than 'INCREASE'" do
             context "and 'disabilities.ratedDisabilityId' is not provided" do
-              it 'responds with a 200' do
+              it 'responds with a 202' do
                 mock_ccg(scopes) do |auth_header|
                   json_data = JSON.parse data
                   params = json_data
                   params['data']['attributes']['disabilities'][0]['disabilityActionType'] = 'NEW'
                   params['data']['attributes']['disabilities'][0]['ratedDisabilityId'] = nil
                   post submit_path, params: params.to_json, headers: auth_header
-                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(response).to have_http_status(:accepted)
                 end
               end
             end
@@ -2417,7 +2451,7 @@ RSpec.describe 'Disability Claims', type: :request do
           context "when 'approximateDate' is in the past" do
             let(:approximate_date) { (Time.zone.today - 1.year).strftime('%m-%d-%Y') }
 
-            it 'responds with a 200' do
+            it 'responds with a 202' do
               mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
@@ -2430,7 +2464,7 @@ RSpec.describe 'Disability Claims', type: :request do
           context 'when approximateDate is formatted MM-YYYY and is in the past' do
             let(:approximate_date) { (Time.zone.today - 6.months).strftime('%m-%Y') }
 
-            it 'responds with a 200' do
+            it 'responds with a 202' do
               mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
@@ -2545,10 +2579,9 @@ RSpec.describe 'Disability Claims', type: :request do
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
                 expect(response_body['errors'][0]['detail']).to include(
-                  "Action type requested for the disability. If 'INCREASE', then " \
-                  "'ratedDisabilityId' and 'diagnosticCode' are required. " \
-                  "'NONE' should be used when including a secondary disability. " \
-                  "If 'NONE', then 'diagnosticCode' is required."
+                  'Action type requested for the disability. ' \
+                  "If 'INCREASE' or 'NONE', then 'ratedDisabilityId' and 'diagnosticCode' " \
+                  "should be included. 'NONE' should be used when including a secondary disability." \
                 )
               end
             end
@@ -2589,7 +2622,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when disabilityActionType is NONE with secondaryDisabilities but no diagnosticCode' do
-          it 'raises an exception' do
+          it 'responds with a 202' do
             mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
               params = json_data
@@ -2600,16 +2633,28 @@ RSpec.describe 'Disability Claims', type: :request do
                   serviceRelevance: 'Heavy equipment operator in service.',
                   secondaryDisabilities: [
                     {
-                      disabilityActionType: 'NEW',
+                      disabilityActionType: 'SECONDARY',
                       name: 'PTSD',
                       serviceRelevance: 'Caused by a service-connected disability.'
                     }
                   ]
                 }
               ]
+              treatments = [
+                {
+                  center: {
+                    name: 'Center One',
+                    state: 'GA',
+                    city: 'Decatur'
+                  },
+                  treatedDisabilityNames: ['PTSD (post traumatic stress disorder)'],
+                  beginDate: '03-2009'
+                }
+              ]
               params['data']['attributes']['disabilities'] = disabilities
+              params['data']['attributes']['treatments'] = treatments
               post submit_path, params: params.to_json, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
+              expect(response).to have_http_status(:accepted)
             end
           end
         end
