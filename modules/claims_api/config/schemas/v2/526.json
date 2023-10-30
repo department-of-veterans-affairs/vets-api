@@ -506,17 +506,19 @@
             "nullable": true
           },
           "ratedDisabilityId": {
-            "description": "When submitting a contention with action type INCREASE, the previously rated disability id may be included.",
-            "type": "string",
-            "example": "1100583"
+            "description": "When submitting a contention with action type 'INCREASE', the previously rated disability id may be included.",
+            "type": ["string","null"],
+            "example": "1100583",
+            "nullable": true
           },
           "diagnosticCode": {
-            "description": "The diagnosticCode is required if disabilityActionType is NONE and there are secondary disabilities included with the primary. The diagnosticCode must match an existing rated disability if disabilityActionType is NONE and there are secondary disabilities included with the primary.",
-            "type": "integer",
-            "example": 9999
+            "description": "If the disabilityActionType is 'NONE' or 'INCREASE', the diagnosticCode should correspond to an existing rated disability.",
+            "type": ["integer", "null"],
+            "example": 9999,
+            "nullable": true
           },
           "disabilityActionType": {
-            "description": "Action type requested for the disability. If 'INCREASE', then 'ratedDisabilityId' and 'diagnosticCode' are required. 'NONE' should be used when including a secondary disability. If 'NONE', then 'diagnosticCode' is required.",
+            "description": "Action type requested for the disability. If 'INCREASE' or 'NONE', then 'ratedDisabilityId' and 'diagnosticCode' should be included. 'NONE' should be used when including a secondary disability.",
             "type": "string",
             "enum": ["NONE", "NEW", "INCREASE"],
             "example": "NEW"
@@ -582,34 +584,7 @@
             "nullable": true,
             "examples": ["Agent Orange", "radiation", "burn pits"]
           }
-        },
-        "allOf": [
-          {
-            "if": {
-              "properties": {
-                "disabilityActionType": {
-                  "enum": ["INCREASE"]
-                }
-              }
-            },
-            "then": {
-              "required": ["ratedDisabilityId", "diagnosticCode"]
-            }
-          },
-          {
-            "if": {
-              "properties": {
-                "disabilityActionType": {
-                  "enum": ["NONE"]
-                }
-              },
-              "required": ["secondaryDisabilities"]
-            },
-            "then": {
-              "required": ["diagnosticCode"]
-            }
-          }
-        ]
+        }
       }
     },
     "treatments": {
