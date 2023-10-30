@@ -1921,3 +1921,6 @@ lib/va_profile/models/associated_person.rb @department-of-veterans-affairs/vfs-a
 spec/controllers/v0/profile/contacts_controller_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/vfs-health-modernization-initiative @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/fixtures/va_profile/health_benefit_v1_associated_persons.json @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/vfs-health-modernization-initiative @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/va_profile/health_benefit/service_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/vfs-health-modernization-initiative @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+lib/logging/third_party_transaction.rb @department-of-veterans-affairs/backend-review-group
+spec/lib/logging/third_party_transaction_spec.rb @department-of-veterans-affairs/backend-review-group
+
