@@ -82,6 +82,9 @@ module Mobile
       def upload_document
         jid = if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
                 params[:claim_id] = params[:id]
+                params[:tracked_item_ids] = Array.wrap(params[:tracked_item_id]) if params[:tracked_item_id].present?
+                params.delete(:tracked_item_id)
+
                 lighthouse_document_service.queue_document_upload(params)
               else
                 evss_claims_proxy.upload_document(params)
@@ -92,6 +95,8 @@ module Mobile
       def upload_multi_image_document
         jid = if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
                 params[:claim_id] = params[:id]
+                params[:tracked_item_ids] = Array.wrap(params[:tracked_item_id]) if params[:tracked_item_id].present?
+                params.delete(:tracked_item_id)
                 lighthouse_document_service.queue_multi_image_upload_document(params)
               else
                 evss_claims_proxy.upload_multi_image(params)
