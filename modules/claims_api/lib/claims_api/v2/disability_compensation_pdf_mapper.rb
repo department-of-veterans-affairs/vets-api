@@ -716,13 +716,11 @@ module ClaimsApi
       end
 
       def regex_date_conversion(date)
-        date_regex_groups(date)
-      end
+        if date.present?
+          res = date.match(/^(?:(?<year>\d{4})(?:-(?<month>\d{2}))?(?:-(?<day>\d{2}))*|(?<month>\d{2})?(?:-(?<day>\d{2}))?-?(?<year>\d{4}))$/) # rubocop:disable Layout/LineLength
 
-      def date_regex_groups(date)
-        res = date.match(/^(?:(?<year>\d{4})(?:-(?<month>\d{2}))?(?:-(?<day>\d{2}))*|(?<month>\d{2})?(?:-(?<day>\d{2}))?-?(?<year>\d{4}))$/) # rubocop:disable Layout/LineLength
-
-        make_date_object(res, date.length)
+          make_date_object(res, date.length)
+        end
       end
 
       def make_date_object(date, date_length)
