@@ -3594,12 +3594,28 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           end
         end
       end
+    end
 
-      describe '/v0/profile/contacts' do
-        it 'has a valid spec' do
-          expect(Flipper).to receive(:enabled?).with('profile_contacts').and_return(true)
-          expect(subject).to validate(:get, '/v0/profile/contacts', 200, headers)
+    describe '/v0/profile/contacts' do
+      context 'unauthenticated user' do
+        it 'returns unauthorized status code' do
           expect(subject).to validate(:get, '/v0/profile/contacts', 401)
+        end
+      end
+
+      context 'loa1 user' do
+        let(:mhv_user) { build(:user, :loa1) }
+
+        it 'returns forbidden status code' do
+          expect(subject).to validate(:get, '/v0/profile/contacts', 403, headers)
+        end
+      end
+
+      context 'loa3 user' do
+        let(:mhv_user) { build(:user, :loa3) }
+
+        it 'returns ok status code' do
+          expect(subject).to validate(:get, '/v0/profile/contacts', 200, headers)
         end
       end
     end
