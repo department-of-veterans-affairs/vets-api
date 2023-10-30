@@ -32,10 +32,8 @@ module ClaimsApi
       def validate_veteran_identifiers(require_birls: false) # rubocop:disable Metrics/MethodLength
         ids = target_veteran&.mpi&.participant_ids || []
         if ids.size > 1
-          ClaimsApi::Logger.log('multiple_ids',
-                                header_request: header_request?,
-                                ptcpnt_ids: ids.size,
-                                icn: target_veteran&.mpi_icn)
+          claims_v1_logging('multiple_ids', message: "multiple_ids: #{ids.size},
+                                            header_request: #{header_request?}")
 
           raise ::Common::Exceptions::UnprocessableEntity.new(
             detail:
@@ -87,11 +85,11 @@ module ClaimsApi
             'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
         end
 
-        ClaimsApi::Logger.log('validate_identifiers',
-                              rid: request.request_id, mpi_res_ok: mpi_add_response.ok?,
-                              ptcpnt_id: target_veteran.participant_id.present?,
-                              birls_id: target_veteran.birls_id.present?,
-                              icn: target_veteran&.mpi_icn)
+        claims_v1_logging('validate_identifiers', message: "multiple_ids: #{ids.size},
+                                                  header_request: #{header_request?},
+                                                  birls_id: #{target_veteran.birls_id.present?},
+                                                  rid: #{request.request_id}, mpi_res_ok: #{mpi_add_response.ok?},
+                                                  ptcpnt_id: #{target_veteran.participant_id.present?}")
       rescue MPI::Errors::ArgumentError
         raise ::Common::Exceptions::UnprocessableEntity.new(detail:
           "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
@@ -193,12 +191,12 @@ module ClaimsApi
         end
       end
 
-      def claims_v1_logging(icn, location = nil, poa = nil)
-        ClaimsApi::Logger.log('traceability',
-                              icn:,
+      def claims_v1_logging(tag = 'traceability', poa = nil, message = nil)
+        ClaimsApi::Logger.log(tag,
+                              icn: target_veteran.mpi.icn,
                               cid: token&.payload&.[]('cid'),
                               current_user: current_user&.uuid,
-                              location:,
+                              message:,
                               api_version: 'V1',
                               poa:)
       end

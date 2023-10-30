@@ -31,7 +31,6 @@ module ClaimsApi
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5:,
                                                                                           source_name:)
-          ClaimsApi::Logger.log('poa_v1', poa_id: power_of_attorney&.id, detail: 'Located PoA in vets-api')
           unless power_of_attorney&.status&.in?(%w[submitted pending])
             attributes = {
               status: ClaimsApi::PowerOfAttorney::PENDING,
@@ -48,7 +47,6 @@ module ClaimsApi
             end
 
             power_of_attorney.save!
-            ClaimsApi::Logger.log('poa_v1', poa_id: power_of_attorney.id, detail: 'Created in Lighthouse')
           end
 
           data = power_of_attorney.form_data
@@ -59,7 +57,7 @@ module ClaimsApi
             ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id)
           end
 
-          claims_v1_logging(target_veteran&.mpi_icn, power_of_attorney&.id, location: 'poa_submit')
+          claims_v1_logging('poa_submit', poa: power_of_attorney&.id, message: 'poa_submit complete')
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
@@ -81,7 +79,6 @@ module ClaimsApi
 
           # If upload is successful, then the PoaUpater job is also called to update the code in BGS.
           ClaimsApi::PoaVBMSUploadJob.perform_async(@power_of_attorney.id)
-          claims_v1_logging(target_veteran&.mpi_icn, @power_of_attorney&.id, location: 'poa_upload')
 
           render json: @power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
@@ -91,7 +88,6 @@ module ClaimsApi
         # @return [JSON] POA record with current status
         def status
           find_poa_by_id
-          claims_v1_logging(target_veteran&.mpi_icn, @power_of_attorney&.id, location: 'poa_status')
 
           render json: @power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
@@ -102,10 +98,13 @@ module ClaimsApi
         def active # rubocop:disable Metrics/MethodLength
           validate_user_is_accredited! if header_request? && !token.client_credentials_token?
 
+          unless current_poa_code
+            claims_v1_logging('poa_active', poa: @power_of_attorney&.id,
+                                            message: 'POA not found')
+          end
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'POA not found') unless current_poa_code
 
           representative_info = build_representative_info(current_poa_code)
-          claims_v1_logging(target_veteran&.mpi_icn, @power_of_attorney&.id, location: 'poa_active')
 
           render json: {
             data: {
@@ -139,7 +138,6 @@ module ClaimsApi
           poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
-          claims_v1_logging(target_veteran&.mpi_icn, @power_of_attorney&.id, location: 'poa_validate')
 
           render json: validation_success
         end
@@ -182,10 +180,7 @@ module ClaimsApi
         def nullable_icn
           current_user.icn
         rescue => e
-          log_message_to_sentry('Failed to retrieve icn for consumer',
-                                :warning,
-                                body: e.message)
-
+          claims_v1_logging('poa_nullable_icn', poa: @power_of_attorney.id, message: e.message)
           nil
         end
 
@@ -243,16 +238,15 @@ module ClaimsApi
 
           begin
             response = find_by_ssn(ssn)
-            ClaimsApi::Logger.log('poa', detail: 'file_number located')
             unless response && response[:file_nbr].present?
               error_message = "Unable to locate Veteran's File Number in Master Person Index (MPI). " \
                               'Please submit an issue at ask.va.gov ' \
                               'or call 1-800-MyVA411 (800-698-2411) for assistance.'
               raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_message)
             end
-          rescue BGS::ShareError => e
+          rescue BGS::ShareError
             error_message = "A BGS failure occurred while trying to retrieve Veteran 'FileNumber'"
-            log_exception_to_sentry(e, nil, { message: error_message }, 'warn')
+            claims_v1_logging('poa_find_by_ssn', message: error_message)
             raise ::Common::Exceptions::FailedDependency
           end
         end

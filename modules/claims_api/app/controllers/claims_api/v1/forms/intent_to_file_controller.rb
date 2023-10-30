@@ -28,11 +28,11 @@ module ClaimsApi
 
           bgs_response = local_bgs_service.insert_intent_to_file(intent_to_file_options)
           if bgs_response.empty?
+            claims_v1_logging('itf_submit', message: 'Veteran ID not found')
             ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: token.payload['cid'])
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Veteran ID not found')
           else
             ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::SUBMITTED, cid: token.payload['cid'])
-            claims_v1_logging(target_veteran&.mpi_icn, location: 'itf_submit')
 
             render json: bgs_response,
                    serializer: ClaimsApi::IntentToFileSerializer
@@ -60,10 +60,9 @@ module ClaimsApi
                        end
           if bgs_active.blank?
             message = "No Intent to file is on record for #{target_veteran_name} of type #{active_param}"
+            claims_v1_logging('itf_submit', message:)
             raise ::Common::Exceptions::ResourceNotFound.new(detail: message)
           end
-
-          claims_v1_logging(target_veteran&.mpi_icn, location: 'itf_active')
 
           render json: bgs_active, serializer: ClaimsApi::IntentToFileSerializer
         end
@@ -76,8 +75,6 @@ module ClaimsApi
           validate_json_schema
           validate_veteran_identifiers(require_birls: true)
           check_for_invalid_burial_submission! if form_type == 'burial'
-
-          claims_v1_logging(target_veteran&.mpi_icn, location: 'itf_validate')
 
           render json: validation_success
         end
