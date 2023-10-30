@@ -148,7 +148,6 @@ module ClaimsApi
 
       def validate_form_526_disabilities!
         validate_form_526_disability_classification_code!
-        validate_form_526_diagnostic_code!
         validate_form_526_disability_approximate_begin_date!
         validate_form_526_disability_secondary_disabilities!
       end
@@ -205,22 +204,8 @@ module ClaimsApi
         end
       end
 
-      def validate_form_526_diagnostic_code!
-        form_attributes['disabilities'].each do |disability|
-          next unless disability['disabilityActionType'] == 'NONE' && disability['secondaryDisabilities'].present?
-
-          if disability['diagnosticCode'].blank?
-            raise ::Common::Exceptions::UnprocessableEntity.new(
-              detail: "'disabilities.diagnosticCode' is required if 'disabilities.disabilityActionType' " \
-                      "is 'NONE' and there are secondary disbilities included with the primary."
-            )
-          end
-        end
-      end
-
       def validate_form_526_disability_secondary_disabilities!
         form_attributes['disabilities'].each do |disability|
-          validate_form_526_disability_secondary_disability_disability_action_type!(disability)
           next if disability['secondaryDisabilities'].blank?
 
           validate_form_526_disability_secondary_disability_required_fields!(disability)
@@ -255,17 +240,6 @@ module ClaimsApi
             raise_exception_if_value_not_present('service relevance',
                                                  form_object_desc)
           end
-        end
-      end
-
-      def validate_form_526_disability_secondary_disability_disability_action_type!(disability)
-        return unless disability['disabilityActionType'] == 'NONE' && disability['secondaryDisabilities'].present?
-
-        if disability['diagnosticCode'].blank?
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: "'disabilities.diagnosticCode' is required if 'disabilities.disabilityActionType' " \
-                    "is 'NONE' and there are secondary disbilities included with the primary."
-          )
         end
       end
 
