@@ -425,7 +425,7 @@ module ClaimsApi
           center = "#{tx['center']['name']}, #{tx.dig('center', 'city')}, #{tx.dig('center', 'state')}"
           name = tx['treatedDisabilityNames'].join(', ')
           tx['treatmentDetails'] = "#{name} - #{center}"
-          tx['dateOfTreatment'] = convert_date_to_object(tx['beginDate']) if tx['beginDate'].present?
+          tx['dateOfTreatment'] = regex_date_conversion(tx['beginDate']) if tx['beginDate'].present?
           tx['doNotHaveDate'] = tx['beginDate'].nil?
           tx.delete('center')
           tx.delete('treatedDisabilityNames')
@@ -484,12 +484,12 @@ module ClaimsApi
       def convert_active_duty_dates(most_recent_period)
         if most_recent_period[:activeDutyBeginDate].present?
           @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService].merge!(
-            start: convert_date_to_object(most_recent_period[:activeDutyBeginDate])
+            start: regex_date_conversion(most_recent_period[:activeDutyBeginDate])
           )
         end
         if most_recent_period[:activeDutyEndDate].present?
           @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService].merge!(
-            end: convert_date_to_object(most_recent_period[:activeDutyEndDate])
+            end: regex_date_conversion(most_recent_period[:activeDutyEndDate])
           )
         end
         @pdf_data[:data][:attributes][:serviceInformation][:placeOfLastOrAnticipatedSeparation] =
@@ -505,8 +505,8 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:serviceInformation][:servicePeriods].each do |sp|
           next if sp[:activeDutyBeginDate].nil? || sp[:activeDutyEndDate].nil?
 
-          arr.push({ start: convert_date_to_object(sp[:activeDutyBeginDate]),
-                     end: convert_date_to_object(sp[:activeDutyEndDate]) })
+          arr.push({ start: regex_date_conversion(sp[:activeDutyBeginDate]),
+                     end: regex_date_conversion(sp[:activeDutyEndDate]) })
         end
         sorted = arr&.sort_by { |sp| sp[:activeDutyEndDate] }
         sorted.pop if sorted.count > 1
@@ -521,8 +521,8 @@ module ClaimsApi
         si = []
         @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement] = { confinementDates: [] }
         @pdf_data[:data][:attributes][:serviceInformation][:confinements].map do |confinement|
-          start_date = convert_date_to_object(confinement[:approximateBeginDate])
-          end_date = convert_date_to_object(confinement[:approximateEndDate])
+          start_date = regex_date_conversion(confinement[:approximateBeginDate])
+          end_date = regex_date_conversion(confinement[:approximateEndDate])
 
           si.push({
                     start: start_date, end: end_date
@@ -544,10 +544,10 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:serviceInformation].merge!(si)
         if reserves[:obligationTermsOfService].present?
           reserves_begin_date = reserves[:obligationTermsOfService][:beginDate]
-          reserves[:obligationTermsOfService][:start] = convert_date_to_object(reserves_begin_date)
+          reserves[:obligationTermsOfService][:start] = regex_date_conversion(reserves_begin_date)
           reserves[:obligationTermsOfService].delete(:beginDate)
           reserves_end_date = reserves[:obligationTermsOfService][:endDate]
-          reserves[:obligationTermsOfService][:end] = convert_date_to_object(reserves_end_date)
+          reserves[:obligationTermsOfService][:end] = regex_date_conversion(reserves_end_date)
           reserves[:obligationTermsOfService].delete(:endDate)
         end
         component = reserves[:component]
@@ -579,11 +579,11 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:serviceInformation][:federalActivation] = {}
         activation_date = ten[:activationDate]
         @pdf_data[:data][:attributes][:serviceInformation][:federalActivation][:activationDate] =
-          convert_date_to_object(activation_date)
+          regex_date_conversion(activation_date)
 
         anticipated_sep_date = ten[:anticipatedSeparationDate]
         @pdf_data[:data][:attributes][:serviceInformation][:federalActivation][:anticipatedSeparationDate] =
-          convert_date_to_object(anticipated_sep_date)
+          regex_date_conversion(anticipated_sep_date)
         @pdf_data[:data][:attributes][:serviceInformation][:activatedOnFederalOrders] = activation_date ? 'YES' : 'NO'
         @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService].delete(:federalActivation)
 
@@ -602,7 +602,7 @@ module ClaimsApi
         claim_date = Date.parse(@auto_claim&.dig('claimDate').presence || Time.zone.today.to_s)
         claim_date_mdy = claim_date.strftime('%m-%d-%Y')
         @pdf_data[:data][:attributes].merge!(claimCertificationAndSignature: {
-                                               dateSigned: convert_date_to_object(claim_date_mdy),
+                                               dateSigned: regex_date_conversion(claim_date_mdy),
                                                signature: name
                                              })
         @pdf_data[:data][:attributes].delete(:claimDate)
@@ -638,7 +638,7 @@ module ClaimsApi
           date_payment_received =
             @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay][:datePaymentReceived]
           @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay][:datePaymentReceived] =
-            convert_date_to_object(date_payment_received)
+            regex_date_conversion(date_payment_received)
         end
         @pdf_data
       end
@@ -687,9 +687,9 @@ module ClaimsApi
         if date_string.length == 4
           Date.strptime(date_string, '%Y').strftime('%Y')
         elsif date_string.length == 7
-          Date.strptime(date_string, '%m-%Y').strftime('%B %Y')
+          Date.strptime(date_string, '%Y-%m').strftime('%B %Y')
         else
-          Date.strptime(date_string, '%m-%d-%Y').strftime('%B %Y')
+          Date.strptime(date_string, '%Y-%m-%d').strftime('%B %Y')
         end
       end
 
@@ -726,11 +726,11 @@ module ClaimsApi
       end
 
       def make_date_object(date, date_length)
-        if date_length == 4
+        if date.present? && date_length == 4
           { year: date[:year] }
-        elsif date_length == 7
+        elsif date.present? && date_length == 7
           { month: date[:month], year: date[:year] }
-        else
+        elsif date.present?
           { year: date[:year], month: date[:month], day: date[:day] }
         end
       end

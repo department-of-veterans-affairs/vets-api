@@ -171,7 +171,7 @@
                       "example": "2018-06-04"
                     },
                     "endDate": {
-                      "description": "Date in MM-DD-YYYY the changed address expires, if change is temporary.",
+                      "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
                       "type": "string",
                       "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
                       "example": "2018-06-04"
@@ -506,10 +506,10 @@
                     "example": "Heavy equipment operator in service."
                   },
                   "approximateDate": {
-                    "description": "Approximate date disability began. Date must be in the past. \n Format can be either MM-DD-YYYY or MM-YYYY or YYYY",
+                    "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                     "type": ["string", "null"],
-                    "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$|^\\d{4}$",
-                    "example": "03-12-2019 or 03-2019 or 2019",
+                    "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                    "example": "2018-03-02 or 2018-03 or 2018",
                     "nullable": true
                   },
                   "ratedDisabilityId": {
@@ -563,10 +563,10 @@
                           "nullable": true
                         },
                         "approximateDate": {
-                          "description": "Approximate date disability began. Date must be in the past. \n Format can be either MM-DD-YYYY or MM-YYYY or YYYY",
+                          "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                           "type": ["string", "null"],
-                          "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$|^\\d{4}$",
-                          "example": "03-12-2019 or 03-2019 or 2019",
+                          "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                          "example": "2018-03-02 or 2018-03 or 2018",
                           "nullable": true
                         },
                         "exposureOrEventOrInjury": {
@@ -605,8 +605,8 @@
                   "beginDate": {
                     "description": "Begin date for treatment. If treatment began from 2005 to present, you do not need to provide dates. Each treatment begin date must be after the first 'servicePeriod.activeDutyBeginDate'.",
                     "type": ["null", "string"],
-                    "pattern": "^$|^(0[1-9]|1[0-2])-(?:19|20)[0-9][0-9]$|^\\d{4}$",
-                    "example": "02-2018 or 2018",
+                    "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
+                    "example": "2018-06 or 2018",
                     "nullable": true
                   },
                   "treatedDisabilityNames": {
@@ -680,14 +680,14 @@
                       "activeDutyBeginDate": {
                         "description": "Date Started Active Duty.",
                         "type": "string",
-                        "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                        "example": "02-05-1980"
+                        "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                        "example": "2018-06-06"
                       },
                       "activeDutyEndDate": {
                         "description": "Date Completed Active Duty.  If in the future, 'separationLocationCode' is required.",
                         "type": "string",
-                        "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                        "example": "01-02-1990"
+                        "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                        "example": "2018-06-06"
                       },
                       "separationLocationCode": {
                         "description": "Location code for the facility the Veteran plans to separate from. Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
@@ -708,14 +708,14 @@
                     "properties": {
                       "approximateBeginDate": {
                         "description": "The approximateBeginDate must be after the earliest servicePeriod activeDutyBeginDate.",
-                        "pattern": "^$|^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
                         "type": "string",
-                        "example": "06-12-2019 or 06-2019"
+                        "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                        "example": "2018-06-06 or 2018-06"
                       },
                       "approximateEndDate": {
-                        "pattern": "^$|^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$",
                         "type": "string",
-                        "example": "07-12-2019 or 07-2019"
+                        "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                        "example": "2018-06-06 or 2018-06"
                       }
                     }
                   }
@@ -728,14 +728,14 @@
                     "anticipatedSeparationDate": {
                       "description": "Anticipated date of separation. Date must be in the future.",
                       "type": "string",
-                      "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                      "example": "06-04-2018"
+                      "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                      "example": "2018-06-06"
                     },
                     "activationDate": {
                       "description": "Date cannot be in the future and must be after the earliest servicePeriod.activeDutyBeginDate.",
                       "type": "string",
-                      "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
-                      "example": "06-04-2018"
+                      "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                      "example": "2018-06-06"
                     }
                   }
                 },
@@ -749,14 +749,14 @@
                       "additionalProperties": false,
                       "properties": {
                         "beginDate": {
-                          "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
                           "type": "string",
-                          "example": "06-04-2018"
+                          "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                          "example": "2018-06-06"
                         },
                         "endDate": {
-                          "pattern": "^$|^(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(\\d{4})$",
                           "type": "string",
-                          "example": "06-04-2018"
+                          "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
+                          "example": "2018-06-06"
                         }
                       }
                     },
@@ -897,10 +897,10 @@
                   "description": "",
                   "properties": {
                     "datePaymentReceived": {
-                      "description": "Approximate date separation pay was received. \n Format can be either MM-DD-YYYY or MM-YYYY or YYYY",
+                      "description": "Approximate date separation pay was received. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                       "type": "string",
-                      "pattern": "^(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?-\\d{4}$|^(0[1-9]|1[0-2])-\\d{4}$|^\\d{4}$",
-                      "example": "03-02-2018 or 03-2018 or 2018"
+                      "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                      "example": "2018-03-02 or 2018-03 or 2018"
                     },
                     "branchOfService": {
                       "description": "Branch of service. The /service-branches endpoint on the Benefits Reference Data API may be used to retrieve list of possible service branches.",
