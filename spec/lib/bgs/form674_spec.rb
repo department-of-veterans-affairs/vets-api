@@ -7,6 +7,7 @@ RSpec.describe BGS::Form674 do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
   let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
   let(:user_struct) { FactoryBot.build(:user_struct) }
+  let(:saved_claim) { create(:dependency_claim_no_vet_information) }
 
   context 'The flipper is turned on' do
     before do
@@ -18,7 +19,7 @@ RSpec.describe BGS::Form674 do
       VCR.use_cassette('bgs/form674/submit') do
         VCR.use_cassette('bid/awards/get_awards_pension') do
           VCR.use_cassette('bgs/service/create_note') do
-            modify_dependents = BGS::Form674.new(user_struct).submit(all_flows_payload)
+            modify_dependents = BGS::Form674.new(user_struct, saved_claim).submit(all_flows_payload)
 
             expect(modify_dependents).to include(
               :jrn_dt,
@@ -50,7 +51,7 @@ RSpec.describe BGS::Form674 do
             'Claim set to manual by VA.gov: This application needs manual review because a 674 was submitted.'
           )
 
-          BGS::Form674.new(user_struct).submit(all_flows_payload)
+          BGS::Form674.new(user_struct, saved_claim).submit(all_flows_payload)
         end
       end
     end
@@ -60,7 +61,7 @@ RSpec.describe BGS::Form674 do
         VCR.use_cassette('bgs/service/create_note') do
           expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(false)
 
-          BGS::Form674.new(user_struct).submit(all_flows_payload)
+          BGS::Form674.new(user_struct, saved_claim).submit(all_flows_payload)
         end
       end
     end
@@ -72,7 +73,7 @@ RSpec.describe BGS::Form674 do
             expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(true)
             expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
 
-            BGS::Form674.new(user_struct).submit(all_flows_payload)
+            BGS::Form674.new(user_struct, saved_claim).submit(all_flows_payload)
           end
         end
       end
@@ -89,7 +90,7 @@ RSpec.describe BGS::Form674 do
       VCR.use_cassette('bgs/form674/submit') do
         VCR.use_cassette('bid/awards/get_awards_pension') do
           VCR.use_cassette('bgs/service/create_note') do
-            modify_dependents = BGS::Form674.new(user_object).submit(all_flows_payload)
+            modify_dependents = BGS::Form674.new(user_object, saved_claim).submit(all_flows_payload)
 
             expect(modify_dependents).to include(
               :jrn_dt,
@@ -121,7 +122,7 @@ RSpec.describe BGS::Form674 do
             'Claim set to manual by VA.gov: This application needs manual review because a 674 was submitted.'
           )
 
-          BGS::Form674.new(user_object).submit(all_flows_payload)
+          BGS::Form674.new(user_object, saved_claim).submit(all_flows_payload)
         end
       end
     end
@@ -131,7 +132,7 @@ RSpec.describe BGS::Form674 do
         VCR.use_cassette('bgs/service/create_note') do
           expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(false)
 
-          BGS::Form674.new(user_object).submit(all_flows_payload)
+          BGS::Form674.new(user_object, saved_claim).submit(all_flows_payload)
         end
       end
     end
@@ -143,7 +144,7 @@ RSpec.describe BGS::Form674 do
             expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(true)
             expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
 
-            BGS::Form674.new(user_object).submit(all_flows_payload)
+            BGS::Form674.new(user_object, saved_claim).submit(all_flows_payload)
           end
         end
       end
