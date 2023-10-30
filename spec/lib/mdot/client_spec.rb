@@ -165,6 +165,30 @@ describe MDOT::Client, type: :mdot_helpers do
       }
     end
 
+    let(:missing_order) do
+      {
+        'useVeteranAddress' => true,
+        'useTemporaryAddress' => false,
+        'vetEmail' => 'vet1@va.gov',
+        'permanentAddress' => {
+          'street' => '125 SOME RD',
+          'street2' => 'APT 101',
+          'city' => 'DENVER',
+          'state' => 'CO',
+          'country' => 'United States',
+          'postalCode' => '111119999'
+        },
+        'temporaryAddress' => {
+          'street' => '17250 w colfax ave',
+          'street2' => 'a-204',
+          'city' => 'Golden',
+          'state' => 'CO',
+          'country' => 'United States',
+          'postalCode' => '80401'
+        }
+      }
+    end
+
     context 'with a valid supplies order' do
       it 'returns a successful response' do
         VCR.use_cassette('mdot/submit_order', VCR::MATCH_EVERYTHING) do
@@ -197,6 +221,17 @@ describe MDOT::Client, type: :mdot_helpers do
       it 'returns a 422 error' do
         set_mdot_token_for(user)
         expect { subject.submit_order(invalid_order) }.to raise_error(
+          MDOT::Exceptions::ServiceException
+        ) do |e|
+          expect(e.message).to match(/MDOT_supplies_not_selected/)
+        end
+      end
+    end
+
+    context 'with a missing order property' do
+      it 'returns a 422 error' do
+        set_mdot_token_for(user)
+        expect { subject.submit_order(missing_order) }.to raise_error(
           MDOT::Exceptions::ServiceException
         ) do |e|
           expect(e.message).to match(/MDOT_supplies_not_selected/)
