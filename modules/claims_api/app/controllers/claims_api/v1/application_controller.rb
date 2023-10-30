@@ -198,7 +198,7 @@ module ClaimsApi
                               icn:,
                               cid: token&.payload&.[]('cid'),
                               current_user: current_user&.uuid,
-                              location: location,
+                              location:,
                               api_version: 'V1',
                               poa:)
       end

@@ -14,8 +14,8 @@ module ClaimsApi
 
           render json: [] && return unless bgs_claims || lighthouse_claims
           mapped_claims = map_claims(bgs_claims:, lighthouse_claims:)
-
           blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :index, root: :data }
+          claims_v2_logging(tag: 'claims_v2', location: 'claims_index')
           render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(mapped_claims, blueprint_options)
         end
 
@@ -32,6 +32,7 @@ module ClaimsApi
 
           output = generate_show_output(bgs_claim:, lighthouse_claim:)
           blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :show, root: :data }
+          claims_v2_logging(tag: 'claims_v2', location: 'claims_show')
 
           render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(output, blueprint_options)
         end
@@ -39,10 +40,7 @@ module ClaimsApi
         private
 
         def evss_docs_service
-          ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'starting service')
-          service = EVSS::DocumentsService.new(auth_headers)
-          ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'service started')
-          service
+          EVSS::DocumentsService.new(auth_headers)
         end
 
         def bgs_phase_status_mapper
@@ -498,12 +496,11 @@ module ClaimsApi
         end
 
         def get_evss_documents(claim_id)
-          ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'getting docs')
-          docs = evss_docs_service.get_claim_documents(claim_id).body
-          ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'got docs')
-          docs
+          evss_docs_service.get_claim_documents(claim_id).body
         rescue => e
-          ClaimsApi::Logger.log('EVSS', rid: request.request_id, detail: 'getting docs failed', exception: e)
+          ClaimsApi::Logger.log('evss_doc_service', rid: request.request_id,
+                                                    detail: 'getting docs failed in claims controller v2', exception: e)
+          claims_v2_logging(tag: 'evss_doc_service', location: 'claims')
           log_message_to_sentry('Error in Claims v2 show calling EVSS Doc Service',
                                 :warning,
                                 body: e.message)
@@ -522,13 +519,15 @@ module ClaimsApi
                    if file_number.nil?
                      ClaimsApi::Logger.log('benefits_documents',
                                            detail: 'calling benefits documents api ' \
-                                                   "for claim_id #{params[:id]} returned nil file number")
+                                                   "for claim_id #{params[:id]} returned nil ' \
+                                                   'file number in claims controller v2")
 
                      return []
                    end
 
                    ClaimsApi::Logger.log('benefits_documents',
-                                         detail: "calling benefits documents api for claim_id #{params[:id]}")
+                                         detail: "calling benefits documents api for claim_id ' \
+                                         #{params[:id]} in claims controller v2")
                    supporting_docs_list = benefits_doc_api.search(params[:id],
                                                                   file_number)&.dig(:data)
                    # add with_indifferent_access so ['documents'] works below

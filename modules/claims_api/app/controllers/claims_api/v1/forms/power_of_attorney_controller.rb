@@ -244,8 +244,8 @@ module ClaimsApi
           response = find_by_ssn(ssn)
           unless response && response[:file_nbr].present?
             error_message = "Unable to locate Veteran's File Number in Master Person Index (MPI). " \
-            'Please submit an issue at ask.va.gov ' \
-            'or call 1-800-MyVA411 (800-698-2411) for assistance.'
+                            'Please submit an issue at ask.va.gov ' \
+                            'or call 1-800-MyVA411 (800-698-2411) for assistance.'
             claims_v1_logging(target_veteran&.mpi_icn, @power_of_attorney&.id, location: 'poa_find_file_number_by_ssn')
             ClaimsApi::Logger.log('poa_v1', detail: 'file_number not located, 422')
 
