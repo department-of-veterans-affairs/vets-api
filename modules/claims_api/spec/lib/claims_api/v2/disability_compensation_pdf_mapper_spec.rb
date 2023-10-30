@@ -43,25 +43,15 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         ).read
       )
     end
-    let(:target_veteran) do
-      OpenStruct.new(
-        icn: '1013062086V794840',
-        first_name: 'abraham',
-        last_name: 'lincoln',
-        loa: { current: 3, highest: 3 },
-        ssn: '796111863',
-        edipi: '8040545646',
-        participant_id: '600061742',
-        birth_date: '20121130',
-        mpi: OpenStruct.new(
-          icn: '1013062086V794840',
-          birls_id: '796111863',
-          profile: OpenStruct.new(ssn: '796111863')
-        )
-      )
+    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:auth_headers) do
+      EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     end
+
+    let(:middle_initial) { 'L' }
+
     let(:mapper) do
-      ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, target_veteran)
+      ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, auth_headers, middle_initial)
     end
 
     context '526 section 0, claim attributes' do
@@ -90,6 +80,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
     context '526 section 1' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
+      let(:birls_file_number) { auth_headers['va_eauth_birlsfilenumber'] }
 
       it 'maps the mailing address' do
         mapper.map_claim
@@ -125,10 +116,10 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           pdf_data[:data][:attributes][:identificationInformation][:phoneNumber][:internationalTelephone]
 
         expect(ssn).to eq('796-11-1863')
-        expect(name).to eq({ lastName: 'lincoln', firstName: 'abraham' })
-        expect(birth_date).to eq({ month: '11', day: '30', year: '2012' })
+        expect(name).to eq({ lastName: 'lincoln', middleInitial: 'L', firstName: 'abraham' })
+        expect(birth_date).to eq({ month: '02', day: '12', year: '1809' })
         expect(current_va_employee).to eq(false)
-        expect(va_file_number).to eq('796111863')
+        expect(va_file_number).to eq(birls_file_number)
         expect(email).to eq('valid@somedomain.com')
         expect(agree_to_email).to eq(true)
         expect(telephone).to eq('555-555-5555')
@@ -470,7 +461,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
       it 'maps the attributes correctly' do
         mapper.map_claim
-        @target_veteran = target_veteran
 
         signature = pdf_data[:data][:attributes][:claimCertificationAndSignature][:signature]
         date = pdf_data[:data][:attributes][:claimCertificationAndSignature][:dateSigned]
