@@ -47,7 +47,6 @@ module Login
 
       ActiveRecord::Base.transaction do
         if user_verification
-          validate_csp_lock
           update_existing_user_verification if user_verification_needs_to_be_updated?
           update_backing_idme_uuid if backing_idme_uuid_has_changed?
         else
@@ -75,23 +74,6 @@ module Login
         end
       else
         update_newly_verified_user
-      end
-    end
-
-    def validate_csp_lock
-      if user_verification.locked == true
-        csp_block_type = case type
-                         when LOGINGOV_TYPE
-                           'Login.gov'
-                         when IDME_TYPE
-                           'ID.me'
-                         when DSLOGON_TYPE
-                           'DS Logon'
-                         when MHV_TYPE
-                           'MyHealtheVet'
-                         end
-
-        raise Errors::CSPLockedError, "#{csp_block_type} credential has been locked"
       end
     end
 

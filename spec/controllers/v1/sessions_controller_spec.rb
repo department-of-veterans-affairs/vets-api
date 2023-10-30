@@ -718,24 +718,6 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
         end
 
-        context 'when a locked UserVerification is found' do
-          let(:expected_error_message) { 'ID.me credential has been locked' }
-          let(:user_verification) { build(:idme_user_verification, idme_uuid: uuid, locked: true) }
-
-          before do
-            allow_any_instance_of(Login::UserVerifier).to receive(:user_verification).and_return(user_verification)
-          end
-
-          it 'redirects to an auth failure page' do
-            expect(Raven).to receive(:tags_context).once
-            expect(controller).to receive(:log_message_to_sentry).with(expected_error_message,
-                                                                       :error,
-                                                                       extra_context: {})
-            expect(post(:saml_callback)).to redirect_to(expected_redirect)
-            expect(response).to have_http_status(:redirect)
-          end
-        end
-
         context 'UserIdentity & MPI ID validations' do
           let(:mpi_profile) { build(:mpi_profile) }
           let(:user) { build(:user, :loa3, uuid:, idme_uuid: uuid, mpi_profile:) }

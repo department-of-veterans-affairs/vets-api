@@ -248,6 +248,65 @@ RSpec.describe UserVerification, type: :model do
     end
   end
 
+  describe '.find_by_type' do
+    subject { UserVerification.find_by_type(type, identifier) }
+
+    let(:user_account) { create(:user_account) }
+
+    context 'when a user verification is not found' do
+      let(:type) { 'logingov' }
+      let(:identifier) { 'some-identifier' }
+
+      it 'raises a record not found error' do
+        expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+
+    context 'when a user verification is found' do
+      context 'when a Login.gov user verification is found' do
+        let(:logingov_uuid) { 'some-logingov-uuid' }
+        let(:type) { 'logingov' }
+        let(:identifier) { user_verification.credential_identifier }
+
+        it 'returns the user verification' do
+          expect(subject).to eq(user_verification)
+        end
+      end
+
+      context 'when an ID.me user verification is found' do
+        let(:idme_uuid) { 'some-idme-uuid' }
+        let(:type) { 'idme' }
+        let(:identifier) { user_verification.credential_identifier }
+
+        it 'returns the user verification' do
+          expect(subject).to eq(user_verification)
+        end
+      end
+
+      context 'when a DSLogon user verification is found' do
+        let(:dslogon_uuid) { 'some-dslogon-uuid' }
+        let(:backing_idme_uuid) { 'some-backing-idme-uuid' }
+        let(:type) { 'dslogon' }
+        let(:identifier) { user_verification.credential_identifier }
+
+        it 'returns the user verification' do
+          expect(subject).to eq(user_verification)
+        end
+      end
+
+      context 'when an MHV user verification is found' do
+        let(:mhv_uuid) { 'some-mhv-uuid' }
+        let(:backing_idme_uuid) { 'some-backing-idme-uuid' }
+        let(:type) { 'mhv' }
+        let(:identifier) { user_verification.credential_identifier }
+
+        it 'returns the user verification' do
+          expect(subject).to eq(user_verification)
+        end
+      end
+    end
+  end
+
   describe '#verified?' do
     subject { user_verification.verified? }
 

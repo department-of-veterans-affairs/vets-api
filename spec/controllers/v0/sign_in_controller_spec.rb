@@ -559,29 +559,6 @@ RSpec.describe V0::SignInController, type: :controller do
       allow_any_instance_of(MPI::Service).to receive(:add_person_implicit_search).and_return(mpi_add_person_response)
     end
 
-    shared_examples 'csp locked error response' do
-      let(:expected_error_json) { { 'errors' => expected_error } }
-      let(:expected_error_status) { :bad_request }
-      let(:statsd_callback_failure) { SignIn::Constants::Statsd::STATSD_SIS_CALLBACK_FAILURE }
-
-      it 'renders expected error' do
-        expect(JSON.parse(subject.body)).to eq(expected_error_json)
-      end
-
-      it 'returns expected status' do
-        expect(subject).to have_http_status(expected_error_status)
-      end
-
-      it 'logs the failed token request' do
-        expect(Rails.logger).to receive(:error).with(expected_error)
-        subject
-      end
-
-      it 'updates StatsD with a token request failure' do
-        expect { subject }.to trigger_statsd_increment(statsd_callback_failure)
-      end
-    end
-
     shared_examples 'api based error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
       let(:expected_error_status) { :bad_request }
@@ -878,18 +855,6 @@ RSpec.describe V0::SignInController, type: :controller do
                   end
                 end
 
-                context 'and the retrieved Login.gov UserVerification is locked' do
-                  let(:user_verification) { create(:logingov_user_verification, logingov_uuid:, locked: true) }
-                  let(:expected_error) { 'Login.gov credential has been locked' }
-
-                  before do
-                    allow_any_instance_of(Login::UserVerifier).to receive(:user_verification)
-                      .and_return(user_verification)
-                  end
-
-                  it_behaves_like 'csp locked error response'
-                end
-
                 it 'includes expected code param' do
                   expect(subject.body).to include(client_code)
                 end
@@ -1066,18 +1031,6 @@ RSpec.describe V0::SignInController, type: :controller do
                   it 'directs to the given redirect url set in the client configuration' do
                     expect(subject.body).to include(client_redirect_uri)
                   end
-                end
-
-                context 'and the retrieved ID.me UserVerification is locked' do
-                  let(:user_verification) { create(:idme_user_verification, idme_uuid:, locked: true) }
-                  let(:expected_error) { 'ID.me credential has been locked' }
-
-                  before do
-                    allow_any_instance_of(Login::UserVerifier).to receive(:user_verification)
-                      .and_return(user_verification)
-                  end
-
-                  it_behaves_like 'csp locked error response'
                 end
 
                 it 'includes expected code param' do
@@ -1298,18 +1251,6 @@ RSpec.describe V0::SignInController, type: :controller do
                     expect(subject.body).to include(client_redirect_uri)
                   end
                 end
-
-                context 'and the retrieved DS Logon UserVerification is locked' do
-                  let(:user_verification) { create(:dslogon_user_verification, locked: true) }
-                  let(:expected_error) { 'DS Logon credential has been locked' }
-
-                  before do
-                    allow_any_instance_of(Login::UserVerifier).to receive(:user_verification)
-                      .and_return(user_verification)
-                  end
-
-                  it_behaves_like 'csp locked error response'
-                end
               end
             end
           end
@@ -1479,18 +1420,6 @@ RSpec.describe V0::SignInController, type: :controller do
                   it 'directs to the given redirect url set in the client configuration' do
                     expect(subject.body).to include(client_redirect_uri)
                   end
-                end
-
-                context 'and the retrieved MHV UserVerification is locked' do
-                  let(:user_verification) { create(:mhv_user_verification, locked: true) }
-                  let(:expected_error) { 'MyHealtheVet credential has been locked' }
-
-                  before do
-                    allow_any_instance_of(Login::UserVerifier).to receive(:user_verification)
-                      .and_return(user_verification)
-                  end
-
-                  it_behaves_like 'csp locked error response'
                 end
               end
             end

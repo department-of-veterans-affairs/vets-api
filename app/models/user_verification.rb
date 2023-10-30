@@ -13,6 +13,22 @@ class UserVerification < ApplicationRecord
   scope :mhv, -> { where.not(mhv_uuid: nil) }
   scope :dslogon, -> { where.not(dslogon_uuid: nil) }
 
+  def self.find_by_type(type, identifier)
+    user_verification = case type
+                        when SAML::User::LOGINGOV_CSID
+                          find_by(logingov_uuid: identifier)
+                        when SAML::User::IDME_CSID
+                          find_by(idme_uuid: identifier)
+                        when SAML::User::MHV_ORIGINAL_CSID
+                          find_by(mhv_uuid: identifier)
+                        when SAML::User::DSLOGON_CSID
+                          find_by(dslogon_uuid: identifier)
+                        end
+    raise ActiveRecord::RecordNotFound unless user_verification
+
+    user_verification
+  end
+
   def verified?
     verified_at.present? && user_account.verified?
   end

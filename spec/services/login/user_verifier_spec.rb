@@ -69,16 +69,6 @@ RSpec.describe Login::UserVerifier do
         end
         let(:user_account) { UserAccount.new }
 
-        context 'and user verification locked attribute is true' do
-          let(:locked) { true }
-          let(:expected_error) { Login::Errors::CSPLockedError }
-          let(:expected_log) { 'ID.me credential has been locked' }
-
-          it 'raises a CSP Locked error detailing the CSP that has been locked' do
-            expect { subject }.to raise_exception(expected_error, expected_log)
-          end
-        end
-
         it 'logs messages to rails logger' do
           expect(Rails.logger).to receive(:info).with(expected_log).ordered
           expect(Rails.logger).to receive(:info).with(expected_log_idme).ordered
@@ -114,28 +104,6 @@ RSpec.describe Login::UserVerifier do
 
           it 'does not create a new user_verification' do
             expect { subject }.not_to change(UserVerification, :count)
-          end
-
-          context 'and user verification locked attribute is true' do
-            let(:locked) { true }
-            let(:expected_error) { Login::Errors::CSPLockedError }
-            let(:csp_block_type) do
-              case login_value
-              when SignIn::Constants::Auth::LOGINGOV
-                'Login.gov'
-              when SignIn::Constants::Auth::IDME
-                'ID.me'
-              when SignIn::Constants::Auth::DSLOGON
-                'DS Logon'
-              when SignIn::Constants::Auth::MHV
-                'MyHealtheVet'
-              end
-            end
-            let(:expected_log) { "#{csp_block_type} credential has been locked" }
-
-            it 'raises a CSP Locked error detailing the CSP that has been locked' do
-              expect { subject }.to raise_exception(expected_error, expected_log)
-            end
           end
 
           context 'and determined backing idme uuid is different than existing backing idme uuid' do
