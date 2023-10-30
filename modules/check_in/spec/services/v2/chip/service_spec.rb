@@ -26,12 +26,26 @@ describe V2::Chip::Service do
     let(:resp) { 'Checkin successful' }
     let(:faraday_response) { Faraday::Response.new(body: resp, status: 200) }
     let(:hsh) { { data: faraday_response.body, status: faraday_response.status } }
+    let(:appointment_identifiers) do
+      {
+        data: {
+          id:,
+          type: :appointment_identifier,
+          attributes: { patientDFN: '123', stationNo: '888', setECheckinStartedCalled: true }
+        }
+      }
+    end
 
     context 'when token is already present' do
       before do
         allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return('jwt-token-123-abc')
         allow_any_instance_of(::V2::Chip::Client).to receive(:check_in_appointment)
           .and_return(Faraday::Response.new(body: 'Checkin successful', status: 200))
+        Rails.cache.write(
+          "check_in_lorota_v2_appointment_identifiers_#{id}",
+          appointment_identifiers.to_json,
+          namespace: 'check-in-lorota-v2-cache'
+        )
       end
 
       it 'returns correct response' do
@@ -45,6 +59,11 @@ describe V2::Chip::Service do
 
       before do
         allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+        Rails.cache.write(
+          "check_in_lorota_v2_appointment_identifiers_#{id}",
+          appointment_identifiers.to_json,
+          namespace: 'check-in-lorota-v2-cache'
+        )
       end
 
       it 'returns unauthorized' do
@@ -192,9 +211,23 @@ describe V2::Chip::Service do
     let(:appointment_identifiers) do
       {
         data: {
-          id: :id,
+          id:,
           type: :appointment_identifier,
-          attributes: { patientDFN: '123', stationNo: :station_no, appointmentIen: :appointment_ien }
+          attributes: { patientDFN: '123', stationNo: station_no, appointmentIen: appointment_ien }
+        }
+      }
+    end
+    let(:appointment_data_with_set_echeckin_started_called) do
+      {
+        'data' => {
+          'id' => id,
+          'type' => 'appointment_identifier',
+          'attributes' => {
+            'patientDFN' => '123',
+            'stationNo' => station_no,
+            'appointmentIen' => appointment_ien,
+            'setECheckinStartedCalled' => true
+          }
         }
       }
     end
@@ -223,7 +256,12 @@ describe V2::Chip::Service do
 
       it 'returns success response' do
         response = subject.build(check_in: valid_check_in).set_echeckin_started
+        cached_appointment_identifiers = Rails.cache.read(
+          "check_in_lorota_v2_appointment_identifiers_#{id}",
+          namespace: 'check-in-lorota-v2-cache'
+        )
         expect(response).to eq(resp)
+        expect(Oj.load(cached_appointment_identifiers)).to eq(appointment_data_with_set_echeckin_started_called)
       end
     end
 
@@ -244,15 +282,34 @@ describe V2::Chip::Service do
 
       it 'returns the original response' do
         response = subject.build(check_in: valid_check_in).set_echeckin_started
+        cached_appointment_identifiers = Rails.cache.read(
+          "check_in_lorota_v2_appointment_identifiers_#{id}",
+          namespace: 'check-in-lorota-v2-cache'
+        )
         expect(response).to eq(resp)
+        expect(Oj.load(cached_appointment_identifiers)).to eq(appointment_data_with_set_echeckin_started_called)
       end
     end
 
     context 'when token is not present' do
       let(:resp) { { data: { error: true, message: 'Unauthorized' }, status: 401 } }
+      let(:appointment_identifiers) do
+        {
+          data: {
+            id:,
+            type: :appointment_identifier,
+            attributes: { patientDFN: '123', stationNo: '888' }
+          }
+        }
+      end
 
       before do
         allow_any_instance_of(::V2::Chip::Service).to receive(:token).and_return(nil)
+        Rails.cache.write(
+          "check_in_lorota_v2_appointment_identifiers_#{id}",
+          appointment_identifiers.to_json,
+          namespace: 'check-in-lorota-v2-cache'
+        )
       end
 
       it 'returns unauthorized message' do

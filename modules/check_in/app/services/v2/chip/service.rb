@@ -65,8 +65,11 @@ module V2
                else
                  Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
                end
-
-        response.build(response: resp).handle
+        chip_response = response.build(response: resp).handle
+        Rails.logger.info({ message: "Check-in completed for #{@check_in.uuid} in station #{station_number} " \
+                                     "with status #{chip_response[:status]} and echeckin_start_called set with " \
+                                     "#{echeckin_start_called.nil? ? false : echeckin_start_called}" })
+        chip_response
       end
 
       # Call the CHIP API to refresh appointments. CHIP doesn't return refreshed appointments in the response
@@ -136,6 +139,9 @@ module V2
                  Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
                end
 
+        # setECheckinStartedCalled field set with true in redis
+        save_echeckin_start_called
+        Rails.logger.info({ message: "45 minute text reminder started for #{@check_in.uuid} in #{station_number}" })
         response.build(response: resp).handle
       end
 
@@ -271,6 +277,25 @@ module V2
         }
       end
 
+      def echeckin_start_called
+        Oj.load(appointment_identifiers).with_indifferent_access.dig(:data, :attributes, :setECheckinStartedCalled)
+      end
+
+      def save_echeckin_start_called
+        appointment_hash = Oj.load(appointment_identifiers).with_indifferent_access
+        appointment_hash[:data][:attributes]&.merge!(setECheckinStartedCalled: true)
+        Rails.cache.write(
+          "check_in_lorota_v2_appointment_identifiers_#{@check_in.uuid}",
+          Oj.dump(appointment_hash),
+          namespace: 'check-in-lorota-v2-cache',
+          expires_in: 43_200
+        )
+      end
+
+      def station_number
+        Oj.load(appointment_identifiers).with_indifferent_access.dig(:data, :attributes, :stationNo)
+      end
+
       def appointment_attributes
         hashed_identifiers =
           Oj.load(appointment_identifiers).with_indifferent_access.dig(:data, :attributes)
@@ -282,7 +307,7 @@ module V2
       end
 
       def appointment_identifiers
-        Rails.cache.read(
+        @appointment_identifiers ||= Rails.cache.read(
           "check_in_lorota_v2_appointment_identifiers_#{check_in.uuid}",
           namespace: 'check-in-lorota-v2-cache'
         )
