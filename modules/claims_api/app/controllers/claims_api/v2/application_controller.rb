@@ -205,7 +205,7 @@ module ClaimsApi
         end
       end
 
-      def claims_v2_logging(tag = 'traceability', poa = nil, message = nil)
+      def claims_v2_logging(tag = 'traceability', poa: nil, message: nil)
         ClaimsApi::Logger.log(tag,
                               icn: target_veteran.mpi.icn,
                               cid: token&.payload&.[]('cid'),

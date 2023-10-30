@@ -15,7 +15,6 @@ module ClaimsApi
           render json: [] && return unless bgs_claims || lighthouse_claims
           mapped_claims = map_claims(bgs_claims:, lighthouse_claims:)
           blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :index, root: :data }
-          claims_v2_logging(tag: 'claims_v2', location: 'claims_index')
           render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(mapped_claims, blueprint_options)
         end
 
@@ -25,6 +24,7 @@ module ClaimsApi
           bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
 
           if lighthouse_claim.blank? && bgs_claim.blank?
+            claims_v2_logging('claims_show', message: 'Claim not found.')
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
           end
 
@@ -32,7 +32,6 @@ module ClaimsApi
 
           output = generate_show_output(bgs_claim:, lighthouse_claim:)
           blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId], view: :show, root: :data }
-          claims_v2_logging(tag: 'claims_v2', location: 'claims_show')
 
           render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(output, blueprint_options)
         end
@@ -498,12 +497,9 @@ module ClaimsApi
         def get_evss_documents(claim_id)
           evss_docs_service.get_claim_documents(claim_id).body
         rescue => e
-          ClaimsApi::Logger.log('evss_doc_service', rid: request.request_id,
-                                                    detail: 'getting docs failed in claims controller v2', exception: e)
-          claims_v2_logging(tag: 'evss_doc_service', location: 'claims')
-          log_message_to_sentry('Error in Claims v2 show calling EVSS Doc Service',
-                                :warning,
-                                body: e.message)
+          claims_v2_logging('evss_doc_service',
+                            message: "getting docs failed in claims controller with e.message:
+                            #{e.message}, rid: #{request.request_id}")
           {}
         end
 
