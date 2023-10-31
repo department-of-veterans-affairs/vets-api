@@ -76,7 +76,7 @@ module V0
     end
 
     def serialized_user_verification
-      @serialize_user_verification ||= UserVerificationSerializer.new(user_verification:).perform
+      @serialized_user_verification ||= UserVerificationSerializer.new(user_verification:).perform
     end
 
     def lock_log_info
