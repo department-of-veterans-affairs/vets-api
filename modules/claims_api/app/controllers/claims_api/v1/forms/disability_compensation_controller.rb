@@ -33,13 +33,13 @@ module ClaimsApi
         #
         # @return [JSON] Record in pending state
         def submit_form_526 # rubocop:disable Metrics/MethodLength
-          ClaimsApi::Logger.log('526', detail: '526 - Request Started')
+          claims_v1_logging('526_submit', message: '526 - Submit request Started')
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
           validate_form_526_submission_values!
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
-          ClaimsApi::Logger.log('526', detail: '526 - Controller Actions Completed')
+          claims_v1_logging('526_submit', message: '526 - Controller Actions Completed')
 
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
@@ -52,8 +52,8 @@ module ClaimsApi
             veteran_icn: target_veteran.mpi.icn
           )
 
-          ClaimsApi::Logger.log('526', claim_id: auto_claim.id, detail: 'Submitted to Lighthouse',
-                                       pdf_gen_dis: form_attributes['autoCestPDFGenerationDisabled'])
+          claims_v1_logging('526_submit', message: "Submitted to Lighthouse with claim_id: #{auto_claim.id},
+                                       pdf_gen_dis: #{form_attributes['autoCestPDFGenerationDisabled']}")
 
           # .create returns the resulting object whether the object was saved successfully to the database or not.
           # If it's lacking the ID, that means the create was unsuccessful and an identical claim already exists.
@@ -90,7 +90,7 @@ module ClaimsApi
             pending_claim.set_file_data!(documents.first, EVSS_DOCUMENT_TYPE)
             pending_claim.save!
 
-            ClaimsApi::Logger.log('526', claim_id: pending_claim.id, detail: 'Uploaded PDF to S3')
+            claims_v1_logging('526_upload', message: "Uploaded PDF to S3, with claim_id: #{pending_claim.id}")
             ClaimsApi::ClaimEstablisher.perform_async(pending_claim.id)
             ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
 
@@ -138,14 +138,14 @@ module ClaimsApi
         # @return [JSON] Success if valid, error messages if invalid.
         # rubocop:disable Metrics/MethodLength
         def validate_form_526
-          ClaimsApi::Logger.log('526', detail: '526/validate - Request Started')
+          claims_v1_logging('526', message: '526/validate - Request Started')
           add_deprecation_headers_to_response(response:, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           sanitize_account_type if form_attributes.dig('directDeposit', 'accountType')
           validate_json_schema
           validate_form_526_submission_values!
           validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
-          ClaimsApi::Logger.log('526', detail: '526/validate - Controller Actions Completed')
+          claims_v1_logging('526', message: '526/validate - Controller Actions Completed')
 
           service =
             if Flipper.enabled? :claims_status_v1_lh_auto_establish_claim_enabled
@@ -170,7 +170,7 @@ module ClaimsApi
             service.validate_form526(auto_claim.to_internal)
           end
 
-          ClaimsApi::Logger.log('526', detail: '526/validate - Request Completed')
+          claims_v1_logging('526', message: '526/validate - Request Completed')
 
           render json: valid_526_response
         rescue ::EVSS::DisabilityCompensationForm::ServiceException, EVSS::ErrorMiddleware::EVSSError => e
