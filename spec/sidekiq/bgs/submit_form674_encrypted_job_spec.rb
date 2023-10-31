@@ -7,6 +7,7 @@ RSpec.describe BGS::SubmitForm674EncryptedJob, type: :job do
   let(:dependency_claim) { create(:dependency_claim) }
   let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
   let(:birth_date) { '1809-02-12' }
+  let(:client_stub) { instance_double(BGS::Form674) }
   let(:vet_info) do
     {
       'veteran_information' => {
@@ -42,73 +43,64 @@ RSpec.describe BGS::SubmitForm674EncryptedJob, type: :job do
   end
   let(:encrypted_user_struct) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
 
-  it 'calls #submit for 674 submission' do
-    client_stub = instance_double(BGS::Form674)
-    allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
-    expect(client_stub).to receive(:submit).once
+  context 'success' do
+    before do
+      expect(BGS::Form674).to receive(:new).with(user_struct, dependency_claim).and_return(client_stub)
+      expect(client_stub).to receive(:submit).once
+    end
 
-    described_class.new.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
-  end
+    it 'successfully calls #submit for 674 submission' do
+      expect(OpenStruct).to receive(:new)
+        .with(hash_including(user_struct.to_h.stringify_keys))
+        .and_return(user_struct)
+      expect do
+        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+      end.not_to raise_error
+    end
 
-  it 'calls #submit without a user_struct passed in by 686c' do
-    client_stub = instance_double(BGS::Form674)
-    allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
-    expect(client_stub).to receive(:submit).once
+    it 'successfully calls #submit without a user_struct passed in by 686c' do
+      expect(OpenStruct).to receive(:new)
+        .with(hash_including(icn: vet_info['veteran_information']['icn']))
+        .and_return(user_struct)
+      expect do
+        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info)
+      end.not_to raise_error
+    end
 
-    described_class.new.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info)
-  end
+    it 'sends confirmation email' do
+      expect(OpenStruct).to receive(:new)
+        .with(hash_including('icn' => vet_info['veteran_information']['icn']))
+        .and_return(user_struct)
+      expect(VANotify::EmailJob).to receive(:perform_async).with(
+        user.va_profile_email,
+        'fake_template_id',
+        {
+          'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
+          'first_name' => 'WESLEY'
+        }
+      )
 
-  it 'sends confirmation email' do
-    client_stub = instance_double(BGS::Form674)
-    allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
-    expect(client_stub).to receive(:submit).once
-
-    expect(VANotify::EmailJob).to receive(:perform_async).with(
-      user.va_profile_email,
-      'fake_template_id',
-      {
-        'date' => Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%B %d, %Y'),
-        'first_name' => 'WESLEY'
-      }
-    )
-
-    described_class.new.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+      subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+    end
   end
 
   context 'error with central submission flipper on' do
     before do
+      allow(OpenStruct).to receive(:new).and_call_original
       InProgressForm.create!(form_id: '686C-674', user_uuid: user.uuid, form_data: all_flows_payload)
       Flipper.enable(:dependents_central_submission)
     end
 
-    it 'calls #submit for 674 submission' do
-      job = described_class.new
-      client_stub = instance_double(BGS::Form674)
-      allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
-      expect(client_stub).to receive(:submit).and_raise(StandardError)
-      expect(job).to receive(:salvage_save_in_progress_form).with('686C-674', user.uuid, anything)
+    it 'raises error' do
+      expect(OpenStruct).to receive(:new)
+        .with(hash_including('icn' => vet_info['veteran_information']['icn']))
+        .and_return(user_struct)
+      expect(BGS::Form674).to receive(:new).with(user_struct, dependency_claim) { client_stub }
+      expect(client_stub).to receive(:submit).and_raise(BGS::SubmitForm674Job::Invalid674Claim)
 
-      job.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
-    end
-  end
-
-  context 'error with central submission flipper off' do
-    before do
-      InProgressForm.create!(form_id: '686C-674', user_uuid: user.uuid, form_data: all_flows_payload)
-      Flipper.disable(:dependents_central_submission)
-    end
-
-    it 'calls #submit for 674 submission' do
-      job = described_class.new
-      client_stub = instance_double(BGS::Form674)
-      mailer_double = double('Mail::Message')
-      allow(BGS::Form674).to receive(:new).with(an_instance_of(OpenStruct)) { client_stub }
-      expect(client_stub).to receive(:submit).and_raise(StandardError)
-      allow(mailer_double).to receive(:deliver_now)
-      expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(OpenStruct)) { mailer_double }
-      expect(job).to receive(:salvage_save_in_progress_form).with('686C-674', user.uuid, anything)
-
-      job.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+      expect do
+        subject.perform(user.uuid, user.icn, dependency_claim.id, encrypted_vet_info, encrypted_user_struct)
+      end.to raise_error(BGS::SubmitForm674Job::Invalid674Claim)
     end
   end
 end
