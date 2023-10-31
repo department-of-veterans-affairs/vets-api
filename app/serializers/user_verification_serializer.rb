@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class UserVerificationSerializer
-  attr_reader :user_verification, :type, :locked, :credential_id
+  attr_reader :user_verification
 
   def initialize(user_verification:)
     @user_verification = user_verification
