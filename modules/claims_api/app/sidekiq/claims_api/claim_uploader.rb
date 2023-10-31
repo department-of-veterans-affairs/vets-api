@@ -18,6 +18,7 @@ module ClaimsApi
       auto_claim = claim_object.try(:auto_established_claim) || claim_object
 
       if auto_claim.evss_id.nil?
+        ClaimsApi::Logger.log('claims_uploader', detail: "evss id: #{auto_claim&.evss_id} was nil, for uuid: #{uuid}")
         self.class.perform_in(30.minutes, uuid)
       else
         auth_headers = auto_claim.auth_headers

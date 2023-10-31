@@ -60,7 +60,7 @@ module ClaimsApi
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Veteran ID not found')
           else
             ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::SUBMITTED, cid: token.payload['cid'])
-            claims_v2_logging('itf', message: 'Submitted to BGS')
+            claims_v2_logging('itf_submit', message: 'Submitted to BGS')
             lighthouse_itf = bgs_itf_to_lighthouse_itf(bgs_itf: bgs_response)
 
             itf_id = bgs_response.is_a?(Array) ? bgs_response[0][:intent_to_file_id] : bgs_response[:intent_to_file_id]

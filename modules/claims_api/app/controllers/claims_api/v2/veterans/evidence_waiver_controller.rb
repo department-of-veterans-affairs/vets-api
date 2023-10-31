@@ -16,8 +16,8 @@ module ClaimsApi
           bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
 
           if @file_number.nil?
-            claims_v2_logging('EWS', level: :error,
-                                     message: "EWS no file number error, claim_id: #{params[:id]}")
+            claims_v2_logging('EWS_submit', level: :error,
+                                            message: "EWS no file number error, claim_id: #{params[:id]}")
 
             raise ::Common::Exceptions::ResourceNotFound.new(detail:
               "Unable to locate Veteran's File Number. " \
