@@ -68,7 +68,9 @@ module V2
         chip_response = response.build(response: resp).handle
         Rails.logger.info({ message: "Check-in completed for #{@check_in.uuid} in station #{station_number} " \
                                      "with status #{chip_response[:status]} and echeckin_start_called set with " \
-                                     "#{echeckin_start_called.nil? ? false : echeckin_start_called}" })
+                                     "#{echeckin_start_called.nil? ? false : echeckin_start_called}",
+                            check_in_uuid: @check_in.uuid, station_number:, check_in_status: chip_response[:status],
+                            echeckin_start_called: echeckin_start_called.nil? ? false : echeckin_start_called })
         chip_response
       end
 
@@ -141,7 +143,8 @@ module V2
 
         # setECheckinStartedCalled field set with true in redis
         save_echeckin_start_called
-        Rails.logger.info({ message: "45 minute text reminder started for #{@check_in.uuid} in #{station_number}" })
+        Rails.logger.info({ message: "45 minute text reminder started for #{@check_in.uuid} in #{station_number}",
+                            check_in_uuid: @check_in.uuid, station_number: })
         response.build(response: resp).handle
       end
 
