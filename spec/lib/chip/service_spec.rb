@@ -560,7 +560,7 @@ describe Chip::Service do
       end
 
       it 'returns 200 with success message' do
-        VCR.use_cassette('chip/authenticated_demographics/get_demographics_200', match_requests_on: [:host]) do
+        VCR.use_cassette('chip/authenticated_demographics/get_demographics_200', erb: { patient_dfn:, station_no: }) do
           VCR.use_cassette('chip/token/token_200') do
             response = service_obj.get_demographics(patient_dfn:, station_no:)
             expect(response.status).to be 200
@@ -591,7 +591,7 @@ describe Chip::Service do
       end
 
       it 'throws 500 for error from Vista API' do
-        VCR.use_cassette('chip/authenticated_demographics/get_demographics_500', match_requests_on: [:host]) do
+        VCR.use_cassette('chip/authenticated_demographics/get_demographics_500', erb: { patient_dfn:, station_no: }) do
           VCR.use_cassette('chip/token/token_200') do
             expect do
               service_obj.get_demographics(patient_dfn:, station_no:)

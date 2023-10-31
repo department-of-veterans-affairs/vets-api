@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com/actions/authenticated-demographics
+    uri:  https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com/dev/actions/authenticated-demographics?patientDfn=<%= patient_dfn %>&stationNo=<%= station_no %>
   response:
     status:
       code: 200
