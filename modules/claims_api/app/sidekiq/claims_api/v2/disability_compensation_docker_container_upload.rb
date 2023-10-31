@@ -31,7 +31,6 @@ module ClaimsApi
                          "Successfully submitted to Docker container with response: #{evss_res}")
         # update with the evss_id returned
         auto_claim.update(evss_id: evss_res[:claimId])
-
         # clear out the evss_response value on successful submssion to docker container
         clear_evss_response_for_claim(auto_claim)
         # queue flashes job

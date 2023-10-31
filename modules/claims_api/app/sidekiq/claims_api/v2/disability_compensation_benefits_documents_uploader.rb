@@ -27,24 +27,21 @@ module ClaimsApi
         log_job_progress(LOG_TAG,
                          claim_id,
                          'Uploaded 526EZ PDF to BD')
-
         # at this point in the workflow the claim is 'established'
         set_established_state_on_claim(auto_claim)
         log_job_progress(LOG_TAG,
                          claim_id,
                          'BD upload succeeded, Claim workflow finished')
-
       # Temporary errors (returning HTML, connection timeout), retry call
       rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "BD failure for claimId #{auto_claim&.id}: #{e.message}")
+                         "BD failure for claimId #{auto_claim&.id}: #{e&.message}")
         log_exception_to_sentry(e)
 
         raise e
       rescue => e
         message = get_error_message(e)
-
         log_job_progress(LOG_TAG,
                          claim_id,
                          "BD failure for claimId #{auto_claim&.id}: #{message}")
