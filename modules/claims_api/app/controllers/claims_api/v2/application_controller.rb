@@ -205,14 +205,14 @@ module ClaimsApi
         end
       end
 
-      def claims_v2_logging(tag = 'traceability', poa: nil, message: nil, icn: target_veteran&.mpi&.icn)
+      def claims_v2_logging(tag = 'traceability', level: :info, message: nil, icn: target_veteran&.mpi&.icn)
         ClaimsApi::Logger.log(tag,
                               icn:,
                               cid: token&.payload&.[]('cid'),
                               current_user: current_user&.uuid,
                               message:,
                               api_version: 'V2',
-                              poa:)
+                              level:)
       end
     end
   end
