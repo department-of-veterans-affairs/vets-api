@@ -41,7 +41,7 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
       'docType',
       'description'
     )
-    claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
+    claim.status = ClaimsApi::AutoEstablishedClaim::PENDING
     claim.save!
     claim
   end
@@ -57,12 +57,12 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationBenefitsDocumentsUploader, t
 
     it 'the claim should still be established on a successful BD submission' do
       VCR.use_cassette('bd/upload') do
-        expect(claim.status).to eq('established')
+        expect(claim.status).to eq('pending') # where we start
 
         service.perform(claim.id)
 
         claim.reload
-        expect(claim.status).to eq('established')
+        expect(claim.status).to eq('established') # where we end
       end
     end
 

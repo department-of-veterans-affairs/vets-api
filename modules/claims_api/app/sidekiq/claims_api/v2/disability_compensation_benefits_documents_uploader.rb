@@ -15,6 +15,9 @@ module ClaimsApi
 
         auto_claim = get_claim(claim_id)
 
+        # Reset for a rerun on this
+        set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
+
         uploader = auto_claim.uploader
         uploader.retrieve_from_store!(auto_claim.file_data['filename'])
         file_body = uploader.read
@@ -25,6 +28,8 @@ module ClaimsApi
                          claim_id,
                          'Uploaded 526EZ PDF to BD')
 
+        # at this point in the workflow the claim is 'established'
+        set_established_state_on_claim(auto_claim)
         log_job_progress(LOG_TAG,
                          claim_id,
                          'BD upload succeeded, Claim workflow finished')

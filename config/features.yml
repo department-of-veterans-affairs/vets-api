@@ -49,6 +49,10 @@ features:
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
+  hca_vaprofile_military_info:
+    actor_type: user
+    description: Enables prefilling 1010ez using VA profile military data
+    enable_in_development: false
   cerner_allow_partial_facilities:
     actor_type: user
     description: This will allow cerner facilities to be set to partially cerner or all cerner.
@@ -302,6 +306,9 @@ features:
   decision_review_sc_pact_act_boolean:
     actor_type: user
     description: Adds a 'potentialPactAct' field to the Supplemental Claims V2 API schema
+  decision_review_delay_evidence:
+    actor_type: user
+    description: Ensures that NOD and SC evidence is not received in Central Mail before the appeal itself
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -644,7 +651,7 @@ features:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer urgent experience (Identity)
     enable_in_development: false
-  military_information_vaprofile:
+  military_information:
     actor_type: user
     description: Enables the post-EMIS military information of VAProfile
     enable_in_development: false
@@ -748,7 +755,7 @@ features:
     actor_type: user
     enable_in_development: true
   profile_contacts:
-    description: Enable the Personal Health Care Contacts API endpoint. Data provided by the VA Profile Health Benefit Service.
+    description: Enable the Personal Health Care Contacts feature. Data provided by the VA Profile Health Benefit Service.
     actor_type: user
     enable_in_development: true
   pw_ehr_cta_drupal_source_of_truth:
@@ -1129,6 +1136,9 @@ features:
   mobile_lighthouse_claims:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our claims endpoints upstream service
+  mobile_lighthouse_request_decision:
+    actor_type: user
+    description: For mobile app, use Lighthouse instead of EVSS for our request decision endpoints upstream service
   mobile_lighthouse_document_upload:
     actor_type: user
     description: For mobile app, use Lighthouse instead of EVSS for our document uploads

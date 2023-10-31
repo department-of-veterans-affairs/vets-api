@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe HCA::OverridesParser do
   describe '#override' do
-    context 'with a Mexico as the country' do
+    context 'with Mexico as the country' do
       let(:address_json) do
         {
           veteranHomeAddress: {

@@ -5,6 +5,7 @@ require 'va_profile/health_benefit/service'
 module V0
   module Profile
     class ContactsController < ApplicationController
+      service_tag 'profile'
       before_action :check_feature_enabled
       before_action { authorize :vet360, :access? }
 
@@ -20,7 +21,7 @@ module V0
       private
 
       def check_feature_enabled
-        routing_error unless Flipper.enabled?('profile_contacts')
+        routing_error unless Flipper.enabled?('profile_contacts', current_user)
       end
 
       def service

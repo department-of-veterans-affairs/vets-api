@@ -2,6 +2,7 @@
 
 # This monkeypatch will prevent the Ruby FHIR client from printing (to INFO-level logs) information
 # that can identify the veteran who made the request.
+# Patched version: fhir_client (5.0.3)
 module FHIR
   class Client
     alias original_get get # Create a reference to the original method

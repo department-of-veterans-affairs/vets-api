@@ -6,6 +6,7 @@ require 'va_profile/military_personnel/service'
 module V0
   module Profile
     class ServiceHistoriesController < ApplicationController
+      service_tag 'profile'
       before_action :check_authorization
 
       # Fetches the service history for the current user.

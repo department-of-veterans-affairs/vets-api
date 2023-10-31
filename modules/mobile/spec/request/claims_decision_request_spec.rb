@@ -10,10 +10,10 @@ RSpec.describe 'lighthouse claims decision request', type: :request do
     before do
       token = 'abcdefghijklmnop'
       allow_any_instance_of(BenefitsClaims::Configuration).to receive(:access_token).and_return(token)
-      Flipper.enable(:mobile_lighthouse_claims, user)
+      Flipper.enable_actor(:mobile_lighthouse_request_decision, user)
     end
 
-    after { Flipper.disable(:mobile_lighthouse_claims) }
+    after { Flipper.disable_actor(:mobile_lighthouse_request_decision, user) }
 
     it 'returns success with 202 status' do
       VCR.use_cassette('mobile/lighthouse_claims/request_decision/200_response') do

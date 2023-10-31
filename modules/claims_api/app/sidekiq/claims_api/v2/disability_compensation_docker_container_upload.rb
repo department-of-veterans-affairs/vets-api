@@ -8,7 +8,7 @@ module ClaimsApi
   module V2
     class DisabilityCompensationDockerContainerUpload < DisabilityCompensationClaimServiceBase
       LOG_TAG = '526 v2 Docker Container job'
-      
+
       def perform(claim_id) # rubocop:disable Metrics/MethodLength
         log_job_progress(LOG_TAG,
                          claim_id,
@@ -31,8 +31,9 @@ module ClaimsApi
                          "Successfully submitted to Docker container with response: #{evss_res}")
         # update with the evss_id returned
         auto_claim.update(evss_id: evss_res[:claimId])
-        # set claim.status == 'established'
-        set_established_state_on_claim(auto_claim)
+
+        # clear out the evss_response value on successful submssion to docker container
+        clear_evss_response_for_claim(auto_claim)
         # queue flashes job
         queue_flash_updater(auto_claim.flashes, auto_claim&.id)
         # now upload to benefits documents
@@ -42,7 +43,8 @@ module ClaimsApi
         set_evss_response(auto_claim, e)
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "526EZ PDF generator errored #{e&.status_code} #{e&.original_body}")
+                         "Docker container job errored #{e&.status_code} #{e&.original_body}")
+
         log_exception_to_sentry(e)
 
         raise e
@@ -51,7 +53,7 @@ module ClaimsApi
         set_evss_response(auto_claim, e)
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "Submit failed for claimId #{auto_claim&.id}: #{e&.original_body}")
+                         "Docker container job errored claimId #{auto_claim&.id}: #{e&.original_body}")
         log_exception_to_sentry(e)
         # if will_retry?
         if will_retry?(e)
@@ -64,7 +66,7 @@ module ClaimsApi
         set_evss_response(auto_claim, e)
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "Submit failed for claimId #{auto_claim&.id}: #{e&.detailed_message}")
+                         "Docker container job errored for claimId #{auto_claim&.id}: #{e&.detailed_message}")
         log_exception_to_sentry(e)
 
         raise e

@@ -6,7 +6,7 @@ module VAProfile
   module HealthBenefit
     class Configuration < VAProfile::Configuration
       def base_path
-        "#{VAProfile::Configuration::SETTINGS.url}/health-benefit/health-benefit"
+        "#{Settings.vet360.url}/health-benefit/health-benefit"
       end
 
       def service_name
@@ -14,7 +14,7 @@ module VAProfile
       end
 
       def mock_enabled?
-        VAProfile::Configuration::SETTINGS.health_benefit.mock || false
+        Settings.vet360&.health_benefit&.mock || false
       end
     end
   end

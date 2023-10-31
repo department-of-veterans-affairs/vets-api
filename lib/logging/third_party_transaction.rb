@@ -103,6 +103,10 @@ module Logging
         # { user_uuid: nil }
         {}.tap do |obj|
           additional_instance_logs.each do |key, method_chain|
+            # prevent a usecase error where someone didn't pass a method chain
+            # to an instance log
+            next unless method_chain.present? && method_chain.is_a?(Array)
+
             # call each method in the passed chain sequentially.  Each sequential
             # method call is performed on the result of the previous method call
             # The first method is called on `self`, which is the object context
