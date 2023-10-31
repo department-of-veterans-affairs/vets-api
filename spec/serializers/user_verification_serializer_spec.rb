@@ -11,7 +11,7 @@ RSpec.describe UserVerificationSerializer do
     expect(subject[:type]).to eq(user_verification.credential_type)
   end
 
-  it 'returns the serialized verification CSP id' do
+  it 'returns the serialized verification credential_id' do
     expect(subject[:credential_id]).to eq(user_verification.credential_identifier)
   end
 

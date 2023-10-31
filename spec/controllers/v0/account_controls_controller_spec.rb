@@ -17,6 +17,8 @@ RSpec.describe V0::AccountControlsController, type: :controller do
   end
 
   describe 'GET credential_index' do
+    subject { get :credential_index, params: { icn: icn_param } }
+
     let(:icn) { user_account.icn }
     let(:icn_param) { icn }
 
@@ -25,10 +27,8 @@ RSpec.describe V0::AccountControlsController, type: :controller do
       let(:expected_error) { 'The required parameter "icn", is missing' }
 
       it 'returns a bad request error' do
-        get :credential_index, params: { icn: icn_param }
-
-        expect(response).to have_http_status(:bad_request)
-        expect(JSON.parse(response.body)['error']).to eq(expected_error)
+        expect(subject).to have_http_status(:bad_request)
+        expect(JSON.parse(subject.body)['error']).to eq(expected_error)
       end
     end
 
@@ -38,10 +38,8 @@ RSpec.describe V0::AccountControlsController, type: :controller do
         let(:expected_error) { 'UserAccount not found.' }
 
         it 'returns a not found error' do
-          get :credential_index, params: { icn: icn_param }
-
-          expect(response).to have_http_status(:not_found)
-          expect(JSON.parse(response.body)['error']).to eq(expected_error)
+          expect(subject).to have_http_status(:not_found)
+          expect(JSON.parse(subject.body)['error']).to eq(expected_error)
         end
       end
 
@@ -54,9 +52,7 @@ RSpec.describe V0::AccountControlsController, type: :controller do
         end
 
         it 'returns serialized user account data' do
-          get :credential_index, params: { icn: icn_param }
-
-          expect(response).to have_http_status(:ok)
+          expect(subject).to have_http_status(:ok)
           expect(JSON.parse(response.body)['data']).to eq(expected_response_data)
         end
       end
@@ -70,8 +66,7 @@ RSpec.describe V0::AccountControlsController, type: :controller do
       let(:expected_error_message) { 'UserAccount credential record not found.' }
 
       it 'returns a not found error' do
-        subject
-        expect(JSON.parse(response.body)['error']).to eq(expected_error_message)
+        expect(JSON.parse(subject.body)['error']).to eq(expected_error_message)
       end
     end
 
@@ -93,9 +88,8 @@ RSpec.describe V0::AccountControlsController, type: :controller do
         end
 
         it 'returns serialized user account data' do
-          subject
-          expect(response).to have_http_status(:ok)
-          expect(JSON.parse(response.body)['data']).to eq(expected_response_data)
+          expect(subject).to have_http_status(:ok)
+          expect(JSON.parse(subject.body)['data']).to eq(expected_response_data)
         end
 
         it 'logs the lock action' do
@@ -119,9 +113,8 @@ RSpec.describe V0::AccountControlsController, type: :controller do
         end
 
         it 'returns an internal server error' do
-          subject
-          expect(response).to have_http_status(:internal_server_error)
-          expect(JSON.parse(response.body)['error']).to eq(expected_error_message)
+          expect(subject).to have_http_status(:internal_server_error)
+          expect(JSON.parse(subject.body)['error']).to eq(expected_error_message)
         end
 
         it 'logs the lock attempt' do
@@ -136,10 +129,8 @@ RSpec.describe V0::AccountControlsController, type: :controller do
       let(:expected_error_message) { 'The required parameter "type", is missing' }
 
       it 'returns a type parameter missing error' do
-        subject
-
-        expect(response).to have_http_status(:bad_request)
-        expect(JSON.parse(response.body)['error']).to eq(expected_error_message)
+        expect(subject).to have_http_status(:bad_request)
+        expect(JSON.parse(subject.body)['error']).to eq(expected_error_message)
       end
     end
 
@@ -148,10 +139,8 @@ RSpec.describe V0::AccountControlsController, type: :controller do
       let(:expected_error_message) { "\"#{type_param}\" is not a valid value for \"type\"" }
 
       it 'returns a type parameter missing error' do
-        subject
-
-        expect(response).to have_http_status(:bad_request)
-        expect(JSON.parse(response.body)['error']).to eq(expected_error_message)
+        expect(subject).to have_http_status(:bad_request)
+        expect(JSON.parse(subject.body)['error']).to eq(expected_error_message)
       end
     end
 
@@ -160,9 +149,8 @@ RSpec.describe V0::AccountControlsController, type: :controller do
       let(:expected_error_message) { 'The required parameter "credential_id", is missing' }
 
       it 'returns a CSP uuid parameter missing error' do
-        subject
-        expect(response).to have_http_status(:bad_request)
-        expect(JSON.parse(response.body)['error']).to eq(expected_error_message)
+        expect(subject).to have_http_status(:bad_request)
+        expect(JSON.parse(subject.body)['error']).to eq(expected_error_message)
       end
     end
 

@@ -254,8 +254,8 @@ RSpec.describe UserVerification, type: :model do
     let(:user_account) { create(:user_account) }
 
     context 'when a user verification is not found' do
-      let(:type) { 'logingov' }
       let(:identifier) { 'some-identifier' }
+      let(:type) { 'logingov' }
 
       it 'raises a record not found error' do
         expect { subject }.to raise_error(ActiveRecord::RecordNotFound)
@@ -263,10 +263,11 @@ RSpec.describe UserVerification, type: :model do
     end
 
     context 'when a user verification is found' do
+      let(:identifier) { user_verification.credential_identifier }
+
       context 'when a Login.gov user verification is found' do
         let(:logingov_uuid) { 'some-logingov-uuid' }
         let(:type) { 'logingov' }
-        let(:identifier) { user_verification.credential_identifier }
 
         it 'returns the user verification' do
           expect(subject).to eq(user_verification)
@@ -276,7 +277,6 @@ RSpec.describe UserVerification, type: :model do
       context 'when an ID.me user verification is found' do
         let(:idme_uuid) { 'some-idme-uuid' }
         let(:type) { 'idme' }
-        let(:identifier) { user_verification.credential_identifier }
 
         it 'returns the user verification' do
           expect(subject).to eq(user_verification)
@@ -287,7 +287,6 @@ RSpec.describe UserVerification, type: :model do
         let(:dslogon_uuid) { 'some-dslogon-uuid' }
         let(:backing_idme_uuid) { 'some-backing-idme-uuid' }
         let(:type) { 'dslogon' }
-        let(:identifier) { user_verification.credential_identifier }
 
         it 'returns the user verification' do
           expect(subject).to eq(user_verification)
@@ -298,7 +297,6 @@ RSpec.describe UserVerification, type: :model do
         let(:mhv_uuid) { 'some-mhv-uuid' }
         let(:backing_idme_uuid) { 'some-backing-idme-uuid' }
         let(:type) { 'mhv' }
-        let(:identifier) { user_verification.credential_identifier }
 
         it 'returns the user verification' do
           expect(subject).to eq(user_verification)
