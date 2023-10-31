@@ -107,7 +107,7 @@ module Mobile
             status:,
             status_detail: cancellation_reason(appointment[:cancelation_reason]),
             time_zone: timezone,
-            vetext_id: nil,
+            vetext_id:,
             reason:,
             is_covid_vaccine: appointment[:service_type] == COVID_SERVICE,
             is_pending: requested_periods.present?,
@@ -151,6 +151,16 @@ module Mobile
 
         def facility_id
           @facility_id ||= Mobile::V0::Appointment.convert_from_non_prod_id!(appointment[:location_id])
+        end
+
+        def vetext_id
+          @vetext_id ||= "#{facility_id};#{utc_to_fileman_date(start_date_local)}"
+        end
+
+        def utc_to_fileman_date(datetime)
+          fileman_date = "#{datetime.year - 1700}#{format('%02d', datetime.month)}#{format('%02d', datetime.day)}"
+          fileman_time = "#{format('%02d', datetime.hour)}#{format('%02d', datetime.min)}"
+          "#{fileman_date}.#{fileman_time}".gsub(/0+$/, '').gsub(/\.$/, '.0')
         end
 
         def timezone
