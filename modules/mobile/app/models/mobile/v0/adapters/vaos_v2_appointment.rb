@@ -189,10 +189,8 @@ module Mobile
         end
 
         def cancellation_reason(cancellation_reason)
-          return nil if cancellation_reason.nil?
-
-          cancel_code = cancellation_reason.dig(:coding, 0, :code)
-          CANCELLATION_REASON[cancel_code&.to_sym]
+          cancel_code = cancellation_reason&.dig(:coding, 0, :code)
+          cancellation_reason.nil? ? CANCELLATION_REASON[:prov] : CANCELLATION_REASON[cancel_code&.to_sym]
         end
 
         def contact(telecom, type)
