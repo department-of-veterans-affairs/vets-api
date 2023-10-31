@@ -48,7 +48,8 @@ module ClaimsApi
           # This kicks off the first of three jobs required to fully establish the claim
           process_claim(auto_claim)
 
-          render json: auto_claim, status: :accepted, location: "#{request.url[0..-4]}claims/#{auto_claim.id}"
+          render json: { data: form_attributes }, status: :accepted,
+                 location: "#{request.url[0..-4]}claims/#{auto_claim.id}"
         end
 
         def validate
