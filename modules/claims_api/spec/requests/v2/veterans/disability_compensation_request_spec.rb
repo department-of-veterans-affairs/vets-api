@@ -913,8 +913,8 @@ RSpec.describe 'Disability Claims', type: :request do
                 otherDescription: 'community help center'
               }
               post submit_path, params: params.to_json, headers: auth_header
-              token = JSON.parse(response.body)['data']['attributes']['token']
-              aec = ClaimsApi::AutoEstablishedClaim.find(token)
+              claim_id = response.location.split('/')[-1].to_s
+              aec = ClaimsApi::AutoEstablishedClaim.find(claim_id)
               expect(aec.flashes).to eq(%w[Homeless])
             end
           end
@@ -941,8 +941,8 @@ RSpec.describe 'Disability Claims', type: :request do
                 otherDescription: 'other living situation'
               }
               post submit_path, params: params.to_json, headers: auth_header
-              token = JSON.parse(response.body)['data']['attributes']['token']
-              aec = ClaimsApi::AutoEstablishedClaim.find(token)
+              claim_id = response.location.split('/')[-1].to_s
+              aec = ClaimsApi::AutoEstablishedClaim.find(claim_id)
               expect(aec.flashes).to eq(%w[Hardship])
             end
           end
@@ -1034,8 +1034,9 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['disabilities'][0]['isRelatedToToxicExposure'] = true
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              id = JSON.parse(response.body)['data']['id']
-              submissions = ClaimsApi::AutoEstablishedClaim.find(id).submissions
+              claim_id = response.location.split('/')[-1].to_s
+              ClaimsApi::AutoEstablishedClaim.find(claim_id)
+              submissions = ClaimsApi::AutoEstablishedClaim.find(claim_id).submissions
               expect(submissions.size).to be <= 1
             end
           end
@@ -1087,8 +1088,9 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['treatments'] = treatments
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              id = JSON.parse(response.body)['data']['id']
-              submissions = ClaimsApi::AutoEstablishedClaim.find(id).submissions
+              claim_id = response.location.split('/')[-1].to_s
+              ClaimsApi::AutoEstablishedClaim.find(claim_id)
+              submissions = ClaimsApi::AutoEstablishedClaim.find(claim_id).submissions
               expect(submissions.size).to be(0)
             end
           end

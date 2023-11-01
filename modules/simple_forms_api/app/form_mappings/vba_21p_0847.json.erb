@@ -33,7 +33,7 @@
   "F[0].Page_2[0].EmailAddress[0]": "<%= data['preparer_email'] %>",
   "F[0].Page_2[0].FaxNumber[0]": "<%= %>",
   "F[0].Page_2[0].Remarks[0]": "<%= data['additional_information'] %>",
-  "F[0].Page_2[0].SignatureField1[0]": "<%= data.dig('preparer_name', 'first') %> <%= data.dig('preparer_name', 'middle') %> <%= data.dig('preparer_name', 'last') %>",
+  "F[0].Page_2[0].SignatureField1[0]": "<%= data.dig('preparer_name', 'first') || '' %> <%= data.dig('preparer_name', 'middle') || '' %> <%= data.dig('preparer_name', 'last') || '' %>",
   "F[0].Page_2[0].DateSigned[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%m/%d/%Y') %>",
   "F[0]": "<%= data.dig('F') %>"
 }
