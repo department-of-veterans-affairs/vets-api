@@ -22,19 +22,19 @@ RSpec.describe V0::RatedDisabilitiesController, type: :controller do
 
         expect(response).to have_http_status(:ok)
       end
-    end
 
-    it 'only return active ratings' do
-      VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
-        get(:show)
+      it 'only returns active ratings' do
+        VCR.use_cassette('lighthouse/veteran_verification/show/200_response') do
+          get(:show)
+        end
+
+        expect(response).to have_http_status(:ok)
+
+        # VCR Cassette should have 3 items in the individual_ratings array, only 2 should
+        # be "active"
+        parsed_body = JSON.parse(response.body)
+        expect(parsed_body.dig('data', 'attributes', 'individual_ratings').length).to eq(2)
       end
-
-      expect(response).to have_http_status(:ok)
-
-      # VCR Cassette should have 3 items in the individual_ratings array, only 2 should
-      # be "active"
-      parsed_body = JSON.parse(response.body)
-      expect(parsed_body.dig('data', 'attributes', 'individual_ratings').length).to eq(2)
     end
 
     context 'when not authorized' do

@@ -32,7 +32,7 @@
   "F[0].Page_1[0].ClaimantsSocialSecurityNumber_SecondTwoNumbers[0]": "<%= data.dig('surviving_dependent_id', 'ssn')&.[](3..4) %>",
   "F[0].Page_1[0].ClaimantsSocialSecurityNumber_FirstThreeNumbers[0]": "<%= data.dig('surviving_dependent_id', 'ssn')&.[](0..2) %>",
   "F[0].Page_1[0].RadioButtonList[0]": "<%= data.dig('surviving_dependent_id', 'va_file_number') ? 1 : 2 %>",
-  "F[0].Page_1[0].VA_File_Number[1]": "<%= data.dig('surviving_dependent_id', 'va_file_number') %>",
+  "F[0].Page_1[0].VA_File_Number[1]": "<%= data.dig('surviving_dependent_id', 'va_file_number') || '' %>",
   "F[0].Page_1[0].RadioButtonList[1]": "<%= ['', 'spouse', 'child']&.find_index(data.dig('relationship_to_veteran', 'relationship_to_veteran')) %>",
   "F[0].Page_1[0].RelationshipToVeteranOther_Specify[0]": "<%= ['parent', 'executor', 'other'].include?(data.dig('relationship_to_veteran', 'relationship_to_veteran')) ? data.dig('relationship_to_veteran', 'relationship_to_veteran') : '' %>",
   "F[0].Page_1[0].Mailing_Address_ZIPOrPostalCode_LastFourNumbers[0]": "<%= data.dig('surviving_dependent_mailing_address', 'postal_code')&.[](5..8) %>",

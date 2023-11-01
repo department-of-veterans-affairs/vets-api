@@ -1278,6 +1278,7 @@ vanotify:
         form1990e_confirmation_email: form1990e_confirmation_email_template_id
         form1995_confirmation_email: form1995_confirmation_email_template_id
         form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
+        form21_10203_confirmation_email: form21_10203_confirmation_email_template_id
         form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
         form21_0845_confirmation_email: form21_0845_confirmation_email_template_id
         form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
@@ -1528,6 +1529,7 @@ virtual_regional_office:
   evidence_pdf_path: evidence-pdf
   ctn_classification_path: classifier
   max_cfi_path: employee-experience/max-ratings
+  ep_merge_path: employee-experience/merge
 
 # Settings for Test User Dashboard modules
 test_user_dashboard:
@@ -1652,3 +1654,4 @@ avs:
 
 brd:
   api_key: 'fake_key'
+  base_name: 'https://something.fake.va.gov'

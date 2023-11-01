@@ -510,7 +510,25 @@ RSpec.describe FormProfile, type: :model do
         'country' => user.address[:country],
         'postal_code' => user.address[:postal_code][0..4]
       },
-      'email' => user.pciu_email
+      'email' => user.pciu_email,
+      'isMedicaidEligible' => true,
+      'isEnrolledMedicarePartA' => true,
+      'medicarePartAEffectiveDate' => '1999-10-16',
+      'medicareClaimNumber' => '873462432',
+      'providers' => [
+        {
+          'insuranceName' => 'Aetna',
+          'insuranceGroupCode' => '123456',
+          'insurancePolicyHolderName' => 'Four IVMTEST',
+          'insurancePolicyNumber' => '123456'
+        },
+        {
+          'insuranceName' => 'MyInsurance',
+          'insuranceGroupCode' => 'G1234',
+          'insurancePolicyHolderName' => 'FirstName ZZTEST',
+          'insurancePolicyNumber' => 'P1234'
+        }
+      ]
     }
   end
 
@@ -1004,6 +1022,21 @@ RSpec.describe FormProfile, type: :model do
       )
     end
 
+    context 'with a user that can prefill 10-10EZR', run_at: 'Tue, 24 Oct 2023 17:27:12 GMT' do
+      before do
+        allow(user).to receive(:icn).and_return('1013032368V065534')
+      end
+
+      it 'returns a prefilled 10-10EZR form' do
+        VCR.use_cassette(
+          'hca/ee/lookup_user_2023',
+          VCR::MATCH_EVERYTHING.merge(erb: true)
+        ) do
+          expect_prefilled('10-10EZR')
+        end
+      end
+    end
+
     context 'with a user that can prefill mdot' do
       before do
         expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
@@ -1303,7 +1336,6 @@ RSpec.describe FormProfile, type: :model do
           22-5495
           40-10007
           1010ez
-          10-10EZR
           22-0993
           FEEDBACK-TOOL
           686C-674

@@ -20,10 +20,11 @@ module ClaimsApi
         4 => :convert_date_string_to_format_yyyy
       }.freeze
 
-      def initialize(auto_claim, pdf_data, target_veteran)
+      def initialize(auto_claim, pdf_data, auth_headers, middle_initial)
         @auto_claim = auto_claim
         @pdf_data = pdf_data
-        @target_veteran = target_veteran
+        @auth_headers = auth_headers&.deep_symbolize_keys
+        @middle_initial = middle_initial
       end
 
       def map_claim
@@ -37,6 +38,7 @@ module ClaimsApi
         treatment_centers
         get_service_pay
         direct_deposit_information
+        deep_compact(@pdf_data[:data][:attributes])
 
         @pdf_data
       end
@@ -45,6 +47,15 @@ module ClaimsApi
         @pdf_data[:data][:attributes] = @auto_claim&.deep_symbolize_keys
         @pdf_data[:data][:attributes].delete(:claimantCertification)
         claim_date_and_signature
+        claim_process_type
+
+        @pdf_data
+      end
+
+      def claim_process_type
+        if @auto_claim&.dig('claimProcessType') == 'BDD_PROGRAM'
+          @pdf_data[:data][:attributes][:claimProcessType] = 'BDD_PROGRAM_CLAIM'
+        end
 
         @pdf_data
       end
@@ -106,11 +117,13 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:changeOfAddress].merge!(
           effectiveDates: {
             start:
-            convert_date_to_object(@pdf_data[:data][:attributes][:changeOfAddress][:dates][:beginDate])
+            regex_date_conversion(@pdf_data[:data][:attributes][:changeOfAddress][:dates][:beginDate])
           }
         )
-        @pdf_data[:data][:attributes][:changeOfAddress][:effectiveDates][:end] =
-          convert_date_to_object(@pdf_data[:data][:attributes][:changeOfAddress][:dates][:endDate])
+        if @pdf_data[:data][:attributes][:changeOfAddress][:dates][:endDate].present?
+          @pdf_data[:data][:attributes][:changeOfAddress][:effectiveDates][:end] =
+            regex_date_conversion(@pdf_data[:data][:attributes][:changeOfAddress][:dates][:endDate])
+        end
 
         change_addr = @pdf_data[:data][:attributes][:changeOfAddress]
         @pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:numberAndStreet] =
@@ -172,11 +185,11 @@ module ClaimsApi
         if gulf
           gulfwar_service_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:gulfWarHazardService][:serviceDates][:beginDate]
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:serviceDates][:start] =
-            convert_date_to_object(gulfwar_service_dates_begin)
+            regex_date_conversion(gulfwar_service_dates_begin)
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:serviceDates].delete(:beginDate)
           gulfwar_service_dates_end = @pdf_data[:data][:attributes][:toxicExposure][:gulfWarHazardService][:serviceDates][:endDate]
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:serviceDates][:end] =
-            convert_date_to_object(gulfwar_service_dates_end)
+            regex_date_conversion(gulfwar_service_dates_end)
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:serviceDates].delete(:endDate)
           served_in_gulf_war_hazard_locations = @pdf_data[:data][:attributes][:toxicExposure][:gulfWarHazardService][:servedInGulfWarHazardLocations]
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:gulfWarHazardService][:servedInGulfWarHazardLocations] =
@@ -189,11 +202,11 @@ module ClaimsApi
         if herb
           herbicide_service_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:herbicideHazardService][:serviceDates][:beginDate]
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:serviceDates][:start] =
-            convert_date_to_object(herbicide_service_dates_begin)
+            regex_date_conversion(herbicide_service_dates_begin)
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:serviceDates].delete(:beginDate)
           herbicide_service_dates_end = @pdf_data[:data][:attributes][:toxicExposure][:herbicideHazardService][:serviceDates][:endDate]
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:serviceDates][:end] =
-            convert_date_to_object(herbicide_service_dates_end)
+            regex_date_conversion(herbicide_service_dates_end)
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:serviceDates].delete(:endDate)
           served_in_herbicide_hazard_locations = @pdf_data[:data][:attributes][:toxicExposure][:herbicideHazardService][:servedInHerbicideHazardLocations]
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:herbicideHazardService][:servedInHerbicideHazardLocations] =
@@ -206,11 +219,11 @@ module ClaimsApi
         if add
           additional_exposure_dates_begin = @pdf_data[:data][:attributes][:toxicExposure][:additionalHazardExposures][:exposureDates][:beginDate]
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:additionalHazardExposures][:exposureDates][:start] =
-            convert_date_to_object(additional_exposure_dates_begin)
+            regex_date_conversion(additional_exposure_dates_begin)
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:additionalHazardExposures][:exposureDates].delete(:beginDate)
           additional_exposure_dates_end = @pdf_data[:data][:attributes][:toxicExposure][:additionalHazardExposures][:exposureDates][:endDate]
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:additionalHazardExposures][:exposureDates][:end] =
-            convert_date_to_object(additional_exposure_dates_end)
+            regex_date_conversion(additional_exposure_dates_end)
           @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:additionalHazardExposures][:exposureDates].delete(:endDate)
         end
       end
@@ -220,21 +233,37 @@ module ClaimsApi
         if multi
           @pdf_data[:data][:attributes][:toxicExposure][:multipleExposures].each_with_index do |exp, index|
             multiple_service_dates_begin = exp[:exposureDates][:beginDate]
-            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:start] = convert_date_to_object(multiple_service_dates_begin)
+            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:start] = regex_date_conversion(multiple_service_dates_begin)
             @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates].delete(:beginDate)
             multiple_service_dates_end = exp[:exposureDates][:endDate]
-            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:end] = convert_date_to_object(multiple_service_dates_end)
+            @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates][:end] = regex_date_conversion(multiple_service_dates_end)
             @pdf_data[:data][:attributes][:exposureInformation][:toxicExposure][:multipleExposures][index][:exposureDates].delete(:endDate)
           end
         end
         @pdf_data
       end
 
+      def deep_compact(hash)
+        hash.each { |_, value| deep_compact(value) if value.is_a? Hash }
+        hash.select! { |_, value| exists?(value) }
+        hash
+      end
+
+      def exists?(value)
+        if [true, false].include?(value)
+          true
+        elsif value.is_a?(String) || value.is_a?(Hash)
+          !value.empty?
+        else
+          !value.nil?
+        end
+      end
+
       def veteran_info # rubocop:disable Metrics/MethodLength
         @pdf_data[:data][:attributes].merge!(
           identificationInformation: @auto_claim&.dig('veteranIdentification')&.deep_symbolize_keys
         )
-        @pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber] = @target_veteran.mpi.birls_id
+        @pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber] = @auth_headers[:va_eauth_birlsfilenumber]
         vet_number = @pdf_data[:data][:attributes][:identificationInformation][:veteranNumber].present?
         if vet_number
           phone = convert_phone(@pdf_data[:data][:attributes][:identificationInformation][:veteranNumber][:telephone])
@@ -397,7 +426,7 @@ module ClaimsApi
           center = "#{tx['center']['name']}, #{tx.dig('center', 'city')}, #{tx.dig('center', 'state')}"
           name = tx['treatedDisabilityNames'].join(', ')
           tx['treatmentDetails'] = "#{name} - #{center}"
-          tx['dateOfTreatment'] = convert_date_to_object(tx['beginDate']) if tx['beginDate'].present?
+          tx['dateOfTreatment'] = regex_date_conversion(tx['beginDate']) if tx['beginDate'].present?
           tx['doNotHaveDate'] = tx['beginDate'].nil?
           tx.delete('center')
           tx.delete('treatedDisabilityNames')
@@ -456,12 +485,12 @@ module ClaimsApi
       def convert_active_duty_dates(most_recent_period)
         if most_recent_period[:activeDutyBeginDate].present?
           @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService].merge!(
-            start: convert_date_to_object(most_recent_period[:activeDutyBeginDate])
+            start: regex_date_conversion(most_recent_period[:activeDutyBeginDate])
           )
         end
         if most_recent_period[:activeDutyEndDate].present?
           @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService].merge!(
-            end: convert_date_to_object(most_recent_period[:activeDutyEndDate])
+            end: regex_date_conversion(most_recent_period[:activeDutyEndDate])
           )
         end
         @pdf_data[:data][:attributes][:serviceInformation][:placeOfLastOrAnticipatedSeparation] =
@@ -477,8 +506,8 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:serviceInformation][:servicePeriods].each do |sp|
           next if sp[:activeDutyBeginDate].nil? || sp[:activeDutyEndDate].nil?
 
-          arr.push({ start: convert_date_to_object(sp[:activeDutyBeginDate]),
-                     end: convert_date_to_object(sp[:activeDutyEndDate]) })
+          arr.push({ start: regex_date_conversion(sp[:activeDutyBeginDate]),
+                     end: regex_date_conversion(sp[:activeDutyEndDate]) })
         end
         sorted = arr&.sort_by { |sp| sp[:activeDutyEndDate] }
         sorted.pop if sorted.count > 1
@@ -493,8 +522,8 @@ module ClaimsApi
         si = []
         @pdf_data[:data][:attributes][:serviceInformation][:prisonerOfWarConfinement] = { confinementDates: [] }
         @pdf_data[:data][:attributes][:serviceInformation][:confinements].map do |confinement|
-          start_date = convert_date_to_object(confinement[:approximateBeginDate])
-          end_date = convert_date_to_object(confinement[:approximateEndDate])
+          start_date = regex_date_conversion(confinement[:approximateBeginDate])
+          end_date = regex_date_conversion(confinement[:approximateEndDate])
 
           si.push({
                     start: start_date, end: end_date
@@ -516,10 +545,10 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:serviceInformation].merge!(si)
         if reserves[:obligationTermsOfService].present?
           reserves_begin_date = reserves[:obligationTermsOfService][:beginDate]
-          reserves[:obligationTermsOfService][:start] = convert_date_to_object(reserves_begin_date)
+          reserves[:obligationTermsOfService][:start] = regex_date_conversion(reserves_begin_date)
           reserves[:obligationTermsOfService].delete(:beginDate)
           reserves_end_date = reserves[:obligationTermsOfService][:endDate]
-          reserves[:obligationTermsOfService][:end] = convert_date_to_object(reserves_end_date)
+          reserves[:obligationTermsOfService][:end] = regex_date_conversion(reserves_end_date)
           reserves[:obligationTermsOfService].delete(:endDate)
         end
         component = reserves[:component]
@@ -551,11 +580,11 @@ module ClaimsApi
         @pdf_data[:data][:attributes][:serviceInformation][:federalActivation] = {}
         activation_date = ten[:activationDate]
         @pdf_data[:data][:attributes][:serviceInformation][:federalActivation][:activationDate] =
-          convert_date_to_object(activation_date)
+          regex_date_conversion(activation_date)
 
         anticipated_sep_date = ten[:anticipatedSeparationDate]
         @pdf_data[:data][:attributes][:serviceInformation][:federalActivation][:anticipatedSeparationDate] =
-          convert_date_to_object(anticipated_sep_date)
+          regex_date_conversion(anticipated_sep_date)
         @pdf_data[:data][:attributes][:serviceInformation][:activatedOnFederalOrders] = activation_date ? 'YES' : 'NO'
         @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService].delete(:federalActivation)
 
@@ -570,11 +599,13 @@ module ClaimsApi
       end
 
       def claim_date_and_signature
-        name = "#{@target_veteran[:first_name]} #{@target_veteran[:last_name]}"
+        first_name = @auth_headers[:va_eauth_firstName]
+        last_name = @auth_headers[:va_eauth_lastName]
+        name = "#{first_name} #{last_name}"
         claim_date = Date.parse(@auto_claim&.dig('claimDate').presence || Time.zone.today.to_s)
         claim_date_mdy = claim_date.strftime('%m-%d-%Y')
         @pdf_data[:data][:attributes].merge!(claimCertificationAndSignature: {
-                                               dateSigned: convert_date_to_object(claim_date_mdy),
+                                               dateSigned: regex_date_conversion(claim_date_mdy),
                                                signature: name
                                              })
         @pdf_data[:data][:attributes].delete(:claimDate)
@@ -610,7 +641,7 @@ module ClaimsApi
           date_payment_received =
             @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay][:datePaymentReceived]
           @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay][:datePaymentReceived] =
-            convert_date_to_object(date_payment_received)
+            regex_date_conversion(date_payment_received)
         end
         @pdf_data
       end
@@ -659,32 +690,51 @@ module ClaimsApi
         if date_string.length == 4
           Date.strptime(date_string, '%Y').strftime('%Y')
         elsif date_string.length == 7
-          Date.strptime(date_string, '%m-%Y').strftime('%B %Y')
+          Date.strptime(date_string, '%Y-%m').strftime('%B %Y')
         else
-          Date.strptime(date_string, '%m-%d-%Y').strftime('%B %Y')
+          Date.strptime(date_string, '%Y-%m-%d').strftime('%B %Y')
         end
       end
 
       def additional_identification_info
         name = {
-          lastName: @target_veteran.last_name,
-          firstName: @target_veteran.first_name,
-          middleInitial: (@target_veteran.middle_name.presence || '')
+          lastName: @auth_headers[:va_eauth_lastName],
+          firstName: @auth_headers[:va_eauth_firstName],
+          middleInitial: @middle_initial
         }
-        if @target_veteran.birth_date
+        birth_date_data = @auth_headers[:va_eauth_birthdate]
+        if birth_date_data
           birth_date =
             {
-              month: @target_veteran.birth_date[4..5].to_s,
-              day: @target_veteran.birth_date[6..7].to_s,
-              year: @target_veteran.birth_date[0..3].to_s
+              month: birth_date_data[5..6].to_s,
+              day: birth_date_data[8..9].to_s,
+              year: birth_date_data[0..3].to_s
             }
         end
-        ssn = @target_veteran.ssn
+        ssn = @auth_headers[:va_eauth_pnid]
         formated_ssn = "#{ssn[0..2]}-#{ssn[3..4]}-#{ssn[5..8]}"
         @pdf_data[:data][:attributes][:identificationInformation][:name] = name
         @pdf_data[:data][:attributes][:identificationInformation][:ssn] = formated_ssn
         @pdf_data[:data][:attributes][:identificationInformation][:dateOfBirth] = birth_date
         @pdf_data
+      end
+
+      def regex_date_conversion(date)
+        if date.present?
+          res = date.match(/^(?:(?<year>\d{4})(?:-(?<month>\d{2}))?(?:-(?<day>\d{2}))*|(?<month>\d{2})?(?:-(?<day>\d{2}))?-?(?<year>\d{4}))$/) # rubocop:disable Layout/LineLength
+
+          make_date_object(res, date.length)
+        end
+      end
+
+      def make_date_object(date, date_length)
+        if date.present? && date_length == 4
+          { year: date[:year] }
+        elsif date.present? && date_length == 7
+          { month: date[:month], year: date[:year] }
+        elsif date.present?
+          { year: date[:year], month: date[:month], day: date[:day] }
+        end
       end
     end
   end

@@ -2,6 +2,8 @@
 
 module V0
   class DependentsApplicationsController < ApplicationController
+    service_tag 'dependent-change'
+
     def create
       claim = SavedClaim::DependencyClaim.new(form: dependent_params.to_json)
 

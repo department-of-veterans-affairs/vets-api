@@ -14,8 +14,11 @@ module BGS
   class Form674
     include SentryLogging
 
-    def initialize(user)
+    attr_reader :user, :saved_claim
+
+    def initialize(user, saved_claim)
       @user = user
+      @saved_claim = saved_claim
       @end_product_name = '130 - Automated School Attendance 674'
       @end_product_code = '130SCHATTEBN'
     end
@@ -23,11 +26,11 @@ module BGS
     # rubocop:disable Metrics/MethodLength
     def submit(payload)
       proc_id = create_proc_id_and_form
-      veteran = VnpVeteran.new(proc_id:, payload:, user: @user, claim_type: '130SCHATTEBN').create
+      veteran = VnpVeteran.new(proc_id:, payload:, user:, claim_type: '130SCHATTEBN').create
 
       process_relationships(proc_id, veteran, payload)
 
-      vnp_benefit_claim = VnpBenefitClaim.new(proc_id:, veteran:, user: @user)
+      vnp_benefit_claim = VnpBenefitClaim.new(proc_id:, veteran:, user:)
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
       set_claim_type('MANUAL_VAGOV') # we are TEMPORARILY always setting to MANUAL_VAGOV for 674
@@ -39,22 +42,32 @@ module BGS
         args: {
           vnp_benefit_claim: vnp_benefit_claim_record,
           veteran:,
-          user: @user,
+          user:,
           proc_id:,
           end_product_name: @end_product_name,
           end_product_code: @end_product_code
         }
       ).create
 
-      vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
+      begin
+        vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
 
-      # we only want to add a note if the claim is being set to MANUAL_VAGOV
-      # but for now we are temporarily always setting to MANUAL_VAGOV for 674
-      # when that changes, we need to surround this block of code in an IF statement
-      note_text = 'Claim set to manual by VA.gov: This application needs manual review because a 674 was submitted.'
-      bgs_service.create_note(benefit_claim_record[:benefit_claim_id], note_text)
+        # we only want to add a note if the claim is being set to MANUAL_VAGOV
+        # but for now we are temporarily always setting to MANUAL_VAGOV for 674
+        # when that changes, we need to surround this block of code in an IF statement
+        note_text = 'Claim set to manual by VA.gov: This application needs manual review because a 674 was submitted.'
+        bgs_service.create_note(benefit_claim_record[:benefit_claim_id], note_text)
 
-      bgs_service.update_proc(proc_id, proc_state: 'MANUAL_VAGOV')
+        bgs_service.update_proc(proc_id, proc_state: 'MANUAL_VAGOV')
+      rescue
+        Rails.logger.warning('BGS::Form674.submit failed after creating benefit claim in BGS',
+                             {
+                               user_uuid: user.uuid,
+                               saved_claim_id: saved_claim.id,
+                               icn: user.icn,
+                               error: e.message
+                             })
+      end
     end
     # rubocop:enable Metrics/MethodLength
 

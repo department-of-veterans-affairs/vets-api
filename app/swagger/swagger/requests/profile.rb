@@ -1658,6 +1658,7 @@ module Swagger
       swagger_path '/v0/profile/contacts' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::ForbiddenError
 
           key :description, "Returns a Veteran's Next-of-Kin and Emergency Contacts"
           key :tags, [:profile]

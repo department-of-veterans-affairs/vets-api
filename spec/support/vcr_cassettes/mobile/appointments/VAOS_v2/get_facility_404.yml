@@ -1,0 +1,121 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/999AA
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Fri, 20 Oct 2023 20:02:57 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '104'
+      Connection:
+      - keep-alive
+      X-Vamf-Version:
+      - 2.22.0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 3ca7eeb
+      X-Vamf-Timestamp:
+      - '2023-08-09T18:25:45+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '3'
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "code" : 404,
+          "message" : "HTTP 404 Not Found",
+          "traceId" : "944d998d50b6979d67599c520d72ba11"
+        }
+  recorded_at: Sat, 01 Jan 2022 19:25:00 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities/999AA
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Fri, 20 Oct 2023 20:02:58 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '104'
+      Connection:
+      - keep-alive
+      X-Vamf-Version:
+      - 2.22.0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 3ca7eeb
+      X-Vamf-Timestamp:
+      - '2023-08-09T18:25:45+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '2'
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "code" : 404,
+          "message" : "HTTP 404 Not Found",
+          "traceId" : "04fd03c3c8521b61d4e27927be5a0298"
+        }
+  recorded_at: Sat, 01 Jan 2022 19:25:00 GMT
+recorded_with: VCR 6.2.0

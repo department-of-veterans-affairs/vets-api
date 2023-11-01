@@ -7,6 +7,7 @@ module V0
     class TransactionsController < ApplicationController
       include Vet360::Transactionable
       include Vet360::Writeable
+      service_tag 'profile'
 
       before_action { authorize :vet360, :access? }
       after_action :invalidate_cache

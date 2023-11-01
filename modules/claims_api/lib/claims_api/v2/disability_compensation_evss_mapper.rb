@@ -24,6 +24,7 @@ module ClaimsApi
         current_mailing_address
         disabilities
         standard_claim
+        claim_process_type
         veteran_meta
       end
 
@@ -71,6 +72,10 @@ module ClaimsApi
         @evss_claim[:standardClaim] = @data[:claimProcessType] == 'STANDARD_CLAIM_PROCESS'
       end
 
+      def claim_process_type
+        @evss_claim[:claimProcessType] = 'BDD_PROGRAM_CLAIM' if @data[:claimProcessType] == 'BDD_PROGRAM'
+      end
+
       def claim_meta
         @evss_claim[:applicationExpirationDate] = Time.zone.today + 1.year
         @evss_claim[:claimantCertification] = @data[:claimantCertification]
@@ -90,11 +95,11 @@ module ClaimsApi
         service_period_dates.each do |sp_date|
           next if sp_date[:activeDutyBeginDate].nil?
 
-          begin_year = Date.strptime(sp_date[:activeDutyBeginDate], '%m-%d-%Y')
+          begin_year = Date.strptime(sp_date[:activeDutyBeginDate], '%Y-%m-%d')
           sp_date[:activeDutyBeginDate] = begin_year.strftime('%Y-%m-%d')
           next if sp_date[:activeDutyEndDate].nil?
 
-          end_year = Date.strptime(sp_date[:activeDutyEndDate], '%m-%d-%Y')
+          end_year = Date.strptime(sp_date[:activeDutyEndDate], '%Y-%m-%d')
           sp_date[:activeDutyEndDate] = end_year.strftime('%Y-%m-%d')
         end
       end

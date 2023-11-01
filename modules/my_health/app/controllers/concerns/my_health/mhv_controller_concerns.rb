@@ -12,7 +12,8 @@ module MyHealth
     protected
 
     def authenticate_client
-      client.authenticate if client.session.expired?
+      # The authenticate method checks whether the session is expired or incomplete before authenticating.
+      client.authenticate
     end
   end
 end
