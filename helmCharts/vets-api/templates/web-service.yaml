@@ -1,0 +1,22 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: vets-website-s3-service
+spec:
+  type: ExternalName
+  externalName: www.va.gov.s3-website-us-gov-west-1.amazonaws.com
+  ports:
+    - port: 80
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: content-s3-service
+spec:
+  type: ExternalName
+  externalName: content.www.va.gov.s3-website-us-gov-west-1.amazonaws.com
+  ports:
+    - port: 80
+
