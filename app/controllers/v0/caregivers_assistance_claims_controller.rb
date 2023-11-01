@@ -3,6 +3,8 @@
 module V0
   # Application for the Program of Comprehensive Assistance for Family Caregivers (Form 10-10CG)
   class CaregiversAssistanceClaimsController < ApplicationController
+    service_tag 'caregiver-application'
+
     AUDITOR = ::Form1010cg::Auditor.new
 
     skip_before_action :authenticate

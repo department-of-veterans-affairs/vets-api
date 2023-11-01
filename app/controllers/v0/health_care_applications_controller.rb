@@ -6,6 +6,7 @@ require 'pdf_fill/filler'
 
 module V0
   class HealthCareApplicationsController < ApplicationController
+    service_tag 'healthcare-application'
     FORM_ID = '1010ez'
 
     skip_before_action(:authenticate, only: %i[create show enrollment_status healthcheck download_pdf])
