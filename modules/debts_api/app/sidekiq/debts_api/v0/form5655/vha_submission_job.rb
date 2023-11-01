@@ -6,6 +6,7 @@ module DebtsApi
   class V0::Form5655::VHASubmissionJob
     include Sidekiq::Job
     include SentryLogging
+    STATS_KEY = 'api.vha_submission'
 
     sidekiq_options retry: false
 
@@ -23,9 +24,11 @@ module DebtsApi
 
       DebtsApi::V0::FinancialStatusReportService.new(user).submit_vha_fsr(submission)
       user.destroy
-      submission.submitted!
+      StatsD.increment("#{STATS_KEY}.success")
+      submission.register_success
     rescue => e
       submission.register_failure(e.message)
+      StatsD.increment("#{STATS_KEY}.failure")
       raise e
     end
   end
