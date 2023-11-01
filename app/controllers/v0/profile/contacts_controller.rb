@@ -21,7 +21,7 @@ module V0
       private
 
       def check_feature_enabled
-        routing_error unless Flipper.enabled?('profile_contacts')
+        routing_error unless Flipper.enabled?('profile_contacts', current_user)
       end
 
       def service

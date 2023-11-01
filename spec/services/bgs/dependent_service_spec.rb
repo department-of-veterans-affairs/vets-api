@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe BGS::DependentService do
   let(:user) { FactoryBot.create(:evss_user, :loa3, birth_date:) }
+  let(:user2) { FactoryBot.create(:evss_user, :loa3, participant_id: nil, birth_date:) }
   let(:birth_date) { '1809-02-12' }
   let(:claim) { double('claim') }
   let(:vet_info) do
@@ -175,6 +176,11 @@ RSpec.describe BGS::DependentService do
 
           BGS::DependentService.new(user).get_dependents
         end
+      end
+
+      it 'calls get_dependents with no participant id' do
+        response = BGS::DependentService.new(user2).get_dependents
+        expect(response).to include({ persons: [] })
       end
     end
 
