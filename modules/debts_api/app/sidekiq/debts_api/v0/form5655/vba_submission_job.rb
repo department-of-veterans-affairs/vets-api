@@ -6,6 +6,7 @@ module DebtsApi
   class V0::Form5655::VBASubmissionJob
     include Sidekiq::Job
     include SentryLogging
+    STATS_KEY = 'api.vba_submission'
 
     sidekiq_options retry: false
 
@@ -23,9 +24,11 @@ module DebtsApi
 
       DebtsApi::V0::FinancialStatusReportService.new(user).submit_vba_fsr(submission.form)
       user.destroy
-      submission.submitted!
+      StatsD.increment("#{STATS_KEY}.success")
+      submission.register_success
     rescue => e
       submission.register_failure(e.message)
+      StatsD.increment("#{STATS_KEY}.failure")
       raise e
     end
   end
