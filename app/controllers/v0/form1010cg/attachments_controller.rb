@@ -4,6 +4,7 @@ module V0
   module Form1010cg
     class AttachmentsController < ApplicationController
       include FormAttachmentCreate
+      service_tag 'caregiver-application'
 
       skip_before_action :authenticate, raise: false
 
