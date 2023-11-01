@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'lighthouse/benefits_documents/service'
-require 'lighthouse/benefits_documents/worker_service'
+require 'lighthouse/benefits_documents/form_526_lighthouse_documents_service'
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
   subject { described_class }
@@ -95,46 +95,41 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       Flipper.enable(:disability_compensation_lighthouse_document_service_provider)
     end
 
-    context 'when both a form0781 and form0781a are present' do
-      # with_everything trait includes fixture with both form 0781 and form 0781a present
-      let(:submission) do
-        create(
-          :form526_submission,
-          :with_everything,
-          user_uuid: user.uuid,
-          saved_claim_id: saved_claim.id
-        )
-      end
-
-      describe '.perform_async' do
-        before do
-          allow_any_instance_of(BenefitsDocuments::Service).to receive(:file_number).and_return('8675309')
-        end
-
-        # L228 is hardcoded 0781 form code in nested constants in EVSS::DisabilityCompensationForm::SubmitForm0781
-        let(:form_0781_document) do
-          LighthouseDocument.new(
-            claim_id: submission.submitted_claim_id,
-            file_number: '8675309',
-            tracked_item_id: nil,
-            document_type: 'L228'
+    describe '.perform_async' do
+      context 'when both a form0781 and form0781a are present' do
+        # with_everything trait loads fixture with both form 0781 and form 0781a present
+        let(:submission) do
+          create(
+            :form526_submission,
+            :with_everything,
+            user_uuid: user.uuid,
+            saved_claim_id: saved_claim.id
           )
         end
 
-        # L229 is hardcoded 0781a form code in nested constants in EVSS::DisabilityCompensationForm::SubmitForm0781
-        let(:form_0781a_document) do
-          LighthouseDocument.new(
-            claim_id: submission.submitted_claim_id,
-            file_number: '8675309',
-            tracked_item_id: nil,
-            document_type: 'L229'
+        it 'uploads both documents via the Form526LighthouseDocumentsService' do
+          # Form 0781
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::SubmitForm0781).to receive(:upload_lighthouse_document).with(
+            # file_contents
+            instance_of(String),
+            # file_name
+            instance_of(String),
+            submission,
+            'L228'
           )
-        end
 
-        it 'enqueues uploads of both a form0781 and 0781a via Lighthouse::DocumentUpload with the correct arguments' do
-          # TODO: test two instances of BenefitsDocuments::WorkerService have upload_document called with:
-          # 1. A file body
-          # 2. One of the above documents
+          # Form 0781a
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::SubmitForm0781).to receive(:upload_lighthouse_document).with(
+            # file_contents
+            instance_of(String),
+            # file_name
+            instance_of(String),
+            submission,
+            'L229'
+          )
+
+          subject.perform_async(submission.id)
+          described_class.drain
         end
       end
     end

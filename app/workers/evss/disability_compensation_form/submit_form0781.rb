@@ -8,6 +8,7 @@ module EVSS
   module DisabilityCompensationForm
     class SubmitForm0781 < Job
       extend Logging::ThirdPartyTransaction::MethodWrapper
+      include BenefitsDocuments::Form526LighthouseDocumentsService
 
       attr_reader :submission_id, :evss_claim_id, :uuid
 
@@ -141,22 +142,11 @@ module EVSS
       end
 
       def upload_to_lighthouse(pdf_path0781, form_id)
-        submission_user = User.find(submission.user_uuid)
+        file_body = File.open(pdf_path0781).read
+        file_name = pdf_path0781.split('/').last
+        document_type = FORMS_METADATA[form_id][:docType]
 
-        lighthouse_document = LighthouseDocument.new(
-          document_type: FORMS_METADATA[form_id][:docType],
-          file_name: pdf_path0781.split('/').last,
-          tracked_item_id: nil,
-          claim_id: submission.submitted_claim_id,
-          file_number: BenefitsDocuments::Service.new(submission_user).file_number || submission_user.ssn
-        )
-
-        raise Common::Exceptions::ValidationErrors, lighthouse_document unless lighthouse_document.valid?
-
-        file_body = File.read(pdf_path0781)
-        lighthouse_client = BenefitsDocuments::WorkerService.new(submission_user.icn)
-
-        lighthouse_client.upload_document(file_body, lighthouse_document)
+        upload_lighthouse_document(file_body, file_name, submission, document_type)
       ensure
         # Delete the temporary PDF file
         File.delete(pdf_path0781) if pdf_path0781.present?
