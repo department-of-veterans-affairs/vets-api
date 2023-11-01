@@ -6,6 +6,7 @@ module MyHealth
   class RxController < ApplicationController
     include ActionController::Serialization
     include MyHealth::MHVControllerConcerns
+    service_tag 'mhv-medications'
 
     protected
 
