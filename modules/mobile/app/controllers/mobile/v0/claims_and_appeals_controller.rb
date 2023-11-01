@@ -81,7 +81,7 @@ module Mobile
 
       def upload_document
         jid = if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
-                params[:claim_id] = params[:id]
+                set_params
                 lighthouse_document_service.queue_document_upload(params)
               else
                 evss_claims_proxy.upload_document(params)
@@ -91,7 +91,7 @@ module Mobile
 
       def upload_multi_image_document
         jid = if Flipper.enabled?(:mobile_lighthouse_document_upload, @current_user)
-                params[:claim_id] = params[:id]
+                set_params
                 lighthouse_document_service.queue_multi_image_upload_document(params)
               else
                 evss_claims_proxy.upload_multi_image(params)
@@ -101,6 +101,20 @@ module Mobile
       end
 
       private
+
+      def set_params
+        params[:claim_id] = params[:id]
+        params[:tracked_item_ids] = Array.wrap(tracked_item_id) if tracked_item_id.present?
+        params.delete(:tracked_item_id)
+        params.delete(:trackedItemId)
+      end
+
+      # It was found that FE is using both different casing between multi image upload and single image upload.
+      # This shouldn't matter due to the x-key-inflection: camel header being used but that header only works if the
+      # body payload is in json, which the single doc upload is not (at least in specs for both LH and EVSS).
+      def tracked_item_id
+        params[:trackedItemId] || params[:tracked_item_id]
+      end
 
       def fetch_all_cached_or_service(validated_params, show_completed)
         list = nil
