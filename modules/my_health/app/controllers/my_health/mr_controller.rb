@@ -6,6 +6,7 @@ module MyHealth
   class MrController < ApplicationController
     include ActionController::Serialization
     include MyHealth::MHVControllerConcerns
+    service_tag 'mhv-medical-records'
 
     # skip_before_action :authenticate
 
