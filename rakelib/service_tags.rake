@@ -86,13 +86,8 @@ namespace :service_tags do
       puts "::error file=#{controller[:path]}::#{controller[:name]} is missing a service tag."
     end
 
-    if warnings.any? && warnings.count > 10
-      puts "::warning::#{warnings.count} controllers outside of this PR are missing service tags.
-\nFor a full list run `bundle exec rake service_tags:audit_controllers locally`."
-    elsif warnings.any?
-      warnings.each do |controller|
-        puts "::warning file=#{controller[:path]}::#{controller[:name]} is missing a service tag."
-      end
+    warnings.each do |controller|
+      puts "::warning file=#{controller[:path]}::#{controller[:name]} is missing a service tag."
     end
 
     exit(errors.any? ? 1 : 0)
