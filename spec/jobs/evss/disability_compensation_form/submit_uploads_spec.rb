@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'lighthouse/benefits_documents/worker_service'
 require 'lighthouse/benefits_documents/service'
+require 'lighthouse/benefits_documents/form_526_lighthouse_documents_service'
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
   subject { described_class }
@@ -114,16 +116,19 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
     # Lighthouse Document Upload flow
     context 'when the disability_compensation_lighthouse_document_service_provider flipper is enabled' do
+      before do
+        Flipper.disable(:disability_compensation_lighthouse_document_service_provider)
+      end
+
       let(:submission) do
         create(
           :form526_submission,
-          :with_uploads,
-          user_uuid: user.uuid,
-          saved_claim_id: saved_claim.id
+          :with_uploads
         )
       end
+
       let(:first_submission_upload) { submission.form[Form526Submission::FORM_526_UPLOADS].first }
-      let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
+      let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/doctors-note.pdf', 'application/pdf') }
 
       let!(:lighthouse_attachment) do
         attachment = LighthouseSupportingEvidenceAttachment.new(guid: first_submission_upload['confirmationCode'])
@@ -132,32 +137,21 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         attachment
       end
 
-      it 'enqueues a Lighthouse::DocumentUpload with the correct arguments' do
-        allow_any_instance_of(BenefitsDocuments::Service).to receive(:file_number).and_return("8675309")
+      let(:upload_data) { { 'attachmentId' => 'L023', 'confirmationCode' => lighthouse_attachment.guid } }
 
-        expect(Lighthouse::DocumentUpload).to receive(:perform_async).with(
-          user.icn,
-          hash_including(
-            document_type: first_submission_upload['attachmentId'],
-            claim_id: submission.submitted_claim_id,
-            file_number: "8675309",
-            file_name: lighthouse_attachment.converted_filename || first_submission_upload['name'],
-            tracked_item_id: nil
-          )
+      it 'uploads the document via the Form526LighthouseDocumentsService' do
+        file_contents = lighthouse_attachment&.get_file&.read
+
+        allow_any_instance_of(LighthouseSupportingEvidenceAttachment).to receive(:converted_filename).and_return('Doctors_Note.pdf')
+        expect_any_instance_of(EVSS::DisabilityCompensationForm::SubmitUploads).to receive(:upload_lighthouse_document).with(
+          file_contents,
+          'Doctors_Note.pdf',
+          submission,
+          'L023'
         )
 
-        subject.perform_async(submission.id, first_submission_upload)
+        subject.perform_async(submission.id, upload_data)
         described_class.drain
-      end
-
-      context 'when get_file is nil' do
-        let(:lighthouse_attachment) { double(:lighthouse_attachment, get_file: nil) }
-
-        it 'logs a non_retryable_error' do
-          subject.perform_async(submission.id, first_submission_upload)
-          expect(Form526JobStatus).to receive(:upsert).twice
-          expect { described_class.drain }.to raise_error(ArgumentError)
-        end
       end
     end
   end

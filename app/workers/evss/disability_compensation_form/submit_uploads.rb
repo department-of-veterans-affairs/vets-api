@@ -3,6 +3,8 @@
 module EVSS
   module DisabilityCompensationForm
     class SubmitUploads < Job
+      include BenefitsDocuments::Form526LighthouseDocumentsService
+
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_upload'
 
       # retry for one day
@@ -27,8 +29,7 @@ module EVSS
         guid = upload_data&.dig('confirmationCode')
         with_tracking("Form526 Upload: #{guid}", submission.saved_claim_id, submission.id) do
           if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
-            submission_user = User.find(submission.user_uuid)
-            upload_lighthouse_claim(upload_data, guid, submission_user)
+            upload_lighthouse_claim(upload_data, guid)
           else
             upload_evss_claim(upload_data, guid, submission)
           end
@@ -63,20 +64,16 @@ module EVSS
         )
       end
 
-      def upload_lighthouse_claim(upload_data, guid, user)
+      def upload_lighthouse_claim(upload_data, guid)
         lighthouse_attachment = LighthouseSupportingEvidenceAttachment.find_by(guid:)
-        file_body = lighthouse_attachment&.get_file&.read
 
+        file_body = lighthouse_attachment&.get_file&.read
         raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file_body.nil?
 
-        lighthouse_document = LighthouseDocument.new(
-          document_type: upload_data['attachmentId'],
-          claim_id: submission.submitted_claim_id,
-          file_number: BenefitsDocuments::Service.new(user).file_number || user.ssn,
-          file_name: lighthouse_attachment.converted_filename || upload_data['name']
-        )
+        file_name = lighthouse_attachment.converted_filename || upload_data['name']
+        document_type = upload_data['attachmentId']
 
-        Lighthouse::DocumentUpload.perform_async(user.icn, lighthouse_document.to_serializable_hash)
+        upload_lighthouse_document(file_body, file_name, submission, document_type)
       end
 
       def retryable_error_handler(error)
