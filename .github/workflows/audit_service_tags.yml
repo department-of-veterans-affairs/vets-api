@@ -43,14 +43,19 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Setup Database
+        run: |
+             docker-compose -f docker-compose.test.yml run vets-api bash \
+             -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -n 13 -e 'bin/rails db:reset'"
+
       - name: Get changed files
         run: |
-          FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files -q '.files[].path' | tr '\n' ',')
-          echo "CHANGED_FILES=$FILES" >> $GITHUB_ENV
+             FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files -q '.files[].path' | tr '\n' ',')
+             echo "CHANGED_FILES=$FILES" >> $GITHUB_ENV
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run service tags audit controllers task
         run: |
-          docker-compose -f docker-compose.test.yml run vets-api bash \
-          -c "CI=true DISABLE_BOOTSNAP=true bundle exec rake service_tags:audit_controllers_ci"
+             docker-compose -f docker-compose.test.yml run vets-api bash \
+             -c "CI=true DISABLE_BOOTSNAP=true bundle exec rake service_tags:audit_controllers_ci"
