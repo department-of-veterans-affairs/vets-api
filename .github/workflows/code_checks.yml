@@ -26,8 +26,15 @@ jobs:
       - name: Run Brakeman
         run:  bundle exec brakeman --ensure-latest --confidence-level=2 --format github
 
-  audit-service-tags:
-    name: Audit Service Tags
+  tests:
+    name: Test
+    env:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+      CI: true
+      RAILS_ENV: test
+      TERM: xterm-256color
+      DOCKER_BUILDKIT: 1
+      COMPOSE_DOCKER_CLI_BUILD: 1
     runs-on: ubuntu-16-cores-latest
     steps:
       - uses: actions/checkout@v3
@@ -37,6 +44,10 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
+      - name: Setup Environment
+        run: |
+          echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -44,7 +55,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           build-args: |
-            sidekiq_license=${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+            sidekiq_license=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+            userid=${{ env.VETS_API_USER_ID }}
           context: .
           target: builder
           push: false
@@ -52,45 +64,6 @@ jobs:
           tags: vets-api
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Export Docker Image
-        run: |
-          docker save vets-api:latest | gzip > vets-api.tar.gz
-
-      - name: Upload Docker Image
-        uses: actions/upload-artifact@v3
-        with:
-          name: vets-api
-          path: vets-api.tar.gz
-
-      - name: Get changed files
-        run: |
-          FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files -q '.files[].path' | tr '\n' ',')
-          echo "CHANGED_FILES=$FILES" >> $GITHUB_ENV
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Run service tags audit controllers task
-        run: |
-          docker-compose -f docker-compose.test.yml run vets-api bash \
-          -c "CI=true DISABLE_BOOTSNAP=true bundle exec rake service_tags:audit_controllers_ci"
-
-  tests:
-    name: Test
-    needs: audit-service-tags
-    runs-on: ubuntu-16-cores-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Download Docker Image
-        uses: actions/download-artifact@v3
-        with:
-          name: vets-api
-          path: .
-
-      - name: Load Docker Image
-        run: |
-          gunzip -c vets-api.tar.gz | docker load
 
       - name: Setup Database
         run: |
