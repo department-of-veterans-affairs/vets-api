@@ -4,7 +4,7 @@
     "attributes": {
       "claimantCertification": true,
       "claimProcessType": "STANDARD_CLAIM_PROCESS",
-      "claimDate": "2020-12-18",
+      "claimDate": "2023-11-01",
       "veteranIdentification": {
         "currentVaEmployee": false,
         "mailingAddress": {
@@ -152,9 +152,9 @@
           {
             "serviceBranch": "Public Health Service",
             "activeDutyBeginDate": "2008-11-14",
-            "activeDutyEndDate": "2025-11-30",
+            "activeDutyEndDate": "2023-10-30",
             "serviceComponent": "Active",
-            "separationLocationCode": "25077"
+            "separationLocationCode": "98282"
           }
         ],
         "confinements": [
