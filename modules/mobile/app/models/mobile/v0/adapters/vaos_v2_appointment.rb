@@ -189,7 +189,10 @@ module Mobile
         end
 
         def cancellation_reason(cancellation_reason)
-          return nil if cancellation_reason.nil?
+          if cancellation_reason.nil?
+            Rails.logger.info('Appt missing cancellation reason')
+            return nil
+          end
 
           cancel_code = cancellation_reason.dig(:coding, 0, :code)
           CANCELLATION_REASON[cancel_code&.to_sym]

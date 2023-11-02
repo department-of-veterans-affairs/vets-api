@@ -57,4 +57,33 @@ describe ClaimStatusTool::ClaimLetterDownloader do
       expect { @downloader.get_letter('{0}') }.to raise_error(Common::Exceptions::RecordNotFound)
     end
   end
+
+  describe 'Board Of Appeals Letter functionality' do
+    before do
+      @downloader = ClaimStatusTool::ClaimLetterDownloader.new(current_user)
+    end
+
+    context 'BOA Letters enabled' do
+      before do
+        Flipper.enable(:cst_include_ddl_boa_letters)
+      end
+
+      it 'only shows BOA letters older than 2 days' do
+        letters = @downloader.get_letters
+        boa_letters = letters.select { |l| l[:doc_type] == '27' }
+        expect(boa_letters.length).to eq(1)
+      end
+    end
+
+    context 'BOA Letters disabled' do
+      before do
+        Flipper.disable(:cst_include_ddl_boa_letters)
+      end
+
+      it 'does not show BOA letters' do
+        letters = @downloader.get_letters
+        expect(letters.any? { |l| l[:doc_type] == '27' }).to be false
+      end
+    end
+  end
 end

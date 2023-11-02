@@ -5,6 +5,7 @@ require 'user_profile_attribute_service'
 module DebtsApi
   class V0::Form5655Submission < ApplicationRecord
     class StaleUserError < StandardError; end
+    STATS_KEY = 'api.fsr_submission'
     enum state: { unassigned: 0, in_progress: 1, submitted: 2, failed: 3 }
 
     self.table_name = 'form5655_submissions'
@@ -75,6 +76,14 @@ module DebtsApi
       failed!
       update(error_message: message)
       Rails.logger.error('Form5655Submission failed', message)
+      StatsD.increment("#{STATS_KEY}.failure")
+      StatsD.increment("#{STATS_KEY}.combined.failure") if public_metadata['combined']
+    end
+
+    def register_success
+      submitted!
+      StatsD.increment("#{STATS_KEY}.success")
+      StatsD.increment("#{STATS_KEY}.combined.success") if public_metadata['combined']
     end
 
     def streamlined?

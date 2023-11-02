@@ -28,7 +28,7 @@ RSpec.describe 'claims document upload', type: :request do
   end
 
   it 'uploads a file' do
-    params = { file:, claim_id:, tracked_item_id:, documentType: document_type }
+    params = { file:, claim_id:, tracked_item_id:, document_type: }
     expect do
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
     end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
@@ -41,25 +41,54 @@ RSpec.describe 'claims document upload', type: :request do
   it 'uploads multiple jpeg files' do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.jpg'))]
-    params = { files:, claim_id:, tracked_item_id:, documentType: document_type }
+    params = { files:, claim_id:, tracked_item_id:, document_type: }
     expect_any_instance_of(BenefitsDocuments::Service).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
-                                                               headers: sis_headers(json_body_headers)
+                                                               headers: sis_headers(json: true)
     end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
     expect(Lighthouse::DocumentUpload.jobs.first.dig('args', 1, 'tracked_item_id')).to eq([tracked_item_id])
   end
 
+  context 'when camel case is used for parameters and camel case header is disabled' do
+    it 'uploads a file' do
+      params = { file:, claimId: claim_id, trackedItemId: tracked_item_id, documentType: document_type }
+      expect do
+        post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers(camelize: false)
+      end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
+
+      expect(response.status).to eq(202)
+      expect(response.parsed_body.dig('data', 'job_id')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
+      expect(Lighthouse::DocumentUpload.jobs.first.dig('args', 1, 'tracked_item_id')).to eq([tracked_item_id])
+    end
+
+    it 'uploads multiple jpeg files' do
+      files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
+               Base64.encode64(File.read('spec/fixtures/files/marriage-cert.jpg'))]
+      params = { files:, claimId: claim_id, trackedItemId: tracked_item_id, documentType: document_type }
+      expect_any_instance_of(BenefitsDocuments::Service).to receive(:cleanup_after_upload)
+      expect do
+        post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
+                                                                 headers: sis_headers(camelize: false, json: true)
+      end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
+
+      expect(response.status).to eq(202)
+      expect(response.parsed_body.dig('data', 'job_id')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
+      expect(Lighthouse::DocumentUpload.jobs.first.dig('args', 1, 'tracked_item_id')).to eq([tracked_item_id])
+    end
+  end
+
   it 'uploads multiple gif files' do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.gif')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
-    params = { files:, claim_id:, documentType: document_type, tracked_item_id: }
+    params = { files:, claim_id:, tracked_item_id:, document_type: }
     expect_any_instance_of(BenefitsDocuments::Service).to receive(:cleanup_after_upload)
+
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
-                                                               headers: sis_headers(json_body_headers)
+                                                               headers: sis_headers(json: true)
     end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
@@ -68,18 +97,18 @@ RSpec.describe 'claims document upload', type: :request do
   it 'uploads multiple mixed img files' do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
-    params = { files:, claim_id:, documentType: document_type, tracked_item_id: }
+    params = { files:, claim_id:, tracked_item_id:, document_type: }
     expect_any_instance_of(BenefitsDocuments::Service).to receive(:cleanup_after_upload)
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
-                                                               headers: sis_headers(json_body_headers)
+                                                               headers: sis_headers(json: true)
     end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
   end
 
   it 'rejects files with invalid document_types' do
-    params = { file:, claim_id:, documentType: 'invalid type', tracked_item_id: }
+    params = { file:, claim_id:, tracked_item_id:, document_type: 'Invalid Type' }
     post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
     expect(response.status).to eq(422)
     expect(
@@ -88,7 +117,7 @@ RSpec.describe 'claims document upload', type: :request do
   end
 
   it 'normalizes requests with a null tracked_item_id' do
-    params = { file:, claim_id:, tracked_item_id: nil, documentType: document_type }
+    params = { file:, claim_id:, tracked_item_id: nil, document_type: }
     post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
     args = Lighthouse::DocumentUpload.jobs.first['args'][1]
     expect(response.status).to eq(202)
@@ -103,7 +132,7 @@ RSpec.describe 'claims document upload', type: :request do
     end
 
     it 'uploads a file' do
-      params = { file:, claim_id:, tracked_item_id:, documentType: document_type }
+      params = { file:, claim_id:, tracked_item_id:, document_type: }
       expect do
         post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
@@ -117,7 +146,7 @@ RSpec.describe 'claims document upload', type: :request do
     let(:file) { fixture_file_upload('invalid_idme_cert.crt', 'application/x-x509-ca-cert') }
 
     it 'rejects files with invalid document_types' do
-      params = { file:, claim_id:, documentType: document_type, tracked_item_id: }
+      params = { file:, claim_id:, tracked_item_id:, document_type: }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response.status).to eq(500)
       expect(response.parsed_body['errors'].first['title']).to eq('Internal server error')
@@ -129,21 +158,23 @@ RSpec.describe 'claims document upload', type: :request do
     let(:locked_file) { fixture_file_upload('locked_pdf_password_is_test.pdf', 'application/pdf') }
 
     it 'rejects locked PDFs if no password is provided' do
-      params = { file: locked_file, claim_id:, documentType: document_type, tracked_item_id: }
+      params = { file: locked_file, claim_id:, tracked_item_id:, document_type: }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response.status).to eq(422)
       expect(response.parsed_body['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.pdf.locked'))
     end
 
     it 'accepts locked PDFs with the correct password' do
-      params = { file: locked_file, claim_id:, documentType: document_type, password: 'test', tracked_item_id: }
+      params = { file: locked_file, claimId: claim_id, trackedItemId: tracked_item_id, documentType: document_type,
+                 password: 'test' }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response.status).to eq(202)
       expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
     end
 
     it 'rejects locked PDFs with the incorrect password' do
-      params = { file: locked_file, claim_id:, documentType: document_type, password: 'bad', tracked_item_id: }
+      params = { file: locked_file, claimId: claim_id, trackedItemId: tracked_item_id, documentType: document_type,
+                 password: 'bad' }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response.status).to eq(422)
       expect(
@@ -161,7 +192,7 @@ RSpec.describe 'claims document upload', type: :request do
     end
 
     it 'rejects a file that is not really a PDF' do
-      params = { file: tempfile, claim_id:, documentType: document_type, tracked_item_id: }
+      params = { file: tempfile, claim_id:, tracked_item_id:, document_type: }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response.status).to eq(422)
       expect(
@@ -174,7 +205,7 @@ RSpec.describe 'claims document upload', type: :request do
     let(:file) { fixture_file_upload('empty_file.txt', 'text/plain') }
 
     it 'rejects a text file with no body' do
-      params = { file:, claim_id:, documentType: document_type, tracked_item_id: }
+      params = { file:, claim_id:, tracked_item_id:, document_type: }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response.status).to eq(500)
       expect(response.parsed_body['errors'].first['meta']['exception']).to match(/1 Byte/)
@@ -190,7 +221,7 @@ RSpec.describe 'claims document upload', type: :request do
     end
 
     it 'rejects a text file containing untranslatable characters' do
-      params = { file: tempfile, claim_id:, documentType: document_type, tracked_item_id: }
+      params = { file: tempfile, claim_id:, tracked_item_id:, document_type: }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response.status).to eq(422)
       expect(
@@ -208,7 +239,7 @@ RSpec.describe 'claims document upload', type: :request do
     end
 
     it 'accepts a text file containing translatable characters' do
-      params = { file: tempfile, claim_id:, documentType: document_type, tracked_item_id: }
+      params = { file: tempfile, claim_id:, tracked_item_id:, document_type: }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response.status).to eq(202)
       expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
@@ -226,7 +257,7 @@ RSpec.describe 'claims document upload', type: :request do
     end
 
     it 'rejects a text file containing binary data' do
-      params = { file: tempfile, claim_id:, document_type:, tracked_item_id: }
+      params = { file: tempfile, claim_id:, tracked_item_id:, document_type: }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response.status).to eq(422)
       expect(
