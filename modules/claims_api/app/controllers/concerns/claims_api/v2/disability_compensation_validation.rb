@@ -495,12 +495,23 @@ module ClaimsApi
             detail: 'Service information is required'
           )
         end
+        validate_claim_date_to_active_duty_end_date!(service_information)
         validate_service_periods!(service_information, target_veteran)
         validate_service_branch_names!(service_information)
         validate_confinements!(service_information)
         validate_alternate_names!(service_information)
         validate_reserves_required_values!(service_information)
         validate_form_526_location_codes!(service_information)
+      end
+
+      def validate_claim_date_to_active_duty_end_date!(service_information)
+        max_period = service_information['servicePeriods'].max_by { |sp| sp['activeDutyEndDate'] }
+        date = form_attributes['claimDate'] || Time.find_zone!('Central Time (US & Canada)').today
+        if Date.strptime(date.to_s, '%Y-%m-%d') > Date.strptime(max_period['activeDutyEndDate'], '%Y-%m-%d') + 180.days
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'Claim date must be within 180 days of the last active duty end date.'
+          )
+        end
       end
 
       def validate_service_periods!(service_information, target_veteran)
