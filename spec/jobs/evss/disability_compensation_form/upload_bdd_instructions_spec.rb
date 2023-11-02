@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'lighthouse/benefits_documents/worker_service'
+require 'lighthouse/benefits_documents/form_526_lighthouse_documents_service'
 
 RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :job do
   subject { described_class }
@@ -83,18 +83,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
       )
     end
 
-    let(:lighthouse_document) do
-      LighthouseDocument.new(
-        claim_id: submission.submitted_claim_id,
-        file_name: 'BDD_Instructions.pdf',
-        tracked_item_id: nil,
-        document_type: 'L023'
-      )
-    end
-
     describe 'perform' do
-      it 'enqueues a BDD instructions upload with the correct arguments' do
-        expect_any_instance_of(BenefitsDocuments::WorkerService).to receive(:upload_document).with(file_read, lighthouse_document)
+      it 'uploads the document via the Form526LighthouseDocumentsService' do
+        expect_any_instance_of(EVSS::DisabilityCompensationForm::UploadBddInstructions).to receive(:upload_lighthouse_document).with(
+          instance_of(String),
+          'BDD_Instructions.pdf',
+          submission,
+          'L023'
+        )
 
         subject.perform_async(submission.id)
         described_class.drain

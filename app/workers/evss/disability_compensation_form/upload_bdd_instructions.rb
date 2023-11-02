@@ -6,8 +6,12 @@ module EVSS
   module DisabilityCompensationForm
     class UploadBddInstructions < Job
       extend Logging::ThirdPartyTransaction::MethodWrapper
+      include BenefitsDocuments::Form526LighthouseDocumentsService
 
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_bdd_instructions'
+      FILE_NAME = 'BDD_Instructions.pdf'
+      # 'Other Correspondence' Document Type:
+      FILE_DOCUMENT_TYPE = 'L023'
 
       # retry for one day
       sidekiq_options retry: 14
@@ -52,10 +56,7 @@ module EVSS
 
       def upload_bdd_instructions
         if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
-          submission_user = User.find(submission.user_uuid)
-
-          client = BenefitsDocuments::WorkerService.new(submission_user.icn)
-          client.upload_document(file_body, lighthouse_document_data)
+          upload_lighthouse_document(file_body, FILE_NAME, submission, FILE_DOCUMENT_TYPE)
         else
           evss_client.upload(file_body, evss_document_data)
         end
@@ -74,22 +75,13 @@ module EVSS
         raise error
       end
 
-      def lighthouse_document_data
-        @lighthouse_document_data ||= LighthouseDocument.new(
-          evss_claim_id: submission.submitted_claim_id,
-          file_name: 'BDD_Instructions.pdf',
-          tracked_item_id: nil,
-          document_type: 'L023'
-        )
-      end
-
       def evss_document_data
         @evss_document_data ||= EVSSClaimDocument.new(
           evss_claim_id: submission.submitted_claim_id,
-          file_name: 'BDD_Instructions.pdf',
+          file_name: FILE_NAME,
           tracked_item_id: nil,
-          document_type: 'L023'
-        ) # 'Other Correspondence'
+          document_type: FILE_DOCUMENT_TYPE
+        )
       end
     end
   end
