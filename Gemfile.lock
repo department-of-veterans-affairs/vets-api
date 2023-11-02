@@ -927,7 +927,7 @@ GEM
       actionpack (>= 5.2)
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
-    ssrf_filter (1.1.1)
+    ssrf_filter (1.1.2)
     staccato (0.5.3)
     statsd-instrument (3.5.12)
     strong_migrations (1.6.1)
