@@ -26,7 +26,7 @@ idme:
   client_key_path: spec/fixtures/sign_in/oauth.key
   oauth_url: https://api.idmelabs.com
 
-mobile_application_platform:
+map_services:
   chatbot_client_id: 2bb9803acfc3
   sign_up_service_client_id: c7d6e0fc9a39
   oauth_url: https://veteran.apps-staging.va.gov

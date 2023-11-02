@@ -935,7 +935,7 @@
 
 # Security Token Service API
 - :name: "MAP STS"
-  :base_uri: <%= "#{URI(Settings.mobile_application_platform.oauth_url).host}:#{URI(Settings.mobile_application_platform.oauth_url).port}" %>
+  :base_uri: <%= "#{URI(Settings.map_services.oauth_url).host}:#{URI(Settings.map_services.oauth_url).port}" %>
   :endpoints:
     - :method: :post
       :path: "/sts/oauth/v1/token"
@@ -943,7 +943,7 @@
 
 # Sign Up Service Terms API
 - :name: "MAP SUS"
-  :base_uri: <%= "#{URI(Settings.mobile_application_platform.sign_up_service_url).host}:#{URI(Settings.mobile_application_platform.sign_up_service_url).port}" %>
+  :base_uri: <%= "#{URI(Settings.map_services.sign_up_service_url).host}:#{URI(Settings.map_services.sign_up_service_url).port}" %>
   :endpoints:
     - :method: :get
       :path: "/signup/v1/patients/*/status/summary"

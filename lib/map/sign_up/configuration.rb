@@ -7,11 +7,11 @@ module MAP
   module SignUp
     class Configuration < Common::Client::Configuration::REST
       def base_path
-        Settings.mobile_application_platform.sign_up_service_url
+        Settings.map_services.sign_up_service_url
       end
 
       def provisioning_api_key
-        Settings.mobile_application_platform.sign_up_service_provisioning_api_key
+        Settings.map_services.sign_up_service_provisioning_api_key
       end
 
       def service_name
@@ -60,7 +60,7 @@ module MAP
           request: request_options
         ) do |conn|
           conn.use :breakers
-          conn.response :betamocks if Settings.mobile_application_platform.sign_up_service.mock
+          conn.response :betamocks if Settings.map_services.sign_up_service.mock
           conn.use Faraday::Response::RaiseError
           conn.adapter Faraday.default_adapter
         end
