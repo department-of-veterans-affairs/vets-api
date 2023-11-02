@@ -1,16 +1,26 @@
-kind: IngressRoute
+kind: Ingress
 apiVersion: networking.k8s.io/v1
 metadata:
   name: vets-website-ingress
 spec:
-  routes:
-    - match: Host("web.{{ .Values.domainName }}")
-      kind: Rule
-      services:
-        - name: vets-website-s3-service
-          port: 80
-    - match: Host("content.{{ .Values.domainName }}")
-      kind: Rule
-      services:
-        - name: content-s3-service
-          port: 80
+  rules:
+    - host: Host("web.{{ .Values.domainName }}")
+      http:
+        paths:
+          - path: /
+            backend:
+              service:
+                name: vets-website-s3-service
+                port:
+                  name: http
+            pathType: Prefix
+    - host: Host("content.{{ .Values.domainName }}")
+      http:
+        paths:
+          - path: /
+            backend:
+              service:
+                name: content-s3-service
+                port:
+                  name: http
+            pathType: Prefix
