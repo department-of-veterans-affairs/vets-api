@@ -413,7 +413,7 @@ GEM
     faraday_middleware (0.14.0)
       faraday (>= 0.7.4, < 1.0)
     fastimage (2.2.7)
-    ffi (1.15.5)
+    ffi (1.16.3)
     fhir_client (5.0.3)
       activesupport (>= 3)
       addressable (>= 2.3)
@@ -865,7 +865,7 @@ GEM
     ruby-saml (1.15.0)
       nokogiri (>= 1.13.10)
       rexml
-    ruby-vips (2.1.4)
+    ruby-vips (2.2.0)
       ffi (~> 1.12)
     rubyzip (2.3.2)
     rufus-scheduler (3.9.1)
