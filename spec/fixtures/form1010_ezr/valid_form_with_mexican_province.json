@@ -1,0 +1,70 @@
+{
+  "veteranFullName": {
+    "first": "FirstName",
+    "middle": "MiddleName",
+    "last": "ZZTEST",
+    "suffix": "Jr."
+  },
+  "preferredName": "First",
+  "veteranSocialSecurityNumber": "111111234",
+  "gender": "F",
+  "veteranDateOfBirth": "1986-01-02",
+  "veteranAddress": {
+    "street": "7321 SW 7th St",
+    "street2": "",
+    "street3": "",
+    "city": "Ontario",
+    "country": "MEX",
+    "state": "chihuahua",
+    "provinceCode": "ProvinceName",
+    "postalCode": "21534"
+  },
+  "veteranHomeAddress": {
+    "street": "123 NW 5th St",
+    "street2": "",
+    "street3": "",
+    "city": "Ontario",
+    "country": "MEX",
+    "state": "chihuahua",
+    "provinceCode": "ProvinceName",
+    "postalCode": "21231"
+  },
+  "homePhone": "1231241234",
+  "mobilePhone": "1235551234",
+  "email": "foo@example.com",
+  "maritalStatus": "Married",
+  "providers": [
+    {
+      "insuranceName": "MyInsurance",
+      "insurancePolicyHolderName": "FirstName ZZTEST",
+      "insurancePolicyNumber": "P1234",
+      "insuranceGroupCode": "G1234"
+    }
+  ],
+  "isMedicaidEligible": true,
+  "isEnrolledMedicarePartA": true,
+  "medicarePartAEffectiveDate": "1999-10-16",
+  "medicareClaimNumber": "873462432",
+  "spouseFullName": {
+    "first": "FirstSpouse",
+    "middle": "MiddleSpouse",
+    "last": "LastSpouse",
+    "suffix": "Sr."
+  },
+  "spouseSocialSecurityNumber": "111221234",
+  "spouseDateOfBirth": "1990-04-06",
+  "dateOfMarriage": "2003-05-10",
+  "cohabitedLastYear": true,
+  "provideSupportLastYear": false,
+  "dependents": [],
+  "veteranGrossIncome": 123.33,
+  "veteranNetIncome": 90.11,
+  "veteranOtherIncome": 10.1,
+  "spouseGrossIncome": 64.1,
+  "spouseNetIncome": 35.1,
+  "spouseOtherIncome": 12.3,
+  "deductibleMedicalExpenses": 33.3,
+  "deductibleFuneralExpenses": 44.44,
+  "deductibleEducationExpenses": 77.77,
+  "privacyAgreementAccepted": true
+}

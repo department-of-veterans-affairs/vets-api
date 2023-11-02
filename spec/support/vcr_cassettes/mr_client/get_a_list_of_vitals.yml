@@ -78,7 +78,7 @@ http_interactions:
                 "subject": {
                   "reference": "Patient/30163"
                 },
-                "effectiveDateTime": "2019-09-26T16:34:42+02:00",
+                "effectiveDateTime": "2019-09-20T16:34:42+02:00",
                 "valueQuantity": {
                   "value": 36.2,
                   "unit": "C"

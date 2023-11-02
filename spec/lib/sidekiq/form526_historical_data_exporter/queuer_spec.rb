@@ -28,7 +28,6 @@ RSpec.describe Sidekiq::Form526HistoricalDataExporter::Queuer, type: :job do
       end
 
       before do
-        Flipper.enable(:disability_526_classifier)
         submission.created_at = '2003-01-03 00:12:34'
         submission.save
       end

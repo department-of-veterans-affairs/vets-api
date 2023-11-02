@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'debts_api/v0/financial_status_report_service'
-require 'debt_management_center/workers/va_notify_email_job'
+require 'debt_management_center/sidekiq/va_notify_email_job'
 require 'debt_management_center/sharepoint/request'
 require_relative '../../../support/financial_status_report_helpers'
 
@@ -197,10 +197,16 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
     end
 
     it 'parses out delimiter characters' do
-      service = described_class.new(user_data)
-      delimitered_json = { 'name' => "^Gr\neg|" }
-      parsed_form_string = service.send(:remove_form_delimiters, delimitered_json).to_s
-      expect(['^', '|', "\n"].any? { |i| parsed_form_string.include? i }).to be false
+      VCR.use_cassette('vha/sharepoint/authenticate') do
+        VCR.use_cassette('vha/sharepoint/upload_pdf') do
+          service = described_class.new(user_data)
+          delimitered_json = { 'name' => "^Gr\neg|", 'married' => false }
+          parsed_form = service.send(:remove_form_delimiters, delimitered_json)
+          parsed_characters = parsed_form.values.select { |v| v.is_a?(String) }.map(&:chars).flatten
+          expect(['^', '|', "\n"].any? { |i| parsed_characters.include? i }).to be false
+          expect(parsed_form['married']).to eq(false)
+        end
+      end
     end
 
     context 'with streamlined waiver' do
@@ -272,7 +278,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       end
     end
 
-    it 'enqueues a VHA submission job' do
+    it 'enqueues VHA submission jobs' do
       valid_form_data['selectedDebtsAndCopays'] = [{
         'station' => {
           'facilitYNum' => '123'
@@ -283,7 +289,10 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       valid_form_data['personalIdentification'] = {}
       service = described_class.new(user)
       expect { service.submit_combined_fsr(valid_form_data) }
-        .to change { DebtsApi::V0::Form5655::VHASubmissionJob.jobs.size }
+        .to change { DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs.size }
+        .from(0)
+        .to(1)
+        .and change { DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs.size }
         .from(0)
         .to(1)
     end
@@ -299,6 +308,25 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
       service = described_class.new(user)
       expect { service.submit_combined_fsr(valid_form_data) }.to change(Form5655Submission, :count).by(1)
+      expect(DebtsApi::V0::Form5655Submission.last.in_progress?).to eq(true)
+    end
+
+    context 'with both debts and copays' do
+      it 'adds combined key to forms' do
+        valid_form_data['selectedDebtsAndCopays'] = [{
+          'station' => {
+            'facilitYNum' => '123'
+          },
+          'resolutionOption' => 'waiver',
+          'debtType' => 'COPAY'
+        },
+                                                     { 'foo' => 'bar', 'debtType' => 'DEBT' }]
+        valid_form_data.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
+        service = described_class.new(user)
+
+        expect { service.submit_combined_fsr(valid_form_data) }.to change(Form5655Submission, :count).by(2)
+        expect(DebtsApi::V0::Form5655Submission.last.public_metadata['combined']).to eq(true)
+      end
     end
   end
 
@@ -331,7 +359,10 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       ]
       service = described_class.new(user)
       expect { service.create_vha_fsr(valid_form_data) }
-        .to change { DebtsApi::V0::Form5655::VHASubmissionJob.jobs.size }
+        .to change { DebtsApi::V0::Form5655::VHA::VBSSubmissionJob.jobs.size }
+        .from(0)
+        .to(2)
+        .and change { DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob.jobs.size }
         .from(0)
         .to(2)
     end

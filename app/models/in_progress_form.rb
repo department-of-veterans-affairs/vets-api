@@ -29,7 +29,7 @@ class InProgressForm < ApplicationRecord
   # the double quotes in return_url are part of the value
   scope :return_url, ->(url) { where(%( #{RETURN_URL_SQL} = ? ), "\"#{url}\"") }
   scope :for_form, ->(form_id) { where(form_id:) }
-  scope :not_submitted, -> { where.not("(metadata -> 'submission' ->> 'status')::boolean") }
+  scope :not_submitted, -> { where.not("metadata -> 'submission' ->> 'status' = ?", 'applicationSubmitted') }
   scope :unsubmitted_fsr, -> { for_form('5655').not_submitted }
   attribute :user_uuid, CleanUUID.new
   serialize :form_data, JsonMarshal::Marshaller
@@ -69,6 +69,7 @@ class InProgressForm < ApplicationRecord
     data = super || {}
     last_accessed = updated_at || Time.current
     data.merge(
+      'createdAt' => created_at&.to_time.to_i,
       'expiresAt' => expires_at.to_i || (last_accessed + expires_after).to_i,
       'lastUpdated' => updated_at.to_i,
       'inProgressFormId' => id

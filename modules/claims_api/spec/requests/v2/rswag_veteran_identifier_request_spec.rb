@@ -7,6 +7,10 @@ require_relative '../../rails_helper'
 require_relative '../../support/swagger_shared_components/v2'
 
 describe 'Veteran Identifier', swagger_doc: Rswag::TextHelpers.new.claims_api_docs do # rubocop:disable RSpec/DescribeClass
+  before do
+    stub_mpi(profile)
+  end
+
   path '/veteran-id:find' do
     post 'Retrieve Veteran ID.' do
       tags 'Veteran Identifier'
@@ -35,6 +39,12 @@ describe 'Veteran Identifier', swagger_doc: Rswag::TextHelpers.new.claims_api_do
       let(:test_user_icn) { '1012667145V762142' }
       let(:veteran) { ClaimsApi::Veteran.new }
       let(:veteran_mpi_data) { MPIData.new }
+      let(:profile) do
+        FactoryBot.build(:mpi_profile,
+                         icn: test_user_icn,
+                         participant_id: nil,
+                         participant_ids: [])
+      end
 
       describe 'Getting a successful response' do
         response '201', "Veteran's unique identifier" do

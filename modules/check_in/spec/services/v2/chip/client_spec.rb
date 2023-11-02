@@ -168,6 +168,63 @@ describe V2::Chip::Client do
     end
   end
 
+  describe '#set_echeckin_started' do
+    let(:appointment_ien) { 'test_appt_ien' }
+    let(:station_no) { '500' }
+    let(:appointment_attributes) do
+      {
+        appointment_ien: :appointment_ien,
+        station_no: :station_no
+      }
+    end
+
+    context 'when downstream returns successfully' do
+      let(:response_body) do
+        {
+          id: :appointment_ien,
+          message: "SetECheckInStarted success with appointmentIen: #{appointment_ien}, stationNo: #{station_no}",
+          type: 'SetECheckInStartedResponse'
+        }
+      end
+      let(:resp) { Faraday::Response.new(body: response_body.to_json, status: 200) }
+      let(:token) { 'abc123' }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(resp)
+      end
+
+      it 'yields to block' do
+        expect_any_instance_of(Faraday::Connection).to receive(:post)
+          .with('/dev/actions/set-e-check-in-started').and_yield(Faraday::Request.new)
+
+        subject.set_echeckin_started(token:, appointment_attributes:)
+      end
+
+      it 'returns success response' do
+        expect_any_instance_of(SentryLogging).not_to receive(:log_exception_to_sentry)
+
+        expect(subject.set_echeckin_started(token:, appointment_attributes:)).to eq(resp)
+      end
+    end
+
+    context 'when CHIP returns an error' do
+      let(:resp) { Faraday::Response.new(body: { 'title' => 'An error was encountered.' }.to_json, status: 500) }
+      let(:exception) { Common::Exceptions::BackendServiceException.new(nil, nil, resp.status, resp.body) }
+      let(:token) { 'abc123' }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(exception)
+      end
+
+      it 'handles the exception and returns original error' do
+        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry)
+
+        expect { subject.set_echeckin_started(token:, appointment_attributes:) }
+          .to raise_error Common::Exceptions::BackendServiceException
+      end
+    end
+  end
+
   describe '#confirm_demographics' do
     let(:resp) do
       {

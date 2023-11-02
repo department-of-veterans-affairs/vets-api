@@ -75,6 +75,7 @@ http_interactions:
       "id": "555555555",
       "type": "claim",
       "attributes": {
+      "baseEndProductCode":"020",
         "claimDate": "2017-05-02",
         "claimPhaseDates": {
           "phaseChangeDate": "2017-10-18"

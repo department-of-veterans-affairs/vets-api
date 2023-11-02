@@ -1,33 +1,30 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/helpers/mobile_sm_client_helper'
 
 RSpec.describe 'Mobile Message Drafts Integration', type: :request do
   include Mobile::MessagingClientHelper
   include SchemaMatchers
 
-  let(:user_id) { '10616687' }
+  let!(:user) { sis_user(:mhv, mhv_account_type:) }
   let(:reply_id)               { 674_874 }
   let(:created_draft_id)       { 674_942 }
   let(:created_draft_reply_id) { 674_944 }
   let(:draft) { attributes_for(:message, body: 'Body 1', subject: 'Subject 1') }
   let(:params) { draft.slice(:category, :subject, :body, :recipient_id) }
-  let(:va_patient) { true }
   let(:draft_signature_only) { attributes_for(:message, body: '\n\n\n\nSignature\nExample', subject: 'Subject 1') }
 
   before do
-    allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return(mhv_account_type)
     allow(Mobile::V0::Messaging::Client).to receive(:new).and_return(authenticated_client)
-    iam_sign_in(build(:iam_user, iam_mhv_id: '123'))
   end
 
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
 
     it 'is not authorized' do
-      post('/mobile/v0/messaging/health/message_drafts', headers: iam_headers, params:)
+      post('/mobile/v0/messaging/health/message_drafts', headers: sis_headers, params:)
       expect(response).not_to be_successful
       expect(response.status).to eq(403)
     end
@@ -37,7 +34,7 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
     let(:mhv_account_type) { 'Advanced' }
 
     it 'is not authorized' do
-      post('/mobile/v0/messaging/health/message_drafts', headers: iam_headers, params:)
+      post('/mobile/v0/messaging/health/message_drafts', headers: sis_headers, params:)
       expect(response).not_to be_successful
       expect(response.status).to eq(403)
     end
@@ -54,7 +51,7 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
 
       it 'responds to POST #create' do
         VCR.use_cassette('sm_client/message_drafts/creates_a_draft') do
-          post '/mobile/v0/messaging/health/message_drafts', params:, headers: iam_headers
+          post '/mobile/v0/messaging/health/message_drafts', params:, headers: sis_headers
         end
 
         expect(response).to be_successful
@@ -65,7 +62,7 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
 
       it 'does not remove proceeding whitespace for #create with signature only' do
         VCR.use_cassette('sm_client/message_drafts/creates_a_draft_signature_only') do
-          post '/mobile/v0/messaging/health/message_drafts', params: params_signature_only, headers: iam_headers
+          post '/mobile/v0/messaging/health/message_drafts', params: params_signature_only, headers: sis_headers
         end
 
         expect(response).to be_successful
@@ -80,7 +77,7 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
           params[:subject] = 'Updated Subject'
           params[:id] = created_draft_id
 
-          put "/mobile/v0/messaging/health/message_drafts/#{created_draft_id}", params:, headers: iam_headers
+          put "/mobile/v0/messaging/health/message_drafts/#{created_draft_id}", params:, headers: sis_headers
         end
 
         expect(response).to be_successful
@@ -93,7 +90,7 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
 
       it 'responds to POST #create' do
         VCR.use_cassette('sm_client/message_drafts/creates_a_draft_reply') do
-          post "/mobile/v0/messaging/health/message_drafts/#{reply_id}/replydraft", params:, headers: iam_headers
+          post "/mobile/v0/messaging/health/message_drafts/#{reply_id}/replydraft", params:, headers: sis_headers
         end
 
         expect(response).to be_successful
@@ -104,7 +101,7 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
 
       it 'does not remove proceeding whitespace for #create with signature only' do
         VCR.use_cassette('sm_client/message_drafts/creates_a_draft_reply_signature_only') do
-          post "/mobile/v0/messaging/health/message_drafts/#{reply_id}/replydraft", params:, headers: iam_headers
+          post "/mobile/v0/messaging/health/message_drafts/#{reply_id}/replydraft", params:, headers: sis_headers
         end
 
         expect(response).to be_successful
@@ -119,7 +116,7 @@ RSpec.describe 'Mobile Message Drafts Integration', type: :request do
           params[:body] = 'Updated Body'
           params[:id] = created_draft_reply_id
           put "/mobile/v0/messaging/health/message_drafts/#{reply_id}/replydraft/#{created_draft_reply_id}",
-              params:, headers: iam_headers
+              params:, headers: sis_headers
         end
 
         expect(response).to be_successful

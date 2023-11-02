@@ -13,6 +13,7 @@ module ClaimsApi
     def initialize(request: nil)
       @request = request
       @multipart = false
+      @use_mock = Settings.claims_api.benefits_documents.use_mocks || false
     end
 
     ##
@@ -24,7 +25,7 @@ module ClaimsApi
       body = { data: { claimId: claim_id, fileNumber: file_number } }
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "calling benefits documents search for claimId #{claim_id}")
-      client.post('documents/search', body)&.body
+      client.post('documents/search', body)&.body&.deep_symbolize_keys
     rescue => e
       ClaimsApi::Logger.log('benefits_documents',
                             detail: "/search failure for claimId #{claim_id}, #{e.message}")
@@ -36,9 +37,14 @@ module ClaimsApi
     #
     # @return success or failure
     def upload(claim:, pdf_path:, file_number: nil)
+      unless File.exist? pdf_path
+        ClaimsApi::Logger.log('526', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist", claim_id: claim.id)
+        raise Errno::ENOENT, pdf_path
+      end
+
       @multipart = true
       body = generate_upload_body(claim:, pdf_path:, file_number:)
-      res = client.post('documents', body)&.body
+      res = client.post('documents', body)&.body&.deep_symbolize_keys
       request_id = res&.dig(:data, :requestId)
       ClaimsApi::Logger.log('526', detail: 'Successfully uploaded doc to BD', claim_id: claim.id, request_id:)
       res
@@ -47,7 +53,7 @@ module ClaimsApi
     ##
     # Generate form body to upload a document
     #
-    # @return {paramenters, file}
+    # @return {parameters, file}
     def generate_upload_body(claim:, pdf_path:, file_number: nil)
       payload = {}
       data = {
@@ -75,8 +81,8 @@ module ClaimsApi
     #
     # @return Faraday client
     def client
-      base_name = if !Settings.claims_api.evss_container&.auth_base_name.nil?
-                    "#{Settings.claims_api.evss_container.auth_base_name}/services"
+      base_name = if !Settings.claims_api.benefits_documents&.host.nil?
+                    "#{Settings.claims_api.benefits_documents.host}/services"
                   elsif @request&.host_with_port.nil?
                     'api.va.gov/services'
                   else
@@ -84,11 +90,12 @@ module ClaimsApi
                   end
 
       @token ||= ClaimsApi::V2::BenefitsDocuments::Service.new.get_auth_token
-      raise StandardError, 'Benefits Docs token missing' if @token.blank?
+      raise StandardError, 'Benefits Docs token missing' if @token.blank? && !@use_mock
 
-      Faraday.new("https://#{base_name}/benefits-documents/v1",
+      Faraday.new("#{base_name}/benefits-documents/v1",
                   headers: { 'Authorization' => "Bearer #{@token}" }) do |f|
         f.request @multipart ? :multipart : :json
+        f.response :betamocks if @use_mock
         f.response :raise_error
         f.response :json, parser_options: { symbolize_names: true }
         f.adapter Faraday.default_adapter

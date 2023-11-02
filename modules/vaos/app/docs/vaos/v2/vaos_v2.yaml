@@ -803,6 +803,10 @@ components:
           description: The start time of the appointment.
           type: string
           format: date-time
+        localStartTime:
+          description: The start time set to the facility's time zone
+          type: string
+          format: date-time
         end:
           description: The end time of the appointment.
           type: string
@@ -868,6 +872,9 @@ components:
           "$ref": "#/components/schemas/AppointmentExtensions"
         preferredProviderName:
           type: string
+        avsPath:
+          type: string
+          description: URL path for the After Visit Summary, for past booked appointments.
     AppointmentExtensions:
       type: object
       properties:
@@ -1331,6 +1338,10 @@ components:
         start:
           type: string
           description: start time of period
+          format: date-time
+        localStartTime:
+          type: string
+          description: start time of the period set to the facility's time zone
           format: date-time
         end:
           type: string

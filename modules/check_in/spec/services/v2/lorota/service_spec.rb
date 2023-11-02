@@ -272,7 +272,8 @@ describe V2::Lorota::Service do
           nextOfKinConfirmedAt: '2021-12-10T05:15:00.000-05:00',
           emergencyContactNeedsUpdate: true,
           emergencyContactConfirmedAt: '2021-12-10T05:30:00.000-05:00'
-        }
+        },
+        setECheckInCalled: nil
       },
       id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d'
     }

@@ -3,6 +3,8 @@
 MyHealth::Engine.routes.draw do
   namespace :v1 do
     scope :medical_records do
+      resources :session, only: %i[create], controller: 'medical_records/mr_session',
+                          defaults: { format: :json }
       resources :vaccines, only: %i[index show], defaults: { format: :json } do
         get :pdf, on: :collection
       end
@@ -15,6 +17,7 @@ MyHealth::Engine.routes.draw do
 
     scope :messaging do
       resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'
+      resources :all_triage_teams, only: [:index], defaults: { format: :json }, path: 'allrecipients'
 
       resources :folders, only: %i[index show create update destroy], defaults: { format: :json } do
         resources :messages, only: [:index], defaults: { format: :json }

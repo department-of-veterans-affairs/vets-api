@@ -95,7 +95,8 @@ http_interactions:
           "effective_date": "2018-03-27",
           "rating_percentage": 50,
           "diagnostic_type_code": "5238",
-          "diagnostic_type_name": "Diabetes mellitus0"
+          "diagnostic_type_name": "Diabetes mellitus0",
+          "diagnostic_text": "Diabetes"
         }
       ]
     }

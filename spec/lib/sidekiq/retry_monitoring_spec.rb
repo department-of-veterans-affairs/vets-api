@@ -5,7 +5,7 @@ require 'sidekiq/monitored_worker'
 
 describe Sidekiq::RetryMonitoring do
   class RetryTestJob
-    include Sidekiq::Worker
+    include Sidekiq::Job
     include Sidekiq::MonitoredWorker
 
     def perform; end

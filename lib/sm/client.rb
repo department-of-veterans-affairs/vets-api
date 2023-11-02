@@ -423,6 +423,23 @@ module SM
         data
       end
     end
+
+    ##
+    # Get a collection of all triage team recipients, including blocked
+    # with detailed attributes per each team
+    # including a total tally of associated and locked teams
+    #
+    # @return [Common::Collection[AllTriageTeams]]
+    #
+    def get_all_triage_teams(user_uuid, use_cache)
+      cache_key = "#{user_uuid}-all-triage-teams"
+      get_cached_or_fetch_data(use_cache, cache_key, AllTriageTeams) do
+        json = perform(:get, 'alltriageteams', nil, token_headers).body
+        data = Common::Collection.new(AllTriageTeams, **json)
+        AllTriageTeams.set_cached(cache_key, data)
+        data
+      end
+    end
     # @!endgroup
 
     def get_cached_or_fetch_data(use_cache, cache_key, model)

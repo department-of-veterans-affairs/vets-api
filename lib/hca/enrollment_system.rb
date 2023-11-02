@@ -457,7 +457,10 @@ module HCA
 
     def discharge_type(veteran)
       discharge_date = Validations.parse_date(veteran['lastDischargeDate'])
-      return '' if discharge_date&.future?
+
+      if discharge_date.present? && (discharge_date > Time.zone.now.in_time_zone('Central Time (US & Canada)').to_date)
+        return ''
+      end
 
       discharge_type_to_sds_code(veteran['dischargeType'])
     end
@@ -618,24 +621,34 @@ module HCA
       { 'address' => address }
     end
 
+    def veteran_to_ethnicity(veteran)
+      if veteran.key?('hasDemographicNoAnswer') || veteran.key?('isSpanishHispanicLatino')
+        if demographic_no?(veteran)
+          NO_RACE
+        else
+          spanish_hispanic_to_sds_code(veteran['isSpanishHispanicLatino'])
+        end
+      end
+    end
+
     def veteran_to_demographics_info(veteran)
-      {
+      return_val = {
         'appointmentRequestResponse' => veteran['wantsInitialVaContact'].present?,
         'contactInfo' => {
           'addresses' => address_from_veteran(veteran),
           'emails' => email_from_veteran(veteran),
           'phones' => phone_number_from_veteran(veteran)
         },
-        'ethnicity' => if demographic_no?(veteran)
-                         NO_RACE
-                       else
-                         spanish_hispanic_to_sds_code(veteran['isSpanishHispanicLatino'])
-                       end,
+        'ethnicity' => veteran_to_ethnicity(veteran),
         'maritalStatus' => marital_status_to_sds_code(veteran['maritalStatus']),
         'preferredFacility' => veteran['vaMedicalFacility'],
         'races' => veteran_to_races(veteran),
         'acaIndicator' => veteran['isEssentialAcaCoverage'].present?
       }
+
+      return_val.delete('ethnicity') if return_val['ethnicity'].nil?
+
+      return_val
     end
 
     def veteran_to_summary(veteran)

@@ -27,6 +27,7 @@
             "middleName",
             "lastName",
             "signinEmail",
+            "birthDate",
             "signinService"
           ],
           "properties": {
@@ -37,13 +38,16 @@
               "type": "string"
             },
             "middleName": {
-              "type": "string"
+              "type": ["string", "null"]
             },
             "lastName": {
               "type": "string"
             },
             "signinEmail": {
               "type": "string"
+            },
+            "birthDate": {
+              "type": ["string", "null"]
             },
             "signinService": {
               "type": "string"

@@ -58,6 +58,7 @@ RSpec.describe Rack::Attack do
         before do
           allow_any_instance_of(CheckIn::V2::Session).to receive(:authorized?).and_return(true)
           allow_any_instance_of(V2::Lorota::Service).to receive(:check_in_data).and_return(data)
+          allow_any_instance_of(V2::Chip::Service).to receive(:set_echeckin_started).and_return(data)
 
           10.times do
             get('/check_in/v2/patient_check_ins/d602d9eb-9a31-484f-9637-13ab0b507e0d', headers:)
@@ -115,6 +116,37 @@ RSpec.describe Rack::Attack do
         get('/v0/medical_copays', headers:)
 
         expect(last_response.status).to eq(429)
+      end
+    end
+  end
+
+  describe 'facilities_va/ip' do
+    let(:endpoint) { '/facilities_api/v1/va' }
+    let(:headers) { { 'X-Real-Ip' => '1.2.3.4' } }
+    let(:limit) { 30 }
+
+    before do
+      limit.times do
+        get endpoint, nil, headers
+        expect(last_response.status).not_to eq(429)
+      end
+
+      get endpoint, nil, other_headers
+    end
+
+    context 'response status for repeated requests from the same IP' do
+      let(:other_headers) { headers }
+
+      it 'limits requests' do
+        expect(last_response.status).to eq(429)
+      end
+    end
+
+    context 'response status for request from different IP' do
+      let(:other_headers) { { 'X-Real-Ip' => '4.3.2.1' } }
+
+      it 'does not limit request' do
+        expect(last_response.status).not_to eq(429)
       end
     end
   end

@@ -520,10 +520,13 @@ module ClaimsApi
                    file_number = local_bgs_service.find_by_ssn(target_veteran.ssn)&.dig(:file_nbr) # rubocop:disable Rails/DynamicFindBy
 
                    if file_number.nil?
-                     raise ::Common::Exceptions::ResourceNotFound.new(detail:
-                       "Unable to locate Veteran's File Number. " \
-                       'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.')
+                     ClaimsApi::Logger.log('benefits_documents',
+                                           detail: 'calling benefits documents api ' \
+                                                   "for claim_id #{params[:id]} returned nil file number")
+
+                     return []
                    end
+
                    ClaimsApi::Logger.log('benefits_documents',
                                          detail: "calling benefits documents api for claim_id #{params[:id]}")
                    supporting_docs_list = benefits_doc_api.search(params[:id],

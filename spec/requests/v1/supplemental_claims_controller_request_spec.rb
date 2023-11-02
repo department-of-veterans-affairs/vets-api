@@ -23,6 +23,9 @@ RSpec.describe V1::SupplementalClaimsController do
 
     it 'creates a supplemental claim' do
       VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-200_V1') do
+        # Create an InProgressForm
+        in_progress_form = create(:in_progress_form, user_uuid: user.uuid, form_id: '20-0995')
+        expect(in_progress_form).not_to be_nil
         previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
         subject
         expect(response).to be_successful
@@ -31,6 +34,9 @@ RSpec.describe V1::SupplementalClaimsController do
         expect(previous_appeal_submission_ids).not_to include id
         appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
         expect(appeal_submission.type_of_appeal).to eq('SC')
+        # InProgressForm should be destroyed after successful submission
+        in_progress_form = InProgressForm.find_by(user_uuid: user.uuid, form_id: '20-0995')
+        expect(in_progress_form).to be_nil
       end
     end
 

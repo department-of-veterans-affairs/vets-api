@@ -6,6 +6,7 @@ module V0
   module Profile
     class PrimaryPhonesController < ApplicationController
       include EVSS::Authorizeable
+      service_tag 'profile'
 
       before_action :authorize_evss!
 
