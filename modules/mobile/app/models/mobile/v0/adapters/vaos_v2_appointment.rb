@@ -190,7 +190,7 @@ module Mobile
 
         def cancellation_reason(cancellation_reason)
           if cancellation_reason.nil?
-            Rails.logger.info('Appt missing cancellation reason')
+            Rails.logger.info('cancelled appt missing cancellation reason') if status == STATUSES[:cancelled]
             return nil
           end
 
