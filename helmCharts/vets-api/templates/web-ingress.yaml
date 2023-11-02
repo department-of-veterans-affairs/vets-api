@@ -4,7 +4,7 @@ metadata:
   name: vets-website-ingress
 spec:
   rules:
-    - host: "web.{{ .Values.domainName }}"
+    - host: "test4web.vagov-next-prblack-cluster.vfs.va.gov"
       http:
         paths:
           - path: /
@@ -14,7 +14,7 @@ spec:
                 port:
                   name: http
             pathType: Prefix
-    - host: "content.{{ .Values.domainName }}"
+    - host: "test4content.vagov-next-prblack-cluster.vfs.va.gov"
       http:
         paths:
           - path: /
