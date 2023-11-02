@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require 'claims_api/v2/disability_compensation_shared_service_module'
+
 module ClaimsApi
   module V2
     class DisabilityCompensationPdfMapper # rubocop:disable Metrics/ClassLength
+      include DisabilityCompensationSharedServiceModule
+
       NATIONAL_GUARD_COMPONENTS = {
         'National Guard' => 'NATIONAL_GUARD',
         'Reserves' => 'RESERVES'
@@ -492,9 +496,13 @@ module ClaimsApi
           @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService].merge!(
             end: regex_date_conversion(most_recent_period[:activeDutyEndDate])
           )
+          location = get_location(most_recent_period[:separationLocationCode])
+          if location.present?
+            location_description = location[:description]
+            @pdf_data[:data][:attributes][:serviceInformation][:placeOfLastOrAnticipatedSeparation] =
+              location_description
+          end
         end
-        @pdf_data[:data][:attributes][:serviceInformation][:placeOfLastOrAnticipatedSeparation] =
-          most_recent_period[:separationLocationCode]
         @pdf_data[:data][:attributes][:serviceInformation].merge!(branchOfService: {
                                                                     branch: most_recent_period[:serviceBranch]
                                                                   })
@@ -619,6 +627,12 @@ module ClaimsApi
         handle_seperation_severance_pay if service_pay&.dig(:separationSeverancePay).present?
 
         @pdf_data
+      end
+
+      def get_location(location_code)
+        retrieve_separation_locations.detect do |location|
+          location_code == location[:id].to_s
+        end
       end
 
       def handle_yes_no(pay)

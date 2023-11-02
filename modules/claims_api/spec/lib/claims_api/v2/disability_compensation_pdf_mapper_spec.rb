@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'claims_api/v2/disability_compensation_pdf_mapper'
 
 describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
-  describe '526 claim maps to the pdf generator' do
+  describe '526 claim maps to the pdf generator', vcr: 'claims_api/disability_comp' do
     let(:pdf_data) do
       {
         data: {
@@ -385,7 +385,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(recent_end).to eq({ month: '10', day: '30', year: '2023' })
         expect(addtl_start).to eq({ month: '11', day: '14', year: '2008' })
         expect(addtl_end).to eq({ month: '10', day: '30', year: '2023' })
-        expect(last_sep).to eq('98282')
+        expect(last_sep).to eq('Aberdeen Proving Ground')
         expect(pow).to eq('YES')
         expect(pow_start).to eq({ month: '06', day: '04', year: '2018' })
         expect(pow_end).to eq({ month: '07', day: '04', year: '2018' })

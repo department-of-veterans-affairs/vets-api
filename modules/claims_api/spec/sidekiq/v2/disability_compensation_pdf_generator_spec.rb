@@ -73,22 +73,26 @@ RSpec.describe ClaimsApi::V2::DisabilityCompensationPdfGenerator, type: :job do
 
     context 'handles an errored claim correctly' do
       it 'sets claim state to errored when pdf_string is empty' do
-        allow(service).to receive(:generate_526_pdf).and_return('')
+        VCR.use_cassette('claims_api/disability_comp') do
+          allow(service).to receive(:generate_526_pdf).and_return('')
 
-        service.perform(claim.id, middle_initial)
+          service.perform(claim.id, middle_initial)
 
-        claim.reload
-        expect(claim.status).to eq('errored')
+          claim.reload
+          expect(claim.status).to eq('errored')
+        end
       end
 
       it 'does not call the next job when the claim.status is errored' do
-        allow(service).to receive(:generate_526_pdf).and_return('')
+        VCR.use_cassette('claims_api/disability_comp') do
+          allow(service).to receive(:generate_526_pdf).and_return('')
 
-        service.perform(claim.id, middle_initial)
+          service.perform(claim.id, middle_initial)
 
-        claim.reload
-        expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
-        expect(service).not_to receive(:start_docker_container_job)
+          claim.reload
+          expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
+          expect(service).not_to receive(:start_docker_container_job)
+        end
       end
     end
   end
