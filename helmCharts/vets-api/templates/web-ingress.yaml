@@ -4,7 +4,7 @@ metadata:
   name: vets-website-ingress
 spec:
   rules:
-    - host: Host("web.{{ .Values.domainName }}")
+    - host: "web.{{ .Values.domainName }}"
       http:
         paths:
           - path: /
@@ -14,7 +14,7 @@ spec:
                 port:
                   name: http
             pathType: Prefix
-    - host: Host("content.{{ .Values.domainName }}")
+    - host: "content.{{ .Values.domainName }}"
       http:
         paths:
           - path: /
