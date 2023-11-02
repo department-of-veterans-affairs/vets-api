@@ -57,5 +57,6 @@ jobs:
 
       - name: Run service tags audit controllers task
         run: |
-             docker-compose -f docker-compose.test.yml run vets-api bash \
+             docker-compose -f docker-compose.test.yml run -e CHANGED_FILES=${{ env.CHANGED_FILES }} vets-api bash \
              -c "CI=true DISABLE_BOOTSNAP=true bundle exec rake service_tags:audit_controllers_ci"
+
