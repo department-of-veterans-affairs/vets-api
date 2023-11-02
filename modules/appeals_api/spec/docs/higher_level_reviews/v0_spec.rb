@@ -125,7 +125,7 @@ RSpec.describe 'Higher-Level Reviews', swagger_doc:, type: :request do
       response '200', 'Info about a single Higher-Level Review' do
         schema '$ref' => '#/components/schemas/hlrShow'
 
-        let(:id) { FactoryBot.create(:minimal_higher_level_review_v2).id }
+        let(:id) { FactoryBot.create(:minimal_higher_level_review_v0).id }
 
         it_behaves_like 'rswag example', desc: 'returns a 200 response',
                                          response_wrapper: :normalize_appeal_response,
@@ -269,6 +269,17 @@ RSpec.describe 'Higher-Level Reviews', swagger_doc:, type: :request do
                         scopes:
       end
 
+      response '400', 'Bad request' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        let(:hlr_body) { nil }
+
+        it_behaves_like 'rswag example',
+                        desc: 'Not JSON object',
+                        extract_desc: true,
+                        scopes:
+      end
+
       response '422', 'Error' do
         schema '$ref' => '#/components/schemas/errorModel'
 
@@ -280,17 +291,6 @@ RSpec.describe 'Higher-Level Reviews', swagger_doc:, type: :request do
 
         it_behaves_like 'rswag example',
                         desc: 'Violates JSON schema',
-                        extract_desc: true,
-                        scopes:
-      end
-
-      response '422', 'Error' do
-        schema '$ref' => '#/components/schemas/errorModel'
-
-        let(:hlr_body) { nil }
-
-        it_behaves_like 'rswag example',
-                        desc: 'Not JSON object',
                         extract_desc: true,
                         scopes:
       end

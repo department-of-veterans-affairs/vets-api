@@ -13,6 +13,7 @@ RSpec.describe FormProfile, type: :model do
     Flipper.disable(:hca_vaprofile_military_info)
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)
+    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
   end
 
   let(:street_check) { build(:street_check) }
@@ -486,6 +487,48 @@ RSpec.describe FormProfile, type: :model do
       },
       'relativeSocialSecurityNumber' => user.ssn,
       'relativeDateOfBirth' => user.birth_date
+    }
+  end
+
+  let(:v10_10_ezr_expected) do
+    {
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.suffix
+      },
+      'veteranSocialSecurityNumber' => user.ssn,
+      'gender' => user.gender,
+      'veteranDateOfBirth' => user.birth_date,
+      'homePhone' => us_phone,
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.address[:city],
+        'state' => user.address[:state],
+        'country' => user.address[:country],
+        'postal_code' => user.address[:postal_code][0..4]
+      },
+      'email' => user.pciu_email,
+      'isMedicaidEligible' => true,
+      'isEnrolledMedicarePartA' => true,
+      'medicarePartAEffectiveDate' => '1999-10-16',
+      'medicareClaimNumber' => '873462432',
+      'providers' => [
+        {
+          'insuranceName' => 'Aetna',
+          'insuranceGroupCode' => '123456',
+          'insurancePolicyHolderName' => 'Four IVMTEST',
+          'insurancePolicyNumber' => '123456'
+        },
+        {
+          'insuranceName' => 'MyInsurance',
+          'insuranceGroupCode' => 'G1234',
+          'insurancePolicyHolderName' => 'FirstName ZZTEST',
+          'insurancePolicyNumber' => 'P1234'
+        }
+      ]
     }
   end
 
@@ -977,6 +1020,21 @@ RSpec.describe FormProfile, type: :model do
       expect(prefilled_data).to eq(
         form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
       )
+    end
+
+    context 'with a user that can prefill 10-10EZR', run_at: 'Tue, 24 Oct 2023 17:27:12 GMT' do
+      before do
+        allow(user).to receive(:icn).and_return('1013032368V065534')
+      end
+
+      it 'returns a prefilled 10-10EZR form' do
+        VCR.use_cassette(
+          'hca/ee/lookup_user_2023',
+          VCR::MATCH_EVERYTHING.merge(erb: true)
+        ) do
+          expect_prefilled('10-10EZR')
+        end
+      end
     end
 
     context 'with a user that can prefill mdot' do

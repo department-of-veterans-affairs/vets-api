@@ -21,11 +21,11 @@ module Avs
       end
 
       def get_avs_by_appointment_url(station_no, appointment_ien)
-        "/avs-by-appointment/#{station_no}/#{appointment_ien}"
+        "avs-by-appointment/#{station_no}/#{appointment_ien}"
       end
 
       def get_avs_base_url(sid)
-        "/avs/#{sid}"
+        "avs/#{sid}"
       end
     end
   end

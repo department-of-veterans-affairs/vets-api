@@ -7,7 +7,7 @@ module V0
   module Profile
     class EmailsController < ApplicationController
       include EVSS::Authorizeable
-
+      service_tag 'profile'
       before_action :authorize_evss!
 
       def show

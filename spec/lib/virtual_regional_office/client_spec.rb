@@ -19,7 +19,7 @@ RSpec.describe VirtualRegionalOffice::Client do
   end
 
   describe 'making classification contention requests' do
-    subject { client.classify_contention_by_diagnostic_code(classification_contention_params) }
+    subject { client.classify_single_contention(classification_contention_params) }
 
     context 'valid requests' do
       describe 'when requesting classification' do

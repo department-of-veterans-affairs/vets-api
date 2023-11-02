@@ -120,6 +120,28 @@ module V2
       end
 
       ##
+      # HTTP POST call to the CHIP API to set e-check-in started status. Any downstream error (non HTTP 200 response)
+      # is handled by logging to Sentry and returning the original status and body.
+      #
+      # @return [Faraday::Response]
+      #
+      def set_echeckin_started(token:, appointment_attributes:)
+        connection.post("/#{base_path}/actions/set-e-check-in-started") do |req|
+          req.headers = default_headers.merge('Authorization' => "Bearer #{token}")
+          req.body = appointment_attributes.to_json
+        end
+      rescue => e
+        log_exception_to_sentry(e,
+                                {
+                                  original_body: e.original_body,
+                                  original_status: e.original_status,
+                                  uuid: check_in_session.uuid
+                                },
+                                { external_service: service_name, team: 'check-in' })
+        raise e
+      end
+
+      ##
       # HTTP POST call to the CHIP API to confirm demographics update
       #
       # @param token [String] CHIP token to call the endpoint

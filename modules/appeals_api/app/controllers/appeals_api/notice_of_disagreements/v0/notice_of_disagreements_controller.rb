@@ -10,7 +10,9 @@ module AppealsApi::NoticeOfDisagreements::V0
     skip_before_action :new_notice_of_disagreement
     skip_before_action :find_notice_of_disagreement
     skip_before_action :validate_icn_header
+    skip_before_action :validate_json_format
 
+    prepend_before_action :validate_json_body, if: -> { request.post? }
     before_action :validate_icn_parameter, only: %i[download]
 
     API_VERSION = 'V0'
@@ -93,7 +95,7 @@ module AppealsApi::NoticeOfDisagreements::V0
     end
 
     def render_notice_of_disagreement(nod, **)
-      render(json: AppealsApi::NoticeOfDisagreementSerializer.new(nod).serializable_hash, **)
+      render(json: NoticeOfDisagreementSerializer.new(nod).serializable_hash, **)
     end
 
     def render_notice_of_disagreement_not_found(id)

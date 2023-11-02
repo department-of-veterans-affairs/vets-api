@@ -1,19 +1,21 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require 'va_profile/demographics/service'
 
 RSpec.describe 'preferred_name', type: :request do
   include SchemaMatchers
 
   describe 'logingov user' do
-    let(:csd) { 'LGN' }
-
-    before do
-      iam_sign_in(FactoryBot.build(:iam_user, :logingov))
-      allow_any_instance_of(IAMUser).to receive(:logingov_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
+    let!(:user) do
+      sis_user(
+        idme_uuid: nil,
+        logingov_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+        authn_context: 'dslogon_loa3'
+      )
     end
+    let(:csd) { 'LGN' }
 
     describe 'PUT /mobile/v0/profile/preferred_names' do
       context 'when text is valid' do
@@ -21,8 +23,7 @@ RSpec.describe 'preferred_name', type: :request do
           preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
           VCR.use_cassette('mobile/va_profile/post_preferred_name_success', erb: { csd: }) do
             VCR.use_cassette('mobile/demographics/logingov') do
-              put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
-
+              put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: sis_headers)
               expect(response).to have_http_status(:no_content)
             end
           end
@@ -33,7 +34,7 @@ RSpec.describe 'preferred_name', type: :request do
         it 'matches the errors schema', :aggregate_failures do
           preferred_name = VAProfile::Models::PreferredName.new(text: nil)
 
-          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
+          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: sis_headers)
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_response_schema('errors')
@@ -45,7 +46,7 @@ RSpec.describe 'preferred_name', type: :request do
         it 'matches the errors schema', :aggregate_failures do
           preferred_name = VAProfile::Models::PreferredName.new(text: 'A' * 26)
 
-          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
+          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: sis_headers)
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_response_schema('errors')
@@ -56,12 +57,8 @@ RSpec.describe 'preferred_name', type: :request do
   end
 
   describe 'idme user' do
+    let!(:user) { sis_user(idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
     let(:csd) { 'IDM' }
-
-    before do
-      iam_sign_in(FactoryBot.build(:iam_user))
-      allow_any_instance_of(IAMUser).to receive(:idme_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
-    end
 
     describe 'PUT /mobile/v0/profile/preferred_names' do
       context 'when text is valid' do
@@ -69,7 +66,7 @@ RSpec.describe 'preferred_name', type: :request do
           preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
           VCR.use_cassette('mobile/va_profile/post_preferred_name_success', erb: { csd: }) do
             VCR.use_cassette('mobile/va_profile/demographics/demographics') do
-              put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
+              put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: sis_headers)
 
               expect(response).to have_http_status(:no_content)
             end
@@ -81,7 +78,7 @@ RSpec.describe 'preferred_name', type: :request do
         it 'matches the errors schema', :aggregate_failures do
           preferred_name = VAProfile::Models::PreferredName.new(text: nil)
 
-          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
+          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: sis_headers)
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_response_schema('errors')
@@ -93,7 +90,7 @@ RSpec.describe 'preferred_name', type: :request do
         it 'matches the errors schema', :aggregate_failures do
           preferred_name = VAProfile::Models::PreferredName.new(text: 'A' * 26)
 
-          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
+          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: sis_headers)
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_response_schema('errors')
@@ -104,15 +101,13 @@ RSpec.describe 'preferred_name', type: :request do
   end
 
   describe 'unauthorized user' do
-    before do
-      iam_sign_in(FactoryBot.build(:iam_user, :no_multifactor))
-    end
+    let!(:user) { sis_user(idme_uuid: nil, logingov_uuid: nil) }
 
     describe 'PUT /mobile/v0/profile/preferred_names' do
       context 'when text is valid' do
         it 'returns 402', :aggregate_failures do
           preferred_name = VAProfile::Models::PreferredName.new(text: 'Pat')
-          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: iam_headers)
+          put('/mobile/v0/user/preferred_name', params: preferred_name.to_h, headers: sis_headers)
 
           expect(response).to have_http_status(:forbidden)
         end

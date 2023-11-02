@@ -1,14 +1,15 @@
 apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
-  name: appeals-status-api
-  description: Appeals Status APIs for VA Lighthouse program
+  name: appeals-status
+  description: The Appeals Status API allows you to request the statuses of all decision reviews for a Veteran, including decision reviews following the AMA process and legacy benefit appeals.
   title: Appeals Status API
   tags:
-    - lighthouse
     - external
+    - lighthouse
+    - ruby
   links:
-    - url: https://developer.va.gov/explore/appeals/docs/appeals
+    - url: https://developer.va.gov/explore/api/appeals-status
       title: Public Docs
       icon: web
 spec:
@@ -17,4 +18,4 @@ spec:
   owner: lighthouse-banana-peels
   system: vets-api
   definition:
-    $text: https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/appeals_api/app/swagger/v0/appeals.yml
+    $text: https://api.va.gov/services/appeals/docs/v0/api

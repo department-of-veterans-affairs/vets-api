@@ -17,12 +17,16 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     end
 
     email_sent(false)
-    return unless FeatureFlipper.send_email?
 
-    StemApplicantConfirmationMailer.build(self, nil).deliver_now
+    if Flipper.enabled?(:form21_10203_confirmation_email)
+      send_confirmation_email
+    elsif Settings.vsp_environment.eql?('production')
+      StemApplicantConfirmationMailer.build(self, nil).deliver_now
+    end
 
-    if @user.present?
+    if @user.present? && FeatureFlipper.send_email?
       education_benefits_claim.education_stem_automated_decision.update(confirmation_email_sent_at: Time.zone.now)
+
       authorized = @user.authorize(:evss, :access?)
 
       if authorized
@@ -108,5 +112,22 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     return false if remaining_entitlement.blank?
 
     remaining_entitlement <= 180
+  end
+
+  def send_confirmation_email
+    parsed_form = JSON.parse(form)
+    email = parsed_form['email']
+    return if email.blank?
+
+    VANotify::EmailJob.perform_async(
+      email,
+      Settings.vanotify.services.va_gov.template_id.form21_10203_confirmation_email,
+      {
+        'first_name' => parsed_form.dig('veteranFullName', 'first')&.upcase.presence,
+        'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+        'confirmation_number' => education_benefits_claim.confirmation_number,
+        'regional_office_address' => regional_office_address
+      }
+    )
   end
 end

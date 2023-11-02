@@ -70,6 +70,68 @@ RSpec.describe Lighthouse::VeteransHealth::Client do
         end
       end
 
+      describe 'when the caller requests the DiagnosticReports resource' do
+        let(:diagnostic_report_api_path) { 'services/fhir/v0/r4/DiagnosticReport' }
+        let(:params_hash) do
+          { patient: @client.instance_variable_get(:@icn),
+            _count: 100 }
+        end
+
+        it 'invokes the Lighthouse Veterans Health API MedicationRequest endpoint' do
+          expect_any_instance_of(
+            Lighthouse::VeteransHealth::Client
+          ).to receive(:perform_get).with(diagnostic_report_api_path, params_hash).and_call_original
+          @client.list_diagnostic_reports(count: 100)
+        end
+
+        it 'returns the api response' do
+          expect(@client.list_diagnostic_reports).to eq generic_response
+        end
+
+        context 'when the response is larger than one page' do
+          let(:response_with_pages) do
+            double(
+              'lighthouse response',
+              status: 200,
+              body: { 'entry': [{ 'first': 'page' }],
+                      'link': [{ 'relation': 'next',
+                                 'url': 'https://api.fake/DiagnosticReport?patient=fake&page=2' }] }.as_json
+            )
+          end
+
+          let(:next_response) do
+            double(
+              'lighthouse response',
+              status: 200,
+              body: { 'entry': [{ 'second': 'page' }],
+                      'link': [{ 'relation': 'next',
+                                 'url': 'https://api.fake/DiagnosticReport?patient=fake&page=3' }] }.as_json
+            )
+          end
+
+          let(:last_response) do
+            double(
+              'lighthouse response',
+              status: 200,
+              body: { 'entry': [{ 'last': 'page' }], 'link': [] }.as_json
+            )
+          end
+
+          before do
+            allow(@client).to receive(:perform).and_return response_with_pages, next_response, last_response
+          end
+
+          it 'returns all entries from every page within the single response' do
+            expected_entries = [
+              { 'first': 'page' },
+              { 'second': 'page' },
+              { 'last': 'page' }
+            ].as_json
+            expect(@client.list_diagnostic_reports.body['entry']).to match expected_entries
+          end
+        end
+      end
+
       describe 'when the caller requests the BP Observations resource' do
         let(:observations_api_path) { 'services/fhir/v0/r4/Observation' }
         let(:params_hash) do

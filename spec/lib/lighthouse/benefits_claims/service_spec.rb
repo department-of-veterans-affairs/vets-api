@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'lighthouse/benefits_claims/service'
+require 'evss/disability_compensation_form/form_submit_response'
 
 RSpec.describe BenefitsClaims::Service do
   before(:all) do
@@ -58,15 +59,37 @@ RSpec.describe BenefitsClaims::Service do
       describe 'when posting a form526' do
         it 'when given a full request body, posts to the Lighthouse API' do
           VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
-            response = @service.submit526({ data: { attributes: {} } })
-            expect(response).to eq('string')
+            response = @service.submit526({ data: { attributes: {} } }, '', '', { body_only: true })
+            expect(response).to eq('1234567890')
           end
         end
 
         it 'when given a only the form data in the request body, posts to the Lighthouse API' do
           VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
-            response = @service.submit526({})
-            expect(response).to eq('string')
+            response = @service.submit526({}, '', '', { body_only: true })
+            expect(response).to eq('1234567890')
+          end
+        end
+
+        it 'returns only the response body' do
+          VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
+            body = @service.submit526({ data: { attributes: {} } }, '', '', { body_only: true })
+            expect(body).to eq('1234567890')
+          end
+        end
+
+        it 'returns the whole response' do
+          VCR.use_cassette('lighthouse/benefits_claims/submit526/200_response') do
+            raw_response = @service.submit526({}, '', '', { body_only: false })
+            raw_response_struct = OpenStruct.new({
+                                                   body: { claim_id: raw_response.body },
+                                                   status: raw_response.status
+                                                 })
+            response = EVSS::DisabilityCompensationForm::FormSubmitResponse
+                       .new(raw_response_struct.status, raw_response_struct)
+
+            expect(response.status).to eq(200)
+            expect(response.claim_id).to eq(1_234_567_890)
           end
         end
       end

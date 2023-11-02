@@ -1,0 +1,212 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://host.va.gov/facilities/v2/facilities?children=false&ids=541QB,541QA,541QE,541QC&pageSize=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 14 Sep 2023 18:50:17 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '4484'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.22.0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 3ca7eeb
+      X-Vamf-Timestamp:
+      - '2023-08-09T18:25:45+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      X-Envoy-Upstream-Service-Time:
+      - '8'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "data" : [ {
+            "id" : "541QB",
+            "facilitiesApiId" : "vha_541QB",
+            "vistaSite" : "541",
+            "vastParent" : "541",
+            "type" : "va_health_facility",
+            "name" : "Cleveland VA Clinic-Euclid",
+            "classification" : "Primary Care CBOC",
+            "timezone" : {
+              "timeZoneId" : "America/New_York"
+            },
+            "lat" : 41.50369,
+            "long" : -81.64107,
+            "website" : "https://www.va.gov/northeast-ohio-health-care/locations/cleveland-va-clinic-euclid/",
+            "phone" : {
+              "main" : "216-391-0264",
+              "fax" : "216-391-0265",
+              "pharmacy" : "216-791-2300 x62001",
+              "afterHours" : "216-391-0264",
+              "patientAdvocate" : "216-791-3800 x61700",
+              "enrollmentCoordinator" : "216-791-3800 x63576"
+            },
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "7000 Euclid Avenue", null, "Suites 102 and 202" ],
+              "city" : "Cleveland",
+              "state" : "OH",
+              "postalCode" : "44103-4014"
+            },
+            "mobile" : false,
+            "healthService" : [ "MentalHealthCare", "Podiatry", "PrimaryCare" ],
+            "operatingStatus" : {
+              "code" : "LIMITED",
+              "additionalInfo" : "Regular office hours are 8 a.m. to 4:30 p.m. ET, Monday through Friday."
+            },
+            "visn" : "10"
+          }, {
+            "id" : "541QA",
+            "facilitiesApiId" : "vha_541QA",
+            "vistaSite" : "541",
+            "vastParent" : "541",
+            "type" : "va_health_facility",
+            "name" : "Summit County VA Clinic",
+            "classification" : "Other Outpatient Services (OOS)",
+            "timezone" : {
+              "timeZoneId" : "America/New_York"
+            },
+            "lat" : 41.06428,
+            "long" : -81.52204,
+            "website" : "https://www.va.gov/northeast-ohio-health-care/locations/summit-county-va-clinic/",
+            "phone" : {
+              "main" : "330-761-7054",
+              "fax" : "330-761-7055",
+              "pharmacy" : "216-791-2300 x62001",
+              "afterHours" : "330-761-7054",
+              "patientAdvocate" : "216-791-3800 x61700",
+              "enrollmentCoordinator" : "216-791-3800 x63576"
+            },
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "111 East Voris Street", "Community Resource & Referral Center (CRRC)", null ],
+              "city" : "Akron",
+              "state" : "OH",
+              "postalCode" : "44311-1513"
+            },
+            "mobile" : false,
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "10"
+          }, {
+            "id" : "541QE",
+            "facilitiesApiId" : "vha_541QE",
+            "vistaSite" : "541",
+            "type" : "va_health_facility",
+            "name" : "Cleveland East Boulevard 3 VA Mobile Clinic",
+            "classification" : "Other Outpatient Services (OOS)",
+            "timezone" : {
+              "timeZoneId" : "America/New_York"
+            },
+            "lat" : 41.512665,
+            "long" : -81.613304,
+            "phone" : {
+              "main" : "216-791-3800 x61054",
+              "fax" : "216-421-3217",
+              "pharmacy" : "216-791-3800 x61063",
+              "afterHours" : "216-791-3800 x61054",
+              "patientAdvocate" : "216-791-3800 x61700",
+              "enrollmentCoordinator" : "216-791-3800 x63910"
+            },
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "10701 East Boulevard", null, null ],
+              "city" : "Cleveland",
+              "state" : "OH",
+              "postalCode" : "44106-1702"
+            },
+            "mobile" : true,
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "10"
+          }, {
+            "id" : "541QC",
+            "facilitiesApiId" : "vha_541QC",
+            "vistaSite" : "541",
+            "type" : "va_health_facility",
+            "name" : "Cleveland 1 VA Mobile Clinic",
+            "classification" : "Other Outpatient Services (OOS)",
+            "timezone" : {
+              "timeZoneId" : "America/New_York"
+            },
+            "lat" : 41.512665,
+            "long" : -81.613304,
+            "phone" : {
+              "main" : "216-791-3800",
+              "fax" : "216-421-3217",
+              "pharmacy" : "216-791-3800 x61063",
+              "afterHours" : "216-791-3800",
+              "patientAdvocate" : "216-791-3800 x61700",
+              "enrollmentCoordinator" : "216-791-3800 x63910"
+            },
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "10701 East Boulevard", null, null ],
+              "city" : "Cleveland",
+              "state" : "OH",
+              "postalCode" : "44106-1702"
+            },
+            "mobile" : true,
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "10"
+          } ]
+        }
+  recorded_at: Thu, 14 Sep 2023 18:50:17 GMT
+recorded_with: VCR 6.2.0

@@ -15,6 +15,14 @@ http_interactions:
           - application/json
       body:
         encoding: UTF-8
-        string: '{ "title": "Problem getting token from VistA APIs" }'
+        string: |-
+          {
+            "errors": [
+              {
+                "status": "500",
+                "title": "Problem getting token from VistA APIs"
+              }
+            ]
+          }
     recorded_at: Thu, 19 Nov 2020 16:45:03 GMT
 recorded_with: VCR 6.0.0

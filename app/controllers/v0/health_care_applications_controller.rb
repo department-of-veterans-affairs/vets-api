@@ -6,12 +6,14 @@ require 'pdf_fill/filler'
 
 module V0
   class HealthCareApplicationsController < ApplicationController
+    service_tag 'healthcare-application'
     FORM_ID = '1010ez'
 
     skip_before_action(:authenticate, only: %i[create show enrollment_status healthcheck download_pdf])
 
     before_action :record_submission_attempt, only: :create
     before_action :load_user, only: %i[create enrollment_status]
+    before_action(only: :rating_info) { authorize(:hca_disability_rating, :access?) }
 
     def rating_info
       service = BGS::Service.new(current_user)

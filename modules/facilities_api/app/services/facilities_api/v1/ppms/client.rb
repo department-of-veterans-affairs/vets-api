@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'json'
 require 'common/client/base'
 require_relative 'configuration'
 require_relative 'response'
@@ -76,43 +77,29 @@ module FacilitiesApi
           '/dws/v1.0/Specialties'
         end
 
-        def fetch_lat_long_and_radius(params)
-          latitude = Float(params.values_at(:lat, :latitude).compact.first).round(DEGREES_OF_ACCURACY)
-          longitude = Float(params.values_at(:long, :longitude).compact.first).round(DEGREES_OF_ACCURACY)
-          radius = Integer(params.fetch(:radius)).clamp(RADIUS_MIN, RADIUS_MAX)
-
-          [latitude, longitude, radius]
+        def facility_service_locator_params(params)
+          base_location_params(params).merge(specialty_codes(params))
         end
 
-        def facility_service_locator_params(params)
-          page = Integer(params[:page] || 1)
-          per_page = Integer(params[:per_page] || PER_PAGE)
+        def provider_locator_params(params)
+          if params[:page].present? && params[:per_page].present?
+            _page, _per_page, max_results = fetch_pagination(params)
 
-          latitude, longitude, radius = fetch_lat_long_and_radius(params)
-
-          specialties = Array.wrap(params[:specialties])
-          specialty_codes = specialties.first(5).map.with_index.with_object({}) do |(code, index), hsh|
-            hsh["specialtycode#{index + 1}".to_sym] = code
+            base_location_params(params)
+              .merge({ maxResults: max_results })
+              .merge(specialty_codes(params))
+          else
+            base_params(params).merge(specialty_codes(params))
           end
+        end
 
-          {
-            address: [latitude, longitude].join(','),
-            radius:,
-            maxResults: per_page,
-            pageNumber: page,
-            pageSize: per_page,
-            telehealthSearch: 0,
-            homeHealthSearch: 0
-          }.merge(specialty_codes)
+        def pos_locator_params(params, pos_code)
+          base_params(params).merge(posCodes: pos_code)
         end
 
         def base_params(params)
-          page = Integer(params[:page] || 1)
-          per_page = Integer(params[:per_page] || PER_PAGE)
-
+          _page, _per_page, max_results = fetch_pagination(params)
           latitude, longitude, radius = fetch_lat_long_and_radius(params)
-
-          max_results = (per_page * page + 1).clamp(RESULTS_MIN, RESULTS_MAX)
 
           {
             address: [latitude, longitude].join(','),
@@ -123,17 +110,42 @@ module FacilitiesApi
           }
         end
 
-        def pos_locator_params(params, pos_code)
-          base_params(params).merge(posCodes: pos_code)
+        def base_location_params(params)
+          page, per_page = fetch_pagination(params)
+          latitude, longitude, radius = fetch_lat_long_and_radius(params)
+
+          {
+            address: [latitude, longitude].join(','),
+            radius:,
+            maxResults: per_page,
+            pageNumber: page,
+            pageSize: per_page,
+            telehealthSearch: 0,
+            homeHealthSearch: 0
+          }
         end
 
-        def provider_locator_params(params)
+        def fetch_lat_long_and_radius(params)
+          latitude = Float(params.values_at(:lat, :latitude).compact.first).round(DEGREES_OF_ACCURACY)
+          longitude = Float(params.values_at(:long, :longitude).compact.first).round(DEGREES_OF_ACCURACY)
+          radius = Integer(params.fetch(:radius)).clamp(RADIUS_MIN, RADIUS_MAX)
+
+          [latitude, longitude, radius]
+        end
+
+        def fetch_pagination(params)
+          page = Integer(params[:page] || 1)
+          per_page = Integer(params[:per_page] || PER_PAGE)
+          max_results = (per_page * page + 1).clamp(RESULTS_MIN, RESULTS_MAX)
+
+          [page, per_page, max_results]
+        end
+
+        def specialty_codes(params)
           specialties = Array.wrap(params[:specialties])
-          specialty_codes = specialties.first(5).map.with_index.with_object({}) do |(code, index), hsh|
+          specialties.first(5).map.with_index.with_object({}) do |(code, index), hsh|
             hsh["specialtycode#{index + 1}".to_sym] = code
           end
-
-          base_params(params).merge(specialty_codes)
         end
       end
     end

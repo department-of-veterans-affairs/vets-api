@@ -6,12 +6,13 @@ require 'bgs/form686c'
 RSpec.describe BGS::Form686c do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
   let(:user_struct) { FactoryBot.build(:user_struct) }
+  let(:saved_claim) { create(:dependency_claim_no_vet_information) }
 
   describe '#submit' do
     subject { form686c.submit(payload) }
 
     context 'The flipper is turned on' do
-      let(:form686c) { BGS::Form686c.new(user_struct) }
+      let(:form686c) { BGS::Form686c.new(user_struct, saved_claim) }
 
       context 'form_686c_674_kitchen_sink' do
         let(:payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
@@ -89,7 +90,7 @@ RSpec.describe BGS::Form686c do
                 expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(true)
                 expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
 
-                BGS::Form686c.new(user_struct).submit(payload)
+                BGS::Form686c.new(user_struct, saved_claim).submit(payload)
               end
             end
           end
@@ -120,7 +121,7 @@ RSpec.describe BGS::Form686c do
     end
 
     context 'The flipper is turned off' do
-      let(:form686c) { BGS::Form686c.new(user_object) }
+      let(:form686c) { BGS::Form686c.new(user_object, saved_claim) }
 
       context 'form_686c_674_kitchen_sink' do
         let(:payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
@@ -198,7 +199,7 @@ RSpec.describe BGS::Form686c do
                 expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(true)
                 expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
 
-                BGS::Form686c.new(user_object).submit(payload)
+                BGS::Form686c.new(user_object, saved_claim).submit(payload)
               end
             end
           end

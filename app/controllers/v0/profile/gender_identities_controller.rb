@@ -5,6 +5,7 @@ require 'va_profile/demographics/service'
 module V0
   module Profile
     class GenderIdentitiesController < ApplicationController
+      service_tag 'profile'
       before_action { authorize :demographics, :access? }
       before_action { authorize :mpi, :queryable? }
 
