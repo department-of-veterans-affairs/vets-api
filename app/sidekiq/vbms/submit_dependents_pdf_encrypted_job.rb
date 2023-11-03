@@ -6,7 +6,12 @@ module VBMS
     include Sidekiq::Job
     include SentryLogging
 
+    sidekiq_options retry: 14
     attr_reader :claim
+
+    sidekiq_retries_exhausted do |msg|
+      Rails.logger.error('VBMS::SubmitDependentsPdfJob failed!', { saved_claim_id: @saved_claim_id, error: msg })
+    end
 
     # Generates PDF for 686c form and uploads to VBMS
     def perform(saved_claim_id, encrypted_vet_info, submittable_686_form, submittable_674_form)
@@ -22,15 +27,28 @@ module VBMS
       generate_pdf(submittable_686_form, submittable_674_form)
       Rails.logger.info('VBMS::SubmitDependentsPdfJob succeeded!', { saved_claim_id: })
     rescue => e
-      Rails.logger.error('VBMS::SubmitDependentsPdfJob failed!', { saved_claim_id:, error: e.message })
+      Rails.logger.warn('VBMS::SubmitDependentsPdfJob received error!', { saved_claim_id:, error: e.message })
       send_error_to_sentry(e, saved_claim_id)
-      false
+      @saved_claim_id = saved_claim_id
+      raise
     end
 
     private
 
+    def send_error_to_sentry(error, saved_claim_id)
+      log_exception_to_sentry(
+        error,
+        {
+          claim_id: saved_claim_id
+        },
+        { team: 'vfs-ebenefits' }
+      )
+    end
+
     def upload_attachments
       claim.persistent_attachments.each do |attachment|
+        next if attachment.completed_at.present?
+
         file_extension = File.extname(URI.parse(attachment.file.url).path)
         if %w[.jpg .jpeg .png .pdf].include? file_extension.downcase
           file_path = Common::FileHelpers.generate_temp_file(attachment.file.read)
@@ -41,17 +59,8 @@ module VBMS
           claim.upload_to_vbms(path: file_path, doc_type: get_doc_type(attachment.guid, claim.parsed_form))
           Common::FileHelpers.delete_file_if_exists(file_path)
         end
+        attachment.update(completed_at: Time.zone.now)
       end
-    end
-
-    def send_error_to_sentry(error, saved_claim_id)
-      log_exception_to_sentry(
-        error,
-        {
-          claim_id: saved_claim_id
-        },
-        { team: 'vfs-ebenefits' }
-      )
     end
 
     def generate_pdf(submittable_686_form, submittable_674_form)

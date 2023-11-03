@@ -35,7 +35,12 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   validate :address_exists
 
   def upload_pdf(form_id, doc_type: '148')
+    uploaded_forms ||= []
+    return if uploaded_forms.include? form_id
+
     upload_to_vbms(path: to_pdf(form_id:), doc_type:)
+    uploaded_forms << form_id
+    save
   end
 
   def add_veteran_info(va_file_number_with_payload)

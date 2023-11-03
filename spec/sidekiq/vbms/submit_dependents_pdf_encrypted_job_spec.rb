@@ -20,55 +20,83 @@ RSpec.describe VBMS::SubmitDependentsPdfEncryptedJob do
   let(:encrypted_vet_info) { KmsEncrypted::Box.new.encrypt(vet_info.to_json) }
 
   describe '#perform' do
-    context 'with a valid 686 submission' do
-      it 'creates a 686 PDF' do
-        expect_any_instance_of(SavedClaim::DependencyClaim).to receive(:add_veteran_info).with(
-          vet_info
-        )
+    context 'valid submission' do
+      before do
+        expect(SavedClaim::DependencyClaim)
+          .to receive(:find).with(dependency_claim.id)
+          .and_return(dependency_claim)
+      end
 
-        described_class.new.perform(dependency_claim.id, encrypted_vet_info, true, false)
+      context '686 form' do
+        it 'creates a 686 PDF' do
+          expect(dependency_claim).to receive(:add_veteran_info).with(
+            hash_including(vet_info)
+          )
+
+          expect(dependency_claim).to receive(:upload_pdf).with('686C-674')
+
+          described_class.new.perform(dependency_claim.id, encrypted_vet_info, true, false)
+        end
+      end
+
+      context '674 form' do
+        it 'creates a 674 PDF' do
+          expect(dependency_claim).to receive(:add_veteran_info).with(
+            hash_including(vet_info)
+          )
+
+          expect(dependency_claim).to receive(:upload_pdf).with('21-674', doc_type: '142')
+
+          described_class.new.perform(dependency_claim.id, encrypted_vet_info, false, true)
+        end
+      end
+
+      context 'both 686c and 674 form in claim' do
+        it 'creates a PDF for both 686c and 674' do
+          expect(dependency_claim).to receive(:add_veteran_info).with(
+            hash_including(vet_info)
+          )
+
+          expect(dependency_claim).to receive(:upload_pdf).with('686C-674')
+          expect(dependency_claim).to receive(:upload_pdf).with('21-674', doc_type: '142')
+
+          described_class.new.perform(dependency_claim.id, encrypted_vet_info, true, true)
+        end
       end
     end
+  end
 
-    context 'with a valid 674 submission' do
-      it 'creates a 674 PDF' do
-        expect_any_instance_of(SavedClaim::DependencyClaim).to receive(:add_veteran_info).with(
-          vet_info
-        )
+  context 'with an invalid submission' do
+    it 'sends an error message if no claim exists' do
+      job = described_class.new
 
-        described_class.new.perform(dependency_claim.id, encrypted_vet_info, false, true)
-      end
-    end
+      expect(job).to receive(:send_error_to_sentry).with(
+        ActiveRecord::RecordNotFound,
+        'non-existent-claim'
+      )
 
-    context 'with an invalid submission' do
-      it 'sends an error message if no claim exists' do
-        job = described_class.new
-
-        expect(job).to receive(:send_error_to_sentry).with(
-          anything,
-          'non-existent-claim'
-        )
-
+      expect do
         job.perform('non-existent-claim', encrypted_vet_info, true, false)
-      end
+      end.to raise_error(ActiveRecord::RecordNotFound)
+    end
 
-      it 'raises an error if there is nothing in the dependents_application is empty' do
-        job = described_class.new
+    it 'raises an error if there is nothing in the dependents_application is empty' do
+      expect(SavedClaim::DependencyClaim)
+        .to receive(:find).with(invalid_dependency_claim.id)
+        .and_return(invalid_dependency_claim)
 
-        expect(job).to receive(:send_error_to_sentry).with(
-          an_instance_of(VBMS::SubmitDependentsPdfEncryptedJob::Invalid686cClaim),
-          an_instance_of(Integer)
-        )
+      job = described_class.new
 
-        vet_info['veteran_information'].delete('ssn')
-        job.perform(invalid_dependency_claim.id, encrypted_vet_info, true, false)
-      end
+      expect(job).to receive(:send_error_to_sentry).with(
+        an_instance_of(VBMS::SubmitDependentsPdfEncryptedJob::Invalid686cClaim),
+        an_instance_of(Integer)
+      )
 
-      it 'returns false' do
-        job = described_class.new.perform('f', encrypted_vet_info, true, false)
-
-        expect(job).to eq(false)
-      end
+      vet_info['veteran_information'].delete('ssn')
+      expect do
+        job.perform(invalid_dependency_claim.id, encrypted_vet_info, true,
+                    false)
+      end.to raise_error(VBMS::SubmitDependentsPdfEncryptedJob::Invalid686cClaim)
     end
   end
 end
