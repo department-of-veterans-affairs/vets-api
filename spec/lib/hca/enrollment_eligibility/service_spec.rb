@@ -4,6 +4,37 @@ require 'rails_helper'
 require 'hca/enrollment_eligibility/service'
 
 describe HCA::EnrollmentEligibility::Service do
+  context 'with a user who has dependents', run_at: 'Tue, 31 Oct 2023 12:04:33 GMT' do
+    it 'gets data for prefilling 1010ezr' do
+      VCR.use_cassette(
+        'hca/ee/dependents',
+        VCR::MATCH_EVERYTHING.merge(erb: true)
+      ) do
+        expect(described_class.new.get_ezr_data('1012829228V424035').to_h).to eq(
+          {
+            medicareClaimNumber: nil,
+            isEnrolledMedicarePartA: false,
+            medicarePartAEffectiveDate: nil,
+            isMedicaidEligible: false,
+            dependents: [{ fullName: { first: 'CHILD', last: 'BISHOP' },
+                           socialSecurityNumber: '234114455',
+                           becameDependent: '2020-10-01',
+                           dependentRelation: 'Daughter',
+                           disabledBefore18: false,
+                           attendedSchoolLastYear: false,
+                           cohabitedLastYear: true,
+                           dateOfBirth: '2020-10-01' }],
+            spouseFullName: { first: 'VSDV', last: 'SDVSDV' },
+            dateOfMarriage: '2000-10-15',
+            cohabitedLastYear: true,
+            spouseDateOfBirth: '1950-02-17',
+            spouseSocialSecurityNumber: '435345344'
+          }
+        )
+      end
+    end
+  end
+
   describe '#get_ezr_data', run_at: 'Tue, 24 Oct 2023 17:27:12 GMT' do
     it 'gets data for prefilling 1010ezr' do
       VCR.use_cassette(

@@ -14,4 +14,9 @@ class FormProfiles::VA1010ezr < FormProfile
   def ezr_data
     @ezr_data ||= HCA::EnrollmentEligibility::Service.new.get_ezr_data(user.icn)
   end
+
+  def clean!(hash)
+    hash.deep_transform_keys! { |k| k.camelize(:lower) }
+    Common::HashHelpers.deep_compact(hash)
+  end
 end
