@@ -71,8 +71,15 @@ module ClaimStatusTool
       document.marshal_dump
     end
 
+    def filter_boa_letters(document)
+      return false if document[:doc_type] == '27' && Time.zone.today - document[:received_at] < 2
+
+      document
+    end
+
     def format_letter_data(docs)
       letters = docs.map { |d| filter_letters(d) }.compact
+      letters = letters.select { |d| filter_boa_letters(d) }
       # TODO: (rare) Handle nil received_at
       letters.sort_by { |d| d[:received_at] }.reverse
     end

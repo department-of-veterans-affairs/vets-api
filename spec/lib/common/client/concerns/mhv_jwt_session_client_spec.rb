@@ -15,7 +15,7 @@ describe Common::Client::Concerns::MHVJwtSessionClient do
       end
 
       def session
-        @session || OpenStruct.new(user_id: '123')
+        @session || OpenStruct.new(icn: 'ABC')
       end
 
       def config
@@ -25,47 +25,6 @@ describe Common::Client::Concerns::MHVJwtSessionClient do
   end
 
   let(:dummy_instance) { dummy_class.new(session: session_data) }
-
-  describe '#get_session' do
-    let(:session_data) { OpenStruct.new(icn: 'ABC') }
-    let(:jwt_token) { 'fake.jwt.token' }
-    let(:patient_fhir_id) { '12345' }
-    let(:subject_id) { 'subject_id' }
-    let(:decoded_token) { [{ 'subjectId' => subject_id }] }
-
-    before do
-      allow(dummy_instance).to receive(:perform_phr_refresh)
-      allow(dummy_instance).to receive(:get_jwt_token).and_return(jwt_token)
-      allow(dummy_instance).to receive(:get_patient_fhir_id)
-      allow(dummy_instance).to receive(:save_session).and_call_original
-    end
-
-    context 'when everything is successful' do
-      it 'performs PHR refresh, fetches JWT token, gets patient FHIR ID, and saves the session' do
-        allow(Common::Client::Concerns::MhvSessionUtilities)
-          .to receive(:decode_jwt_token).with(jwt_token).and_return(decoded_token)
-
-        expect(dummy_instance).to receive(:perform_phr_refresh)
-        expect(dummy_instance).to receive(:get_jwt_token).and_return(jwt_token)
-        expect(dummy_instance).to receive(:get_patient_fhir_id).with(jwt_token)
-        expect(dummy_instance).to receive(:save_session)
-
-        expect { dummy_instance.get_session }.not_to raise_error
-      end
-    end
-
-    context 'when multiple errors occur' do
-      let(:error) { Common::Exceptions::Unauthorized.new }
-
-      it 'saves a partial session and raises the first occurring exception' do
-        allow(dummy_instance).to receive(:get_jwt_token).and_raise(error)
-        allow(dummy_instance).to receive(:get_patient_fhir_id).and_raise(StandardError.new)
-        expect(dummy_instance).to receive(:save_session)
-
-        expect { dummy_instance.get_session }.to raise_error(Common::Exceptions::Unauthorized)
-      end
-    end
-  end
 
   describe '#validate_session_params' do
     context 'when icn and app_token are present' do
@@ -100,58 +59,59 @@ describe Common::Client::Concerns::MHVJwtSessionClient do
     end
   end
 
-  describe Common::Client::Concerns::MhvSessionUtilities do
-    describe '#get_jwt_from_headers' do
-      context 'when authorization header is properly formatted' do
-        it 'returns the JWT token' do
-          headers = { 'authorization' => 'Bearer sample.jwt.token' }
-          token = described_class.get_jwt_from_headers(headers)
-          expect(token).to eq('sample.jwt.token')
-        end
-      end
+  describe '#get_jwt_from_headers' do
+    let(:session_data) { OpenStruct.new(icn: 'ABC') }
 
-      context 'when authorization header is missing' do
-        it 'raises an Unauthorized exception' do
-          headers = {}
-          expect { described_class.get_jwt_from_headers(headers) }
-            .to raise_error(Common::Exceptions::Unauthorized)
-        end
-      end
-
-      context 'when authorization header does not start with Bearer' do
-        it 'raises an Unauthorized exception' do
-          headers = { 'authorization' => 'sample.jwt.token' }
-          expect { described_class.get_jwt_from_headers(headers) }
-            .to raise_error(Common::Exceptions::Unauthorized)
-        end
+    context 'when authorization header is properly formatted' do
+      it 'returns the JWT token' do
+        headers = { 'authorization' => 'Bearer sample.jwt.token' }
+        token = dummy_instance.get_jwt_from_headers(headers)
+        expect(token).to eq('sample.jwt.token')
       end
     end
 
-    describe '#decode_jwt_token' do
-      let(:valid_jwt_token) { 'valid.jwt.token' }
-      let(:invalid_jwt_token) { 'invalidToken' }
+    context 'when authorization header is missing' do
+      it 'raises an Unauthorized exception' do
+        headers = {}
+        expect { dummy_instance.get_jwt_from_headers(headers) }
+          .to raise_error(Common::Exceptions::Unauthorized)
+      end
+    end
 
-      context 'when token is valid' do
-        before do
-          allow(JWT).to receive(:decode).with(valid_jwt_token, nil, false).and_return([{ 'some' => 'data' }])
-        end
+    context 'when authorization header does not start with Bearer' do
+      it 'raises an Unauthorized exception' do
+        headers = { 'authorization' => 'sample.jwt.token' }
+        expect { dummy_instance.get_jwt_from_headers(headers) }
+          .to raise_error(Common::Exceptions::Unauthorized)
+      end
+    end
+  end
 
-        it 'decodes the JWT token successfully' do
-          expect(described_class.decode_jwt_token(valid_jwt_token)).to eq([{ 'some' => 'data' }])
-        end
+  describe '#decode_jwt_token' do
+    let(:session_data) { OpenStruct.new(icn: 'ABC') }
+    let(:valid_jwt_token) { 'valid.jwt.token' }
+    let(:invalid_jwt_token) { 'invalidToken' }
+
+    context 'when token is valid' do
+      before do
+        allow(JWT).to receive(:decode).with(valid_jwt_token, nil, false).and_return([{ 'some' => 'data' }])
       end
 
-      context 'when token is invalid' do
-        before do
-          allow(JWT).to receive(:decode).with(invalid_jwt_token, nil, false)
-                                        .and_raise(JWT::DecodeError.new)
-        end
+      it 'decodes the JWT token successfully' do
+        expect(dummy_instance.decode_jwt_token(valid_jwt_token)).to eq([{ 'some' => 'data' }])
+      end
+    end
 
-        it 'raises an Unauthorized exception' do
-          expect do
-            described_class.decode_jwt_token(invalid_jwt_token)
-          end.to raise_error(Common::Exceptions::Unauthorized)
-        end
+    context 'when token is invalid' do
+      before do
+        allow(JWT).to receive(:decode).with(invalid_jwt_token, nil, false)
+                                      .and_raise(JWT::DecodeError.new)
+      end
+
+      it 'raises an Unauthorized exception' do
+        expect do
+          dummy_instance.decode_jwt_token(invalid_jwt_token)
+        end.to raise_error(Common::Exceptions::Unauthorized)
       end
     end
   end

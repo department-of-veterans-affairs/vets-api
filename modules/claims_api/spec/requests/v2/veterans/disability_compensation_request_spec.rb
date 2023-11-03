@@ -913,8 +913,8 @@ RSpec.describe 'Disability Claims', type: :request do
                 otherDescription: 'community help center'
               }
               post submit_path, params: params.to_json, headers: auth_header
-              token = JSON.parse(response.body)['data']['attributes']['token']
-              aec = ClaimsApi::AutoEstablishedClaim.find(token)
+              claim_id = response.location.split('/')[-1].to_s
+              aec = ClaimsApi::AutoEstablishedClaim.find(claim_id)
               expect(aec.flashes).to eq(%w[Homeless])
             end
           end
@@ -941,8 +941,8 @@ RSpec.describe 'Disability Claims', type: :request do
                 otherDescription: 'other living situation'
               }
               post submit_path, params: params.to_json, headers: auth_header
-              token = JSON.parse(response.body)['data']['attributes']['token']
-              aec = ClaimsApi::AutoEstablishedClaim.find(token)
+              claim_id = response.location.split('/')[-1].to_s
+              aec = ClaimsApi::AutoEstablishedClaim.find(claim_id)
               expect(aec.flashes).to eq(%w[Hardship])
             end
           end
@@ -1034,8 +1034,9 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['disabilities'][0]['isRelatedToToxicExposure'] = true
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              id = JSON.parse(response.body)['data']['id']
-              submissions = ClaimsApi::AutoEstablishedClaim.find(id).submissions
+              claim_id = response.location.split('/')[-1].to_s
+              ClaimsApi::AutoEstablishedClaim.find(claim_id)
+              submissions = ClaimsApi::AutoEstablishedClaim.find(claim_id).submissions
               expect(submissions.size).to be <= 1
             end
           end
@@ -1087,8 +1088,9 @@ RSpec.describe 'Disability Claims', type: :request do
               json['data']['attributes']['treatments'] = treatments
               data = json.to_json
               post submit_path, params: data, headers: auth_header
-              id = JSON.parse(response.body)['data']['id']
-              submissions = ClaimsApi::AutoEstablishedClaim.find(id).submissions
+              claim_id = response.location.split('/')[-1].to_s
+              ClaimsApi::AutoEstablishedClaim.find(claim_id)
+              submissions = ClaimsApi::AutoEstablishedClaim.find(claim_id).submissions
               expect(submissions.size).to be(0)
             end
           end
@@ -1929,6 +1931,38 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
+        context 'when the claimDate is over 180 days after the last activeDutyEndDate' do
+          let(:active_duty_end_date) { '2022-11-03' }
+
+          it 'responds with a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                active_duty_end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when the claimDate is under 180 days after the last activeDutyEndDate' do
+          let(:active_duty_end_date) { Time.find_zone!('Central Time (US & Canada)').today - 179.days }
+          let(:claim_date) { Time.find_zone!('Central Time (US & Canada)').today }
+
+          it 'responds with a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['claimDate'] = claim_date
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                active_duty_end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
         context 'when the activeDutyEndDate is in the future' do
           let(:active_duty_end_date) { 2.months.from_now.strftime('%Y-%m-%d') }
 
@@ -2065,7 +2099,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when confinements.confinement.approximateEndDate is formatted incorrectly' do
-          let(:approximate_end_date) { '2022-11-24' }
+          let(:approximate_end_date) { '11-24-2022' }
 
           it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|

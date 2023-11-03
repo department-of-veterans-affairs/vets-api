@@ -4,11 +4,13 @@ require 'rails_helper'
 require_relative '../support/helpers/sis_session_helper'
 
 RSpec.describe 'check in demographics', type: :request do
+  let(:location_id) { '516' }
+  let(:patient_dfn) { '12345' }
   let!(:user) do
     sis_user(
       icn: '24811694708759028',
       vha_facility_hash: {
-        '516' => ['12345'],
+        location_id => [patient_dfn],
         '553' => ['2'],
         '200HD' => ['12345'],
         '200IP' => ['TKIP123456'],
@@ -20,10 +22,11 @@ RSpec.describe 'check in demographics', type: :request do
   describe 'GET /mobile/v0/appointments/check-in/demographics' do
     context 'test' do
       it 'returns expected check in demographics data' do
-        VCR.use_cassette('mobile/check_in/token_200') do
-          VCR.use_cassette('mobile/check_in/get_demographics_200') do
+        VCR.use_cassette('chip/token/token_200') do
+          VCR.use_cassette('chip/authenticated_demographics/get_demographics_200',
+                           erb: { patient_dfn:, station_no: location_id }) do
             get '/mobile/v0/appointments/check-in/demographics', headers: sis_headers,
-                                                                 params: { 'location_id' => '516' }
+                                                                 params: { 'location_id' => location_id }
           end
         end
         expect(response).to have_http_status(:ok)
@@ -95,10 +98,11 @@ RSpec.describe 'check in demographics', type: :request do
 
     context 'When upstream service returns 500' do
       it 'returns expected error' do
-        VCR.use_cassette('mobile/check_in/token_200') do
-          VCR.use_cassette('mobile/check_in/get_demographics_500') do
+        VCR.use_cassette('chip/token/token_200') do
+          VCR.use_cassette('chip/authenticated_demographics/get_demographics_500',
+                           erb: { patient_dfn:, station_no: location_id }) do
             get '/mobile/v0/appointments/check-in/demographics', headers: sis_headers,
-                                                                 params: { 'location_id' => '516' }
+                                                                 params: { 'location_id' => location_id }
           end
         end
         expect(response).to have_http_status(:bad_gateway)
@@ -115,8 +119,8 @@ RSpec.describe 'check in demographics', type: :request do
   describe 'PATCH /mobile/v0/appointments/check-in/demographics' do
     context 'when upstream updates successfully' do
       it 'returns demographic confirmations' do
-        VCR.use_cassette('mobile/check_in/token_200') do
-          VCR.use_cassette('mobile/check_in/update_demographics_200') do
+        VCR.use_cassette('chip/token/token_200') do
+          VCR.use_cassette('chip/authenticated_demographics/update_demographics_200') do
             patch '/mobile/v0/appointments/check-in/demographics',
                   headers: sis_headers,
                   params: { 'location_id' => '418',
@@ -140,7 +144,7 @@ RSpec.describe 'check in demographics', type: :request do
 
     context 'when upstream service fails' do
       it 'throws an exception' do
-        VCR.use_cassette('mobile/check_in/token_200') do
+        VCR.use_cassette('chip/token/token_200') do
           VCR.use_cassette('chip/authenticated_demographics/update_demographics_500') do
             patch '/mobile/v0/appointments/check-in/demographics',
                   headers: sis_headers,

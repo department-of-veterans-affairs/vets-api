@@ -1,10 +1,12 @@
 # frozen_string_literal: false
 
-require 'brd/brd'
+require 'claims_api/v2/disability_compensation_shared_service_module'
 
 module ClaimsApi
   module V2
     module DisabilityCompensationValidation # rubocop:disable Metrics/ModuleLength
+      include DisabilityCompensationSharedServiceModule
+
       DATE_FORMATS = {
         10 => 'yyyy-mm-dd',
         7 => 'yyyy-mm',
@@ -142,10 +144,6 @@ module ClaimsApi
         raise ::Common::Exceptions::InvalidFieldValue.new('country', mailing_address['country'])
       end
 
-      def valid_countries
-        @valid_countries ||= ClaimsApi::BRD.new(request).countries
-      end
-
       def validate_form_526_disabilities!
         validate_form_526_disability_classification_code!
         validate_form_526_disability_approximate_begin_date!
@@ -180,14 +178,6 @@ module ClaimsApi
             detail: "'disabilities.classificationCode' is no longer active."
           )
         end
-      end
-
-      def brd_classification_ids
-        @brd_classification_ids ||= brd_disabilities&.pluck(:id)
-      end
-
-      def brd_disabilities
-        @brd_disabilities ||= ClaimsApi::BRD.new(request).disabilities
       end
 
       def validate_form_526_disability_approximate_begin_date!
@@ -495,12 +485,23 @@ module ClaimsApi
             detail: 'Service information is required'
           )
         end
+        validate_claim_date_to_active_duty_end_date!(service_information)
         validate_service_periods!(service_information, target_veteran)
         validate_service_branch_names!(service_information)
         validate_confinements!(service_information)
         validate_alternate_names!(service_information)
         validate_reserves_required_values!(service_information)
         validate_form_526_location_codes!(service_information)
+      end
+
+      def validate_claim_date_to_active_duty_end_date!(service_information)
+        max_period = service_information['servicePeriods'].max_by { |sp| sp['activeDutyEndDate'] }
+        date = form_attributes['claimDate'] || Time.find_zone!('Central Time (US & Canada)').today
+        if Date.strptime(date.to_s, '%Y-%m-%d') > Date.strptime(max_period['activeDutyEndDate'], '%Y-%m-%d') + 180.days
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'Claim date must be within 180 days of the last active duty end date.'
+          )
+        end
       end
 
       def validate_service_periods!(service_information, target_veteran)
@@ -561,10 +562,6 @@ module ClaimsApi
                     end
                   end
         end
-      end
-
-      def retrieve_separation_locations
-        @intake_sites ||= ClaimsApi::BRD.new.intake_sites
       end
 
       def validate_confinements!(service_information) # rubocop:disable Metrics/MethodLength
@@ -667,14 +664,6 @@ module ClaimsApi
             )
           end
         end
-      end
-
-      def brd_service_branch_names
-        @brd_service_branch_names ||= brd_service_branches&.pluck(:description)
-      end
-
-      def brd_service_branches
-        @brd_service_branches ||= ClaimsApi::BRD.new(request).service_branches
       end
 
       def validate_reserves_required_values!(service_information)
