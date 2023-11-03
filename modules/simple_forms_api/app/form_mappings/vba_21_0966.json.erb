@@ -61,6 +61,6 @@
   "F[0].#subform[1].Date_Signed_Year[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%Y') %>",
   "F[0].#subform[1].Date_Signed_Day[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%d') %>",
   "F[0].#subform[1].Date_Signed_Month[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%m') %>",
-  "F[0].#subform[1].Name_Of_Attorney_Agent_Or_Veterans_Service_Organization_VS[0]": "<%= (data.dig('third_party_preparer_full_name', 'first') || '') + ' ' + (data.dig('third_party_preparer_full_name', 'middle') || '') + ' ' + (data.dig('third_party_preparer_full_name', 'last') || '') %>",
+  "F[0].#subform[1].Name_Of_Attorney_Agent_Or_Veterans_Service_Organization_VS[0]": "<%= (data.dig('third_party_preparer_full_name', 'first') || '') + ' ' + (data.dig('third_party_preparer_full_name', 'middle') || '') + ' ' + (data.dig('third_party_preparer_full_name', 'last') || '') + ', ' + (data['third_party_preparer_role'] == 'other' ? (data['other_third_party_preparer_role'] || '') : data['third_party_preparer_role'] || '') %>",
   "F[0]": "<%= data.dig('F') %>"
 }

@@ -1931,6 +1931,38 @@ RSpec.describe 'Disability Claims', type: :request do
           end
         end
 
+        context 'when the claimDate is over 180 days after the last activeDutyEndDate' do
+          let(:active_duty_end_date) { '2022-11-03' }
+
+          it 'responds with a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                active_duty_end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+        end
+
+        context 'when the claimDate is under 180 days after the last activeDutyEndDate' do
+          let(:active_duty_end_date) { Time.find_zone!('Central Time (US & Canada)').today - 179.days }
+          let(:claim_date) { Time.find_zone!('Central Time (US & Canada)').today }
+
+          it 'responds with a 422' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['claimDate'] = claim_date
+              json['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                active_duty_end_date
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
         context 'when the activeDutyEndDate is in the future' do
           let(:active_duty_end_date) { 2.months.from_now.strftime('%Y-%m-%d') }
 
@@ -2067,7 +2099,7 @@ RSpec.describe 'Disability Claims', type: :request do
         end
 
         context 'when confinements.confinement.approximateEndDate is formatted incorrectly' do
-          let(:approximate_end_date) { '2022-11-24' }
+          let(:approximate_end_date) { '11-24-2022' }
 
           it 'responds with a 422' do
             mock_ccg(scopes) do |auth_header|
