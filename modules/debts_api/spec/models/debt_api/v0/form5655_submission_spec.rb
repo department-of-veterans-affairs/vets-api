@@ -86,7 +86,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
     end
   end
 
-  describe '.set_completed_state' do
+  describe '.set_vha_completed_state' do
     let(:form5655_submission) { create(:debts_api_form5655_submission) }
 
     before do
@@ -102,7 +102,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
       end
 
       it 'sets the submission as submitted' do
-        described_class.new.set_completed_state(status, { 'submission_id' => form5655_submission.id })
+        described_class.new.set_vha_completed_state(status, { 'submission_id' => form5655_submission.id })
         expect(form5655_submission.submitted?).to eq(true)
       end
     end
@@ -116,7 +116,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
       end
 
       it 'sets the submission as failed' do
-        described_class.new.set_completed_state(status, { 'submission_id' => form5655_submission.id })
+        described_class.new.set_vha_completed_state(status, { 'submission_id' => form5655_submission.id })
         expect(form5655_submission.failed?).to eq(true)
       end
     end
