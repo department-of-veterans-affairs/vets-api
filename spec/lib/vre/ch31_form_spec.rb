@@ -30,42 +30,94 @@ RSpec.describe VRE::Ch31Form do
       allow(faraday_response).to receive(:env)
     end
 
-    context 'with a successful submission' do
-      it 'successfully sends to VRE' do
-        VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
-          response = service.submit
-          expect(response['error_occurred']).to eq(false)
+    context 'Feature use_res_endpoint=true' do
+      before do
+        Flipper.enable(:use_res_endpoint)
+      end
+
+      context 'with a successful submission' do
+        it 'successfully sends to RES' do
+          VCR.use_cassette 'veteran_readiness_employment/send_to_res' do
+            response = service.submit
+            expect(response['error_occurred']).to eq(false)
+          end
+        end
+
+        it 'adds a new address if the user is moving within 30 days' do
+          VCR.use_cassette 'veteran_readiness_employment/send_to_res' do
+            expect(service).to receive(:new_address) { new_address_hash }
+
+            service.submit
+          end
         end
       end
 
-      it 'adds a new address if the user is moving within 30 days' do
-        VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
-          expect(service).to receive(:new_address) { new_address_hash }
+      context 'with an unsuccessful submission' do
+        it 'does not successfully send to RES' do
+          VCR.use_cassette 'veteran_readiness_employment/failed_send_to_res' do
+            expect(service).to receive(:log_exception_to_sentry)
 
-          service.submit
+            response = service.submit
+
+            expect(response['error_occurred']).to eq(true)
+          end
+        end
+
+        it 'handles nil claim' do
+          VCR.use_cassette 'veteran_readiness_employment/failed_send_to_res' do
+            nil_claim_service = VRE::Ch31Form.new(user:, claim: nil)
+            expect(nil_claim_service).to receive(:log_exception_to_sentry)
+
+            response = nil_claim_service.submit
+
+            expect(response['error_occurred']).to eq(true)
+          end
         end
       end
     end
 
-    context 'with an unsuccessful submission' do
-      it 'does not successfully send to VRE' do
-        VCR.use_cassette 'veteran_readiness_employment/failed_send_to_vre' do
-          expect(service).to receive(:log_exception_to_sentry)
+    context 'Feature use_res_endpoint=false' do
+      before do
+        Flipper.disable(:use_res_endpoint)
+      end
 
-          response = service.submit
+      context 'with a successful submission' do
+        it 'successfully sends to VRE' do
+          VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
+            response = service.submit
+            expect(response['error_occurred']).to eq(false)
+          end
+        end
 
-          expect(response['error_occurred']).to eq(true)
+        it 'adds a new address if the user is moving within 30 days' do
+          VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
+            expect(service).to receive(:new_address) { new_address_hash }
+
+            service.submit
+          end
         end
       end
 
-      it 'handles nil claim' do
-        VCR.use_cassette 'veteran_readiness_employment/failed_send_to_vre' do
-          nil_claim_service = VRE::Ch31Form.new(user:, claim: nil)
-          expect(nil_claim_service).to receive(:log_exception_to_sentry)
+      context 'with an unsuccessful submission' do
+        it 'does not successfully send to VRE' do
+          VCR.use_cassette 'veteran_readiness_employment/failed_send_to_vre' do
+            expect(service).to receive(:log_exception_to_sentry)
 
-          response = nil_claim_service.submit
+            response = service.submit
 
-          expect(response['error_occurred']).to eq(true)
+            expect(response['error_occurred']).to eq(true)
+          end
+        end
+
+        it 'handles nil claim' do
+          VCR.use_cassette 'veteran_readiness_employment/failed_send_to_vre' do
+            nil_claim_service = VRE::Ch31Form.new(user:, claim: nil)
+            expect(nil_claim_service).to receive(:log_exception_to_sentry)
+
+            response = nil_claim_service.submit
+
+            expect(response['error_occurred']).to eq(true)
+          end
         end
       end
     end

@@ -1230,3 +1230,7 @@ features:
   virtual_agent_enable_param_error_detection:
     actor_type: user
     description: If enabled, Allows for the detection of errors in the chatbot params
+  use_res_endpoint:
+    actor_type: user
+    description: Send Chapter 31 digital form to RES instead of deprecated VRE CMS
+    enable_in_development: true

@@ -145,7 +145,10 @@ vanotify:
 
 veteran_readiness_and_employment:
   base_url: https://fake_url.com
-  api_key: fake_api_key
+  credentials: fake_auth
+  auth_endpoint: https://fake_url.com/auth/oauth/token
+  res_base_url: https://fake_res_url.com
+  res_api_key: fake_api_key
 
 hqva_mobile:
   url: "https://veteran.apps.va.gov"

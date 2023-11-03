@@ -8,13 +8,46 @@ module VRE
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
 
+    # Makes call to VRE and retrieves a token. Token is valid for 3 minutes so we just fire this on every api call
+    #
+    # @return [Hash] the student's address
+    #
+    def get_token
+      with_monitoring do
+        conn = Faraday.new(
+          "#{Settings.veteran_readiness_and_employment.auth_endpoint}?grant_type=client_credentials",
+          headers: { 'Authorization' => "Basic #{Settings.veteran_readiness_and_employment.credentials}" }
+        )
+
+        request = conn.post
+        JSON.parse(request.body)['access_token']
+      end
+    end
+
     def send_to_vre(payload:)
+      if Flipper.enabled?(:use_res_endpoint, @current_user)
+        send_to_vre_res(payload)
+      else
+        with_monitoring do
+          perform(
+            :post,
+            end_point,
+            payload,
+            request_headers
+          ) # see lib/common/client/base.rb#L94
+        end
+      end
+    end
+
+    def send_to_vre_res(payload)
       with_monitoring do
         perform(
           :post,
-          end_point,
+          "#{Settings.veteran_readiness_and_employment.res_base_url}/suite/webapi/form281900",
           payload,
-          request_headers
+          {
+            'Appian-API-Key': Settings.veteran_readiness_and_employment.res_api_key
+          },
         ) # see lib/common/client/base.rb#L94
       end
     rescue Common::Client::Errors::ClientError => e
@@ -29,14 +62,14 @@ module VRE
 
     def request_headers
       {
-        'Appian-API-Key': Settings.veteran_readiness_and_employment.api_key
+        Authorization: "Bearer #{get_token}"
       }
     end
 
     private
 
     def end_point
-      "#{Settings.veteran_readiness_and_employment.base_url}/suite/webapi/form281900"
+      "#{Settings.veteran_readiness_and_employment.base_url}/api/endpoints/vaGov/new_application"
     end
   end
 end

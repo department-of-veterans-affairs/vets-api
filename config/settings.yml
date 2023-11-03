@@ -1354,7 +1354,10 @@ vetext_push:
 
 veteran_readiness_and_employment:
   base_url: ~
-  api_key: ~
+  credentials: ~
+  auth_endpoint: ~
+  res_base_url: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4467
+  res_api_key: ~
   daily_report:
     emails:
       - VRC.VBABOS@va.gov
@@ -1417,6 +1420,7 @@ veteran_readiness_and_employment:
       - VRE.VBAANC@va.gov
       - VRE.VBAPIT@va.gov
       - VRE-CMS.VBAVACO@va.gov
+
 
 # Settings for connecting to the va.gov Google Analytics for the Cypress Viewport Updater
 google_analytics_cvu:
