@@ -78,7 +78,8 @@ type: application
 # 0.12.13 - Attempt #3 for rollup HPA metrics
 # 0.12.14 - Reverted rollup HPA metrics
 # 0.12.15 - Reverted 12.07 and 12.08 IngressRoute modifications
-version: 0.12.15
+# 0.12.16 - HPA autoscaling/v2
+version: 0.12.16
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to

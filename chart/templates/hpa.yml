@@ -2,7 +2,7 @@
 {{- range $name, $service := $root.Values.web.webServices }}
 {{- if $service.autoscaling.enabled }}
 ---
-apiVersion: autoscaling/v2beta1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ $name }}
@@ -17,15 +17,18 @@ spec:
   metrics:
   - type: External
     external:
-      metricName: "datadogmetric@{{ $root.Release.Namespace }}:puma-backlog-{{ $name }}"
-      targetValue: {{ $service.autoscaling.targetValue | default $root.Values.web.autoscaling.targetValue }}
+      metric:
+        name: "datadogmetric@{{ $root.Release.Namespace }}:puma-backlog-{{ $name }}"
+      target:
+        type: Value
+        value: {{ $service.autoscaling.targetValue | default $root.Values.web.autoscaling.targetValue }}
 {{- end }}
 {{- end }}
 
 
 {{- if .Values.worker.autoscaling.enabled }}
 ---
-apiVersion: autoscaling/v2beta1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ .Values.appName }}-sidekiq
@@ -39,6 +42,9 @@ spec:
   metrics:
   - type: External
     external:
-      metricName: "datadogmetric@{{ $root.Release.Namespace }}:sidekiq-enqueued-jobs"
-      targetValue: {{ .Values.worker.autoscaling.targetValue }}
+      metric:
+        name: "datadogmetric@{{ $root.Release.Namespace }}:sidekiq-enqueued-jobs"
+      target:
+        type: Value
+        value: {{ .Values.worker.autoscaling.targetValue }}
 {{- end }}
