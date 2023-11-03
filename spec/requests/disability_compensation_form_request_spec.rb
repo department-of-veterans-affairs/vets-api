@@ -46,14 +46,15 @@ RSpec.describe 'Disability compensation form' do
       end
 
       context 'error handling tests' do
+        cassettes_directory = 'lighthouse/veteran_verification/disability_rating'
+
         Lighthouse::ServiceException::ERROR_MAP.each do |status, _error_class|
-          error_status = status.to_s.to_i
-          cassette_path = "lighthouse/veteran_verification/disability_rating/#{status == :'404' ? '404_ICN' : status}" \
-                          '_response'
+          cassette_path = "#{cassettes_directory}/#{status == 404 ? '404_ICN' : status}_response"
+
           it "returns #{status} response" do
             expect(test_error(
                      cassette_path,
-                     error_status,
+                     status,
                      headers
                    )).to be(true)
           end
@@ -61,7 +62,7 @@ RSpec.describe 'Disability compensation form' do
           it "returns a #{status} response with camel-inflection" do
             expect(test_error(
                      cassette_path,
-                     error_status,
+                     status,
                      headers_with_camel
                    )).to be(true)
           end
