@@ -112,6 +112,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def send_to_vre(user)
     if user&.participant_id.blank?
+      log_message_to_sentry('Participant id is blank when submitting VRE claim', :warn)
       send_to_central_mail!(user)
     else
       begin
