@@ -16,7 +16,7 @@
     "ssn": "246813579"
   },
   "benefit_selection": {
-    "COMPENSATION": true
+    "compensation": true
   },
   "statement_of_truth_signature": "Veteran Eteranvay",
   "statement_of_truth_certified": true

@@ -42,7 +42,7 @@
     "relationship_to_veteran": "other"
   },
   "benefit_selection": {
-    "survivors": true
+    "survivor": true
   },
   "statement_of_truth_signature": "Preparer V. Party, III",
   "statement_of_truth_certified": true
