@@ -815,6 +815,10 @@
       :file_path: "/chip/set-precheckin-started/default"
       :response_delay: 2
     - :method: :post
+      :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/set-e-check-in-started" %>
+      :file_path: "/chip/set-echeckin-started/default"
+      :response_delay: 2
+    - :method: :post
       :path: <%= "/#{Settings.check_in.chip_api_v2.base_path}/actions/refresh-precheckin/*" %>
       :file_path: "/chip/refresh-precheckin/default"
       :response_delay: 4
