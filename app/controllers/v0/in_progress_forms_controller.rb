@@ -3,6 +3,7 @@
 module V0
   class InProgressFormsController < ApplicationController
     include IgnoreNotFound
+    service_tag 'save-in-progress'
 
     def index
       # :unaltered prevents the keys from being deeply transformed, which might corrupt some keys
