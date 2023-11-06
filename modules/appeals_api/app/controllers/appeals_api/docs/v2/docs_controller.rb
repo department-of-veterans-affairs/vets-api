@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class AppealsApi::Docs::V2::DocsController < ApplicationController
+  service_tag 'lighthouse-appeals'
   skip_before_action(:authenticate)
 
   def decision_reviews
