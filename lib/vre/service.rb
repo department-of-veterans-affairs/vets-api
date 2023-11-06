@@ -47,7 +47,7 @@ module VRE
           payload,
           {
             'Appian-API-Key': Settings.veteran_readiness_and_employment.res_api_key
-          },
+          }
         ) # see lib/common/client/base.rb#L94
       end
     rescue Common::Client::Errors::ClientError => e
