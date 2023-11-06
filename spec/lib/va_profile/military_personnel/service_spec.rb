@@ -7,11 +7,6 @@ describe VAProfile::MilitaryPersonnel::Service do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :loa3) }
-  let(:edipi) { '384759483' }
-
-  before do
-    allow(user).to receive(:edipi).and_return(edipi)
-  end
 
   describe '#identity_path' do
     context 'when an edipi exists' do
