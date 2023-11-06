@@ -1,0 +1,30 @@
+name: 'Update DataDog Service Catalog'
+
+on:
+  pull_request:
+    types:
+      - merged
+    branches:
+      - main
+    paths:
+      - "datadog-service-catalog/datadog-service-catalog.yml"
+
+jobs:
+  update_dd:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout repo'
+        uses: actions/checkout@v3
+      - id: read_yaml
+        name: 'Read in the Service Catalog data'
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '.' 'datadog-service-catalog/datadog-service-catalog.yml'
+      - name: 'Update Service Catalog in DataDog'
+        run: |
+          curl --location --request POST 'https://api.ddog-gov.com/api/v2/services/definitions?schema_version=v2.1' \
+          --header 'Accept: application/json' \
+          --header 'DD-API-KEY: ${{ secrets.DD_API_KEY }}' \
+          --header 'DD-APPLICATION-KEY: ${{ secrets.DD_APP_KEY }}' \
+          --header 'Content-Type: text/plain' \
+          --data "${{ steps.read_yaml.outputs.result}}"
