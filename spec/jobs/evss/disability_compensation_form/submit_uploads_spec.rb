@@ -117,7 +117,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     # Lighthouse Document Upload flow
     context 'when the disability_compensation_lighthouse_document_service_provider flipper is enabled' do
       before do
-        Flipper.disable(:disability_compensation_lighthouse_document_service_provider)
+        Flipper.enable(:disability_compensation_lighthouse_document_service_provider)
       end
 
       let(:submission) do

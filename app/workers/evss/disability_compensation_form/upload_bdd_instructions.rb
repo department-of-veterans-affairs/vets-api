@@ -55,7 +55,9 @@ module EVSS
       private
 
       def upload_bdd_instructions
-        if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
+        user = User.find(submission.user_uuid)
+
+        if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider, user)
           upload_lighthouse_document(file_body, FILE_NAME, submission, FILE_DOCUMENT_TYPE)
         else
           evss_client.upload(file_body, evss_document_data)

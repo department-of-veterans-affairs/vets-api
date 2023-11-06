@@ -28,7 +28,9 @@ module EVSS
         upload_data = upload_data.first if upload_data.is_a?(Array) # temporary for transition
         guid = upload_data&.dig('confirmationCode')
         with_tracking("Form526 Upload: #{guid}", submission.saved_claim_id, submission.id) do
-          if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
+          user = User.find(submission.user_uuid)
+
+          if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider, user)
             upload_lighthouse_claim(upload_data, guid)
           else
             upload_evss_claim(upload_data, guid, submission)

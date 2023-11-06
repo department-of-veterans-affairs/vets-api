@@ -133,7 +133,9 @@ module EVSS
       end
 
       def upload_pdf(pdf_path0781, form_id)
-        if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
+        user = User.find(submission.user_uuid)
+
+        if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider, user)
           upload_to_lighthouse(pdf_path0781, form_id)
         else
           # Legacy EVSS path
