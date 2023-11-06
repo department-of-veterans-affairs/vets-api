@@ -7,7 +7,7 @@ describe ClaimsApi::BD do
   subject { described_class.new }
 
   before do
-    expect_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
+    allow_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
       .to receive(:get_auth_token).and_return('some-value-here')
   end
 
@@ -21,6 +21,12 @@ describe ClaimsApi::BD do
         expect(result).to be_a Hash
         expect(result[:data][:success]).to be true
       end
+    end
+
+    it 'uploads an attachment to BD' do
+      result = subject.send(:generate_upload_body, claim:, doc_type: 'L023', pdf_path:)
+      js = JSON.parse(result[:parameters].read)
+      expect(js['data']['docType']).to eq 'L023'
     end
   end
 
