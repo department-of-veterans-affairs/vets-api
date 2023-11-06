@@ -4,6 +4,7 @@ require 'debt_management_center/debts_service'
 
 module V0
   class DebtsController < ApplicationController
+    service_tag 'debt-resolution'
     before_action { authorize :debt, :access? }
 
     rescue_from ::DebtManagementCenter::DebtsService::DebtNotFound, with: :render_not_found
