@@ -6,6 +6,7 @@ module Mobile
       include JSONAPI::Serializer
 
       attributes :appointment_type,
+                 :appointment_ien,
                  :cancel_id,
                  :comment,
                  :healthcare_provider,

@@ -3,6 +3,7 @@ data:
     id: "68254"
     attributes:
       appointmentType: COMMUNITY_CARE
+      appointmentIen: null
       cancelId: null
       comment: Please arrive 20 minutes before the start of your appointment
       healthcareProvider: John Smith
@@ -39,7 +40,6 @@ data:
       patient_email: null
       best_time_to_call: null
       friendly_location_name: null
-      appointmentIEN: '123456'
       locationId: '938'
       eCheckinAllowed: false
 meta:

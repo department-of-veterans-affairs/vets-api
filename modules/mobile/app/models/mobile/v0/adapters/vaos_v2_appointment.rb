@@ -93,6 +93,7 @@ module Mobile
           adapted_appointment = {
             id: appointment[:id],
             appointment_type:,
+            appointment_ien: extract_station_and_ien(appointment),
             cancel_id:,
             comment:,
             facility_id:,
@@ -127,6 +128,17 @@ module Mobile
         # rubocop:enable Metrics/MethodLength
 
         private
+
+        def extract_station_and_ien(appointment)
+          return nil if appointment[:identifier].nil?
+
+          regex = %r{VistADefinedTerms/409_(84|85)}
+          identifier = appointment[:identifier].find { |id| id[:system]&.match? regex }
+
+          return if identifier.nil?
+
+          identifier[:value]&.split(':', 2)&.second
+        end
 
         def friendly_location_name
           return location[:name] if va_appointment?

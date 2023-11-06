@@ -306,4 +306,79 @@ http_interactions:
         VA Medical Center","primaryStopCode":674,"primaryStopCodeName":"ADMIN PAT
         ACTIVTIES (MASNONCT)","secondaryStopCode":108,"secondaryStopCodeName":"LABORATORY","futureBookingMaximumDays":365}]}'
   recorded_at: Sat, 01 Jan 2022 19:25:00 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=1038
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+        - application/json
+      Content-Type:
+        - application/json
+      User-Agent:
+        - Vets.gov Agent
+      Referer:
+        - https://review-instance.va.gov
+      X-Vamf-Jwt:
+        - stubbed_token
+      X-Request-Id:
+        - ''
+      Accept-Encoding:
+        - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+        - Tue, 30 Aug 2022 22:46:53 GMT
+      Content-Type:
+        - application/json
+      Content-Length:
+        - '695'
+      Server:
+        - openresty
+      X-Vamf-Version:
+        - 2.18.0
+      B3:
+        - 1b2cdd1a95706cd824f5194751aaf8bf-0f41819ff1126085-0
+      Access-Control-Allow-Headers:
+        - x-vamf-jwt
+      X-Vamf-Build:
+        - 72e09ad
+      X-Vamf-Timestamp:
+        - '2022-08-18T13:02:15+0000'
+      Access-Control-Allow-Origin:
+        - "*"
+      Access-Control-Allow-Methods:
+        - GET,OPTIONS
+      Access-Control-Max-Age:
+        - '3600'
+      X-Envoy-Upstream-Service-Time:
+        - '149'
+      Strict-Transport-Security:
+        - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "data" : [{
+            "vistaSite" : 983,
+            "id" : "1038",
+            "serviceName" : "LAB BLOOD WORK",
+            "physicalLocation" : "MTZ OPC, LAB",
+            "phoneNumber" : "800-382-8387",
+            "stationId" : "983",
+            "stationName" : "Martinez VA Medical Center",
+            "primaryStopCode" : 108,
+            "primaryStopCodeName" : "LABORATORY",
+            "secondaryStopCodeName" : "*Missing*",
+            "patientDirectScheduling" : false,
+            "patientDisplay" : true,
+            "futureBookingMaximumDays" : 390
+          }]
+        }
+  recorded_at: Tue, 30 Aug 2022 22:46:53 GMT
 recorded_with: VCR 6.1.0
