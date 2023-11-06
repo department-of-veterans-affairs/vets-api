@@ -32,10 +32,16 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
 
   context 'summary notification' do
     let(:upload_submission) { VBADocuments::UploadSubmission.create(status: 'received') }
+    let(:upload_submission_appeals_evidence) do
+      VBADocuments::UploadSubmission.create(status: 'uploaded', consumer_name: 'appeals_api_sc_evidence_submission')
+    end
 
     before do
       upload_submission.metadata['status']['received']['start'] = 15.minutes.ago.to_i
       upload_submission.save!
+
+      upload_submission_appeals_evidence.metadata['status']['uploaded']['start'] = 30.minutes.ago.to_i
+      upload_submission_appeals_evidence.save!
     end
 
     it 'notifies on every run' do
@@ -49,6 +55,41 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
       )
       expect(slack_messenger).to have_received(:notify!).once
       expect(@results[:summary_notification]).to be(true)
+    end
+
+    context 'when the :decision_review_delay_evidence feature is enabled' do
+      before { Flipper.enable(:decision_review_delay_evidence) }
+
+      it 'excludes evidence submissions from the "uploaded" status grouping' do
+        @results = @job.perform
+        expect(VBADocuments::Slack::Messenger).to have_received(:new).with(
+          {
+            class: 'VBADocuments::SlackNotifier',
+            alert: 'Status Report (worst offenders over past week)',
+            details: "\n\tStatus 'received' for 15 minutes (GUID: #{upload_submission.guid})"
+          }
+        )
+        expect(slack_messenger).to have_received(:notify!).once
+        expect(@results[:summary_notification]).to be(true)
+      end
+    end
+
+    context 'when the :decision_review_delay_evidence feature is disabled' do
+      before { Flipper.disable(:decision_review_delay_evidence) }
+
+      it 'includes evidence submissions in the "uploaded" status grouping' do
+        @results = @job.perform
+        expect(VBADocuments::Slack::Messenger).to have_received(:new).with(
+          {
+            class: 'VBADocuments::SlackNotifier',
+            alert: 'Status Report (worst offenders over past week)',
+            details: "\n\tStatus 'received' for 15 minutes (GUID: #{upload_submission.guid})" \
+                     "\n\tStatus 'uploaded' for 30 minutes (GUID: #{upload_submission_appeals_evidence.guid})"
+          }
+        )
+        expect(slack_messenger).to have_received(:notify!).once
+        expect(@results[:summary_notification]).to be(true)
+      end
     end
   end
 
@@ -90,39 +131,71 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
   end
 
   context 'stalled uploads only' do
-    before do
-      u = VBADocuments::UploadSubmission.new
-      status = 'uploaded'
-      u.status = status
-      u.save!
-      u.metadata['status'][status]['start'] = 5.years.ago.to_i
-      u.save!
-    end
+    context 'when submissions from consumers other than appeals_api exist' do
+      before do
+        u = VBADocuments::UploadSubmission.new
+        status = 'uploaded'
+        u.status = status
+        u.save!
+        u.metadata['status'][status]['start'] = 5.years.ago.to_i
+        u.save!
+      end
 
-    it 'notifies when submission are in uploaded for too long' do
-      @results = @job.perform
-      expect(slack_messenger).to have_received(:notify!).twice # once for stalled uploads and once for summary
-      expect(@results[:upload_stalled_alerted]).to be(true)
-      expect(@results[:long_flyers_alerted]).to be(nil)
-    end
-
-    it 'does not over notify even when submissions are in uploaded for too long' do
-      @job.perform
-      @results = @job.perform
-      expect(@results[:upload_stalled_alerted]).to be(nil)
-
-      travel_time = Settings.vba_documents.slack.renotification_in_minutes + 1
-      Timecop.travel(travel_time.minutes.from_now) do
+      it 'notifies when submission are in uploaded for too long' do
         @results = @job.perform
+        expect(slack_messenger).to have_received(:notify!).twice # once for stalled uploads and once for summary
         expect(@results[:upload_stalled_alerted]).to be(true)
+        expect(@results[:long_flyers_alerted]).to be(nil)
+      end
 
-        Timecop.travel(1.minute.from_now) do
+      it 'does not over notify even when submissions are in uploaded for too long' do
+        @job.perform
+        @results = @job.perform
+        expect(@results[:upload_stalled_alerted]).to be(nil)
+
+        travel_time = Settings.vba_documents.slack.renotification_in_minutes + 1
+        Timecop.travel(travel_time.minutes.from_now) do
           @results = @job.perform
+          expect(@results[:upload_stalled_alerted]).to be(true)
+
+          Timecop.travel(1.minute.from_now) do
+            @results = @job.perform
+            expect(@results[:upload_stalled_alerted]).to be(nil)
+          end
+        end
+
+        # twice for stalled uploads and 4x for summary
+        expect(slack_messenger).to have_received(:notify!).exactly(6).times
+      end
+    end
+
+    context 'when only submissions from the appeals_api consumer exist' do
+      before do
+        status = 'uploaded'
+        upload = create(:upload_submission, status:, consumer_name: 'appeals_api_nod_evidence_submission')
+        upload.metadata['status'][status]['start'] = 5.years.ago.to_i
+        upload.save!
+      end
+
+      context 'when the :decision_review_delay_evidence feature is enabled' do
+        before { Flipper.enable(:decision_review_delay_evidence) }
+
+        it 'does not notify for records in "uploaded" status' do
+          @results = @job.perform
+          expect(slack_messenger).to have_received(:notify!).once # once for summary only
           expect(@results[:upload_stalled_alerted]).to be(nil)
         end
       end
 
-      expect(slack_messenger).to have_received(:notify!).exactly(6).times # twice for stalled uploads and 4x for summary
+      context 'when the :decision_review_delay_evidence feature is disabled' do
+        before { Flipper.disable(:decision_review_delay_evidence) }
+
+        it 'notifies for records in "uploaded" status' do
+          @results = @job.perform
+          expect(slack_messenger).to have_received(:notify!).twice # once for stalled uploads and once for summary
+          expect(@results[:upload_stalled_alerted]).to be(true)
+        end
+      end
     end
   end
 
