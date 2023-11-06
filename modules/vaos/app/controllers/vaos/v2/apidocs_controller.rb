@@ -3,6 +3,7 @@
 module VAOS
   module V2
     class ApidocsController < ApplicationController
+      service_tag 'mhv-appointments'
       skip_before_action(:authenticate)
 
       def index
