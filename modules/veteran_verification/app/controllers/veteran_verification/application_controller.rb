@@ -2,6 +2,7 @@
 
 module VeteranVerification
   class ApplicationController < ::OpenidApplicationController
+    service_tag 'lighthouse-veteran-verification'
     # The Veteran Verification Rails Engine used to have a route constraint
     # that made all responses come in as JSON. Because of support for the
     # application/jwt mimetype, that constraint was too limiting. But many
