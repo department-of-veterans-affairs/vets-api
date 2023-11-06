@@ -4,6 +4,7 @@ require 'vba_documents/health_checker'
 
 module VBADocuments
   class MetadataController < ::ApplicationController
+    service_tag 'lighthouse-benefits-intake'
     skip_before_action :verify_authenticity_token
     skip_after_action :set_csrf_header
     skip_before_action(:authenticate)

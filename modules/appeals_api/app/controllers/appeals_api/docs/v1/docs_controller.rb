@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class AppealsApi::Docs::V1::DocsController < ApplicationController
+  service_tag 'lighthouse-appeals'
   skip_before_action(:authenticate)
 
   SWAGGERED_DECISION_REVIEWS_CLASSES = [
