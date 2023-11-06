@@ -123,7 +123,7 @@ module Mobile
 
         def create_events_for_tracked_items(attributes)
           attributes['trackedItems'].map do |tracked_item|
-            tracked_item_documents = attributes['supportingDocuments'].select do |document|
+            tracked_item_documents = attributes['supportingDocuments']&.select do |document|
               document['trackedItemId'] == tracked_item['id']
             end
             create_tracked_item_event(tracked_item, tracked_item_documents)
@@ -149,7 +149,7 @@ module Mobile
             display_name: tracked_item['displayName'],
             overdue: tracked_item['overdue'],
             status: LH_STATUS_TO_EVSS_STATUS[tracked_item['status'].to_sym],
-            uploaded: UPLOADED_STATUSES.include?(tracked_item['status']),
+            uploaded: tracked_item_documents&.any? || false,
             uploads_allowed: tracked_item['uploadsAllowed'],
             opened_date: tracked_item['requestedDate'],
             requested_date: tracked_item['requestedDate'],

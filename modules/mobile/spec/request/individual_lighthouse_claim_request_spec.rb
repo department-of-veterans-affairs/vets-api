@@ -25,9 +25,22 @@ RSpec.describe 'lighthouse individual claim', type: :request do
          run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         VCR.use_cassette('mobile/lighthouse_claims/show/200_response') do
           get '/mobile/v0/claim/600117255', headers: sis_headers
-          expect(response).to have_http_status(:ok)
-          expect(response.body).to match_json_schema('individual_claim', strict: true)
         end
+        tracked_item_with_no_docs = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').select do |event|
+          event['trackedItemId'] == 360_055
+        end.first
+        tracked_item_with_docs = response.parsed_body.dig('data', 'attributes', 'eventsTimeline').select do |event|
+          event['trackedItemId'] == 360_052
+        end.first
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to match_json_schema('individual_claim', strict: true)
+
+        expect(tracked_item_with_docs['documents'].count).to eq(1)
+        expect(tracked_item_with_docs['uploaded']).to eq(true)
+
+        expect(tracked_item_with_no_docs['documents'].count).to eq(0)
+        expect(tracked_item_with_no_docs['uploaded']).to eq(false)
       end
     end
 
