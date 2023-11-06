@@ -8,8 +8,8 @@ module Requests
     include ActiveModel::Serialization
     include Virtus.model
 
-    attribute :begin_date, Date
-    attribute :end_date, Date
+    attribute :begin_date, String
+    attribute :end_date, String
   end
 
   class ContactNumber
@@ -32,8 +32,11 @@ module Requests
     include Virtus.model
     include ActiveModel::Serialization
 
-    attribute :number_and_street, String
-    attribute :apartment_or_unit_number, String
+    # rubocop:disable Naming/VariableNumber
+    attribute :address_line_1, String
+    attribute :address_line_2, String
+    attribute :address_line_3, String
+    # rubocop:enable Naming/VariableNumber
     attribute :city, String
     attribute :country, String
     attribute :zip_first_five, String
@@ -142,8 +145,8 @@ module Requests
     include ActiveModel::Serialization
 
     attribute :service_branch, String
-    attribute :active_duty_begin_date, Date
-    attribute :active_duty_end_date, Date
+    attribute :active_duty_begin_date, String
+    attribute :active_duty_end_date, String
     attribute :service_component, String
     attribute :separation_location_code, String
   end
@@ -160,16 +163,17 @@ module Requests
     include Virtus.model
     include ActiveModel::Serialization
 
-    attribute :begin_date, Date
-    attribute :end_date, Date
+    attribute :begin_date, String
+    attribute :end_date, String
   end
 
-  class Title10Activation
+  # used to be "Title10Activation"
+  class FederalActivation
     include Virtus.model
     include ActiveModel::Serialization
 
-    attribute :anticipated_separation_date, Date
-    attribute :title10_activation_date, Date
+    attribute :anticipated_separation_date, String
+    attribute :activation_date, String
   end
 
   class ReservesNationalGuardService
@@ -180,9 +184,9 @@ module Requests
     attribute :unit_name, String
     attribute :unit_address, String
     attribute :component, String
-    attribute :title10_activation, Title10Activation
     attribute :unit_phone, UnitPhone
-    attribute :receiving_inactive_duty_training_pay, Boolean
+    # "YES", "NO", or nil
+    attribute :receiving_inactive_duty_training_pay, String
   end
 
   class SeparationSeverancePay
@@ -222,18 +226,19 @@ module Requests
     attribute :reserves_national_guard_service, ReservesNationalGuardService
     attribute :alternate_names, Array[String]
     attribute :served_in_active_combat_since911, Boolean
+    # used to be "Title10Activation"
+    attribute :federal_activation, FederalActivation
   end
 
   class VeteranIdentification
     include Virtus.model
     include ActiveModel::Serialization
 
-    attribute :currently_va_employee, Boolean
+    attribute :current_va_employee, Boolean
     attribute :mailing_address, MailingAddress
     attribute :service_number, String
     attribute :email_address, EmailAddress
     attribute :veteran_number, VeteranNumber
-    attribute :va_file_number, String
   end
 
   class CurrentlyHomeless
@@ -278,8 +283,11 @@ module Requests
 
     attribute :dates, Dates
     attribute :type_of_address_change, String
-    attribute :number_and_street, String
-    attribute :apartment_or_unit_number, String
+    # rubocop:disable Naming/VariableNumber
+    attribute :address_line_1, String
+    attribute :address_line_2, String
+    attribute :address_line_3, String
+    # rubocop:enable Naming/VariableNumber
     attribute :city, String
     attribute :zip_first_five, String
     attribute :zip_last_four, String
@@ -293,12 +301,14 @@ module Requests
 
     attribute :favor_training_pay, Boolean
     attribute :favor_military_retired_pay, Boolean
-    attribute :receiving_military_retired_pay, Boolean
-    attribute :future_military_retired_pay, Boolean
+    # "YES", "NO", or nil
+    attribute :receiving_military_retired_pay, String
+    # "YES", "NO", or nil
+    attribute :future_military_retired_pay, String
     attribute :future_military_retired_pay_explanation, String
     attribute :military_retired_pay, MilitaryRetiredPay
     attribute :retired_status, String
-    attribute :received_separation_or_severance_pay, Boolean
+    attribute :received_separation_or_severance_pay, String
     attribute :separation_severance_pay, SeparationSeverancePay
   end
 
@@ -308,7 +318,7 @@ module Requests
 
     attribute :claimant_certification, Boolean
     attribute :claim_process_type, String
-    attribute :claim_date, Date
+    attribute :claim_date, String
     attribute :veteran_identification, VeteranIdentification
     attribute :change_of_address, ChangeOfAddress
     attribute :homeless, Homeless

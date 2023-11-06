@@ -29,6 +29,7 @@
           "addressLine1": "5678 Couch Street",
           "addressLine2": "Apt. 2",
           "beginningDate": "2018-02-01",
+          "endingDate": "2018-06-30",
           "type": "DOMESTIC",
           "city": "Portland",
           "state": "OR",
