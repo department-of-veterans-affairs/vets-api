@@ -6,12 +6,4 @@ image:
   pullPolicy: IfNotPresent
   tag: "0.0.1"
 
-nameOverride: ""
-fullnameOverride: ""
-service:
-  port: 80
-ingress:
-  tls: []
-resources: {}
-
 databaseUrl: ""
