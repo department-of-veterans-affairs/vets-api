@@ -158,7 +158,8 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
           'payload' => {
             'demographics' => demographics,
             'appointments' => [appointment1],
-            'patientDemographicsStatus' => patient_demographic_status
+            'patientDemographicsStatus' => patient_demographic_status,
+            'setECheckinStartedCalled' => false
           }
         }
       end
@@ -193,7 +194,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
         end
 
         context 'when set_echeckin_started call succeeds' do
-          it 'returns valid response' do
+          it 'calls set_echeckin_started and returns valid response' do
             VCR.use_cassette 'check_in/lorota/token/token_200' do
               post '/check_in/v2/sessions', **session_params
               expect(response.status).to eq(200)
@@ -212,6 +213,11 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
         end
 
         context 'when setECheckinStartedCalled set to true' do
+          let(:resp_with_true_set_e_check_in) do
+            resp['payload']['setECheckinStartedCalled'] = true
+            resp
+          end
+
           it 'returns valid response without calling set_echeckin_started' do
             VCR.use_cassette 'check_in/lorota/token/token_200' do
               post '/check_in/v2/sessions', **session_params
@@ -222,7 +228,7 @@ RSpec.describe 'V2::PatientCheckIns', type: :request do
               get "/check_in/v2/patient_check_ins/#{id}"
             end
             expect(response.status).to eq(200)
-            expect(JSON.parse(response.body)).to eq(resp)
+            expect(JSON.parse(response.body)).to eq(resp_with_true_set_e_check_in)
           end
         end
 

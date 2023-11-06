@@ -20,10 +20,7 @@ module CheckIn
           ::V2::Chip::Service.build(check_in: check_in_session).set_echeckin_started
         end
 
-        # Remove stale setECheckInCalled data from appointment data
-        appointment_data = patient_check_in_data.tap { |appt_data| appt_data[:payload]&.delete(:setECheckInCalled) }
-
-        render json: appointment_data
+        render json: patient_check_in_data
       end
 
       def create
@@ -55,7 +52,7 @@ module CheckIn
       end
 
       def start_check_in_called?(patient_check_in_data)
-        patient_check_in_data.dig(:payload, :setECheckInCalled)
+        patient_check_in_data.dig(:payload, :setECheckinStartedCalled)
       end
     end
   end
