@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
+  subject { described_class.new }
+
   let(:expired_hash) do
     { guid: '8ef145ee-3c6a-4215-b39a-af56c0d2c347', status: 'expired', consumer_name: 'test consumer' }
   end
@@ -51,6 +53,62 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
         expect(totals.keys.first).to eq('test consumer')
         expect(totals['test consumer'][:error_rate]).to eq('33%')
         expect(totals['test consumer'][:expired_rate]).to eq('33%')
+      end
+    end
+  end
+
+  describe '#stuck' do
+    let(:stuck_submission) do
+      create(:upload_submission, :status_uploaded,
+             created_at: 3.hours.ago,
+             guid: SecureRandom.uuid,
+             consumer_name: 'test consumer')
+    end
+
+    let(:uploaded_submission_sc_evidence) do
+      create(:upload_submission, :status_uploaded,
+             created_at: 3.hours.ago,
+             guid: SecureRandom.uuid,
+             consumer_name: 'appeals_api_sc_evidence_submission')
+    end
+
+    let(:uploaded_submission_nod_evidence) do
+      create(:upload_submission, :status_uploaded,
+             created_at: 3.hours.ago,
+             guid: SecureRandom.uuid,
+             consumer_name: 'appeals_api_nod_evidence_submission')
+    end
+
+    before do
+      @to = Time.zone.now
+      @from = 1.day.ago
+    end
+
+    context 'when the :decision_review_delay_evidence feature is enabled' do
+      before { Flipper.enable(:decision_review_delay_evidence) }
+
+      it 'returns submissions in "uploaded" status' do
+        expect(subject.stuck).to include(stuck_submission)
+      end
+
+      it 'does not return "uploaded" submissions that were submitted from the appeals api' do
+        result = subject.stuck
+        expect(result).not_to include(uploaded_submission_sc_evidence)
+        expect(result).not_to include(uploaded_submission_nod_evidence)
+      end
+    end
+
+    context 'when the :decision_review_delay_evidence feature is disabled' do
+      before { Flipper.disable(:decision_review_delay_evidence) }
+
+      it 'returns submissions in "uploaded" status' do
+        expect(subject.stuck).to include(stuck_submission)
+      end
+
+      it 'returns "uploaded" submissions that were submitted from the appeals api' do
+        result = subject.stuck
+        expect(result).to include(uploaded_submission_sc_evidence)
+        expect(result).to include(uploaded_submission_nod_evidence)
       end
     end
   end

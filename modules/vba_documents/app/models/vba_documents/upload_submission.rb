@@ -30,6 +30,8 @@ module VBADocuments
     ALL_STATUSES = IN_FLIGHT_STATUSES + %w[pending uploaded vbms error expired].freeze
     RPT_STATUSES = %w[pending uploaded] + IN_FLIGHT_STATUSES + %w[vbms error expired].freeze
 
+    APPEALS_API_CONSUMER_PATTERN = 'appeals_api'
+
     # For the rare UploadSubmission, the Central Mail API takes too long to respond, resulting in a recurring timeout
     # Central Mail is working to improve upload endpoint performance, so this should be revisited at a later date
     UPLOAD_TIMEOUT_RETRY_LIMIT = 3
@@ -49,6 +51,10 @@ module VBADocuments
     }
 
     scope :for_consumer, ->(consumer) { where(consumer_name: consumer) }
+
+    scope :not_from_appeals_api, lambda {
+      where("consumer_name IS NULL OR consumer_name NOT ILIKE '%#{APPEALS_API_CONSUMER_PATTERN}%'")
+    }
 
     def initialize(attributes = nil)
       super
@@ -122,7 +128,7 @@ module VBADocuments
     end
 
     def appeals_consumer?
-      /appeals_api/.match?(consumer_name)
+      Regexp.new(APPEALS_API_CONSUMER_PATTERN).match?(consumer_name)
     end
 
     # base64_encoded metadata field was added in late 2022; recommend only using for records submitted 2023 or later
