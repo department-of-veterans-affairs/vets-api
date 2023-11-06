@@ -190,8 +190,15 @@ module Mobile
 
         def cancellation_reason(cancellation_reason)
           if cancellation_reason.nil?
-            Rails.logger.info('cancelled appt missing cancellation reason') if status == STATUSES[:cancelled]
-            return nil
+            if status == STATUSES[:cancelled]
+              Rails.logger.info('cancelled appt missing cancellation reason with debug info',
+                                type: appointment_type,
+                                kind: appointment[:kind],
+                                vista_status: appointment.dig(:extension, :vista_status),
+                                facility_id:,
+                                clinic: appointment[:clinic])
+            end
+            return CANCELLATION_REASON[:prov]
           end
 
           cancel_code = cancellation_reason.dig(:coding, 0, :code)
