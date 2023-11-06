@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'terms_of_use/exceptions'
+
 module V0
   class TermsOfUseAgreementsController < ApplicationController
     skip_before_action :authenticate
@@ -17,7 +19,7 @@ module V0
                                                         version: params[:version]).perform!
       recache_user
       render_success(terms_of_use_agreement, :created)
-    rescue ActiveRecord::RecordInvalid => e
+    rescue ActiveRecord::RecordInvalid, TermsOfUse::Exceptions::CommonNameMissingError => e
       render_error(e.message)
     end
 
@@ -27,7 +29,7 @@ module V0
                                                         version: params[:version]).perform!
       recache_user
       render_success(terms_of_use_agreement, :created)
-    rescue ActiveRecord::RecordInvalid => e
+    rescue ActiveRecord::RecordInvalid, TermsOfUse::Exceptions::CommonNameMissingError => e
       render_error(e.message)
     end
 
