@@ -776,6 +776,7 @@ config/sidekiq.yml @department-of-veterans-affairs/va-api-engineers @department-
 config/spring.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/ssoe_idp_int_metadata_isam.xml @department-of-veterans-affairs/vsp-identity
 config/storage.yml @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+datadog-service-catalog @department-of-veterans-affairs/backend-review-group
 db/migrate @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 db/schema.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 db/seeds @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
