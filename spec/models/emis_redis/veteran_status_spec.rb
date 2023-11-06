@@ -2,10 +2,15 @@
 
 require 'rails_helper'
 
-describe EMISRedis::VeteranStatus, skip_emis: true do
+describe EMISRedis::VeteranStatus, skip_va_profile: true do
   subject { described_class.for_user(user) }
 
   let(:user) { build(:user, :loa3) }
+  let(:edipi) { '1005127153' }
+
+  before do
+    allow(user).to receive(:edipi).and_return(edipi)
+  end
 
   describe 'veteran?' do
     context 'with a valid response for a veteran' do

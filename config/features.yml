@@ -49,10 +49,6 @@ features:
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
-  hca_vaprofile_military_info:
-    actor_type: user
-    description: Enables prefilling 1010ez using VA profile military data
-    enable_in_development: false
   cerner_allow_partial_facilities:
     actor_type: user
     description: This will allow cerner facilities to be set to partially cerner or all cerner.
@@ -654,7 +650,7 @@ features:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer urgent experience (Identity)
     enable_in_development: false
-  military_information:
+  military_information_vaprofile:
     actor_type: user
     description: Enables the post-EMIS military information of VAProfile
     enable_in_development: false
