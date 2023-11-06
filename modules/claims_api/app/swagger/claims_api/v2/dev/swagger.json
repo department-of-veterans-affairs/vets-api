@@ -1814,7 +1814,7 @@
                                 "string",
                                 "null"
                               ],
-                              "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                              "pattern": "^(?:\\d{4})(?:-(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|1\\d|2[0-8]))?)?$|^(?:\\d{4})(?:-(?:0[1-9]|1[0-2]))?$",
                               "example": "2018-03-02 or 2018-03 or 2018",
                               "nullable": true
                             },
@@ -1890,7 +1890,7 @@
                                       "string",
                                       "null"
                                     ],
-                                    "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                                    "pattern": "^(?:\\d{4})(?:-(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|1\\d|2[0-8]))?)?$|^(?:\\d{4})(?:-(?:0[1-9]|1[0-2]))?$",
                                     "example": "2018-03-02 or 2018-03 or 2018",
                                     "nullable": true
                                   },
@@ -2917,7 +2917,7 @@
                                     "string",
                                     "null"
                                   ],
-                                  "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                                  "pattern": "^(?:\\d{4})(?:-(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|1\\d|2[0-8]))?)?$|^(?:\\d{4})(?:-(?:0[1-9]|1[0-2]))?$",
                                   "example": "2018-03-02 or 2018-03 or 2018",
                                   "nullable": true
                                 },
@@ -2992,7 +2992,7 @@
                                           "string",
                                           "null"
                                         ],
-                                        "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                                        "pattern": "^(?:\\d{4})(?:-(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|1\\d|2[0-8]))?)?$|^(?:\\d{4})(?:-(?:0[1-9]|1[0-2]))?$",
                                         "example": "2018-03-02 or 2018-03 or 2018",
                                         "nullable": true
                                       },
@@ -3493,7 +3493,7 @@
                     "attributes": {
                       "claimantCertification": true,
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
-                      "claimDate": "2020-12-18",
+                      "claimDate": "2023-11-01",
                       "veteranIdentification": {
                         "currentVaEmployee": false,
                         "mailingAddress": {
@@ -3649,9 +3649,9 @@
                           {
                             "serviceBranch": "Public Health Service",
                             "activeDutyBeginDate": "2008-11-14",
-                            "activeDutyEndDate": "2025-11-30",
+                            "activeDutyEndDate": "2023-10-30",
                             "serviceComponent": "Active",
-                            "separationLocationCode": "25077"
+                            "separationLocationCode": "98282"
                           }
                         ],
                         "confinements": [
@@ -4291,8 +4291,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-10-30",
-                      "expirationDate": "2024-10-30",
+                      "creationDate": "2023-11-03",
+                      "expirationDate": "2024-11-03",
                       "type": "compensation",
                       "status": "active"
                     }
