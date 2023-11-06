@@ -4,6 +4,7 @@ module CheckIn
   class ApplicationController < ::ApplicationController
     include ActionController::Cookies
     include ActionController::RequestForgeryProtection
+    service_tag 'check-in'
 
     protect_from_forgery with: :exception
 
