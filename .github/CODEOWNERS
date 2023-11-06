@@ -961,7 +961,8 @@ modules/vaos/app/services/vaos/v2 @department-of-veterans-affairs/vfs-vaos @depa
 modules/vba_documents @department-of-veterans-affairs/lighthouse-banana-peels
 modules/veteran @department-of-veterans-affairs/lighthouse-dash @department-of-veterans-affairs/accredited-representation-management @department-of-veterans-affairs/backend-review-group
 public @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-modules/veteran_verification @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+modules/veteran_confirmation @department-of-veterans-affairs/lighthouse-ninjapigs @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+modules/veteran_verification @department-of-veterans-affairs/lighthouse-ninjapigs @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 rakelib/appeals_api_event_subscriber.rake @department-of-veterans-affairs/lighthouse-banana-peels
 rakelib/appeals_api_oauth.rake @department-of-veterans-affairs/lighthouse-banana-peels
 rakelib/breakers_outage.rake @department-of-veterans-affairs/lighthouse-banana-peels
