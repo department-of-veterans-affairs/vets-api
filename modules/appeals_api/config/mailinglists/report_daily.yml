@@ -8,14 +8,17 @@ development:
 staging:
 sandbox:
 production:
+  - annie.tran@coforma.io
+  - cory.sohrakoff@va.gov
   - drew.fisher@adhocteam.us
-  - matthew.self2@va.gov
+  - eugene.lynch@coforma.io
+  - jacob.worrell@va.gov
   - janet.coutinho@va.gov
   - kyle.soskin@adhocteam.us
-  - cory.sohrakoff@va.gov
-  - jacob.worrell@va.gov
-  - zachary.goldfine@va.gov
+  - matthew.self2@va.gov
   - premal.shah@va.gov
-  - steve.albers@va.gov
-  - eugene.lynch@coforma.io
+  - robin.garrison@adhocteam.us
+  - rocio.de-santiago@coforma.io
   - sade@coforma.io
+  - steve.albers@va.gov
+  - zachary.goldfine@va.gov
