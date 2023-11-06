@@ -22,7 +22,7 @@ describe AppealsApi::EvidenceSubmission, type: :model do
     expect(evidence_submission.upload_submission).to eq(upload_submission)
   end
 
-  describe '#submit_to_central_mail' do
+  describe '#submit_to_central_mail!' do
     before { allow(VBADocuments::UploadProcessor).to receive(:perform_async) }
 
     context 'when the evidence status is "uploaded' do
@@ -32,7 +32,7 @@ describe AppealsApi::EvidenceSubmission, type: :model do
       end
 
       it 'triggers the UploadProcessor' do
-        evidence_submission.submit_to_central_mail
+        evidence_submission.submit_to_central_mail!
 
         expect(VBADocuments::UploadProcessor).to have_received(:perform_async)
                                              .with(upload_submission.guid, caller: evidence_submission.class.name)
@@ -46,7 +46,7 @@ describe AppealsApi::EvidenceSubmission, type: :model do
       end
 
       it 'does not trigger the UploadProcessor' do
-        evidence_submission.submit_to_central_mail
+        evidence_submission.submit_to_central_mail!
 
         expect(VBADocuments::UploadProcessor).not_to have_received(:perform_async)
       end
