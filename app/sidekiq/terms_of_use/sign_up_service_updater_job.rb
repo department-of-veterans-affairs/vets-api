@@ -10,7 +10,7 @@ module TermsOfUse
 
     sidekiq_retries_exhausted do |job, exception|
       Rails.logger.warn(
-        "[TermsOfUse][SignUpServiceUpdaterJob] Retries exhausted for #{job['name']} " \
+        "[TermsOfUse][SignUpServiceUpdaterJob] Retries exhausted for #{job['class']} " \
         "with args #{job['args']}: #{exception.message}"
       )
     end
