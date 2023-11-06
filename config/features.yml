@@ -1231,3 +1231,6 @@ features:
     actor_type: user
     description: Enable the veteran post-emis status
     enable_in_development: false
+  virtual_agent_enable_param_error_detection:
+    actor_type: user
+    description: If enabled, Allows for the detection of errors in the chatbot params
