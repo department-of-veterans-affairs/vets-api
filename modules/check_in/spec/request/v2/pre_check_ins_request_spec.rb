@@ -160,7 +160,7 @@ RSpec.describe 'V2::PreCheckInsController', type: :request do
             'demographics' => demographics,
             'appointments' => [appointment1],
             'patientDemographicsStatus' => patient_demographic_status,
-            'setECheckInCalled' => nil
+            'setECheckinStartedCalled' => false
           }
         }
       end
