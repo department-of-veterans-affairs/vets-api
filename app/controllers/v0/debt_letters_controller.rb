@@ -4,6 +4,7 @@ require 'debt_management_center/debt_letter_downloader'
 
 module V0
   class DebtLettersController < ApplicationController
+    service_tag 'debt-resolution'
     before_action { authorize :debt_letters, :access? }
 
     def index
