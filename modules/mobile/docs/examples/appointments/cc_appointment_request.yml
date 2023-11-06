@@ -3,6 +3,7 @@ data:
     id: '68254'
     attributes:
       appointmentType: VA
+      appointmentIen: '12384'
       cancelId: null
       comment: null
       healthcareProvider: null
@@ -44,7 +45,6 @@ data:
       best_time_to_call:
         - 'Morning'
       friendly_location_name: 'DAYTSHR -Dayton VA Medical Center'
-      appointmentIEN: null
       locationId: '938'
       eCheckinAllowed: false
 meta:

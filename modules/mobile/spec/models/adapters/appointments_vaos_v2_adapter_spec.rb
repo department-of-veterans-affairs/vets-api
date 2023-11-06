@@ -44,6 +44,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(cancelled_va[:is_pending]).to eq(false)
       expect(cancelled_va.as_json).to eq({ 'id' => '121133',
                                            'appointment_type' => 'VA',
+                                           'appointment_ien' => nil,
                                            'cancel_id' => nil,
                                            'comment' => 'This is a free form comment',
                                            'facility_id' => '442',
@@ -99,6 +100,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(booked_va.as_json).to eq({
                                         'id' => '121133',
                                         'appointment_type' => 'VA',
+                                        'appointment_ien' => nil,
                                         'cancel_id' => nil,
                                         'comment' => nil,
                                         'facility_id' => '442',
@@ -159,6 +161,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(booked_cc.as_json).to eq({
                                         'id' => '72106',
                                         'appointment_type' => 'COMMUNITY_CARE',
+                                        'appointment_ien' => nil,
                                         'cancel_id' => '72106',
                                         'comment' => nil,
                                         'facility_id' => '552',
@@ -218,6 +221,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(proposed_cc.as_json).to eq({
                                           'id' => '72105',
                                           'appointment_type' => 'COMMUNITY_CARE',
+                                          'appointment_ien' => nil,
                                           'cancel_id' => '72105',
                                           'comment' => 'this is a comment',
                                           'facility_id' => '552',
@@ -285,6 +289,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(proposed_va.as_json).to eq({
                                           'id' => '50956',
                                           'appointment_type' => 'VA',
+                                          'appointment_ien' => nil,
                                           'cancel_id' => '50956',
                                           'comment' => nil,
                                           'facility_id' => '442',
@@ -345,6 +350,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(phone_va.as_json).to eq({
                                        'id' => '53352',
                                        'appointment_type' => 'VA',
+                                       'appointment_ien' => nil,
                                        'cancel_id' => '53352',
                                        'comment' => nil,
                                        'facility_id' => '442',
@@ -406,6 +412,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
 
       expect(home_va.as_json).to eq({ 'id' => '50094',
                                       'appointment_type' => 'VA_VIDEO_CONNECT_HOME',
+                                      'appointment_ien' => nil,
                                       'cancel_id' => '50094',
                                       'comment' => nil,
                                       'facility_id' => '442',
@@ -459,6 +466,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
 
       expect(atlas_va.as_json).to eq({ 'id' => '50094',
                                        'appointment_type' => 'VA_VIDEO_CONNECT_ATLAS',
+                                       'appointment_ien' => nil,
                                        'cancel_id' => '50094',
                                        'comment' => nil,
                                        'facility_id' => '442',
@@ -510,6 +518,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
 
       expect(gfe_va.as_json).to eq({ 'id' => '50094',
                                      'appointment_type' => 'VA_VIDEO_CONNECT_GFE',
+                                     'appointment_ien' => nil,
                                      'cancel_id' => '50094',
                                      'comment' => nil,
                                      'facility_id' => '442',
@@ -557,6 +566,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
 
       expect(telehealth_onsite.as_json).to eq({ 'id' => '50094',
                                                 'appointment_type' => 'VA_VIDEO_CONNECT_ONSITE',
+                                                'appointment_ien' => nil,
                                                 'cancel_id' => '50094',
                                                 'comment' => nil,
                                                 'facility_id' => '442',
@@ -611,6 +621,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
       expect(cancelled_requested_va_appt.as_json).to eq({
                                                           'id' => '53241',
                                                           'appointment_type' => 'VA',
+                                                          'appointment_ien' => nil,
                                                           'cancel_id' => nil,
                                                           'comment' => 'testing',
                                                           'facility_id' => '442',
@@ -783,6 +794,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, aggregate_failures: true do
         {
           'id' => '145078',
           'appointment_type' => 'VA',
+          'appointment_ien' => nil,
           'cancel_id' => '145078',
           'comment' => 'My leg!',
           'facility_id' => '552',
