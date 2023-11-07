@@ -58,9 +58,10 @@ module SimpleFormsApi
       def handle_210966_authenticated
         intent_service = SimpleFormsApi::IntentToFile.new(params, icn)
         existing_intents = intent_service.existing_intents
-        expiration_date = intent_service.submit
+        confirmation_number, expiration_date = intent_service.submit
 
         render json: {
+          confirmation_number:,
           expiration_date:,
           compensation_intent: existing_intents['compensation'],
           pension_intent: existing_intents['pension'],
