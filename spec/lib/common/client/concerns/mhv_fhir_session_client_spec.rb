@@ -26,6 +26,64 @@ describe Common::Client::Concerns::MhvFhirSessionClient do
 
   let(:dummy_instance) { dummy_class.new(session: session_data) }
 
+  describe '#authenticate' do
+    let(:session_data) { OpenStruct.new(icn: 'ABC', expired?: false) }
+
+    before do
+      allow(dummy_instance).to receive(:invalid?).and_return(true)
+      allow(dummy_instance).to receive(:lock_and_get_session).and_return(true)
+      allow(dummy_class).to receive(:client_session).and_return(double('ClientSession', find_or_build: session_data))
+    end
+
+    context 'when session is valid' do
+      it 'is already authenticated and simply returns self' do
+        allow(dummy_instance).to receive(:invalid?).and_return(false)
+
+        expect(dummy_instance).not_to receive(:lock_and_get_session)
+        expect(dummy_instance.authenticate).to eq(dummy_instance)
+      end
+    end
+
+    context 'when session is invalid' do
+      it 'tries to lock and get a new session' do
+        expect(dummy_instance).to receive(:lock_and_get_session).and_return(true)
+        expect(dummy_instance.authenticate).to eq(dummy_instance)
+      end
+    end
+
+    context 'when max iterations reached without a valid session' do
+      it 'exits the loop and returns self' do
+        allow(dummy_instance).to receive(:invalid?).and_return(true)
+
+        expect(dummy_instance.authenticate).to eq(dummy_instance)
+      end
+    end
+  end
+
+  describe '#lock_and_get_session' do
+    let(:session_data) { OpenStruct.new(icn: 'ABC', expired?: false) }
+
+    it 'acquires a lock, gets a session, and releases the lock' do
+      allow(dummy_instance).to receive(:obtain_redis_lock).and_return(true)
+      allow(dummy_instance).to receive(:get_session).and_return(session_data)
+      allow(dummy_instance).to receive(:release_redis_lock)
+
+      expect(dummy_instance).to receive(:obtain_redis_lock).with('ABC').and_return(true)
+      expect(dummy_instance).to receive(:get_session)
+      expect(dummy_instance).to receive(:release_redis_lock).with(true, 'ABC')
+      expect(dummy_instance.lock_and_get_session).to be_truthy
+    end
+
+    it 'cannot acquire a lock' do
+      allow(dummy_instance).to receive(:obtain_redis_lock).and_return(false)
+
+      expect(dummy_instance).to receive(:obtain_redis_lock).with('ABC').and_return(false)
+      expect(dummy_instance).not_to receive(:get_session)
+      expect(dummy_instance).not_to receive(:release_redis_lock)
+      expect(dummy_instance.lock_and_get_session).to be_falsey
+    end
+  end
+
   describe '#get_session' do
     let(:session_data) { OpenStruct.new(icn: 'ABC') }
     let(:jwt_token) { 'fake.jwt.token' }
