@@ -291,7 +291,7 @@ GEM
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     colored2 (3.1.2)
-    combine_pdf (1.0.23)
+    combine_pdf (1.0.24)
       matrix
       ruby-rc4 (>= 0.1.5)
     concurrent-ruby (1.2.2)
@@ -657,7 +657,7 @@ GEM
     parallel (1.23.0)
     parallel_tests (4.3.0)
       parallel
-    parser (3.2.2.3)
+    parser (3.2.2.4)
       ast (~> 2.4.1)
       racc
     patience_diff (1.2.0)
@@ -744,7 +744,7 @@ GEM
     redis (4.8.1)
     redis-namespace (1.11.0)
       redis (>= 4)
-    regexp_parser (2.8.1)
+    regexp_parser (2.8.2)
     representable (3.2.0)
       declarative (< 0.1.0)
       trailblazer-option (>= 0.1.1, < 0.2.0)
@@ -930,7 +930,7 @@ GEM
     ssrf_filter (1.1.2)
     staccato (0.5.3)
     statsd-instrument (3.5.12)
-    strong_migrations (1.6.1)
+    strong_migrations (1.6.4)
       activerecord (>= 5.2)
     super_diff (0.10.0)
       attr_extras (>= 6.2.4)
