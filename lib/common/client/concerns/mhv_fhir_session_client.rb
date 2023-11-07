@@ -9,6 +9,8 @@ module Common
       # Module mixin for overriding session logic when making MHV FHIR-based client connections. This mixin itself
       # includes another mixin for handling the JWT-based session logic.
       #
+      # All refrences to "session" in this module refer to the upstream MHV/FHIR session.
+      #
       # @see MedicalRecords::Client
       #
       # @!attribute [r] session
@@ -19,38 +21,75 @@ module Common
         include SentryLogging
         include MHVJwtSessionClient
 
+        LOCK_RETRY_DELAY = 1 # Number of seconds to wait between attempts to acquire a session lock
+        RETRY_ATTEMPTS = 10 # How many times to attempt to acquire a session lock
+
         def incomplete?(session)
           session.icn.blank? || session.patient_fhir_id.blank? || session.token.blank? || session.expires_at.blank?
         end
 
+        def invalid?(session)
+          session.expired? || incomplete?(session)
+        end
+
         ##
-        # Ensures the MHV based session is not expired or incomplete.
+        # Ensure the upstream MHV/FHIR-based session is not expired or incomplete.
         #
-        # @return [MHVJwtSessionClient] instance of `self`
+        # @return [MhvFhirSessionClient] instance of `self`
         #
         def authenticate
-          @session = get_session if session.expired? || incomplete?(session)
+          raise 'ICN is required for session creation' unless session&.icn
+
+          iteration = 0
+
+          # Loop unless a complete, valid MHV/FHIR session exists, or until max_iterations is reached
+          while invalid?(session) && iteration < RETRY_ATTEMPTS
+            break if lock_and_get_session # Break out of the loop once a new session is created.
+
+            sleep(LOCK_RETRY_DELAY)
+
+            # Refresh the MHV/FHIR session reference in case another thread has updated it.
+            refresh_session(session)
+            iteration += 1
+          end
           self
         end
 
         ##
-        # Takes information from the session variable and saves a new session instance in redis.
+        # Attempt to acquire a redis lock, then create a new MHV/FHIR session. Once the session is created,
+        # release the lock.
         #
-        # @return [MedicalRecords::ClientSession] the updated session
+        # return [Boolean] true if a session was created, otherwise false
         #
-        def save_session
-          new_session = @session.class.new(user_id: session.user_id.to_s,
-                                           patient_fhir_id: session.patient_fhir_id,
-                                           icn: session.icn,
-                                           expires_at: session.expires_at,
-                                           token: session.token,
-                                           refresh_time: session.refresh_time)
-          new_session.save
-          new_session
+        def lock_and_get_session
+          redis_lock = obtain_redis_lock(session.icn)
+          if redis_lock
+            begin
+              @session = get_session
+              return true
+            ensure
+              release_redis_lock(redis_lock, session.icn)
+            end
+          end
+          false
+        end
+
+        def obtain_redis_lock(user_key)
+          lock_key = "mhv_fhir_session_lock:#{user_key}"
+          redis_lock = Redis::Namespace.new(REDIS_CONFIG[:mhv_mr_fhir_session_lock][:namespace], redis: $redis)
+          success = redis_lock.set(lock_key, 1, nx: true, ex: REDIS_CONFIG[:mhv_mr_fhir_session_lock][:each_ttl])
+          return redis_lock if success
+
+          nil
+        end
+
+        def release_redis_lock(redis_lock, user_key)
+          lock_key = "mhv_fhir_session_lock:#{user_key}"
+          redis_lock.del(lock_key)
         end
 
         ##
-        # Creates and saves a FHIR session for a patient. If any step along the way fails, save
+        # Creates and saves an MHV/FHIR session for a patient. If any step along the way fails, save
         # the partial session before raising the exception.
         #
         # @return [MedicalRecords::ClientSession] if a MR (Medical Records) client session
@@ -124,6 +163,22 @@ module Common
                   detail: 'Patient record not found or does not contain a valid FHIR ID'
           end
           session.patient_fhir_id = patient.entry[0].resource.id
+        end
+
+        ##
+        # Takes information from the session variable and saves a new session instance in redis.
+        #
+        # @return [MedicalRecords::ClientSession] the updated session
+        #
+        def save_session
+          new_session = @session.class.new(user_id: session.user_id.to_s,
+                                           patient_fhir_id: session.patient_fhir_id,
+                                           icn: session.icn,
+                                           expires_at: session.expires_at,
+                                           token: session.token,
+                                           refresh_time: session.refresh_time)
+          new_session.save
+          new_session
         end
 
         ##
