@@ -47,7 +47,9 @@ saml_ssoe:
   key_path: ~
   issuer: https://ssoe-sp-localhost.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
-  logout_url: https://int.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-dev.va.gov
+  logout_url: https://int.eauth.va.gov/slo/globallogout
+  logout_app_key: https://ssoe-sp-dev.va.gov
+  tou_decline_logout_app_key: https://dev-api.va.gov/agreements_declined
   request_signing: false
   relay: ~
   response_signing: false
