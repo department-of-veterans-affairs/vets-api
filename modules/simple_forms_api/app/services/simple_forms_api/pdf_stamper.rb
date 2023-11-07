@@ -28,11 +28,7 @@ module SimpleFormsApi
 
     def self.stamp214142(stamped_template_path, data)
       desired_stamps = [[50, 560]]
-      first_name = data.dig('preparer_identification', 'preparer_full_name', 'first')
-      middle_name = data.dig('preparer_identification', 'preparer_full_name', 'middle')
-      last_name = data.dig('preparer_identification', 'preparer_full_name', 'last')
-      suffix = data.dig('preparer_identification', 'preparer_full_name', 'suffix')
-      signature_text = "#{first_name} #{middle_name} #{last_name} #{suffix}"
+      signature_text = data['statement_of_truth_signature']
       page_configuration = [
         { type: :new_page },
         { type: :text, position: desired_stamps[0] },

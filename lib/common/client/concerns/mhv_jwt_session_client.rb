@@ -19,6 +19,10 @@ module Common
         # @param session [Hash] a hash containing user_id with which the session will be found or built
         #
         def initialize(session:)
+          refresh_session(session)
+        end
+
+        def refresh_session(session)
           @session = self.class.client_session.find_or_build(session)
         end
 

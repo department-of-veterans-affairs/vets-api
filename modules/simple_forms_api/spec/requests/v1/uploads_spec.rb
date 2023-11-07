@@ -72,12 +72,12 @@ RSpec.describe 'Dynamic forms uploader', type: :request do
       end
 
       it 'makes the request with an intent to file' do
-        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response') do
+        VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/404_response') do
           VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_pension') do
             VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response_survivor') do
               VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
                 fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                               'vba_21_0966.json')
+                                               'vba_21_0966-min.json')
                 data = JSON.parse(fixture_path.read)
 
                 post '/simple_forms_api/v1/simple_forms', params: data
