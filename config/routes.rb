@@ -334,6 +334,7 @@ Rails.application.routes.draw do
       put 'ch33_bank_accounts', to: 'ch33_bank_accounts#update'
       resource :gender_identities, only: :update
       resource :preferred_names, only: :update
+      resource :user_permissions, only: :show
     end
 
     resources :search, only: :index
