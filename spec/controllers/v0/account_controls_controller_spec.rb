@@ -71,7 +71,7 @@ RSpec.describe V0::AccountControlsController, type: :controller do
     end
 
     shared_examples 'when a record is found' do
-      let(:user_verification) { UserVerification.find_by_type(type, credential_id) }
+      let(:user_verification) { UserVerification.find_by_type!(type, credential_id) }
 
       context 'when the record is successfully updated' do
         let(:expected_log_message) do

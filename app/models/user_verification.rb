@@ -13,7 +13,7 @@ class UserVerification < ApplicationRecord
   scope :mhv, -> { where.not(mhv_uuid: nil) }
   scope :dslogon, -> { where.not(dslogon_uuid: nil) }
 
-  def self.find_by_type(type, identifier)
+  def self.find_by_type!(type, identifier)
     user_verification = case type
                         when SAML::User::LOGINGOV_CSID
                           find_by(logingov_uuid: identifier)

@@ -248,8 +248,8 @@ RSpec.describe UserVerification, type: :model do
     end
   end
 
-  describe '.find_by_type' do
-    subject { UserVerification.find_by_type(type, identifier) }
+  describe '.find_by_type!' do
+    subject { UserVerification.find_by_type!(type, identifier) }
 
     let(:user_account) { create(:user_account) }
 

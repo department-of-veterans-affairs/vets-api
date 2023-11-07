@@ -23,12 +23,12 @@ module V0
     def credential_lock
       validate_credential_params
 
+      user_verification = UserVerification.find_by_type!(params[:type], params[:credential_id])
       user_verification.update!(locked: true)
-      Rails.logger.info('[V0::AccountControlsController] credential_lock', lock_log_info)
-      render json: { data: serialized_user_verification }
+      Rails.logger.info('[V0::AccountControlsController] credential_lock', lock_log_info(user_verification:))
+      render json: { data: serialize_user_verification(user_verification:) }
     rescue ActiveRecord::RecordInvalid
-      Rails.logger.info('[V0::AccountControlsController] credential_lock failed',
-                        lock_log_info)
+      Rails.logger.info('[V0::AccountControlsController] credential_lock failed', lock_log_info(user_verification:))
       render json: { error: 'UserAccount credential lock failed.' }, status: :internal_server_error
     rescue ActiveRecord::RecordNotFound
       render json: { error: 'UserAccount credential record not found.' }, status: :not_found
@@ -39,11 +39,12 @@ module V0
     def credential_unlock
       validate_credential_params
 
+      user_verification = UserVerification.find_by_type!(params[:type], params[:credential_id])
       user_verification.update!(locked: false)
-      Rails.logger.info('[V0::AccountControlsController] credential_unlock', lock_log_info)
-      render json: { data: serialized_user_verification }
+      Rails.logger.info('[V0::AccountControlsController] credential_unlock', lock_log_info(user_verification:))
+      render json: { data: serialize_user_verification(user_verification:) }
     rescue ActiveRecord::RecordInvalid
-      Rails.logger.info('[V0::AccountControlsController] credential_unlock failed', lock_log_info)
+      Rails.logger.info('[V0::AccountControlsController] credential_unlock failed', lock_log_info(user_verification:))
       render json: { error: 'UserAccount credential unlock failed.' }, status: :internal_server_error
     rescue ActiveRecord::RecordNotFound
       render json: { error: 'UserAccount credential record not found.' }, status: :not_found
@@ -62,25 +63,21 @@ module V0
       end
     end
 
-    def user_verification
-      @user_verification ||= UserVerification.find_by_type(params[:type], params[:credential_id])
-    end
-
     def fetch_verifications_by_icn
       user_account = UserAccount.find_by!(icn: params[:icn])
       user_account.user_verifications
     end
 
     def serialize_user_verifications(user_verifications:)
-      user_verifications.map { |user_verification| UserVerificationSerializer.new(user_verification:).perform }
+      user_verifications.map { |user_verification| serialize_user_verification(user_verification:) }
     end
 
-    def serialized_user_verification
-      @serialized_user_verification ||= UserVerificationSerializer.new(user_verification:).perform
+    def serialize_user_verification(user_verification:)
+      UserVerificationSerializer.new(user_verification:).perform
     end
 
-    def lock_log_info
-      serialized_user_verification.merge({ requested_by: @service_account_access_token.user_identifier })
+    def lock_log_info(user_verification:)
+      serialize_user_verification(user_verification:).merge(requested_by: @service_account_access_token.user_identifier)
     end
   end
 end
