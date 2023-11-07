@@ -110,6 +110,7 @@ module SimpleFormsApi
         lighthouse_service = SimpleFormsApiSubmission::Service.new
         uuid_and_location = get_upload_location_and_uuid(lighthouse_service)
 
+        Datadog::Tracing.active_trace&.set_tag('uuid', uuid_and_location[:uuid])
         Rails.logger.info(
           "Simple forms api - preparing to upload PDF to benefits intake:
             location: #{uuid_and_location[:location]}, uuid: #{uuid_and_location[:uuid]}"
