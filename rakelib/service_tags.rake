@@ -58,7 +58,7 @@ namespace :service_tags do
     [errors, warnings]
   end
 
-  desc 'Audit controllers for Traceable concern within the CI pipeline'
+  desc 'Audit controllers for Traceable concern usage locally (outside of the CI pipeline)'
   task audit_controllers: :environment do
     main_app_controllers = controllers_from_routes(Rails.application.routes.routes)
     engine_controllers = Rails::Engine.subclasses.flat_map { |engine| controllers_from_routes(engine.routes.routes) }
@@ -66,7 +66,7 @@ namespace :service_tags do
     _, warnings = find_invalid_controllers(main_app_controllers + engine_controllers)
 
     if warnings.any?
-      puts "\n\nThe following controllers are missing service tags:\n\n"
+      puts "\n\nThe following #{warnings.count} controllers are missing service tags:\n\n"
       warnings.each do |controller|
         puts controller[:name]
       end
@@ -75,7 +75,7 @@ namespace :service_tags do
     end
   end
 
-  desc 'Audit controllers for Traceable concern within the CI pipeline'
+  desc 'Audit controllers for Traceable concern usage within a CI pipeline'
   task audit_controllers_ci: :environment do
     main_app_controllers = controllers_from_routes(Rails.application.routes.routes)
     engine_controllers = Rails::Engine.subclasses.flat_map { |engine| controllers_from_routes(engine.routes.routes) }
