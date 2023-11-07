@@ -48,6 +48,7 @@ module Mobile
 
       attribute :id, Types::String
       attribute :appointment_type, APPOINTMENT_TYPE
+      attribute :appointment_ien, Types::String.optional
       attribute :cancel_id, Types::String.optional
       attribute :comment, Types::String.optional
       attribute :facility_id, Types::String.optional

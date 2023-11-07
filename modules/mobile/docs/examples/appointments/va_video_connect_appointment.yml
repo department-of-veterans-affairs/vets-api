@@ -3,6 +3,7 @@ data:
     id: "167525"
     attributes:
       appointmentType: VA_VIDEO_CONNECT_HOME
+      appointmentIen: "123456"
       cancelId: MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=
       comment: Please log on 5 minutes before the start of your appointment
       healthcareProvider: null
@@ -32,7 +33,6 @@ data:
       patient_email: null
       best_time_to_call: null
       friendly_location_name: null
-      appointmentIEN: '123456'
       locationId: '938'
       eCheckinAllowed: false
 meta:

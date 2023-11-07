@@ -12,7 +12,7 @@ module ClaimsApi
     end
 
     def generate_pdf
-      url = Settings.claims_api.pdf_generator_526.url
+      url = Settings.evss&.dvp&.url
       path = Settings.claims_api.pdf_generator_526.path
       content_type = Settings.claims_api.pdf_generator_526.content_type
       conn = Faraday.new("#{url}#{path}",

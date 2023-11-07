@@ -25,7 +25,7 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       logger_spy = instance_spy(ActiveSupport::Logger)
       allow(Rails).to receive(:logger).and_return(logger_spy)
 
-      job_info = { 'name' => described_class.to_s, 'args' => %w[foo bar] }
+      job_info = { 'class' => described_class.to_s, 'args' => %w[foo bar] }
       error_message = 'foobar'
       described_class.sidekiq_retries_exhausted_block.call(
         job_info, Common::Client::Errors::ClientError.new(error_message)
@@ -34,7 +34,7 @@ RSpec.describe TermsOfUse::SignUpServiceUpdaterJob, type: :job do
       expect(logger_spy)
         .to have_received(:warn)
         .with(
-          "[TermsOfUse][SignUpServiceUpdaterJob] Retries exhausted for #{job_info['name']} " \
+          "[TermsOfUse][SignUpServiceUpdaterJob] Retries exhausted for #{job_info['class']} " \
           "with args #{job_info['args']}: #{error_message}"
         )
     end

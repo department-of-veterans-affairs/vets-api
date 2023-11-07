@@ -3,6 +3,7 @@ data:
     id: '167525'
     attributes:
       appointmentType: COMMUNITY_CARE
+      appointmentIen: null
       cancelId: null
       comment: null
       healthcareProvider: Vilasini Reddy
@@ -46,7 +47,6 @@ data:
         - Evening
         - Morning
       friendly_location_name: 'CHYSHR-Cheyenne VA Medical Center'
-      appointmentIEN: null
       locationId: '938'
       eCheckinAllowed: false
 meta:

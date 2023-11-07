@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require 'claims_api/v2/disability_compensation_shared_service_module'
+
 module ClaimsApi
   module V2
     class DisabilityCompensationPdfMapper # rubocop:disable Metrics/ClassLength
+      include DisabilityCompensationSharedServiceModule
+
       NATIONAL_GUARD_COMPONENTS = {
         'National Guard' => 'NATIONAL_GUARD',
         'Reserves' => 'RESERVES'
@@ -492,9 +496,13 @@ module ClaimsApi
           @pdf_data[:data][:attributes][:serviceInformation][:mostRecentActiveService].merge!(
             end: regex_date_conversion(most_recent_period[:activeDutyEndDate])
           )
+          location = get_location(most_recent_period[:separationLocationCode])
+          if location.present?
+            location_description = location[:description]
+            @pdf_data[:data][:attributes][:serviceInformation][:placeOfLastOrAnticipatedSeparation] =
+              location_description
+          end
         end
-        @pdf_data[:data][:attributes][:serviceInformation][:placeOfLastOrAnticipatedSeparation] =
-          most_recent_period[:separationLocationCode]
         @pdf_data[:data][:attributes][:serviceInformation].merge!(branchOfService: {
                                                                     branch: most_recent_period[:serviceBranch]
                                                                   })
@@ -543,28 +551,26 @@ module ClaimsApi
         reserves = @pdf_data&.dig(:data, :attributes, :serviceInformation, :reservesNationalGuardService)
         si[:servedInReservesOrNationalGuard] = 'YES' if reserves
         @pdf_data[:data][:attributes][:serviceInformation].merge!(si)
-        if reserves[:obligationTermsOfService].present?
-          reserves_begin_date = reserves[:obligationTermsOfService][:beginDate]
-          reserves[:obligationTermsOfService][:start] = regex_date_conversion(reserves_begin_date)
-          reserves[:obligationTermsOfService].delete(:beginDate)
-          reserves_end_date = reserves[:obligationTermsOfService][:endDate]
-          reserves[:obligationTermsOfService][:end] = regex_date_conversion(reserves_end_date)
-          reserves[:obligationTermsOfService].delete(:endDate)
+        if reserves.present?
+          if reserves&.dig(:obligationTermsOfService).present?
+            reserves_begin_date = reserves[:obligationTermsOfService][:beginDate]
+            reserves[:obligationTermsOfService][:start] = regex_date_conversion(reserves_begin_date)
+            reserves[:obligationTermsOfService].delete(:beginDate)
+            reserves_end_date = reserves[:obligationTermsOfService][:endDate]
+            reserves[:obligationTermsOfService][:end] = regex_date_conversion(reserves_end_date)
+            reserves[:obligationTermsOfService].delete(:endDate)
+          end
+          component = reserves[:component]
+          reserves[:component] = NATIONAL_GUARD_COMPONENTS[component]
+
+          area_code = reserves&.dig(:unitPhone, :areaCode)
+          phone_number = reserves&.dig(:unitPhone, :phoneNumber)
+          reserves[:unitPhoneNumber] = convert_phone(area_code + phone_number) if area_code && phone_number
+          reserves.delete(:unitPhone)
+
+          reserves[:receivingInactiveDutyTrainingPay] = handle_yes_no(reserves[:receivingInactiveDutyTrainingPay])
+          @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService] = reserves
         end
-        component = reserves[:component]
-        map_component = NATIONAL_GUARD_COMPONENTS[component]
-        reserves[:component] = map_component
-
-        area_code = reserves&.dig(:unitPhone, :areaCode)
-        phone_number = reserves&.dig(:unitPhone, :phoneNumber)
-        reserves[:unitPhoneNumber] = convert_phone(area_code + phone_number) if area_code && phone_number
-        reserves.delete(:unitPhone)
-
-        receiving_inactive_duty_training_pay = reserves[:receivingInactiveDutyTrainingPay]
-        reserves[:receivingInactiveDutyTrainingPay] = receiving_inactive_duty_training_pay ? 'YES' : 'NO'
-        @pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService] = reserves
-
-        @pdf_data
       end
       # rubocop:enable Layout/LineLength
 
@@ -611,39 +617,51 @@ module ClaimsApi
         @pdf_data[:data][:attributes].delete(:claimDate)
       end
 
-      def get_service_pay # rubocop:disable Metrics/MethodLength
+      def get_service_pay
         @pdf_data[:data][:attributes].merge!(
           servicePay: @auto_claim&.dig('servicePay')&.deep_symbolize_keys
         )
-        receiving_military_retired_pay = @pdf_data[:data][:attributes][:servicePay][:receivingMilitaryRetiredPay]
-        future_military_retired_pay = @pdf_data.dig(:data, :attributes, :servicePay, :futureMilitaryRetiredPay)
-        received_separation_or_severance_pay =
-          @pdf_data[:data][:attributes][:servicePay][:receivedSeparationOrSeverancePay]
-        @pdf_data[:data][:attributes][:servicePay][:receivingMilitaryRetiredPay] =
-          receiving_military_retired_pay ? 'YES' : 'NO'
-        @pdf_data[:data][:attributes][:servicePay][:futureMilitaryRetiredPay] =
-          future_military_retired_pay ? 'YES' : 'NO'
-        @pdf_data[:data][:attributes][:servicePay][:receivedSeparationOrSeverancePay] =
-          received_separation_or_severance_pay ? 'YES' : 'NO'
-        if @pdf_data[:data][:attributes][:servicePay][:militaryRetiredPay].present?
-          branch_of_service = @pdf_data[:data][:attributes][:servicePay][:militaryRetiredPay][:branchOfService]
-          @pdf_data[:data][:attributes][:servicePay][:militaryRetiredPay].delete(:branchOfService)
-          @pdf_data[:data][:attributes][:servicePay][:militaryRetiredPay].merge!(
-            branchOfService: { branch: branch_of_service }
-          )
-        end
-        if @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay].present?
-          branch_of_service = @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay][:branchOfService]
-          @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay].delete(:branchOfService)
-          @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay].merge!(
-            branchOfService: { branch: branch_of_service }
-          )
-          date_payment_received =
-            @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay][:datePaymentReceived]
-          @pdf_data[:data][:attributes][:servicePay][:separationSeverancePay][:datePaymentReceived] =
-            regex_date_conversion(date_payment_received)
-        end
+        service_pay = @pdf_data&.dig(:data, :attributes, :servicePay)
+        handle_service_pay if service_pay.present?
+        handle_military_retired_pay if service_pay&.dig(:militaryRetiredPay).present?
+        handle_seperation_severance_pay if service_pay&.dig(:separationSeverancePay).present?
+
         @pdf_data
+      end
+
+      def get_location(location_code)
+        retrieve_separation_locations.detect do |location|
+          location_code == location[:id].to_s
+        end
+      end
+
+      def handle_yes_no(pay)
+        pay ? 'YES' : 'NO'
+      end
+
+      def handle_branch(branch)
+        { branch: }
+      end
+
+      def handle_service_pay
+        service_pay = @pdf_data&.dig(:data, :attributes, :servicePay)
+        service_pay[:receivingMilitaryRetiredPay] = handle_yes_no(service_pay[:receivingMilitaryRetiredPay])
+        service_pay[:futureMilitaryRetiredPay] = handle_yes_no(service_pay[:futureMilitaryRetiredPay])
+        service_pay[:receivedSeparationOrSeverancePay] = handle_yes_no(service_pay[:receivedSeparationOrSeverancePay])
+      end
+
+      def handle_military_retired_pay
+        military_retired_pay = @pdf_data&.dig(:data, :attributes, :servicePay, :militaryRetiredPay)
+        branch_of_service = military_retired_pay[:branchOfService]
+        military_retired_pay[:branchOfService] = handle_branch(branch_of_service) unless branch_of_service.nil?
+      end
+
+      def handle_seperation_severance_pay
+        seperation_severance_pay = @pdf_data&.dig(:data, :attributes, :servicePay, :separationSeverancePay)
+        branch_of_service = @pdf_data&.dig(:data, :attributes, :servicePay, :separationSeverancePay, :branchOfService)
+        seperation_severance_pay[:branchOfService] = handle_branch(branch_of_service)
+        seperation_severance_pay[:datePaymentReceived] =
+          regex_date_conversion(seperation_severance_pay[:datePaymentReceived])
       end
 
       def convert_date_to_object(date_string)

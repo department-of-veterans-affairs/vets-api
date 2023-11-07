@@ -19,10 +19,16 @@ module DebtManagementCenter
     end
 
     def get_debts
+      has_dependent_debts = veteran_has_dependent_debts?
+      debts = debts_with_sorted_histories
+      StatsD.increment("#{STATSD_KEY_PREFIX}.get_debts.success")
       {
-        has_dependent_debts: veteran_has_dependent_debts?,
-        debts: debts_with_sorted_histories
+        has_dependent_debts:,
+        debts:
       }
+    rescue => e
+      StatsD.increment("#{STATSD_KEY_PREFIX}.get_debts.failure")
+      raise e
     end
 
     def get_debt_by_id(id)
@@ -30,7 +36,12 @@ module DebtManagementCenter
 
       raise DebtNotFound if debt_store.blank?
 
-      debt_store.get_debt(id)
+      debt = debt_store.get_debt(id)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.get_debt.success")
+      debt
+    rescue => e
+      StatsD.increment("#{STATSD_KEY_PREFIX}.get_debt.failure")
+      raise e
     end
 
     def veteran_has_dependent_debts?

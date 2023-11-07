@@ -49,10 +49,6 @@ features:
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
-  hca_vaprofile_military_info:
-    actor_type: user
-    description: Enables prefilling 1010ez using VA profile military data
-    enable_in_development: false
   cerner_allow_partial_facilities:
     actor_type: user
     description: This will allow cerner facilities to be set to partially cerner or all cerner.
@@ -654,7 +650,7 @@ features:
     actor_type: cookie_id
     description: Enables/disables MHV to Login.gov account transfer urgent experience (Identity)
     enable_in_development: false
-  military_information:
+  military_information_vaprofile:
     actor_type: user
     description: Enables the post-EMIS military information of VAProfile
     enable_in_development: false
@@ -1214,6 +1210,9 @@ features:
   virtual_agent_enable_pva2_chatbot:
     actor_type: user
     description: If enabled, switches VA chatbot from PVA1 to PVA2
+  virtual_agent_upgrade_webchat_14_15_8:
+    actor_type: user
+    description: If enabled, switches VA webchat from using version 4.15.2 to 4.15.8
   terms_of_use:
     actor_type: user
     description: This determines whether a user is redirected to the Terms of Use page
@@ -1228,3 +1227,6 @@ features:
     actor_type: user
     description: Enable the veteran post-emis status
     enable_in_development: false
+  virtual_agent_enable_param_error_detection:
+    actor_type: user
+    description: If enabled, Allows for the detection of errors in the chatbot params
