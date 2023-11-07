@@ -463,7 +463,7 @@ GEM
       rspec-core (~> 3.0)
       ruby-progressbar (~> 1.4)
     gems (1.2.0)
-    git (1.13.0)
+    git (1.18.0)
       addressable (~> 2.8)
       rchardet (~> 1.8)
     globalid (1.1.0)
