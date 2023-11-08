@@ -70,7 +70,7 @@ gem 'fitbit_api'
 gem 'flipper'
 gem 'flipper-active_record'
 gem 'flipper-active_support_cache_store'
-gem 'flipper-ui', '0.23.1' # Start at 23.1, try to bump to latest (1.0.0)
+gem 'flipper-ui', '0.22.0' # Flipper#552 (CSP) in 0.22.1 is causing our styles not to load
 gem 'foreman'
 gem 'google-api-client'
 gem 'google-apis-core'
