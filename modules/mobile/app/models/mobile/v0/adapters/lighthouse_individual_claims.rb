@@ -49,6 +49,8 @@ module Mobile
 
         UPLOADED_STATUSES = %w[ACCEPTED INITIAL_REVIEW_COMPLETE SUBMITTED_AWAITING_REVIEW].freeze
 
+        DEFAULT_DATE = Date.new
+
         # rubocop:disable Metrics/MethodLength
         def parse(claim)
           return nil unless claim
@@ -108,8 +110,18 @@ module Mobile
           # Add documents not associated with a tracked item
           events += create_events_for_documents(attributes)
 
-          # Make reverse chron with nil date items at the end
-          events.compact.sort_by { |h| h[:date] || Date.new }.reverse
+          # sort to put events with uploaded == false on top and then by date
+          events.compact.sort_by do |event|
+            upload_priority = if event[:uploaded] || !event.key?(:uploaded)
+                                0 # Lower priority for uploaded == true or key not present
+                              else
+                                1 # Higher priority for uploaded == false
+                              end
+
+            event_date = event[:date] || DEFAULT_DATE
+
+            [upload_priority, event_date]
+          end.reverse
         end
 
         def create_event_from_string_date(type, date)
