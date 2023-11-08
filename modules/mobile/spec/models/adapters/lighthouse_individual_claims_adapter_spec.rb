@@ -45,32 +45,33 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, aggregate_failures: t
     tracked_items = gathering_of_evidence_claim[:events_timeline].select do |event|
       %w[still_need_from_you_list received_from_you_list].include?(event[:type].to_s)
     end
-    tracked_items.first[:date] = tracked_items.first[:date].to_s
+
+    tracked_items[3][:date] = tracked_items.dig(3, :date).to_s
     expect(tracked_items.size).to eq(8)
-    expect(tracked_items.first).to eq({ type: 'received_from_you_list',
-                                        tracked_item_id: 360_052,
-                                        description: 'The information provided concerning your prior marital history' \
-                                                     ' is inconsistent.  In order to resolve these inconsistencies ' \
-                                                     'you should submit certified copies of the public record of the' \
-                                                     ' termination (death, divorce or annulment) for each of your' \
-                                                     ' prior marriages.',
-                                        display_name: 'Claimant marital history inconsistent - need proof',
-                                        overdue: true,
-                                        status: 'NEEDED',
-                                        uploaded: true,
-                                        uploads_allowed: true,
-                                        opened_date: '2022-09-30',
-                                        requested_date: '2022-09-30',
-                                        received_date: nil,
-                                        closed_date: nil,
-                                        suspense_date: '2022-10-30',
-                                        documents: [{ tracked_item_id: 360_052,
-                                                      file_type: 'Civilian Police Reports',
-                                                      document_type: nil,
-                                                      filename: '7B434B58-477C-4379-816F-05E6D3A10487.pdf',
-                                                      upload_date: '2023-03-01' }],
-                                        upload_date: '2023-03-01',
-                                        date: '2023-03-01' })
+    expect(tracked_items[3]).to eq({ type: 'received_from_you_list',
+                                     tracked_item_id: 360_052,
+                                     description: 'The information provided concerning your prior marital history' \
+                                                  ' is inconsistent.  In order to resolve these inconsistencies ' \
+                                                  'you should submit certified copies of the public record of the' \
+                                                  ' termination (death, divorce or annulment) for each of your' \
+                                                  ' prior marriages.',
+                                     display_name: 'Claimant marital history inconsistent - need proof',
+                                     overdue: true,
+                                     status: 'NEEDED',
+                                     uploaded: true,
+                                     uploads_allowed: true,
+                                     opened_date: '2022-09-30',
+                                     requested_date: '2022-09-30',
+                                     received_date: nil,
+                                     closed_date: nil,
+                                     suspense_date: '2022-10-30',
+                                     documents: [{ tracked_item_id: 360_052,
+                                                   file_type: 'Civilian Police Reports',
+                                                   document_type: nil,
+                                                   filename: '7B434B58-477C-4379-816F-05E6D3A10487.pdf',
+                                                   upload_date: '2023-03-01' }],
+                                     upload_date: '2023-03-01',
+                                     date: '2023-03-01' })
   end
 
   context 'with claim in phase CLAIM_RECEIVED' do
