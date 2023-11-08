@@ -78,10 +78,10 @@ module Lighthouse
         }
       end
 
-      def download_letter(icn, letter_type, options = {})
+      def download_letter(icns, letter_type, options = {})
         endpoint = "letters/#{letter_type}/letter"
         log = "Downloading letter from #{config.generator_url}/#{endpoint}"
-        params = { icn: }.merge(options)
+        params = icns.merge(options)
 
         response = get_from_lighthouse(endpoint, params, log)
         response.body
