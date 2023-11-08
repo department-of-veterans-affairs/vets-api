@@ -4,6 +4,7 @@ require 'erb'
 
 module V0
   class VirtualAgentJwtTokenController < ApplicationController
+    service_tag 'virtual-agent'
     rescue_from 'V0::VirtualAgentJwtTokenController::ServiceException', with: :service_exception_handler
     rescue_from Net::HTTPError, with: :service_exception_handler
 
