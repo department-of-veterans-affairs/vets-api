@@ -2541,6 +2541,30 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
         end
+
+        describe "'disabilities.serviceRelevance' validations" do
+          context "when 'disabilites.disabilityActionType' equals 'NEW'" do
+            context "and 'disabilities.serviceRelevance' is not provided" do
+              it 'responds with a 422' do
+                mock_ccg(scopes) do |auth_header|
+                  json_data = JSON.parse data
+                  params = json_data
+                  disabilities = [
+                    {
+                      diagnosticCode: 123,
+                      disabilityActionType: 'NEW',
+                      serviceRelevance: '',
+                      name: 'PTSD (post traumatic stress disorder)'
+                    }
+                  ]
+                  params['data']['attributes']['disabilities'] = disabilities
+                  post submit_path, params: params.to_json, headers: auth_header
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
       end
 
       describe "'disabilities.secondaryDisabilities' validations" do
