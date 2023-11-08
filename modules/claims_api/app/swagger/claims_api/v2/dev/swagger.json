@@ -1783,8 +1783,7 @@
                           "additionalProperties": false,
                           "required": [
                             "disabilityActionType",
-                            "name",
-                            "serviceRelevance"
+                            "name"
                           ],
                           "properties": {
                             "name": {
@@ -1804,7 +1803,7 @@
                               "nullable": true
                             },
                             "serviceRelevance": {
-                              "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
+                              "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury. If the disabilityActionType is 'NEW', the serviceRelevance is required.",
                               "type": "string",
                               "example": "Heavy equipment operator in service."
                             },
@@ -2886,8 +2885,7 @@
                               "additionalProperties": false,
                               "required": [
                                 "disabilityActionType",
-                                "name",
-                                "serviceRelevance"
+                                "name"
                               ],
                               "properties": {
                                 "name": {
@@ -2907,7 +2905,7 @@
                                   "nullable": true
                                 },
                                 "serviceRelevance": {
-                                  "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
+                                  "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury. If the disabilityActionType is 'NEW', the serviceRelevance is required.",
                                   "type": "string",
                                   "example": "Heavy equipment operator in service."
                                 },
@@ -4291,8 +4289,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2023-11-03",
-                      "expirationDate": "2024-11-03",
+                      "creationDate": "2023-11-07",
+                      "expirationDate": "2024-11-07",
                       "type": "compensation",
                       "status": "active"
                     }
