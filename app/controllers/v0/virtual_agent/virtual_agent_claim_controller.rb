@@ -8,6 +8,7 @@ module V0
   module VirtualAgent
     class VirtualAgentClaimController < ApplicationController
       include IgnoreNotFound
+      service_tag 'virtual-agent'
       rescue_from 'EVSS::ErrorMiddleware::EVSSError', with: :service_exception_handler
       unless Settings.vsp_environment.downcase == 'localhost' || Settings.vsp_environment.downcase == 'development'
         if Flipper.enabled?(:virtual_agent_lighthouse_claims, @current_user)
