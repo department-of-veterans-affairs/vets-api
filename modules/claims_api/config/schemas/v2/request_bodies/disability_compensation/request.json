@@ -483,8 +483,7 @@
                 "additionalProperties": false,
                 "required": [
                   "disabilityActionType",
-                  "name",
-                  "serviceRelevance"
+                  "name"
                 ],
                 "properties": {
                   "name": {
@@ -501,7 +500,7 @@
                     "nullable": true
                   },
                   "serviceRelevance": {
-                    "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
+                    "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury. If the disabilityActionType is 'NEW', the serviceRelevance is required.",
                     "type": "string",
                     "example": "Heavy equipment operator in service."
                   },
