@@ -336,7 +336,8 @@ RSpec.describe Lighthouse::LettersGenerator::Service do
       end
 
       client = Lighthouse::LettersGenerator::Service.new
-      response = client.download_letter('DOLLYPARTON', 'BENEFIT_SUMMARY')
+      icns = { icn: 'DOLLYPARTON' }
+      response = client.download_letter(icns, 'BENEFIT_SUMMARY')
 
       @stubs.verify_stubbed_calls
       expect(response).not_to be_nil
@@ -360,7 +361,8 @@ RSpec.describe Lighthouse::LettersGenerator::Service do
       letter_options = fake_response_body['benefitInformation']
 
       client = Lighthouse::LettersGenerator::Service.new
-      response = client.download_letter('DOLLYPARTON', 'BENEFIT_SUMMARY', letter_options)
+      icns = { icn: 'DOLLYPARTON' }
+      response = client.download_letter(icns, 'BENEFIT_SUMMARY', letter_options)
 
       @stubs.verify_stubbed_calls
       expect(response).not_to be_nil
@@ -379,8 +381,9 @@ RSpec.describe Lighthouse::LettersGenerator::Service do
         end
 
         client = Lighthouse::LettersGenerator::Service.new
+        icns = { icn: 'BADREQUEST' }
 
-        expect { client.download_letter('BADREQUEST', 'BENEFIT_SUMMARY') }.to raise_error do |error|
+        expect { client.download_letter(icns, 'BENEFIT_SUMMARY') }.to raise_error do |error|
           expect(error).to be_an_instance_of(Common::Exceptions::BadRequest)
         end
       end

@@ -88,6 +88,8 @@ app/controllers/v0/in_progress_forms_controller.rb @department-of-veterans-affai
 app/controllers/v0/intent_to_files_controller.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/letters_controller.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/letters_generator_controller.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/controllers/v0/letters_generator_controller_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/support/vcr_cassettes/lighthouse/letters_generator/ @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/maintenance_windows_controller.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/mdot @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/mdot/supplies_controller.rb @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
@@ -1324,7 +1326,7 @@ spec/lib/lighthouse/direct_deposit @department-of-veterans-affairs/vfs-authentic
 spec/lib/lighthouse/direct_deposit/payment_account_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/facilities @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/vfs-facilities
 spec/lib/lighthouse/facilities/client_spec.rb @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/vfs-facilities
-spec/lib/lighthouse/letters_generator @department-of-veterans-affairs/lighthouse-banana-peels
+spec/lib/lighthouse/letters_generator @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/lighthouse/veterans_health @department-of-veterans-affairs/lighthouse-banana-peels
 spec/lib/lighthouse/veteran_verification @department-of-veterans-affairs/lighthouse-banana-peels
 spec/lib/mail_automation @department-of-veterans-affairs/vfs-benefits-delivery  @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
