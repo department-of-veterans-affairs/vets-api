@@ -71,9 +71,7 @@ module SwaggerSharedComponents
             'config',
             'schemas',
             'v2',
-            'request_bodies',
-            'disability_compensation',
-            'request.json'
+            '526.json'
           )
         )
       )
@@ -123,8 +121,16 @@ module SwaggerSharedComponents
           required: true,
           schema: {
             type: :object,
-            required: disability_compensation_json_schema['required'],
-            properties: disability_compensation_json_schema['properties'],
+            required: ['data'],
+            properties: {
+              data: {
+                type: :object,
+                required: ['attributes', disability_compensation_json_schema['required']],
+                properties: {
+                  attributes: disability_compensation_json_schema
+                }
+              }
+            },
             example: disability_compensation_request_body_example
           }
         },
