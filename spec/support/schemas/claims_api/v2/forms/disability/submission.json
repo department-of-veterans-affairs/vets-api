@@ -440,7 +440,7 @@
         "items": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["disabilityActionType", "name", "serviceRelevance"],
+          "required": ["disabilityActionType", "name"],
           "properties": {
             "name": {
               "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
@@ -456,7 +456,7 @@
               "nullable": true
             },
             "serviceRelevance": {
-              "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
+              "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury. If the disabilityActionType is 'NEW', the serviceRelevance is required.",
               "type": "string",
               "example": "Heavy equipment operator in service."
             },

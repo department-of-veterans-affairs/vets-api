@@ -147,6 +147,7 @@ module ClaimsApi
       def validate_form_526_disabilities!
         validate_form_526_disability_classification_code!
         validate_form_526_disability_approximate_begin_date!
+        validate_form_526_disability_service_relevance!
         validate_form_526_disability_secondary_disabilities!
       end
 
@@ -191,6 +192,21 @@ module ClaimsApi
           next if date_is_valid_against_current_time_after_check_on_format?(approx_begin_date)
 
           raise ::Common::Exceptions::InvalidFieldValue.new('disability.approximateDate', approx_begin_date)
+        end
+      end
+
+      def validate_form_526_disability_service_relevance!
+        disabilities = form_attributes['disabilities']
+        return if disabilities.blank?
+
+        disabilities.each do |disability|
+          disability_action_type = disability&.dig('disabilityActionType')
+          service_relevance = disability&.dig('serviceRelevance')
+          if disability_action_type == 'NEW' && service_relevance.blank?
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: "'disabilities.serviceRelevance' is required if 'disabilities.disabilityActionType' is NEW."
+            )
+          end
         end
       end
 
