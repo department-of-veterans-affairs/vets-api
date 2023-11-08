@@ -23,16 +23,23 @@ module VBADocuments
     private
 
     def process(upload)
-      Rails.logger.info("VBADocuments: Processing: #{upload.inspect}")
+      log_details = { 'job' => self.class.name }.merge(upload.as_json)
+      Rails.logger.info("VBADocuments: Started processing #{upload.class.name.demodulize} from S3", log_details)
+
       object = bucket.object(upload.guid)
       return false unless object.exists?
 
-      upload.update(status: 'uploaded')
+      upload.update!(status: 'uploaded')
+
+      Rails.logger.info("VBADocuments: #{upload.class.name.demodulize} progressed to \"uploaded\" status", log_details)
 
       # Appeals evidence is processed at a later time (after the appeal reaches a "success" status)
       return true if upload.appeals_consumer? && Flipper.enabled?(:decision_review_delay_evidence)
 
       VBADocuments::UploadProcessor.perform_async(upload.guid, caller: self.class.name)
+
+      Rails.logger.info("VBADocuments: Finished processing #{upload.class.name.demodulize} from S3", log_details)
+
       true
     end
 
