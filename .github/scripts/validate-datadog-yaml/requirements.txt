@@ -1,0 +1,8 @@
+attrs==23.1.0
+contextlib2==21.6.0
+jsonschema==4.19.2
+jsonschema-specifications==2023.7.1
+PyYAML==6.0.1
+referencing==0.30.2
+rpds-py==0.10.6
+schema==0.7.5
