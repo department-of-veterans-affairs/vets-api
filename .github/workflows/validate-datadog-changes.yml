@@ -6,8 +6,8 @@ on:
 
 jobs:
   validate_files:
-    runs-on: ubuntu-latest
     name: Validate changes to DataDog Service Catalog Files
+    runs-on: ubuntu-latest
     steps:
       - name: checkout
         uses: actions/checkout@v3
