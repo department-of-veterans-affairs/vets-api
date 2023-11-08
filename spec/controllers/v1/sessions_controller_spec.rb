@@ -449,10 +449,21 @@ RSpec.describe V1::SessionsController, type: :controller do
   end
 
   describe 'GET #ssoe_slo_callback' do
-    subject(:call_endpoint) { get :ssoe_slo_callback }
+    subject(:call_endpoint) { get :ssoe_slo_callback, params: }
+
+    let(:params) { {} }
 
     it 'redirects on callback from external logout' do
       expect(call_endpoint).to redirect_to('http://127.0.0.1:3001/logout/')
+    end
+
+    context 'when agreements_declined is true' do
+      let(:params) { { agreements_declined: true } }
+      let(:expected_redirect_url) { 'http://127.0.0.1:3001/terms-of-use/declined' }
+
+      it 'redirects to terms-of-use-declined-page' do
+        expect(call_endpoint).to redirect_to(expected_redirect_url)
+      end
     end
   end
 

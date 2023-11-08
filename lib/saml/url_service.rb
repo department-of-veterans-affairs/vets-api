@@ -26,6 +26,7 @@ module SAML
     MOBILE_CLIENT_ID = 'mobile'
     UNIFIED_SIGN_IN_CLIENTS = %w[vaweb mhv myvahealth ebenefits vamobile vaoccmobile].freeze
     TERMS_OF_USE_ENABLED_CLIENTS = %w[vaweb mhv].freeze
+    TERMS_OF_USE_DECLINED_PATH = '/terms-of-use/declined'
 
     attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params, :tracker
 

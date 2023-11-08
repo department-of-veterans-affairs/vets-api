@@ -64,7 +64,12 @@ module V1
 
     def ssoe_slo_callback
       Rails.logger.info("SessionsController version:v1 ssoe_slo_callback, user_uuid=#{@current_user&.uuid}")
-      redirect_to url_service.logout_redirect_url
+
+      if ActiveModel::Type::Boolean.new.cast(params[:agreements_declined])
+        redirect_to url_service.tou_declined_logout_redirect_url
+      else
+        redirect_to url_service.logout_redirect_url
+      end
     end
 
     def saml_callback
