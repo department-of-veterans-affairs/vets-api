@@ -8,9 +8,6 @@ module Veteran
     class Representative < ApplicationRecord
       BASE_URL = 'https://www.va.gov/ogc/apps/accreditation/'
 
-      FUZZY_SEARCH_THRESHOLD = 0.3 # pg_search's default
-      DEFAULT_MAX_DISTANCE = 80_467.2 # 50 miles converted to meters
-
       self.primary_key = :representative_id
       has_kms_key
       has_encrypted :dob, :ssn, key: :kms_key, **lockbox_options
@@ -103,7 +100,7 @@ module Veteran
       #
       # @return [Veteran::Service::Representative::ActiveRecord_Relation] an ActiveRecord_Relation of
       #   all representatives matching the search criteria
-      def self.find_within_max_distance(long, lat, max_distance = DEFAULT_MAX_DISTANCE)
+      def self.find_within_max_distance(long, lat, max_distance = Constants::DEFAULT_MAX_DISTANCE)
         query = 'ST_DWithin(ST_SetSRID(ST_MakePoint(:long, :lat), 4326)::geography, location, :max_distance)'
         params = { long:, lat:, max_distance: }
 
@@ -117,14 +114,18 @@ module Veteran
       #
       # @return [Veteran::Service::Representative::ActiveRecord_Relation] an ActiveRecord_Relation of
       #   all representatives matching the search criteria
-      def self.find_with_full_name_similar_to(search_phrase)
-        where('word_similarity(?, full_name) >= ?', search_phrase, FUZZY_SEARCH_THRESHOLD)
+      def self.find_with_name_similar_to(search_phrase)
+        where('word_similarity(?, full_name) >= ?', search_phrase, Constants::FUZZY_SEARCH_THRESHOLD)
       end
 
       #
       # Set the full_name attribute for the representative
       def set_full_name
         self.full_name = "#{first_name} #{last_name}"
+      end
+
+      def self.max_per_page
+        Constants::MAX_PER_PAGE
       end
     end
   end

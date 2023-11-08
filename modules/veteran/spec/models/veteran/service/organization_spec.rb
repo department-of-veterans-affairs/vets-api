@@ -23,7 +23,7 @@ describe Veteran::Service::Organization do
       create(:organization, poa: '123', long: -77.466316, lat: 38.309875,
                             location: 'POINT(-77.466316 38.309875)') # ~47 miles from Washington, D.C.
 
-      create(:organization, poa: '246', long: -76.609383, lat: 39.299236,
+      create(:organization, poa: '246', long: -76.3483, lat: 39.5359,
                             location: 'POINT(-76.3483 39.5359)') # ~57 miles from Washington, D.C.
     end
 

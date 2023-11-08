@@ -84,7 +84,7 @@ describe Veteran::Service::Representative, type: :model do
       create(:representative, representative_id: '123', long: -77.466316, lat: 38.309875,
                               location: 'POINT(-77.466316 38.309875)') # ~47 miles from Washington, D.C.
 
-      create(:representative, representative_id: '246', long: -76.609383, lat: 39.299236,
+      create(:representative, representative_id: '246', long: -76.3483, lat: 39.5359,
                               location: 'POINT(-76.3483 39.5359)') # ~57 miles from Washington, D.C.
     end
 
@@ -114,7 +114,7 @@ describe Veteran::Service::Representative, type: :model do
     end
   end
 
-  describe '.find_with_full_name_similar_to' do
+  describe '.find_with_name_similar_to' do
     before do
       # word similarity value = 1
       create(:representative, representative_id: '456', first_name: 'Bob', last_name: 'Law')
@@ -131,7 +131,7 @@ describe Veteran::Service::Representative, type: :model do
 
     context 'when there are representatives with full names similar to the search phrase' do
       it 'returns all representatives with full names >= the word similarity threshold' do
-        results = described_class.find_with_full_name_similar_to('Bob Law')
+        results = described_class.find_with_name_similar_to('Bob Law')
 
         expect(results.pluck(:representative_id)).to match_array(%w[123 456 789])
       end
@@ -139,7 +139,7 @@ describe Veteran::Service::Representative, type: :model do
 
     context 'when there are no representatives with full names similar to the search phrase' do
       it 'returns an empty array' do
-        results = described_class.find_with_full_name_similar_to('No Name')
+        results = described_class.find_with_name_similar_to('No Name')
 
         expect(results.pluck(:representative_id)).to eq([])
       end
