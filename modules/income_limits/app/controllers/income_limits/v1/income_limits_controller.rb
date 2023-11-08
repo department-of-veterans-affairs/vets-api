@@ -3,6 +3,7 @@
 module IncomeLimits
   module V1
     class IncomeLimitsController < ApplicationController
+      service_tag 'income-limit-calculator'
       skip_before_action :authenticate
 
       def index
