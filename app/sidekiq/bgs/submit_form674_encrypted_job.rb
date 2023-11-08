@@ -13,7 +13,8 @@ module BGS
 
     sidekiq_options retry: 14
 
-    sidekiq_retries_exhausted do
+    sidekiq_retries_exhausted do |msg|
+      Rails.logger.error('BGS::SubmitForm674Job failed!', { user_uuid:, saved_claim_id:, icn: @icn, error: msg })
       salvage_save_in_progress_form(FORM_ID, user_uuid, in_progress_copy)
       if Flipper.enabled?(:dependents_central_submission)
         CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
@@ -28,12 +29,7 @@ module BGS
       @vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
       Rails.logger.info('BGS::SubmitForm674Job running!', { user_uuid:, saved_claim_id:, icn: })
 
-      @user = if encrypted_user_struct_hash.present?
-                OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct_hash)))
-              else
-                generate_user_struct
-              end
-
+      @user = generate_user_struct(encrypted_user_struct_hash)
       @user_uuid = user_uuid
       @saved_claim_id = saved_claim_id
 
@@ -48,8 +44,10 @@ module BGS
       in_progress_form&.destroy
       Rails.logger.info('BGS::SubmitForm674Job succeeded!', { user_uuid:, saved_claim_id:, icn: })
     rescue => e
-      Rails.logger.error('BGS::SubmitForm674Job failed!', { user_uuid:, saved_claim_id:, icn:, error: e.message })
-      log_message_to_sentry(e, :error, {}, { team: 'vfs-ebenefits' })
+      Rails.logger.warn('BGS::SubmitForm674Job received error!',
+                        { user_uuid:, saved_claim_id:, icn:, error: e.message })
+      log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
+      @icn = icn
 
       raise
     end
@@ -77,7 +75,11 @@ module BGS
       )
     end
 
-    def generate_user_struct
+    def generate_user_struct(encrypted_user_struct)
+      if encrypted_user_struct.present?
+        return OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct)))
+      end
+
       info = vet_info['veteran_information']
       full_name = info['full_name']
       OpenStruct.new(
