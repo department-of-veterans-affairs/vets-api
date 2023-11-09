@@ -19,11 +19,6 @@ RSpec.describe 'Upload supporting evidence' do
   end
 
   describe 'Post /v0/upload_supporting_evidence' do
-    context 'when the disability_compensation_lighthouse_document_service_provider switch is disabled' do
-      before do
-        Flipper.disable(:disability_compensation_lighthouse_document_service_provider)
-      end
-
       context 'with valid parameters' do
         it 'returns a 200 and an upload guid' do
           post '/v0/upload_supporting_evidence',
@@ -33,6 +28,15 @@ RSpec.describe 'Upload supporting evidence' do
 
           expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq sea.guid
           expect(sea.get_file&.read).not_to be_nil
+        end
+
+        it 'creates a LighthouseSupportingEvidenceAttachment as well' do
+          post '/v0/upload_supporting_evidence',
+                 params: { supporting_evidence_attachment: { file_data: pdf_file } }
+
+          expect(response).to have_http_status(:ok)
+          lsea = LighthouseSupportingEvidenceAttachment.last
+          expect(lsea.get_file&.read).not_to be_nil
         end
       end
 
@@ -100,104 +104,6 @@ RSpec.describe 'Upload supporting evidence' do
           post '/v0/upload_supporting_evidence', params: nil
           expect(response).to have_http_status(:bad_request)
         end
-        it 'returns a 400 with no file_data' do
-          post '/v0/upload_supporting_evidence', params: { supporting_evidence_attachment: {} }
-          expect(response).to have_http_status(:bad_request)
-        end
-      end
-    end
-
-    context 'when the disability_compensation_lighthouse_document_service_provider switch is enabled' do
-      before do
-        Flipper.enable(:disability_compensation_lighthouse_document_service_provider)
-      end
-
-      it 'and creates a LighthouseSupportingEvidenceAttachment record' do
-        post '/v0/upload_supporting_evidence',
-               params: { supporting_evidence_attachment: { file_data: pdf_file } }
-
-        expect(response).to have_http_status(:ok)
-        lsea = LighthouseSupportingEvidenceAttachment.last
-        expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq lsea.guid
-        expect(lsea.get_file&.read).not_to be_nil
-      end
-
-      context 'with valid parameters' do
-        it 'returns a 200 and an upload guid and creates a LighthouseSupportingEvidenceAttachment record' do
-          post '/v0/upload_supporting_evidence',
-               params: { supporting_evidence_attachment: { file_data: pdf_file } }
-          expect(response).to have_http_status(:ok)
-          lsea = LighthouseSupportingEvidenceAttachment.last
-
-          expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq lsea.guid
-          expect(lsea.get_file&.read).not_to be_nil
-        end
-      end
-
-      context 'with valid encrypted parameters' do
-        it 'returns a 200 and an upload guid' do
-          post '/v0/upload_supporting_evidence',
-               params: { supporting_evidence_attachment: { file_data: encrypted_pdf_file, password: 'test' } }
-          expect(response).to have_http_status(:ok)
-          lsea = LighthouseSupportingEvidenceAttachment.last
-          expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq lsea.guid
-          expect(lsea.get_file&.read).not_to be_nil
-        end
-
-        it 'returns a 422 for a pdf with an incorrect password' do
-          post '/v0/upload_supporting_evidence',
-               params: { supporting_evidence_attachment: { file_data: encrypted_pdf_file, password: 'bad pwd' } }
-          expect(response).to have_http_status(:unprocessable_entity)
-          err = JSON.parse(response.body)['errors'][0]
-          expect(err['title']).to eq 'Unprocessable Entity'
-        end
-
-        it 'returns a 200 for a pdf with a password that was not encrypted' do
-          post '/v0/upload_supporting_evidence',
-               params: { supporting_evidence_attachment: { file_data: pdf_file, password: 'unnecessary' } }
-          expect(response).to have_http_status(:ok)
-          expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq LighthouseSupportingEvidenceAttachment.last.guid
-        end
-
-        it 'returns a 422 for a malformed pdf' do
-          post '/v0/upload_supporting_evidence',
-               params: { supporting_evidence_attachment: { file_data: fixture_file_upload('malformed-pdf.pdf') } }
-          expect(response).to have_http_status(:unprocessable_entity)
-          err = JSON.parse(response.body)['errors'][0]
-          expect(err['title']).to eq 'Unprocessable Entity'
-          expect(err['detail']).to eq I18n.t('errors.messages.uploads.pdf.invalid')
-        end
-
-        it 'returns a 422  for an unallowed file type' do
-          post '/v0/upload_supporting_evidence',
-               params: { supporting_evidence_attachment:
-                         { file_data: fixture_file_upload('invalid_idme_cert.crt') } }
-          expect(response).to have_http_status(:unprocessable_entity)
-          err = JSON.parse(response.body)['errors'][0]
-          expect(err['title']).to eq 'Unprocessable Entity'
-          expect(err['detail']).to eq(
-            I18n.t('errors.messages.extension_allowlist_error',
-                   extension: '"crt"',
-                   allowed_types: LighthouseSupportingEvidenceAttachmentUploader.new('a').extension_allowlist.join(', '))
-          )
-        end
-
-        it 'returns a 422  for a file that is too small' do
-          post '/v0/upload_supporting_evidence',
-               params: { supporting_evidence_attachment:
-                         { file_data: fixture_file_upload('empty_file.txt') } }
-          expect(response).to have_http_status(:unprocessable_entity)
-          err = JSON.parse(response.body)['errors'][0]
-          expect(err['title']).to eq 'Unprocessable Entity'
-          expect(err['detail']).to eq(I18n.t('errors.messages.min_size_error', min_size: '1 Byte'))
-        end
-      end
-
-      context 'with invalid parameters' do
-        it 'returns a 400 with no parameters' do
-          post '/v0/upload_supporting_evidence', params: nil
-          expect(response).to have_http_status(:bad_request)
-        end
 
         it 'returns a 400 with no file_data' do
           post '/v0/upload_supporting_evidence', params: { supporting_evidence_attachment: {} }
@@ -205,5 +111,4 @@ RSpec.describe 'Upload supporting evidence' do
         end
       end
     end
-  end
 end

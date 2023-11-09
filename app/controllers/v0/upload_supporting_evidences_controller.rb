@@ -23,8 +23,9 @@ module V0
 
     def create
       validate_file_upload_class!
-      save_attachment_to_cloud!
+      save_attachment_to_cloud!(form_attachment)
       save_attachment_to_db!
+      save_lighthouse_attachment
 
       render(json: form_attachment)
     end
@@ -39,8 +40,8 @@ module V0
       end
     end
 
-    def save_attachment_to_cloud!
-      form_attachment.set_file_data!(attachment_params[:file_data], attachment_params[:password])
+    def save_attachment_to_cloud!(attachment)
+      attachment.set_file_data!(attachment_params[:file_data], attachment_params[:password])
     end
 
     def save_attachment_to_db!
@@ -48,15 +49,19 @@ module V0
     end
 
     def form_attachment
-      @form_attachment ||= form_attachment_model.new
+      @form_attachment ||= SupportingEvidenceAttachment.new
     end
 
-    def form_attachment_model
-      if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
-        LighthouseSupportingEvidenceAttachment
-      else
-        SupportingEvidenceAttachment
-      end
+    # Form526 Document Uploads are being migrated to post to Lighthouse instead of EVSS
+    # LighthouseSupportingEvidenceAttachment will replace SupportingEvidenceAttachment as the model for these documents
+    # To ensure attachments uploaded before Lighthouse support is fully enabled are retreiveable on Form 526 Submissions
+    # that occur _after_ the feature is enabled, we need to create a LighthouseSupportingEvidenceAttachment record in
+    # addition to a SupportingEvidenceAttachment for now
+    def save_lighthouse_attachment
+      lighthouse_attachment = LighthouseSupportingEvidenceAttachment.new
+      save_attachment_to_cloud!(lighthouse_attachment)
+
+      lighthouse_attachment.save!
     end
 
     def attachment_params
