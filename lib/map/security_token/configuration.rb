@@ -18,6 +18,10 @@ module MAP
         Settings.map_services.sign_up_service_client_id
       end
 
+      def check_in_client_id
+        Settings.map_services.check_in_client_id
+      end
+
       def client_key_path
         Settings.map_services.client_key_path
       end
