@@ -57,8 +57,8 @@ describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers
 
       describe 'Getting a successful response' do
         response '200', 'Successful response with disability' do
-          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'forms',
-                                            'disability', 'submission.json').read)
+          schema JSON.parse(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read)
+
           let(:scopes) { %w[system/claim.read system/claim.write] }
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
