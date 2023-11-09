@@ -2,6 +2,8 @@
 
 module AskVAApi
   class ApplicationController < ::ApplicationController
+    service_tag 'ask-va'
+
     private
 
     def handle_exceptions
