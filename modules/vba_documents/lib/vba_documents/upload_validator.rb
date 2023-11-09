@@ -44,6 +44,7 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: "Missing required keys: #{missing_keys.join(',')}")
       end
 
+      REQUIRED_KEYS.each { |k| metadata[k] = '' if metadata[k].nil? }
       rejected = REQUIRED_KEYS.reject { |k| metadata[k].is_a? String }
       if rejected.present?
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: "Non-string values for keys: #{rejected.join(',')}")
