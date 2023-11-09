@@ -20,7 +20,7 @@ module ClaimsApi
         set_pending_state_on_claim(auto_claim) unless auto_claim.status == pending_state_value
 
         mapped_claim = pdf_mapper_service(auto_claim.form_data, get_pdf_data, auto_claim.auth_headers,
-                                          middle_initial).map_claim
+                                          middle_initial, auto_claim.created_at).map_claim
         pdf_string = generate_526_pdf(mapped_claim)
 
         if pdf_string.empty?
@@ -93,8 +93,9 @@ module ClaimsApi
         ClaimsApi::V2::DisabilityCompensationDockerContainerUpload
       end
 
-      def pdf_mapper_service(form_data, pdf_data, auth_headers, middle_initial)
-        ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_data, pdf_data, auth_headers, middle_initial)
+      def pdf_mapper_service(form_data, pdf_data, auth_headers, middle_initial, created_at)
+        ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_data, pdf_data, auth_headers, middle_initial,
+                                                           created_at)
       end
 
       # Docker container wants data: but not attributes:

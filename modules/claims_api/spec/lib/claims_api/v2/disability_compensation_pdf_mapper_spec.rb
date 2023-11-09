@@ -49,9 +49,11 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
     end
 
     let(:middle_initial) { 'L' }
+    let(:created_at) { Timecop.freeze(Time.zone.now) }
 
     let(:mapper) do
-      ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, auth_headers, middle_initial)
+      ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, auth_headers, middle_initial,
+                                                         created_at)
     end
 
     context '526 section 0, claim attributes' do
@@ -460,12 +462,13 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
 
       it 'maps the attributes correctly' do
+        auto_claim['data']['attributes']['claim_date'] = Timecop.freeze(Time.zone.parse('2023-11-01T08:00:00Z'))
         mapper.map_claim
 
         signature = pdf_data[:data][:attributes][:claimCertificationAndSignature][:signature]
         date = pdf_data[:data][:attributes][:claimCertificationAndSignature][:dateSigned]
 
-        expect(date).to eq({ month: '02', day: '18', year: '2023' })
+        expect(date).to eq({ month: '11', day: '01', year: '2023' })
         expect(signature).to eq('abraham lincoln')
       end
     end

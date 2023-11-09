@@ -24,11 +24,12 @@ module ClaimsApi
         4 => :convert_date_string_to_format_yyyy
       }.freeze
 
-      def initialize(auto_claim, pdf_data, auth_headers, middle_initial)
+      def initialize(auto_claim, pdf_data, auth_headers, middle_initial, created_at)
         @auto_claim = auto_claim
         @pdf_data = pdf_data
         @auth_headers = auth_headers&.deep_symbolize_keys
         @middle_initial = middle_initial
+        @created_at = created_at.strftime('%Y-%m-%d').to_s
       end
 
       def map_claim
@@ -608,10 +609,8 @@ module ClaimsApi
         first_name = @auth_headers[:va_eauth_firstName]
         last_name = @auth_headers[:va_eauth_lastName]
         name = "#{first_name} #{last_name}"
-        claim_date = Date.parse(@auto_claim&.dig('claimDate').presence || Time.zone.today.to_s)
-        claim_date_mdy = claim_date.strftime('%m-%d-%Y')
         @pdf_data[:data][:attributes].merge!(claimCertificationAndSignature: {
-                                               dateSigned: regex_date_conversion(claim_date_mdy),
+                                               dateSigned: regex_date_conversion(@created_at),
                                                signature: name
                                              })
         @pdf_data[:data][:attributes].delete(:claimDate)
