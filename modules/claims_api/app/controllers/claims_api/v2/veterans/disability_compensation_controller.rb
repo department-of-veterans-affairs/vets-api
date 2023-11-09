@@ -20,7 +20,7 @@ module ClaimsApi
         skip_before_action :validate_json_format, only: [:attachments]
         before_action :shared_validation, :file_number_check, only: %i[submit validate]
 
-        def submit
+        def submit # rubocop:disable Metrics/MethodLength
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:,
@@ -30,7 +30,6 @@ module ClaimsApi
             veteran_icn: target_veteran.mpi.icn,
             validation_method: ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
           )
-
           # .create returns the resulting object whether the object was saved successfully to the database or not.
           # If it's lacking the ID, that means the create was unsuccessful and an identical claim already exists.
           # Find and return that claim instead.
@@ -38,6 +37,7 @@ module ClaimsApi
             existing_auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5)
             auto_claim = existing_auto_claim if existing_auto_claim.present?
           end
+          auto_claim.save!
 
           if auto_claim.errors.present?
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: auto_claim.errors.messages.to_s)
