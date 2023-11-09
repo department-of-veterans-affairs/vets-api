@@ -1,4 +1,5 @@
 name: Validate changes to DataDog Service Catalog Files
+# This workflow is a required check for PRs that change any of the DataDog Service Definition files. See .github/scripts/validate-datadog-yaml/README.md for more information
 on:
  pull_request:
    paths:
