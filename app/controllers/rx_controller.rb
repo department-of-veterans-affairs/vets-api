@@ -5,6 +5,7 @@ require 'rx/client'
 class RxController < ApplicationController
   include ActionController::Serialization
   include MHVControllerConcerns
+  service_tag 'legacy-mhv'
 
   protected
 
