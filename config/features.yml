@@ -49,6 +49,10 @@ features:
   hca_use_facilities_API:
     actor_type: user
     description: Allow list of medical care facilites to be fetched by way of the Facilities API.
+  ezr_prod_enabled:
+    actor_type: user
+    description: Enables access to the 10-10EZR application in prod for the purposes of conducting user reasearch
+    enable_in_development: true
   cerner_allow_partial_facilities:
     actor_type: user
     description: This will allow cerner facilities to be set to partially cerner or all cerner.
@@ -170,6 +174,10 @@ features:
   cst_use_new_claim_cards:
     actor_type: user
     description: When enabled, claims status tool uses the new claim card designs
+    enable_in_development: true
+  cst_use_claim_details_v2:
+    actor_type: user
+    description: When enabled, claims status tool uses the new claim details design
     enable_in_development: true
   coe_access:
     actor_type: user
@@ -371,9 +379,6 @@ features:
     actor_type: user
     description: Enables access to the Enrollment Verification app
     enable_in_development: true
-  ezcg_use_facility_api:
-    actor_type: user
-    description: Enables 1010EZ & 1010CG to use the Facility API instead of JSON schema
   discharge_wizard_features:
     actor_type: user
     description: Iteration of new features for discharge wizard
@@ -446,6 +451,10 @@ features:
   financial_status_report_review_page_navigation:
     actor_type: user
     description: Enables new review page navigation for users completing the Financial Status Report (FSR) form.
+    enable_in_development: true
+  find_a_rep:
+    actor_type: user
+    description: Enables the Find a Rep search endpoint
     enable_in_development: true
   form526_legacy:
     actor_type: user

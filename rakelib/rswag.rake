@@ -40,7 +40,7 @@ namespace :rswag do
       ENV['SWAGGER_DRY_RUN'] = '0'
       Rake::Task['rswag:specs:swaggerize'].invoke
 
-      %w[v1 v2].each { |version| strip_swagger_base_path(version) }
+      %w[v1 v2].each { |version| format_for_swagger(version) }
     end
 
     desc 'Generate rswag docs by environment for the claims_api'
@@ -51,7 +51,7 @@ namespace :rswag do
       %w[dev production].each do |environment|
         ENV['DOCUMENTATION_ENVIRONMENT'] = environment
         Rake::Task['rswag:specs:swaggerize'].invoke
-        %w[v1 v2].each { |version| strip_swagger_base_path(version, (version.eql?('v2') ? environment : nil)) }
+        %w[v1 v2].each { |version| format_for_swagger(version, (version.eql?('v2') ? environment : nil)) }
         Rake::Task['rswag:specs:swaggerize'].reenable
       end
     end
@@ -97,21 +97,50 @@ def generate_appeals_docs(dev: false)
   appeals_api_output_files(dev:).each { |file_path| rswag_to_oas!(file_path) }
 end
 
-def strip_swagger_base_path(version, env = nil)
-  # Rwag still generates `basePath`, which is invalid in OAS v3 (https://github.com/rswag/rswag/issues/318)
-  # This removes the basePath value from the generated JSON file(s)
+# This method does two things
+# 1
+# Rwag still generates `basePath`, which is invalid in OAS v3 (https://github.com/rswag/rswag/issues/318)
+# This removes the basePath value from the generated JSON file(s)
+# 2
+# To validate the null values for fields in the JSON correctly we use type: ['string', 'null']
+# Swagger displays that as stringnull so in order to make the docs remain readable we remove the null before writing
+def format_for_swagger(version, env = nil)
   path = "app/swagger/claims_api/#{version}/swagger.json"
   path = "app/swagger/claims_api/#{version}/#{env}/swagger.json" if version.eql?('v2')
   swagger_file_path = ClaimsApi::Engine.root.join(path)
   temp_path = swagger_file_path.sub('swagger.json', 'temp.json').to_s
 
+  schema_description = 'Claims API 526 Schema'
+  handling_disability_compensation = false
+
   File.open(temp_path, 'w') do |output_file|
     File.foreach(swagger_file_path) do |line|
+      # Switch to true when we hit 526, then switch to false at the next schema
+      if version.eql?('v2') && line.include?('description') && line.include?(schema_description)
+        handling_disability_compensation = true
+      elsif line.include?('$schema') # For all other schemas outside of the v2 526 we want this to be false
+        handling_disability_compensation = false
+      end
+
+      line &&= check_for_and_handle_null_values(line, version) if handling_disability_compensation
+
       output_file.puts line unless line.include?('basePath')
     end
   end
 
   FileUtils.mv(temp_path, swagger_file_path.to_s)
+end
+
+def check_for_and_handle_null_values(line, version)
+  current = line.strip
+
+  if current == '"null"' && version.eql?('v2') # null is second in the array
+    '""'
+  elsif current == '"null",' && version.eql?('v2') # null is first in the array
+    '"",'
+  else
+    line
+  end
 end
 
 # Does file manipulation to make an rswag-output json file compatible to OAS v3

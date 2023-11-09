@@ -13,7 +13,8 @@ module BGS
 
     sidekiq_options retry: 14
 
-    sidekiq_retries_exhausted do
+    sidekiq_retries_exhausted do |msg|
+      Rails.logger.error('BGS::SubmitForm686cJob failed!', { user_uuid:, saved_claim_id:, icn: @icn, error: msg })
       salvage_save_in_progress_form(FORM_ID, user_uuid, in_progress_copy)
       if Flipper.enabled?(:dependents_central_submission)
         user ||= generate_user_struct(vet_info['veteran_information'])
@@ -48,8 +49,10 @@ module BGS
       in_progress_form&.destroy
       Rails.logger.info('BGS::SubmitForm686cJob succeeded!', { user_uuid:, saved_claim_id:, icn: })
     rescue => e
-      Rails.logger.error('BGS::SubmitForm686cJob failed!', { user_uuid:, saved_claim_id:, icn:, error: e.message })
-      log_message_to_sentry(e, :error, {}, { team: 'vfs-ebenefits' })
+      Rails.logger.warn('BGS::SubmitForm686cJob received error!',
+                        { user_uuid:, saved_claim_id:, icn:, error: e.message })
+      log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
+      @icn = icn
 
       raise
     end

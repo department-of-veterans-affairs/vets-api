@@ -29,6 +29,7 @@ idme:
 map_services:
   chatbot_client_id: 2bb9803acfc3
   sign_up_service_client_id: c7d6e0fc9a39
+  check_in_client_id: bc75b71c7e67
   oauth_url: https://veteran.apps-staging.va.gov
   client_cert_path: spec/fixtures/map/oauth.crt
   client_key_path: spec/fixtures/map/oauth.key
@@ -47,7 +48,9 @@ saml_ssoe:
   key_path: ~
   issuer: https://ssoe-sp-localhost.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
-  logout_url: https://int.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-dev.va.gov
+  logout_url: https://int.eauth.va.gov/slo/globallogout
+  logout_app_key: https://ssoe-sp-dev.va.gov
+  tou_decline_logout_app_key: https://dev-api.va.gov/agreements_declined
   request_signing: false
   relay: ~
   response_signing: false
