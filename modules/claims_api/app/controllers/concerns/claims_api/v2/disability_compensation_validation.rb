@@ -16,8 +16,6 @@ module ClaimsApi
       BDD_UPPER_LIMIT = 180
 
       def validate_form_526_submission_values!(target_veteran)
-        # ensure 'claimDate', if provided, is a valid date not in the future
-        validate_form_526_submission_claim_date!
         # ensure 'claimantCertification' is true
         validate_form_526_claimant_certification!
         # ensure mailing address country is valid
@@ -106,15 +104,6 @@ module ClaimsApi
         return if valid_countries.include?(change_of_address['country'])
 
         raise ::Common::Exceptions::InvalidFieldValue.new('changeOfAddress.country', change_of_address['country'])
-      end
-
-      def validate_form_526_submission_claim_date!
-        date = form_attributes['claimDate'] || Time.find_zone!('Central Time (US & Canada)').today
-        # EVSS runs in the Central US Time Zone.
-        # So 'claim_date' needs to be <= current day according to the Central US Time Zone.
-        return if Date.parse(date.to_s) <= Time.find_zone!('Central Time (US & Canada)').today
-
-        raise ::Common::Exceptions::InvalidFieldValue.new('claimDate', form_attributes['claimDate'])
       end
 
       def validate_form_526_claimant_certification!
