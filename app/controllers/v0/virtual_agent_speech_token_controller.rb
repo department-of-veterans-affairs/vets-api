@@ -6,6 +6,7 @@ require 'erb'
 
 module V0
   class VirtualAgentSpeechTokenController < ApplicationController
+    service_tag 'virtual-agent'
     skip_before_action :authenticate, only: [:create]
 
     rescue_from 'V0::VirtualAgentSpeechTokenController::ServiceException', with: :service_exception_handler

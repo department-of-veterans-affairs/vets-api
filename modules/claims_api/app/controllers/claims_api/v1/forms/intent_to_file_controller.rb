@@ -22,20 +22,17 @@ module ClaimsApi
         #
         # @return [JSON] Response from BGS
         def submit_form_0966
-          ClaimsApi::Logger.log('itf', detail: '0966 - Request Started')
           validate_json_schema
           validate_veteran_identifiers(require_birls: true)
           check_for_invalid_burial_submission! if form_type == 'burial'
-          ClaimsApi::Logger.log('itf', detail: '0966 - Controller Actions Completed')
 
           bgs_response = local_bgs_service.insert_intent_to_file(intent_to_file_options)
           if bgs_response.empty?
+            claims_v1_logging('itf_submit', message: 'Veteran ID not found')
             ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: token.payload['cid'])
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Veteran ID not found')
           else
             ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::SUBMITTED, cid: token.payload['cid'])
-            ClaimsApi::Logger.log('itf', detail: 'Submitted to BGS')
-            claims_v1_logging(target_veteran&.mpi_icn)
 
             render json: bgs_response,
                    serializer: ClaimsApi::IntentToFileSerializer
@@ -45,7 +42,7 @@ module ClaimsApi
         # GET current intent to file status based on type.
         #
         # @return [JSON] Response from BGS
-        def active
+        def active # rubocop:disable Metrics/MethodLength
           check_for_type
           bgs_response = local_bgs_service.find_intent_to_file_by_ptcpnt_id_itf_type_cd(
             target_veteran.participant_id,
@@ -53,6 +50,7 @@ module ClaimsApi
           )
           if bgs_response.blank?
             message = "No Intent to file is on record for #{target_veteran_name} of type #{active_param}"
+            claims_v1_logging('itf_active', message:)
             raise ::Common::Exceptions::ResourceNotFound.new(detail: message)
           end
 
@@ -63,10 +61,9 @@ module ClaimsApi
                        end
           if bgs_active.blank?
             message = "No Intent to file is on record for #{target_veteran_name} of type #{active_param}"
+            claims_v1_logging('itf_submit', message:)
             raise ::Common::Exceptions::ResourceNotFound.new(detail: message)
           end
-
-          claims_v1_logging(target_veteran&.mpi_icn)
 
           render json: bgs_active, serializer: ClaimsApi::IntentToFileSerializer
         end
@@ -75,14 +72,10 @@ module ClaimsApi
         #
         # @return [JSON] Success if valid, error messages if invalid.
         def validate
-          ClaimsApi::Logger.log('itf', detail: '0966/validate - Request Started')
           add_deprecation_headers_to_response(response:, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           validate_json_schema
           validate_veteran_identifiers(require_birls: true)
           check_for_invalid_burial_submission! if form_type == 'burial'
-
-          ClaimsApi::Logger.log('itf', detail: '0966/validate - Request Completed')
-          claims_v1_logging(target_veteran&.mpi_icn)
 
           render json: validation_success
         end
