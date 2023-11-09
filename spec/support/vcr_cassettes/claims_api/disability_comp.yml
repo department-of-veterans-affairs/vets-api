@@ -1748,7 +1748,7 @@ http_interactions:
   recorded_at: Thu, 03 Aug 2023 17:00:50 GMT
 - request:
     method: post
-    uri: https://fakedomainandsubdomain.com/form-526ez-pdf-generator/v1/forms/526
+    uri: https://fake_pdf_url.com/form-526ez-pdf-generator/v1/forms/526
     body:
       encoding: UTF-8
       string: '{"data":{"serviceInformation":{"reservesNationalGuardService":{"obligationTermsOfService":{"start":"2019-06-04","end":"2020-06-04"},"unitName":"National
