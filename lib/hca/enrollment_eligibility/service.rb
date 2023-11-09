@@ -28,6 +28,14 @@ module HCA
         'groupNumber' => 'insuranceGroupCode'
       }.freeze
 
+      MARITAL_STATUSES = %w[
+        Married
+        Never Married
+        Separated
+        Widowed
+        Divorced
+      ].freeze
+
       MEDICARE = 'Medicare'
 
       def get_ezr_data(icn)
@@ -115,6 +123,17 @@ module HCA
         )
       end
 
+      def get_marital_status(response)
+        marital_status = get_locate_value(
+          response,
+          "#{XPATH_PREFIX}demographics/maritalStatus"
+        )
+
+        return unless MARITAL_STATUSES.include?(marital_status)
+
+        marital_status
+      end
+
       # rubocop:disable Metrics/MethodLength
       def parse_spouse(response)
         spouse_financials_xpath =
@@ -136,6 +155,7 @@ module HCA
 
               return_val
             end.call,
+            maritalStatus: get_marital_status(response),
             dateOfMarriage: get_locate_value_date(
               response,
               "#{spouse_financials_xpath}spouse/startDate"

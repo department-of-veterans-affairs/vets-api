@@ -1273,6 +1273,7 @@ RSpec.describe FormProfile, type: :model do
             'spouseDateOfBirth' => '1950-02-17',
             'dateOfMarriage' => '2000-10-15',
             'cohabitedLastYear' => true,
+            'maritalStatus' => 'Married',
             'isMedicaidEligible' => false,
             'isEnrolledMedicarePartA' => false,
             'spouseFullName' => {
@@ -1318,6 +1319,7 @@ RSpec.describe FormProfile, type: :model do
               'postal_code' => user.address[:postal_code][0..4]
             },
             'email' => user.pciu_email,
+            'maritalStatus' => 'Married',
             'isMedicaidEligible' => true,
             'isEnrolledMedicarePartA' => true,
             'medicarePartAEffectiveDate' => '1999-10-16',
