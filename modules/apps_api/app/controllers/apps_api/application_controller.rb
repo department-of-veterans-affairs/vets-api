@@ -2,6 +2,7 @@
 
 module AppsApi
   class ApplicationController < ::OpenidApplicationController
+    service_tag 'lighthouse-apps'
     before_action { set_default_format_to_json }
 
     def set_default_format_to_json
