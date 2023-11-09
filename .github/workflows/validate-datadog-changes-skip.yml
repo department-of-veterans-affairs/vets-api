@@ -1,0 +1,13 @@
+name: Validate DataDog Service Catalog Files
+# This workflow has the opposite filter as validate-datadog-changes.yml. See .github/scripts/validate-datadog-yaml/README.md for more information
+on:
+  pull_request:
+    paths-ignore:
+      - "datadog-service-catalog/**.yml"
+
+jobs:
+  validate_files:
+    runs-on: ubuntu-latest
+    name: Validate changes to DataDog Service Catalog Files
+    steps:
+      - run: echo "PASS -- No files to validate."
