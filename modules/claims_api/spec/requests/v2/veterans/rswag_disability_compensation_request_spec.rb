@@ -56,9 +56,11 @@ describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers
       parameter SwaggerSharedComponents::V2.body_examples[:disability_compensation]
 
       describe 'Getting a successful response' do
-        response '200', 'Successful response with disability' do
-          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'forms',
-                                            'disability', 'submission.json').read)
+        response '202', 'Successful response with disability' do
+          form_data = JSON.parse(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read)
+          nested_form_data = { data: form_data }
+
+          schema nested_form_data
           let(:scopes) { %w[system/claim.read system/claim.write] }
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
@@ -73,28 +75,22 @@ describe 'Disability Claims', production: false, swagger_doc: Rswag::TextHelpers
             stub_mpi
 
             mock_ccg(scopes) do
-              VCR.use_cassette('evss/claims/claims') do
-                VCR.use_cassette('evss/reference_data/countries') do
-                  submit_request(example.metadata)
-                end
+              VCR.use_cassette('claims_api/disability_comp') do
+                submit_request(example.metadata)
               end
             end
           end
 
-          after do |_example|
-            # example.metadata[:response][:content] = {
-            #   'application/json' => {
-            #     example: JSON.parse(response.body, symbolize_names: true)
-            #   }
-            # }
-            one = 1
-            expect(one).to eq(1)
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
           end
 
-          it 'returns a valid 200 response' do |_example|
-            # assert_response_matches_metadata(example.metadata)
-            one = 1
-            expect(one).to eq(1)
+          it 'returns a valid 202 response' do |example|
+            assert_response_matches_metadata(example.metadata)
           end
         end
       end

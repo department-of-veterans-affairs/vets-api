@@ -40,7 +40,7 @@
           "nullable": false
         },
         "serviceNumber": {
-          "type": ["string", "null"],
+          "type": ["null", "string"],
           "description": "Service identification number",
           "nullable": true
         },
@@ -69,7 +69,7 @@
           "properties": {
             "telephone": {
               "description": "Veteran's phone number.",
-              "type": ["null", "string"],
+              "type": ["string", "null"],
               "pattern": "^\\d{10}?$",
               "example": "5555555",
               "minLength": 10,
@@ -244,12 +244,12 @@
           "example": "Jane Doe"
         },
         "pointOfContactNumber": {
-          "type": ["object", "null"],
+          "type": "object",
           "additionalProperties": false,
           "properties": {
             "telephone": {
               "description": "Primary phone of Point of Contact.",
-              "type": ["null", "string"],
+              "type": ["string", "null"],
               "pattern": "^\\d{10}?$",
               "example": "5555555",
               "minLength": 10,
@@ -478,7 +478,7 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["disabilityActionType", "name", "serviceRelevance"],
+        "required": ["disabilityActionType", "name"],
         "properties": {
           "name": {
             "description": "Name of the disability. The /disabilities endpoint on the Benefits Reference Data API may be used to retrieve possible disability names.",
@@ -494,14 +494,14 @@
             "nullable": true
           },
           "serviceRelevance": {
-            "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury.",
+            "description": "Explanation of how the disability(ies) relates to the in-service event/exposure/injury. If the disabilityActionType is 'NEW', the serviceRelevance is required.",
             "type": "string",
             "example": "Heavy equipment operator in service."
           },
           "approximateDate": {
             "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
             "type": ["string", "null"],
-            "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+            "pattern": "^(?:\\d{4})(?:-(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|1\\d|2[0-8]))?)?$|^(?:\\d{4})(?:-(?:0[1-9]|1[0-2]))?$",
             "example": "2018-03-02 or 2018-03 or 2018",
             "nullable": true
           },
@@ -558,7 +558,7 @@
                 "approximateDate": {
                   "description": "Approximate date disability began. Date must be in the past. \n Format can be either YYYY-MM-DD or YYYY-MM or YYYY",
                   "type": ["string", "null"],
-                  "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$|(?:[0-9]{4})$|(?:[0-9]{4})-(?:0[1-9]|1[0-2])$",
+                  "pattern": "^(?:\\d{4})(?:-(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|1\\d|2[0-8]))?)?$|^(?:\\d{4})(?:-(?:0[1-9]|1[0-2]))?$",
                   "example": "2018-03-02 or 2018-03 or 2018",
                   "nullable": true
                 },
@@ -597,7 +597,7 @@
         "properties": {
           "beginDate": {
             "description": "Begin date for treatment. If treatment began from 2005 to present, you do not need to provide dates. Each treatment begin date must be after the first 'servicePeriod.activeDutyBeginDate'.",
-            "type": ["null", "string"],
+            "type": ["string", "null"],
             "pattern": "^(?:19|20)[0-9][0-9]$|^(?:19|20)[0-9][0-9]-(0[1-9]|1[0-2])$",
             "example": "2018-06 or 2018",
             "nullable": true

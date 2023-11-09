@@ -1,0 +1,126 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: <%= Settings.hca.ee.endpoint %>/
+    body:
+      encoding: UTF-8
+      string: |
+        <?xml version="1.0"?>
+        <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sch="http://jaxws.webservices.esr.med.va.gov/schemas">
+          <SOAP-ENV:Header>
+            <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" SOAP-ENV:mustUnderstand="1">
+              <wsse:UsernameToken xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="XWSSGID-1281117217796-43574433">
+                <wsse:Username>HCASvcUsr</wsse:Username>
+                <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText"><EE_PASS></wsse:Password>
+              </wsse:UsernameToken>
+            </wsse:Security>
+          </SOAP-ENV:Header>
+          <SOAP-ENV:Body>
+            <sch:getEESummaryRequest>
+              <sch:key>1012829228V424035</sch:key>
+              <sch:requestName>HCAData</sch:requestName>
+            </sch:getEESummaryRequest>
+          </SOAP-ENV:Body>
+        </SOAP-ENV:Envelope>
+    headers:
+      Accept:
+      - text/xml;charset=UTF-8
+      Content-Type:
+      - text/xml;charset=UTF-8
+      User-Agent:
+      - Vets.gov Agent
+      Date:
+      - Tue, 31 Oct 2023 12:04:33 GMT
+      Content-Length:
+      - '967'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 31 Oct 2023 12:04:33 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      Content-Length:
+      - '10660'
+      Accept:
+      - text/xml
+      X-Oracle-Dms-Rid:
+      - '0'
+      X-Oracle-Dms-Ecid:
+      - d34ac89f-0bc5-4e3b-aca2-aabdd36f84bc-0009f370
+      Soapaction:
+      - '""'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Ssl-Env:
+      - 'On'
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Cache-Control:
+      - max-age=0, no-store
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="836278007"
+      Content-Type:
+      - text/xml; charset=UTF-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"><env:Header/><env:Body><getEESummaryResponse
+        xmlns="http://jaxws.webservices.esr.med.va.gov/schemas"><eesVersion>5.12.0.05003</eesVersion><summary><purpleHeart><indicator>false</indicator><status>Rejected</status></purpleHeart><enrollmentDeterminationInfo><calculationSource>HEC</calculationSource><enrollmentStatus>Pending;
+        Other</enrollmentStatus><effectiveDate>2023-10-30T16:11:11.000-05:00</effectiveDate><eligibleForMedicaid>false</eligibleForMedicaid><applicationDate>2022-04-25T19:04:51.000-05:00</applicationDate><veteran>true</veteran><primaryEligibility><type>NSC</type><indicator>P</indicator><eligibilityReportDate>2019-09-17T19:21:22.000-05:00</eligibilityReportDate></primaryEligibility><militarySexualTraumaInfo><status>Unknown,
+        Not Screened</status></militarySexualTraumaInfo><serviceConnectionAward><serviceConnectedIndicator>false</serviceConnectedIndicator><scReportDate>2019-09-17T19:21:22.000-05:00</scReportDate></serviceConnectionAward><medicaidLastModifiedDate>2023-10-30T16:11:11.000-05:00</medicaidLastModifiedDate><recordCreatedDate>2019-09-17T19:21:22.000-05:00</recordCreatedDate><recordModifiedDate>2023-10-30T16:11:11.000-05:00</recordModifiedDate><enrollmentCategoryName>In-Process</enrollmentCategoryName></enrollmentDeterminationInfo><militaryServiceInfo><militaryServiceSiteRecords><militaryServiceSiteRecord><site>668
+        - MANN-GRANDSTAFF VAMC</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>570GA
+        - MERCED VA CLINIC</site><servicePeriod>PERSIAN GULF WAR</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>742
+        - HEALTH ELIGIBILITY CENTER</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>463GB
+        - SOLDOTNA VA CLINIC</site><servicePeriod>PERSIAN GULF WAR</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>583
+        - RICHARD L. ROUDEBUSH VAMC</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>610
+        - MARION VA MEDICAL CENTER</site><servicePeriod>PERSIAN GULF WAR</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>570
+        - FRESNO VA MEDICAL CENTER</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>668HK
+        - SPOKANE MORC</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>459GE
+        - GUAM CLINIC</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>459
+        - SPARK M. MATSUNAGA VAMC</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>531GG
+        - CALDWELL VA CLINIC</site><servicePeriod>PERSIAN GULF WAR</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>589A6
+        - EASTERN KS HCS LEAVENWORTH DIV</site><servicePeriod>PERSIAN GULF WAR</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>459GB
+        - HILO CLINIC</site><servicePeriod>PERSIAN GULF WAR</servicePeriod></militaryServiceSiteRecord><militaryServiceSiteRecord><site>583QD
+        - INDIANAPOLIS YMCA VA CLINIC</site><servicePeriod>OTHER OR NONE</servicePeriod></militaryServiceSiteRecord></militaryServiceSiteRecords></militaryServiceInfo><demographics><contactInfo><addresses><address><line1>234
+        TEST STREET</line1><city>ALBUQUERQUE</city><county>BERNALILLO</county><state>NM</state><zipCode>87109</zipCode><country>USA</country><addressTypeCode>Permanent</addressTypeCode><addressChangeDateTime>2023-10-30T16:11:11.000-05:00</addressChangeDateTime><addressChangeSource>Health
+        Eligibility Center</addressChangeSource><addressChangeSite>742 - HEALTH ELIGIBILITY
+        CENTER</addressChangeSite><contactMethodType>08</contactMethodType><contactMethodReportDate>2023-10-30T16:11:11.000-05:00</contactMethodReportDate></address><address><line1>234
+        TEST STREET</line1><city>ALBUQUERQUE</city><state>NM</state><zipCode>87109</zipCode><country>USA</country><addressTypeCode>Residential</addressTypeCode><addressChangeDateTime>2023-07-13T15:20:25.000-05:00</addressChangeDateTime><addressChangeSource>Authoritative
+        Veteran and Beneficiary Profile Record</addressChangeSource></address></addresses><phones><phone><type>Mobile</type><phoneNumber>(443)928-3160</phoneNumber><phoneNumberReportDate>2023-09-12T16:02:32.000-05:00</phoneNumberReportDate></phone></phones><emails><email><type>Personal</type><address>travis.cahill@agile6.com</address><sourceOfChange>VET360</sourceOfChange></email></emails></contactInfo><maritalStatus>Married</maritalStatus><ethnicity>Not
+        Hispanic or Latino</ethnicity><preferredFacility>459GB - HILO CLINIC</preferredFacility><appointmentRequestResponse>false</appointmentRequestResponse><assignmentDate>2023-10-30T16:11:13.000-05:00</assignmentDate><preferredFacilities><preferredFacilityInfo><preferredFacility>459GB
+        - HILO CLINIC</preferredFacility><assignmentDate>2023-10-30T16:11:13.000-05:00</assignmentDate></preferredFacilityInfo></preferredFacilities></demographics><financialsInfo><incomeTest><gmtAddressInfo><line1>234
+        TEST STREET</line1><city>ALBUQUERQUE</city><county>BERNALILLO</county><state>NM</state><zipcode>87109</zipcode><country>USA</country></gmtAddressInfo><incomeYear>2022</incomeYear><discloseFinancialInformation>true</discloseFinancialInformation><effectiveDate>2023-10-30T00:00:00.000-05:00</effectiveDate><totalNumberOfDependents>2</totalNumberOfDependents><primaryIncomeTest>true</primaryIncomeTest><futureTest>false</futureTest><incomeTestsource>HEC</incomeTestsource><incomeTestType>Means
+        Test</incomeTestType><incomeTestReportDate>2023-10-30T17:29:35.000-05:00</incomeTestReportDate><thresholdA>50561</thresholdA><gmtThresholdAmount>54400</gmtThresholdAmount><totalIncome>330</totalIncome><netIncome>220</netIncome><deductibleExpenses>110</deductibleExpenses><netWorth>0</netWorth><statuses><status><determinedStatus>MT
+        Copay Exempt</determinedStatus><completedDate>2023-10-30T00:00:00.000-05:00</completedDate><lastEditedDate>2023-10-30T17:29:35.000-05:00</lastEditedDate><incomeTestType>Means
+        Test</incomeTestType><status>MT Copay Exempt</status></status><status><incomeTestType>Co-Pay
+        Exemption Test</incomeTestType><status>Exempt</status></status></statuses><networthThreshold>80000</networthThreshold><pensionThreshold>23744</pensionThreshold><childIncomeExclusionThreshold>13850</childIncomeExclusionThreshold><cadAdjusted>false</cadAdjusted></incomeTest><financialStatement><incomeYear>2022</incomeYear><expenses><expense><expenseType>Funeral
+        and Burial Expenses</expenseType><amount>55</amount><expenseReportDate>2023-10-30T16:11:11.000-05:00</expenseReportDate></expense><expense><expenseType>Total
+        Non-Reimbursed Medical Expenses</expenseType><amount>55</amount><expenseReportDate>2023-10-30T16:11:11.000-05:00</expenseReportDate></expense><expense><expenseType>Veteran's
+        Educational Expenses</expenseType><amount>55</amount><expenseReportDate>2023-10-30T16:11:11.000-05:00</expenseReportDate></expense><expense><expenseType>Adjusted
+        Medical Expense</expenseType><amount>0</amount><expenseReportDate>2023-10-30T16:11:11.000-05:00</expenseReportDate></expense></expenses><incomes><income><type>All
+        Other Income</type><amount>55</amount><incomeReportDate>2023-10-30T16:11:11.000-05:00</incomeReportDate></income><income><type>Total
+        Employment Income</type><amount>55</amount><incomeReportDate>2023-10-30T16:11:11.000-05:00</incomeReportDate></income><income><type>Net
+        Income from Farm, Ranch, Property, Business</type><amount>55</amount><incomeReportDate>2023-10-30T16:11:11.000-05:00</incomeReportDate></income></incomes><marriedLastCalendarYear>true</marriedLastCalendarYear><numberOfDependentChildren>1</numberOfDependentChildren><spouseFinancialsList><spouseFinancials><incomeYear>2022</incomeYear><incomes><income><type>All
+        Other Income</type><amount>55</amount><incomeReportDate>2023-10-30T16:11:11.000-05:00</incomeReportDate></income><income><type>Total
+        Employment Income</type><amount>55</amount><incomeReportDate>2023-10-30T16:11:11.000-05:00</incomeReportDate></income><income><type>Net
+        Income from Farm, Ranch, Property, Business</type><amount>55</amount><incomeReportDate>2023-10-30T16:11:11.000-05:00</incomeReportDate></income></incomes><livedWithPatient>true</livedWithPatient><validDependent>true</validDependent><spouse><dob>19500217</dob><familyName>SDVSDV</familyName><gender>Female</gender><givenName>VSDV</givenName><relationship>SPOUSE</relationship><ssns><ssn><ssnText>435345344</ssnText><type>Active</type><ssaVerificationStatus>New
+        Record</ssaVerificationStatus></ssn></ssns><startDate>20001015</startDate></spouse></spouseFinancials></spouseFinancialsList><dependentFinancialsList><dependentFinancials><incomeYear>2022</incomeYear><livedWithPatient>true</livedWithPatient><dependentInfo><dob>20201001</dob><familyName>BISHOP</familyName><gender>Female</gender><givenName>CHILD</givenName><relationship>DAUGHTER</relationship><ssns><ssn><ssnText>234114455</ssnText><type>Active</type><ssaVerificationStatus>New
+        Record</ssaVerificationStatus></ssn></ssns><startDate>20201001</startDate></dependentInfo><incapableOfSelfSupport>false</incapableOfSelfSupport><contributedToSupport>false</contributedToSupport><hasIncome>false</hasIncome><incomeAvailableToPatient>false</incomeAvailableToPatient><attendedSchool>false</attendedSchool></dependentFinancials></dependentFinancialsList><vamcReportDate>2023-10-30T17:29:35.000-05:00</vamcReportDate></financialStatement><nonPrimaryFinancialsInfo><nonPrimaryFinancialStatement><incomeYear>2022</incomeYear><facilityVisitedCode>668
+        - MANN-GRANDSTAFF VAMC</facilityVisitedCode><inpatientDays>0</inpatientDays><outpatientDays>0</outpatientDays><vamcReportDate>2023-10-30T17:32:08.000-05:00</vamcReportDate></nonPrimaryFinancialStatement><nonPrimaryFinancialStatement><incomeYear>2022</incomeYear><facilityVisitedCode>583
+        - RICHARD L. ROUDEBUSH VAMC</facilityVisitedCode><inpatientDays>0</inpatientDays><outpatientDays>0</outpatientDays><vamcReportDate>2023-10-30T17:35:33.000-05:00</vamcReportDate></nonPrimaryFinancialStatement><nonPrimaryFinancialStatement><incomeYear>2022</incomeYear><facilityVisitedCode>570
+        - FRESNO VA MEDICAL CENTER</facilityVisitedCode><inpatientDays>0</inpatientDays><outpatientDays>0</outpatientDays><vamcReportDate>2023-10-30T18:03:06.000-05:00</vamcReportDate></nonPrimaryFinancialStatement></nonPrimaryFinancialsInfo></financialsInfo></summary><invocationDate>2023-10-31T07:04:33</invocationDate></getEESummaryResponse></env:Body></env:Envelope>
+  recorded_at: Tue, 31 Oct 2023 12:04:34 GMT
+recorded_with: VCR 6.2.0

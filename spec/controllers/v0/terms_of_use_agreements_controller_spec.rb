@@ -116,6 +116,17 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
         end
       end
 
+      context 'when the user does not have a common_name' do
+        let(:user) { create(:user, first_name: nil, middle_name: nil, last_name: nil, suffix: nil) }
+        let(:expected_error) { 'Name for user must be present' }
+
+        it 'returns an unprocessable_entity' do
+          subject
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(JSON.parse(response.body)['error']).to eq(expected_error)
+        end
+      end
+
       context 'when the agreement acceptance fails' do
         before do
           allow_any_instance_of(TermsOfUseAgreement).to receive(:accepted!).and_raise(ActiveRecord::RecordInvalid)
@@ -200,6 +211,17 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
             '[TermsOfUseAgreement] [Declined]',
             hash_including(:terms_of_use_agreement_id, :user_account_uuid, :icn, :agreement_version, :response)
           )
+        end
+      end
+
+      context 'when the user does not have a common_name' do
+        let(:user) { create(:user, first_name: nil, middle_name: nil, last_name: nil, suffix: nil) }
+        let(:expected_error) { 'Name for user must be present' }
+
+        it 'returns an unprocessable_entity' do
+          subject
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(JSON.parse(response.body)['error']).to eq(expected_error)
         end
       end
 
