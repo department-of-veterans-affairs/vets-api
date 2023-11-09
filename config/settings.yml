@@ -26,12 +26,19 @@ idme:
   client_key_path: spec/fixtures/sign_in/oauth.key
   oauth_url: https://api.idmelabs.com
 
-mobile_application_platform:
+map_services:
   chatbot_client_id: 2bb9803acfc3
   sign_up_service_client_id: c7d6e0fc9a39
+  check_in_client_id: bc75b71c7e67
   oauth_url: https://veteran.apps-staging.va.gov
-  client_cert_path: spec/fixtures/mobile_application_platform/oauth.crt
-  client_key_path: spec/fixtures/mobile_application_platform/oauth.key
+  client_cert_path: spec/fixtures/map/oauth.crt
+  client_key_path: spec/fixtures/map/oauth.key
+  sign_up_service_url: https://cerner.apps-staging.va.gov
+  sign_up_service_provisioning_api_key: abcd1234
+  secure_token_service:
+    mock: true
+  sign_up_service:
+    mock: true
 
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
@@ -41,7 +48,9 @@ saml_ssoe:
   key_path: ~
   issuer: https://ssoe-sp-localhost.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
-  logout_url: https://int.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-dev.va.gov
+  logout_url: https://int.eauth.va.gov/slo/globallogout
+  logout_app_key: https://ssoe-sp-dev.va.gov
+  tou_decline_logout_app_key: https://dev-api.va.gov/agreements_declined
   request_signing: false
   relay: ~
   response_signing: false
@@ -66,6 +75,9 @@ sign_in:
   mock_auth_url: http://localhost:3000/mocked_authentication/profiles
   mock_redirect_uri: http://localhost:3000/v0/sign_in/callback
   mockdata_sync_api_key: ~
+
+terms_of_use:
+  current_version: v1
 
 lockbox:
   master_key: "0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9"
@@ -240,6 +252,13 @@ vet360:
   address_validation:
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
+  health_benefit:
+    mock: true
+  disability:
+    cache_enabled: false
+    enabled: true
+    timeout: 30
+    mock: false
 
 # Settings for IHub
 ihub:
@@ -343,12 +362,7 @@ modules_appeals_api:
     daily_error:
       enabled: false
     weekly_error:
-      # See features.yml for enablement
-      recipients:
-        - drew.fisher@adhocteam.us
-        - casey.williams@adhocteam.us
-        - michel.mcdonald@adhocteam.us
-
+      enabled: false
   schema_dir: config/schemas
   evidence_submissions:
     location:
@@ -413,7 +427,7 @@ evss:
     timeout: 55 # ~1 minute
     submit_timeout: 355 # ~6 minutes
   dvp:
-    url: <%= ENV['EVSS_DVP_URL'] %>
+    url: http://fake.dvp-docker-container
   letters:
     url: https://csraciapp6.evss.srarad.com
     timeout: 55
@@ -508,6 +522,10 @@ mhv:
     base_path: https://mhv-api.example.com
     app_token: fake-app-token
     mock: true
+  medical_records:
+    host: fake-host
+    app_token: fake-app-token
+    x_auth_key: fake-x-auth-key
 
 # Settings for alternate MHV integration for mobile app
 mhv_mobile:
@@ -658,6 +676,12 @@ claims_api:
     host: https://sandbox-api.va.gov
     use_mocks: false
 
+connected_apps_api:
+  connected_apps:
+    url: https://sandbox-api.va.gov/internal/auth/v3/user/connected-apps
+    api_key: ~
+    revoke_url: https://sandbox-api.va.gov/internal/auth/v3/user/consent
+
 redis:
   host: localhost
   port: 6379
@@ -795,7 +819,6 @@ oidc:
     veteran_verification: ~
     claims: ~
   charon:
-    enabled: ~
     endpoint: ~
     audience: ~
   base_api_url: https://example.com
@@ -1018,6 +1041,8 @@ lighthouse:
       client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
       api_scope:
         - "launch"
+        - "patient/AllergyIntolerance.read"
+        - "patient/DiagnosticReport.read"
         - "patient/Patient.read"
         - "system/Patient.read"
         - "patient/Observation.read"
@@ -1225,6 +1250,7 @@ covid_vaccine:
 
 virtual_agent:
   webchat_secret: fake_secret
+  webchat_pva2_secret: fake_secret
   lighthouse_api_uri: https://sandbox-api.va.gov/services/appeals/v0/appeals
   lighthouse_api_key: fake_api_key
   cxdw_client_secret: fake_secret
@@ -1249,11 +1275,16 @@ vanotify:
         form527ez_confirmation_email: form527ez_confirmation_email_template_id
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         contact_info_change: fake_template_id
-        form0994_confirmation_email_v1: form0994_confirmation_email_v1_template_id
-        form0994_confirmation_email_v2: form0994_confirmation_email_v2_template_id
+        form0994_confirmation_email: form0994_confirmation_email_template_id
+        form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
         form1990_confirmation_email: form1990_confirmation_email_template_id
         form1990e_confirmation_email: form1990e_confirmation_email_template_id
         form1995_confirmation_email: form1995_confirmation_email_template_id
+        form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
+        form21_10203_confirmation_email: form21_10203_confirmation_email_template_id
+        form21_10210_confirmation_email: form21_10210_confirmation_email_template_id
+        form21_0845_confirmation_email: form21_0845_confirmation_email_template_id
+        form21p_0847_confirmation_email: form21p_0847_confirmation_email_template_id
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
         form526_confirmation_email: fake_template_id
         form526_submission_failed_email: fake_template_id
@@ -1271,8 +1302,6 @@ vanotify:
         login_reactivation_email: reactivation_email_test_b
     lighthouse:
       api_key: fake_secret
-      template_id:
-        disconnection_template: fake_template_id
     dmc:
       api_key: fake_secret
       template_id:
@@ -1503,6 +1532,7 @@ virtual_regional_office:
   evidence_pdf_path: evidence-pdf
   ctn_classification_path: classifier
   max_cfi_path: employee-experience/max-ratings
+  ep_merge_path: employee-experience/merge
 
 # Settings for Test User Dashboard modules
 test_user_dashboard:
@@ -1568,6 +1598,16 @@ form526_backup:
     access_key_id: ~
     secret_access_key: ~
 
+benefits_intake_service:
+  enabled: true
+  api_key: ~
+  url: ~
+  aws:
+    bucket: ~
+    region: ~
+    access_key_id: ~
+    secret_access_key: ~
+
 form526_export:
   aws:
     bucket: ~
@@ -1608,7 +1648,13 @@ vha:
     base_path: "/sites/vhafinance/MDW"
     authentication_url: "https://accounts.accesscontrol.windows.net"
     mock: true
+
 avs:
   mock: true
   timeout: 55
   url: "https://something.fake.va.gov"
+  api_jwt: abcd1234abcd1234abcd1234abcd1234abcd1234
+
+brd:
+  api_key: 'fake_key'
+  base_name: 'https://something.fake.va.gov'

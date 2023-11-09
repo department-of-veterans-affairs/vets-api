@@ -9,12 +9,11 @@ require 'mpi/service'
 require 'saml/user'
 require 'formatters/date_formatter'
 require 'va_profile/configuration'
+require 'va_profile/veteran_status/service'
 
 class User < Common::RedisStore
   include Authorization
   extend Gem::Deprecate
-
-  UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
 
   # Defined per issue #6042
   ID_CARD_ALLOWED_STATUSES = %w[V1 V3 V6].freeze
@@ -33,11 +32,8 @@ class User < Common::RedisStore
   attribute :user_account_uuid, String
   attribute :user_verification_id, Integer
   attribute :fingerprint, String
+  attribute :needs_accepted_terms_of_use, Boolean
 
-  # Retrieve a user's Account record
-  #
-  # @return [Account] an instance of the Account object
-  #
   def account
     @account ||= Identity::AccountCreator.new(self).call
   end
@@ -48,6 +44,12 @@ class User < Common::RedisStore
 
   def account_id
     @account_id ||= account&.id
+  end
+
+  def needs_accepted_terms_of_use
+    return @needs_accepted_terms_of_use unless @needs_accepted_terms_of_use.nil?
+
+    @needs_accepted_terms_of_use = user_account&.needs_accepted_terms_of_use?
   end
 
   def user_verification
@@ -342,15 +344,20 @@ class User < Common::RedisStore
     super
   end
 
-  %w[veteran_status military_information payment].each do |emis_method|
-    define_method(emis_method) do
-      emis_model = instance_variable_get(:"@#{emis_method}")
-      return emis_model if emis_model.present?
+  def military_information
+    @military_information ||= if Flipper.enabled?(:military_information_vaprofile)
+                                FormProfile.new(form_id: nil, user: self).initialize_military_information
+                              else
+                                EMISRedis::MilitaryInformation.for_user(self)
+                              end
+  end
 
-      emis_model = "EMISRedis::#{emis_method.camelize}".constantize.for_user(self)
-      instance_variable_set(:"@#{emis_method}", emis_model)
-      emis_model
-    end
+  def veteran_status
+    @veteran_status ||= if Flipper.enabled?(:veteran_status_updated)
+                          VAProfile::VeteranStatus::Service.new(self)
+                        else
+                          EMISRedis::VeteranStatus.for_user(self)
+                        end
   end
 
   %w[profile grants].each do |okta_model_name|

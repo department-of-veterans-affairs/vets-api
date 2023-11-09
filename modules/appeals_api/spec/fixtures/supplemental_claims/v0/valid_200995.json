@@ -16,7 +16,7 @@
         "address": {
           "addressLine1": "123 Main St",
           "city": "New York",
-          "countryCodeISO2": "US",
+          "countryCodeIso3": "USA",
           "zipCode5": "30012"
         },
         "phone": {

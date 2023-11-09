@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
-require 'common/client/concerns/mhv_jwt_session_client'
+require 'common/client/concerns/mhv_fhir_session_client'
 require 'medical_records/client_session'
 require 'medical_records/configuration'
 
@@ -10,10 +10,10 @@ module MedicalRecords
   # Core class responsible for Medical Records API interface operations
   #
   class Client < Common::Client::Base
-    include Common::Client::Concerns::MHVJwtSessionClient
+    include Common::Client::Concerns::MhvFhirSessionClient
 
     # Default number of records to request per call when searching
-    DEFAULT_COUNT = 100
+    DEFAULT_COUNT = 9999
 
     # LOINC codes for clinical notes
     PHYSICIAN_PROCEDURE_NOTE = '11505-5' # Physician procedure note
@@ -43,6 +43,13 @@ module MedicalRecords
       "#{Settings.mhv.medical_records.host}/fhir/"
     end
 
+    ##
+    # Create a new FHIR::Client instance, given the provided bearer token. This method does not require a
+    # client_session to have been initialized.
+    #
+    # @param bearer_token [String] The bearer token from the authentication call
+    # @return [FHIR::Client]
+    #
     def sessionless_fhir_client(bearer_token)
       # FHIR debug level is extremely verbose, printing the full contents of every response body.
       ::FHIR.logger.level = Logger::INFO
@@ -55,41 +62,71 @@ module MedicalRecords
       end
     end
 
+    ##
+    # Create a new FHIR::Client instance based on the client_session. Use an existing client if one already exists
+    # in this instance.
+    #
+    # @return [FHIR::Client]
+    #
     def fhir_client
-      sessionless_fhir_client(jwt_bearer_token)
+      @fhir_client ||= sessionless_fhir_client(jwt_bearer_token)
     end
 
     def get_patient_by_identifier(fhir_client, identifier)
-      result = fhir_client.search(FHIR::Patient, search: { parameters: { identifier: } })
+      result = fhir_client.search(FHIR::Patient, {
+                                    search: { parameters: { identifier: } },
+                                    headers: { 'Cache-Control': 'no-cache' }
+                                  })
       resource = result.resource
       handle_api_errors(result) if resource.nil?
       resource
     end
 
-    def get_vaccine(vaccine_id)
-      fhir_read(FHIR::Immunization, vaccine_id)
-    end
-
-    def list_vaccines
-      fhir_search(FHIR::Immunization, search: { parameters: { patient: patient_fhir_id } })
+    def list_allergies
+      bundle = fhir_search(FHIR::AllergyIntolerance,
+                           {
+                             search: { parameters: { patient: patient_fhir_id, 'clinical-status': 'active' } },
+                             headers: { 'Cache-Control': 'no-cache' }
+                           })
+      sort_bundle(bundle, :recordedDate, :desc)
     end
 
     def get_allergy(allergy_id)
       fhir_read(FHIR::AllergyIntolerance, allergy_id)
     end
 
-    def list_allergies
-      fhir_search(FHIR::AllergyIntolerance, search: { parameters: { patient: patient_fhir_id } })
+    def list_vaccines
+      bundle = fhir_search(FHIR::Immunization, search: { parameters: { patient: patient_fhir_id } })
+      sort_bundle(bundle, :occurrenceDateTime, :desc)
     end
 
-    def get_clinical_note(note_id)
-      fhir_read(FHIR::DocumentReference, note_id)
+    def get_vaccine(vaccine_id)
+      fhir_read(FHIR::Immunization, vaccine_id)
+    end
+
+    def list_vitals
+      loinc_codes = "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT}"
+      bundle = fhir_search(FHIR::Observation, search: { parameters: { patient: patient_fhir_id, code: loinc_codes } })
+      sort_bundle(bundle, :effectiveDateTime, :desc)
+    end
+
+    def list_conditions
+      bundle = fhir_search(FHIR::Condition, search: { parameters: { patient: patient_fhir_id } })
+      sort_bundle(bundle, :recordedDate, :desc)
+    end
+
+    def get_condition(condition_id)
+      fhir_search(FHIR::Condition, search: { parameters: { _id: condition_id, _include: '*' } })
     end
 
     def list_clinical_notes
       loinc_codes = "#{PHYSICIAN_PROCEDURE_NOTE},#{DISCHARGE_SUMMARY}"
       fhir_search(FHIR::DocumentReference,
                   search: { parameters: { patient: patient_fhir_id, type: loinc_codes } })
+    end
+
+    def get_clinical_note(note_id)
+      fhir_read(FHIR::DocumentReference, note_id)
     end
 
     def get_diagnostic_report(record_id)
@@ -140,19 +177,6 @@ module MedicalRecords
       combined_bundle
     end
 
-    def list_vitals
-      loinc_codes = "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT}"
-      fhir_search(FHIR::Observation, search: { parameters: { patient: patient_fhir_id, code: loinc_codes } })
-    end
-
-    def get_condition(condition_id)
-      fhir_search(FHIR::Condition, search: { parameters: { _id: condition_id, _include: '*' } })
-    end
-
-    def list_conditions
-      fhir_search(FHIR::Condition, search: { parameters: { patient: patient_fhir_id } })
-    end
-
     protected
 
     ##
@@ -189,11 +213,38 @@ module MedicalRecords
                   search: { parameters: { patient: patient_fhir_id, type: loinc_codes } })
     end
 
+    ##
+    # Perform a FHIR search. This method will continue making queries until all results have been returned.
+    #
+    # @param fhir_model [FHIR::Model] The type of resource to search
+    # @param params [Hash] The parameters to pass the search
+    # @return [FHIR::Bundle]
+    #
     def fhir_search(fhir_model, params)
+      reply = fhir_search_query(fhir_model, params)
+      combined_bundle = reply.resource
+      loop do
+        break unless reply.resource.next_link
+
+        reply = fhir_client.next_page(reply)
+        combined_bundle = merge_bundles(combined_bundle, reply.resource)
+      end
+      combined_bundle
+    end
+
+    ##
+    # Perform a FHIR search. Returns the first page of results only. Filters out FHIR records
+    # that are not active.
+    #
+    # @param fhir_model [FHIR::Model] The type of resource to search
+    # @param params [Hash] The parameters to pass the search
+    # @return [FHIR::ClientReply]
+    #
+    def fhir_search_query(fhir_model, params)
       params[:search][:parameters].merge!(_count: DEFAULT_COUNT)
       result = fhir_client.search(fhir_model, params)
       handle_api_errors(result) if result.resource.nil?
-      result.resource
+      result
     end
 
     def fhir_read(fhir_model, id)
@@ -227,6 +278,33 @@ module MedicalRecords
     end
 
     ##
+    # Merge two FHIR bundles into one, with an updated total count.
+    #
+    # @param bundle1 [FHIR:Bundle] The first FHIR bundle
+    # @param bundle2 [FHIR:Bundle] The second FHIR bundle
+    # @param page_num [FHIR:Bundle]
+    #
+    def merge_bundles(bundle1, bundle2)
+      unless bundle1.resourceType == 'Bundle' && bundle2.resourceType == 'Bundle'
+        raise 'Both inputs must be FHIR Bundles'
+      end
+
+      # Clone the first bundle to avoid modifying the original
+      merged_bundle = bundle1.clone
+
+      # Merge the entries from the second bundle into the merged_bundle
+      merged_bundle.entry ||= []
+      bundle2.entry&.each do |entry|
+        merged_bundle.entry << entry
+      end
+
+      # Update the total count in the merged bundle
+      merged_bundle.total = merged_bundle.entry.count
+
+      merged_bundle
+    end
+
+    ##
     # Apply pagination to the entries in a FHIR::Bundle object. This assumes sorting has already taken place.
     #
     # @param entries a list of FHIR objects
@@ -240,6 +318,34 @@ module MedicalRecords
 
       # Return the paginated result or an empty array if no entries
       paginated_entries || []
+    end
+
+    ##
+    # Sort the FHIR::Bundle entries on a given field and sort order. If a field is not present, that entry
+    # is sorted to the end.
+    #
+    # @param bundle [FHIR::Bundle] the bundle to sort
+    # @param field [Symbol] the field to sort on
+    # @param order [Symbol] the sort order, :asc (default) or :desc
+    #
+    def sort_bundle(bundle, field, order = :asc)
+      sorted_entries = bundle.entry.sort do |entry1, entry2|
+        value1 = if entry1.resource.respond_to?(field) && !entry1.resource.send(field).nil?
+                   entry1.resource.send(field)
+                 end
+        value2 = if entry2.resource.respond_to?(field) && !entry2.resource.send(field).nil?
+                   entry2.resource.send(field)
+                 end
+        if value1.nil?
+          1
+        elsif value2.nil?
+          -1
+        else
+          order == :asc ? value1 <=> value2 : value2 <=> value1
+        end
+      end
+      bundle.entry = sorted_entries
+      bundle
     end
 
     ##

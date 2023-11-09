@@ -8,9 +8,6 @@ module Mobile
       before_action { authorize :vet360, :military_access? }
       def get_service_history
         response = service.get_service_history
-
-        handle_errors!(response.episodes)
-
         json = JSON.parse(response.episodes.to_json, symbolize_names: true)
 
         render json: Mobile::V0::MilitaryInformationSerializer.new(military_info_adapter.parse(user.uuid, json))
@@ -28,10 +25,6 @@ module Mobile
 
       def service
         VAProfile::MilitaryPersonnel::Service.new(user)
-      end
-
-      def handle_errors!(response)
-        raise_error! unless response.is_a?(Array)
       end
     end
   end

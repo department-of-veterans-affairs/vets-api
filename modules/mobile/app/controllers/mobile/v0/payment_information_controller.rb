@@ -26,7 +26,7 @@ module Mobile
                               else
                                 evss_proxy.get_payment_information
                               end
-        render json: Mobile::V0::PaymentInformationSerializer.new(@current_user.uuid,
+        render json: Mobile::V0::PaymentInformationSerializer.new(@current_user,
                                                                   payment_information.payment_account,
                                                                   payment_information.control_information)
       end
@@ -48,7 +48,7 @@ module Mobile
         if lh_error_response
           render status: lh_error_response.status, json: lh_error_response.body
         else
-          render json: Mobile::V0::PaymentInformationSerializer.new(@current_user.uuid,
+          render json: Mobile::V0::PaymentInformationSerializer.new(@current_user,
                                                                     payment_information.payment_account,
                                                                     payment_information.control_information)
         end

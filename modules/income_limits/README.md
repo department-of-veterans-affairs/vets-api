@@ -16,7 +16,7 @@
 - /income_limits/v1/validateZipCode/
 
 ### Data
-To get data imported into the postgres database, SideKiq jobs have been created, one for each table in the database, for a total of 5 jobs. For more see /app/workers/income_limits. Each job pulls data down from an S3 location in a CSV format, and imports these records to postgres using ActiveRecord APIs. These jobs can be executed anytime to seed or refresh the postgres database with the CSV data.
+To get data imported into the postgres database, SideKiq jobs have been created, one for each table in the database, for a total of 5 jobs. For more see /app/sidekiq/income_limits. Each job pulls data down from an S3 location in a CSV format, and imports these records to postgres using ActiveRecord APIs. These jobs can be executed anytime to seed or refresh the postgres database with the CSV data.
 
 The jobs are also scheduled to auto-run via cron on the 1st of every 3rd month, at midnight. See /config/sidekiq_scheduler.yml.
 

@@ -12,6 +12,7 @@ require 'rspec/rails'
 require 'webmock/rspec'
 require 'sidekiq/semantic_logging'
 require 'sidekiq/error_tag'
+require 'support/stub_va_profile'
 require 'support/mpi/stub_mpi'
 require 'support/stub_evss_pciu'
 require 'support/va_profile/stub_vet360'
@@ -176,10 +177,10 @@ RSpec.configure do |config|
 
   config.before do |example|
     stub_mpi unless example.metadata[:skip_mvi]
-    stub_emis unless example.metadata[:skip_emis]
+    stub_va_profile unless example.metadata[:skip_va_profile]
     stub_vet360 unless example.metadata[:skip_vet360]
 
-    Sidekiq::Worker.clear_all
+    Sidekiq::Job.clear_all
   end
 
   # clean up carrierwave uploads
@@ -192,3 +193,5 @@ end
 BGS.configure do |config|
   config.logger = Rails.logger
 end
+
+Gem::Deprecate.skip = true

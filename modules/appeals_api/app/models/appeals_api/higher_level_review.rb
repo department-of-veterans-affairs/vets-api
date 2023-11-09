@@ -62,6 +62,7 @@ module AppealsApi
     # v2 validations
     validate :claimant_birth_date_is_in_the_past,
              :required_claimant_data_is_present,
+             :country_codes_valid,
              if: proc { |a| a.api_version.upcase != 'V1' && a.form_data.present? }
 
     has_many :evidence_submissions, as: :supportable, dependent: :destroy
@@ -124,17 +125,15 @@ module AppealsApi
     end
 
     def city
-      veteran_data.dig('address', 'city') || ''
+      veteran.city || ''
     end
 
     def state_code
-      veteran_data.dig('address', 'stateCode') || ''
+      veteran.state_code || ''
     end
 
     def country_code
-      return '' unless address_combined
-
-      veteran_data.dig('address', 'countryCodeISO2') || 'US'
+      veteran.country_code || 'US'
     end
 
     def zip_code
@@ -247,7 +246,7 @@ module AppealsApi
             statusable_id: id,
             code:,
             detail:
-          }.stringify_keys
+          }.deep_stringify_keys
         )
 
         return if auth_headers.blank? # Go no further if we've removed PII
@@ -262,7 +261,7 @@ module AppealsApi
               guid: id,
               claimant_email: claimant.email,
               claimant_first_name: claimant.first_name
-            }.stringify_keys
+            }.deep_stringify_keys
           )
         end
       end
@@ -300,6 +299,9 @@ module AppealsApi
       self.metadata = { form_data: { benefit_type: } }
 
       metadata['central_mail_business_line'] = lob
+      metadata['potential_write_in_issue_count'] = contestable_issues.filter do |issue|
+        issue['attributes']['ratingIssueReferenceId'].blank?
+      end.count
     end
 
     private

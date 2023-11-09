@@ -19,7 +19,7 @@
             "addressLine2": "Suite #1200",
             "addressLine3": "Box 4",
             "city": "New York",
-            "countryCodeISO2": "US",
+            "countryCodeIso3": "USA",
             "stateCode": "NY",
             "zipCode5": "30012"
           },
@@ -43,7 +43,7 @@
             "addressLine2": "Apt 5",
             "addressLine3": "Box 1",
             "city": "Detroit",
-            "countryCodeISO2": "US",
+            "countryCodeIso3": "USA",
             "stateCode": "MI",
             "zipCode5": "48070"
           },

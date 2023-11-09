@@ -11,9 +11,10 @@ module SignIn
 
       attr_accessor :type
 
-      def render_auth(state: SecureRandom.hex, acr: Constants::Auth::IDME_LOA1)
-        Rails.logger.info("[SignIn][Idme][Service] Rendering auth, state: #{state}, acr: #{acr}")
-        RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(acr, state)).perform
+      def render_auth(state: SecureRandom.hex, acr: Constants::Auth::IDME_LOA1, operation: Constants::Auth::AUTHORIZE)
+        Rails.logger.info('[SignIn][Idme][Service] Rendering auth, ' \
+                          "state: #{state}, acr: #{acr}, operation: #{operation}")
+        RedirectUrlGenerator.new(redirect_uri: auth_url, params_hash: auth_params(acr, state, operation)).perform
       end
 
       def normalized_attributes(user_info, credential_level)
@@ -48,14 +49,13 @@ module SignIn
 
       private
 
-      def get_public_jwks
-        unless config.public_jwks
+      def public_jwks
+        @public_jwks ||= Rails.cache.fetch(config.jwks_cache_key, expires_in: config.jwks_cache_expiration) do
           response = perform(:get, config.public_jwks_path, nil, nil)
-          config.public_jwks = parse_public_jwks(response:)
           Rails.logger.info('[SignIn][Idme][Service] Get Public JWKs Success')
-        end
 
-        config.public_jwks
+          parse_public_jwks(response:)
+        end
       rescue Common::Client::Errors::ClientError => e
         raise_client_error(e, 'Get Public JWKs')
       end
@@ -66,14 +66,22 @@ module SignIn
         jwks
       end
 
-      def auth_params(acr, state)
+      def auth_params(acr, state, operation)
         {
           scope: acr,
           state:,
           client_id: config.client_id,
           redirect_uri: config.redirect_uri,
-          response_type: config.response_type
-        }
+          response_type: config.response_type,
+          op: convert_operation(operation)
+        }.compact
+      end
+
+      def convert_operation(operation)
+        case operation
+        when Constants::Auth::SIGN_UP
+          config.sign_up_operation
+        end
       end
 
       def raise_client_error(client_error, function_name)
@@ -170,7 +178,7 @@ module SignIn
           encoded_jwt,
           nil,
           verify_expiration,
-          { verify_expiration:, algorithm: config.jwt_decode_algorithm, jwks: get_public_jwks }
+          { verify_expiration:, algorithm: config.jwt_decode_algorithm, jwks: public_jwks }
         ).first
         log_parsed_credential(decoded_jwt) if config.log_credential
 

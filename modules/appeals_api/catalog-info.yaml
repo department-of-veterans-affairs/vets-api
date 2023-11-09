@@ -1,11 +1,21 @@
 apiVersion: backstage.io/v1alpha1
-kind: Location
+kind: API
 metadata:
-  name: appeals-apis
-  description: A collection Appeal APIs
+  name: decision-reviews
+  description: The Decision Reviews API allows you to interact with a Veteran’s decision reviews, also known as benefit appeals.
+  title: Decision Reviews API
   tags:
-    - department-of-veterans-affairs
+    - internal
+    - lighthouse
+    - ruby
+  links:
+    - url: https://developer.va.gov/explore/api/decision-reviews
+      title: Public Docs
+      icon: web
 spec:
-  targets:
-    - ./config/backstage/appeals-status.yaml
-    - ./config/backstage/decision-reviews.yaml
+  type: openapi
+  lifecycle: production
+  owner: lighthouse-banana-peels
+  system: vets-api
+  definition:
+    $text: https://api.va.gov/services/appeals/docs/v2/decision_reviews

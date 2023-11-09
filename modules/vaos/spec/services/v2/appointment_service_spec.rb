@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 describe VAOS::V2::AppointmentsService do
+  include ActiveSupport::Testing::TimeHelpers
+
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :jac) }
@@ -71,20 +73,30 @@ describe VAOS::V2::AppointmentsService do
       it 'returns the created appointment - va - booked' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_JACQUELINE_M',
                          match_requests_on: %i[method path query]) do
-          allow(Rails.logger).to receive(:info).at_least(:once)
-          response = subject.post_appointment(va_booked_request_body)
-          expect(response[:id]).to be_a(String)
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                           match_requests_on: %i[method path query]) do
+            allow(Rails.logger).to receive(:info).at_least(:once)
+            response = subject.post_appointment(va_booked_request_body)
+            expect(response[:id]).to be_a(String)
+            expect(response[:local_start_time])
+              .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+          end
         end
       end
 
       it 'returns the created appointment and logs data' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_va_booked_200_and_logs_data',
                          match_requests_on: %i[method path query]) do
-          allow(Rails.logger).to receive(:info).at_least(:once)
-          response = subject.post_appointment(va_booked_request_body)
-          expect(response[:id]).to be_a(String)
-          expect(Rails.logger).to have_received(:info).with('VAOS telehealth atlas details',
-                                                            any_args).at_least(:once)
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                           match_requests_on: %i[method path query]) do
+            allow(Rails.logger).to receive(:info).at_least(:once)
+            response = subject.post_appointment(va_booked_request_body)
+            expect(response[:id]).to be_a(String)
+            expect(Rails.logger).to have_received(:info).with('VAOS telehealth atlas details',
+                                                              any_args).at_least(:once)
+            expect(response[:local_start_time])
+              .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+          end
         end
       end
 
@@ -101,8 +113,13 @@ describe VAOS::V2::AppointmentsService do
       it 'returns the created appointment - cc - proposed' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_cc_200_2222022',
                          match_requests_on: %i[method path query]) do
-          response = subject.post_appointment(community_cares_request_body)
-          expect(response[:id]).to be_a(String)
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                           match_requests_on: %i[method path query]) do
+            response = subject.post_appointment(community_cares_request_body)
+            expect(response[:id]).to be_a(String)
+            expect(response.dig(:requested_periods, 0, :local_start_time))
+              .to eq(DateTime.parse('2021-06-15T06:00:00-06:00'))
+          end
         end
       end
     end
@@ -279,6 +296,60 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#get_most_recent_visited_clinic_appointment' do
+    subject { instance_of_class.get_most_recent_visited_clinic_appointment }
+
+    let(:instance_of_class) { described_class.new(user) }
+    let(:mock_appointment_one) { double('Appointment', kind: 'clinic', start: '2022-12-01') }
+    let(:mock_appointment_two) { double('Appointment', kind: 'telehealth', start: '2022-12-01T21:38:01.476Z') }
+    let(:mock_appointment_three) { double('Appointment', kind: 'clinic', start: '2022-12-09T21:38:01.476Z') }
+
+    context 'when appointments are available' do
+      before do
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: [mock_appointment_one,
+                                                                                   mock_appointment_two,
+                                                                                   mock_appointment_three] })
+      end
+
+      it 'returns the most recent clinic appointment' do
+        expect(subject).to eq(mock_appointment_three)
+      end
+    end
+
+    context 'when no appointments are available' do
+      before do
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: [] })
+      end
+
+      it 'returns nil' do
+        expect(subject).to be_nil
+      end
+    end
+
+    context 'when there are no clinic appointments' do
+      before do
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: [mock_appointment_two] })
+      end
+
+      it 'returns nil' do
+        expect(subject).to be_nil
+      end
+    end
+
+    context 'when the second interval search returns an appointment' do
+      before do
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: [mock_appointment_two] },
+                                                                          { data: [mock_appointment_one,
+                                                                                   mock_appointment_two,
+                                                                                   mock_appointment_three] })
+      end
+
+      it 'returns the most recent clinic appointment' do
+        expect(subject).to eq(mock_appointment_three)
+      end
+    end
+  end
+
   describe '#get_appointment' do
     context 'with an appointment' do
       context 'with Jacqueline Morgan' do
@@ -350,8 +421,11 @@ describe VAOS::V2::AppointmentsService do
       context 'with Jaqueline Morgan' do
         it 'returns a cancelled status and the cancelled appointment information' do
           VCR.use_cassette('vaos/v2/appointments/cancel_appointments_200', match_requests_on: %i[method path query]) do
-            response = subject.update_appointment('70060', 'cancelled')
-            expect(response.status).to eq('cancelled')
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              response = subject.update_appointment('70060', 'cancelled')
+              expect(response.status).to eq('cancelled')
+            end
           end
         end
       end
@@ -380,14 +454,14 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
-  describe '#get_facility_timezone' do
+  describe '#get_facility_timezone_memoized' do
     let(:facility_location_id) { '983' }
     let(:facility_error_msg) { 'Error fetching facility details' }
 
     context 'with a facility location id' do
       it 'returns the facility timezone' do
         allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(mock_facility)
-        timezone = subject.send(:get_facility_timezone, facility_location_id)
+        timezone = subject.send(:get_facility_timezone_memoized, facility_location_id)
         expect(timezone).to eq('America/New_York')
       end
     end
@@ -395,7 +469,7 @@ describe VAOS::V2::AppointmentsService do
     context 'with an internal server error from the facilities call' do
       it 'returns nil for the timezone' do
         allow_any_instance_of(VAOS::V2::AppointmentsService).to receive(:get_facility).and_return(facility_error_msg)
-        timezone = subject.send(:get_facility_timezone, facility_location_id)
+        timezone = subject.send(:get_facility_timezone_memoized, facility_location_id)
         expect(timezone).to eq(nil)
       end
     end
@@ -604,6 +678,299 @@ describe VAOS::V2::AppointmentsService do
 
     it 'raises an ArgumentError when the appointment nil' do
       expect { subject.send(:booked?, nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
+    end
+  end
+
+  describe '#non_empty_array_of_hashes?' do
+    context 'when argument is not an array' do
+      arg = 'not an array'
+
+      it 'returns false' do
+        expect(subject.send(:non_empty_array_of_hashes?, arg)).to be false
+      end
+    end
+
+    context 'when argument is an empty array' do
+      arg = []
+
+      it 'returns false' do
+        expect(subject.send(:non_empty_array_of_hashes?, arg)).to be false
+      end
+    end
+
+    context 'when argument is an array with non OpenStruct element' do
+      arg = [1, OpenStruct.new, 'a string']
+
+      it 'returns false' do
+        expect(subject.send(:non_empty_array_of_hashes?, arg)).to be false
+      end
+    end
+
+    context 'when argument is an array with only Hash elements' do
+      arg = [{}, {}]
+
+      it 'returns true' do
+        expect(subject.send(:non_empty_array_of_hashes?, arg)).to be true
+      end
+    end
+
+    context 'when argument is nil' do
+      it 'returns false' do
+        expect(subject.send(:non_empty_array_of_hashes?, nil)).to be false
+      end
+    end
+  end
+
+  describe '#extract_names' do
+    context 'when practitioners is not a non-empty array' do
+      practitioners = 'not a non-empty array'
+
+      it 'returns nil' do
+        expect(subject.send(:extract_names, practitioners)).to be_nil
+      end
+    end
+
+    context 'when practitioners is an array of practitioners' do
+      practitioners =
+        [
+          { name: { given: ['John'], family: 'Doe' } },
+          { name: { given: ['Jane'], family: 'Roe' } }
+        ]
+
+      it 'returns a string of practitioner full names joined by comma' do
+        expect(subject.send(:extract_names, practitioners)).to eq 'John Doe, Jane Roe'
+      end
+    end
+
+    context 'when practitioners is a single practitioner with two given names' do
+      practitioners =
+        [
+          { name: { given: %w[Jane Olivia], family: 'Roe' } }
+        ]
+
+      it 'returns the practitioner full name' do
+        expect(subject.send(:extract_names, practitioners)).to eq 'Jane Olivia Roe'
+      end
+    end
+
+    context 'when practitioners is a single practitioner with no given names' do
+      practitioners =
+        [
+          { name: { family: 'Roe' } }
+        ]
+
+      it 'returns the practitioner family name' do
+        expect(subject.send(:extract_names, practitioners)).to eq 'Roe'
+      end
+    end
+
+    context 'when practitioners is a single practitioner with no name' do
+      practitioners =
+        [
+          {}
+        ]
+
+      it 'returns nil' do
+        expect(subject.send(:extract_names, practitioners)).to be_nil
+      end
+    end
+  end
+
+  describe '#log_telehealth_data' do
+    let(:appt) do
+      { id: '177402',
+        location_id: '983',
+        practitioners: [
+          { identifier: [
+              { system: 'dfn-983', value: '520647710' }
+            ],
+            name: {
+              family: 'Poldass', given: ['Aarathi']
+            },
+            practice_name: 'Cheyenne WY VAMC' }
+        ],
+        telehealth: { atlas: { site_code: 'VFW-VA-20151-07',
+                               confirmation_code: '272438',
+                               address: { street_address: 'AFS CHANTILLY WALMART',
+                                          city: ' CHANTILLY ',
+                                          state: 'VA',
+                                          zip_code: '20105',
+                                          country: 'USA',
+                                          latitutde: 38.91753,
+                                          longitude: 7.0,
+                                          additional_details: '' } },
+                      vvs_kind: 'ADHOC' },
+        extension: { patient_has_mobile_gfe: false } }
+    end
+
+    let(:arg1) { 'VAOS telehealth atlas details' }
+
+    let(:arg2) do
+      '{"VAOSTelehealthData":{"siteCode":"VFW-VA-20151-07","address":{"street_address"' \
+        ':"AFS CHANTILLY WALMART","city":" CHANTILLY ","state":"VA","zip_code":"20105",' \
+        '"country":"USA","latitutde":38.91753,"longitude":7.0,"additional_details":""}' \
+        ',"hasMobileGfe":false,"vvsKind":"ADHOC","siteId":"983",' \
+        '"clinicId":null,"provider":"Aarathi Poldass"}}'
+    end
+
+    context 'when a telehealth appointment is passed in' do
+      it 'logs the telehealth data' do
+        expect(Rails.logger).to receive(:info).with(arg1, arg2)
+        subject.send(:log_telehealth_data, appt)
+      end
+    end
+  end
+
+  describe '#extract_station_and_ien' do
+    it 'returns nil if the appointment does not have any identifiers' do
+      appointment = {}
+
+      expect(subject.send(:extract_station_and_ien, appointment)).to be_nil
+    end
+
+    it 'returns nil if the identifier with the system VistADefinedTerms/409_84 is not found' do
+      appointment = { identifier: [{ system: 'some_other_system', value: 'some_value' }] }
+
+      expect(subject.send(:extract_station_and_ien, appointment)).to be_nil
+    end
+
+    it 'returns the station id and ien if the identifier with the system VistADefinedTerms/409_84 is found' do
+      appointment = { identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }] }
+      expected_result = %w[983 12345678]
+
+      expect(subject.send(:extract_station_and_ien, appointment)).to eq(expected_result)
+    end
+
+    it 'returns the station id and ien if the identifier with the system VistADefinedTerms/409_85 is found' do
+      appointment = { identifier: [{ system: '/Terminology/VistADefinedTerms/409_85', value: '983:12345678' }] }
+      expected_result = %w[983 12345678]
+
+      expect(subject.send(:extract_station_and_ien, appointment)).to eq(expected_result)
+    end
+  end
+
+  describe '#avs_applicable?' do
+    before { travel_to(DateTime.parse('2023-09-26T10:00:00-07:00')) }
+    after { travel_back }
+
+    let(:past_appointment) { { status: 'booked', start: '2023-09-25T10:00:00-07:00' } }
+    let(:future_appointment) { { status: 'booked', start: '2023-09-27T11:00:00-07:00' } }
+    let(:unbooked_appointment) { { status: 'pending', start: '2023-09-25T10:00:00-07:00' } }
+
+    it 'returns true if the appointment is booked and is in the past' do
+      expect(subject.send(:avs_applicable?, past_appointment)).to be true
+    end
+
+    it 'returns false if the appointment is not booked' do
+      expect(subject.send(:avs_applicable?, unbooked_appointment)).to be false
+    end
+
+    it 'returns false on a booked future appointment' do
+      expect(subject.send(:avs_applicable?, future_appointment)).to be false
+    end
+  end
+
+  describe '#normalize_icn' do
+    context 'when icn is nil' do
+      it 'returns nil' do
+        expect(subject.send(:normalize_icn, nil)).to be_nil
+      end
+    end
+
+    context 'when icn is an empty string' do
+      it 'returns an empty string' do
+        expect(subject.send(:normalize_icn, '')).to eq('')
+      end
+    end
+
+    context 'when icn does not end with "V" followed by six digits' do
+      icn = '123456AA789012'
+
+      it 'returns the same icn' do
+        expect(subject.send(:normalize_icn, icn)).to eq(icn)
+      end
+    end
+
+    context 'when icn ends with "V" followed by six digits' do
+      icn = '1234567890V654321'
+
+      it 'removes trailing "V" followed by six digits' do
+        expect(subject.send(:normalize_icn, icn)).to eq('1234567890')
+      end
+    end
+  end
+
+  describe '#icns_match?' do
+    context 'when either icn is nil' do
+      it 'returns false' do
+        expect(subject.send(:icns_match?, nil, '1234567890V123456')).to eq(false)
+        expect(subject.send(:icns_match?, '1234567890V123456', nil)).to eq(false)
+      end
+    end
+
+    context 'when both icns are not nil and match' do
+      it 'returns true' do
+        expect(subject.send(:icns_match?, '1234567890V654321', '1234567890V654321')).to eq(true)
+      end
+    end
+
+    context 'when both icns are not nil and do not match' do
+      it 'returns false' do
+        expect(subject.send(:icns_match?, '1234567890V123456', '1234567899V123456')).to eq(false)
+      end
+    end
+  end
+
+  describe '#get_avs_link' do
+    let(:user) { build(:user, :loa3, icn: '123498767V234859') }
+    let(:expected_avs_link) do
+      '/my-health/medical-records/summaries-and-notes/visit-summary/9A7AF40B2BC2471EA116891839113252'
+    end
+
+    context 'with good station number and ien' do
+      appt =
+        {
+          identifier: [
+            {
+              system: 'Appointment/',
+              value: '4139383338323131'
+            },
+            {
+              system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_84',
+              value: '500:9876543'
+            }
+          ]
+        }
+
+      it 'returns avs link' do
+        VCR.use_cassette('vaos/v2/appointments/avs-search-9876543', match_requests_on: %i[method path query]) do
+          expect(subject.send(:get_avs_link, appt)).to eq(expected_avs_link)
+        end
+      end
+    end
+  end
+
+  describe '#fetch_avs_and_update_appt_body' do
+    let(:avs_resp) { double(body: [{ icn: '1012846043V576341', sid: '12345' }], status: 200) }
+    let(:avs_link) { '/my-health/medical-records/summaries-and-notes/visit-summary/12345' }
+    let(:appt) { { identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }] } }
+
+    context 'when AVS successfully retrieved the AVS link' do
+      it 'fetches the avs link and updates the appt hash' do
+        allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment).and_return(avs_resp)
+        subject.send(:fetch_avs_and_update_appt_body, appt)
+        expect(appt[:avs_path]).to eq(avs_link)
+      end
+    end
+
+    context 'when an error occurs while retrieving AVS link' do
+      it 'logs the error and sets the avs_path to nil' do
+        allow_any_instance_of(Avs::V0::AvsService).to receive(:get_avs_by_appointment)
+          .and_raise(Common::Exceptions::BackendServiceException)
+        expect(Rails.logger).to receive(:error)
+        subject.send(:fetch_avs_and_update_appt_body, appt)
+        expect(appt[:avs_path]).to be_nil
+      end
     end
   end
 end

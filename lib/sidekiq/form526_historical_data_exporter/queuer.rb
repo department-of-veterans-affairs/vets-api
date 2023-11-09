@@ -34,7 +34,7 @@ module Sidekiq
     end
 
     class Form526BackgroundDataJob
-      include Sidekiq::Worker
+      include Sidekiq::Job
 
       def perform(batch_size, start_id, end_id)
         Exporter.new(batch_size, start_id, end_id).process!

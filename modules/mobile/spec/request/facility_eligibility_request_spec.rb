@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../support/helpers/iam_session_helper'
+require_relative '../support/helpers/sis_session_helper'
 require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'Facility Eligibility', type: :request do
   include JsonSchemaMatchers
 
+  let!(:user) { sis_user(icn: '9000682') }
+
   before do
-    allow_any_instance_of(IAMUser).to receive(:icn).and_return('9000682')
-    iam_sign_in(build(:iam_user))
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
@@ -26,7 +26,7 @@ RSpec.describe 'Facility Eligibility', type: :request do
                            match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/facility_eligibility/get_patient_appointment_metadata_facility_103',
                              match_requests_on: %i[method uri]) do
-              get '/mobile/v0/appointments/facility/eligibility', params:, headers: iam_headers
+              get '/mobile/v0/appointments/facility/eligibility', params:, headers: sis_headers
             end
           end
         end
@@ -60,7 +60,7 @@ RSpec.describe 'Facility Eligibility', type: :request do
                              match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/facility_eligibility/get_patient_appointment_metadata_facility_102',
                                match_requests_on: %i[method uri]) do
-                get '/mobile/v0/appointments/facility/eligibility', params:, headers: iam_headers
+                get '/mobile/v0/appointments/facility/eligibility', params:, headers: sis_headers
               end
             end
           end
@@ -90,7 +90,7 @@ RSpec.describe 'Facility Eligibility', type: :request do
         end
 
         before do
-          get '/mobile/v0/appointments/facility/eligibility', params:, headers: iam_headers
+          get '/mobile/v0/appointments/facility/eligibility', params:, headers: sis_headers
         end
 
         it 'returns 400 with an error message' do
@@ -111,7 +111,7 @@ RSpec.describe 'Facility Eligibility', type: :request do
         before do
           VCR.use_cassette('mobile/facility_eligibility/get_patient_appointment_metadata_bad_facility',
                            match_requests_on: %i[method uri]) do
-            get '/mobile/v0/appointments/facility/eligibility', params:, headers: iam_headers
+            get '/mobile/v0/appointments/facility/eligibility', params:, headers: sis_headers
           end
         end
 

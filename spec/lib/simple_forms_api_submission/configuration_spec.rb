@@ -18,7 +18,7 @@ describe SimpleFormsApiSubmission::Configuration do
 
   describe '.read_timeout' do
     it 'uses the setting' do
-      expect(SimpleFormsApiSubmission::Configuration.instance.read_timeout).to eq(20)
+      expect(SimpleFormsApiSubmission::Configuration.instance.read_timeout).to eq(30)
     end
   end
 end

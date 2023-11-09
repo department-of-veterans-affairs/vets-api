@@ -48,6 +48,35 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#needs_accepted_terms_of_use' do
+    context 'when user is verified' do
+      let(:user) { build(:user, :loa3, needs_accepted_terms_of_use: nil) }
+      let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
+
+      context 'and user has an associated current terms of use agreements' do
+        let!(:terms_of_use_agreement) { create(:terms_of_use_agreement, user_account: user_verification.user_account) }
+
+        it 'does not return true' do
+          expect(user.needs_accepted_terms_of_use).to be_falsey
+        end
+      end
+
+      context 'and user does not have an associated current terms of use agreements' do
+        it 'returns true' do
+          expect(user.needs_accepted_terms_of_use).to be true
+        end
+      end
+    end
+
+    context 'when user is not verified' do
+      let(:user) { build(:user, :loa1) }
+
+      it 'does not return true' do
+        expect(user.needs_accepted_terms_of_use).to be_falsey
+      end
+    end
+  end
+
   describe '#all_emails' do
     let(:user) { build(:user, :loa3, vet360_id: '12345') }
     let(:vet360_email) { user.vet360_contact_info.email.email_address }
@@ -1162,6 +1191,42 @@ RSpec.describe User, type: :model do
       context 'when no Inherited Proof Verified User Account is found' do
         it 'returns false' do
           expect(user.inherited_proof_verified).to be false
+        end
+      end
+    end
+
+    describe '#military_information', :skip_va_profile do
+      context 'Feature military_information_vaprofile=false' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:military_information_vaprofile).and_return(false)
+        end
+
+        it 'returns an instance of the EMISRedis class' do
+          expect(user.military_information).to be_an_instance_of(EMISRedis::MilitaryInformation)
+        end
+      end
+
+      context 'Feature military_information_vaprofile=true' do
+        before do
+          Flipper.enable(:military_information_vaprofile)
+        end
+
+        it 'returns an instance of the FormMilitaryInformation class' do
+          expect(user.military_information).to be_an_instance_of(FormMilitaryInformation)
+          expect(user.military_information).not_to be_nil
+        end
+
+        it 'returns attributes of military_information for a mock user' do
+          VCR.use_cassette('va_profile/disability/disability_rating_200_high_disability',
+                           allow_playback_repeats: true, match_requests_on: %i[method body]) do
+            VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                             allow_playback_repeats: true, match_requests_on: %i[method body]) do
+              expect(user.military_information.service_episodes_by_date.length).to eq(3)
+              expect(user.military_information.va_compensation_type).to eq('highDisability')
+              expect(user.military_information.last_service_branch).to eq('Army')
+              expect(user.military_information.tours_of_duty.length).to eq(3)
+            end
+          end
         end
       end
     end

@@ -119,6 +119,26 @@ module V2
         end
       end
 
+      # Call the CHIP API to set echeck-in started status. This status is set to indicate
+      # that the check-in process was started.
+      #
+      # A CHIP token is required and if it is either not present in Redis or cannot
+      # be retrieved from CHIP, an unauthorized message is returned.
+      #
+      # @see https://github.com/department-of-veterans-affairs/chip CHIP API details
+      #
+      # @return [Faraday::Response] response from CHIP
+      # @return [Faraday::Response] unauthorized message if token is not present
+      def set_echeckin_started
+        resp = if token.present?
+                 chip_client.set_echeckin_started(token:, appointment_attributes:)
+               else
+                 Faraday::Response.new(body: check_in.unauthorized_message.to_json, status: 401)
+               end
+
+        response.build(response: resp).handle
+      end
+
       # Call the CHIP API to confirm demographics. A CHIP token is required
       # and if it is either not present in Redis or cannot be retrieved from CHIP, an unauthorized
       # message is returned.
@@ -248,6 +268,16 @@ module V2
 
         {
           demographicConfirmations: hsh
+        }
+      end
+
+      def appointment_attributes
+        hashed_identifiers =
+          Oj.load(appointment_identifiers).with_indifferent_access.dig(:data, :attributes)
+
+        {
+          stationNo: hashed_identifiers[:stationNo].to_s,
+          appointmentIen: hashed_identifiers[:appointmentIEN].to_s
         }
       end
 

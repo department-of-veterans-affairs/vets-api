@@ -23,6 +23,7 @@ RSpec.describe SignIn::StatePayloadJwtDecoder do
     let(:type) { SignIn::Constants::Auth::CSP_TYPES.first }
     let(:client_id) { client_config.client_id }
     let(:client_config) { create(:client_config) }
+    let(:created_at) { Time.zone.now.to_i }
 
     let(:client_state_minimum_length) { SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH }
 
@@ -41,7 +42,8 @@ RSpec.describe SignIn::StatePayloadJwtDecoder do
           client_state:,
           acr:,
           type:,
-          client_id:
+          client_id:,
+          created_at:
         }
       end
       let(:expected_error) { SignIn::Errors::StatePayloadSignatureMismatchError }
@@ -70,6 +72,7 @@ RSpec.describe SignIn::StatePayloadJwtDecoder do
         expect(decoded_state_payload.acr).to eq(acr)
         expect(decoded_state_payload.type).to eq(type)
         expect(decoded_state_payload.client_id).to eq(client_id)
+        expect(decoded_state_payload.created_at).to eq(created_at)
       end
     end
   end

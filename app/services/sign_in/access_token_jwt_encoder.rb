@@ -28,7 +28,8 @@ module SignIn
         parent_refresh_token_hash: access_token.parent_refresh_token_hash,
         anti_csrf_token: access_token.anti_csrf_token,
         last_regeneration_time: access_token.last_regeneration_time.to_i,
-        version: access_token.version
+        version: access_token.version,
+        user_attributes: access_token.user_attributes
       }
     end
 

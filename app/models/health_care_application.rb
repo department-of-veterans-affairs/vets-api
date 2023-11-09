@@ -10,10 +10,12 @@ require 'mpi/service'
 class HealthCareApplication < ApplicationRecord
   include TempFormValidation
   include SentryLogging
+  include VA1010Forms::Utils
 
   FORM_ID = '10-10EZ'
   ACTIVEDUTY_ELIGIBILITY = 'TRICARE'
   DISABILITY_THRESHOLD = 50
+  LOCKBOX = Lockbox.new(key: Settings.lockbox.master_key, encode: true)
 
   attr_accessor :user, :async_compatible, :google_analytics_client_id
 
@@ -58,6 +60,8 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_sync
+    @parsed_form = override_parsed_form(parsed_form)
+
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
     rescue Common::Client::Errors::ClientError => e
@@ -223,12 +227,14 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_async(has_email)
-    submission_job = 'EncryptedSubmissionJob'
+    submission_job = 'SubmissionJob'
     submission_job = "Anon#{submission_job}" unless has_email
+
+    @parsed_form = override_parsed_form(parsed_form)
 
     "HCA::#{submission_job}".constantize.perform_async(
       self.class.get_user_identifier(user),
-      KmsEncrypted::Box.new.encrypt(parsed_form.to_json),
+      HealthCareApplication::LOCKBOX.encrypt(parsed_form.to_json),
       id,
       google_analytics_client_id
     )
@@ -239,6 +245,24 @@ class HealthCareApplication < ApplicationRecord
   def log_submission_failure
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry_short_form") if short_form?
+
+    if form.present?
+      PersonalInformationLog.create!(
+        data: parsed_form,
+        error_class: 'HealthCareApplication FailedWontRetry'
+      )
+
+      log_message_to_sentry(
+        'HCA total failure',
+        :error,
+        {
+          first_initial: parsed_form['veteranFullName']['first'][0],
+          middle_initial: parsed_form['veteranFullName']['middle'].try(:[], 0),
+          last_initial: parsed_form['veteranFullName']['last'][0]
+        },
+        hca: :total_failure
+      )
+    end
   end
 
   def send_failure_mail

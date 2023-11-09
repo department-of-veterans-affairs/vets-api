@@ -79,7 +79,16 @@ module AppealsApi
     end
 
     def country_code
-      address['countryCodeISO2']
+      # N.B. Decision Reviews uses a two-letter code, while segmented APIs use a three-letter code.
+      code = address['countryCodeISO2']
+      return code if code.present?
+
+      code = address['countryCodeIso3']
+      IsoCountryCodes.find(code).alpha2
+    rescue IsoCountryCodes::UnknownCodeError
+      # Model validations should have already rejected an invalid country code, but if the code is somehow invalid
+      # anyway, return it as-is:
+      code
     end
 
     def zip_code_5

@@ -93,6 +93,7 @@ module Mobile
           adapted_appointment = {
             id: appointment[:id],
             appointment_type:,
+            appointment_ien: extract_station_and_ien(appointment),
             cancel_id:,
             comment:,
             facility_id:,
@@ -107,7 +108,7 @@ module Mobile
             status:,
             status_detail: cancellation_reason(appointment[:cancelation_reason]),
             time_zone: timezone,
-            vetext_id: nil,
+            vetext_id:,
             reason:,
             is_covid_vaccine: appointment[:service_type] == COVID_SERVICE,
             is_pending: requested_periods.present?,
@@ -127,6 +128,17 @@ module Mobile
         # rubocop:enable Metrics/MethodLength
 
         private
+
+        def extract_station_and_ien(appointment)
+          return nil if appointment[:identifier].nil?
+
+          regex = %r{VistADefinedTerms/409_(84|85)}
+          identifier = appointment[:identifier].find { |id| id[:system]&.match? regex }
+
+          return if identifier.nil?
+
+          identifier[:value]&.split(':', 2)&.second
+        end
 
         def friendly_location_name
           return location[:name] if va_appointment?
@@ -151,6 +163,16 @@ module Mobile
 
         def facility_id
           @facility_id ||= Mobile::V0::Appointment.convert_from_non_prod_id!(appointment[:location_id])
+        end
+
+        def vetext_id
+          @vetext_id ||= "#{facility_id};#{utc_to_fileman_date(start_date_local)}"
+        end
+
+        def utc_to_fileman_date(datetime)
+          fileman_date = "#{datetime.year - 1700}#{format('%02d', datetime.month)}#{format('%02d', datetime.day)}"
+          fileman_time = "#{format('%02d', datetime.hour)}#{format('%02d', datetime.min)}"
+          "#{fileman_date}.#{fileman_time}".gsub(/0+$/, '').gsub(/\.$/, '.0')
         end
 
         def timezone
@@ -179,7 +201,17 @@ module Mobile
         end
 
         def cancellation_reason(cancellation_reason)
-          return nil if cancellation_reason.nil?
+          if cancellation_reason.nil?
+            if status == STATUSES[:cancelled]
+              Rails.logger.info('cancelled appt missing cancellation reason with debug info',
+                                type: appointment_type,
+                                kind: appointment[:kind],
+                                vista_status: appointment.dig(:extension, :vista_status),
+                                facility_id:,
+                                clinic: appointment[:clinic])
+            end
+            return CANCELLATION_REASON[:prov]
+          end
 
           cancel_code = cancellation_reason.dig(:coding, 0, :code)
           CANCELLATION_REASON[cancel_code&.to_sym]

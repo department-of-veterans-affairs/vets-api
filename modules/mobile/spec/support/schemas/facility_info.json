@@ -30,7 +30,7 @@
     },
     "miles": {
       "description": "distance in miles from current location or home",
-      "type": "string"
+      "type": ["string", "null"]
     }
   },
   "type": "object"

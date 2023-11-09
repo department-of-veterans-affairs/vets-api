@@ -6,6 +6,40 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::NoticeOfDisagreement, type: :model do
   include FixtureHelpers
 
+  shared_examples 'NOD metadata' do |opts|
+    let(:nod) { create(opts[:factory]) }
+
+    it 'saves central_mail_business_line to metadata' do
+      expect(nod.metadata['central_mail_business_line']).to eq 'BVA'
+    end
+
+    describe 'potential_write_in_issue_count' do
+      context 'with no write-in issues' do
+        it 'saves the correct value to metadata' do
+          expect(nod.metadata['potential_write_in_issue_count']).to eq(0)
+        end
+      end
+
+      context 'with write-in issues' do
+        let(:form_data) do
+          data = fixture_as_json(opts[:form_data_fixture])
+          data['included'].push(
+            {
+              'type' => 'appealableIssue',
+              'attributes' => { 'issue' => 'write-in issue text', 'decisionDate' => '1999-09-09' }
+            }
+          )
+          data
+        end
+        let(:nod) { create(opts[:factory], form_data:) }
+
+        it 'saves the correct value to metadata' do
+          expect(nod.metadata['potential_write_in_issue_count']).to eq(1)
+        end
+      end
+    end
+  end
+
   let(:auth_headers) { fixture_as_json 'decision_reviews/v1/valid_10182_headers.json' }
   let(:form_data) { fixture_as_json 'decision_reviews/v1/valid_10182.json' }
   let(:notice_of_disagreement) do
@@ -27,8 +61,75 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       create(:notice_of_disagreement, form_data:, auth_headers:, board_review_option: bro)
     end
 
-    it 'saves consumer benefit type to metadata' do
-      expect(nod.metadata['central_mail_business_line']).to eq 'BVA'
+    describe 'metadata' do
+      # Not using shared examples here because v1 example data is different from v2/v0
+      it 'saves consumer benefit type to metadata' do
+        expect(nod.metadata['central_mail_business_line']).to eq 'BVA'
+      end
+
+      describe 'potential_write_in_issue_count' do
+        it 'saves the correct value' do
+          expect(nod.metadata['potential_write_in_issue_count']).to eq(3)
+        end
+      end
+    end
+  end
+
+  describe 'callbacks' do
+    describe 'before_update' do
+      before { allow(notice_of_disagreement).to receive(:submit_evidence_to_central_mail!) }
+
+      context 'when the status has changed to "success"' do
+        let(:notice_of_disagreement) { create(:notice_of_disagreement, status: 'processing') }
+
+        context 'and the delay evidence feature is enabled' do
+          before { Flipper.enable(:decision_review_delay_evidence) }
+
+          it 'calls "#submit_evidence_to_central_mail!"' do
+            notice_of_disagreement.update(status: 'success')
+
+            expect(notice_of_disagreement).to have_received(:submit_evidence_to_central_mail!)
+          end
+        end
+
+        context 'and the delay evidence feature is disabled' do
+          before { Flipper.disable(:decision_review_delay_evidence) }
+
+          it 'does not call "#submit_evidence_to_central_mail!"' do
+            notice_of_disagreement.update(status: 'success')
+
+            expect(notice_of_disagreement).not_to have_received(:submit_evidence_to_central_mail!)
+          end
+        end
+      end
+
+      context 'when the status has not changed' do
+        let(:notice_of_disagreement) { create(:notice_of_disagreement, status: 'success') }
+
+        context 'and the delay evidence feature is enabled' do
+          before { Flipper.enable(:decision_review_delay_evidence) }
+
+          it 'does not call "#submit_evidence_to_central_mail!"' do
+            notice_of_disagreement.update(source: 'VA.gov')
+
+            expect(notice_of_disagreement).not_to have_received(:submit_evidence_to_central_mail!)
+          end
+        end
+      end
+
+      context 'when the status has changed but not to "success"' do
+        let(:notice_of_disagreement) { create(:notice_of_disagreement, status: 'submitted') }
+
+        context 'and the delay evidence feature is enabled' do
+          before { Flipper.enable(:decision_review_delay_evidence) }
+
+          it 'does not call "submit_evidence_to_central_mail!"' do
+            notice_of_disagreement.update(status: 'processing')
+
+            expect(notice_of_disagreement).not_to have_received(:submit_evidence_to_central_mail!)
+          end
+        end
+      end
     end
   end
 
@@ -168,6 +269,26 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     it { expect(notice_of_disagreement.stamp_text).to eq 'Doe - 6789' }
   end
 
+  describe '#submit_evidence_to_central_mail!' do
+    let(:notice_of_disagreement) { create(:notice_of_disagreement) }
+    let(:evidence_submission1) { create(:evidence_submission, supportable: notice_of_disagreement) }
+    let(:evidence_submission2) { create(:evidence_submission, supportable: notice_of_disagreement) }
+    let(:evidence_submissions) { [evidence_submission1, evidence_submission2] }
+
+    before do
+      allow(notice_of_disagreement).to receive(:evidence_submissions).and_return(evidence_submissions)
+      allow(evidence_submission1).to receive(:submit_to_central_mail!)
+      allow(evidence_submission2).to receive(:submit_to_central_mail!)
+    end
+
+    it 'calls "#submit_to_central_mail!" for each evidence submission' do
+      notice_of_disagreement.submit_evidence_to_central_mail!
+
+      expect(evidence_submission1).to have_received(:submit_to_central_mail!)
+      expect(evidence_submission2).to have_received(:submit_to_central_mail!)
+    end
+  end
+
   it_behaves_like 'an appeal model with updatable status' do
     let(:example_instance) { notice_of_disagreement }
     let(:instance_without_email) do
@@ -190,7 +311,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       it_behaves_like 'shared model validations', validations: %i[veteran_birth_date_is_in_the_past
                                                                   contestable_issue_dates_are_in_the_past
                                                                   required_claimant_data_is_present
-                                                                  claimant_birth_date_is_in_the_past],
+                                                                  claimant_birth_date_is_in_the_past
+                                                                  country_codes_valid],
                                                   required_claimant_headers: described_class.required_nvc_headers
 
       describe '#veteran' do
@@ -276,6 +398,31 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
           end
         end
       end
+    end
+
+    describe 'metadata' do
+      include_examples 'NOD metadata', {
+        factory: :notice_of_disagreement_v2,
+        form_data_fixture: 'decision_reviews/v2/valid_10182.json'
+      }
+    end
+  end
+
+  describe 'when api_version is V0' do
+    let(:appeal) { create(:extra_notice_of_disagreement_v0, api_version: 'V0') }
+
+    it_behaves_like 'shared model validations',
+                    required_claimant_headers: [],
+                    validations: %i[veteran_birth_date_is_in_the_past
+                                    contestable_issue_dates_are_in_the_past
+                                    claimant_birth_date_is_in_the_past
+                                    country_codes_valid]
+
+    describe 'metadata' do
+      include_examples 'NOD metadata', {
+        factory: :notice_of_disagreement_v0,
+        form_data_fixture: 'notice_of_disagreements/v0/valid_10182.json'
+      }
     end
   end
 end

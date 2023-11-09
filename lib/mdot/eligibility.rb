@@ -6,5 +6,6 @@ module MDOT
 
     attribute :batteries, Boolean, default: false
     attribute :accessories, Boolean, default: false
+    attribute :apneas, Boolean, default: false
   end
 end

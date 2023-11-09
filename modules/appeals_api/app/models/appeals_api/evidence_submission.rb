@@ -17,7 +17,17 @@ module AppealsApi
     delegate :detail, to: :upload_submission
 
     scope :errored, lambda {
-      joins(:upload_submission).where('vba_documents_upload_submissions.status' => 'error')
+      joins(:upload_submission).where(upload_submission: { status: 'error' })
     }
+
+    scope :uploaded, lambda {
+      joins(:upload_submission).where(upload_submission: { status: 'uploaded' })
+    }
+
+    def submit_to_central_mail!
+      if status == 'uploaded'
+        VBADocuments::UploadProcessor.perform_async(upload_submission.guid, caller: self.class.name)
+      end
+    end
   end
 end

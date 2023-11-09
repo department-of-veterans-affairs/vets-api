@@ -5,7 +5,7 @@ require 'debts_api/v0/financial_status_report_configuration'
 require 'debts_api/v0/responses/financial_status_report_response'
 require 'debt_management_center/models/financial_status_report'
 require 'debts_api/v0/financial_status_report_downloader'
-require 'debt_management_center/workers/va_notify_email_job'
+require 'debt_management_center/sidekiq/va_notify_email_job'
 require 'debt_management_center/vbs/request'
 require 'debt_management_center/sharepoint/request'
 require 'pdf_fill/filler'
@@ -13,11 +13,16 @@ require 'sidekiq'
 require 'json'
 
 module DebtsApi
+  ##
+  # Service that integrates with the Debt Management Center's Financial Status Report endpoints.
+  # Allows users to submit financial status reports, and download copies of completed reports.
+  #
   class V0::FinancialStatusReportService < DebtManagementCenter::BaseService
     include SentryLogging
 
     class FSRNotFoundInRedis < StandardError; end
     class FSRInvalidRequest < StandardError; end
+    class FailedFormToPdfResponse < StandardError; end
 
     configuration DebtsApi::V0::FinancialStatusReportConfiguration
 
@@ -25,6 +30,7 @@ module DebtsApi
     DATE_TIMEZONE = 'Central Time (US & Canada)'
     VBA_CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.fsr_confirmation_email
     VHA_CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.vha_fsr_confirmation_email
+    STREAMLINED_CONFIRMATION_TEMPLATE = Settings.vanotify.services.dmc.template_id.fsr_streamlined_confirmation_email
     DEDUCTION_CODES = {
       '30' => 'Disability compensation and pension debt',
       '41' => 'Chapter 34 education debt',
@@ -65,13 +71,12 @@ module DebtsApi
 
     def submit_combined_fsr(form)
       Rails.logger.info('Submitting Combined FSR')
-
+      needs_vba = form['selectedDebtsAndCopays'].blank? || selected_vba_debts(form['selectedDebtsAndCopays']).present?
+      needs_vha = selected_vha_copays(form['selectedDebtsAndCopays']).present?
+      form['combined'] = true if needs_vba && needs_vha
       # Edge case for old flow (pre-combined) that didn't include this field
-      if form['selectedDebtsAndCopays'].blank? || selected_vba_debts(form['selectedDebtsAndCopays']).present?
-        create_vba_fsr(form)
-      end
-      create_vha_fsr(form) if selected_vha_copays(form['selectedDebtsAndCopays']).present?
-
+      create_vba_fsr(form) if needs_vba
+      create_vha_fsr(form) if needs_vha
       aggregate_fsr_reasons(form, form['selectedDebtsAndCopays'])
 
       {
@@ -118,10 +123,12 @@ module DebtsApi
 
     def submit_vba_fsr(form)
       Rails.logger.info('5655 Form Submitting to VBA')
+      form.delete('streamlined')
       response = perform(:post, 'financial-status-report/formtopdf', form)
       fsr_response = DebtsApi::V0::FinancialStatusReportResponse.new(response.body)
+      raise FailedFormToPdfResponse unless response.success?
 
-      send_confirmation_email(VBA_CONFIRMATION_TEMPLATE) if response.success?
+      send_confirmation_email(VBA_CONFIRMATION_TEMPLATE)
 
       update_filenet_id(fsr_response)
 
@@ -144,7 +151,20 @@ module DebtsApi
       vbs_response = vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
                                       { jsonDocument: vha_form.to_json })
 
+      form_submission.submitted!
       { status: vbs_response.status }
+    rescue => e
+      form_submission.register_failure(e.message)
+      raise e
+    end
+
+    def submit_to_vbs(form_submission)
+      form = add_vha_specific_data(form_submission)
+
+      vbs_request = DebtManagementCenter::VBS::Request.build
+      Rails.logger.info('5655 Form Submitting to VBS API', submission_id: form_submission.id)
+      vbs_request.post("#{vbs_settings.base_path}/UploadFSRJsonDocument",
+                       { jsonDocument: form.to_json })
     end
 
     def send_vha_confirmation_email(_status, options)
@@ -152,12 +172,28 @@ module DebtsApi
 
       DebtManagementCenter::VANotifyEmailJob.perform_async(
         options['email'],
-        VHA_CONFIRMATION_TEMPLATE,
+        options['template_id'],
         options['email_personalization_info']
       )
     end
 
     private
+
+    def add_vha_specific_data(form_submission)
+      combined_adjustments(form_submission)
+      form = form_submission.form
+      form['transactionId'] = form_submission.id
+      form['timestamp'] = form_submission.created_at.strftime('%Y%m%dT%H%M%S')
+      streamline_adjustments(form)
+    end
+
+    def combined_adjustments(submission)
+      form = submission.form
+      if submission.public_metadata['combined']
+        comments = form['additionalData']['additionalComments']
+        form['additionalData']['additionalComments'] = "Combined FSR. #{comments}"
+      end
+    end
 
     def streamline_adjustments(form)
       if form.key?('streamlined')
@@ -177,6 +213,33 @@ module DebtsApi
       raise Common::Client::Errors::ClientError.new('malformed request', 400)
     end
 
+    def build_public_metadata(form, debts)
+      begin
+        enabled_flags = Flipper.features.select { |feature| feature.enabled?(@user) }.map do |feature|
+          feature.name.to_s
+        end.sort
+      rescue => e
+        Rails.logger.error('Failed to source user flags', e.message)
+        enabled_flags = []
+      end
+      debt_amounts = debts.nil? ? [] : debts.map { |debt| debt['currentAR'] || debt['pHAmtDue'] }
+      debt_type = debts&.pluck('debtType')&.first
+      {
+        'combined' => form['combined'],
+        'debt_amounts' => debt_amounts,
+        'debt_type' => debt_type,
+        'flags' => enabled_flags,
+        'streamlined' => form['streamlined'],
+        'zipcode' => (form.dig('personalData', 'address', 'zipOrPostalCode') || '???')
+      }
+    end
+
+    def sanitize_submission_form(form)
+      form.delete('selectedDebtsAndCopays')
+      form.delete('combined')
+      form
+    end
+
     def persist_form_submission(form, debts)
       metadata = {
         debts: selected_vba_debts(debts),
@@ -184,25 +247,31 @@ module DebtsApi
       }.to_json
       form_json = form.deep_dup
 
-      form_json.delete('selectedDebtsAndCopays')
+      public_metadata = build_public_metadata(form_json, debts)
+      form_json = sanitize_submission_form(form_json)
 
       DebtsApi::V0::Form5655Submission.create(
         form_json: form_json.to_json,
         metadata:,
         user_uuid: @user.uuid,
-        user_account: @user.user_account
+        user_account: @user.user_account,
+        public_metadata:,
+        state: 1
       )
     end
 
     def submit_vha_batch_job(vha_submissions)
       return unless defined?(Sidekiq::Batch)
 
+      template = vha_submissions.any?(&:streamlined?) ? STREAMLINED_CONFIRMATION_TEMPLATE : VHA_CONFIRMATION_TEMPLATE
+
       submission_batch = Sidekiq::Batch.new
       submission_batch.on(
         :success,
         'DebtsApi::V0::FinancialStatusReportService#send_vha_confirmation_email',
         'email' => @user.email&.downcase,
-        'email_personalization_info' => email_personalization_info
+        'email_personalization_info' => email_personalization_info,
+        'template_id' => template
       )
       submission_batch.jobs do
         vha_submissions.map(&:submit_to_vha)
@@ -290,7 +359,13 @@ module DebtsApi
     end
 
     def remove_form_delimiters(form)
-      JSON.parse(form.to_s.gsub(/[\^|\n]/, '').gsub('=>', ':'))
+      form.deep_transform_values do |val|
+        if val.is_a?(String)
+          val.gsub(/[\^|\n]/, '')
+        else
+          val
+        end
+      end
     end
 
     def vbs_settings

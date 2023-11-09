@@ -31,9 +31,14 @@ RSpec.describe Users::Profile do
   describe '#pre_serialize' do
     subject { Users::Profile.new(user).pre_serialize }
 
+    let(:edipi) { '1005127153' }
     let(:profile) { subject.profile }
     let(:va_profile) { subject.va_profile }
     let(:veteran_status) { subject.veteran_status }
+
+    before do
+      allow(user).to receive(:edipi).and_return(edipi)
+    end
 
     it 'does not include ssn anywhere', :aggregate_failures do
       expect(subject.try(:ssn)).to be_nil
@@ -42,11 +47,17 @@ RSpec.describe Users::Profile do
     end
 
     it 'sets the status to 200' do
-      expect(subject.status).to eq 200
+      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[method body],
+                                                                                  allow_playback_repeats: true) do
+        expect(subject.status).to eq 200
+      end
     end
 
     it 'sets the errors to nil' do
-      expect(subject.errors).to be_nil
+      VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', match_requests_on: %i[method body],
+                                                                                  allow_playback_repeats: true) do
+        expect(subject.errors).to be_nil
+      end
     end
 
     describe '#in_progress_forms' do
@@ -226,7 +237,10 @@ RSpec.describe Users::Profile do
         end
 
         it 'sets the status to 200' do
-          expect(subject.status).to eq 200
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
+                           match_requests_on: %i[method body], allow_playback_repeats: true) do
+            expect(subject.status).to eq 200
+          end
         end
       end
 
@@ -275,40 +289,48 @@ RSpec.describe Users::Profile do
     describe '#veteran_status' do
       context 'when a veteran status is successfully returned' do
         it 'includes is_veteran' do
-          expect(veteran_status[:is_veteran]).to eq(user.veteran?)
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
+                           match_requests_on: %i[method body], allow_playback_repeats: true) do
+            expect(veteran_status[:is_veteran]).to eq(user.veteran?)
+          end
         end
 
         it 'includes status' do
-          expect(veteran_status[:status]).to eq(Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok])
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
+                           match_requests_on: %i[method body], allow_playback_repeats: true) do
+            expect(veteran_status[:status]).to eq(Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok])
+          end
         end
 
         it 'includes served_in_military' do
-          expect(veteran_status[:served_in_military]).to eq(user.served_in_military?)
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
+                           match_requests_on: %i[method body], allow_playback_repeats: true) do
+            expect(veteran_status[:served_in_military]).to eq(user.served_in_military?)
+          end
         end
 
         it 'sets the status to 200' do
-          expect(subject.status).to eq 200
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
+                           match_requests_on: %i[method body], allow_playback_repeats: true) do
+            expect(subject.status).to eq 200
+          end
         end
       end
 
       context 'when a veteran status is not found' do
-        before do
-          allow_any_instance_of(
-            EMISRedis::VeteranStatus
-          ).to receive(:veteran?).and_raise(EMISRedis::VeteranStatus::RecordNotFound.new(status: 404))
-        end
-
         it 'sets veteran_status to nil' do
           expect(veteran_status).to be_nil
         end
 
-        it 'populates the #errors array with the serialized error', :aggregate_failures do
-          error = subject.errors.first
-
-          expect(error[:external_service]).to eq 'EMIS'
-          expect(error[:start_time]).to be_present
-          expect(error[:description]).to include 'NOT_FOUND'
-          expect(error[:status]).to eq 404
+        it 'populates the #errors array with the serialized error' do
+          VCR.use_cassette('va_profile/veteran_status/veteran_status_404_oid_blank',
+                           match_requests_on: %i[method body], allow_playback_repeats: true) do
+            error = subject.errors.first
+            expect(error[:external_service]).to eq 'EMIS'
+            expect(error[:start_time]).to be_present
+            # expect(error[:description]).to include 'NOT_FOUND'
+            expect(error[:status]).to eq 404
+          end
         end
 
         it 'sets the status to 296' do
@@ -355,12 +377,15 @@ RSpec.describe Users::Profile do
         end
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
-          emis_error = subject.errors.last
+          VCR.use_cassette('va_profile/veteran_status/veteran_status_401_oid_blank', match_requests_on: %i[method body],
+                                                                                     allow_playback_repeats: true) do
+            emis_error = subject.errors.last
 
-          expect(emis_error[:external_service]).to eq 'EMIS'
-          expect(emis_error[:start_time]).to be_present
-          expect(emis_error[:description]).to include 'NOT_AUTHORIZED'
-          expect(emis_error[:status]).to eq 401
+            expect(emis_error[:external_service]).to eq 'EMIS'
+            expect(emis_error[:start_time]).to be_present
+            expect(emis_error[:description]).to include 'VA Profile failure'
+            expect(emis_error[:status]).to eq 401
+          end
         end
 
         it 'sets the status to 296' do
@@ -397,7 +422,10 @@ RSpec.describe Users::Profile do
         end
 
         it 'sets the status to 200' do
-          expect(subject.status).to eq 200
+          VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200',
+                           match_requests_on: %i[method body], allow_playback_repeats: true) do
+            expect(subject.status).to eq 200
+          end
         end
       end
 

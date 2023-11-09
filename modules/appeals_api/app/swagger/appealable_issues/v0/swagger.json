@@ -200,9 +200,10 @@
                 "example": {
                   "errors": [
                     {
-                      "status": "404",
-                      "title": "Veteran not found",
-                      "detail": "A veteran with that SSN was not found in our systems."
+                      "title": "Resource not found",
+                      "detail": "A matching Veteran was not found in our systems",
+                      "code": "404",
+                      "status": "404"
                     }
                   ]
                 },
@@ -244,7 +245,7 @@
                       "errors": [
                         {
                           "status": "422",
-                          "code": "invalid_receipt_date",
+                          "code": "422",
                           "title": "Invalid Receipt Date",
                           "detail": "\"2019-02-18\" is before AMA Activation Date (2019-02-19)."
                         }
@@ -317,9 +318,8 @@
                   "errors": [
                     {
                       "title": "Bad Gateway",
-                      "detail": "Received a 500 response from the upstream server",
-                      "code": "CASEFLOWSTATUS500",
-                      "source": "No method error",
+                      "detail": "Received an unusable response from Caseflow",
+                      "code": "502",
                       "status": "502"
                     }
                   ]

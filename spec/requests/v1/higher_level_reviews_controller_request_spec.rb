@@ -22,10 +22,16 @@ RSpec.describe V1::HigherLevelReviewsController do
 
     it 'creates an HLR' do
       VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-200_V1') do
+        # Create an InProgressForm
+        in_progress_form = create(:in_progress_form, user_uuid: user.uuid, form_id: '20-0996')
+        expect(in_progress_form).not_to be_nil
         subject
         expect(response).to be_successful
         appeal_uuid = JSON.parse(response.body)['data']['id']
         expect(AppealSubmission.where(submitted_appeal_uuid: appeal_uuid).first).to be_truthy
+        # InProgressForm should be destroyed after successful submission
+        in_progress_form = InProgressForm.find_by(user_uuid: user.uuid, form_id: '20-0996')
+        expect(in_progress_form).to be_nil
       end
     end
 

@@ -6,6 +6,7 @@ module MyHealth
   class MrController < ApplicationController
     include ActionController::Serialization
     include MyHealth::MHVControllerConcerns
+    service_tag 'mhv-medical-records'
 
     # skip_before_action :authenticate
 
@@ -13,7 +14,7 @@ module MyHealth
 
     def client
       @client ||= MedicalRecords::Client.new(session: { user_id: current_user.mhv_correlation_id,
-                                                        icn: current_user.mhv_icn })
+                                                        icn: current_user.icn })
     end
 
     def authorize

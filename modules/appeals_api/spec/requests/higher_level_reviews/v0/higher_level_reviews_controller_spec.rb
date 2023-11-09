@@ -54,20 +54,23 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
       end
 
       it 'returns only the data from the ALLOWED_COLUMNS' do
-        expect(parsed_response.dig('data', 'attributes').keys).to eq(%w[status updatedAt createdAt])
+        expect(parsed_response.dig('data', 'attributes').keys).to eq(%w[status createDate updateDate])
       end
     end
   end
 
   describe '#create' do
     let(:path) { base_path 'forms/200996' }
-    let(:params) { default_data }
+    let(:data) { default_data }
+    let(:params) { data.to_json }
     let(:headers) { default_headers }
 
     describe 'auth behavior' do
-      it_behaves_like 'an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:POST] do
+      it_behaves_like(
+        'an endpoint with OpenID auth', scopes: described_class::OAUTH_SCOPES[:POST], success_status: :created
+      ) do
         def make_request(auth_header)
-          post(path, params: params.to_json, headers: headers.merge(auth_header))
+          post(path, params:, headers: headers.merge(auth_header))
         end
       end
     end
@@ -75,12 +78,12 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
     describe 'responses' do
       before do
         with_openid_auth(described_class::OAUTH_SCOPES[:POST]) do |auth_header|
-          post(path, params: params.to_json, headers: headers.merge(auth_header))
+          post(path, params:, headers: headers.merge(auth_header))
         end
       end
 
       it 'creates an HLR record having api_version: "V0"' do
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:created)
 
         hlr = AppealsApi::HigherLevelReview.find(parsed_response['data']['id'])
 
@@ -88,7 +91,7 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
       end
 
       context 'when body does not match schema' do
-        let(:params) do
+        let(:data) do
           default_data['data']['attributes']['veteran'].delete('icn')
           default_data['data']['attributes']['veteran'].delete('firstName')
           default_data
@@ -102,7 +105,7 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
       end
 
       context 'when veteran birth date is not in the past' do
-        let(:params) do
+        let(:data) do
           default_data['data']['attributes']['veteran']['birthDate'] = DateTime.tomorrow.strftime('%F')
           default_data
         end
@@ -115,7 +118,7 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
       end
 
       context 'when claimant birth date is not in the past' do
-        let(:params) do
+        let(:data) do
           max_data['data']['attributes']['claimant']['birthDate'] = DateTime.tomorrow.strftime('%F')
           max_data
         end
@@ -124,6 +127,14 @@ describe AppealsApi::HigherLevelReviews::V0::HigherLevelReviewsController, type:
           expect(response).to have_http_status(:unprocessable_entity)
           expect(parsed_response['errors'][0]['detail']).to include('Date must be in the past')
           expect(parsed_response['errors'][0]['source']['pointer']).to eq('/data/attributes/claimant/birthDate')
+        end
+      end
+
+      context 'when body is not JSON' do
+        let(:params) { 'this-is-not-json' }
+
+        it 'returns a 400 error' do
+          expect(response).to have_http_status(:bad_request)
         end
       end
     end

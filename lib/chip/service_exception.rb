@@ -15,8 +15,8 @@ module Chip
     private
 
     def code
-      if @key.present? && I18n.exists?("chip.exceptions.#{@key}")
-        @key
+      if key.present? && I18n.exists?("chip.exceptions.#{key}")
+        key
       else
         UNMAPPED_KEY
       end

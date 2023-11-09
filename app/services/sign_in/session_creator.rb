@@ -9,6 +9,7 @@ module SignIn
     end
 
     def perform
+      validate_terms_of_use if client_config.enforced_terms.present?
       SessionContainer.new(session:,
                            refresh_token:,
                            access_token:,
@@ -17,6 +18,12 @@ module SignIn
     end
 
     private
+
+    def validate_terms_of_use
+      if user_account.needs_accepted_terms_of_use?
+        raise Errors::TermsOfUseNotAcceptedError.new message: 'Terms of Use has not been accepted'
+      end
+    end
 
     def anti_csrf_token
       @anti_csrf_token ||= SecureRandom.hex
@@ -55,7 +62,8 @@ module SignIn
         refresh_token_hash:,
         parent_refresh_token_hash:,
         anti_csrf_token:,
-        last_regeneration_time: refresh_created_time
+        last_regeneration_time: refresh_created_time,
+        user_attributes:
       )
     end
 
@@ -76,7 +84,8 @@ module SignIn
                            handle:,
                            hashed_refresh_token: double_parent_refresh_token_hash,
                            refresh_expiration: refresh_expiration_time,
-                           refresh_creation: refresh_created_time)
+                           refresh_creation: refresh_created_time,
+                           user_attributes: user_attributes.to_json)
     end
 
     def refresh_created_time
@@ -105,6 +114,10 @@ module SignIn
 
     def user_account
       @user_account ||= user_verification.user_account
+    end
+
+    def user_attributes
+      @user_attributes ||= validated_credential.user_attributes
     end
 
     def user_uuid

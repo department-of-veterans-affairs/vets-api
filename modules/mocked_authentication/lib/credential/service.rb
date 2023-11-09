@@ -8,9 +8,9 @@ module MockedAuthentication
     class Service
       attr_accessor :type
 
-      def render_auth(state:, acr:)
+      def render_auth(state:, acr:, operation:)
         renderer.render(template: 'oauth_get_form',
-                        locals: { url: redirect_uri_with_params(state, acr) },
+                        locals: { url: redirect_uri_with_params(state, acr, operation) },
                         format: :html)
       end
 
@@ -35,17 +35,18 @@ module MockedAuthentication
 
       private
 
-      def redirect_uri_with_params(state, acr)
-        "#{redirect_uri}?#{params_hash(state, acr).to_query}"
+      def redirect_uri_with_params(state, acr, operation)
+        "#{redirect_uri}?#{params_hash(state, acr, operation).to_query}"
       end
 
-      def params_hash(state, acr)
+      def params_hash(state, acr, operation)
         {
           type:,
           acr_values: acr,
           mock_redirect_uri: Settings.sign_in.mock_redirect_uri,
-          state:
-        }
+          state:,
+          operation:
+        }.compact
       end
 
       def redirect_uri

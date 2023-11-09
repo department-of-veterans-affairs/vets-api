@@ -11,7 +11,8 @@ module TestObjectContent
     additional_class_logs: { foo: 'bar' },
     additional_instance_logs: {
       i_work: %i[happy_instance_method],
-      i_fail_silently: %i[happy_instance_method non_existent_method angry_instance_method]
+      i_fail_silently: %i[happy_instance_method non_existent_method angry_instance_method],
+      i_am_a_syntax_error: nil # fails quietly
     }
   )
 
@@ -80,7 +81,7 @@ RSpec.describe Logging::ThirdPartyTransaction do
     let!(:test_object) do
       class TestWorker
         include TestObjectContent
-        include Sidekiq::Worker
+        include Sidekiq::Job
 
         self
       end.new

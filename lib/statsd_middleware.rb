@@ -84,7 +84,8 @@ class StatsdMiddleware
     secure-messaging
     medical-records
     static-pages
-    terms-and-conditions
+    terms-of-use
+    va-health-benefits-app
     vaos
     verify
     veteran-id-card

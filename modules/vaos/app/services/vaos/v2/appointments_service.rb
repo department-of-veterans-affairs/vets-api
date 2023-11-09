@@ -3,14 +3,19 @@
 require 'common/exceptions'
 require 'common/client/errors'
 require 'json'
+require 'memoist'
 
 module VAOS
   module V2
     class AppointmentsService < VAOS::SessionService
+      extend Memoist
+
       DIRECT_SCHEDULE_ERROR_KEY = 'DirectScheduleError'
       VAOS_SERVICE_DATA_KEY = 'VAOSServiceTypesAndCategory'
       VAOS_TELEHEALTH_DATA_KEY = 'VAOSTelehealthData'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
+
+      AVS_FLIPPER = :va_online_scheduling_after_visit_summary
 
       def get_appointments(start_date, end_date, statuses = nil, pagination_params = {})
         params = date_params(start_date, end_date)
@@ -19,12 +24,10 @@ module VAOS
                  .compact
 
         with_monitoring do
-          response = perform(:get, appointments_base_url, params, headers)
+          response = perform(:get, appointments_base_path, params, headers)
           response.body[:data].each do |appt|
-            # for CnP appointments set cancellable to false per GH#57824
-            set_cancellable_false(appt) if cnp?(appt)
-            # for covid appointments set cancellable to false per GH#58690
-            set_cancellable_false(appt) if covid?(appt)
+            # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
+            set_cancellable_false(appt) if cnp?(appt) || covid?(appt)
 
             # remove service type(s) for non-medical non-CnP appointments per GH#56197
             remove_service_type(appt) unless medical?(appt) || cnp?(appt) || no_service_cat?(appt)
@@ -32,8 +35,10 @@ module VAOS
             # set requestedPeriods to nil if the appointment is a booked cerner appointment per GH#62912
             appt[:requested_periods] = nil if booked?(appt) && cerner?(appt)
 
-            log_telehealth_data(appt[:telehealth]&.[](:atlas)) unless appt[:telehealth]&.[](:atlas).nil?
+            log_telehealth_data(appt) unless appt[:telehealth].nil?
             convert_appointment_time(appt)
+
+            fetch_avs_and_update_appt_body(appt) if avs_applicable?(appt) && Flipper.enabled?(AVS_FLIPPER, user)
           end
           {
             data: deserialized_appointments(response.body[:data]),
@@ -45,13 +50,11 @@ module VAOS
       def get_appointment(appointment_id)
         params = {}
         with_monitoring do
-          response = perform(:get, get_appointment_base_url(appointment_id), params, headers)
+          response = perform(:get, get_appointment_base_path(appointment_id), params, headers)
           convert_appointment_time(response.body[:data])
 
-          # for CnP appointments set cancellable to false per GH#57824
-          set_cancellable_false(response.body[:data]) if cnp?(response.body[:data])
-          # for covid appointments set cancellable to false per GH#58690
-          set_cancellable_false(response.body[:data]) if covid?(response.body[:data])
+          # for CnP and covid appointments set cancellable to false per GH#57824, GH#58690
+          set_cancellable_false(response.body[:data]) if cnp?(response.body[:data]) || covid?(response.body[:data])
 
           # remove service type(s) for non-medical non-CnP appointments per GH#56197
           unless medical?(response.body[:data]) || cnp?(response.body[:data]) || no_service_cat?(response.body[:data])
@@ -63,6 +66,10 @@ module VAOS
             response.body[:data][:requested_periods] = nil
           end
 
+          if avs_applicable?(response.body[:data]) && Flipper.enabled?(AVS_FLIPPER, user)
+            fetch_avs_and_update_appt_body(response.body[:data])
+          end
+
           OpenStruct.new(response.body[:data])
         end
       end
@@ -71,8 +78,9 @@ module VAOS
         params = VAOS::V2::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
         params.compact_blank!
         with_monitoring do
-          response = perform(:post, appointments_base_url, params, headers)
-          log_telehealth_data(response.body[:telehealth]&.[](:atlas)) unless response.body[:telehealth]&.[](:atlas).nil?
+          response = perform(:post, appointments_base_path, params, headers)
+          convert_appointment_time(response.body)
+          log_telehealth_data(response.body) unless response.body[:telehealth].nil?
           OpenStruct.new(response.body)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if params[:status] == 'booked'
@@ -85,15 +93,158 @@ module VAOS
         params = VAOS::V2::UpdateAppointmentForm.new(status:).params
         with_monitoring do
           response = perform(:put, url_path, params, headers)
+          convert_appointment_time(response.body)
           OpenStruct.new(response.body)
         end
       end
 
+      # Retrieves the most recent clinic appointment within the last year.
+      #
+      # Returns:
+      # - The most recent appointment of kind == 'clinic' or
+      # - nil if no appointment is found.
+      #
+      def get_most_recent_visited_clinic_appointment
+        current_check = Date.current.end_of_day.yesterday
+        three_month_interval = 3.months
+        look_back_limit = 1.year.ago
+        statuses = 'booked,fulfilled,arrived'
+
+        # starting yesterday loop in three month intervals until we find an appointment
+        # or we run into the look back limit
+        while current_check > look_back_limit
+          end_time = current_check
+          start_time = current_check - three_month_interval
+
+          appointments = fetch_clinic_appointments(start_time, end_time, statuses)
+
+          return most_recent_appointment(appointments) unless appointments.empty?
+
+          current_check -= three_month_interval
+        end
+
+        nil
+      end
+
       private
+
+      def fetch_clinic_appointments(start_time, end_time, statuses)
+        get_appointments(start_time, end_time, statuses)[:data].select { |appt| appt.kind == 'clinic' }
+      end
+
+      def most_recent_appointment(appointments)
+        appointments.max_by { |appointment| DateTime.parse(appointment.start) }
+      end
 
       def mobile_facility_service
         @mobile_facility_service ||=
           VAOS::V2::MobileFacilityService.new(user)
+      end
+
+      def avs_service
+        @avs_service ||=
+          Avs::V0::AvsService.new
+      end
+
+      # Extracts the station number and appointment IEN from an Appointment.
+      #
+      # Given an appointment, this method will check the identifiers, find the identifier associated
+      # with 'VistADefinedTerms/409_84' or 'VistADefinedTerms/409_85' and return the identifier value
+      # as a two-item array (split on the ':' character). If there is no such identifier, it will return nil.
+      #
+      # @param [Hash] appointment The appointment object to find the identifier in.
+      # This Hash must include an :identifier key.
+      #
+      # @return [Array, nil] An array containing two strings representing the station number
+      # and IEN if found, or nil if not.
+      def extract_station_and_ien(appointment)
+        return nil if appointment[:identifier].nil?
+
+        regex = %r{VistADefinedTerms/409_(84|85)}
+        identifier = appointment[:identifier].find { |id| id[:system]&.match? regex }
+
+        return if identifier.nil?
+
+        identifier[:value]&.split(':', 2)
+      end
+
+      # Normalizes an Integration Control Number (ICN) by removing the 'V' character and the trailing six digits.
+      # The ICN format consists of 17 alpha-numeric characters (10 digits + "V" + 6 digits) with
+      # V being a deliminator, and the 6 trailing digits a checksum.
+      #
+      # @param [String] icn The input ICN to be normalized.
+      #
+      # @return [String, nil] The normalized ICN as a string, after removing the trailing pattern 'V\[\d\]{6}',
+      # or nil if the input ICN was nil.
+      #
+      def normalize_icn(icn)
+        icn&.gsub(/V[\d]{6}$/, '')
+      end
+
+      # Checks equality between two ICNs (Integration Control Numbers)
+      # after normalizing them.
+      #
+      # @param [String] icn_a The first ICN to be compared.
+      # @param [String] icn_b The second ICN to be compared.
+      #
+      # @return [Boolean] Returns true if the normalized versions of icn_a and icn_b are equal,
+      # false if they are not equal or if either icn is nil.
+      def icns_match?(icn_a, icn_b)
+        return false if icn_a.nil? || icn_b.nil?
+
+        normalize_icn(icn_a) == normalize_icn(icn_b)
+      end
+
+      # Retrieves a link to the After Visit Summary (AVS) for a given appointment.
+      #
+      # @param appt [Hash] The appointment for which to retrieve an AVS link.
+      # @return [String, nil] The AVS link associated with the appointment,
+      # or nil if no link could be found or if there was a mismatch in Integration Control Numbers (ICNs).
+      def get_avs_link(appt)
+        station_no, appt_ien = extract_station_and_ien(appt)
+
+        return nil if station_no.nil? || appt_ien.nil?
+
+        avs_resp = avs_service.get_avs_by_appointment(station_no, appt_ien)
+
+        return nil if avs_resp.body.empty?
+
+        data = avs_resp.body.first.with_indifferent_access
+
+        if data[:icn].nil? || !icns_match?(data[:icn], user[:icn])
+          Rails.logger.warn('VAOS: AVS response ICN does not match user ICN')
+          return nil
+        end
+
+        avs_path(data[:sid])
+      end
+
+      # Fetches the After Visit Summary (AVS) link for an appointment and updates the `:avs_path` of the `appt`..
+      #
+      # In case of an error the method logs the error details and sets the `:avs_path` attribute of `appt` to `nil`.
+      #
+      # @param [Hash] appt The object representing the appointment. Must be an object that allows hash-like access
+      #
+      # @return [nil] This method does not explicitly return a value. It modifies the `appt`.
+      def fetch_avs_and_update_appt_body(appt)
+        avs_link = get_avs_link(appt)
+        appt[:avs_path] = avs_link
+      rescue => e
+        err_stack = e.backtrace.reject { |line| line.include?('gems') }.compact.join("\n   ")
+        Rails.logger.error("VAOS: Error retrieving AVS link: #{e.class}, #{e.message} \n   #{err_stack}")
+        appt[:avs_path] = nil
+      end
+
+      # Checks if appointment is eligible for receiving an AVS link, i.e.
+      # the appointment is booked and in the past
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is eligible, false otherwise
+      #
+      def avs_applicable?(appt)
+        return false if appt.nil? || appt[:status].nil? || appt[:start].nil?
+
+        appt[:status] == 'booked' && appt[:start].to_datetime.past?
       end
 
       # Checks if the appointment is booked.
@@ -213,11 +364,11 @@ module VAOS
       # with the appointment time to the convert_utc_to_local_time method which does the actual conversion.
       def convert_appointment_time(appt)
         if !appt[:start].nil?
-          facility_timezone = get_facility_timezone(appt[:location_id])
+          facility_timezone = get_facility_timezone_memoized(appt[:location_id])
           appt[:local_start_time] = convert_utc_to_local_time(appt[:start], facility_timezone)
         elsif !appt.dig(:requested_periods, 0, :start).nil?
           appt[:requested_periods].each do |period|
-            facility_timezone = get_facility_timezone(appt[:location_id])
+            facility_timezone = get_facility_timezone_memoized(appt[:location_id])
             period[:local_start_time] = convert_utc_to_local_time(period[:start], facility_timezone)
           end
         end
@@ -243,7 +394,7 @@ module VAOS
       end
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
-      def get_facility_timezone(facility_location_id)
+      def get_facility_timezone_memoized(facility_location_id)
         facility_info = get_facility(facility_location_id) unless facility_location_id.nil?
         if facility_info == FACILITY_ERROR_MSG || facility_info.nil?
           nil # returns nil if unable to fetch facility info, which will be handled by the timezone conversion
@@ -251,6 +402,7 @@ module VAOS
           facility_info[:timezone]&.[](:time_zone_id)
         end
       end
+      memoize :get_facility_timezone_memoized
 
       def get_facility(location_id)
         mobile_facility_service.get_facility_with_cache(location_id)
@@ -281,16 +433,74 @@ module VAOS
         }
       end
 
-      def log_telehealth_data(atlas_data)
-        atlas_entry = { VAOS_TELEHEALTH_DATA_KEY => atlas_details(atlas_data) }
-        Rails.logger.info('VAOS telehealth atlas details', atlas_entry.to_json)
+      def log_telehealth_data(appt)
+        atlas = atlas_details(appt)
+        gfe = gfe_details(appt)
+        misc = misc_details(appt)
+        message = { VAOS_TELEHEALTH_DATA_KEY => atlas.merge(gfe).merge(misc) }
+        Rails.logger.info('VAOS telehealth atlas details', message.to_json)
+      rescue => e
+        Rails.logger.warn("Error logging VAOS telehealth atlas details: #{e.message}")
       end
 
-      def atlas_details(atlas_data)
+      def atlas_details(appt)
         {
-          siteCode: atlas_data&.[](:site_code),
-          address: atlas_data&.[](:address)
+          siteCode: appt.dig(:telehealth, :atlas, :site_code),
+          address: appt.dig(:telehealth, :atlas, :address)
         }
+      end
+
+      def gfe_details(appt)
+        {
+          hasMobileGfe: appt.dig(:extension, :patient_has_mobile_gfe)
+        }
+      end
+
+      def misc_details(appt)
+        {
+          vvsKind: appt.dig(:telehealth, :vvs_kind),
+          siteId: appt[:location_id],
+          clinicId: appt[:clinic],
+          provider: extract_names(appt[:practitioners])
+        }
+      end
+
+      # Extracts the full names from each practitioner.
+      #
+      # @param [Array<Hash>] practitioners An array of Hash objects, each having practitioner information.
+      #   A practitioner hash should have a +:name+ key which itself is a hash with +:given+ and +:family+ keys.
+      #   The +:given+ key should point to an array of strings (first and middle names),
+      #   and +:family+ key should point to a single string (last name).
+      #
+      # @return [String] Returns the names of the practitioners as a comma separated string.
+      #   If the +practitioners+ array is empty or does not contain a +:name+, then it returns nil.
+      #
+      def extract_names(practitioners)
+        return nil unless non_empty_array_of_hashes?(practitioners)
+
+        names = []
+        practitioners.each do |practitioner|
+          given_names = practitioner.dig(:name, :given)&.join(' ')
+          family_name = practitioner.dig(:name, :family)
+          full_name = "#{given_names} #{family_name}"
+          names << full_name if full_name.present?
+        end
+        name_str = names.join(', ').strip
+        name_str.presence
+      end
+
+      # Checks if the provided argument is a non-empty array of Hash objects.
+      #
+      # This method checks whether the specified argument is of Array type,
+      # is not empty, and all of its elements are hashes.
+      #
+      # @param arg [Array] The argument to be checked
+      #
+      # @return [Boolean] true if the argument is a non-empty array and all
+      #   its elements are OpenStruct instances, false otherwise
+      #
+      def non_empty_array_of_hashes?(arg)
+        arg.is_a?(Array) && !arg.empty? && arg.all? { |elem| elem.is_a?(Hash) }
       end
 
       def deserialized_appointments(appointment_list)
@@ -324,11 +534,15 @@ module VAOS
         }
       end
 
-      def appointments_base_url
+      def appointments_base_path
         "/vaos/v1/patients/#{user.icn}/appointments"
       end
 
-      def get_appointment_base_url(appointment_id)
+      def avs_path(sid)
+        "/my-health/medical-records/summaries-and-notes/visit-summary/#{sid}"
+      end
+
+      def get_appointment_base_path(appointment_id)
         "/vaos/v1/patients/#{user.icn}/appointments/#{appointment_id}"
       end
 

@@ -34,7 +34,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA0994 do
         subject.after_submit(user)
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
           'test@test.com',
-          'form0994_confirmation_email_v1_template_id',
+          'form0994_confirmation_email_template_id',
           {
             'first_name' => 'TEST',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
@@ -53,7 +53,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA0994 do
         subject.after_submit(user)
         expect(VANotify::EmailJob).to have_received(:perform_async).with(
           'test@test.com',
-          'form0994_confirmation_email_v2_template_id',
+          'form0994_extra_action_confirmation_email_template_id',
           {
             'first_name' => 'TEST',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),

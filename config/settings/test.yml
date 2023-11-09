@@ -96,11 +96,7 @@ bd:
 
 # Put a real api_key in the BRD_API_KEY environment variable to record VCR cassettes
 # Be sure to not commit the api key and the cassettes.
-# If used the tunnel and localhost for the base_name, then you don't need an api key
-# If you use localhost, uncomment `ssl: false`.
 brd:
-  # base_name: localhost:4451
-  # ssl: false
   base_name: staging-api.va.gov/services
   api_key: testapikeyhere
 
@@ -309,13 +305,13 @@ mcp:
   vbs:
     url: https://fake_url.com:9000
     host: fake_url.com:9000
-    base_path: /base/path
+    base_path: /vbsapi
     service_name: VBS
     mock: true
   vbs_v2:
-    url: https://fake_url.com:9000
-    host: fake_url.com:9000
-    base_path: /base/path
+    url: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491
+    host: internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4491
+    base_path: /vbsapi
     service_name: VBS
     mock: true
   notifications:
@@ -383,4 +379,10 @@ claims_api:
     url: 'https://fake_pdf_url.com'
     path: '/form-526ez-pdf-generator/v1/forms/'
     content_type: 'application/vnd.api+json'
-
+  benefits_documents:
+    host: https://staging-api.va.gov
+    auth:
+      ccg:
+        client_id: fakekeyvaluehere
+        secret_key: path/to/fake/key.pem
+        aud_claim_url: https://fakeurlhere/fake/path/here

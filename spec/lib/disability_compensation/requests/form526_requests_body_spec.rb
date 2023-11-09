@@ -60,7 +60,7 @@ Rspec.describe Requests do
     let(:veteran) { Requests::VeteranIdentification.new }
 
     it 'has currently_va_employee attribute' do
-      expect(veteran).to respond_to(:currently_va_employee)
+      expect(veteran).to respond_to(:current_va_employee)
     end
 
     it 'has mailing_address attribute' do
@@ -78,21 +78,17 @@ Rspec.describe Requests do
     it 'has veteran_number attribute' do
       expect(veteran).to respond_to(:veteran_number)
     end
-
-    it 'has va_file_number attribute' do
-      expect(veteran).to respond_to(:va_file_number)
-    end
   end
 
   describe Requests::MailingAddress do
     let(:address) { Requests::MailingAddress.new }
 
-    it 'has number_and_street attribute' do
-      expect(address).to respond_to(:number_and_street)
-    end
-
-    it 'has apartment_or_unit_number attribute' do
-      expect(address).to respond_to(:apartment_or_unit_number)
+    it 'has address lines 1 2 3 attributes' do
+      # rubocop:disable Naming/VariableNumber
+      expect(address).to respond_to(:address_line_1)
+      expect(address).to respond_to(:address_line_2)
+      expect(address).to respond_to(:address_line_3)
+      # rubocop:enable Naming/VariableNumber
     end
 
     it 'has city attribute' do
@@ -324,15 +320,15 @@ Rspec.describe Requests do
     end
   end
 
-  describe Requests::Title10Activation do
-    let(:title10_activation) { Requests::Title10Activation.new }
+  describe Requests::FederalActivation do
+    let(:federal_activation) { Requests::FederalActivation.new }
 
     it 'has anticipated_separation_date attribute' do
-      expect(title10_activation).to respond_to(:anticipated_separation_date)
+      expect(federal_activation).to respond_to(:anticipated_separation_date)
     end
 
     it 'has title10_activation_date attribute' do
-      expect(title10_activation).to respond_to(:title10_activation_date)
+      expect(federal_activation).to respond_to(:activation_date)
     end
   end
 
@@ -353,10 +349,6 @@ Rspec.describe Requests do
 
     it 'has component attribute' do
       expect(reserves_service).to respond_to(:component)
-    end
-
-    it 'has title10_activation attribute' do
-      expect(reserves_service).to respond_to(:title10_activation)
     end
 
     it 'has unit_phone attribute' do

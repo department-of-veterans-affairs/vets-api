@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'claims_api/v2/disability_compensation_pdf_mapper'
 
 describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
-  describe '526 claim maps to the pdf generator' do
+  describe '526 claim maps to the pdf generator', vcr: 'claims_api/disability_comp' do
     let(:pdf_data) do
       {
         data: {
@@ -43,25 +43,21 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         ).read
       )
     end
-    let(:target_veteran) do
-      OpenStruct.new(
-        icn: '1013062086V794840',
-        first_name: 'abraham',
-        last_name: 'lincoln',
-        loa: { current: 3, highest: 3 },
-        ssn: '796111863',
-        edipi: '8040545646',
-        participant_id: '600061742',
-        mpi: OpenStruct.new(
-          icn: '1013062086V794840',
-          profile: OpenStruct.new(ssn: '796111863')
-        )
-      )
+    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:auth_headers) do
+      EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+    end
+
+    let(:middle_initial) { 'L' }
+    let(:created_at) { Timecop.freeze(Time.zone.now) }
+
+    let(:mapper) do
+      ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, auth_headers, middle_initial,
+                                                         created_at)
     end
 
     context '526 section 0, claim attributes' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, target_veteran) }
 
       it 'maps the attributes correctly' do
         mapper.map_claim
@@ -70,11 +66,23 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
         expect(claim_process_type).to eq('STANDARD_CLAIM_PROCESS')
       end
+
+      describe 'when the claimProcessType is BDD_PROGRAM' do
+        let(:claim_process_type) { 'BDD_PROGRAM' }
+
+        it 'maps correctly to BDD_PROGRAM_CLAIM' do
+          form_attributes['claimProcessType'] = claim_process_type
+          mapper.map_claim
+
+          claim_process_type = pdf_data[:data][:attributes][:claimProcessType]
+          expect(claim_process_type).to eq('BDD_PROGRAM_CLAIM')
+        end
+      end
     end
 
     context '526 section 1' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, target_veteran) }
+      let(:birls_file_number) { auth_headers['va_eauth_birlsfilenumber'] }
 
       it 'maps the mailing address' do
         mapper.map_claim
@@ -86,9 +94,8 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         country = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:country]
         zip = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:zip]
         state = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:state]
-
-        expect(number_and_street).to eq('1234 Couch Street')
-        expect(apartment_or_unit_number).to eq('22')
+        expect(number_and_street).to eq('1234 Couch Street Unit 4 Room 1')
+        expect(apartment_or_unit_number).to eq(nil)
         expect(city).to eq('Portland')
         expect(country).to eq('US')
         expect(zip).to eq('41726-1234')
@@ -99,6 +106,9 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         mapper.map_claim
 
         current_va_employee = pdf_data[:data][:attributes][:identificationInformation][:currentVaEmployee]
+        ssn = pdf_data[:data][:attributes][:identificationInformation][:ssn]
+        name = pdf_data[:data][:attributes][:identificationInformation][:name]
+        birth_date = pdf_data[:data][:attributes][:identificationInformation][:dateOfBirth]
         va_file_number = pdf_data[:data][:attributes][:identificationInformation][:vaFileNumber]
         email = pdf_data[:data][:attributes][:identificationInformation][:emailAddress][:email]
         agree_to_email =
@@ -107,18 +117,47 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         international_telephone =
           pdf_data[:data][:attributes][:identificationInformation][:phoneNumber][:internationalTelephone]
 
+        expect(ssn).to eq('796-11-1863')
+        expect(name).to eq({ lastName: 'lincoln', middleInitial: 'L', firstName: 'abraham' })
+        expect(birth_date).to eq({ month: '02', day: '12', year: '1809' })
         expect(current_va_employee).to eq(false)
-        expect(va_file_number).to eq('AB123CDEF')
+        expect(va_file_number).to eq(birls_file_number)
         expect(email).to eq('valid@somedomain.com')
         expect(agree_to_email).to eq(true)
-        expect(telephone).to eq('5555555555')
-        expect(international_telephone).to eq('+44 20 1234 5678')
+        expect(telephone).to eq('555-555-5555')
+        expect(international_telephone).to eq('44-20-1234-5678')
+      end
+
+      it 'maps veteran info correctly with a nil phone number' do
+        form_attributes['veteranIdentification']['veteranNumber']['telephone'] = nil
+        mapper.map_claim
+
+        actual = pdf_data[:data][:attributes][:identificationInformation][:phoneNumber]
+        expected = { internationalTelephone: '44-20-1234-5678' }
+        expect(actual).to eq(expected)
+      end
+
+      it 'maps veteran info correctly with a nil international phone number' do
+        form_attributes['veteranIdentification']['veteranNumber']['internationalTelephone'] = nil
+        mapper.map_claim
+
+        actual = pdf_data[:data][:attributes][:identificationInformation][:phoneNumber]
+        expected = { telephone: '555-555-5555' }
+        expect(actual).to eq(expected)
+      end
+
+      it 'maps veteran info correctly with an empty phone object' do
+        form_attributes['veteranIdentification']['veteranNumber']['internationalTelephone'] = nil
+        form_attributes['veteranIdentification']['veteranNumber']['telephone'] = nil
+        mapper.map_claim
+
+        actual = pdf_data[:data][:attributes][:identificationInformation][:phoneNumber]
+        expect(actual).to eq(nil)
       end
     end
 
     context '526 section 2, change of address' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, target_veteran) }
 
       it 'maps the dates' do
         mapper.map_claim
@@ -133,11 +172,11 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         zip = pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:zip]
         state = pdf_data[:data][:attributes][:changeOfAddress][:newAddress][:state]
 
-        expect(begin_date).to eq({ month: 11, day: 30, year: 2012 })
-        expect(end_date).to eq({ month: 10, day: 11, year: 2013 })
+        expect(begin_date).to eq({ month: '06', day: '04', year: '2023' })
+        expect(end_date).to eq({ month: '12', day: '04', year: '2023' })
         expect(type_of_addr_change).to eq('TEMPORARY')
-        expect(number_and_street).to eq('10 Peach St')
-        expect(apartment_or_unit_number).to eq('22')
+        expect(number_and_street).to eq('10 Peach St Unit 4 Room 1')
+        expect(apartment_or_unit_number).to eq(nil)
         expect(city).to eq('Atlanta')
         expect(country).to eq('US')
         expect(zip).to eq('42220-9897')
@@ -147,7 +186,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
     context '526 section 3, homelessness' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, target_veteran) }
 
       it 'maps the homeless_point_of_contact' do
         mapper.map_claim
@@ -163,17 +201,43 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
           pdf_data[:data][:attributes][:homelessInformation][:currentlyHomeless][:otherDescription]
 
         expect(homeless_point_of_contact).to eq('john stewart')
-        expect(homeless_telephone).to eq('5555555555')
-        expect(homeless_international_telephone).to eq('+44 20 1234 5678')
+        expect(homeless_telephone).to eq('555-555-5555')
+        expect(homeless_international_telephone).to eq('44-20-1234-5678')
         expect(homeless_currently).to eq('YES') # can't be both homess & at risk
         expect(homeless_situation_options).to eq('FLEEING_CURRENT_RESIDENCE')
         expect(homeless_currently_other_description).to eq('ABCDEFGHIJKLM')
+      end
+
+      it 'maps homeless info correctly with a nil phone number' do
+        form_attributes['homeless']['pointOfContactNumber']['telephone'] = nil
+        mapper.map_claim
+
+        actual = pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber]
+        expected = { internationalTelephone: '44-20-1234-5678' }
+        expect(actual).to eq(expected)
+      end
+
+      it 'maps homeless info correctly with a nil international phone number' do
+        form_attributes['homeless']['pointOfContactNumber']['internationalTelephone'] = nil
+        mapper.map_claim
+
+        actual = pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber]
+        expected = { telephone: '555-555-5555' }
+        expect(actual).to eq(expected)
+      end
+
+      it 'maps homeless info correctly with an empty phone object' do
+        form_attributes['homeless']['pointOfContactNumber']['internationalTelephone'] = nil
+        form_attributes['homeless']['pointOfContactNumber']['telephone'] = nil
+        mapper.map_claim
+
+        actual = pdf_data[:data][:attributes][:homelessInformation][:pointOfContactNumber]
+        expect(actual).to eq(nil)
       end
     end
 
     context '526 section 4, toxic exposure' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, target_veteran) }
 
       it 'maps the attributes correctly' do
         mapper.map_claim
@@ -200,21 +264,21 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         multi_exp_hazard = toxic_exp_data[:multipleExposures][0][:hazardExposedTo]
 
         expect(gulf_locations).to eq('YES')
-        expect(gulf_begin_date).to eq({ month: 7, year: 2018 })
-        expect(gulf_end_date).to eq({ month: 8, year: 2018 })
+        expect(gulf_begin_date).to eq({ month: '07', year: '2018' })
+        expect(gulf_end_date).to eq({ month: '08', year: '2018' })
 
         expect(herbicide_locations).to eq('YES')
         expect(other_locations).to eq('ABCDEFGHIJKLM')
-        expect(herb_begin_date).to eq({ month: 7, year: 2018 })
-        expect(herb_end_date).to eq({ month: 8, year: 2018 })
+        expect(herb_begin_date).to eq({ month: '07', year: '2018' })
+        expect(herb_end_date).to eq({ month: '08', year: '2018' })
 
         expect(additional_exposures).to eq(%w[ASBESTOS SHIPBOARD_HAZARD_AND_DEFENSE])
         expect(specify_other_exp).to eq('Other exposure details')
-        expect(exp_begin_date).to eq({ month: 7, year: 2018 })
-        expect(exp_end_date).to eq({ month: 8, year: 2018 })
+        expect(exp_begin_date).to eq({ month: '07', year: '2018' })
+        expect(exp_end_date).to eq({ month: '08', year: '2018' })
 
-        expect(multi_exp_begin_date).to eq({ month: 12, year: 2012 })
-        expect(multi_exp_end_date).to eq({ month: 7, year: 2013 })
+        expect(multi_exp_begin_date).to eq({ month: '12', year: '2012' })
+        expect(multi_exp_end_date).to eq({ month: '07', year: '2013' })
         expect(multi_exp_location).to eq('Guam')
         expect(multi_exp_hazard).to eq('RADIATION')
       end
@@ -222,7 +286,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
     context '526 section 5, claimInfo: diabilities' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, target_veteran) }
 
       it 'maps the attributes correctly' do
         mapper.map_claim
@@ -238,11 +301,13 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         secondary_event = claim_info[:disabilities][1][:exposureOrEventOrInjury]
         secondary_relevance = claim_info[:disabilities][1][:serviceRelevance]
         has_conditions = pdf_data[:data][:attributes][:exposureInformation][:hasConditionsRelatedToToxicExposures]
+        yyyy_date_format = claim_info[:disabilities][2][:approximateDate]
 
         expect(has_conditions).to eq('YES')
         expect(name).to eq('Traumatic Brain Injury')
         expect(relevance).to eq('ABCDEFG')
         expect(date).to eq('March 2018')
+        expect(yyyy_date_format).to eq('2015')
         expect(event).to eq('EXPOSURE')
         expect(attribut_count).to eq(4)
         expect(secondary_name).to eq('Cancer - Musculoskeletal - Elbow')
@@ -253,7 +318,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
     context '526 section 5, claim info: disabilities, & has conditions attribute' do
       let(:form_attributes) { claim_without_exposure.dig('data', 'attributes') || {} }
-      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, target_veteran) }
 
       it 'maps the has_condition related to exposure method correctly' do
         mapper.map_claim
@@ -266,7 +330,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
     context '526 section 5, treatment centers' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, target_veteran) }
 
       it 'maps the attributes correctly' do
         mapper.map_claim
@@ -277,7 +340,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         no_date = tx_center_data[0][:doNotHaveDate]
         treatment_details = tx_center_data[0][:treatmentDetails]
 
-        expect(start_date).to eq({ month: 3, year: 1985 })
+        expect(start_date).to eq({ month: '03', year: '2009' })
         expect(no_date).to eq(false)
         expect(treatment_details).to eq('Traumatic Brain Injury, Post Traumatic Stress Disorder (PTSD) Combat - Mental Disorders, Cancer - Musculoskeletal - Elbow - Center One, Decatur, GA') # rubocop:disable Layout/LineLength
       end
@@ -285,7 +348,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
     context '526 section 6, service info' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, target_veteran) }
 
       it 'maps the attributes correctly' do
         mapper.map_claim
@@ -321,36 +383,44 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
         expect(branch).to eq('Public Health Service')
         expect(component).to eq('ACTIVE')
-        expect(recent_start).to eq({ month: 11, day: 14, year: 1980 })
-        expect(recent_end).to eq({ month: 11, day: 30, year: 1991 })
-        expect(addtl_start).to eq({ month: 11, day: 14, year: 1980 })
-        expect(addtl_end).to eq({ month: 11, day: 30, year: 1991 })
-        expect(last_sep).to eq('ABCDEFGHIJKLMN')
+        expect(recent_start).to eq({ month: '11', day: '14', year: '2008' })
+        expect(recent_end).to eq({ month: '10', day: '30', year: '2023' })
+        expect(addtl_start).to eq({ month: '11', day: '14', year: '2008' })
+        expect(addtl_end).to eq({ month: '10', day: '30', year: '2023' })
+        expect(last_sep).to eq('Aberdeen Proving Ground')
         expect(pow).to eq('YES')
-        expect(pow_start).to eq({ month: 6, day: 4, year: 2018 })
-        expect(pow_end).to eq({ month: 6, day: 4, year: 2018 })
-        expect(pow_start_two).to eq({ month: 6, year: 2020 })
-        expect(pow_end_two).to eq({ month: 6, year: 2020 })
+        expect(pow_start).to eq({ month: '06', day: '04', year: '2018' })
+        expect(pow_end).to eq({ month: '07', day: '04', year: '2018' })
+        expect(pow_start_two).to eq({ month: '06', year: '2020' })
+        expect(pow_end_two).to eq({ month: '07', year: '2020' })
         expect(natl_guard).to eq('YES')
         expect(natl_guard_comp).to eq('NATIONAL_GUARD')
-        expect(obl_begin).to eq({ month: 6, day: 4, year: 2019 })
-        expect(obl_end).to eq({ month: 6, day: 4, year: 2020 })
+        expect(obl_begin).to eq({ month: '06', day: '04', year: '2019' })
+        expect(obl_end).to eq({ month: '06', day: '04', year: '2020' })
         expect(unit_name).to eq('National Guard Unit Name')
         expect(unit_address).to eq('1243 pine court')
-        expect(unit_phone).to eq('5555555555')
+        expect(unit_phone).to eq('555-555-5555')
         expect(act_duty_pay).to eq('YES')
         expect(other_name).to eq('YES')
-        expect(alt_names).to eq('john jacob, johnny smith')
+        expect(alt_names).to eq(['john jacob', 'johnny smith'])
         expect(fed_orders).to eq('YES')
-        expect(fed_act).to eq({ month: 2, day: 11, year: 3619 })
-        expect(fed_sep).to eq({ month: 10, day: 3, year: 6705 })
+        expect(fed_act).to eq({ month: '10', day: '01', year: '2025' })
+        expect(fed_sep).to eq({ month: '10', day: '31', year: '2027' })
         expect(served_after_nine_eleven).to eq('NO')
+      end
+
+      it 'maps homservice info correctly with a nil phone number' do
+        form_attributes['serviceInformation']['reservesNationalGuardService']['unitPhone']['areaCode'] = nil
+        form_attributes['serviceInformation']['reservesNationalGuardService']['unitPhone']['phoneNumber'] = nil
+        mapper.map_claim
+
+        actual = pdf_data[:data][:attributes][:serviceInformation][:reservesNationalGuardService][:unitPhoneNumber]
+        expect(actual).to eq(nil)
       end
     end
 
     context '526 section 7, service pay' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, target_veteran) }
 
       it 'maps the attributes correctly' do
         mapper.map_claim
@@ -368,7 +438,6 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
     context '526 section 8, direct deposot' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, target_veteran) }
 
       it 'maps the attributes correctly' do
         mapper.map_claim
@@ -391,17 +460,69 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
 
     context '526 section 9, date and signature' do
       let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
-      let(:mapper) { ClaimsApi::V2::DisabilityCompensationPdfMapper.new(form_attributes, pdf_data, target_veteran) }
 
       it 'maps the attributes correctly' do
+        auto_claim['data']['attributes']['claim_date'] = Timecop.freeze(Time.zone.parse('2023-11-01T08:00:00Z'))
         mapper.map_claim
-        @target_veteran = target_veteran
 
         signature = pdf_data[:data][:attributes][:claimCertificationAndSignature][:signature]
         date = pdf_data[:data][:attributes][:claimCertificationAndSignature][:dateSigned]
 
-        expect(date).to eq({ month: 2, day: 18, year: 2023 })
+        expect(date).to eq({ month: '11', day: '01', year: '2023' })
         expect(signature).to eq('abraham lincoln')
+      end
+    end
+
+    context '526 #deep_compact' do
+      let(:form_attributes) { auto_claim.dig('data', 'attributes') || {} }
+
+      it 'eliminates nil string values' do
+        form_attributes['veteranIdentification']['mailingAddress']['addressLine2'] = nil
+        form_attributes['veteranIdentification']['mailingAddress']['addressLine3'] = nil
+
+        mapper.map_claim
+        number_and_street = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:numberAndStreet]
+
+        expect(number_and_street).to eq('1234 Couch Street')
+      end
+
+      it 'eliminates empty objects' do
+        form_attributes['servicePay']['militaryRetiredPay'] = nil
+        form_attributes['servicePay']['separationSeverancePay'] = nil
+        form_attributes['servicePay']['preTaxAmountReceived'] = nil
+        form_attributes['servicePay']['futureMilitaryRetiredPayExplanation'] = nil
+
+        mapper.map_claim
+        service_pay = pdf_data[:data][:attributes][:servicePay]
+        expected = { favorTrainingPay: true, favorMilitaryRetiredPay: false, receivingMilitaryRetiredPay: 'YES',
+                     futureMilitaryRetiredPay: 'YES', retiredStatus: 'PERMANENT_DISABILITY_RETIRED_LIST',
+                     receivedSeparationOrSeverancePay: 'YES' }
+
+        expect(service_pay).to eq(expected)
+      end
+
+      it 'eliminates empty strings and nil values' do
+        form_attributes['servicePay']['favorTrainingPay'] = nil
+
+        form_attributes['servicePay']['favorMilitaryRetiredPay'] = nil
+        form_attributes['servicePay']['receivingMilitaryRetiredPay'] = nil
+        form_attributes['servicePay']['militaryRetiredPay']['monthlyAmount'] = nil
+        form_attributes['servicePay']['militaryRetiredPay']['branchOfService'] = ''
+        form_attributes['servicePay']['futureMilitaryRetiredPay'] = nil
+        form_attributes['servicePay']['receivedSeparationOrSeverancePay'] = ''
+        form_attributes['servicePay']['retiredStatus'] = ''
+        form_attributes['servicePay']['separationSeverancePay']['preTaxAmountReceived'] = nil
+        form_attributes['servicePay']['separationSeverancePay']['datePaymentReceived'] = nil
+
+        mapper.map_claim
+
+        service_pay = pdf_data[:data][:attributes][:servicePay]
+        expected = { receivingMilitaryRetiredPay: 'NO', futureMilitaryRetiredPay: 'NO',
+                     futureMilitaryRetiredPayExplanation: 'ABCDEFGHIJKLMNOPQRSTUVW',
+                     receivedSeparationOrSeverancePay: 'YES',
+                     separationSeverancePay: { branchOfService: { branch: 'Naval Academy' } } }
+
+        expect(service_pay).to eq(expected)
       end
     end
   end

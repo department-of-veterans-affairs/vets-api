@@ -10,6 +10,8 @@ The Benefits Intake API allows authorized third-party systems used by Veteran Se
 
 This API also provides submission status updates until documents are successfully established for VBA claim processing, eliminating the need for users to switch between systems to manually check whether documents have been successfully uploaded.
 
+**Note**: This API may not be used for Veterans Health Administration (VHA) benefits, including 10-10EZ and 10-10d.
+
 ## Background
 This API provides a secure, efficient, and tracked alternative to mail or fax for VA benefit claim document submissions. Documents are uploaded directly to the VBA so they can be processed as quickly as possible.
 
@@ -35,7 +37,7 @@ A status of `received` means that the document package has been transmitted, but
 If the document status is `error`, VA has not received the submission and cannot honor the submission date as the date of receipt.
 
 ### Authentication and Authorization
-API requests are authorized through a symmetric API token, provided in an HTTP header with name 'apikey'. [Request an API key.](https://developer.va.gov/apply)
+API requests are authorized through a symmetric API token, provided in an HTTP header with name 'apikey'. [Request an API key](https://developer.va.gov/explore/api/benefits-intake/sandbox-access).
 
 ### Testing in the sandbox environment
 In the sandbox environment, the final status of a submission is `received` and submissions do not actually progress to the central mail repository or VBMS.

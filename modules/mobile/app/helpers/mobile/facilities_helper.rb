@@ -8,6 +8,8 @@ module Mobile
 
     # schedulable can be true, false, or nil. Nil returns both schedulable and non-schedulable.
     def fetch_facilities_from_ids(user, facility_ids, include_children:, schedulable:)
+      return [] if facility_ids.blank?
+
       ids = facility_ids.join(',')
       vaos_facilities = VAOS::V2::MobileFacilityService.new(user).get_facilities(ids:, children: include_children,
                                                                                  schedulable:, type: nil)

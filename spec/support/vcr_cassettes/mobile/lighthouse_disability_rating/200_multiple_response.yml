@@ -82,28 +82,72 @@ http_interactions:
       encoding: ASCII-8BIT
       string: '{
   "data": {
-    "id": "12303",
-    "type": "disability-rating",
+    "id": "1012592956V095840",
+    "type": "disability_ratings",
     "attributes": {
       "combined_disability_rating": 100,
-      "combined_effective_date": "2018-03-27",
-      "legal_effective_date": "2018-03-27",
+      "combined_effective_date": "2019-01-01",
+      "legal_effective_date": "2018-12-31",
       "individual_ratings": [
         {
-          "description": "Service Connected",
           "decision": "Service Connected",
-          "effective_date": "2018-03-27",
-          "rating_percentage": 50,
-          "diagnostic_type_code": "5238",
-          "diagnostic_type_name": "Diabetes mellitus0"
+          "effective_date": "2005-01-01",
+          "rating_end_date": null,
+          "rating_percentage": 100,
+          "diagnostic_type_code": "6100",
+          "diagnostic_type_name": "6100-Hearing loss",
+          "diagnostic_text": "Hearing Loss",
+          "disability_rating_id": "1128271"
         },
-         {
-          "description": "Service Connected",
+        {
           "decision": "Service Connected",
-          "effective_date": "2018-05-27",
-          "rating_percentage": 50,
-          "diagnostic_type_code": "1234",
-          "diagnostic_type_name": "Hearing Loss"
+          "effective_date": "2018-12-21",
+          "rating_end_date": "2018-12-31",
+          "rating_percentage": 10,
+          "diagnostic_type_code": "9201",
+          "diagnostic_type_name": "Schizophrenia, disorganized type",
+          "diagnostic_text": "mental disorder",
+          "disability_rating_id": "1129228"
+        },
+        {
+          "decision": "Service Connected",
+          "effective_date": "2012-05-01",
+          "rating_end_date": null,
+          "rating_percentage": 10,
+          "diagnostic_type_code": "5260",
+          "diagnostic_type_name": "Limitation of flexion, knee",
+          "diagnostic_text": "Allergies due to Hearing Loss",
+          "disability_rating_id": "1072414"
+        },
+        {
+          "decision": "Service Connected",
+          "effective_date": "2018-08-01",
+          "rating_end_date": null,
+          "rating_percentage": 0,
+          "diagnostic_type_code": "8540",
+          "diagnostic_type_name": "Soft tissue sarcoma (neurogenic origin)",
+          "diagnostic_text": "Sarcoma Soft-Tissue",
+          "disability_rating_id": "1124345"
+        },
+        {
+          "decision": "Not Service Connected",
+          "effective_date": null,
+          "rating_end_date": null,
+          "rating_percentage": null,
+          "diagnostic_type_code": "6260",
+          "diagnostic_type_name": "Tinnitus",
+          "diagnostic_text": "Tinnitus",
+          "disability_rating_id": "1046370"
+        },
+        {
+          "decision": "Not Service Connected",
+          "effective_date": null,
+          "rating_end_date": null,
+          "rating_percentage": null,
+          "diagnostic_type_code": "7913",
+          "diagnostic_type_name": "Diabetes mellitus",
+          "diagnostic_text": "Diabetes",
+          "disability_rating_id": "1090859"
         }
       ]
     }
