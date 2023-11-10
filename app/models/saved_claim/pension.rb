@@ -30,4 +30,5 @@ class SavedClaim::Pension < CentralMailClaim
       }
     )
   end
+
 end

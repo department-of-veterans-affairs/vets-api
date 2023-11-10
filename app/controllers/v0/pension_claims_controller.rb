@@ -12,4 +12,33 @@ module V0
       SavedClaim::Pension
     end
   end
+
+  # Creates and validates an instance of the class, removing any copies of
+  # the form that had been previously saved by the user.
+  def create
+    PensionBurial::TagSentry.tag_sentry
+
+    claim = claim_class.new(form: filtered_params[:form])
+    unless claim.save
+      StatsD.increment("#{stats_key}.failure")
+      raise Common::Exceptions::ValidationErrors, claim
+    end
+
+    use_lighthouse = Flipper.enabled?(:pension_claim_submission_to_lighthouse)
+    unless use_lighthouse
+      claim.process_attachments!
+    else
+      main_document = claim.to_pdf
+      attachments = []
+      form_metadata = {}
+
+    end
+
+    StatsD.increment("#{stats_key}.success")
+    Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+
+    clear_saved_form(claim.form_id)
+    render(json: claim)
+  end
+
 end
