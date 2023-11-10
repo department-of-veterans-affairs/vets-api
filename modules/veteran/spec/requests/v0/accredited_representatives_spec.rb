@@ -138,6 +138,13 @@ RSpec.describe 'Find a Rep - Accredited Representatives spec', type: :request do
       end
     end
 
+    it 'returns ok for a successful request' do
+      get '/services/veteran/v0/accredited_representatives',
+          params: { type: 'organization', lat: 40.7128, long: -74.0060 }
+
+      expect(response).to have_http_status(:ok)
+    end
+
     context 'when searching for an organization' do
       before do
         create(:organization, poa: '123', long: -77.050552, lat: 38.820450, location: 'POINT(-77.050552 38.820450)',
