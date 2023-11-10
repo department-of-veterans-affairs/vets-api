@@ -1,6 +1,24 @@
 ---
 :services:
 
+#Dynamics API GET endpoint
+- :name: "Dynamics API GET endpoint"
+  :base_uri: <%= "#{URI(Settings.ask_va_api.dynamics_api.base_url).host}:#{URI(Settings.ask_va_api.dynamics_api.base_url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: <%= "/#{Settings.ask_va_api.dynamics_api.veis_api_path}/ping" %>
+      :file_path: "/ask_va/dynamics_api"
+      :response_delay: 15
+
+#Dynamics Token post
+- :name: "Dynamics VEIS Auth Service"
+  :base_uri: <%= "#{URI(Settings.ask_va_api.dynamics_api.auth_url).host}:#{URI(Settings.ask_va_api.dynamics_api.auth_url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: <%= "/#{Settings.ask_va_api.dynamics_api.tenant_id}/oauth2/v2.0/token" %>
+      :file_path: "/ask_va/token/default"
+      :response_delay: 0.3
+
 - :name: 'carma'
   :base_uri: <%= "#{URI(Settings['salesforce-carma'].url).host}:#{URI(Settings['salesforce-carma'].url).port}" %>
   :endpoints:
