@@ -533,6 +533,9 @@ features:
   form264555:
     actor_type: user
     description: If enabled shows the digital form experience for form 26-4555
+  form400247:
+    actor_type: user
+    description: If enabled shows the digital form experience for form 40-0247
   fsr_confirmation_email:
     actor_type: user
     description: Enables notifications to be sent via email upon FSR submission
