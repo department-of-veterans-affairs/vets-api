@@ -12,7 +12,7 @@ module Mobile
     #   Mobile::V0::Adapters::Appointment.new(appointment_hash)
     #
     class Appointment < Common::Resource
-      CACHE_VERSION = 1
+      CACHE_VERSION = 2
 
       include Mobile::V0::Concerns::RedisCaching
 
@@ -56,6 +56,7 @@ module Mobile
       attribute :healthcare_provider, Types::String.optional
       attribute :healthcare_service, Types::String.optional
       attribute :location, Location.optional
+      attribute :physical_location, Types::String.optional
       attribute :minutes_duration, Types::Integer
       attribute :phone_only, Types::Bool
       attribute :start_date_local, Types::DateTime

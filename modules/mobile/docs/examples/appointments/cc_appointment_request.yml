@@ -24,6 +24,7 @@ data:
           extension: null
         url: null
         code: null
+      physicalLocation: null
       minutesDuration: null
       phoneOnly: false
       startDateLocal: 2020-11-02T01:00:00.000-07:00

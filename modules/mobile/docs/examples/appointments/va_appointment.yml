@@ -23,6 +23,7 @@ data:
           extension: "5696"
         url: null
         code: null
+      physicalLocation: Blind Rehabilitation Center
       minutesDuration: 60
       phoneOnly: false
       startDateLocal: 2019-04-20T14:15:00.000-04:00

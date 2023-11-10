@@ -101,6 +101,7 @@ module Mobile
             healthcare_provider: appointment[:healthcare_provider],
             healthcare_service:,
             location:,
+            physical_location: appointment[:physical_location],
             minutes_duration: minutes_duration(appointment[:minutes_duration]),
             phone_only: appointment[:kind] == PHONE_KIND,
             start_date_local:,

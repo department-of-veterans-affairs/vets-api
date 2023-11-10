@@ -22,6 +22,7 @@ properties:
       - healthcareProvider
       - healthcareService
       - location
+      - physicalLocation
       - minutesDuration
       - phoneOnly
       - startDateLocal
@@ -116,6 +117,9 @@ properties:
           code:
             type: string
             example: GL32C
+      physicalLocation:
+        type: string
+        example: Blind Rehabilitation Center
       minutesDuration:
         type: integer
         example: 60
@@ -178,8 +182,6 @@ properties:
       serviceCategoryName:
         type: string
         example: "COMPENSATION & PENSION"
-      appointmentIEN:
-        type: string
       locationId:
         type: string
         example: '983'
