@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe Dynamics::Service do
-  let(:sec_id) { 'test_sec_id' }
+  let(:icn) { 'test_icn' }
   let(:base_uri) { 'https://run.mocky.io/v3/' }
-  let(:service) { described_class.new(sec_id:, base_uri:) }
+  let(:service) { described_class.new(icn:, base_uri:) }
 
   describe '#call' do
     let(:endpoint) { 'ada58e23-c461-4baf-9c03-ee36ba55c8cf' }
@@ -49,7 +49,7 @@ RSpec.describe Dynamics::Service do
                 date_sent: '08/7/23'
               }
             ],
-            sec_id: '0001740097'
+            icn: '0001740097'
           }]
         end
 
