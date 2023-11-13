@@ -15,6 +15,9 @@ features:
   this_is_only_a_test:
     actor_type: user
     description: Used in feature_toggles_controller_spec.
+  auth_exp_vba_downtime_message:
+    actor_type: user
+    description: Show downtime message on Profile and My VA for planned VBA maintenance
   avs_enabled:
     actor_type: user
     description: Enables the After Visit Summary API.
