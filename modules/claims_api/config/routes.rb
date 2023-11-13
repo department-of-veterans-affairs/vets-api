@@ -56,7 +56,7 @@ ClaimsApi::Engine.routes.draw do
       post '/:veteranId/526', to: 'disability_compensation#submit'
       post '/:veteranId/526/validate', to: 'disability_compensation#validate'
       post '/:veteranId/526/:id/attachments', to: 'disability_compensation#attachments'
-      get '/:veteranId/526/getPDF', to: 'disability_compensation#get_pdf'
+      post '/:veteranId/526/generatePDF', to: 'disability_compensation#generate_pdf'
     end
   end
 
