@@ -7,7 +7,7 @@ module AskVAApi
       around_action :handle_exceptions, except: %i[index]
 
       def index
-        service = Dynamics::Service.new(sec_id: 'a')
+        service = Dynamics::Service.new(icn: 'a')
         data = service.call(endpoint: 'ping')
         render json: data.to_json, status: :ok
       end
@@ -54,7 +54,7 @@ module AskVAApi
       end
 
       def mock_service
-        DynamicsMockService.new(sec_id: nil, logger: nil) if params[:mock]
+        DynamicsMockService.new(icn: nil, logger: nil) if params[:mock]
       end
 
       Result = Struct.new(:payload, :status, keyword_init: true)

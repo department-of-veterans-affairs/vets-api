@@ -4,7 +4,7 @@ module Dynamics
   class Service
     extend Forwardable
 
-    attr_reader :sec_id, :logger, :settings, :base_uri
+    attr_reader :icn, :logger, :settings, :base_uri
 
     BASE_URI = 'https://dev.integration.d365.va.gov'
     VEIS_API_PATH = 'veis/vagov.lob.ava/api'
@@ -19,17 +19,17 @@ module Dynamics
                    :ocp_apim_subscription_key,
                    :service_name
 
-    def initialize(sec_id:, base_uri: BASE_URI, logger: LogService.new)
+    def initialize(icn:, base_uri: BASE_URI, logger: LogService.new)
       @settings = Settings.ask_va_api.dynamics_api
       @base_uri = base_uri
-      @sec_id = sec_id
+      @icn = icn
       @logger = logger
     end
 
     def call(endpoint:, method: :get, payload: {})
       endpoint = "#{VEIS_API_PATH}/#{endpoint}" if base_uri == BASE_URI
 
-      params = { sec_id: }
+      params = { icn: }
       execute_api_call(endpoint, method, payload, params)
     end
 
@@ -76,7 +76,7 @@ module Dynamics
     end
 
     def build_tags(endpoint, error_or_status = nil)
-      tags = { endpoint:, sec_id: }
+      tags = { endpoint:, icn: }
       tags[:error] = error_or_status if error_or_status
       tags
     end

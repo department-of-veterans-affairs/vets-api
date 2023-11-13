@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe AskVAApi::Inquiries::Retriever do
-  subject(:retriever) { described_class.new(sec_id:) }
+  subject(:retriever) { described_class.new(icn:) }
 
-  let(:sec_id) { '123' }
+  let(:icn) { '123' }
   let(:service) { instance_double(Dynamics::Service) }
   let(:correspondences) { instance_double(AskVAApi::Correspondences::Retriever) }
   let(:entity) { instance_double(AskVAApi::Inquiries::Entity) }
@@ -58,26 +58,26 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
     end
   end
 
-  describe '#fetch_by_sec_id' do
-    context 'when sec_id is blank' do
-      let(:sec_id) { nil }
+  describe '#fetch_by_icn' do
+    context 'when icn is blank' do
+      let(:icn) { nil }
 
       it 'raises an ErrorHandler::ServiceError' do
-        expect { retriever.fetch_by_sec_id }
+        expect { retriever.fetch_by_icn }
           .to raise_error(ErrorHandler::ServiceError, 'ArgumentError: Invalid SEC_ID')
       end
     end
 
-    context 'when sec_id is present' do
+    context 'when icn is present' do
       it 'returns an array of Entity objects' do
         allow(service).to receive(:call).and_return([entity])
-        expect(retriever.fetch_by_sec_id).to eq([entity])
+        expect(retriever.fetch_by_icn).to eq([entity])
       end
 
       context 'when there are no inquiries' do
         it 'returns an empty array' do
           allow(service).to receive(:call).and_return([])
-          expect(retriever.fetch_by_sec_id).to be_empty
+          expect(retriever.fetch_by_icn).to be_empty
         end
       end
     end
