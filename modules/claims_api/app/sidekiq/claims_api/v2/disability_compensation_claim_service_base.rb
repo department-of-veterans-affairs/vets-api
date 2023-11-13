@@ -12,6 +12,8 @@ module ClaimsApi
       include SentryLogging
       include Sidekiq::MonitoredWorker
 
+      NO_RETRY_ERROR_CODES = ['form526.submit.noRetryError', 'form526.InProcess'].freeze
+
       protected
 
       def set_established_state_on_claim(auto_claim)
@@ -39,9 +41,40 @@ module ClaimsApi
           error.original_body
         elsif error.respond_to? :message
           error.message
-        elsif error.is_a?(String)
+        else
           error
         end
+      end
+
+      def get_error_key(error_message)
+        return error_message if error_message.is_a? String
+
+        error_message.dig(:messages, 0, :key) || error_message
+      end
+
+      def get_error_text(error_message)
+        return error_message if error_message.is_a? String
+
+        error_message.dig(:messages, 0, :text) || error_message
+      end
+
+      def get_error_status_code(error)
+        if error.respond_to? :status_code
+          error.status_code
+        else
+          "No status code for error: #{error}"
+        end
+      end
+
+      def will_retry?(error)
+        msg = if error.respond_to? :original_body
+                get_error_key(error.original_body)
+              else
+                ''
+              end
+
+        # If there is a match return false because we will not retry
+        NO_RETRY_ERROR_CODES.exclude?(msg)
       end
 
       def get_claim(claim_id)

@@ -6,7 +6,7 @@ require 'bd/bd'
 module ClaimsApi
   module V2
     class DisabilityCompensationBenefitsDocumentsUploader < DisabilityCompensationClaimServiceBase
-      LOG_TAG = '526 v2 Benefits Documents Uploader job'
+      LOG_TAG = '526_v2_Benefits_Documents_Uploader_job'
 
       def perform(claim_id) # rubocop:disable Metrics/MethodLength
         log_job_progress(LOG_TAG,
@@ -33,19 +33,11 @@ module ClaimsApi
                          claim_id,
                          'BD upload succeeded, Claim workflow finished')
       # Temporary errors (returning HTML, connection timeout), retry call
-      rescue Faraday::Error::ParsingError, Faraday::TimeoutError => e
-        log_job_progress(LOG_TAG,
-                         claim_id,
-                         "BD failure for claimId #{auto_claim&.id}: #{e.message}")
-        log_exception_to_sentry(e)
-
-        raise e
       rescue => e
-        message = get_error_message(e)
-
+        error_message = get_error_message(e)
         log_job_progress(LOG_TAG,
                          claim_id,
-                         "BD failure for claimId #{auto_claim&.id}: #{message}")
+                         "BD failure #{e.class}: #{error_message}")
         log_exception_to_sentry(e)
 
         raise e
