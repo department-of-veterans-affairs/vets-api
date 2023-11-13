@@ -6,7 +6,7 @@ RSpec.describe DynamicsMockService do
   let(:endpoint) { 'get_inquiries_mock_data' }
   let(:method) { 'GET' }
   let(:payload) { {} }
-  let(:service) { described_class.new(sec_id: nil, logger: nil) }
+  let(:service) { described_class.new(icn: nil, logger: nil) }
   let(:file_path) { "modules/ask_va_api/config/locales/#{endpoint.tr('/', '_')}.json" }
 
   describe '#call' do
@@ -46,7 +46,7 @@ RSpec.describe DynamicsMockService do
             submitterQuestions: 'When is Sergeant Joe Smith birthday?',
             attachments: [{ activity: 'activity_1',
                             date_sent: '08/7/23' }],
-            sec_id: '0001740097' }
+            icn: '1008709396V637156' }
         end
 
         it 'filters data based on inquiry number' do
@@ -62,8 +62,8 @@ RSpec.describe DynamicsMockService do
         end
       end
 
-      context 'with sec_id payload' do
-        let(:payload) { { sec_id: '0001740097' } }
+      context 'with icn payload' do
+        let(:payload) { { icn: '1008709396V637156' } }
         let(:expected_result) do
           { respond_reply_id: 'Original Question',
             inquiryNumber: 'A-1',
@@ -71,10 +71,10 @@ RSpec.describe DynamicsMockService do
             inquiryProcessingStatus: 'Close',
             lastUpdate: '08/07/23',
             submitterQuestions: 'When is Sergeant Joe Smith birthday?',
-            sec_id: '0001740097' }
+            icn: '1008709396V637156' }
         end
 
-        it 'filters data based on sec_id and excludes attachments' do
+        it 'filters data based on icn and excludes attachments' do
           expect(service.call(endpoint:, payload:).first).to eq(expected_result)
         end
       end

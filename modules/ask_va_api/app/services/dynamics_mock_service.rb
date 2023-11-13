@@ -4,8 +4,8 @@ class DynamicsMockService
   class FileNotFound < StandardError; end
   class InvalidJSONContent < StandardError; end
 
-  def initialize(sec_id: nil, logger: nil)
-    @sec_id = sec_id
+  def initialize(icn: nil, logger: nil)
+    @icn = icn
     @logger = logger
   end
 
@@ -31,8 +31,8 @@ class DynamicsMockService
   def filter_mock_data(data)
     if @payload[:inquiry_number]
       data.find { |i| i[:inquiryNumber] == @payload[:inquiry_number] } || {}
-    elsif @payload[:sec_id]
-      data.select { |i| i[:sec_id] == @payload[:sec_id] }.map { |i| i.except(:attachments) }
+    elsif @payload[:icn]
+      data.select { |i| i[:icn] == @payload[:icn] }.map { |i| i.except(:attachments) }
     elsif @payload.blank?
       data
     else
