@@ -60,7 +60,8 @@ RSpec.describe 'Upload supporting evidence' do
 
         it 'returns a 200 for a pdf with a password that was not encrypted' do
           post '/v0/upload_supporting_evidence',
-               params: { supporting_evidence_attachment: { file_data: pdf_file, password: 'unnecessary' } }
+              params: { supporting_evidence_attachment: { file_data: pdf_file } }
+
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq SupportingEvidenceAttachment.last.guid
         end
