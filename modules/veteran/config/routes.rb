@@ -5,5 +5,6 @@ Veteran::Engine.routes.draw do
   namespace :v0, defaults: { format: 'json' } do
     get 'representatives/find_rep', to: 'representatives#find_rep'
     resources :accredited_representatives, only: %i[index]
+    get 'apidocs', to: 'apidocs#index'
   end
 end
