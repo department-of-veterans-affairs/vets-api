@@ -28,10 +28,7 @@ module V0
     unless use_lighthouse
       claim.process_attachments!
     else
-      main_document = claim.to_pdf
-      attachments = []
-      form_metadata = {}
-
+      claim.upload_to_lighthouse
     end
 
     StatsD.increment("#{stats_key}.success")
