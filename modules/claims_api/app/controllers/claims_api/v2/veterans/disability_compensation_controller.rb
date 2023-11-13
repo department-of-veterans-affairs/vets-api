@@ -23,14 +23,11 @@ module ClaimsApi
         def submit
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
-            auth_headers:,
-            form_data: form_attributes,
+            auth_headers:, form_data: form_attributes,
             flashes:,
-            cid: token.payload['cid'],
-            veteran_icn: target_veteran.mpi.icn,
+            cid: token.payload['cid'], veteran_icn: target_veteran.mpi.icn,
             validation_method: ClaimsApi::AutoEstablishedClaim::VALIDATION_METHOD
           )
-
           # .create returns the resulting object whether the object was saved successfully to the database or not.
           # If it's lacking the ID, that means the create was unsuccessful and an identical claim already exists.
           # Find and return that claim instead.
@@ -38,6 +35,7 @@ module ClaimsApi
             existing_auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5)
             auto_claim = existing_auto_claim if existing_auto_claim.present?
           end
+          auto_claim.save!
 
           if auto_claim.errors.present?
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: auto_claim.errors.messages.to_s)
@@ -48,8 +46,9 @@ module ClaimsApi
           # This kicks off the first of three jobs required to fully establish the claim
           process_claim(auto_claim)
 
-          render json: { data: form_attributes }, status: :accepted,
-                 location: "#{request.url[0..-4]}claims/#{auto_claim.id}"
+          render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
+            auto_claim, root: :data
+          ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: auto_claim.id)
         end
 
         def validate
@@ -66,7 +65,9 @@ module ClaimsApi
 
           documents_service(params, claim).process_documents
 
-          render json: claim, status: :accepted
+          render json: ClaimsApi::V2::Blueprints::AutoEstablishedClaimBlueprint.render(
+            claim, root: :data
+          ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: claim.id)
         end
 
         def get_pdf

@@ -47,16 +47,32 @@ class IdCardAttributes
   end
 
   def branches_of_service
-    branches = @user.military_information.service_episodes_by_date.map do |ep|
-      SERVICE_KEYS[ep.branch_of_service_code]
-    end
+    branches = if Flipper.enabled?(:military_information_vaprofile)
+                 military_info.service_episodes_by_date.map do |ep|
+                   SERVICE_KEYS[ep.branch_of_service_code]
+                 end
+               else
+                 @user.military_information.service_episodes_by_date.map do |ep|
+                   SERVICE_KEYS[ep.branch_of_service_code]
+                 end
+               end
     branches.compact.join(',')
   end
 
   def discharge_types
-    discharges = @user.military_information
-                      .service_episodes_by_date
-                      .map(&:discharge_character_of_service_code)
+    discharges = if Settings.vsp_environment == 'production' || !Flipper.enabled?(:military_information_vaprofile)
+                   @user.military_information
+                        .service_episodes_by_date
+                        .map(&:discharge_character_of_service_code)
+                 elsif Flipper.enabled?(:military_information_vaprofile)
+                   military_info
+                     .service_episodes_by_date
+                     .map(&:character_of_discharge_code)
+                 end
     discharges.compact.join(',')
+  end
+
+  def military_info
+    @military_info ||= VAProfile::Prefill::MilitaryInformation.new(user)
   end
 end

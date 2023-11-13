@@ -7,17 +7,12 @@ describe VAProfile::Disability::Service do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :loa3) }
-  let(:edipi) { '1005079124' }
-
-  before do
-    allow(user).to receive(:edipi).and_return(edipi)
-  end
 
   describe '#identity_path' do
     context 'when an edipi exists' do
       it 'returns a valid identity path' do
         path = subject.identity_path
-        expect(path).to eq('2.16.840.1.113883.3.42.10001.100001.12/1005079124%5ENI%5E200DOD%5EUSDOD')
+        expect(path).to eq('2.16.840.1.113883.3.42.10001.100001.12/384759483%5ENI%5E200DOD%5EUSDOD')
       end
     end
   end
@@ -56,7 +51,7 @@ describe VAProfile::Disability::Service do
         VCR.use_cassette('va_profile/disability/disability_rating_404') do
           expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
             instance_of(Common::Client::Errors::ClientError),
-            { edipi: '1005079124' },
+            { edipi: user.edipi },
             { va_profile: :disability_rating_not_found },
             :warning
           )

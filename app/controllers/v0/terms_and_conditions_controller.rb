@@ -3,6 +3,7 @@
 module V0
   class TermsAndConditionsController < ApplicationController
     include ActionController::Serialization
+    service_tag 'legacy-mhv'
 
     skip_before_action :authenticate, only: %i[index latest]
 

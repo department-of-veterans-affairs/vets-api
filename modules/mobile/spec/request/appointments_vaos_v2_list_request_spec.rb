@@ -36,6 +36,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           end
         end
         location = response.parsed_body.dig('data', 0, 'attributes', 'location')
+        physical_location = response.parsed_body.dig('data', 0, 'attributes', 'physicalLocation')
         expect(response.body).to match_json_schema('VAOS_v2_appointments')
         expect(location).to eq({ 'id' => '983',
                                  'name' => 'Cheyenne VA Medical Center',
@@ -51,6 +52,7 @@ RSpec.describe 'vaos v2 appointments', type: :request do
                                      'extension' => nil },
                                  'url' => nil,
                                  'code' => nil })
+        expect(physical_location).to eq('MTZ OPC, LAB')
       end
     end
 
@@ -275,6 +277,39 @@ RSpec.describe 'vaos v2 appointments', type: :request do
           fetch_appointments
           appointment = response.parsed_body['data'].find { |appt| appt['id'] == '76131' }
           expect(appointment['attributes']['healthcareProvider']).to be_nil
+        end
+      end
+    end
+
+    describe 'appointment IEN' do
+      context 'when appointment identifier with the system VistADefinedTerms/409_84 is found' do
+        it 'finds an appointment ien' do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_with_ien_200',
+                               match_requests_on: %i[method uri]) do
+                get '/mobile/v0/appointments', headers: sis_headers, params:
+              end
+            end
+          end
+          appt_ien = response.parsed_body.dig('data', 0, 'attributes', 'appointmentIen')
+          expect(response.body).to match_json_schema('VAOS_v2_appointments')
+          expect(appt_ien).to eq('11461')
+        end
+      end
+
+      context 'when appointment identifier with the system VistADefinedTerms/409_84 is not found' do
+        it 'sets appointment ien to nil' do
+          VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_200', match_requests_on: %i[method uri]) do
+                get '/mobile/v0/appointments', headers: sis_headers, params:
+              end
+            end
+          end
+          appt_ien = response.parsed_body.dig('data', 0, 'attributes', 'appointmentIen')
+          expect(response.body).to match_json_schema('VAOS_v2_appointments')
+          expect(appt_ien).to be_nil
         end
       end
     end

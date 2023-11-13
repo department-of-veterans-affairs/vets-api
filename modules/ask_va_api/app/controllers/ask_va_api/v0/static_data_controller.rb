@@ -7,16 +7,9 @@ module AskVAApi
       around_action :handle_exceptions, except: %i[index]
 
       def index
-        data = {
-          Emily: { 'data-info' => 'emily@oddball.io' },
-          Eddie: { 'data-info' => 'eddie.otero@oddball.io' },
-          Jacob: { 'data-info' => 'jacob@docme360.com' },
-          Joe: { 'data-info' => 'joe.hall@thoughtworks.com' },
-          Khoa: { 'data-info' => 'khoa.nguyen@oddball.io' }
-        }
-        render json: data, status: :ok
-      rescue => e
-        service_exception_handler(e)
+        service = Dynamics::Service.new(sec_id: 'a')
+        data = service.call(endpoint: 'ping')
+        render json: data.to_json, status: :ok
       end
 
       def categories

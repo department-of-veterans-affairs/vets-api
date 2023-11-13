@@ -65,5 +65,5 @@
   "form1[0].#subform[0].Sex1[1]": "<%= data['applicants'][1]&.dig('gender') == 'F' ? 1 : 0 %>", 
   "form1[0].#subform[0].Sex2[0]": "<%= data['applicants'][2]&.dig('gender') == 'M' ? 1 : 0 %>",
   "form1[0].#subform[0].Sex2[1]": "<%= data['applicants'][2]&.dig('gender') == 'F' ? 0 : 1 %>",
-  "form1[0].#subform[0].StaticText3[10]": "<%= data.dig('veteranFullName', 'first') %>  <%= data.dig('veteranFullName', 'last') %>"
+  "form1[0].#subform[0].StaticText3[10]": "<%= data['statement_of_truth_signature'] %>"
 }

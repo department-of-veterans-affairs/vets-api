@@ -14,8 +14,8 @@ module SimpleFormsApi
       {
         'veteranFirstName' => @data.dig('veteran_full_name', 'first'),
         'veteranLastName' => @data.dig('veteran_full_name', 'last'),
-        'fileNumber' => @data.dig('veteran_id', 'va_file_number').presence || @data.dig('veteran_idf', 'ssn'),
-        'zipCode' => @data.dig('veteran_mailing_address', 'postal_code'),
+        'fileNumber' => @data.dig('veteran_id', 'va_file_number').presence || @data.dig('veteran_id', 'ssn'),
+        'zipCode' => @data.dig('veteran_mailing_address', 'postal_code') || '',
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'

@@ -3,6 +3,7 @@ data:
     id: "167525"
     attributes:
       appointmentType: va
+      appointmentIen: "17937"
       cancelId: MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=
       comment: Please arrive 20 minutes before the start of your appointment
       healthcareProvider: null
@@ -22,6 +23,7 @@ data:
           extension: "5696"
         url: null
         code: null
+      physicalLocation: Blind Rehabilitation Center
       minutesDuration: 60
       phoneOnly: false
       startDateLocal: 2019-04-20T14:15:00.000-04:00
@@ -39,7 +41,6 @@ data:
       patient_email: null
       best_time_to_call: null
       friendly_location_name: null
-      appointmentIEN: '123456'
       locationId: '938'
       eCheckinAllowed: false
 meta:

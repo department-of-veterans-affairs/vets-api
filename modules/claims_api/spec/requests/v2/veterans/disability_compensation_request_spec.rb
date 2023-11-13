@@ -54,183 +54,6 @@ RSpec.describe 'Disability Claims', type: :request do
         end
       end
 
-      # real world example happened in API-15575
-      describe "'claim_date' difference between Lighthouse (UTC) and EVSS (Central Time)" do
-        context 'when UTC is currently a day ahead of the US Central Time Zone' do
-          before do
-            Timecop.freeze(Time.parse('2022-05-01 04:46:31 UTC'))
-          end
-
-          after do
-            Timecop.return
-          end
-
-          context "and 'claim_date' is same as the Central Time Zone day" do
-            let(:claim_date) { (Time.zone.today - 1.day).to_s }
-
-            it 'responds with a 200' do
-              mock_ccg(scopes) do |auth_header|
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:accepted)
-              end
-            end
-          end
-
-          context "and 'claim_date' is earlier than the Central Time Zone day" do
-            let(:claim_date) { (Time.zone.today - 7.days).to_s }
-
-            it 'responds with a 200' do
-              mock_ccg(scopes) do |auth_header|
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:accepted)
-              end
-            end
-          end
-
-          context "and 'claim_date' is later than both the Central Time Zone day and UTC day" do
-            let(:claim_date) { (Time.zone.today + 7.days).to_s }
-
-            it 'responds with a bad request' do
-              mock_ccg(scopes) do |auth_header|
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:bad_request)
-              end
-            end
-          end
-        end
-
-        context 'when UTC is same day as the US Central Time Zone day' do
-          before do
-            Timecop.freeze(Time.parse('2023-05-01 12:00:00 UTC'))
-          end
-
-          after do
-            Timecop.return
-          end
-
-          context "and 'claim_date' is the current day" do
-            let(:claim_date) { Time.zone.today.to_s }
-
-            it 'responds with a 200' do
-              mock_ccg(scopes) do |auth_header|
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:accepted)
-              end
-            end
-          end
-
-          context "and 'claim_date' is in the past" do
-            let(:claim_date) { (Time.zone.today - 1.day).to_s }
-
-            it 'responds with a 200' do
-              mock_ccg(scopes) do |auth_header|
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:accepted)
-              end
-            end
-          end
-
-          context "and 'claim_date' is in the future" do
-            let(:claim_date) { (Time.zone.today + 7.days).to_s }
-
-            it 'responds with bad request' do
-              mock_ccg(scopes) do |auth_header|
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:bad_request)
-              end
-            end
-          end
-
-          context "and 'claim_date' has timezone (iso w/Z)" do
-            let(:claim_date) { 1.day.ago.iso8601 }
-
-            it 'responds with a 200' do
-              mock_ccg(scopes) do |auth_header|
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:accepted)
-              end
-            end
-          end
-
-          context "and 'claim_date' has timezone (iso wo/Z)" do
-            let(:claim_date) { 1.day.ago.iso8601.sub('Z', '-00:00') }
-
-            it 'responds with a 200' do
-              mock_ccg(scopes) do |auth_header|
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:accepted)
-              end
-            end
-          end
-
-          context "and 'claim_date' has timezone (iso w/out zone)" do
-            let(:claim_date) { 1.day.ago.iso8601.sub('Z', '') }
-
-            it 'responds with a bad request' do
-              mock_ccg(scopes) do |auth_header|
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
-              end
-            end
-          end
-
-          context "and 'claim_date' has timezone (TZ String)" do
-            let(:claim_date) { 1.day.ago.to_s }
-
-            it 'responds with a 422' do
-              mock_ccg(scopes) do |auth_header|
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
-              end
-            end
-          end
-
-          context "and 'claim_date' has timezone (w/out T)" do
-            let(:claim_date) { 1.day.ago.iso8601.sub('T', ' ') }
-
-            it 'responds with a 422' do
-              mock_ccg(scopes) do |auth_header|
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
-              end
-            end
-          end
-
-          context "and 'claim_date' improperly formatted (hello world)" do
-            let(:claim_date) { 'hello world' }
-
-            it 'responds with bad request' do
-              mock_ccg(scopes) do |auth_header|
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
-              end
-            end
-          end
-
-          context "and 'claim_date' improperly formatted (empty string)" do
-            let(:claim_date) { '' }
-
-            it 'responds with bad request' do
-              mock_ccg(scopes) do |auth_header|
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
-              end
-            end
-          end
-        end
-      end
-
-      context "and 'claim_date' is null" do
-        let(:claim_date) { nil }
-
-        it 'succeeds' do
-          mock_ccg(scopes) do |auth_header|
-            post submit_path, params: data, headers: auth_header
-            expect(response).to have_http_status(:accepted)
-          end
-        end
-      end
-
       describe 'schema catches claimProcessType error' do
         context 'when something other than an enum option is used' do
           let(:claim_process_type) { 'claim_test' }
@@ -2501,7 +2324,7 @@ RSpec.describe 'Disability Claims', type: :request do
           context 'when approximateDate is formatted YYYY' do
             let(:approximate_date) { (Time.zone.today - 1.month).strftime('%Y') }
 
-            it 'responds with a 422' do
+            it 'responds with a 202' do
               mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
@@ -2515,13 +2338,52 @@ RSpec.describe 'Disability Claims', type: :request do
           context 'when approximateDate is null' do
             let(:approximate_date) { nil }
 
-            it 'responds with a 422' do
+            it 'responds with a 202' do
               mock_ccg(scopes) do |auth_header|
                 json_data = JSON.parse data
                 params = json_data
                 params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
                 post submit_path, params: params.to_json, headers: auth_header
                 expect(response).to have_http_status(:accepted)
+              end
+            end
+          end
+
+          # real world example see API-31426
+          context 'when approximateDate contains the name of the month as a string' do
+            let(:approximate_date) { 'July 2017' }
+
+            it 'responds with a 422' do
+              mock_ccg(scopes) do |auth_header|
+                json_data = JSON.parse data
+                params = json_data
+                params['data']['attributes']['disabilities'][0]['approximateDate'] = approximate_date
+                post submit_path, params: params.to_json, headers: auth_header
+                expect(response).to have_http_status(:unprocessable_entity)
+              end
+            end
+          end
+        end
+
+        describe "'disabilities.serviceRelevance' validations" do
+          context "when 'disabilites.disabilityActionType' equals 'NEW'" do
+            context "and 'disabilities.serviceRelevance' is not provided" do
+              it 'responds with a 422' do
+                mock_ccg(scopes) do |auth_header|
+                  json_data = JSON.parse data
+                  params = json_data
+                  disabilities = [
+                    {
+                      diagnosticCode: 123,
+                      disabilityActionType: 'NEW',
+                      serviceRelevance: '',
+                      name: 'PTSD (post traumatic stress disorder)'
+                    }
+                  ]
+                  params['data']['attributes']['disabilities'] = disabilities
+                  post submit_path, params: params.to_json, headers: auth_header
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
               end
             end
           end
@@ -2779,6 +2641,33 @@ RSpec.describe 'Disability Claims', type: :request do
             end
           end
 
+          # real world example see API-31426
+          it 'raises an exception if date includes the name of the month' do
+            mock_ccg(scopes) do |auth_header|
+              json_data = JSON.parse data
+              params = json_data
+              disabilities = [
+                {
+                  disabilityActionType: 'NONE',
+                  name: 'PTSD (post traumatic stress disorder)',
+                  diagnosticCode: 9999,
+                  serviceRelevance: 'Heavy equipment operator in service.',
+                  secondaryDisabilities: [
+                    {
+                      disabilityActionType: 'SECONDARY',
+                      name: 'PTSD',
+                      serviceRelevance: 'Caused by a service-connected disability.',
+                      approximateDate: 'July 2017'
+                    }
+                  ]
+                }
+              ]
+              params['data']['attributes']['disabilities'] = disabilities
+              post submit_path, params: params.to_json, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
+          end
+
           it 'returns ok if date is approximate and in the past' do
             mock_ccg(scopes) do |auth_header|
               json_data = JSON.parse data
@@ -2833,7 +2722,7 @@ RSpec.describe 'Disability Claims', type: :request do
                       disabilityActionType: 'SECONDARY',
                       name: 'PTSD',
                       serviceRelevance: 'Caused by a service-connected disability.',
-                      approximateDate: "01-#{Time.zone.now.year + 1}"
+                      approximateDate: "#{Time.zone.now.year + 1}-01"
                     }
                   ]
                 }
