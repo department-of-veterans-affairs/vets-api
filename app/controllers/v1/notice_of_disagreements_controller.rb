@@ -2,6 +2,8 @@
 
 module V1
   class NoticeOfDisagreementsController < AppealsBaseControllerV1
+    service_tag 'board-appeal'
+
     def show
       render json: decision_review_service.get_notice_of_disagreement(params[:id]).body
     rescue => e
