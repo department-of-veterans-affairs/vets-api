@@ -3,6 +3,8 @@
 module V1
   module SupplementalClaims
     class ContestableIssuesController < AppealsBaseControllerV1
+      service_tag 'appeal-application'
+
       def index
         ci = decision_review_service
              .get_supplemental_claim_contestable_issues(user: current_user, benefit_type: params[:benefit_type])

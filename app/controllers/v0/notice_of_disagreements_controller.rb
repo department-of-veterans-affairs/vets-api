@@ -2,6 +2,7 @@
 
 module V0
   class NoticeOfDisagreementsController < AppealsBaseController
+    service_tag 'board-appeal'
     def create
       nod_response_body = AppealSubmission.submit_nod(current_user: @current_user, request_body_hash:)
       render json: nod_response_body

@@ -6,6 +6,7 @@ require 'decision_review_v1/utilities/helpers'
 module V1
   class SupplementalClaimsController < AppealsBaseControllerV1
     include DecisionReviewV1::Appeals::Helpers
+    service_tag 'appeal-application'
 
     def show
       render json: decision_review_service.get_supplemental_claim(params[:id]).body
