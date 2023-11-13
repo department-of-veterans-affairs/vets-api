@@ -68,26 +68,30 @@ module VBADocuments
           store = VBADocuments::ObjectStore.new
           raise Common::Exceptions::RecordNotFound, upload_id unless upload && store.bucket.object(upload.guid).exists?
 
-          log_details = { 'job' => self.class.name }.merge(upload.as_json)
-
           if upload.status.eql?('pending')
-            Rails.logger.info("VBADocuments: Started processing #{upload.class.name.demodulize} from S3", log_details)
+            Rails.logger.info("VBADocuments: Started processing #{upload.class.name.demodulize} from S3",
+                              log_details(upload))
 
             upload.update!(status: 'uploaded')
 
             Rails.logger.info("VBADocuments: #{upload.class.name.demodulize} progressed to \"uploaded\" status",
-                              log_details)
+                              log_details(upload))
 
             # Appeals evidence is processed at a later time (after the appeal reaches a "success" status)
             return if upload.appeals_consumer? && Flipper.enabled?(:decision_review_delay_evidence)
 
             VBADocuments::UploadProcessor.perform_async(upload_id, caller: self.class.name)
 
-            Rails.logger.info("VBADocuments: Finished processing #{upload.class.name.demodulize} from S3", log_details)
+            Rails.logger.info("VBADocuments: Finished processing #{upload.class.name.demodulize} from S3",
+                              log_details(upload))
           else
             Rails.logger.info("VBADocuments: upload_complete_controller late/duplicate notification: #{upload.inspect}",
-                              log_details)
+                              log_details(upload))
           end
+        end
+
+        def log_details(upload)
+          { 'job' => self.class.name }.merge(upload.as_json)
         end
       end
     end

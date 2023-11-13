@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'sidekiq/monitored_worker'
 
 # Ensures that appeal evidence received "late" (i.e. after the appeal itself has
 # reached "success," "complete," or "error" status) is submitted to Central Mail
 module AppealsApi
   class EvidenceSubmissionBackup
     include Sidekiq::Job
+    include Sidekiq::MonitoredWorker
 
-    # No need to retry since the schedule will run this every hour
-    sidekiq_options retry: false
+    # Only retry for ~30 minutes since this job runs every hour
+    sidekiq_options retry: 5
 
     APPEAL_TYPES = [NoticeOfDisagreement.name, SupplementalClaim.name].freeze
     APPEAL_STATUSES = %w[success complete error].freeze
@@ -22,6 +24,14 @@ module AppealsApi
 
     def evidence_to_submit
       preloaded_evidence_submissions.select { |es| APPEAL_STATUSES.include?(es.supportable.status) }
+    end
+
+    def retry_limits_for_notification
+      [5]
+    end
+
+    def notify(retry_params)
+      AppealsApi::Slack::Messager.new(retry_params, notification_type: :error_retry).notify!
     end
 
     private
