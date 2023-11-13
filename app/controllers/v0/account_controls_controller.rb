@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module V0
-  class AccountControlsController < ApplicationController
+  class AccountControlsController < SignIn::ApplicationController
     skip_before_action :authenticate, :verify_authenticity_token
     before_action :authenticate_service_account
 
