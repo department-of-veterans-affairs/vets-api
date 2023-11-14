@@ -6,6 +6,7 @@ require 'evss/pciu_address/response_strategy'
 
 module V0
   class AddressesController < ApplicationController
+    service_tag 'deprecated'
     before_action { authorize :evss, :access? }
 
     def show
