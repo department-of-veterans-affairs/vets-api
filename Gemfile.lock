@@ -463,7 +463,7 @@ GEM
       sanitize (< 7)
     foreman (0.87.2)
     formatador (1.1.0)
-    fugit (1.8.1)
+    fugit (1.9.0)
       et-orbi (~> 1, >= 1.2.7)
       raabro (~> 1.4)
     fuubar (2.5.1)
@@ -478,7 +478,7 @@ GEM
     google-api-client (0.53.0)
       google-apis-core (~> 0.1)
       google-apis-generator (~> 0.1)
-    google-apis-core (0.11.1)
+    google-apis-core (0.11.2)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (>= 0.16.2, < 2.a)
       httpclient (>= 2.8.1, < 3.a)
@@ -487,8 +487,8 @@ GEM
       retriable (>= 2.0, < 4.a)
       rexml
       webrick
-    google-apis-discovery_v1 (0.13.0)
-      google-apis-core (>= 0.9.1, < 2.a)
+    google-apis-discovery_v1 (0.14.0)
+      google-apis-core (>= 0.11.0, < 2.a)
     google-apis-generator (0.12.0)
       activesupport (>= 5.0)
       gems (~> 1.2)
