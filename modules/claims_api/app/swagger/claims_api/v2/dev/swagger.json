@@ -2120,7 +2120,7 @@
                                           "type": "string",
                                           "description": "What caused the disability?",
                                           "nullable": true,
-                                          "examples": [
+                                          "example": [
                                             "Agent Orange",
                                             "radiation",
                                             "burn pits"
@@ -2140,7 +2140,7 @@
                                     "type": "string",
                                     "description": "What caused the disability?",
                                     "nullable": true,
-                                    "examples": [
+                                    "example": [
                                       "Agent Orange",
                                       "radiation",
                                       "burn pits"
@@ -2377,7 +2377,7 @@
                                   "items": {
                                     "type": "string",
                                     "additionalProperties": false,
-                                    "examples": [
+                                    "example": [
                                       "jane",
                                       "janey lee",
                                       "jane lee MacDonald"
@@ -3175,7 +3175,7 @@
                                         "type": "string",
                                         "description": "What caused the disability?",
                                         "nullable": true,
-                                        "examples": [
+                                        "example": [
                                           "Agent Orange",
                                           "radiation",
                                           "burn pits"
@@ -3195,7 +3195,7 @@
                                   "type": "string",
                                   "description": "What caused the disability?",
                                   "nullable": true,
-                                  "examples": [
+                                  "example": [
                                     "Agent Orange",
                                     "radiation",
                                     "burn pits"
@@ -3432,7 +3432,7 @@
                                 "items": {
                                   "type": "string",
                                   "additionalProperties": false,
-                                  "examples": [
+                                  "example": [
                                     "jane",
                                     "janey lee",
                                     "jane lee MacDonald"
@@ -4643,7 +4643,7 @@
                                         "type": "string",
                                         "description": "What caused the disability?",
                                         "nullable": true,
-                                        "examples": [
+                                        "example": [
                                           "Agent Orange",
                                           "radiation",
                                           "burn pits"
@@ -4663,7 +4663,7 @@
                                   "type": "string",
                                   "description": "What caused the disability?",
                                   "nullable": true,
-                                  "examples": [
+                                  "example": [
                                     "Agent Orange",
                                     "radiation",
                                     "burn pits"
@@ -4900,7 +4900,7 @@
                                 "items": {
                                   "type": "string",
                                   "additionalProperties": false,
-                                  "examples": [
+                                  "example": [
                                     "jane",
                                     "janey lee",
                                     "jane lee MacDonald"

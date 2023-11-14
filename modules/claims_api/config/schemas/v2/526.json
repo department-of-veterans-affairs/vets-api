@@ -566,7 +566,7 @@
                   "type": ["string", "null"],
                   "description": "What caused the disability?",
                   "nullable": true,
-                  "examples": ["Agent Orange", "radiation", "burn pits"]
+                  "example": ["Agent Orange", "radiation", "burn pits"]
                 }
               }
             }
@@ -582,7 +582,7 @@
             "type": ["string", "null"],
             "description": "What caused the disability?",
             "nullable": true,
-            "examples": ["Agent Orange", "radiation", "burn pits"]
+            "example": ["Agent Orange", "radiation", "burn pits"]
           }
         }
       }
@@ -797,7 +797,7 @@
           "items": {
             "type": "string",
             "additionalProperties": false,
-            "examples": ["jane", "janey lee", "jane lee MacDonald"]
+            "example": ["jane", "janey lee", "jane lee MacDonald"]
           }
         },
         "servedInActiveCombatSince911": {
