@@ -1,7 +1,8 @@
 {
     "personal_identification": {
         "ssn": "1234",
-        "file_number": "5678"
+        "file_number": "5678",
+        "fsr_reason": "waiver"
     },
     "personal_data": {
         "veteran_full_name": {
@@ -224,11 +225,18 @@
             }
         },
         {
-            "debt_type": "DEBT",
-            "deduction_code": "30",
-            "resolution_comment": "50",
-            "resolution_option": "monthly",
-            "current_ar": "300"
+            "current_ar":"541.67",
+            "debt_type":"DEBT",
+            "deduction_code":"71",
+            "resolution_comment":"50",
+            "resolution_option": "monthly"
+        },
+        {
+            "current_ar":"1134.22",
+            "debt_type":"DEBT",
+            "deduction_code":"72",
+            "resolution_comment":"",
+            "resolution_option": "waiver"
         }
     ]
 }

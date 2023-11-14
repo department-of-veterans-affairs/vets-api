@@ -1,7 +1,8 @@
 {
     "personal_identification": {
         "ssn": "1234",
-        "file_number": "5678"
+        "file_number": "5678",
+        "fsr_reason": ""
     },
     "personal_data": {
         "veteran_full_name": {
