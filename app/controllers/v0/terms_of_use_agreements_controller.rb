@@ -33,11 +33,35 @@ module V0
       render_error(e.message)
     end
 
+    def update_provisioning
+      provisioner = TermsOfUse::Provisioner.new(icn: current_user.icn,
+                                                first_name: current_user.first_name,
+                                                last_name: current_user.last_name,
+                                                mpi_gcids: current_user.mpi_gcids)
+      if provisioner.perform
+        create_cerner_cookie
+        render json: { provisioned: true }, status: :ok
+      else
+        render_error('Failed to provision')
+      end
+    rescue TermsOfUse::Errors::ProvisionerError => e
+      render_error(e.message)
+    end
+
     private
 
     def recache_user
       current_user.needs_accepted_terms_of_use = current_user.user_account&.needs_accepted_terms_of_use?
       current_user.save
+    end
+
+    def create_cerner_cookie
+      cookies[TermsOfUse::Constants::PROVISIONER_COOKIE_NAME] = {
+        value: TermsOfUse::Constants::PROVISIONER_COOKIE_VALUE,
+        expires: TermsOfUse::Constants::PROVISIONER_COOKIE_EXPIRATION.from_now,
+        path: TermsOfUse::Constants::PROVISIONER_COOKIE_PATH,
+        domain: Settings.terms_of_use.provisioner_cookie_domain
+      }
     end
 
     def get_terms_of_use_agreements_for_version(version)

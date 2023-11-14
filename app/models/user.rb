@@ -282,6 +282,10 @@ class User < Common::RedisStore
     mpi_profile&.vha_facility_hash || {}
   end
 
+  def mpi_gcids
+    mpi_profile&.full_mvi_ids || []
+  end
+
   # MPI setter methods
 
   def set_mhv_ids(mhv_id)
