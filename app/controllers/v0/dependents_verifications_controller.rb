@@ -2,6 +2,8 @@
 
 module V0
   class DependentsVerificationsController < ApplicationController
+    service_tag 'dependency-verification'
+
     def index
       dependents = dependency_verification_service.read_diaries
 
