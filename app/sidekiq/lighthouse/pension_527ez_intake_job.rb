@@ -27,7 +27,7 @@ class Lighthouse::PensionBenefitIntakeJob
     response = lighthouse_service.upload_form(
       main_document: split_file_and_path(form_path),
       attachments: attachment_paths.map(&method(:split_file_and_path)),
-      form_metadata: generate_metadata_lh
+      form_metadata: generate_form_metadata_lh
     )
     Rails.logger.info({ message: 'PensionBenefitIntakeJob Complete', claim_id: claim.id, uuid: lighthouse_service.uuid})
 
@@ -54,13 +54,15 @@ class Lighthouse::PensionBenefitIntakeJob
     { file: path, file_name: path.split('/').last }
   end
 
-  def generate_metadata_lh
-    form = claim.parsed_form
-    address = form['veteran_contact_information']['veteran_address']
+  def generate_form_metadata_lh
+    form = @claim.parsed_form
+    veteran_full_name = form['veteranFullName']
+    address = form['claimantAddress'] || form['veteranAddress']
+
     {
-      veteran_first_name: form['veteran_information']['full_name']['first'],
-      veteran_last_name: form['veteran_information']['full_name']['last'],
-      file_number: form['veteran_information']['file_number'] || form['veteran_information']['ssn'],
+      veteran_first_name: veteran_full_name['first'],
+      veteran_last_name: veteran_full_name['last'],
+      file_number: form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
       zip: address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
       doc_type: claim.form_id,
       claim_date: claim.created_at
