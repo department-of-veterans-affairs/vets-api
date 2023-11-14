@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'form1010_ezr/service'
 
 RSpec.describe 'Form1010 Ezrs', type: :request do
   let(:form) do

@@ -2,6 +2,8 @@
 
 module V1
   class HigherLevelReviewsController < AppealsBaseControllerV1
+    service_tag 'higher-level-review'
+
     def show
       render json: decision_review_service.get_higher_level_review(params[:id]).body
     rescue => e

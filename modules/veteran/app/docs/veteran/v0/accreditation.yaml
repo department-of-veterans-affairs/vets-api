@@ -83,9 +83,11 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                  - $ref: '#/components/schemas/SuccessfulOrganizationSearch'
-                  - $ref: '#/components/schemas/SuccessfulRepresentativeSearch'
+                type: array
+                items:
+                  oneOf:
+                    - $ref: '#/components/schemas/SuccessfulOrganizationSearch'
+                    - $ref: '#/components/schemas/SuccessfulRepresentativeSearch'
         '400':
           description: Bad request
           content:
@@ -208,7 +210,7 @@ components:
           example: 'A12'
         type:
           type: string
-          example: 'veteran_service_organization'
+          example: 'veteran_service_organizations'
         attributes:
           type: object
           properties:
