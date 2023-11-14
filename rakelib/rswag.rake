@@ -110,8 +110,8 @@ def format_for_swagger(version, env = nil)
   swagger_file_path = ClaimsApi::Engine.root.join(path)
   oas = JSON.parse(File.read(swagger_file_path.to_s))
 
-  remove_base_path(oas)
-  clear_null_types(oas) if version == 'v2'
+  remove_base_path!(oas)
+  clear_null_types!(oas) if version == 'v2'
   File.write(swagger_file_path, JSON.pretty_generate(oas))
 end
 
