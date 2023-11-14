@@ -1807,7 +1807,7 @@
                                     "homelessSituationOptions": {
                                       "description": "Current state of the veteran's homelessness.",
                                       "type": "string",
-                                      "default": "other",
+                                      "default": "OTHER",
                                       "enum": [
                                         "LIVING_IN_A_HOMELESS_SHELTER",
                                         "NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT",
@@ -2861,7 +2861,7 @@
                                   "homelessSituationOptions": {
                                     "description": "Current state of the veteran's homelessness.",
                                     "type": "string",
-                                    "default": "other",
+                                    "default": "OTHER",
                                     "enum": [
                                       "LIVING_IN_A_HOMELESS_SHELTER",
                                       "NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT",
@@ -4328,7 +4328,7 @@
                                   "homelessSituationOptions": {
                                     "description": "Current state of the veteran's homelessness.",
                                     "type": "string",
-                                    "default": "other",
+                                    "default": "OTHER",
                                     "enum": [
                                       "LIVING_IN_A_HOMELESS_SHELTER",
                                       "NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT",
