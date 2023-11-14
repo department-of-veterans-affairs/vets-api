@@ -111,7 +111,10 @@ def format_for_swagger(version, env = nil)
   oas = JSON.parse(File.read(swagger_file_path.to_s))
 
   remove_base_path!(oas)
-  clear_null_types!(oas) if version == 'v2'
+  if version == 'v2'
+    clear_null_types!(oas)
+    remove_dollar_schema!(oas)
+  end
   File.write(swagger_file_path, JSON.pretty_generate(oas))
 end
 
@@ -145,6 +148,17 @@ def clear_null_types!(data)
     if k == 'type' && v.is_a?(Array) && root[0] == 'paths'
       r = v.excluding('null')
       r.size > 1 ? r : r[0]
+    else
+      v
+    end
+  end
+  data.replace deep_transform(data, transformer:)
+end
+
+def remove_dollar_schema!(data)
+  transformer = lambda do |k, v, root|
+    if k == 'attributes' && v.is_a?(Hash) && root[0] == 'paths'
+      v.except('$schema')
     else
       v
     end

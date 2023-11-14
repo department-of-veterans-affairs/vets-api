@@ -2585,7 +2585,6 @@
                     ],
                     "properties": {
                       "attributes": {
-                        "$schema": "http://json-schema.org/draft-07/schema#",
                         "description": "Claims API 526 Schema",
                         "type": "object",
                         "additionalProperties": false,
@@ -4054,7 +4053,6 @@
                     ],
                     "properties": {
                       "attributes": {
-                        "$schema": "http://json-schema.org/draft-07/schema#",
                         "description": "Claims API 526 Schema",
                         "type": "object",
                         "additionalProperties": false,
