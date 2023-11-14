@@ -164,5 +164,44 @@ module SwaggerSharedComponents
         }
       }
     end
+
+    def self.schemas # rubocop:disable Metrics/MethodLength
+      disability_compensation_json_schema = JSON.parse(
+        File.read(
+          Rails.root.join(
+            'modules',
+            'claims_api',
+            'config',
+            'schemas',
+            'v2',
+            '526.json'
+          )
+        )
+      )
+
+      {
+        disability_compensation: {
+          name: 'data',
+          required: ['data'],
+          properties: {
+            data: {
+              type: :object,
+              required: %w[id type attributes],
+              properties: {
+                id: {
+                  type: 'string',
+                  example: '7d0de77e-b7bd-4db7-a8d9-69a25482c80a'
+                },
+                type: {
+                  type: 'string',
+                  example: 'form/526'
+                },
+                attributes: disability_compensation_json_schema.except('$schema')
+              }
+            }
+          }
+        }
+      }
+    end
   end
 end
