@@ -145,7 +145,6 @@ Rails/HasManyOrHasOneDependent:
     - "app/models/education_benefits_claim.rb"
     - "app/models/saved_claim/education_benefits.rb"
     - "app/models/saved_claim.rb"
-    - "app/models/terms_and_conditions.rb"
 
 # The suggestions here don't seem to make sense in most cases. Skip for now.
 Naming/MemoizedInstanceVariableName:
