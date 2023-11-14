@@ -23,7 +23,8 @@ RSpec.describe Mobile::V0::ServiceGraph, type: :model do
       %i[mhv auth_mhv],
       %i[mhv secure_messaging],
       %i[vaos appointments],
-      %i[vet360 user_profile_update]
+      %i[vet360 user_profile_update],
+      %i[eoas preneed_burial]
     )
   end
 
@@ -33,7 +34,7 @@ RSpec.describe Mobile::V0::ServiceGraph, type: :model do
     end
 
     it 'adds multiple service nodes to the list' do
-      expect(subject.services.size).to eq(24)
+      expect(subject.services.size).to eq(26)
     end
   end
 
