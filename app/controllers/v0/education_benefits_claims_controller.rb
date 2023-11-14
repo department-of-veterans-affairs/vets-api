@@ -2,6 +2,7 @@
 
 module V0
   class EducationBenefitsClaimsController < ApplicationController
+    service_tag 'education-forms'
     skip_before_action(:authenticate)
     before_action :load_user
 

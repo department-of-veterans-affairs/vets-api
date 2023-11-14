@@ -3,6 +3,7 @@
 module MebApi
   module V0
     class ApidocsController < ApplicationController
+      service_tag 'education-benefits'
       skip_before_action(:authenticate)
 
       def index

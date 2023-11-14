@@ -10,6 +10,7 @@ module V0
   class Post911GIBillStatusesController < ApplicationController
     include IgnoreNotFound
     include SentryLogging
+    service_tag 'gibill-statement'
 
     before_action { authorize :evss, :access? }
     before_action :service_available?, only: :show
