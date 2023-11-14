@@ -14,7 +14,7 @@ module AskVAApi
         if current_user&.email&.match?(/vets\.gov\.user\+228/) == true
           render json: data, status: :ok and return
         else
-          render json: { error: 'You do not have access to this resource.' }, status: '403' and return
+          render json: { error: 'You do not have access to this resource.' }, status: :forbidden and return
         end
       rescue => e
         service_exception_handler(e)
