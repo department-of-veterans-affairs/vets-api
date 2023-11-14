@@ -83,7 +83,7 @@ module ClaimsApi
           return itf_response if itf.nil?
 
           temp = itf.deep_transform_keys(&:underscore)
-          &.deep_symbolize_keys
+                    &.deep_symbolize_keys
           itf_response.push(temp)
         end
         return itf_response
