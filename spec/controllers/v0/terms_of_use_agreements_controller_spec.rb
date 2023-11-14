@@ -278,4 +278,50 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
       end
     end
   end
+
+  describe 'PUT #update_provisioning' do
+    subject { put :update_provisioning }
+
+    context 'when user is authenticated with a session token' do
+      let(:mpi_profile) { build(:mpi_profile) }
+      let(:user) { build(:user, :loa3, mpi_profile:) }
+      let(:provisioned) { true }
+      let(:provisioner) { instance_double(TermsOfUse::Provisioner, perform: provisioned) }
+
+      before do
+        sign_in(user)
+        allow(TermsOfUse::Provisioner).to receive(:new).and_return(provisioner)
+      end
+
+      context 'when the provisioning is successful' do
+        it 'returns ok status and sets the cerner cookie' do
+          subject
+          expect(response).to have_http_status(:ok)
+          expect(cookies['CERNER_CONSENT']).to eq('ACCEPTED')
+        end
+      end
+
+      context 'when the provisioning is not successful' do
+        let(:provisioned) { false }
+
+        it 'returns unprocessable_entity status and does not set the cookie' do
+          subject
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(cookies['CERNER_CONSENT']).to be_nil
+        end
+      end
+
+      context 'when the provisioning raises an error' do
+        before do
+          allow(provisioner).to receive(:perform).and_raise(TermsOfUse::Errors::ProvisionerError)
+        end
+
+        it 'returns unprocessable_entity status and does not set the cookie' do
+          subject
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(cookies['CERNER_CONSENT']).to be_nil
+        end
+      end
+    end
+  end
 end
