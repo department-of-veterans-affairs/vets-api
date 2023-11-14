@@ -1,2 +1,2 @@
 1. Your application URL is:
-  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .Values.domainName }}
+  https://{{ .Values.domainName }}

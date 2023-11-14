@@ -21,6 +21,8 @@ spec:
           env:
             - name: "Settings.database_url"
               value: "{{ .Values.databaseUrl }}"
+            - name: "BUNDLE_ENTERPRISE__CONTRIBSYS__COM"
+              value: "{{ .Values.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}"
           ports:
             - name: http
               containerPort: 3000
